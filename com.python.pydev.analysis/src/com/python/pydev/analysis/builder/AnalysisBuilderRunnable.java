@@ -34,27 +34,27 @@ import com.python.pydev.analysis.messages.IMessage;
  * 
  * @author Fabio
  */
-public class AnalysisBuilderThread extends Thread{
+public class AnalysisBuilderRunnable implements Runnable{
     
     /**
      * Field that should know all the threads.
      */
-    private static Map<String, AnalysisBuilderThread> availableThreads;
+    private static Map<String, AnalysisBuilderRunnable> availableThreads;
     
     /**
      * @return Returns the availableThreads.
      */
-    private static Map<String, AnalysisBuilderThread> getAvailableThreads() {
+    private static Map<String, AnalysisBuilderRunnable> getAvailableThreads() {
         if(availableThreads == null){
-            availableThreads = Collections.synchronizedMap(new HashMap<String, AnalysisBuilderThread>());
+            availableThreads = Collections.synchronizedMap(new HashMap<String, AnalysisBuilderRunnable>());
         }
         return availableThreads;
     }
     
     private void removeFromThreads() {
-        Map<String, AnalysisBuilderThread> available = getAvailableThreads();
+        Map<String, AnalysisBuilderRunnable> available = getAvailableThreads();
         synchronized(available){
-            AnalysisBuilderThread analysisBuilderThread = available.get(moduleName);
+            AnalysisBuilderRunnable analysisBuilderThread = available.get(moduleName);
             if(analysisBuilderThread == this){
                 available.remove(moduleName);
             }
@@ -69,19 +69,21 @@ public class AnalysisBuilderThread extends Thread{
      * @param moduleName the name of the module
      * @return a builder thread.
      */
-    public static synchronized AnalysisBuilderThread createThread(IDocument document, IResource resource, IModule module, boolean analyzeDependent, IProgressMonitor monitor, boolean isFullBuild, String moduleName){
-        Map<String, AnalysisBuilderThread> available = getAvailableThreads();
+    public static synchronized AnalysisBuilderRunnable createRunnable(IDocument document, IResource resource, IModule module, boolean analyzeDependent, IProgressMonitor monitor, boolean isFullBuild, String moduleName){
+        Map<String, AnalysisBuilderRunnable> available = getAvailableThreads();
         synchronized(available){
-            AnalysisBuilderThread analysisBuilderThread = available.get(moduleName);
+            AnalysisBuilderRunnable analysisBuilderThread = available.get(moduleName);
             if(analysisBuilderThread != null){
                 //there is some existing thread that we have to stop to create the new one
                 analysisBuilderThread.stopAnalysis();
             }
-            analysisBuilderThread = new AnalysisBuilderThread(document, resource, module, analyzeDependent, monitor, isFullBuild, moduleName);
+            analysisBuilderThread = new AnalysisBuilderRunnable(document, resource, module, analyzeDependent, monitor, isFullBuild, moduleName);
             available.put(moduleName, analysisBuilderThread);
             return analysisBuilderThread;
         }
     }
+    
+    // -------------------------------------------------------------------------------------------- ATTRIBUTES
 
     private IDocument document;
     private WeakReference<IResource> resource;
@@ -92,9 +94,10 @@ public class AnalysisBuilderThread extends Thread{
     private boolean isFullBuild;
     private String moduleName;
     
-    public AnalysisBuilderThread(IDocument document, IResource resource, IModule module, boolean analyzeDependent, IProgressMonitor monitor, boolean isFullBuild, String moduleName) {
-    	this.setPriority(Thread.MIN_PRIORITY);
-    	this.setName("AnalysisBuilderThread :"+moduleName);
+    // ---------------------------------------------------------------------------------------- END ATTRIBUTES
+    
+    
+    public AnalysisBuilderRunnable(IDocument document, IResource resource, IModule module, boolean analyzeDependent, IProgressMonitor monitor, boolean isFullBuild, String moduleName) {
         this.document = document;
         this.resource = new WeakReference<IResource>(resource);
         this.module = module;
@@ -124,7 +127,6 @@ public class AnalysisBuilderThread extends Thread{
         }
     }
     
-    @Override
     public void run() {
         doAnalysis();
     }

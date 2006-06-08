@@ -74,10 +74,13 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
             setModuleInCache(module);
         }
         String moduleName = getModuleName(resource);
-        AnalysisBuilderThread thread = AnalysisBuilderThread.createThread(document, resource, module, analyzeDependent, monitor, isFullBuild(), moduleName);
+        AnalysisBuilderRunnable runnable = AnalysisBuilderRunnable.createRunnable(document, resource, module, analyzeDependent, monitor, isFullBuild(), moduleName);
         if(isFullBuild()){
-        	thread.run();
+        	runnable.run();
         }else{
+        	Thread thread = new Thread(runnable);
+        	thread.setPriority(Thread.MIN_PRIORITY);
+        	thread.setName("AnalysisBuilderThread :"+moduleName);
         	thread.start();
         }
     }
