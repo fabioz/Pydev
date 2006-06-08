@@ -7,6 +7,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FilenameFilter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -23,6 +24,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -46,21 +48,15 @@ public class PythonPathHelper implements Serializable{
      * @param acceptPoint says if we can have dots in the str that has the path to be analyzed
      * @return a trimmed string with all the '\' converted to '/'
      */
-    public String getDefaultPathStr(String str, boolean acceptPoint){
+    public String getDefaultPathStr(String str){
     	//this check is no longer done... could result in other problems
 		// if(acceptPoint == false && str.indexOf(".") == 0){ //cannot start with a dot
 		// 		throw new RuntimeException("The pythonpath can only have absolute paths (cannot start with '.', therefore, the path: '"+str+"' is not valid.");
 		// }
-        File file = new File(str);
-        if(file.exists()){
-            str = REF.getFileAbsolutePath(file);
-        }
-        return str.trim().replaceAll("\\\\","/");
+    	return StringUtils.replaceAllSlashes(str.trim());
     }
     
-    public String getDefaultPathStr(String str){
-        return getDefaultPathStr(str, true);
-    }
+    
     
     /**
      * This method returns all modules that can be obtained from a root File.
@@ -228,16 +224,17 @@ public class PythonPathHelper implements Serializable{
      * @param module - this is the full path of the module. Only for directories or py,pyd,dll,pyo files.
      * @return a String with the module that the file or folder should represent. E.g.: compiler.ast
      */
-    public String resolveModule(String fullPath, boolean requireFileToExist){
-        fullPath = getDefaultPathStr(fullPath, true);
-        File moduleFile = new File(fullPath);
+    public String resolveModule(String fullPath, final boolean requireFileToExist){
+        fullPath = getDefaultPathStr(fullPath);
+        final File moduleFile = new File(fullPath);
         
         if(requireFileToExist){
 	        if(moduleFile.exists() == false){
 	            return null;
 	        }
         }
-        if(moduleFile.isFile()){
+        boolean isFile = moduleFile.isFile();
+		if(isFile){
             
             if(isValidFileMod(REF.getFileAbsolutePath(moduleFile)) == false){
                 return null;
@@ -268,7 +265,7 @@ public class PythonPathHelper implements Serializable{
                         //we have to go and see if all the folders to that module have __init__.py in it...
                         String[] modulesParts = FullRepIterable.dotSplit(s);
                         
-                        if(modulesParts.length > 1 && moduleFile.isFile()){
+                        if(modulesParts.length > 1 && isFile){
                             String[] t = new String[modulesParts.length -1];
                             
                             for (int i = 0; i < modulesParts.length-1; i++) {
@@ -286,17 +283,16 @@ public class PythonPathHelper implements Serializable{
                         //chars as the full path passed in.
                         boolean isValid = true;
                         for (int i = 0; i < modulesParts.length && root != null; i++) {
-                            
+                        	root = new File(REF.getFileAbsolutePath(root) + "/" + modulesParts[i]);
+                        	
                             //check if file is in root...
                             if(isValidFileMod(modulesParts[i])){
-                                root = new File(REF.getFileAbsolutePath(root) + "/" + modulesParts[i]);
                                 if(root.exists() && root.isFile()){
                                     break;
                                 }
                                 
                             }else{
                                 //this part is a folder part... check if it is a valid module (has init).
-	                            root = new File(REF.getFileAbsolutePath(root) + "/" + modulesParts[i]);
 	                            if(isFileOrFolderWithInit(root) == false){
 	                                isValid = false;
 	                                break;
@@ -305,7 +301,7 @@ public class PythonPathHelper implements Serializable{
                             }                            
                         }
                         if(isValid){
-                            if(moduleFile.isFile()){
+                            if(isFile){
                                 s = stripExtension(s);
                             }else if(moduleFile.exists() == false){
                             	//ok, it does not exist, so isFile will not work, let's just check if it is
@@ -318,7 +314,7 @@ public class PythonPathHelper implements Serializable{
                         }
                     }else{
                         //simple part, we don't have to go into subfolders to check validity...
-                        if(moduleFile.isFile()){
+                        if(isFile){
                             throw new RuntimeException("This should never happen... if it is a file, it always has a dot, so, this should not happen...");
                         }else if (moduleFile.isDirectory() && isFileOrFolderWithInit(moduleFile) == false){
                             return null;
@@ -367,26 +363,22 @@ public class PythonPathHelper implements Serializable{
      * @return true if it is a folder with an __init__ python file
      */
     private boolean isFileOrFolderWithInit(File root) {
-        if(root.isDirectory() == false){
-            return true;
+        //check for an __init__ in a dir (we do not check if it is a file, becase if it is, it should return null)
+        String[] items = root.list(new FilenameFilter(){
+
+			public boolean accept(File dir, String name) {
+				if(isValidInitFile(name)){
+					return true;
+				}
+				return false;
+			}
+        	
+        });
+        if(items == null || items.length < 1){
+        	return false;
         }
         
-        File[] files = root.listFiles();
-        
-        if(files == null){
-            return false;
-        }
-        
-        //check for an __init__ file
-        String[] items = root.list();
-        for (int j = 0; j < items.length; j++) {
-            String item = items[j];
-			if(isValidInitFile(item)){
-                return true;
-            }
-        }
-        
-        return false;
+        return true;
     }
 
     /**

@@ -3,6 +3,7 @@
  */
 package org.python.pydev.core.docutils;
 
+
 public class StringUtils {
 
     public static String format(String str, Object ... args){
@@ -57,4 +58,30 @@ public class StringUtils {
         }
         return input.substring(0, len);
     }
+
+    /**
+     * Changes all backward slashes (\) for forward slashes (/)
+     * @return the replaced string
+     */
+	public static String replaceAllSlashes(String string) {
+		int len = string.length();
+		char c = 0;
+		
+		for (int i = 0; i < len; i++) {
+			c = string.charAt(i);
+			
+			if(c == '\\'){ //only do some processing if there is a backward slash
+				char[] ds = string.toCharArray();
+				ds[i] = '/';
+				for(int j = i; j < len; j++){
+					if(ds[j] == '\\'){
+						ds[j] = '/';
+					}
+				}
+				return new String(ds);
+			}
+			
+		}
+		return string;
+	}
 }

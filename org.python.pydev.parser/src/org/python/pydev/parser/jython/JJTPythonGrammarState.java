@@ -8,7 +8,7 @@ package org.python.pydev.parser.jython;
 import org.python.pydev.core.structure.FastStack;
 
 class JJTPythonGrammarState {
-    private FastStack<Node> nodes;
+    private FastStack<SimpleNode> nodes;
     private FastStack<Integer> marks;
     private FastStack<Integer> lines;
     private FastStack<Integer> columns;
@@ -20,7 +20,7 @@ class JJTPythonGrammarState {
     TreeBuilder builder;
 
     JJTPythonGrammarState() {
-        nodes = new FastStack<Node>();
+        nodes = new FastStack<SimpleNode>();
         marks = new FastStack<Integer>();
         lines = new FastStack<Integer>();
         columns = new FastStack<Integer>();
@@ -52,14 +52,14 @@ class JJTPythonGrammarState {
     }
 
     /* Pushes a node on to the stack. */
-    void pushNode(Node n) {
+    void pushNode(SimpleNode n) {
         nodes.push(n);
         ++sp;
     }
 
     /* Returns the node on the top of the stack, and remove it from the
        stack.  */
-    Node popNode() {
+    SimpleNode popNode() {
         if (--sp < mk) {
             mk = marks.pop();
         }
@@ -67,7 +67,7 @@ class JJTPythonGrammarState {
     }
 
     /* Returns the node currently on the top of the stack. */
-    Node peekNode() {
+    SimpleNode peekNode() {
         return nodes.peek();
     }
 

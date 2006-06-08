@@ -16,4 +16,13 @@ public class StringUtilsTest extends TestCase {
         assertEquals("teste 1", StringUtils.format("%s 1", new Object[]{"teste"}));
         assertEquals("%", StringUtils.format("%", new Object[]{}));
     }
+    
+    
+    public void testReplaceAllSlashes() throws Exception {
+    	assertEquals("foo", StringUtils.replaceAllSlashes("foo"));
+    	assertEquals("foo/", StringUtils.replaceAllSlashes("foo\\"));
+    	assertEquals("/foo/", StringUtils.replaceAllSlashes("\\foo\\"));
+    	assertEquals("/foo///", StringUtils.replaceAllSlashes("\\foo\\\\\\"));
+		
+	}
 }
