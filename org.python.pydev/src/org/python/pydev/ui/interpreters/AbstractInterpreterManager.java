@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -30,8 +31,6 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.NotConfiguredInterpreterException;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-
-
 /**
  * Does not write directly in INTERPRETER_PATH, just loads from it and works with it.
  * 
@@ -44,6 +43,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      */
     private Map<String, InterpreterInfo> exeToInfo = new HashMap<String, InterpreterInfo>();
     private Preferences prefs;
+    private String[] interpretersFromPersistedString;
 
     /**
      * Constructor
@@ -56,6 +56,16 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         for (IInterpreterObserver observer : participants) {
             observer.notifyInterpreterManagerRecreated(this);
         }
+        prefs.addPropertyChangeListener(new Preferences.IPropertyChangeListener(){
+
+            public void propertyChange(PropertyChangeEvent event) {
+                clearCaches();
+            }
+        });
+    }
+
+    protected void clearCaches() {
+        interpretersFromPersistedString = null;
     }
 
     /**
@@ -104,7 +114,10 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * @see org.python.pydev.core.IInterpreterManager#getInterpreters()
      */
     public String[] getInterpreters() {
-        return getInterpretersFromPersistedString(getPersistedString());
+        if(interpretersFromPersistedString == null){
+            interpretersFromPersistedString = getInterpretersFromPersistedString(getPersistedString());
+        }
+        return interpretersFromPersistedString;
     }
     
     /**

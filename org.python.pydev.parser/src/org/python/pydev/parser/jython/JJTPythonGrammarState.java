@@ -172,7 +172,7 @@ class JJTPythonGrammarState {
 
 /**
  * IntStack implementation. During all the tests, it didn't have it's size raised,
- * so, 50 is probably a good overall size...
+ * so, 50 is probably a good overall size... (max on python lib was 40)
  */
 class IntStack {
     int[] stack;

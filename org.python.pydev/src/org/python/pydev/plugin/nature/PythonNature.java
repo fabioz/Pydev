@@ -332,10 +332,6 @@ public class PythonNature implements IPythonNature {
 		}
 	}
 
-	public void clearCaches() {
-		this.builtinCompletions = null; //when the interpreter is changed, we have to reset it
-		this.builtinMod = null;
-	}
 
     /**
      * This method is called whenever the pythonpath for the project with this nature is changed. 
@@ -511,8 +507,12 @@ public class PythonNature implements IPythonNature {
         return PYTHON_VERSION_2_4;
     }
 
+    
     public boolean isJython() throws CoreException {
-        return getVersion().equals(JYTHON_VERSION_2_1);
+        if(isJython == null){
+            isJython = getVersion().equals(JYTHON_VERSION_2_1);
+        }
+        return isJython;
     }
 
     public boolean isPython() throws CoreException {
@@ -627,6 +627,14 @@ public class PythonNature implements IPythonNature {
 
     
     // ------------------------------------------------------------------------------------------ LOCAL CACHES
+    public void clearCaches() {
+        this.builtinCompletions = null; //when the interpreter is changed, we have to reset it
+        this.builtinMod = null;
+        this.isJython = null;
+    }
+    
+    Boolean isJython = null; //cache
+    
 	public void setBuiltinCompletions(IToken[] comps) {
 		this.builtinCompletions = comps;
 	}
