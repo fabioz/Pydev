@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.python.pydev.core.ICompletionState;
-import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
@@ -23,19 +22,17 @@ import com.python.pydev.analysis.additionalinfo.IInfo;
 public class CtxParticipant implements IPyDevCompletionParticipant{
 
     public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state) {
-        PySelection selection = new PySelection(request.doc);
-        int lineAvailableForImport = selection.getLineAvailableForImport();
+    	ArrayList<CtxInsensitiveImportComplProposal> completions = new ArrayList<CtxInsensitiveImportComplProposal>();
+    	String qual = request.qualifier;
+    	if(qual.length() >= 3){ //at least n characters required...
+	        
+	        String lowerQual = qual.toLowerCase();
+	        
+	        String initialModule = null;
+	        if (request.editorFile != null){
+	        	request.nature.resolveModule(request.editorFile);
+	        }
         
-        ArrayList<CtxInsensitiveImportComplProposal> completions = new ArrayList<CtxInsensitiveImportComplProposal>();
-        String qual = request.qualifier;
-        String lowerQual = qual.toLowerCase();
-        
-        String initialModule = null;
-        if (request.editorFile != null){
-        	request.nature.resolveModule(request.editorFile);
-        }
-        
-        if(qual.length() >= 3){ //at least n characters required...
             List<IInfo> tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, request.nature, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
             
             for (IInfo info : tokensStartingWith) {
@@ -79,8 +76,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
                         (IContextInformation)null, 
                         "", 
                         rep.toLowerCase().equals(lowerQual)? IPyCompletionProposal.PRIORITY_LOCALS_1 : IPyCompletionProposal.PRIORITY_GLOBALS,
-                        realImportRep,
-                        lineAvailableForImport);
+                        realImportRep);
                 
                 completions.add(proposal);
             }

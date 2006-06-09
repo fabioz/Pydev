@@ -120,8 +120,6 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
             }
         }
         
-        int lineAvailableForImport = ps.getLineAvailableForImport();
-        
         for (Tuple<String,String> string : mods) {
             props.add(new CtxInsensitiveImportComplProposal(
                     "",
@@ -133,8 +131,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                     null,
                     "",
                     IPyCompletionProposal.PRIORITY_LOCALS,
-                    string.o1,
-                    lineAvailableForImport
+                    string.o1
                     ));
         }
     }

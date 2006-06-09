@@ -34,7 +34,6 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             Image img = PyCodeCompletion.getImageForType(PyCodeCompletion.TYPE_PACKAGE);
             
             PySelection selection = new PySelection(request.doc);
-            int lineAvailableForImport = selection.getLineAvailableForImport();
 
             IModulesManager projectModulesManager = astManager.getModulesManager();
             Set allModuleNames = projectModulesManager.getAllModuleNames();
@@ -68,8 +67,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                             (IContextInformation)null, 
                             "", 
                             importRep.toLowerCase().equals(lowerQual)? IPyCompletionProposal.PRIORITY_LOCALS_2 : IPyCompletionProposal.PRIORITY_PACKAGES,
-                            realImportRep,
-                            lineAvailableForImport);
+                            realImportRep);
 
                     list.add(proposal);
                 }

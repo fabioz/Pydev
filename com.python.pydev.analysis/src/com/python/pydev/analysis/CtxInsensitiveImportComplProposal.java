@@ -9,6 +9,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.plugin.PydevPlugin;
@@ -16,18 +17,18 @@ import org.python.pydev.plugin.PydevPlugin;
 public class CtxInsensitiveImportComplProposal extends PyCompletionProposal{
 
     public String realImportRep;
-    public int lineToAddImport;
 
     public CtxInsensitiveImportComplProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority, 
-            String realImportRep, int lineToAddImport) {
+            String realImportRep) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority);
         this.realImportRep = realImportRep;
-        this.lineToAddImport = lineToAddImport;
     }
     
     @Override
     public void apply(IDocument document) {
         try {
+        	PySelection selection = new PySelection(document);
+        	int lineToAddImport = selection.getLineAvailableForImport();
             String delimiter = PyAction.getDelimiter(document);
             
             //first do the completion
