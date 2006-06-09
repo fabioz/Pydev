@@ -28,7 +28,6 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
-import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IVerticalRulerInfo;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.AbstractMarkerAnnotationModel;
@@ -39,10 +38,8 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyBreakpoint;
 import org.python.pydev.debug.model.PyDebugModelPresentation;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.model.AbstractNode;
-import org.python.pydev.editor.model.FunctionNode;
-import org.python.pydev.editor.model.Location;
-import org.python.pydev.editor.model.ModelUtils;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
  * Setting/removing breakpoints in the ruler
@@ -54,7 +51,6 @@ import org.python.pydev.editor.model.ModelUtils;
 public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
 
 	private List fMarkers;
-
 	private String fAddLabel;
 	private String fRemoveLabel;
 	
@@ -156,6 +152,9 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
 		return breakpoints;
 	}
 
+    /**
+     * This is the function that actually adds the marker to the Eclipse structure.
+     */
 	protected void addMarker() {		
 		try {
 			IDocument document= getDocument();
@@ -174,14 +173,22 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
 
 			final Map map = new HashMap();
 			
-			String functionName = getFunctionAboveLine(document, lineNumber-1);
+            String functionName = null;
+            if (fTextEditor instanceof PyEdit){
+                SimpleNode ast = ((PyEdit)fTextEditor).getAST();
+                if(ast != null){
+                    functionName = NodeUtils.getContextName(lineNumber-1, ast);
+                }
+            }
+            
 			
 			map.put(IMarker.MESSAGE, "what's the message");
 			map.put(IMarker.LINE_NUMBER, new Integer(lineNumber));
 			map.put(IBreakpoint.ENABLED, new Boolean(true));
 			map.put(IBreakpoint.ID, PyDebugModelPresentation.PY_DEBUG_MODEL_ID);
-			if (functionName != null)
+			if (functionName != null){
 				map.put(PyBreakpoint.FUNCTION_NAME_PROP, functionName);
+            }
 
 			IWorkspaceRunnable r= new IWorkspaceRunnable() {
 				public void run(IProgressMonitor monitor) throws CoreException {
@@ -202,24 +209,6 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
 		}
 	}
 	
-	/**
-	 * @param document
-	 * @param lineNumber
-	 * @return
-	 */
-	private String getFunctionAboveLine(IDocument document, int lineNumber) {
-		if (!(fTextEditor instanceof PyEdit))
-			return null;
-		AbstractNode root = ((PyEdit)fTextEditor).getPythonModel();
-		AbstractNode closest = ModelUtils.getLessOrEqualNode(root, new Location(lineNumber+1, 0));
-		while (closest != null &&
-			!(closest instanceof FunctionNode))
-			closest = closest.getParent();
-		if (closest != null)
-			return closest.getName();
-		return null;
-	}
-
 	protected void removeMarkers(List markers) {
 		IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
 		try {

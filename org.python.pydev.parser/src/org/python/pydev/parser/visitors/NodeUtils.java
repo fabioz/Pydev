@@ -5,6 +5,7 @@ package org.python.pydev.parser.visitors;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.python.pydev.core.FullRepIterable;
@@ -31,6 +32,8 @@ import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 
 public class NodeUtils {
 
@@ -581,6 +584,49 @@ public class NodeUtils {
 		}
 		return null;
 	}
+
+
+    /**
+     * @param lineNumber the line we want to get the context from
+     * @param ast the ast that corresponds to our context
+     * @return the full name for the context where we are (in the format Class.method.xxx.xxx)
+     */
+    public static String getContextName(int lineNumber, SimpleNode ast) {
+        if(ast != null){
+            EasyASTIteratorVisitor visitor = EasyASTIteratorVisitor.create(ast);
+            Iterator<ASTEntry> classesAndMethodsIterator = visitor.getClassesAndMethodsIterator();
+            ASTEntry last = null;
+            while (classesAndMethodsIterator.hasNext()) {
+                ASTEntry entry = classesAndMethodsIterator.next();
+                if(entry.node.beginLine > lineNumber+1){
+                    //ok, now, let's find out which context actually contains it...
+                    break;
+                }                
+                last = entry;
+            }
+            
+            while(last != null && last.endLine <= lineNumber){
+                last = last.parent;
+            }
+            
+            if(last != null){
+    
+                StringBuffer buffer = new StringBuffer();
+                boolean first = true;
+                while (last != null){
+                    String name = last.getName();
+                    buffer.insert(0, name);
+                    last = last.parent;
+                    if(!first){
+                        buffer.insert(name.length(),".");
+                    }
+                    first = false;
+                }
+                return buffer.toString();
+            }
+        }
+    	return null;
+    }
 
     
 
