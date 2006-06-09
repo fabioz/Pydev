@@ -65,21 +65,20 @@ public class REF {
         try {
             return o.getClass().getDeclaredField(attr);
         } catch (SecurityException e) {
-            return null;
         } catch (NoSuchFieldException e) {
-            return null;
         }
+        return null;
     }
     
     public static Object getAttrObj(Object o, String attr){
-        if (REF.hasAttr(o, attr)) {
+        try {
             Field field = REF.getAttr(o, attr);
-            try {
+            if(field != null){
                 Object obj = field.get(o);
                 return obj;
-            }catch (Exception e) {
-                return null;
             }
+        }catch (Exception e) {
+            //ignore
         }
         return null;
     }

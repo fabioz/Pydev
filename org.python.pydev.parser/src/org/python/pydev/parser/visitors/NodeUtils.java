@@ -3,14 +3,12 @@
  */
 package org.python.pydev.parser.visitors;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.REF;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
@@ -21,13 +19,17 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.ListComp;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.aliasType;
+import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.stmtType;
 
 public class NodeUtils {
@@ -82,43 +84,76 @@ public class NodeUtils {
      * @return A suitable String representation for some node.
      */
     public static String getRepresentationString(SimpleNode node, boolean useTypeRepr) {
+        if(node instanceof aliasType){
+            aliasType type = (aliasType) node;
+            return ((NameTok)type.name).id;
+        }
+
+        if(node instanceof commentType){
+            commentType type = (commentType) node;
+            return type.id;
+        }
+        
+        if(node instanceof excepthandlerType){
+            excepthandlerType type = (excepthandlerType) node;
+            return type.name.toString();
             
-        if (REF.hasAttr(node, "name")) {
-            Object attrObj = REF.getAttrObj(node, "name");
-            if(attrObj instanceof NameTok){
-                NameTok n = (NameTok) attrObj;
-                return n.id;
-            }
-            return attrObj.toString();
+        }
+        if(node instanceof Attribute){
+            Attribute attribute = (Attribute) node;
+            return discoverRep(attribute.attr);
             
-        }else if (REF.hasAttr(node, "id")) {
-            return discoverRep(REF.getAttrObj(node, "id"));
-    
-        }else if (REF.hasAttr(node, "attr")) {
-            return discoverRep(REF.getAttrObj(node, "attr"));
-    
-        }else if (REF.hasAttr(node, "arg")) {
-            return discoverRep(REF.getAttrObj(node, "arg"));
-            
-        }else if (node instanceof Call){
+        }
+        
+        if(node instanceof NameTok){
+            NameTok tok = (NameTok) node;
+            return tok.id;
+        }
+        
+        if(node instanceof Name){
+            Name name = (Name) node;
+            return name.id;
+        }
+        
+        if(node instanceof keywordType){
+            keywordType type = (keywordType) node;
+            return discoverRep(type.arg);
+        }
+        
+        if(node instanceof ClassDef){
+            ClassDef def = (ClassDef) node;
+            return ((NameTok)def.name).id;
+        }
+        
+        if(node instanceof FunctionDef){
+            FunctionDef def = (FunctionDef) node;
+            return ((NameTok)def.name).id;
+        }
+        
+        if (node instanceof Call){
             Call call = ((Call)node);
             return getRepresentationString(call.func, useTypeRepr);
-            
-        }else if (node instanceof org.python.pydev.parser.jython.ast.List || node instanceof ListComp){
+        }
+        
+        if (node instanceof org.python.pydev.parser.jython.ast.List || node instanceof ListComp){
             String val = "[]";
             if(useTypeRepr){
             	val = getBuiltinType(val);
             }
 			return val;
-    
-        }else if (node instanceof Str){
-            String val = "'"+((Str)node).s+"'";
+        }
+        
+        if (node instanceof Str){
+            String val;
             if(useTypeRepr){
-            	val = getBuiltinType(val);
+            	val = getBuiltinType("''");
+            }else{
+                val = "'"+((Str)node).s+"'";
             }
 			return val;
-
-        }else if (node instanceof Tuple){
+        }
+        
+        if (node instanceof Tuple){
             StringBuffer buf = new StringBuffer();
             Tuple t = (Tuple)node;
             for ( exprType e : t.elts){
@@ -135,16 +170,17 @@ public class NodeUtils {
             	val = getBuiltinType(val);
             }
 			return val;
-
-            
-        }else if (node instanceof Num){
+        }
+        
+        if (node instanceof Num){
             String val = ((Num)node).n.toString();
             if(useTypeRepr){
             	val = getBuiltinType(val);
             }
             return val;
-            
-        }else if (node instanceof Import){
+        }
+        
+        if (node instanceof Import){
             aliasType[] names = ((Import)node).names;
             for (aliasType n : names) {
                 if(n.asname != null){
@@ -162,26 +198,22 @@ public class NodeUtils {
      * @param t
      */
     public static String getNodeDocString(SimpleNode node) {
-        //and check if it has a docstring.
-        if (REF.hasAttr(node, "body")) {
-    
-            Field field = REF.getAttr(node, "body");
-            try {
-                Object obj = field.get(node);
-                if (obj instanceof stmtType[]) {
-                    stmtType body[] = (stmtType[]) obj;
-                    if (body.length > 0) {
-                        if (body[0] instanceof Expr) {
-                            Expr e = (Expr) body[0];
-                            if (e.value instanceof Str) {
-                                Str s = (Str) e.value;
-                                return s.s;
-                            }
-                        }
-                    }
+        stmtType body[] = null;
+        if(node instanceof FunctionDef){
+            FunctionDef def = (FunctionDef) node;
+            body = def.body;
+        } else if(node instanceof ClassDef){
+            ClassDef def = (ClassDef) node;
+            body = def.body;
+            
+        }
+        if (body != null && body.length > 0) {
+            if (body[0] instanceof Expr) {
+                Expr e = (Expr) body[0];
+                if (e.value instanceof Str) {
+                    Str s = (Str) e.value;
+                    return s.s;
                 }
-            } catch (Exception e) {
-                Log.log(e);
             }
         }
         return null;
