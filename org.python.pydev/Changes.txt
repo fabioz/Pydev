@@ -1,4 +1,10 @@
 
+after 1.1.0
+
+Pydev:
+- Ctrl+Click now works with the find definition engine 
+
+
 after 1.0.8
 
 Pydev:

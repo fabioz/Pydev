@@ -131,15 +131,23 @@ public abstract class PyRefactorAction extends PyAction {
     public RefactoringRequest getRefactoringRequest(String name, Operation operation){
         if(request == null){
             //testing first with whole lines.
-    		File file = getPyEdit().getEditorFile();
-    		IDocument doc = getPyEdit().getDocument();
-    		IPythonNature nature = getPyEdit().getPythonNature();
-    		PyEdit pyEdit = getPyEdit(); //may not be available in tests, that's why it is important to be able to operate without it
-    		request = new RefactoringRequest(file, doc, ps, operation, nature, pyEdit);
+            PyEdit pyEdit = getPyEdit(); //may not be available in tests, that's why it is important to be able to operate without it
+    		request = createRefactoringRequest(operation, pyEdit, ps);
         }
         request.operation = operation;
         request.duringProcessInfo.name = name;
 		return request;
+    }
+
+    /**
+     * @param operation the operation we're doing (may be null)
+     * @param pyEdit the editor from where we'll get the info
+     */
+    public static RefactoringRequest createRefactoringRequest(Operation operation, PyEdit pyEdit, PySelection ps) {
+        File file = pyEdit.getEditorFile();
+        IDocument doc = pyEdit.getDocument();
+        IPythonNature nature = pyEdit.getPythonNature();
+        return new RefactoringRequest(file, doc, ps, operation, nature, pyEdit);
     }
 
     private void refreshEditor(PyEdit edit) throws CoreException {

@@ -37,6 +37,38 @@ import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 
 public class NodeUtils {
 
+    public static final String[] KEYWORDS = new String[]{
+            "and",
+            "assert",
+            "break",
+            "class",
+            "continue",
+            "def",
+            "del",
+            "elif",
+            "else",
+            "except",
+            "exec",
+            "finally",
+            "for",
+            "from",
+            "global",
+            "if",
+            "import",
+            "in",
+            "is",
+            "lambda",
+            "not",
+            "or",
+            "pass",
+            "print",
+            "raise",
+            "return",
+            "try",
+            "while",
+            "yield"            
+    };
+    
     /**
      * @param node
      * @return

@@ -5,10 +5,7 @@
  */
 package org.python.pydev.editor;
 
-import java.util.ArrayList;
-
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
@@ -40,10 +37,14 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyOpenAction;
-import org.python.pydev.editor.model.AbstractNode;
+import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editor.model.ModelUtils;
+import org.python.pydev.editor.refactoring.IPyRefactoring;
+import org.python.pydev.editor.refactoring.PyRefactoring;
+import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.ColorCache;
 
@@ -77,7 +78,6 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 	 */
 	private ISourceViewer fSourceViewer;
 	private PyEdit fEditor;
-	private AbstractNode fClickedNode;
 	
 	public Hyperlink(ISourceViewer sourceViewer, PyEdit editor, ColorCache colorCache) {
 		fSourceViewer = sourceViewer;
@@ -248,35 +248,34 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 		}
 	}
 
-	IRegion getCurrentTextRegion(ISourceViewer viewer) {
-
+    /**
+     * This is the method that we have to implement that will return which region should be highlighted
+     * when Ctrl is pressed.
+     */
+	private IRegion getCurrentTextRegion(ISourceViewer viewer) {
 		int offset= getCurrentTextOffset(viewer);				
-		if (offset == -1)
+		if (offset == -1){
 			return null;
-		fClickedNode = ModelUtils.getElement(fEditor.getPythonModel(), 
-									offset, viewer.getDocument(), AbstractNode.PROP_CLICKABLE);
-		
-		if (fClickedNode == null || 
-			ModelUtils.findDefinition(fClickedNode).size() == 0)
-			return null;
+        }
 
-//		try {
-//				
-//			IJavaElement[] elements= null;
-//			synchronized (input) {
-//				elements= ((ICodeAssist) input).codeSelect(offset, 0);
-//			}
-//				
-//			if (elements == null || elements.length == 0)
-//				return null;
-					
-//			return selectWord(viewer.getDocument(), offset);
-			return selectWord(viewer.getDocument(), offset);	
-//		} catch (JavaModelException e) {
-//			return null;	
-//		}
+		IDocument doc = viewer.getDocument();
+        IRegion word = selectWord(doc, offset);
+        try {
+            String selectedWord = doc.get(word.getOffset(), word.getLength());
+            for(String keyw : NodeUtils.KEYWORDS){
+                if(keyw.equals(selectedWord)){
+                    return null;
+                }
+            }
+        } catch (BadLocationException e) {
+            PydevPlugin.log(e);
+        }
+        return word;	
 	}
 
+    /**
+     * @return the start offset for the current selected text
+     */
 	private int getCurrentTextOffset(ISourceViewer viewer) {
 
 		try {					
@@ -379,19 +378,6 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 		}
 			
 		fActive= true;
-
-//		removed for #25871			
-//
-//		ISourceViewer viewer= getSourceViewer();
-//		if (viewer == null)
-//			return;
-//			
-//		IRegion region= getCurrentTextRegion(viewer);
-//		if (region == null)
-//			return;
-//			
-//		highlightRegion(viewer, region);
-//		activateCursor(viewer);												
 	}
 
 	/*
@@ -446,15 +432,20 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 		deactivate();
 
 		if (wasActive) {
-			PyOpenAction action = (PyOpenAction)fEditor.getAction(PyEdit.ACTION_OPEN);
-			ArrayList where = ModelUtils.findDefinition(fClickedNode);
-			if (where.size() > 0)
-				action.run((ItemPointer)where.get(0));
-			else
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
-//			IAction action= getAction("OpenEditor");  //$NON-NLS-1$
-//			if (action != null)
-//				action.run();
+            IPyRefactoring pyRefactoring = PyRefactoring.getPyRefactoring();
+            RefactoringRequest refactoringRequest = PyRefactorAction.createRefactoringRequest(null, this.fEditor, new PySelection(this.fEditor));
+            try{
+                ItemPointer[] pointers = pyRefactoring.findDefinition(refactoringRequest);
+                
+    			if (pointers.length > 0){
+    			    PyOpenAction action = (PyOpenAction)fEditor.getAction(PyEdit.ACTION_OPEN);
+    				action.run(pointers[0]);
+                }else{
+    				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
+                }
+            }catch(Throwable t){
+                PydevPlugin.log(t);
+            }
 		}
 	}
 
@@ -658,30 +649,5 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 			
 		return maxLocation;
 	}
-}
 
-class EditorUtility {
-/**
- * Maps the localized modifier name to a code in the same
- * manner as #findModifier.
- * 
- * @return the SWT modifier bit, or <code>0</code> if no match was found
- *
- * @since 2.1.1
- */
-public static int findLocalizedModifier(String token) {
-	if (token == null)
-		return 0;
-		
-	if (token.equalsIgnoreCase(Action.findModifierString(SWT.CTRL)))
-		return SWT.CTRL;
-	if (token.equalsIgnoreCase(Action.findModifierString(SWT.SHIFT)))
-		return SWT.SHIFT;
-	if (token.equalsIgnoreCase(Action.findModifierString(SWT.ALT)))
-		return SWT.ALT;
-	if (token.equalsIgnoreCase(Action.findModifierString(SWT.COMMAND)))
-		return SWT.COMMAND;
-
-	return 0;
-}
 }
