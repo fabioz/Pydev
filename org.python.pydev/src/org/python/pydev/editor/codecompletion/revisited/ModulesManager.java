@@ -470,6 +470,10 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         //be source modules, but they are so hacked that it is almost impossible to get useful information
         //from them).
         String[] builtins = getBuiltins();
+        if(builtins == null){
+        	//still on startup
+        	return null;
+        }
         
         boolean foundStartingWithBuiltin = false;
         for (int i = 0; i < builtins.length; i++) {
