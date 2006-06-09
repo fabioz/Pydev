@@ -325,9 +325,12 @@ public class NodeUtils {
      * @return the line definition of a node
      */
     public static int getLineDefinition(SimpleNode ast2) {
-        if(ast2 instanceof Attribute){
-            if(!(((Attribute)ast2).value instanceof Call)){
-                return getLineDefinition(((Attribute)ast2).value);
+        while(ast2 instanceof Attribute){
+            exprType val = ((Attribute)ast2).value;
+            if(!(val instanceof Call)){
+                ast2 = val;
+            }else{
+                break;
             }
         }
         if(ast2 instanceof FunctionDef){
@@ -437,11 +440,10 @@ public class NodeUtils {
     public static int getLineEnd(SimpleNode v) {
         if(v instanceof Str){
             String s = ((Str)v).s;
-            char[] cs = s.toCharArray();
             int found = 0;
-            for (int i = 0; i < cs.length; i++) {
+            for (int i = 0; i < s.length(); i++) {
      
-                if(cs[i] == '\n'){
+                if(s.charAt(i) == '\n'){
                     found += 1;
                 }
             }
