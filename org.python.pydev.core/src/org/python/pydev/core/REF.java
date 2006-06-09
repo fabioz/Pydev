@@ -294,8 +294,8 @@ public class REF {
     }
 
     /**
-     * @param f
-     * @return
+     * @param f the file we're interested in
+     * @return the absolute (canonical) path to the file
      */
     public static String getFileAbsolutePath(File f) {
         try {

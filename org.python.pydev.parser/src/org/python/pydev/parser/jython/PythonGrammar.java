@@ -243,9 +243,7 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
             return new Object[]{str,ustring, true, getType(s.charAt(start+1), quotes)};
 
         } else {
-            StringBuffer sb = new StringBuffer(s.length());
-            char[] ca = s.toCharArray();
-            int n = ca.length-quotes;
+            int n = s.length()-quotes;
             int i=quotes+start;
 
             String str = hostLiteralMkr.decode_UnicodeEscape(s, i, n, "strict", ustring);
