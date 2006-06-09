@@ -268,6 +268,18 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
     }
 
     /**
+     * @return an iterator that will pass through Name and NameTok tokens
+     */
+    public Iterator<ASTEntry> getNamesIterator(){
+        return new NameIterator(nodes);
+    }
+    
+    public Iterator<ASTEntry> getOutline() {
+        return new OutlineIterator(nodes);
+    }
+
+    
+    /**
      * @param node this is the node we are analyzing
      * @param classes this are the classes we are looking for
      * @return true if the node is from one of the passed classes (may be some subclass too)

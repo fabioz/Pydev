@@ -9,9 +9,9 @@ import org.python.pydev.core.structure.FastStack;
 
 class JJTPythonGrammarState {
     private FastStack<SimpleNode> nodes;
-    private FastStack<Integer> marks;
-    private FastStack<Integer> lines;
-    private FastStack<Integer> columns;
+    private IntStack marks;
+    private IntStack lines;
+    private IntStack columns;
 
     private int sp; // number of nodes on stack
     private int mk; // current mark
@@ -21,9 +21,9 @@ class JJTPythonGrammarState {
 
     JJTPythonGrammarState() {
         nodes = new FastStack<SimpleNode>();
-        marks = new FastStack<Integer>();
-        lines = new FastStack<Integer>();
-        columns = new FastStack<Integer>();
+        marks = new IntStack();
+        lines = new IntStack();
+        columns = new IntStack();
         sp = 0;
         mk = 0;
         builder = new TreeBuilder(this);
@@ -170,4 +170,41 @@ class JJTPythonGrammarState {
 }
 
 
+/**
+ * IntStack implementation. During all the tests, it didn't have it's size raised,
+ * so, 50 is probably a good overall size...
+ */
+class IntStack {
+    int[] stack;
+    int sp = 0;
 
+    public IntStack() {
+        stack = new int[50];
+    }
+
+
+    public void removeAllElements() {
+        sp = 0;
+    }
+
+    public int size() {
+        return sp;
+    }
+
+    public int elementAt(int idx) {
+        return stack[idx];
+    }
+
+    public void push(int val) {
+        if (sp >= stack.length) {
+            int[] newstack = new int[sp*2];
+            System.arraycopy(stack, 0, newstack, 0, sp);
+            stack = newstack;
+        }
+        stack[sp++] = val;
+    }
+
+    public int pop() {
+        return stack[--sp];
+    }
+}

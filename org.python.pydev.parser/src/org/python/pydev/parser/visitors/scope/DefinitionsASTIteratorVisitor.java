@@ -3,13 +3,9 @@
  */
 package org.python.pydev.parser.visitors.scope;
 
-import java.util.Iterator;
-
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
-import org.python.pydev.parser.jython.ast.ClassDef;
-import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.exprType;
 
@@ -88,8 +84,5 @@ public class DefinitionsASTIteratorVisitor extends EasyASTIteratorVisitor{
         return visitor;
     }
 
-    public Iterator<ASTEntry> getOutline() {
-        return getIterator(new Class[]{ClassDef.class, FunctionDef.class, Attribute.class, Name.class});
-    }
 
 }
