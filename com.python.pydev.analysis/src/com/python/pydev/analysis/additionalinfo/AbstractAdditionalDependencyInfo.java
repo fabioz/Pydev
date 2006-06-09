@@ -148,7 +148,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 			//ok, now, add 'all the names'
 			SequencialASTIteratorVisitor visitor2 = new SequencialASTIteratorVisitor();
 			node.accept(visitor2);
-			Iterator<ASTEntry> iterator = visitor2.getIterator(new Class[] { Name.class, NameTok.class });
+			Iterator<ASTEntry> iterator = visitor2.getNamesIterator();
 			while (iterator.hasNext()) {
 				ASTEntry entry = iterator.next();
 				String id;

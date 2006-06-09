@@ -10,8 +10,6 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Scope;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.FunctionDef;
-import org.python.pydev.parser.jython.ast.Name;
-import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -28,7 +26,7 @@ public class ScopeAnalysis {
 	    List<ASTEntry> ret = new ArrayList<ASTEntry>();
 
         AttributeReferencesVisitor visitor = AttributeReferencesVisitor.create(simpleNode);
-        Iterator<ASTEntry> iterator = visitor.getIterator(Name.class, NameTok.class);
+        Iterator<ASTEntry> iterator = visitor.getNamesIterator();
         
         while(iterator.hasNext()){
             ASTEntry entry = iterator.next();
@@ -130,7 +128,7 @@ public class ScopeAnalysis {
     	    }
         }
 	    
-	    Iterator<ASTEntry> iterator = visitor.getIterator(new Class[]{Name.class, NameTok.class});
+	    Iterator<ASTEntry> iterator = visitor.getNamesIterator();
 	    while(iterator.hasNext()){
 	        ASTEntry entry = iterator.next();
 	        if (occurencesFor.equals(entry.getName())){
@@ -155,7 +153,7 @@ public class ScopeAnalysis {
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
 
         SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(simpleNode);
-        Iterator<ASTEntry> iterator = visitor.getIterator(new Class[]{Attribute.class});
+        Iterator<ASTEntry> iterator = visitor.getIterator(Attribute.class);
         
         while(iterator.hasNext()){
             ASTEntry entry = iterator.next();

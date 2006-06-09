@@ -25,10 +25,8 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
-import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
@@ -302,7 +300,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
         try {
             DefinitionsASTIteratorVisitor visitor = new DefinitionsASTIteratorVisitor();
             node.accept(visitor);
-            Iterator<ASTEntry> entries = visitor.getIterator(new Class[]{ClassDef.class, FunctionDef.class, Name.class, Attribute.class});
+            Iterator<ASTEntry> entries = visitor.getOutline();
 
             while (entries.hasNext()) {
                 ASTEntry entry = entries.next();
