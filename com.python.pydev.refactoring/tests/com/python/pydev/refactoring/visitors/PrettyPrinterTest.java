@@ -11,13 +11,13 @@ import org.python.pydev.parser.jython.ast.Module;
 
 public class PrettyPrinterTest extends PyParserTestBase{
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     public static void main(String[] args) {
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testGlobal();
+            test.testComment4();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -61,6 +61,30 @@ public class PrettyPrinterTest extends PyParserTestBase{
         checkPrettyPrintEqual(s);
     }
     
+    
+    public void testComment4() throws Exception {
+        String s = ""+
+        "class AAA:\n" +
+        "    def m1(self):\n" +
+        "        pass\n" +
+        "#--- barrr\n" +
+        "a = 10\n" +
+        "#--- fooo" +
+        "";
+        checkPrettyPrintEqual(s);
+        
+    }
+    public void testComment3() throws Exception {
+        String s = ""+
+        "class Foo:\n" +
+        "    pass\n" +
+        "\n" +
+        "#--- barrr\n" +
+        "a = 10\n" +
+        "#--- fooo" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
     
     public void testLambda2() throws Exception {
         String s = ""+

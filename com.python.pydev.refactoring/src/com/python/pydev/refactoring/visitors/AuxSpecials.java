@@ -152,7 +152,11 @@ public class AuxSpecials {
         }
         for (Object o : node.specialsAfter){
             if(o instanceof commentType){
-                state.write(((commentType)o).id);
+                commentType type = (commentType) o;
+                if(type.beginColumn == 1 && state.lastIsIndent()){
+                    state.eraseIndent();
+                }
+                state.write(type.id);
                 state.writeNewLine();
                 state.writeIndent();
                 setStateWritten();

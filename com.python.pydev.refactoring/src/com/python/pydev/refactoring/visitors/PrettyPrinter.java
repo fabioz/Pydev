@@ -641,7 +641,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         
             dedent();
         }   
-        auxComment.writeSpecialsAfter(node);
+        auxComment.writeSpecialsAfter(node, false);
         fixNewStatementCondition();
         return null;
     }
