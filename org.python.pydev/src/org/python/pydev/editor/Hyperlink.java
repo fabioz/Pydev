@@ -44,7 +44,7 @@ import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.PyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
-import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.parser.visitors.PythonLanguageUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.ColorCache;
 
@@ -262,10 +262,8 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
         IRegion word = selectWord(doc, offset);
         try {
             String selectedWord = doc.get(word.getOffset(), word.getLength());
-            for(String keyw : NodeUtils.KEYWORDS){
-                if(keyw.equals(selectedWord)){
-                    return null;
-                }
+            if(PythonLanguageUtils.isKeyword(selectedWord)){
+                return null;
             }
         } catch (BadLocationException e) {
             PydevPlugin.log(e);
