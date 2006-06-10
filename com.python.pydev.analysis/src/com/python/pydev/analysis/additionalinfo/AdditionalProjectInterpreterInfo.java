@@ -195,14 +195,14 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
     }
 
     public static List<AbstractAdditionalInterpreterInfo> getAdditionalInfo(IPythonNature nature) {
-    	return getAdditionalInfo(nature, true);
+    	return getAdditionalInfo(nature, true, false);
     }
     
     /**
      * @param nature the nature we want to get info on
      * @return all the additional info that is bounded with some nature (including related projects)
      */
-    public static List<AbstractAdditionalInterpreterInfo> getAdditionalInfo(IPythonNature nature, boolean addSystemInfo) {
+    public static List<AbstractAdditionalInterpreterInfo> getAdditionalInfo(IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects) {
         List<AbstractAdditionalInterpreterInfo> ret = new ArrayList<AbstractAdditionalInterpreterInfo>();
         IProject project = nature.getProject();
         
@@ -223,16 +223,25 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
 	            //get for the referenced projects
 	            IProject[] referencedProjects = project.getReferencedProjects();
 	            for (IProject refProject : referencedProjects) {
-	                
 	                additionalInfoForProject = getAdditionalInfoForProject(refProject);
 	                if(additionalInfoForProject != null){
 	                    ret.add(additionalInfoForProject);
 	                }
 	            }
 
+                if(addReferencingProjects){
+                    IProject[] referencingProjects = project.getReferencingProjects();
+                    for (IProject refProject : referencingProjects) {
+                        additionalInfoForProject = getAdditionalInfoForProject(refProject);
+                        if(additionalInfoForProject != null){
+                            ret.add(additionalInfoForProject);
+                        }
+                    }
+                }
 		    } catch (CoreException e) {
-		        throw new RuntimeException(e);
+		        PydevPlugin.log(e);
 		    }
+            
         }
         return ret;
     }
