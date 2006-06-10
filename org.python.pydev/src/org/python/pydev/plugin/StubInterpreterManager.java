@@ -71,4 +71,18 @@ public class StubInterpreterManager implements IInterpreterManager {
 	public void setPersistedString(String s) {
 	}
 
+    public boolean isConfigured() {
+        return false;
+    }
+
+    public int getRelatedId() {
+        if(isPython()){
+            return IPythonNature.PYTHON_RELATED;
+        }else if(isJython()){
+            return IPythonNature.JYTHON_RELATED;
+        }else{
+            throw new RuntimeException("Expected Python or Jython");
+        }
+    }
+
 }

@@ -390,5 +390,30 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 		//after restoring it, let's save it.
 		PydevPlugin.writeToPlatformFile(info.modulesManager, info.getExeAsFileSystemValidPath());
 	}
+    
+    public boolean isConfigured() {
+        try {
+            String defaultInterpreter = getDefaultInterpreter();
+            if(defaultInterpreter == null){
+                return false;
+            }
+            if(defaultInterpreter.length() == 0){
+                return false;
+            }
+        } catch (NotConfiguredInterpreterException e) {
+            return false;
+        }
+        return true;
+    }
+    
+    public int getRelatedId() {
+        if(isPython()){
+            return IPythonNature.PYTHON_RELATED;
+        }else if(isJython()){
+            return IPythonNature.JYTHON_RELATED;
+        }else{
+            throw new RuntimeException("Expected Python or Jython");
+        }
+    }
 }
 

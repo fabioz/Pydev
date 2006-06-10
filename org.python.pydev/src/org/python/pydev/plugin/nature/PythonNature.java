@@ -646,6 +646,26 @@ public class PythonNature implements IPythonNature {
 		this.builtinMod = mod;
 	}
 
+    public static List<IPythonNature> getPythonNaturesRelatedTo(int relatedTo) {
+        ArrayList<IPythonNature> ret = new ArrayList<IPythonNature>();
+        IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+        IProject[] projects = root.getProjects();
+        for (IProject project : projects) {
+            PythonNature nature = getPythonNature(project);
+            try {
+                if(nature != null){
+                    if(nature.getRelatedId() == relatedTo){
+                        ret.add(nature);
+                    }
+                }
+            } catch (CoreException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        
+        return ret;
+    }
+
 }
 
 

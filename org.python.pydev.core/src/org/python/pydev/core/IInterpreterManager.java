@@ -121,5 +121,15 @@ public interface IInterpreterManager {
 	 * @param s
 	 */
 	public void setPersistedString(String s);
+
+    /**
+     * @return whether this manager is correctly configured (interpreter is correctly set)
+     */
+    public boolean isConfigured();
+
+    /**
+     * @return IPythonNature.PYTHON_RELATED or IPythonNature.JYTHON_RELATED 
+     */
+    public int getRelatedId();
     
 }
