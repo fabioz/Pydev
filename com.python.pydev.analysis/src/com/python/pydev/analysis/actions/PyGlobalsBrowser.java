@@ -9,6 +9,7 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
@@ -44,6 +45,12 @@ public class PyGlobalsBrowser extends PyAction{
 		TwoPaneElementSelector dialog = new GlobalsTwoPaneElementSelector(getShell());
         dialog.setTitle("Pydev: Globals Browser");
         dialog.setMessage("Filter");
+        
+        PySelection ps = new PySelection(this.getPyEdit());
+        String selectedText = ps.getSelectedText();
+        if(selectedText != null && selectedText.length() > 0){
+            dialog.setFilter(selectedText);
+        }
         List<IInfo> lst = new ArrayList<IInfo>();
         
         for(AbstractAdditionalInterpreterInfo info:additionalInfo){
