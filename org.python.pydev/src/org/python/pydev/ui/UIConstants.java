@@ -20,6 +20,7 @@ public class UIConstants {
 	public static final String MAIN_FUNCTION_ICON = "icons/mainfunction.gif";
     public static final String COMPLETION_PACKAGE_ICON = "icons/package_obj.gif";
 	public static final String COMPLETION_TEMPLATE = "icons/template.gif";
+    public static final String COMMENT = "icons/python_comment.png";
 
 // Actions
 	public static final String ALPHA_SORT = "icons/alphab_sort_co.gif";

@@ -3,7 +3,8 @@ after 1.1.0
 
 Pydev:
 - Ctrl+Click now works with the find definition engine 
-
+- Comments that start with #--- are shown in the outline
+- Attributes are shown in the outline
 
 after 1.0.8
 

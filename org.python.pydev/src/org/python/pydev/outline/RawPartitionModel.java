@@ -13,7 +13,7 @@ import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IDocumentPartitioningListener;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.python.pydev.editor.model.AbstractNode;
+import org.python.pydev.parser.jython.SimpleNode;
 
 
 /**
@@ -111,7 +111,7 @@ class RawPartitionModel implements IOutlineModel {
 	}
 
 	// IOutlineModel API
-	public AbstractNode getSelectionPosition(StructuredSelection sel) {
+	public SimpleNode getSelectionPosition(StructuredSelection sel) {
 		// we do not have it, broken in Outline rewrite
 		System.err.println("RawOutlineModel can't navigate right now");
 		return null;

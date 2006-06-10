@@ -24,8 +24,8 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
 
     private List<ASTEntry> nodes = new ArrayList<ASTEntry>();
 
-    protected FastStack<SimpleNode> stack = new FastStack<SimpleNode>();
-    private final FastStack<ASTEntry> parents = new FastStack<ASTEntry>();
+    protected final FastStack<SimpleNode> stack = new FastStack<SimpleNode>();
+    protected final FastStack<ASTEntry> parents = new FastStack<ASTEntry>();
     
     protected SimpleNode lastVisited;
     
@@ -70,17 +70,21 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      */
     private ASTEntry before(SimpleNode node) {
     	ASTEntry entry;
-    	if(parents.size() > 0){
-    		entry = new ASTEntry(parents.peek());
-    	}else{
-    		entry = new ASTEntry(null);
-    	}
+    	entry = createEntry();
     	
         entry.node = node;
 
-        nodes.add(entry);
+        doAddNode(entry);
         stack.push(node);
         return entry;
+    }
+
+    /**
+     * @param entry the entry we're adding. The default implementation adds
+     * the node to the returned nodes (flattened list)
+     */
+    protected void doAddNode(ASTEntry entry) {
+        nodes.add(entry);
     }
 
 
@@ -99,18 +103,27 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
 
 
     /**
-     * @param node
+     * @param node the node we're adding in an 'atomic' way
      */
     protected void atomic(SimpleNode node) {
     	ASTEntry entry;
-    	if(parents.size() > 0){
+    	entry = createEntry();
+        entry.node = node;
+        entry.endLine = NodeUtils.getLineEnd(node);
+        doAddNode(entry);
+    }
+
+    /**
+     * @return the created entry (with its parent set)
+     */
+    protected ASTEntry createEntry() {
+        ASTEntry entry;
+        if(parents.size() > 0){
     		entry = new ASTEntry(parents.peek());
     	}else{
     		entry = new ASTEntry(null);
     	}
-        entry.node = node;
-        entry.endLine = NodeUtils.getLineEnd(node);
-        nodes.add(entry);
+        return entry;
     }
     
     /** 
@@ -276,6 +289,17 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
     
     public Iterator<ASTEntry> getOutline() {
         return new OutlineIterator(nodes);
+    }
+    
+    public List<ASTEntry> getAll(){
+        return nodes;
+    }
+    
+    /**
+     * @return an iterator that will pass all the nodes that were added in this visitor
+     */
+    public Iterator<ASTEntry> getAllIterator(){
+        return nodes.iterator();
     }
 
     

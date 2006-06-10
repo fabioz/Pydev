@@ -68,9 +68,7 @@ import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codefolding.CodeFoldingSetter;
 import org.python.pydev.editor.codefolding.PyEditProjection;
-import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.IModelListener;
-import org.python.pydev.editor.model.ModelMaker;
 import org.python.pydev.editor.scripting.PyEditScripting;
 import org.python.pydev.outline.PyOutlinePage;
 import org.python.pydev.parser.PyParser;
@@ -127,9 +125,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 
     /** need to hold onto it to support indentPrefix change through preferences */
     PyEditConfiguration editConfiguration;
-
-    /** Python model */
-    AbstractNode pythonModel;
 
     /**
      * AST that created python model
@@ -705,11 +700,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         return parser;
     }
 
-    public AbstractNode getPythonModel() {
-        return pythonModel;
-    }
-    public void revealModelNode(AbstractNode node) {
-    }
 
     /**
      * Returns the status line manager of this editor.
@@ -860,8 +850,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         try {
             doc.getLineInformation(lastLine - 1);
             ast = root;
-            pythonModel = ModelMaker.createModel(root, doc, filePath);
-            fireModelChanged(pythonModel, ast);
+            fireModelChanged(ast);
         } catch (BadLocationException e1) {
             PydevPlugin.log(IStatus.WARNING, "Unexpected error getting document length. No model!", e1);
         }
@@ -982,10 +971,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * 
      * @param root2
      */
-    protected void fireModelChanged(AbstractNode root, SimpleNode root2) {
+    protected void fireModelChanged(SimpleNode root) {
     	//create a copy, to avoid concurrent modifications
         for (IModelListener listener : new ArrayList<IModelListener>(modelListeners)) {
-        	listener.modelChanged(root, root2);
+        	listener.modelChanged(root);
 		}
     }
 

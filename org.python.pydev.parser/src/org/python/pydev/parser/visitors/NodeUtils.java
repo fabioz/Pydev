@@ -87,27 +87,6 @@ public class NodeUtils {
      * @return A suitable String representation for some node.
      */
     public static String getRepresentationString(SimpleNode node, boolean useTypeRepr) {
-        if(node instanceof aliasType){
-            aliasType type = (aliasType) node;
-            return ((NameTok)type.name).id;
-        }
-
-        if(node instanceof commentType){
-            commentType type = (commentType) node;
-            return type.id;
-        }
-        
-        if(node instanceof excepthandlerType){
-            excepthandlerType type = (excepthandlerType) node;
-            return type.name.toString();
-            
-        }
-        if(node instanceof Attribute){
-            Attribute attribute = (Attribute) node;
-            return discoverRep(attribute.attr);
-            
-        }
-        
         if(node instanceof NameTok){
             NameTok tok = (NameTok) node;
             return tok.id;
@@ -116,6 +95,16 @@ public class NodeUtils {
         if(node instanceof Name){
             Name name = (Name) node;
             return name.id;
+        }
+        
+        if(node instanceof aliasType){
+            aliasType type = (aliasType) node;
+            return ((NameTok)type.name).id;
+        }
+        if(node instanceof Attribute){
+            Attribute attribute = (Attribute) node;
+            return discoverRep(attribute.attr);
+            
         }
         
         if(node instanceof keywordType){
@@ -192,6 +181,19 @@ public class NodeUtils {
                 return ((NameTok)n.name).id;
             }
         }
+        
+
+        if(node instanceof commentType){
+            commentType type = (commentType) node;
+            return type.id;
+        }
+        
+        if(node instanceof excepthandlerType){
+            excepthandlerType type = (excepthandlerType) node;
+            return type.name.toString();
+            
+        }
+
         
         return null;
     }

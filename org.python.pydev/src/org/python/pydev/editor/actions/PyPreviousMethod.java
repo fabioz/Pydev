@@ -8,10 +8,6 @@ package org.python.pydev.editor.actions;
 
 import java.util.Iterator;
 
-import org.python.pydev.editor.model.AbstractNode;
-import org.python.pydev.editor.model.ClassNode;
-import org.python.pydev.editor.model.FunctionNode;
-import org.python.pydev.editor.model.ModelUtils;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;

@@ -11,6 +11,8 @@ import org.python.pydev.parser.jython.ast.commentType;
 
 public class SimpleNode implements Node {
     
+    private static final boolean DEBUG = false;
+
     public int beginLine, beginColumn;
     
     /**
@@ -72,11 +74,13 @@ public class SimpleNode implements Node {
                     getSpecialsBefore().add(addAt, special);
                 }
             }
+            if(DEBUG){
+                System.out.println("Adding:"+special+" after:"+after+" to:"+this+" class:"+special.getClass());
+            }
 //            if(this instanceof DefaultArg){
 //                DefaultArg a = (DefaultArg) this;
 //                System.out.println("Adding:"+special+" after:"+after+" to:"+a.parameter);
 //            }else{
-//                System.out.println("Adding:"+special+" after:"+after+" to:"+this+" class:"+special.getClass());
 //            }
         }
     }

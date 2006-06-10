@@ -416,10 +416,13 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             return new FpList(list);
 */
         case JJTCLASSDEF:
-            body = popSuite();
+            s = (Suite) stack.popNode();
+            body = s.body;
             exprType[] bases = makeExprs(stack.nodeArity() - 1);
             nameTok = makeName(NameTok.ClassName);
-            return new ClassDef(nameTok, bases, body);
+            ClassDef classDef = new ClassDef(nameTok, bases, body);
+            addSpecialsAndClearOriginal(s, classDef);
+            return classDef;
         case JJTBEGIN_RETURN_STMT:
             return new Return(null);
         case JJTRETURN_STMT:

@@ -6,7 +6,7 @@
 package org.python.pydev.outline;
 
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.python.pydev.editor.model.AbstractNode;
+import org.python.pydev.parser.jython.SimpleNode;
 
 /**
  * all the models in the outline view need to implement this interface
@@ -22,15 +22,9 @@ public interface IOutlineModel {
 	Object getRoot();
 	
 	/**
-	 * standard comparasance of two items
-	 * @return -1 if e1 < e2, 0 if ==, 1 if e2 > e1
-	 */
-	int compare(Object e1, Object e2);
-
-	/**
 	 * this will be called in response to selection event
 	 * @param sel new selection
 	 * @return Point that contains line/column, or item to be selected
 	 */
-	AbstractNode getSelectionPosition(StructuredSelection sel);
+	SimpleNode getSelectionPosition(StructuredSelection sel);
 }

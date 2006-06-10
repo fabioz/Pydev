@@ -18,7 +18,6 @@ import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.eclipse.ui.IPropertyListener;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -46,7 +45,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
      * 
      * @see org.python.pydev.editor.model.IModelListener#modelChanged(org.python.pydev.editor.model.AbstractNode)
      */
-    public synchronized void modelChanged(AbstractNode root, final SimpleNode root2) {
+    public synchronized void modelChanged(final SimpleNode root2) {
         ProjectionAnnotationModel model = (ProjectionAnnotationModel) editor.getAdapter(ProjectionAnnotationModel.class);
 
         if (model == null) {
@@ -245,7 +244,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
      */
     public void propertyChanged(Object source, int propId) {
         if (propId == PyEditProjection.PROP_FOLDING_CHANGED) {
-            modelChanged(null, editor.getAST());
+            modelChanged(editor.getAST());
         }
     }
 

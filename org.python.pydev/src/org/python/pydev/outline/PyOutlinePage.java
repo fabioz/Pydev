@@ -26,7 +26,7 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.model.AbstractNode;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
@@ -174,7 +174,7 @@ public class PyOutlinePage extends ContentOutlinePage  {
         }
 		TreeViewer tree = getTreeViewer();
 		if (tree != null){
-			getTreeViewer().update(items, null);
+			tree.update(items, null);
 		}
 	}
 
@@ -184,8 +184,9 @@ public class PyOutlinePage extends ContentOutlinePage  {
 	public void setAlphaSort(boolean doSort) {
 		if (sortByNameSorter == null) {
 			sortByNameSorter = new ViewerSorter() {
-				public int compare(Viewer viewer, Object e1, Object e2) {
-					return model.compare(e1, e2);
+				@SuppressWarnings("unchecked")
+                public int compare(Viewer viewer, Object e1, Object e2) {
+					return ((Comparable)e1).compareTo(e2);
 				}
 			};
 		}
@@ -226,14 +227,13 @@ public class PyOutlinePage extends ContentOutlinePage  {
 	 */
 	public void createControl(Composite parent) {
 		super.createControl(parent); // this creates a tree viewer
-//		createRawPartitionOutline();
 		createParsedOutline();
 		// selecting an item in the outline scrolls the document
 		final TreeViewer tree = getTreeViewer();
 		selectionListener = new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				StructuredSelection sel = (StructuredSelection)tree.getSelection();
-				AbstractNode node = model.getSelectionPosition(sel);
+				SimpleNode node = model.getSelectionPosition(sel);
 				editorView.revealModelNode(node);
 			}
 		};

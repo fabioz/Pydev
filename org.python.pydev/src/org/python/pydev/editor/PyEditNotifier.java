@@ -73,9 +73,8 @@ public class PyEditNotifier {
     			for(IPyEditListener listener : edit.getAllListeners()){
     				try {
     					listener.onDispose(edit);
-    				} catch (Exception e) {
-    					//must not fail
-    					PydevPlugin.log(e);
+    				} catch (Throwable e) {
+    					//no need to worry... as we're disposing, in shutdown, we may not have access to some classes anymore
     				}
     			}
 	        }

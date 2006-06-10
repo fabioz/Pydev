@@ -26,45 +26,56 @@ import org.python.pydev.parser.jython.ast.exprType;
  */
 public class DefinitionsASTIteratorVisitor extends EasyASTIteratorVisitor{
     
+    @Override
+    public Object visitAssign(Assign node) throws Exception {
+        return visitAssign(this, node);
+    }
+    
+    public static Object visitAssign(EasyAstIteratorBase visitor, Assign node) throws Exception {
+        return visitAssign(visitor, node, true);
+    }
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
-    public Object visitAssign(Assign node) throws Exception {
+    public static Object visitAssign(EasyAstIteratorBase visitor, Assign node, boolean visitUnhandledAndTraverse) throws Exception {
         exprType[] targets = node.targets;
         for (int i = 0; i < targets.length; i++) {
             exprType t = targets[i];
             
             if(t instanceof Name){
                 //we are in the class declaration
-                if(isInClassDecl() || isInGlobal()){
+                if(visitor.isInClassDecl() || visitor.isInGlobal()){
                     //add the attribute for the class
-                    atomic(t);
+                    visitor.atomic(t);
                 }
                 
             }else if(t instanceof Attribute){
                 
                 //we are in a method from the class
-                if(isInClassMethodDecl()){
+                if(visitor.isInClassMethodDecl()){
                     Attribute a = (Attribute) t;
                     if(a.value instanceof Name){
                         
                         //it is an instance variable attribute
                         Name n = (Name) a.value;
                         if (n.id.equals("self")){
-		                    atomic(t);
+                            visitor.atomic(t);
                         }
                     }
                     
-                }else if(isInClassDecl() || isInGlobal()){
+                }else if(visitor.isInClassDecl() || visitor.isInGlobal()){
                     //add the attribute for the class 
-                    atomic(t);
+                    visitor.atomic(t);
                 }
             }
         }
-//        return VisitorBase.visitAssign(node);
-        Object ret = unhandled_node(node);
-        traverse(node);
-        return ret;
+        if(visitUnhandledAndTraverse){
+            Object ret = visitor.unhandled_node(node);
+            visitor.traverse(node);
+            return ret;
+        }else {
+            return null;
+        }
 
     }
 

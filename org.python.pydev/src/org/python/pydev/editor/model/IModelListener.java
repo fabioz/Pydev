@@ -16,7 +16,6 @@ public interface IModelListener {
 	/**
 	 * every time document gets parsed, it generates a new parse tree
 	 * @param root - the root of the new model
-	 * @param root2
 	 */
-	void modelChanged(AbstractNode root, SimpleNode root2);
+	void modelChanged(SimpleNode root);
 }
