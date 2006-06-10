@@ -6,10 +6,15 @@
 
 package org.python.pydev.editor.actions;
 
+import java.util.Iterator;
+
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.ClassNode;
 import org.python.pydev.editor.model.FunctionNode;
 import org.python.pydev.editor.model.ModelUtils;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 
 
 /**
@@ -18,14 +23,19 @@ import org.python.pydev.editor.model.ModelUtils;
 public class PyPreviousMethod extends PyMethodNavigation {
 
 	// me is the last node w
-	public AbstractNode getSelect(AbstractNode me) {
-		AbstractNode current = ModelUtils.getPreviousNode(me);
-		while (current != null &&
-			!(current instanceof FunctionNode) &&
-			!(current instanceof ClassNode))
-			current = ModelUtils.getPreviousNode(current);
-		return current;	
-	}
+    public ASTEntry getSelect(SimpleNode ast, int line) {
+        EasyASTIteratorVisitor visitor = EasyASTIteratorVisitor.create(ast);
+        Iterator<ASTEntry> classesAndMethodsIterator = visitor.getClassesAndMethodsIterator();
+        ASTEntry last = null;
+        
+        while(classesAndMethodsIterator.hasNext()){
+            ASTEntry entry = classesAndMethodsIterator.next();
+            if(entry.node.beginLine-1 < line ){
+                last = entry;
+            }
+        }
+        return last;
+    }
 
     @Override
     protected boolean goToEndOfFile() {

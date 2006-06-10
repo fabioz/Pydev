@@ -10,9 +10,10 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.model.AbstractNode;
-import org.python.pydev.editor.model.Location;
-import org.python.pydev.editor.model.ModelUtils;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 /**
  * The trick here is getting the outline... To do that, some refactorings had
@@ -31,16 +32,23 @@ public abstract class PyMethodNavigation extends PyAction {
 	public void run(IAction action) {
 		PyEdit pyEdit = getPyEdit();
 		IDocument doc = pyEdit.getDocumentProvider().getDocument(pyEdit.getEditorInput());
-		ITextSelection selection =
-			(ITextSelection) pyEdit.getSelectionProvider().getSelection();
+		ITextSelection selection = (ITextSelection) pyEdit.getSelectionProvider().getSelection();
 
-		Location loc = Location.offsetToLocation(doc, selection.getOffset());
-		AbstractNode closest = ModelUtils.getLessOrEqualNode(pyEdit.getPythonModel(),loc);
-	
-		AbstractNode goHere = getSelect(closest);
+		ASTEntry goHere = getSelect(pyEdit.getAST(), selection.getStartLine());
+        SimpleNode node = null;
         if(goHere != null){
+            if(goHere.node instanceof ClassDef){
+                ClassDef def = (ClassDef) goHere.node;
+                node = def.name;
+            }
+            if(goHere.node instanceof FunctionDef){
+                FunctionDef def = (FunctionDef) goHere.node;
+                node = def.name;
+            }
+        }
+        if(node != null){
             //ok, somewhere to go
-            pyEdit.revealModelNode(goHere);
+            pyEdit.revealModelNode(node);
         }else{
             //no place specified until now... let's try to see if we should go to the start or end of the file
             if(goToEndOfFile()){
@@ -57,12 +65,10 @@ public abstract class PyMethodNavigation extends PyAction {
 
     /**
 	 * This method should return to where we should go, depending on
-	 * the visitor passed as a parameter (it contains the node where we
-	 * are, the next node and the previous node).
+	 * the ast passed as a parameter
 	 * 
-	 * @param v
-	 * @return where we should go depending on visitor
+	 * @return the entry to where we should go
 	 */
-	public abstract AbstractNode getSelect(AbstractNode v);
+	public abstract ASTEntry getSelect(SimpleNode ast, int line);
 
 }

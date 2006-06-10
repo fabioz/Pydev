@@ -6,10 +6,11 @@
 
 package org.python.pydev.editor.actions;
 
-import org.python.pydev.editor.model.AbstractNode;
-import org.python.pydev.editor.model.ClassNode;
-import org.python.pydev.editor.model.FunctionNode;
-import org.python.pydev.editor.model.ModelUtils;
+import java.util.Iterator;
+
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 
 /**
  * One-trick pony, finds the next method.
@@ -18,14 +19,18 @@ public class PyNextMethod extends PyMethodNavigation{
 
 	/**
 	 * Gets the next method/class definition
+     * @param line is in doc coords
 	 */
-	public AbstractNode getSelect(AbstractNode me ) {
-		AbstractNode current = ModelUtils.getNextNode(me);
-		while (current != null &&
-			!(current instanceof FunctionNode) &&
-			!(current instanceof ClassNode))
-			current = ModelUtils.getNextNode(current);
-		return current;	
+	public ASTEntry getSelect(SimpleNode ast, int line) {
+        EasyASTIteratorVisitor visitor = EasyASTIteratorVisitor.create(ast);
+        Iterator<ASTEntry> classesAndMethodsIterator = visitor.getClassesAndMethodsIterator();
+        while(classesAndMethodsIterator.hasNext()){
+            ASTEntry entry = classesAndMethodsIterator.next();
+            if(entry.node.beginLine-1 > line ){
+                return entry;
+            }
+        }
+        return null;
 	}
 
     @Override

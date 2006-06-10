@@ -59,6 +59,7 @@ import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.PyPartitionScanner;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
 import org.python.pydev.editor.actions.PyOpenAction;
@@ -69,7 +70,6 @@ import org.python.pydev.editor.codefolding.CodeFoldingSetter;
 import org.python.pydev.editor.codefolding.PyEditProjection;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.IModelListener;
-import org.python.pydev.editor.model.Location;
 import org.python.pydev.editor.model.ModelMaker;
 import org.python.pydev.editor.scripting.PyEditScripting;
 import org.python.pydev.outline.PyOutlinePage;
@@ -78,6 +78,8 @@ import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.TokenMgrError;
+import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -706,7 +708,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     public AbstractNode getPythonModel() {
         return pythonModel;
     }
-    
+    public void revealModelNode(AbstractNode node) {
+    }
+
     /**
      * Returns the status line manager of this editor.
      * @return the status line manager of this editor
@@ -761,36 +765,56 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         sourceViewer.revealRange(offset, length);
     }
 
-    /**
-     * Selects & reveals the model node
-     */
-    public void revealModelNode(AbstractNode node) {
+    public void revealModelNode(SimpleNode node) {
         if (node == null){
             return; // nothing to see here
         }
         
-        Location start = node.getStart();
-        Location end = node.getEnd();
-        
-        if(start == null || end == null){
-        	return;
+        IDocument document = getDocumentProvider().getDocument(getEditorInput());
+        if(document == null){
+            return;
         }
+        
+        int offset, length, endOffset;
+        
+        try {
+            PySelection selection = new PySelection(this);
+            offset = selection.getLineOffset(node.beginLine-1) + node.beginColumn-1;
+            int[] colLineEnd = NodeUtils.getColLineEnd(node);
+            
+            endOffset = selection.getLineOffset(colLineEnd[0]-1) + colLineEnd[1]-1;
+            length = endOffset - offset;
+            setSelection(offset, length);
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+        }
+        
+    }
+    /**
+     * Selects & reveals the model node
+     */
+    public void revealModelNode(ASTEntry entry) {
+        if (entry == null){
+            return; // nothing to see here
+        }
+        
         IDocument document = getDocumentProvider().getDocument(getEditorInput());
         if(document == null){
         	return;
         }
         
-        int offset, length;
+        int offset, length, endOffset;
 
         try {
-            offset = start.toOffset(document);
-            length = end.toOffset(document) - offset;
-        } catch (BadLocationException e) {
-            PydevPlugin.log(IStatus.WARNING, "error trying to revealModelItem" + node.toString(), e);
-            return;
+            PySelection selection = new PySelection(this);
+            offset = selection.getLineOffset(entry.node.beginLine-1) + entry.node.beginColumn-1;
+            
+            endOffset = selection.getLineOffset(entry.endLine-1) + entry.endCol-1;
+            length = endOffset - offset;
+            setSelection(offset, length);
+        } catch (Exception e) {
+            PydevPlugin.log(e);
         }
-        
-        setSelection(offset, length);
     }
 
     /**
@@ -1046,6 +1070,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         }
         return font;
     }
+
 
 }
 
