@@ -47,6 +47,7 @@ import org.eclipse.ui.part.EditorActionBarContributor;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.MarkerUtilities;
@@ -479,11 +480,14 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     }
 
     /**
-     * @param input
-     * @return
+     * @return the document that is binded to this editor (may be null)
      */
     public IDocument getDocument() {
-        return getDocumentProvider().getDocument(getEditorInput());
+        IDocumentProvider documentProvider = getDocumentProvider();
+        if(documentProvider != null){
+            return documentProvider.getDocument(getEditorInput());
+        }
+        return null;
     }
     
     /** 
