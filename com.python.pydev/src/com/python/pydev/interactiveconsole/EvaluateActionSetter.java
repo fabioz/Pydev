@@ -36,7 +36,7 @@ public class EvaluateActionSetter implements IPyEditListener{
                 PySelection selection = new PySelection(edit);
                 String code = selection.getTextSelection().getText();
                 try {
-                    getConsoleEnv(edit.getProject(), edit).execute(code);
+                    getConsoleEnv(edit.getProject(), edit).execute(code, selection.getEndLineDelim());
                 } catch (UserCanceledException e) {
                     //ok
                 }

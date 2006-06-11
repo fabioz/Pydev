@@ -13,6 +13,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.console.IOConsole;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -28,6 +29,7 @@ public class ConsoleEnv {
     protected IOConsole processConsole;
     protected boolean showInputInPrompt;
     protected IResource resource;
+    protected StringBuffer lastLine = new StringBuffer();
 
     /**
      * Creates a console environment for a given project and a given resource.
@@ -77,30 +79,15 @@ public class ConsoleEnv {
      * This method executes the passed code.
      * 
      * @param code the string of code to execute
+     * @param delimiter 
      */
-    public void execute(String code) {
+    public void execute(String code, String delimiter) {
         try {
-            boolean addFinalNewLine = false;
-
             //we will only add an additional new line when we are not evaluating on a per-line basis
-            if(!InteractiveConsolePreferencesPage.evalOnNewLine()){
-                String[] strings = code.split("\r\n");
-                if(strings.length > 1){
-                    for (String string : strings) {
-                        if(string.length() > 0 && Character.isWhitespace(string.charAt(0))){
-                            //and only if we have some whitespace in the beginning of some text
-                            addFinalNewLine = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            
+            code = ParsingUtils.makePythonParseable(code, delimiter, lastLine);
+            lastLine = new StringBuffer(ParsingUtils.getLastLine(code));
             IDocument doc = processConsole.getDocument();
             write(doc, code);
-            if(addFinalNewLine){
-                write(doc, "\r\n");
-            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
