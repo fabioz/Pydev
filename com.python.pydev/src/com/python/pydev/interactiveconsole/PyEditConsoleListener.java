@@ -27,8 +27,10 @@ public class PyEditConsoleListener implements IPyEditListener, IDocumentListener
         this.edit = edit;
         this.edit.addPyeditListener(this);
         IDocument document = this.edit.getDocument();
-        //start listening the doc
-        onSetDocument(document, edit);
+        if(document != null){
+            //start listening the doc
+            onSetDocument(document, edit);
+        }
     }
 
     /**
