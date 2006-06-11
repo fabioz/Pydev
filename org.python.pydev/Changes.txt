@@ -6,6 +6,13 @@ Pydev:
 - Comments that start with #--- are shown in the outline
 - Attributes are shown in the outline
 
+Pydev Extensions:
+- Interactive console: content is now changed so that you don't have 
+syntax errors when passing code to it.
+- An action was added to the menu so that you can use the 'globals' browser without needing focus
+on the pydev editor.
+
+
 after 1.0.8
 
 Pydev:

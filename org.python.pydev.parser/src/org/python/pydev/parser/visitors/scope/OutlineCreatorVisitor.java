@@ -9,6 +9,8 @@ import java.util.List;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.commentType;
 
 public class OutlineCreatorVisitor extends EasyASTIteratorWithChildrenVisitor{
@@ -29,6 +31,7 @@ public class OutlineCreatorVisitor extends EasyASTIteratorWithChildrenVisitor{
 
     private boolean isInAssign;
     
+
     
     @Override
     public void traverse(SimpleNode node) throws Exception {
@@ -43,7 +46,23 @@ public class OutlineCreatorVisitor extends EasyASTIteratorWithChildrenVisitor{
         super.traverse(node);
         checkSpecials(node.specialsAfter);
     }
-    
+
+    /** 
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitImport(org.python.pydev.parser.jython.ast.Import)
+     */
+    public Object visitImport(Import node) throws Exception {
+        atomic(node);
+        return super.visitImport(node);
+    }
+
+    /** 
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitImportFrom(org.python.pydev.parser.jython.ast.ImportFrom)
+     */
+    public Object visitImportFrom(ImportFrom node) throws Exception {
+        atomic(node);
+        return super.visitImportFrom(node);
+    }
+
     @Override
     public Object visitAssign(Assign node) throws Exception {
         isInAssign = true;

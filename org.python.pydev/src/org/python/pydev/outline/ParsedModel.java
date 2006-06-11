@@ -86,7 +86,6 @@ public class ParsedModel implements IOutlineModel {
             String oldTitle = oldItem.toString();
             String newTitle = newItem.toString();
             if (!oldTitle.equals(newTitle)){
-                System.out.println("Updating from:"+oldTitle+" to:"+newTitle);
                 itemsToUpdate.add(oldItem);
             }
             
