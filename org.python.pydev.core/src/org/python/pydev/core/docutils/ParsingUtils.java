@@ -9,6 +9,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IPythonPartitions;
 
 
@@ -435,6 +436,95 @@ public class ParsingUtils implements IPythonPartitions{
             return partitioner.getContentType(i);
         }
         return getContentType(document.get(), i);
+    }
+
+    public static String makePythonParseable(String code, String delimiter) {
+        return makePythonParseable(code, delimiter, new StringBuffer());
+    }
+    
+    /**
+     * Ok, this method will get some code and make it suitable for putting at a shell
+     * @param code the initial code we'll make parseable
+     * @param delimiter the delimiter we should use
+     * @return a String that can be passed to the shell
+     */
+    public static String makePythonParseable(String code, String delimiter, StringBuffer lastLine) {
+        StringBuffer buffer = new StringBuffer();
+        StringBuffer currLine = new StringBuffer();
+        
+        //we may have line breaks with \r\n, or only \n or \r
+        boolean foundNewLine = false;
+        boolean foundNewLineAtChar;
+        boolean lastWasNewLine = false;
+        
+        if(lastLine.length() > 0){
+            lastWasNewLine = true;
+        }
+        
+        for (int i = 0; i < code.length(); i++) {
+            foundNewLineAtChar = false;
+            char c = code.charAt(i);
+            if(c == '\r'){
+                if(i +1 < code.length() && code.charAt(i+1) == '\n'){
+                    i++; //skip the \n
+                }
+                foundNewLineAtChar = true;
+            }else if(c == '\n'){
+                foundNewLineAtChar = true;
+            }
+            
+            if(!foundNewLineAtChar){
+                if(lastWasNewLine && !Character.isWhitespace(c)){
+                    if(lastLine.length() > 0 && Character.isWhitespace(lastLine.charAt(0))){
+                        buffer.append(delimiter);
+                    }
+                }
+                currLine.append(c);
+                lastWasNewLine = false;
+            }else{
+                lastWasNewLine = true;
+            }
+            if(foundNewLineAtChar || i == code.length()-1){
+                if(!PySelection.containsOnlyWhitespaces(currLine.toString())){
+                    buffer.append(currLine);
+                    lastLine = currLine;
+                    currLine = new StringBuffer();
+                    buffer.append(delimiter);
+                    foundNewLine = true;
+                    
+                }else{ //found a line only with whitespaces
+                    currLine = new StringBuffer();
+                }
+            }
+        }
+        if(!foundNewLine){
+            buffer.append(delimiter);
+        }else{
+            if(!WordUtils.endsWith(buffer, '\r') && !WordUtils.endsWith(buffer, '\n')){
+                buffer.append(delimiter);
+            }
+            if(lastLine.length() > 0 && Character.isWhitespace(lastLine.charAt(0)) && 
+                    (code.indexOf('\r') != -1 || code.indexOf('\n') != -1)){
+                buffer.append(delimiter);
+            }
+        }
+        return buffer.toString();
+    }
+
+    public static String getLastLine(String code) {
+        int i = code.lastIndexOf('\r');
+        int j = code.lastIndexOf('\n');
+        if(i == -1 && j == -1){
+            return code;
+        }
+        
+        char toSplit = '\n';
+        if(i > j){
+            toSplit = '\r';
+        }
+        
+        String[] strings = FullRepIterable.split(code, toSplit);
+        return strings[strings.length-1];
     }
 
 

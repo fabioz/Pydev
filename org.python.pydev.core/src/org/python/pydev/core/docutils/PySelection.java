@@ -542,23 +542,6 @@ public class PySelection {
             }
         }
         return buffer.toString();
-        
-//        this was the previous implementation. changed because it was too slow (and because the partitioner was bugged on previous versions)
-//        PyDocIterator it = new PyDocIterator(getDoc(), false, true, true);
-//        int cursorLine = getCursorLine();
-//        int lineOffset = getLineOffset();
-//        
-//        while(it.hasNext()){
-//            String line = it.next();
-//            if(it.getLastReturnedLine() == cursorLine){
-//                int endLineOffset = lineOffset+line.length();
-//                if(endLineOffset > getAbsoluteCursorOffset() +1){
-//                    return line.substring(0, line.length() - (endLineOffset - getAbsoluteCursorOffset()));
-//                }
-//                return line;
-//            }
-//        }
-        
     }
     
     /**

@@ -181,7 +181,7 @@ public class DeltaSaver<X> {
 	                	addRestoredCommand(cmd);
 	                }
 	            } catch (Exception e) {
-	                //Log.log(e);
+	                Log.log(e);
 	            }
 	        }
     	}

@@ -15,7 +15,7 @@ public class ParsingUtilsTest extends TestCase {
     	try {
 			ParsingUtilsTest test = new ParsingUtilsTest();
 			test.setUp();
-			test.testIterator7();
+			test.testMakeParseable();
 			test.tearDown();
 			junit.textui.TestRunner.run(ParsingUtilsTest.class);
 		} catch (Throwable e) {
@@ -219,6 +219,82 @@ public class ParsingUtilsTest extends TestCase {
     }
     
     
-    
+
+    public void testMakeParseable() throws Exception {
+        assertEquals("a=1\r\n", ParsingUtils.makePythonParseable("a=1", "\r\n"));
+        
+        String code = 
+            "class C:\n" +
+            "    pass";
+        String expected = 
+            "class C:\r\n" +
+            "    pass\r\n" +
+            "\r\n";
+        assertEquals(expected, ParsingUtils.makePythonParseable(code, "\r\n"));
+        
+        code = 
+            "class C:" +
+            "";
+        expected = 
+            "class C:\r\n" +
+            "";
+        assertEquals(expected, ParsingUtils.makePythonParseable(code, "\r\n"));
+        
+        code = 
+            "    def m1(self):" +
+            "";
+        expected = 
+            "    def m1(self):\r\n" +
+            "";
+        assertEquals(expected, ParsingUtils.makePythonParseable(code, "\r\n"));
+        
+        code = 
+            "class C:\n" +
+            "    pass\n" +
+            "a = 10";
+        expected = 
+            "class C:\r\n" +
+            "    pass\r\n" +
+            "\r\n" +
+            "a = 10" +
+            "\r\n";
+        assertEquals(expected, ParsingUtils.makePythonParseable(code, "\r\n"));
+        
+        code = 
+            "class C:\n" +
+            "    \n" +
+            "    pass\n" +
+            "a = 10";
+        expected = 
+            "class C:\r\n" +
+            "    pass\r\n" +
+            "\r\n" +
+            "a = 10" +
+            "\r\n";
+        assertEquals(expected, ParsingUtils.makePythonParseable(code, "\r\n"));
+        
+        code = 
+            "class AAA:\n" +
+            "    \n" +
+            "    \n" +
+            "    def m1(self):\n" +
+            "        self.bla = 10\n" +
+            "\n" +
+            "";
+        expected = 
+            "class AAA:\r\n" +
+            "    def m1(self):\r\n" +
+            "        self.bla = 10\r\n" +
+            "\r\n";
+        assertEquals(expected, ParsingUtils.makePythonParseable(code, "\r\n"));
+        
+        code = 
+            "a=10"+
+            "";
+        expected = 
+            "\na=10\n" +
+            "";
+        assertEquals(expected, ParsingUtils.makePythonParseable(code, "\n", new StringBuffer("    pass")));
+    }
     
 }
