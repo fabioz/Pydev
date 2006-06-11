@@ -60,7 +60,7 @@
         visible="true"
         id="com.python.pydev.analysis.actionSet">
      <menu
-           label="Pydev Navigate"
+           label="Pydev Na&amp;vigate"
            id="pyNavigateMenu">
         <separator
               name="pyNavigateGroup">
