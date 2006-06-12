@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
+import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 
@@ -26,7 +27,7 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
  * 
  * Based on org.eclipse.ui.externaltools.internal.program.launchConfigurations.ProgramLaunchDelegate
  */
-public abstract class AbstractLaunchConfigurationDelegate implements ILaunchConfigurationDelegate {
+public abstract class AbstractLaunchConfigurationDelegate extends LaunchConfigurationDelegate implements ILaunchConfigurationDelegate {
 	
 	/**
 	 * Launches the python process.

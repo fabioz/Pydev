@@ -202,20 +202,24 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         new Job("PyDev: Restoring projects python nature"){
 
             protected IStatus run(IProgressMonitor monitor) {
-            	setPythonInterpreterManager(new PythonInterpreterManager(preferences));
-            	setJythonInterpreterManager(new JythonInterpreterManager(preferences));
-            	
-                IProject[] projects = getWorkspace().getRoot().getProjects();
-                for (int i = 0; i < projects.length; i++) {
-                    IProject project = projects[i];
-                    try {
-                        if (project.isOpen() && project.hasNature(PythonNature.PYTHON_NATURE_ID)) {
-                            PythonNature.addNature(project, monitor);
-                        }
-                    } catch (Exception e) {
-                        PydevPlugin.log(e);
-                    }
-                }
+            	try{
+	            	setPythonInterpreterManager(new PythonInterpreterManager(preferences));
+	            	setJythonInterpreterManager(new JythonInterpreterManager(preferences));
+	            	
+	                IProject[] projects = getWorkspace().getRoot().getProjects();
+	                for (int i = 0; i < projects.length; i++) {
+	                    IProject project = projects[i];
+	                    try {
+	                        if (project.isOpen() && project.hasNature(PythonNature.PYTHON_NATURE_ID)) {
+	                            PythonNature.addNature(project, monitor);
+	                        }
+	                    } catch (Exception e) {
+	                        PydevPlugin.log(e);
+	                    }
+	                }
+            	}catch(Throwable t){
+            		t.printStackTrace();
+            	}
                 return Status.OK_STATUS;
             }
             
