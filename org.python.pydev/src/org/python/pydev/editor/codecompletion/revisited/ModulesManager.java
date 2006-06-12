@@ -23,7 +23,6 @@ import java.util.TreeMap;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModule;
@@ -38,7 +37,6 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This class manages the modules that are available
@@ -583,15 +581,8 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * @see org.python.pydev.core.IProjectModulesManager#resolveModule(org.eclipse.core.resources.IResource, org.eclipse.core.resources.IProject)
      */
     public String resolveModule(IResource member, IProject container) {
-        IPath location = PydevPlugin.getLocation(member.getFullPath(), container);
-        if(location == null){
-            //not in workspace?... maybe it was removed, so, do nothing, but let the user know about it
-            PydevPlugin.log(getResolveModuleErr(member));
-            return null;
-        }else{
-            File inOs = new File(location.toOSString());
-            return resolveModule(REF.getFileAbsolutePath(inOs));
-        }
+        File inOs = member.getRawLocation().toFile();
+        return resolveModule(REF.getFileAbsolutePath(inOs));
     }
 
     protected String getResolveModuleErr(IResource member) {

@@ -341,7 +341,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         if (project != null && resource instanceof IFile) {
 
             IFile file = (IFile) resource;
-            IPath location = PydevPlugin.getLocation(file.getFullPath(), project);
+            IPath location = file.getRawLocation();
             if(location != null){
                 PyLintThread thread = new PyLintThread(resource, document, location);
                 thread.start();

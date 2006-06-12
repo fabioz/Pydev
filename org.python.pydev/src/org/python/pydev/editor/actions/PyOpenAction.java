@@ -58,16 +58,16 @@ public class PyOpenAction extends Action {
         Object file = p.file;
 
         if (file instanceof IFile) {
-//            IPath fullPath = ((IFile) file).getFullPath();
-            IPath fullPath = ((IFile) file).getRawLocation();
-            editor = PydevPlugin.doOpenEditor(fullPath, true);
+        	IFile f = (IFile) file;
+            editor = PydevPlugin.doOpenEditor(f, true);
 
         } else if (file instanceof IPath) {
             IPath path = (IPath) file;
             editor = PydevPlugin.doOpenEditor(path, true);
 
         } else if (file instanceof File) {
-            Path path = new Path(REF.getFileAbsolutePath((File) file));
+            String absPath = REF.getFileAbsolutePath((File) file);
+			IPath path = Path.fromOSString(absPath);
             editor = PydevPlugin.doOpenEditor(path, true);
         }
 

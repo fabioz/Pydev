@@ -45,6 +45,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.editors.text.EditorsUI;
@@ -82,6 +83,9 @@ import org.python.pydev.ui.interpreters.PythonInterpreterManager;
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
  */
 public class PydevPlugin extends AbstractUIPlugin implements Preferences.IPropertyChangeListener {
+	private static boolean DEBUG = false;
+	
+	
     // ----------------- SINGLETON THINGS -----------------------------
     public static IBundleInfo info;
     public static IBundleInfo getBundleInfo(){
@@ -156,7 +160,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     
     
     private static PydevPlugin plugin; //The shared instance.
-    
+
     private ResourceBundle resourceBundle; //Resource bundle.
 
     /** The template store. */
@@ -381,70 +385,20 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         return e;
     }
 
-    /**
-     *  
-     */
-    public static IPath getPath(IPath location) {
-        IWorkspace workspace = ResourcesPlugin.getWorkspace();
-        IWorkspaceRoot root = workspace.getRoot();
-
-        IFile[] files = root.findFilesForLocation(location);
-        IContainer[] folders =  root.findContainersForLocation(location);
-        if (files.length > 0) {
-            for (int i = 0; i < files.length; i++)
-                return files[i].getProjectRelativePath();
-        } else {
-            for (int i = 0; i < folders.length; i++)
-                return folders[i].getProjectRelativePath();
-        }
-
-        return null;
-    }
-
-    public static IPath getLocationFromWorkspace(IPath path) {
-        return getLocationFromWorkspace(path, 0);
-    }
-    /**
-     * This one should only be used if the root (project) is unknown.
-     * 
-     * @see PydevPlugin.getLocation#IPath, IContainer
-     * @param path
-     * @return
-     */
-    public static IPath getLocationFromWorkspace(IPath path, int repetitions) {
-        IWorkspace workspace = ResourcesPlugin.getWorkspace();
-        IContainer root = workspace.getRoot();
-        repetitions++;
-        return getLocation(path, root, repetitions);
-    }
-
-    public static IPath getLocation(IPath path, IContainer root) {
-        return getLocation(path, root, 0);
+    public static IEditorPart doOpenEditor(IFile f, boolean activate) {
+    	if (f == null)
+    		return null;
+    	
+    	try {
+    		FileEditorInput file = new FileEditorInput(f);
+    		return openEditorInput(file);
+    		
+    	} catch (Exception e) {
+    		log(IStatus.ERROR, "Unexpected error opening path " + f.toString(), e);
+    		return null;
+    	}
     }
     
-    /**
-     * Returns the location in the filesystem for the given path
-     * 
-     * @param path
-     * @param root the path must be inside this root
-     * @return
-     */
-    public static IPath getLocation(IPath path, IContainer root, int repetitions) {
-        if(repetitions > 3){
-            return null;
-        }
-        repetitions++;
-        IResource resource = root.findMember(path);
-        IPath location = null;
-        if (resource != null) {
-            location = resource.getLocation();
-        }
-        
-        if(location == null){
-            location = getLocationFromWorkspace(path, repetitions);
-        }
-        return location;
-    }
     /**
      * Utility function that opens an editor on a given path.
      * 
@@ -455,29 +409,32 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
             return null;
 
         try {
-            
-            IEditorInput file = createEditorInput(path);
-	        
-	        final IWorkbench workbench = plugin.getWorkbench();
-	        if(workbench == null){
-	        	throw new RuntimeException("workbench cannot be null");
-	        }
-
-	        IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
-	        if(activeWorkbenchWindow == null){
-	        	throw new RuntimeException("activeWorkbenchWindow cannot be null (we have to be in a ui thread for this to work)");
-	        }
-	        
-			IWorkbenchPage wp = activeWorkbenchWindow.getActivePage();
-        
-            // File is inside the workspace
-            return IDE.openEditor(wp, file, PyEdit.EDITOR_ID);
+    		IEditorInput file = createEditorInput(path);
+	        return openEditorInput(file);
             
         } catch (Exception e) {
             log(IStatus.ERROR, "Unexpected error opening path " + path.toString(), e);
             return null;
         }
     }
+    
+    
+	private static IEditorPart openEditorInput(IEditorInput file) throws PartInitException {
+		final IWorkbench workbench = plugin.getWorkbench();
+		if(workbench == null){
+			throw new RuntimeException("workbench cannot be null");
+		}
+
+		IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
+		if(activeWorkbenchWindow == null){
+			throw new RuntimeException("activeWorkbenchWindow cannot be null (we have to be in a ui thread for this to work)");
+		}
+		
+		IWorkbenchPage wp = activeWorkbenchWindow.getActivePage();
+      
+		// File is inside the workspace
+		return IDE.openEditor(wp, file, PyEdit.EDITOR_ID);
+	}
 
     
     
@@ -494,9 +451,18 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * @param path
      * @return
      */
-    public static IEditorInput createEditorInput(IPath path, boolean askIfDoesNotExist) {
+    private static IEditorInput createEditorInput(IPath path, boolean askIfDoesNotExist) {
         IEditorInput edInput = null;
         IWorkspace w = ResourcesPlugin.getWorkspace();      
+
+        //let's start with the 'easy' way
+    	IFile fileForLocation = w.getRoot().getFileForLocation(path);
+    	if(fileForLocation != null){
+    		return new FileEditorInput(fileForLocation);
+    	}
+
+        
+        
         IFile files[] = w.getRoot().findFilesForLocation(path);
         if (files == null  || files.length == 0 || !files[0].exists()){
             //it is probably an external file

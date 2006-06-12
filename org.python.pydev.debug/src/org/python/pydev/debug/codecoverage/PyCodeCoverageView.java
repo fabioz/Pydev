@@ -5,8 +5,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -253,8 +256,15 @@ public class PyCodeCoverageView extends ViewPart {
                     IPath p = (IPath) objects[0];
 
                     
-                    p = PydevPlugin.getLocationFromWorkspace(p);
-                    File file = p.toFile().getAbsoluteFile();
+                    //p = PydevPlugin.getLocationFromWorkspace(p);
+                    IWorkspace w = ResourcesPlugin.getWorkspace();
+                    IContainer folderFolLocation = w.getRoot().getContainerForLocation(p);
+                    File file = null;
+                    if(folderFolLocation != null){
+                    	file = folderFolLocation.getRawLocation().toFile();
+                    }else{
+                    	file = p.toFile().getAbsoluteFile();
+                    }
                     lastChosenFile = file;
                     refreshAction.monitor = this.monitor;
                     refreshAction.run();
