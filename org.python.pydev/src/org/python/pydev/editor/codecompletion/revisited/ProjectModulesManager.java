@@ -171,6 +171,9 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
      * @see org.python.pydev.core.IProjectModulesManager#getSystemModulesManager()
      */
     public SystemModulesManager getSystemModulesManager(String defaultSelectedInterpreter){
+    	if(nature == null){
+    		return null; //still not set (initialization)
+    	}
         IInterpreterManager iMan = PydevPlugin.getInterpreterManager(nature);
         if(defaultSelectedInterpreter == null){
         	defaultSelectedInterpreter = iMan.getDefaultInterpreter();
