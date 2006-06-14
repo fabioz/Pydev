@@ -9,7 +9,7 @@ public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
         try {
             RenameSelfVariableRefactoringTest test = new RenameSelfVariableRefactoringTest();
             test.setUp();
-            test.testDontRename2();
+            test.testRename();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameSelfVariableRefactoringTest.class);
@@ -140,6 +140,19 @@ public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
         int line = 2;
         int col = 9;
         checkRename(str, line, col, "m1", false, true);
+    }
+    
+    public void testRename() throws Exception {
+    	String str ="" +
+    	"class Foo:\n"+
+		"    def _riskMaps(self):\n"+
+		"        for a in self.%s().items():\n"+
+		"            pass\n"+
+		"    def %s(self):\n"+
+		"        pass\n";
+    	int line = 2;
+    	int col = 23;
+    	checkRename(str, line, col, "riskMapNames", false, true);
     }
     
 

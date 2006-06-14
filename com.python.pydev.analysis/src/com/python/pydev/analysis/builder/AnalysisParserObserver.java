@@ -18,6 +18,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.parser.IParserObserver;
 import org.python.pydev.parser.IParserObserver2;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.AnalysisPreferences;
@@ -29,6 +30,11 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver2
 	public static final String ANALYSIS_PARSER_OBSERVER_FORCE = "AnalysisParserObserver:force";
 
 	public void parserChanged(SimpleNode root, IAdaptable resource, IDocument doc, Object... argsToReparse) {
+		//don't analyze it if we're still not 'all set'
+		if(!PydevPlugin.isPythonInterpreterInitialized() || !PydevPlugin.isJythonInterpreterInitialized()){
+			return;
+		}
+		
         if(resource == null){
             return;
         }
