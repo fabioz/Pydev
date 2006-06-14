@@ -31,12 +31,14 @@ public class AddStmtChange extends AbstractStmtChange{
     private String attr;
     private int pos;
     private stmtType stmt;
+    private boolean addNewLineAfterStmt;
 
-    public AddStmtChange(SimpleNode node, String attr, int pos, stmtType stmt) {
+    public AddStmtChange(SimpleNode node, String attr, int pos, stmtType stmt, boolean addNewLineAfterStmt) {
         this.applyAt = node;
         this.attr = attr;
         this.pos = pos;
         this.stmt = stmt;
+        this.addNewLineAfterStmt = addNewLineAfterStmt;
     }
 
     
@@ -46,6 +48,11 @@ public class AddStmtChange extends AbstractStmtChange{
     public Change getChange(IDocument doc) throws Throwable {
     	Tuple<DocumentChange, MultiTextEdit> tup = getDocChange(doc);
     	
+        return getDocChange(doc, tup);
+    }
+
+
+    public Change getDocChange(IDocument doc, Tuple<DocumentChange, MultiTextEdit> tup) throws Exception {
         stmtType[] attrObj = (stmtType[]) REF.getAttrObj(applyAt, attr);
         
         int prevStmtPos = 0;
@@ -78,7 +85,7 @@ public class AddStmtChange extends AbstractStmtChange{
         }
         
         WriterEraser writerEraser = new WriterEraser();
-		PrettyPrinter printer = new PrettyPrinter(prefs, writerEraser);
+		PrettyPrinter printer = new PrettyPrinter(prefs, writerEraser, !addNewLineAfterStmt); //as it is a single statement, we won't add new lines when ending it
         stmt.accept(printer);
         StringBuffer buffer = writerEraser.getBuffer();
         

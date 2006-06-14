@@ -3,7 +3,9 @@
  */
 package com.python.pydev.refactoring.ast;
 
+import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.exprType;
@@ -22,6 +24,19 @@ public class PyASTFactory {
         pass.addSpecial("pass", false);
         ClassDef classDef = new ClassDef(name, new exprType[0], new stmtType[]{pass});
         return classDef;
+    }
+
+    /**
+     * @param name the name of the call
+     * @return a Call statement with the passed name.
+     * 
+     * e.g.: if name == foo, it will return a call as: foo()
+     */
+    public static Call makeCall(String name) {
+        Call call = new Call(new Name(name, Name.Load), null, null, null, null);
+        call.addSpecial("(", false);
+        call.addSpecial(")", true);
+        return call;
     }
 
 }

@@ -90,9 +90,28 @@ import org.python.pydev.parser.jython.ast.suiteType;
  */
 public class PrettyPrinter extends PrettyPrinterUtils{
 
-    
+    /**
+     * If this is true, we don't add a new-line after the statement (when we would normally
+     * add a new line for the next statement).
+     */
+    private boolean isSingleStmt;
+
+    @Override
+    protected boolean fixNewStatementCondition() throws IOException {
+        boolean ret = false;
+        if(!isSingleStmt){
+            ret = super.fixNewStatementCondition();
+        }
+        return ret;
+    }
+
     public PrettyPrinter(PrettyPrinterPrefs prefs, IWriterEraser writer){
+        this(prefs, writer, false);
+    }
+    
+    public PrettyPrinter(PrettyPrinterPrefs prefs, IWriterEraser writer, boolean isSingleStmt){
         this.prefs = prefs;
+        this.isSingleStmt = isSingleStmt;
         state = new WriteState(writer, prefs);
         auxComment = new AuxSpecials(state, prefs);
     }
@@ -496,11 +515,13 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         auxComment.writeSpecialsBefore(node, null, new String[]{"("}, true);
         exprType[] args = node.args;
         state.indent();
-        for (int i = 0; i < args.length; i++) {
-            if (args[i] != null){
-                state.pushInStmt(args[i]);
-                args[i].accept(this);
-                state.popInStmt();
+        if(args != null){
+            for (int i = 0; i < args.length; i++) {
+                if (args[i] != null){
+                    state.pushInStmt(args[i]);
+                    args[i].accept(this);
+                    state.popInStmt();
+                }
             }
         }
         dedent();

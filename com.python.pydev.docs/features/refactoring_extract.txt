@@ -1,0 +1,28 @@
+Ok, let's go to the extract method.
+
+The first thing we want to do is the 'basic', without pre-conditions, post-conditions, etc.
+So, let's simply get the case where we have the code:
+
+a=1
+
+So, selecting that text and choosing an 'extract to method' m1 should give us:
+
+m1()
+def m1():
+    a = 1
+    
+The only thing is that we have to start with the 'correct' implementation for that, which means:
+1. Get the selected text
+2. Check the statement(s) that is covered in that selection
+3. Change the AST to leave a call where the statement was and add a func def that has the selected statement as the body
+4. Make a 'pretty-print' with the call to a buffer and with the function def to another buffer
+5. Make text edit :
+   - removes that statement
+   - adds a call
+   - adds the function definition
+
+
+Ok, added a little more to the structure... I've created an PyASTChanger class, that is meant to help
+in AST manipulations, so, I should be able to just say 'delete' this statement and add this one and
+it should help in that work. It has to return changes in the structure needed for the refactoring engine.
+

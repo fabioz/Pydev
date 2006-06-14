@@ -19,7 +19,7 @@ public class ExtractMethodTest extends RefactoringTestBase {
         String expected = ""+
     		"m1()\n" +
     		"def m1():\n" +
-    		"    a=\n1" +
+    		"    a=1\n" +
     		"";
         
         checkExtract(initial, expected, 0,0,3, false, "m1");

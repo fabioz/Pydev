@@ -5,22 +5,32 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
+import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
+import org.eclipse.text.edits.MultiTextEdit;
+import org.eclipse.text.edits.ReplaceEdit;
+import org.eclipse.text.edits.TextEditGroup;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Expr;
 
 import com.python.pydev.refactoring.ast.GetSelectedStmtsVisitor;
+import com.python.pydev.refactoring.ast.PyASTChanger;
+import com.python.pydev.refactoring.ast.PyASTFactory;
 
 public class PyExtractMethodProcessor extends RefactoringProcessor{
 
     private RefactoringRequest request;
 	private CompositeChange fChange;
+    private List<SimpleNode> selectedStmt;
 
 	public PyExtractMethodProcessor (RefactoringRequest request) {
         this.request = request;
@@ -52,8 +62,8 @@ public class PyExtractMethodProcessor extends RefactoringProcessor{
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
         RefactoringStatus status = new RefactoringStatus();
         
-        List<SimpleNode> selectedStmt = getSelectedStmt();
-        System.out.println(selectedStmt);
+        this.selectedStmt = getSelectedStmt();
+        System.out.println("selectedStmt:"+selectedStmt);
         
 		return status;
 	}
@@ -71,7 +81,32 @@ public class PyExtractMethodProcessor extends RefactoringProcessor{
 	@Override
 	public RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context) throws CoreException, OperationCanceledException {
         RefactoringStatus status = new RefactoringStatus();
-        fChange = new CompositeChange("RenameChange: "+request.duringProcessInfo.name);
+        fChange = new CompositeChange("ExtractMethodChange: "+request.duringProcessInfo.name);
+        
+        DocumentChange docChange = new DocumentChange("ExtractMethodChange: ", request.doc);
+        MultiTextEdit rootEdit = new MultiTextEdit();
+        docChange.setEdit(rootEdit);
+        docChange.setKeepPreviewEdits(true);
+        
+        SimpleNode ast = request.getAST();
+        PyASTChanger astChanger = new PyASTChanger(request.doc, ast);
+        Expr expr = new Expr(PyASTFactory.makeCall(request.duringProcessInfo.name));
+        astChanger.addStmtToNode(ast, "body", 0, expr, false);
+        
+        Tuple<DocumentChange, MultiTextEdit> tup = new Tuple<DocumentChange, MultiTextEdit>(docChange, rootEdit);
+        astChanger.getChange(tup);
+        
+        ITextSelection selection = request.ps.getTextSelection();
+        ReplaceEdit edit = new ReplaceEdit(selection.getOffset(),selection.getLength(),"");
+        rootEdit.addChild(edit);
+        docChange.addTextEditGroup(new TextEditGroup("extracting: foo", edit));
+        
+        ReplaceEdit edit2 = new ReplaceEdit(4,0,"def m1():\n    a=1\n");
+        rootEdit.addChild(edit2);
+        docChange.addTextEditGroup(new TextEditGroup("extracting: foo", edit2));
+        
+        fChange.add(docChange);
+        
 		return status;
 	}
 

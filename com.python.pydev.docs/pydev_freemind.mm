@@ -18,17 +18,11 @@
 <node COLOR="#0033ff" CREATED="1139594201281" ID="Freemind_Link_91517654" MODIFIED="1140001041546" POSITION="left" TEXT="Bugs (not in sf)">
 <font NAME="SansSerif" SIZE="18"/>
 <icon BUILTIN="full-1"/>
-<node COLOR="#00b439" CREATED="1139594377406" ID="Freemind_Link_442163909" MODIFIED="1148498573362" TEXT="from xxx &apos;import&apos; completion should only work in the &apos;code&apos; partition">
-<font NAME="SansSerif" SIZE="16"/>
-</node>
 <node COLOR="#00b439" CREATED="1139595096843" ID="Freemind_Link_148953784" MODIFIED="1140001041593" TEXT="&#xa;def Foo(self):&#xa;    print _Bar()&#xa;&#xa;def _Bar():&#xa;    pass&#xa;&#xa;try:&#xa;    # Should show duplicated error (shows unused import)&#xa;    from empty2 import Bar2 as _Bar &#xa;except:&#xa;    #if available, use it&#xa;    pass&#xa;">
 <edge WIDTH="thin"/>
 <font NAME="SansSerif" SIZE="16"/>
 </node>
 <node COLOR="#00b439" CREATED="1140103999359" ID="Freemind_Link_9314489" MODIFIED="1148498578002" TEXT="Chandler:&#xa;&#xa;http://wiki.osafoundation.org/bin/view/Projects/GettingChandler&#xa;http://wiki.osafoundation.org/bin/view/Projects/BuildingChandler">
-<font NAME="SansSerif" SIZE="16"/>
-</node>
-<node COLOR="#00b439" CREATED="1141847037452" ID="Freemind_Link_860460502" MODIFIED="1141847039859" TEXT=" result = {}, F3 no result d&#xe1; erro.">
 <font NAME="SansSerif" SIZE="16"/>
 </node>
 <node COLOR="#00b439" CREATED="1148498545612" FOLDED="true" ID="Freemind_Link_92003531" MODIFIED="1148498581221" TEXT="Fixed">
@@ -45,6 +39,17 @@
 <node COLOR="#990000" CREATED="1139594167765" ID="Freemind_Link_363994591" MODIFIED="1148498560659" TEXT="Ctrl+Alt+W: looses action">
 <font NAME="SansSerif" SIZE="14"/>
 <icon BUILTIN="button_ok"/>
+</node>
+<node COLOR="#990000" CREATED="1139937931906" ID="Freemind_Link_1003255905" MODIFIED="1150237756437" TEXT="make memory profiling">
+<font NAME="SansSerif" SIZE="14"/>
+<icon BUILTIN="button_ok"/>
+</node>
+<node COLOR="#990000" CREATED="1141847037452" ID="Freemind_Link_860460502" MODIFIED="1150237857125" TEXT=" result = {}, F3 no result d&#xe1; erro.">
+<font NAME="SansSerif" SIZE="14"/>
+<icon BUILTIN="button_ok"/>
+</node>
+<node COLOR="#990000" CREATED="1139594377406" ID="Freemind_Link_442163909" MODIFIED="1150238062421" TEXT="from xxx &apos;import&apos; completion should only work in the &apos;code&apos; partition">
+<font NAME="SansSerif" SIZE="14"/>
 </node>
 </node>
 </node>
@@ -75,6 +80,18 @@
 </node>
 <node COLOR="#00b439" CREATED="1139594480906" ID="Freemind_Link_739678165" MODIFIED="1140001041734" TEXT="Refactoring">
 <font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1150238086375" ID="Freemind_Link_1906576894" MODIFIED="1150238101468" TEXT="Rename variables">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1150238102781" ID="Freemind_Link_1686959584" MODIFIED="1150238107421" TEXT="Extract Method">
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1150238183500" ID="Freemind_Link_1994392803" MODIFIED="1150238288390" TEXT="Extract to class (self) -- if inside class"/>
+<node COLOR="#111111" CREATED="1150238199984" ID="Freemind_Link_1246361948" MODIFIED="1150238217203" TEXT="Extract to module (if uses self, pass as firs parameter)"/>
+<node COLOR="#111111" CREATED="1150238218937" ID="Freemind_Link_1819546957" MODIFIED="1150238228703" TEXT="Extract to some other module"/>
+</node>
+<node COLOR="#990000" CREATED="1150238111562" ID="Freemind_Link_1218789951" MODIFIED="1150238118218" TEXT="Inline variable">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
 </node>
 <node COLOR="#00b439" CREATED="1139594467156" FOLDED="true" ID="Freemind_Link_1278244917" MODIFIED="1140001041734" TEXT="Pretty print">
 <font NAME="SansSerif" SIZE="16"/>
@@ -110,15 +127,6 @@
 <node COLOR="#00b439" CREATED="1139999953484" ID="Freemind_Link_382561698" MODIFIED="1140001041843" TEXT="Enable the user to &apos;annotate&apos; classes as &apos;dynamic&apos; &#xa;classes (and make it automatic if it has __getattr__)">
 <font NAME="SansSerif" SIZE="16"/>
 </node>
-<node COLOR="#00b439" CREATED="1140000211078" ID="Freemind_Link_1097971863" MODIFIED="1140001041859" TEXT="outline">
-<font NAME="SansSerif" SIZE="16"/>
-<node COLOR="#990000" CREATED="1140000220093" ID="Freemind_Link_683207700" MODIFIED="1140001041859" TEXT="add attributes">
-<font NAME="SansSerif" SIZE="14"/>
-</node>
-<node COLOR="#990000" CREATED="1140000229859" ID="Freemind_Link_178802396" MODIFIED="1140001041859" TEXT="add comment blocks">
-<font NAME="SansSerif" SIZE="14"/>
-</node>
-</node>
 <node COLOR="#00b439" CREATED="1140000250828" ID="Freemind_Link_111080914" MODIFIED="1140001041859" TEXT="folding">
 <font NAME="SansSerif" SIZE="16"/>
 <node COLOR="#990000" CREATED="1140000254328" ID="Freemind_Link_1755892659" MODIFIED="1140001041875" TEXT="add comment blocks">
@@ -147,6 +155,17 @@
 <font NAME="SansSerif" SIZE="12"/>
 </node>
 </node>
+<node COLOR="#990000" CREATED="1140000211078" ID="Freemind_Link_1097971863" MODIFIED="1150237910656" TEXT="outline">
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1140000220093" ID="Freemind_Link_683207700" MODIFIED="1150237910656" TEXT="add attributes">
+<font NAME="SansSerif" SIZE="12"/>
+<icon BUILTIN="button_ok"/>
+</node>
+<node COLOR="#111111" CREATED="1140000229859" ID="Freemind_Link_178802396" MODIFIED="1150237910671" TEXT="add comment blocks">
+<font NAME="SansSerif" SIZE="12"/>
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
 </node>
 <node COLOR="#00b439" CREATED="1148498768420" ID="Freemind_Link_366418378" MODIFIED="1148498794654" TEXT="Making ctrl+2+kill should also clear the compiled modules cache">
 <font NAME="SansSerif" SIZE="16"/>
@@ -154,9 +173,6 @@
 </node>
 <node COLOR="#0033ff" CREATED="1139937919875" ID="Freemind_Link_342607119" MODIFIED="1140001041875" POSITION="left" TEXT="other improvements">
 <font NAME="SansSerif" SIZE="18"/>
-<node COLOR="#00b439" CREATED="1139937931906" ID="Freemind_Link_1003255905" MODIFIED="1140001041875" TEXT="make memory profiling">
-<font NAME="SansSerif" SIZE="16"/>
-</node>
 <node COLOR="#00b439" CREATED="1140106715906" ID="Freemind_Link_1375402745" MODIFIED="1140106864265" TEXT="Make script to handle all the buld proccess:&#xa;- Creating build: OK&#xa;- Creating e-mail message:&#xa;- Uploading files to sourceforge (partial: only html)&#xa;- Uploading files to fabioz.com&#xa;- Updating site.xml&#xa;- Printing what else needs to be done in sf">
 <font NAME="SansSerif" SIZE="16"/>
 </node>

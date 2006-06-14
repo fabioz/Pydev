@@ -46,7 +46,7 @@ public class PyASTChangerTest extends TestCase {
         
         ClassDef classDef = PyASTFactory.makePassClassDef("test");
         
-        changer.addStmt(m, "body", 0, classDef);
+        changer.addStmtToNode(m, "body", 0, classDef, true);
         changer.apply(new NullProgressMonitor());
         
         String result = doc.get();
@@ -65,7 +65,7 @@ public class PyASTChangerTest extends TestCase {
         
         ClassDef classDef = PyASTFactory.makePassClassDef("test");
         
-        changer.addStmt(m, "body", 1, classDef);
+        changer.addStmtToNode(m, "body", 1, classDef, true);
         changer.apply(new NullProgressMonitor());
         
         String result = doc.get();
@@ -88,7 +88,7 @@ public class PyASTChangerTest extends TestCase {
     	
     	ClassDef classDef = PyASTFactory.makePassClassDef("test");
     	
-    	changer.addStmt(m, "body", 1, classDef);
+    	changer.addStmtToNode(m, "body", 1, classDef, true);
     	changer.apply(new NullProgressMonitor());
     	
     	String result = doc.get();
@@ -109,7 +109,7 @@ public class PyASTChangerTest extends TestCase {
     	Module m = (Module) ast;
     	assertEquals(2, m.body.length);
     	
-    	changer.delStmt(m, "body", 1);
+    	changer.delStmtFromNode(m, "body", 1);
     	changer.apply(new NullProgressMonitor());
     	
     	String result = doc.get();
@@ -119,5 +119,6 @@ public class PyASTChangerTest extends TestCase {
     	assertEquals("class C1:pass\n", result);
     	
     }
+    
 
 }
