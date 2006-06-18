@@ -176,6 +176,12 @@
 <node COLOR="#00b439" CREATED="1140106715906" ID="Freemind_Link_1375402745" MODIFIED="1140106864265" TEXT="Make script to handle all the buld proccess:&#xa;- Creating build: OK&#xa;- Creating e-mail message:&#xa;- Uploading files to sourceforge (partial: only html)&#xa;- Uploading files to fabioz.com&#xa;- Updating site.xml&#xa;- Printing what else needs to be done in sf">
 <font NAME="SansSerif" SIZE="16"/>
 </node>
+<node COLOR="#00b439" CREATED="1150661220875" ID="Freemind_Link_332273753" MODIFIED="1150661230484" TEXT="If project is changed to jython, and there is no jython interpreter &#xa;configured, a message should be shown to the user.">
+<font NAME="SansSerif" SIZE="16"/>
+</node>
+<node COLOR="#00b439" CREATED="1150661235406" ID="Freemind_Link_266065152" MODIFIED="1150661261218" TEXT="When trying to run with &apos;old&apos; interpreter, let the user know about it.">
+<font NAME="SansSerif" SIZE="16"/>
+</node>
 </node>
 </node>
 </map>
