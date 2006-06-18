@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testTabIndentToLevel();
+            s.testTab();
             s.tearDown();
     		junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -55,6 +55,16 @@ public class PyAutoIndentStrategyTest extends TestCase {
     public PyAutoIndentStrategyTest(String arg0) {
         super(arg0);
         strategy = new PyAutoIndentStrategy();
+    }
+    
+    public void testTab() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String str = 
+            "        args = [ '-1', '-2',\n"+ 
+            "                ";
+        DocCmd docCmd = new DocCmd(str.length(), 0, "\t");
+        strategy.customizeDocumentCommand(new Document(str), docCmd);
+        assertEquals("    ", docCmd.text);
     }
     
     public void testSpaces() {

@@ -342,8 +342,11 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 
             			if(currSize >= sizeExpected){
             				//do nothing (we already passed what we expected from the indentation)
+            			    int len = sizeApplied-sizeExpected;
                             if(prevLineTup.o2){
-                                command.text = prevExpectedIndent.substring(sizeApplied-sizeExpected);
+                                if(prevExpectedIndent.length() > len){
+                                    command.text = prevExpectedIndent.substring(len);
+                                }
                             }
             			}else if(sizeExpected == sizeApplied){
             				ps.deleteSpacesAfter(command.offset);
