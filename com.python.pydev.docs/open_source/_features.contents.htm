@@ -3,13 +3,13 @@
 
 
 <ul>
-<li>Startup is now faster for the plugin: actions, scripts, etc. are now all initialized in a separate thread
-</li><li>Indentation engine does not degrade as document grows
-</li><li>Multiple-string does not mess up highlighting anymore
-</li><li>code completion issue with {} solved
-</li><li>Ctrl+W: now expands the selection to cover the whole word where the cursor is
-</li><li>Assign to attributes (provided by Joel Hedlund) was expanded so that Ctrl+1 on method line provides it as a valid proposal
-</li><li>A Typing preferences page was created so that the main page now fits in lower resolutions 
+<li>Eclipse 3.2 supported (and 3.1 support is now discontinued)
+</li><li>Lot's of optimizations to make pydev faster
+</li><li>Ctrl+Click now works with the find definition engine 
+</li><li>Comments that start with #--- are shown in the outline
+</li><li>Attributes are shown in the outline
+</li><li>Parse errors are now shown (again) in the editor
+</li><li>Many other bugs fixed
 </li>
 </ul>
 
@@ -70,7 +70,26 @@
 <hr/>
 <h2>Features History</h2>
 
-<h2>New on: 1.0.7</h2>
+<h2>New on: 1.1.0</h2>
+
+
+<ul>
+<li>Startup is now faster for the plugin: actions, scripts, etc. are now all initialized in a separate thread
+</li><li>Indentation engine does not degrade as document grows
+</li><li>Multiple-string does not mess up highlighting anymore
+</li><li>code completion issue with {} solved
+</li><li>Ctrl+W: now expands the selection to cover the whole word where the cursor is
+</li><li>Assign to attributes (provided by Joel Hedlund) was expanded so that Ctrl+1 on method line provides it as a valid proposal
+</li><li>A Typing preferences page was created so that the main page now fits in lower resolutions 
+</li>
+</ul>
+<br/>
+<strong>NOTE</strong>: this is the last version with support for Eclipse 3.1
+<br/>
+<br/>
+
+
+<h2>New on: 1.0.8</h2>
 
 <ul>
 <li>The Parser character stream was redone to be more efficient (especially when dealing with big files)
