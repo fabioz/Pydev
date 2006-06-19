@@ -127,12 +127,6 @@
 <node COLOR="#00b439" CREATED="1139999953484" ID="Freemind_Link_382561698" MODIFIED="1140001041843" TEXT="Enable the user to &apos;annotate&apos; classes as &apos;dynamic&apos; &#xa;classes (and make it automatic if it has __getattr__)">
 <font NAME="SansSerif" SIZE="16"/>
 </node>
-<node COLOR="#00b439" CREATED="1140000250828" ID="Freemind_Link_111080914" MODIFIED="1140001041859" TEXT="folding">
-<font NAME="SansSerif" SIZE="16"/>
-<node COLOR="#990000" CREATED="1140000254328" ID="Freemind_Link_1755892659" MODIFIED="1140001041875" TEXT="add comment blocks">
-<font NAME="SansSerif" SIZE="14"/>
-</node>
-</node>
 <node COLOR="#00b439" CREATED="1148498654641" FOLDED="true" ID="Freemind_Link_107838497" MODIFIED="1148498657501" TEXT="Fixed">
 <font NAME="SansSerif" SIZE="16"/>
 <node COLOR="#990000" CREATED="1139852644671" ID="Freemind_Link_34736996" MODIFIED="1148498659235" TEXT="making analysis">
@@ -164,6 +158,12 @@
 <node COLOR="#111111" CREATED="1140000229859" ID="Freemind_Link_178802396" MODIFIED="1150237910671" TEXT="add comment blocks">
 <font NAME="SansSerif" SIZE="12"/>
 <icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node COLOR="#990000" CREATED="1140000250828" ID="Freemind_Link_111080914" MODIFIED="1150745493914" TEXT="folding">
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1140000254328" ID="Freemind_Link_1755892659" MODIFIED="1150745493914" TEXT="add comment blocks">
+<font NAME="SansSerif" SIZE="12"/>
 </node>
 </node>
 </node>
