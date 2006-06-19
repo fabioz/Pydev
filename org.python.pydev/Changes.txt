@@ -2,15 +2,17 @@
 after 1.1.0
 
 Pydev:
+- Eclipse 3.2 supported (and 3.1 support is now discontinued)
+- Lot's of optimizations to make pydev faster
 - Ctrl+Click now works with the find definition engine 
 - Comments that start with #--- are shown in the outline
 - Attributes are shown in the outline
+- Parse errors are now show (again) in the editor
+- Other bugs fixed
 
 Pydev Extensions:
-- Interactive console: content is now changed so that you don't have 
-syntax errors when passing code to it.
-- An action was added to the menu so that you can use the 'globals' browser without needing focus
-on the pydev editor.
+- Interactive console: content is now changed so that you don't have syntax errors when passing code to it.
+- An action was added to the menu so that you can use the 'globals' browser without needing focus on the pydev editor.
 
 
 after 1.0.8

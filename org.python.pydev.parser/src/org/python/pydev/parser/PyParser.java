@@ -336,11 +336,11 @@ public class PyParser {
             fireParserChanged(obj.o1, adaptable, document, argsToReparse);
         }
         
-        if(obj.o1 != null && obj.o2 instanceof ParseException){
+        if(obj.o2 != null && obj.o2 instanceof ParseException){
             fireParserError((ParseException) obj.o2, adaptable, document, argsToReparse);
         }
         
-        if(obj.o1 != null && obj.o2 instanceof TokenMgrError){
+        if(obj.o2 != null && obj.o2 instanceof TokenMgrError){
             fireParserError((TokenMgrError) obj.o2, adaptable, document, argsToReparse);
         }
         
