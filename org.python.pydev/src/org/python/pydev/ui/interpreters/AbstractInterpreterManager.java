@@ -204,6 +204,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * @see org.python.pydev.core.IInterpreterManager#addInterpreter(java.lang.String)
      */
     public String addInterpreter(String executable, IProgressMonitor monitor) {
+        exeToInfo.remove(executable); //always clear it
         InterpreterInfo info = getInterpreterInfo(executable, monitor);
         return info.executableOrJar;
     }
