@@ -1,0 +1,30 @@
+Ok, this is an introduction on how to configure pydev to work with turbogears.
+
+I still haven't used turbogears myself, so, in the end, this might be interesting for other users that are starting in the turbogears world themselves ;-)
+
+1st step: getting turbogears 
+
+OK: downloaded version 0.8.9, which is the latest release
+
+2nd step: installing it
+
+Running setup.py install did some nice things for me... it downloaded setuptools automatically (as it was a pre-requisite) and then proceeded getting other dependencies (egg files) and installed all those without further problems (yeap, many dependencies there).
+
+Now, I still don't have docutils (which it says will make it more 'fun') nor a database, so, I'll get it before I proceed.
+
+It says to use easy_install to get docutils, but it needs some search to know exactly what it means (turns out to be a script installed in my computer at C:\bin\Python24\Scripts\easy_install.exe)
+
+Turns out it didn't do it's job:
+
+[C:\bin]c:\bin\Python24\Scripts\easy_install.exe docutils
+
+Searching for docutils
+Reading http://www.python.org/pypi/docutils/
+Reading http://docutils.sourceforge.net/
+Best match: docutils 0.4
+Downloading http://prdownloads.sourceforge.net/docutils/docutils-0.4.tar.gz?download
+Requesting redirect to (randomly selected) 'mesh' mirror
+error: No META HTTP-EQUIV="refresh" found in Sourceforge page at http://prdownloads.sourceforge.net/
+docutils/docutils-0.4.tar.gz?use_mirror=mesh
+
+So, I went on to get it myself and then proceeded to get sqllite (http://pysqlite.org and http://sqlite.org)
