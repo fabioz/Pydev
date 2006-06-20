@@ -60,7 +60,6 @@ public class PrettyPrinterLibTest extends PyParserTestBase{
                 SimpleNode node = null;
                 try {
                     node = parseLegalDocStr(writer.getBuffer().toString());
-                    System.out.println("succeded:"+f);
                 } catch (Throwable e) {
                     e.printStackTrace();
                     fail("Error, unable to pretty-print and regenerate file:"+f);

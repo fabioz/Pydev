@@ -19,7 +19,7 @@ public class SearchTest extends AdditionalInfoTestsBase {
 		try {
 			SearchTest test = new SearchTest();
 			test.setUp();
-			test.testOnSameName2();
+			test.testBuiltinSearch2();
 			test.tearDown();
 
 			junit.textui.TestRunner.run(SearchTest.class);

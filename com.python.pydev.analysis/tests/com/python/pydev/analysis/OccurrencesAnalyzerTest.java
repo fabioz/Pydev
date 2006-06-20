@@ -26,7 +26,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testFalseUnused();
+            analyzer2.testOsPath();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -100,17 +100,29 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals("testcase", msgs[0].getAdditionalInfo().get(1));
     }
     
-    public void testFalseUnused(){
+    public void testOsPath(){
     	doc = new Document(
-    			"def m1():\n"+
-    			"    name = ''\n"+
-    			"    getattr(1, name).text().latin1\n"
+    			"from os.path import *#@UnusedWildImport\n"+
+    			"print exists\n"
     	);
     	analyzer = new OccurrencesAnalyzer();
     	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs,0);
     	
+    }
+    
+    public void testFalseUnused(){
+        doc = new Document(
+                "def m1():\n"+
+                "    name = ''\n"+
+                "    getattr(1, name).text().latin1\n"
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs,0);
+        
     }
     
     public void testDelete(){

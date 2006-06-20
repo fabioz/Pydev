@@ -27,4 +27,15 @@ Requesting redirect to (randomly selected) 'mesh' mirror
 error: No META HTTP-EQUIV="refresh" found in Sourceforge page at http://prdownloads.sourceforge.net/
 docutils/docutils-0.4.tar.gz?use_mirror=mesh
 
-So, I went on to get it myself and then proceeded to get sqllite (http://pysqlite.org and http://sqlite.org)
+So, I went on to get it myself and then proceeded to get pysqlite (http://pysqlite.org).
+
+So, now on to see how pydev looks... First, my interpreter configuration has become obsolete, so, all those libraries that were added later are not there... So, I just remove the interpreter and add it again (so, it should get all those new libraries -- version 1.2.0 of pydev and earlier had a 'cache' bug, so, you'd need to remove the interpreter, press apply and only after it proceed to add the interpreter again).
+
+So, just to make sure pysqlite is there:
+from pysqlite2 import dbapi2 as sqlite
+con = sqlite.connect("mydb") 
+print con
+
+Ok, connection there, and a mydb file created, so, everything seems fine.
+
+I decided to go with the 20 minute-flash that turbogears has there... Ok, it starts creating a project with tg_admin quickstart. So, I decided to create a new pydev project from eclipse before and placed it at d:\turbogears, and ran tg_admin quickstart from within that directory to get started.
