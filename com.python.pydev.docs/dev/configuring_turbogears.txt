@@ -39,3 +39,11 @@ print con
 Ok, connection there, and a mydb file created, so, everything seems fine.
 
 I decided to go with the 20 minute-flash that turbogears has there... Ok, it starts creating a project with tg_admin quickstart. So, I decided to create a new pydev project from eclipse before and placed it at d:\turbogears, and ran tg_admin quickstart from within that directory to get started.
+
+I called the project "wiki test" and it created all the structure without any problems, and starting it with wikitest-start.py actually started the server without any problems (http://localhost:8080/)
+
+Now, to configure pydev, you'd have to add the created folder d:\turbogears\wikitest as a source folder for the project (this would give you code-completion and code-analysis for that project. Details on how to do that can be found at http://fabioz.com/pydev/manual_101_project_conf2.html
+
+Ok, now on to the database creation: got some things mixed up here because the video didn't specify the dev.cfg changes (but the written one does, so, not such a big problem).
+
+Kid template editing: I'd reccomend having WTP (Web Tools Platform) to edit html files... surely makes things much nicer.
