@@ -28,6 +28,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
@@ -504,7 +505,15 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
             }
         }
         if(foundStartingWithBuiltin){
-        	return null;
+            //ok, just add it if it is some module that actually exists
+            n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
+            IToken[] globalTokens = n.getGlobalTokens();
+            if(globalTokens.length > 0 && contains(globalTokens, "__file__")){
+                doAddSingleModule(new ModulesKey(name, null), n);
+                return n;
+            }else{
+                return null;
+            }
         }
 
 
@@ -568,6 +577,17 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
 
     }
 
+    /**
+     * @return true if there is a token that has rep as its representation.
+     */
+    private boolean contains(IToken[] tokens, String rep) {
+        for (IToken token : tokens) {
+            if(token.getRepresentation().equals(rep)){
+                return true;
+            }
+        }
+        return false;
+    }
 
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#isInPythonPath(org.eclipse.core.resources.IResource, org.eclipse.core.resources.IProject)
