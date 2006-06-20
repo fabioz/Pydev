@@ -52,6 +52,9 @@
 <font NAME="SansSerif" SIZE="14"/>
 </node>
 </node>
+<node COLOR="#00b439" CREATED="1150831755668" ID="Freemind_Link_1216927156" MODIFIED="1150831782464" TEXT="Clicking on stack-trace does not position cursor correctly on line.">
+<font NAME="SansSerif" SIZE="16"/>
+</node>
 </node>
 <node COLOR="#0033ff" CREATED="1139594227703" FOLDED="true" ID="Freemind_Link_1643430887" MODIFIED="1142643906171" POSITION="right" TEXT="Code Completion">
 <font NAME="SansSerif" SIZE="18"/>
