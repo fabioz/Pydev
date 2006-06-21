@@ -95,7 +95,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 				else {	// files outside of the workspace
 					File realFile = new File(fileName);
 					if (realFile.exists()) {
-						ItemPointer p = new ItemPointer(realFile, new Location(num+1, 0), null);
+						ItemPointer p = new ItemPointer(realFile, new Location(num-1, 0), null);
 						link = new ConsoleLink(p);
 					}
 				}

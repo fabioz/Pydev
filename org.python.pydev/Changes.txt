@@ -3,6 +3,7 @@ after 1.2.0
 
 Pydev:
 - Go to previous method now works with decorators
+- Stack-trace did not open in correct line when external files were opened
 
 after 1.1.0
 
