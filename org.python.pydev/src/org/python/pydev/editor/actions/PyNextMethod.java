@@ -26,7 +26,8 @@ public class PyNextMethod extends PyMethodNavigation{
         Iterator<ASTEntry> classesAndMethodsIterator = visitor.getClassesAndMethodsIterator();
         while(classesAndMethodsIterator.hasNext()){
             ASTEntry entry = classesAndMethodsIterator.next();
-            if(entry.node.beginLine-1 > line ){
+            SimpleNode nameNode = getNameNode(entry);
+            if(nameNode.beginLine-1 > line ){
                 return entry;
             }
         }

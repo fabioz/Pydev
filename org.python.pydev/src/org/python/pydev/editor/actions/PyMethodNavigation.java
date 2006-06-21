@@ -13,6 +13,8 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 /**
@@ -35,17 +37,7 @@ public abstract class PyMethodNavigation extends PyAction {
 		ITextSelection selection = (ITextSelection) pyEdit.getSelectionProvider().getSelection();
 
 		ASTEntry goHere = getSelect(pyEdit.getAST(), selection.getStartLine());
-        SimpleNode node = null;
-        if(goHere != null){
-            if(goHere.node instanceof ClassDef){
-                ClassDef def = (ClassDef) goHere.node;
-                node = def.name;
-            }
-            if(goHere.node instanceof FunctionDef){
-                FunctionDef def = (FunctionDef) goHere.node;
-                node = def.name;
-            }
-        }
+        SimpleNode node = getNameNode(goHere);
         if(node != null){
             //ok, somewhere to go
             pyEdit.revealModelNode(node);
@@ -57,6 +49,24 @@ public abstract class PyMethodNavigation extends PyAction {
                 pyEdit.selectAndReveal(0, 0);
             }
         }
+	}
+
+	protected SimpleNode getNameNode(ASTEntry goHere) {
+		SimpleNode node = null;
+        if(goHere != null){
+        	if(goHere.node instanceof NameTok || goHere.node instanceof Name){
+        		node = goHere.node;
+        	}
+            if(goHere.node instanceof ClassDef){
+                ClassDef def = (ClassDef) goHere.node;
+                node = def.name;
+            }
+            if(goHere.node instanceof FunctionDef){
+                FunctionDef def = (FunctionDef) goHere.node;
+                node = def.name;
+            }
+        }
+		return node;
 	}
 
 	protected abstract boolean goToEndOfFile() ;

@@ -26,7 +26,8 @@ public class PyPreviousMethod extends PyMethodNavigation {
         
         while(classesAndMethodsIterator.hasNext()){
             ASTEntry entry = classesAndMethodsIterator.next();
-            if(entry.node.beginLine-1 < line ){
+            SimpleNode nameNode = getNameNode(entry);
+            if(nameNode.beginLine-1 < line ){
                 last = entry;
             }
         }
