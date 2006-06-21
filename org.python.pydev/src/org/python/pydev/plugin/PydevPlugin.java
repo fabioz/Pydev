@@ -21,7 +21,6 @@ import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -111,7 +110,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     		try {
     			Thread.sleep(100);
     		} catch (Exception e) {
-    			e.printStackTrace();
+    			//e.printStackTrace();
     		}
     	}
     	return pythonInterpreterManager;
