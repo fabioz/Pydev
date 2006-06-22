@@ -242,8 +242,8 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         for (ModulesManager m : managersInvolved) {
             IModule module;
             if (m instanceof ProjectModulesManager) {
-                IProjectModulesManager pM = (IProjectModulesManager) m;
-                module = pM.getModule(name, nature, false, dontSearchInit);
+                ProjectModulesManager pM = (ProjectModulesManager) m;
+                module = pM.superGetModule(name, nature, dontSearchInit);
 
             }else{
                 module = m.getModule(name, nature, dontSearchInit); //we already have the system manager here...
@@ -252,6 +252,10 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
                 return module;
             }
         }
+        return super.getModule(name, nature, dontSearchInit);
+    }
+    
+    protected IModule superGetModule(String name, IPythonNature nature, boolean dontSearchInit) {
         return super.getModule(name, nature, dontSearchInit);
     }
 
@@ -276,8 +280,8 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
             
             String mod;
             if (m instanceof ProjectModulesManager) {
-                IProjectModulesManager pM = (IProjectModulesManager) m;
-                mod = pM.resolveModule(full, false);
+                ProjectModulesManager pM = (ProjectModulesManager) m;
+                mod = pM.superResolveModule(full);
             
             }else{
                 mod = m.resolveModule(full);
@@ -290,6 +294,10 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         return super.resolveModule(full);
     }
 
+    protected String superResolveModule(String full) {
+        return super.resolveModule(full);
+    }
+    
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#changePythonPath(java.lang.String, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
      */
