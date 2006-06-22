@@ -11,8 +11,6 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.PyEdit;
-import org.python.pydev.plugin.nature.PythonNature;
 
 
 /**
@@ -21,20 +19,10 @@ import org.python.pydev.plugin.nature.PythonNature;
  */
 public class CompletionRequest implements ICompletionRequest{
 
-    public CompletionRequest(PyEdit edit, IDocument doc,
-            String activationToken, int documentOffset, int qlen,
-            PyCodeCompletion codeCompletion, 
-            String qualifier){
-        this.editorFile = edit.getEditorFile();
-        this.nature = (PythonNature) edit.getPythonNature();
-        this.doc = doc;
-        this.activationToken  = activationToken;
-        this.documentOffset = documentOffset;
-        this.qlen = qlen;
-        this.codeCompletion = codeCompletion;
-        this.qualifier = qualifier;
-    }
 
+    /**
+     * This is used on the AssistOverride: the activationToken is pre-specified for some reason
+     */
     public CompletionRequest(File editorFile, IPythonNature nature, IDocument doc,
             String activationToken, int documentOffset, int qlen,
             PyCodeCompletion codeCompletion, 
@@ -51,9 +39,18 @@ public class CompletionRequest implements ICompletionRequest{
         
     }
 
+    /**
+     * This is the constructor that should be usually used. It will set the activation token
+     * and the qualifier based on the document and its offset
+     * 
+     * @param editorFile
+     * @param nature
+     * @param doc
+     * @param documentOffset
+     * @param codeCompletion
+     */
     public CompletionRequest(File editorFile, IPythonNature nature, IDocument doc,
-            int documentOffset,
-            PyCodeCompletion codeCompletion){
+            int documentOffset, PyCodeCompletion codeCompletion){
 
         String[] strs = PySelection.getActivationTokenAndQual(doc, documentOffset); 
         this.activationToken = strs[0];
@@ -70,12 +67,36 @@ public class CompletionRequest implements ICompletionRequest{
         
     }
 
+    /**
+     * This is the file where the request was created. Note that it might be null (especially during the tests). 
+     * It should be available at runtime and may be used to resolve some path.
+     */
     public File editorFile;
     public IPythonNature nature;
     public IDocument doc;
+    
+    /**
+     * The activation token of this request.
+     * 
+     * If it is requested at "m1.m2", the activationToken should be "m1" and the qualifier should be "m2"
+     * 
+     * If requested at "m3", the activationToken should be empty and the qualifier should be "m3"
+     */
     public String activationToken; 
     public String qualifier; 
+    
+    /**
+     * The offset in the document where this request was asked
+     */
     public int documentOffset; 
+    
+    /**
+     * The lenght of the qualifier (== qualifier.length()
+     */
     public int qlen;
+    
+    /**
+     * The engine for doing the code-completion
+     */
     public PyCodeCompletion codeCompletion;
 }

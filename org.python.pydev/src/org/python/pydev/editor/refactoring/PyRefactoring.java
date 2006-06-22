@@ -97,13 +97,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
 
 
     /**
-     * @param editorFile
-     * @param beginLine
-     * @param beginCol
-     * @param endLine
-     * @param endCol
-     * @param name
-     * @param operation
+     * Requests an extract in the shell
      */
     public String extract(RefactoringRequest request) {
         File editorFile = request.file;
@@ -124,12 +118,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
         return string;
     }
 
-    /**
-     * @param editorFile
-     * @param beginLine
-     * @param beginCol
-     * @param name
-     * @param operation
+    /** Requests a rename operation in the shell
      */
     public String rename(RefactoringRequest request) {
         if(request.duringProcessInfo.name == null || request.duringProcessInfo.name.equals("")){
@@ -194,11 +183,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
     }
     
     /**
-     * @param editorFile
-     * @param beginLine
-     * @param beginCol
-     * @param operation
-     * @return
+	 * Requests an inline local variable in the shell
      */
     public String inlineLocalVariable(RefactoringRequest request) {
         File editorFile = request.file;
@@ -217,14 +202,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
     }
     
     /**
-     * @param editorFile
-     * @param beginLine
-     * @param beginCol
-     * @param endLine
-     * @param endCol
-     * @param name
-     * @param operation
-     * @return
+     * Requests an extract local variable in the shell
      */
     public String extractLocalVariable(RefactoringRequest request) {
         File editorFile = request.file;

@@ -12,6 +12,7 @@ import java.io.IOException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
@@ -31,7 +32,14 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-          test.testProj2Global();
+	      
+	      //Sean: note that the first thing you need to do is get the activation token and qualifier differently
+	      //if just after a '(' or ',' so this is the first test you'll play with
+	      //See org.python.pydev.editor.codecompletion.CompletionRequest#activationToken for a description of it
+	      test.testGetActTok();
+	      
+	      //and now, on to the calltips
+          test.testCalltips1();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -410,9 +418,13 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals("" , strs[0]);
         assertEquals("foo", strs[1]);
         
-        strs = PySelection.getActivationTokenAndQual(new Document("foo.bar   "), 5, true);
+        strs = PySelection.getActivationTokenAndQual(new Document("foo.bar   "), 5, true); //get the full qualifier
         assertEquals("foo.", strs[0]);
         assertEquals("bar", strs[1]);
+        
+        strs = PySelection.getActivationTokenAndQual(new Document("foo.bar   "), 5, false); //get just a part of it
+        assertEquals("foo.", strs[0]);
+        assertEquals("b", strs[1]);
         
         strs = PySelection.getActivationTokenAndQual(new Document("foo.bar   "), 100, true); //out of the league
         assertEquals("", strs[0]);
@@ -421,6 +433,38 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         String importsTipperStr = PyCodeCompletion.getImportsTipperStr(new Document("from coilib.decorators import "), 30);
         assertEquals("coilib.decorators" , importsTipperStr);
         
+        strs = PySelection.getActivationTokenAndQual(new Document("foo.bar.xxx   "), 9, true); 
+        assertEquals("foo.bar.", strs[0]);
+        assertEquals("xxx", strs[1]);
+        
+        strs = PySelection.getActivationTokenAndQual(new Document("foo.bar.xxx   "), 9, false); 
+        assertEquals("foo.bar.", strs[0]);
+        assertEquals("x", strs[1]);
+        
+        strs = PySelection.getActivationTokenAndQual(new Document("m1(a.b)"), 4, false); 
+        assertEquals("", strs[0]);
+        assertEquals("a", strs[1]);
+        
+        //Ok, now, the tests for getting the activation token and qualifier for the calltips.
+        //We should 'know' that we're just after a parentesis and get the contents before it
+        //This means: get the char before the offset (excluding spaces and tabs) and see
+        //if it is a ',' or '(' and if it is, go to that offset and do the rest of the process
+        //as if we were on that position
+        strs = PySelection.getActivationTokenAndQual(new Document("m1()"), 3, false); 
+        assertEquals("", strs[0]);
+        assertEquals("m1", strs[1]);
+        
+        strs = PySelection.getActivationTokenAndQual(new Document("m1.m2()"), 6, false); 
+        assertEquals("m1.", strs[0]);
+        assertEquals("m2", strs[1]);
+        
+        strs = PySelection.getActivationTokenAndQual(new Document("m1.m2(  \t)"), 9, false); 
+        assertEquals("m1.", strs[0]);
+        assertEquals("m2", strs[1]);
+        
+        strs = PySelection.getActivationTokenAndQual(new Document("m1(a  , \t)"), 9, false); 
+        assertEquals("", strs[0]);
+        assertEquals("m1", strs[1]);
         
     }
 
@@ -442,5 +486,54 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             throw new RuntimeException(e);
         }
     }
+    
+    public void testCalltips1() throws CoreException, BadLocationException {
+    	String s;
+    	s = "" +
+    	"GLOBAL_VAR = 10\n" + //this variable should not show in the return
+    	"def m1(a, b):\n" +
+    	"    print a, b\n" +
+    	"\n" +
+    	"m1()"; //we'll request a completion inside the parentesis to check for calltips. For calltips, we
+    	        //should get the activation token as an empty string and the qualifier as "m1", 
+    			//so, the completion that should return is "m1(a, b)", with the information context
+    			//as "a, b". 
+    			//
+    			//
+    			//
+    			//The process of getting the completions actually starts at:
+    			//org.python.pydev.editor.codecompletion.PyCodeCompletion#getCodeCompletionProposals
+    	
+    	ICompletionProposal[] proposals = requestCompl(s, s.length()-1, -1, new String[] {});
+    	
+    	
+    	if(false){ //make true to see which proposals were returned.
+	    	for (ICompletionProposal proposal : proposals) {
+				System.out.println(proposal.getDisplayString());
+			}
+    	}
+    	
+    	assertEquals(1, proposals.length); //now, here's the first part of the failing test: we can only have one
+    	    							   //returned proposal: m1(a, b)
+    	
+    	//check if the returned proposal is there
+    	assertEquals("m1(a, b)", proposals[0].getDisplayString());
+    	
+    	//the display string for the context 'context' and 'information' should be the same
+    	assertEquals("a, b", proposals[0].getContextInformation().getContextDisplayString());
+    	assertEquals("a, b", proposals[0].getContextInformation().getInformationDisplayString());
+    	
+    	//now, this proposal has one interesting thing about it: it should actually not change the document
+    	//where it is applied (it is there just to show the calltip). 
+    	//
+    	//To implement that, when we see that it is called inside some parenthesis, we should create a subclass of 
+    	//PyCompletionProposal that will have its apply method overriden, so that nothing happens here (the calltips will
+    	//still be shown)
+    	Document doc = new Document();
+		proposals[0].apply(doc);
+		assertEquals("", doc.get());
+	}
+    
+    
 
 }
