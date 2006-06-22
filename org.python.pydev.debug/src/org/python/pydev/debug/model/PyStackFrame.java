@@ -109,7 +109,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
 	}
 	
 	public IVariable[] getVariables() throws DebugException {
-		return EMPTY_IVARIABLE_ARRAY;
+		return this.variables;
 	}
 
     /**
