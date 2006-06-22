@@ -33,6 +33,20 @@ public class InterpreterInfoTest extends TestCase {
         super.tearDown();
     }
 
+    public void testInfo2() {
+        List<String> l1 = new ArrayList<String>();
+        l1.add("c:\\bin\\python24\\lib\\lib-tk");
+        List<String> l2 = new ArrayList<String>();
+        List<String> l3 = new ArrayList<String>();
+        l3.add("__builtin__");
+        l3.add("__main__");
+        l3.add("_bisect");
+        InterpreterInfo info8 = new InterpreterInfo("C:\\bin\\Python24\\python.exe", l1, l2, l3);
+        
+        String s = "EXECUTABLE:C:\\bin\\Python24\\python.exe|| c:\\bin\\python24\\lib\\lib-tkINS_PATH\n| c:\\bin\\python24OUT_PATH\n@\n$\n| __builtin__| __main__\n| _bisect\n";
+        assertEquals(info8, InterpreterInfo.fromString(s, false));
+    }
+    
     /**
      * 
      */

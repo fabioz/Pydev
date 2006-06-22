@@ -16,11 +16,20 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.UIConstants;
 
 
 public class InterpreterInfo implements Serializable, IInterpreterInfo{
@@ -116,6 +125,10 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
         return true;
     }
 
+    public static InterpreterInfo fromString(String received) {
+        return fromString(received, true);
+    }
+    
     /**
      * Format we receive should be:
      * 
@@ -123,7 +136,7 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
      * 
      * Symbols ': @ $'
      */
-    public static InterpreterInfo fromString(String received) {
+    public static InterpreterInfo fromString(String received, boolean askUserInOutPath) {
         if(received.toLowerCase().indexOf("executable") == -1){
             throw new RuntimeException("Unable to recreate the Interpreter info (Its format changed. Please, re-create your Interpreter information)");
         }
@@ -136,12 +149,91 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
         
         String[] exeAndLibs1 = exeAndLibs.split("\\|");
         String executable = exeAndLibs1[0].substring(exeAndLibs1[0].indexOf(":")+1, exeAndLibs1[0].length());
-        ArrayList<String> l = new ArrayList<String>();
-        for (int i = 1; i < exeAndLibs1.length; i++) { //start at 1 (o is exe)
+        final ArrayList<String> l = new ArrayList<String>();
+        final ArrayList<String> toAsk = new ArrayList<String>();
+        for (int i = 1; i < exeAndLibs1.length; i++) { //start at 1 (0 is exe)
             String trimmed = exeAndLibs1[i].trim();
             if(trimmed.length() > 0){
-                l.add(trimmed);
+                if(trimmed.endsWith("OUT_PATH")){
+                    trimmed = trimmed.substring(0, trimmed.length()-8);
+                    if(askUserInOutPath){
+                        toAsk.add(trimmed);
+                    }else{
+                        //is out by 'default'
+                    }
+                    
+                }else if(trimmed.endsWith("INS_PATH")){
+                    trimmed = trimmed.substring(0, trimmed.length()-8);
+                    if(askUserInOutPath){
+                        toAsk.add(trimmed);
+                        l.add(trimmed);
+                    }else{
+                        l.add(trimmed);
+                    }
+                }else{
+                    l.add(trimmed);
+                }
             }
+        }
+        
+        if(toAsk.size() > 0){
+            RunInUiThread.sync(new Runnable(){
+
+                public void run() {
+                    ListSelectionDialog dialog = new ListSelectionDialog(Display.getDefault().getActiveShell(), toAsk, 
+                            new IStructuredContentProvider(){
+
+                                @SuppressWarnings("unchecked")
+                                public Object[] getElements(Object inputElement) {
+                                    List<String> elements = (List<String>) inputElement;
+                                    return elements.toArray(new String[0]);
+                                }
+
+                                public void dispose() {
+                                }
+
+                                public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+                                }},
+                                
+                                
+                                new ILabelProvider(){
+
+                                public Image getImage(Object element) {
+                                    return PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM);
+                                }
+
+                                public String getText(Object element) {
+                                    return element.toString();
+                                }
+
+                                public void addListener(ILabelProviderListener listener) {
+                                }
+
+                                public void dispose() {
+                                }
+
+                                public boolean isLabelProperty(Object element, String property) {
+                                    return true;
+                                }
+
+                                public void removeListener(ILabelProviderListener listener) {
+                                }}, 
+                                
+                            "Select the folders to be added to the SYSTEM pythonpath!\n" +
+                            "\n" +
+                            "IMPORTANT: The folders for your PROJECTS should NOT be added here, but in your project configuration.\n\n" +
+                            "Check:http://fabioz.com/pydev/manual_101_interpreter.html for more details.");
+                    dialog.setInitialSelections(l.toArray(new String[0]));
+                    dialog.open();
+                    Object[] result = dialog.getResult();
+                    l.clear();
+                    for (Object string : result) {
+                        l.add((String) string);
+                    }
+                    
+                }
+                
+            });
         }
 
         ArrayList<String> l1 = new ArrayList<String>();

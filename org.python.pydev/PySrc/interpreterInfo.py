@@ -43,10 +43,16 @@ if __name__ == '__main__':
         p = formatPath(p)
         if p.startswith(prefix):
             if p not in result: #a path should not appear more than once...
-                result.append(p)
+                result.append((p,True))
+        else:
+            if p not in result: #a path should not appear more than once...
+                result.append((p, False))
             
-    for p in result:
-        print '|', p
+    for p,b in result:
+        if b:
+            print '|%s%s'% (p,'INS_PATH')
+        else:
+            print '|%s%s'% (p,'OUT_PATH')
     
     print '@' #no compiled libs
     print '$' #the forced libs

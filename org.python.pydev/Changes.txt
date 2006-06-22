@@ -4,6 +4,8 @@ after 1.2.0
 Pydev:
 - Go to previous method now works with decorators
 - Stack-trace did not open in correct line when external files were opened
+- The user is asked for which paths should be added to the system pythonpath (this has to be added to the manual.
+  It references http://fabioz.com/pydev/manual_101_interpreter.html)
 
 after 1.1.0
 

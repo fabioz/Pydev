@@ -201,6 +201,8 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     }
 
     /**
+     * Called when an interpreter should be added.
+     * 
      * @see org.python.pydev.core.IInterpreterManager#addInterpreter(java.lang.String)
      */
     public String addInterpreter(String executable, IProgressMonitor monitor) {
