@@ -215,7 +215,7 @@ public class PyCodeCoverageView extends ViewPart {
 
                         FileNode cache = (FileNode) PyCoverage.getPyCoverage().cache.getFile(realFile);
                         for (Iterator it = cache.notExecutedIterator(); it.hasNext();) {
-                            Map map = new HashMap();
+                            Map<String, Object> map = new HashMap<String, Object>();
                             int errorLine = ((Integer) it.next()).intValue() - 1;
 
                             IRegion region = document.getLineInformation(errorLine);
@@ -236,7 +236,6 @@ public class PyCodeCoverageView extends ViewPart {
                     }
                 }
             } catch (Exception e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
@@ -255,13 +254,15 @@ public class PyCodeCoverageView extends ViewPart {
                 if (objects[0] instanceof IPath) {
                     IPath p = (IPath) objects[0];
 
-                    
-                    //p = PydevPlugin.getLocationFromWorkspace(p);
                     IWorkspace w = ResourcesPlugin.getWorkspace();
-                    IContainer folderFolLocation = w.getRoot().getContainerForLocation(p);
+                    IContainer folderFolLocation = (IContainer) w.getRoot().findMember(p);
                     File file = null;
                     if(folderFolLocation != null){
-                    	file = folderFolLocation.getRawLocation().toFile();
+                    	IPath loc = folderFolLocation.getRawLocation();
+                        if(loc == null){
+                            loc = folderFolLocation.getLocation();
+                        }
+                        file = loc.toFile();
                     }else{
                     	file = p.toFile().getAbsoluteFile();
                     }
@@ -271,18 +272,6 @@ public class PyCodeCoverageView extends ViewPart {
                 }
             }
 
-            //previous code...
-            //DirectoryDialog dialog = new DirectoryDialog(getSite().getShell());
-            //if (lastChosenFile != null && lastChosenFile.exists()) {
-            //    dialog.setFilterPath(lastChosenFile.getParent());
-            //}
-            //String string = dialog.open();
-            //if (string != null) {
-            //    File file = new File(string);
-            //    lastChosenFile = file;
-            //    refreshAction.monitor = this.monitor;
-            //    refreshAction.run();
-            //}
 
         }
     }

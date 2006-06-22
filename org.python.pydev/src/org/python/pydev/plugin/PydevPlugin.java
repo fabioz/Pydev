@@ -82,8 +82,6 @@ import org.python.pydev.ui.interpreters.PythonInterpreterManager;
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
  */
 public class PydevPlugin extends AbstractUIPlugin implements Preferences.IPropertyChangeListener {
-	private static boolean DEBUG = false;
-	
 	
     // ----------------- SINGLETON THINGS -----------------------------
     public static IBundleInfo info;
