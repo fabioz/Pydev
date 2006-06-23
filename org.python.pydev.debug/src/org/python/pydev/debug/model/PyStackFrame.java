@@ -42,7 +42,6 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
 	private IVariableLocator globalsLocator;
 	private IVariableLocator frameLocator;
 	private AbstractDebugTarget target;
-	private static final IVariable[] EMPTY_IVARIABLE_ARRAY = new IVariable[0]; 
 
 	public PyStackFrame(PyThread in_thread, String in_id, String name, IPath file, int line, AbstractDebugTarget target) {
 		this.id = in_id;
@@ -108,8 +107,18 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
 		this.variables = locals;
 	}
 	
+
+    /**
+     * This interface changed in 3.2... we returned an empty collection before, and used the
+     * DeferredWorkbenchAdapter to get the actual children, but now we have to use the 
+     * DeferredWorkbenchAdapter from here, as it is not called in that other interface
+     * anymore.
+     * 
+     * @see org.eclipse.debug.core.model.IStackFrame#getVariables()
+     */
 	public IVariable[] getVariables() throws DebugException {
-		return this.variables;
+        DeferredWorkbenchAdapter adapter = new DeferredWorkbenchAdapter(this);
+        return (IVariable[]) adapter.getChildren(this);
 	}
 
     /**
