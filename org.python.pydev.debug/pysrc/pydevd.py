@@ -741,11 +741,11 @@ def settrace(host='localhost', stdoutToServer = False, stderrToServer = False):
     global connected
     global bufferStdOutToServer
     global bufferStdErrToServer
-    bufferStdOutToServer = stdoutToServer
-    bufferStdErrToServer = stderrToServer
     
     if not connected :
         connected = True  
+        bufferStdOutToServer = stdoutToServer
+        bufferStdErrToServer = stderrToServer
         
         setupType()
         
@@ -778,6 +778,21 @@ def settrace(host='localhost', stdoutToServer = False, stderrToServer = False):
         
         sys.settrace(debugger.trace_dispatch)
         PyDBCommandThread(debugger).start()
+        
+    else:
+        #ok, we're already in debug mode, with all set, so, let's just set the break
+        debugger = GetGlobalDebugger()
+        
+        SetTraceForParents(sys._getframe(), debugger.trace_dispatch)
+        
+        t = threading.currentThread()      
+        try:
+            additionalInfo = t.additionalInfo
+        except AttributeError:
+            additionalInfo = PyDBAdditionalThreadInfo()
+            t.additionalInfo = additionalInfo
+            
+        debugger.setSuspend(t, CMD_SET_BREAK)
     
 if __name__ == '__main__':
     print >>sys.stderr, "pydev debugger"

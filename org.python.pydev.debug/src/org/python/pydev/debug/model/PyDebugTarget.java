@@ -12,7 +12,6 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
-import org.eclipse.debug.core.model.IThread;
 import org.python.pydev.debug.model.remote.RemoteDebugger;
 /**
  * Debugger class that represents a single python process.
@@ -29,7 +28,7 @@ public class PyDebugTarget extends AbstractDebugTarget {
 		this.process = process;
 		this.file = file;
 		this.debugger = debugger;
-		this.threads = new IThread[0];
+		this.threads = new PyThread[0];
 		launch.addDebugTarget(this);
 		debugger.setTarget(this);
 		IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
@@ -72,7 +71,7 @@ public class PyDebugTarget extends AbstractDebugTarget {
 			debugger.disconnect();
         }
         
-		threads = new IThread[0];
+		threads = new PyThread[0];
 		if(process != null){
 			process.terminate();
 			process = null;

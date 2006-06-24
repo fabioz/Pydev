@@ -32,7 +32,7 @@ public class PyThread extends PlatformObject implements IThread {
 	private AbstractDebugTarget target;
 	private String name;
 	private String id;
-    
+
     /**
      * true if this is a debugger thread, that can't be killed/suspended
      */

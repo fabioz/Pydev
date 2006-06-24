@@ -22,7 +22,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
-import org.eclipse.debug.core.model.IVariable;
 import org.python.pydev.core.REF;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.xml.sax.Attributes;
@@ -84,12 +83,12 @@ public class XMLUtils {
 	/**
 	 * Creates IThread[] from the XML response
 	 */
-	static public IThread[] ThreadsFromXML(AbstractDebugTarget target, String payload) throws CoreException {
+	static public PyThread[] ThreadsFromXML(AbstractDebugTarget target, String payload) throws CoreException {
 		try {
 			SAXParser parser = getSAXParser();
 			XMLToThreadInfo info = new XMLToThreadInfo(target);
 			parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
-			return (IThread[]) info.threads.toArray(new IThread[0]);
+			return (PyThread[]) info.threads.toArray(new PyThread[0]);
 			
 		} catch (CoreException e) {
 			throw e;
@@ -181,23 +180,6 @@ public class XMLUtils {
 			stack.add(currentFrame);
 		}
 		
-		private void initializeLocals() {
-			locals = new ArrayList<PyVariable>();
-			PyVariableCollection global = new PyVariableCollection(target, "Globals", "frame.f_global", "Global variables", currentFrame.getGlobalLocator());
-			locals.add(global);	// locals always include global as the top
-		}
-		
-		// local variables belong to the stack frame
-		// when 
-		private void startVar(Attributes attributes) {
-			if (locals == null)
-				initializeLocals();
-			// create a local variable, and add it to locals
-			PyVariable newLocal = createVariable(target, currentFrame.getLocalsLocator(), attributes);
-			locals.add(newLocal);
-		}
-		
-
 		/**
 		 * Assign stack frames to thread.
 		 * Assign global variables to thread
@@ -209,7 +191,11 @@ public class XMLUtils {
 				 <xml>
 				   <thread id="id"/>
 						<frame id="id" name="functionName " file="file" line="line">
+                        
+                            @deprecated: variables are no longer returned in this request (they are
+                            gotten later in asynchronously to speed up the debugger).
 							<var scope="local" name="self" type="ObjectType" value="<DeepThread>"/>
+                            
 						</frame>*
 				 */
 				if (qName.equals("thread")){
@@ -218,23 +204,11 @@ public class XMLUtils {
 				}else if (qName.equals("frame")){ 
 					startFrame(attributes);
 					
-				}else if (qName.equals("var")){
-					startVar(attributes);
 				}
 		}
 		
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
-			if (qName.equals("frame")) {
-				// when frame ends, we need to assign all the local variables
-				if (locals == null){
-					initializeLocals();
-				}
-				
-				IVariable[] locArry = locals.toArray(new IVariable[0]);
-				currentFrame.setVariables(locArry);
-				locals = null;
-			}
 		}
 
 	}

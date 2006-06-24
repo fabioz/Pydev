@@ -49,6 +49,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
 		this.path = file;
 		this.line = line;
 		this.thread = in_thread;
+        
 		localsLocator = new IVariableLocator() {
 			public String getPyDBLocation() {
 				return thread.getId() + "\t" + id + "\tLOCAL"; 
@@ -66,11 +67,19 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
 		};
 		this.target = target;
 	}
+    
+    public AbstractDebugTarget getTarget(){
+        return target;
+    }
 
 	public String getId() {
 		return id;
 	}
 	
+    public String getThreadId(){
+        return this.thread.getId();
+    }
+    
 	public IVariableLocator getLocalsLocator() {
 		return localsLocator;
 	}
@@ -117,8 +126,15 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
      * @see org.eclipse.debug.core.model.IStackFrame#getVariables()
      */
 	public IVariable[] getVariables() throws DebugException {
-        DeferredWorkbenchAdapter adapter = new DeferredWorkbenchAdapter(this);
-        return (IVariable[]) adapter.getChildren(this);
+        if(this.variables == null){
+            this.variables = new IVariable[0]; //so that we do not enter here again (if another request to this method
+                                               //is done before we finish getting it)
+            DeferredWorkbenchAdapter adapter = new DeferredWorkbenchAdapter(this);
+            IVariable[] vars = (IVariable[]) adapter.getChildren(this);
+            this.target.getModificationChecker().verifyModified(this, vars);
+            this.variables = vars;
+        }
+        return this.variables;
 	}
 
     /**

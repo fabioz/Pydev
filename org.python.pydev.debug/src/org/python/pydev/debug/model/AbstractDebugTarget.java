@@ -1,8 +1,6 @@
 package org.python.pydev.debug.model;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,7 +25,6 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
-import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.debug.internal.ui.views.console.ProcessConsole;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.jface.text.DocumentEvent;
@@ -49,16 +46,23 @@ import org.python.pydev.debug.model.remote.RunCommand;
 import org.python.pydev.debug.model.remote.SetBreakpointCommand;
 import org.python.pydev.debug.model.remote.ThreadListCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
-import org.python.pydev.plugin.PydevPlugin;
 
 public abstract class AbstractDebugTarget extends PlatformObject implements IDebugTarget, ILaunchListener {
 	
 	protected IPath file;
-	protected IThread[] threads;
+	protected PyThread[] threads;
 	protected boolean disconnected = false;
-	protected IStackFrame[] oldStackFrame;
 	protected AbstractRemoteDebugger debugger;	
 	protected ILaunch launch;
+    private ValueModificationChecker modificationChecker;
+
+    public AbstractDebugTarget() {
+        modificationChecker = new ValueModificationChecker();
+    }
+    
+    public ValueModificationChecker getModificationChecker(){
+        return modificationChecker;
+    }
 	
 	public abstract boolean canTerminate();
 	public abstract boolean isTerminated();
@@ -138,7 +142,7 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 				cmd.waitUntilDone(1000);
 				threads = cmd.getThreads();
 			} catch (InterruptedException e) {
-				threads = new IThread[0];
+				threads = new PyThread[0];
 			}
 		}
 		return threads;
@@ -241,7 +245,7 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 	 */
 	private void processThreadCreated(String payload) {
 		
-		IThread[] newThreads;
+		PyThread[] newThreads;
 		try {
 			newThreads = XMLUtils.ThreadsFromXML(this, payload);
 		} catch (CoreException e) {
@@ -267,10 +271,10 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
                     
                 } else {
 					
-                    IThread[] newnewThreads = new IThread[newSize];
+                    PyThread[] newnewThreads = new PyThread[newSize];
 					int i = 0;
                     
-					for (IThread newThread: newThreads){
+					for (PyThread newThread: newThreads){
 						if (!((PyThread)newThread).isPydevThread()){
 							newnewThreads[i] = newThread;
                             i += 1;
@@ -288,7 +292,7 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 			threads = newThreads;
             
         } else {
-			IThread[] combined = new IThread[threads.length + newThreads.length];
+			PyThread[] combined = new PyThread[threads.length + newThreads.length];
 			int i = 0;
 			for (i = 0; i < threads.length; i++){
 				combined[i] = threads[i];
@@ -307,10 +311,10 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 	
 	// Remote this from our thread list
 	private void processThreadKilled(String thread_id) {
-		IThread threadToDelete = findThreadByID(thread_id);
+		PyThread threadToDelete = findThreadByID(thread_id);
 		if (threadToDelete != null) {
 			int j = 0;
-			IThread[] newThreads = new IThread[threads.length - 1];
+			PyThread[] newThreads = new PyThread[threads.length - 1];
 			for (int i=0; i < threads.length; i++){
 				if (threads[i] != threadToDelete){ 
 					newThreads[j++] = threads[i];
@@ -354,86 +358,17 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 			}
 		}
 		if (t != null) {
-			IStackFrame stackFrame[] = (IStackFrame[])threadNstack[2]; 
-
-            //verify if there are modifications...
-            verifyModified( stackFrame );
+            modificationChecker.onlyLeaveThreads((PyThread[]) this.threads);
             
-            //set it as being old already...
-			oldStackFrame = stackFrame;
-			
+			IStackFrame stackFrame[] = (IStackFrame[])threadNstack[2]; 
+			modificationChecker.onlyLeaveStack(t, stackFrame);
+            
 			t.setSuspended(true, stackFrame );
 			fireEvent(new DebugEvent(t, DebugEvent.SUSPEND, reason));		
 		}
 	}
 	
     
-    /**
-     * @param stackFrames the stack frames that should be gotten as a map
-     * @return a map with the id of the stack pointing to the stack itself
-     */
-    private Map<String, IStackFrame> getStackFrameArrayAsMap(IStackFrame[] stackFrames){
-        HashMap<String, IStackFrame> map = new HashMap<String, IStackFrame>();
-        for (int i = 0; i < stackFrames.length; i++) {
-            PyStackFrame s = (PyStackFrame) stackFrames[i];
-            map.put(s.getId(), s);
-        }
-        return map;
-    }
-    
-    /**
-     * verifies (and marks as modified) variables in the stack frame
-     * @param stackFrame the array of stack-frames we are analizing
-     */
-	private void verifyModified(IStackFrame[] stackFrame) {
-	    if( oldStackFrame!=null ) {
-    		
-            Map<String, IStackFrame> oldStackFrameArrayAsMap = getStackFrameArrayAsMap(oldStackFrame);
-            for( int i=0; i<stackFrame.length; i++ ) {
-    			PyStackFrame newFrame = (PyStackFrame)stackFrame[i];
-    		
-                IStackFrame oldFrame = oldStackFrameArrayAsMap.get(newFrame.getId());
-                if(oldFrame != null){
-					verifyVariablesModified( newFrame, (PyStackFrame) oldFrame );
-    			}
-    		}		
-        }
-	}
-
-    /**
-     * compares stack frames to check for modified variables (and mark them as modified in the new stack)
-     * 
-     * @param newFrame the new frame
-     * @param oldFrame the old frame
-     */
-	private void verifyVariablesModified(PyStackFrame newFrame, PyStackFrame oldFrame ) {
-		PyVariable newVariable = null;
-        
-		try {
-            Map<String, IVariable> variablesAsMap = oldFrame.getVariablesAsMap();
-			IVariable[] newFrameVariables = newFrame.getVariables();
-            
-            //we have to check for each new variable
-            for( int i=0; i<newFrameVariables.length; i++ ) {
-				newVariable = (PyVariable)newFrameVariables[i];
-			
-                PyVariable oldVariable = (PyVariable)variablesAsMap.get(newVariable.getName());
-			
-                if( oldVariable != null) {
-					boolean equals = newVariable.getValueString().equals( oldVariable.getValueString() );
-                    
-                    //if it is not equal, it was modified
-					newVariable.setModified( !equals );
-                    
-				}else{ //it didn't exist before...
-				    newVariable.setModified( true );
-                }
-			}
-            
-		} catch (DebugException e) {		
-			PydevPlugin.log(e);
-		}
-	}
 
 	// thread_id\tresume_reason
 	static Pattern threadRunPattern = Pattern.compile("(\\d+)\\t(\\w*)");
@@ -604,6 +539,7 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 		if (debugger != null) {
 			debugger.disconnect();
 		}
+        modificationChecker = null;
 	}
 
 	public boolean isDisconnected() {

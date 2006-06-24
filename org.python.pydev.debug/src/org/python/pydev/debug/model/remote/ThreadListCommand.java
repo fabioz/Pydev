@@ -8,9 +8,9 @@ package org.python.pydev.debug.model.remote;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.debug.core.model.IThread;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.AbstractDebugTarget;
+import org.python.pydev.debug.model.PyThread;
 import org.python.pydev.debug.model.XMLUtils;
 
 /**
@@ -22,7 +22,7 @@ public class ThreadListCommand extends AbstractDebuggerCommand {
 
 	boolean done;
 	AbstractDebugTarget target;
-	IThread[] threads;
+	PyThread[] threads;
 	
 	public ThreadListCommand(AbstractRemoteDebugger debugger, AbstractDebugTarget target) {
 		super(debugger);
@@ -41,7 +41,7 @@ public class ThreadListCommand extends AbstractDebuggerCommand {
 			throw new InterruptedException();
 	}
 	
-	public IThread[] getThreads() {
+	public PyThread[] getThreads() {
 		return threads;
 	}
 	
