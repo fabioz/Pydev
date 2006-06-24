@@ -8,15 +8,19 @@ package org.python.pydev.ui;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.dialogs.PropertyPage;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -145,9 +149,39 @@ public class PyProjectPythonDetails extends PropertyPage{
 
     private boolean doIt() {
         if (getProject()!= null) {
+            final String newVersion = radioController.getSelected();
             PythonNature pythonNature = PythonNature.getPythonNature(getProject());
+            
+            final IInterpreterManager interpreterManager;
+            if(newVersion.equals(IPythonNature.JYTHON_VERSION_2_1)){
+                interpreterManager = PydevPlugin.getJythonInterpreterManager();
+            }else{
+                interpreterManager = PydevPlugin.getPythonInterpreterManager();
+            }
+            
             try {
-                pythonNature.setVersion(radioController.getSelected());
+                interpreterManager.getDefaultInterpreter();
+            } catch (NotConfiguredInterpreterException e){
+                
+                final Display display = Display.getDefault();
+                display.syncExec(new Runnable(){
+
+                    public void run() {
+                        String msg = "You're currently trying to change your project to a %s project, " +
+                                "but there is currently no interpreter configured for it, so, please, " +
+                                "go to the menu: window > preferences > Pydev > Interpreter %s and configure " +
+                                "it before changing your project type.";
+                        final String managerRelatedName = interpreterManager.getManagerRelatedName();
+                        MessageDialog.openError(display.getActiveShell(), "Invalid Interpreter", 
+                                StringUtils.format(msg, managerRelatedName, managerRelatedName));
+                    }
+                    
+                });
+                return false;
+            }
+            
+            try {
+                pythonNature.setVersion(newVersion);
             } catch (CoreException e) {
                 PydevPlugin.log(e);
             }

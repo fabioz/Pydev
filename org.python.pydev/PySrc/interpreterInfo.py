@@ -13,6 +13,7 @@ all internal are separated by |
 '''
 import sys
 import os
+True, False = 1,0 
 
 if __name__ == '__main__':
     try:

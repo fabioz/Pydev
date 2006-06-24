@@ -66,7 +66,9 @@ public class SimpleJythonRunner extends SimpleRunner{
                 throw new RuntimeException(e1);
             }
 
-            return new Tuple<String,String>(std.contents.toString(), err.contents.toString());
+            final String stdout = std.contents.toString();
+            final String stderr = err.contents.toString();
+            return new Tuple<String,String>(stdout, stderr);
             
         } else {
             try {
