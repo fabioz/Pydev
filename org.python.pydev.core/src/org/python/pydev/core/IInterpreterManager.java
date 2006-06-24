@@ -131,5 +131,11 @@ public interface IInterpreterManager {
      * @return IPythonNature.PYTHON_RELATED or IPythonNature.JYTHON_RELATED 
      */
     public int getRelatedId();
+
+    /**
+     * @param interpreter the interpreter we care about
+     * @return whether the interpreter has information on this manager.
+     */
+    public boolean hasInfoOnInterpreter(String interpreter);
     
 }

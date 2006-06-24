@@ -56,6 +56,7 @@ public class PythonRunnerConfig {
     public IProject project;
 	public IPath resource;
 	public IPath interpreter;
+	public String interpreterLocation;
 	public String[] arguments;
 	public File workingDirectory;
 	public String pythonpathUsed;
@@ -220,6 +221,7 @@ public class PythonRunnerConfig {
 		
         resource = getLocation(conf);
 		interpreter = getInterpreter(conf);
+        interpreterLocation = conf.getAttribute(Constants.ATTR_INTERPRETER, (String) null);
 		arguments = getArguments(conf);
 		IPath workingPath = getWorkingDirectory(conf);
 		workingDirectory = workingPath == null ? null : workingPath.toFile();

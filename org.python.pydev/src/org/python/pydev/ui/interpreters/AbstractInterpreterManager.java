@@ -121,6 +121,23 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     }
     
     /**
+     * @see org.python.pydev.core.IInterpreterManager#hasInfoOnInterpreter(java.lang.String)
+     */
+    public boolean hasInfoOnInterpreter(String interpreter) {
+        if(interpreter == null){
+            return false;
+        }
+        interpreter = interpreter.toLowerCase();
+        String[] interpreters = getInterpreters();
+        for (String str : interpreters) {
+            if(str.toLowerCase().equals(interpreter)){
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
      * @see org.python.pydev.core.IInterpreterManager#getDefaultInterpreterInfo(org.eclipse.core.runtime.IProgressMonitor)
      */
     public InterpreterInfo getDefaultInterpreterInfo(IProgressMonitor monitor) {

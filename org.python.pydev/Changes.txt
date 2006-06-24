@@ -7,6 +7,8 @@ Pydev:
 - The user is asked for which paths should be added to the system pythonpath (this has to be added to the manual.
   It references http://fabioz.com/pydev/manual_101_interpreter.html)
 - Variables now show in the variables view while debugging
+- If an invalid interpreter is selected to run a file (old interpreter or wrong project type), a warning is given.
+
 
 after 1.1.0
 

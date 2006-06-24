@@ -85,4 +85,8 @@ public class StubInterpreterManager implements IInterpreterManager {
         }
     }
 
+    public boolean hasInfoOnInterpreter(String interpreter) {
+        return false;
+    }
+
 }
