@@ -11,7 +11,7 @@ bufferStdErrToServer = False
 
 #this is because jython does not have staticmethods
 PyDBCtx_threadToCtx = {}
-PyDBCtx_Lock = threading.RLock()
+PyDBCtx_Lock = threading.Lock()
 PyDBCtx_Threads = {}#weakref.WeakValueDictionary()
 
 PyDBCtx_UseLocks = False #I don't know why jython halts when using this synchronization...
@@ -91,7 +91,7 @@ class PyDBCtx:
         self.filename = NormFile(frame.f_code.co_filename)
         self.base = os.path.basename( self.filename )
         self.thread_id = threadId
-        self.lock = threading.RLock()
+        self.lock = threading.Lock()
         
     def __str__(self):
         return 'PyDBCtx [%s %s %s]' % (self.base, self.thread_id)
@@ -120,11 +120,11 @@ class PyDBCommandThread(PyDBDaemonThread):
                 try:
                     self.pyDb.processInternalCommands()
                 except:
-                    if pydevd_trace >= 0: print 'Finishing debug communication...(2)'
+                    pydevd_log(0, 'Finishing debug communication...(2)')
                 time.sleep(0.5)
         except:
             #only got this error in interpreter shutdown
-            if pydevd_trace >= 0: print 'Finishing debug communication... (3)'
+            pydevd_log(0, 'Finishing debug communication...(3)')
             
 
 class PyDBAdditionalThreadInfo:
@@ -164,7 +164,8 @@ class PyDB:
         self.cmdQueue = {}     # the hash of Queues. Key is thread id, value is thread
         self.breakpoints = {}
         self.readyToRun = False
-        self.lock = threading.RLock()
+        self.lock = threading.Lock()
+        self.finishDebuggingSession = False
         
     def acquire(self):
         if PyDBUseLocks:
@@ -276,15 +277,7 @@ class PyDB:
                         pass # this is how we exit
     
             if not foundNonPyDBDaemonThread:
-                #that was not working very well because jython gave some socket errors
-                #for t in threads: 
-                #    t.doKill()
-                time.sleep(0.1)
-                try:
-                    import java.lang.System
-                    java.lang.System.exit(0)
-                except:
-                    sys.exit(0)
+                self.finishDebuggingSession = True
         finally:
             self.release()
       
@@ -438,7 +431,7 @@ class PyDB:
         self.writer.addCommand(cmd)
         
         info = thread.additionalInfo
-        while info.pydev_state == PyDB.STATE_SUSPEND:            
+        while info.pydev_state == PyDB.STATE_SUSPEND and not self.finishDebuggingSession:            
             self.processInternalCommands()
             time.sleep(0.2)
             
@@ -474,6 +467,19 @@ class PyDB:
             pydev_step_cmd
             pydev_notify_kill 
         '''
+        if self.finishDebuggingSession:
+            #that was not working very well because jython gave some socket errors
+            threads = threading.enumerate()
+            for t in threads: 
+                if hasattr(t, 'doKill'):
+                    t.doKill()
+            time.sleep(0.2) #give them some time to release their locks...
+            try:
+                import java.lang.System
+                java.lang.System.exit(0)
+            except:
+                sys.exit(0)
+
         if event not in ('call', 'line', 'return'):
             return None
         

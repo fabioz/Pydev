@@ -114,7 +114,11 @@ def pydevd_log(level, s):
         2 informational trace
     """
     if level <= pydevd_trace:
-        print >>sys.stderr, s 
+        #yes, we can have errors printing if the console of the program has been finished (and we're still trying to print something)
+        try:
+            print >>sys.stderr, s 
+        except:
+            pass
 
 
 def NormFile(filename):
@@ -145,13 +149,14 @@ class PyDBDaemonThread(threading.Thread):
         self.killReceived = False
 
     def doKill(self):
+        #that was not working very well because jython gave some socket errors
         self.killReceived = True
-        if hasattr(self, 'sock'):
-            try:
-                self.sock.close()
-            except:
-                #just ignore that
-                pass
+#        if hasattr(self, 'sock'):
+#            try:
+#                self.sock.close()
+#            except:
+#                #just ignore that
+#                pass
             
 class ReaderThread(PyDBDaemonThread):
     """ reader thread reads and dispatches commands in an infinite loop """
@@ -167,6 +172,9 @@ class ReaderThread(PyDBDaemonThread):
         try:
             while not self.killReceived:
                 buffer += self.sock.recv(1024)
+                if len(buffer) == 0:
+                    globalDbg.finishDebuggingSession = True
+                    break
                 while buffer.find('\n') != -1:
                     command, buffer = buffer.split('\n', 1)
                     pydevd_log(1, "received command " + command)
@@ -174,6 +182,7 @@ class ReaderThread(PyDBDaemonThread):
                     globalDbg.processNetCommand(int(args[0]), int(args[1]), args[2])
         except:
             traceback.print_exc()
+            globalDbg.finishDebuggingSession = True
 
 
 #----------------------------------------------------------------------------------- SOCKET UTILITIES - WRITER
@@ -201,7 +210,7 @@ class WriterThread(PyDBDaemonThread):
                 try:
                     cmd = self.cmdQueue.get(1)
                 except:
-                    if pydevd_trace >= 0: print 'Finishing debug communication...(1)'
+                    pydevd_log(0, 'Finishing debug communication...(1)')
                     #when liberating the thread here, we could have errors because we were shutting down
                     #but the thread was still not liberated
                     return
@@ -210,6 +219,7 @@ class WriterThread(PyDBDaemonThread):
                 bytesSent = self.sock.send(out) #TODO: this does not guarantee that all message are sent (and jython does not have a send all)
                 time.sleep(self.timeout)                
         except Exception, e:
+            globalDbg.finishDebuggingSession = True
             traceback.print_exc()
     
     
