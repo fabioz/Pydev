@@ -255,7 +255,12 @@ def dirObj(obj):
         #get info about superclasses
         classes = []
         classes.append(obj)
-        c = obj.getSuperclass()
+        try:
+            c = obj.getSuperclass()
+        except TypeError:
+            #may happen on jython when getting the java.lang.Class class
+            c = obj.getSuperclass(obj)
+            
         while c != None:
             classes.append(c)
             c = c.getSuperclass()
@@ -263,13 +268,24 @@ def dirObj(obj):
         #get info about interfaces
         interfs = []
         for obj in classes:
-            interfs.extend(obj.getInterfaces())
+            try:
+                interfs.extend(obj.getInterfaces())
+            except TypeError:
+                interfs.extend(obj.getInterfaces(obj))
         classes.extend(interfs)
             
         #now is the time when we actually get info on the declared methods and fields
         for obj in classes:
-            declaredMethods = obj.getDeclaredMethods()
-            declaredFields = obj.getDeclaredFields()
+            try:
+                declaredMethods = obj.getDeclaredMethods()
+            except TypeError:
+                declaredMethods = obj.getDeclaredMethods(obj)
+                
+            try:
+                declaredFields = obj.getDeclaredFields()
+            except TypeError:
+                declaredFields = obj.getDeclaredFields(obj)
+                
             for i in range(len(declaredMethods)):
                 name = declaredMethods[i].getName()
                 ret.append(name)

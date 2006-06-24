@@ -177,7 +177,7 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
         }
         
         if(toAsk.size() > 0){
-            RunInUiThread.sync(new Runnable(){
+            Runnable runnable = new Runnable(){
 
                 public void run() {
                     ListSelectionDialog dialog = new ListSelectionDialog(Display.getDefault().getActiveShell(), toAsk, 
@@ -233,7 +233,13 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
                     
                 }
                 
-            });
+            };
+            try{
+                RunInUiThread.sync(runnable);
+            }catch(UnsatisfiedLinkError e){
+                //this means that we're running unit-tests, so, we don't have to do anything about it
+                //as 'l' is already ok.
+            }
         }
 
         ArrayList<String> l1 = new ArrayList<String>();

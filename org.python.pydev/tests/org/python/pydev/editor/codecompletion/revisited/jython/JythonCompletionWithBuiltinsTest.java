@@ -15,6 +15,22 @@ public class JythonCompletionWithBuiltinsTest extends JythonCodeCompletionTestsB
     
     private static JythonShell shell;
     
+    public static void main(String[] args) {
+        try {
+            JythonCompletionWithBuiltinsTest test = new JythonCompletionWithBuiltinsTest();
+            test.setUp();
+            test.testCompleteImportBuiltin2();
+            test.tearDown();
+            
+            junit.textui.TestRunner.run(JythonCompletionWithBuiltinsTest.class);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+    }
+
+    
     /*
      * @see TestCase#setUp()
      */
@@ -42,12 +58,19 @@ public class JythonCompletionWithBuiltinsTest extends JythonCodeCompletionTestsB
         AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, null);
     }
 
+    public void testCompleteImportBuiltin2() throws BadLocationException, IOException, Exception{
+        
+        String s;
+        s = "from java.lang import Class\n"+
+        "Class.";
+        requestCompl(s, s.length(), -1, new String[] { "forName(string)" });
+        
+    }
     public void testCompleteImportBuiltin() throws BadLocationException, IOException, Exception{
         
         String s;
         s = "from java import ";
         requestCompl(s, s.length(), -1, new String[] { "lang", "math", "util" });
-
     }
 
 

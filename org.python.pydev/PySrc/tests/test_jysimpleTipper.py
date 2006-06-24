@@ -9,7 +9,7 @@ import sys
 sys.argv[0] = os.path.dirname(sys.argv[0]) 
 #twice the dirname to get the previous level from this file.
 sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
-sys.path.insert(1, r"C:\bin\eclipse311\plugins\org.junit_3.8.1\junit.jar" ) #some late loading jar tests
+sys.path.insert(1, r"C:\bin\eclipse\320\plugins\org.junit_3.8.1\junit.jar" ) #some late loading jar tests
 
 from jyimportsTipper import ismethod
 from jyimportsTipper import isclass
@@ -53,6 +53,10 @@ class TestMod(unittest.TestCase):
         f, tip = jyimportsTipper.GenerateTip('java.util.HashMap')
         assert f.endswith('rt.jar')
 
+    def testImports1a(self):
+        f, tip = jyimportsTipper.GenerateTip('java.lang.Class')
+        assert f.endswith('rt.jar')
+        
     def testImports1b(self):
         try:
             f, tip = jyimportsTipper.GenerateTip('__builtin__.m')
