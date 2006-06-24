@@ -7,9 +7,9 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
-import org.eclipse.debug.core.model.IThread;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.debug.model.AbstractDebugTarget;
+import org.python.pydev.debug.model.PyThread;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 
 import com.python.pydev.debug.remote.RemoteDebuggerServer;
@@ -21,7 +21,7 @@ public class PyDebugTargetServer extends AbstractDebugTarget {
 	public PyDebugTargetServer( ILaunch launch, IPath file, RemoteDebuggerServer debugger) {				
 		this.file = file;
 		this.debugger = debugger;
-		this.threads = new IThread[0];
+		this.threads = new PyThread[0];
 		this.launch = launch;
 		if( launch!=null ) {
 			launch.addDebugTarget( this );
@@ -51,7 +51,7 @@ public class PyDebugTargetServer extends AbstractDebugTarget {
 			debugger.disconnect();
         }
         
-		threads = new IThread[0];
+		threads = new PyThread[0];
 		fireEvent(new DebugEvent(this, DebugEvent.TERMINATE));
 	}
 

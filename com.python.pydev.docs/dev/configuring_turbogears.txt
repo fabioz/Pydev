@@ -46,4 +46,17 @@ Now, to configure pydev, you'd have to add the created folder d:\turbogears\wiki
 
 Ok, now on to the database creation: got some things mixed up here because the video didn't specify the dev.cfg changes (but the written one does, so, not such a big problem).
 
-Kid template editing: I'd reccomend having WTP (Web Tools Platform) to edit html files... surely makes things much nicer.
+Kid template editing: I'd reccomend having WTP (Web Tools Platform) to edit html files... surely makes things much nicer. 
+
+---- Some time later...
+
+Ok, I've stopped turbogers for a while to do some other stuff, but now let's get back to it.
+
+Interesting point: I've just now noted that turbogears spawns 2 shells when I run the server, I think that one is the http server and the other some auto-reloader, but this makes some things much harder:
+
+1. If you run it from inside pydev and kill the shell from the eclipse console, the other process will not die (and as you don't have Ctrl+C in that console, you will have to keep killing the other shell manually.
+
+2. You just won't be able to debug it from pydev, as that other shell will be the one that will actually serve the requests (altough you can do it with the remote debugger from pydev extensions).
+
+So, after checking its code a little I've seen: 
+if conf('autoreload.on', defaultOn): ... do the auto-reload stuff, so, you can set autoreload.on=False in the configurations and run it from pydev, so that you can debug it (but this way, you'll loose the auto-reloader stuff, so, I guess you'll have to decide: pydev regular debugger without auto-reload or pydev extensions remote debugger with the auto-reload (in this case, you could even run it from outside of Eclipse).

@@ -51,9 +51,12 @@
 <node COLOR="#990000" CREATED="1139594377406" ID="Freemind_Link_442163909" MODIFIED="1150238062421" TEXT="from xxx &apos;import&apos; completion should only work in the &apos;code&apos; partition">
 <font NAME="SansSerif" SIZE="14"/>
 </node>
+<node COLOR="#990000" CREATED="1150831755668" ID="Freemind_Link_1216927156" MODIFIED="1151158034750" TEXT="Clicking on stack-trace does not position cursor correctly on line.">
+<font NAME="SansSerif" SIZE="14"/>
 </node>
-<node COLOR="#00b439" CREATED="1150831755668" ID="Freemind_Link_1216927156" MODIFIED="1150831782464" TEXT="Clicking on stack-trace does not position cursor correctly on line.">
-<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1150661235406" ID="Freemind_Link_266065152" MODIFIED="1151160186578" TEXT="When trying to run with &apos;old&apos; interpreter, let the user know about it.">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
 </node>
 </node>
 <node COLOR="#0033ff" CREATED="1139594227703" FOLDED="true" ID="Freemind_Link_1643430887" MODIFIED="1142643906171" POSITION="right" TEXT="Code Completion">
@@ -116,6 +119,9 @@
 <font NAME="SansSerif" SIZE="14"/>
 <icon BUILTIN="button_ok"/>
 </node>
+<node COLOR="#990000" CREATED="1150661220875" ID="Freemind_Link_332273753" MODIFIED="1151173238609" TEXT="If project is changed to jython, and there is no jython interpreter &#xa;configured, a message should be shown to the user.">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
 </node>
 </node>
 <node COLOR="#0033ff" CREATED="1139852640359" ID="Freemind_Link_504782647" MODIFIED="1140001041812" POSITION="right" TEXT="features">
@@ -177,12 +183,6 @@
 <node COLOR="#0033ff" CREATED="1139937919875" ID="Freemind_Link_342607119" MODIFIED="1140001041875" POSITION="left" TEXT="other improvements">
 <font NAME="SansSerif" SIZE="18"/>
 <node COLOR="#00b439" CREATED="1140106715906" ID="Freemind_Link_1375402745" MODIFIED="1140106864265" TEXT="Make script to handle all the buld proccess:&#xa;- Creating build: OK&#xa;- Creating e-mail message:&#xa;- Uploading files to sourceforge (partial: only html)&#xa;- Uploading files to fabioz.com&#xa;- Updating site.xml&#xa;- Printing what else needs to be done in sf">
-<font NAME="SansSerif" SIZE="16"/>
-</node>
-<node COLOR="#00b439" CREATED="1150661220875" ID="Freemind_Link_332273753" MODIFIED="1150661230484" TEXT="If project is changed to jython, and there is no jython interpreter &#xa;configured, a message should be shown to the user.">
-<font NAME="SansSerif" SIZE="16"/>
-</node>
-<node COLOR="#00b439" CREATED="1150661235406" ID="Freemind_Link_266065152" MODIFIED="1150661261218" TEXT="When trying to run with &apos;old&apos; interpreter, let the user know about it.">
 <font NAME="SansSerif" SIZE="16"/>
 </node>
 </node>
