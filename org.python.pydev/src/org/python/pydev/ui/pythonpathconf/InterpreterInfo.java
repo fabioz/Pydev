@@ -236,6 +236,7 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
             };
             try{
                 RunInUiThread.sync(runnable);
+            }catch(NoClassDefFoundError e){
             }catch(UnsatisfiedLinkError e){
                 //this means that we're running unit-tests, so, we don't have to do anything about it
                 //as 'l' is already ok.
