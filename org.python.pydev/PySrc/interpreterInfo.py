@@ -15,6 +15,27 @@ import sys
 import os
 True, False = 1,0 
 
+if sys.platform == "cygwin":
+    sys.path.append(os.path.join(sys.path[0],'ThirdParty'))
+    import ctypes
+    def nativePath(path):
+        MAX_PATH=512  # On cygwin NT, its 260 lately, but just need BIG ENOUGH buffer
+        '''Get the native form of the path, like c:\\Foo for /cygdrive/c/Foo'''
+
+        retval = ctypes.create_string_buffer(MAX_PATH)
+        path = fullyNormalizePath(path)
+        ctypes.cdll.cygwin1.cygwin_conv_to_win32_path(path, retval)
+        return retval.value
+else:
+    def nativePath(path):
+        return fullyNormalizePath(path)
+    
+def fullyNormalizePath(path):
+    '''fixes the path so that the format of the path really reflects the directories in the system
+    '''
+    return os.path.normcase(os.path.normpath(path))
+
+
 if __name__ == '__main__':
     try:
         #just give some time to get the reading threads attached (just in case)
@@ -23,31 +44,25 @@ if __name__ == '__main__':
         pass
     
     try:
-        executable = os.path.realpath(sys.executable)
+        executable = nativePath(sys.executable)
     except:
         executable = sys.executable
     print 'EXECUTABLE:%s|' % executable
     
-    def formatPath(p):
-        '''fixes the path so that the format of the path really reflects the directories in the system
-        '''
-        return os.path.normcase(os.path.normpath(p))
-
     #this is the new implementation to get the system folders 
     #(still need to check if it works in linux)
     #(previously, we were getting the executable dir, but that is not always correct...)
-    prefix = formatPath(sys.prefix)
+    prefix = nativePath(sys.prefix)
+    print 'prefix is', prefix
     
 
     result = []
     for p in sys.path:
-        p = formatPath(p)
+        p = nativePath(p)
         if p.startswith(prefix):
-            if p not in result: #a path should not appear more than once...
-                result.append((p,True))
+            result.append((p,True))
         else:
-            if p not in result: #a path should not appear more than once...
-                result.append((p, False))
+            result.append((p, False))
             
     for p,b in result:
         if b:
@@ -64,15 +79,7 @@ if __name__ == '__main__':
     
     try:
         sys.stdout.flush()
-    except:
-        pass
-    
-    try:
         sys.stderr.flush()
-    except:
-        pass
-    
-    try:
         #and give some time to let it read things (just in case)
         sleep(0.5)
     except:
