@@ -730,12 +730,14 @@
             commandId="org.python.pydev.editor.actions.pyFormatStd"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
+      <!-- Removed as ctrl+w is already taken by close window.
       <key
             sequence="Ctrl+W"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.pySelectWord"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
+      -->
       <key
             sequence="Shift+Alt+M"
             contextId="org.python.pydev.ui.editor.scope"

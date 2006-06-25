@@ -8,7 +8,8 @@ Pydev:
   It references http://fabioz.com/pydev/manual_101_interpreter.html)
 - Variables now show in the variables view while debugging
 - If an invalid interpreter is selected to run a file (old interpreter or wrong project type), a warning is given.
-
+- Ctrl+w is removed as the default for select word (the action is still there, but there is no keybinding for it, so, users
+  have to configure themselves which keybinding they want for it)
 
 after 1.1.0
 
