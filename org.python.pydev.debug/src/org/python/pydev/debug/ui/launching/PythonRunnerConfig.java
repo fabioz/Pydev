@@ -25,9 +25,6 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.launching.JavaRuntime;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.REF;
 import org.python.pydev.debug.codecoverage.PyCoverage;
@@ -372,22 +369,6 @@ public class PythonRunnerConfig {
     }
     
     
-	private String getClasspath(IJavaProject javaProject) throws JavaModelException {
-		
-		String[] cp = null;
-		try {
-			cp = JavaRuntime.computeDefaultRuntimeClassPath(javaProject);
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-		String ret = "";
-		for (String s : cp){
-			ret += s + SimpleRunner.getPythonPathSeparator();
-		}
-		
-		return ret;
-		
-	}
 	/**
 	 * Create a command line for launching.
 	 * @return command line ready to be exec'd
