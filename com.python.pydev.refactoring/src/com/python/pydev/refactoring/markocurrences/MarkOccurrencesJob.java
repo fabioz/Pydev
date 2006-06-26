@@ -116,29 +116,33 @@ public class MarkOccurrencesJob extends Thread{
 	            if(pyEdit == null){
 	                continue;
 	            }
-            
-	            IDocumentProvider documentProvider = pyEdit.getDocumentProvider();
-	            if(documentProvider == null){
-	            	continue;
-	            }
-	            
-	            IAnnotationModel annotationModel= documentProvider.getAnnotationModel(pyEdit.getEditorInput());
-	            if(annotationModel == null){
-	            	continue;
-	            }
-	            
-
-	            Tuple3<RefactoringRequest,PyRenameProcessor,Boolean> ret = checkAnnotations(pyEdit, documentProvider);
-	            if(pyEdit.cache == null){ //disposed (cannot add or remove annotations)
-	            	continue;
-	            }
-	            if(ret.o3){
-	            	if(!addAnnotations(pyEdit, annotationModel, ret.o1, ret.o2)){
-	            		//something went wrong, so, let's remove the occurrences
-	            		removeOccurenceAnnotations(annotationModel, pyEdit);
-	            	}
-	            }else{
-	            	removeOccurenceAnnotations(annotationModel, pyEdit);
+	            try{
+		            IDocumentProvider documentProvider = pyEdit.getDocumentProvider();
+		            if(documentProvider == null){
+		            	continue;
+		            }
+		            
+		            IAnnotationModel annotationModel= documentProvider.getAnnotationModel(pyEdit.getEditorInput());
+		            if(annotationModel == null){
+		            	continue;
+		            }
+		            
+	
+		            Tuple3<RefactoringRequest,PyRenameProcessor,Boolean> ret = checkAnnotations(pyEdit, documentProvider);
+		            if(pyEdit.cache == null){ //disposed (cannot add or remove annotations)
+		            	continue;
+		            }
+		            if(ret.o3){
+		            	if(!addAnnotations(pyEdit, annotationModel, ret.o1, ret.o2)){
+		            		//something went wrong, so, let's remove the occurrences
+		            		removeOccurenceAnnotations(annotationModel, pyEdit);
+		            	}
+		            }else{
+		            	removeOccurenceAnnotations(annotationModel, pyEdit);
+		            }
+	            } catch (Throwable e) {
+	            	Log.log(e);
+	            	Log.log("Error while analyzing the file:"+pyEdit.getIFile());
 	            }
 	            
             } catch (Throwable e) {
@@ -185,18 +189,23 @@ public class MarkOccurrencesJob extends Thread{
         }
         
         monitor.setCanceled(false);
-        processor.checkInitialConditions(monitor);
-        if (currRequestTime != lastRequestTime) {
-        	return new Tuple3<RefactoringRequest,PyRenameProcessor,Boolean>(null,null,false);
+        try{
+	        processor.checkInitialConditions(monitor);
+	        if (currRequestTime != lastRequestTime) {
+	        	return new Tuple3<RefactoringRequest,PyRenameProcessor,Boolean>(null,null,false);
+	        }
+	        
+	        processor.checkFinalConditions(monitor, null);
+	        if (currRequestTime != lastRequestTime) {
+	        	return new Tuple3<RefactoringRequest,PyRenameProcessor,Boolean>(null,null,false);
+	        }
+	        
+	        //ok, pre-conditions suceeded
+			return new Tuple3<RefactoringRequest,PyRenameProcessor,Boolean>(req,processor,true);
+        }catch(Throwable e){
+        	Log.log("Error in occurrences while analyzing modName:"+req.moduleName+" initialName:"+req.duringProcessInfo.initialName);
+        	throw new RuntimeException(e);
         }
-        
-        processor.checkFinalConditions(monitor, null);
-        if (currRequestTime != lastRequestTime) {
-        	return new Tuple3<RefactoringRequest,PyRenameProcessor,Boolean>(null,null,false);
-        }
-        
-        //ok, pre-conditions suceeded
-		return new Tuple3<RefactoringRequest,PyRenameProcessor,Boolean>(req,processor,true);
 	}
 
 	/**
