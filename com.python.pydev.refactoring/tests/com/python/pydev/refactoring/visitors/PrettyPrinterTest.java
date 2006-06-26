@@ -11,7 +11,7 @@ import org.python.pydev.parser.jython.ast.Module;
 
 public class PrettyPrinterTest extends PyParserTestBase{
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     public static void main(String[] args) {
         try {

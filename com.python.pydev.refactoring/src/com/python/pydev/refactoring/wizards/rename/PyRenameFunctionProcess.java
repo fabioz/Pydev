@@ -73,11 +73,12 @@ public class PyRenameFunctionProcess extends AbstractRenameRefactorProcess{
 		        while(it.hasNext()){
 		            ASTEntry entry = it.next();
 		            List<SimpleNode> parts = NodeUtils.getAttributeParts((Attribute) entry.node);
-		            
-		            final String rep0 = NodeUtils.getRepresentationString(parts.get(0));
-					final String rep1 = NodeUtils.getRepresentationString(parts.get(1));
-					if(rep0 != null && rep1 != null && rep0.equals("self") && rep1.equals(occurencesFor)){
-		                ret.add(entry);
+		            if(!(parts.get(1) instanceof Attribute)){
+			            final String rep0 = NodeUtils.getRepresentationString(parts.get(0));
+						final String rep1 = NodeUtils.getRepresentationString(parts.get(1));
+						if(rep0 != null && rep1 != null && rep0.equals("self") && rep1.equals(occurencesFor)){
+			                ret.add(entry);
+			            }
 		            }
 		        }
 		        
