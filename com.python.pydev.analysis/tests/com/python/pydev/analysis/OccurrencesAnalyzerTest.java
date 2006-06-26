@@ -26,7 +26,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testOsPath();
+            analyzer2.testGlu4();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -478,6 +478,22 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	}
     	
     }
+    
+    public void testGlu4(){
+    	if(TestDependent.HAS_GLU_INSTALLED){
+    		doc = new Document(
+    				"from OpenGL.GLU import gluLookAt\n" +
+    				"print gluLookAt" +
+    				""
+    		);
+    		analyzer = new OccurrencesAnalyzer();
+    		msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    		
+    		printMessages(msgs, 0);
+    	}
+    	
+    }
+    
     public void testCompiledUnusedImports5(){
         
         if(TestDependent.HAS_WXPYTHON_INSTALLED){
