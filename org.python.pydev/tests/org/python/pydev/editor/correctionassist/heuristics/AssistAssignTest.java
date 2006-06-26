@@ -21,7 +21,8 @@ import junit.framework.TestCase;
  */
 public class AssistAssignTest extends TestCase {
 
-    private AssistAssign assist;
+    private static final boolean DEBUG = false;
+	private AssistAssign assist;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AssistAssignTest.class);
@@ -91,7 +92,9 @@ public class AssistAssignTest extends TestCase {
 
     private void assertContains(String string, List<ICompletionProposal> props) {
         for (ICompletionProposal proposal : props) {
-            System.out.println(proposal.getDisplayString());
+        	if(DEBUG){
+        		System.out.println(proposal.getDisplayString());
+        	}
             if(proposal.getDisplayString().equals(string)){
                 return;
             }

@@ -10,6 +10,7 @@ Pydev:
 - If an invalid interpreter is selected to run a file (old interpreter or wrong project type), a warning is given.
 - Ctrl+w is removed as the default for select word (the action is still there, but there is no keybinding for it, so, users
   have to configure themselves which keybinding they want for it)
+- Assign to local or field variable now enters in linked mode
 
 after 1.1.0
 

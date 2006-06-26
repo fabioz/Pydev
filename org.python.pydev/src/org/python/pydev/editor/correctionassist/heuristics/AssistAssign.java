@@ -18,7 +18,6 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
-import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.ui.UIConstants;
 
 /**
@@ -79,11 +78,11 @@ public class AssistAssign implements IAssistProps {
 
         int firstCharPosition = PySelection.getFirstCharPosition(ps.getDoc(), ps.getAbsoluteCursorOffset());
         callName += " = ";
-        l.add(new PyCompletionProposal(callName, firstCharPosition, 0, 0, getImage(imageCache, UIConstants.ASSIST_ASSIGN_TO_LOCAL),
-                "Assign to local ("+tok+")", null, null, IPyCompletionProposal.PRIORITY_DEFAULT));
+        l.add(new AssistAssignCompletionProposal(callName, firstCharPosition, 0, 0, getImage(imageCache, UIConstants.ASSIST_ASSIGN_TO_LOCAL),
+                "Assign to local ("+tok+")", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, edit));
         
-        l.add(new PyCompletionProposal("self." + callName, firstCharPosition, 0, 5, getImage(imageCache,UIConstants.ASSIST_ASSIGN_TO_CLASS),
-                "Assign to field (self."+tok+")", null, null, IPyCompletionProposal.PRIORITY_DEFAULT));
+        l.add(new AssistAssignCompletionProposal("self." + callName, firstCharPosition, 0, 5, getImage(imageCache,UIConstants.ASSIST_ASSIGN_TO_CLASS),
+                "Assign to field (self."+tok+")", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, edit));
         return l;
     }
 
