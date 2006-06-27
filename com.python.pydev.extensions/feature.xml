@@ -85,14 +85,26 @@ COPYRIGHT 2006 FABIO ZADROZNY
    <requires>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.junit"/>
-      <import plugin="org.python.pydev.core"/>
-      <import plugin="org.python.pydev.ast"/>
-      <import plugin="org.python.pydev"/>
-      <import plugin="org.python.pydev.parser"/>
       <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.python.pydev"/>
+      <import plugin="org.python.pydev.core"/>
+      <import plugin="org.junit"/>
+      <import plugin="org.python.pydev.ast"/>
+      <import plugin="org.python.pydev.parser"/>
       <import plugin="org.eclipse.core.resources"/>
       <import feature="org.python.pydev.feature" version="0.9.7.1" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+      <import plugin="org.eclipse.core.variables"/>
+      <import plugin="org.eclipse.debug.core"/>
+      <import plugin="org.eclipse.debug.ui"/>
+      <import plugin="org.python.pydev.debug"/>
+      <import plugin="org.eclipse.ui.console"/>
+      <import plugin="org.python.pydev.jython"/>
+      <import plugin="org.eclipse.search"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.ltk.core.refactoring"/>
+      <import plugin="org.eclipse.ltk.ui.refactoring"/>
    </requires>
 
    <plugin
