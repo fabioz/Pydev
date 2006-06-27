@@ -1,6 +1,6 @@
 import os.path
 import sys
-LAST_VERSION_TAG = '1.2.0'
+LAST_VERSION_TAG = '1.2.1'
 
 if __name__ == '__main__':
     d1 = 'open_source/scripts/'
@@ -10,14 +10,14 @@ if __name__ == '__main__':
     sys.path.insert(0, '.')
     
     os.chdir('open_source/scripts')
-    import build_org
+    import build_org #@UnresolvedImport
     build_org.LAST_VERSION_TAG = LAST_VERSION_TAG
     os.chdir('..')
     build_org.DoIt()
     
     os.chdir('..')
     os.chdir('new_homepage/scripts/')
-    import build_com
+    import build_com #@UnresolvedImport
     build_com.LAST_VERSION_TAG = LAST_VERSION_TAG
     build_com.DoIt()
     
