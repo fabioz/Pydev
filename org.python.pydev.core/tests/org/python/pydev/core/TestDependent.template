@@ -14,8 +14,6 @@ public class TestDependent {
     public static final String PYTHON_WXPYTHON_PACKAGES="D:/bin/Python24/Lib/site-packages/wx-2.6-msw-ansi/";
     public static final String PYTHON_NUMARRAY_PACKAGES="D:/bin/Python24/Lib/site-packages/numarray/";
     
-    public static String CYGWIN_PYTHON_EXE="E:/install/Utils.Cygwin/bin/python2.4.exe";
-    public static boolean HAS_CYGWIN = true;
     
     //NOTE: this should set to the tests pysrc location, so that it can be added to the pythonpath.
     public static final String TEST_PYDEV_BASE_LOC = "E:/eclipse_workspace/";
@@ -39,4 +37,9 @@ public class TestDependent {
     public static final boolean HAS_SWT_ON_PATH = false;
     public static final boolean HAS_NUMARRAY_INSTALLED = true;
 	public static final boolean HAS_MX_DATETIME = false;
+	
+	public static boolean HAS_CYGWIN = false;
+	public static String CYGWIN_PYTHON_EXE="E:/install/Utils.Cygwin/bin/python2.4.exe";
+	public static final String CYGWIN_CYGPATH_LOCATION = "c:/bin/cygwin/bin/cygpath.exe";
+	public static final String CYGWIN_UNIX_CYGPATH_LOCATION = "/usr/bin/cygpath.exe";
 }
