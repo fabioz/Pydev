@@ -2,15 +2,16 @@
 after 1.2.0
 
 Pydev:
-- Go to previous method now works with decorators
-- Stack-trace did not open in correct line when external files were opened
 - The user is asked for which paths should be added to the system pythonpath
+- Go to previous method now works with decorators
+- Stack-trace link now opens in correct line for external files
 - Variables now show in the variables view while debugging
-- If an invalid interpreter is selected to run a file (old interpreter or wrong project type), a warning is given to the user.
-- Ctrl+w is removed as the default for select word (the action is still there, but there is no keybinding for it, so, users have to configure themselves which keybinding they want for it)
+- If an invalid interpreter is selected to run a file (old interpreter or wrong project type), a warning is given to the user
+- Ctrl+w is removed as the default for select word (the action is still there, but its keybinding is removed, so, users have to configure themselves which keybinding they want for it)
 - Assign to local or field variable now enters in linked mode
+- Added dependency to Eclipse 3.2 features, as version 1.2.0 of pydev and newer are only Eclipse 3.2 compatible.
 
-Extensions:
+Pydev Extensions:
 - Bug-Fixes
 
 after 1.1.0
