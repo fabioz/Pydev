@@ -4,7 +4,10 @@
       The python development environment.
    </description>
    
+   <feature url="features/org.python.pydev.feature_1.2.1.jar" id="org.python.pydev.feature" version="1.2.1"/>
+   <!-- Removed because it did not put Eclipse 3.2 as a pre-condition.
    <feature url="features/org.python.pydev.feature_1.2.0.jar" id="org.python.pydev.feature" version="1.2.0"/>
+    -->
    <feature url="features/org.python.pydev.feature_1.1.0.jar" id="org.python.pydev.feature" version="1.1.0"/>
    <feature url="features/org.python.pydev.feature_1.0.8.jar" id="org.python.pydev.feature" version="1.0.8"/>
    <feature url="features/org.python.pydev.feature_1.0.7.jar" id="org.python.pydev.feature" version="1.0.7"/>
