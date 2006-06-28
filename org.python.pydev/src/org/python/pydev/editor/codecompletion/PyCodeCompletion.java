@@ -30,6 +30,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.DocUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
@@ -53,6 +54,15 @@ import org.python.pydev.ui.UIConstants;
  */
 public class PyCodeCompletion {
 
+    
+    /**
+     * This constant is used to debug the code-completion process on a production environment,
+     * so that we gather enough information about what's happening and the possible reasons
+     * for some bug (at this moment this is being specifically added because of a halting bug
+     * for pydev in linux: https://sourceforge.net/tracker/index.php?func=detail&aid=1509582&group_id=85796&atid=577329)
+     */
+    public static final boolean DEBUG_CODE_COMPLETION = false;
+    
     /**
      * Type for unknown.
      */
@@ -160,8 +170,13 @@ public class PyCodeCompletion {
      * (This is where we do the "REAL" work).
      * @throws BadLocationException
      */
+    @SuppressWarnings("unchecked")
     public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException {
-        
+        if(DEBUG_CODE_COMPLETION){
+            Log.toLogFile(this,"Starting getCodeCompletionProposals");
+            Log.addLogLevel();
+            Log.toLogFile(this,"Request:"+request);
+        }
         ArrayList ret = new ArrayList();
         try {
         	IPythonNature pythonNature = request.nature;
@@ -175,8 +190,14 @@ public class PyCodeCompletion {
 
             List theList = new ArrayList();
             try {
+                if(DEBUG_CODE_COMPLETION){
+                    Log.toLogFile(this,"AbstractShell.getServerShell");
+                }
                 if (CompiledModule.COMPILED_MODULES_ENABLED) {
                     AbstractShell.getServerShell(request.nature, AbstractShell.COMPLETION_SHELL); //just start it
+                }
+                if(DEBUG_CODE_COMPLETION){
+                    Log.toLogFile(this,"END AbstractShell.getServerShell");
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -228,7 +249,15 @@ public class PyCodeCompletion {
             } else { //go to globals
 
                 state.activationToken = request.activationToken;
+                if(DEBUG_CODE_COMPLETION){
+                    Log.toLogFile(this,"astManager.getCompletionsForToken");
+                    Log.addLogLevel();
+                }
                 IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
+                if(DEBUG_CODE_COMPLETION){
+                    Log.remLogLevel();
+                    Log.toLogFile(this,"END astManager.getCompletionsForToken");
+                }
 
                 theList.addAll(Arrays.asList(comps));
                 
@@ -239,10 +268,17 @@ public class PyCodeCompletion {
         } catch (CompletionRecursionException e) {
             ret.add(new CompletionProposal("",request.documentOffset,0,0,null,e.getMessage(), null,null));
         }
+        
+        if(DEBUG_CODE_COMPLETION){
+            Log.remLogLevel();
+            Log.toLogFile(this, "Finished completion. Returned:"+ret.size()+" completions.");
+            Log.toLogFile("");
+        }
 
         return ret;
     }
 
+    @SuppressWarnings("unchecked")
     private Collection getGlobalsFromParticipants(CompletionRequest request, ICompletionState state) {
         ArrayList ret = new ArrayList();
         
@@ -294,6 +330,7 @@ public class PyCodeCompletion {
     /**
      * Get self completions when you already have a scope
      */
+    @SuppressWarnings("unchecked")
     public static IToken[] getSelfCompletions(Scope scope, CompletionRequest request, List theList, CompletionState state, boolean getOnlySupers) throws BadLocationException {
     	IToken[] comps = new IToken[0];
         while(scope.scope.size() > 0){
@@ -356,7 +393,7 @@ public class PyCodeCompletion {
      * @param iTokenList
      * @param importsTip
      */
-    private void changeItokenToCompletionPropostal(ITextViewer viewer, CompletionRequest request, List convertedProposals, List iTokenList, boolean importsTip) {
+    private void changeItokenToCompletionPropostal(ITextViewer viewer, CompletionRequest request, List<ICompletionProposal> convertedProposals, List iTokenList, boolean importsTip) {
         //TODO: check org.eclipse.jface.text.templates.TemplateCompletionProcessor to see how to do custom 'selections' in completions
 //        int offset = request.documentOffset;
 //        ITextSelection selection= (ITextSelection) viewer.getSelectionProvider().getSelection();
@@ -431,7 +468,7 @@ public class PyCodeCompletion {
                 
             }else if(obj instanceof ICompletionProposal){
                 //no need to convert
-                convertedProposals.add(obj);
+                convertedProposals.add((ICompletionProposal) obj);
             }
             
         }
@@ -633,6 +670,7 @@ public class PyCodeCompletion {
      * @param qualifier
      * @return
      */
+    @SuppressWarnings("unchecked")
     public ICompletionProposal[] onlyValidSorted(List pythonAndTemplateProposals, String qualifier) {
         //FOURTH: Now, we have all the proposals, only thing is deciding wich ones are valid (depending on
         //qualifier) and sorting them correctly.

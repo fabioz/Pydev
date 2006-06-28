@@ -63,6 +63,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * 
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeCompletionProposals(org.eclipse.jface.text.ITextViewer, int)
      */
+    @SuppressWarnings("unchecked")
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int documentOffset) {
         ICompletionProposal[] proposals;
         
@@ -72,7 +73,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
 
             //list for storing the proposals
-            ArrayList pythonAndTemplateProposals = new ArrayList();
+            ArrayList<ICompletionProposal> pythonAndTemplateProposals = new ArrayList<ICompletionProposal>();
             
             
             

@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
@@ -68,9 +69,12 @@ public abstract class AbstractShell {
      */
     private boolean isInOperation = false;
 
-    private void dbg(Object string, int priority) {
+    private void dbg(String string, int priority) {
         if(priority <= DEBUG_SHELL){
             System.out.println(string);
+        }
+        if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+            Log.toLogFile(this, string);
         }
     }
 

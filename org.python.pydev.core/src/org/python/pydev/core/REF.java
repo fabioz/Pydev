@@ -220,6 +220,21 @@ public class REF {
         writeStrToFile(str, new File(file));
     }
     
+    public static void appendStrToFile(String str, String file) {
+        try {
+            FileOutputStream stream = new FileOutputStream(file, true);
+            try {
+                stream.write(str.getBytes());
+            } finally{
+                stream.close();
+            }
+        } catch (FileNotFoundException e) {
+            Log.log(e);
+        } catch (IOException e) {
+            Log.log(e);
+        }
+    }
+    
     public static void writeStrToFile(String str, File file) {
         try {
             FileOutputStream stream = new FileOutputStream(file);
@@ -606,6 +621,7 @@ public class REF {
      * Useful to silent it on tests
      */
     public static boolean LOG_ENCODING_ERROR = true;
+
 
 }
 

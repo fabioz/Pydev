@@ -25,6 +25,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
@@ -310,6 +311,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForModule(org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.CompletionState, boolean)
      */
     public IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods) {
+        if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+            Log.toLogFile(this, "getCompletionsForModule");
+        }
         ArrayList<IToken> importedModules = new ArrayList<IToken>();
         if(state.getLocalImportsGotten() == false){
             //in the first analyzed module, we have to get the local imports too. 
@@ -528,6 +532,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getGlobalCompletions
      */
     public List getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, ICompletionState state, IModule current) {
+        if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+            Log.toLogFile(this, "getGlobalCompletions");
+        }
         List<IToken> completions = new ArrayList<IToken>();
 
         //in completion with nothing, just go for what is imported and global tokens.
@@ -549,8 +556,14 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
         if(!state.getBuiltinsGotten()){
             state.setBuiltinsGotten (true) ;
+            if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+                Log.toLogFile(this, "getBuiltinCompletions");
+            }
             //last thing: get completions from module __builtin__
             getBuiltinCompletions(state, completions);
+            if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+                Log.toLogFile(this, "END getBuiltinCompletions");
+            }
         }
         return completions;
     }

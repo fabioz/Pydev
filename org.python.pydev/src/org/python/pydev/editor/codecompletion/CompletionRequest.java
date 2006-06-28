@@ -91,7 +91,7 @@ public class CompletionRequest implements ICompletionRequest{
     public int documentOffset; 
     
     /**
-     * The lenght of the qualifier (== qualifier.length()
+     * The lenght of the qualifier (== qualifier.length())
      */
     public int qlen;
     
@@ -99,4 +99,18 @@ public class CompletionRequest implements ICompletionRequest{
      * The engine for doing the code-completion
      */
     public PyCodeCompletion codeCompletion;
+    
+    @Override
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("CompletionRequest[");
+        buffer.append(" editorFile:");
+        buffer.append(editorFile);
+        buffer.append(" activationToken:");
+        buffer.append(activationToken);
+        buffer.append(" qualifier:");
+        buffer.append(qualifier);
+        buffer.append("]");
+        return buffer.toString();
+    }
 }
