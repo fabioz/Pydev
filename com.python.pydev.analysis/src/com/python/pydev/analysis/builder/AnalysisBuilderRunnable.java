@@ -128,7 +128,11 @@ public class AnalysisBuilderRunnable implements Runnable{
     }
     
     public void run() {
-        doAnalysis();
+        try{
+            doAnalysis();
+        }catch(NoClassDefFoundError e){
+            //ignore, plugin finished and thread still active
+        }
     }
     
     public void doAnalysis(){
