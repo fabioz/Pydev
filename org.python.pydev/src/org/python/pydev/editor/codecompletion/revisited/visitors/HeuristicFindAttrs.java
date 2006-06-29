@@ -14,6 +14,8 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.exprType;
 
 /**
  * This class defines how we should find attributes. 
@@ -147,13 +149,24 @@ public class HeuristicFindAttrs extends AbstractVisitor {
                 if(node.targets[i] instanceof Attribute){
                     visitAttribute((Attribute)node.targets[i]);
                     
-                }
-                else if(node.targets[i] instanceof Name && inFuncDef == false){
+                }else if(node.targets[i] instanceof Name && inFuncDef == false){
                     String id = ((Name)node.targets[i]).id;
                     if(id != null){
                         addToken(node.targets[i]);
                     }
                     
+                }else if(node.targets[i] instanceof Tuple && inFuncDef == false){
+                	//that's for finding the definition: a,b,c = range(3) inside a class definition
+                	Tuple tuple = (Tuple) node.targets[i];
+                	for(exprType t :tuple.elts){
+                		if(t instanceof Name){
+                			String id = ((Name)t).id;
+                			if(id != null){
+                				addToken(t);
+                			}
+                		}
+                	}
+                	
                 }
             }
             

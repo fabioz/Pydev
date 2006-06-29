@@ -137,6 +137,18 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 		requestCompl(s, s.length(), -1, new String[] { "proj2root", "testlib"}, nature2);
 	}
 	
+	public void testClassAttrs() throws CoreException, BadLocationException{
+		String s;
+		s = ""+
+		"class A:\n" +
+		"    aa, bb, cc = range(3)\n" + //the heuristic to find the attrs (class HeuristicFindAttrs) was not getting this
+		"    dd = 1\n" +
+		"    def m1(self):\n" +
+		"        self.";
+		requestCompl(s, s.length(), -1, new String[] { "aa", "bb", "cc", "dd"});
+	}
+
+	
 	public void testInnerImport() throws CoreException, BadLocationException{
 	    String s;
 	    s = "" +
