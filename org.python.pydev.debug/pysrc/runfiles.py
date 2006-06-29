@@ -175,13 +175,9 @@ def runtests(dirs, verbosity=2):
     alltests = []
     system_path = SystemPath(sys.path)
     for name in names:
-        try:
-            module = ImportModule(ModuleName(name, system_path))
-            tests = loader.loadTestsFromModule(module)
-            alltests.append(tests)
-        except:
-            #ok, unable to load the module (probably has not __init__.py in its folder structure)
-            pass
+        module = ImportModule(ModuleName(name, system_path))
+        tests = loader.loadTestsFromModule(module)
+        alltests.append(tests)
     print 'done.'
     
     runner = unittest.TextTestRunner(sys.stdout, 1, verbosity)
