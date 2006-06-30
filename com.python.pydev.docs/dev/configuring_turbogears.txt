@@ -60,3 +60,8 @@ Interesting point: I've just now noted that turbogears spawns 2 shells when I ru
 
 So, after checking its code a little I've seen: 
 if conf('autoreload.on', defaultOn): ... do the auto-reload stuff, so, you can set autoreload.on=False in the configurations and run it from pydev, so that you can debug it (but this way, you'll loose the auto-reloader stuff, so, I guess you'll have to decide: pydev regular debugger without auto-reload or pydev extensions remote debugger with the auto-reload (in this case, you could even run it from outside of Eclipse).
+
+---- More time later...
+
+Well, I started checking turbogears just to make a little tutorial, and I still didn't have any target, so, I decided I'd do something simple with session management. The reference I found for doing it is http://nerd.newburyportion.com/2005/10/identity-management-for-turbogears
+
