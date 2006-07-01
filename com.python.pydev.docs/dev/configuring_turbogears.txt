@@ -2,11 +2,11 @@ Ok, this is an introduction on how to configure pydev to work with turbogears.
 
 I still haven't used turbogears myself, so, in the end, this might be interesting for other users that are starting in the turbogears world themselves ;-)
 
-1st step: getting turbogears 
+<strong>1st step</strong>: getting turbogears 
 
-OK: downloaded version 0.8.9, which is the latest release
+OK: downloaded version 0.8.9, which seems to be the latest release
 
-2nd step: installing it
+<strong>2nd step</strong>: installing it
 
 Running setup.py install did some nice things for me... it downloaded setuptools automatically (as it was a pre-requisite) and then proceeded getting other dependencies (egg files) and installed all those without further problems (yeap, many dependencies there).
 
@@ -29,28 +29,24 @@ docutils/docutils-0.4.tar.gz?use_mirror=mesh
 
 So, I went on to get it myself and then proceeded to get pysqlite (http://pysqlite.org).
 
-So, now on to see how pydev looks... First, my interpreter configuration has become obsolete, so, all those libraries that were added later are not there... So, I just remove the interpreter and add it again (so, it should get all those new libraries -- version 1.2.0 of pydev and earlier had a 'cache' bug, so, you'd need to remove the interpreter, press apply and only after it proceed to add the interpreter again).
+So, now on to see how pydev looks... First, my interpreter configuration has become <strong>obsolete</strong>, so, all those libraries that were added later are not there... So, I just <strong>remove the interpreter and add it again</strong> (so, it should get all those new libraries -- version 1.2.0 of pydev and earlier had a 'cache' bug, so, you'd need to remove the interpreter, press apply and only after it proceed to add the interpreter again).
 
-So, just to make sure pysqlite is there:
+Now, just to make sure pysqlite is there, create the following script to see if it works:
 from pysqlite2 import dbapi2 as sqlite
 con = sqlite.connect("mydb") 
 print con
 
 Ok, connection there, and a mydb file created, so, everything seems fine.
 
-I decided to go with the 20 minute-flash that turbogears has there... Ok, it starts creating a project with tg_admin quickstart. So, I decided to create a new pydev project from eclipse before and placed it at d:\turbogears, and ran tg_admin quickstart from within that directory to get started.
+I decided to go with the 20 minute-flash that turbogears has there...(now that I'm revising this, I'd advise against it and would go with the wiki tutorial, as the flash version hides too many things). It starts creating a project with tg_admin quickstart. So, I decided to create a new pydev project from eclipse before and placed it at d:\turbogears, and ran tg_admin quickstart from within that directory to get started.
 
 I called the project "wiki test" and it created all the structure without any problems, and starting it with wikitest-start.py actually started the server without any problems (http://localhost:8080/)
 
-Now, to configure pydev, you'd have to add the created folder d:\turbogears\wikitest as a source folder for the project (this would give you code-completion and code-analysis for that project. Details on how to do that can be found at http://fabioz.com/pydev/manual_101_project_conf2.html
+Now, to configure pydev, you have to add the created folder d:\turbogears\wikitest as a source folder for the project (this would give you code-completion and code-analysis for that project. Details on how to do that can be found at http://fabioz.com/pydev/manual_101_project_conf2.html
 
 Ok, now on to the database creation: got some things mixed up here because the video didn't specify the dev.cfg changes (but the written one does, so, not such a big problem).
 
 Kid template editing: I'd reccomend having WTP (Web Tools Platform) to edit html files... surely makes things much nicer. 
-
----- Some time later...
-
-Ok, I've stopped turbogers for a while to do some other stuff, but now let's get back to it.
 
 Interesting point: I've just now noted that turbogears spawns 2 shells when I run the server, I think that one is the http server and the other some auto-reloader, but this makes some things much harder:
 
@@ -61,7 +57,8 @@ Interesting point: I've just now noted that turbogears spawns 2 shells when I ru
 So, after checking its code a little I've seen: 
 if conf('autoreload.on', defaultOn): ... do the auto-reload stuff, so, you can set autoreload.on=False in the configurations and run it from pydev, so that you can debug it (but this way, you'll loose the auto-reloader stuff, so, I guess you'll have to decide: pydev regular debugger without auto-reload or pydev extensions remote debugger with the auto-reload (in this case, you could even run it from outside of Eclipse).
 
----- More time later...
+So, I guess that's it. Configuring pydev to the point where you can use code-completion, debugger and code-analysis seems to work ok.
 
-Well, I started checking turbogears just to make a little tutorial, and I still didn't have any target, so, I decided I'd do something simple with session management. The reference I found for doing it is http://nerd.newburyportion.com/2005/10/identity-management-for-turbogears
+Cheers,
 
+Fabio
