@@ -213,7 +213,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant{
         }
 
         public boolean validate(IDocument document, int offset, DocumentEvent event) {
-            String[] strs = PySelection.getActivationTokenAndQual(document, offset); 
+            String[] strs = PySelection.getActivationTokenAndQual(document, offset, false); 
 
             String activationToken = strs[0];
             String qualifier = strs[1];

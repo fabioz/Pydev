@@ -14,7 +14,6 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModulesManager;
-import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
@@ -25,16 +24,17 @@ import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 public class ImportsCompletionParticipant implements IPyDevCompletionParticipant{
 
     public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state) {
+        ArrayList<CtxInsensitiveImportComplProposal> list = new ArrayList<CtxInsensitiveImportComplProposal>();
+        if(request.isInCalltip){
+            return list;
+        }
         
-        ArrayList list = new ArrayList();
         if(request.qualifier.length() >= 2){ //at least n characters required...
             
             ICodeCompletionASTManager astManager = request.nature.getAstManager();
             
             Image img = PyCodeCompletion.getImageForType(PyCodeCompletion.TYPE_PACKAGE);
             
-            PySelection selection = new PySelection(request.doc);
-
             IModulesManager projectModulesManager = astManager.getModulesManager();
             Set allModuleNames = projectModulesManager.getAllModuleNames();
             

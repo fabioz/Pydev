@@ -23,6 +23,10 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
 
     public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state) {
     	ArrayList<CtxInsensitiveImportComplProposal> completions = new ArrayList<CtxInsensitiveImportComplProposal>();
+    	if(request.isInCalltip){
+    	    return completions;
+    	}
+        
     	String qual = request.qualifier;
     	if(qual.length() >= 3){ //at least n characters required...
 	        

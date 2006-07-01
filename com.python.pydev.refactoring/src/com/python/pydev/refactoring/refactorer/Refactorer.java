@@ -15,6 +15,7 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -98,7 +99,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
 		//1. we have to know what we're looking for (activationToken)
 		request.communicateWork("Finding Definition");
 		List<ItemPointer> pointers = new ArrayList<ItemPointer>();
-		String[] tokenAndQual = request.getTokenAndQual();
+		String[] tokenAndQual = PySelection.getActivationTokenAndQual(request.doc, request.ps.getAbsoluteCursorOffset(), true);
 		
 		String modName = null;
 		
