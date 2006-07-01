@@ -11,6 +11,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 
 
 /**
@@ -52,9 +53,11 @@ public class CompletionRequest implements ICompletionRequest{
     public CompletionRequest(File editorFile, IPythonNature nature, IDocument doc,
             int documentOffset, PyCodeCompletion codeCompletion){
 
-        String[] strs = PySelection.getActivationTokenAndQual(doc, documentOffset); 
-        this.activationToken = strs[0];
-        this.qualifier = strs[1];
+        ActivationTokenAndQual act = PySelection.getActivationTokenAndQual(doc, documentOffset, false, true); 
+        this.activationToken = act.activationToken;
+        this.qualifier = act.qualifier;
+        this.isInCalltip = act.changedForCalltip;
+        
         int qlen = qualifier.length();
         
         
@@ -100,6 +103,11 @@ public class CompletionRequest implements ICompletionRequest{
      */
     public PyCodeCompletion codeCompletion;
     
+    /**
+     * Defines if we're getting the completions for a calltip
+     */
+    public boolean isInCalltip;
+    
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
@@ -110,6 +118,8 @@ public class CompletionRequest implements ICompletionRequest{
         buffer.append(activationToken);
         buffer.append(" qualifier:");
         buffer.append(qualifier);
+        buffer.append(" isInCalltip:");
+        buffer.append(isInCalltip);
         buffer.append("]");
         return buffer.toString();
     }

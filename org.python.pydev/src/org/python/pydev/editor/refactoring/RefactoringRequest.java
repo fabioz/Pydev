@@ -201,13 +201,6 @@ public class RefactoringRequest{
         return null;
     }
 
-    /**
-     * @return the token and the full qualifier.
-     */
-	public String[] getTokenAndQual() {
-		return PySelection.getActivationTokenAndQual(doc, ps.getAbsoluteCursorOffset(), true);
-	}
-
     public void fillInitialNameAndOffset(){
         try {
             Tuple<String, Integer> currToken = ps.getCurrToken();

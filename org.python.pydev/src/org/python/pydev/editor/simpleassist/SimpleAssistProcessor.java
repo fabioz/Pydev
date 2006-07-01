@@ -37,7 +37,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      */
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
         IDocument doc = viewer.getDocument();
-        String[] strs = PySelection.getActivationTokenAndQual(doc, offset); 
+        String[] strs = PySelection.getActivationTokenAndQual(doc, offset, false); 
 
         String activationToken = strs[0];
         String qualifier = strs[1];

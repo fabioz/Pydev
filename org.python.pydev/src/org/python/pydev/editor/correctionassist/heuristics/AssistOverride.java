@@ -47,7 +47,7 @@ public class AssistOverride implements IAssistProps {
 
         
         //code completion to see members of class...
-        String[] strs = PySelection.getActivationTokenAndQual(ps.getDoc(), ps.getAbsoluteCursorOffset());
+        String[] strs = PySelection.getActivationTokenAndQual(ps.getDoc(), ps.getAbsoluteCursorOffset(), false);
         String tok = strs[1];
         CompletionState state = new CompletionState(ps.getStartLineIndex(), ps.getAbsoluteCursorOffset() - ps.getStartLine().getOffset(), null, nature);
         CompletionRequest request = new CompletionRequest(file, nature, ps.getDoc(), "self", ps.getAbsoluteCursorOffset(), 0, new PyCodeCompletion(), "");

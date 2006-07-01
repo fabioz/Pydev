@@ -20,8 +20,10 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
+import org.eclipse.jface.text.contentassist.ContextInformation;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
@@ -387,31 +389,10 @@ public class PyCodeCompletion {
     }
 
     /**
-     * @param viewer 
-     * @param request
-     * @param convertedProposals
-     * @param iTokenList
-     * @param importsTip
+     * This is the place where we change the tokens we've gathered so far with the 'inference' engine and transform those
+     * tokens to actual completions as requested by the Eclipse infrastructure.
      */
     private void changeItokenToCompletionPropostal(ITextViewer viewer, CompletionRequest request, List<ICompletionProposal> convertedProposals, List iTokenList, boolean importsTip) {
-        //TODO: check org.eclipse.jface.text.templates.TemplateCompletionProcessor to see how to do custom 'selections' in completions
-//        int offset = request.documentOffset;
-//        ITextSelection selection= (ITextSelection) viewer.getSelectionProvider().getSelection();
-//
-//        // adjust offset to end of normalized selection
-//        if (selection.getOffset() == offset)
-//            offset= selection.getOffset() + selection.getLength();
-//
-//        String prefix= extractPrefix(viewer, offset);
-//        Region region= new Region(offset - prefix.length(), prefix.length());
-//
-//        TemplateContextType contextType= getContextType(viewer, region);
-//        if (contextType != null) {
-//            IDocument document= viewer.getDocument();
-//            new DocumentTemplateContext(contextType, document, region.getOffset(), region.getLength());
-//        }
-
-        
         for (Iterator iter = iTokenList.iterator(); iter.hasNext();) {
             
             Object obj = iter.next();
@@ -440,11 +421,34 @@ public class PyCodeCompletion {
                 if(type == PyCodeCompletion.TYPE_PARAM){
                     priority = IPyCompletionProposal.PRIORITY_LOCALS;
                 }
-                    
-                PyCompletionProposal proposal = new PyCompletionProposal(name+args,
-                        request.documentOffset - request.qlen, request.qlen, l, getImageForType(type), null, null, docStr, priority);
                 
-                convertedProposals.add(proposal);
+                if(request.isInCalltip){
+                    //ok, when we're in a calltip
+                    if(args.length() > 2){
+                        String contextArgs = args.substring(1, args.length()-1); //remove the parentesis
+                        PyCompletionProposal proposal = new PyCompletionProposal(name+args,
+                                request.documentOffset - request.qlen, request.qlen, l, getImageForType(type), null, 
+                                new ContextInformation(contextArgs, contextArgs), docStr, priority){
+                            @Override
+                            public void apply(IDocument document) {
+                                
+                            }
+                            @Override
+                            public Point getSelection(IDocument document) {
+                                return null;
+                            }
+                        };
+                        
+                        convertedProposals.add(proposal);
+                    }
+                }else{
+                    PyCompletionProposal proposal = new PyCompletionProposal(name+args,
+                            request.documentOffset - request.qlen, request.qlen, l, getImageForType(type), null, null, docStr, priority);
+                    
+                    convertedProposals.add(proposal);
+                    convertedProposals.add(proposal);
+                }
+                    
             
             }else if(obj instanceof Object[]){
                 Object element[] = (Object[]) obj;

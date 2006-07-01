@@ -16,6 +16,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
@@ -370,51 +371,51 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     public void testGetActTok(){
         String strs[];
         
-        strs = PySelection.getActivationTokenAndQual(new Document(""), 0);
+        strs = PySelection.getActivationTokenAndQual(new Document(""), 0, false);
         assertEquals("", strs[0]);
         assertEquals("", strs[1]);
         
-        strs = PySelection.getActivationTokenAndQual(new Document("self.assertEquals( DECAY_COEF, t.item(0, C).text())"), 42);
+        strs = PySelection.getActivationTokenAndQual(new Document("self.assertEquals( DECAY_COEF, t.item(0, C).text())"), 42, false);
         assertEquals("" , strs[0]);
         assertEquals("C", strs[1]);
         
-        strs = PySelection.getActivationTokenAndQual(new Document("self.assertEquals( DECAY_COEF, t.item(0,C).text())"), 41);
+        strs = PySelection.getActivationTokenAndQual(new Document("self.assertEquals( DECAY_COEF, t.item(0,C).text())"), 41, false);
         assertEquals("" , strs[0]);
         assertEquals("C", strs[1]);
         
-        strs = PySelection.getActivationTokenAndQual(new Document("m = met(self.c, self.b)"), 14);
+        strs = PySelection.getActivationTokenAndQual(new Document("m = met(self.c, self.b)"), 14, false);
         assertEquals("self." , strs[0]);
         assertEquals("c", strs[1]);
         
-        strs = PySelection.getActivationTokenAndQual(new Document("[a,b].ap"), 8);
+        strs = PySelection.getActivationTokenAndQual(new Document("[a,b].ap"), 8, false);
         assertEquals("list." , strs[0]);
         assertEquals("ap", strs[1]);
         
-        strs = PySelection.getActivationTokenAndQual(new Document("{a:1,b:2}.ap"), 12);
+        strs = PySelection.getActivationTokenAndQual(new Document("{a:1,b:2}.ap"), 12, false);
         assertEquals("dict." , strs[0]);
         assertEquals("ap", strs[1]);
         
-        strs = PySelection.getActivationTokenAndQual(new Document("''.ap"), 5);
+        strs = PySelection.getActivationTokenAndQual(new Document("''.ap"), 5, false);
         assertEquals("str." , strs[0]);
         assertEquals("ap", strs[1]);
         
-        strs = PySelection.getActivationTokenAndQual(new Document("\"\".ap"), 5);
+        strs = PySelection.getActivationTokenAndQual(new Document("\"\".ap"), 5, false);
         assertEquals("str." , strs[0]);
         assertEquals("ap", strs[1]);
         
-        strs = PySelection.getActivationTokenAndQual(new Document("ClassA.someMethod.ap"), 20);
+        strs = PySelection.getActivationTokenAndQual(new Document("ClassA.someMethod.ap"), 20, false);
         assertEquals("ClassA.someMethod." , strs[0]);
         assertEquals("ap", strs[1]);
         
-        strs = PySelection.getActivationTokenAndQual(new Document("ClassA.someMethod().ap"), 22);
+        strs = PySelection.getActivationTokenAndQual(new Document("ClassA.someMethod().ap"), 22, false);
         assertEquals("ClassA.someMethod()." , strs[0]);
         assertEquals("ap", strs[1]);
         
-        strs = PySelection.getActivationTokenAndQual(new Document("ClassA.someMethod( a, b ).ap"), 28);
+        strs = PySelection.getActivationTokenAndQual(new Document("ClassA.someMethod( a, b ).ap"), 28, false);
         assertEquals("ClassA.someMethod()." , strs[0]);
         assertEquals("ap", strs[1]);
         
-        strs = PySelection.getActivationTokenAndQual(new Document("foo.bar"), 2);
+        strs = PySelection.getActivationTokenAndQual(new Document("foo.bar"), 2, false);
         assertEquals("" , strs[0]);
         assertEquals("fo", strs[1]);
         
@@ -462,21 +463,25 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         //This means: get the char before the offset (excluding spaces and tabs) and see
         //if it is a ',' or '(' and if it is, go to that offset and do the rest of the process
         //as if we were on that position
-        strs = PySelection.getActivationTokenAndQual(new Document("m1()"), 3, false); 
-        assertEquals("", strs[0]);
-        assertEquals("m1", strs[1]);
+        ActivationTokenAndQual act = PySelection.getActivationTokenAndQual(new Document("m1()"), 3, false, true); 
+        assertEquals("", act.activationToken);
+        assertEquals("m1", act.qualifier);
+        assertTrue(act.changedForCalltip);
         
-        strs = PySelection.getActivationTokenAndQual(new Document("m1.m2()"), 6, false); 
-        assertEquals("m1.", strs[0]);
-        assertEquals("m2", strs[1]);
+        act = PySelection.getActivationTokenAndQual(new Document("m1.m2()"), 6, false, true); 
+        assertEquals("m1.", act.activationToken);
+        assertEquals("m2", act.qualifier);
+        assertTrue(act.changedForCalltip);
         
-        strs = PySelection.getActivationTokenAndQual(new Document("m1.m2(  \t)"), 9, false); 
-        assertEquals("m1.", strs[0]);
-        assertEquals("m2", strs[1]);
+        act = PySelection.getActivationTokenAndQual(new Document("m1.m2(  \t)"), 9, false, true); 
+        assertEquals("m1.", act.activationToken);
+        assertEquals("m2", act.qualifier);
+        assertTrue(act.changedForCalltip);
         
-        strs = PySelection.getActivationTokenAndQual(new Document("m1(a  , \t)"), 9, false); 
-        assertEquals("", strs[0]);
-        assertEquals("m1", strs[1]);
+        act = PySelection.getActivationTokenAndQual(new Document("m1(a  , \t)"), 9, false, true); 
+        assertEquals("", act.activationToken);
+        assertEquals("m1", act.qualifier);
+        assertTrue(act.changedForCalltip);
         
     }
 

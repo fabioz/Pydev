@@ -98,7 +98,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             
             
             
-            String[] strs = PySelection.getActivationTokenAndQual(doc, documentOffset); 
+            String[] strs = PySelection.getActivationTokenAndQual(doc, documentOffset, false); 
 
             String activationToken = strs[0];
             String qualifier = strs[1];
@@ -146,14 +146,14 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      */
     private Object[] getPythonProposals(ITextViewer viewer, int documentOffset, IDocument doc) throws CoreException, BadLocationException {
         CompletionRequest request = new CompletionRequest(edit.getEditorFile(), 
-                edit.getPythonNature(), doc, documentOffset,
-                codeCompletion);
+                edit.getPythonNature(), doc, documentOffset, codeCompletion);
+        
         boolean showTemplates = true;
         
         //if non empty string, we're in imports section.
         String importsTipperStr = request.codeCompletion.getImportsTipperStr(request);
         
-        if (importsTipperStr.length() != 0){
+        if (importsTipperStr.length() != 0 || request.isInCalltip){
             showTemplates = false; //don't show templates if we are in the imports section.
         }
         
@@ -243,7 +243,18 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getContextInformationValidator()
      */
     public IContextInformationValidator getContextInformationValidator() {
-        return null;
+        //TODO: we'll have to make this class better to:
+        //make things bold and make the context information go away.
+        return new IContextInformationValidator(){
+
+            public void install(IContextInformation info, ITextViewer viewer, int offset) {
+            }
+
+            public boolean isContextInformationValid(int offset) {
+                return true;
+            }
+            
+        };
     }
 
 }

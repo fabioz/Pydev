@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.IRegion;
@@ -761,7 +760,7 @@ public class PySelection {
      * @throws BadLocationException
      */
     public Tuple<String, Integer> getCurrToken() throws BadLocationException {
-        Tuple<String, Integer> tup = extractPrefix(doc, getAbsoluteCursorOffset(), false);
+        Tuple<String, Integer> tup = extractActivationToken(doc, getAbsoluteCursorOffset(), false);
         String prefix = tup.o1;
 
         // ok, now, get the rest of the token, as we already have its prefix
@@ -888,21 +887,6 @@ public class PySelection {
         return null;
     }
 
-    public static String [] getActivationTokenAndQual(String theDoc, int documentOffset) {
-        return PySelection.getActivationTokenAndQual(new Document(theDoc), documentOffset);
-        
-    }
-
-
-    public static String [] getActivationTokenAndQual(IDocument theDoc, int documentOffset) {
-    	return getActivationTokenAndQual(theDoc, documentOffset, false);
-    }
-
-
-    public static String extractPrefix(IDocument document, int offset) {
-    	return extractPrefix(document, offset, false).o1;
-    }
-
 
     /**
      * @param theDoc
@@ -938,10 +922,6 @@ public class PySelection {
     }
 
 
-    public String [] getActivationTokenAndQual(boolean getFullQualifier) {
-    	return getActivationTokenAndQual(doc, getAbsoluteCursorOffset(), getFullQualifier);
-    }
-    
     public static List<Integer> getLineBreakOffsets(String replacementString) {
         ArrayList<Integer> ret = new ArrayList<Integer>();
         
@@ -984,17 +964,69 @@ public class PySelection {
         return lineBreaks;
     }
 
+    public static class ActivationTokenAndQual{
+        public ActivationTokenAndQual(String activationToken, String qualifier, boolean changedForCalltip) {
+            this.activationToken = activationToken;
+            this.qualifier = qualifier;
+            this.changedForCalltip = changedForCalltip;
+        }
+        
+        public String activationToken;
+        public String qualifier;
+        public boolean changedForCalltip;
+    }
 
+    public String [] getActivationTokenAndQual(boolean getFullQualifier) {
+        return getActivationTokenAndQual(doc, getAbsoluteCursorOffset(), getFullQualifier);
+    }
+    
+    
+    public static String [] getActivationTokenAndQual(IDocument theDoc, int documentOffset, boolean getFullQualifier) {
+        ActivationTokenAndQual ret = getActivationTokenAndQual(theDoc, documentOffset, getFullQualifier, false);
+        return new String[]{ret.activationToken, ret.qualifier}; //will never be changed for the calltip, as we didn't request it
+    }
+    
     /**
      * Returns the activation token.
      * 
-     * @param theDoc
      * @param documentOffset the current cursor offset (we may have to change it if getFullQualifier is true)
-     * @param getFullQualifier 
+     * @param handleForCalltips if true, it will take into account that we may be looking for the activation token and
+     * qualifier for a calltip, in which case we should return the activation token and qualifier before a parentesis (if we're
+     * just after a '(' or ',' ).
+     * 
      * @return the activation token and the qualifier.
      */
-    public static String [] getActivationTokenAndQual(IDocument theDoc, int documentOffset, boolean getFullQualifier) {
-        Tuple<String, Integer> tupPrefix = extractPrefix(theDoc, documentOffset, getFullQualifier);
+    public static ActivationTokenAndQual getActivationTokenAndQual(IDocument doc, int documentOffset, boolean getFullQualifier, boolean handleForCalltips) {
+        boolean changedForCalltip = false;
+        
+        if(handleForCalltips){
+            int calltipOffset = documentOffset-1;
+            //ok, in this case, we have to check if we're just after a ( or ,
+            if(calltipOffset > 0 && calltipOffset < doc.getLength()){
+                try {
+                    char c = doc.getChar(calltipOffset);
+                    while(Character.isWhitespace(c) && calltipOffset > 0){
+                        calltipOffset--;
+                        c = doc.getChar(calltipOffset);
+                    }
+                    if(c == '(' || c == ','){
+                        //ok, we're just after a parentesis or comma, so, we have to get the
+                        //activation token and qualifier as if we were just before the last parentesis
+                        //(that is, if we're in a function call and not inside a list, string or dict declaration)
+                        calltipOffset = getBeforeParentesisCall(doc, calltipOffset);
+                        
+                        if(calltipOffset != -1){
+                            documentOffset = calltipOffset;
+                            changedForCalltip = true;
+                        }
+                    }
+                } catch (BadLocationException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        
+        Tuple<String, Integer> tupPrefix = extractActivationToken(doc, documentOffset, getFullQualifier);
         
         if(getFullQualifier == true){
         	//may have changed
@@ -1005,11 +1037,11 @@ public class PySelection {
         documentOffset = documentOffset-activationToken.length()-1;
     
         try {
-            while(documentOffset >= 0 && documentOffset < theDoc.getLength() && theDoc.get(documentOffset, 1).equals(".")){
-                String tok = extractPrefix(theDoc, documentOffset);
+            while(documentOffset >= 0 && documentOffset < doc.getLength() && doc.get(documentOffset, 1).equals(".")){
+                String tok = extractActivationToken(doc, documentOffset, false).o1;
     
                     
-                String c = theDoc.get(documentOffset-1, 1);
+                String c = doc.get(documentOffset-1, 1);
                 
                 if(c.equals("]")){
                     activationToken = "list."+activationToken;  
@@ -1024,8 +1056,8 @@ public class PySelection {
                     break;
                 
                 }else if(c.equals(")")){
-                    documentOffset = eatFuncCall(theDoc, documentOffset-1);
-                    tok = extractPrefix(theDoc, documentOffset);
+                    documentOffset = eatFuncCall(doc, documentOffset-1);
+                    tok = extractActivationToken(doc, documentOffset, false).o1;
                     activationToken = tok+"()."+activationToken;  
                     documentOffset = documentOffset-tok.length()-1;
                 
@@ -1040,7 +1072,7 @@ public class PySelection {
             }
         } catch (BadLocationException e) {
             System.out.println("documentOffset "+documentOffset);
-            System.out.println("theDoc.getLength() "+theDoc.getLength());
+            System.out.println("theDoc.getLength() "+doc.getLength());
             e.printStackTrace();
         }
         
@@ -1061,18 +1093,44 @@ public class PySelection {
             qualifier = activationToken.trim();
             activationToken = "";
         }
-        return new String[]{activationToken, qualifier};
+        return new ActivationTokenAndQual(activationToken, qualifier, changedForCalltip);
     }
 
 
     /**
+     * This function will look for a the offset of a method call before the current offset
+     * @param calltipOffset the offset we should start looking for it
+     * @return the offset that points the location just after the activation token and qualifier.
      * 
-     * @param document
-     * @param offset
-     * @param getFullQualifier if true we get the full qualifier (even if it passes the current cursor location)
-     * @return
+     * @throws BadLocationException 
      */
-    public static Tuple<String, Integer> extractPrefix(IDocument document, int offset, boolean getFullQualifier) {
+    private static int getBeforeParentesisCall(IDocument doc, int calltipOffset) throws BadLocationException {
+        char c = doc.getChar(calltipOffset);
+        
+        while(calltipOffset > 0 && c != '('){
+            calltipOffset --;
+            c = doc.getChar(calltipOffset);
+        }
+        if(c == '('){
+            while(calltipOffset > 0 && Character.isWhitespace(c)){
+                calltipOffset --;
+                c = doc.getChar(calltipOffset);
+            }
+            return calltipOffset;
+        }
+        return -1;
+    }
+
+    /**
+     * This function gets the activation token from the document given the current cursor position.
+     * 
+     * @param document this is the document we want info on
+     * @param offset this is the cursor position
+     * @param getFullQualifier if true we get the full qualifier (even if it passes the current cursor location)
+     * @return a tuple with the activation token and the cursor offset (may change if we need to get the full qualifier,
+     *         otherwise, it is the same offset passed as a parameter).
+     */
+    public static Tuple<String, Integer> extractActivationToken(IDocument document, int offset, boolean getFullQualifier) {
     	try {
     		if(getFullQualifier){
     			//if we have to get the full qualifier, we'll have to walk the offset (cursor) forward
