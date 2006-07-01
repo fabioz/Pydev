@@ -652,12 +652,14 @@ public class PyCodeCompletion {
 
     
     /**
-     * @param pythonAndTemplateProposals
-     * @param qualifier
-     * @return
+     * Filters the python completions so that only the completions we care about are shown (given the qualifier) 
+     * @param pythonAndTemplateProposals the completions to sort / filter
+     * @param qualifier the qualifier we care about
+     * @param onlyForCalltips if we should filter having in mind that we're going to show it for a calltip
+     * @return the completions to show to the user
      */
     @SuppressWarnings("unchecked")
-    public ICompletionProposal[] onlyValidSorted(List pythonAndTemplateProposals, String qualifier) {
+    public ICompletionProposal[] onlyValidSorted(List pythonAndTemplateProposals, String qualifier, boolean onlyForCalltips) {
         //FOURTH: Now, we have all the proposals, only thing is deciding wich ones are valid (depending on
         //qualifier) and sorting them correctly.
         Collection returnProposals = new HashSet();
@@ -668,8 +670,19 @@ public class PyCodeCompletion {
             if (o instanceof ICompletionProposal) {
                 ICompletionProposal proposal = (ICompletionProposal) o;
             
-	            if (proposal.getDisplayString().toLowerCase().startsWith(lowerCaseQualifier)) {
-	                returnProposals.add(proposal);
+                String displayString = proposal.getDisplayString();
+                if(onlyForCalltips){
+                    if (displayString.equals(qualifier)){
+                        returnProposals.add(proposal);
+                        
+                    }else if (displayString.length() > qualifier.length() && displayString.startsWith(qualifier)){
+                        if(displayString.charAt(qualifier.length()) == '('){
+                            returnProposals.add(proposal);
+                            
+                        }
+                    }
+                }else if (displayString.toLowerCase().startsWith(lowerCaseQualifier)) {
+                    returnProposals.add(proposal);
 	            }
             }else{
                 throw new RuntimeException("Error: expected instanceof ICompletionProposal and received: "+o.getClass().getName());

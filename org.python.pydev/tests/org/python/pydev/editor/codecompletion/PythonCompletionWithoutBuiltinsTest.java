@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.contentassist.ICompletionProposalExtension4;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
@@ -33,14 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      
-	      //Sean: note that the first thing you need to do is get the activation token and qualifier differently
-	      //if just after a '(' or ',' so this is the first test you'll play with
-	      //See org.python.pydev.editor.codecompletion.CompletionRequest#activationToken for a description of it
-	      test.testGetActTok();
-	      
-	      //and now, on to the calltips
-          test.testCalltips1();
+	      test.testCalltips2();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -504,6 +498,21 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         }
     }
     
+    public void testCalltips2() throws CoreException, BadLocationException {
+        String s;
+        s = "" +
+        "GLOBAL_VAR = 10\n" + 
+        "def m1(a, b):\n" +
+        "    print a, b\n" +
+        "def m1Other(a, b):\n" + //this one should not show, as we're returning it for calltip purposes only 
+        "    print a, b\n" +
+        "\n" +
+        "m1()"; 
+        ICompletionProposal[] proposals = requestCompl(s, s.length()-1, -1, new String[] {});
+        assertEquals(1, proposals.length); 
+        
+    }
+    
     public void testCalltips1() throws CoreException, BadLocationException {
     	String s;
     	s = "" +
@@ -533,12 +542,16 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     	assertEquals(1, proposals.length); //now, here's the first part of the failing test: we can only have one
     	    							   //returned proposal: m1(a, b)
     	
-    	//check if the returned proposal is there
-    	assertEquals("m1(a, b)", proposals[0].getDisplayString());
+        //check if the returned proposal is there
+    	ICompletionProposal prop = proposals[0];
+    	assertEquals("m1(a, b)", prop.getDisplayString());
+        ICompletionProposalExtension4 p4 = (ICompletionProposalExtension4) prop;
+        assertTrue(p4.isAutoInsertable());
     	
-    	//the display string for the context 'context' and 'information' should be the same
-    	assertEquals("a, b", proposals[0].getContextInformation().getContextDisplayString());
-    	assertEquals("a, b", proposals[0].getContextInformation().getInformationDisplayString());
+        //the display string for the context 'context' and 'information' should be the same
+    	PyContextInformation contextInformation = (PyContextInformation) prop.getContextInformation();
+    	assertEquals("a, b", contextInformation.getContextDisplayString());
+    	assertEquals("a, b", contextInformation.getInformationDisplayString());
     	
     	//now, this proposal has one interesting thing about it: it should actually not change the document
     	//where it is applied (it is there just to show the calltip). 
@@ -547,7 +560,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     	//PyCompletionProposal that will have its apply method overriden, so that nothing happens here (the calltips will
     	//still be shown)
     	Document doc = new Document();
-		proposals[0].apply(doc);
+		prop.apply(doc);
 		assertEquals("", doc.get());
 	}
     

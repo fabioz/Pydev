@@ -337,7 +337,7 @@ public class CodeCompletionTestsBase extends TestCase {
         CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion);
 
         List props = codeCompletion.getCodeCompletionProposals(null, request);
-        ICompletionProposal[] codeCompletionProposals = codeCompletion.onlyValidSorted(props, request.qualifier);
+        ICompletionProposal[] codeCompletionProposals = codeCompletion.onlyValidSorted(props, request.qualifier, request.isInCalltip);
         
         
         for (int i = 0; i < retCompl.length; i++) {
