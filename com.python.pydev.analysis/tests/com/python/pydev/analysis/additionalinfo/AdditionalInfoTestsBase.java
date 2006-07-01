@@ -50,7 +50,7 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
 
         ICompletionState state = CompletionState.getEmptyCompletionState(nature);
         List props = new ArrayList(participant.getGlobalCompletions(request, state));
-        ICompletionProposal[] codeCompletionProposals = codeCompletion.onlyValidSorted(props, request.qualifier);
+        ICompletionProposal[] codeCompletionProposals = codeCompletion.onlyValidSorted(props, request.qualifier, request.isInCalltip);
         
         
         for (int i = 0; i < retCompl.length; i++) {
