@@ -52,12 +52,19 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     private Throwable error;
 
 
+    /**
+     * These are the activation chars (cache)
+     */
     private char[] activationChars = null;
 
-    private IContextInformationValidator contextInformationValidator;
+    /**
+     * This is the class that manages the context information (validates it and
+     * changes its presentation).
+     */
+    private PyContextInformationValidator contextInformationValidator;
     
     /**
-     * @param edit
+     * @param edit the editor that works with this processor
      */
     public PythonCompletionProcessor(PyEdit edit) {
         this.edit = edit;
@@ -117,8 +124,6 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             }
             
             
-            
-            
             String[] strs = PySelection.getActivationTokenAndQual(doc, documentOffset, false); 
 
             String activationToken = strs[0];
@@ -132,14 +137,15 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             }
 
             
-            
+            //to show the valid ones, we'll get the qualifier from the initial request
             proposals = codeCompletion.onlyValidSorted(pythonAndTemplateProposals, request.qualifier);
-            // Return the proposals
+            
         } catch (RuntimeException e) {
             proposals = new ICompletionProposal[0];
             setError(e);
         }
         
+        // Return the proposals
         return proposals;
     }
 
@@ -214,9 +220,6 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
         }
         if (PyCodeCompletionPreferencesPage.isToAutocompleteOnPar()) {
             c = addChar(c, '(');
-        }
-        if (PyCodeCompletionPreferencesPage.isToAutocompleteOnComma()) {
-            c = addChar(c, ',');
         }
         activationChars = c;
  
