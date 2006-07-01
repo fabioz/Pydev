@@ -784,7 +784,8 @@ public class PySelection {
     * 
     * @param addSelf: this defines whether tokens named self should be added if it is found.
     * 
-    * @return a Tuple so that the first param is the list and the second the offset of the end of the parentesis it may return null if no starting parentesis was found at the current line
+    * @return a Tuple so that the first param is the list and 
+    * the second the offset of the end of the parentesis it may return null if no starting parentesis was found at the current line
     */
     public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf) {
         List<String> l = new ArrayList<String>();

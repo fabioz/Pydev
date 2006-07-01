@@ -421,10 +421,10 @@ public class PyCodeCompletion {
                 }
                 
                 boolean justShowContextInfo = request.isInCalltip; 
-                PyContextInformation pyContextInformation = null;
+                PyCalltipsContextInformation pyContextInformation = null;
                 if(args.length() > 2){
                     String contextArgs = args.substring(1, args.length()-1); //remove the parentesis
-                    pyContextInformation = new PyContextInformation(contextArgs, contextArgs);
+                    pyContextInformation = new PyCalltipsContextInformation(contextArgs, contextArgs, request);
                 }
                 PyCompletionProposal proposal = new PyCompletionProposal(name+args,
                         request.documentOffset - request.qlen, request.qlen, l, getImageForType(type), null, 

@@ -8,7 +8,7 @@ import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 
-public class PyContextInformation implements IContextInformation{
+public class PyCalltipsContextInformation implements IContextInformation{
 
 
     /** The name of the context. */
@@ -24,7 +24,7 @@ public class PyContextInformation implements IContextInformation{
      * @param contextDisplayString the string to be used when presenting the context
      * @param informationDisplayString the string to be displayed when presenting the context information
      */
-    public PyContextInformation(String contextDisplayString, String informationDisplayString) {
+    public PyCalltipsContextInformation(String contextDisplayString, String informationDisplayString, CompletionRequest request) {
         this(null, contextDisplayString, informationDisplayString);
     }
 
@@ -36,7 +36,7 @@ public class PyContextInformation implements IContextInformation{
      * @param informationDisplayString the string to be displayed when presenting the context information,
      *      may not be <code>null</code>
      */
-    public PyContextInformation(Image image, String contextDisplayString, String informationDisplayString) {
+    public PyCalltipsContextInformation(Image image, String contextDisplayString, String informationDisplayString) {
 
         Assert.isNotNull(informationDisplayString);
 
@@ -90,5 +90,7 @@ public class PyContextInformation implements IContextInformation{
             return fContextDisplayString;
         return fInformationDisplayString;
     }
+
+
 
 }

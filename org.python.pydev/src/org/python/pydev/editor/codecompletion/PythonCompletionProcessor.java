@@ -69,7 +69,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     public PythonCompletionProcessor(PyEdit edit) {
         this.edit = edit;
         
-        contextInformationValidator = new PyContextInformationValidator(this);
+        contextInformationValidator = new PyContextInformationValidator();
         
         //clears the cache when the preferences are changed.
         IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();

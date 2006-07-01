@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testCalltips2();
+	      test.testCalltips4();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -513,6 +513,43 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         
     }
     
+    public void testCalltips3() throws CoreException, BadLocationException {
+        String s;
+        s = "" +
+        "def m1(a, b):\n" +
+        "    print a, b\n" +
+        "m1()";  
+        PyContextInformationValidator validator = new PyContextInformationValidator();
+        int requestOffset = s.length()-1;
+        ICompletionProposal[] proposals = requestCompl(s, requestOffset, -1, new String[] {});
+        assertEquals(1, proposals.length); 
+        PyCalltipsContextInformation contextInformation = (PyCalltipsContextInformation) proposals[0].getContextInformation();
+        
+        validator.install(contextInformation, new Document(s), requestOffset);
+        assertFalse(validator.isContextInformationValid(0));
+        assertTrue(validator.isContextInformationValid(requestOffset));
+        assertFalse(validator.isContextInformationValid(requestOffset+1));
+    }
+    
+    public void testCalltips4() throws CoreException, BadLocationException {
+        String s;
+        s = "" +
+        "def m1(a, b):\n" +
+        "    print a, b\n" +
+        "m1(a,b)";  
+        int requestOffset = s.length()-4;
+        ICompletionProposal[] proposals = requestCompl(s, requestOffset, -1, new String[] {});
+        assertEquals(1, proposals.length); 
+        PyContextInformationValidator validator = new PyContextInformationValidator();
+        PyCalltipsContextInformation contextInformation = (PyCalltipsContextInformation) proposals[0].getContextInformation();
+        
+        validator.install(contextInformation, new Document(s), requestOffset);
+        assertFalse(validator.isContextInformationValid(requestOffset-1));
+        assertTrue(validator.isContextInformationValid(requestOffset));
+        assertTrue(validator.isContextInformationValid(requestOffset+3));
+        assertFalse(validator.isContextInformationValid(requestOffset+4));
+    }
+    
     public void testCalltips1() throws CoreException, BadLocationException {
     	String s;
     	s = "" +
@@ -549,7 +586,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertTrue(p4.isAutoInsertable());
     	
         //the display string for the context 'context' and 'information' should be the same
-    	PyContextInformation contextInformation = (PyContextInformation) prop.getContextInformation();
+    	PyCalltipsContextInformation contextInformation = (PyCalltipsContextInformation) prop.getContextInformation();
     	assertEquals("a, b", contextInformation.getContextDisplayString());
     	assertEquals("a, b", contextInformation.getInformationDisplayString());
     	

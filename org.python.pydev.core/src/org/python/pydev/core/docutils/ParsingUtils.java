@@ -132,6 +132,10 @@ public class ParsingUtils implements IPythonPartitions{
      * @return the end of the literal position (or end of document)
      */
     public static int eatPar(Object cs, int i, StringBuffer buf) {
+        return eatPar(cs, i, buf, '(');
+    }
+    
+    public static int eatPar(Object cs, int i, StringBuffer buf, char par) {
         char c = ' ';
         StringBuffer locBuf = new StringBuffer();
         
@@ -146,8 +150,8 @@ public class ParsingUtils implements IPythonPartitions{
             }else if(c == '#'){
                 j = ParsingUtils.eatComments(cs, locBuf, j-1)+1;
                 
-            }else if( c == '('){ //open another par.
-                j = eatPar(cs, j-1, locBuf)+1;
+            }else if( c == par){ //open another par.
+                j = eatPar(cs, j-1, locBuf, par)+1;
             
             }else{
 
