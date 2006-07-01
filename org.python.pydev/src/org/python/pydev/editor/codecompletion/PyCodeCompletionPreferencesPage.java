@@ -40,6 +40,9 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 	public static final String AUTOCOMPLETE_ON_PAR = "AUTOCOMPLETE_ON_PAR";
 	public static final boolean DEFAULT_AUTOCOMPLETE_ON_PAR = false;
 	
+	public static final String AUTOCOMPLETE_ON_COMMA = "AUTOCOMPLETE_ON_COMMA";
+	public static final boolean DEFAULT_AUTOCOMPLETE_ON_COMMA = false;
+	
     /**
      */
     public PyCodeCompletionPreferencesPage() {
@@ -69,6 +72,9 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 
 		addField(new BooleanFieldEditor(
 		        AUTOCOMPLETE_ON_PAR, "Autocomplete on '('?", p));
+		
+		addField(new BooleanFieldEditor(
+		        AUTOCOMPLETE_ON_PAR, "Autocomplete on ','?", p));
 
     }
 
@@ -101,6 +107,10 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
         return PydevPrefs.getPreferences().getBoolean(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_ON_PAR);
     }
 
+    public static boolean isToAutocompleteOnComma() {
+        return PydevPrefs.getPreferences().getBoolean(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_ON_COMMA);
+    }
+    
     public static boolean useAutocomplete() {
         return PydevPrefs.getPreferences().getBoolean(PyCodeCompletionPreferencesPage.USE_AUTOCOMPLETE);
     }

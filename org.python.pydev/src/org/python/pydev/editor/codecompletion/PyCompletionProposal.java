@@ -5,6 +5,7 @@ import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.contentassist.ICompletionProposalExtension4;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -13,7 +14,7 @@ import org.eclipse.swt.graphics.Point;
 /**
  * The standard implementation of the <code>ICompletionProposal</code> interface.
  */
-public class PyCompletionProposal implements ICompletionProposal, IPyCompletionProposal {
+public class PyCompletionProposal implements ICompletionProposal, IPyCompletionProposal, ICompletionProposalExtension4 {
 	
 	/** The string to be displayed in the completion proposal popup. */
 	protected String fDisplayString;
@@ -33,6 +34,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 	protected String fAdditionalProposalInfo;
 	/** The priority for showing the proposal */
     protected int priority;
+    private boolean fJustShowContextInfo;
 
 	/**
 	 * Creates a new completion proposal based on the provided information. The replacement string is
@@ -47,6 +49,9 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 		this(replacementString, replacementOffset, replacementLength, cursorPosition, null, null, null, null, priority);
 	}
 
+	public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo,int priority) {
+        this(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo,priority, false);
+    }
 	/**
 	 * Creates a new completion proposal. All fields are initialized based on the provided information.
 	 *
@@ -58,8 +63,9 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 	 * @param displayString the string to be displayed for the proposal
 	 * @param contextInformation the context information associated with this proposal
 	 * @param additionalProposalInfo the additional information associated with this proposal
+     * @param justShowContextInfo if we should not actually apply the changes when the completion is applied
 	 */
-	public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo,int priority) {
+	public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo,int priority, boolean justShowContextInfo) {
 		Assert.isNotNull(replacementString);
 		Assert.isTrue(replacementOffset >= 0);
 		Assert.isTrue(replacementLength >= 0);
@@ -74,12 +80,16 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 		fContextInformation= contextInformation;
 		fAdditionalProposalInfo= additionalProposalInfo;
 		this.priority = priority;
+        this.fJustShowContextInfo = justShowContextInfo;
 	}
 
 	/*
 	 * @see ICompletionProposal#apply(IDocument)
 	 */
 	public void apply(IDocument document) {
+        if(fJustShowContextInfo){
+            return;
+        }
 		try {
 			document.replace(fReplacementOffset, fReplacementLength, fReplacementString);
 		} catch (BadLocationException x) {
@@ -91,6 +101,9 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 	 * @see ICompletionProposal#getSelection(IDocument)
 	 */
 	public Point getSelection(IDocument document) {
+	    if(fJustShowContextInfo){
+	        return null;
+	    }
 		return new Point(fReplacementOffset + fCursorPosition, 0);
 	}
 
@@ -151,5 +164,9 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
      */
     public int getPriority() {
         return priority;
+    }
+
+    public boolean isAutoInsertable() {
+        return fJustShowContextInfo;
     }
 }

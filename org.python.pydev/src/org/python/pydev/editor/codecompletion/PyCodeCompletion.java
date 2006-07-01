@@ -20,10 +20,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
-import org.eclipse.jface.text.contentassist.ContextInformation;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
@@ -422,32 +420,16 @@ public class PyCodeCompletion {
                     priority = IPyCompletionProposal.PRIORITY_LOCALS;
                 }
                 
-                if(request.isInCalltip){
-                    //ok, when we're in a calltip
-                    if(args.length() > 2){
-                        String contextArgs = args.substring(1, args.length()-1); //remove the parentesis
-                        PyCompletionProposal proposal = new PyCompletionProposal(name+args,
-                                request.documentOffset - request.qlen, request.qlen, l, getImageForType(type), null, 
-                                new ContextInformation(contextArgs, contextArgs), docStr, priority){
-                            @Override
-                            public void apply(IDocument document) {
-                                
-                            }
-                            @Override
-                            public Point getSelection(IDocument document) {
-                                return null;
-                            }
-                        };
-                        
-                        convertedProposals.add(proposal);
-                    }
-                }else{
-                    PyCompletionProposal proposal = new PyCompletionProposal(name+args,
-                            request.documentOffset - request.qlen, request.qlen, l, getImageForType(type), null, null, docStr, priority);
-                    
-                    convertedProposals.add(proposal);
-                    convertedProposals.add(proposal);
+                boolean justShowContextInfo = request.isInCalltip; 
+                PyContextInformation pyContextInformation = null;
+                if(args.length() > 2){
+                    String contextArgs = args.substring(1, args.length()-1); //remove the parentesis
+                    pyContextInformation = new PyContextInformation(contextArgs, contextArgs);
                 }
+                PyCompletionProposal proposal = new PyCompletionProposal(name+args,
+                        request.documentOffset - request.qlen, request.qlen, l, getImageForType(type), null, 
+                        pyContextInformation, docStr, priority, justShowContextInfo);
+                convertedProposals.add(proposal);
                     
             
             }else if(obj instanceof Object[]){

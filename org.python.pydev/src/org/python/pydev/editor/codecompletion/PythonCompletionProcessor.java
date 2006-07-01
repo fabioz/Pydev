@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
@@ -15,6 +16,8 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
@@ -49,12 +52,27 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     private Throwable error;
 
 
+    private char[] activationChars = null;
 
+    private IContextInformationValidator contextInformationValidator;
+    
     /**
      * @param edit
      */
     public PythonCompletionProcessor(PyEdit edit) {
         this.edit = edit;
+        
+        contextInformationValidator = new PyContextInformationValidator(this);
+        
+        //clears the cache when the preferences are changed.
+        IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
+        preferenceStore.addPropertyChangeListener(new IPropertyChangeListener(){
+
+            public void propertyChange(PropertyChangeEvent event) {
+                activationChars = null; //clear the cache when it changes
+            }
+            
+        });
     }
 
 
@@ -75,7 +93,10 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             //list for storing the proposals
             ArrayList<ICompletionProposal> pythonAndTemplateProposals = new ArrayList<ICompletionProposal>();
             
+            CompletionRequest request = new CompletionRequest(edit.getEditorFile(), 
+                    edit.getPythonNature(), doc, documentOffset, codeCompletion);
             
+
             
             //SECOND: getting code completions and deciding if templates should be shown too.
             boolean showTemplates = true;
@@ -83,7 +104,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             if(PyCodeCompletionPreferencesPage.useCodeCompletion()){
                 Object[] objects = new Object[]{new ArrayList(), new Boolean(true)};
                 try {
-                    objects = getPythonProposals(viewer, documentOffset, doc);
+                    objects = getPythonProposals(viewer, documentOffset, doc, request);
                 } catch (CompletionRecursionException e) {
                     //thats ok
                 } catch (Throwable e) {
@@ -112,7 +133,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
             
             
-            proposals = codeCompletion.onlyValidSorted(pythonAndTemplateProposals, qualifier);
+            proposals = codeCompletion.onlyValidSorted(pythonAndTemplateProposals, request.qualifier);
             // Return the proposals
         } catch (RuntimeException e) {
             proposals = new ICompletionProposal[0];
@@ -144,10 +165,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * @throws CoreException
      * @throws BadLocationException
      */
-    private Object[] getPythonProposals(ITextViewer viewer, int documentOffset, IDocument doc) throws CoreException, BadLocationException {
-        CompletionRequest request = new CompletionRequest(edit.getEditorFile(), 
-                edit.getPythonNature(), doc, documentOffset, codeCompletion);
-        
+    private Object[] getPythonProposals(ITextViewer viewer, int documentOffset, IDocument doc, CompletionRequest request) throws CoreException, BadLocationException {
         boolean showTemplates = true;
         
         //if non empty string, we're in imports section.
@@ -186,6 +204,10 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getCompletionProposalAutoActivationCharacters()
      */
     public char[] getCompletionProposalAutoActivationCharacters() {
+        if(activationChars != null){ //let's cache this
+            return activationChars;
+        }
+        
         char[] c = new char[0];
         if (PyCodeCompletionPreferencesPage.isToAutocompleteOnDot()) {
             c = addChar(c, '.');
@@ -193,6 +215,11 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
         if (PyCodeCompletionPreferencesPage.isToAutocompleteOnPar()) {
             c = addChar(c, '(');
         }
+        if (PyCodeCompletionPreferencesPage.isToAutocompleteOnComma()) {
+            c = addChar(c, ',');
+        }
+        activationChars = c;
+ 
         return c;
     }
 
@@ -221,7 +248,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getContextInformationAutoActivationCharacters()
      */
     public char[] getContextInformationAutoActivationCharacters() {
-        return new char[] {};
+        return null;
     }
 
     /**
@@ -243,18 +270,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getContextInformationValidator()
      */
     public IContextInformationValidator getContextInformationValidator() {
-        //TODO: we'll have to make this class better to:
-        //make things bold and make the context information go away.
-        return new IContextInformationValidator(){
-
-            public void install(IContextInformation info, ITextViewer viewer, int offset) {
-            }
-
-            public boolean isContextInformationValid(int offset) {
-                return true;
-            }
-            
-        };
+        return this.contextInformationValidator;
     }
 
 }
