@@ -91,5 +91,9 @@ public class LRUCache<Key, Val> implements Cache<Key, Val>, Serializable{
 	public void add(Key key, Val val) {
 		cache.put(key, val);
 	}
+    
+    public void clear(){
+        cache.clear();
+    }
 	
 }

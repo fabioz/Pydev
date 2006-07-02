@@ -152,6 +152,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         }
     }
 
+    
     /**
      * Custom serialization is needed.
      */
@@ -576,6 +577,15 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         return n;
 
     }
+    
+    /**
+     * Passes through all the compiled modules in memory and clears its tokens (so that
+     * we restore them when needed).
+     */
+    public void clearCache(){
+        ModulesManager.cache.internalCache.clear();
+    }
+
 
     /**
      * @return true if there is a token that has rep as its representation.

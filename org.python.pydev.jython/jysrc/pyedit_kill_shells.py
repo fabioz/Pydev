@@ -16,6 +16,8 @@ if cmd == 'onCreateActions':
     from org.eclipse.jface.action import Action #@UnresolvedImport
     from org.python.pydev.editor.codecompletion.shell import AbstractShell #@UnresolvedImport
     from org.eclipse.jface.dialogs import MessageDialog #@UnresolvedImport
+    from org.python.pydev.plugin import PydevPlugin
+    from org.eclipse.core.runtime import NullProgressMonitor
     
     class ListCommand(Action):
         def run(self):
@@ -23,6 +25,16 @@ if cmd == 'onCreateActions':
             for val in AbstractShell.shells.values():
                 for val2 in val.values():
                     val2.endIt()
+                    
+            try:
+                managers = [PydevPlugin.getPythonInterpreterManager(), PydevPlugin.getJythonInterpreterManager()]
+                
+                for manager in managers:
+                    info = manager.getInterpreterInfo(manager.getDefaultInterpreter(), NullProgressMonitor())
+                    info.modulesManager.clearCache()
+            except:
+                import traceback;traceback.print_exc()
+                
             MessageDialog.openInformation(editor.getSite().getShell(), "Ok", "Ok, killed all the running shells.\n(They will be recreated on request)");
             
     editor.addOfflineActionListener("kill", ListCommand(), 'Kill all the running shells.', True) 
