@@ -34,7 +34,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 	protected String fAdditionalProposalInfo;
 	/** The priority for showing the proposal */
     protected int priority;
-    private boolean fJustShowContextInfo;
+    protected boolean fJustShowContextInfo;
 
 	/**
 	 * Creates a new completion proposal based on the provided information. The replacement string is

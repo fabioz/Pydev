@@ -39,8 +39,29 @@ public class PyContextInformationValidator implements IContextInformationValidat
     public void install(IContextInformation info, IDocument doc, int offset) {
         this.fInformation = (PyCalltipsContextInformation) info;
         this.doc = doc;
-        this.fPosition = offset;
+        
+        this.fPosition =offset;
         fCurrentParameter= -1;
+        //update the offset to the initial of the parentesis
+        while(offset > 0){
+            try {
+                char c = doc.getChar(offset);
+                if(c == '('){
+                    offset++;
+                    break;
+                }
+                
+                if(c == '\r' || c == '\n'){
+                    return;
+                }
+            } catch (BadLocationException e) {
+                throw new RuntimeException(e);
+            }
+            offset--;
+        }
+        if(offset != 0){
+            this.fPosition =offset;
+        }
     }
     
     public void install(IContextInformation info, ITextViewer viewer, int offset) {

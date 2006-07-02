@@ -4,7 +4,8 @@ after 1.2.1
 Pydev:
 - Getting in completions for the pattern a,b,c=range(3) inside a class
 - Errors getting the tests to run are no longer suppressed
-
+- Calltips added to pydev
+- Parameters gotten from docstring analysis for builtins that don't work with 'inspect.getargspec'
 
 after 1.2.0
 

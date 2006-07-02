@@ -426,7 +426,7 @@ public class PyCodeCompletion {
                     String contextArgs = args.substring(1, args.length()-1); //remove the parentesis
                     pyContextInformation = new PyCalltipsContextInformation(contextArgs, contextArgs, request);
                 }
-                PyCompletionProposal proposal = new PyCompletionProposal(name+args,
+                PyCompletionProposal proposal = new PyLinkedModeCompletionProposal(name+args,
                         request.documentOffset - request.qlen, request.qlen, l, getImageForType(type), null, 
                         pyContextInformation, docStr, priority, justShowContextInfo);
                 convertedProposals.add(proposal);

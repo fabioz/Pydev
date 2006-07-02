@@ -162,22 +162,6 @@ def GenerateImportsTipForModule( mod ):
                 obj = getattr(mod, d)
                 retType = TYPE_BUILTIN
     
-                if inspect.ismethod(obj) or inspect.isbuiltin(obj) or inspect.isfunction(obj) or inspect.isroutine(obj):
-                    try:
-                        args, vargs, kwargs, defaults = inspect.getargspec( obj )
-                            
-                        r = ''
-                        for a in ( args ):
-                            if len( r ) > 0:
-                                r += ', '
-                            r += str( a )
-                        args = '(%s)' % (r)
-                    except TypeError:
-                        args = '()'
-    
-                    retType = TYPE_FUNCTION
-                
-                
                 #check if we have to get docs
                 getDoc = True
                 for class_ in dontGetDocsOn:
@@ -193,6 +177,49 @@ def GenerateImportsTipForModule( mod ):
                         doc = inspect.getdoc( obj )
                     except: #may happen on jython when checking java classes (so, just ignore it)
                         doc = ''
+                        
+                        
+                if inspect.ismethod(obj) or inspect.isbuiltin(obj) or inspect.isfunction(obj) or inspect.isroutine(obj):
+                    try:
+                        args, vargs, kwargs, defaults = inspect.getargspec( obj )
+                            
+                        r = ''
+                        for a in ( args ):
+                            if len( r ) > 0:
+                                r += ', '
+                            r += str( a )
+                        args = '(%s)' % (r)
+                    except TypeError:
+                        #ok, let's see if we can get the arguments from the doc
+                        args = '()'
+                        try:
+                            if len(doc) > 0:
+                                i = doc.find('->')
+                                if i < 0:
+                                    i = doc.find('\n')
+                                    if i < 0:
+                                        i = doc.find('\r')
+                                        
+                                        
+                                if i > 0:
+                                    s = doc[0:i]
+                                    s = s.strip()
+                                    if s[-1] == ')':
+                                        start = s.find('(')
+                                        if start >= 0:
+                                            end = s.find('[')
+                                            if end <= 0:
+                                                end = len(s)
+                                            
+                                            args = s[start:end]
+                                            if not args[-1] == ')':
+                                                args += ')'
+                        except:
+                            pass
+    
+                    retType = TYPE_FUNCTION
+                
+                
                 
                 #add token and doc to return - assure only strings.
                 ret.append(   (d, doc, args, str(retType))   )
