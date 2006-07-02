@@ -6,6 +6,7 @@ Pydev:
 - Errors getting the tests to run are no longer suppressed
 - Calltips added to pydev
 - Parameters gotten from docstring analysis for builtins that don't work with 'inspect.getargspec'
+- The parameters are now linked when a completion is selected (so, tab iterates through them and enter goes to the end of the declaration)
 
 after 1.2.0
 

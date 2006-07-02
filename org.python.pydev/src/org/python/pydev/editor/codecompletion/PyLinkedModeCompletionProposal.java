@@ -5,7 +5,6 @@
 package org.python.pydev.editor.codecompletion;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -20,6 +19,7 @@ import org.eclipse.jface.text.link.LinkedModeUI;
 import org.eclipse.jface.text.link.LinkedPositionGroup;
 import org.eclipse.jface.text.link.ProposalPosition;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.uiutils.RunInUiThread;
@@ -27,10 +27,23 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public class PyLinkedModeCompletionProposal extends PyCompletionProposal implements ICompletionProposalExtension2{
 
+    private int firstParameterLen = 0;
+    
     public PyLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority, boolean justShowContextInfo) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority, justShowContextInfo);
         
     }
+    
+    /*
+     * @see ICompletionProposal#getSelection(IDocument)
+     */
+    public Point getSelection(IDocument document) {
+        if(fJustShowContextInfo){
+            return null;
+        }
+        return new Point(fReplacementOffset + fCursorPosition, firstParameterLen);
+    }
+
 
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
 //        System.out.println("apply trigger:"+trigger+" stateMask:"+stateMask+" offset:"+offset);
@@ -78,6 +91,9 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposal impleme
                         Integer offs = offsetsAndLens.get(i);
                         i++;
                         Integer len = offsetsAndLens.get(i);
+                        if(i == 1){
+                            firstParameterLen = len;
+                        }
                         int location = offset+iPar+offs+1;
                         LinkedPositionGroup group= new LinkedPositionGroup();
                         ProposalPosition proposalPosition = new ProposalPosition(doc, location, len, 0 , new ICompletionProposal[0]);
