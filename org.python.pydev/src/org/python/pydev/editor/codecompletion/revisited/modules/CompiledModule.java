@@ -37,7 +37,7 @@ public class CompiledModule extends AbstractModule{
     
     public static boolean COMPILED_MODULES_ENABLED = true; 
 
-    public static boolean TRACE_COMPILED_MODULES = true; 
+    public static boolean TRACE_COMPILED_MODULES = false; 
     
     private HashMap<String, IToken[]> cache = new HashMap<String, IToken[]>();
     
