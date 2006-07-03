@@ -54,7 +54,7 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposal impleme
         int dif = offset - fReplacementOffset;
         try {
             String strToAdd = fReplacementString.substring(dif);
-            doc.replace(offset, 0, strToAdd);
+            doc.replace(offset-dif, dif, fReplacementString);
             int iPar = strToAdd.indexOf('(');
             if(iPar != -1 && strToAdd.charAt(strToAdd.length()-1) == ')'){
                 String newStr = strToAdd.substring(iPar+1, strToAdd.length()-1);
