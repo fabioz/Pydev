@@ -51,7 +51,6 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      */
     private Throwable error;
 
-
     /**
      * These are the activation chars (cache)
      */
@@ -198,10 +197,17 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     }
 
     /**
-     * 
+     * Ok, if we have 
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeContextInformation(org.eclipse.jface.text.ITextViewer, int)
      */
     public IContextInformation[] computeContextInformation(ITextViewer viewer, int documentOffset) {
+    	if(viewer.getDocument() != this.contextInformationValidator.doc){
+    		return null;
+    	}
+    	//if we didn't return false at least once, it is already installed.
+    	if(this.contextInformationValidator.returnedFalseOnce && this.contextInformationValidator.isContextInformationValid(documentOffset)){
+    		return new IContextInformation[]{this.contextInformationValidator.fInformation};
+    	}
         return null;
     }
 

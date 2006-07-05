@@ -104,6 +104,7 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposal impleme
                     model.forceInstall();
                     
                     final LinkedModeUI ui= new EditorLinkedModeUI(model, viewer);
+                    ui.setDoContextInfo(true); //set it to request the ctx info from the completion processor
                     ui.setExitPosition(viewer, offset + strToAdd.length(), 0, Integer.MAX_VALUE);
                     Runnable r = new Runnable(){
                         public void run() {

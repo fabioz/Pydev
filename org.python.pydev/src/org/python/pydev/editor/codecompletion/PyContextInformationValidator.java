@@ -19,6 +19,7 @@ import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Based on JavaParameterListValidator
@@ -27,22 +28,24 @@ import org.python.pydev.core.docutils.ParsingUtils;
  */
 public class PyContextInformationValidator implements IContextInformationValidator, IContextInformationPresenter{
 
-    private PyCalltipsContextInformation fInformation;
-    private int fPosition;
-    private IDocument doc;
-    private int fCurrentParameter;
+    public PyCalltipsContextInformation fInformation;
+    public int fPosition;
+    public IDocument doc;
+    public int fCurrentParameter;
+    public boolean returnedFalseOnce;
 
     public PyContextInformationValidator() {
     }
 
     //--- interface from IContextInformationValidator
     public void install(IContextInformation info, IDocument doc, int offset) {
+    	this.returnedFalseOnce = false;
         this.fInformation = (PyCalltipsContextInformation) info;
         this.doc = doc;
         
         this.fPosition =offset;
         fCurrentParameter= -1;
-        //update the offset to the initial of the parentesis
+        //update the offset to the first parentesis
         while(offset > 0){
             try {
                 char c = doc.getChar(offset);
@@ -68,7 +71,7 @@ public class PyContextInformationValidator implements IContextInformationValidat
         install(info, viewer.getDocument(), offset);
     }
 
-    private int getCharCount(IDocument document, final int start, final int end, String increments, String decrements, boolean considerNesting) throws BadLocationException {
+    public int getCharCount(IDocument document, final int start, final int end, String increments, String decrements, boolean considerNesting) throws BadLocationException {
 
         Assert.isTrue((increments.length() != 0 || decrements.length() != 0) && !increments.equals(decrements));
         
@@ -88,13 +91,16 @@ public class PyContextInformationValidator implements IContextInformationValidat
             switch (curr) {
                 case '#':
                     if (offset < end) {
-                        // '#'-comment: nothing to do anymore on this line
+                        // '#' comment: nothing to do anymore on this line
                         offset= end;
                     }
                     break;
                 case '"':
                 case '\'':
-                    offset= ParsingUtils.eatLiterals(document, new StringBuffer(), offset);
+                	int eaten = ParsingUtils.eatLiterals(document, new StringBuffer(), offset-1)+1;
+                	if (eaten > offset){
+                		offset= eaten;
+                	}
                     break;
                 case '[':
                     if (considerNesting) {
@@ -174,21 +180,34 @@ public class PyContextInformationValidator implements IContextInformationValidat
      * @see IContextInformationValidator#isContextInformationValid(int)
      */
     public boolean isContextInformationValid(int position) {
+    	if(doc == null){
+    		this.returnedFalseOnce = true;
+    		return false;
+    	}
 
         try {
-            if (position < fPosition)
+            if (position < fPosition){
+            	this.returnedFalseOnce = true;
                 return false;
+            }
 
             IDocument document= doc;
             IRegion line= document.getLineInformationOfOffset(fPosition);
 
-            if (position < line.getOffset() || position >= document.getLength())
+            if (position < line.getOffset() || position >= document.getLength()){
+            	this.returnedFalseOnce = true;
                 return false;
+            }
 
             return getCharCount(document, fPosition, position, "(", ")", false) >= 0; //$NON-NLS-1$ //$NON-NLS-2$
 
         } catch (BadLocationException x) {
+        	this.returnedFalseOnce = true;
             return false;
+        } catch (Exception x) {
+        	this.returnedFalseOnce = true;
+        	PydevPlugin.log(x);
+        	return false;
         }
     }
 
@@ -202,7 +221,7 @@ public class PyContextInformationValidator implements IContextInformationValidat
         int currentParameter= -1;
 
         try {
-            currentParameter= getCharCount(doc, fPosition, position, ",", "", true);  //$NON-NLS-1$//$NON-NLS-2$
+            currentParameter= getCharCount(doc, fPosition, position, ",", "", true); 
         } catch (BadLocationException x) {
             return false;
         }
@@ -247,9 +266,6 @@ public class PyContextInformationValidator implements IContextInformationValidat
             switch (ch) {
                 case ',':
                     positions.add(new Integer(pos));
-                    break;
-                case '[':
-                    pos= code.indexOf(']', pos);
                     break;
                 default:
                     break;
