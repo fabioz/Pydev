@@ -201,9 +201,11 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeContextInformation(org.eclipse.jface.text.ITextViewer, int)
      */
     public IContextInformation[] computeContextInformation(ITextViewer viewer, int documentOffset) {
+    	//System.out.println("computeContextInformation");
     	if(viewer.getDocument() != this.contextInformationValidator.doc){
     		return null;
     	}
+    	//System.out.println("this.contextInformationValidator.returnedFalseOnce:"+this.contextInformationValidator.returnedFalseOnce);
     	//if we didn't return false at least once, it is already installed.
     	if(this.contextInformationValidator.returnedFalseOnce && this.contextInformationValidator.isContextInformationValid(documentOffset)){
     		return new IContextInformation[]{this.contextInformationValidator.fInformation};

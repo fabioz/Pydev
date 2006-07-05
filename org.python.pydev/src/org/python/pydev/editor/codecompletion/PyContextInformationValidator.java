@@ -180,6 +180,7 @@ public class PyContextInformationValidator implements IContextInformationValidat
      * @see IContextInformationValidator#isContextInformationValid(int)
      */
     public boolean isContextInformationValid(int position) {
+    	//System.out.println("isContextInformationValid:"+position);
     	if(doc == null){
     		this.returnedFalseOnce = true;
     		return false;
@@ -199,7 +200,11 @@ public class PyContextInformationValidator implements IContextInformationValidat
                 return false;
             }
 
-            return getCharCount(document, fPosition, position, "(", ")", false) >= 0; //$NON-NLS-1$ //$NON-NLS-2$
+            boolean ret = getCharCount(document, fPosition, position, "(", ")", false) >= 0; //$NON-NLS-1$ //$NON-NLS-2$
+            if(ret == false){
+            	returnedFalseOnce = true;
+            }
+            return ret;
 
         } catch (BadLocationException x) {
         	this.returnedFalseOnce = true;
