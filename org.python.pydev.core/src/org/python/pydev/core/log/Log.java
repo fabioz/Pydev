@@ -50,15 +50,20 @@ public class Log {
     
     public synchronized static void toLogFile(Object obj, String string) {
         synchronized(lock){
-            StringBuffer buffer = new StringBuffer();
-            buffer.append(logIndent);
-            buffer.append(FullRepIterable.getLastPart(obj.getClass().getName()));
-            buffer.append(": ");
-            buffer.append(string);
-            
-            toLogFile(buffer.toString());
+        	Class<? extends Object> class1 = obj.getClass();
+            toLogFile(string, class1);
         }
     }
+
+	public static void toLogFile(String string, Class<? extends Object> class1) {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(logIndent);
+		buffer.append(FullRepIterable.getLastPart(class1.getName()));
+		buffer.append(": ");
+		buffer.append(string);
+		
+		toLogFile(buffer.toString());
+	}
 
     public synchronized static void toLogFile(String buffer) {
         synchronized(lock){

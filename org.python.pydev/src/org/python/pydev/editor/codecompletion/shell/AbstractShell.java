@@ -44,7 +44,7 @@ public abstract class AbstractShell {
     public static final int BUFFER_SIZE = 1024 ;
     public static final int OTHERS_SHELL = 2;
     public static final int COMPLETION_SHELL = 1;
-    protected static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 1000;
+    protected static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 1000; //1sec, so we can make the number of attempts be shown as elapsed in secs
     protected static final int DEBUG_SHELL = -1;
     
     /**
@@ -69,12 +69,12 @@ public abstract class AbstractShell {
      */
     private boolean isInOperation = false;
 
-    private void dbg(String string, int priority) {
+    private static void dbg(String string, int priority) {
         if(priority <= DEBUG_SHELL){
             System.out.println(string);
         }
         if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
-            Log.toLogFile(this, string);
+            Log.toLogFile(AbstractShell.class, string);
         }
     }
 
@@ -203,9 +203,11 @@ public abstract class AbstractShell {
      * @throws IOException
      */
     public synchronized static AbstractShell getServerShell(int relatedId, int id) throws IOException, Exception {
+    	AbstractShell pythonShell = null;
     	synchronized(shells){
+    		dbg("getServerShell", 2);
 	        Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(relatedId);
-	        AbstractShell pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
+	        pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
 	        
 	        if(pythonShell == null){
 	            if(relatedId == IPythonNature.PYTHON_RELATED){
@@ -215,20 +217,24 @@ public abstract class AbstractShell {
 	            }else{
 	                throw new RuntimeException("unknown related id");
 	            }
-	            synchronized(pythonShell){
-	            	pythonShell.startIt(); //first start it
-	            }
+            	pythonShell.startIt(); //first start it
 	            
 	            //then make it accessible
 	            typeToShell.put(new Integer(id), pythonShell);
 	        }
             
-            //if the shell is still starting, we will not return it.
-            while(pythonShell.inStart){
-                pythonShell.sleepALittle(200);
-            }
-	        return pythonShell;
     	}
+    	if(pythonShell != null){
+	    	//if the shell is still starting, we will not return it (timeout is 2 seconds)
+    		int numberOfConnectionAttempts = PyCodeCompletionPreferencesPage.getNumberOfConnectionAttempts();
+    		Object lock = new Object();
+    		for (int i = 0; pythonShell.inStart && i < numberOfConnectionAttempts; i++) {
+    			synchronized (lock) {
+					lock.wait(DEFAULT_SLEEP_BETWEEN_ATTEMPTS);
+    			}
+			}
+    	}
+    	return pythonShell;
     }
 
     /**
