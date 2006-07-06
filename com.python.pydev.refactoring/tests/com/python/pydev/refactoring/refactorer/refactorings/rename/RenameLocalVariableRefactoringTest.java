@@ -395,5 +395,16 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     	checkRename(str, line, col, "fooo", false, true);
     }
     
+    public void testRename3() throws Exception {
+    	String str = "" +
+    	"def m1(a):\n" +
+    	"    a.data.%s\n" +
+    	"";
+    	
+    	int line = 1;
+    	int col = 12;
+    	checkRename(str, line, col, "fooo", false, true);
+    }
+    
 
 }
