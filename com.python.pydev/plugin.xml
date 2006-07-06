@@ -46,7 +46,7 @@
 <!-- binding: activate interactive console-->
    <extension point="org.eclipse.ui.bindings">
       <key
-            sequence="Ctrl+Enter"
+            sequence="Ctrl+Alt+Enter"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.interactiveconsole.evaluateActionSetter"	
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
