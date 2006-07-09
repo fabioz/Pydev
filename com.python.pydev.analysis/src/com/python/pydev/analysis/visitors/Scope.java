@@ -38,6 +38,11 @@ public class Scope implements Iterable<ScopeItems>{
     public static final int SCOPE_TYPE_CLASS = 4;
     
     /**
+     * the scope type is a list comprehension
+     */
+    public static final int SCOPE_TYPE_LIST_COMP = 8;
+    
+    /**
      * when we are at method definition, not always is as expected...
      */
     public boolean isInMethodDefinition = false;

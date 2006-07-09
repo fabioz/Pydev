@@ -4,6 +4,7 @@
 package com.python.pydev.analysis.scopeanalysis;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -24,6 +25,7 @@ import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.AugAssign;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -42,6 +44,7 @@ import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.argumentsType;
+import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.plugin.PydevPlugin;
@@ -594,18 +597,58 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     public Object visitListComp(ListComp node) throws Exception {
         unhandled_node(node);
+        Comprehension type = (Comprehension) node.generators[0];
+        List<exprType> eltsToVisit = new ArrayList<exprType>();
+        if(type.iter instanceof ListComp){
+            ListComp listComp = (ListComp)type.iter;
+            visitListCompGenerators(listComp, eltsToVisit);
+            for (exprType type2 : eltsToVisit) {
+                type2.accept(this);
+            }
+            type.target.accept(this);
+            if (node.elt != null){
+                node.elt.accept(this);
+            }
+
+
+            return null;
+        }
+        
+        if(node.elt instanceof ListComp){
+            visitListCompGenerators((ListComp)node, eltsToVisit);
+            for (exprType type2 : eltsToVisit) {
+                type2.accept(this);
+            }
+            return null;
+            
+        }
         if (node.generators != null) {
             for (int i = 0; i < node.generators.length; i++) {
                 if (node.generators[i] != null)
                     node.generators[i].accept(this);
             }
         }
-        if (node.elt != null)
+    
+        if (node.elt != null){
             node.elt.accept(this);
+        }
 
         return null;
     }
     
+
+    private void visitListCompGenerators(ListComp node, List<exprType> eltsToVisit) throws Exception {
+        
+        Comprehension comp0 = (Comprehension) node.generators[0];
+        if(node.elt instanceof ListComp){
+            visitListCompGenerators((ListComp) node.elt, eltsToVisit);
+            comp0.accept(this);
+        }else{
+            comp0.accept(this);
+            eltsToVisit.add(node.elt);
+        }
+    }
+
     /**
      * initializes a new scope
      * @param node 
