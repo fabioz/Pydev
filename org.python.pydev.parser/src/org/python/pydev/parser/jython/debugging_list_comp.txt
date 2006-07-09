@@ -1,0 +1,57 @@
+Testing with compiler module (python 2.4.2)
+
+FIRST
+
+>>> compiler.parse('''DAYS = dict((day, index) for index, daysRep in enumeratedDays for day in daysRep)''')
+
+Module(None, Stmt([Assign([AssName('DAYS', 'OP_ASSIGN')], CallFunc(Name('dict'), 
+[GenExpr(GenExprInner(Tuple([Name('day'), Name('index')]), 
+[GenExprFor(AssTuple([AssName('index', 'OP_ASSIGN'), AssName('daysRep', 'OP_ASSIGN')]), 
+Name('enumeratedDays'), []), GenExprFor(AssName('day', 'OP_ASSIGN'), Name('daysRep'), [])]))], None, None))]))
+
+SECOND
+
+>>> compiler.parse('''DAYS = dict((day, index) for index, daysRep in (enumeratedDays for day in daysRep))''')
+
+Module(None, Stmt([Assign([AssName('DAYS', 'OP_ASSIGN')], CallFunc(Name('dict'), 
+[GenExpr(GenExprInner(Tuple([Name('day'), Name('index')]), 
+[GenExprFor(AssTuple([AssName('index', 'OP_ASSIGN'), AssName('daysRep', 'OP_ASSIGN')]), 
+
+GenExpr(GenExprInner( <<-- that's the difference
+
+Name('enumeratedDays'), [GenExprFor(AssName('day','OP_ASSIGN'), Name('daysRep'), [])])), [])]))], None, None))]))
+
+
+#... pydev grammar interpretation of facts...
+
+#dict((day, index) for index, daysRep in enumeratedDays for day in daysRep)
+	Call[
+		func=Name[id=dict, ctx=Load], 
+		args=[ListComp[
+			elt=ListComp[
+			
+				elt=Tuple[elts=[Name[id=day, ctx=Load], Name[id=index, ctx=Load]], ctx=Load], 
+				generators=[Comprehension[
+					target=Tuple[elts=[Name[id=index, ctx=Store], Name[id=daysRep, ctx=Store]], ctx=Store], 
+					iter=Name[id=enumeratedDays, ctx=Load], ifs=[]]]], 
+				
+			generators=[Comprehension[
+				target=Name[id=day, ctx=Store], 
+				iter=Name[id=daysRep, ctx=Load], ifs=[]]]]], keywords=[], starargs=null, kwargs=null]]]]
+
+
+
+#dict((day, index) for index, daysRep in (enumeratedDays for day in daysRep))
+	Call[
+		func=Name[id=dict, ctx=Load], 
+		args=[ListComp[
+				elt=Tuple[elts=[Name[id=day, ctx=Load], Name[id=index, ctx=Load]], ctx=Load], 
+				generators=[Comprehension[
+					target=Tuple[elts=[Name[id=index, ctx=Store], Name[id=daysRep, ctx=Store]], ctx=Store], 
+					iter=ListComp[
+						elt=Name[id=enumeratedDays, ctx=Load], 
+						generators=[Comprehension[
+							target=Name[id=day, ctx=Store], 
+							iter=Name[id=daysRep, ctx=Load], ifs=[]]]], ifs=[]]]]], keywords=[], starargs=null, kwargs=null]]]]
+	
+	

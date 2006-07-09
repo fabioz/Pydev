@@ -1334,10 +1334,6 @@ void dictmaker() #void: {}
 void listmaker() #void: {}
 { test() ( (list_for())+ | (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()] #tuple(>1)) }
 
-void complistmaker() #void: {}
-{ test() list_for()  
-}
-
 //list_iter: [list_for | list_if]
 //void list_iter() #void: {}
 //{ [ (list_for() | list_if()) ] }

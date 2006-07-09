@@ -5304,10 +5304,9 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     }
   }
 
-  final public void complistmaker() throws ParseException {
-    test();
-    list_for();
-  }
+//void complistmaker() #void: {}
+//{ test() list_for()  
+//}
 
 //list_iter: [list_for | list_if]
 //void list_iter() #void: {}

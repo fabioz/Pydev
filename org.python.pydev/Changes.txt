@@ -9,6 +9,9 @@ Pydev:
 - The parameters are now linked when a completion is selected (so, tab iterates through them and enter goes to the end of the declaration)
 - Ctrl+2+kill also clears the internal cache for compiled modules (especially useful for those that create compiled dependencies).
 
+Pydev Extensions:
+- Handling nested 'for' and list comprehensions correctly in code-analysis
+
 after 1.2.0
 
 Pydev:
