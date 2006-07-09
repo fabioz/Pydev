@@ -4,7 +4,6 @@
 package com.python.pydev.analysis.scopeanalysis;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -44,7 +43,6 @@ import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.argumentsType;
-import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.plugin.PydevPlugin;
@@ -599,11 +597,21 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         unhandled_node(node);
         Comprehension type = (Comprehension) node.generators[0];
         List<exprType> eltsToVisit = new ArrayList<exprType>();
+        
+        //we need to take care of 'nested list comprehensions'
         if(type.iter instanceof ListComp){
+            //print dict((day, index) for index, daysRep in (day for day in enumeratedDays))
             ListComp listComp = (ListComp)type.iter;
-            visitListCompGenerators(listComp, eltsToVisit);
-            for (exprType type2 : eltsToVisit) {
-                type2.accept(this);
+            
+            //the "(day for day in enumeratedDays)" is in its own scope
+            startScope(Scope.SCOPE_TYPE_LIST_COMP, listComp);
+            try{
+                visitListCompGenerators(listComp, eltsToVisit);
+                for (exprType type2 : eltsToVisit) {
+                    type2.accept(this);
+                }
+            }finally{
+                endScope(listComp);
             }
             type.target.accept(this);
             if (node.elt != null){
@@ -614,14 +622,17 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             return null;
         }
         
+        //we need to take care of 'nested list comprehensions'
         if(node.elt instanceof ListComp){
+            //print dict((day, index) for index, daysRep in enumeratedDays for day in daysRep)
+            //note that the daysRep is actually generated and used later in the expression
             visitListCompGenerators((ListComp)node, eltsToVisit);
             for (exprType type2 : eltsToVisit) {
                 type2.accept(this);
             }
             return null;
-            
         }
+        
         if (node.generators != null) {
             for (int i = 0; i < node.generators.length; i++) {
                 if (node.generators[i] != null)
@@ -759,9 +770,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         
         int acceptedScopes = 0;
         if(scope.getCurrScopeItems().getScopeType() == Scope.SCOPE_TYPE_METHOD){
-            acceptedScopes = Scope.SCOPE_TYPE_GLOBAL | Scope.SCOPE_TYPE_METHOD;
+            acceptedScopes = Scope.SCOPE_TYPE_GLOBAL | Scope.SCOPE_TYPE_METHOD | Scope.SCOPE_TYPE_LIST_COMP;
         }else{
-            acceptedScopes = Scope.SCOPE_TYPE_GLOBAL | Scope.SCOPE_TYPE_METHOD | Scope.SCOPE_TYPE_CLASS;
+            acceptedScopes = Scope.SCOPE_TYPE_GLOBAL | Scope.SCOPE_TYPE_METHOD | Scope.SCOPE_TYPE_CLASS | Scope.SCOPE_TYPE_LIST_COMP;
             
         }
         

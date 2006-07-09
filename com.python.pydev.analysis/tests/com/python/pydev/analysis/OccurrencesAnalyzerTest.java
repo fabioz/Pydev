@@ -26,7 +26,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testListComprehension3();
+            analyzer2.testListComprehension3b();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -1930,7 +1930,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
-        assertEquals(1, msgs.length); 
+        printMessages(msgs, 1); 
         assertEquals("Undefined variable: day", msgs[0].getMessage());
     }
     

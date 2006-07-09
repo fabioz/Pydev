@@ -66,6 +66,8 @@ public class Scope implements Iterable<ScopeItems>{
             return "Class Scope";
         case Scope.SCOPE_TYPE_METHOD:
             return "Method Scope";
+        case Scope.SCOPE_TYPE_LIST_COMP:
+            return "List Comp Scope";
         }
         return null;
     }
@@ -285,7 +287,7 @@ public class Scope implements Iterable<ScopeItems>{
     }
     
     public Found findFirst(String name, boolean setUsed) {
-    	return findFirst(name,setUsed,SCOPE_TYPE_GLOBAL|SCOPE_TYPE_CLASS|SCOPE_TYPE_METHOD);
+    	return findFirst(name,setUsed,SCOPE_TYPE_GLOBAL|SCOPE_TYPE_CLASS|SCOPE_TYPE_METHOD| Scope.SCOPE_TYPE_LIST_COMP);
     }
     
     public Found findFirst(String name, boolean setUsed, int acceptedScopes) {

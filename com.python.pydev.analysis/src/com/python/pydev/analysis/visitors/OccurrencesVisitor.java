@@ -86,7 +86,7 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
             String rep = n.getSingle().tok.getRepresentation();
             Map<String, Tuple<IToken, Found>> lastInStack = m.namesToIgnore;
             if(scope.findInNamesToIgnore(rep, lastInStack) == null){
-                messagesManager.addUndefinedMessage(n.getSingle().tok);
+                onAddUndefinedMessage(n.getSingle().tok);
             }
         }
         messagesManager.setLastScope(m);
