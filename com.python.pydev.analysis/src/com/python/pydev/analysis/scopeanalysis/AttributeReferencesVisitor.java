@@ -14,10 +14,11 @@ import org.python.pydev.parser.visitors.scope.EasyAstIteratorBase;
  */
 public class AttributeReferencesVisitor extends EasyAstIteratorBase{
 
-	private boolean inAttr = false;
+	private int inAttr = 0;
 	
 	protected Object unhandled_node(SimpleNode node) throws Exception {
-		if(inAttr || isInClassDecl()){
+        System.out.println("unhandled_node:"+node);
+		if(inAttr > 0 || isInClassDecl()){
 			if(node instanceof Name || node instanceof NameTok){
 				atomic(node);
 			}
@@ -28,12 +29,14 @@ public class AttributeReferencesVisitor extends EasyAstIteratorBase{
 	
 	@Override
 	public Object visitAttribute(Attribute node) throws Exception {
-		inAttr = true;
-		Object ret = null;
-		
-		ret = super.visitAttribute(node);
-		
-		inAttr = false;
+	    Object ret = null;
+		inAttr += 1;
+        try{
+    		
+    		ret = super.visitAttribute(node);
+        }finally{    		
+            inAttr -= 1;
+        }
 		return ret;
 	}
     
