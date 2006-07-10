@@ -11,6 +11,7 @@ Pydev:
 
 Pydev Extensions:
 - Handling nested 'for' and list comprehensions correctly in code-analysis
+- Mark occurrences bug-fix
 
 after 1.2.0
 
