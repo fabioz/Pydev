@@ -60,10 +60,12 @@ public class DuplicationChecker {
      */
     private void checkDuplication(String name, SimpleNode node) {
         if(stack.size() > 0){
-            String exists = stack.peek().get(name);
-            if(exists != null){
-                SourceToken token = AbstractVisitor.makeToken(node, "");
-                visitor.onAddDuplicatedSignature(token, name);
+            if(!visitor.scope.getPrevScopeItems().getIsInSubSubScope()){
+                String exists = stack.peek().get(name);
+                if(exists != null){
+                    SourceToken token = AbstractVisitor.makeToken(node, "");
+                    visitor.onAddDuplicatedSignature(token, name);
+                }
             }
         }
     }

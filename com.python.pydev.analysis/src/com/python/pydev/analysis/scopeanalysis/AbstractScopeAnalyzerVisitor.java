@@ -74,7 +74,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     /**
      * manage the scopes...
      */
-    protected Scope scope;
+    public Scope scope;
     
     /**
      * this should get the tokens that are probably not used, but may be if they are defined

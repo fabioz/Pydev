@@ -390,5 +390,12 @@ public class Scope implements Iterable<ScopeItems>{
         return null;
     }
 
+    public ScopeItems getPrevScopeItems() {
+        if(scope.size() <= 1){
+            return null;
+        }
+        return scope.get(scope.size()-2);
+    }
+
 
 }

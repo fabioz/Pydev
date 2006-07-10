@@ -26,7 +26,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testListComprehension3b();
+            analyzer2.testDupl2();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2290,6 +2290,22 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	printMessages(msgs, 1);
     	assertEquals("Duplicated signature: Foo", msgs[0].getMessage());
     	assertEquals(8, msgs[0].getStartCol(doc));
+    }
+    
+    public void testDupl2() {
+        doc = new Document("" +
+                "if True:\n" +
+                "    def f(self):\n" +
+                "        pass\n" +
+                "else:\n" +
+                "    def f(self):\n" +
+                "        pass\n" +
+                "\n" +
+        "");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs, 0);
     }
     
 }
