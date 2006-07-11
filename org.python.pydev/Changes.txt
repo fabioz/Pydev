@@ -8,6 +8,7 @@ Pydev:
 - Parameters gotten from docstring analysis for builtins that don't work with 'inspect.getargspec'
 - The parameters are now linked when a completion is selected (so, tab iterates through them and enter goes to the end of the declaration)
 - Ctrl+2+kill also clears the internal cache for compiled modules (especially useful for those that create compiled dependencies).
+- Code completion for nested modules had a bug fixed
 
 Pydev Extensions:
 - Handling nested 'for' and list comprehensions correctly in code-analysis
