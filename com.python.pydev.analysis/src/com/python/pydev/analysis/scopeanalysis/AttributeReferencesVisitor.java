@@ -17,7 +17,7 @@ public class AttributeReferencesVisitor extends EasyAstIteratorBase{
 	private int inAttr = 0;
 	
 	protected Object unhandled_node(SimpleNode node) throws Exception {
-        System.out.println("unhandled_node:"+node);
+        //System.out.println("unhandled_node:"+node);
 		if(inAttr > 0 || isInClassDecl()){
 			if(node instanceof Name || node instanceof NameTok){
 				atomic(node);
