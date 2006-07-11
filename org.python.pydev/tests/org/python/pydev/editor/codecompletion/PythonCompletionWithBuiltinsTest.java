@@ -21,7 +21,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testDictAssign();
+            builtins.testDeepNested10();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -129,6 +129,14 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     	"from extendable.nested2 import hub\n"+
     	"hub.c1.f.";
     	requestCompl(s, s.length(), -1, new String[] { "curdir"});
+    }
+    
+    public void testDeepNested10() throws CoreException, BadLocationException{
+        String s;
+        s = "" +
+        "from extendable.nested3 import hub2\n"+
+        "hub2.c.a.";
+        requestCompl(s, s.length(), -1, new String[] { "fun()"});
     }
     
     public void testRelativeOnSameProj() throws CoreException, BadLocationException{

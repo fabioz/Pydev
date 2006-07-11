@@ -174,7 +174,7 @@ public class SourceModule extends AbstractModule {
                     int iActTok = 0;
                     String[] actToks = FullRepIterable.dotSplit(activationToken);
                     if(actToks[iActTok].equals(rep)){
-                        //System.out.println("Now we have to find act..."+act+"(which is a definition of:"+rep+")");
+                        //System.out.println("Now we have to find act..."+activationToken+"(which is a definition of:"+rep+")");
                         try {
                             Definition[] definitions;
                             String value = activationToken;
@@ -212,32 +212,32 @@ public class SourceModule extends AbstractModule {
 	                                        d = visitor.definitions.get(0);
 	                                        value = d.value;
 	                                        if(d instanceof AssignDefinition){
-	                                            return getValueCompletions(initialState, manager, value);
+	                                            return getValueCompletions(initialState, manager, value, d.module);
 	                                        }
                                         }else{
                                         	if(d.module instanceof SourceModule){
-                                        		FullRepIterable.joinFirstParts(actToks);
                                         		SourceModule m = (SourceModule) d.module;
-                                        		Definition[] definitions2 = m.findDefinition(FullRepIterable.joinFirstParts(actToks), d.line, d.col,manager.getNature(), null);
+                                        		String joined = FullRepIterable.joinFirstParts(actToks);
+                                                Definition[] definitions2 = m.findDefinition(joined, d.line, d.col,manager.getNature(), null);
                                         		if(definitions2.length == 0){
                                         			return new IToken[0];
                                         		}
                                         		d = definitions2[0];
                                         		value = d.value+"."+actToks[actToks.length-1];
                                         		if(d instanceof AssignDefinition){
-                                        			return ((SourceModule)d.module).getValueCompletions(initialState, manager, value);
+                                        			return ((SourceModule)d.module).getValueCompletions(initialState, manager, value, d.module);
                                         		}
                                         	}
                                         }
                                         
                                     }else if ((d.ast == null && d.module != null) || d.ast instanceof ImportFrom){
-                                        return getValueCompletions(initialState, manager, value);
+                                        return getValueCompletions(initialState, manager, value, d.module);
                                         
                                     }else{
                                         break;
                                     }
                                 }else{
-                                    return getValueCompletions(initialState, manager, value);
+                                    return getValueCompletions(initialState, manager, value, this);
                                 }
                                 iActTok++;
                             }
@@ -262,11 +262,11 @@ public class SourceModule extends AbstractModule {
      * @param value
      * @return
      */
-    private IToken[] getValueCompletions(ICompletionState initialState, ICodeCompletionASTManager manager, String value) {
+    private IToken[] getValueCompletions(ICompletionState initialState, ICodeCompletionASTManager manager, String value, IModule module) {
         initialState.checkFindMemory(this, value);
         ICompletionState copy = initialState.getCopy();
         copy.setActivationToken(value);
-        IToken[] completionsForModule = manager.getCompletionsForModule(this, copy);
+        IToken[] completionsForModule = manager.getCompletionsForModule(module, copy);
         return completionsForModule;
     }
 
@@ -530,16 +530,6 @@ public class SourceModule extends AbstractModule {
                 if(token instanceof SourceToken){
                 	//ok, we found it
                     SimpleNode a = ((SourceToken)token).getAst();
-                    
-                    //this is just to get its scope...
-                    FindScopeVisitor scopeVisitor = new FindScopeVisitor(a.beginLine, a.beginColumn);
-                    if (ast != null){
-                        try {
-                            ast.accept(scopeVisitor);
-                        } catch (Exception e) {
-                            PydevPlugin.log(e);
-                        }
-                    }
                     Tuple<Integer, Integer> def = getLineColForDefinition(a);
                     
                     String parentPackage = token.getParentPackage();
@@ -550,8 +540,24 @@ public class SourceModule extends AbstractModule {
                     		module = mod;
                     	}
                     }
-                    //line, col
-                    return new Definition(def.o1, def.o2, tok, a, scopeVisitor.scope, module);
+                    
+                    
+                    if(module instanceof SourceModule){
+                        //this is just to get its scope...
+                        SourceModule m = (SourceModule) module;
+                        FindScopeVisitor scopeVisitor = new FindScopeVisitor(a.beginLine, a.beginColumn);
+                        if (m.ast != null){
+                            try {
+                                m.ast.accept(scopeVisitor);
+                            } catch (Exception e) {
+                                PydevPlugin.log(e);
+                            }
+                        }
+                        return new Definition(def.o1, def.o2, tok, a, scopeVisitor.scope, module);
+                    }else{
+                        //line, col
+                        return new Definition(def.o1, def.o2, tok, a, new Scope(new FastStack<SimpleNode>()), module);
+                    }
                 }else{
                     CompiledToken comp = (CompiledToken) token;
                     String parentPackage = comp.getParentPackage();
