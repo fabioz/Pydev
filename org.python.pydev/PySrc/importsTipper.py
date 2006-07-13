@@ -132,7 +132,10 @@ def GenerateTip( data ):
     return f,tips
     
     
-
+def CheckChar(c):
+    if c == '-' or c == '.':
+        return '_'
+    return c
 
 def GenerateImportsTipForModule( mod ):
     '''
@@ -204,6 +207,8 @@ def GenerateImportsTipForModule( mod ):
                                 if i > 0:
                                     s = doc[0:i]
                                     s = s.strip()
+                                    
+                                    #let's see if we have a docstring in the first line
                                     if s[-1] == ')':
                                         start = s.find('(')
                                         if start >= 0:
@@ -214,6 +219,19 @@ def GenerateImportsTipForModule( mod ):
                                             args = s[start:end]
                                             if not args[-1] == ')':
                                                 args += ')'
+
+                                            
+                                            #now, get rid of unwanted chars
+                                            l = len(args)-1
+                                            r = []
+                                            for i in range(len(args)):
+                                                if i == 0 or i == l:
+                                                    r.append(args[i])
+                                                else:
+                                                    r.append(CheckChar(args[i]))
+                                                    
+                                            args = ''.join(r)
+                                            
                         except:
                             pass
     

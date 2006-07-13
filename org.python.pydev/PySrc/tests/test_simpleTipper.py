@@ -62,14 +62,17 @@ class Test(unittest.TestCase):
                 raise
         
         tip = importsTipper.GenerateTip('__builtin__')
-        for t in tip[1]:
-            print t
+#        for t in tip[1]:
+#            print t
         self.assertIn('object'         , tip)
         self.assertIn('tuple'          , tip)
         self.assertIn('RuntimeError'   , tip)
         self.assertIn('RuntimeWarning' , tip)
         t = self.assertIn('cmp' , tip)
         self.assertEqual('(x, y)', t[2]) #args
+        
+        t = self.assertIn('isinstance' , tip)
+        self.assertEqual('(object, class_or_type_or_tuple)', t[2]) #args
         
         t = self.assertIn('compile' , tip)
         self.assertEqual('(source, filename, mode)', t[2]) #args
