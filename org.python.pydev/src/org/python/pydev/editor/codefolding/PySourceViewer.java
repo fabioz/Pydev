@@ -33,8 +33,18 @@ public class PySourceViewer extends ProjectionViewer {
     public PySourceViewer(Composite parent, IVerticalRuler ruler, IOverviewRuler overviewRuler, boolean showsAnnotationOverview, int styles, PyEditProjection projection) {
         super(parent, ruler, overviewRuler, showsAnnotationOverview, styles);
         this.projection = projection;
-        
     }
+    
+    private boolean isInToggleCompletionStyle;
+    
+    public void setInToggleCompletionStyle(boolean b){
+        this.isInToggleCompletionStyle = b;
+    }
+    
+    public boolean getIsInToggleCompletionStyle(){
+        return this.isInToggleCompletionStyle;
+    }
+    
     
     public void configure(SourceViewerConfiguration configuration) {
         super.configure(configuration);

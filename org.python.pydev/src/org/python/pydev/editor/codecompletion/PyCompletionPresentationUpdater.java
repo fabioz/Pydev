@@ -14,6 +14,7 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
+import org.python.pydev.editor.codefolding.PySourceViewer;
 
 public class PyCompletionPresentationUpdater {
 
@@ -53,6 +54,10 @@ public class PyCompletionPresentationUpdater {
 
             } else
                 viewer.invalidateTextPresentation();
+        }
+        if(viewer instanceof PySourceViewer){
+            PySourceViewer pySourceViewer = (PySourceViewer) viewer;
+            pySourceViewer.setInToggleCompletionStyle(false);
         }
     }
     
@@ -96,6 +101,10 @@ public class PyCompletionPresentationUpdater {
 
         // http://dev.eclipse.org/bugs/show_bug.cgi?id=34754
         try {
+            if(viewer instanceof PySourceViewer){
+                PySourceViewer pySourceViewer = (PySourceViewer) viewer;
+                pySourceViewer.setInToggleCompletionStyle(true);
+            }
             text.setStyleRange(fRememberedStyleRange);
         } catch (IllegalArgumentException x) {
             // catching exception as offset + length might be outside of the text widget
