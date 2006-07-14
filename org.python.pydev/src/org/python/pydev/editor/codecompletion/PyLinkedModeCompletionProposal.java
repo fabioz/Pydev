@@ -18,6 +18,8 @@ import org.eclipse.jface.text.link.LinkedModeModel;
 import org.eclipse.jface.text.link.LinkedModeUI;
 import org.eclipse.jface.text.link.LinkedPositionGroup;
 import org.eclipse.jface.text.link.ProposalPosition;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
@@ -28,10 +30,13 @@ import org.python.pydev.plugin.PydevPlugin;
 public class PyLinkedModeCompletionProposal extends PyCompletionProposal implements ICompletionProposalExtension2{
 
     private int firstParameterLen = 0;
+    private PyCompletionPresentationUpdater presentationUpdater;
+    private int fLen;
+    private boolean fLastIsPar;
     
     public PyLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority, boolean justShowContextInfo) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority, justShowContextInfo);
-        
+        presentationUpdater = new PyCompletionPresentationUpdater(this);
     }
     
     /*
@@ -46,7 +51,8 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposal impleme
 
 
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
-//        System.out.println("apply trigger:"+trigger+" stateMask:"+stateMask+" offset:"+offset);
+        boolean eat = (stateMask & SWT.MOD1) != 0;
+        
         IDocument doc = viewer.getDocument();
         if(fJustShowContextInfo){
             return;
@@ -54,7 +60,24 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposal impleme
         int dif = offset - fReplacementOffset;
         try {
             String strToAdd = fReplacementString.substring(dif);
-            doc.replace(offset-dif, dif, fReplacementString);
+            
+            if(eat){
+                String rep = fReplacementString;
+                int i = rep.indexOf('(');
+                if(fLastIsPar && i != -1){
+                    rep = rep.substring(0, i);
+                    doc.replace(offset-dif, dif+this.fLen, rep);
+                    //if the last was a parenthesis, there's nothing to link, so, let's return
+                    return;
+                }else{
+                    doc.replace(offset-dif, dif+this.fLen, rep);
+                }
+            }else{
+                doc.replace(offset-dif, dif, fReplacementString);
+            }
+            
+            
+            //ok, now, on to the linking part
             int iPar = strToAdd.indexOf('(');
             if(iPar != -1 && strToAdd.charAt(strToAdd.length()-1) == ')'){
                 String newStr = strToAdd.substring(iPar+1, strToAdd.length()-1);
@@ -120,16 +143,66 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposal impleme
         }
 
     }
+    
+    
 
     /**
      * Called when Ctrl is selected during the completions
      * @see org.eclipse.jface.text.contentassist.ICompletionProposalExtension2#selected(org.eclipse.jface.text.ITextViewer, boolean)
      */
     public void selected(ITextViewer viewer, boolean smartToggle) {
-//        System.out.println("selected smartToggle:"+smartToggle);
+        if(smartToggle){
+            StyledText text= viewer.getTextWidget();
+            if (text == null || text.isDisposed())
+                return;
+
+            int widgetCaret= text.getCaretOffset();
+            IDocument document = viewer.getDocument();
+            int finalOffset = widgetCaret;
+            
+            try {
+                if(finalOffset >= document.getLength()){
+                    unselected(viewer);
+                    return;
+                }
+                char c;
+                do{
+                    c = document.getChar(finalOffset);
+                    finalOffset++;
+                }while(isValidChar(c) && finalOffset < document.getLength());
+                
+                if(c == '('){
+                    fLastIsPar = true;
+                }else{
+                    fLastIsPar = false;
+                }
+                
+                if(!isValidChar(c)){
+                    finalOffset--;
+                }
+                
+                this.fLen = finalOffset-widgetCaret;
+                this.presentationUpdater.updateStyle(viewer, widgetCaret, this.fLen);
+            } catch (BadLocationException e) {
+                PydevPlugin.log(e);
+            }
+            
+        }else{
+            unselected(viewer);
+        }
+    }
+
+    /**
+     * @param c
+     * @return
+     */
+    private boolean isValidChar(char c) {
+        return c != ' ' && c != '(' && c!= '{' && c != '[' && c != '"' && c!= '.' && c!= '\n' && c != '\n' &&
+               c != ')' && c != ']' && c != '}';
     }
 
     public void unselected(ITextViewer viewer) {
+        this.presentationUpdater.repairPresentation(viewer);
     }
 
     public boolean validate(IDocument document, int offset, DocumentEvent event) {
