@@ -30,6 +30,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
+import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
@@ -132,6 +133,15 @@ public class MarkOccurrencesJob extends Thread{
 		            if(pyEdit.cache == null){ //disposed (cannot add or remove annotations)
 		            	continue;
 		            }
+                    
+                    PySourceViewer viewer = pyEdit.getPySourceViewer();
+                    if(viewer == null){
+                        continue;
+                    }
+                    if(viewer.getIsInToggleCompletionStyle()){
+                        continue;
+                    }
+                    
 		            if(ret.o3){
 		            	if(!addAnnotations(pyEdit, annotationModel, ret.o1, ret.o2)){
 		            		//something went wrong, so, let's remove the occurrences
