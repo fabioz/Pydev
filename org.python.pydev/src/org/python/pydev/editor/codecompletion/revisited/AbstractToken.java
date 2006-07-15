@@ -8,6 +8,9 @@ package org.python.pydev.editor.codecompletion.revisited;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
 
 /**
  * @author Fabio Zadrozny
@@ -281,5 +284,16 @@ public abstract class AbstractToken implements IToken{
      */
     public int[] getLineColEnd() {
     	return new int[]{UNDEFINED, UNDEFINED};
+    }
+
+    public static boolean isClassDef(IToken element) {
+        if(element instanceof SourceToken){
+            SourceToken token = (SourceToken) element;
+            SimpleNode ast = token.getAst();
+            if(ast instanceof ClassDef){
+                return true;
+            }
+        }
+        return false;
     }
 }

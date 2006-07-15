@@ -32,6 +32,7 @@ import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
+import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -405,11 +406,19 @@ public class PyCodeCompletion {
                 int l = name.length();
                 
                 String args = "";
-                if(! importsTip){
-	                args = getArgs(element);                
-	                if(args.length()>0){
-	                    l++; //cursor position is name + '('
-	                }
+                if(!importsTip ){
+                    boolean getIt = true;
+                    if(AbstractToken.isClassDef(element)){
+                        if(!request.isInCalltip){
+                            getIt=false;
+                        }
+                    }
+                    if(getIt){
+    	                args = getArgs(element);                
+    	                if(args.length()>0){
+    	                    l++; //cursor position is name + '('
+    	                }
+                    }
                 }
                 //END
                 

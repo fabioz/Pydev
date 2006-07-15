@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testClassConstructorParams();
+	      test.testRegularClass();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -595,6 +595,17 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(expected, doc.get());
     }
     
+    public void testRegularClass() throws Exception {
+        String s;
+        s = "" +
+        "class Fooooo:\n" +
+        "    def __init__(self, a, b):pass\n\n" +
+        "Fooo\n";
+        ICompletionProposal[] proposals = requestCompl(s, s.length()-1, -1, new String[] {});
+        assertEquals(1, proposals.length); 
+        ICompletionProposal p = proposals[0];
+        assertEquals("Fooooo", p.getDisplayString());
+    }
     
     public void testCalltips1() throws CoreException, BadLocationException {
     	String s;
