@@ -1,10 +1,12 @@
 package com.python.pydev.refactoring.refactorer;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ltk.core.refactoring.participants.RenameRefactoring;
@@ -14,7 +16,9 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.actions.PyAction;
@@ -27,6 +31,7 @@ import org.python.pydev.editor.refactoring.CancelledException;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -175,8 +180,21 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
 		List<FindInfo> lFindInfo = new ArrayList<FindInfo>();
 		try {
             //2. check findDefinition (SourceModule)
+            ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
+            
 			IDefinition[] definitions = mod.findDefinition(tok, request.getBeginLine(), request.getBeginCol(), request.nature, lFindInfo);
-			AnalysisPlugin.getAsPointers(pointers, (Definition[]) definitions);
+            for (IDefinition definition : definitions) {
+                boolean doAdd = true;
+                if(definition instanceof Definition){
+                    Definition d = (Definition) definition;
+                    doAdd = !findActualTokenFromImportFromDefinition(request, tok, lFindInfo, selected, d);
+                }
+                
+                if(doAdd){
+                    selected.add(definition);
+                }
+            }
+			AnalysisPlugin.getAsPointers(pointers, selected.toArray(new Definition[0]));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -201,6 +219,68 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
 		
 		return pointers.toArray(new ItemPointer[0]);
 	}
+    
+    /** 
+     * Given some definition, find its actual token (if that's possible)
+     * @param request the original request
+     * @param tok the token we're looking for
+     * @param lFindInfo place to store info
+     * @param selected place to add the new definition (if found)
+     * @param d the definition found before (this function will only work if this definition
+     * maps to an ImportFrom)
+     *  
+     * @return true if we found a new definition (and false otherwise)
+     * @throws Exception
+     */
+    private boolean findActualTokenFromImportFromDefinition(RefactoringRequest request, String tok, List<FindInfo> lFindInfo, ArrayList<IDefinition> selected, Definition d) throws Exception {
+        boolean didFindNewDef = false;
+        
+        Set<Tuple3<String, Integer, Integer>> whereWePassed = new HashSet<Tuple3<String, Integer, Integer>>();
+        
+        while(d.ast instanceof ImportFrom){
+            Tuple3<String, Integer, Integer> t1 = getTupFromDefinition(d);
+            if(t1 == null){
+                break;
+            }
+            whereWePassed.add(t1);
+            
+            Definition[] found = (Definition[]) d.module.findDefinition(tok, d.line, d.col, request.nature, lFindInfo);
+            if(found != null && found.length == 1){
+                Tuple3<String,Integer,Integer> tupFromDefinition = getTupFromDefinition(found[0]);
+                if(tupFromDefinition == null){
+                    break;
+                }
+                if(!whereWePassed.contains(tupFromDefinition)){ //avoid recursions
+                    didFindNewDef = true;
+                    d = found[0];
+                }else{
+                    break;
+                }
+            }else{
+                break;
+            }
+        }
+        
+        if(didFindNewDef){
+            selected.add(d);
+        }
+        
+        return didFindNewDef;
+    }
+    
+    /**
+     * @return a tuple with the absolute path to the definition, its line and col.
+     */
+    private Tuple3<String, Integer, Integer> getTupFromDefinition(Definition d) {
+        if(d == null){
+            return null;
+        }
+        File file = d.module.getFile();
+        if(file == null){
+            return null;
+        }
+        return new Tuple3<String, Integer, Integer>(REF.getFileAbsolutePath(file), d.line, d.col);
+    }
     
 
 	

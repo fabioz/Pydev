@@ -19,7 +19,7 @@ public class SearchTest extends AdditionalInfoTestsBase {
 		try {
 			SearchTest test = new SearchTest();
 			test.setUp();
-			test.testBuiltinSearch2();
+			test.testSearchImport();
 			test.tearDown();
 
 			junit.textui.TestRunner.run(SearchTest.class);
@@ -297,6 +297,23 @@ public class SearchTest extends AdditionalInfoTestsBase {
 		assertEquals(6, pointers[0].start.column);
 	}
 
+    public void testSearchImport() throws Exception {
+//      from testlib.unittest import TestCase
+//      print TestCase
+        
+        String line = "print TestCase";
+        final File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/deepimport.py");
+        RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
+        refactoringRequest.ps = new PySelection(refactoringRequest.doc, 1, line.length()); 
+        
+        ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
+        
+        assertEquals(1, pointers.length);
+        assertEquals(new File(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/testcase.py"), pointers[0].file);
+        //found the module
+        assertEquals(8, pointers[0].start.line);
+        assertEquals(6, pointers[0].start.column);
+    }
 
     public void testSearchParameter() throws Exception {
 //        class Param(object): - this is line 0
