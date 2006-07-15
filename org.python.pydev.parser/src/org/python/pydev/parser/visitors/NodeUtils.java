@@ -466,16 +466,16 @@ public class NodeUtils {
             return "str";
             
             
-        } else if(tok.endsWith("]")){
+        } else if(tok.endsWith("]") && tok.startsWith("[")){
             //ok, we are getting code completion for a list.
             return "list";
             
             
-        } else if(tok.endsWith("}")){
+        } else if(tok.endsWith("}") && tok.startsWith("{")){
             //ok, we are getting code completion for a dict.
             return "dict";
             
-        } else if(tok.endsWith(")")){
+        } else if(tok.endsWith(")") && tok.startsWith("(")){
             //ok, we are getting code completion for a tuple.
             return "tuple";
             
