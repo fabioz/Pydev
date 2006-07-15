@@ -332,6 +332,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         int parI = act.indexOf('(');
         if(parI != -1){
             state.setActivationToken(act.substring(0, parI));
+            state.setLookingForInstance(true);
         }
         	
         if (module != null) {

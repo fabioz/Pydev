@@ -236,6 +236,7 @@ public class PyCodeCompletion {
                 
                 List completions = new ArrayList();
                 if (trimmed.equals("self") || trimmed.startsWith("self")) {
+                    state.setLookingForInstance(true);
                     getSelfCompletions(request, theList, state);
 
                 } else {
@@ -266,7 +267,7 @@ public class PyCodeCompletion {
                 theList.addAll(getGlobalsFromParticipants(request, state));
             }
 
-            changeItokenToCompletionPropostal(viewer, request, ret, theList, importsTip);
+            changeItokenToCompletionPropostal(viewer, request, ret, theList, importsTip, state.getIsLookingForInstance());
         } catch (CompletionRecursionException e) {
             ret.add(new CompletionProposal("",request.documentOffset,0,0,null,e.getMessage(), null,null));
         }
@@ -391,8 +392,9 @@ public class PyCodeCompletion {
     /**
      * This is the place where we change the tokens we've gathered so far with the 'inference' engine and transform those
      * tokens to actual completions as requested by the Eclipse infrastructure.
+     * @param lookingForInstance if looking for instance, we should not add the 'self' as parameter.
      */
-    private void changeItokenToCompletionPropostal(ITextViewer viewer, CompletionRequest request, List<ICompletionProposal> convertedProposals, List iTokenList, boolean importsTip) {
+    private void changeItokenToCompletionPropostal(ITextViewer viewer, CompletionRequest request, List<ICompletionProposal> convertedProposals, List iTokenList, boolean importsTip, boolean lookingForInstance) {
         for (Iterator iter = iTokenList.iterator(); iter.hasNext();) {
             
             Object obj = iter.next();
@@ -414,7 +416,7 @@ public class PyCodeCompletion {
                         }
                     }
                     if(getIt){
-    	                args = getArgs(element);                
+    	                args = getArgs(element, lookingForInstance);                
     	                if(args.length()>0){
     	                    l++; //cursor position is name + '('
     	                }
@@ -482,10 +484,11 @@ public class PyCodeCompletion {
     
     /**
      * @param element
+     * @param lookingForInstance 
      * @param args
      * @return
      */
-    private String getArgs(IToken element) {
+    private String getArgs(IToken element, boolean lookingForInstance) {
         String args = "";
         if(element.getArgs().trim().length() > 0){
             StringBuffer buffer = new StringBuffer("(");
@@ -493,7 +496,7 @@ public class PyCodeCompletion {
 
             while(strTok.hasMoreTokens()){
                 String tok = strTok.nextToken();
-                if(tok.equals("self") == false){
+                if(!lookingForInstance || tok.equals("self") == false){
                     if(buffer.length() > 1){
                         buffer.append(", ");
                     }

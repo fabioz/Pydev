@@ -32,6 +32,8 @@ public class CompletionState implements ICompletionState {
     public boolean builtinsGotten=false;
     public boolean localImportsGotten=false;
     public boolean isInCalltip=false;
+    
+    public int lookingForInstance=LOOKING_FOR_INSTANCE_UNDEFINED;
 
     public CompletionState getCopy(){
         CompletionState state = new CompletionState();
@@ -238,6 +240,23 @@ public class CompletionState implements ICompletionState {
 
     public boolean getIsInCalltip() {
         return isInCalltip;
+    }
+
+    public void setLookingForInstance(boolean b) {
+        if(this.lookingForInstance == LOOKING_FOR_INSTANCE_UNDEFINED){
+            if(b){
+                this.lookingForInstance = LOOKING_FOR_INSTANCED_VARIABLE;
+            }else{
+                this.lookingForInstance = LOOKING_FOR_UNBOUND_VARIABLE;
+            }
+        }
+    }
+
+    public boolean getIsLookingForInstance() {
+        if(this.lookingForInstance == LOOKING_FOR_INSTANCE_UNDEFINED || this.lookingForInstance == LOOKING_FOR_INSTANCED_VARIABLE){
+            return true; 
+        }
+        return false;
     }
     
 }

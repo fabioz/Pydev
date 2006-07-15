@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testApply();
+	      test.testSelfCase();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -605,6 +605,18 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(1, proposals.length); 
         ICompletionProposal p = proposals[0];
         assertEquals("Fooooo", p.getDisplayString());
+    }
+    
+    public void testSelfCase() throws Exception {
+        String s;
+        s = "" +
+        "class Foo:\n" +
+        "    def __init__(self, a, b):pass\n\n" +
+        "Foo.__init__\n"; //we should only strip the self if we're in an instance (which is not the case)
+        ICompletionProposal[] proposals = requestCompl(s, s.length()-1, -1, new String[] {});
+        assertEquals(1, proposals.length); 
+        ICompletionProposal p = proposals[0];
+        assertEquals("__init__(self, a, b)", p.getDisplayString());
     }
     
     public void testApply() throws Exception {

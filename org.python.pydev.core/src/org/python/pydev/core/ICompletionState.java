@@ -44,4 +44,14 @@ public interface ICompletionState {
 
     boolean getIsInCalltip();
 
+    public static final int LOOKING_FOR_INSTANCE_UNDEFINED=0;
+    public static final int LOOKING_FOR_INSTANCED_VARIABLE=1;
+    public static final int LOOKING_FOR_UNBOUND_VARIABLE=2;
+    
+    /**
+     * Identifies if we should be looking for an instance (in which case, self should not
+     * be added to the parameters)
+     */
+    void setLookingForInstance(boolean b);
+
 }
