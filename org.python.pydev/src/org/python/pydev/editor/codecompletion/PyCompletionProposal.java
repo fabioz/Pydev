@@ -53,8 +53,8 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     /**
      * Defines how should the apply be treated
      */
-    protected int onApplyAction = ON_APPLY_DEFAUL;
-    protected String fArgs;
+    public int onApplyAction = ON_APPLY_DEFAUL;
+    public String fArgs;
 
 	/**
 	 * Creates a new completion proposal based on the provided information. The replacement string is

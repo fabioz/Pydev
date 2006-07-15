@@ -17,8 +17,8 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public abstract class PyCompletionProposalExtension2 extends PyCompletionProposal implements ICompletionProposalExtension2{
     protected PyCompletionPresentationUpdater presentationUpdater;
-    protected int fLen;
-    protected boolean fLastIsPar;
+    public int fLen;
+    public boolean fLastIsPar;
 
     public PyCompletionProposalExtension2(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction, String args) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority, onApplyAction, args);
@@ -77,7 +77,7 @@ public abstract class PyCompletionProposalExtension2 extends PyCompletionProposa
      * @return
      */
     private boolean isValidChar(char c) {
-        return c != ' ' && c != '(' && c!= '{' && c != '[' && c != '"' && c!= '.' && c!= '\n' && c != '\n' &&
+        return c != ' ' && c != '(' && c!= '{' && c != '[' && c != '"' && c!= '.' && c!= '\r' && c != '\n' &&
                c != ')' && c != ']' && c != '}';
     }
 

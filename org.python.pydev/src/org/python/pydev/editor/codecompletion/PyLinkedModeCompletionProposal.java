@@ -50,8 +50,8 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
 
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
         boolean eat = (stateMask & SWT.MOD1) != 0;
-        
         IDocument doc = viewer.getDocument();
+        
         if(onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO){
             return;
         }
@@ -80,23 +80,13 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
         
         
         if(onApplyAction == ON_APPLY_DEFAUL){
-            int dif = offset - fReplacementOffset;
             try {
+                int dif = offset - fReplacementOffset;
                 String strToAdd = fReplacementString.substring(dif);
+                boolean doReturn = applyOnDoc(offset, eat, doc, dif);
                 
-                if(eat){
-                    String rep = fReplacementString;
-                    int i = rep.indexOf('(');
-                    if(fLastIsPar && i != -1){
-                        rep = rep.substring(0, i);
-                        doc.replace(offset-dif, dif+this.fLen, rep);
-                        //if the last was a parenthesis, there's nothing to link, so, let's return
-                        return;
-                    }else{
-                        doc.replace(offset-dif, dif+this.fLen, rep);
-                    }
-                }else{
-                    doc.replace(offset-dif, dif, fReplacementString);
+                if(doReturn){
+                    return;
                 }
                 
                 //ok, now, on to the linking part
@@ -113,6 +103,37 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
         
         throw new RuntimeException("Unexpected apply mode:"+onApplyAction);
 
+    }
+
+    /**
+     * Applies the changes in the document (useful for testing)
+     * 
+     * @param offset the offset where the change should be applied
+     * @param eat whether we should 'eat' the selection (on toggle)
+     * @param doc the document where the changes should be applied 
+     * @param dif the difference between the offset and and the replacement offset  
+     * 
+     * @return whether we should return (and not keep on with the linking mode)
+     * @throws BadLocationException
+     */
+    public boolean applyOnDoc(int offset, boolean eat, IDocument doc, int dif) throws BadLocationException {
+        boolean doReturn = false;
+        
+        if(eat){
+            String rep = fReplacementString;
+            int i = rep.indexOf('(');
+            if(fLastIsPar && i != -1){
+                rep = rep.substring(0, i);
+                doc.replace(offset-dif, dif+this.fLen, rep);
+                //if the last was a parenthesis, there's nothing to link, so, let's return
+                doReturn = true;
+            }else{
+                doc.replace(offset-dif, dif+this.fLen, rep);
+            }
+        }else{
+            doc.replace(offset-dif, dif, fReplacementString);
+        }
+        return doReturn;
     }
 
     private void goToLinkedModeFromArgs(ITextViewer viewer, int offset, IDocument doc, int exitPos, int iPar, String newStr) throws BadLocationException {

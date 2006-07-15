@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testRegularClass();
+	      test.testApply();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -605,6 +605,19 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(1, proposals.length); 
         ICompletionProposal p = proposals[0];
         assertEquals("Fooooo", p.getDisplayString());
+    }
+    
+    public void testApply() throws Exception {
+        String s = "from extendable.nested2 import mod2\n"+    
+                   "mod2";    
+        int offset = s.length()-1;
+        ICompletionProposal[] proposals = requestCompl(s, offset, -1, new String[] {});
+        assertEquals(1, proposals.length); 
+        PyLinkedModeCompletionProposal p = (PyLinkedModeCompletionProposal) proposals[0];
+        Document d = new Document(s);
+        p.fLen = 1;
+        p.applyOnDoc(offset, true, d, 3);
+        assertEquals(s, d.get());
     }
     
     public void testCalltips1() throws CoreException, BadLocationException {
