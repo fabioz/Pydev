@@ -12,6 +12,7 @@ Pydev:
 - Added the 'toggle completion type' when ctrl is pressed in the code-completion for context-sensitive data
 - Code-completion works correctly after instantiating class: MyClass(). <-- will bring correct completions
 - Code-completion can now get the arguments passed when instatiating a class (getting the args from __init__)
+- paths are remembered when configuring the pythonpath
 
 Pydev Extensions:
 - Handling nested 'for' and list comprehensions correctly in code-analysis
