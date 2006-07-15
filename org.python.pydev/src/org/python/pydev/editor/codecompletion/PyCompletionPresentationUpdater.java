@@ -18,7 +18,6 @@ import org.python.pydev.editor.codefolding.PySourceViewer;
 
 public class PyCompletionPresentationUpdater {
 
-    private PyLinkedModeCompletionProposal proposal;
     private StyleRange fRememberedStyleRange;
     
     private static Color getForegroundColor(StyledText text) {
@@ -30,8 +29,7 @@ public class PyCompletionPresentationUpdater {
     }
 
 
-    public PyCompletionPresentationUpdater(PyLinkedModeCompletionProposal proposal) {
-        this.proposal = proposal;
+    public PyCompletionPresentationUpdater() {
     }
     
     
