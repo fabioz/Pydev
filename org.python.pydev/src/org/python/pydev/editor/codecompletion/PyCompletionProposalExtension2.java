@@ -87,9 +87,11 @@ public abstract class PyCompletionProposalExtension2 extends PyCompletionProposa
 
     public boolean validate(IDocument document, int offset, DocumentEvent event) {
         String[] strs = PySelection.getActivationTokenAndQual(document, offset, false); 
-
+        //System.out.println("validating:"+strs[0]+" - "+strs[1]);
         String qualifier = strs[1].toLowerCase();
-        
+        if(strs[0].length() == 0 && strs[1].length() == 0){
+            return false;
+        }
         String displayString = getDisplayString().toLowerCase();
         if(displayString.startsWith(qualifier)){
             return true;
