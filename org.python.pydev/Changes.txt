@@ -11,7 +11,7 @@ Pydev:
 - Code completion for nested modules had a bug fixed
 - Added the 'toggle completion type' when ctrl is pressed in the code-completion for context-sensitive data
 - Code-completion works correctly after instantiating class: MyClass(). <-- will bring correct completions
-- Code-completion can now get the arguments passed when instatiating a class from __init__
+- Code-completion can now get the arguments passed when instatiating a class (getting the args from __init__)
 
 Pydev Extensions:
 - Handling nested 'for' and list comprehensions correctly in code-analysis
