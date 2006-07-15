@@ -11,12 +11,14 @@ Pydev:
 - Code completion for nested modules had a bug fixed
 - Added the 'toggle completion type' when ctrl is pressed in the code-completion for context-sensitive data
 - Code-completion works correctly after instantiating class: MyClass(). <-- will bring correct completions
+- Code-completion can now get the arguments passed when instatiating a class from __init__
 
 Pydev Extensions:
 - Handling nested 'for' and list comprehensions correctly in code-analysis
 - Mark occurrences bug-fix
 - Duplicated signature is no longer warned inside an if..else
 - The binding for creating the interactive console and passing commands has been changed to Ctrl+Alt+Enter (because Ctrl+Enter is used when applying a toggled completion)
+- Added the 'toggle completion type' when ctrl is pressed in the code-completion for context-insensitive data
 
 
 after 1.2.0
