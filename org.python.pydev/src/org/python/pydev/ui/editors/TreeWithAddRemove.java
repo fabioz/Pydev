@@ -120,6 +120,8 @@ public class TreeWithAddRemove extends Composite{
         });
     }
 
+    private static String lastDirectoryDialogPath = null;
+    private static String lastFileDialogPath = null;
 
     /**
      * 
@@ -139,12 +141,20 @@ public class TreeWithAddRemove extends Composite{
                 
                 if(d instanceof FileDialog){
                     FileDialog dialog = (FileDialog) d;
+                    dialog.setFilterPath(lastFileDialogPath);
                     String filePath = dialog.open();
+                    if(filePath != null){
+                        lastFileDialogPath = filePath;
+                    }
                     addTreeItem(filePath);
 
                 }else if(d instanceof DirectoryDialog){
                     DirectoryDialog dialog = (DirectoryDialog) d;
+                    dialog.setFilterPath(lastDirectoryDialogPath);
                     String filePath = dialog.open();
+                    if(filePath != null){
+                        lastDirectoryDialogPath = filePath;
+                    }
                     addTreeItem(filePath);
                     
                 }else if(d instanceof SelectionDialog){

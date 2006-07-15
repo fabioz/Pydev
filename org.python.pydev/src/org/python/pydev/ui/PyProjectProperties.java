@@ -46,7 +46,7 @@ public class PyProjectProperties extends PropertyPage {
      * Tree with external folders
      */
     private TreeWithAddRemove treeExternalLibs;
-	
+    
 	/**
 	 * Creates contents given its parent.
 	 */

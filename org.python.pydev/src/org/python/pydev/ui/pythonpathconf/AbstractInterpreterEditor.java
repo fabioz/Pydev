@@ -350,6 +350,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         return selectionListenerOthers;
     }
 
+    private static String lastDirectoryDialogPath = null;
+    private static String lastFileDialogPath = null;
+    
     /**
      * Returns this field editor's selection listener. The listener is created if nessessary.
      * 
@@ -367,16 +370,20 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                         Widget widget = event.widget;
                         if (widget == addBtSystemFolder) {
                             DirectoryDialog dialog = new DirectoryDialog(getShell());
+                            dialog.setFilterPath(lastDirectoryDialogPath);
                             String filePath = dialog.open();
                             if(filePath != null){
+                                lastDirectoryDialogPath = filePath;
                                 info.libs.add(filePath);
                                 changed = true;
                             }
                             
                         } else if (widget == addBtSystemJar) {
                             FileDialog dialog = new FileDialog(getShell());
+                            dialog.setFilterPath(lastFileDialogPath);
                             String filePath = dialog.open();
                             if(filePath != null){
+                                lastFileDialogPath = filePath;
                                 info.libs.add(filePath);
                                 info.dllLibs.add(filePath);
                                 changed = true;
