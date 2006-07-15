@@ -10,7 +10,7 @@ Pydev:
 - Ctrl+2+kill also clears the internal cache for compiled modules (especially useful for those that create compiled dependencies).
 - Code completion for nested modules had a bug fixed
 - Added the 'toggle completion type' when ctrl is pressed in the code-completion for context-sensitive data
-- Code-completion works correctly after instancing class. MyClass(). <-- will bring correct completions
+- Code-completion works correctly after instantiating class. MyClass(). <-- will bring correct completions
 
 Pydev Extensions:
 - Handling nested 'for' and list comprehensions correctly in code-analysis

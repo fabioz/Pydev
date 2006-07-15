@@ -1100,22 +1100,24 @@ public class PySelection {
 
     /**
      * This function will look for a the offset of a method call before the current offset
+     * 
+     * @param doc: an IDocument, String, StringBuffer or char[]
      * @param calltipOffset the offset we should start looking for it
      * @return the offset that points the location just after the activation token and qualifier.
      * 
      * @throws BadLocationException 
      */
-    private static int getBeforeParentesisCall(IDocument doc, int calltipOffset) throws BadLocationException {
-        char c = doc.getChar(calltipOffset);
+    public static int getBeforeParentesisCall(Object doc, int calltipOffset) {
+        char c = ParsingUtils.charAt(doc, calltipOffset);
         
         while(calltipOffset > 0 && c != '('){
             calltipOffset --;
-            c = doc.getChar(calltipOffset);
+            c = ParsingUtils.charAt(doc, calltipOffset);
         }
         if(c == '('){
             while(calltipOffset > 0 && Character.isWhitespace(c)){
                 calltipOffset --;
-                c = doc.getChar(calltipOffset);
+                c = ParsingUtils.charAt(doc, calltipOffset);
             }
             return calltipOffset;
         }

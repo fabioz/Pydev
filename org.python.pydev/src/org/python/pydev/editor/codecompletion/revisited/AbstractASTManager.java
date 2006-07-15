@@ -25,6 +25,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
@@ -326,6 +327,12 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         IToken[] builtinsCompletions = getBuiltinsCompletions(state);
         if(builtinsCompletions != null){
             return builtinsCompletions;
+        }
+        
+        String act = state.getActivationToken();
+        int parI = act.indexOf('(');
+        if(parI != -1){
+            state.setActivationToken(act.substring(0, parI));
         }
         	
         if (module != null) {

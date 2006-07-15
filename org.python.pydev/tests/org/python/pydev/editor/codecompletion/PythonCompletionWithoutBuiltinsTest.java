@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testCalltips4();
+	      test.testCompletionAfterClassInstantiation();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -409,6 +409,11 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals("ClassA.someMethod()." , strs[0]);
         assertEquals("ap", strs[1]);
         
+        String s = "Foo().";
+        strs = PySelection.getActivationTokenAndQual(new Document(s), s.length(), false); 
+        assertEquals("Foo().", strs[0]);
+        assertEquals("", strs[1]);
+        
         strs = PySelection.getActivationTokenAndQual(new Document("foo.bar"), 2, false);
         assertEquals("" , strs[0]);
         assertEquals("fo", strs[1]);
@@ -476,7 +481,6 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals("", act.activationToken);
         assertEquals("m1", act.qualifier);
         assertTrue(act.changedForCalltip);
-        
     }
 
     /**
@@ -549,6 +553,19 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertTrue(validator.isContextInformationValid(requestOffset+3));
         assertFalse(validator.isContextInformationValid(requestOffset+4));
     }
+    
+    public void testCompletionAfterClassInstantiation() throws CoreException, BadLocationException {
+        String s;
+        s = "" +
+        "class Foo:\n" +
+        "    def m1(self):pass\n" +
+        "\n" +
+        "Foo()." +
+        "";  
+        ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+    }
+    
     
     public void testCalltips1() throws CoreException, BadLocationException {
     	String s;
