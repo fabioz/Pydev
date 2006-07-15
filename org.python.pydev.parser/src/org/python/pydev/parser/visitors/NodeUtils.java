@@ -42,6 +42,19 @@ public class NodeUtils {
      * @return a string with the representation of the parameters of the function
      */
     public static String getNodeArgs(SimpleNode node) {
+        if(node instanceof ClassDef){
+            ClassDef c = (ClassDef) node;
+            for(stmtType t: c.body){
+                if(t instanceof FunctionDef){
+                    FunctionDef def = (FunctionDef) t;
+                    if(((NameTok)def.name).id.equals("__init__")){
+                        node = def;
+                        break; //keep going to get the arguments of the __init__
+                    }
+                }
+            }
+        }
+        
         if(node instanceof FunctionDef){
             FunctionDef f = (FunctionDef)node;
             

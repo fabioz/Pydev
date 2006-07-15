@@ -42,5 +42,6 @@ public interface ICompletionState {
 
     void checkFindMemory(IModule module, String value);
 
+    boolean getIsInCalltip();
 
 }

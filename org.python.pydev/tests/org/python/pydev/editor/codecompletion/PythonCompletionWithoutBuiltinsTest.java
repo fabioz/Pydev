@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testCompletionAfterClassInstantiation();
+	      test.testClassConstructorParams();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -564,6 +564,19 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         "";  
         ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
         assertEquals(1, proposals.length);
+    }
+    
+    public void testClassConstructorParams() throws CoreException, BadLocationException {
+        String s;
+        s = "" +
+        "class Foo:\n" +
+        "    def __init__(self, a, b):pass\n\n" +
+        "    def m1(self):pass\n\n" +
+        "Foo()" + //completion inside the empty parentesis should: add the parameters in link mode (a, b) and let the calltip there.
+        "";  
+        ICompletionProposal[] proposals = requestCompl(s, s.length()-1, -1, new String[] {});
+        assertEquals(1, proposals.length);
+        assertEquals("Foo(a, b)", proposals[0].getDisplayString());
     }
     
     

@@ -211,6 +211,7 @@ public class PyCodeCompletion {
             IRegion region = request.doc.getLineInformation(line);
 
             CompletionState state = new CompletionState(line, request.documentOffset - region.getOffset(), null, request.nature);
+            state.isInCalltip = request.isInCalltip;
 
             boolean importsTip = false;
             //code completion in imports 

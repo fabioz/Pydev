@@ -31,6 +31,7 @@ public class CompletionState implements ICompletionState {
     
     public boolean builtinsGotten=false;
     public boolean localImportsGotten=false;
+    public boolean isInCalltip=false;
 
     public CompletionState getCopy(){
         CompletionState state = new CompletionState();
@@ -47,6 +48,7 @@ public class CompletionState implements ICompletionState {
 
         state.builtinsGotten = builtinsGotten;
         state.localImportsGotten = localImportsGotten;
+        state.isInCalltip = isInCalltip;
         
         return state;
     }
@@ -233,5 +235,9 @@ public class CompletionState implements ICompletionState {
 			throw new CompletionRecursionException("Possible recursion found (mod: "+mod.getName()+", tok: "+ tok +" ) - stopping analysis.");
 		}
 	}
+
+    public boolean getIsInCalltip() {
+        return isInCalltip;
+    }
     
 }
