@@ -20,6 +20,7 @@ Pydev Extensions:
 - Duplicated signature is no longer warned inside an if..else
 - The binding for creating the interactive console and passing commands has been changed to Ctrl+Alt+Enter (because Ctrl+Enter is used when applying a toggled completion)
 - Added the 'toggle completion type' when ctrl is pressed in the code-completion for context-insensitive data
+- When getting some definition, if it is defined by an import..from, it keeps going until the actual token is found
 
 
 after 1.2.0
