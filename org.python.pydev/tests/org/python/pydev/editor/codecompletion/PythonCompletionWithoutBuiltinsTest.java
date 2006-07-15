@@ -17,6 +17,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension4;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
@@ -568,15 +569,27 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     
     public void testClassConstructorParams() throws CoreException, BadLocationException {
         String s;
-        s = "" +
+        String original = "" +
         "class Foo:\n" +
         "    def __init__(self, a, b):pass\n\n" +
         "    def m1(self):pass\n\n" +
-        "Foo()" + //completion inside the empty parentesis should: add the parameters in link mode (a, b) and let the calltip there.
+        "Foo(%s)" + //completion inside the empty parentesis should: add the parameters in link mode (a, b) and let the calltip there.
         "";  
+        s = StringUtils.format(original, "");
+        
         ICompletionProposal[] proposals = requestCompl(s, s.length()-1, -1, new String[] {});
         assertEquals(1, proposals.length);
-        assertEquals("Foo(a, b)", proposals[0].getDisplayString());
+        ICompletionProposal prop = proposals[0];
+        assertEquals("Foo(a, b)", prop.getDisplayString());
+        
+        PyCalltipsContextInformation contextInformation = (PyCalltipsContextInformation) prop.getContextInformation();
+        assertEquals("a, b", contextInformation.getContextDisplayString());
+        assertEquals("a, b", contextInformation.getInformationDisplayString());
+        
+        Document doc = new Document(s);
+        prop.apply(doc);
+        String expected = StringUtils.format(original, "a, b");    
+        assertEquals(expected, doc.get());
     }
     
     
@@ -587,7 +600,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     	"def m1(a, b):\n" +
     	"    print a, b\n" +
     	"\n" +
-    	"m1()"; //we'll request a completion inside the parentesis to check for calltips. For calltips, we
+    	"m1(a, b)"; //we'll request a completion inside the parentesis to check for calltips. For calltips, we
     	        //should get the activation token as an empty string and the qualifier as "m1", 
     			//so, the completion that should return is "m1(a, b)", with the information context
     			//as "a, b". 
@@ -597,7 +610,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     			//The process of getting the completions actually starts at:
     			//org.python.pydev.editor.codecompletion.PyCodeCompletion#getCodeCompletionProposals
     	
-    	ICompletionProposal[] proposals = requestCompl(s, s.length()-1, -1, new String[] {});
+    	ICompletionProposal[] proposals = requestCompl(s, s.length()-5, -1, new String[] {});
     	
     	
     	if(false){ //make true to see which proposals were returned.

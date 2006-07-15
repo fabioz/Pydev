@@ -421,7 +421,10 @@ public class PyCodeCompletion {
                     priority = IPyCompletionProposal.PRIORITY_LOCALS;
                 }
                 
-                boolean justShowContextInfo = request.isInCalltip; 
+                int onApplyAction = PyCompletionProposal.ON_APPLY_DEFAUL;
+                if(request.isInCalltip){
+                    onApplyAction = PyCompletionProposal.ON_APPLY_JUST_SHOW_CTX_INFO;
+                }
                 PyCalltipsContextInformation pyContextInformation = null;
                 if(args.length() > 2){
                     String contextArgs = args.substring(1, args.length()-1); //remove the parentesis
@@ -429,7 +432,7 @@ public class PyCodeCompletion {
                 }
                 PyCompletionProposal proposal = new PyLinkedModeCompletionProposal(name+args,
                         request.documentOffset - request.qlen, request.qlen, l, getImageForType(type), null, 
-                        pyContextInformation, docStr, priority, justShowContextInfo);
+                        pyContextInformation, docStr, priority, onApplyAction);
                 convertedProposals.add(proposal);
                     
             

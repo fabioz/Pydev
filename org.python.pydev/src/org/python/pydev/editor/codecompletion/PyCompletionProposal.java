@@ -34,7 +34,21 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 	protected String fAdditionalProposalInfo;
 	/** The priority for showing the proposal */
     protected int priority;
-    protected boolean fJustShowContextInfo;
+    
+    /**
+     * Defines a 'regular' apply, in which we add the completion as usual
+     */
+    public final static int ON_APPLY_DEFAUL = 1;
+    
+    /**
+     * Defines that when applying the changes we should just show the context info and do no other change
+     */
+    public final static int ON_APPLY_JUST_SHOW_CTX_INFO = 2;
+    
+    /**
+     * Defines how should the apply be treated
+     */
+    protected int onApplyAction = ON_APPLY_DEFAUL;
 
 	/**
 	 * Creates a new completion proposal based on the provided information. The replacement string is
@@ -50,7 +64,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 	}
 
 	public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo,int priority) {
-        this(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo,priority, false);
+        this(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo,priority, ON_APPLY_DEFAUL);
     }
 	/**
 	 * Creates a new completion proposal. All fields are initialized based on the provided information.
@@ -63,9 +77,9 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 	 * @param displayString the string to be displayed for the proposal
 	 * @param contextInformation the context information associated with this proposal
 	 * @param additionalProposalInfo the additional information associated with this proposal
-     * @param justShowContextInfo if we should not actually apply the changes when the completion is applied
+     * @param onApplyAction if we should not actually apply the changes when the completion is applied
 	 */
-	public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo,int priority, boolean justShowContextInfo) {
+	public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo,int priority, int onApplyAction) {
 		Assert.isNotNull(replacementString);
 		Assert.isTrue(replacementOffset >= 0);
 		Assert.isTrue(replacementLength >= 0);
@@ -80,31 +94,38 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 		fContextInformation= contextInformation;
 		fAdditionalProposalInfo= additionalProposalInfo;
 		this.priority = priority;
-        this.fJustShowContextInfo = justShowContextInfo;
+        this.onApplyAction = onApplyAction;
 	}
 
 	/*
 	 * @see ICompletionProposal#apply(IDocument)
 	 */
 	public void apply(IDocument document) {
-        if(fJustShowContextInfo){
+	    if(onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO){
             return;
         }
-		try {
-			document.replace(fReplacementOffset, fReplacementLength, fReplacementString);
-		} catch (BadLocationException x) {
-			// ignore
-		}
+	    if(onApplyAction == ON_APPLY_DEFAUL){
+    		try {
+    			document.replace(fReplacementOffset, fReplacementLength, fReplacementString);
+    		} catch (BadLocationException x) {
+    			// ignore
+    		}
+            return;
+        }
+		throw new RuntimeException("Unexpected apply mode:"+onApplyAction);
 	}
 	
 	/*
 	 * @see ICompletionProposal#getSelection(IDocument)
 	 */
 	public Point getSelection(IDocument document) {
-	    if(fJustShowContextInfo){
+	    if(onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO){
 	        return null;
 	    }
-		return new Point(fReplacementOffset + fCursorPosition, 0);
+	    if(onApplyAction == ON_APPLY_DEFAUL){
+	        return new Point(fReplacementOffset + fCursorPosition, 0);
+        }
+        throw new RuntimeException("Unexpected apply mode:"+onApplyAction);
 	}
 
 	/*
@@ -167,6 +188,6 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     }
 
     public boolean isAutoInsertable() {
-        return fJustShowContextInfo;
+        return onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO;
     }
 }

@@ -34,8 +34,8 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposal impleme
     private int fLen;
     private boolean fLastIsPar;
     
-    public PyLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority, boolean justShowContextInfo) {
-        super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority, justShowContextInfo);
+    public PyLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction) {
+        super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority, onApplyAction);
         presentationUpdater = new PyCompletionPresentationUpdater(this);
     }
     
@@ -43,10 +43,13 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposal impleme
      * @see ICompletionProposal#getSelection(IDocument)
      */
     public Point getSelection(IDocument document) {
-        if(fJustShowContextInfo){
+        if(onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO){
             return null;
         }
-        return new Point(fReplacementOffset + fCursorPosition, firstParameterLen);
+        if(onApplyAction == ON_APPLY_DEFAUL){
+            return new Point(fReplacementOffset + fCursorPosition, firstParameterLen); //the difference is the firstParameterLen here (instead of 0)
+        }
+        throw new RuntimeException("Unexpected apply mode:"+onApplyAction);
     }
 
 
@@ -54,8 +57,11 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposal impleme
         boolean eat = (stateMask & SWT.MOD1) != 0;
         
         IDocument doc = viewer.getDocument();
-        if(fJustShowContextInfo){
+        if(onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO){
             return;
+        }
+        if(onApplyAction != ON_APPLY_DEFAUL){
+            throw new RuntimeException("Unexpected apply mode:"+onApplyAction);
         }
         int dif = offset - fReplacementOffset;
         try {
