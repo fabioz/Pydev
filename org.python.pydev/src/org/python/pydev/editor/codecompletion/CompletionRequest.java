@@ -57,6 +57,7 @@ public class CompletionRequest implements ICompletionRequest{
         this.activationToken = act.activationToken;
         this.qualifier = act.qualifier;
         this.isInCalltip = act.changedForCalltip;
+        this.alreadyHasParams = act.alreadyHasParams;
         
         int qlen = qualifier.length();
         
@@ -108,6 +109,11 @@ public class CompletionRequest implements ICompletionRequest{
      */
     public boolean isInCalltip;
     
+    /**
+     * Useful only if we're in a calltip
+     */
+    public boolean alreadyHasParams;
+    
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
@@ -120,6 +126,8 @@ public class CompletionRequest implements ICompletionRequest{
         buffer.append(qualifier);
         buffer.append(" isInCalltip:");
         buffer.append(isInCalltip);
+        buffer.append(" alreadyHasParams:");
+        buffer.append(alreadyHasParams);
         buffer.append("]");
         return buffer.toString();
     }

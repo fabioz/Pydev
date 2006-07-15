@@ -34,8 +34,8 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposal impleme
     private int fLen;
     private boolean fLastIsPar;
     
-    public PyLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction) {
-        super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority, onApplyAction);
+    public PyLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction, String args) {
+        super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority, onApplyAction, args);
         presentationUpdater = new PyCompletionPresentationUpdater(this);
     }
     
@@ -46,8 +46,11 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposal impleme
         if(onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO){
             return null;
         }
-        if(onApplyAction == ON_APPLY_DEFAUL){
+        if(onApplyAction == ON_APPLY_DEFAUL ){
             return new Point(fReplacementOffset + fCursorPosition, firstParameterLen); //the difference is the firstParameterLen here (instead of 0)
+        }
+        if(onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS ){
+            return new Point(fReplacementOffset + fCursorPosition-1, firstParameterLen); //the difference is the firstParameterLen here (instead of 0)
         }
         throw new RuntimeException("Unexpected apply mode:"+onApplyAction);
     }
@@ -60,94 +63,125 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposal impleme
         if(onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO){
             return;
         }
-        if(onApplyAction != ON_APPLY_DEFAUL){
-            throw new RuntimeException("Unexpected apply mode:"+onApplyAction);
+        if(onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS){
+            try {
+                String args = fArgs.substring(0, fArgs.length()-1); //remove the parentesis
+                char c = doc.getChar(offset);
+                boolean addedPar = false;
+                if(c != ')'){
+                    addedPar = true;
+                    args += ')';
+                }
+                doc.replace(fReplacementOffset+2, fReplacementLength-2, args);
+                int iPar = -1;
+                int exitPos = offset + args.length();
+                if(addedPar){
+                    exitPos -= 1;
+                }
+                goToLinkedModeFromArgs(viewer, offset-1, doc, exitPos, iPar, args);
+
+            }catch(BadLocationException e){
+                PydevPlugin.log(e);
+            }
+            return;
         }
-        int dif = offset - fReplacementOffset;
-        try {
-            String strToAdd = fReplacementString.substring(dif);
-            
-            if(eat){
-                String rep = fReplacementString;
-                int i = rep.indexOf('(');
-                if(fLastIsPar && i != -1){
-                    rep = rep.substring(0, i);
-                    doc.replace(offset-dif, dif+this.fLen, rep);
-                    //if the last was a parenthesis, there's nothing to link, so, let's return
-                    return;
+        
+        
+        if(onApplyAction == ON_APPLY_DEFAUL){
+            int dif = offset - fReplacementOffset;
+            try {
+                String strToAdd = fReplacementString.substring(dif);
+                
+                if(eat){
+                    String rep = fReplacementString;
+                    int i = rep.indexOf('(');
+                    if(fLastIsPar && i != -1){
+                        rep = rep.substring(0, i);
+                        doc.replace(offset-dif, dif+this.fLen, rep);
+                        //if the last was a parenthesis, there's nothing to link, so, let's return
+                        return;
+                    }else{
+                        doc.replace(offset-dif, dif+this.fLen, rep);
+                    }
                 }else{
-                    doc.replace(offset-dif, dif+this.fLen, rep);
+                    doc.replace(offset-dif, dif, fReplacementString);
+                }
+                
+                //ok, now, on to the linking part
+                int iPar = strToAdd.indexOf('(');
+                if(iPar != -1 && strToAdd.charAt(strToAdd.length()-1) == ')'){
+                    String newStr = strToAdd.substring(iPar+1, strToAdd.length()-1);
+                    goToLinkedModeFromArgs(viewer, offset, doc, offset + strToAdd.length(), iPar, newStr);
+                }
+            } catch (BadLocationException e) {
+                PydevPlugin.log(e);
+            }
+        }
+        
+        throw new RuntimeException("Unexpected apply mode:"+onApplyAction);
+
+    }
+
+    private void goToLinkedModeFromArgs(ITextViewer viewer, int offset, IDocument doc, int exitPos, int iPar, String newStr) throws BadLocationException {
+        List<Integer> offsetsAndLens = new ArrayList<Integer>();
+        
+        StringBuffer buffer = new StringBuffer();
+        for (int i = 0; i < newStr.length(); i++) {
+            char c = newStr.charAt(i);
+            
+            if(Character.isJavaIdentifierPart(c)){
+                if(buffer.length() == 0){
+                    offsetsAndLens.add(i);
+                    buffer.append(c);
+                }else{
+                    buffer.append(c);
                 }
             }else{
-                doc.replace(offset-dif, dif, fReplacementString);
-            }
-            
-            
-            //ok, now, on to the linking part
-            int iPar = strToAdd.indexOf('(');
-            if(iPar != -1 && strToAdd.charAt(strToAdd.length()-1) == ')'){
-                String newStr = strToAdd.substring(iPar+1, strToAdd.length()-1);
-                
-                List<Integer> offsetsAndLens = new ArrayList<Integer>();
-                
-                StringBuffer buffer = new StringBuffer();
-                for (int i = 0; i < newStr.length(); i++) {
-                    char c = newStr.charAt(i);
-                    
-                    if(Character.isJavaIdentifierPart(c)){
-                        if(buffer.length() == 0){
-                            offsetsAndLens.add(i);
-                            buffer.append(c);
-                        }else{
-                            buffer.append(c);
-                        }
-                    }else{
-                        if(buffer.length() > 0){
-                            offsetsAndLens.add(buffer.length());
-                            buffer = new StringBuffer();
-                        }
-                    }
-                }
                 if(buffer.length() > 0){
                     offsetsAndLens.add(buffer.length());
-                }
-                buffer = null;
-                
-                if(offsetsAndLens.size() > 0){
-                    LinkedModeModel model= new LinkedModeModel();
-                    
-                    for (int i = 0; i < offsetsAndLens.size(); i++) {
-                        Integer offs = offsetsAndLens.get(i);
-                        i++;
-                        Integer len = offsetsAndLens.get(i);
-                        if(i == 1){
-                            firstParameterLen = len;
-                        }
-                        int location = offset+iPar+offs+1;
-                        LinkedPositionGroup group= new LinkedPositionGroup();
-                        ProposalPosition proposalPosition = new ProposalPosition(doc, location, len, 0 , new ICompletionProposal[0]);
-                        group.addPosition(proposalPosition);
-                        model.addGroup(group);
-                    }
-                    
-                    model.forceInstall();
-                    
-                    final LinkedModeUI ui= new EditorLinkedModeUI(model, viewer);
-                    ui.setDoContextInfo(true); //set it to request the ctx info from the completion processor
-                    ui.setExitPosition(viewer, offset + strToAdd.length(), 0, Integer.MAX_VALUE);
-                    Runnable r = new Runnable(){
-                        public void run() {
-                            ui.enter();
-                        }
-                    };
-                    RunInUiThread.async(r);
-
+                    buffer = new StringBuffer();
                 }
             }
-        } catch (BadLocationException e) {
-            PydevPlugin.log(e);
         }
+        if(buffer.length() > 0){
+            offsetsAndLens.add(buffer.length());
+        }
+        buffer = null;
+        
+        goToLinkedMode(viewer, offset, doc, exitPos, iPar, offsetsAndLens);
+    }
 
+    private void goToLinkedMode(ITextViewer viewer, int offset, IDocument doc, int exitPos, int iPar, List<Integer> offsetsAndLens) throws BadLocationException {
+        if(offsetsAndLens.size() > 0){
+            LinkedModeModel model= new LinkedModeModel();
+            
+            for (int i = 0; i < offsetsAndLens.size(); i++) {
+                Integer offs = offsetsAndLens.get(i);
+                i++;
+                Integer len = offsetsAndLens.get(i);
+                if(i == 1){
+                    firstParameterLen = len;
+                }
+                int location = offset+iPar+offs+1;
+                LinkedPositionGroup group= new LinkedPositionGroup();
+                ProposalPosition proposalPosition = new ProposalPosition(doc, location, len, 0 , new ICompletionProposal[0]);
+                group.addPosition(proposalPosition);
+                model.addGroup(group);
+            }
+            
+            model.forceInstall();
+            
+            final LinkedModeUI ui= new EditorLinkedModeUI(model, viewer);
+            ui.setDoContextInfo(true); //set it to request the ctx info from the completion processor
+            ui.setExitPosition(viewer, exitPos, 0, Integer.MAX_VALUE);
+            Runnable r = new Runnable(){
+                public void run() {
+                    ui.enter();
+                }
+            };
+            RunInUiThread.async(r);
+
+        }
     }
     
     

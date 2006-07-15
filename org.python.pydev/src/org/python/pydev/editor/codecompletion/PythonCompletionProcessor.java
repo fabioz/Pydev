@@ -177,7 +177,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
         String importsTipperStr = request.codeCompletion.getImportsTipperStr(request);
         
         if (importsTipperStr.length() != 0 || request.isInCalltip){
-            showTemplates = false; //don't show templates if we are in the imports section.
+            showTemplates = false; //don't show templates if we are in the imports section or inside a calltip.
         }
         
         List allProposals = request.codeCompletion.getCodeCompletionProposals(viewer, request);

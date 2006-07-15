@@ -423,7 +423,12 @@ public class PyCodeCompletion {
                 
                 int onApplyAction = PyCompletionProposal.ON_APPLY_DEFAUL;
                 if(request.isInCalltip){
-                    onApplyAction = PyCompletionProposal.ON_APPLY_JUST_SHOW_CTX_INFO;
+                    if(request.alreadyHasParams){
+                        onApplyAction = PyCompletionProposal.ON_APPLY_JUST_SHOW_CTX_INFO;
+                        
+                    }else{
+                        onApplyAction = PyCompletionProposal.ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS;
+                    }
                 }
                 PyCalltipsContextInformation pyContextInformation = null;
                 if(args.length() > 2){
@@ -432,7 +437,7 @@ public class PyCodeCompletion {
                 }
                 PyCompletionProposal proposal = new PyLinkedModeCompletionProposal(name+args,
                         request.documentOffset - request.qlen, request.qlen, l, getImageForType(type), null, 
-                        pyContextInformation, docStr, priority, onApplyAction);
+                        pyContextInformation, docStr, priority, onApplyAction, args);
                 convertedProposals.add(proposal);
                     
             

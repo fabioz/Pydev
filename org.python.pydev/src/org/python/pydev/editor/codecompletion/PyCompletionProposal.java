@@ -46,9 +46,15 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     public final static int ON_APPLY_JUST_SHOW_CTX_INFO = 2;
     
     /**
+     * Defines that we should add only the parameters on the apply and show the context info too
+     */
+    public final static int ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS = 3;
+    
+    /**
      * Defines how should the apply be treated
      */
     protected int onApplyAction = ON_APPLY_DEFAUL;
+    protected String fArgs;
 
 	/**
 	 * Creates a new completion proposal based on the provided information. The replacement string is
@@ -64,7 +70,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 	}
 
 	public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo,int priority) {
-        this(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo,priority, ON_APPLY_DEFAUL);
+        this(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo,priority, ON_APPLY_DEFAUL, "");
     }
 	/**
 	 * Creates a new completion proposal. All fields are initialized based on the provided information.
@@ -79,7 +85,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 	 * @param additionalProposalInfo the additional information associated with this proposal
      * @param onApplyAction if we should not actually apply the changes when the completion is applied
 	 */
-	public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo,int priority, int onApplyAction) {
+	public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo,int priority, int onApplyAction, String args) {
 		Assert.isNotNull(replacementString);
 		Assert.isTrue(replacementOffset >= 0);
 		Assert.isTrue(replacementLength >= 0);
@@ -95,6 +101,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 		fAdditionalProposalInfo= additionalProposalInfo;
 		this.priority = priority;
         this.onApplyAction = onApplyAction;
+        this.fArgs = args;
 	}
 
 	/*
@@ -112,6 +119,15 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     		}
             return;
         }
+	    if(onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS){
+	        try {
+                String args = fArgs.substring(0, fArgs.length()-1); //remove the parentesis
+	            document.replace(fReplacementOffset+2, fReplacementLength-2, args);
+	        } catch (BadLocationException x) {
+	            // ignore
+	        }
+	        return;
+        }
 		throw new RuntimeException("Unexpected apply mode:"+onApplyAction);
 	}
 	
@@ -124,6 +140,9 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 	    }
 	    if(onApplyAction == ON_APPLY_DEFAUL){
 	        return new Point(fReplacementOffset + fCursorPosition, 0);
+        }
+        if(onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS){
+            return new Point(fReplacementOffset + fCursorPosition-1, 0);
         }
         throw new RuntimeException("Unexpected apply mode:"+onApplyAction);
 	}
@@ -188,6 +207,6 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     }
 
     public boolean isAutoInsertable() {
-        return onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO;
+        return onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO || onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS;
     }
 }

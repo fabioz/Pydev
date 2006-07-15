@@ -966,15 +966,17 @@ public class PySelection {
     }
 
     public static class ActivationTokenAndQual{
-        public ActivationTokenAndQual(String activationToken, String qualifier, boolean changedForCalltip) {
+        public ActivationTokenAndQual(String activationToken, String qualifier, boolean changedForCalltip, boolean alreadyHasParams) {
             this.activationToken = activationToken;
             this.qualifier = qualifier;
             this.changedForCalltip = changedForCalltip;
+            this.alreadyHasParams = alreadyHasParams;
         }
         
         public String activationToken;
         public String qualifier;
         public boolean changedForCalltip;
+        public boolean alreadyHasParams;
     }
 
     public String [] getActivationTokenAndQual(boolean getFullQualifier) {
@@ -999,6 +1001,8 @@ public class PySelection {
      */
     public static ActivationTokenAndQual getActivationTokenAndQual(IDocument doc, int documentOffset, boolean getFullQualifier, boolean handleForCalltips) {
         boolean changedForCalltip = false;
+        boolean alreadyHasParams = false; //only useful if we're in a calltip
+        int parOffset = -1;
         
         if(handleForCalltips){
             int calltipOffset = documentOffset-1;
@@ -1014,6 +1018,7 @@ public class PySelection {
                         //ok, we're just after a parentesis or comma, so, we have to get the
                         //activation token and qualifier as if we were just before the last parentesis
                         //(that is, if we're in a function call and not inside a list, string or dict declaration)
+                        parOffset = calltipOffset;
                         calltipOffset = getBeforeParentesisCall(doc, calltipOffset);
                         
                         if(calltipOffset != -1){
@@ -1024,6 +1029,33 @@ public class PySelection {
                 } catch (BadLocationException e) {
                     throw new RuntimeException(e);
                 }
+            }
+        }
+        
+        if(parOffset != -1){
+            //ok, let's see if there's something inside the parentesis
+            try {
+                char c = doc.getChar(parOffset);
+                if(c == '('){ //only do it 
+                    parOffset++;
+                    while(parOffset < doc.getLength()){
+                        c = doc.getChar(parOffset);
+                        if(c == ')'){
+                            break; //finished the parentesis
+                        }
+                        
+                        if(!Character.isWhitespace(c)){
+                            alreadyHasParams = true;
+                            break;
+                        }
+                        parOffset++;
+                    }
+                }else{
+                    //we're after a comma, so, there surely is some parameter already
+                    alreadyHasParams = true;
+                }
+            } catch (BadLocationException e) {
+                throw new RuntimeException(e);
             }
         }
         
@@ -1094,7 +1126,7 @@ public class PySelection {
             qualifier = activationToken.trim();
             activationToken = "";
         }
-        return new ActivationTokenAndQual(activationToken, qualifier, changedForCalltip);
+        return new ActivationTokenAndQual(activationToken, qualifier, changedForCalltip, alreadyHasParams);
     }
 
 

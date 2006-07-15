@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.jface.text.contentassist.ICompletionProposalExtension4;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
@@ -467,21 +466,25 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals("", act.activationToken);
         assertEquals("m1", act.qualifier);
         assertTrue(act.changedForCalltip);
+        assertFalse(act.alreadyHasParams);
         
         act = PySelection.getActivationTokenAndQual(new Document("m1.m2()"), 6, false, true); 
         assertEquals("m1.", act.activationToken);
         assertEquals("m2", act.qualifier);
         assertTrue(act.changedForCalltip);
+        assertFalse(act.alreadyHasParams);
         
         act = PySelection.getActivationTokenAndQual(new Document("m1.m2(  \t)"), 9, false, true); 
         assertEquals("m1.", act.activationToken);
         assertEquals("m2", act.qualifier);
         assertTrue(act.changedForCalltip);
+        assertFalse(act.alreadyHasParams);
         
         act = PySelection.getActivationTokenAndQual(new Document("m1(a  , \t)"), 9, false, true); 
         assertEquals("", act.activationToken);
         assertEquals("m1", act.qualifier);
         assertTrue(act.changedForCalltip);
+        assertTrue(act.alreadyHasParams);
     }
 
     /**
@@ -625,8 +628,9 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         //check if the returned proposal is there
     	ICompletionProposal prop = proposals[0];
     	assertEquals("m1(a, b)", prop.getDisplayString());
-        ICompletionProposalExtension4 p4 = (ICompletionProposalExtension4) prop;
+        PyCompletionProposal p4 = (PyCompletionProposal) prop;
         assertTrue(p4.isAutoInsertable());
+        assertEquals(PyCompletionProposal.ON_APPLY_JUST_SHOW_CTX_INFO, p4.onApplyAction);
     	
         //the display string for the context 'context' and 'information' should be the same
     	PyCalltipsContextInformation contextInformation = (PyCalltipsContextInformation) prop.getContextInformation();
