@@ -49,7 +49,6 @@ import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
-import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.eclipse.ui.texteditor.TextOperationAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
@@ -648,6 +647,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         
         action.setActionDefinitionId(SIMPLEASSIST_PROPOSAL_ID);
         setAction(SIMPLEASSIST_PROPOSAL_ID, action); //$NON-NLS-1$ 
+        setActivationCodeToSimpleCompletion();
         
         
         
@@ -662,7 +662,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         setAction(CONTENTASSIST_PROPOSAL_ID, action);
         // Tell the editor to execute this action
         // when Ctrl+Spacebar is pressed
-        setActionActivationCode(CONTENTASSIST_PROPOSAL_ID, ' ', -1, SWT.CTRL);
+        setActivationCodeToDefaultCompletion();
 
         
         // ----------------------------------------------------------------------------------------
@@ -681,6 +681,22 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         
         
         notifier.notifyOnCreateActions(resources);
+    }
+
+    /**
+     * Used so that Ctrl+Space is binded to the simple assist
+     */
+    public void setActivationCodeToSimpleCompletion() {
+        removeActionActivationCode(CONTENTASSIST_PROPOSAL_ID);
+        setActionActivationCode(SIMPLEASSIST_PROPOSAL_ID, ' ', -1, SWT.CTRL);
+    }
+
+    /**
+     * Used so that Ctrl+Space is binded to the default assist
+     */
+    public void setActivationCodeToDefaultCompletion() {
+        removeActionActivationCode(SIMPLEASSIST_PROPOSAL_ID);
+        setActionActivationCode(CONTENTASSIST_PROPOSAL_ID, ' ', -1, SWT.CTRL);
     }
 
 

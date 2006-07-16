@@ -18,9 +18,6 @@ import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.TextPresentation;
-import org.eclipse.jface.text.contentassist.ContentAssistEvent;
-import org.eclipse.jface.text.contentassist.ICompletionListener;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
@@ -333,7 +330,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
         } catch (ParseException e) {
             PydevPlugin.log(e);
         }
-//        assistant.setStatusLineVisible(true); currently the cycle is not working because of an eclipse bug... will have to check it better later
+        assistant.setStatusLineVisible(true); 
         return assistant;
     }
     

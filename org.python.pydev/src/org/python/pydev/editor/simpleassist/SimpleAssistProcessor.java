@@ -67,9 +67,13 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
         assistant.addCompletionListener(new ICompletionListener(){
 
             public void assistSessionEnded(ContentAssistEvent event) {
+                //we need to do that so that we restore the initial behaviour for ctrl+space
+                SimpleAssistProcessor.this.edit.setActivationCodeToDefaultCompletion();
             }
 
             public void assistSessionStarted(ContentAssistEvent event) {
+                //we need to do that because otherwise we're not able to cycle through the completions
+                SimpleAssistProcessor.this.edit.setActivationCodeToSimpleCompletion();
                 startCycle();
             }
 
