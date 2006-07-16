@@ -22,6 +22,7 @@ import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -182,7 +183,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
             //2. check findDefinition (SourceModule)
             ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
             
-			IDefinition[] definitions = mod.findDefinition(tok, request.getBeginLine(), request.getBeginCol(), request.nature, lFindInfo);
+			IDefinition[] definitions = mod.findDefinition(CompletionState.getEmptyCompletionState(tok, request.nature), request.getBeginLine(), request.getBeginCol(), request.nature, lFindInfo);
             for (IDefinition definition : definitions) {
                 boolean doAdd = true;
                 if(definition instanceof Definition){
@@ -244,7 +245,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
             }
             whereWePassed.add(t1);
             
-            Definition[] found = (Definition[]) d.module.findDefinition(tok, d.line, d.col, request.nature, lFindInfo);
+            Definition[] found = (Definition[]) d.module.findDefinition(CompletionState.getEmptyCompletionState(tok, request.nature), d.line, d.col, request.nature, lFindInfo);
             if(found != null && found.length == 1){
                 Tuple3<String,Integer,Integer> tupFromDefinition = getTupFromDefinition(found[0]);
                 if(tupFromDefinition == null){
@@ -326,7 +327,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
     		String n = NodeUtils.getFullRepresentationString(exp);
     		final int line = exp.beginLine;
     		final int col = exp.beginColumn+n.length(); //the col must be the last char because it can be a dotted name
-    		final Definition[] defs = (Definition[])d.module.findDefinition(n, line, col, nature, new ArrayList<FindInfo>());
+    		final Definition[] defs = (Definition[])d.module.findDefinition(CompletionState.getEmptyCompletionState(n, nature), line, col, nature, new ArrayList<FindInfo>());
     		if(defs.length > 0){
     			definitions.addAll(Arrays.asList(defs));
     		}else{
