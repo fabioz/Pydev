@@ -15,6 +15,7 @@ Pydev:
 - paths are remembered when configuring the pythonpath
 - self is added as a parameter in the completion analyzing whether we're in a bounded or unbounded call
 - Possibility of setting pyunit verbosity level (by Darrell)
+- Pressing Ctrl+Space a second time changes default / template completions
 
 Pydev Extensions:
 - Handling nested 'for' and list comprehensions correctly in code-analysis

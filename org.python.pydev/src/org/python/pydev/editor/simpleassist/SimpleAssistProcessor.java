@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.contentassist.ContentAssistEvent;
+import org.eclipse.jface.text.contentassist.ICompletionListener;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
@@ -17,17 +19,66 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
 
 public class SimpleAssistProcessor implements IContentAssistProcessor {
+    
     public static final char[] ALL_ASCII_CHARS = new char[]{
             'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
             'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'
         };
 
+    
+    
+    //-------- cycling through simple completions and default processor
+    private static final int SHOW_SIMPLE = 1;
+    private static final int SHOW_DEFAULT = 2;
+    private int whatToShow = SHOW_SIMPLE;
+    
+    public void startCycle(){
+        whatToShow = SHOW_SIMPLE;
+    }
+    
+    private void doCycle() {
+        if(whatToShow == SHOW_SIMPLE){
+            whatToShow = SHOW_DEFAULT;
+        }
+        //cycles only once here
+    }
+    
+    public void updateStatus(){
+        if(whatToShow == SHOW_SIMPLE){
+            assistant.setStatusMessage("Press Ctrl+Space for default completions.");
+        }
+    }
+    //-------- end cycling through regular completions and templates
+
     private PyEdit edit;
 
-    public SimpleAssistProcessor(PyEdit edit){
+    private PythonCompletionProcessor defaultPythonProcessor;
+
+    private SimpleContentAssistant assistant;
+
+    public SimpleAssistProcessor(PyEdit edit, PythonCompletionProcessor defaultPythonProcessor, SimpleContentAssistant assistant){
         this.edit = edit;
+        this.defaultPythonProcessor = defaultPythonProcessor;
+        this.assistant = assistant;
+        
+        assistant.addCompletionListener(new ICompletionListener(){
+
+            public void assistSessionEnded(ContentAssistEvent event) {
+            }
+
+            public void assistSessionStarted(ContentAssistEvent event) {
+                startCycle();
+            }
+
+            public void selectionChanged(ICompletionProposal proposal, boolean smartToggle) {
+                //ignore
+            }
+            
+        });
+
     }
 
     /**
@@ -36,26 +87,36 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeCompletionProposals(org.eclipse.jface.text.ITextViewer, int)
      */
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
-        IDocument doc = viewer.getDocument();
-        String[] strs = PySelection.getActivationTokenAndQual(doc, offset, false); 
-
-        String activationToken = strs[0];
-        String qualifier = strs[1];
-
-        PySelection ps = new PySelection(edit);
-        List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
-
-        List<ISimpleAssistParticipant> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_SIMPLE_ASSIST);
-        
-        for (ISimpleAssistParticipant participant : participants) {
-            results.addAll(participant.computeCompletionProposals(activationToken, qualifier, ps, edit, offset));
+        if(whatToShow == SHOW_DEFAULT){
+            return defaultPythonProcessor.computeCompletionProposals(viewer, offset);
+            
+        }else{
+            updateStatus();
+            IDocument doc = viewer.getDocument();
+            String[] strs = PySelection.getActivationTokenAndQual(doc, offset, false); 
+    
+            String activationToken = strs[0];
+            String qualifier = strs[1];
+    
+            PySelection ps = new PySelection(edit);
+            List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
+    
+            List<ISimpleAssistParticipant> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_SIMPLE_ASSIST);
+            
+            for (ISimpleAssistParticipant participant : participants) {
+                results.addAll(participant.computeCompletionProposals(activationToken, qualifier, ps, edit, offset));
+            }
+            
+            Collections.sort(results, PyCodeCompletion.PROPOSAL_COMPARATOR);
+            doCycle();
+            return (ICompletionProposal[]) results.toArray(new ICompletionProposal[0]);
         }
-        
-        Collections.sort(results, PyCodeCompletion.PROPOSAL_COMPARATOR);
-        return (ICompletionProposal[]) results.toArray(new ICompletionProposal[0]);
     }
 
     public IContextInformation[] computeContextInformation(ITextViewer viewer, int offset) {
+        if(whatToShow == SHOW_DEFAULT){
+            return defaultPythonProcessor.computeContextInformation(viewer, offset);
+        }
         return null;
     }
 
@@ -77,7 +138,21 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
     }
 
     public IContextInformationValidator getContextInformationValidator() {
-        return null;
+        final IContextInformationValidator defaultContextInformationValidator = defaultPythonProcessor.getContextInformationValidator();
+        return new IContextInformationValidator(){
+
+            public void install(IContextInformation info, ITextViewer viewer, int offset) {
+                defaultContextInformationValidator.install(info, viewer, offset);
+            }
+
+            public boolean isContextInformationValid(int offset) {
+                if(whatToShow == SHOW_DEFAULT){
+                    return defaultContextInformationValidator.isContextInformationValid(offset);
+                }
+                return true;
+            }
+            
+        };
     }
 
 }

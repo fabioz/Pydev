@@ -12,6 +12,9 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.contentassist.ContentAssistEvent;
+import org.eclipse.jface.text.contentassist.ContentAssistant;
+import org.eclipse.jface.text.contentassist.ICompletionListener;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
@@ -31,6 +34,34 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PythonCompletionProcessor implements IContentAssistProcessor {
 
+    //-------- cycling through regular completions and templates
+    private static final int SHOW_ALL = 1;
+    private static final int SHOW_ONLY_TEMPLATES = 2;
+    private int whatToShow = SHOW_ALL;
+    
+    public void startCycle(){
+        whatToShow = SHOW_ALL;
+    }
+    
+    private void doCycle() {
+        if(whatToShow == SHOW_ALL){
+            whatToShow = SHOW_ONLY_TEMPLATES;
+        }else{
+            whatToShow = SHOW_ALL;
+        }
+    }
+    
+    public void updateStatus(){
+        if(whatToShow == SHOW_ALL){
+            pyContentAssistant.setStatusMessage("Press Ctrl+Space for templates.");
+        }else{
+            pyContentAssistant.setStatusMessage("Press Ctrl+Space for default completions.");
+        }
+    }
+    //-------- end cycling through regular completions and templates
+
+
+    
     /**
      * This makes the templates completion
      */
@@ -63,10 +94,17 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     private PyContextInformationValidator contextInformationValidator;
     
     /**
-     * @param edit the editor that works with this processor
+     * This is the content assistant that is used to start this processor.
      */
-    public PythonCompletionProcessor(PyEdit edit) {
+    private ContentAssistant pyContentAssistant;
+    
+    /**
+     * @param edit the editor that works with this processor
+     * @param pyContentAssistant the content assistant that will invoke this completion
+     */
+    public PythonCompletionProcessor(PyEdit edit, ContentAssistant pyContentAssistant) {
         this.edit = edit;
+        this.pyContentAssistant = pyContentAssistant;
         
         contextInformationValidator = new PyContextInformationValidator();
         
@@ -79,6 +117,22 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             }
             
         });
+        
+        pyContentAssistant.addCompletionListener(new ICompletionListener(){
+
+            public void assistSessionEnded(ContentAssistEvent event) {
+            }
+
+            public void assistSessionStarted(ContentAssistEvent event) {
+                startCycle();
+            }
+
+            public void selectionChanged(ICompletionProposal proposal, boolean smartToggle) {
+                //ignore
+            }
+            
+        });
+
     }
 
 
@@ -89,6 +143,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      */
     @SuppressWarnings("unchecked")
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int documentOffset) {
+        updateStatus();
         ICompletionProposal[] proposals;
         
         try {
@@ -109,12 +164,14 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             //Get code completion proposals
             if(PyCodeCompletionPreferencesPage.useCodeCompletion()){
                 Object[] objects = new Object[]{new ArrayList(), new Boolean(true)};
-                try {
-                    objects = getPythonProposals(viewer, documentOffset, doc, request);
-                } catch (CompletionRecursionException e) {
-                    //thats ok
-                } catch (Throwable e) {
-                    setError(e);
+                if(whatToShow == SHOW_ALL){
+                    try {
+                        objects = getPythonProposals(viewer, documentOffset, doc, request);
+                    } catch (CompletionRecursionException e) {
+                        //thats ok
+                    } catch (Throwable e) {
+                        setError(e);
+                    }
                 }
 
                 List pythonProposals = (List) objects[0];
@@ -143,7 +200,8 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             proposals = new ICompletionProposal[0];
             setError(e);
         }
-        
+    
+        doCycle();
         // Return the proposals
         return proposals;
     }
@@ -151,6 +209,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     
     
     
+
 
 
     /**
@@ -283,5 +342,6 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     public IContextInformationValidator getContextInformationValidator() {
         return this.contextInformationValidator;
     }
+
 
 }

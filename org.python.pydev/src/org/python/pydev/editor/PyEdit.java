@@ -665,18 +665,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         setActionActivationCode(CONTENTASSIST_PROPOSAL_ID, ' ', -1, SWT.CTRL);
 
         
-        
-        // ---------------------------------------------------------------------------------
-        //template proposals
-        action = new TextOperationAction(resources, "TemplateProposals", this, ISourceViewer.CONTENTASSIST_PROPOSALS);
-
-        action.setActionDefinitionId(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS);
-        setAction(TEMPLATE_PROPOSALS_ID, action);
-        markAsStateDependentAction(TEMPLATE_PROPOSALS_ID, true);
-
-        
-        
-        
         // ----------------------------------------------------------------------------------------
         //open action
         IAction openAction = new PyOpenAction();

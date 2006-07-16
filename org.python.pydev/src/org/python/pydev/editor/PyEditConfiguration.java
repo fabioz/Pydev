@@ -7,6 +7,8 @@
 package org.python.pydev.editor;
 
 import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.bindings.keys.KeySequence;
+import org.eclipse.jface.bindings.keys.ParseException;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IAutoEditStrategy;
@@ -16,6 +18,9 @@ import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.TextPresentation;
+import org.eclipse.jface.text.contentassist.ContentAssistEvent;
+import org.eclipse.jface.text.contentassist.ICompletionListener;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
@@ -240,8 +245,8 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
      */
     public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
         // next create a content assistant processor to populate the completions window
-    	PythonCompletionProcessor processor = new PythonCompletionProcessor(this.getEdit());
-    	PythonCompletionProcessor stringProcessor = new PythonStringCompletionProcessor(this.getEdit());
+    	PythonCompletionProcessor processor = new PythonCompletionProcessor(this.getEdit(), pyContentAssistant);
+    	PythonCompletionProcessor stringProcessor = new PythonStringCompletionProcessor(this.getEdit(), pyContentAssistant);
 
         // No code completion in comments
         pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_STRING1);
@@ -252,9 +257,16 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
         pyContentAssistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
         pyContentAssistant.enableAutoActivation(true);
 
-        //delay and auto activate set on PyContentAssistant constructor.
+        //note: delay and auto activate are set on PyContentAssistant constructor.
 
         pyContentAssistant.setDocumentPartitioning(IPythonPartitions.PYTHON_PARTITION_TYPE);
+        pyContentAssistant.setRepeatedInvocationMode(true);
+        try {
+            pyContentAssistant.setRepeatedInvocationTrigger(KeySequence.getInstance("Ctrl+Space"));
+        } catch (ParseException e) {
+            PydevPlugin.log(e);
+        }
+        pyContentAssistant.setStatusLineVisible(true);
         
         return pyContentAssistant;
     }
@@ -296,9 +308,11 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
     public SimpleContentAssistant getSimpleAssistant(ISourceViewer sourceViewer) {
         // create a content assistant:
         SimpleContentAssistant assistant = new SimpleContentAssistant();
+        PythonCompletionProcessor defaultPythonProcessor = new PythonCompletionProcessor(this.getEdit(), assistant);
+
         
         // next create a content assistant processor to populate the completions window
-        IContentAssistProcessor processor = new SimpleAssistProcessor(this.getEdit());
+        IContentAssistProcessor processor = new SimpleAssistProcessor(this.getEdit(), defaultPythonProcessor, assistant);
         
         // Correction assist works only on default content
         assistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
@@ -312,6 +326,14 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
         assistant.setAutoActivationDelay(0);
         assistant.enableAutoInsert(false);
 
+        //cycling
+        assistant.setRepeatedInvocationMode(true);
+        try {
+            assistant.setRepeatedInvocationTrigger(KeySequence.getInstance("Ctrl+Space"));
+        } catch (ParseException e) {
+            PydevPlugin.log(e);
+        }
+//        assistant.setStatusLineVisible(true); currently the cycle is not working because of an eclipse bug... will have to check it better later
         return assistant;
     }
     

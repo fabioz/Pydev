@@ -4,8 +4,8 @@ import org.python.pydev.editor.PyEdit;
 
 public class PythonStringCompletionProcessor extends PythonCompletionProcessor{
 
-	public PythonStringCompletionProcessor(PyEdit edit) {
-		super(edit);
+	public PythonStringCompletionProcessor(PyEdit edit, PyContentAssistant pyContentAssistant) {
+		super(edit, pyContentAssistant);
 	}
 	
 	@Override
