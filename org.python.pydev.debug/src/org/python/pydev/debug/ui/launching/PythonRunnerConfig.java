@@ -32,6 +32,7 @@ import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.plugin.PyunitPrefsPage;
 import org.python.pydev.plugin.SocketUtil;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
@@ -458,6 +459,8 @@ public class PythonRunnerConfig {
     
     		if(isUnittest()){
                 cmdArgs.add(getRunFilesScript());
+                cmdArgs.add("--verbosity");
+                cmdArgs.add( PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_VERBOSITY) );
     		}
         }
         

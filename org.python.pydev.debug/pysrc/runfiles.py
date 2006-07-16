@@ -97,12 +97,13 @@ def FindFiles( p_Pathes, p_InFilters=None, p_OutFilters=None, p_Recursive = True
 def parse_cmdline():
     usage='usage: %prog directory [other_directory ...]'  
     parser = optparse.OptionParser(usage=usage)
+    parser.add_option("-v", "--verbosity", dest="verbosity", default=2)
 
     options, args = parser.parse_args()
     if not args:
         parser.print_help()
         sys.exit(1)
-    return args
+    return args, int(options.verbosity)
 
 
 #=============================================================================================================
@@ -179,11 +180,11 @@ def runtests(dirs, verbosity=2):
         tests = loader.loadTestsFromModule(module)
         alltests.append(tests)
     print 'done.'
-    
-    runner = unittest.TextTestRunner(sys.stdout, 1, verbosity)
+
+    runner = unittest.TextTestRunner(stream=sys.stdout, descriptions=1, verbosity=verbosity)
     runner.run(unittest.TestSuite(alltests))
 
     
 if __name__ == '__main__':
-    dirs = parse_cmdline()
-    runtests(dirs)
+    dirs, verbosity = parse_cmdline()
+    runtests(dirs, verbosity)

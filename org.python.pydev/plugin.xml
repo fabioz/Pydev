@@ -119,6 +119,11 @@
             id="org.python.pydev.prefs.debugPage">
       </page>
       <page
+            category="org.python.pydev.prefs"
+            class="org.python.pydev.plugin.PyunitPrefsPage"
+            id="org.python.pydev.prefs.pyunitPage"
+            name="Pyunit"/>
+      <page
             name="Code Formatter"
             category="org.python.pydev.prefs"
             class="org.python.pydev.plugin.PyCodeFormatterPage"
