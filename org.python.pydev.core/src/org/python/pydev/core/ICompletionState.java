@@ -35,6 +35,8 @@ public interface ICompletionState {
     void checkDefinitionMemory(IModule module, IDefinition definition);
 
     void checkWildImportInMemory(IModule current, IModule mod);
+    
+    public void checkResolveImportMemory(IModule module, String value);
 
     boolean getBuiltinsGotten();
 
@@ -53,5 +55,7 @@ public interface ICompletionState {
      * be added to the parameters)
      */
     void setLookingForInstance(boolean b);
+
+    ICompletionState getCopyWithActTok(String value);
 
 }

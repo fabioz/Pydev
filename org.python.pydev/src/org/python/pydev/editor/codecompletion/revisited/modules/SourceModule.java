@@ -86,9 +86,13 @@ public class SourceModule extends AbstractModule {
     }
 
     /**
-     * @return a reference to all the modules that are imported from this one in the global context in the following constructions:
-     * 
-     * from xxx import xxx import xxx import xxx as ... from xxx import xxx as ....
+     * Searches for the following import tokens:
+     *   import xxx 
+     *   import xxx as ... 
+     *   from xxx import xxx
+     *   from xxx import xxx as ....
+     * Note, that imports with wildcards are not collected.
+     * @return an array of references to the modules that are imported from this one in the global context.
      */
     public IToken[] getTokenImportedModules() {
         return getTokens(GlobalModelVisitor.ALIAS_MODULES);
@@ -187,13 +191,13 @@ public class SourceModule extends AbstractModule {
                                 if(iActTok > actToks.length){
                                     break; //unable to find it
                                 }
-                                definitions = findDefinition(value, token.getLineDefinition(), token.getColDefinition(), manager.getNature(), new ArrayList<FindInfo>());
+                                definitions = findDefinition(initialState.getCopyWithActTok(value), token.getLineDefinition(), token.getColDefinition(), manager.getNature(), new ArrayList<FindInfo>());
                                 if(definitions.length == 1){
                                     Definition d = definitions[0];
                                     if(d.ast instanceof Assign){
                                         Assign assign = (Assign) d.ast;
                                         value = NodeUtils.getRepresentationString(assign.value);
-                                        definitions = findDefinition(value, d.line, d.col, manager.getNature(), new ArrayList<FindInfo>());
+                                        definitions = findDefinition(initialState.getCopyWithActTok(value), d.line, d.col, manager.getNature(), new ArrayList<FindInfo>());
                                     }else if(d.ast instanceof ClassDef){
                                         IToken[] toks = (IToken[]) getToks(initialState, manager, d.ast).toArray(new IToken[0]);
                                         if(iActTok == actToks.length-1){
@@ -218,7 +222,7 @@ public class SourceModule extends AbstractModule {
                                         	if(d.module instanceof SourceModule){
                                         		SourceModule m = (SourceModule) d.module;
                                         		String joined = FullRepIterable.joinFirstParts(actToks);
-                                                Definition[] definitions2 = m.findDefinition(joined, d.line, d.col,manager.getNature(), null);
+                                                Definition[] definitions2 = m.findDefinition(initialState.getCopyWithActTok(joined), d.line, d.col,manager.getNature(), null);
                                         		if(definitions2.length == 0){
                                         			return new IToken[0];
                                         		}
@@ -330,7 +334,8 @@ public class SourceModule extends AbstractModule {
     }
 
     @SuppressWarnings("unchecked")
-	public Definition[] findDefinition(String rep, int line, int col, IPythonNature nature, List<FindInfo> lFindInfo) throws Exception{
+	public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature, List<FindInfo> lFindInfo) throws Exception{
+        String rep = state.getActivationToken();
     	if(lFindInfo == null){
     		lFindInfo = new ArrayList<FindInfo>();
     	}
@@ -389,7 +394,10 @@ public class SourceModule extends AbstractModule {
         	if(tok.getRepresentation().equals(rep)){
         		Tuple<IModule, String> o = nature.getAstManager().findOnImportedMods(new IToken[]{tok}, nature, rep, this.getName());
                 if(o != null && o.o1 instanceof SourceModule){
-                    findDefinitionsFromModAndTok(nature, toRet, null, (SourceModule) o.o1, o.o2);
+                    ICompletionState copy = state.getCopy();
+                    copy.setActivationToken(o.o2);
+                    
+                    findDefinitionsFromModAndTok(nature, toRet, null, (SourceModule) o.o1, copy);
                 }
                 if(toRet.size() > 0){
                 	return (Definition[]) toRet.toArray(new Definition[0]);
@@ -453,28 +461,26 @@ public class SourceModule extends AbstractModule {
             if (tok == null || tok.length() == 0 ){
                 return new Definition[]{new Definition(1,1,"",null,null,o.o1)};
             }else{
-                return (Definition[]) o.o1.findDefinition(tok, 0, 0, nature, lFindInfo);
+                return (Definition[]) o.o1.findDefinition(state.getCopyWithActTok(tok), 0, 0, nature, lFindInfo);
             }
         }
         
         //mod == this if we are now checking the globals (or maybe not)...heheheh
-        findDefinitionsFromModAndTok(nature, toRet, visitor.moduleImported, mod, tok);
+        ICompletionState copy = state.getCopy();
+        copy.setActivationToken(tok);
+        findDefinitionsFromModAndTok(nature, toRet, visitor.moduleImported, mod, copy);
             
         return toRet.toArray(new Definition[0]);
     }
 
     /**
-     * 
-     * @param nature
-     * @param toRet used to return the values
-     * @param visitor
-     * @param mod
-     * @param tok
+     * Finds the definitions for some module and a token from that module
      */
-	private void findDefinitionsFromModAndTok(IPythonNature nature, ArrayList<Definition> toRet, String moduleImported, SourceModule mod, String tok) {
+	private void findDefinitionsFromModAndTok(IPythonNature nature, ArrayList<Definition> toRet, String moduleImported, SourceModule mod, ICompletionState state) {
+        String tok = state.getActivationToken();
 		if(tok != null){
         	if(tok.length() > 0){
-	            Definition d = mod.findGlobalTokDef(tok, nature);
+	            Definition d = mod.findGlobalTokDef(state.getCopyWithActTok(tok), nature);
 				if(d != null){
 	                toRet.add(d);
 	                
@@ -516,14 +522,15 @@ public class SourceModule extends AbstractModule {
      * @param nature 
      * @return
      */
-    public Definition findGlobalTokDef(String tok, IPythonNature nature) {
+    public Definition findGlobalTokDef(ICompletionState state, IPythonNature nature) {
+        String tok = state.getActivationToken();
     	String[] headAndTail = FullRepIterable.headAndTail(tok);
     	String firstPart = headAndTail[0];
     	String rep = headAndTail[1];
     	
     	IToken[] tokens = null;
     	if(nature != null){
-    		tokens = nature.getAstManager().getCompletionsForModule(this, CompletionState.getEmptyCompletionState(firstPart, nature));
+    		tokens = nature.getAstManager().getCompletionsForModule(this, state.getCopyWithActTok(firstPart));
     	}else{
     		tokens = getGlobalTokens();
     	}
@@ -583,7 +590,7 @@ public class SourceModule extends AbstractModule {
                     }
                     finalRep += comp.getRepresentation();
                     try {
-                        IDefinition[] definitions = module.findDefinition(finalRep, -1, -1, nature, new ArrayList<FindInfo>());
+                        IDefinition[] definitions = module.findDefinition(state.getCopyWithActTok(finalRep), -1, -1, nature, new ArrayList<FindInfo>());
                         if(definitions.length > 0){
                             return (Definition) definitions[0];
                         }

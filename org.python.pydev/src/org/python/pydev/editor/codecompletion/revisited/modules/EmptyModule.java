@@ -78,7 +78,7 @@ public class EmptyModule extends AbstractModule implements Serializable {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
      */
-    public Definition[] findDefinition(String token, int line, int col, IPythonNature nature, List<FindInfo> findInfo) throws Exception {
+    public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature, List<FindInfo> findInfo) throws Exception {
         throw new RuntimeException("Not intended to be called");
     }
 

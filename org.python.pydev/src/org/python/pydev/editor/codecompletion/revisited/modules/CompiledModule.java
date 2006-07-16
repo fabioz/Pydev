@@ -261,7 +261,8 @@ public class CompiledModule extends AbstractModule{
      * @param findInfo 
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
      */
-    public Definition[] findDefinition(String token, int line, int col, IPythonNature nature, List<FindInfo> findInfo) throws Exception {
+    public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature, List<FindInfo> findInfo) throws Exception {
+        String token = state.getActivationToken();
         AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
         synchronized(shell){
             Tuple<String[],int[]> def = shell.getLineCol(this.name, token, nature.getAstManager().getModulesManager().getCompletePythonPath());
@@ -281,7 +282,7 @@ public class CompiledModule extends AbstractModule{
             if(foundLine == 0 && foundAs.length() > 0 && mod != null){
                 IModule sourceMod = AbstractModule.createModuleFromDoc(mod.getName(), f, new Document(REF.getFileContents(f)), nature, 0);
                 if(sourceMod instanceof SourceModule){
-                    Definition[] definitions = (Definition[]) sourceMod.findDefinition(foundAs, 0, 0, nature, findInfo);
+                    Definition[] definitions = (Definition[]) sourceMod.findDefinition(state.getCopyWithActTok(foundAs), 0, 0, nature, findInfo);
                     if(definitions.length > 0){
                         return definitions;
                     }

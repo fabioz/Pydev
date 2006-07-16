@@ -267,7 +267,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     /**
      * This method returns the module that corresponds to the path passed as a parameter.
      * 
-     * @param name
+     * @param name the name of the module we're looking for
      * @param lookingForRelative determines whether we're looking for a relative module (in which case we should
      * not check in other places... only in the module)
      * @return the module represented by this name
@@ -504,7 +504,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         if (module instanceof SourceModule) {
             SourceModule s = (SourceModule) module;
             try {
-                Definition[] defs = s.findDefinition(state.getActivationToken(), state.getLine(), state.getCol(), state.getNature(), new ArrayList<FindInfo>());
+                Definition[] defs = s.findDefinition(state, state.getLine(), state.getCol(), state.getNature(), new ArrayList<FindInfo>());
                 for (int i = 0; i < defs.length; i++) {
                     if(!(defs[i].ast instanceof FunctionDef)){
                         //we might want to extend that later to check the return of some function...
@@ -535,10 +535,10 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         return new IToken[0];
     }
 
-    /** 
-     * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getGlobalCompletions
+    /**
+     * @see ICodeCompletionASTManager#getGlobalCompletions
      */
-    public List getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, ICompletionState state, IModule current) {
+    public List<IToken> getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, ICompletionState state, IModule current) {
         if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
             Log.toLogFile(this, "getGlobalCompletions");
         }
@@ -551,7 +551,12 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
         //now go for the token imports
         for (int i = 0; i < importedModules.length; i++) {
-            completions.add(importedModules[i]);
+            IToken imported = importedModules[i];
+            if(imported.isImportFrom()) {
+                completions.add(resolveImport(state, current, imported));
+            } else {
+                completions.add(imported);
+            }
         }
 
         //wild imports: recursively go and get those completions.
@@ -620,7 +625,88 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 	}
 
     /**
-     * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForWildImport
+     * Resolves a token defined with 'from module import something' statement 
+     * to a proper type, as defined in module.  
+     * @param imported the token to resolve.
+     * @return the resolved token or the original token in case no additional information could be obtained.
+     */
+    protected IToken resolveImport(ICompletionState state, IModule current, IToken imported) {
+//        if(true){
+//            return imported;
+//        }
+        Tuple<IModule, String> modTok = findOnImportedMods(new IToken[]{imported}, state.getNature(), imported.getRepresentation(), current.getName());
+        if(modTok != null && modTok.o1 != null){
+
+            if(modTok.o2.length() == 0){
+                return imported; //it's a module actually, so, no problems...
+                
+            } else{
+                try{
+                    state.checkResolveImportMemory(modTok.o1, modTok.o2);
+                }catch(CompletionRecursionException e){
+                    return imported;
+                }
+                IToken repInModule = getRepInModule(modTok.o1, modTok.o2, state.getNature(), state);
+                if(repInModule != null){
+                    return repInModule;
+                }
+            }
+        }
+        return imported;
+            
+    }
+
+    /**
+     * This is the public interface
+     * @see org.python.pydev.core.ICodeCompletionASTManager#getRepInModule(org.python.pydev.core.IModule, java.lang.String, org.python.pydev.core.IPythonNature)
+     */
+    public IToken getRepInModule(IModule module, String tokName, IPythonNature nature) {
+        return getRepInModule(module, tokName, nature, null);
+    }
+    
+    /**
+     * Get the actual token representing the tokName in the passed module  
+     * @param module the module where we're looking
+     * @param tokName the name of the token we're looking for
+     * @param nature the nature we're looking for
+     * @return the actual token in the module (or null if it was not possible to find it).
+     */
+    private IToken getRepInModule(IModule module, String tokName, IPythonNature nature, ICompletionState state) {
+        if(module != null){
+            if(tokName.startsWith(".")){
+                tokName = tokName.substring(1);
+            }
+
+            //ok, we are getting some token from the module... let's see if it is really available.
+            String[] headAndTail = FullRepIterable.headAndTail(tokName);
+            String actToken = headAndTail[0];  //tail (if os.path, it is os) 
+            String hasToBeFound = headAndTail[1]; //head (it is path)
+            
+            //if it was os.path:
+            //initial would be os.path
+            //foundAs would be os
+            //actToken would be path
+            
+            //now, what we will do is try to do a code completion in os and see if path is found
+            if(state == null){
+                state = CompletionState.getEmptyCompletionState(actToken, nature);
+            }else{
+                state = state.getCopy();
+                state.setActivationToken(actToken);
+            }
+            IToken[] completionsForModule = getCompletionsForModule(module, state);
+            for (IToken foundTok : completionsForModule) {
+                if(foundTok.getRepresentation().equals(hasToBeFound)){
+                    return foundTok;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    /* (non-Javadoc)
+     * @see ICodeCompletionASTManager#getCompletionsForWildImport(ICompletionState, IModule, List, IToken)
      */
     public List getCompletionsForWildImport(ICompletionState state, IModule current, List completions, IToken name) {
         try {

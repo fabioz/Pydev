@@ -11,6 +11,7 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.IModule;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 
 /**
@@ -49,14 +50,14 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
 
 		Document doc = new Document(d);
 		IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 2);
-		Definition[] defs = (Definition[]) module.findDefinition("ex", 2, 2, nature, new ArrayList<FindInfo>());
+		Definition[] defs = (Definition[]) module.findDefinition(CompletionState.getEmptyCompletionState("ex", nature), 2, 2, nature, new ArrayList<FindInfo>());
 		
 		assertEquals(1, defs.length);
 		assertEquals("ex", ((AssignDefinition)defs[0]).target);
 		assertEquals("assist.ExistingClass", defs[0].value);
 		assertSame(module, defs[0].module);
 		
-		defs = (Definition[]) module.findDefinition("assist.ExistingClass", 1, 5, nature, new ArrayList<FindInfo>());
+		defs = (Definition[]) module.findDefinition(CompletionState.getEmptyCompletionState("assist.ExistingClass", nature), 1, 5, nature, new ArrayList<FindInfo>());
 		assertEquals(1, defs.length);
 		assertEquals("ExistingClass", defs[0].value);
 		assertNotSame(module, defs[0].module);
@@ -83,14 +84,14 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
 		Document doc = new Document(d);
 		IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 9);
 		//self.c is found as an assign
-		Definition[] defs = (Definition[]) module.findDefinition("self.c", 9, 8, nature, new ArrayList<FindInfo>());
+		Definition[] defs = (Definition[]) module.findDefinition(CompletionState.getEmptyCompletionState("self.c",nature), 9, 8, nature, new ArrayList<FindInfo>());
 		
 		assertEquals(1, defs.length);
 		assertEquals("self.c", ((AssignDefinition)defs[0]).target);
 		assertEquals("C", defs[0].value);
 		assertSame(module, defs[0].module);
 		
-		defs = (Definition[]) module.findDefinition("C", 6, 17, nature, new ArrayList<FindInfo>());
+		defs = (Definition[]) module.findDefinition(CompletionState.getEmptyCompletionState("C", nature), 6, 17, nature, new ArrayList<FindInfo>());
 		assertEquals(1, defs.length);
 		assertEquals("C", defs[0].value);
 		assertSame(module, defs[0].module);

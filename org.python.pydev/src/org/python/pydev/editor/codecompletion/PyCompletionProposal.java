@@ -38,7 +38,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     /**
      * Defines a 'regular' apply, in which we add the completion as usual
      */
-    public final static int ON_APPLY_DEFAUL = 1;
+    public final static int ON_APPLY_DEFAULT = 1;
     
     /**
      * Defines that when applying the changes we should just show the context info and do no other change
@@ -53,7 +53,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     /**
      * Defines how should the apply be treated
      */
-    public int onApplyAction = ON_APPLY_DEFAUL;
+    public int onApplyAction = ON_APPLY_DEFAULT;
     public String fArgs;
 
 	/**
@@ -70,7 +70,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 	}
 
 	public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo,int priority) {
-        this(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo,priority, ON_APPLY_DEFAUL, "");
+        this(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo,priority, ON_APPLY_DEFAULT, "");
     }
 	/**
 	 * Creates a new completion proposal. All fields are initialized based on the provided information.
@@ -111,7 +111,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 	    if(onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO){
             return;
         }
-	    if(onApplyAction == ON_APPLY_DEFAUL){
+	    if(onApplyAction == ON_APPLY_DEFAULT){
     		try {
     			document.replace(fReplacementOffset, fReplacementLength, fReplacementString);
     		} catch (BadLocationException x) {
@@ -138,7 +138,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 	    if(onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO){
 	        return null;
 	    }
-	    if(onApplyAction == ON_APPLY_DEFAUL){
+	    if(onApplyAction == ON_APPLY_DEFAULT){
 	        return new Point(fReplacementOffset + fCursorPosition, 0);
         }
         if(onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS){

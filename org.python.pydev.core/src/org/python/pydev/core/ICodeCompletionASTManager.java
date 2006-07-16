@@ -204,6 +204,14 @@ public interface ICodeCompletionASTManager {
     public abstract List getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, ICompletionState state, IModule current);
 
 
+    /**
+     * Get the actual token representing the tokName in the passed module  
+     * @param module the module where we're looking
+     * @param tokName the name of the token we're looking for
+     * @param nature the nature we're looking for
+     * @return the actual token in the module (or null if it was not possible to find it).
+     */
+    public IToken getRepInModule(IModule module, String tokName, IPythonNature nature);
     
 
 }

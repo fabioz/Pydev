@@ -112,10 +112,11 @@ public abstract class AbstractModule implements IModule {
         return false;
     }
     
-    /** 
-     * @see org.python.pydev.core.IModule#findDefinition(java.lang.String, int, int, org.python.pydev.plugin.nature.IPythonNature, java.util.List)
+    
+    /**
+     * The token we're looking for must be the state activation token
      */
-    public abstract Definition[] findDefinition(String token, int line, int col, IPythonNature nature, List<FindInfo> findInfo) throws Exception;
+    public abstract Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature, List<FindInfo> findInfo) throws Exception;
 
     /** 
      * @see org.python.pydev.core.IModule#getGlobalTokens(org.python.pydev.editor.codecompletion.revisited.CompletionState, org.python.pydev.core.ICodeCompletionASTManager)

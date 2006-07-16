@@ -38,7 +38,7 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
         if(onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO){
             return null;
         }
-        if(onApplyAction == ON_APPLY_DEFAUL ){
+        if(onApplyAction == ON_APPLY_DEFAULT ){
             return new Point(fReplacementOffset + fCursorPosition, firstParameterLen); //the difference is the firstParameterLen here (instead of 0)
         }
         if(onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS ){
@@ -79,7 +79,7 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
         }
         
         
-        if(onApplyAction == ON_APPLY_DEFAUL){
+        if(onApplyAction == ON_APPLY_DEFAULT){
             try {
                 int dif = offset - fReplacementOffset;
                 String strToAdd = fReplacementString.substring(dif);

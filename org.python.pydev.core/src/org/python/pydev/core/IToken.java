@@ -27,7 +27,7 @@ public interface IToken extends Serializable, Comparable{
     public int getType();
     public String getArgs();
     public String getParentPackage();
-    
+
     /**
      * 
      * @return The complete path for the token.
@@ -75,6 +75,11 @@ public interface IToken extends Serializable, Comparable{
      */
     public boolean isImport();
 
+    /**
+     * @return whether this token defined as part of "from ... import ..."
+     */
+    public boolean isImportFrom();
+    
     /**
      * @return whether the token we have wrapped is a wild import
      */

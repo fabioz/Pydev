@@ -34,6 +34,17 @@ public interface IModulesManager {
     public abstract ModulesKey[] getOnlyDirectModules();
 
     public abstract IModule getRelativeModule(String name, IPythonNature nature);
+
+    /**
+     * This method returns the module that corresponds to the path passed as a parameter.
+     * 
+     * @param name the name of the module we're looking for
+     * @param dontSearchInit is used in a negative form because initially it was isLookingForRelative, but
+     * it actually defines if we should look in __init__ modules too, so, the name matches the old signature.
+     * 
+     * NOTE: isLookingForRelative description was: when looking for relative imports, we don't check for __init__
+     * @return the module represented by this name
+     */
     public abstract IModule getModule(String name, IPythonNature nature, boolean dontSearchInit);
 
     public abstract IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit);

@@ -50,14 +50,14 @@ public interface IModule {
     public abstract boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods);
 
     /**
-     * This function can be called to find possible definitions of a token, based on its name, line and
+     * This function can be called to find possible definitions of a token (state activation token), based on its name, line and
      * column.
      * 
      * @param findInfo: this is debug information gathered during a find
      * @return array of definitions.
      * @throws Exception
      */
-    public abstract IDefinition[] findDefinition(String token, int line, int col, IPythonNature nature, List<FindInfo> findInfo) throws Exception;
+    public abstract IDefinition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature, List<FindInfo> findInfo) throws Exception;
 
     /**
      * This function should return all tokens that are global for a given token.

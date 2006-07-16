@@ -432,7 +432,7 @@ public class PyCodeCompletion {
                     priority = IPyCompletionProposal.PRIORITY_LOCALS;
                 }
                 
-                int onApplyAction = PyCompletionProposal.ON_APPLY_DEFAUL;
+                int onApplyAction = PyCompletionProposal.ON_APPLY_DEFAULT;
                 if(request.isInCalltip){
                     if(request.alreadyHasParams){
                         onApplyAction = PyCompletionProposal.ON_APPLY_JUST_SHOW_CTX_INFO;
