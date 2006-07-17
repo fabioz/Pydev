@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
@@ -268,15 +269,27 @@ public class PyCodeCompletion {
                 theList.addAll(getGlobalsFromParticipants(request, state));
             }
 
+            Set<String> alreadyChecked = new HashSet<String>();
+            
             for(ListIterator it=theList.listIterator(); it.hasNext();){
                 Object o = it.next();
                 if(o instanceof IToken){
-                    IToken token = (IToken) o;
-                    if(token.isImportFrom()){
+                    alreadyChecked.clear();
+                    IToken initialToken = (IToken) o;
+                    
+                    IToken token = initialToken;
+                    while(token.isImportFrom()){
+                        String strRep = token.toString();
+                        if(alreadyChecked.contains(strRep)){
+                            break;
+                        }
+                        alreadyChecked.add(strRep);
+                        
                         IToken token2 = astManager.resolveImport(CompletionState.getEmptyCompletionState(token.getRepresentation(), request.nature), token);
-                        if(token != token2){
-                            token.setArgs(token2.getArgs());
-                            token.setDocStr(token2.getDocStr());
+                        if(token2 != null && initialToken != token2){
+                            initialToken.setArgs(token2.getArgs());
+                            initialToken.setDocStr(token2.getDocStr());
+                            token = token2;
                         }
                     }
                 }

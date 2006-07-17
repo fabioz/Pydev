@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testFromImportAs();
+	      test.testFromImportAs2();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -160,6 +160,16 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 		"t = AnotherTes";
 		ICompletionProposal[] p = requestCompl(s, s.length(), -1, new String[] { "AnotherTest(a, b, c)"}, nature);
 		assertEquals("This is a docstring", p[0].getAdditionalProposalInfo());
+	}
+	
+	
+	public void testFromImportAs2() throws CoreException, BadLocationException{
+	    String s;
+	    s = ""+
+	    "from testOtherImports.f3 import Foo\n" +
+	    "t = Fo";
+	    ICompletionProposal[] p = requestCompl(s, s.length(), -1, new String[] { "Foo(a, b)"}, nature);
+	    assertEquals("SomeOtherTest", p[0].getAdditionalProposalInfo());
 	}
 	
 	public void testInnerImport() throws CoreException, BadLocationException{

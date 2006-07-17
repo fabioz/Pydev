@@ -3,3 +3,9 @@ class Test:
     
 class Test:
     pass
+
+class SomeOtherTest(object):
+    '''SomeOtherTest'''
+    def __init__(self, a, b):
+        pass
+    
