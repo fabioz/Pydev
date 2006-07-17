@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testCompositeImport();
+	      test.testCalltips5();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -144,20 +144,22 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 	}
 
 	public void testFromImport() throws CoreException, BadLocationException{
+	    //TODO: see AbstractASTManager.resolveImport
 		String s;
 		s = ""+
 		"from testOtherImports.f3 import test\n" +
 		"tes";
-		ICompletionProposal[] p = requestCompl(s, s.length(), -1, new String[] { "test(a, b, c)"}, nature2);
+		ICompletionProposal[] p = requestCompl(s, s.length(), -1, new String[] { "test(a, b, c)"}, nature);
 		assertEquals(p[0].getAdditionalProposalInfo(), "This is a docstring");
 	}
 	
 	public void testFromImportAs() throws CoreException, BadLocationException{
+        //TODO: see AbstractASTManager.resolveImport
 		String s;
 		s = ""+
-		"from testOtherImports.f3 import Test as AnotherTest\n" +
+		"from testOtherImports.f3 import test as AnotherTest\n" +
 		"t = AnotherTes";
-		ICompletionProposal[] p = requestCompl(s, s.length(), -1, new String[] { "AnotherTest"}, nature2);
+		ICompletionProposal[] p = requestCompl(s, s.length(), -1, new String[] { "AnotherTest"}, nature);
 		assertEquals("This is a test class", p[0].getAdditionalProposalInfo());
 	}
 	
@@ -700,7 +702,26 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 		prop.apply(doc);
 		assertEquals("", doc.get());
 	}
-    
+
+    public void testCalltips5() throws Exception {
+        String s0 = 
+            "class TestCase(object):\n" +
+            "    def __init__(self, a, b):\n" +
+            "        pass\n" +
+            "    \n" +
+            "TestCase(%s)";
+        
+        String s = StringUtils.format(s0, "");
+        ICompletionProposal[] proposals = requestCompl(s, s.length()-1, -1, new String[] {});
+        assertEquals(1, proposals.length); 
+        PyCompletionProposal p = (PyCompletionProposal) proposals[0];
+        assertEquals("TestCase(a, b)", p.getDisplayString());
+        
+        
+        Document document = new Document(s);
+        p.apply(document);
+        assertEquals(StringUtils.format(s0, "a, b"), document.get());
+    }
     
 
 }

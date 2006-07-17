@@ -57,20 +57,11 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
         }
         if(onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS){
             try {
-                String args = fArgs.substring(0, fArgs.length()-1); //remove the parentesis
-                char c = doc.getChar(offset);
-                boolean addedPar = false;
-                if(c != ')'){
-                    addedPar = true;
-                    args += ')';
-                }
-                doc.replace(fReplacementOffset+2, fReplacementLength-2, args);
+                String args = fArgs.substring(1, fArgs.length()-1); //remove the parentesis
+                super.apply(doc);
                 int iPar = -1;
-                int exitPos = offset + args.length();
-                if(addedPar){
-                    exitPos -= 1;
-                }
-                goToLinkedModeFromArgs(viewer, offset-1, doc, exitPos, iPar, args);
+                int exitPos = offset + args.length()+1;
+                goToLinkedModeFromArgs(viewer, offset, doc, exitPos, iPar, args);
 
             }catch(BadLocationException e){
                 PydevPlugin.log(e);

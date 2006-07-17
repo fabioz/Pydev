@@ -631,9 +631,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @return the resolved token or the original token in case no additional information could be obtained.
      */
     protected IToken resolveImport(ICompletionState state, IModule current, IToken imported) {
-//        if(true){
-//            return imported;
-//        }
+        if(true){ //TODO: Check how to resolve things correctly (and check if this is the best place to do it)
+                  //mental note: probably the best place to put it would be after all the tokens are resolved,
+                  //and only change the imports there (or only add the arguments after a calltip is requested)
+            return imported;
+        }
         Tuple<IModule, String> modTok = findOnImportedMods(new IToken[]{imported}, state.getNature(), imported.getRepresentation(), current.getName());
         if(modTok != null && modTok.o1 != null){
 
