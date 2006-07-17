@@ -213,5 +213,14 @@ public interface ICodeCompletionASTManager {
      */
     public IToken getRepInModule(IModule module, String tokName, IPythonNature nature);
     
+    /**
+     * This method gathers an IToken correspondent to the actual token for some import
+     * 
+     * @param state the current completion state
+     * @param imported the token generated from an ImportFrom 
+     * @return the IToken: the actual token that generated that import or the import passed if we weren't
+     * able to find its actual definition
+     */
+    public IToken resolveImport(ICompletionState state, IToken imported);
 
 }

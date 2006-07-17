@@ -551,12 +551,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
         //now go for the token imports
         for (int i = 0; i < importedModules.length; i++) {
-            IToken imported = importedModules[i];
-            if(imported.isImportFrom()) {
-                completions.add(resolveImport(state, current, imported));
-            } else {
-                completions.add(imported);
-            }
+            completions.add(importedModules[i]);
         }
 
         //wild imports: recursively go and get those completions.
@@ -630,13 +625,14 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @param imported the token to resolve.
      * @return the resolved token or the original token in case no additional information could be obtained.
      */
-    protected IToken resolveImport(ICompletionState state, IModule current, IToken imported) {
-        if(true){ //TODO: Check how to resolve things correctly (and check if this is the best place to do it)
-                  //mental note: probably the best place to put it would be after all the tokens are resolved,
-                  //and only change the imports there (or only add the arguments after a calltip is requested)
-            return imported;
-        }
-        Tuple<IModule, String> modTok = findOnImportedMods(new IToken[]{imported}, state.getNature(), imported.getRepresentation(), current.getName());
+    public IToken resolveImport(ICompletionState state, IToken imported) {
+//        if(true){ //TODO: Check how to resolve things correctly (and check if this is the best place to do it)
+//                  //mental note: probably the best place to put it would be after all the tokens are resolved,
+//                  //and only change the imports there (or only add the arguments after a calltip is requested)
+//            return imported;
+//        }
+        String curModName = imported.getParentPackage();
+        Tuple<IModule, String> modTok = findOnImportedMods(new IToken[]{imported}, state.getNature(), imported.getRepresentation(), curModName);
         if(modTok != null && modTok.o1 != null){
 
             if(modTok.o2.length() == 0){
@@ -710,6 +706,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     /* (non-Javadoc)
      * @see ICodeCompletionASTManager#getCompletionsForWildImport(ICompletionState, IModule, List, IToken)
      */
+    @SuppressWarnings("unchecked")
     public List getCompletionsForWildImport(ICompletionState state, IModule current, List completions, IToken name) {
         try {
         	//this one is an exception... even though we are getting the name as a relative import, we say it

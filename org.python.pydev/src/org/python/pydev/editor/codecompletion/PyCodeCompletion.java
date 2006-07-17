@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
@@ -267,6 +268,19 @@ public class PyCodeCompletion {
                 theList.addAll(getGlobalsFromParticipants(request, state));
             }
 
+            for(ListIterator it=theList.listIterator(); it.hasNext();){
+                Object o = it.next();
+                if(o instanceof IToken){
+                    IToken token = (IToken) o;
+                    if(token.isImportFrom()){
+                        IToken token2 = astManager.resolveImport(CompletionState.getEmptyCompletionState(token.getRepresentation(), request.nature), token);
+                        if(token != token2){
+                            token.setArgs(token2.getArgs());
+                            token.setDocStr(token2.getDocStr());
+                        }
+                    }
+                }
+            }
             changeItokenToCompletionPropostal(viewer, request, ret, theList, importsTip, state.getIsLookingForInstance());
         } catch (CompletionRecursionException e) {
             ret.add(new CompletionProposal("",request.documentOffset,0,0,null,e.getMessage(), null,null));

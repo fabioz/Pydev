@@ -65,10 +65,24 @@ public abstract class AbstractToken implements IToken{
     }
     
     /**
+     * @see org.python.pydev.core.IToken#setArgs(java.lang.String)
+     */
+    public void setArgs(String args) {
+        this.args = args;
+    }
+    
+    /**
      * @see org.python.pydev.editor.javacodecompletion.IToken#getRepresentation()
      */
     public String getRepresentation() {
         return rep;
+    }
+    
+    /**
+     * @see org.python.pydev.core.IToken#setDocStr(java.lang.String)
+     */
+    public void setDocStr(String docStr) {
+        this.doc = docStr;
     }
 
     /**
