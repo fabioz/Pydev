@@ -653,7 +653,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("testOtherImports.f1", file, nature, 0), prefs, doc);
         
         printMessages(msgs, 1);
-        assertContainsMsg("Unused in wild import: Test", msgs);
+        assertContainsMsg("Unused in wild import: SomeOtherTest, Test", msgs);
     }
     
     public void testImportNotFound5(){
