@@ -11,27 +11,26 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 
-public class PyAddSingleBlockComment extends PyAction{
+public class PyAddSingleBlockComment extends PyAction {
     /* Selection element */
-    private PySelection ps;
 
     public void run(IAction action) {
         try {
-            // Select from text editor
-            ps = new PySelection(getTextEditor());
+            PySelection ps = new PySelection(getTextEditor());
             // Perform the action
             perform(ps);
 
             // Put cursor at the first area of the selection
-            getTextEditor().selectAndReveal(ps.getEndLine().getOffset(), 0);
+            revealSelEndLine(ps);
         } catch (Exception e) {
             beep(e);
         }
     }
-    
+
     /**
      * Performs the action with a given PySelection
      * 
@@ -49,11 +48,13 @@ public class PyAddSingleBlockComment extends PyAction{
         try {
             // For each line, comment them out
             for (i = ps.getStartLineIndex(); i <= ps.getEndLineIndex(); i++) {
-                String line = ps.getLine(i).trim();
-                String fullCommentLine = getFullCommentLine(line); 
+                String line = StringUtils.rightTrim(ps.getLine(i));
+                String fullCommentLine = getFullCommentLine(line);
                 strbuf.append(fullCommentLine);
-                strbuf.append(line );
-                strbuf.append(ps.getEndLineDelim());
+                strbuf.append(line.trim());
+                if(i != ps.getEndLineIndex()){
+                    strbuf.append(ps.getEndLineDelim());
+                }
             }
 
             // Replace the text with the modified information
@@ -68,27 +69,39 @@ public class PyAddSingleBlockComment extends PyAction{
     }
 
     /**
-     * Currently returns a string with the comment block.  
-     * @param line 
+     * Currently returns a string with the comment block.
+     * 
+     * @param line
      * 
      * @return Comment line string, or a default one if Preferences are null
      */
     protected static String getFullCommentLine(String line) {
         try {
-            IPreferenceStore chainedPrefStore = PydevPlugin.getChainedPrefStore();
-            int cols = chainedPrefStore
-                    .getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
-            StringBuffer buffer = new StringBuffer(cols);
-            Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
-            char c;
-            try {
+            IPreferenceStore chainedPrefStore = null; 
+            int cols = 10;
+            char c = '-';
+            
+            try{
+                chainedPrefStore = PydevPlugin.getChainedPrefStore();
+                cols = chainedPrefStore.getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
+                Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
                 c = prefs.getString(PydevPrefs.SINGLE_BLOCK_COMMENT_CHAR).charAt(0);
-            } catch (Exception e) {
-                c = '-';
+            }catch(NullPointerException e){
+                //ignore... we're in the tests env
             }
-
+            StringBuffer buffer = new StringBuffer(cols);
+            for (int i = 0; i < line.length(); i++) {
+                char ch = line.charAt(i);
+                if(ch == '\t' || ch == ' '){
+                    buffer.append(ch);
+                }else{
+                    break;
+                }
+            }            
+            
+            
             buffer.append("#");
-            for (int i = 0; i + line.length() < cols-2; i++) {
+            for (int i = 0; i + line.length() < cols - 2; i++) {
                 buffer.append(c);
             }
             buffer.append(" ");
@@ -97,6 +110,5 @@ public class PyAddSingleBlockComment extends PyAction{
             throw new RuntimeException(e);
         }
     }
-
 
 }

@@ -34,6 +34,8 @@ public abstract class PyAction implements IEditorActionDelegate {
     public static Shell getShell() {
         return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
     }
+    
+
 
 	// Always points to the current editor
 	protected IEditorPart targetEditor;
@@ -204,7 +206,11 @@ public abstract class PyAction implements IEditorActionDelegate {
 	 * Beep...humm... yeah....beep....ehehheheh
 	 */
 	protected static void beep(Exception e) {
-		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
+        try{
+            PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
+        }catch(IllegalStateException x){
+            //ignore, workbench has still not been created
+        }
 		e.printStackTrace();
 	}
 
@@ -399,5 +405,20 @@ public abstract class PyAction implements IEditorActionDelegate {
         while (tabWidth-- > 0)
             b.append(" ");
         return b.toString();
+    }
+    
+    
+
+    /**
+     * @param ps the selection that contains the document
+     */
+    protected void revealSelEndLine(PySelection ps) {
+        // Put cursor at the first area of the selection
+        int docLen = ps.getDoc().getLength()-1;
+        IRegion endLine = ps.getEndLine();
+        if(endLine != null){
+            int curOffset = endLine.getOffset();
+            getTextEditor().selectAndReveal(curOffset<docLen?curOffset:docLen, 0);
+        }
     }
 }

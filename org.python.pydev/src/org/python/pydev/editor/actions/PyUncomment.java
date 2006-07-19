@@ -7,7 +7,6 @@
 package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.docutils.PySelection;
 
 /**
@@ -25,17 +24,12 @@ public class PyUncomment extends PyComment {
             // Perform the action
             perform(ps);
 
-            // Put cursor at the first area of the selection
-            int docLen = ps.getDoc().getLength()-1;
-            IRegion endLine = ps.getEndLine();
-            if(endLine != null){
-                int curOffset = endLine.getOffset();
-                getTextEditor().selectAndReveal(curOffset<docLen?curOffset:docLen, 0);
-            }
+            revealSelEndLine(ps);
         } catch (Exception e) {
             beep(e);
         }
     }
+
 
     /**
      * Performs the action with a given PySelection

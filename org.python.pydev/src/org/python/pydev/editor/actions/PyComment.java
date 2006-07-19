@@ -27,7 +27,7 @@ public class PyComment extends PyAction {
             perform(ps);
 
             // Put cursor at the first area of the selection
-            getTextEditor().selectAndReveal(ps.getEndLine().getOffset(), 0);
+            revealSelEndLine(ps);
         } catch (Exception e) {
             beep(e);
         }
