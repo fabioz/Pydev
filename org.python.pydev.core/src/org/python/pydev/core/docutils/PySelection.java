@@ -646,7 +646,11 @@ public class PySelection {
      */
     public IRegion getEndLine() {
         try {
-            return getDoc().getLineInformation(getEndLineIndex());
+            int endLineIndex = getEndLineIndex();
+            if(endLineIndex == -1){
+                return null;
+            }
+            return getDoc().getLineInformation(endLineIndex);
         } catch (BadLocationException e) {
             Log.log(e);
         }

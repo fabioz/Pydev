@@ -7,6 +7,7 @@
 package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.docutils.PySelection;
 
 /**
@@ -14,39 +15,32 @@ import org.python.pydev.core.docutils.PySelection;
  */
 public class PyUncomment extends PyComment {
     /* Selection element */
-    private static PySelection ps;
 
     /**
      * Grabs the selection information and performs the action.
      */
     public void run(IAction action) {
+        PySelection ps = new PySelection(getTextEditor());
         try {
-            // Select from text editor
-            ps = new PySelection(getTextEditor());
             // Perform the action
-            perform();
+            perform(ps);
 
             // Put cursor at the first area of the selection
-            getTextEditor().selectAndReveal(ps.getEndLine().getOffset(), 0);
+            int docLen = ps.getDoc().getLength()-1;
+            IRegion endLine = ps.getEndLine();
+            if(endLine != null){
+                int curOffset = endLine.getOffset();
+                getTextEditor().selectAndReveal(curOffset<docLen?curOffset:docLen, 0);
+            }
         } catch (Exception e) {
             beep(e);
         }
     }
 
     /**
-     * Performs the action with the class' PySelection.
-     * 
-     * @return boolean The success or failure of the action
-     */
-    public static boolean perform() {
-        return perform(ps);
-    }
-
-    /**
      * Performs the action with a given PySelection
      * 
-     * @param ps
-     *            Given PySelection
+     * @param ps Given PySelection
      * @return boolean The success or failure of the action
      */
     public static boolean perform(PySelection ps) {
@@ -61,10 +55,10 @@ public class PyUncomment extends PyComment {
             // For each line, comment them out
             for (i = ps.getStartLineIndex(); i <= ps.getEndLineIndex(); i++) {
                 String l = ps.getLine(i);
-                if (l.trim().startsWith("#")){ //we may want to remove comment that are not really in the beggining...
+                if (l.trim().startsWith("#")) { // we may want to remove comment that are not really in the beggining...
                     strbuf.append(l.replaceFirst("#", "") + (i < ps.getEndLineIndex() ? ps.getEndLineDelim() : ""));
-                }else{
-                    strbuf.append(l + (i < ps.getEndLineIndex() ? ps.getEndLineDelim() : "") ) ;
+                } else {
+                    strbuf.append(l + (i < ps.getEndLineIndex() ? ps.getEndLineDelim() : ""));
                 }
             }
 
