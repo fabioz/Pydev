@@ -26,7 +26,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testDupl2();
+            analyzer2.testMetaclass();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -100,16 +100,29 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals("testcase", msgs[0].getAdditionalInfo().get(1));
     }
     
-    public void testOsPath(){
+    public void testMetaclass(){
     	doc = new Document(
-    			"from os.path import *#@UnusedWildImport\n"+
-    			"print exists\n"
+    			"class MyMetaclass(type):\n"+
+    			"    def __init__(cls, name, bases, dict): #@UnusedVariable\n"+
+    			"        pass\n"+
+    			"\n"
     	);
     	analyzer = new OccurrencesAnalyzer();
     	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs,0);
-    	
+    }
+    
+    public void testOsPath(){
+        doc = new Document(
+                "from os.path import *#@UnusedWildImport\n"+
+                "print exists\n"
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs,0);
+        
     }
     
     public void testFalseUnused(){
@@ -268,7 +281,20 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs,0);
+    }
+    
+    public void testMsgInNew(){
+        doc = new Document(
+                "class C2:\n"+
+                "    def __new__(foo):\n"+
+                "        print foo\n"+
+                ""
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
+        printMessages(msgs,1);
+        assertEquals("Method '__new__' should have self or cls as first parameter", msgs[0].getMessage());
     }
     
     public void testClsInsteadOfSelf(){

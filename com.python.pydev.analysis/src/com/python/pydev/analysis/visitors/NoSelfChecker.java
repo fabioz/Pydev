@@ -6,6 +6,7 @@ package com.python.pydev.analysis.visitors;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -35,6 +36,11 @@ public class NoSelfChecker {
     private FastStack<Integer> scope = new FastStack<Integer>();
     private FastStack<HashMap<String, Tuple<Expected, FunctionDef>>> maybeNoSelfDefinedItems = new FastStack<HashMap<String, Tuple<Expected, FunctionDef>>>();
     
+    /**
+     * Stack with the names of the classes
+     */
+    private FastStack<String> classBases = new FastStack<String>();
+    
     private String moduleName;
     private AbstractScopeAnalyzerVisitor visitor;
 
@@ -46,12 +52,22 @@ public class NoSelfChecker {
 
     public void beforeClassDef(ClassDef node) {
         scope.push(Scope.SCOPE_TYPE_CLASS);
+        
+        StringBuffer buf = new StringBuffer();
+        for(exprType base : node.bases){
+            if(buf.length() > 0){
+                buf.append(",");
+            }
+            String rep = NodeUtils.getRepresentationString(base);
+            buf.append(FullRepIterable.getLastPart(rep));
+        }
+        classBases.push(buf.toString());
         maybeNoSelfDefinedItems.push(new HashMap<String, Tuple<Expected, FunctionDef>>());
     }
 
     public void afterClassDef(ClassDef node) {
         scope.pop();
-        
+        classBases.pop();
         creteMessagesForStack(maybeNoSelfDefinedItems);
     }
 
@@ -129,14 +145,19 @@ public class NoSelfChecker {
                 
                 //__new__ could start wit cls or self
                 if(!startsWithCls && !startsWithSelf){
-                    maybeNoSelfDefinedItems.peek().put(rep, new Tuple<Expected, FunctionDef>(new Expected("self", received), node));
+                    maybeNoSelfDefinedItems.peek().put(rep, new Tuple<Expected, FunctionDef>(new Expected("self or cls", received), node));
                 }
                 
             }else if(!startsWithSelf && !startsWithCls && !isStaticMethod && !isClassMethod){
                 maybeNoSelfDefinedItems.peek().put(rep, new Tuple<Expected, FunctionDef>(new Expected("self", received), node));
             
-            } else if(startsWithCls && !isClassMethod){
-                maybeNoSelfDefinedItems.peek().put(rep, new Tuple<Expected, FunctionDef>(new Expected("self", received), node));
+            }else if(startsWithCls && !isClassMethod){
+                String classBase = classBases.peek();
+                if(rep.equals("__init__") && "type".equals(classBase)){
+                    //ok, in this case, cls is expected
+                }else{
+                    maybeNoSelfDefinedItems.peek().put(rep, new Tuple<Expected, FunctionDef>(new Expected("self", received), node));
+                }
             }
         }
         scope.push(Scope.SCOPE_TYPE_METHOD);
