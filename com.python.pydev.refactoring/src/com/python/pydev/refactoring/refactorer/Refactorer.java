@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ltk.core.refactoring.participants.RenameRefactoring;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
 import org.python.pydev.core.FindInfo;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
@@ -238,6 +239,8 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
         
         Set<Tuple3<String, Integer, Integer>> whereWePassed = new HashSet<Tuple3<String, Integer, Integer>>();
         
+        tok = FullRepIterable.getLastPart(tok); //in an import..from, the last part will always be the token imported 
+        
         while(d.ast instanceof ImportFrom){
             Tuple3<String, Integer, Integer> t1 = getTupFromDefinition(d);
             if(t1 == null){
@@ -245,7 +248,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
             }
             whereWePassed.add(t1);
             
-            Definition[] found = (Definition[]) d.module.findDefinition(CompletionState.getEmptyCompletionState(tok, request.nature), d.line, d.col, request.nature, lFindInfo);
+            Definition[] found = (Definition[]) d.module.findDefinition(CompletionState.getEmptyCompletionState(tok, request.nature), d.line-1, d.col-1, request.nature, lFindInfo);
             if(found != null && found.length == 1){
                 Tuple3<String,Integer,Integer> tupFromDefinition = getTupFromDefinition(found[0]);
                 if(tupFromDefinition == null){

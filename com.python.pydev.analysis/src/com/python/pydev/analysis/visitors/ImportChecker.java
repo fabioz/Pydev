@@ -7,7 +7,7 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.Tuple;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
 import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
@@ -74,7 +74,7 @@ public class ImportChecker {
     public ImportInfo visitImportToken(IToken token, boolean reportUndefinedImports) {
         //try to find it as a relative import
         boolean wasResolved = false;
-        Tuple<IModule, String> modTok = null;
+        Tuple3<IModule, String, IToken> modTok = null;
 		if(token instanceof SourceToken){
         	
         	ICodeCompletionASTManager astManager = nature.getAstManager();
