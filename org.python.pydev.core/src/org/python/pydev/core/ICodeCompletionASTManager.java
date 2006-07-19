@@ -109,9 +109,10 @@ public interface ICodeCompletionASTManager {
     /**
      * @return tuple with:
      * 0: mod
-     * 1: tok
+     * 1: tok (string)
+     * 2: actual tok
      */
-    public abstract Tuple<IModule, String> findOnImportedMods( IPythonNature nature, String activationToken, IModule current);
+    public abstract Tuple3<IModule, String, IToken> findOnImportedMods( IPythonNature nature, String activationToken, IModule current);
 
     /**
      * This function tries to find some activation token defined in some imported module.  
@@ -126,9 +127,10 @@ public interface ICodeCompletionASTManager {
      * the TestCase is put as the module
      * 
      * 0: mod
-     * 1: tok
+     * 1: tok (string)
+     * 2: actual tok
      */
-    public abstract Tuple<IModule, String> findOnImportedMods( IToken[] importedModules, IPythonNature nature, String activationToken, String currentModuleName);
+    public abstract Tuple3<IModule, String, IToken> findOnImportedMods( IToken[] importedModules, IPythonNature nature, String activationToken, String currentModuleName);
     
     /**
      * Finds the tokens on the given imported modules

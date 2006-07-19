@@ -1,0 +1,1 @@
+from extendable.searching.mod1.foo import Foo

@@ -21,6 +21,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
@@ -392,7 +393,7 @@ public class SourceModule extends AbstractModule {
         List<IToken> localImportedModules = scopeVisitor.scope.getLocalImportedModules(line, col, this.name);
         for (IToken tok : localImportedModules) {
         	if(tok.getRepresentation().equals(rep)){
-        		Tuple<IModule, String> o = nature.getAstManager().findOnImportedMods(new IToken[]{tok}, nature, rep, this.getName());
+                Tuple3<IModule, String, IToken> o = nature.getAstManager().findOnImportedMods(new IToken[]{tok}, nature, rep, this.getName());
                 if(o != null && o.o1 instanceof SourceModule){
                     ICompletionState copy = state.getCopy();
                     copy.setActivationToken(o.o2);
@@ -449,7 +450,7 @@ public class SourceModule extends AbstractModule {
         String tok = rep;
         SourceModule mod = this;
 
-        Tuple<IModule, String> o = nature.getAstManager().findOnImportedMods(nature, rep, this);
+        Tuple3<IModule, String, IToken> o = nature.getAstManager().findOnImportedMods(nature, rep, this);
         
         if(o != null && o.o1 instanceof SourceModule){
             mod =  (SourceModule) o.o1;

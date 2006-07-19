@@ -25,6 +25,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
@@ -626,13 +627,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @return the resolved token or the original token in case no additional information could be obtained.
      */
     public IToken resolveImport(ICompletionState state, IToken imported) {
-//        if(true){ //TODO: Check how to resolve things correctly (and check if this is the best place to do it)
-//                  //mental note: probably the best place to put it would be after all the tokens are resolved,
-//                  //and only change the imports there (or only add the arguments after a calltip is requested)
-//            return imported;
-//        }
         String curModName = imported.getParentPackage();
-        Tuple<IModule, String> modTok = findOnImportedMods(new IToken[]{imported}, state.getNature(), imported.getRepresentation(), curModName);
+        Tuple3<IModule, String, IToken> modTok = findOnImportedMods(new IToken[]{imported}, state.getNature(), imported.getRepresentation(), curModName);
         if(modTok != null && modTok.o1 != null){
 
             if(modTok.o2.length() == 0){
@@ -738,7 +734,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     }
 
     public IToken[] findTokensOnImportedMods( IToken[] importedModules, ICompletionState state, IModule current) {
-        Tuple<IModule, String> o = findOnImportedMods(importedModules, state.getNature(), state.getActivationToken(), current.getName());
+        Tuple3<IModule, String, IToken> o = findOnImportedMods(importedModules, state.getNature(), state.getActivationToken(), current.getName());
         
         if(o == null)
             return null;
@@ -772,7 +768,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * 0: mod
      * 1: tok
      */
-    public Tuple<IModule, String> findOnImportedMods( IPythonNature nature, String activationToken, IModule current) {
+    public Tuple3<IModule, String, IToken> findOnImportedMods( IPythonNature nature, String activationToken, IModule current) {
         IToken[] importedModules = current.getTokenImportedModules();
         return findOnImportedMods(importedModules, nature, activationToken, current.getName());
     }
@@ -790,9 +786,10 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * the TestCase is put as the module
      * 
      * 0: mod
-     * 1: tok
+     * 1: tok (string)
+     * 2: actual tok
      */
-    public Tuple<IModule, String> findOnImportedMods( IToken[] importedModules, IPythonNature nature, String activationToken, String currentModuleName) {
+    public Tuple3<IModule, String, IToken> findOnImportedMods( IToken[] importedModules, IPythonNature nature, String activationToken, String currentModuleName) {
         	
     	FullRepIterable iterable = new FullRepIterable(activationToken, true);
     	for(String tok : iterable){
@@ -802,7 +799,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 	            
 	            if(modRep.equals(tok)){
                     String act = activationToken;
-	            	return findOnImportedMods(importedModule, tok, nature, act, currentModuleName);
+	            	Tuple<IModule, String> r = findOnImportedMods(importedModule, tok, nature, act, currentModuleName);
+                    if(r == null){
+                        return null;
+                    }
+                    return new Tuple3<IModule, String, IToken>(r.o1, r.o2, importedModule);
 	            }
 	        }
         }   
