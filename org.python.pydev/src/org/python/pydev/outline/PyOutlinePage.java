@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -17,6 +18,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.widgets.Composite;
@@ -27,6 +29,9 @@ import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
@@ -47,7 +52,13 @@ import org.python.pydev.ui.UIConstants;
  **/
 public class PyOutlinePage extends ContentOutlinePage  {
 
-	ViewerSorter sortByNameSorter;
+	private static final String PREF_ALPHA_SORT = "org.python.pydev.OUTLINE_ALPHA_SORT";
+
+    private static final String PREF_HIDE_COMMENTS = "org.python.pydev.OUTLINE_HIDE_COMMENTS";
+    
+    private static final String PREF_HIDE_IMPORTS = "org.python.pydev.OUTLINE_HIDE_IMPORTS";
+
+    ViewerSorter sortByNameSorter;
 
 	PyEdit editorView;
 	IDocument document;
@@ -56,6 +67,10 @@ public class PyOutlinePage extends ContentOutlinePage  {
 	
 	// listeners to rawPartition
 	ISelectionChangedListener selectionListener;
+
+    private ViewerFilter hideCommentsFilter;
+
+    private ViewerFilter hideImportsFilter;
 
 	public PyOutlinePage(PyEdit editorView) {
 		super();
@@ -178,10 +193,89 @@ public class PyOutlinePage extends ContentOutlinePage  {
 		}
 	}
 
+    /**
+     * Should we hide the comments?
+     */
+    protected void setHideComments(boolean doHideComments) {
+        getStore().setValue(PREF_HIDE_COMMENTS, doHideComments);
+        ViewerFilter filter = getHideCommentsFilter();
+        if(doHideComments){
+            getTreeViewer().addFilter(filter);
+        }else{
+            getTreeViewer().removeFilter(filter);
+        }
+    }
+
+    /**
+     * @return the filter used to hide comments
+     */
+    private ViewerFilter getHideCommentsFilter() {
+        if(hideCommentsFilter == null){
+            hideCommentsFilter = new ViewerFilter(){
+       
+                @Override
+                public boolean select(Viewer viewer, Object parentElement, Object element) {
+                    if(element instanceof ParsedItem){
+                        ParsedItem item = (ParsedItem) element;
+                        if(!(item.astThis.node instanceof commentType)){
+                            return true;
+                        }
+                        
+                    }
+                    return false;
+                }
+                
+            };
+        }
+        return hideCommentsFilter;
+    }
+
+    
+    /**
+     * Should we hide the comments?
+     */
+    protected void setHideImports(boolean doHideImports) {
+        getStore().setValue(PREF_HIDE_IMPORTS, doHideImports);
+        ViewerFilter filter = getHideImportsFilter();
+        if(doHideImports){
+            getTreeViewer().addFilter(filter);
+        }else{
+            getTreeViewer().removeFilter(filter);
+        }
+    }
+    
+    /**
+     * @return the filter used to hide comments
+     */
+    private ViewerFilter getHideImportsFilter() {
+        if(hideImportsFilter == null){
+            hideImportsFilter = new ViewerFilter(){
+                
+                @Override
+                public boolean select(Viewer viewer, Object parentElement, Object element) {
+                    if(element instanceof ParsedItem){
+                        ParsedItem item = (ParsedItem) element;
+                        SimpleNode n = item.astThis.node;
+                        if(n instanceof ImportFrom || n instanceof Import){
+                            return false;
+                        }
+                        
+                    }
+                    return true;
+                }
+                
+            };
+        }
+        return hideImportsFilter;
+    }
+    
+
+    
 	/**
 	 * @param doSort : sort or not?
 	 */
 	public void setAlphaSort(boolean doSort) {
+        getStore().setValue(PREF_ALPHA_SORT, doSort);
 		if (sortByNameSorter == null) {
 			sortByNameSorter = new ViewerSorter() {
 				@SuppressWarnings("unchecked")
@@ -192,25 +286,60 @@ public class PyOutlinePage extends ContentOutlinePage  {
 		}
 		getTreeViewer().setSorter(doSort ? sortByNameSorter : null);
 	}
+
+    /**
+     * @return the preference store we should use
+     */
+    private IPreferenceStore getStore() {
+        return PydevPlugin.getDefault().getPreferenceStore();
+    }
 	
 	private void createActions() {
-		// Sort by name
+		//---- Sort by name
 		Action sortByName = new Action("Sort by name", IAction.AS_CHECK_BOX ) {
 			public void run() {
 				setAlphaSort(isChecked());
 			}
 		};
 		sortByName.setToolTipText("Sort by name");
-		// Collapse all
+        
+		
+		//---- Hide comments
+		Action hideComments = new Action("Hide Comments", IAction.AS_CHECK_BOX) {
+		    public void run() {
+		        setHideComments(isChecked());
+		    }
+		};
+		
+		
+		//---- Hide comments
+		Action hideImports = new Action("Hide Imports", IAction.AS_CHECK_BOX) {
+		    public void run() {
+		        setHideImports(isChecked());
+		    }
+		};
+        
+		//---- Collapse all
 		Action collapseAll = new Action("Collapse all", IAction.AS_PUSH_BUTTON) {
 			public void run() {
 				getTreeViewer().collapseAll();
 			}
 		};
 		
+		//---- Expand all
+		Action expandAll = new Action("Expand all", IAction.AS_PUSH_BUTTON) {
+		    public void run() {
+                getTreeViewer().expandAll();
+		    }
+		};
+		
+		restorePreferences(sortByName, hideComments, hideImports);
 		try {
 			sortByName.setImageDescriptor(imageCache.getDescriptor(UIConstants.ALPHA_SORT));
 			collapseAll.setImageDescriptor(imageCache.getDescriptor(UIConstants.COLLAPSE_ALL));
+			expandAll.setImageDescriptor(imageCache.getDescriptor(UIConstants.EXPAND_ALL));
+            hideComments.setImageDescriptor(imageCache.getDescriptor(UIConstants.COMMENT_BLACK));
+            hideImports.setImageDescriptor(imageCache.getDescriptor(UIConstants.IMPORT_ICON));
 		} catch (MalformedURLException e) {
 			System.err.println("missing icon");
 			e.printStackTrace();
@@ -219,26 +348,49 @@ public class PyOutlinePage extends ContentOutlinePage  {
 		// Add actions to the toolbar
 		IToolBarManager toolbarManager = getSite().getActionBars().getToolBarManager();
 		toolbarManager.add(sortByName);
+		toolbarManager.add(hideComments);
+		toolbarManager.add(hideImports);
 		toolbarManager.add(collapseAll);
+		toolbarManager.add(expandAll);
 	}
+
+    
+    /**
+     * @param sortByName the action to sort by name
+     * @param hideComments the action to hide the comments
+     * @param hideImports the action to hide the imports
+     */
+    private void restorePreferences(Action sortByName, Action hideComments, Action hideImports) {
+        sortByName.setChecked(getStore().getBoolean(PREF_ALPHA_SORT));
+        hideComments.setChecked(getStore().getBoolean(PREF_HIDE_COMMENTS));
+        hideImports.setChecked(getStore().getBoolean(PREF_HIDE_IMPORTS));
+        
+        setAlphaSort(sortByName.isChecked());
+        setHideComments(hideComments.isChecked());
+        setHideImports(hideImports.isChecked());
+    }
 	
-	/**
+    /**
 	 * create the outline view widgets
 	 */
 	public void createControl(Composite parent) {
 		super.createControl(parent); // this creates a tree viewer
-		createParsedOutline();
-		// selecting an item in the outline scrolls the document
-		final TreeViewer tree = getTreeViewer();
-		selectionListener = new ISelectionChangedListener() {
-			public void selectionChanged(SelectionChangedEvent event) {
-				StructuredSelection sel = (StructuredSelection)tree.getSelection();
-				SimpleNode node = model.getSelectionPosition(sel);
-				editorView.revealModelNode(node);
-			}
-		};
-		tree.addSelectionChangedListener(selectionListener);		
-		createActions();
+		try{
+    		createParsedOutline();
+    		// selecting an item in the outline scrolls the document
+    		final TreeViewer tree = getTreeViewer();
+    		selectionListener = new ISelectionChangedListener() {
+    			public void selectionChanged(SelectionChangedEvent event) {
+    				StructuredSelection sel = (StructuredSelection)tree.getSelection();
+    				SimpleNode node = model.getSelectionPosition(sel);
+    				editorView.revealModelNode(node);
+    			}
+    		};
+    		tree.addSelectionChangedListener(selectionListener);	
+            createActions();
+        }catch(Throwable e){
+            PydevPlugin.log(e);
+        }
 	}
 
 }

@@ -16,6 +16,9 @@ Pydev:
 - self is added as a parameter in the completion analyzing whether we're in a bounded or unbounded call
 - Possibility of setting pyunit verbosity level (by Darrell Maples)
 - Pressing Ctrl+Space a second time changes default / template completions
+- Added option for hiding comments and imports in the outline view
+- Persisting outline view configuration
+- Added option for expanding all in the outline view
 
 Pydev Extensions:
 - Handling nested 'for' and list comprehensions correctly in code-analysis

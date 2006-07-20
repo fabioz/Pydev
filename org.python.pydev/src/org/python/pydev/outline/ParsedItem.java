@@ -150,10 +150,6 @@ public class ParsedItem implements Comparable{
         int myRank = getClassRanking();
         int rank = item.getClassRanking();
         
-        if(myRank == -1 || rank == -1){
-            return 0;
-        }
-        
         if (myRank == rank) {
             return toString().compareTo(item.toString());
             
