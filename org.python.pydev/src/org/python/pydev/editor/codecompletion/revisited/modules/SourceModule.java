@@ -570,7 +570,7 @@ public class SourceModule extends AbstractModule {
                         return new Definition(def.o1, def.o2, tok, a, new Scope(new FastStack<SimpleNode>()), module);
                     }
                 }else{
-                    CompiledToken comp = (CompiledToken) token;
+                	IToken comp = (IToken) token; //Compiled or Concrete token
                     String parentPackage = comp.getParentPackage();
                     FullRepIterable iterable = new FullRepIterable(parentPackage, true);
                     
