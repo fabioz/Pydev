@@ -39,6 +39,15 @@
             class="org.python.pydev.editor.PyDocumentSetupParticipant"
             extensions="py,pyw"/>
    </extension>
+<!-- Python file content type (so that it is regarded as text) -->
+  <extension point="org.eclipse.core.runtime.contentTypes">
+      <content-type
+            file-extensions="py,pyw"
+            name="Python File"
+            id="pythonfile"
+            base-type="org.eclipse.core.runtime.text"/>
+   </extension>
+
 <!-- Python nature -->
    <extension
          id="pythonNature"
