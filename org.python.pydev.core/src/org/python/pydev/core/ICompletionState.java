@@ -6,6 +6,7 @@ package org.python.pydev.core;
 
 
 
+
 public interface ICompletionState {
 
     String getActivationToken();
@@ -44,6 +45,8 @@ public interface ICompletionState {
 
     void checkFindMemory(IModule module, String value);
 
+    void checkFindDefinitionMemory(IModule mod, String tok);
+    
     boolean getIsInCalltip();
 
     public static final int LOOKING_FOR_INSTANCE_UNDEFINED=0;
@@ -57,5 +60,6 @@ public interface ICompletionState {
     void setLookingForInstance(boolean b);
 
     ICompletionState getCopyWithActTok(String value);
+
 
 }

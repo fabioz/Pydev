@@ -469,7 +469,12 @@ public class SourceModule extends AbstractModule {
         //mod == this if we are now checking the globals (or maybe not)...heheheh
         ICompletionState copy = state.getCopy();
         copy.setActivationToken(tok);
-        findDefinitionsFromModAndTok(nature, toRet, visitor.moduleImported, mod, copy);
+        try{
+        	state.checkFindDefinitionMemory(mod, tok);
+        	findDefinitionsFromModAndTok(nature, toRet, visitor.moduleImported, mod, copy);
+        }catch(CompletionRecursionException e){
+        	//ignore (will return what we've got so far)
+        }
             
         return toRet.toArray(new Definition[0]);
     }

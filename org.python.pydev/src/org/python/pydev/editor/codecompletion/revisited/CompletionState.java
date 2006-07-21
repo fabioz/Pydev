@@ -29,6 +29,7 @@ public class CompletionState implements ICompletionState {
     public Memo<String> importedModsCalled = new Memo<String>();
     public Memo<String> findMemory = new Memo<String>();
     public Memo<String> resolveImportMemory = new Memo<String>();
+    public Memo<String> findDefinitionMemory = new Memo<String>();
     
     public boolean builtinsGotten=false;
     public boolean localImportsGotten=false;
@@ -49,7 +50,8 @@ public class CompletionState implements ICompletionState {
         state.definitionMemory = definitionMemory;
         state.findMemory = findMemory;
         state.resolveImportMemory = resolveImportMemory;
-
+        state.findDefinitionMemory = findDefinitionMemory;
+        
         state.builtinsGotten = builtinsGotten;
         state.localImportsGotten = localImportsGotten;
         state.isInCalltip = isInCalltip;
@@ -176,6 +178,13 @@ public class CompletionState implements ICompletionState {
         }
         
     }
+
+	public void checkFindDefinitionMemory(IModule mod, String tok) {
+		if(this.findDefinitionMemory.isInRecursion(mod, tok)){
+			throw new CompletionRecursionException("Possible recursion found (value: "+tok+") - stopping analysis.");
+		}
+	}
+	
     /**
      * @param module
      * @param base
