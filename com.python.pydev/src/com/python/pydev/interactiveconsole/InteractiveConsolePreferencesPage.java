@@ -46,7 +46,7 @@ public class InteractiveConsolePreferencesPage extends FieldEditorPreferencePage
     public void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
-        addField(new LabelFieldEditor("Interactive_console_note","The console is automatically activated with Ctrl+Enter in any Pydev Editor.\n\n", p){
+        addField(new LabelFieldEditor("Interactive_console_note","The console is automatically activated with Ctrl+Alt+Enter in any Pydev Editor.\n\n", p){
 
             private Label label;
 
