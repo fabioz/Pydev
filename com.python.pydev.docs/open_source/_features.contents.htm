@@ -1,13 +1,35 @@
 <h2>New on: LAST_VERSION_TAG</h2>
+
+<strong>Code Completion</strong>
 <ul>
-<li>The user is asked for which paths should be added to the system pythonpath
-</li><li>Go to previous method now works with decorators
-</li><li>Stack-trace link now opens in correct line for external files
-</li><li>Variables now show in the variables view while debugging
-</li><li>If an invalid interpreter is selected to run a file (old interpreter or wrong project type), a warning is given to the user
-</li><li>Ctrl+w is removed as the default for select word (the action is still there, but its keybinding is removed, so, users have to configure themselves which keybinding they want for it)
-</li><li>Assign to local or field variable now enters in linked mode
-</li><li>Added dependency to Eclipse 3.2 features, as version 1.2.0 of pydev and newer are only Eclipse 3.2 compatible.
+<li>Calltips added to pydev
+</li><li>The parameters are now linked when a completion is selected (so, tab iterates through them and enter goes to the end of the declaration)
+</li><li>Parameters gotten from docstring analysis for builtins that don't work with 'inspect.getargspec'
+</li><li>Getting completions for the pattern a,b,c=range(3) inside a class
+</li><li>Code completion for nested modules had a bug fixed
+</li><li>Added the 'toggle completion type' when ctrl is pressed in the code-completion for context-sensitive data
+</li><li>Code-completion works correctly after instantiating a class: MyClass(). &lt;-- will bring correct completions
+</li><li>Code-completion can now get the arguments passed when instatiating a class (getting the args from __init__)
+</li><li>self is added as a parameter in the completion analyzing whether we're in a bounded or unbounded call
+</li><li>Pressing Ctrl+Space a second time changes default / template completions
+</li>
+<strong>See <a href="http://pydev.blogspot.com/2006/07/improving-code-completion-in-pydev.html">details on toggling completion mode, cycling through completions and linked mode (blog)</a></strong>
+</ul>
+
+<strong>Outline View</strong>
+<ul>
+	<li>Added option for hiding comments and imports
+	</li><li>Persisting configuration
+	</li><li>Added option for expanding all
+	</li>
+</ul>
+
+<strong>Others</strong>
+<ul>
+<li>Possibility of setting pyunit verbosity level (by <strong>Darrell Maples</strong>)
+</li><li>Errors getting the tests to run are no longer suppressed
+</li><li>Ctrl+2+kill also clears the internal cache for compiled modules (especially useful for those that create compiled dependencies).
+</li><li>Last opened path remembered when configuring the pythonpath (dialog)
 </li>
 </ul>
 
@@ -67,6 +89,23 @@
 
 <hr/>
 <h2>Features History</h2>
+
+
+<h2>New on: 1.2.1</h2>
+
+
+<ul>
+<li>The user is asked for which paths should be added to the system pythonpath
+</li><li>Go to previous method now works with decorators
+</li><li>Stack-trace link now opens in correct line for external files
+</li><li>Variables now show in the variables view while debugging
+</li><li>If an invalid interpreter is selected to run a file (old interpreter or wrong project type), a warning is given to the user
+</li><li>Ctrl+w is removed as the default for select word (the action is still there, but its keybinding is removed, so, users have to configure themselves which keybinding they want for it)
+</li><li>Assign to local or field variable now enters in linked mode
+</li><li>Added dependency to Eclipse 3.2 features, as version 1.2.0 of pydev and newer are only Eclipse 3.2 compatible.
+</li>
+</ul>
+
 
 
 <h2>New on: 1.2.0</h2>
