@@ -1,3 +1,9 @@
+after 1.2.2
+
+Pydev:
+
+- When the user specifies an invalid interpreter, a better error report is given (it was only shown in the 
+error log previously)
 
 after 1.2.1
 

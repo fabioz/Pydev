@@ -12,8 +12,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.ProgressMonitorWrapper;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -577,6 +580,19 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 				if (operation.e != null) {
 					logger.println("- Some error happened while getting info on the interpreter:");
 					operation.e.printStackTrace(logger);
+                    
+                    String errorMsg = "Some error happened while getting info on the interpreter.\n\n" +
+                                "Common reasons include:\n\n" +
+                                "- Specifying an invalid interpreter" +
+                                "(usually a link to the actual interpreter on Mac or Linux)\n" +
+                                "- Having spaces in your Eclipse installation path.";
+                    //show the user a message (so that it does not fail silently)...
+                    ErrorDialog.openError(this.getShell(), "Error getting info on interpreter", 
+                            errorMsg, 
+                            PydevPlugin.makeStatus(IStatus.ERROR, "Check your error log for more details.\n\n" +
+                                "More info can also be found at the bug report: http://sourceforge.net/tracker/index.php?func=detail&aid=1523582&group_id=85796&atid=577329", 
+                            operation.e));
+                    
 					throw operation.e;
 				}
 
