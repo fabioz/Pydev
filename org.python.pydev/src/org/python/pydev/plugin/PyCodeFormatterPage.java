@@ -5,7 +5,6 @@
  */
 package org.python.pydev.plugin;
 
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.swt.widgets.Composite;
@@ -22,7 +21,7 @@ implements IWorkbenchPreferencePage{
     public static final boolean DEFAULT_USE_SPACE_AFTER_COMMA = true;
     
     public static final String USE_SPACE_FOR_PARENTESIS = "USE_SPACE_FOR_PARENTESIS";
-    public static final boolean DEFAULT_USE_SPACE_FOR_PARENTESIS = true;
+    public static final boolean DEFAULT_USE_SPACE_FOR_PARENTESIS = false;
     
     /**
      * @param style
