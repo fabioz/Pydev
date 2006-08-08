@@ -138,7 +138,7 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
      */
     public static InterpreterInfo fromString(String received, boolean askUserInOutPath) {
         if(received.toLowerCase().indexOf("executable") == -1){
-            throw new RuntimeException("Unable to recreate the Interpreter info (Its format changed. Please, re-create your Interpreter information)");
+            throw new RuntimeException("Unable to recreate the Interpreter info (Its format changed. Please, re-create your Interpreter information).Contents found:"+received);
         }
     	received = received.replaceAll("\n", "").replaceAll("\r", "");
         String[] forcedSplit = received.split("\\$");
