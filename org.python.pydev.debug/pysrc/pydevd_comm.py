@@ -17,24 +17,24 @@ each command has a format:
  
     NUMBER   NAME                 FROM*     ARGUMENTS                     RESPONSE      NOTE
 100 series: program execution
-    101      RUN                  RDB       -                             -
-    102      LIST_THREADS         RDB                                     RETURN with XML listing of all threads
+    101      RUN                  JAVA      -                             -
+    102      LIST_THREADS         JAVA                                    RETURN with XML listing of all threads
     103      THREAD_CREATE        PYDB      -                             XML with thread information
-    104      THREAD_KILL          RDB       id                            kills the thread
-                                  PYDB      id                            nofies RDB that thread was killed
-    105      THREAD_SUSPEND       RDB       XML of the stack,             suspends the thread
+    104      THREAD_KILL          JAVA      id                            kills the thread
+                                  PYDB      id                            nofies JAVA that thread was killed
+    105      THREAD_SUSPEND       JAVA      XML of the stack,             suspends the thread
                                             reason for suspension
-                                  PYDB      id                            notifies RDB that thread was suspended
-    106      THREAD_RUN           RDB       id                            resume the thread
-                                  PYDB      id \t reason                  notifies RDB that thread was resumed
-    107      STEP_INTO            RDB       thread_id
-    108      STEP_OVER            RDB       thread_id
-    109      STEP_RETURN          RDB       thread_id
-    110      GET_VARIABLE         RDB       var_locator                   GET_VARIABLE with XML of var content
+                                  PYDB      id                            notifies JAVA that thread was suspended
+    106      THREAD_RUN           JAVA      id                            resume the thread
+                                  PYDB      id \t reason                  notifies JAVA that thread was resumed
+    107      STEP_INTO            JAVA      thread_id
+    108      STEP_OVER            JAVA      thread_id
+    109      STEP_RETURN          JAVA      thread_id
+    110      GET_VARIABLE         JAVA      var_locator                   GET_VARIABLE with XML of var content
                                             see code for definition
-    111      SET_BREAK            RDB       file/line of the breakpoint
-    112      REMOVE_BREAK         RDB       file/line of the return
-    113      EVALUATE_EXPRESSION  RDB       expression                    result of evaluating the expression
+    111      SET_BREAK            JAVA      file/line of the breakpoint
+    112      REMOVE_BREAK         JAVA      file/line of the return
+    113      EVALUATE_EXPRESSION  JAVA      expression                    result of evaluating the expression
     114      CMD_GET_FRAME        RDB
     115      CMD_EXEC_EXPRESSION  RDB
     116      CMD_WRITE_TO_CONSOLE PYDB
@@ -46,7 +46,7 @@ each command has a format:
 900 series: errors
     501      ERROR                either      -                           This is reserved for unexpected errors.
                                   
-    * RDB - remote debugger, the java end
+    * JAVA - remote debugger, the java end
     * PYDB - pydevd, the python end
 '''
 import traceback
@@ -311,8 +311,8 @@ class NetCommandFactory:
             t = threading.enumerate()
             cmdText = "<xml>"
             for i in t:
-#                print 'makeListThreadsMessage', t.additionalInfo.pydev_last_event
-                cmdText += self.threadToXML(i)
+                if t.isAlive():
+                    cmdText += self.threadToXML(i)
             cmdText += "</xml>"
             return NetCommand(CMD_RETURN, seq, cmdText)
         except:

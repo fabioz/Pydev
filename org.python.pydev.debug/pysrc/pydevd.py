@@ -154,6 +154,11 @@ class PyDB:
     
     STATE_RUN = 1
     STATE_SUSPEND = 2 # thread states
+    RUNNING_THREAD_IDS = {} #this is a dict of thread ids pointing to thread ids. Whenever a command
+                            #is passed to the java end that acknowledges that a thread was created,
+                            #the thread id should be passed here -- and if at some time we do not find
+                            #that thread alive anymore, we must remove it from this list and make
+                            #the java side know that the thread was killed.
 
     def __init__(self):
         SetGlobalDebugger(self)
@@ -210,6 +215,7 @@ class PyDB:
             cmd = None
             for t in all_threads:
                 if id(t) == thread_id:
+                    self.RUNNING_THREAD_IDS[thread_id] = t
                     cmd = self.cmdFactory.makeThreadCreatedMessage(t)
             if cmd:
                 pydevd_log(2, "found a new thread " + str(thread_id))
@@ -245,6 +251,9 @@ class PyDB:
         
 
     def processInternalCommands(self):
+        '''This function processes internal commands
+        '''
+        
         self.acquire()
         try:
             if bufferStdOutToServer:
@@ -253,9 +262,16 @@ class PyDB:
             if bufferStdErrToServer:
                 self.checkOutput(sys.stderrBuf,2)
 
+            currThreadId = id(threading.currentThread())
             threads = threading.enumerate()
             foundNonPyDBDaemonThread = False
+            foundThreads = {}
+            
             for t in threads:
+                tId = id(t)
+                if t.isAlive():
+                    foundThreads[tId] = tId
+                    
                 if not isinstance(t, PyDBDaemonThread):
                     foundNonPyDBDaemonThread = True
                     queue = self.getInternalQueue(id(t))
@@ -264,7 +280,7 @@ class PyDB:
                     try:
                         while True:
                             int_cmd = queue.get(False)
-                            if int_cmd.canBeExecutedBy(id(threading.currentThread())):
+                            if int_cmd.canBeExecutedBy(currThreadId):
                                 pydevd_log(2, "processing internal command " + str(int_cmd))
                                 int_cmd.doIt(self)
                             else:
@@ -274,14 +290,26 @@ class PyDB:
                     except PydevQueue.Empty:
                         for int_cmd in cmdsToReadd:
                             queue.put(int_cmd)
-                        pass # this is how we exit
-    
+                        # this is how we exit
+
             if not foundNonPyDBDaemonThread:
                 self.finishDebuggingSession = True
+                        
+            for tId in self.RUNNING_THREAD_IDS.keys():
+                if tId not in foundThreads:
+                    self.processThreadNotAlive(tId)
+                    
         finally:
             self.release()
       
     def processNetCommand(self, id, seq, text):
+        '''Processes a command received from the Java side
+        
+        @param id: the id of the command
+        @param seq: the sequence of the command
+        @param text: the text received in the command
+        '''
+        
         self.acquire()
         try:
             try:
@@ -408,12 +436,17 @@ class PyDB:
         finally:
             self.release()
 
-    def processThreadNotAlive(self, thread):
+    def processThreadNotAlive(self, threadId):
         """ if thread is not alive, cancel trace_dispatch processing """
+        thread = self.RUNNING_THREAD_IDS.get(threadId,None)
+        if thread is None:
+            return
+        
+        del self.RUNNING_THREAD_IDS[threadId]
         wasNotified = thread.additionalInfo.pydev_notify_kill
             
         if not wasNotified:
-            cmd = self.cmdFactory.makeThreadKilledMessage(id(thread))
+            cmd = self.cmdFactory.makeThreadKilledMessage(threadId)
             self.writer.addCommand(cmd)
             thread.additionalInfo.pydev_notify_kill = True
 
@@ -492,7 +525,7 @@ class PyDB:
 
         # if thread is not alive, cancel trace_dispatch processing
         if not t.isAlive():
-            self.processThreadNotAlive(t)
+            self.processThreadNotAlive(id(t))
             return None # suspend tracing
         
         try:
