@@ -349,7 +349,9 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                                 }
                             }
             			}else if(sizeExpected == sizeApplied){
-            				ps.deleteSpacesAfter(command.offset);
+                            if(command.length == 0){
+                				ps.deleteSpacesAfter(command.offset);
+                            }
             				command.text = txt;
             			}else if(sizeApplied > sizeExpected){
             				ps.deleteSpacesAfter(command.offset);

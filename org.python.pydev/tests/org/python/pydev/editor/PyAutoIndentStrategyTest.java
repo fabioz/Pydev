@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testTab();
+            s.testTab2();
             s.tearDown();
     		junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -65,6 +65,19 @@ public class PyAutoIndentStrategyTest extends TestCase {
         DocCmd docCmd = new DocCmd(str.length(), 0, "\t");
         strategy.customizeDocumentCommand(new Document(str), docCmd);
         assertEquals("    ", docCmd.text);
+    }
+    
+    public void testTab2() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String str = 
+            "class Foo:\n"+
+            "    def m"+
+        "";
+        DocCmd docCmd = new DocCmd(str.length()-"    def m".length(), 4, "\t");
+        Document document = new Document(str);
+        strategy.customizeDocumentCommand(document, docCmd);
+        assertEquals("    ", docCmd.text); 
+        assertEquals(str, document.get()); //as we already have a selection, nothing should be deleted
     }
     
     public void testSpaces() {
