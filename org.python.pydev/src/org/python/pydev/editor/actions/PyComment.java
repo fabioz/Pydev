@@ -6,8 +6,14 @@
 
 package org.python.pydev.editor.actions;
 
+import java.util.List;
+
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.ITextSelection;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 
 /**
  * Creates a bulk comment. Comments all selected lines
@@ -24,10 +30,10 @@ public class PyComment extends PyAction {
             // Select from text editor
             PySelection ps = new PySelection(getTextEditor());
             // Perform the action
-            perform(ps);
+            Tuple<Integer, Integer> repRegion = perform(ps);
 
             // Put cursor at the first area of the selection
-            revealSelEndLine(ps);
+            getTextEditor().selectAndReveal(repRegion.o1, repRegion.o2);
         } catch (Exception e) {
             beep(e);
         }
@@ -37,32 +43,31 @@ public class PyComment extends PyAction {
      * Performs the action with a given PySelection
      * 
      * @param ps Given PySelection
-     * @return boolean The success or failure of the action
+     * @return the new selection
+     * @throws BadLocationException 
      */
-    public static boolean perform(PySelection ps) {
+    public Tuple<Integer, Integer> perform(PySelection ps) throws BadLocationException {
         // What we'll be replacing the selected text with
         StringBuffer strbuf = new StringBuffer();
 
         // If they selected a partial line, count it as a full one
         ps.selectCompleteLine();
 
-        int i;
-        try {
-            // For each line, comment them out
-            for (i = ps.getStartLineIndex(); i < ps.getEndLineIndex(); i++) {
-                strbuf.append("#" + ps.getLine(i) + ps.getEndLineDelim());
-            }
-            // Last line shouldn't add the delimiter
-            strbuf.append("#" + ps.getLine(i));
-
-            // Replace the text with the modified information
-            ps.getDoc().replace(ps.getStartLine().getOffset(), ps.getSelLength(), strbuf.toString());
-            return true;
-        } catch (Exception e) {
-            beep(e);
+        String selectedText = ps.getSelectedText();
+        List<String> ret = StringUtils.splitInLines(selectedText);
+        
+        for(String line: ret){
+            strbuf.append('#');
+            strbuf.append(line);
         }
-
-        // In event of problems, return false
-        return false;
+        
+        ITextSelection txtSel = ps.getTextSelection();
+        int start = txtSel.getOffset();
+        int len = txtSel.getLength();
+        
+        String replacement = strbuf.toString();
+        // Replace the text with the modified information
+        ps.getDoc().replace(start, len, replacement);
+        return new Tuple<Integer, Integer>(start, replacement.length());
     }
 }

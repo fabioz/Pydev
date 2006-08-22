@@ -3,6 +3,9 @@
  */
 package org.python.pydev.core.docutils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class StringUtils {
 
@@ -84,4 +87,37 @@ public class StringUtils {
 		}
 		return string;
 	}
+
+    public static List<String> splitInLines(String string) {
+        ArrayList<String> ret = new ArrayList<String>();
+        int len = string.length();
+        
+        char c;
+        StringBuffer buf = new StringBuffer();
+        
+        for (int i = 0; i < len; i++) {
+            c = string.charAt(i);
+            
+            buf.append(c);
+            
+            if(c == '\r'){ 
+                if(i < len -1 && string.charAt(i+1) == '\n'){
+                    i++;
+                    buf.append('\n');
+                }
+                ret.add(buf.toString());
+                buf = new StringBuffer();
+            }
+            if(c == '\n'){ 
+                ret.add(buf.toString());
+                buf = new StringBuffer();
+                
+            }
+        }
+        if(buf.length() != 0){
+            ret.add(buf.toString());
+        }
+        return ret;
+        
+    }
 }

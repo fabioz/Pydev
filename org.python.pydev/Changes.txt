@@ -4,6 +4,7 @@ Pydev:
 
 - When the user specifies an invalid interpreter, a better error report is given (it was only shown in the 
 error log previously)
+- When threads die, the debugger is notified about it (to remove them from the stack)
 
 after 1.2.1
 

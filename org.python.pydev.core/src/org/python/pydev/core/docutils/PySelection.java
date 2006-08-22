@@ -683,8 +683,9 @@ public class PySelection {
      * @return the Selected text
      */
     public String getSelectedText() {
-        int start = getTextSelection().getOffset();
-        int len = getTextSelection().getLength();
+        ITextSelection txtSel = getTextSelection();
+        int start = txtSel.getOffset();
+        int len = txtSel.getLength();
         try {
             return this.doc.get(start, len);
         } catch (BadLocationException e) {

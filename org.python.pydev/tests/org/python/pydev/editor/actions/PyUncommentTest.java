@@ -7,6 +7,7 @@ package org.python.pydev.editor.actions;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 
 public class PyUncommentTest extends TestCase {
@@ -25,7 +26,7 @@ public class PyUncommentTest extends TestCase {
                 "#a\n" +
                 "#b");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        PyUncomment.perform(ps);
+        assertEquals(new Tuple<Integer, Integer>(0,3), new PyUncomment().perform(ps));
         
         String expected = "a\n" +
                           "b";

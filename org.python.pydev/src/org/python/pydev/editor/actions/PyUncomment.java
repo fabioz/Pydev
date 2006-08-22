@@ -6,7 +6,8 @@
 
 package org.python.pydev.editor.actions;
 
-import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.text.BadLocationException;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 
 /**
@@ -15,29 +16,16 @@ import org.python.pydev.core.docutils.PySelection;
 public class PyUncomment extends PyComment {
     /* Selection element */
 
-    /**
-     * Grabs the selection information and performs the action.
-     */
-    public void run(IAction action) {
-        PySelection ps = new PySelection(getTextEditor());
-        try {
-            // Perform the action
-            perform(ps);
-
-            revealSelEndLine(ps);
-        } catch (Exception e) {
-            beep(e);
-        }
-    }
 
 
     /**
      * Performs the action with a given PySelection
      * 
      * @param ps Given PySelection
-     * @return boolean The success or failure of the action
+     * @return the new selection
+     * @throws BadLocationException 
      */
-    public static boolean perform(PySelection ps) {
+    public Tuple<Integer, Integer> perform(PySelection ps) throws BadLocationException {
         // What we'll be replacing the selected text with
         StringBuffer strbuf = new StringBuffer();
 
@@ -45,26 +33,21 @@ public class PyUncomment extends PyComment {
         ps.selectCompleteLine();
 
         int i;
-        try {
-            // For each line, comment them out
-            for (i = ps.getStartLineIndex(); i <= ps.getEndLineIndex(); i++) {
-                String l = ps.getLine(i);
-                if (l.trim().startsWith("#")) { // we may want to remove comment that are not really in the beggining...
-                    strbuf.append(l.replaceFirst("#", "") + (i < ps.getEndLineIndex() ? ps.getEndLineDelim() : ""));
-                } else {
-                    strbuf.append(l + (i < ps.getEndLineIndex() ? ps.getEndLineDelim() : ""));
-                }
+        // For each line, comment them out
+        for (i = ps.getStartLineIndex(); i <= ps.getEndLineIndex(); i++) {
+            String l = ps.getLine(i);
+            if (l.trim().startsWith("#")) { // we may want to remove comment that are not really in the beggining...
+                strbuf.append(l.replaceFirst("#", "") + (i < ps.getEndLineIndex() ? ps.getEndLineDelim() : ""));
+            } else {
+                strbuf.append(l + (i < ps.getEndLineIndex() ? ps.getEndLineDelim() : ""));
             }
-
-            // Replace the text with the modified information
-            ps.getDoc().replace(ps.getStartLine().getOffset(), ps.getSelLength(), strbuf.toString());
-            return true;
-        } catch (Exception e) {
-            beep(e);
         }
 
-        // In event of problems, return false
-        return false;
+        int start = ps.getStartLine().getOffset();
+        String replacement = strbuf.toString();
+        // Replace the text with the modified information
+        ps.getDoc().replace(start, ps.getSelLength(), replacement);
+        return new Tuple<Integer, Integer>(start, replacement.length());
     }
 
     /**
