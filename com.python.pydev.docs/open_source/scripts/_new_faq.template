@@ -36,6 +36,7 @@ Can I have Eclipse installed anywhere to use Pydev?
 
 Well, you can have it anywhere, provided that your Eclipse installation path does not have spaces!
 
+
 --------------------------------------------------------------------------------------------------------------Title
 How do I get started with Pydev?
 --------------------------------------------------------------------------------------------------------------Answer
@@ -115,6 +116,12 @@ This has already been reported as a Jython bug, and if you want more information
 you can check at the following mailing thread: 
 <a href="http://sourceforge.net/mailarchive/forum.php?thread_id=7986001&forum_id=5586">mail thread</a> <br/><br/>
 
+--------------------------------------------------------------------------------------------------------------Title
+How do I configure Pydev to use IronPython?
+--------------------------------------------------------------------------------------------------------------Answer
+
+Check http://sourceforge.net/tracker/index.php?func=detail&aid=1535901&group_id=85796&atid=577329 to know how
+the os library should be added to iron python and after, just specify the iron python executable as your python executable. 
 
 --------------------------------------------------------------------------------------------------------------Title
 How do I reference Java projects with Jython?
