@@ -296,8 +296,12 @@ class PyDB:
                 self.finishDebuggingSession = True
                         
             for tId in self.RUNNING_THREAD_IDS.keys():
-                if tId not in foundThreads:
-                    self.processThreadNotAlive(tId)
+                try:
+                    if tId not in foundThreads.keys():
+                        self.processThreadNotAlive(tId)
+                except:
+                    print 'Error iterating through %s (%s) - %s' % (foundThreads, foundThreads.__class__, dir(foundThreads))
+                    raise
                     
         finally:
             self.release()
@@ -381,6 +385,10 @@ class PyDB:
                     file = NormFile( file )
                     
                     line = int( line )
+                    
+                    if pydevd_trace_breakpoints > 0:
+                        print 'Added breakpoint:%s - line:%s' % (file, line)
+                        
                     if self.breakpoints.has_key( file ):
                         breakDict = self.breakpoints[file]
                     else:
@@ -390,6 +398,7 @@ class PyDB:
                         breakDict[line] = (True, None)
                     else:
                         breakDict[line] = (True, condition)
+                    
                         
                     self.breakpoints[file] = breakDict
                     PyDBCtx_SetTraceForAllFileCtxs(file)
@@ -402,6 +411,9 @@ class PyDB:
                     line = int(line)
                     
                     if self.breakpoints.has_key(file):
+                        if pydevd_trace_breakpoints > 0:
+                            print 'Removed breakpoint:%s' % (file)
+                            
                         if self.breakpoints[file].has_key(line):
                             del self.breakpoints[file][line]
                             keys = self.breakpoints[file].keys()
@@ -513,8 +525,9 @@ class PyDB:
             except:
                 sys.exit(0)
 
-        if event not in ('call', 'line', 'return'):
+        if event not in ('call', 'line', 'return', 'exception'): #jython has an 'exception' event that must be treated too (surprise, surprise)
             return None
+        
         
         t = threading.currentThread()
         ctx = PyDBCtx_GetCtx(frame, t)
@@ -538,7 +551,6 @@ class PyDB:
         released = False
         ctx.acquire()
         try:
-    
     
             # Let's check to see if we are in a line that has a breakpoint. If we don't have a breakpoint, 
             # we will return nothing for the next trace
