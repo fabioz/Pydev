@@ -6,4 +6,3 @@ Bundle-Version: 0.9.7.1
 Bundle-Vendor: Fabio Zadrozny / Aleks Totic
 Bundle-Localization: plugin
 Eclipse-AutoStart: true
-Bundle-ClassPath: help.jar
