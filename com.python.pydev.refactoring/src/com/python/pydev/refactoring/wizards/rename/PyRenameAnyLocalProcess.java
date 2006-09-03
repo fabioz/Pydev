@@ -19,18 +19,22 @@ public class PyRenameAnyLocalProcess extends AbstractRenameRefactorProcess{
 	}
 	
     protected void checkInitialOnLocalScope(RefactoringStatus status, RefactoringRequest request) {
-    	List<ASTEntry> oc = getOccurrencesWithScopeAnalyzer(request);
-    	if(oc.size() == 0){
-            String[] tokenAndQual = request.ps.getActivationTokenAndQual(true);
-            String completeNameToFind = tokenAndQual[0]+tokenAndQual[1];
-
-            if(completeNameToFind.indexOf('.') == -1){
-                addOccurrences(request, ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, request.getAST(), false));
+        String[] tokenAndQual = request.ps.getActivationTokenAndQual(true);
+        String completeNameToFind = tokenAndQual[0]+tokenAndQual[1];
+        boolean attributeSearch = completeNameToFind.indexOf('.') != -1;
+            
+        if (!attributeSearch){
+            List<ASTEntry> oc = getOccurrencesWithScopeAnalyzer(request);
+            if(oc.size() > 0){
+                addOccurrences(request, oc); 
             }else{
-                addOccurrences(request, ScopeAnalysis.getAttributeReferences(request.duringProcessInfo.initialName, request.getAST()));
+                addOccurrences(request, ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, request.getAST(), false));
             }
-    	}else{
-    		addOccurrences(request, oc);
-    	}
+            return;
+            
+        }else{
+            //attribute search
+            addOccurrences(request, ScopeAnalysis.getAttributeReferences(request.duringProcessInfo.initialName, request.getAST()));
+        }
     }
 }
