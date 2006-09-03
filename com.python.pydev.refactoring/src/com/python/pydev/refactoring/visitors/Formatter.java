@@ -14,9 +14,9 @@ import org.python.pydev.parser.jython.SimpleNode;
 
 public class Formatter implements IFormatter{
 
-    public void formatAll(IDocument doc, PyEdit edit) {
+    public void formatAll(IDocument doc, PyEdit edit, int grammarVersion) {
         try {
-            Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, edit.getPythonNature()));
+            Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, edit.getPythonNature(), grammarVersion));
             if(objects.o2!= null){
               edit.setStatusLineErrorMessage("Format not done: Unable to parse the document correctly");
                 

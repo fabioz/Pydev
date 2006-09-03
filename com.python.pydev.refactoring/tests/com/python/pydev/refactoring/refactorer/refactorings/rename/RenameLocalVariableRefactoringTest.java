@@ -3,6 +3,8 @@
  */
 package com.python.pydev.refactoring.refactorer.refactorings.rename;
 
+import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
+
 
 public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
 
@@ -10,7 +12,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         try {
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRename3();
+            test.testImport();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -19,6 +21,18 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         }
     }
 
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        CompiledModule.COMPILED_MODULES_ENABLED = true;
+    }
+    
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        CompiledModule.COMPILED_MODULES_ENABLED = false;
+    }
+    
     private String getDefaultDocStr() {
         return "" +
         "def method():\n"+
@@ -229,6 +243,8 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     }
 
     public void testNotFoundAttr() throws Exception {
+        //TODO: the problem here is that when the attribute is not found,
+        //we need to change the definition too.
     	String str = "" +
     	"class Foo:\n" +
     	"    def %s(self, foo):\n" +

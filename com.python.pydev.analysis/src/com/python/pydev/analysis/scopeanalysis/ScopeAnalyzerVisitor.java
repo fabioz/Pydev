@@ -224,11 +224,18 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 
     @Override
     protected void onAfterEndScope(SimpleNode node, ScopeItems m) {
-    	Found found = m.get(this.completeNameToFind);
-    	if(found != null){
-    		checkFound(node, found);
-    		
-    	}else if(hitAsUndefined != null){
+        if(hitAsUndefined == null){
+            for (String rep : new FullRepIterable(this.completeNameToFind, true)){
+                Found found = m.get(rep);
+                if(found != null){
+                    if(checkFound(node, found) != null){
+                        return;
+                    }
+                }
+                
+            }
+        }
+    	if(hitAsUndefined != null){
             String foundRep = hitAsUndefined.getSingle().generator.getRepresentation();
             
             if(foundRep.indexOf('.') == -1 || FullRepIterable.containsPart(foundRep,nameToFind)){
@@ -318,6 +325,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 	 */
 	public List<ASTEntry> getEntryOccurrences() {
 		checkFinished();
+        Set<Tuple3<String, Integer, Integer>> s = new HashSet<Tuple3<String, Integer, Integer>>(); 
 		
 		ArrayList<Tuple3<IToken, Integer, ASTEntry>> complete = getCompleteTokenOccurrences();
 		ArrayList<ASTEntry> ret = new ArrayList<ASTEntry>();
@@ -366,6 +374,9 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 				ret.add(new ASTEntry(tup.o3, ast));
 				continue;
 			}
+            if(!FullRepIterable.containsPart(representation, nameToFind)){
+                continue;
+            }
 			
 			Name nameAst = new Name(nameToFind, Name.Store);
 			String[] strings = FullRepIterable.dotSplit(representation);
@@ -379,7 +390,11 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 			}
 			nameAst.beginColumn = AbstractMessage.getStartCol(token, ps.getDoc())+plus;
 			nameAst.beginLine = AbstractMessage.getStartLine(token, ps.getDoc());
-			ret.add(new ASTEntry(tup.o3, nameAst));
+            Tuple3<String, Integer, Integer> t = new Tuple3<String, Integer, Integer>(nameToFind, nameAst.beginColumn, nameAst.beginLine);
+            if (!s.contains(t)){
+                s.add(t);
+                ret.add(new ASTEntry(tup.o3, nameAst));
+            }
 		}
 		
 		return ret;

@@ -24,7 +24,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	try {
 			ScopeAnalyzerVisitorTest test = new ScopeAnalyzerVisitorTest();
 			test.setUp();
-			test.testIt18();
+			test.testIt6();
 			test.tearDown();
 			junit.textui.TestRunner.run(ScopeAnalyzerVisitorTest.class);
 		} catch (Exception e) {
@@ -97,8 +97,8 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     			"print foo.a\n" +
     			"\n"
     	);
-    	//if we don't have the definition, we don't have any references...
-    	assertEquals(0, getTokenOccurrences(1, 4).size());
+    	
+    	assertEquals(4, getTokenOccurrences(1, 4).size());
     	assertEquals(5, getTokenOccurrences(1, 0).size());
     }    	
     
@@ -204,13 +204,18 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     
     public void testIt15() throws Exception {
     	doc = new Document(
-    			"from testrec2.core import leaf:\n" +
+    			"from testrec2.core import leaf\n" +
     			"class Foo(leaf.Leaf):\n" + //on the Leaf part
     			"    def setUp(self):\n" +
     			"        leaf.Leaf.setUp(self)"
     	);
-    	List<IToken> tokenOccurrences = getTokenOccurrences(1, 16);
+    	List<IToken> tokenOccurrences = getTokenOccurrences(1, 17);
     	assertEquals(2, tokenOccurrences.size());
+        assertEquals(1, tokenOccurrences.get(0).getLineDefinition()-1);
+        assertEquals(15, tokenOccurrences.get(0).getColDefinition()-1);
+        
+        assertEquals(3, tokenOccurrences.get(1).getLineDefinition()-1);
+        assertEquals(13, tokenOccurrences.get(1).getColDefinition()-1);
     }
     
     public void testIt16() throws Exception {
@@ -256,6 +261,16 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	assertEquals(7, NodeUtils.getColDefinition(ast1));
     }
     
+    
+    public void testIt19() throws Exception {
+        doc = new Document(
+                "import os.path\n" +
+                "print os.path\n"
+        );
+        List<IToken> tokenOccurrences = getTokenOccurrences(0, 10);
+        assertEquals(2, tokenOccurrences.size());
+        
+    }
     
 //    do we want to check self ?
 //    public void testIt16() throws Exception {
@@ -313,7 +328,8 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
 	
 	private List<IToken> getTokenOccurrences(int line, int col) throws Exception {
 		ScopeAnalyzerVisitor visitor = doVisit(line, col);
-		return visitor.getTokenOccurrences();
+		List<IToken> ret = visitor.getTokenOccurrences();
+        return ret;
 	}
 
 

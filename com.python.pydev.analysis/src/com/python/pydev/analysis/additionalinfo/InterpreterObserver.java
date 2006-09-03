@@ -141,7 +141,7 @@ public class InterpreterObserver implements IInterpreterObserver {
                         try {
                             
                             //  the code below works with the default parser (that has much more info... and is much slower)
-                            PyParser.ParserInfo parserInfo = new PyParser.ParserInfo(REF.getDocFromFile(key.file), false, null);
+                            PyParser.ParserInfo parserInfo = new PyParser.ParserInfo(REF.getDocFromFile(key.file), false, null, nature.getGrammarVersion());
                             Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(parserInfo);
                             SimpleNode node = obj.o1;
 
