@@ -138,19 +138,18 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
     
 
     @Override
-    protected void onFoundUnresolvedImportPart(IToken token, String rep) {
-        onAddUndefinedMessage(token);
+    protected void onFoundUnresolvedImportPart(IToken token, String rep, Found foundAs) {
+        onAddUndefinedMessage(token, foundAs);
     }
     
     @Override
-    protected void onAddUndefinedVarInImportMessage(IToken token) {
-        onAddUndefinedMessage(token);
+    protected void onAddUndefinedVarInImportMessage(IToken token, Found foundAs) {
+        onAddUndefinedMessage(token, foundAs);
     }
 
     
     @Override
-    protected void onAddUndefinedMessage(IToken token) {
-    	Found found = makeFound(token);
+    protected void onAddUndefinedMessage(IToken token, Found found) {
     	ASTEntry parent = peekParent();
     	if(checkFound(found, parent) == null){
     		//ok, it was actually not found, so, after marking it as an occurrence, we have to check all 
@@ -234,8 +233,9 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
                 }
                 
             }
-        }
-    	if(hitAsUndefined != null){
+            
+        }else{ //(hitAsUndefined != null)
+            
             String foundRep = hitAsUndefined.getSingle().generator.getRepresentation();
             
             if(foundRep.indexOf('.') == -1 || FullRepIterable.containsPart(foundRep,nameToFind)){

@@ -799,7 +799,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 if(scope.size() > 1){ //if we're not in the global scope, it might be defined later
                     probablyNotDefined.add(makeFound(token)); //we are not in the global scope, so it might be defined later...
                 }else{
-                    onAddUndefinedMessage(token); //it is in the global scope, so, it is undefined.
+                    onAddUndefinedMessage(token, makeFound(token)); //it is in the global scope, so, it is undefined.
                 }
             }
         }else if(checkIfIsValidImportToken){
@@ -826,12 +826,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                     for(String repToCheck : new FullRepIterable(tokToCheck)){
                         if (!m.isInGlobalTokens(repToCheck, nature)) {
                             IToken foundTok = findNameTok(token, repToCheck);
-                            onAddUndefinedVarInImportMessage(foundTok);
+                            onAddUndefinedVarInImportMessage(foundTok, foundAs);
                         }
                     }
                 }else if(foundAs.isImport() && !foundAs.importInfo.wasResolved){
                     //import was not resolved
-                    onFoundUnresolvedImportPart(token, rep);
+                    onFoundUnresolvedImportPart(token, rep, foundAs);
                 }
             } catch (Exception e) {
                 PydevPlugin.log("Error checking for valid tokens (imports) for "+moduleName,e);
@@ -880,9 +880,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
 
     protected abstract void onLastScope(ScopeItems m);
 
-    protected abstract void onAddUndefinedMessage(IToken token);
+    protected abstract void onAddUndefinedMessage(IToken token, Found foundAs);
 
-    protected abstract void onAddUndefinedVarInImportMessage(IToken foundTok);
+    protected abstract void onAddUndefinedVarInImportMessage(IToken foundTok, Found foundAs);
 
     public abstract void onAddUnusedMessage(Found found);
 
@@ -902,7 +902,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
 	/**
 	 * This one is not abstract, but is provided as a hook, as the others.
 	 */
-    protected void onFoundUnresolvedImportPart(IToken token, String rep) {
+    protected void onFoundUnresolvedImportPart(IToken token, String rep, Found foundAs) {
     }
 
 

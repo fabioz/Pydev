@@ -67,14 +67,14 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
     /**
      * @param foundTok
      */
-    protected void onAddUndefinedVarInImportMessage(IToken foundTok) {
+    protected void onAddUndefinedVarInImportMessage(IToken foundTok, Found foundAs) {
         messagesManager.addUndefinedVarInImportMessage(foundTok, foundTok.getRepresentation());
     }
     
     /**
      * @param token
      */
-    protected void onAddUndefinedMessage(IToken token) {
+    protected void onAddUndefinedMessage(IToken token, Found foundAs) {
         //global scope, so, even if it is defined later, this is an error...
         messagesManager.addUndefinedMessage(token);
     }
@@ -86,7 +86,7 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
             String rep = n.getSingle().tok.getRepresentation();
             Map<String, Tuple<IToken, Found>> lastInStack = m.namesToIgnore;
             if(scope.findInNamesToIgnore(rep, lastInStack) == null){
-                onAddUndefinedMessage(n.getSingle().tok);
+                onAddUndefinedMessage(n.getSingle().tok, n);
             }
         }
         messagesManager.setLastScope(m);

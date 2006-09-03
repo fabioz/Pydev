@@ -12,8 +12,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         try {
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameLocalMethod();
-            test.testNotFoundAttr();
+            test.testRenameImportFromReference();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -46,6 +45,31 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         int line = 2;
         int col = 10;
         checkRename(getDefaultDocStr(), line, col, "bb", true, false, "aaa bb");
+    }
+
+    public void testRenameImportFromReference() throws Exception {
+        int line = 1;
+        int col = 11;
+        String str = 
+            "from testrec2.core import %s\n" +
+            "class Foo(%s.Leaf):\n" + 
+            "    def setUp(self):\n" +
+            "        %s.Leaf.setUp(self)";
+
+        checkRename(str, line, col, "noleaf", false, true);
+    }
+
+    public void testRenameImportFromReference2() throws Exception {
+        //the difference is that in this one we find the leaf module and in the first we don't
+        int line = 1;
+        int col = 11;
+        String str = 
+            "from testrec2.core import %s\n" +
+            "class Foo(%s.Leaf):\n" + 
+            "    def setUp(self):\n" +
+            "        %s.Leaf.setUp(self)";
+
+        checkRename(str, line, col, "leaf", false, true);
     }
 
     public void testRenameInstance2() throws Exception {
