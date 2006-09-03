@@ -60,6 +60,9 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
             throw new RuntimeException("In order to get the info for the jython interpreter, a jar is needed (e.g.: jython.jar)");
         }
         File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
+        if(! script.exists()){
+            throw new RuntimeException("The file specified does not exist: "+script);
+        }
         
         //gets the info for the python side
         Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(REF.getFileAbsolutePath(script), executable, null, null, null, monitor);

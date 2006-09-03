@@ -39,6 +39,8 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.commentType;
+import static org.python.pydev.core.IPythonNature.GRAMMAR_PYTHON_VERSION_2_4;  
+import static org.python.pydev.core.IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;  
 
 /**
  * PyParser uses org.python.parser to parse the document (lexical analysis) It
@@ -51,6 +53,7 @@ import org.python.pydev.parser.jython.ast.commentType;
  */
 
 public class PyParser {
+
     /**
      * just for tests, when we don't have any editor
      */
@@ -110,6 +113,14 @@ public class PyParser {
      * indicates the time we should elapse before doing analysis
      */
     private int elapseMillisBeforeAnalysis;
+
+    /**
+     * Indicates which grammar should be used to parse the document.
+     * 
+     * @see GRAMMAR_PYTHON_24
+     * @see GRAMMAR_PYTHON_25
+     */
+    private int grammarToUse;
     
     /**
      * should only be called for testing. does not register as a thread
@@ -360,23 +371,26 @@ public class PyParser {
         public List<Integer> linesChanged = new ArrayList<Integer>();
         public ParseException parseErr;
         public boolean tryReparse = TRY_REPARSE;
+        public int grammarVersion;
         
-        public ParserInfo(IDocument document, boolean changedCurrentLine){
-            this(document, changedCurrentLine, null);
+        public ParserInfo(IDocument document, boolean changedCurrentLine, int grammarVersion){
+            this(document, changedCurrentLine, null, grammarVersion);
         }
         
-        public ParserInfo(IDocument document, boolean changedCurrentLine, IPythonNature nature){
+        public ParserInfo(IDocument document, boolean changedCurrentLine, IPythonNature nature, int grammarVersion){
             this.document = document;
             this.stillTryToChangeCurrentLine = changedCurrentLine;
+            this.grammarVersion = grammarVersion;
         }
 
-        public ParserInfo(IDocument document, boolean changedCurrentLine, int currentLine){
-            this(document, changedCurrentLine, null, currentLine);
+        public ParserInfo(IDocument document, boolean changedCurrentLine, int currentLine, int grammarVersion){
+            this(document, changedCurrentLine, null, currentLine, grammarVersion);
         }
         
-        public ParserInfo(IDocument document, boolean changedCurrentLine, IPythonNature nature, int currentLine){
-            this(document, changedCurrentLine, nature);
+        public ParserInfo(IDocument document, boolean changedCurrentLine, IPythonNature nature, int currentLine, int grammarVersion){
+            this(document, changedCurrentLine, nature, grammarVersion);
             this.currentLine = currentLine;
+            this.grammarVersion = grammarVersion;
         }
     }
     
@@ -410,13 +424,14 @@ public class PyParser {
         	//the changes done by the change of the reader).
 	        StringReader inString = new StringReader(initialDoc);
 	        in = new ReaderCharStream(inString);
+            throw new RuntimeException("This char stream reader was deprecated (was maintained only for testing purposes).");
         }
         
         IParserHost host = new CompilerAPI();
         PythonGrammar grammar = null;
 
         try {
-        	grammar = new PythonGrammar(in, host);
+        	grammar = new PythonGrammar(in, host, info.grammarVersion);
         	
         	if(ENABLE_TRACING){
         		//grammar has to be generated with debugging info for this to make a difference
@@ -575,6 +590,13 @@ public class PyParser {
 
     public int getIdleTimeRequested() {
         return this.elapseMillisBeforeAnalysis;
+    }
+
+    public void setGrammar(int version) {
+        if (version != GRAMMAR_PYTHON_VERSION_2_4 && version != GRAMMAR_PYTHON_VERSION_2_5){
+            throw new RuntimeException("Invalid grammar specified");
+        }
+        this.grammarToUse = version;
     }
 
     

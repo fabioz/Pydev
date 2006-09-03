@@ -666,6 +666,21 @@ public class PythonNature implements IPythonNature {
         return ret;
     }
 
+    /**
+     * @return the version of the grammar as defined in IPythonNature.GRAMMAR_PYTHON...
+     */
+    public int getGrammarVersion() {
+        try {
+            if(getVersion().equals(PYTHON_VERSION_2_5)){
+                return GRAMMAR_PYTHON_VERSION_2_5;
+            }else{
+                return GRAMMAR_PYTHON_VERSION_2_4;
+            }
+        } catch (CoreException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
 
 

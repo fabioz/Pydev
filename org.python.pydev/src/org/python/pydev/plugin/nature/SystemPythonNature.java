@@ -116,4 +116,8 @@ public class SystemPythonNature implements IPythonNature{
 	public void setBuiltinMod(IModule mod) {
 	}
 
+    public int getGrammarVersion() {
+        throw new RuntimeException("Not implemented");
+    }
+
 }

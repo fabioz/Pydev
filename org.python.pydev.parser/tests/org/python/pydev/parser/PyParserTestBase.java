@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -54,12 +55,18 @@ public class PyParserTestBase extends TestCase {
 	    return (ParseException) err;
     }
 
+	protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, PyParser parser) {
+        // default implementation: parser grammar with version 2.4
+       return parseLegalDoc(doc, additionalErrInfo, parser, IPythonNature.GRAMMAR_PYTHON_VERSION_2_4); 
+    }
+    
     /**
 	 * @param additionalErrInfo can be used to add additional errors to the fail message if the doc is not parseable
 	 * @param parser the parser to be used to do the parsing.
 	 */
-	protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, PyParser parser) {
+	protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, PyParser parser, int version) {
 	    parser.setDocument(doc, false);
+        parser.setGrammar(version);
         Tuple<SimpleNode, Throwable> objects = parser.reparseDocument();
 	    Object err = objects.o2;
 	    if(err != null){

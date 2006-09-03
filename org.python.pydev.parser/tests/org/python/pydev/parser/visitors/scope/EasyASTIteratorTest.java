@@ -8,6 +8,7 @@ import java.util.Iterator;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -68,7 +69,7 @@ public class EasyASTIteratorTest extends TestCase {
 		"c = C()\n" +
 		"";
         
-        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null, IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         SimpleNode root = objects.o1;
         root.accept(visitor);
         Iterator iterator = visitor.getIterator();
@@ -95,7 +96,7 @@ public class EasyASTIteratorTest extends TestCase {
 		"c               \n"+     
 		"'''             \n";      
         
-        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null, IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         SimpleNode root = objects.o1;
         root.accept(visitor);
         Iterator iterator = visitor.getIterator();
@@ -123,7 +124,7 @@ public class EasyASTIteratorTest extends TestCase {
 		"    t2            \n"+  
 		"    '''           \n";         
 
-        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null, IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         SimpleNode root = objects.o1;
         root.accept(visitor);
         Iterator iterator = visitor.getIterator();
@@ -146,7 +147,7 @@ public class EasyASTIteratorTest extends TestCase {
 		"from test.lib import test as alias\n" +
 		"";
         
-        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null, IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         SimpleNode root = objects.o1;
         root.accept(visitor);
         Iterator iterator = visitor.getIterator();
@@ -167,7 +168,7 @@ public class EasyASTIteratorTest extends TestCase {
 "\n" +
 "\n";
 
-        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null, IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         if(objects.o2 != null){
             throw new RuntimeException(objects.o2);
         }
@@ -194,7 +195,7 @@ public class EasyASTIteratorTest extends TestCase {
         		"    classAttr = 10\n" +
         		"pass";
         
-        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null, IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         SimpleNode root = objects.o1;
         root.accept(visitor);
         Iterator iterator = visitor.getIterator();

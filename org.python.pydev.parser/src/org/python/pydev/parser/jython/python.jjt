@@ -13,8 +13,8 @@ options
 
     USER_CHAR_STREAM      = true;
     UNICODE_INPUT         = true;
-    ERROR_REPORTING 	  = true;  // this is NOT used to shut down errors regarding javacc org.python.pydev.parser.jython.PythonGrammar$LookaheadSuccess
-   								   // because the generated information is not complete enough if we do it.
+    ERROR_REPORTING       = true;  // this is NOT used to shut down errors regarding javacc org.python.pydev.parser.jython.PythonGrammar$LookaheadSuccess
+                                      // because the generated information is not complete enough if we do it.
 }
 
 
@@ -29,20 +29,25 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.core.IPythonNature;
 
 public class PythonGrammar
 {
-
+    
     public IParserHost hostLiteralMkr;
     private SimpleNode prev;
     private SimpleNode lastIdNode;
     private static boolean DEBUG = false;
     private final static boolean DEFAULT_SEARCH_ON_LAST = false;
-
+    /**
+     * Defined by the constants declared at IPythonNature.
+     */
+    private int grammarVersion;
+    
     void jjtreeOpenNodeScope(Node n) {
-	    if(DEBUG){
-	    	System.out.println("opening scope:"+n);
-	    }
+        if(DEBUG){
+            System.out.println("opening scope:"+n);
+        }
         Token t = getToken(1);
         lastIdNode = (SimpleNode) n;
         jjtree.pushNodePos(t.beginLine, t.beginColumn);
@@ -163,7 +168,7 @@ public class PythonGrammar
     }
 
     private Object createSpecialStr(String token) throws ParseException {
-    	return createSpecialStr(token, token);
+        return createSpecialStr(token, token);
     }
     private Object createSpecialStr(String token, boolean searchOnLast) throws ParseException {
         return createSpecialStr(token, token, searchOnLast);
@@ -187,11 +192,11 @@ public class PythonGrammar
         }
         //return put;
         if(this.token != null){
-        	throw new ParseException("Expected:"+token, this.token);
+            throw new ParseException("Expected:"+token, this.token);
         }else if(jj_lastpos != null){
-        	throw new ParseException("Expected:"+token, jj_lastpos);
+            throw new ParseException("Expected:"+token, jj_lastpos);
         }else{
-        	throw new ParseException("Expected:"+token);
+            throw new ParseException("Expected:"+token);
         }
     }
 
@@ -360,16 +365,18 @@ public class PythonGrammar
 
    // constructors taking a IParserHost impl
 
-   public PythonGrammar(CharStream stream,IParserHost host) {
+   public PythonGrammar(CharStream stream,IParserHost host, int grammarVersion) {
        this(stream);
        hostLiteralMkr = host;
+    	this.grammarVersion = grammarVersion;
    }
 
    public PythonGrammar(PythonGrammarTokenManager tm,
-                        IParserHost host)
+                        IParserHost host, int grammarVersion)
    {
         this(tm);
         hostLiteralMkr = host;
+    	this.grammarVersion = grammarVersion;
    }
 
 }
@@ -429,7 +436,7 @@ TOKEN_MGR_DECLS:
                 this.specialTokens.add(i, t.specialToken);
                 t = t.specialToken;
         }
-		
+        
         if (t.kind == EOF) {
             // System.out.println("EOF: "+single_input+", "+curLexState+", "+level);
             if (!partial || curLexState == MAYBE_FORCE_NEWLINE_IF_EOF) {
@@ -782,8 +789,8 @@ I stopped this because I've seen that making the CharStream was apparently the n
 comming back to this approach later).
 <IN_STRING23> MORE:
 {
-	<~[]> 
-	{
+    <~[]> 
+    {
          try {
                  while(true){
                          char c = input_stream.readChar();
@@ -798,7 +805,7 @@ comming back to this approach later).
          } catch (Exception e) {
              throw new RuntimeException(e);
          }
-	}
+    }
 }
 */
 
@@ -842,14 +849,14 @@ modType eval_input(): {token_source.single_input=false;}
 //funcdef: 'def' NAME parameters ':' suite
 void funcdef(): {}
 { 
-	decorators()
-	<DEF> AnyName() parameters() <COLON> {this.addSpecialToken(":");} suite() 
+    decorators()
+    <DEF> AnyName() parameters() <COLON> {this.addSpecialToken(":");} suite() 
 }
 
 //@ call, name, attr ... <nl>
 void decorators(): {}
 {
-	(begin_decorator() (<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} )* <NEWLINE> )* 
+    (begin_decorator() (<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} )* <NEWLINE> )* 
 }
 void begin_decorator(): {}
 { <AT> dotted_name()
@@ -869,7 +876,7 @@ void varargslist() #void: {}
         [LOOKAHEAD(3) {this.addSpecialToken(",");} <COMMA> ExtraArgList()]
         [LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> ExtraKeywordList()]
         [{this.addSpecialToken(",");} <COMMA>]
-	|   ( LOOKAHEAD(2) ExtraArgList() [{this.addSpecialToken(",");} <COMMA> ExtraKeywordList()]
+    |   ( LOOKAHEAD(2) ExtraArgList() [{this.addSpecialToken(",");} <COMMA> ExtraKeywordList()]
     | ExtraKeywordList()
     )
 }
@@ -942,7 +949,7 @@ void print_stmt() #void: {}
     (test() [ (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())+ [Comma()] ] )#printext_stmt
     
 |   LOOKAHEAD(2) <PRINT> 
-	(test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()])#print_stmt
+    (test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()])#print_stmt
 
 |   <PRINT>  #print_stmt
 
@@ -1004,28 +1011,28 @@ Import Import(): {}
 void ImportFrom(): { String mod; String name;int state=0; }
 {
     mod=dotted_name() <IMPORT> {this.addSpecialToken(" import ");}
-	(
-		//from xxx import *
-	    <MULTIPLY> {this.addSpecialToken("*",STRATEGY_ADD_AFTER_PREV);}//from xx import *
-	    
-	    //from xxx import a,b,c
-	    | (name=import_as_name() ({this.addSpecialToken(",");} <COMMA> import_as_name())*) 
-	    
-	    //from xxx import (a,b,c)
-	    | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   
-	      name=import_as_name() 
-	      (
-	       ({
-	         if(state!=0){
-	             throw new ParseException("Invalid syntax: 2 commas cannot be grouped.", getToken(1));
-	         }
-	         state=1; 
-	         this.addSpecialToken(",");
-	         } 
-	         <COMMA> ( {state=0;} import_as_name())? )* 
-	       <RPAREN>  {this.findTokenAndAdd(")");} 
-	      )
-	)
+    (
+        //from xxx import *
+        <MULTIPLY> {this.addSpecialToken("*",STRATEGY_ADD_AFTER_PREV);}//from xx import *
+        
+        //from xxx import a,b,c
+        | (name=import_as_name() ({this.addSpecialToken(",");} <COMMA> import_as_name())*) 
+        
+        //from xxx import (a,b,c)
+        | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   
+          name=import_as_name() 
+          (
+           ({
+             if(state!=0){
+                 throw new ParseException("Invalid syntax: 2 commas cannot be grouped.", getToken(1));
+             }
+             state=1; 
+             this.addSpecialToken(",");
+             } 
+             <COMMA> ( {state=0;} import_as_name())? )* 
+           <RPAREN>  {this.findTokenAndAdd(")");} 
+          )
+    )
 }
 
 //dotted_as_name: dotted_name [NAME NAME]
@@ -1064,7 +1071,7 @@ void if_stmt(): {}
 {
     begin_if_stmt() test() <COLON> {this.addSpecialToken(":");} suite()
          (begin_elif_stmt() test() <COLON> {this.addSpecialToken(":");} suite())* 
-	         [ <ELSE> <COLON> {this.findTokenAndAdd("else","else:",true);} suite()]
+             [ <ELSE> <COLON> {this.findTokenAndAdd("else","else:",true);} suite()]
 }
 
 void begin_if_stmt(): {Object spStr;}
@@ -1091,8 +1098,8 @@ void begin_else_stmt(): {}
 //for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
 void for_stmt(): {}
 {   begin_for_stmt() exprlist() <IN> {this.addSpecialToken(" in ");} SmartTestList() <COLON> {this.addSpecialToken(":");} suite()
-	[begin_for_else_stmt() suite()]
-	
+    [begin_for_else_stmt() suite()]
+    
 } 
 
 void begin_for_stmt(): {}
@@ -1229,21 +1236,21 @@ void atomtrailer() #void: {Object spStr;Object spStr2;}
 atom() 
 (
     LOOKAHEAD(2) (  
-	{spStr  = createSpecialStr("(", false);} <LPAREN>  
-	{spStr2 = createSpecialStr(")", false);} <RPAREN> 
-	)#Call_Op(1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
+    {spStr  = createSpecialStr("(", false);} <LPAREN>  
+    {spStr2 = createSpecialStr(")", false);} <RPAREN> 
+    )#Call_Op(1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
 
 |   LOOKAHEAD(2) (  
-	{spStr  = createSpecialStr("(", false);} <LPAREN>  
-	insidetuporcall() 
-	{spStr2 = createSpecialStr(")", false);} <RPAREN> 
-	) #Call_Op(jjtree.nodeArity()+1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
+    {spStr  = createSpecialStr("(", false);} <LPAREN>  
+    insidetuporcall() 
+    {spStr2 = createSpecialStr(")", false);} <RPAREN> 
+    ) #Call_Op(jjtree.nodeArity()+1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
 
 
 |   {spStr = createSpecialStr("[", false);} <LBRACKET> 
-	subscriptlist()
-	{spStr2 = createSpecialStr("]", false);} <RBRACKET>  
-	#Index_Op(2) {addToPeek(spStr, false); addToPeek(spStr2, true);}
+    subscriptlist()
+    {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
+    #Index_Op(2) {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 |   <DOT> AnyName() #Dot_Op(2) 
 )*
@@ -1254,30 +1261,30 @@ atom()
 void atom() #void: {Object spStr;Object spStr2;}
 {
     LOOKAHEAD(2) (  
-	  {spStr  = createSpecialStr("(", false);} <LPAREN>  
-	  {spStr2 = createSpecialStr(")", false);} <RPAREN> 
-	) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
+      {spStr  = createSpecialStr("(", false);} <LPAREN>  
+      {spStr2 = createSpecialStr(")", false);} <RPAREN> 
+    ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 |   LOOKAHEAD(2) (  
-	  {spStr  = createSpecialStr("(", false);} <LPAREN>  
-	  insidetuporcall() 
-	  {spStr2 = createSpecialStr(")", false);} <RPAREN> 
-	) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
+      {spStr  = createSpecialStr("(", false);} <LPAREN>  
+      insidetuporcall() 
+      {spStr2 = createSpecialStr(")", false);} <RPAREN> 
+    ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 
 |   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] <RPAREN>  {this.findTokenAndAdd(")");}  )
 
 |   ( {spStr = createSpecialStr("[", false);} <LBRACKET> 
-	  [listmaker()] 
-	  {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
-	) #list {addToPeek(spStr, false); addToPeek(spStr2, true);}
-	  
-	  
+      [listmaker()] 
+      {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
+    ) #list {addToPeek(spStr, false); addToPeek(spStr2, true);}
+      
+      
 |   ( {spStr  = createSpecialStr("{", false);}<LBRACE> 
-	  [dictmaker()] 
-	  {spStr2  = createSpecialStr("}", false);} <RBRACE> 
-	) #dictionary {addToPeek(spStr, false); addToPeek(spStr2, true);}
-	
+      [dictmaker()] 
+      {spStr2  = createSpecialStr("}", false);} <RBRACE> 
+    ) #dictionary {addToPeek(spStr, false); addToPeek(spStr2, true);}
+    
 |   "`" SmartTestList() "`" #str_1op(1)
 |   Name() 
 |   Number()
@@ -1287,7 +1294,7 @@ void atom() #void: {Object spStr;Object spStr2;}
 //we can be inside a tuple or a call, and we may have list comprehension in it. (fabioz)
 void insidetuporcall() #void: {}
 {
-	arglist() (list_for())*
+    arglist() (list_for())*
 }
 
 //lambdef: 'lambda' [varargslist] ':' test

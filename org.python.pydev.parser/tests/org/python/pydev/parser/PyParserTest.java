@@ -199,17 +199,20 @@ public class PyParserTest extends PyParserTestBase{
         }
     }
     
-    public void testOnCsv() {
-    	PyParser.USE_FAST_STREAM = false;
-    	String loc = TestDependent.PYTHON_LIB+"csv.py";
-    	String s = REF.getFileContents(new File(loc));
-    	parseLegalDocStr(s);
-    	
-    	PyParser.USE_FAST_STREAM = true;
-    	loc = TestDependent.PYTHON_LIB+"csv.py";
-    	s = REF.getFileContents(new File(loc));
-    	parseLegalDocStr(s);
-    }
+    
+//    not removed completely because we may still want to debug it later...
+//    public void testOnCsv() {
+//    	PyParser.USE_FAST_STREAM = false;
+//    	String loc = TestDependent.PYTHON_LIB+"csv.py";
+//    	String s = REF.getFileContents(new File(loc));
+//    	parseLegalDocStr(s);
+//    	
+//    	PyParser.USE_FAST_STREAM = true;
+//    	loc = TestDependent.PYTHON_LIB+"csv.py";
+//    	s = REF.getFileContents(new File(loc));
+//    	parseLegalDocStr(s);
+//    }
+    
     
     public void testOnUnittestMod() {
         String loc = TestDependent.PYTHON_LIB+"unittest.py";

@@ -9,6 +9,7 @@ import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -25,7 +26,7 @@ public class ModuleTest extends TestCase {
     }
     
     public void testMod1(){
-        Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(getDoc1()), false, null));
+        Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(getDoc1()), false, null, IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         SimpleNode n = obj.o1;
         IModule module = AbstractModule.createModule(n);
        
