@@ -147,6 +147,7 @@ public class PydevPlugin extends AbstractUIPlugin {
         //already decrypted
         getPreferenceStore().setValue(PydevExtensionInitializer.USER_NAME, "");
         getPreferenceStore().setValue(PydevExtensionInitializer.LIC_TIME, "");
+        getPreferenceStore().setValue(PydevExtensionInitializer.LIC_TYPE, "");
         String license = ClientEncryption.getInstance().decrypt(encLicense);
         try {
             Properties properties = new Properties();

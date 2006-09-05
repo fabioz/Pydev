@@ -183,18 +183,15 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
         }
         
         try{
-            final String SINGLE = "Single Developer";
             final String MULTI = "Multi Developer";
 
             String type = getFieldValue(PydevExtensionInitializer.LIC_TYPE);
             String devs = getFieldValue(PydevExtensionInitializer.LIC_DEVS);
             
-            if(type.equals(SINGLE)){
-                labelType.setText("License: "+type);
-            }else if(type.equals(MULTI)){
+            if(type.equals(MULTI)){
                 labelType.setText("License: "+type+ " ("+devs+")");
             }else{
-                labelType.setText("License: ");
+                labelType.setText("License: "+type);
             }
         } catch (Exception e) {
             labelType.setText("License: ");
