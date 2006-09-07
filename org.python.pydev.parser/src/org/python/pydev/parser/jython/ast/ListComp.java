@@ -32,7 +32,7 @@ public class ListComp extends exprType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(35, ostream);
+        pickleThis(36, ostream);
         pickleThis(this.elt, ostream);
         pickleThis(this.generators, ostream);
     }

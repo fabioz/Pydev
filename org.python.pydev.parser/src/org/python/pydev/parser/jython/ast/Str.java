@@ -42,7 +42,7 @@ public class Str extends exprType implements str_typeType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(41, ostream);
+        pickleThis(42, ostream);
         pickleThis(this.s, ostream);
         pickleThis(this.type, ostream);
         pickleThis(this.unicode, ostream);

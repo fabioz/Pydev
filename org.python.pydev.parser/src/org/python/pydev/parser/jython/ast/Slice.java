@@ -37,7 +37,7 @@ public class Slice extends sliceType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(49, ostream);
+        pickleThis(50, ostream);
         pickleThis(this.lower, ostream);
         pickleThis(this.upper, ostream);
         pickleThis(this.step, ostream);

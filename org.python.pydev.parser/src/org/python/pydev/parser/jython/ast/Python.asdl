@@ -1,5 +1,10 @@
 -- ASDL's three builtin types are identifier, int, string
 
+-- some useful references: 
+-- python grammar: http://svn.python.org/view/python/trunk/Grammar/
+-- python parser (contains a version of this file for python: http://svn.python.org/view/python/trunk/Parser/)
+-- what's new in python 2.5: http://docs.python.org/dev/whatsnew/whatsnew25.html
+
 module Python
 {
 	mod = Module(stmt* body)
@@ -33,6 +38,9 @@ module Python
 	      | For(expr target, expr iter, stmt* body, suite orelse)
 	      | While(expr test, stmt* body, suite orelse)
 	      | If(expr test, stmt* body, stmt* orelse)
+	      
+	      -- added in version 2.5
+	      | IfExp(expr test, expr body, expr orelse)
 
 	      -- 'type' is a bad name
 	      | Raise(expr? type, expr? inst, expr? tback)

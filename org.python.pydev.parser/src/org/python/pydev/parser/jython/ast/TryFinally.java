@@ -32,7 +32,7 @@ public class TryFinally extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(20, ostream);
+        pickleThis(21, ostream);
         pickleThis(this.body, ostream);
         pickleThis(this.finalbody, ostream);
     }
