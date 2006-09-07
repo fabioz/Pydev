@@ -1148,10 +1148,33 @@ void suite(): {}
 { simple_stmt() |  <NEWLINE>
                    { token_source.expect_indent = true; } <INDENT> { token_source.expect_indent = false; } (stmt())+ <DEDENT> }
 
+//Backward compatibility cruft to support:
+//[ x for x in lambda: True, lambda: False if x() ]
+//even while also allowing:
+//lambda x: 5 if x else 2
+//(But not a mix of the two)
+//
+//testlist_safe: old_test [(',' old_test)+ [',']]
+void testlist_safe()#void:{}
+{old_test()  [  (Comma() old_test() )+ [Comma()]  ]}
 
-//test: and_test ('or' and_test)* | lambdef
-void test() #or_boolean(>1): {}
-{ lambdef() | and_test() (<OR_BOOL> and_test())* }
+//old_test: or_test | old_lambdef
+void old_test()#void:{}
+{or_test() | old_lambdef()}
+
+//old_lambdef: 'lambda' [varargslist] ':' old_test
+void old_lambdef():{boolean hasArgs=false;}
+{ <LAMBDA> [varargslist(){hasArgs=true;}] <COLON> {if(hasArgs)this.addSpecialToken(":");else this.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} old_test() }
+
+
+//test: or_test ['if' or_test 'else' test] | lambdef
+void test() #void: {}
+{  lambdef() | or_test() ["if" or_test() "else" test()] }
+
+//or_test: or_test: and_test ('or' and_test)*
+void or_test() #or_boolean(>1): {}
+{ and_test() (<OR_BOOL> and_test())* }
+
 
 //and_test: not_test ('and' not_test)*
 void and_test() #and_boolean(>1): {}
@@ -1331,7 +1354,7 @@ void SmartTestList() #void: {}
 
 //testlist: test (',' test)* [',']
 void testlist() #void: {}
-{ test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [{this.addSpecialToken(",");} <COMMA>]}
+{ or_test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> or_test())* [{this.addSpecialToken(",");} <COMMA>]}
 
 //dictmaker: test ':' test (',' test ':' test)* [',']
 void dictmaker() #void: {}
@@ -1339,16 +1362,18 @@ void dictmaker() #void: {}
 
 //listmaker: test ( list_for | (',' test)* [','] )
 void listmaker() #void: {}
-{ test() ( (list_for())+ | (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()] #tuple(>1)) }
+{ test() ( LOOKAHEAD(2)(list_for())+ | (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()] #tuple(>1)) }
 
 //list_iter: [list_for | list_if]
-//void list_iter() #void: {}
-//{ [ (list_for() | list_if()) ] }
+void list_iter() #void: {}
+{ list_for() | list_if() }
 
 //list_for: 'for' exprlist 'in' testlist list_iter
 void list_for(): {}
-{ <FOR> {this.addSpecialToken(" for ");} exprlist() <IN> {this.addSpecialToken(" in ");} SmartTestList() (<IF>  {this.addSpecialToken(" if ");} test())* }
+{ <FOR> {this.addSpecialToken(" for ");} exprlist() <IN> {this.addSpecialToken(" in ");} testlist_safe() [list_iter()] }
 
+void list_if()#void:{}
+{ <IF>  {this.addSpecialToken(" if ");} old_test() [list_iter()]}
 
 
 //classdef: 'class' NAME ['(' testlist ')'] ':' suite

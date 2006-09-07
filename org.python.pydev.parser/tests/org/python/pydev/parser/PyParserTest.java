@@ -24,6 +24,7 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
+            test.testOnCgiMod2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
@@ -214,6 +215,17 @@ public class PyParserTest extends PyParserTestBase{
 //    }
     
     
+    public void testOnCgiMod() {
+        String s = "dict((day, index) for index, daysRep in enumeratedDays for day in daysRep)";
+        parseLegalDocStr(s);
+    }
+    
+    public void testOnCgiMod2() {
+        String loc = TestDependent.PYTHON_LIB+"cgi.py";
+        String s = REF.getFileContents(new File(loc));
+        parseLegalDocStr(s);
+    }
+    
     public void testOnUnittestMod() {
         String loc = TestDependent.PYTHON_LIB+"unittest.py";
         String s = REF.getFileContents(new File(loc));
@@ -311,6 +323,12 @@ public class PyParserTest extends PyParserTestBase{
         "    print foo                                                          \n";
         
         parseLegalDocStr(s);
+    }
+    
+    public void testParser13() throws Exception {
+        String s = "plural = lambda : None";
+        parseLegalDocStr(s);
+        
     }
     
     public void testParser3() {

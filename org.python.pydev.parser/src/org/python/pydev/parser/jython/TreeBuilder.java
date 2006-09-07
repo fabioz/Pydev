@@ -317,8 +317,8 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             while(stack.nodeArity() > 0){
                 SimpleNode node = stack.popNode();
                 while(!(node instanceof decoratorsType)){
-                    if(node instanceof comprehensionType){
-                        listArgs.add(node);
+                    if(node instanceof ComprehensionCollection){
+                        listArgs.add(((ComprehensionCollection)node).getGenerators()[0]);
                         listArgs.add(stack.popNode()); //target
                         
                     }else{
@@ -362,12 +362,9 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             exprType[] args = new exprType[nargs];
             for (int i = 0; i < nargs; i++) {
                 //what can happen is something like print sum(x for x in y), where we have already passed x in the args, and then get 'for x in y'
-                if(tmparr[i] instanceof comprehensionType){
+                if(tmparr[i] instanceof ComprehensionCollection){
                     args = new exprType[]{
-                        new ListComp(args[0], new comprehensionType[]{
-                                (comprehensionType)tmparr[i]
-                            })
-                        };
+                        new ListComp(args[0], ((ComprehensionCollection)tmparr[i]).getGenerators())};
                 }else{
                     args[i] = (exprType) tmparr[i];
                 }
@@ -583,12 +580,9 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             nameTok = makeName(NameTok.KeywordName);
             return new keywordType(nameTok, value);
         case JJTTUPLE:
-            if (stack.nodeArity() > 0 && stack.peekNode() instanceof comprehensionType) {
-                comprehensionType[] generators = new comprehensionType[arity-1];
-                for (int i = arity-2; i >= 0; i--) {
-                    generators[i] = (comprehensionType) stack.popNode();
-                }
-                return new ListComp(((exprType) stack.popNode()), generators);
+            if (stack.nodeArity() > 0 && stack.peekNode() instanceof ComprehensionCollection) {
+                ComprehensionCollection col = (ComprehensionCollection) stack.popNode();
+                return new ListComp(((exprType) stack.popNode()), col.getGenerators());
             }
             try {
                 exprType[] exp = makeExprs();
@@ -602,12 +596,9 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
                 throw new ParseException("Syntax error while detecting tuple.", lastPop);
             }
         case JJTLIST:
-            if (stack.nodeArity() > 0 && stack.peekNode() instanceof comprehensionType) {
-                comprehensionType[] generators = new comprehensionType[arity-1];
-                for (int i = arity-2; i >= 0; i--) {
-                    generators[i] = (comprehensionType) stack.popNode();
-                }
-                return new ListComp(((exprType) stack.popNode()), generators);
+            if (stack.nodeArity() > 0 && stack.peekNode() instanceof ComprehensionCollection) {
+                ComprehensionCollection col = (ComprehensionCollection) stack.popNode();
+                return new ListComp(((exprType) stack.popNode()), col.getGenerators());
             }
             return new List(makeExprs(), List.Load);
         case JJTDICTIONARY:
@@ -733,6 +724,14 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTAUG_FLOORDIVIDE:  
             return makeAugAssign(AugAssign.FloorDiv);
         case JJTLIST_FOR:
+            ComprehensionCollection col = null;
+            if(stack.peekNode() instanceof ComprehensionCollection){
+                col = (ComprehensionCollection) stack.popNode();
+                arity--;
+            }else{
+                col = new ComprehensionCollection();
+            }
+            
             exprType[] ifs = new exprType[arity-2];
             for (int i = arity-3; i >= 0; i--) {
                 ifs[i] = (exprType) stack.popNode();
@@ -740,7 +739,8 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             iter = (exprType) stack.popNode();
             target = (exprType) stack.popNode();
             ctx.setStore(target);
-            return new Comprehension(target, iter, ifs);
+            col.added.add(new Comprehension(target, iter, ifs));
+            return col;
         case JJTIMPORTFROM:
             aliasType[] aliases = makeAliases(arity - 1);
             return new ImportFrom(makeName(NameTok.ImportModule), aliases);
@@ -876,9 +876,12 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
                 //default
                 argsl.add(node);
 
-            } else if(node instanceof comprehensionType){
+            } else if(node instanceof Comprehension){
+                argsl.add( new ListComp((exprType)iter.next(), new comprehensionType[]{(comprehensionType) node}) );
+                
+            } else if(node instanceof ComprehensionCollection){
                 //list comp (2 nodes: comp type and the elt -- what does elt mean by the way?) 
-                argsl.add( new ListComp((exprType)iter.next(), new comprehensionType[]{(comprehensionType)node}));
+                argsl.add( new ListComp((exprType)iter.next(), ((ComprehensionCollection)node).getGenerators()));
                 
             } else if(node instanceof decoratorsType){
                 func = (exprType) stack.popNode();//the func is the last thing in the stack
@@ -996,6 +999,19 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
         }
         Collections.reverse(list);//we get them in reverse order in the stack
         return makeArguments((DefaultArg[]) list.toArray(new DefaultArg[0]), stararg, kwarg);
+    }
+}
+
+
+
+class ComprehensionCollection extends SimpleNode{
+    public ArrayList<Comprehension> added = new ArrayList<Comprehension>();
+
+    public comprehensionType[] getGenerators() {
+        ArrayList<Comprehension> f = added;
+        added = null;
+        Collections.reverse(f);
+        return f.toArray(new comprehensionType[0]);
     }
 }
 
