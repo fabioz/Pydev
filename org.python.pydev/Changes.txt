@@ -5,6 +5,14 @@ Pydev:
 - When the user specifies an invalid interpreter, a better error report is given (it was only shown in the 
 error log previously)
 - When threads die, the debugger is notified about it (to remove them from the stack)
+- Made writing the preferences buffered
+- Fixed problem when debugging in jython with (from xxx import *)
+- Fixed one issue with the indentation engine
+- Commenting a line does not remove a blank line in the end anymore
+
+Pydev Extensions:
+
+- Fixed some minor issues on mark occurrences when the definition for something could not be found
 
 after 1.2.1
 
