@@ -9,7 +9,7 @@ TestCase-derived classes.
 
 import sys
 import unittest
-import optparse
+import optparse #@UnresolvedImport
 import fnmatch
 import os
 import os.path

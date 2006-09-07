@@ -5,6 +5,8 @@
  */
 package org.python.pydev.core;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -265,26 +267,41 @@ public class REF {
     }
 
     /**
-     * @param o
-     * @param out
+     * @param o the object to be written to some stream
+     * @param out the output stream to be used
+     * 
      * @throws IOException
      */
     public static void writeToStreamAndCloseIt(Object o, OutputStream out) throws IOException {
+        //change: checks if we have a buffered output stream (if we don't, one will be provided)
+        OutputStream b = null;
+        if (out instanceof BufferedOutputStream || out instanceof ByteArrayOutputStream){
+            b = (BufferedOutputStream) out;
+        }else{
+            b = new BufferedOutputStream(out);
+        }
+        
         try {
-            ObjectOutputStream stream = new ObjectOutputStream(out);
+            
+            ObjectOutputStream stream = new ObjectOutputStream(b);
             stream.writeObject(o);
             stream.close();
         } catch (Exception e) {
             Log.log(e);
             throw new RuntimeException(e);
         } finally{
-            out.close();
+            b.close();
         }
     }
     
+    /**
+     * Reads some object from a file
+     * @param file the file from where we should read
+     * @return the object that was read (or null if some error happened while reading)
+     */
     public static Object readFromFile(File file){
     	try {
-    		InputStream in = new FileInputStream(file);
+    		InputStream in = new BufferedInputStream(new FileInputStream(file));
     		try {
 				ObjectInputStream stream = new ObjectInputStream(in);
 				try {
