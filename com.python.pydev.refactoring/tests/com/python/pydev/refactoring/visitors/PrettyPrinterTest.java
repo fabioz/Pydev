@@ -17,13 +17,18 @@ public class PrettyPrinterTest extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testComment4();
+            test.testNewIf();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    public void testNewIf() throws Exception {
+        String str = "a = 1 if True else 2\n";
+        checkPrettyPrintEqual(str);
     }
     
     public void testGlobal() throws Exception {
