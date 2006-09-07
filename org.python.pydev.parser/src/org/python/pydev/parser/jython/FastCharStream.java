@@ -38,10 +38,10 @@ public final class FastCharStream implements CharStream {
 
 	private static final boolean DEBUG = false;
 
-	public FastCharStream(String initialDoc) {
-		this.buffer = initialDoc.toCharArray();
-		this.bufline = new int[initialDoc.length()];
-		this.bufcolumn = new int[initialDoc.length()];
+	public FastCharStream(char cs[]) {
+		this.buffer = cs;
+		this.bufline = new int[cs.length];
+		this.bufcolumn = new int[cs.length];
 	}
 
 	public final char readChar() throws IOException {

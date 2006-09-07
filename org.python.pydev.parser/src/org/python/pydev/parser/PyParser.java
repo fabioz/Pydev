@@ -413,15 +413,17 @@ public class PyParser {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        String initialDoc = newDoc.get();
         
         
         CharStream in = null;
         if(USE_FAST_STREAM){
-        	in = new FastCharStream(initialDoc);
+            //we don't want to keep the string from being released, so, just get the char array from the string
+            char[] cs = newDoc.get().toCharArray();
+        	in = new FastCharStream(cs);
         }else{
         	//this should be deprecated in the future (it is still here so that we can evaluate
         	//the changes done by the change of the reader).
+            String initialDoc = newDoc.get();
 	        StringReader inString = new StringReader(initialDoc);
 	        in = new ReaderCharStream(inString);
             throw new RuntimeException("This char stream reader was deprecated (was maintained only for testing purposes).");

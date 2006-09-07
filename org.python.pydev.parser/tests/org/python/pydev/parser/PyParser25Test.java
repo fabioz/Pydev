@@ -10,15 +10,15 @@ import org.python.pydev.parser.jython.SimpleNode;
  * Test for parsing python 2.5
  * @author Fabio
  */
-public class PyParserTest25 extends PyParserTestBase{
+public class PyParser25Test extends PyParserTestBase{
 
     public static void main(String[] args) {
         try {
-            PyParserTest25 test = new PyParserTest25();
+            PyParser25Test test = new PyParser25Test();
             test.setUp();
             test.tearDown();
             System.out.println("Finished");
-            junit.textui.TestRunner.run(PyParserTest25.class);
+            junit.textui.TestRunner.run(PyParser25Test.class);
         } catch (Exception e) {
             e.printStackTrace();
         }

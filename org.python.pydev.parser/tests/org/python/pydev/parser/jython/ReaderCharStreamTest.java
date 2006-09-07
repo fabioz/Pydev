@@ -33,7 +33,7 @@ public class ReaderCharStreamTest extends TestCase {
     	CharStream in = new ReaderCharStream(inString);
     	checkCvsStream(in);
     	
-    	in = new FastCharStream(s);
+    	in = new FastCharStream(s.toCharArray());
     	checkCvsStream(in);
     	
     	
@@ -76,10 +76,10 @@ public class ReaderCharStreamTest extends TestCase {
         in = new ReaderCharStream(inString);
         doTests2(in);
         
-        in = new FastCharStream(initialDoc);
+        in = new FastCharStream(initialDoc.toCharArray());
         doTests(in);
         
-        in = new FastCharStream(initialDoc);
+        in = new FastCharStream(initialDoc.toCharArray());
         doTests2(in);
     }
 
