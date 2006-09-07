@@ -7,7 +7,6 @@ package org.python.pydev.parser;
 import junit.framework.AssertionFailedError;
 
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.parser.jython.SimpleNode;
 
 /**
  * Test for parsing python 2.5
@@ -40,8 +39,9 @@ public class PyParser25Test extends PyParserTestBase{
     public void testConditionalExp1(){
         defaultVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
         String str = "a = 1 if True else 2\n";
-        SimpleNode node = parseLegalDocStr(str);
+        parseLegalDocStr(str);
     }
+    
     /**
      * This test checks that the old version still gives an error
      */
