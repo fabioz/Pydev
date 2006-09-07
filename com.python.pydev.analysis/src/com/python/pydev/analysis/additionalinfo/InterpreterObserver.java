@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
@@ -111,6 +112,11 @@ public class InterpreterObserver implements IInterpreterObserver {
      */
     private AbstractAdditionalInterpreterInfo restoreInfoForModuleManager(IProgressMonitor monitor, IModulesManager m, String additionalFeedback, 
             AbstractAdditionalInterpreterInfo info, PythonNature nature) {
+        
+        //if we cannot get the version of the grammar, let's simply try to parse it with the latest version (because
+        //it should be backward compatible).
+        int grammarVersion = nature != null ? nature.getGrammarVersion() : IPythonNature.GRAMMAR_PYTHON_VERSION_2_5; 
+            
         long startsAt = System.currentTimeMillis();
         ModulesKey[] allModules = m.getOnlyDirectModules();
         int i = 0;
@@ -141,7 +147,7 @@ public class InterpreterObserver implements IInterpreterObserver {
                         try {
                             
                             //  the code below works with the default parser (that has much more info... and is much slower)
-                            PyParser.ParserInfo parserInfo = new PyParser.ParserInfo(REF.getDocFromFile(key.file), false, null, nature.getGrammarVersion());
+                            PyParser.ParserInfo parserInfo = new PyParser.ParserInfo(REF.getDocFromFile(key.file), false, null, grammarVersion);
                             Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(parserInfo);
                             SimpleNode node = obj.o1;
 
