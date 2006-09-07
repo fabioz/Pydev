@@ -27,6 +27,7 @@ import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Global;
 import org.python.pydev.parser.jython.ast.If;
+import org.python.pydev.parser.jython.ast.IfExp;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Index;
@@ -580,9 +581,17 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             nameTok = makeName(NameTok.KeywordName);
             return new keywordType(nameTok, value);
         case JJTTUPLE:
-            if (stack.nodeArity() > 0 && stack.peekNode() instanceof ComprehensionCollection) {
-                ComprehensionCollection col = (ComprehensionCollection) stack.popNode();
-                return new ListComp(((exprType) stack.popNode()), col.getGenerators());
+            if (stack.nodeArity() > 0) {
+                SimpleNode peeked = stack.peekNode();
+                if(peeked instanceof ComprehensionCollection){
+                    ComprehensionCollection col = (ComprehensionCollection) stack.popNode();
+                    return new ListComp(((exprType) stack.popNode()), col.getGenerators());
+                }
+                if(peeked instanceof IfExp){
+                    IfExp node = (IfExp) stack.popNode();
+                    node.body = (exprType) stack.popNode();
+                    return node;
+                }
             }
             try {
                 exprType[] exp = makeExprs();
@@ -626,6 +635,10 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
                 strJ.strs = newStrs;
                 return strJ;
             }
+        case JJTIF_EXP:
+            exprType ifExprOrelse=(exprType) stack.popNode();
+            exprType ifExprTest=(exprType) stack.popNode();
+            return new IfExp(ifExprTest,null,ifExprOrelse);
         case JJTLAMBDEF:
             test = (exprType) stack.popNode();
             arguments = makeArguments(arity - 1);

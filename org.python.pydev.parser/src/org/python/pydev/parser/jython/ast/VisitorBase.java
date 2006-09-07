@@ -99,12 +99,6 @@ public abstract class VisitorBase implements VisitorIF {
         return ret;
     }
 
-    public Object visitIfExp(IfExp node) throws Exception {
-        Object ret = unhandled_node(node);
-        traverse(node);
-        return ret;
-    }
-
     public Object visitRaise(Raise node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
@@ -196,6 +190,12 @@ public abstract class VisitorBase implements VisitorIF {
     }
 
     public Object visitLambda(Lambda node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitIfExp(IfExp node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;

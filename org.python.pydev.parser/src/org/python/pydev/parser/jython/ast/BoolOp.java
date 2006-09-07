@@ -31,7 +31,7 @@ public class BoolOp extends exprType implements boolopType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(31, ostream);
+        pickleThis(30, ostream);
         pickleThis(this.op, ostream);
         pickleThis(this.values, ostream);
     }

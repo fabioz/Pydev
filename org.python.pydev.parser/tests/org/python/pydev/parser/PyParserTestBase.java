@@ -77,6 +77,7 @@ public class PyParserTestBase extends TestCase {
 	        }
 	        if (err instanceof ParseException) {
 	            ParseException parseErr = (ParseException) err;
+                parseErr.printStackTrace();
 	            
 	            Token token = parseErr.currentToken;
 	            if(token != null){

@@ -4,7 +4,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class IfExp extends stmtType {
+public class IfExp extends exprType {
     public exprType test;
     public exprType body;
     public exprType orelse;
@@ -37,7 +37,7 @@ public class IfExp extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(18, ostream);
+        pickleThis(34, ostream);
         pickleThis(this.test, ostream);
         pickleThis(this.body, ostream);
         pickleThis(this.orelse, ostream);

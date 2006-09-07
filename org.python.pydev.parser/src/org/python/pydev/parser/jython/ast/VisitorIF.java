@@ -18,7 +18,6 @@ public interface VisitorIF {
     public Object visitFor(For node) throws Exception;
     public Object visitWhile(While node) throws Exception;
     public Object visitIf(If node) throws Exception;
-    public Object visitIfExp(IfExp node) throws Exception;
     public Object visitRaise(Raise node) throws Exception;
     public Object visitTryExcept(TryExcept node) throws Exception;
     public Object visitTryFinally(TryFinally node) throws Exception;
@@ -35,6 +34,7 @@ public interface VisitorIF {
     public Object visitBinOp(BinOp node) throws Exception;
     public Object visitUnaryOp(UnaryOp node) throws Exception;
     public Object visitLambda(Lambda node) throws Exception;
+    public Object visitIfExp(IfExp node) throws Exception;
     public Object visitDict(Dict node) throws Exception;
     public Object visitListComp(ListComp node) throws Exception;
     public Object visitGeneratorExp(GeneratorExp node) throws Exception;

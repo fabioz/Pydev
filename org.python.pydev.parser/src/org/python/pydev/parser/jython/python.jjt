@@ -1169,7 +1169,11 @@ void old_lambdef():{boolean hasArgs=false;}
 
 //test: or_test ['if' or_test 'else' test] | lambdef
 void test() #void: {}
-{  lambdef() | or_test() ["if" or_test() "else" test()] }
+{  lambdef() | or_test() [if_exp()] }
+
+void if_exp():{}
+{<IF> {this.addSpecialToken(" if ",STRATEGY_BEFORE_NEXT);} or_test() <ELSE> {this.addSpecialToken(" else ");} test()}
+
 
 //or_test: or_test: and_test ('or' and_test)*
 void or_test() #or_boolean(>1): {}
