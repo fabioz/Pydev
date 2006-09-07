@@ -12,6 +12,7 @@ import org.python.pydev.parser.jython.Token;
 
 public class PyParserTestBase extends TestCase {
     protected PyParser parser;
+    protected static int defaultVersion;
 
     protected void setUp() throws Exception {
         PyParser.ACCEPT_NULL_EDITOR = true;
@@ -19,6 +20,7 @@ public class PyParserTestBase extends TestCase {
         PyParser.TRY_REPARSE = false;
         ParseException.verboseExceptions = true;
         parser = new PyParser();
+        defaultVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_4;
         super.setUp();
     }
 
@@ -56,8 +58,7 @@ public class PyParserTestBase extends TestCase {
     }
 
 	protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, PyParser parser) {
-        // default implementation: parser grammar with version 2.4
-       return parseLegalDoc(doc, additionalErrInfo, parser, IPythonNature.GRAMMAR_PYTHON_VERSION_2_4); 
+       return parseLegalDoc(doc, additionalErrInfo, parser, defaultVersion); 
     }
     
     /**
