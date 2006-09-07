@@ -27,6 +27,7 @@ import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Global;
 import org.python.pydev.parser.jython.ast.If;
+import org.python.pydev.parser.jython.ast.IfExp;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Index;
@@ -777,6 +778,17 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     @Override
     public Object visitContinue(Continue node) throws Exception {
         return visitGeneric(node, "visitContinue");
+    }
+    
+    @Override
+    public Object visitIfExp(IfExp node) throws Exception {
+        //we have to change the order a bit...
+        node.body.accept(this);
+        node.test.accept(this);
+        if(node.orelse != null){
+            node.orelse.accept(this);
+        }
+        return null;
     }
     
     @Override
