@@ -1,5 +1,6 @@
 // -*- java -*-
 //good reading for error handling: https://javacc.dev.java.net/doc/errorrecovery.html
+//check Python.asdl for references on the python implementation of the grammar
 options
 {
     // only non-defaults are given here.

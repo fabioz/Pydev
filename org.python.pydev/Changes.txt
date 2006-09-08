@@ -9,6 +9,8 @@ error log previously)
 - Fixed problem when debugging in jython with (from xxx import *)
 - Fixed one issue with the indentation engine
 - Commenting a line does not remove a blank line in the end anymore
+- Added the new relative import to the parser (2.5 support)
+- Added the new if expression to the parser (2.5 support)
 
 Pydev Extensions:
 
