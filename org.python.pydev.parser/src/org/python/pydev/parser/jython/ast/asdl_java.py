@@ -276,6 +276,7 @@ class JavaVisitor(EmitVisitor):
 
     bltinnames = {
         'bool' : 'boolean',
+        'int' : 'int',
         'identifier' : 'String',
         'string' : 'String',
         'object' : 'Object', # was PyObject

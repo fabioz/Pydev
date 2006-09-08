@@ -29,6 +29,7 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.core.IPythonNature;
 
 public class PythonGrammar
@@ -1007,20 +1008,26 @@ Import Import(): {}
   {return (Import)jjtree.peekNode();}
 }
 
-//TODO: allways allowed (treat different versions in other places, to see if this is correct or not)
-void ImportFrom(): { String mod; String name;int state=0; }
+//import_from: ('from' ('.'* dotted_name | '.'+)
+//              'import' ('*' | '(' import_as_names ')' | import_as_names))
+void ImportFrom(): { int level=0; int state=0; }
 {
-    mod=dotted_name() <IMPORT> {this.addSpecialToken(" import ");}
+    //we need to set the  <IMPORT> {this.addSpecialToken(" import ");} in both otherwise the lookahead will not work as we want it to work
+    //because it confuses the import with the dotted name
+    (LOOKAHEAD(3)  
+        ("." {level++;} ("." {level++;} )*  <IMPORT> {this.addSpecialToken(" import ");} )
+        |  ("." {level++;} )* dotted_name()  <IMPORT> {this.addSpecialToken(" import ");} ) 
+    
     (
         //from xxx import *
         <MULTIPLY> {this.addSpecialToken("*",STRATEGY_ADD_AFTER_PREV);}//from xx import *
         
         //from xxx import a,b,c
-        | (name=import_as_name() ({this.addSpecialToken(",");} <COMMA> import_as_name())*) 
+        | (import_as_name() ({this.addSpecialToken(",");} <COMMA> import_as_name())*) 
         
         //from xxx import (a,b,c)
         | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   
-          name=import_as_name() 
+          import_as_name() 
           (
            ({
              if(state!=0){
@@ -1033,6 +1040,8 @@ void ImportFrom(): { String mod; String name;int state=0; }
            <RPAREN>  {this.findTokenAndAdd(")");} 
           )
     )
+    //now, let's set the correct level for the module
+    {((ImportFrom)jjtree.peekNode()).level = level;}
 }
 
 //dotted_as_name: dotted_name [NAME NAME]
@@ -1492,7 +1501,7 @@ Token AnyName() #void:
 |   ( t = <CONTINUE> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <RETURN> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <YIELD> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <IMPORT> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <IMPORT> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <FROM> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <DEL> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <RAISE> { jjtThis.setImage(t.image); return t; } {} )#Name

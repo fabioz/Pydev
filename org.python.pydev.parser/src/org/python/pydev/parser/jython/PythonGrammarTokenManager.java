@@ -9,6 +9,7 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.core.IPythonNature;
 
 public class PythonGrammarTokenManager implements PythonGrammarConstants

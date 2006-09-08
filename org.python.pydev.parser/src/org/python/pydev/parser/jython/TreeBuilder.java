@@ -38,6 +38,7 @@ import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Print;
@@ -755,10 +756,20 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             col.added.add(new Comprehension(target, iter, ifs));
             return col;
         case JJTIMPORTFROM:
-            aliasType[] aliases = makeAliases(arity - 1);
-            return new ImportFrom(makeName(NameTok.ImportModule), aliases);
+            ArrayList<aliasType> aliastL = new ArrayList<aliasType>();
+            while(arity > 0 && stack.peekNode() instanceof aliasType){
+                aliastL.add(0, (aliasType) stack.popNode());
+                arity--;
+            }
+            NameTok nT;
+            if(arity > 0){
+                nT = makeName(NameTok.ImportModule);
+            }else{
+                nT = new NameTok("", NameTok.ImportModule);
+            }
+            return new ImportFrom((NameTokType)nT, aliastL.toArray(new aliasType[0]), 0);
         case JJTIMPORT:
-            return new Import(makeAliases());
+            return new Import(makeAliases(arity));
     
         case JJTDOTTED_NAME:
             name = new Name(null, Name.Load);

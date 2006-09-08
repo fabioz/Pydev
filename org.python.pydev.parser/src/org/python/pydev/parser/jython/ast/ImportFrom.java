@@ -7,15 +7,17 @@ import java.io.IOException;
 public class ImportFrom extends stmtType {
     public NameTokType module;
     public aliasType[] names;
+    public int level;
 
-    public ImportFrom(NameTokType module, aliasType[] names) {
+    public ImportFrom(NameTokType module, aliasType[] names, int level) {
         this.module = module;
         this.names = names;
+        this.level = level;
     }
 
-    public ImportFrom(NameTokType module, aliasType[] names, SimpleNode
-    parent) {
-        this(module, names);
+    public ImportFrom(NameTokType module, aliasType[] names, int level,
+    SimpleNode parent) {
+        this(module, names, level);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
     }
@@ -27,6 +29,9 @@ public class ImportFrom extends stmtType {
         sb.append(", ");
         sb.append("names=");
         sb.append(dumpThis(this.names));
+        sb.append(", ");
+        sb.append("level=");
+        sb.append(dumpThis(this.level));
         sb.append("]");
         return sb.toString();
     }
@@ -35,6 +40,7 @@ public class ImportFrom extends stmtType {
         pickleThis(23, ostream);
         pickleThis(this.module, ostream);
         pickleThis(this.names, ostream);
+        pickleThis(this.level, ostream);
     }
 
     public Object accept(VisitorIF visitor) throws Exception {
