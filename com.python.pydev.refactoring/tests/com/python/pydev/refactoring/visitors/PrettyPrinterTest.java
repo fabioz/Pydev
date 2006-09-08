@@ -17,7 +17,7 @@ public class PrettyPrinterTest extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testNewIf();
+            test.testImport4();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -28,6 +28,21 @@ public class PrettyPrinterTest extends PyParserTestBase{
     
     public void testNewIf() throws Exception {
         String str = "a = 1 if True else 2\n";
+        checkPrettyPrintEqual(str);
+    }
+    
+    public void testNewImport() throws Exception {
+        String str = "from . import foo\n";
+        checkPrettyPrintEqual(str);
+    }
+    
+    public void testNewImport2() throws Exception {
+        String str = "from ..bar import foo\n";
+        checkPrettyPrintEqual(str);
+    }
+    
+    public void testNewImport3() throws Exception {
+        String str = "from ... import foo\n";
         checkPrettyPrintEqual(str);
     }
     
