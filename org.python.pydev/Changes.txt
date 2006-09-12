@@ -12,6 +12,7 @@ error log previously)
 - Added the new relative import to the parser (2.5 support)
 - Added the new if expression to the parser (2.5 support)
 - Darrell: unit-test refactoring and run as jython unit-test
+- Added debug mode for unit-test 
 
 Pydev Extensions:
 
