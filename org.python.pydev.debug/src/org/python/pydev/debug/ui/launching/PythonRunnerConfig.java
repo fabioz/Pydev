@@ -49,6 +49,7 @@ public class PythonRunnerConfig {
     public static final String RUN_COVERAGE = "RUN_COVERAGE";
     public static final String RUN_REGULAR  = "RUN_REGULAR";
     public static final String RUN_UNITTEST = "RUN_UNITTEST";
+    public static final String RUN_JYTHON_UNITTEST = "RUN_JYTHON_UNITTEST";
     public static final String RUN_JYTHON   = "RUN_JYTHON";
         
     public IProject project;
@@ -73,11 +74,11 @@ public class PythonRunnerConfig {
     }
     
     public boolean isUnittest(){
-        return this.run.equals(RUN_UNITTEST);
+        return this.run.equals(RUN_UNITTEST) || this.run.equals(RUN_JYTHON_UNITTEST);
     }
     
     public boolean isJython(){
-        return this.run.equals(RUN_JYTHON);
+        return this.run.equals(RUN_JYTHON) || this.run.equals(RUN_JYTHON_UNITTEST);
     }
     
     public boolean isFile() throws CoreException{
@@ -422,6 +423,19 @@ public class PythonRunnerConfig {
             	
             }
             
+            
+            if(isUnittest()){
+                cmdArgs.add(getRunFilesScript());
+                cmdArgs.add("--verbosity");
+                cmdArgs.add( PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_VERBOSITY) );
+                
+                String filter = PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_TEST_FILTER);
+                if (filter.length() > 0) {
+                    cmdArgs.add("--filter");
+                    cmdArgs.add( filter );
+                }
+            }
+
         }else{
         
     		cmdArgs.add(interpreter.toOSString());

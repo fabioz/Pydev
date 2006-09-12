@@ -77,8 +77,15 @@
 	<launchConfigurationType
         delegate="org.python.pydev.debug.ui.launching.UnittestLaunchConfigurationDelegate"
         id="org.python.pydev.debug.unittestLaunchConfigurationType"
-        modes="run"
+        modes="run, debug"
         name="Python unittest"
+        public="true">
+	</launchConfigurationType>
+	<launchConfigurationType
+        delegate="org.python.pydev.debug.ui.launching.JythonUnittestLaunchConfigurationDelegate"
+        id="org.python.pydev.debug.jythonUnittestLaunchConfigurationType"
+        modes="run, debug"
+        name="Jython unittest"
         public="true">
 	</launchConfigurationType>
     <launchConfigurationType
@@ -110,6 +117,11 @@
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
 	</launchConfigurationTypeImage>
 	<launchConfigurationTypeImage
+		icon="icons/jython_unit.gif"
+		configTypeID="org.python.pydev.debug.jythonUnittestLaunchConfigurationType"
+		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
+	</launchConfigurationTypeImage>
+	<launchConfigurationTypeImage
 		icon="icons/jython.gif"
 		configTypeID="org.python.pydev.debug.jythonLaunchConfigurationType"
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
@@ -129,6 +141,11 @@
 	</launchConfigurationTabGroup>
 	<launchConfigurationTabGroup
 		type="org.python.pydev.debug.unittestLaunchConfigurationType"
+		class="org.python.pydev.debug.ui.PythonTabGroup"
+		id="org.python.pydev.debug.ui.PythonTabGroup">
+	</launchConfigurationTabGroup>
+	<launchConfigurationTabGroup
+		type="org.python.pydev.debug.jythonUnittestLaunchConfigurationType"
 		class="org.python.pydev.debug.ui.PythonTabGroup"
 		id="org.python.pydev.debug.ui.PythonTabGroup">
 	</launchConfigurationTabGroup>
@@ -210,8 +227,29 @@
 	<shortcut
 		label="Python unit-test"
 		icon="icons/python_unit.gif"
-		modes="run"
+		modes="run, debug"
 		class="org.python.pydev.debug.ui.launching.UnitTestLaunchShortcut"
+		id="org.python.pydev.debug.ui.launchShortcut">
+        <contextualLaunch>
+           <enablement>
+              <with variable="selection">
+                 <count value="1"/>
+           		 <iterate>
+           		 	<or>
+               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
+               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
+               		    <instanceof value="org.eclipse.core.resources.IFolder" />
+               		</or>
+           		 </iterate>
+              </with>
+           </enablement>
+        </contextualLaunch>
+	</shortcut>
+	<shortcut
+		label="Jython unit-test"
+		icon="icons/jython_unit.gif"
+		modes="run, debug"
+		class="org.python.pydev.debug.ui.launching.JythonUnitTestLaunchShortcut"
 		id="org.python.pydev.debug.ui.launchShortcut">
         <contextualLaunch>
            <enablement>

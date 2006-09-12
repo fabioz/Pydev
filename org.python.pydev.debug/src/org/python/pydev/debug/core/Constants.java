@@ -22,6 +22,7 @@ public interface Constants {
 	static final String ID_PYTHON_REGULAR_LAUNCH_CONFIGURATION_TYPE = "org.python.pydev.debug.regularLaunchConfigurationType";
 	static final String ID_PYTHON_COVERAGE_LAUNCH_CONFIGURATION_TYPE = "org.python.pydev.debug.coverageLaunchConfigurationType";
 	static final String ID_PYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE = "org.python.pydev.debug.unittestLaunchConfigurationType";
+	static final String ID_JYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE = "org.python.pydev.debug.jythonUnittestLaunchConfigurationType";
 	static final String ID_JYTHON_LAUNCH_CONFIGURATION_TYPE = "org.python.pydev.debug.jythonLaunchConfigurationType";
 	static final String PROCESS_TYPE = "PYDEV.PYTHON";
 	

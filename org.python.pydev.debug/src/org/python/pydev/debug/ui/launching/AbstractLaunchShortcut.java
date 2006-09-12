@@ -36,6 +36,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.NotConfiguredInterpreterException;
 
 /**
  * Called when "Run Script..." popup menu item is selected.
@@ -204,6 +205,9 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 			tab.setDefaults(workingCopy);
 			tab.dispose();
 			return workingCopy.doSave();
+        } catch (NotConfiguredInterpreterException e) {
+            reportError(e.getMessage(), e);
+            throw e;
 		} catch (CoreException e) {
 			reportError(null, e);
 			return null;
