@@ -7,10 +7,13 @@ package org.python.pydev.plugin;
 
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IntegerFieldEditor;
+import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.utils.LabelFieldEditor;
 
 /**
  * Debug preferences.
@@ -23,12 +26,13 @@ public class PyunitPrefsPage extends FieldEditorPreferencePage
 
     public static final String PYUNIT_VERBOSITY = "PYUNIT_VERBOSITY";
     public static final int DEFAULT_PYUNIT_VERBOSITY = 2;
-
+    public static final String PYUNIT_TEST_FILTER = "PYUNIT_TEST_FILTER";
+    public static final String DEFAULT_PYUNIT_TEST_FILTER = "";
 	/**
 	 * Initializer sets the preference store
 	 */
 	public PyunitPrefsPage() {
-		super("Debug", GRID);
+		super(FLAT);
 		setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
 	}
 
@@ -41,7 +45,7 @@ public class PyunitPrefsPage extends FieldEditorPreferencePage
 	protected void createFieldEditors() {
 		Composite p = getFieldEditorParent();
 
- 		RadioGroupFieldEditor editor= new RadioGroupFieldEditor(
+ 		RadioGroupFieldEditor verbosity_editor= new RadioGroupFieldEditor(
  				PYUNIT_VERBOSITY, 
  				"Verbosity", 
  				1,
@@ -52,10 +56,22 @@ public class PyunitPrefsPage extends FieldEditorPreferencePage
 	 			},
 	 			p
  		);	
-		
-//		IntegerFieldEditor editor = new IntegerFieldEditor(PydevPrefs.PYUNIT_VERBOSITY, "Verbosity (0=xxx\n, 1=xxx\n, 2=xxx\n)?", p, 1);
-		
-		addField(editor);
+
+ 		StringFieldEditor filter_editor = new StringFieldEditor( 
+ 				PYUNIT_TEST_FILTER, 
+ 				"Filter (regex)", 
+ 				p);
+
+        String s = "filter examples:\n" +
+		".* or blank - all tests\n" +
+		"test_abc.* - any test with method name starting with 'test_abc'\n" +
+		"test_abc,test_123 - comma seperate (no spaces) filter for more values \n" + 
+		"\n" +
+		"Note: this filters on the method names of all <TestCase>s found\n";
+ 		
+		addField(verbosity_editor);
+		addField(filter_editor);
+        addField(new LabelFieldEditor("LabelFieldEditor", s, p));
 	}
 
 	

@@ -87,6 +87,7 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
 
         //initialize pyunit prefs
         node.putInt(PyunitPrefsPage.PYUNIT_VERBOSITY, PyunitPrefsPage.DEFAULT_PYUNIT_VERBOSITY);
+        node.put(PyunitPrefsPage.PYUNIT_TEST_FILTER, PyunitPrefsPage.DEFAULT_PYUNIT_TEST_FILTER);
     }
 
 }

@@ -461,6 +461,12 @@ public class PythonRunnerConfig {
                 cmdArgs.add(getRunFilesScript());
                 cmdArgs.add("--verbosity");
                 cmdArgs.add( PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_VERBOSITY) );
+                
+                String filter = PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_TEST_FILTER);
+                if (filter.length() > 0) {
+	                cmdArgs.add("--filter");
+	                cmdArgs.add( filter );
+                }
     		}
         }
         

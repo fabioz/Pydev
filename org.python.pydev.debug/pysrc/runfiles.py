@@ -1,190 +1,185 @@
-'''
-Usage:
-    
-    runfiles.py <dir> [<dir>...]
 
-Run all unit tests found in the current path. An unit test is a file with 
-TestCase-derived classes. 
-'''
-
-import sys
-import unittest
-import optparse #@UnresolvedImport
 import fnmatch
+import getopt
 import os
 import os.path
 import re
-
-
-def MatchMasks( p_FileName, p_Filters ):
-    for filter in p_Filters:
-        if fnmatch.fnmatch( p_FileName, filter ):
-            return 1
-    return 0
-
-
-def NotDir( p_FileName ):
-    return not os.path.isdir( p_FileName )
-
-
-def _FindFiles( p_Path, p_InFilters, p_OutFilters, p_Recursive = True ):
-    import os
-    import fnmatch
-    
-    if not p_Path: p_Path = '.'
-    
-    def AddFile( o_Result, p_DirName, p_FileNames ):
-        p_FileNames = filter( lambda x: MatchMasks( x, p_InFilters ), p_FileNames ) 
-        p_FileNames = filter( lambda x: not MatchMasks( x, p_OutFilters ), p_FileNames ) 
-        p_FileNames = filter( NotDir, p_FileNames ) 
-        p_FileNames = [os.path.join( p_DirName, x ) for x in p_FileNames]
-        o_Result.extend( p_FileNames )
-
-    result = []
-    if (p_Recursive):
-        os.path.walk( p_Path, AddFile, result )
-    else:
-        result = os.listdir( p_Path )
-        result = filter( lambda x: MatchMasks( x, p_InFilters ), result ) 
-        result = filter( lambda x: not MatchMasks( x, p_OutFilters ), result ) 
-        result = filter( NotDir, result )
-        result = [os.path.join( p_Path, x ) for x in result]
-    return result;
-
-
-def make_list( p_element ):
-    '''
-        Returns p_element as a list.
-    '''
-    if isinstance( p_element, list ):
-        return p_element
-    else:
-        return [p_element,]
-
-
-def FindFiles( p_Pathes, p_InFilters=None, p_OutFilters=None, p_Recursive = True ):
-    '''
-        Find files recursivelly, in one or more directories, matching the
-        given IN and OUT filters.
-
-        @param p_Patches: One or a list of patches to search.
-
-        @param p_InFilters: A list of filters (DIR format) to match. Defaults
-            to ['*.*'].
-
-        @param p_OutFilters
-        A list of filters (DIR format) to ignore. Defaults to [].
-
-        @param p_Recursive
-        Recursive search? 
-    '''
-    if p_InFilters is None:
-        p_InFilters = ['*.*']
-    if p_OutFilters is None:
-        p_OutFilters = []
-    p_Pathes = make_list( p_Pathes )
-    result = []
-    for i_path in p_Pathes:
-        files = _FindFiles( i_path, p_InFilters, p_OutFilters, p_Recursive )
-        result.extend( files )
-    return result
-
-
-
-
-
+import sys
+import unittest
 
 def parse_cmdline():
-    usage='usage: %prog directory [other_directory ...]'  
-    parser = optparse.OptionParser(usage=usage)
-    parser.add_option("-v", "--verbosity", dest="verbosity", default=2)
-
-    options, args = parser.parse_args()
-    if not args:
-        parser.print_help()
-        sys.exit(1)
-    return args, int(options.verbosity)
-
-
-#=============================================================================================================
-#IMPORTING 
-#=============================================================================================================
-def FormatAsModuleName( filename):
-    result = filename
-    result = result.replace( '\\', '/' )
-    result = result.split( '/' )
-    result = '.'.join( result )
-    return result
-
-def SystemPath( directories ):
-    return [FormatAsModuleName( p ) for p in sys.path]
-
-def ImportModule( p_import_path ):
-    '''
-        Import the module in the given import path.
-        
-        * Returns the "final" module, so importing "coilib40.subject.visu" return the "visu"
-        module, not the "coilib40" as returned by __import__
-    '''
-    result = __import__( p_import_path )
-    for i in p_import_path.split('.')[1:]:
-        result = getattr( result, i )
-    return result
-
-def ModuleName( filename, system_path ):
-    '''
-        Given a module filename returns the module name for it considering the given system path.
-    '''
-    import os.path, sys
-
-    def matchPath( path_a, path_b ):
-        if sys.platform == 'win32':
-           return path_a.lower().startswith( path_b.lower() )
-        else:
-           return path_a.startswith( path_b )
-    result = FormatAsModuleName( os.path.splitext( filename )[0] )
+    """ parses command line and returns test directories, verbosity, and test filter
+        usage: 
+            runfiles.py  -v|--verbosity <level>  -f|--filter <regex>  dirs|files
+    """
+    verbosity = 2
+    test_filter = None
     
-    for i_python_path in system_path:
-        if matchPath( result, i_python_path ):
-            result = result[len( i_python_path )+1:]
-            #print 'entered', filename, 'exit', result
-            return result
-        
-    raise RuntimeError( "Python path not found for filename: %r" % filename )
+    optlist, args = getopt.getopt(sys.argv[1:], "v:f:", ["verbosity=", "filter="])
+    for opt,value in optlist:
+        if opt in ("-v","--verbosity"):
+            verbosity = value
+        elif opt in ("-f","--filter"):
+            if "," in value:
+                test_filter = value.split(',')
+            else:
+                test_filter = [value]
+    if type([]) != type(args):
+        args = [args]
+    return args, int(verbosity), test_filter    
 
-#=============================================================================================================
-#RUN TESTS
-#=============================================================================================================
-def runtests(dirs, verbosity=2):
+
+class PydevTestRunner:
+    """ finds and runs a file or directory of files as a unit test """
     
-    loader = unittest.defaultTestLoader
-    print 'Finding files...',dirs
-    names = []
-    for dir in dirs:
-        if os.path.isdir(dir):
-            #a test can be in any .py file (excluding __init__ files)
-            names.extend(FindFiles(dir, ['*.py', '*.pyw'], ['__init__.*'], True))
-            
-        elif os.path.isfile(dir):
-            names.append(dir)
-        
-        else:
-            print dir, 'is not a dir nor a file... so, what is it?'
-            
-    print 'done.'
-    print 'Importing test modules...',
-    alltests = []
-    system_path = SystemPath(sys.path)
-    for name in names:
-        module = ImportModule(ModuleName(name, system_path))
-        tests = loader.loadTestsFromModule(module)
-        alltests.append(tests)
-    print 'done.'
+    __py_extensions = ["*.py", "*.pyw"]
+    __exclude_files = ["__init__.*"]
+    
+    def __init__(self, test_dir, test_filter=None, verbosity=2):
+        self.test_dir = test_dir
+        self.__adjust_path()
+        self.test_filter = self.__setup_test_filter(test_filter)
+        self.verbosity = verbosity
 
-    runner = unittest.TextTestRunner(stream=sys.stdout, descriptions=1, verbosity=verbosity)
-    runner.run(unittest.TestSuite(alltests))
+    def __adjust_path(self):
+        """ add the current file or directory to the python path """
+        path_to_append = None
+        for n in xrange(len(self.test_dir)):
+            orig = self.test_dir[n]
+            dir_name = self.__unixify(self.test_dir[n])
+            if os.path.isdir(dir_name):
+                if not dir_name.endswith("/"):
+                    self.test_dir[n] = dir_name + "/"
+                path_to_append = os.path.normpath(dir_name)
+            elif os.path.isfile(dir_name):
+                path_to_append = os.path.dirname(dir_name)
+            else:
+                msg = ("unknown type. \n%s\nshould be file or a directory.\n" % (dir_name) )
+                raise RuntimeError(msg)
+        if path_to_append is not None:
+            sys.path.insert(0, path_to_append)
+        return
+
+    def __setup_test_filter(self, test_filter):
+        """ turn a filter string into a list of filter regexes """
+        if test_filter is None or len(test_filter) == 0:
+            return None
+        return [re.compile(f) for f in test_filter]
+
+    def __is_valid_py_file(self, fname):
+        """ tests that a particular file contains the proper file extension 
+            and is not in the list of files to exclude """
+        is_valid_fname = 0
+        for invalid_fname in self.__class__.__exclude_files:
+            is_valid_fname += int(not fnmatch.fnmatch(fname, invalid_fname))
+        if_valid_ext = 0
+        for ext in self.__class__.__py_extensions:
+            if_valid_ext += int(fnmatch.fnmatch(fname, ext))
+        return is_valid_fname > 0 and if_valid_ext > 0
+
+    def __unixify(self, s):
+        """ stupid windows. converts the backslash to forwardslash for consistency """
+        return os.path.normpath(s).replace( os.sep, "/" )
+
+    def __importify(self, s):
+        """ turns directory separators into dots and removes the ".py*" extension 
+            so the string can be used as import statement """
+        dirname, fname = os.path.split(s)
+        imp_stmt_pieces = [dirname.replace("\\","/").replace("/", "."), 
+                           os.path.splitext(fname)[0]]
+        if len(imp_stmt_pieces[0]) == 0:
+            imp_stmt_pieces = imp_stmt_pieces[1:]
+        return ".".join(imp_stmt_pieces)
+
+
+    def __add_files(self, pyfiles, root, files):
+        """ if files match, appends them to pyfiles. used by os.path.walk fcn """
+        for fname in files:
+            if self.__is_valid_py_file(fname):
+                name_without_base_dir = self.__unixify(os.path.join(root, fname)) #[len(base_dir):]
+                pyfiles.append( name_without_base_dir )
+        return
 
     
+    def find_import_files(self):
+        """ return a list of files to import """
+        pyfiles = []
+        for base_dir in self.test_dir:
+            if os.path.isdir(base_dir):
+                # argh, it would be nice to use os.walk, but jython2.1 is too old
+                os.path.walk(base_dir, self.__add_files, pyfiles)
+                for n in xrange(len(pyfiles)):
+                    pyfiles[n] = pyfiles[n][len(base_dir):]
+            elif os.path.isfile(base_dir):
+                pyfiles.append( os.path.basename(base_dir) ) 
+        return pyfiles
+    
+    def __get_module_from_str(self, modname):
+        """ Import the module in the given import path.
+            * Returns the "final" module, so importing "coilib40.subject.visu" 
+            return the "visu" module, not the "coilib40" as returned by __import__ """
+        try:
+            mod = __import__( modname )
+            for part in modname.split('.')[1:]:
+                mod = getattr(mod, part)
+            return mod
+        except ImportError:
+            print >> sys.stderr, 'ERROR: Module :%s could not be imported (maybe the dir does not have __init__.py folders for all the packages?)' % (modname)
+            return None
+    
+    def find_modules_from_files(self, pyfiles):
+        """ returns a lisst of modules given a list of import strings """
+        imports = [self.__importify(s) for s in pyfiles]
+        return [self.__get_module_from_str(import_str) for import_str in imports if import_str is not None]
+    
+    def find_tests_from_modules(self, modules):
+        """ returns the unittests given a list of modules """
+        return [unittest.defaultTestLoader.loadTestsFromModule(m) for m in modules]
+
+    def filter_tests(self, test_objs):
+        """ based on a filter name, only return those tests that have
+            the test case names that match """
+        test_suite = []
+        for test_obj in test_objs:
+            if isinstance(test_obj, unittest.TestSuite):
+                test_obj._tests = self.filter_tests(test_obj._tests)
+                test_suite.append( test_obj )
+            elif isinstance(test_obj, unittest.TestCase):
+                test_cases = []
+                for tc in test_objs:
+                    if self.__match(self.test_filter, tc._TestCase__testMethodName):
+                        test_cases.append( tc )
+                return test_cases
+        return test_suite
+    
+    
+    def __match(self, filter_list, name):
+        """ returns whether a test name matches the test filter """
+        if filter_list is None:
+            return 1
+        for f in filter_list:
+            if re.match(f, name):
+                return 1
+        return 0
+        
+    
+    def run_tests(self):
+        """ runs all tests """
+        print "Finding files...",
+        files = self.find_import_files()
+        print self.test_dir, '... done'
+        print "Importing test modules ...",
+        modules = self.find_modules_from_files(files)
+        print "done."
+        all_tests = self.find_tests_from_modules(modules)
+        if self.test_filter is not None:
+            print 'Test Filter: %s' % [p.pattern for p in self.test_filter]
+            all_tests = self.filter_tests(all_tests)
+        print
+        runner = unittest.TextTestRunner(stream=sys.stdout, descriptions=1, verbosity=verbosity)
+        runner.run(unittest.TestSuite(all_tests))
+        return
+        
 if __name__ == '__main__':
-    dirs, verbosity = parse_cmdline()
-    runtests(dirs, verbosity)
+    dirs, verbosity, test_filter = parse_cmdline()
+    PydevTestRunner(dirs, test_filter, verbosity).run_tests()

@@ -39,6 +39,36 @@ import org.python.util.PythonInterpreter;
 public class JythonPlugin extends AbstractUIPlugin {
     
 	private static final boolean DEBUG = false;
+	public static boolean DEBUG_RELOAD = true;
+    
+    /**
+     * While in tests, errors are thrown even if we don't have a shared instance for JythonPlugin
+     */
+	public static boolean IN_TESTS = false;
+    
+    private static String LOAD_FILE_SCRIPT = "" +
+        "print '--->  reloading', r'%s'\n" + 
+        "import sys                    \n" + //sys will always be on the namespace (so that we can set sys.path)
+        "f = open(r'%s')               \n" +
+        "try:                          \n" +
+        "    toExec = f.read()         \n" +
+        "finally:                      \n" +
+        "    f.close()                 \n" +
+        "%s                            \n" + //space to put the needed folders on sys.path
+        "";
+    
+    public static synchronized void setDebugReload(boolean b){
+        if(b != DEBUG_RELOAD){
+            if(b == false){
+                LOAD_FILE_SCRIPT = "#"+LOAD_FILE_SCRIPT;
+                //System.out.println(">>"+LOAD_FILE_SCRIPT+"<<");
+            }else{
+                LOAD_FILE_SCRIPT = LOAD_FILE_SCRIPT.substring(1);
+                //System.out.println(">>"+LOAD_FILE_SCRIPT+"<<");
+            }
+            DEBUG_RELOAD = b;
+        }
+    }
     
 	// ----------------- SINGLETON THINGS -----------------------------
     public static IBundleInfo info;
@@ -261,7 +291,10 @@ public class JythonPlugin extends AbstractUIPlugin {
         for (File file : beneathFolders) {
             if(file != null){
                 if(!file.exists()){
-                    Log.log(IStatus.ERROR, "The folder:"+file+" does not exist and therefore cannot be used to find scripts to run starting with:"+startingWith, null);
+                    String msg = "The folder:"+file+" does not exist and therefore cannot be used to " +
+                                                "find scripts to run starting with:"+startingWith;
+                    Log.log(IStatus.ERROR, msg, null);
+                    errors.add(new RuntimeException(msg));
                 }
                 File[] files = getFilesBeneathFolder(startingWith, file);
                 if(files != null){
@@ -283,7 +316,8 @@ public class JythonPlugin extends AbstractUIPlugin {
 		File[] files = jySrc.listFiles(new FileFilter(){
 
 			public boolean accept(File pathname) {
-				if(pathname.getName().startsWith(startingWith)){
+				String name = pathname.getName();
+                if(name.startsWith(startingWith) && name.endsWith(".py")){
 					return true;
 				}
 				return false;
@@ -313,7 +347,7 @@ public class JythonPlugin extends AbstractUIPlugin {
 			try {
 			    String fileName = fileToExec.getName();
 	            if(!fileName.endsWith(".py")){
-	                throw new RuntimeException("The script to be executed must be a python file.");
+	                throw new RuntimeException("The script to be executed must be a python file. Name:"+fileName);
 	            }
 	            String codeObjName = "code"+fileName.substring(0, fileName.indexOf('.'));
 	            final String codeObjTimestampName = codeObjName+"Timestamp";
@@ -348,44 +382,34 @@ public class JythonPlugin extends AbstractUIPlugin {
 						System.out.println("Regenerating: "+codeObjName);
 					}
 					String path = REF.getFileAbsolutePath(fileToExec);
-	                String loadFile = "" +
-							"print '--->  reloading', r'%s'\n" +
-                            "import sys                    \n" + //sys will always be on the namespace (so that we can set sys.path)
-							"f = open(r'%s')               \n" +
-							"try:                          \n" +
-							"    toExec = f.read()         \n" +
-							"finally:                      \n" +
-							"    f.close()                 \n" +
-                            "%s                            \n" + //space to put the needed folders on sys.path
-	                        "";
 	                
-	                StringBuffer pythonPathFolders = new StringBuffer();
-	                pythonPathFolders.append("[");
+	                StringBuffer strPythonPathFolders = new StringBuffer();
+	                strPythonPathFolders.append("[");
 	                for (File file : pythonpathFolders) {
                         if (file != null){
-    	                    pythonPathFolders.append("r'");
-    	                    pythonPathFolders.append(REF.getFileAbsolutePath(file));
-    	                    pythonPathFolders.append("',");
+    	                    strPythonPathFolders.append("r'");
+    	                    strPythonPathFolders.append(REF.getFileAbsolutePath(file));
+    	                    strPythonPathFolders.append("',");
                         }
 	                }
-	                pythonPathFolders.append("]");
+	                strPythonPathFolders.append("]");
                     
                     StringBuffer addToSysPath = new StringBuffer();
                     
                     //we will only add the paths to the pythonpath if it was still not set or if it changed (but it will never remove the ones added before).
                     addToSysPath.append("if not hasattr(sys, 'PYDEV_PYTHONPATH_SET') or sys.PYDEV_PYTHONPATH_SET != "); //we have to put that in sys because it is the same across different interpreters
-                    addToSysPath.append(pythonPathFolders);
+                    addToSysPath.append(strPythonPathFolders);
                     addToSysPath.append(":\n");
                     
                     addToSysPath.append("    sys.PYDEV_PYTHONPATH_SET = ");
-                    addToSysPath.append(pythonPathFolders);
+                    addToSysPath.append(strPythonPathFolders);
                     addToSysPath.append("\n");
                     
                     addToSysPath.append("    sys.path += ");
-                    addToSysPath.append(pythonPathFolders);
+                    addToSysPath.append(strPythonPathFolders);
                     addToSysPath.append("\n");
                     
-	                String toExec = StringUtils.format(loadFile, path, path, addToSysPath.toString());
+	                String toExec = StringUtils.format(LOAD_FILE_SCRIPT, path, path, addToSysPath.toString());
 	                interpreter.exec(toExec);
 					String exec = StringUtils.format("%s = compile(toExec, r'%s', 'exec')", codeObjName, path);
 					interpreter.exec(exec);
@@ -398,7 +422,7 @@ public class JythonPlugin extends AbstractUIPlugin {
 				
 				interpreter.exec(StringUtils.format("exec(%s)" , codeObjName));
 			} catch (Throwable e) {
-                if(JythonPlugin.getDefault() == null){
+                if(!IN_TESTS && JythonPlugin.getDefault() == null){
                     //it is already disposed
                     return null;
                 }
