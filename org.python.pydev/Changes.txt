@@ -11,6 +11,7 @@ error log previously)
 - Commenting a line does not remove a blank line in the end anymore
 - Added the new relative import to the parser (2.5 support)
 - Added the new if expression to the parser (2.5 support)
+- Darrell: unit-test refactoring and run as jython unit-test
 
 Pydev Extensions:
 
