@@ -13,6 +13,8 @@ error log previously)
 - Added the new if expression to the parser (2.5 support)
 - Darrell: unit-test refactoring and run as jython unit-test
 - Added debug mode for unit-test 
+- Added the unified try..except..finally statement
+- Added the with x:... statement
 
 Pydev Extensions:
 
