@@ -1121,16 +1121,22 @@ void begin_for_else_stmt(): {}
 }
 //try_stmt: ('try' ':' suite (except_clause ':' suite)+ #diagram:break
 //           ['else' ':' suite] | 'try' ':' suite 'finally' ':' suite)
-void try_stmt() #void: {SimpleNode tryNode;}
+void try_stmt() #void: {SimpleNode tryNode;int i=0;}
 { 
     begin_try_stmt() {tryNode = (SimpleNode)jjtree.peekNode();}  suite() (
-    ((except_clause(tryNode))+ 
+		(
+			(except_clause(tryNode) {i++;})+ 
     
-    [begin_try_else_stmt()  suite()])
-        #try_stmt(jjtree.nodeArity()+1)
+			[begin_try_else_stmt() suite() {i++;} #tryelse_stmt(2) ]
+			
+			[begin_finally_stmt()  suite() {i++;} #tryfinally_outer_stmt(2)]
+			
+			#try_stmt(i)
+		)
         
-    | begin_finally_stmt() suite()
-        #tryfinally_stmt(jjtree.nodeArity()+1))
+		| begin_finally_stmt() suite()
+			#tryfinally_stmt(jjtree.nodeArity()+1)
+	)
 }
 
 //this is the 'try' ':'  it is needed because we need that scope closing for getting the specials.

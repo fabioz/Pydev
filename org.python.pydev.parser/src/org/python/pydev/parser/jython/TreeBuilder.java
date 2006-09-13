@@ -451,15 +451,25 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTBEGIN_TRY_STMT:
             //we do that just to get the specials
             return new TryExcept(null, null, null);
+        case JJTTRYELSE_STMT:
+            orelseSuite = popSuiteAndSuiteType();
+            return orelseSuite;
+        case JJTTRYFINALLY_OUTER_STMT:
+            orelseSuite = popSuiteAndSuiteType();
+            return new TryFinally(null, orelseSuite); //it does not have a body at this time... it will be filled with the inner try..except
         case JJTTRY_STMT:
-            orelseSuite = null;
-            if (stack.peekNode() instanceof Suite) {
+            TryFinally outer = null;
+            if(stack.peekNode() instanceof TryFinally){
+                outer = (TryFinally) stack.popNode();
                 arity--;
-                arity--;
-                
-                orelseSuite = popSuiteAndSuiteType();
             }
-            l = arity - 1;
+            orelseSuite = null;
+            if(stack.peekNode() instanceof suiteType){
+                orelseSuite = (suiteType) stack.popNode();
+                arity--;
+            }
+            
+            l = arity ;
             excepthandlerType[] handlers = new excepthandlerType[l];
             for (int i = l - 1; i >= 0; i--) {
                 handlers[i] = (excepthandlerType) stack.popNode();
@@ -470,7 +480,15 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             tryExc.handlers = handlers;
             tryExc.orelse = orelseSuite;
             addSpecials(s, tryExc);
-            return tryExc;
+            if (outer == null){
+                return tryExc;
+            }else{
+                if(outer.body != null){
+                    throw new RuntimeException("Error. Expecting null body to be filled on try..except..finally");
+                }
+                outer.body = new stmtType[]{tryExc};
+                return outer;
+            }
         case JJTBEGIN_TRY_ELSE_STMT:
             //we do that just to get the specials
             return new suiteType(null);

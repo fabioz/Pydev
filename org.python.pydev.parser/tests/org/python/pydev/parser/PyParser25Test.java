@@ -11,6 +11,8 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.TryExcept;
+import org.python.pydev.parser.jython.ast.TryFinally;
 
 /**
  * Test for parsing python 2.5
@@ -22,7 +24,7 @@ public class PyParser25Test extends PyParserTestBase{
         try {
             PyParser25Test test = new PyParser25Test();
             test.setUp();
-            test.testNewRelativeImport2();
+            test.testNewTryFinally();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser25Test.class);
@@ -74,6 +76,31 @@ public class PyParser25Test extends PyParserTestBase{
         ImportFrom f = (ImportFrom) mod.body[0];
         assertEquals(3, f.level);
         assertEquals("", ((NameTok)f.module).id);
+    }
+    
+    public void testNewTryFinally(){
+        defaultVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
+        String str = "" +
+                "try:\n" +
+                "    'try'\n" +
+                "except:\n" +
+                "    'except'\n" +
+                "else:\n" +
+                "    'else'\n" +
+                "finally:\n" +
+                "    'finally'\n" +
+                "\n" +
+                "";
+        //we'll actually treat this as a try..finally with a body with try..except..else
+        Module mod = (Module) parseLegalDocStr(str);
+        assertEquals(1, mod.body.length);
+        TryFinally f = (TryFinally) mod.body[0];
+        
+        assertEquals(1, f.body.length);
+        TryExcept exc = (TryExcept) f.body[0];
+        assertTrue(exc.orelse != null);
+        assertEquals(1, exc.handlers.length);
+        
     }
     
     /**
