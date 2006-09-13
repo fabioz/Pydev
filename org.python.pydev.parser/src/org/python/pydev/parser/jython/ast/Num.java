@@ -26,7 +26,7 @@ public class Num extends exprType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(41, ostream);
+        pickleThis(42, ostream);
         pickleThis(this.n, ostream);
     }
 

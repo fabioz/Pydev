@@ -87,24 +87,25 @@ public interface PythonGrammarConstants {
   int EXEC = 88;
   int ASSERT = 89;
   int AS = 90;
-  int AT = 91;
-  int NAME = 92;
-  int LETTER = 93;
-  int DECNUMBER = 94;
-  int HEXNUMBER = 95;
-  int OCTNUMBER = 96;
-  int FLOAT = 97;
-  int COMPLEX = 98;
-  int EXPONENT = 99;
-  int DIGIT = 100;
-  int SINGLE_STRING = 109;
-  int SINGLE_STRING2 = 110;
-  int TRIPLE_STRING = 111;
-  int TRIPLE_STRING2 = 112;
-  int SINGLE_USTRING = 113;
-  int SINGLE_USTRING2 = 114;
-  int TRIPLE_USTRING = 115;
-  int TRIPLE_USTRING2 = 116;
+  int WITH = 91;
+  int AT = 92;
+  int NAME = 93;
+  int LETTER = 94;
+  int DECNUMBER = 95;
+  int HEXNUMBER = 96;
+  int OCTNUMBER = 97;
+  int FLOAT = 98;
+  int COMPLEX = 99;
+  int EXPONENT = 100;
+  int DIGIT = 101;
+  int SINGLE_STRING = 110;
+  int SINGLE_STRING2 = 111;
+  int TRIPLE_STRING = 112;
+  int TRIPLE_STRING2 = 113;
+  int SINGLE_USTRING = 114;
+  int SINGLE_USTRING2 = 115;
+  int TRIPLE_USTRING = 116;
+  int TRIPLE_USTRING2 = 117;
 
   int DEFAULT = 0;
   int FORCE_NEWLINE1 = 1;
@@ -218,6 +219,7 @@ public interface PythonGrammarConstants {
     "\"exec\"",
     "\"assert\"",
     "\"as\"",
+    "\"with\"",
     "\"@\"",
     "<NAME>",
     "<LETTER>",
@@ -228,7 +230,6 @@ public interface PythonGrammarConstants {
     "<COMPLEX>",
     "<EXPONENT>",
     "<DIGIT>",
-    "<token of kind 101>",
     "<token of kind 102>",
     "<token of kind 103>",
     "<token of kind 104>",
@@ -236,6 +237,7 @@ public interface PythonGrammarConstants {
     "<token of kind 106>",
     "<token of kind 107>",
     "<token of kind 108>",
+    "<token of kind 109>",
     "\"\\\'\"",
     "\"\\\"\"",
     "\"\\\'\\\'\\\'\"",
@@ -245,24 +247,24 @@ public interface PythonGrammarConstants {
     "\"\\\'\\\'\\\'\"",
     "\"\\\"\\\"\\\"\"",
     "\"\\\\\\r\\n\"",
-    "<token of kind 118>",
+    "<token of kind 119>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 120>",
+    "<token of kind 121>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 122>",
+    "<token of kind 123>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 124>",
+    "<token of kind 125>",
     "\"\"",
     "\"\"",
     "\"\"",
     "\"\"",
-    "<token of kind 129>",
     "<token of kind 130>",
+    "<token of kind 131>",
     "\"\\r\\n\"",
     "\"\\n\"",
     "\"\\r\"",
-    "<token of kind 134>",
     "<token of kind 135>",
+    "<token of kind 136>",
     "\"`\"",
   };
 

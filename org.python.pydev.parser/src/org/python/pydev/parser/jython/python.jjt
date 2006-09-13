@@ -678,6 +678,7 @@ TOKEN : /* KEYWORDS */
 |   < EXEC: "exec" >
 |   < ASSERT: "assert" >
 |   < AS: "as" >
+|   <WITH: "with" >
 |   < AT: "@" >
 }
 
@@ -1072,9 +1073,9 @@ void exec_stmt(): {}
 void assert_stmt(): {}
 { <ASSERT> test() [{this.addSpecialToken(",");} <COMMA> test()] }
 
-//compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | funcdef | classdef
+//compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef
 void compound_stmt() #void : { token_source.compound = true; }
-{if_stmt() | while_stmt() | for_stmt() | try_stmt()  | funcdef() | classdef()}
+{if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef()}
 
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
 void if_stmt(): {}
@@ -1158,6 +1159,14 @@ void except_clause(SimpleNode tryNode): {}
 void begin_except_clause(): {}
 { <EXCEPT> }
 
+
+//with_stmt: 'with' test [ with_var ] ':' suite
+void with_stmt(): {}
+{ <WITH> test() [with_var()] <COLON> suite() }
+
+//with_var: 'as' expr
+void with_var():{}
+{ <AS> expr()}
 
 //suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
 void suite(): {}

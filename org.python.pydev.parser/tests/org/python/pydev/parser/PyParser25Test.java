@@ -13,6 +13,7 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
+import org.python.pydev.parser.jython.ast.With;
 
 /**
  * Test for parsing python 2.5
@@ -24,7 +25,7 @@ public class PyParser25Test extends PyParserTestBase{
         try {
             PyParser25Test test = new PyParser25Test();
             test.setUp();
-            test.testNewTryFinally();
+            test.testNewWithStmt();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser25Test.class);
@@ -78,6 +79,35 @@ public class PyParser25Test extends PyParserTestBase{
         assertEquals("", ((NameTok)f.module).id);
     }
     
+    public void testNewWithStmt(){
+        defaultVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
+        String str = "" +
+                "with foo:\n" +
+                "    print 'bla'\n" +
+                "";
+        //we'll actually treat this as a try..finally with a body with try..except..else
+        Module mod = (Module) parseLegalDocStr(str);
+        assertEquals(1, mod.body.length);
+        assertTrue(mod.body[0] instanceof With);
+        With w = (With) mod.body[0];
+        assertTrue(w.optional_vars == null);
+        
+    }
+    
+    public void testNewWithStmt2(){
+        defaultVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
+        String str = "" +
+                "with foo as x:\n" +
+                "    print 'bla'\n" +
+                "";
+        //we'll actually treat this as a try..finally with a body with try..except..else
+        Module mod = (Module) parseLegalDocStr(str);
+        assertEquals(1, mod.body.length);
+        assertTrue(mod.body[0] instanceof With);
+        With w = (With) mod.body[0];
+        assertTrue(w.optional_vars != null);
+        
+    }
     public void testNewTryFinally(){
         defaultVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
         String str = "" +

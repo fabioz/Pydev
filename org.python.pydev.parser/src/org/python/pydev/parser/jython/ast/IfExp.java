@@ -37,7 +37,7 @@ public class IfExp extends exprType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(34, ostream);
+        pickleThis(35, ostream);
         pickleThis(this.test, ostream);
         pickleThis(this.body, ostream);
         pickleThis(this.orelse, ostream);

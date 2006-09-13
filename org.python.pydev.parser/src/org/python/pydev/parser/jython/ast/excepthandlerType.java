@@ -38,7 +38,7 @@ public class excepthandlerType extends SimpleNode {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(54, ostream);
+        pickleThis(55, ostream);
         pickleThis(this.type, ostream);
         pickleThis(this.name, ostream);
         pickleThis(this.body, ostream);

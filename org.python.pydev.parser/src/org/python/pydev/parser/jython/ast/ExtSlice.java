@@ -26,7 +26,7 @@ public class ExtSlice extends sliceType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(51, ostream);
+        pickleThis(52, ostream);
         pickleThis(this.dims, ostream);
     }
 

@@ -31,7 +31,7 @@ public class UnaryOp extends exprType implements unaryopType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(32, ostream);
+        pickleThis(33, ostream);
         pickleThis(this.op, ostream);
         pickleThis(this.operand, ostream);
     }

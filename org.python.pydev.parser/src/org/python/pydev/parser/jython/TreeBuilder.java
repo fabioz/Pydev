@@ -55,6 +55,7 @@ import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.UnaryOp;
 import org.python.pydev.parser.jython.ast.While;
+import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.argumentsType;
@@ -386,8 +387,8 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTFUNCDEF:
             //get the decorators
             //and clear them for the next call (they always must be before a function def)
-            Suite s = (Suite) stack.popNode();
-            body = s.body;
+            suite = (Suite) stack.popNode();
+            body = suite.body;
             
             argumentsType arguments = makeArguments(stack.nodeArity() - 2);
             NameTok nameTok = makeName(NameTok.FunctionName);
@@ -397,7 +398,7 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             if(decs.exp.length == 0){
                 addSpecialsBefore(decs, funcDef);
             }
-            addSpecialsAndClearOriginal(s, funcDef);
+            addSpecialsAndClearOriginal(suite, funcDef);
             return funcDef;
         case JJTDEFAULTARG:
             value = (arity == 1) ? null : ((exprType) stack.popNode());
@@ -415,12 +416,12 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             return new FpList(list);
 */
         case JJTCLASSDEF:
-            s = (Suite) stack.popNode();
-            body = s.body;
+            suite = (Suite) stack.popNode();
+            body = suite.body;
             exprType[] bases = makeExprs(stack.nodeArity() - 1);
             nameTok = makeName(NameTok.ClassName);
             ClassDef classDef = new ClassDef(nameTok, bases, body);
-            addSpecialsAndClearOriginal(s, classDef);
+            addSpecialsAndClearOriginal(suite, classDef);
             return classDef;
         case JJTBEGIN_RETURN_STMT:
             return new Return(null);
@@ -474,12 +475,12 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             for (int i = l - 1; i >= 0; i--) {
                 handlers[i] = (excepthandlerType) stack.popNode();
             }
-            s = (Suite)stack.popNode();
+            suite = (Suite)stack.popNode();
             TryExcept tryExc = (TryExcept) stack.popNode();
-            tryExc.body = s.body;
+            tryExc.body = suite.body;
             tryExc.handlers = handlers;
             tryExc.orelse = orelseSuite;
-            addSpecials(s, tryExc);
+            addSpecials(suite, tryExc);
             if (outer == null){
                 return tryExc;
             }else{
@@ -495,8 +496,8 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTBEGIN_EXCEPT_CLAUSE:
         	return new excepthandlerType(null,null,null);
         case JJTEXCEPT_CLAUSE:
-            s = (Suite) stack.popNode();
-            body = s.body;
+            suite = (Suite) stack.popNode();
+            body = suite.body;
             exprType excname = arity == 4 ? ((exprType) stack.popNode()) : null;
             if (excname != null){    
                 ctx.setStore(excname);
@@ -506,7 +507,7 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
         	handler.type = type;
         	handler.name = excname;
         	handler.body = body;
-            addSpecials(s, handler);
+            addSpecials(suite, handler);
             return handler;
         case JJTBEGIN_FINALLY_STMT:
             //we do that just to get the specials
@@ -521,6 +522,28 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             addSpecialsAndClearOriginal(tryExcept, tryFinally);
             return tryFinally;
             
+        case JJTWITH_STMT:
+            suite = (Suite) stack.popNode();
+            arity--;
+            
+            exprType asOrExpr = (exprType) stack.popNode();
+            arity--;
+            
+            exprType expr=null;
+            if(arity > 0){
+                expr = (exprType) stack.popNode();
+                arity--;
+            }else{
+                expr = asOrExpr;
+                asOrExpr = null;
+            }
+            
+            suiteType s = new suiteType(suite.body);
+            addSpecialsAndClearOriginal(suite, s);
+            
+            return new With(expr, asOrExpr, s);
+        case JJTWITH_VAR:
+            return stack.popNode(); //expr
         case JJTOR_BOOLEAN:
             return new BoolOp(BoolOp.Or, makeExprs());
         case JJTAND_BOOLEAN:

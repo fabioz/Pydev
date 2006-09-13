@@ -65,61 +65,63 @@ public interface PythonGrammarTreeConstants
   public int JJTBEGIN_FINALLY_STMT = 58;
   public int JJTEXCEPT_CLAUSE = 59;
   public int JJTBEGIN_EXCEPT_CLAUSE = 60;
-  public int JJTSUITE = 61;
-  public int JJTOLD_LAMBDEF = 62;
-  public int JJTIF_EXP = 63;
-  public int JJTOR_BOOLEAN = 64;
-  public int JJTAND_BOOLEAN = 65;
-  public int JJTNOT_1OP = 66;
-  public int JJTCOMPARISION = 67;
-  public int JJTLESS_CMP = 68;
-  public int JJTGREATER_CMP = 69;
-  public int JJTEQUAL_CMP = 70;
-  public int JJTGREATER_EQUAL_CMP = 71;
-  public int JJTLESS_EQUAL_CMP = 72;
-  public int JJTNOTEQUAL_CMP = 73;
-  public int JJTIN_CMP = 74;
-  public int JJTNOT_IN_CMP = 75;
-  public int JJTIS_NOT_CMP = 76;
-  public int JJTIS_CMP = 77;
-  public int JJTOR_2OP = 78;
-  public int JJTXOR_2OP = 79;
-  public int JJTAND_2OP = 80;
-  public int JJTLSHIFT_2OP = 81;
-  public int JJTRSHIFT_2OP = 82;
-  public int JJTADD_2OP = 83;
-  public int JJTSUB_2OP = 84;
-  public int JJTMUL_2OP = 85;
-  public int JJTDIV_2OP = 86;
-  public int JJTFLOORDIV_2OP = 87;
-  public int JJTMOD_2OP = 88;
-  public int JJTPOS_1OP = 89;
-  public int JJTNEG_1OP = 90;
-  public int JJTINVERT_1OP = 91;
-  public int JJTPOW_2OP = 92;
-  public int JJTCALL_OP = 93;
-  public int JJTINDEX_OP = 94;
-  public int JJTDOT_OP = 95;
-  public int JJTLIST = 96;
-  public int JJTDICTIONARY = 97;
-  public int JJTSTR_1OP = 98;
-  public int JJTSTRJOIN = 99;
-  public int JJTLAMBDEF = 100;
-  public int JJTSUBSCRIPTLIST = 101;
-  public int JJTELLIPSES = 102;
-  public int JJTSLICE = 103;
-  public int JJTCOLON = 104;
-  public int JJTCOMMA = 105;
-  public int JJTLIST_FOR = 106;
-  public int JJTCLASSDEF = 107;
-  public int JJTEXTRAARGVALUELIST = 108;
-  public int JJTEXTRAKEYWORDVALUELIST = 109;
-  public int JJTKEYWORD = 110;
-  public int JJTNUM = 111;
-  public int JJTCOMPLEX = 112;
-  public int JJTNAME = 113;
-  public int JJTSTRING = 114;
-  public int JJTUNICODE = 115;
+  public int JJTWITH_STMT = 61;
+  public int JJTWITH_VAR = 62;
+  public int JJTSUITE = 63;
+  public int JJTOLD_LAMBDEF = 64;
+  public int JJTIF_EXP = 65;
+  public int JJTOR_BOOLEAN = 66;
+  public int JJTAND_BOOLEAN = 67;
+  public int JJTNOT_1OP = 68;
+  public int JJTCOMPARISION = 69;
+  public int JJTLESS_CMP = 70;
+  public int JJTGREATER_CMP = 71;
+  public int JJTEQUAL_CMP = 72;
+  public int JJTGREATER_EQUAL_CMP = 73;
+  public int JJTLESS_EQUAL_CMP = 74;
+  public int JJTNOTEQUAL_CMP = 75;
+  public int JJTIN_CMP = 76;
+  public int JJTNOT_IN_CMP = 77;
+  public int JJTIS_NOT_CMP = 78;
+  public int JJTIS_CMP = 79;
+  public int JJTOR_2OP = 80;
+  public int JJTXOR_2OP = 81;
+  public int JJTAND_2OP = 82;
+  public int JJTLSHIFT_2OP = 83;
+  public int JJTRSHIFT_2OP = 84;
+  public int JJTADD_2OP = 85;
+  public int JJTSUB_2OP = 86;
+  public int JJTMUL_2OP = 87;
+  public int JJTDIV_2OP = 88;
+  public int JJTFLOORDIV_2OP = 89;
+  public int JJTMOD_2OP = 90;
+  public int JJTPOS_1OP = 91;
+  public int JJTNEG_1OP = 92;
+  public int JJTINVERT_1OP = 93;
+  public int JJTPOW_2OP = 94;
+  public int JJTCALL_OP = 95;
+  public int JJTINDEX_OP = 96;
+  public int JJTDOT_OP = 97;
+  public int JJTLIST = 98;
+  public int JJTDICTIONARY = 99;
+  public int JJTSTR_1OP = 100;
+  public int JJTSTRJOIN = 101;
+  public int JJTLAMBDEF = 102;
+  public int JJTSUBSCRIPTLIST = 103;
+  public int JJTELLIPSES = 104;
+  public int JJTSLICE = 105;
+  public int JJTCOLON = 106;
+  public int JJTCOMMA = 107;
+  public int JJTLIST_FOR = 108;
+  public int JJTCLASSDEF = 109;
+  public int JJTEXTRAARGVALUELIST = 110;
+  public int JJTEXTRAKEYWORDVALUELIST = 111;
+  public int JJTKEYWORD = 112;
+  public int JJTNUM = 113;
+  public int JJTCOMPLEX = 114;
+  public int JJTNAME = 115;
+  public int JJTSTRING = 116;
+  public int JJTUNICODE = 117;
 
 
   public String[] jjtNodeName = {
@@ -184,6 +186,8 @@ public interface PythonGrammarTreeConstants
     "begin_finally_stmt",
     "except_clause",
     "begin_except_clause",
+    "with_stmt",
+    "with_var",
     "suite",
     "old_lambdef",
     "if_exp",
