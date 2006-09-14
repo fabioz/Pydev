@@ -59,6 +59,7 @@ public class PySelection {
 		"elif"    ,
 		"while"   ,
 		"try"     ,
+		"with"     ,
 		"finally" 
 	};
 	

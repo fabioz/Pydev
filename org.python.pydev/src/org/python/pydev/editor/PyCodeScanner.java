@@ -39,7 +39,7 @@ public class PyCodeScanner extends RuleBasedScanner {
         "finally","for","from","global",
         "if","import","in","is","lambda","not",
         "or","pass","print","raise","return",
-        "self", "try","while","yield","False", "None", "True" };
+        "self", "try","while","with","yield","False", "None", "True" };
 
     private ColorCache colorCache;
 

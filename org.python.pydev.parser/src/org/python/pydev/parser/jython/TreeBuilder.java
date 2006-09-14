@@ -543,7 +543,11 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             
             return new With(expr, asOrExpr, s);
         case JJTWITH_VAR:
-            return stack.popNode(); //expr
+            expr = (exprType) stack.popNode(); //expr
+            if (expr != null){    
+                ctx.setStore(expr);
+            }
+            return expr;
         case JJTOR_BOOLEAN:
             return new BoolOp(BoolOp.Or, makeExprs());
         case JJTAND_BOOLEAN:

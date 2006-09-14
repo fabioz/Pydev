@@ -15,6 +15,7 @@ error log previously)
 - Added debug mode for unit-test 
 - Added the unified try..except..finally statement
 - Added the with x:... statement
+- indenting after the new with statement
 
 Pydev Extensions:
 
