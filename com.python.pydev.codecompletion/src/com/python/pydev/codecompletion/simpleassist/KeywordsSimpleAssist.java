@@ -96,6 +96,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant{
                 "return",
                 "try:",
                 "while ",
+                "with ",
                 "yield ",
                 
                 //the ones below were not in the initial list
