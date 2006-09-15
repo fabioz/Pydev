@@ -75,11 +75,20 @@ Current setting is: ${javaccHome}
         </java>
         <delete file="${parser.dir}/python.jj" />
     	
+    	
+        <echo>Removing the files that are common among versions</echo>
+        <delete file="${parser.dir}/TokenMgrError.java" />
+        <delete file="${parser.dir}/Token.java" />
+        <delete file="${parser.dir}/SimpleNode.java" />
+        <delete file="${parser.dir}/ParseException.java" />
+        <delete file="${parser.dir}/Node.java" />
+        <delete file="${parser.dir}/CharStream.java" />
+    	
         <echo>Updating jjFillToken in file PythonGrammar25TokenManager.java</echo>
     	<replace file="${parser.dir}/PythonGrammar25TokenManager.java" token="Token t = Token.newToken(jjmatchedKind)" value="Token t = new Token()"/>
     	
         <echo>Updating jjtree.builder.openNode</echo>
-    	<replace file="${parser.dir}/PythonGrammar25TokenManager.java" token="Token t = Token.newToken(jjmatchedKind)" value="Token t = new Token()"/>
+    	<replace file="${parser.dir}/PythonGrammar25.java" token="(SimpleNode)SimpleNode.jjtCreate(this," value="jjtree.builder.openNode("/>
     </target>
 
     <!-- confirmation -->
