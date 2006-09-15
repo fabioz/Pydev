@@ -5,6 +5,9 @@
  */
 package org.python.pydev.parser;
 
+import static org.python.pydev.core.IPythonNature.GRAMMAR_PYTHON_VERSION_2_4;
+import static org.python.pydev.core.IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
+
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,7 +32,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.parser.grammar25.PythonGrammar;
+import org.python.pydev.parser.grammar25.PythonGrammar25;
 import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.IParserHost;
@@ -39,8 +42,6 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.commentType;
-import static org.python.pydev.core.IPythonNature.GRAMMAR_PYTHON_VERSION_2_4;  
-import static org.python.pydev.core.IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;  
 
 /**
  * PyParser uses org.python.parser to parse the document (lexical analysis) It
@@ -430,10 +431,10 @@ public class PyParser {
         }
         
         IParserHost host = new CompilerAPI();
-        PythonGrammar grammar = null;
+        PythonGrammar25 grammar = null;
 
         try {
-        	grammar = new PythonGrammar(in, host, info.grammarVersion);
+        	grammar = new PythonGrammar25(in, host, info.grammarVersion);
         	
         	if(ENABLE_TRACING){
         		//grammar has to be generated with debugging info for this to make a difference

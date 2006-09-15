@@ -72,12 +72,12 @@ import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 
-public final class TreeBuilder implements PythonGrammarTreeConstants {
-    private JJTPythonGrammarState stack;
+public final class TreeBuilder implements PythonGrammar25TreeConstants {
+    private JJTPythonGrammar25State stack;
     private CtxVisitor ctx;
     private SimpleNode lastPop;
     
-    public TreeBuilder(JJTPythonGrammarState stack) {
+    public TreeBuilder(JJTPythonGrammar25State stack) {
         this.stack = stack;
         this.ctx = new CtxVisitor();
     }
@@ -141,7 +141,7 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
         return aliases;
     }
 
-    private static SimpleNode[] nodes = new SimpleNode[PythonGrammarTreeConstants.jjtNodeName.length];
+    private static SimpleNode[] nodes = new SimpleNode[PythonGrammar25TreeConstants.jjtNodeName.length];
 
     public SimpleNode openNode(int id) {
         if (nodes[id] == null)
@@ -1156,7 +1156,7 @@ class IdentityNode extends SimpleNode {
     }
 
     public String toString() {
-        return "IdNode[" + PythonGrammarTreeConstants.jjtNodeName[id] + ", " +
+        return "IdNode[" + PythonGrammar25TreeConstants.jjtNodeName[id] + ", " +
                 image + "]";
     }
 }

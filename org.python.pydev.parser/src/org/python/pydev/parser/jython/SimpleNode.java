@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.python.pydev.parser.grammar25.PythonGrammar;
+import org.python.pydev.parser.grammar25.PythonGrammar25;
 import org.python.pydev.parser.jython.ast.VisitorIF;
 import org.python.pydev.parser.jython.ast.commentType;
 
@@ -31,9 +31,9 @@ public class SimpleNode implements Node {
 
     public SimpleNode() { }
 
-    public static Node jjtCreate(PythonGrammar p, int id) {
-        return p.jjtree.builder.openNode(id);
-    }
+//    public static Node jjtCreate(PythonGrammar25 p, int id) {
+//        return p.jjtree.builder.openNode(id);
+//    }
 
     public int getId() {
         return -1;

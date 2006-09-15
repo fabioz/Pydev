@@ -19,8 +19,8 @@ options
 }
 
 
-PARSER_BEGIN(PythonGrammar)
-package org.python.pydev.parser.jython;
+PARSER_BEGIN(PythonGrammar25)
+package org.python.pydev.parser.grammar25;
 import org.python.pydev.parser.jython.ast.modType;
 import java.util.List;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.core.IPythonNature;
 
-public class PythonGrammar
+public class PythonGrammar25
 {
     
     public IParserHost hostLiteralMkr;
@@ -367,13 +367,13 @@ public class PythonGrammar
 
    // constructors taking a IParserHost impl
 
-   public PythonGrammar(CharStream stream,IParserHost host, int grammarVersion) {
+   public PythonGrammar25(CharStream stream,IParserHost host, int grammarVersion) {
        this(stream);
        hostLiteralMkr = host;
     	this.grammarVersion = grammarVersion;
    }
 
-   public PythonGrammar(PythonGrammarTokenManager tm,
+   public PythonGrammar25(PythonGrammarTokenManager25 tm,
                         IParserHost host, int grammarVersion)
    {
         this(tm);
@@ -384,7 +384,7 @@ public class PythonGrammar
 }
 
 
-PARSER_END(PythonGrammar)
+PARSER_END(PythonGrammar25)
 
 TOKEN_MGR_DECLS:
 {

@@ -10,7 +10,7 @@ import org.python.pydev.parser.jython.Node;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class JJTPythonGrammarState {
+class JJTPythonGrammar25State {
     private FastStack<SimpleNode> nodes;
     private IntStack marks;
     private IntStack lines;
@@ -20,9 +20,9 @@ public class JJTPythonGrammarState {
     private int mk; // current mark
     private boolean node_created;
 
-    public TreeBuilder builder;
+    TreeBuilder builder;
 
-    public JJTPythonGrammarState() {
+    JJTPythonGrammar25State() {
         nodes = new FastStack<SimpleNode>();
         marks = new IntStack();
         lines = new IntStack();
@@ -35,13 +35,13 @@ public class JJTPythonGrammarState {
     /* Determines whether the current node was actually closed and
        pushed.  This should only be called in the final user action of a
        node scope.  */
-    public boolean nodeCreated() {
+    boolean nodeCreated() {
         return node_created;
     }
 
     /* Call this to reinitialize the node stack.  It is called
        automatically by the parser's ReInit() method. */
-    public void reset() {
+    void reset() {
         nodes.removeAllElements();
         marks.removeAllElements();
         sp = 0;
@@ -50,19 +50,19 @@ public class JJTPythonGrammarState {
 
     /* Returns the root node of the AST.  It only makes sense to call
        this after a successful parse. */
-    public Node rootNode() {
+    Node rootNode() {
         return nodes.getFirst();
     }
 
     /* Pushes a node on to the stack. */
-    public void pushNode(SimpleNode n) {
+    void pushNode(SimpleNode n) {
         nodes.push(n);
         ++sp;
     }
 
     /* Returns the node on the top of the stack, and remove it from the
        stack.  */
-    public SimpleNode popNode() {
+    SimpleNode popNode() {
         if (--sp < mk) {
             mk = marks.pop();
         }
@@ -70,36 +70,36 @@ public class JJTPythonGrammarState {
     }
 
     /* Returns the node currently on the top of the stack. */
-    public SimpleNode peekNode() {
+    SimpleNode peekNode() {
         return nodes.peek();
     }
 
     /* Returns the number of children on the stack in the current node
        scope. */
-    public int nodeArity() {
+    int nodeArity() {
         return sp - mk;
     }
 
-    public void pushNodePos(int line, int col) {
+    void pushNodePos(int line, int col) {
         lines.push(line);
         columns.push(col);
     }
 
-    public SimpleNode setNodePos() {
+    SimpleNode setNodePos() {
         SimpleNode n = (SimpleNode) peekNode();
         
         int popLine = lines.pop();
-		if(n.beginLine == 0)
-        	n.beginLine = popLine;
-		
+        if(n.beginLine == 0)
+            n.beginLine = popLine;
+        
         int popCol = columns.pop();
-		if(n.beginColumn == 0)
-        	n.beginColumn = popCol;
+        if(n.beginColumn == 0)
+            n.beginColumn = popCol;
         return n;
     }
 
 
-    public void clearNodeScope(Node n) {
+    void clearNodeScope(Node n) {
         while (sp > mk) {
             popNode();
         }
@@ -107,7 +107,7 @@ public class JJTPythonGrammarState {
     }
 
 
-    public void openNodeScope(Node n) {
+    void openNodeScope(Node n) {
         marks.push(mk);
         mk = sp;
     }
@@ -117,7 +117,7 @@ public class JJTPythonGrammarState {
        children.  That number of nodes are popped from the stack and
        made the children of the definite node.  Then the definite node
        is pushed on to the stack. */
-    public void closeNodeScope(Node n, int num) throws ParseException {
+    void closeNodeScope(Node n, int num) throws ParseException {
         SimpleNode sn = (SimpleNode) n;
         mk = marks.pop();
         SimpleNode newNode = null;
@@ -142,7 +142,7 @@ public class JJTPythonGrammarState {
        made children of the the conditional node, which is then pushed
        on to the stack.  If the condition is false the node is not
        constructed and they are left on the stack. */
-    public void closeNodeScope(Node n, boolean condition) throws ParseException {
+    void closeNodeScope(Node n, boolean condition) throws ParseException {
         SimpleNode sn = (SimpleNode) n;
         if (condition) {
             SimpleNode newNode = null;
