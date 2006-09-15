@@ -19,17 +19,17 @@ public class TokenMgrError extends Error
    /**
     * An attempt wass made to create a second instance of a static token manager.
     */
-   static final int STATIC_LEXER_ERROR = 1;
+   public static final int STATIC_LEXER_ERROR = 1;
 
    /**
     * Tried to change to an invalid lexical state.
     */
-   static final int INVALID_LEXICAL_STATE = 2;
+   public static final int INVALID_LEXICAL_STATE = 2;
 
    /**
     * Detected (and bailed out of) an infinite loop in the token manager.
     */
-   static final int LOOP_DETECTED = 3;
+   public static final int LOOP_DETECTED = 3;
 
    /**
     * Indicates the reason why the exception is thrown. It will have

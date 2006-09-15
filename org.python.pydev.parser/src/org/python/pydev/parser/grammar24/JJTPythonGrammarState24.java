@@ -3,11 +3,14 @@
 // Modified by hand. The two closeNodeScope method have been rewritten
 // completely and is used when building the AST tree bottom-up.
 
-package org.python.pydev.parser.jython;
+package org.python.pydev.parser.grammar24;
 
 import org.python.pydev.core.structure.FastStack;
+import org.python.pydev.parser.jython.Node;
+import org.python.pydev.parser.jython.ParseException;
+import org.python.pydev.parser.jython.SimpleNode;
 
-class JJTPythonGrammarState {
+class JJTPythonGrammarState24 {
     private FastStack<SimpleNode> nodes;
     private IntStack marks;
     private IntStack lines;
@@ -17,16 +20,16 @@ class JJTPythonGrammarState {
     private int mk; // current mark
     private boolean node_created;
 
-    TreeBuilder builder;
+    TreeBuilder24 builder;
 
-    JJTPythonGrammarState() {
+    JJTPythonGrammarState24() {
         nodes = new FastStack<SimpleNode>();
         marks = new IntStack();
         lines = new IntStack();
         columns = new IntStack();
         sp = 0;
         mk = 0;
-        builder = new TreeBuilder(this);
+        builder = new TreeBuilder24(this);
     }
 
     /* Determines whether the current node was actually closed and

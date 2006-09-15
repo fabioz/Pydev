@@ -1,9 +1,12 @@
-package org.python.pydev.parser.jython;
+package org.python.pydev.parser.grammar24;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
+import org.python.pydev.parser.jython.ParseException;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.Visitor;
 import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -27,7 +30,6 @@ import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Global;
 import org.python.pydev.parser.jython.ast.If;
-import org.python.pydev.parser.jython.ast.IfExp;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Index;
@@ -38,7 +40,6 @@ import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
-import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Print;
@@ -55,7 +56,6 @@ import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.UnaryOp;
 import org.python.pydev.parser.jython.ast.While;
-import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.argumentsType;
@@ -69,12 +69,12 @@ import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 
-public final class TreeBuilder implements PythonGrammarTreeConstants {
-    private JJTPythonGrammarState stack;
+public final class TreeBuilder24 implements PythonGrammarTreeConstants24 {
+    private JJTPythonGrammarState24 stack;
     private CtxVisitor ctx;
     private SimpleNode lastPop;
     
-    public TreeBuilder(JJTPythonGrammarState stack) {
+    public TreeBuilder24(JJTPythonGrammarState24 stack) {
         this.stack = stack;
         this.ctx = new CtxVisitor();
     }
@@ -93,7 +93,7 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
 
     private exprType[] makeExprs() {
         if (stack.nodeArity() > 0 && stack.peekNode().getId() == JJTCOMMA)
-			stack.popNode();
+            stack.popNode();
         return makeExprs(stack.nodeArity());
     }
 
@@ -138,7 +138,7 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
         return aliases;
     }
 
-    private static SimpleNode[] nodes = new SimpleNode[PythonGrammarTreeConstants.jjtNodeName.length];
+    private static SimpleNode[] nodes = new SimpleNode[PythonGrammarTreeConstants24.jjtNodeName.length];
 
     public SimpleNode openNode(int id) {
         if (nodes[id] == null)
@@ -198,7 +198,7 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             value = (exprType) stack.popNode();
             return new Attribute(value, attr, Attribute.Load);
         case JJTBEGIN_DEL_STMT:
-        	return new Delete(null);
+            return new Delete(null);
         case JJTDEL_STMT:
             exprs = makeExprs(arity-1);
             ctx.setDelete(exprs);
@@ -208,8 +208,8 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTPRINT_STMT:
             boolean nl = true;
             if (stack.nodeArity() == 0){
-            	Print p = new Print(null, null, true);
-            	p.getSpecialsBefore().add(0, "print ");
+                Print p = new Print(null, null, true);
+                p.getSpecialsBefore().add(0, "print ");
                 return p;
             }
             
@@ -218,7 +218,7 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
                 nl = false;
             }
             Print p = new Print(null, makeExprs(), nl);
-        	p.getSpecialsBefore().add(0, "print ");
+            p.getSpecialsBefore().add(0, "print ");
             return p;
         case JJTPRINTEXT_STMT:
             nl = true;
@@ -229,7 +229,7 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             exprs = makeExprs(stack.nodeArity()-1);
             p = new Print(((exprType) stack.popNode()), exprs, nl);
             p.getSpecialsBefore().add(0, ">> ");
-        	p.getSpecialsBefore().add(0, "print ");
+            p.getSpecialsBefore().add(0, "print ");
             return p;
         case JJTBEGIN_FOR_STMT:
             return new For(null,null,null,null);
@@ -320,8 +320,8 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             while(stack.nodeArity() > 0){
                 SimpleNode node = stack.popNode();
                 while(!(node instanceof decoratorsType)){
-                    if(node instanceof ComprehensionCollection){
-                        listArgs.add(((ComprehensionCollection)node).getGenerators()[0]);
+                    if(node instanceof comprehensionType){
+                        listArgs.add(node);
                         listArgs.add(stack.popNode()); //target
                         
                     }else{
@@ -365,9 +365,12 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             exprType[] args = new exprType[nargs];
             for (int i = 0; i < nargs; i++) {
                 //what can happen is something like print sum(x for x in y), where we have already passed x in the args, and then get 'for x in y'
-                if(tmparr[i] instanceof ComprehensionCollection){
+                if(tmparr[i] instanceof comprehensionType){
                     args = new exprType[]{
-                        new ListComp(args[0], ((ComprehensionCollection)tmparr[i]).getGenerators())};
+                        new ListComp(args[0], new comprehensionType[]{
+                                (comprehensionType)tmparr[i]
+                            })
+                        };
                 }else{
                     args[i] = (exprType) tmparr[i];
                 }
@@ -387,8 +390,8 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTFUNCDEF:
             //get the decorators
             //and clear them for the next call (they always must be before a function def)
-            suite = (Suite) stack.popNode();
-            body = suite.body;
+            Suite s = (Suite) stack.popNode();
+            body = s.body;
             
             argumentsType arguments = makeArguments(stack.nodeArity() - 2);
             NameTok nameTok = makeName(NameTok.FunctionName);
@@ -398,7 +401,7 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             if(decs.exp.length == 0){
                 addSpecialsBefore(decs, funcDef);
             }
-            addSpecialsAndClearOriginal(suite, funcDef);
+            addSpecialsAndClearOriginal(s, funcDef);
             return funcDef;
         case JJTDEFAULTARG:
             value = (arity == 1) ? null : ((exprType) stack.popNode());
@@ -416,12 +419,12 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             return new FpList(list);
 */
         case JJTCLASSDEF:
-            suite = (Suite) stack.popNode();
-            body = suite.body;
+            s = (Suite) stack.popNode();
+            body = s.body;
             exprType[] bases = makeExprs(stack.nodeArity() - 1);
             nameTok = makeName(NameTok.ClassName);
             ClassDef classDef = new ClassDef(nameTok, bases, body);
-            addSpecialsAndClearOriginal(suite, classDef);
+            addSpecialsAndClearOriginal(s, classDef);
             return classDef;
         case JJTBEGIN_RETURN_STMT:
             return new Return(null);
@@ -452,62 +455,44 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTBEGIN_TRY_STMT:
             //we do that just to get the specials
             return new TryExcept(null, null, null);
-        case JJTTRYELSE_STMT:
-            orelseSuite = popSuiteAndSuiteType();
-            return orelseSuite;
-        case JJTTRYFINALLY_OUTER_STMT:
-            orelseSuite = popSuiteAndSuiteType();
-            return new TryFinally(null, orelseSuite); //it does not have a body at this time... it will be filled with the inner try..except
         case JJTTRY_STMT:
-            TryFinally outer = null;
-            if(stack.peekNode() instanceof TryFinally){
-                outer = (TryFinally) stack.popNode();
-                arity--;
-            }
             orelseSuite = null;
-            if(stack.peekNode() instanceof suiteType){
-                orelseSuite = (suiteType) stack.popNode();
+            if (stack.peekNode() instanceof Suite) {
                 arity--;
+                arity--;
+                
+                orelseSuite = popSuiteAndSuiteType();
             }
-            
-            l = arity ;
+            l = arity - 1;
             excepthandlerType[] handlers = new excepthandlerType[l];
             for (int i = l - 1; i >= 0; i--) {
                 handlers[i] = (excepthandlerType) stack.popNode();
             }
-            suite = (Suite)stack.popNode();
+            s = (Suite)stack.popNode();
             TryExcept tryExc = (TryExcept) stack.popNode();
-            tryExc.body = suite.body;
+            tryExc.body = s.body;
             tryExc.handlers = handlers;
             tryExc.orelse = orelseSuite;
-            addSpecials(suite, tryExc);
-            if (outer == null){
-                return tryExc;
-            }else{
-                if(outer.body != null){
-                    throw new RuntimeException("Error. Expecting null body to be filled on try..except..finally");
-                }
-                outer.body = new stmtType[]{tryExc};
-                return outer;
-            }
+            addSpecials(s, tryExc);
+            return tryExc;
         case JJTBEGIN_TRY_ELSE_STMT:
             //we do that just to get the specials
             return new suiteType(null);
         case JJTBEGIN_EXCEPT_CLAUSE:
-        	return new excepthandlerType(null,null,null);
+            return new excepthandlerType(null,null,null);
         case JJTEXCEPT_CLAUSE:
-            suite = (Suite) stack.popNode();
-            body = suite.body;
+            s = (Suite) stack.popNode();
+            body = s.body;
             exprType excname = arity == 4 ? ((exprType) stack.popNode()) : null;
             if (excname != null){    
                 ctx.setStore(excname);
             }
             type = arity >= 3 ? ((exprType) stack.popNode()) : null;
             excepthandlerType handler = (excepthandlerType) stack.popNode(); 
-        	handler.type = type;
-        	handler.name = excname;
-        	handler.body = body;
-            addSpecials(suite, handler);
+            handler.type = type;
+            handler.name = excname;
+            handler.body = body;
+            addSpecials(s, handler);
             return handler;
         case JJTBEGIN_FINALLY_STMT:
             //we do that just to get the specials
@@ -522,32 +507,6 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             addSpecialsAndClearOriginal(tryExcept, tryFinally);
             return tryFinally;
             
-        case JJTWITH_STMT:
-            suite = (Suite) stack.popNode();
-            arity--;
-            
-            exprType asOrExpr = (exprType) stack.popNode();
-            arity--;
-            
-            exprType expr=null;
-            if(arity > 0){
-                expr = (exprType) stack.popNode();
-                arity--;
-            }else{
-                expr = asOrExpr;
-                asOrExpr = null;
-            }
-            
-            suiteType s = new suiteType(suite.body);
-            addSpecialsAndClearOriginal(suite, s);
-            
-            return new With(expr, asOrExpr, s);
-        case JJTWITH_VAR:
-            expr = (exprType) stack.popNode(); //expr
-            if (expr != null){    
-                ctx.setStore(expr);
-            }
-            return expr;
         case JJTOR_BOOLEAN:
             return new BoolOp(BoolOp.Or, makeExprs());
         case JJTAND_BOOLEAN:
@@ -627,17 +586,12 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             nameTok = makeName(NameTok.KeywordName);
             return new keywordType(nameTok, value);
         case JJTTUPLE:
-            if (stack.nodeArity() > 0) {
-                SimpleNode peeked = stack.peekNode();
-                if(peeked instanceof ComprehensionCollection){
-                    ComprehensionCollection col = (ComprehensionCollection) stack.popNode();
-                    return new ListComp(((exprType) stack.popNode()), col.getGenerators());
+            if (stack.nodeArity() > 0 && stack.peekNode() instanceof comprehensionType) {
+                comprehensionType[] generators = new comprehensionType[arity-1];
+                for (int i = arity-2; i >= 0; i--) {
+                    generators[i] = (comprehensionType) stack.popNode();
                 }
-                if(peeked instanceof IfExp){
-                    IfExp node = (IfExp) stack.popNode();
-                    node.body = (exprType) stack.popNode();
-                    return node;
-                }
+                return new ListComp(((exprType) stack.popNode()), generators);
             }
             try {
                 exprType[] exp = makeExprs();
@@ -651,9 +605,12 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
                 throw new ParseException("Syntax error while detecting tuple.", lastPop);
             }
         case JJTLIST:
-            if (stack.nodeArity() > 0 && stack.peekNode() instanceof ComprehensionCollection) {
-                ComprehensionCollection col = (ComprehensionCollection) stack.popNode();
-                return new ListComp(((exprType) stack.popNode()), col.getGenerators());
+            if (stack.nodeArity() > 0 && stack.peekNode() instanceof comprehensionType) {
+                comprehensionType[] generators = new comprehensionType[arity-1];
+                for (int i = arity-2; i >= 0; i--) {
+                    generators[i] = (comprehensionType) stack.popNode();
+                }
+                return new ListComp(((exprType) stack.popNode()), generators);
             }
             return new List(makeExprs(), List.Load);
         case JJTDICTIONARY:
@@ -681,10 +638,6 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
                 strJ.strs = newStrs;
                 return strJ;
             }
-        case JJTIF_EXP:
-            exprType ifExprOrelse=(exprType) stack.popNode();
-            exprType ifExprTest=(exprType) stack.popNode();
-            return new IfExp(ifExprTest,null,ifExprOrelse);
         case JJTLAMBDEF:
             test = (exprType) stack.popNode();
             arguments = makeArguments(arity - 1);
@@ -783,14 +736,6 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTAUG_FLOORDIVIDE:  
             return makeAugAssign(AugAssign.FloorDiv);
         case JJTLIST_FOR:
-            ComprehensionCollection col = null;
-            if(stack.peekNode() instanceof ComprehensionCollection){
-                col = (ComprehensionCollection) stack.popNode();
-                arity--;
-            }else{
-                col = new ComprehensionCollection();
-            }
-            
             exprType[] ifs = new exprType[arity-2];
             for (int i = arity-3; i >= 0; i--) {
                 ifs[i] = (exprType) stack.popNode();
@@ -798,23 +743,12 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             iter = (exprType) stack.popNode();
             target = (exprType) stack.popNode();
             ctx.setStore(target);
-            col.added.add(new Comprehension(target, iter, ifs));
-            return col;
+            return new Comprehension(target, iter, ifs);
         case JJTIMPORTFROM:
-            ArrayList<aliasType> aliastL = new ArrayList<aliasType>();
-            while(arity > 0 && stack.peekNode() instanceof aliasType){
-                aliastL.add(0, (aliasType) stack.popNode());
-                arity--;
-            }
-            NameTok nT;
-            if(arity > 0){
-                nT = makeName(NameTok.ImportModule);
-            }else{
-                nT = new NameTok("", NameTok.ImportModule);
-            }
-            return new ImportFrom((NameTokType)nT, aliastL.toArray(new aliasType[0]), 0);
+            aliasType[] aliases = makeAliases(arity - 1);
+            return new ImportFrom(makeName(NameTok.ImportModule), aliases, 0); //relative import is always level 0 here (only actually added on version 25)
         case JJTIMPORT:
-            return new Import(makeAliases(arity));
+            return new Import(makeAliases());
     
         case JJTDOTTED_NAME:
             name = new Name(null, Name.Load);
@@ -866,16 +800,16 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
     }
 
     private void addSpecialsAndClearOriginal(SimpleNode from, SimpleNode to) {
-    	addSpecials(from, to);
+        addSpecials(from, to);
         if(from.specialsBefore != null){
             from.specialsBefore.clear();
         }
         if(from.specialsAfter != null){
             from.specialsAfter.clear();
         }
-	}
+    }
 
-	private void addSpecials(SimpleNode from, SimpleNode to) {
+    private void addSpecials(SimpleNode from, SimpleNode to) {
         if(from.specialsBefore != null && from.specialsBefore.size() > 0){
             to.getSpecialsBefore().addAll(from.specialsBefore);
         }
@@ -923,15 +857,15 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
             SimpleNode node = iter.next();
             
         
-			if (node.getId() == JJTEXTRAKEYWORDVALUELIST) {
-				final ExtraArgValue extraArg = (ExtraArgValue) node;
+            if (node.getId() == JJTEXTRAKEYWORDVALUELIST) {
+                final ExtraArgValue extraArg = (ExtraArgValue) node;
                 kwargs = (extraArg).value;
                 this.addSpecialsAndClearOriginal(extraArg, kwargs);
                 extraArg.specialsBefore = kwargs.getSpecialsBefore();
                 extraArg.specialsAfter = kwargs.getSpecialsAfter();
                 
             } else if (node.getId() == JJTEXTRAARGVALUELIST) {
-            	final ExtraArgValue extraArg = (ExtraArgValue) node;
+                final ExtraArgValue extraArg = (ExtraArgValue) node;
                 starargs = extraArg.value;
                 this.addSpecialsAndClearOriginal(extraArg, starargs);
                 extraArg.specialsBefore = starargs.getSpecialsBefore();
@@ -945,12 +879,9 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
                 //default
                 argsl.add(node);
 
-            } else if(node instanceof Comprehension){
-                argsl.add( new ListComp((exprType)iter.next(), new comprehensionType[]{(comprehensionType) node}) );
-                
-            } else if(node instanceof ComprehensionCollection){
+            } else if(node instanceof comprehensionType){
                 //list comp (2 nodes: comp type and the elt -- what does elt mean by the way?) 
-                argsl.add( new ListComp((exprType)iter.next(), ((ComprehensionCollection)node).getGenerators()));
+                argsl.add( new ListComp((exprType)iter.next(), new comprehensionType[]{(comprehensionType)node}));
                 
             } else if(node instanceof decoratorsType){
                 func = (exprType) stack.popNode();//the func is the last thing in the stack
@@ -1051,13 +982,13 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
         NameTok kwarg = null;
         NameTok stararg = null;
         if (l > 0 && stack.peekNode().getId() == JJTEXTRAKEYWORDLIST) {
-        	ExtraArg node = (ExtraArg) stack.popNode();
+            ExtraArg node = (ExtraArg) stack.popNode();
             kwarg = node.tok;
             l--;
             addSpecialsAndClearOriginal(node, kwarg);
         }
         if (l > 0 && stack.peekNode().getId() == JJTEXTRAARGLIST) {
-        	ExtraArg node = (ExtraArg) stack.popNode();
+            ExtraArg node = (ExtraArg) stack.popNode();
             stararg = node.tok;
             l--;
             addSpecialsAndClearOriginal(node, stararg);
@@ -1068,19 +999,6 @@ public final class TreeBuilder implements PythonGrammarTreeConstants {
         }
         Collections.reverse(list);//we get them in reverse order in the stack
         return makeArguments((DefaultArg[]) list.toArray(new DefaultArg[0]), stararg, kwarg);
-    }
-}
-
-
-
-class ComprehensionCollection extends SimpleNode{
-    public ArrayList<Comprehension> added = new ArrayList<Comprehension>();
-
-    public comprehensionType[] getGenerators() {
-        ArrayList<Comprehension> f = added;
-        added = null;
-        Collections.reverse(f);
-        return f.toArray(new comprehensionType[0]);
     }
 }
 
@@ -1153,7 +1071,7 @@ class IdentityNode extends SimpleNode {
     }
 
     public String toString() {
-        return "IdNode[" + PythonGrammarTreeConstants.jjtNodeName[id] + ", " +
+        return "IdNode[" + PythonGrammarTreeConstants24.jjtNodeName[id] + ", " +
                 image + "]";
     }
 }
