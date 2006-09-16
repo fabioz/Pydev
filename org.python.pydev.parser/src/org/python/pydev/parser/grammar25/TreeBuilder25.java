@@ -422,7 +422,12 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
             ret.value = value;
             return ret;
         case JJTYIELD_STMT:
-            return new Yield(((exprType) stack.popNode()));
+            exprType yieldExpr = null;
+            if(arity > 0){
+                //we may have an empty yield, so, we have to check it before
+                yieldExpr = (exprType) stack.popNode();
+            }
+            return new Yield(yieldExpr);
         case JJTRAISE_STMT:
             exprType tback = arity >= 3 ? ((exprType) stack.popNode()) : null;
             exprType inst = arity >= 2 ? ((exprType) stack.popNode()) : null;

@@ -4,11 +4,8 @@
  */
 package org.python.pydev.parser;
 
-import junit.framework.AssertionFailedError;
-
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -26,7 +23,7 @@ public class PyParser25Test extends PyParserTestBase{
         try {
             PyParser25Test test = new PyParser25Test();
             test.setUp();
-//            test.testNewWithStmt();
+            test.testEmptyYield();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser25Test.class);
@@ -47,6 +44,18 @@ public class PyParser25Test extends PyParserTestBase{
     public void testConditionalExp1(){
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "a = 1 if True else 2\n";
+        parseLegalDocStr(str);
+    }
+    
+    /**
+     * This test checks the new conditional expression.
+     */
+    public void testEmptyYield(){
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
+        String str = "" +
+                "def whee():\n" +
+                "    yield\n" +
+                "";
         parseLegalDocStr(str);
     }
     

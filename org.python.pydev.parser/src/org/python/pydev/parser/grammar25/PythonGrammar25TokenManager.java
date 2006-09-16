@@ -10,6 +10,7 @@ import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.SimpleNode;

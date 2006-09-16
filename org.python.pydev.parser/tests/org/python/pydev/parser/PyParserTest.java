@@ -24,7 +24,7 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-//            test.testErrOnFor();
+//            test.testOnTestContextLib();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
@@ -268,6 +268,12 @@ public class PyParserTest extends PyParserTestBase{
         String loc = TestDependent.PYTHON_LIB+"test/test_grammar.py";
         String s = REF.getFileContents(new File(loc));
         parseLegalDocStr(s,"(file: test_grammar.py)");
+    }
+    
+    public void testOnTestContextLib() {
+        String loc = TestDependent.PYTHON_LIB+"test/test_contextlib.py";
+        String s = REF.getFileContents(new File(loc));
+        parseLegalDocStr(s,"(file: test_contextlib.py)");
     }
     
     public void testOnCalendar() {
