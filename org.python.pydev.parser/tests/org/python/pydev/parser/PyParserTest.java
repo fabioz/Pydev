@@ -24,10 +24,10 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testOnCgiMod2();
+            test.testFor2();
             test.tearDown();
             System.out.println("Finished");
-            junit.textui.TestRunner.run(PyParserTest.class);
+//            junit.textui.TestRunner.run(PyParserTest.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -86,6 +86,28 @@ public class PyParserTest extends PyParserTestBase{
     	"def m():\n" +
     	"    call(a,";
     	parseILegalDoc(new Document(s));
+    }
+    
+    
+    public void testEmptyBaseForClass() {
+        String s = "" +
+        "class B2(): pass\n" +
+        "\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    public void testFor2() {
+        String s = "" +
+        "[x for x in 2, 1 ] \n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testFor3() {
+        String s = "" +
+        "[x() for x in lambda: True, lambda: False if x() ] \n" +
+        "";
+        parseLegalDocStr(s);
     }
     
     
@@ -189,7 +211,7 @@ public class PyParserTest extends PyParserTestBase{
      * @param file
      */
     private void parseFilesInDir(File file) {
-        assertTrue(file.exists());
+        assertTrue("Directory "+file+" does not exist", file.exists());
         assertTrue(file.isDirectory());
         File[] files = file.listFiles();
         for (int i = 0; i < files.length; i++) {
@@ -222,6 +244,27 @@ public class PyParserTest extends PyParserTestBase{
     
     public void testOnCgiMod2() {
         String loc = TestDependent.PYTHON_LIB+"cgi.py";
+        String s = REF.getFileContents(new File(loc));
+        parseLegalDocStr(s);
+    }
+    
+    public void testOnFor() {
+        String s = "foo(x for x in range(10), 100)\n";
+        parseILegalDoc(new Document(s));
+        
+        String s1 = "foo(100, x for x in range(10))\n";
+        parseILegalDoc(new Document(s1));
+        
+    }
+    
+    public void testOnTestGrammar() {
+        String loc = TestDependent.PYTHON_LIB+"test/test_grammar.py";
+        String s = REF.getFileContents(new File(loc));
+        parseLegalDocStr(s);
+    }
+    
+    public void testOnCalendar() {
+        String loc = TestDependent.PYTHON_LIB+"calendar.py";
         String s = REF.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
