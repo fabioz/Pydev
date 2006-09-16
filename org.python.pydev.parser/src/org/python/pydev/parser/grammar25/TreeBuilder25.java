@@ -72,12 +72,12 @@ import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 
-public final class TreeBuilder implements PythonGrammar25TreeConstants {
+public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
     private JJTPythonGrammar25State stack;
     private CtxVisitor ctx;
     private SimpleNode lastPop;
     
-    public TreeBuilder(JJTPythonGrammar25State stack) {
+    public TreeBuilder25(JJTPythonGrammar25State stack) {
         this.stack = stack;
         this.ctx = new CtxVisitor();
     }

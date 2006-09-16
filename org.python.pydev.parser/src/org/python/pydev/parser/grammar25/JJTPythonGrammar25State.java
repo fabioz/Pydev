@@ -20,7 +20,7 @@ class JJTPythonGrammar25State {
     private int mk; // current mark
     private boolean node_created;
 
-    TreeBuilder builder;
+    TreeBuilder25 builder;
 
     JJTPythonGrammar25State() {
         nodes = new FastStack<SimpleNode>();
@@ -29,7 +29,7 @@ class JJTPythonGrammar25State {
         columns = new IntStack();
         sp = 0;
         mk = 0;
-        builder = new TreeBuilder(this);
+        builder = new TreeBuilder25(this);
     }
 
     /* Determines whether the current node was actually closed and
