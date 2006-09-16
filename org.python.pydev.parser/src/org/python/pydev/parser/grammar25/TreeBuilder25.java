@@ -783,14 +783,15 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
                 col = new ComprehensionCollection();
             }
             
-            exprType[] ifs = new exprType[arity-2];
+            ArrayList<exprType> ifs = new ArrayList<exprType>();
             for (int i = arity-3; i >= 0; i--) {
-                ifs[i] = (exprType) stack.popNode();
+                SimpleNode ifsNode = stack.popNode();
+                ifs.add((exprType) ifsNode);
             }
             iter = (exprType) stack.popNode();
             target = (exprType) stack.popNode();
             ctx.setStore(target);
-            col.added.add(new Comprehension(target, iter, ifs));
+            col.added.add(new Comprehension(target, iter, ifs.toArray(new exprType[0])));
             return col;
         case JJTIMPORTFROM:
             ArrayList<aliasType> aliastL = new ArrayList<aliasType>();

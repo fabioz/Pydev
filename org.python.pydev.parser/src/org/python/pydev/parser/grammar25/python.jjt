@@ -1182,7 +1182,7 @@ void suite(): {}
 //
 //testlist_safe: old_test [(',' old_test)+ [',']]
 void testlist_safe()#void:{}
-{old_test()  [  (Comma() old_test() )+ [Comma()]  ]}
+{old_test()  [  (<COMMA> old_test() )+ [<COMMA>]  ]}
 
 //old_test: or_test | old_lambdef
 void old_test()#void:{}
