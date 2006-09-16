@@ -383,7 +383,7 @@ public class SearchTest extends AdditionalInfoTestsBase {
         assertEquals(1, pointers.length);
         assertEquals(new File(TestDependent.PYTHON_LIB+"ntpath.py"), pointers[0].file);
         //found the module
-        assertTrue("Expecting to find it at line 439 or 440, found it at:"+pointers[0].start.line, 440 == pointers[0].start.line || 439 == pointers[0].start.line); //depends on python version
+        assertTrue("Expecting to find it at line 438, 439 or 440, found it at:"+pointers[0].start.line, 440 == pointers[0].start.line || 439 == pointers[0].start.line|| 438 == pointers[0].start.line); //depends on python version
         assertEquals(0, pointers[0].start.column);
     }
     

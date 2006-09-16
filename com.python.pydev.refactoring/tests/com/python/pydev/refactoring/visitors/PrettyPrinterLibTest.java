@@ -56,6 +56,9 @@ public class PrettyPrinterLibTest extends PyParserTestBase{
             File f = files[i];
             if(f.getAbsolutePath().toLowerCase().endsWith(".py")){
                 SimpleNode original = parseLegalDocStr(REF.getFileContents(f), f);
+                if(original == null){
+                    fail("Unable to generate the AST for the file:"+f);
+                }
                 WriterEraser writer = PrettyPrinterTest.makePrint(prefs, original);
                 SimpleNode node = null;
                 try {
