@@ -34,14 +34,21 @@ public abstract class AbstractPyASTChanger {
      */
     protected IDocument doc;
 
-    public AbstractPyASTChanger(IDocument doc, SimpleNode ast) {
+    /**
+     * This is the python grammar that we should use to do the changes
+     */
+    protected int grammarVersion;
+    
+    public AbstractPyASTChanger(IDocument doc, SimpleNode ast, int grammarVersion) {
         this.doc = doc;
         this.ast = ast;
+        this.grammarVersion = grammarVersion;
     }
     
-    public AbstractPyASTChanger(IDocument doc) {
+    public AbstractPyASTChanger(IDocument doc, int grammarVersion) {
         this.doc = doc;
-        Tuple<SimpleNode, Throwable> ret = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, -1));
+        this.grammarVersion = grammarVersion;
+        Tuple<SimpleNode, Throwable> ret = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, grammarVersion));
         ast = ret.o1;
         if(ret.o1 == null){
             if(ret.o2 != null){

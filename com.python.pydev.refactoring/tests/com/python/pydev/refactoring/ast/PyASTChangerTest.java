@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Module;
@@ -39,7 +40,7 @@ public class PyASTChangerTest extends TestCase {
     
     public void test1() throws Exception {
         Document doc = new Document("");
-        PyASTChanger changer = new PyASTChanger(doc);
+        PyASTChanger changer = new PyASTChanger(doc, IPythonNature.LATEST_GRAMMAR_VERSION);
         SimpleNode ast = changer.getAST();
         Module m = (Module) ast;
         assertEquals(0, m.body.length);
@@ -58,7 +59,7 @@ public class PyASTChangerTest extends TestCase {
     
     public void test2() throws Exception {
         Document doc = new Document("class C1:pass\n");
-        PyASTChanger changer = new PyASTChanger(doc);
+        PyASTChanger changer = new PyASTChanger(doc, IPythonNature.LATEST_GRAMMAR_VERSION);
         SimpleNode ast = changer.getAST();
         Module m = (Module) ast;
         assertEquals(1, m.body.length);
@@ -81,7 +82,7 @@ public class PyASTChangerTest extends TestCase {
     			"class C1:pass\n" +
     			"class C2:pass\n" +
     			"");
-    	PyASTChanger changer = new PyASTChanger(doc);
+    	PyASTChanger changer = new PyASTChanger(doc, IPythonNature.LATEST_GRAMMAR_VERSION);
     	SimpleNode ast = changer.getAST();
     	Module m = (Module) ast;
     	assertEquals(2, m.body.length);
@@ -104,7 +105,7 @@ public class PyASTChangerTest extends TestCase {
     			"class C1:pass\n" +
     			"class C2:pass\n" +
     	"");
-    	PyASTChanger changer = new PyASTChanger(doc);
+    	PyASTChanger changer = new PyASTChanger(doc, IPythonNature.LATEST_GRAMMAR_VERSION);
     	SimpleNode ast = changer.getAST();
     	Module m = (Module) ast;
     	assertEquals(2, m.body.length);

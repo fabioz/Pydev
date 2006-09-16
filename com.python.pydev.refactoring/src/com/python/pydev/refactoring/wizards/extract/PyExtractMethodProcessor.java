@@ -89,7 +89,7 @@ public class PyExtractMethodProcessor extends RefactoringProcessor{
         docChange.setKeepPreviewEdits(true);
         
         SimpleNode ast = request.getAST();
-        PyASTChanger astChanger = new PyASTChanger(request.doc, ast);
+        PyASTChanger astChanger = new PyASTChanger(request.doc, ast, request.nature.getGrammarVersion());
         Expr expr = new Expr(PyASTFactory.makeCall(request.duringProcessInfo.name));
         astChanger.addStmtToNode(ast, "body", 0, expr, false);
         

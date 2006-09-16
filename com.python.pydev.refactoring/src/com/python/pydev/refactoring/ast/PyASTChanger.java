@@ -17,12 +17,12 @@ public class PyASTChanger extends AbstractPyASTChanger {
     /**
      * @param doc the document we're dealing with.
      */
-    public PyASTChanger(IDocument doc) {
-        super(doc);
+    public PyASTChanger(IDocument doc, int grammarVersion) {
+        super(doc, grammarVersion);
     }
 
-    public PyASTChanger(IDocument doc, SimpleNode ast) {
-        super(doc, ast);
+    public PyASTChanger(IDocument doc, SimpleNode ast, int grammarVersion) {
+        super(doc, ast, grammarVersion);
     }
 
     /**
