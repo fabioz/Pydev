@@ -48,7 +48,7 @@ if __name__ == '__main__':
     except:
         executable = sys.executable
         
-    s = 'Version%s.%s' % (sys.version_info[0], sys.version_info[0])
+    s = 'Version%s.%s' % (sys.version_info[0], sys.version_info[1])
     print s
             
     print 'EXECUTABLE:%s|' % executable

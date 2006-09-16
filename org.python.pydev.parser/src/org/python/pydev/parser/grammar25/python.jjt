@@ -1406,9 +1406,9 @@ void list_if()#void:{}
 { <IF>  {this.addSpecialToken(" if ");} old_test() [list_iter()]}
 
 
-//classdef: 'class' NAME ['(' testlist ')'] ':' suite
+//classdef: 'class' NAME ['(' [testlist] ')'] ':' suite
 void classdef(): {}
-{<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   testlist() <RPAREN>  {this.findTokenAndAdd(")");} ] <COLON> {this.addSpecialToken(":");} suite()}
+{<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [testlist()] <RPAREN>  {this.findTokenAndAdd(")");} ] <COLON> {this.addSpecialToken(":");} suite()}
 
 //arglist: (argument ',')*
 //              (argument [',']| '*' test [',' '**' test] | '**' test)

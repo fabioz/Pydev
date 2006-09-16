@@ -24,10 +24,10 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testFor2();
+//            test.testFor2();
             test.tearDown();
             System.out.println("Finished");
-//            junit.textui.TestRunner.run(PyParserTest.class);
+            junit.textui.TestRunner.run(PyParserTest.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -264,7 +264,7 @@ public class PyParserTest extends PyParserTestBase{
     }
     
     public void testOnCalendar() {
-        String loc = TestDependent.PYTHON_LIB+"calendar.py";
+        String loc = TestDependent.PYTHON_LIB+"hmac.py";
         String s = REF.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
