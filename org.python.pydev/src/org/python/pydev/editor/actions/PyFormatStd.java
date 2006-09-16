@@ -41,7 +41,7 @@ public class PyFormatStd extends PyAction implements IFormatter{
             int startLine = ps.getStartLineIndex();
             PyEdit pyEdit = getPyEdit();
             if(ps.getTextSelection().getLength() == 0){
-                participant.formatAll(doc, pyEdit, pyEdit.getPythonNature().getGrammarVersion());
+                participant.formatAll(doc, pyEdit);
             }else{
                 participant.formatSelection(doc, startLine, ps.getEndLineIndex(), pyEdit, ps);
             }
@@ -61,7 +61,7 @@ public class PyFormatStd extends PyAction implements IFormatter{
         performFormatSelection(doc, startLine, endLineIndex);
     }
     
-    public void formatAll(IDocument doc, PyEdit edit, int grammarVersion) {
+    public void formatAll(IDocument doc, PyEdit edit) {
         performFormatAll(doc);
     }
     

@@ -5,9 +5,6 @@
  */
 package org.python.pydev.parser;
 
-import static org.python.pydev.core.IPythonNature.GRAMMAR_PYTHON_VERSION_2_4;
-import static org.python.pydev.core.IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
-
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -115,19 +112,17 @@ public class PyParser {
      * indicates the time we should elapse before doing analysis
      */
     private int elapseMillisBeforeAnalysis;
-
-    /**
-     * Indicates which grammar should be used to parse the document.
-     * 
-     * @see GRAMMAR_PYTHON_24
-     * @see GRAMMAR_PYTHON_25
-     */
-    private int grammarToUse;
     
+    /**
+     * This is the version of the grammar that should be used for this parser
+     */
+    private int grammarVersion;
+
     /**
      * should only be called for testing. does not register as a thread
      */
-    public PyParser() {
+    public PyParser(int grammarVersion) {
+        this.grammarVersion = grammarVersion;
         parserListeners = new ArrayList<IParserObserver>();
         scheduler = new ParserScheduler(this);
 
@@ -159,7 +154,7 @@ public class PyParser {
      * @param editorView
      */
     public PyParser(IPyEdit editorView) {
-        this();
+        this(editorView.getPythonNature().getGrammarVersion());
         this.editorView = editorView;
     }
 
@@ -303,7 +298,7 @@ public class PyParser {
     public Tuple<SimpleNode, Throwable> reparseDocument(Object ... argsToReparse) {
         
         //get the document ast and error in object
-        Tuple<SimpleNode, Throwable> obj = reparseDocument(new ParserInfo(document, true, -1));
+        Tuple<SimpleNode, Throwable> obj = reparseDocument(new ParserInfo(document, true, grammarVersion));
         
         IFile original = null;
         IAdaptable adaptable = null;
@@ -376,23 +371,18 @@ public class PyParser {
         public int grammarVersion;
         
         public ParserInfo(IDocument document, boolean changedCurrentLine, int grammarVersion){
-            this(document, changedCurrentLine, null, grammarVersion);
-        }
-        
-        public ParserInfo(IDocument document, boolean changedCurrentLine, IPythonNature nature, int grammarVersion){
             this.document = document;
             this.stillTryToChangeCurrentLine = changedCurrentLine;
             this.grammarVersion = grammarVersion;
         }
-
-        public ParserInfo(IDocument document, boolean changedCurrentLine, int currentLine, int grammarVersion){
-            this(document, changedCurrentLine, null, currentLine, grammarVersion);
+        
+        public ParserInfo(IDocument document, boolean changedCurrentLine, IPythonNature nature){
+            this(document, changedCurrentLine, nature.getGrammarVersion());
         }
         
-        public ParserInfo(IDocument document, boolean changedCurrentLine, IPythonNature nature, int currentLine, int grammarVersion){
-            this(document, changedCurrentLine, nature, grammarVersion);
+        public ParserInfo(IDocument document, boolean changedCurrentLine, IPythonNature nature, int currentLine){
+            this(document, changedCurrentLine, nature);
             this.currentLine = currentLine;
-            this.grammarVersion = grammarVersion;
         }
     }
     
@@ -600,13 +590,6 @@ public class PyParser {
 
     public int getIdleTimeRequested() {
         return this.elapseMillisBeforeAnalysis;
-    }
-
-    public void setGrammar(int version) {
-        if (version != GRAMMAR_PYTHON_VERSION_2_4 && version != GRAMMAR_PYTHON_VERSION_2_5){
-            throw new RuntimeException("Invalid grammar specified");
-        }
-        this.grammarToUse = version;
     }
 
     

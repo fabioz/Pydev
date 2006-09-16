@@ -30,6 +30,7 @@ public interface IPythonNature extends IProjectNature{
      */
     public static final int GRAMMAR_PYTHON_VERSION_2_4 = 10;
     public static final int GRAMMAR_PYTHON_VERSION_2_5 = 11;
+    public static final int LATEST_GRAMMAR_VERSION = GRAMMAR_PYTHON_VERSION_2_5;
     
     /**
      * @return the version of the grammar as defined in IPythonNature.GRAMMAR_PYTHON_VERSION...

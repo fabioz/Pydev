@@ -15,7 +15,7 @@ public interface IFormatter {
     /**
      * Formats the whole doc
      */
-    void formatAll(IDocument doc, PyEdit edit, int grammarVersion);
+    void formatAll(IDocument doc, PyEdit edit);
 
     /**
      * Formats the selection.

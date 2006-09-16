@@ -6,6 +6,7 @@ package org.python.pydev.parser;
 
 import junit.framework.AssertionFailedError;
 
+import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ImportFrom;
@@ -25,7 +26,7 @@ public class PyParser25Test extends PyParserTestBase{
         try {
             PyParser25Test test = new PyParser25Test();
             test.setUp();
-            test.testNewWithStmt();
+//            test.testNewWithStmt();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser25Test.class);
@@ -44,7 +45,7 @@ public class PyParser25Test extends PyParserTestBase{
      * This test checks the new conditional expression.
      */
     public void testConditionalExp1(){
-        defaultVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "a = 1 if True else 2\n";
         parseLegalDocStr(str);
     }
@@ -53,7 +54,7 @@ public class PyParser25Test extends PyParserTestBase{
      * This test checks the new relative import
      */
     public void testNewRelativeImport(){
-        defaultVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "from . import foo\n";
         Module mod = (Module) parseLegalDocStr(str);
         ImportFrom f = (ImportFrom) mod.body[0];
@@ -62,7 +63,7 @@ public class PyParser25Test extends PyParserTestBase{
     }
     
     public void testNewRelativeImport2(){
-        defaultVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "from ..bar import foo\n";
         Module mod = (Module) parseLegalDocStr(str);
         ImportFrom f = (ImportFrom) mod.body[0];
@@ -71,7 +72,7 @@ public class PyParser25Test extends PyParserTestBase{
     }
     
     public void testNewRelativeImport3(){
-        defaultVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "from ... import foo\n";
         Module mod = (Module) parseLegalDocStr(str);
         ImportFrom f = (ImportFrom) mod.body[0];
@@ -80,7 +81,7 @@ public class PyParser25Test extends PyParserTestBase{
     }
     
     public void testNewWithStmt(){
-        defaultVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
                 "with foo:\n" +
                 "    print 'bla'\n" +
@@ -95,7 +96,7 @@ public class PyParser25Test extends PyParserTestBase{
     }
     
     public void testNewWithStmt2(){
-        defaultVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
                 "with foo as x:\n" +
                 "    print 'bla'\n" +
@@ -109,7 +110,7 @@ public class PyParser25Test extends PyParserTestBase{
         
     }
     public void testNewTryFinally(){
-        defaultVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
                 "try:\n" +
                 "    'try'\n" +
@@ -137,12 +138,8 @@ public class PyParser25Test extends PyParserTestBase{
      * This test checks that the old version still gives an error
      */
     public void testConditionalExp1err(){
-        defaultVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_4;
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_4);
         String str = "a = 1 if True else 2\n";
-        try {
-            parseLegalDocStr(str);
-            fail("This construct is not valid for version 2.4");
-        } catch (AssertionFailedError e) {
-        }
+        parseILegalDoc(new Document(str));
     }
 }

@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IToken;
+import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -14,6 +15,8 @@ import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.BundleInfoStub;
 
 import junit.framework.TestCase;
 
@@ -27,11 +30,13 @@ public class AbstractVisitorTest extends TestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
+        PydevPlugin.setBundleInfo(new BundleInfoStub());
 		MODULE_NAME = "testModule";
 	}
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
+		PydevPlugin.setBundleInfo(null);
 	}
 
 	public void testImportCreation1() throws Exception {
@@ -110,7 +115,7 @@ public class AbstractVisitorTest extends TestCase {
 
 	private Iterator<ASTEntry> createModuleAndGetImports(String strDoc, Class classToGet) throws Exception {
 		Document document = new Document(strDoc);
-		SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc(MODULE_NAME, null, document, null, 0);
+		SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc(MODULE_NAME, null, document, CodeCompletionTestsBase.createStaticNature(), 0);
 		
 		
 		EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor();

@@ -11,16 +11,30 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
 
 public class PyParserTestBase extends TestCase {
-    protected PyParser parser;
-    protected static int defaultVersion;
+    protected static PyParser parser;
+    private static int defaultVersion;
+
+    /**
+     * @param defaultVersion the defaultVersion to set
+     */
+    protected static void setDefaultVersion(int defaultVersion) {
+        PyParserTestBase.defaultVersion = defaultVersion;
+        parser = new PyParser(defaultVersion);
+    }
+
+    /**
+     * @return the defaultVersion
+     */
+    protected static int getDefaultVersion() {
+        return defaultVersion;
+    }
 
     protected void setUp() throws Exception {
         PyParser.ACCEPT_NULL_EDITOR = true;
         PyParser.ENABLE_TRACING = true;
         PyParser.TRY_REPARSE = false;
         ParseException.verboseExceptions = true;
-        parser = new PyParser();
-        defaultVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_4;
+        setDefaultVersion(IPythonNature.LATEST_GRAMMAR_VERSION);
         super.setUp();
     }
 
@@ -38,7 +52,8 @@ public class PyParserTestBase extends TestCase {
 	 */
 	protected static SimpleNode parseLegalDocStr(String s, Object ... additionalErrInfo) {
 	    Document doc = new Document(s);
-	    return parseLegalDoc(doc, additionalErrInfo, new PyParser());
+        //by default always use the last version for parsing
+	    return parseLegalDoc(doc, additionalErrInfo, parser);
 	}
 
 	protected SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo) {
@@ -57,17 +72,12 @@ public class PyParserTestBase extends TestCase {
 	    return (ParseException) err;
     }
 
-	protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, PyParser parser) {
-       return parseLegalDoc(doc, additionalErrInfo, parser, defaultVersion); 
-    }
-    
     /**
 	 * @param additionalErrInfo can be used to add additional errors to the fail message if the doc is not parseable
 	 * @param parser the parser to be used to do the parsing.
 	 */
-	protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, PyParser parser, int version) {
+	protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, PyParser parser) {
 	    parser.setDocument(doc, false);
-        parser.setGrammar(version);
         Tuple<SimpleNode, Throwable> objects = parser.reparseDocument();
 	    Object err = objects.o2;
 	    if(err != null){

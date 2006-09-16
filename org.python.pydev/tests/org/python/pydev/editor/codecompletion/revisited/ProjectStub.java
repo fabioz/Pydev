@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.content.IContentTypeMatcher;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.plugin.nature.PythonNature;
 
 public class ProjectStub implements IProject {
@@ -281,6 +282,9 @@ public class ProjectStub implements IProject {
     }
 
     public String getPersistentProperty(QualifiedName key) throws CoreException {
+        if(key.getLocalName().equals("PYTHON_PROJECT_VERSION")){
+            return IPythonNature.PYTHON_VERSION_2_5;//for tests, always the latest version
+        }
         throw new RuntimeException("not impl");
     }
 

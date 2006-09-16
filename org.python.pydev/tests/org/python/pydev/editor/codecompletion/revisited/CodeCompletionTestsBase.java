@@ -20,6 +20,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
@@ -131,10 +132,7 @@ public class CodeCompletionTestsBase extends TestCase {
         return PydevPlugin.getPythonInterpreterManager();
     }
 
-    /**
-     * @return a nature that is python-specific
-     */
-    protected PythonNature createNature() {
+    public static PythonNature createStaticNature() {
         return new PythonNature(){
             @Override
             public boolean isJython() throws CoreException {
@@ -144,7 +142,17 @@ public class CodeCompletionTestsBase extends TestCase {
             public boolean isPython() throws CoreException {
                 return true;
             }
+            @Override
+            public int getGrammarVersion() {
+                return IPythonNature.LATEST_GRAMMAR_VERSION;
+            }
         };
+    }
+    /**
+     * @return a nature that is python-specific
+     */
+    protected PythonNature createNature() {
+        return createStaticNature();
     }
     
     /**

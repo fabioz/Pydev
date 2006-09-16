@@ -11,6 +11,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -32,11 +33,14 @@ public class SourceModuleProposalTest extends TestCase {
         }
     }
 
+    private IPythonNature nature;
+
     /*
      * @see TestCase#setUp()
      */
     protected void setUp() throws Exception {
         super.setUp();
+        nature = CodeCompletionTestsBase.createStaticNature();
     }
 
     /*
@@ -81,7 +85,7 @@ public class SourceModuleProposalTest extends TestCase {
      */
     private void checkProposal(String docStr, int line, String tokDef, int addTo) throws BadLocationException {
         IDocument doc = new Document(docStr);
-        SourceModule mod = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, null, 0);
+        SourceModule mod = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, 0);
         SourceModuleProposal s = new SourceModuleProposal("",0,0,0,null,"",null,"",mod, IPyCompletionProposal.PRIORITY_DEFAULT);
         s.doc = doc;
         if(tokDef != null)

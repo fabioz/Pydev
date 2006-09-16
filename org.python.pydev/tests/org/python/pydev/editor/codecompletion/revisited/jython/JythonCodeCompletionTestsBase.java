@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import org.eclipse.core.runtime.CoreException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.plugin.PydevPlugin;
@@ -70,6 +71,10 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase{
             @Override
             public boolean isPython() throws CoreException {
                 return false;
+            }
+            @Override
+            public int getGrammarVersion() {
+                return IPythonNature.GRAMMAR_PYTHON_VERSION_2_4;
             }
         };
     }
