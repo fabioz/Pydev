@@ -32,6 +32,7 @@ import org.python.pydev.parser.jython.ast.StrJoin;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.VisitorBase;
+import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.Yield;
 
 public class PrettyPrinterUtils extends VisitorBase{
@@ -197,6 +198,7 @@ public class PrettyPrinterUtils extends VisitorBase{
         addMethod("visitStrJoin" , "superStrJoin");
         addMethod("visitAssert" , "superAssert");
         addMethod("visitGlobal" , "superGlobal");
+        addMethod("visitWith" , "superWith");
     }
     
     
@@ -328,6 +330,10 @@ public class PrettyPrinterUtils extends VisitorBase{
     
     public Object superAssert(Assert node) throws Exception {
         return super.visitAssert(node);
+    }
+    
+    public Object superWith(With node) throws Exception {
+        return super.visitWith(node);
     }
     
 }

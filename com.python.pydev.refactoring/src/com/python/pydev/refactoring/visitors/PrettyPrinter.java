@@ -5,6 +5,7 @@ package com.python.pydev.refactoring.visitors;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
@@ -50,6 +51,7 @@ import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.UnaryOp;
 import org.python.pydev.parser.jython.ast.While;
+import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.argumentsType;
@@ -135,6 +137,8 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     public Object visitImportFrom(ImportFrom node) throws Exception {
         auxComment.writeSpecialsBefore(node);
         auxComment.startRecord();
+        
+        
         node.module.accept(this);
         
         for (aliasType name : node.names){
@@ -744,6 +748,11 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         
     }
 
+    
+    @Override
+    public Object visitWith(With node) throws Exception {
+        return visitGeneric(node, "visitWith", true, null, true);
+    }
 
     @Override
     public Object visitYield(Yield node) throws Exception {

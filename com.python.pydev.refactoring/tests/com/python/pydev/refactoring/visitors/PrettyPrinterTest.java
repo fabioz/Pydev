@@ -17,7 +17,7 @@ public class PrettyPrinterTest extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testTryExcept4();
+            test.test25Import();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -26,23 +26,48 @@ public class PrettyPrinterTest extends PyParserTestBase{
         }
     }
     
-    public void testNewIf() throws Exception {
+    public void test25If() throws Exception {
         String str = "a = 1 if True else 2\n";
         checkPrettyPrintEqual(str);
     }
     
-    public void testNewImport() throws Exception {
+    public void test25Import() throws Exception {
         String str = "from . import foo\n";
         checkPrettyPrintEqual(str);
     }
     
-    public void testNewImport2() throws Exception {
+    public void test25Import2() throws Exception {
         String str = "from ..bar import foo\n";
         checkPrettyPrintEqual(str);
     }
     
-    public void testNewImport3() throws Exception {
+    public void test25Import3() throws Exception {
         String str = "from ... import foo\n";
+        checkPrettyPrintEqual(str);
+    }
+    
+    public void test25With() throws Exception {
+        String str = "" +
+                "with a:\n" +
+                "    print a\n" +
+                "";
+        checkPrettyPrintEqual(str);
+    }
+    
+    public void test25With2() throws Exception {
+        String str = "" +
+            "with a as b:\n" +
+            "    print b\n" +
+            "";
+        checkPrettyPrintEqual(str);
+    }
+    
+    public void test25With3() throws Exception {
+        String str = "" +
+        "def m1():\n" +
+        "    with a as b:\n" +
+        "        print b\n" +
+        "";
         checkPrettyPrintEqual(str);
     }
     
