@@ -6,8 +6,10 @@ package com.python.pydev.analysis.additionalinfo;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
@@ -39,6 +41,11 @@ public class InterpreterObserver implements IInterpreterObserver {
         }
         try {
             try {
+                final IInterpreterInfo interpreterInfo = manager.getInterpreterInfo(defaultSelectedInterpreter, new NullProgressMonitor());
+                int grammarVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_4;
+                if(interpreterInfo.getVersion().equals("2.5")){
+                    grammarVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
+                }
                 AbstractAdditionalInterpreterInfo currInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager);
                 if(currInfo != null){
                     currInfo.clearAllInfo();
@@ -46,7 +53,7 @@ public class InterpreterObserver implements IInterpreterObserver {
                 InterpreterInfo defaultInterpreterInfo = (InterpreterInfo) manager.getInterpreterInfo(defaultSelectedInterpreter, monitor);
                 SystemModulesManager m = defaultInterpreterInfo.modulesManager;
                 AbstractAdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, "(system: " + manager.getManagerRelatedName() + ")",
-                        new AdditionalSystemInterpreterInfo(manager), null);
+                        new AdditionalSystemInterpreterInfo(manager), null, grammarVersion);
 
                 if (additionalSystemInfo != null) {
                     //ok, set it and save it
@@ -111,7 +118,7 @@ public class InterpreterObserver implements IInterpreterObserver {
      * @return the info generated from the module manager
      */
     private AbstractAdditionalInterpreterInfo restoreInfoForModuleManager(IProgressMonitor monitor, IModulesManager m, String additionalFeedback, 
-            AbstractAdditionalInterpreterInfo info, PythonNature nature) {
+            AbstractAdditionalInterpreterInfo info, PythonNature nature, int grammarVersion) {
         
         long startsAt = System.currentTimeMillis();
         ModulesKey[] allModules = m.getOnlyDirectModules();
@@ -143,7 +150,7 @@ public class InterpreterObserver implements IInterpreterObserver {
                         try {
                             
                             //  the code below works with the default parser (that has much more info... and is much slower)
-                            PyParser.ParserInfo parserInfo = new PyParser.ParserInfo(REF.getDocFromFile(key.file), false, nature);
+                            PyParser.ParserInfo parserInfo = new PyParser.ParserInfo(REF.getDocFromFile(key.file), false, grammarVersion);
                             Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(parserInfo);
                             SimpleNode node = obj.o1;
 
@@ -187,7 +194,7 @@ public class InterpreterObserver implements IInterpreterObserver {
 			String feedback = "(project:" + project.getName() + ")";
 			synchronized(m){
 				AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) restoreInfoForModuleManager(
-						monitor, m, feedback, newProjectInfo, nature);
+						monitor, m, feedback, newProjectInfo, nature, nature.getGrammarVersion());
 	
 				if (info != null) {
 					//ok, set it and save it
