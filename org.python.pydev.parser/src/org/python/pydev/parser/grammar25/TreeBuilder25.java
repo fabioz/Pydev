@@ -688,6 +688,7 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
             exprType ifExprOrelse=(exprType) stack.popNode();
             exprType ifExprTest=(exprType) stack.popNode();
             return new IfExp(ifExprTest,null,ifExprOrelse);
+        case JJTOLD_LAMBDEF:
         case JJTLAMBDEF:
             test = (exprType) stack.popNode();
             arguments = makeArguments(arity - 1);

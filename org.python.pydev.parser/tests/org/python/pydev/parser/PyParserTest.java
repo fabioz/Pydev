@@ -260,7 +260,7 @@ public class PyParserTest extends PyParserTestBase{
     public void testOnTestGrammar() {
         String loc = TestDependent.PYTHON_LIB+"test/test_grammar.py";
         String s = REF.getFileContents(new File(loc));
-        parseLegalDocStr(s);
+        parseLegalDocStr(s,"(file: test_grammar.py)");
     }
     
     public void testOnCalendar() {

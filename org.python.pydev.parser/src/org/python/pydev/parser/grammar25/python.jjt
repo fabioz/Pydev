@@ -1384,7 +1384,7 @@ void SmartTestList() #void: {}
 
 //testlist: test (',' test)* [',']
 void testlist() #void: {}
-{ or_test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> or_test())* [{this.addSpecialToken(",");} <COMMA>]}
+{ test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [{this.addSpecialToken(",");} <COMMA>]}
 
 //dictmaker: test ':' test (',' test ':' test)* [',']
 void dictmaker() #void: {}
@@ -1408,7 +1408,7 @@ void list_if()#void:{}
 
 //classdef: 'class' NAME ['(' [testlist] ')'] ':' suite
 void classdef(): {}
-{<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [testlist()] <RPAREN>  {this.findTokenAndAdd(")");} ] <COLON> {this.addSpecialToken(":");} suite()}
+{<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] <RPAREN>  {this.findTokenAndAdd(")");} ] <COLON> {this.addSpecialToken(":");} suite()}
 
 //arglist: (argument ',')*
 //              (argument [',']| '*' test [',' '**' test] | '**' test)
