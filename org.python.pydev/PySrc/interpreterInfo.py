@@ -47,6 +47,10 @@ if __name__ == '__main__':
         executable = nativePath(sys.executable)
     except:
         executable = sys.executable
+        
+    s = 'Version%s.%s' % (sys.version_info[0], sys.version_info[0])
+    print s
+            
     print 'EXECUTABLE:%s|' % executable
     
     #this is the new implementation to get the system folders 

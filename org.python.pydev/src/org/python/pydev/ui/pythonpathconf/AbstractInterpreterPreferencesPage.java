@@ -17,6 +17,7 @@ import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -103,7 +104,15 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
      * @param allButTheseInterpreters
      * @param monitor
      */
-    protected abstract void doClear(final List<String> allButTheseInterpreters, IProgressMonitor monitor);
+    protected void doClear(final List<String> allButTheseInterpreters, IProgressMonitor monitor){
+        IInterpreterManager iMan = getInterpreterManager();
+        iMan.clearAllBut(allButTheseInterpreters);
+    }
+    
+    /**
+     * @return the interpreter manager associated to this page.
+     */
+    protected abstract IInterpreterManager getInterpreterManager();
 
     protected boolean isEditorChanged() {
         return pathEditor.hasChanged();

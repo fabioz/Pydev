@@ -81,19 +81,26 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
      * not want to keep it in the 'configuration', as a giant Base64 string.
      */
     public SystemModulesManager modulesManager = new SystemModulesManager(forcedLibs);
+
+    /**
+     * This is the version for the python interpreter (it is regarded as a String with Major and Minor version
+     * for python in the format '2.5' or '2.4'.
+     */
+    private String version;
     
-    public InterpreterInfo(String exe, Collection<String> libs0){
+    public InterpreterInfo(String version, String exe, Collection<String> libs0){
         this.executableOrJar = exe;
+        this.version = version;
         libs.addAll(libs0);
     }
     
-    public InterpreterInfo(String exe, Collection<String> libs0, Collection<String> dlls){
-        this(exe, libs0);
+    public InterpreterInfo(String version, String exe, Collection<String> libs0, Collection<String> dlls){
+        this(version, exe, libs0);
         dllLibs.addAll(dlls);
     }
     
-    public InterpreterInfo(String exe, List<String> libs0, List<String> dlls, List<String> forced) {
-        this(exe, libs0, dlls);
+    public InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced) {
+        this(version, exe, libs0, dlls);
         forcedLibs.addAll(forced);
     }
 
@@ -134,6 +141,11 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
      * 
      * Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2
      * 
+     * or
+     * 
+     * Version2.5Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2
+     * (added only when version 2.5 was added, so, if the string does not have it, it is regarded as 2.4)
+     * 
      * Symbols ': @ $'
      */
     public static InterpreterInfo fromString(String received, boolean askUserInOutPath) {
@@ -144,11 +156,21 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
         String[] forcedSplit = received.split("\\$");
         String[] libsSplit = forcedSplit[0].split("\\@");
         String exeAndLibs = libsSplit[0];
-        
-        
+        String version = "2.4"; //if not found in the string, the grammar version is regarded as 2.4 
         
         String[] exeAndLibs1 = exeAndLibs.split("\\|");
-        String executable = exeAndLibs1[0].substring(exeAndLibs1[0].indexOf(":")+1, exeAndLibs1[0].length());
+        
+        String exeAndVersion = exeAndLibs1[0];
+        String lowerExeAndVersion = exeAndVersion.toLowerCase();
+        if(lowerExeAndVersion.startsWith("version")){
+            int execut = lowerExeAndVersion.indexOf("executable");
+            version = exeAndVersion.substring(0,execut).substring(7);
+            exeAndVersion = exeAndVersion.substring(7+version.length());
+        }
+        String executable = exeAndVersion.substring(exeAndVersion.indexOf(":")+1, exeAndVersion.length());
+        
+        
+        
         final ArrayList<String> l = new ArrayList<String>();
         final ArrayList<String> toAsk = new ArrayList<String>();
         for (int i = 1; i < exeAndLibs1.length; i++) { //start at 1 (0 is exe)
@@ -266,7 +288,7 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
 	            }
 	        }
         }	            
-        return new InterpreterInfo(executable, l, l1, l2);
+        return new InterpreterInfo(version, executable, l, l1, l2);
 	        
     }
     
@@ -275,6 +297,8 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
      */
     public String toString() {
         StringBuffer buffer = new StringBuffer();
+        buffer.append("Version");
+        buffer.append(version);
         buffer.append("Executable:");
         buffer.append(executableOrJar);
         for (Iterator iter = libs.iterator(); iter.hasNext();) {
@@ -410,6 +434,10 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
             systemValid = systemValid.replace(c, '_');
         }
         return systemValid;
+    }
+
+    public String getVersion() {
+        return version;
     }
     
     
