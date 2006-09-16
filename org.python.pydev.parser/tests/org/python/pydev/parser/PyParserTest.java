@@ -24,7 +24,7 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testFor2a();
+            test.testErrOnFor();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
@@ -254,7 +254,7 @@ public class PyParserTest extends PyParserTestBase{
         parseLegalDocStr(s);
     }
     
-    public void testOnFor() {
+    public void testErrOnFor() {
         String s = "foo(x for x in range(10), 100)\n";
         parseILegalDoc(new Document(s));
         

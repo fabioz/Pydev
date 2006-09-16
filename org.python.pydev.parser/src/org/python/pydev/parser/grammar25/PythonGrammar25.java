@@ -3531,6 +3531,7 @@ public class PythonGrammar25 implements/*@bgen(jjtree)*/ PythonGrammar25TreeCons
     case COMMA:
       label_24:
       while (true) {
+                  this.addSpecialToken(",");
         jj_consume_token(COMMA);
         old_test();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -3544,6 +3545,7 @@ public class PythonGrammar25 implements/*@bgen(jjtree)*/ PythonGrammar25TreeCons
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
+                                                                     this.addSpecialToken(",");
         jj_consume_token(COMMA);
         break;
       default:
