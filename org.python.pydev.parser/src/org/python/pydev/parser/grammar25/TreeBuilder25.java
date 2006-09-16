@@ -129,10 +129,6 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
         return ids;
     }
 
-    private aliasType[] makeAliases() {
-        return makeAliases(stack.nodeArity());
-    }
-
     private aliasType[] makeAliases(int l) {
         aliasType[] aliases = new aliasType[l];
         for (int i = l-1; i >= 0; i--) {
@@ -410,14 +406,6 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
             return new ExtraArg(makeName(NameTok.VarArg), JJTEXTRAARGLIST);
         case JJTEXTRAKEYWORDLIST:
             return new ExtraArg(makeName(NameTok.KwArg), JJTEXTRAKEYWORDLIST);
-/*
-        case JJTFPLIST:
-            fpdefType[] list = new fpdefType[arity];
-            for (int i = arity-1; i >= 0; i--) {
-                list[i] = popFpdef();
-            }
-            return new FpList(list);
-*/
         case JJTCLASSDEF:
             suite = (Suite) stack.popNode();
             body = suite.body;

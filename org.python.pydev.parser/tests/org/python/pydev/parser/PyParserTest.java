@@ -24,7 +24,7 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-//            test.testFor2();
+            test.testFor2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
@@ -98,7 +98,7 @@ public class PyParserTest extends PyParserTestBase{
     }
     public void testFor2() {
         String s = "" +
-        "[x for x in 2, 1 ] \n" +
+        "[x for x in 1,2,3,4] \n" +
         "";
         parseLegalDocStr(s);
     }

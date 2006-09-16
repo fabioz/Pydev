@@ -5788,21 +5788,21 @@ public class PythonGrammar25 implements/*@bgen(jjtree)*/ PythonGrammar25TreeCons
         case TRIPLE_USTRING:
         case TRIPLE_USTRING2:
         case 137:
-          SmartTestList();
+          testlist();
           break;
         default:
           jj_la1[109] = jj_gen;
           ;
         }
         jj_consume_token(RPAREN);
-                                                                                                            this.findTokenAndAdd(")");
+                                                                                                       this.findTokenAndAdd(")");
         break;
       default:
         jj_la1[110] = jj_gen;
         ;
       }
       jj_consume_token(COLON);
-                                                                                                                                                   this.addSpecialToken(":");
+                                                                                                                                              this.addSpecialToken(":");
       suite();
     } catch (Throwable jjte000) {
    if (jjtc000) {
