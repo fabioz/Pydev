@@ -19,25 +19,20 @@ import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.CharStream;
+import org.python.pydev.parser.IGrammar;
 
-public class PythonGrammar25/*@bgen(jjtree)*/implements PythonGrammar25TreeConstants, PythonGrammar25Constants {/*@bgen(jjtree)*/
+public class PythonGrammar25 implements/*@bgen(jjtree)*/ PythonGrammar25TreeConstants,IGrammar, PythonGrammar25Constants {/*@bgen(jjtree)*/
   protected JJTPythonGrammar25State jjtree = new JJTPythonGrammar25State();
     public IParserHost hostLiteralMkr;
     private SimpleNode prev;
-    private SimpleNode lastIdNode;
     private static boolean DEBUG = false;
     private final static boolean DEFAULT_SEARCH_ON_LAST = false;
-    /**
-     * Defined by the constants declared at IPythonNature.
-     */
-    private int grammarVersion;
 
     void jjtreeOpenNodeScope(Node n) {
         if(DEBUG){
             System.out.println("opening scope:"+n);
         }
         Token t = getToken(1);
-        lastIdNode = (SimpleNode) n;
         jjtree.pushNodePos(t.beginLine, t.beginColumn);
     }
 
@@ -353,18 +348,16 @@ public class PythonGrammar25/*@bgen(jjtree)*/implements PythonGrammar25TreeConst
 
    // constructors taking a IParserHost impl
 
-   public PythonGrammar25(CharStream stream,IParserHost host, int grammarVersion) {
+   public PythonGrammar25(CharStream stream,IParserHost host) {
        this(stream);
        hostLiteralMkr = host;
-        this.grammarVersion = grammarVersion;
    }
 
    public PythonGrammar25(PythonGrammar25TokenManager tm,
-                        IParserHost host, int grammarVersion)
+                        IParserHost host)
    {
         this(tm);
         hostLiteralMkr = host;
-        this.grammarVersion = grammarVersion;
    }
 
 //single_input: NEWLINE | simple_stmt | compound_stmt NEWLINE
@@ -7127,6 +7120,16 @@ public class PythonGrammar25/*@bgen(jjtree)*/implements PythonGrammar25TreeConst
     finally { jj_save(28, xla); }
   }
 
+  final private boolean jj_3R_118() {
+    if (jj_scan_token(AS)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_117() {
+    if (jj_scan_token(ASSERT)) return true;
+    return false;
+  }
+
   final private boolean jj_3R_116() {
     if (jj_scan_token(EXEC)) return true;
     return false;
@@ -8280,16 +8283,6 @@ public class PythonGrammar25/*@bgen(jjtree)*/implements PythonGrammar25TreeConst
     jj_scanpos = xsp;
     if (jj_3R_77()) return true;
     }
-    return false;
-  }
-
-  final private boolean jj_3R_118() {
-    if (jj_scan_token(AS)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_117() {
-    if (jj_scan_token(ASSERT)) return true;
     return false;
   }
 

@@ -1,7 +1,7 @@
 <project name="jython-parser" default="parser">
 
     <property name="javaccHome" value="E:\install\Dev.JavaCC\javacc-4.0" />
-    <property name="basedir" value="e:\eclipse_workspace\org.python.pydev.parser\src\org\python\pydev\parser\jython" />
+    <property name="basedir" value="e:\eclipse_workspace\org.python.pydev.parser\src\org\python\pydev\parser\grammar24" />
     <property name="parser.dir" value="${basedir}" />
 
     <!-- print out some usage hints -->
@@ -50,12 +50,12 @@ Current setting is: ${javaccHome}
     <target name="clean" depends="uptodate" unless="parser.regen.notreq">
         <!-- do not delete file="${parser.dir}/TokenMgrError.java" -->
         <!-- do not delete file="${parser.dir}/ParseException.java" -->
-        <delete file="${parser.dir}/PythonGrammar.java" />
-        <delete file="${parser.dir}/PythonGrammarTreeConstants.java" />
-        <delete file="${parser.dir}/PythonGrammarTokenManager.java" />
-        <delete file="${parser.dir}/PythonGrammarConstants.java" />
-        <delete file="${parser.dir}/CharStream.java" />
+        <delete file="${parser.dir}/PythonGrammar24.java" />
+        <delete file="${parser.dir}/PythonGrammar24TreeConstants.java" />
+        <delete file="${parser.dir}/PythonGrammar24TokenManager.java" />
+        <delete file="${parser.dir}/PythonGrammar24Constants.java" />
         <!-- +++ TODO: maybe this could be allowed (checkin): -->
+        <!--<delete file="${parser.dir}/CharStream.java" />-->
         <!-- <delete file="${parser.dir}/Token.java" /> -->
     </target>
 
@@ -74,8 +74,20 @@ Current setting is: ${javaccHome}
             <arg file="${parser.dir}/python.jj" />
         </java>
         <delete file="${parser.dir}/python.jj" />
-        <echo>Updating jjFillToken in file PythonGrammarTokenManager.java</echo>
-    	<replace file="${parser.dir}/PythonGrammarTokenManager.java" token="Token t = Token.newToken(jjmatchedKind)" value="Token t = new Token()"/>
+        	
+        <echo>Removing the files that are common among versions</echo>
+        <delete file="${parser.dir}/TokenMgrError.java" />
+        <delete file="${parser.dir}/Token.java" />
+        <delete file="${parser.dir}/SimpleNode.java" />
+        <delete file="${parser.dir}/ParseException.java" />
+        <delete file="${parser.dir}/Node.java" />
+        <delete file="${parser.dir}/CharStream.java" />
+    	
+        <echo>Updating jjFillToken in file PythonGrammar24TokenManager.java</echo>
+    	<replace file="${parser.dir}/PythonGrammar24TokenManager.java" token="Token t = Token.newToken(jjmatchedKind)" value="Token t = new Token()"/>
+    	
+        <echo>Updating jjtree.builder.openNode</echo>
+    	<replace file="${parser.dir}/PythonGrammar24.java" token="(SimpleNode)SimpleNode.jjtCreate(this," value="jjtree.builder.openNode("/>
     </target>
 
     <!-- confirmation -->

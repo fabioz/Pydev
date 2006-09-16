@@ -10,7 +10,7 @@ import org.python.pydev.parser.jython.Node;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 
-class JJTPythonGrammarState24 {
+class JJTPythonGrammar24State {
     private FastStack<SimpleNode> nodes;
     private IntStack marks;
     private IntStack lines;
@@ -22,7 +22,7 @@ class JJTPythonGrammarState24 {
 
     TreeBuilder24 builder;
 
-    JJTPythonGrammarState24() {
+    JJTPythonGrammar24State() {
         nodes = new FastStack<SimpleNode>();
         marks = new IntStack();
         lines = new IntStack();
@@ -89,12 +89,12 @@ class JJTPythonGrammarState24 {
         SimpleNode n = (SimpleNode) peekNode();
         
         int popLine = lines.pop();
-		if(n.beginLine == 0)
-        	n.beginLine = popLine;
-		
+        if(n.beginLine == 0)
+            n.beginLine = popLine;
+        
         int popCol = columns.pop();
-		if(n.beginColumn == 0)
-        	n.beginColumn = popCol;
+        if(n.beginColumn == 0)
+            n.beginColumn = popCol;
         return n;
     }
 

@@ -1,6 +1,5 @@
 // -*- java -*-
 //good reading for error handling: https://javacc.dev.java.net/doc/errorrecovery.html
-//check Python.asdl for references on the python implementation of the grammar
 options
 {
     // only non-defaults are given here.
@@ -19,8 +18,8 @@ options
 }
 
 
-PARSER_BEGIN(PythonGrammar)
-package org.python.pydev.parser.jython;
+PARSER_BEGIN(PythonGrammar24)
+package org.python.pydev.parser.grammar24;
 import org.python.pydev.parser.jython.ast.modType;
 import java.util.List;
 import java.util.ArrayList;
@@ -32,26 +31,29 @@ import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.parser.jython.IParserHost;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.Node;
+import org.python.pydev.parser.jython.Token;
+import org.python.pydev.parser.jython.ParseException;
+import org.python.pydev.parser.jython.SpecialStr;
+import org.python.pydev.parser.jython.TokenMgrError;
+import org.python.pydev.parser.jython.CharStream;
+import org.python.pydev.parser.IGrammar;
 
-public class PythonGrammar
+public class PythonGrammar24 implements IGrammar
 {
-    
+
     public IParserHost hostLiteralMkr;
     private SimpleNode prev;
-    private SimpleNode lastIdNode;
     private static boolean DEBUG = false;
     private final static boolean DEFAULT_SEARCH_ON_LAST = false;
-    /**
-     * Defined by the constants declared at IPythonNature.
-     */
-    private int grammarVersion;
-    
+
     void jjtreeOpenNodeScope(Node n) {
         if(DEBUG){
             System.out.println("opening scope:"+n);
         }
         Token t = getToken(1);
-        lastIdNode = (SimpleNode) n;
         jjtree.pushNodePos(t.beginLine, t.beginColumn);
     }
 
@@ -367,24 +369,22 @@ public class PythonGrammar
 
    // constructors taking a IParserHost impl
 
-   public PythonGrammar(CharStream stream,IParserHost host, int grammarVersion) {
+   public PythonGrammar24(CharStream stream,IParserHost host) {
        this(stream);
        hostLiteralMkr = host;
-    	this.grammarVersion = grammarVersion;
    }
 
-   public PythonGrammar(PythonGrammarTokenManager tm,
-                        IParserHost host, int grammarVersion)
+   public PythonGrammar24(PythonGrammar24TokenManager tm,
+                        IParserHost host)
    {
         this(tm);
         hostLiteralMkr = host;
-    	this.grammarVersion = grammarVersion;
    }
 
 }
 
 
-PARSER_END(PythonGrammar)
+PARSER_END(PythonGrammar24)
 
 TOKEN_MGR_DECLS:
 {
@@ -678,7 +678,6 @@ TOKEN : /* KEYWORDS */
 |   < EXEC: "exec" >
 |   < ASSERT: "assert" >
 |   < AS: "as" >
-|   <WITH: "with" >
 |   < AT: "@" >
 }
 
@@ -1010,26 +1009,20 @@ Import Import(): {}
   {return (Import)jjtree.peekNode();}
 }
 
-//import_from: ('from' ('.'* dotted_name | '.'+)
-//              'import' ('*' | '(' import_as_names ')' | import_as_names))
-void ImportFrom(): { int level=0; int state=0; }
+//TODO: allways allowed (treat different versions in other places, to see if this is correct or not)
+void ImportFrom(): { String mod; String name;int state=0; }
 {
-    //we need to set the  <IMPORT> {this.addSpecialToken(" import ");} in both otherwise the lookahead will not work as we want it to work
-    //because it confuses the import with the dotted name
-    (LOOKAHEAD(3)  
-        ("." {level++;} ("." {level++;} )*  <IMPORT> {this.addSpecialToken(" import ");} )
-        |  ("." {level++;} )* dotted_name()  <IMPORT> {this.addSpecialToken(" import ");} ) 
-    
+    mod=dotted_name() <IMPORT> {this.addSpecialToken(" import ");}
     (
         //from xxx import *
         <MULTIPLY> {this.addSpecialToken("*",STRATEGY_ADD_AFTER_PREV);}//from xx import *
         
         //from xxx import a,b,c
-        | (import_as_name() ({this.addSpecialToken(",");} <COMMA> import_as_name())*) 
+        | (name=import_as_name() ({this.addSpecialToken(",");} <COMMA> import_as_name())*) 
         
         //from xxx import (a,b,c)
         | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   
-          import_as_name() 
+          name=import_as_name() 
           (
            ({
              if(state!=0){
@@ -1042,8 +1035,6 @@ void ImportFrom(): { int level=0; int state=0; }
            <RPAREN>  {this.findTokenAndAdd(")");} 
           )
     )
-    //now, let's set the correct level for the module
-    {((ImportFrom)jjtree.peekNode()).level = level;}
 }
 
 //dotted_as_name: dotted_name [NAME NAME]
@@ -1073,9 +1064,9 @@ void exec_stmt(): {}
 void assert_stmt(): {}
 { <ASSERT> test() [{this.addSpecialToken(",");} <COMMA> test()] }
 
-//compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef
+//compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | funcdef | classdef
 void compound_stmt() #void : { token_source.compound = true; }
-{if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef()}
+{if_stmt() | while_stmt() | for_stmt() | try_stmt()  | funcdef() | classdef()}
 
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
 void if_stmt(): {}
@@ -1122,22 +1113,16 @@ void begin_for_else_stmt(): {}
 }
 //try_stmt: ('try' ':' suite (except_clause ':' suite)+ #diagram:break
 //           ['else' ':' suite] | 'try' ':' suite 'finally' ':' suite)
-void try_stmt() #void: {SimpleNode tryNode;int i=0;}
+void try_stmt() #void: {SimpleNode tryNode;}
 { 
     begin_try_stmt() {tryNode = (SimpleNode)jjtree.peekNode();}  suite() (
-		(
-			(except_clause(tryNode) {i++;})+ 
+    ((except_clause(tryNode))+ 
     
-			[begin_try_else_stmt() suite() {i++;} #tryelse_stmt(2) ]
-			
-			[begin_finally_stmt()  suite() {i++;} #tryfinally_outer_stmt(2)]
-			
-			#try_stmt(i)
-		)
+    [begin_try_else_stmt()  suite()])
+        #try_stmt(jjtree.nodeArity()+1)
         
-		| begin_finally_stmt() suite()
-			#tryfinally_stmt(jjtree.nodeArity()+1)
-	)
+    | begin_finally_stmt() suite()
+        #tryfinally_stmt(jjtree.nodeArity()+1))
 }
 
 //this is the 'try' ':'  it is needed because we need that scope closing for getting the specials.
@@ -1160,50 +1145,15 @@ void begin_except_clause(): {}
 { <EXCEPT> }
 
 
-//with_stmt: 'with' test [ with_var ] ':' suite
-void with_stmt(): {}
-{ <WITH> test() [with_var()] <COLON> suite() }
-
-//with_var: 'as' expr
-void with_var():{}
-{ <AS> expr()}
-
 //suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
 void suite(): {}
 { simple_stmt() |  <NEWLINE>
                    { token_source.expect_indent = true; } <INDENT> { token_source.expect_indent = false; } (stmt())+ <DEDENT> }
 
-//Backward compatibility cruft to support:
-//[ x for x in lambda: True, lambda: False if x() ]
-//even while also allowing:
-//lambda x: 5 if x else 2
-//(But not a mix of the two)
-//
-//testlist_safe: old_test [(',' old_test)+ [',']]
-void testlist_safe()#void:{}
-{old_test()  [  (Comma() old_test() )+ [Comma()]  ]}
 
-//old_test: or_test | old_lambdef
-void old_test()#void:{}
-{or_test() | old_lambdef()}
-
-//old_lambdef: 'lambda' [varargslist] ':' old_test
-void old_lambdef():{boolean hasArgs=false;}
-{ <LAMBDA> [varargslist(){hasArgs=true;}] <COLON> {if(hasArgs)this.addSpecialToken(":");else this.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} old_test() }
-
-
-//test: or_test ['if' or_test 'else' test] | lambdef
-void test() #void: {}
-{  lambdef() | or_test() [if_exp()] }
-
-void if_exp():{}
-{<IF> {this.addSpecialToken(" if ",STRATEGY_BEFORE_NEXT);} or_test() <ELSE> {this.addSpecialToken(" else ");} test()}
-
-
-//or_test: or_test: and_test ('or' and_test)*
-void or_test() #or_boolean(>1): {}
-{ and_test() (<OR_BOOL> and_test())* }
-
+//test: and_test ('or' and_test)* | lambdef
+void test() #or_boolean(>1): {}
+{ lambdef() | and_test() (<OR_BOOL> and_test())* }
 
 //and_test: not_test ('and' not_test)*
 void and_test() #and_boolean(>1): {}
@@ -1383,7 +1333,7 @@ void SmartTestList() #void: {}
 
 //testlist: test (',' test)* [',']
 void testlist() #void: {}
-{ or_test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> or_test())* [{this.addSpecialToken(",");} <COMMA>]}
+{ test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [{this.addSpecialToken(",");} <COMMA>]}
 
 //dictmaker: test ':' test (',' test ':' test)* [',']
 void dictmaker() #void: {}
@@ -1391,18 +1341,20 @@ void dictmaker() #void: {}
 
 //listmaker: test ( list_for | (',' test)* [','] )
 void listmaker() #void: {}
-{ test() ( LOOKAHEAD(2)(list_for())+ | (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()] #tuple(>1)) }
+{ test() ( (list_for())+ | (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()] #tuple(>1)) }
+
+void complistmaker() #void: {}
+{ test() list_for()  
+}
 
 //list_iter: [list_for | list_if]
-void list_iter() #void: {}
-{ list_for() | list_if() }
+//void list_iter() #void: {}
+//{ [ (list_for() | list_if()) ] }
 
 //list_for: 'for' exprlist 'in' testlist list_iter
 void list_for(): {}
-{ <FOR> {this.addSpecialToken(" for ");} exprlist() <IN> {this.addSpecialToken(" in ");} testlist_safe() [list_iter()] }
+{ <FOR> {this.addSpecialToken(" for ");} exprlist() <IN> {this.addSpecialToken(" in ");} SmartTestList() (<IF>  {this.addSpecialToken(" if ");} test())* }
 
-void list_if()#void:{}
-{ <IF>  {this.addSpecialToken(" if ");} old_test() [list_iter()]}
 
 
 //classdef: 'class' NAME ['(' testlist ')'] ':' suite
@@ -1517,7 +1469,7 @@ Token AnyName() #void:
 |   ( t = <CONTINUE> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <RETURN> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <YIELD> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <IMPORT> { jjtThis.setImage(t.image); return t; } {} )#Name
+|   ( t = <IMPORT> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <FROM> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <DEL> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <RAISE> { jjtThis.setImage(t.image); return t; } {} )#Name

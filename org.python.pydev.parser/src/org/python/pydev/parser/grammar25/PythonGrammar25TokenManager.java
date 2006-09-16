@@ -19,6 +19,7 @@ import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.CharStream;
+import org.python.pydev.parser.IGrammar;
 
 public class PythonGrammar25TokenManager implements PythonGrammar25Constants
 {

@@ -32,6 +32,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.parser.grammar24.PythonGrammar24;
 import org.python.pydev.parser.grammar25.PythonGrammar25;
 import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.jython.FastCharStream;
@@ -431,10 +432,16 @@ public class PyParser {
         }
         
         IParserHost host = new CompilerAPI();
-        PythonGrammar25 grammar = null;
+        IGrammar grammar = null;
+        if(info.grammarVersion == IPythonNature.GRAMMAR_PYTHON_VERSION_2_4){
+            grammar = new PythonGrammar24(in, host);
+        }else if(info.grammarVersion == IPythonNature.GRAMMAR_PYTHON_VERSION_2_5){
+            grammar = new PythonGrammar25(in, host);
+        }else{
+            throw new RuntimeException("The grammar specified for parsing is not valid: "+info.grammarVersion);
+        }
 
         try {
-        	grammar = new PythonGrammar25(in, host, info.grammarVersion);
         	
         	if(ENABLE_TRACING){
         		//grammar has to be generated with debugging info for this to make a difference
