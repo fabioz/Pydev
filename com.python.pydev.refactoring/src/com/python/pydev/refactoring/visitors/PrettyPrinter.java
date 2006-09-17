@@ -6,7 +6,6 @@ package com.python.pydev.refactoring.visitors;
 
 import java.io.IOException;
 
-import org.python.pydev.core.REF;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.ast.Assert;
@@ -138,7 +137,11 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         auxComment.startRecord();
         
         
-        node.module.accept(this);
+        auxComment.writeSpecialsBefore(node.module, new String[0], new String[0], true);
+        auxComment.writeSpecialsBefore(node.module, null, null, false);
+        
+        state.write(((NameTok)node.module).id);
+        auxComment.writeSpecialsAfter(node.module);
         
         for (aliasType name : node.names){
             auxComment.writeSpecialsBefore(name);
@@ -146,6 +149,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             auxComment.writeSpecialsAfter(name);
         }
         afterNode(node);
+        fixNewStatementCondition();
         return null;
     }
     
