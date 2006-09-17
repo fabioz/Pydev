@@ -54,7 +54,7 @@ public class PyProjectPythonDetails extends PropertyPage{
             group.setText("Choose the project type");
             GridLayout layout = new GridLayout();
             layout.horizontalSpacing = 8;
-            layout.numColumns = 3;
+            layout.numColumns = 4;
             group.setLayout(layout);
             gd= new GridData(GridData.FILL_HORIZONTAL);
             group.setLayoutData(gd);
