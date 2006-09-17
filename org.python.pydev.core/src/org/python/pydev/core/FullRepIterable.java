@@ -193,15 +193,20 @@ public class FullRepIterable implements Iterable<String>{
 		return currentModuleName.substring(0, i);
 	}
 
+    
+	public static String joinParts(String[] actToks, int parts) {
+	    StringBuffer buffer = new StringBuffer();
+	    for (int i = 0; i < parts; i++) {
+	        if(i > 0){
+	            buffer.append('.');
+	        }
+	        buffer.append(actToks[i]);
+	    }
+	    return buffer.toString();
+    }
+    
 	public static String joinFirstParts(String[] actToks) {
-		StringBuffer buffer = new StringBuffer();
-		for (int i = 0; i < actToks.length-1; i++) {
-			if(i > 0){
-				buffer.append('.');
-			}
-			buffer.append(actToks[i]);
-		}
-		return buffer.toString();
+        return joinParts(actToks, actToks.length-1);
 	}
 
 	/**

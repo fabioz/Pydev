@@ -29,6 +29,21 @@ public class PyCodeCompletionTest extends TestCase {
     }
     public void testIt(){
         completion = new PyCodeCompletion();
+        
+        doTest("import unittest.bar.f, os.path, sy", " ");
+        doTest("import unittest.bar.f, a.", "a");
+        doTest("import unittest.bar.f, ", " ");
+        
+        doTest("import unittest.", "unittest");
+        doTest("import unittest", " ");
+        doTest("import unittest.bar.f", "unittest.bar");
+        
+        doTest("from .. import ", "..");
+        doTest("from ..bar import ", "..bar");
+        
+        doTest("from . import unittest , ", ".");
+        doTest("from .. import unittest , ", "..");
+        
         doTest("from datetime import datetime, date, MINYEAR,", "datetime");
         doTest("    from datetime import datetime, date, MINYEAR,", "datetime");
         doTest("no    from datetime import datetime, date, MINYEAR,", "");

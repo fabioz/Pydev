@@ -81,6 +81,21 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @return a Set with the imports as tuples with the name, the docstring.
      */
     public IToken[] getCompletionsForImport(final String original, ICompletionRequest r) {
+        int level = 0; //meaning: no absolute import
+        
+        boolean onlyDots = true;
+        if(original.startsWith(".")){
+            //if the import has leading dots, this means it is something like
+            //from ...bar import xxx (new way to express the relative import)
+            for(int i = 0; i< original.length(); i++){
+                if(original.charAt(i) != '.'){
+                    onlyDots = false;
+                    break;
+                }
+                //add one to the relative import level
+                level++;
+            }
+        }
         CompletionRequest request = (CompletionRequest) r;
         IPythonNature nature = request.nature;
         
@@ -88,30 +103,45 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         if(request.editorFile != null){
             String moduleName = nature.getAstManager().getModulesManager().resolveModule(REF.getFileAbsolutePath(request.editorFile));
             if(moduleName != null){
-                String tail = FullRepIterable.headAndTail(moduleName)[0];
-                if(original.length() > 0){
-                    relative = tail+"."+original;
+                
+                if(level > 0){
+                    //ok, it is the import added on python 2.5 (from .. import xxx)
+                    if(onlyDots){
+                        String[] moduleParts = FullRepIterable.dotSplit(moduleName);
+                        if(moduleParts.length > level){
+                            relative = FullRepIterable.joinParts(moduleParts, level);
+                        }
+                    }else{
+                        throw new RuntimeException("TODO");
+                    }
+                    
                 }else{
-                    relative = tail;
+                    String tail = FullRepIterable.headAndTail(moduleName)[0];
+                    if(original.length() > 0){
+                        relative = tail+"."+original;
+                    }else{
+                        relative = tail;
+                    }
                 }
             }
         }
         
+        //set to hold the completion (no duplicates allowed).
+        Set<IToken> set = new HashSet<IToken>();
+
         String absoluteModule = original;
         if (absoluteModule.endsWith(".")) {
             absoluteModule = absoluteModule.substring(0, absoluteModule.length() - 1);
         }
-        //absoluteModule = absoluteModule.toLowerCase().trim();
-
-        //set to hold the completion (no duplicates allowed).
-        Set<IToken> set = new HashSet<IToken>();
-
-        //first we get the imports... that complete for the token.
-        getAbsoluteImportTokens(absoluteModule, set, PyCodeCompletion.TYPE_IMPORT, false);
-
-        //Now, if we have an initial module, we have to get the completions
-        //for it.
-        getTokensForModule(original, nature, absoluteModule, set);
+        
+        if(level == 0){
+            //first we get the imports... that complete for the token.
+            getAbsoluteImportTokens(absoluteModule, set, PyCodeCompletion.TYPE_IMPORT, false);
+    
+            //Now, if we have an initial module, we have to get the completions
+            //for it.
+            getTokensForModule(original, nature, absoluteModule, set);
+        }
 
         if(relative != null && relative.equals(absoluteModule) == false){
             getAbsoluteImportTokens(relative, set, PyCodeCompletion.TYPE_RELATIVE_IMPORT, false);

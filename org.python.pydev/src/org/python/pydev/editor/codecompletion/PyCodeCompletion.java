@@ -598,13 +598,21 @@ public class PyCodeCompletion {
                 }
             }
             
-            
+            boolean foundImportOnArray = false;
             for (int i = 0; i < strings.length; i++) {
+                if(strings[i].equals("import")){
+                    foundImportOnArray = true;
+                }
+                
                 if(strings[i].equals("from")==false && strings[i].equals("import")==false){
                     if(importMsg.length() != 0){
                         importMsg += '.';
                     }
                     importMsg += strings[i];
+                }
+                //now, if we have a from xxx import something, we'll always want to return only the xxx
+                if(fromIndex != -1 && foundImportOnArray){
+                    return importMsg;
                 }
             }
             
@@ -624,27 +632,44 @@ public class PyCodeCompletion {
             }
         }
 
-        //now, we may still have something like 'unittest.test,' or 'unittest.test.,'
-        //so, we have to remove this comma (s).
-        int i;
-        while ( ( i = importMsg.indexOf(',')) != -1){
-            if(importMsg.charAt(i-1) == '.'){
-                int j = importMsg.lastIndexOf('.');
-                importMsg = importMsg.substring(0, j);
+        if(fromIndex == -1 && importMsg.indexOf(',') != -1){
+            //we have something like import xxx, yyy, ...
+            importMsg = importMsg.substring(importMsg.lastIndexOf(',')+1, importMsg.length());
+            if(importMsg.startsWith(".")){
+                importMsg = importMsg.substring(1);
             }
             
             int j = importMsg.lastIndexOf('.');
-            importMsg = importMsg.substring(0, j);
+            if(j != -1){
+                importMsg = importMsg.substring(0, j);
+                return importMsg;
+            }else{
+                return " ";
+            }
+            
+        }else{
+            //now, we may still have something like 'unittest.test,' or 'unittest.test.,'
+            //so, we have to remove this comma (s).
+            int i;
+            while ( ( i = importMsg.indexOf(',')) != -1){
+                if(importMsg.charAt(i-1) == '.'){
+                    int j = importMsg.lastIndexOf('.');
+                    importMsg = importMsg.substring(0, j);
+                }
+                
+                int j = importMsg.lastIndexOf('.');
+                importMsg = importMsg.substring(0, j);
+            }
+    
+            //if it is something like aaa.sss.bb : removes the bb because it is the qualifier
+            //if it is something like aaa.sss.   : removes only the last point
+            if (importMsg.length() > 0 && importMsg.indexOf('.') != -1){
+                importMsg = importMsg.substring(0, importMsg.lastIndexOf('.'));
+            }
+            
+            
+            return importMsg;
         }
-
-        //if it is something like aaa.sss.bb : removes the bb because it is the qualifier
-        //if it is something like aaa.sss.   : removes only the last point
-        if (importMsg.length() > 0 && importMsg.indexOf('.') != -1){
-            importMsg = importMsg.substring(0, importMsg.lastIndexOf('.'));
-        }
-        
-        
-        return importMsg;
     }
 
     /**
