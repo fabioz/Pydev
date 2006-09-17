@@ -30,6 +30,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 public class PyProjectPythonDetails extends PropertyPage{
 
     public static class RadioController{
+        public Button radioPy25;
         public Button radioPy24;
         public Button radioPy23;
         public Button radioJy21;
@@ -66,6 +67,9 @@ public class PyProjectPythonDetails extends PropertyPage{
             radioPy24 = new Button(group, SWT.RADIO | SWT.LEFT);
             radioPy24.setText(IPythonNature.PYTHON_VERSION_2_4);
             
+            radioPy25 = new Button(group, SWT.RADIO | SWT.LEFT);
+            radioPy25.setText(IPythonNature.PYTHON_VERSION_2_5);
+            
             radioJy21 = new Button(group, SWT.RADIO | SWT.LEFT);
             radioJy21.setText(IPythonNature.JYTHON_VERSION_2_1);
             
@@ -78,6 +82,9 @@ public class PyProjectPythonDetails extends PropertyPage{
             }
             if(radioPy24.getSelection()){
                 return IPythonNature.PYTHON_VERSION_2_4;
+            }
+            if(radioPy25.getSelection()){
+                return IPythonNature.PYTHON_VERSION_2_5;
             }
             if(radioJy21.getSelection()){
                 return IPythonNature.JYTHON_VERSION_2_1;
@@ -129,6 +136,9 @@ public class PyProjectPythonDetails extends PropertyPage{
             }
             else if(version.equals(IPythonNature.PYTHON_VERSION_2_4)){
                 radioController.radioPy24.setSelection(true);
+            }
+            else if(version.equals(IPythonNature.PYTHON_VERSION_2_5)){
+                radioController.radioPy25.setSelection(true);
             }
             else if(version.equals(IPythonNature.JYTHON_VERSION_2_1)){
                 radioController.radioJy21.setSelection(true);
