@@ -12,7 +12,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 /**
  * @author Fabio
  */
-public interface IPythonNature extends IProjectNature{
+public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
 
     /**
      * Constants persisted
@@ -22,22 +22,6 @@ public interface IPythonNature extends IProjectNature{
     public static final String PYTHON_VERSION_2_5 = "python 2.5";
     public static final String JYTHON_VERSION_2_1 = "jython 2.1";
     
-    /**
-     * Constants for knowing the version of a grammar (so that jython 2.1 and python 2.1 can be regarded
-     * as GRAMMAR_PYTHON_VERSION_2_1), so, in short, it does not differentiate among the many flavors of python
-     * 
-     * They don't start at 0 because we don't want any accidents... ;-)
-     */
-    public static final int GRAMMAR_PYTHON_VERSION_2_4 = 10;
-    public static final int GRAMMAR_PYTHON_VERSION_2_5 = 11;
-    public static final int LATEST_GRAMMAR_VERSION = GRAMMAR_PYTHON_VERSION_2_5;
-    
-    /**
-     * @return the version of the grammar as defined in IPythonNature.GRAMMAR_PYTHON_VERSION...
-     */
-    public int getGrammarVersion();
-
-
     /**
      * this id is provided so that we can have an identifier for python-related things (independent of its version)
      */

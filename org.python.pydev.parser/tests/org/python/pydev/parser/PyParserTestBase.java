@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.ParseException;
@@ -13,13 +14,17 @@ import org.python.pydev.parser.jython.Token;
 public class PyParserTestBase extends TestCase {
     protected static PyParser parser;
     private static int defaultVersion;
+    private static IGrammarVersionProvider versionProvider = new IGrammarVersionProvider(){
+
+        public int getGrammarVersion() {
+            return defaultVersion;
+        }};
 
     /**
      * @param defaultVersion the defaultVersion to set
      */
     protected static void setDefaultVersion(int defaultVersion) {
         PyParserTestBase.defaultVersion = defaultVersion;
-        parser = new PyParser(defaultVersion);
     }
 
     /**
@@ -34,6 +39,7 @@ public class PyParserTestBase extends TestCase {
         PyParser.ENABLE_TRACING = true;
         PyParser.TRY_REPARSE = false;
         ParseException.verboseExceptions = true;
+        parser = new PyParser(versionProvider);
         setDefaultVersion(IPythonNature.LATEST_GRAMMAR_VERSION);
         super.setUp();
     }

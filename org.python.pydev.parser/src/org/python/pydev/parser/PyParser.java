@@ -23,6 +23,7 @@ import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
@@ -116,13 +117,13 @@ public class PyParser {
     /**
      * This is the version of the grammar that should be used for this parser
      */
-    private int grammarVersion;
+    private IGrammarVersionProvider grammarVersionProvider;
 
     /**
      * should only be called for testing. does not register as a thread
      */
-    public PyParser(int grammarVersion) {
-        this.grammarVersion = grammarVersion;
+    public PyParser(IGrammarVersionProvider grammarVersionProvider) {
+        this.grammarVersionProvider = grammarVersionProvider;
         parserListeners = new ArrayList<IParserObserver>();
         scheduler = new ParserScheduler(this);
 
@@ -154,7 +155,7 @@ public class PyParser {
      * @param editorView
      */
     public PyParser(IPyEdit editorView) {
-        this(editorView.getPythonNature().getGrammarVersion());
+        this(editorView.getPythonNature());
         this.editorView = editorView;
     }
 
@@ -298,7 +299,7 @@ public class PyParser {
     public Tuple<SimpleNode, Throwable> reparseDocument(Object ... argsToReparse) {
         
         //get the document ast and error in object
-        Tuple<SimpleNode, Throwable> obj = reparseDocument(new ParserInfo(document, true, grammarVersion));
+        Tuple<SimpleNode, Throwable> obj = reparseDocument(new ParserInfo(document, true, grammarVersionProvider.getGrammarVersion()));
         
         IFile original = null;
         IAdaptable adaptable = null;
