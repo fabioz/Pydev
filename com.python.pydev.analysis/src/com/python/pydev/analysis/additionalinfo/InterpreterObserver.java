@@ -12,7 +12,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModulesManager;
-import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
@@ -42,10 +41,7 @@ public class InterpreterObserver implements IInterpreterObserver {
         try {
             try {
                 final IInterpreterInfo interpreterInfo = manager.getInterpreterInfo(defaultSelectedInterpreter, new NullProgressMonitor());
-                int grammarVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_4;
-                if(interpreterInfo.getVersion().equals("2.5")){
-                    grammarVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
-                }
+                int grammarVersion = interpreterInfo.getGrammarVersion();
                 AbstractAdditionalInterpreterInfo currInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager);
                 if(currInfo != null){
                     currInfo.clearAllInfo();
