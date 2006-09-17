@@ -50,6 +50,7 @@ public class PythonGrammar25 implements IGrammar
     private SimpleNode prev;
     private static boolean DEBUG = false;
     private final static boolean DEFAULT_SEARCH_ON_LAST = false;
+    private boolean acceptWithStmt = false;
 
     void jjtreeOpenNodeScope(Node n) {
         if(DEBUG){
@@ -71,6 +72,12 @@ public class PythonGrammar25 implements IGrammar
     void addToPeek(Object t, boolean after, Class class_) {
         SimpleNode peeked = (SimpleNode) jjtree.peekNode();
         addToPeek(peeked, t, after, class_);
+    }
+    
+    void handleFutureImports(String importName){
+    	if(importName.equals("with_statement")){
+    		acceptWithStmt = true;
+    	}
     }
     
     void addToPeek(SimpleNode peeked, Object t, boolean after, Class class_) {
@@ -1015,20 +1022,21 @@ Import Import(): {}
 
 //import_from: ('from' ('.'* dotted_name | '.'+)
 //              'import' ('*' | '(' import_as_names ')' | import_as_names))
-void ImportFrom(): { int level=0; int state=0; }
+void ImportFrom(): { int level=0; int state=0;String fromName=null;String importName=null; }
 {
     //we need to set the  <IMPORT> {this.addSpecialToken(" import ");} in both otherwise the lookahead will not work as we want it to work
     //because it confuses the import with the dotted name
     (LOOKAHEAD(3)  
         ("." {this.addSpecialToken(".");level++;} ("." {this.addSpecialToken(".");level++;} )*  <IMPORT> {this.addSpecialToken(" import ");} )
-        |  ("." {this.addSpecialToken(".");level++;} )* dotted_name()  <IMPORT> {this.addSpecialToken(" import ");} ) 
+        |  ("." {this.addSpecialToken(".");level++;} )* fromName=dotted_name()  <IMPORT> {this.addSpecialToken(" import ");} ) 
     
     (
         //from xxx import *
         <MULTIPLY> {this.addSpecialToken("*",STRATEGY_ADD_AFTER_PREV);}//from xx import *
         
         //from xxx import a,b,c
-        | (import_as_name() ({this.addSpecialToken(",");} <COMMA> import_as_name())*) 
+        | (importName=import_as_name() ({this.addSpecialToken(",");} <COMMA> import_as_name())* 
+          {if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}) 
         
         //from xxx import (a,b,c)
         | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   
@@ -1165,7 +1173,14 @@ void begin_except_clause(): {}
 
 //with_stmt: 'with' test [ with_var ] ':' suite
 void with_stmt(): {}
-{ <WITH> {this.addSpecialToken("with ", STRATEGY_BEFORE_NEXT);} test() [with_var()] <COLON> { this.addSpecialToken(":");} suite() }
+{ <WITH> 
+	{this.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); } 
+	
+	test() 
+	
+	{if(!acceptWithStmt)throw new ParseException("'from __future__ import with_statement' must be specified to accept 'with' statement.",jjtree.peekNode());	}
+	
+	[with_var()] <COLON> { this.addSpecialToken(":");} suite() }
 
 //with_var: 'as' expr
 void with_var():{}

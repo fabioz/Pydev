@@ -23,7 +23,7 @@ public class PyParser25Test extends PyParserTestBase{
         try {
             PyParser25Test test = new PyParser25Test();
             test.setUp();
-            test.testConditionalExp1();
+            test.testNewWithStmt2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser25Test.class);
@@ -99,14 +99,15 @@ public class PyParser25Test extends PyParserTestBase{
     public void testNewWithStmt(){
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
+                "from __future__ import with_statement\n" +
                 "with foo:\n" +
                 "    print 'bla'\n" +
                 "";
         //we'll actually treat this as a try..finally with a body with try..except..else
         Module mod = (Module) parseLegalDocStr(str);
-        assertEquals(1, mod.body.length);
-        assertTrue(mod.body[0] instanceof With);
-        With w = (With) mod.body[0];
+        assertEquals(2, mod.body.length);
+        assertTrue(mod.body[1] instanceof With);
+        With w = (With) mod.body[1];
         assertTrue(w.optional_vars == null);
         
     }
@@ -114,17 +115,30 @@ public class PyParser25Test extends PyParserTestBase{
     public void testNewWithStmt2(){
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
+                "from __future__ import with_statement\n" +
                 "with foo as x:\n" +
                 "    print 'bla'\n" +
                 "";
         //we'll actually treat this as a try..finally with a body with try..except..else
         Module mod = (Module) parseLegalDocStr(str);
-        assertEquals(1, mod.body.length);
-        assertTrue(mod.body[0] instanceof With);
-        With w = (With) mod.body[0];
+        assertEquals(2, mod.body.length);
+        assertTrue(mod.body[1] instanceof With);
+        With w = (With) mod.body[1];
         assertTrue(w.optional_vars != null);
         
     }
+    
+    public void testNewWithStmtError(){
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
+        String str = "" +
+        //"from __future__ import with_statement\n"  -- as it is not specified, it should throw an error
+        "with foo as x:\n" +
+        "    print 'bla'\n" +
+        "";
+        //we'll actually treat this as a try..finally with a body with try..except..else
+        parseILegalDoc(new Document(str));
+    }
+    
     public void testNewTryFinally(){
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
@@ -156,6 +170,18 @@ public class PyParser25Test extends PyParserTestBase{
     public void testConditionalExp1err(){
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_4);
         String str = "a = 1 if True else 2\n";
+        parseILegalDoc(new Document(str));
+    }
+    
+    /**
+     * This test checks that the old version still gives an error
+     */
+    public void testWith(){
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_4);
+        String str = "" +
+                "with foo:\n" +
+                "    print 'bla'\n" +
+                "";
         parseILegalDoc(new Document(str));
     }
 }
