@@ -17,7 +17,7 @@ public class PrettyPrinterTest extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.test25Import();
+            test.testImport6();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -71,6 +71,16 @@ public class PrettyPrinterTest extends PyParserTestBase{
         checkPrettyPrintEqual(str);
     }
     
+    
+    public void test25With4() throws Exception {
+        String str = "" +
+        "with a:\n" +
+        "    callIt1()\n" +
+        "    callIt2()\n" +
+        "";
+        checkPrettyPrintEqual(str);
+    }
+    
     public void testGlobal() throws Exception {
         String s = ""+
         "global foo\n" +
@@ -81,6 +91,15 @@ public class PrettyPrinterTest extends PyParserTestBase{
     public void testImport() throws Exception {
         String s = ""+
         "import foo\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testImport6() throws Exception {
+        String s = ""+
+        "#foo\n" +
+        "from hashlib import md5\n" +
+        "new = md5\n" +
         "";
         checkPrettyPrintEqual(s);
     }
@@ -102,6 +121,13 @@ public class PrettyPrinterTest extends PyParserTestBase{
     public void testLambda3() throws Exception {
         String s = ""+
         "lambda a:(1 + 2)\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testLambda4() throws Exception {
+        String s = ""+
+        "lambda d='':digestmod.new(d)\n" +
         "";
         checkPrettyPrintEqual(s);
     }

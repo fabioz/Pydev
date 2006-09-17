@@ -5,8 +5,8 @@ package com.python.pydev.refactoring.visitors;
 
 
 import java.io.IOException;
-import java.util.ArrayList;
 
+import org.python.pydev.core.REF;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.ast.Assert;
@@ -59,7 +59,6 @@ import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
-import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 
@@ -300,7 +299,13 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     
     @Override
     public Object visitLambda(Lambda node) throws Exception {
-        return visitGeneric(node, "visitLambda", false);
+        genericBefore(node, false);
+        state.pushInStmt(node);
+        makeArgs(node.args.args, node.args);
+        node.body.accept(this);
+        state.popInStmt();
+        genericAfter(node);
+        return null;
     }
     
     @Override
@@ -518,46 +523,17 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         node.func.accept(this);
         state.popInStmt();
         auxComment.writeSpecialsBefore(node, null, new String[]{"("}, true);
-        exprType[] args = node.args;
-        state.indent();
-        if(args != null){
-            for (int i = 0; i < args.length; i++) {
-                if (args[i] != null){
-                    state.pushInStmt(args[i]);
-                    args[i].accept(this);
-                    state.popInStmt();
-                }
-            }
-        }
-        dedent();
-        state.pushInStmt(node);
-        keywordType[] keywords = node.keywords;
-        if (keywords != null) {
-            for (int i = 0; i < keywords.length; i++) {
-                if (keywords[i] != null){
-                    auxComment.writeSpecialsBefore(keywords[i]);
-                    state.indent();
-                    keywords[i].accept(this);
-                    auxComment.writeSpecialsAfter(keywords[i]);
-                    dedent();
-                }
-            }
-        }
-        exprType starargs = node.starargs;
-        if (starargs != null){
-            starargs.accept(this);
-        }
-        exprType kwargs = node.kwargs;
-        if (kwargs != null){
-            kwargs.accept(this);
-        }
-        state.popInStmt();
+        
+        //print the arguments within the call
+        printCallArguments(node, node.args, node.keywords, node.starargs, node.kwargs);
+        
         auxComment.writeSpecialsAfter(node);
         if(!state.inStmt()){
             fixNewStatementCondition();
         }
         return null;
     }
+
     
     @Override
     public Object visitIf(If node) throws Exception {
@@ -750,9 +726,36 @@ public class PrettyPrinter extends PrettyPrinterUtils{
 
     
     @Override
-    public Object visitWith(With node) throws Exception {
-        return visitGeneric(node, "visitWith", true, null, true);
+    public Object visitWith(With node) throws Exception{
+        //with a as b: print b
+        state.pushInStmt(node);
+        
+        //with
+        auxComment.writeSpecialsBefore(node);
+        state.indent();
+        auxComment.startRecord();
+        
+        //with a
+        node.context_expr.accept(this);
+        
+        //as b:
+        if(node.optional_vars != null){
+            node.optional_vars.accept(this);
+        }
+        state.popInStmt();
+        
+        //in b
+        afterNode(node);
+        
+        fixNewStatementCondition();
+        for(SimpleNode n: node.body.body){
+            n.accept(this);
+        }
+        dedent();
+        
+        return null;
     }
+
 
     @Override
     public Object visitYield(Yield node) throws Exception {

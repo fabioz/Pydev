@@ -13,6 +13,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.BoolOp;
 import org.python.pydev.parser.jython.ast.Break;
+import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.Continue;
 import org.python.pydev.parser.jython.ast.Delete;
@@ -34,6 +35,8 @@ import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.Yield;
+import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.jython.ast.keywordType;
 
 public class PrettyPrinterUtils extends VisitorBase{
 
@@ -201,6 +204,47 @@ public class PrettyPrinterUtils extends VisitorBase{
         addMethod("visitWith" , "superWith");
     }
     
+    /**
+     * @param node the node that has the arguments
+     * @param args the regular arguments to print
+     * @param keywords the keywords used as default values for the regular arguments
+     * @param starargs the star arguments
+     * @param kwargs the keyword arguments
+     */
+    protected void printCallArguments(Call node, exprType[] args, keywordType[] keywords, exprType starargs, exprType kwargs) throws Exception, IOException {
+        state.indent();
+        if(args != null){
+            for (int i = 0; i < args.length; i++) {
+                if (args[i] != null){
+                    state.pushInStmt(args[i]);
+                    args[i].accept(this);
+                    state.popInStmt();
+                }
+            }
+        }
+        state.pushInStmt(node);
+        
+        if (keywords != null) {
+            for (int i = 0; i < keywords.length; i++) {
+                if (keywords[i] != null){
+                    auxComment.writeSpecialsBefore(keywords[i]);
+                    state.indent();
+                    keywords[i].accept(this);
+                    auxComment.writeSpecialsAfter(keywords[i]);
+                    dedent();
+                }
+            }
+        }
+        if (starargs != null){
+            starargs.accept(this);
+        }
+        if (kwargs != null){
+            kwargs.accept(this);
+        }
+        dedent();
+        state.popInStmt();
+    }
+
     
     public Object visitGeneric(SimpleNode node, String superMethod) throws IOException{
         return visitGeneric(node, superMethod, true);
