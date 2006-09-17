@@ -48,6 +48,7 @@ public class PrettyPrinterTest extends PyParserTestBase{
     
     public void test25With() throws Exception {
         String str = "" +
+                "from __future__ import with_statement\n" +
                 "with a:\n" +
                 "    print a\n" +
                 "";
@@ -56,6 +57,7 @@ public class PrettyPrinterTest extends PyParserTestBase{
     
     public void test25With2() throws Exception {
         String str = "" +
+            "from __future__ import with_statement\n" +
             "with a as b:\n" +
             "    print b\n" +
             "";
@@ -64,6 +66,7 @@ public class PrettyPrinterTest extends PyParserTestBase{
     
     public void test25With3() throws Exception {
         String str = "" +
+        "from __future__ import with_statement\n" +
         "def m1():\n" +
         "    with a as b:\n" +
         "        print b\n" +
@@ -74,6 +77,7 @@ public class PrettyPrinterTest extends PyParserTestBase{
     
     public void test25With4() throws Exception {
         String str = "" +
+        "from __future__ import with_statement\n" +
         "with a:\n" +
         "    callIt1()\n" +
         "    callIt2()\n" +
