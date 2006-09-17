@@ -48,11 +48,18 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
         super.tearDown();
     }
     
+    public void testNewRelativeImport2() throws Exception {
+        //considering we're at: testlib.unittest.testcase
+        String doc = "from . import ";
+        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests/pysrc/testlib/unittest/testcase.py");
+        requestCompl(file,doc, doc.length(), -1, PythonCompletionWithoutBuiltinsTest.getTestLibUnittestTokens());
+    }
+    
     public void testNewRelativeImport() throws Exception {
         //considering we're at: testlib.unittest.testcase
         String doc = "from .. import ";
         File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests/pysrc/testlib/unittest/testcase.py");
-        requestCompl(file,doc, doc.length(), -1, PythonCompletionWithoutBuiltinsTest.getTestLibUnittestTokens());
+        requestCompl(file,doc, doc.length(), -1, new String[]{"__init__","unittest"});
     }
 
 }

@@ -109,7 +109,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                     if(onlyDots){
                         String[] moduleParts = FullRepIterable.dotSplit(moduleName);
                         if(moduleParts.length > level){
-                            relative = FullRepIterable.joinParts(moduleParts, level);
+                            relative = FullRepIterable.joinParts(moduleParts, moduleParts.length-level);
                         }
                     }else{
                         throw new RuntimeException("TODO");
