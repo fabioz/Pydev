@@ -150,12 +150,13 @@ class JJTPythonGrammar25State {
                 newNode = builder.closeNode(sn, nodeArity());
             } catch (ParseException exc) {
                 throw exc;
+            } catch (ClassCastException exc) {
             } catch (Exception exc) {
                 exc.printStackTrace();
                 throw new ParseException("Internal error:" + exc);
             }
             if (newNode == null) {
-                throw new ParseException("Internal AST builder error");
+                throw new ParseException("Internal AST builder error when closing node:"+sn);
             }
             if(marks.size() > 0){
                 mk = marks.pop();

@@ -629,11 +629,6 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
                     ComprehensionCollection col = (ComprehensionCollection) stack.popNode();
                     return new ListComp(((exprType) stack.popNode()), col.getGenerators());
                 }
-                if(peeked instanceof IfExp){
-                    IfExp node = (IfExp) stack.popNode();
-                    node.body = (exprType) stack.popNode();
-                    return node;
-                }
             }
             try {
                 exprType[] exp = makeExprs();
@@ -676,6 +671,14 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
                 newStrs[strJ.strs.length] = str2;
                 strJ.strs = newStrs;
                 return strJ;
+            }
+        case JJTTEST:
+            if(arity == 2){
+                IfExp node = (IfExp) stack.popNode();
+                node.body = (exprType) stack.popNode();
+                return node;
+            }else{
+                return stack.popNode();
             }
         case JJTIF_EXP:
             exprType ifExprOrelse=(exprType) stack.popNode();
@@ -1062,7 +1065,13 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
         }
         ArrayList<SimpleNode> list = new ArrayList<SimpleNode>();
         for (int i = l-1; i >= 0; i--) {
-            list.add((DefaultArg) stack.popNode());
+            SimpleNode popped = null;
+            try{
+                popped = stack.popNode();
+                list.add((DefaultArg) popped);
+            }catch(ClassCastException e){
+                throw new ParseException("Internal error (ClassCastException):"+e.getMessage()+"\n"+popped, popped);
+            }
         }
         Collections.reverse(list);//we get them in reverse order in the stack
         return makeArguments((DefaultArg[]) list.toArray(new DefaultArg[0]), stararg, kwarg);

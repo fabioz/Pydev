@@ -97,7 +97,7 @@ public class PyParserTestBase extends TestCase {
 	            
 	            Token token = parseErr.currentToken;
 	            if(token != null){
-	                fail("Expected no error, received: "+err+" "+s+" line:"+token.beginLine+ " col:"+token.beginColumn);
+	                fail("Expected no error, received: "+parseErr.getMessage()+" "+s+" line:"+token.beginLine+ " col:"+token.beginColumn);
 	            }
 	        }
 	         

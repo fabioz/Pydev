@@ -1196,7 +1196,7 @@ void old_lambdef():{boolean hasArgs=false;}
 
 
 //test: or_test ['if' or_test 'else' test] | lambdef
-void test() #void: {}
+void test(): {}
 {  lambdef() | or_test() [if_exp()] }
 
 void if_exp():{}

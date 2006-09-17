@@ -24,6 +24,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
@@ -439,6 +440,13 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
     public String getVersion() {
         return version;
     }
-    
+ 
+    public int getGrammarVersion() {
+        int grammarVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_4;
+        if(getVersion().equals("2.5")){
+            grammarVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
+        }
+        return grammarVersion;
+    }
     
 }

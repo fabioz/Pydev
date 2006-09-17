@@ -3680,47 +3680,73 @@ public class PythonGrammar25 implements/*@bgen(jjtree)*/ PythonGrammar25TreeCons
 
 //test: or_test ['if' or_test 'else' test] | lambdef
   final public void test() throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case LAMBDA:
-      lambdef();
-      break;
-    case LPAREN:
-    case LBRACE:
-    case LBRACKET:
-    case PLUS:
-    case MINUS:
-    case NOT:
-    case NOT_BOOL:
-    case AS:
-    case NAME:
-    case DECNUMBER:
-    case HEXNUMBER:
-    case OCTNUMBER:
-    case FLOAT:
-    case COMPLEX:
-    case SINGLE_STRING:
-    case SINGLE_STRING2:
-    case TRIPLE_STRING:
-    case TRIPLE_STRING2:
-    case SINGLE_USTRING:
-    case SINGLE_USTRING2:
-    case TRIPLE_USTRING:
-    case TRIPLE_USTRING2:
-    case 137:
-      or_test();
+              /*@bgen(jjtree) test */
+  SimpleNode jjtn000 = jjtree.builder.openNode( JJTTEST);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+  jjtreeOpenNodeScope(jjtn000);
+    try {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case IF:
-        if_exp();
+      case LAMBDA:
+        lambdef();
+        break;
+      case LPAREN:
+      case LBRACE:
+      case LBRACKET:
+      case PLUS:
+      case MINUS:
+      case NOT:
+      case NOT_BOOL:
+      case AS:
+      case NAME:
+      case DECNUMBER:
+      case HEXNUMBER:
+      case OCTNUMBER:
+      case FLOAT:
+      case COMPLEX:
+      case SINGLE_STRING:
+      case SINGLE_STRING2:
+      case TRIPLE_STRING:
+      case TRIPLE_STRING2:
+      case SINGLE_USTRING:
+      case SINGLE_USTRING2:
+      case TRIPLE_USTRING:
+      case TRIPLE_USTRING2:
+      case 137:
+        or_test();
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case IF:
+          if_exp();
+          break;
+        default:
+          jj_la1[68] = jj_gen;
+          ;
+        }
         break;
       default:
-        jj_la1[68] = jj_gen;
-        ;
+        jj_la1[69] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
       }
-      break;
-    default:
-      jj_la1[69] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+    } catch (Throwable jjte000) {
+     if (jjtc000) {
+       jjtree.clearNodeScope(jjtn000);
+       jjtc000 = false;
+     } else {
+       jjtree.popNode();
+     }
+     if (jjte000 instanceof RuntimeException) {
+       {if (true) throw (RuntimeException)jjte000;}
+     }
+     if (jjte000 instanceof ParseException) {
+       {if (true) throw (ParseException)jjte000;}
+     }
+     {if (true) throw (Error)jjte000;}
+    } finally {
+     if (jjtc000) {
+       jjtree.closeNodeScope(jjtn000, true);
+       jjtreeCloseNodeScope(jjtn000);
+     }
     }
   }
 
@@ -8337,11 +8363,6 @@ public class PythonGrammar25 implements/*@bgen(jjtree)*/ PythonGrammar25TreeCons
     return false;
   }
 
-  final private boolean jj_3R_75() {
-    if (jj_3R_128()) return true;
-    return false;
-  }
-
   final private boolean jj_3R_51() {
     Token xsp;
     xsp = jj_scanpos;
@@ -8349,6 +8370,11 @@ public class PythonGrammar25 implements/*@bgen(jjtree)*/ PythonGrammar25TreeCons
     jj_scanpos = xsp;
     if (jj_3R_76()) return true;
     }
+    return false;
+  }
+
+  final private boolean jj_3R_75() {
+    if (jj_3R_128()) return true;
     return false;
   }
 

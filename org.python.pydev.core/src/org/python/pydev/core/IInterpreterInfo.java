@@ -9,5 +9,10 @@ public interface IInterpreterInfo {
      * @return a String such as 2.5 or 2.4 representing the python version that created this interpreter. 
      */
     public String getVersion();
+    
+    /**
+     * @return a constant as defined in IGrammarVersionProvider.
+     */
+    public int getGrammarVersion();
 
 }

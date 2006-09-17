@@ -23,7 +23,7 @@ public class PyParser25Test extends PyParserTestBase{
         try {
             PyParser25Test test = new PyParser25Test();
             test.setUp();
-            test.testEmptyYield();
+            test.testConditionalExp1();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser25Test.class);
@@ -36,6 +36,13 @@ public class PyParser25Test extends PyParserTestBase{
     protected void setUp() throws Exception {
         super.setUp();
         PyParser.USE_FAST_STREAM = true;
+    }
+
+    public void testForWithCondExp() {
+        String s = "" +
+        "verify([ x(False) for x in (lambda x: False if x else True, lambda x: True if x else False) if x(False) ] == [True])\n" +
+        "";
+        parseLegalDocStr(s);
     }
     
     /**

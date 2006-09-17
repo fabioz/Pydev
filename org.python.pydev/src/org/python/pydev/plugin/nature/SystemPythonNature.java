@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -117,7 +118,8 @@ public class SystemPythonNature implements IPythonNature{
 	}
 
     public int getGrammarVersion() {
-        throw new RuntimeException("Not implemented");
+        IInterpreterInfo info = manager.getDefaultInterpreterInfo(new NullProgressMonitor());
+        return info.getGrammarVersion();
     }
 
 }

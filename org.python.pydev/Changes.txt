@@ -17,7 +17,6 @@ error log previously)
 - Added the with x:... statement
 - indenting after the new with statement
 
-
 Pydev Extensions:
 
 - Fixed some minor issues on mark occurrences when the definition for something could not be found

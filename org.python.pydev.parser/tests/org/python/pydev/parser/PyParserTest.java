@@ -24,7 +24,7 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-//            test.testOnTestContextLib();
+//            test.testc();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
@@ -254,15 +254,16 @@ public class PyParserTest extends PyParserTestBase{
         parseLegalDocStr(s);
     }
     
-    public void todoErrOnFor() {
-        //ok, it should throw errors in those cases (but that's not so urgent)
-        String s = "foo(x for x in range(10), 100)\n";
-        parseILegalDoc(new Document(s));
-        
-        String s1 = "foo(100, x for x in range(10))\n";
-        parseILegalDoc(new Document(s1));
-        
-    }
+//    this should really give errors (but is not a priority)
+//    public void testErrOnFor() {
+//        //ok, it should throw errors in those cases (but that's not so urgent)
+//        String s = "foo(x for x in range(10), 100)\n";
+//        parseILegalDoc(new Document(s));
+//        
+//        String s1 = "foo(100, x for x in range(10))\n";
+//        parseILegalDoc(new Document(s1));
+//        
+//    }
     
     public void testOnTestGrammar() {
         String loc = TestDependent.PYTHON_LIB+"test/test_grammar.py";
