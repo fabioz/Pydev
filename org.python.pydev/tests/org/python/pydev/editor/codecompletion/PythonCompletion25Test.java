@@ -18,7 +18,7 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
             // DEBUG_TESTS_BASE = true;
             PythonCompletion25Test test = new PythonCompletion25Test();
             test.setUp();
-            test.testNewRelativeImport();
+            test.testNewRelativeImport2();
             test.tearDown();
             System.out.println("Finished");
 
@@ -52,8 +52,26 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
         //considering we're at: testlib.unittest.testcase
         String doc = "from . import ";
         File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests/pysrc/testlib/unittest/testcase.py");
-        requestCompl(file,doc, doc.length(), -1, PythonCompletionWithoutBuiltinsTest.getTestLibUnittestTokens());
+        String[] toks = getTestLibUnittestTokens();
+        requestCompl(file,doc, doc.length(), toks.length, toks);
     }
+    
+    //changed... returns all but itself
+    public String[] getTestLibUnittestTokens() {
+        return new String[]{
+          "__init__"
+        , "anothertest"
+        , "AnotherTest"
+        , "GUITest"
+        , "guitestcase"
+        , "main"
+        , "relative"
+        , "t"
+        , "TestCase"
+        , "TestCaseAlias"
+        };
+    }
+
     
     public void testNewRelativeImport() throws Exception {
         //considering we're at: testlib.unittest.testcase

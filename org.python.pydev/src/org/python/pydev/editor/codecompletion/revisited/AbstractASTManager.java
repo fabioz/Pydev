@@ -100,8 +100,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         IPythonNature nature = request.nature;
         
         String relative = null;
+        String moduleName = null;
         if(request.editorFile != null){
-            String moduleName = nature.getAstManager().getModulesManager().resolveModule(REF.getFileAbsolutePath(request.editorFile));
+            moduleName = nature.getAstManager().getModulesManager().resolveModule(REF.getFileAbsolutePath(request.editorFile));
             if(moduleName != null){
                 
                 if(level > 0){
@@ -147,7 +148,18 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             getAbsoluteImportTokens(relative, set, PyCodeCompletion.TYPE_RELATIVE_IMPORT, false);
             getTokensForModule(relative, nature, relative, set);
         }
-        return (IToken[]) set.toArray(new IToken[0]);
+        if(level == 1 && moduleName != null){
+            //has returned itself, so, let's remove it
+            String strToRemove = FullRepIterable.getLastPart(moduleName);
+            for(Iterator<IToken> it=set.iterator();it.hasNext();){
+                IToken o = it.next();
+                if(o.getRepresentation().equals(strToRemove)){
+                    it.remove();
+                    //don't break because the token might be different, but not the representation...
+                }
+            }
+        }
+        return set.toArray(new IToken[0]);
     }
 
     

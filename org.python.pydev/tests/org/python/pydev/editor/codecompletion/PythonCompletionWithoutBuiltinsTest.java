@@ -85,7 +85,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     /**
      * @return
      */
-    public static String[] getTestLibUnittestTokens() {
+    public String[] getTestLibUnittestTokens() {
         return new String[]{
           "__init__"
         , "anothertest"
