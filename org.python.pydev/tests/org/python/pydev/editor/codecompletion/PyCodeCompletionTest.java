@@ -23,12 +23,20 @@ public class PyCodeCompletionTest extends TestCase {
     public void doTest(String s, String expected){
         Document doc = new Document(s);
         int length = s.length();
-        String tipperStr = PyCodeCompletion.getImportsTipperStr(doc, length);
+        String tipperStr = PyCodeCompletion.getImportsTipperStr(doc, length).importsTipperStr;
         assertEquals(expected, tipperStr);
         
     }
     public void testIt(){
         completion = new PyCodeCompletion();
+        
+        doTest("from . import unittest , ", ".");
+        
+        doTest("from datetime import datetime, date, MINYEAR,", "datetime");
+        doTest("from testl", " ");
+        
+        doTest("from .", ".");
+        doTest("from ..", "..");
         
         doTest("import unittest.bar.f, os.path, sy", " ");
         doTest("import unittest.bar.f, a.", "a");
@@ -41,10 +49,8 @@ public class PyCodeCompletionTest extends TestCase {
         doTest("from .. import ", "..");
         doTest("from ..bar import ", "..bar");
         
-        doTest("from . import unittest , ", ".");
         doTest("from .. import unittest , ", "..");
         
-        doTest("from datetime import datetime, date, MINYEAR,", "datetime");
         doTest("    from datetime import datetime, date, MINYEAR,", "datetime");
         doTest("no    from datetime import datetime, date, MINYEAR,", "");
         

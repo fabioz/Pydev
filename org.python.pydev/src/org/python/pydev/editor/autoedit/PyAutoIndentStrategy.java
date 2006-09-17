@@ -446,7 +446,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 	                String completeLine = ps.getLineWithoutCommentsOrLiterals();
 	                String lineToCursor = ps.getLineContentsToCursor().trim();
 	                if(completeLine.indexOf("import") == -1){
-	                    String importsTipperStr = PyCodeCompletion.getImportsTipperStr(lineToCursor, false);
+	                    String importsTipperStr = PyCodeCompletion.getImportsTipperStr(lineToCursor, false).importsTipperStr;
 	                    if(importsTipperStr.length() > 0){
 	                        command.text = " import ";
 	                    }

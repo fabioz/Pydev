@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testFromImportAs2();
+	      test.testCompleteImportCompletion();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -67,8 +67,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
     
 	public void testCompleteImportCompletion() throws CoreException, BadLocationException{
-	    requestCompl("import testl"                        , "testlib");
 	    requestCompl("from testl"                          , "testlib");
+	    requestCompl("import testl"                        , "testlib");
 	    requestCompl("from testlib import "                , new String[]{"__init__", "unittest"});
 	    requestCompl("from testlib import unittest, __in"  , new String[]{"__init__"});
 	    requestCompl("from testlib import unittest,__in"   , new String[]{"__init__"});
@@ -470,7 +470,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals("", strs[0]);
         assertEquals("", strs[1]);
         
-        String importsTipperStr = PyCodeCompletion.getImportsTipperStr(new Document("from coilib.decorators import "), 30);
+        String importsTipperStr = PyCodeCompletion.getImportsTipperStr(new Document("from coilib.decorators import "), 30).importsTipperStr;
         assertEquals("coilib.decorators" , importsTipperStr);
         
         strs = PySelection.getActivationTokenAndQual(new Document("foo.bar.xxx   "), 9, true); 

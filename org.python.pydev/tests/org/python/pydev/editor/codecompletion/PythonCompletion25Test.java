@@ -18,7 +18,7 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
             // DEBUG_TESTS_BASE = true;
             PythonCompletion25Test test = new PythonCompletion25Test();
             test.setUp();
-            test.testNewRelativeImport2();
+            test.testNewRelativeImport2a();
             test.tearDown();
             System.out.println("Finished");
 
@@ -48,15 +48,8 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
         super.tearDown();
     }
     
-    public void testNewRelativeImport2() throws Exception {
-        //considering we're at: testlib.unittest.testcase
-        String doc = "from . import ";
-        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests/pysrc/testlib/unittest/testcase.py");
-        String[] toks = getTestLibUnittestTokens();
-        requestCompl(file,doc, doc.length(), toks.length, toks);
-    }
     
-    //changed... returns all but itself
+    //changed... returns all but testcase
     public String[] getTestLibUnittestTokens() {
         return new String[]{
           "__init__"
@@ -72,6 +65,22 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
         };
     }
 
+    
+    public void testNewRelativeImport2() throws Exception {
+        //considering we're at: testlib.unittest.testcase
+        String doc = "from . import ";
+        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests/pysrc/testlib/unittest/testcase.py");
+        String[] toks = getTestLibUnittestTokens();
+        requestCompl(file,doc, doc.length(), toks.length, toks);
+    }
+
+    public void testNewRelativeImport2a() throws Exception {
+        //considering we're at: testlib.unittest.testcase
+        String doc = "from ."; //just show the modules
+        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests/pysrc/testlib/unittest/testcase.py");
+        String[] toks = new String[]{"anothertest","guitestcase","__init__","relative"};
+        requestCompl(file,doc, doc.length(), toks.length, toks);
+    }
     
     public void testNewRelativeImport() throws Exception {
         //considering we're at: testlib.unittest.testcase

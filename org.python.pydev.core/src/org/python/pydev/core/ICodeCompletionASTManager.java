@@ -66,6 +66,15 @@ public interface ICodeCompletionASTManager {
      */
     public abstract IPythonNature getNature();
 
+    public static class ImportInfo{
+        public String importsTipperStr;
+        public boolean hasImportSubstring;
+        public ImportInfo(String importsTipperStr, boolean hasImportSubstring){
+            this.importsTipperStr = importsTipperStr;
+            this.hasImportSubstring = hasImportSubstring;
+        }
+    }
+
     //----------------------------------- COMPLETIONS
 
     /**
@@ -74,7 +83,7 @@ public interface ICodeCompletionASTManager {
      * @param initial: this is the initial module (e.g.: foo.bar) or an empty string.
      * @return a Set with the imports as tuples with the name, the docstring.
      */
-    public abstract IToken[] getCompletionsForImport(final String original, ICompletionRequest request);
+    public abstract IToken[] getCompletionsForImport(ImportInfo original, ICompletionRequest request);
 
 
     /**

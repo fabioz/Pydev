@@ -233,7 +233,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
         boolean showTemplates = true;
         
         //if non empty string, we're in imports section.
-        String importsTipperStr = request.codeCompletion.getImportsTipperStr(request);
+        String importsTipperStr = request.codeCompletion.getImportsTipperStr(request).importsTipperStr;
         
         if (importsTipperStr.length() != 0 || request.isInCalltip){
             showTemplates = false; //don't show templates if we are in the imports section or inside a calltip.

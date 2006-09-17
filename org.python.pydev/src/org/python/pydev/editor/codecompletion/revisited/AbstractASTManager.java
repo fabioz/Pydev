@@ -80,7 +80,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * or something like 'foo.bar' or an empty string (if only 'import').
      * @return a Set with the imports as tuples with the name, the docstring.
      */
-    public IToken[] getCompletionsForImport(final String original, ICompletionRequest r) {
+    public IToken[] getCompletionsForImport(ImportInfo importInfo, ICompletionRequest r) {
+        String original = importInfo.importsTipperStr;
         int level = 0; //meaning: no absolute import
         
         boolean onlyDots = true;
@@ -148,6 +149,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             getAbsoluteImportTokens(relative, set, PyCodeCompletion.TYPE_RELATIVE_IMPORT, false);
             getTokensForModule(relative, nature, relative, set);
         }
+        
         if(level == 1 && moduleName != null){
             //has returned itself, so, let's remove it
             String strToRemove = FullRepIterable.getLastPart(moduleName);

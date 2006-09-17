@@ -30,6 +30,7 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.log.Log;
@@ -208,7 +209,7 @@ public class PyCodeCompletion {
 
             String trimmed = request.activationToken.replace('.', ' ').trim();
 
-            String importsTipper = getImportsTipperStr(request);
+            ImportInfo importsTipper = getImportsTipperStr(request);
 
             int line = request.doc.getLineOfOffset(request.documentOffset);
             IRegion region = request.doc.getLineInformation(line);
@@ -218,14 +219,14 @@ public class PyCodeCompletion {
 
             boolean importsTip = false;
             //code completion in imports 
-            if (importsTipper.length() != 0) {
+            if (importsTipper.importsTipperStr.length() != 0) {
 
                 //get the project and make the code completion!!
                 //so, we want to do a code completion for imports...
                 //let's see what we have...
 
                 importsTip = true;
-                importsTipper = importsTipper.trim();
+                importsTipper.importsTipperStr = importsTipper.importsTipperStr.trim();
                 IToken[] imports = astManager.getCompletionsForImport(importsTipper, request);
                 theList.addAll(Arrays.asList(imports));
 
@@ -551,15 +552,16 @@ public class PyCodeCompletion {
      * @return single space string if we are in imports but without any module
      *         string with current module (e.g. foo.bar.
      */
-    public String getImportsTipperStr(CompletionRequest request) {
+    public ImportInfo getImportsTipperStr(CompletionRequest request) {
         
         IDocument doc = request.doc;
         int documentOffset = request.documentOffset;
         
         return getImportsTipperStr(doc, documentOffset);
     }
+    
 
-    public static String getImportsTipperStr(IDocument doc, int documentOffset) {
+    public static ImportInfo getImportsTipperStr(IDocument doc, int documentOffset) {
         IRegion region;
         try {
             region = doc.getLineInformationOfOffset(documentOffset);
@@ -574,17 +576,18 @@ public class PyCodeCompletion {
     /**
      * @param doc
      * @param documentOffset
-     * @return
+     * @return the import info or null if none is available
      */
-    public static String getImportsTipperStr(String trimmedLine, boolean returnEvenEmpty) {
+    public static ImportInfo getImportsTipperStr(String trimmedLine, boolean returnEvenEmpty) {
         String importMsg = "";
         
         if(!trimmedLine.startsWith("from") && !trimmedLine.startsWith("import")){
-            return "";
+            return new ImportInfo("", false); //it is not an import
         }
         
         int fromIndex = trimmedLine.indexOf("from");
         int importIndex = trimmedLine.indexOf("import");
+        boolean foundImportOnArray = false;
 
         //check if we have a from or an import.
         if(fromIndex  != -1 || importIndex != -1){
@@ -594,11 +597,10 @@ public class PyCodeCompletion {
             if(fromIndex != -1 && importIndex == -1){
                 if(strings.length > 2){
                     //user has spaces as in  'from xxx uuu'
-                    return "";
+                    return new ImportInfo("", foundImportOnArray);
                 }
             }
             
-            boolean foundImportOnArray = false;
             for (int i = 0; i < strings.length; i++) {
                 if(strings[i].equals("import")){
                     foundImportOnArray = true;
@@ -611,8 +613,18 @@ public class PyCodeCompletion {
                     importMsg += strings[i];
                 }
                 //now, if we have a from xxx import something, we'll always want to return only the xxx
-                if(fromIndex != -1 && foundImportOnArray){
-                    return importMsg;
+                if(fromIndex != -1 && importIndex == -1 && (foundImportOnArray || i == strings.length-1)){
+                    if(importMsg.length() == 0){
+                        return doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray);
+                    }
+                    if(importMsg.startsWith(".")){
+                        return new ImportInfo(importMsg, foundImportOnArray);
+                    }
+                    if(importMsg.indexOf(".") == -1){
+                        return doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray);
+                    }
+                    return new ImportInfo(importMsg.substring(0, importMsg.lastIndexOf(".")+1), foundImportOnArray);
+                    
                 }
             }
             
@@ -622,14 +634,11 @@ public class PyCodeCompletion {
                 }
             }
         }else{
-            return "";
+            return new ImportInfo("", foundImportOnArray);
         }
         if (importMsg.indexOf(".") == -1){
-            if(returnEvenEmpty || importMsg.trim().length() > 0){
-                return " "; //we have only import fff or from iii (so, we're going for all imports).
-            }else{
-                return ""; //we have only import fff or from iii (so, we're going for all imports).
-            }
+            //we have only import fff or from iii (so, we're going for all imports).
+            return doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray);
         }
 
         if(fromIndex == -1 && importMsg.indexOf(',') != -1){
@@ -642,15 +651,16 @@ public class PyCodeCompletion {
             int j = importMsg.lastIndexOf('.');
             if(j != -1){
                 importMsg = importMsg.substring(0, j);
-                return importMsg;
+                return new ImportInfo(importMsg, foundImportOnArray);
             }else{
-                return " ";
+                return doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray);
             }
             
         }else{
             //now, we may still have something like 'unittest.test,' or 'unittest.test.,'
             //so, we have to remove this comma (s).
             int i;
+            boolean removed = false;
             while ( ( i = importMsg.indexOf(',')) != -1){
                 if(importMsg.charAt(i-1) == '.'){
                     int j = importMsg.lastIndexOf('.');
@@ -659,16 +669,25 @@ public class PyCodeCompletion {
                 
                 int j = importMsg.lastIndexOf('.');
                 importMsg = importMsg.substring(0, j);
+                removed = true;
             }
     
             //if it is something like aaa.sss.bb : removes the bb because it is the qualifier
             //if it is something like aaa.sss.   : removes only the last point
-            if (importMsg.length() > 0 && importMsg.indexOf('.') != -1){
+            if (!removed && importMsg.length() > 0 && importMsg.indexOf('.') != -1){
                 importMsg = importMsg.substring(0, importMsg.lastIndexOf('.'));
             }
             
             
-            return importMsg;
+            return new ImportInfo(importMsg, foundImportOnArray);
+        }
+    }
+
+    private static ImportInfo doExistingOrEmptyReturn(boolean returnEvenEmpty, String importMsg, boolean foundImportOnArray) {
+        if(returnEvenEmpty || importMsg.trim().length() > 0){
+            return new ImportInfo(" ", foundImportOnArray); 
+        }else{
+            return new ImportInfo("", foundImportOnArray); 
         }
     }
 
