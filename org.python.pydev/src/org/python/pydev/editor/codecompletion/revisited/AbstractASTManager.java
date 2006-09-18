@@ -82,6 +82,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      */
     public IToken[] getCompletionsForImport(ImportInfo importInfo, ICompletionRequest r) {
         String original = importInfo.importsTipperStr;
+        String afterDots = null;
         int level = 0; //meaning: no absolute import
         
         boolean onlyDots = true;
@@ -91,6 +92,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             for(int i = 0; i< original.length(); i++){
                 if(original.charAt(i) != '.'){
                     onlyDots = false;
+                    afterDots = original.substring(i);
                     break;
                 }
                 //add one to the relative import level
@@ -108,13 +110,15 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 
                 if(level > 0){
                     //ok, it is the import added on python 2.5 (from .. import xxx)
-                    if(onlyDots){
-                        String[] moduleParts = FullRepIterable.dotSplit(moduleName);
-                        if(moduleParts.length > level){
-                            relative = FullRepIterable.joinParts(moduleParts, moduleParts.length-level);
-                        }
-                    }else{
-                        throw new RuntimeException("TODO");
+                    String[] moduleParts = FullRepIterable.dotSplit(moduleName);
+                    if(moduleParts.length > level){
+                        relative = FullRepIterable.joinParts(moduleParts, moduleParts.length-level);
+                    }
+                    
+                    if(!onlyDots){
+                        //ok, we have to add the other part too, as we have more than the leading dots
+                        //from ..bar import 
+                        relative += "."+afterDots;
                     }
                     
                 }else{
@@ -147,7 +151,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
         if(relative != null && relative.equals(absoluteModule) == false){
             getAbsoluteImportTokens(relative, set, PyCodeCompletion.TYPE_RELATIVE_IMPORT, false);
-            getTokensForModule(relative, nature, relative, set);
+            if(importInfo.hasImportSubstring){
+                getTokensForModule(relative, nature, relative, set);
+            }
         }
         
         if(level == 1 && moduleName != null){
