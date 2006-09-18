@@ -18,7 +18,7 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
             // DEBUG_TESTS_BASE = true;
             PythonCompletion25Test test = new PythonCompletion25Test();
             test.setUp();
-            test.testNewRelativeImportInvalid();
+            test.testNewRelativeFromOtherModule2();
             test.tearDown();
             System.out.println("Finished");
 
@@ -65,6 +65,24 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
         };
     }
 
+    
+    public void testNewRelativeFromOtherModule() throws Exception {
+        String doc = "" +
+                "from .file1 import imp1\n" +
+                "imp1.";
+        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests/pysrc/extendable/newimport/sub1/file2.py");
+        String[] toks = new String[]{"Imp1"};
+        requestCompl(file,doc, doc.length(), toks.length, toks);
+    }
+    
+    public void testNewRelativeFromOtherModule2() throws Exception {
+        String doc = "" +
+        "from .. import imp1\n" +
+        "imp1.";
+        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests/pysrc/extendable/newimport/sub1/file1.py");
+        String[] toks = new String[]{"Imp1"};
+        requestCompl(file,doc, doc.length(), toks.length, toks);
+    }
     
     public void testNewRelativeImport2() throws Exception {
         //considering we're at: testlib.unittest.testcase

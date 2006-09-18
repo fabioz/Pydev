@@ -32,10 +32,13 @@ import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 public abstract class AbstractASTManager implements ICodeCompletionASTManager, Serializable {
@@ -867,9 +870,50 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      */
     protected Tuple<IModule, String> findOnImportedMods(IToken importedModule, String tok, IPythonNature nature, 
     		String activationToken, String currentModuleName) {
-    	
-    	Tuple<IModule, String> modTok = null;
-    	IModule mod = null;
+        
+        
+        Tuple<IModule, String> modTok = null;
+        IModule mod = null;
+
+        //ok, check if it is a token for the new import
+    	if(importedModule instanceof SourceToken){
+    	    SourceToken token = (SourceToken) importedModule;
+            
+            if(token.isImportFrom()){
+                ImportFrom importFrom = (ImportFrom) token.getAst();
+                int level = importFrom.level;
+                if(level > 0){
+                    //ok, it must be treated as a relative import
+                    //ok, it is the import added on python 2.5 (from .. import xxx)
+                    
+                    String parentPackage = token.getParentPackage();
+                    String[] moduleParts = FullRepIterable.dotSplit(parentPackage);
+                    String relative = null;
+                    if(moduleParts.length > level){
+                        relative = FullRepIterable.joinParts(moduleParts, moduleParts.length-level);
+                    }
+                    
+                    String modName = ((NameTok)importFrom.module).id;
+                    if(modName.length() > 0){
+                        //ok, we have to add the other part too, as we have more than the leading dots
+                        //from ..bar import 
+                        relative += "."+modName;
+                    }
+                    relative += "."+tok;
+                    
+                    modTok = findModuleFromPath(relative, nature, false, null);
+                    mod = modTok.o1;
+                    if(checkValidity(currentModuleName, mod)){
+                        Tuple<IModule, String> ret = fixTok(modTok, tok, activationToken);
+                        return ret;
+                    }
+                    //ok, it is 'forced' as relative import because it has a level, so, it MUST return here
+                    return null;
+                }
+            }
+        }
+        
+        
         
         //check as relative with complete rep
         String asRelativeImport = importedModule.getAsRelativeImport(currentModuleName);
