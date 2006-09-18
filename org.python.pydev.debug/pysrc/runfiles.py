@@ -64,7 +64,7 @@ class PydevTestRunner:
         """ turn a filter string into a list of filter regexes """
         if test_filter is None or len(test_filter) == 0:
             return None
-        return [re.compile(f) for f in test_filter]
+        return [re.compile("test%s"%f) for f in test_filter]
 
     def __is_valid_py_file(self, fname):
         """ tests that a particular file contains the proper file extension 

@@ -64,10 +64,12 @@ public class PyunitPrefsPage extends FieldEditorPreferencePage
 
         String s = "filter examples:\n" +
 		".* or blank - all tests\n" +
-		"test_abc.* - any test with method name starting with 'test_abc'\n" +
-		"test_abc,test_123 - comma seperate (no spaces) filter for more values \n" + 
+		"_abc.* - any test with method name starting with 'test_abc'. \n" +
+		"         matches test_abc, test_abc123, test_abcXXXXXX, etc. \n" +
+		"_abc,_123 - comma seperate (no spaces) filter for more values \n" + 
 		"\n" +
-		"Note: this filters on the method names of all <TestCase>s found\n";
+		"Note: this filters on the method names of all <TestCase>s found\n" + 
+		"      the string 'test' is automatically prepended to the regex\n";
  		
 		addField(verbosity_editor);
 		addField(filter_editor);

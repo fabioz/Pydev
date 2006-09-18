@@ -99,8 +99,8 @@ class RunfilesTest(unittest.TestCase):
         setup_tf = self.MyTestRunner._PydevTestRunner__setup_test_filter
         self.assertEquals ( None, setup_tf("") )
         self.assertEquals ( None, setup_tf(None) )
-        self.assertEquals ( [re.compile(".*")], setup_tf([".*"]) )
-        self.assertEquals ( [re.compile(".*"), re.compile("^$")], setup_tf([".*", "^$"]) )
+        self.assertEquals ( [re.compile("test.*")], setup_tf([".*"]) )
+        self.assertEquals ( [re.compile("test.*"), re.compile("test^$")], setup_tf([".*", "^$"]) )
     
     def test___is_valid_py_file(self):
         isvalid = self.MyTestRunner._PydevTestRunner__is_valid_py_file
@@ -174,29 +174,29 @@ class RunfilesTest(unittest.TestCase):
         self.assertEquals( 0, self.count_tests(self.all_tests) )
         
     def test_finding_test_with_unique_name_returns_1_test(self):
-        self._setup_scenario(self.file_dir, ["test_i_am_a_unique_test_name"])
+        self._setup_scenario(self.file_dir, ["_i_am_a_unique_test_name"])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEquals( 1, self.count_tests(filtered_tests) )
 
     def test_finding_test_with_non_unique_name(self):
-        self._setup_scenario(self.file_dir, ["test_non_unique_name"])
+        self._setup_scenario(self.file_dir, ["_non_unique_name"])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEquals( 1, self.count_tests(filtered_tests) > 2 )
 
     def test_finding_tests_with_regex_filters(self):
-        self._setup_scenario(self.file_dir, ["test_non.*"])
+        self._setup_scenario(self.file_dir, ["_non.*"])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEquals( 1, self.count_tests(filtered_tests) > 2 )
 
-        self._setup_scenario(self.file_dir, ["^test$"])
+        self._setup_scenario(self.file_dir, ["^$"])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEquals( 0, self.count_tests(filtered_tests) )
 
-        self._setup_scenario(self.file_dir, ["^test_[x]+.*$"])
+        self._setup_scenario(self.file_dir, ["_[x]+.*$"])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEquals( 1,  self.count_tests(filtered_tests) > 0 )
 
-        self._setup_scenario(self.file_dir, ["^test_[x]+.*$","test_non.*"])
+        self._setup_scenario(self.file_dir, ["_[x]+.*$","_non.*"])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEquals( 1, self.count_tests(filtered_tests) > 0 )
 
