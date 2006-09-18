@@ -120,4 +120,13 @@ public class StringUtils {
         return ret;
         
     }
+
+    public static boolean isSingleWord(String string) {
+        for(char c: string.toCharArray()){
+            if(!Character.isJavaIdentifierStart(c)){
+                return false;
+            }
+        }
+        return true;
+    }
 }

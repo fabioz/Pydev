@@ -15,6 +15,7 @@ import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
@@ -61,7 +62,7 @@ public class AssistAssign implements IAssistProps {
         //					 |result| = 1+1
         //					 self.|result| = 1+1
 
-        String callName = getTokToAssign(ps);
+        String callName = getTokToAssign(ps, sel);
 
         if(callName.length() > 0){
             //all that just to change first char to lower case.
@@ -100,7 +101,7 @@ public class AssistAssign implements IAssistProps {
                 return false;
 
             String eqReplaced = sel.replaceAll("==", "");
-            if (eqReplaced.indexOf("=") != -1){
+            if (eqReplaced.indexOf("=") != -1){ //we have some equal
                 //ok, make analysis taking into account the first parentesis
                 if(eqReplaced.indexOf('(') == -1){
                     return false;
@@ -119,15 +120,16 @@ public class AssistAssign implements IAssistProps {
             
             
         } catch (BadLocationException e) {
+            return false;
         }
-        return false;
+        return true;
     }
 
     /**
      * @param ps
      * @return
      */ 
-    private String getTokToAssign(PySelection ps) {
+    private String getTokToAssign(PySelection ps, String sel) {
         String beforeParentesisTok = PyAction.getBeforeParentesisTok(ps);
         if(beforeParentesisTok.length() > 0){
             return beforeParentesisTok;
@@ -143,6 +145,11 @@ public class AssistAssign implements IAssistProps {
     
             for (int j = i+1; j < string.length() && PyAction.stillInTok(string, j); j++) {
                 callName += string.charAt(j);
+            }
+        }
+        if(callName.length() == 0){
+            if(StringUtils.isSingleWord(sel.trim())){
+                return sel.trim();
             }
         }
         return callName;

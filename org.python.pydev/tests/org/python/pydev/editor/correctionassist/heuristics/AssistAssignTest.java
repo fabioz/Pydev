@@ -25,7 +25,15 @@ public class AssistAssignTest extends TestCase {
 	private AssistAssign assist;
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(AssistAssignTest.class);
+        try{
+            AssistAssignTest test = new AssistAssignTest();
+            test.setUp();
+            test.testSimple4();
+            test.tearDown();
+            junit.textui.TestRunner.run(AssistAssignTest.class);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     /*
@@ -60,20 +68,6 @@ public class AssistAssignTest extends TestCase {
     }
     
     
-    public void testSimple3() throws BadLocationException {
-        String d = ""+
-        "from testAssist import assist\n" +
-        "a = assist.NewMethod(a,b)";
-        
-        Document doc = new Document(d);
-        
-        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
-        String sel = PyAction.getLineWithoutComments(ps);
-        
-        assertEquals(false, assist.isValid(ps, sel, null, d.length()));
-        
-    }
-    
     public void testSimple2() throws BadLocationException {
         String d = ""+
         "from testAssist import assist\n" +
@@ -89,8 +83,68 @@ public class AssistAssignTest extends TestCase {
         assertEquals(2, props.size());
         assertContains("Assign to local (newMethod)", props);
     }
+    
+    public void testSimple3() throws BadLocationException {
+        String d = ""+
+        "from testAssist import assist\n" +
+        "a = assist.NewMethod(a,b)";
+        
+        Document doc = new Document(d);
+        
+        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        String sel = PyAction.getLineWithoutComments(ps);
+        
+        assertEquals(false, assist.isValid(ps, sel, null, d.length()));
+        
+    }
+    
+    public void testSimple4() throws BadLocationException {
+        String d = ""+
+        "def m1():\n" +
+        "   foo";
+        
+        Document doc = new Document(d);
+        
+        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        String sel = PyAction.getLineWithoutComments(ps);
+        
+        assertEquals(true, assist.isValid(ps, sel, null, d.length()));
+        List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
+        assertEquals(2, props.size());
+        assertContains("Assign to local (foo)", props);
+    }
+    
+    public void testSimple5() throws BadLocationException {
+        String d = ""+
+        "def m1():\n" +
+        "   1+1";
+        
+        Document doc = new Document(d);
+        
+        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        String sel = PyAction.getLineWithoutComments(ps);
+        
+        assertEquals(true, assist.isValid(ps, sel, null, d.length()));
+        List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
+        assertEquals(2, props.size());
+        assertContains("Assign to local (result)", props);
+    }
+    public void testSimple6() throws BadLocationException {
+        String d = ""+
+        "def m1():\n" +
+        "   a = 1";
+        
+        Document doc = new Document(d);
+        
+        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        String sel = PyAction.getLineWithoutComments(ps);
+        
+        assertEquals(false, assist.isValid(ps, sel, null, d.length()));
+    }
 
     private void assertContains(String string, List<ICompletionProposal> props) {
+        StringBuffer buffer = new StringBuffer("Available: \n");
+        
         for (ICompletionProposal proposal : props) {
         	if(DEBUG){
         		System.out.println(proposal.getDisplayString());
@@ -98,7 +152,9 @@ public class AssistAssignTest extends TestCase {
             if(proposal.getDisplayString().equals(string)){
                 return;
             }
+            buffer.append(proposal.getDisplayString());
+            buffer.append("\n");
         }
-        fail("not found");
+        fail(string+" not found. "+buffer);
     }
 }
