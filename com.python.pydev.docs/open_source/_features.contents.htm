@@ -1,38 +1,57 @@
 <h2>New on: LAST_VERSION_TAG</h2>
 
-<strong>Code Completion</strong>
+
 <ul>
-<li>Calltips added to pydev
-</li><li>The parameters are now linked when a completion is selected (so, tab iterates through them and enter goes to the end of the declaration)
-</li><li>Parameters gotten from docstring analysis for builtins that don't work with 'inspect.getargspec'
-</li><li>Getting completions for the pattern a,b,c=range(3) inside a class
-</li><li>Code completion for nested modules had a bug fixed
-</li><li>Added the 'toggle completion type' when ctrl is pressed in the code-completion for context-sensitive data
-</li><li>Code-completion works correctly after instantiating a class: MyClass(). &lt;-- will bring correct completions
-</li><li>Code-completion can now get the arguments passed when instatiating a class (getting the args from __init__)
-</li><li>self is added as a parameter in the completion analyzing whether we're in a bounded or unbounded call
-</li><li>Pressing Ctrl+Space a second time changes default / template completions
+<li>When the user specifies an invalid interpreter, a better error report is given (previously it was only shown in the error log)
+</li><li>When threads die, the debugger is notified about it (so that they are removed from the stack)
+</li><li>Writing the preferences to the disk is now buffered
+</li><li>Fixed problem when debugging in jython with the statement "from xxx import *"
+</li><li>Fixed one issue with the indentation engine
+</li><li>Commenting a line does not remove a blank line in the end anymore
+</li><li>Added debug mode for unit-test 
+</li><li>Added the possibility of setting the <strong>-Dpython.cachedir</strong> for running the jython shell (errors can arise in unix-based machines if jython is not able to write its cache)
+
+<h4>Contributions</h4>
+<ul>
 </li>
-<strong>See <a href="http://pydev.blogspot.com/2006/07/improving-code-completion-in-pydev.html">details on toggling completion mode, cycling through completions and linked mode (blog)</a></strong>
-</ul>
 
-<strong>Outline View</strong>
-<ul>
-	<li>Added option for hiding comments and imports
-	</li><li>Persisting configuration
-	</li><li>Added option for expanding all
-	</li>
-</ul>
-
-<strong>Others</strong>
-<ul>
-<li>Possibility of setting pyunit verbosity level (by <strong>Darrell Maples</strong>)
-</li><li>Errors getting the tests to run are no longer suppressed
-</li><li>Ctrl+2+kill also clears the internal cache for compiled modules (especially useful for those that create compiled dependencies).
-</li><li>Last opened path remembered when configuring the pythonpath (dialog)
+<li><strong>Darrell Maples</strong>:
+	<ul>
+		<li>Unit-test refactoring</li>
+		<li>Run as jython unit-test</li>
+		<li>Filter test methods to run</li>
+	</ul>
 </li>
+<br/>
+<li><strong>Joel Hedlund</strong> 
+	<ul>
+        <li>
+        Added a support to ease adding options to Ctrl+1 in the scripting engine
+        </li>
+		<li>
+Added a ctrl+1 for the case:<br/>
+<br/>
+def m1(self, arg=None):<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;arg |<-- Ctrl+1 shows option to do:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+def m1(self, arg=None):<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;if arg is None:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;arg = []<br/><br/>
+        </li>
+	</ul>
+</li>    
 </ul>
 
+<h4>Support for python 2.5</h4>
+<ul>
+</li><li>Added the new relative import
+</li><li>Added the new if expression
+</li><li>Added the unified try..except..finally statement
+</li><li>Added the with x:... statement
+</li><li>Indenting after the new with statement
+</li><li>Recognizing 'with' as a keyword in syntax highlighting
+</ul>
+</ul>
 
 
 <br/>
@@ -48,6 +67,7 @@
 <LI>Ctrl+Shift+O: Organizes imports or sorts selection alphabetically</li>
 <LI>Ctrl+Shift+F: Autoformat your code (preferences can be set)</li>
 <li>Python 2.4 syntax supported</li>
+<li><strong>Python 2.5</strong> syntax supported</li>
 <li>PyDev builders can be disabled</li>
 <li>Syntax highlighting</li>
 <li>Hovering in errors shows descriptions</li>
@@ -89,6 +109,48 @@
 
 <hr/>
 <h2>Features History</h2>
+
+
+<h2>New on: 1.2.2</h2>
+
+<strong>Code Completion</strong>
+<ul>
+<li>Calltips added to pydev
+</li><li>The parameters are now linked when a completion is selected (so, tab iterates through them and enter goes to the end of the declaration)
+</li><li>Parameters gotten from docstring analysis for builtins that don't work with 'inspect.getargspec'
+</li><li>Getting completions for the pattern a,b,c=range(3) inside a class
+</li><li>Code completion for nested modules had a bug fixed
+</li><li>Added the 'toggle completion type' when ctrl is pressed in the code-completion for context-sensitive data
+</li><li>Code-completion works correctly after instantiating a class: MyClass(). &lt;-- will bring correct completions
+</li><li>Code-completion can now get the arguments passed when instatiating a class (getting the args from __init__)
+</li><li>self is added as a parameter in the completion analyzing whether we're in a bounded or unbounded call
+</li><li>Pressing Ctrl+Space a second time changes default / template completions
+</li>
+<strong>See <a href="http://pydev.blogspot.com/2006/07/improving-code-completion-in-pydev.html">details on toggling completion mode, cycling through completions and linked mode (blog)</a></strong>
+</ul>
+
+<strong>Outline View</strong>
+<ul>
+	<li>Added option for hiding comments and imports
+	</li><li>Persisting configuration
+	</li><li>Added option for expanding all
+	</li>
+</ul>
+
+<strong>Others</strong>
+<ul>
+<li>Possibility of setting pyunit verbosity level (by <strong>Darrell Maples</strong>)
+</li><li>Errors getting the tests to run are no longer suppressed
+</li><li>Ctrl+2+kill also clears the internal cache for compiled modules (especially useful for those that create compiled dependencies).
+</li><li>Last opened path remembered when configuring the pythonpath (dialog)
+</li>
+</ul>
+
+
+
+
+
+
 
 
 <h2>New on: 1.2.1</h2>
