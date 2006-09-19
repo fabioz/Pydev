@@ -87,7 +87,13 @@ public class SimpleJythonRunner extends SimpleRunner{
         
         
         //may have the dir or be null
-        String cacheDir = PydevPlugin.getChainedPrefStore().getString(IInterpreterManager.JYTHON_CACHE_DIR);
+        String cacheDir = null;
+        try{
+            cacheDir = PydevPlugin.getChainedPrefStore().getString(IInterpreterManager.JYTHON_CACHE_DIR);
+        }catch(NullPointerException e){
+            //this may happen while running the tests... it should be ok.
+            cacheDir = null;
+        }
         if(cacheDir != null && cacheDir.trim().length()==0){
             cacheDir = null;
         }
