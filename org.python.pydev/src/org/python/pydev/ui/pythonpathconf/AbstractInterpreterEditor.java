@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.ProgressMonitorWrapper;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.InputDialog;
@@ -200,22 +199,34 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         changed = true;
     }
     
+    protected void adjustForNumColumns(int numColumns) {
+        super.adjustForNumColumns(numColumns);
+        ((GridData) l1.getLayoutData()).horizontalSpan = numColumns;
+        ((GridData) tree.getLayoutData()).horizontalSpan = numColumns-1;
+        ((GridData) boxSystem.getLayoutData()).horizontalSpan = 1;
+        ((GridData) l2.getLayoutData()).horizontalSpan = numColumns;
+        ((GridData) listBuiltins.getLayoutData()).horizontalSpan = numColumns-1;
+        ((GridData) box.getLayoutData()).horizontalSpan = 1;
+    }
+    
+    Label l1;
+    Label l2;
+    
     /**
      * @see org.eclipse.jface.preference.ListEditor#doFillIntoGrid(org.eclipse.swt.widgets.Composite, int)
      */
     protected void doFillIntoGrid(Composite parent, int numColumns) {
         super.doFillIntoGrid(parent, numColumns);
         
-    	Label l1 = new Label(parent, SWT.None);
+    	l1 = new Label(parent, SWT.None);
     	l1.setText("System PYTHONPATH");
     	GridData gd = new GridData();
     	gd.horizontalSpan = numColumns;
     	l1.setLayoutData(gd);
 
     	//the tree
-        Tree tree = getTreeLibsControl(parent);
+        tree = getTreeLibsControl(parent);
     	gd = new GridData();
-    	gd.horizontalSpan = numColumns - 1;
         gd.horizontalAlignment = SWT.FILL;
         gd.verticalAlignment = SWT.FILL;
         gd.grabExcessVerticalSpace = true;
@@ -225,20 +236,17 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         Composite control = getButtonBoxControlSystem(parent);
     	gd = new GridData();
     	gd.verticalAlignment = GridData.BEGINNING;
-    	gd.horizontalSpan = numColumns - 1;
     	control.setLayoutData(gd);
 
         //label
-    	Label l2 = new Label(parent, SWT.None);
+    	l2 = new Label(parent, SWT.None);
     	l2.setText("Forced builtin libs (check http://pydev.sf.net/faq.html for more info).");
     	gd = new GridData();
-    	gd.horizontalSpan = numColumns;
     	l2.setLayoutData(gd);
 
         //the list with the builtins
     	List list = getBuiltinsListControl(parent);
         gd = new GridData();
-        gd.horizontalSpan = numColumns - 1;
         gd.horizontalAlignment = SWT.FILL;
         gd.grabExcessHorizontalSpace = false;
         gd.heightHint = 100;
@@ -248,7 +256,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     	control = getButtonBoxControlOthers(parent);
         gd = new GridData();
         gd.verticalAlignment = GridData.BEGINNING;
-        gd.horizontalSpan = numColumns - 1;
         control.setLayoutData(gd);
     }
     /**

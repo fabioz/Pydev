@@ -2,24 +2,42 @@ after 1.2.2
 
 Pydev:
 
-- When the user specifies an invalid interpreter, a better error report is given (it was only shown in the 
-error log previously)
-- When threads die, the debugger is notified about it (to remove them from the stack)
-- Made writing the preferences buffered
-- Fixed problem when debugging in jython with (from xxx import *)
-- Fixed one issue with the indentation engine
-- Commenting a line does not remove a blank line in the end anymore
-- Added the new relative import to the parser (2.5 support)
-- Added the new if expression to the parser (2.5 support)
-- Darrell: unit-test refactoring and run as jython unit-test
-- Added debug mode for unit-test 
-- Added the unified try..except..finally statement
-- Added the with x:... statement
-- indenting after the new with statement
+<ul>
+<li>When the user specifies an invalid interpreter, a better error report is given (it was only shown in the error log previously)
+</li><li>When threads die, the debugger is notified about it (to remove them from the stack)
+</li><li>Made writing the preferences buffered
+</li><li>Fixed problem when debugging in jython with (from xxx import *)
+</li><li>Fixed one issue with the indentation engine
+</li><li>Commenting a line does not remove a blank line in the end anymore
+</li><li>Added debug mode for unit-test 
+</li><li>Added the possibility of setting the -Dpython.cachedir for running the jython shell
+</li><li><strong>Darrell</strong>: unit-test refactoring and run as jython unit-test
+</li><li><strong>Joel</strong>: Added a ctrl+1 for the case 
+def m1(self, arg=None):
+    arg |<-- Ctrl+1 shows option to do:
+    
+def m1(self, arg=None):
+    if arg is None:
+        arg = []
+</li>    
+
+<ul>
+<strong>Support for python 2.5</strong>
+</li><li>Added the new relative import to the parser 
+</li><li>Added the new if expression to the parser 
+</li><li>Added the unified try..except..finally statement
+</li><li>Added the with x:... statement
+</li><li>indenting after the new with statement
+</ul>
+</ul>
 
 Pydev Extensions:
 
-- Fixed some minor issues on mark occurrences when the definition for something could not be found
+<ul>
+<li>Added support for python 2.5
+</li><li>Fixed some minor issues on mark occurrences when the definition for something could not be found
+</li>
+</ul>
 
 after 1.2.1
 

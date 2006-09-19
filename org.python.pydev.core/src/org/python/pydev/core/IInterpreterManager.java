@@ -25,6 +25,11 @@ public interface IInterpreterManager {
     public String JYTHON_INTERPRETER_PATH = "JYTHON_INTERPRETER_PATH";
     
     /**
+     * This is the constant from where we get the jython cache dir
+     */
+    public String JYTHON_CACHE_DIR = "JYTHON_CACHE_DIR";
+    
+    /**
      * This is not applicable for jython (the interpreter is given by the java plugin - jdt)
      * 
      * @return the default interpreter.

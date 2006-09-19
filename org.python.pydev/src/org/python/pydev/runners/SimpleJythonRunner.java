@@ -86,9 +86,19 @@ public class SimpleJythonRunner extends SimpleRunner{
         }
         
         
+        //may have the dir or be null
+        String cacheDir = PydevPlugin.getChainedPrefStore().getString(IInterpreterManager.JYTHON_CACHE_DIR);
+        if(cacheDir != null && cacheDir.trim().length()==0){
+            cacheDir = null;
+        }
+        if(cacheDir != null){
+            cacheDir = "-Dpython.cachedir="+ cacheDir.trim();
+            
+        }
         String[] s = new String[]{
             javaLoc ,
-            "-Dpython.path="+ jythonPath.toString(), 
+            cacheDir,
+            "-Dpython.path="+ jythonPath.toString(),
             "-classpath",
             jythonJar+pathSeparator+jythonPath,
             "org.python.util.jython",

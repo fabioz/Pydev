@@ -8,6 +8,7 @@ package org.python.pydev.ui.pythonpathconf;
 
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -33,6 +34,11 @@ public class JythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
      */
     protected AbstractInterpreterEditor getInterpreterEditor(Composite p) {
         return new JythonInterpreterEditor (getInterpretersTitle(), p, PydevPlugin.getJythonInterpreterManager(true));
+    }
+    
+    protected void createFieldEditors() {
+        super.createFieldEditors();
+        addField(new DirectoryFieldEditor(IInterpreterManager.JYTHON_CACHE_DIR, "-Dpython.cachedir", getFieldEditorParent()));
     }
 
     @Override
