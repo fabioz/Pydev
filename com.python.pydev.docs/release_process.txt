@@ -1,0 +1,17 @@
+Remove old install from org.python.pydev.site
+
+Run the build script
+
+Update the home page and run its script
+
+Change site.xml in org.python.pydev.site
+
+Add the zips to the right places in org.python.pydev.site
+
+run scripts: cmd_rsync*.bat
+
+add zips to sf
+
+tag repository: e.g.: pydev_1_2_3
+
+send e-mail
