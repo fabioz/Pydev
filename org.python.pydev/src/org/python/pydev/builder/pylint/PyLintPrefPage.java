@@ -67,7 +67,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
 	public static final int DEFAULT_MAX_PYLINT_DELTA = 4;
 
-	public static final String DEFAULT_PYLINT_ARGS = "--persistent=n --comment=n --disable-msg=W0103,W0131,C0103,W0312,W0511";
+	public static final String DEFAULT_PYLINT_ARGS = "";
 
 	public PyLintPrefPage() {
 		super(FLAT);
