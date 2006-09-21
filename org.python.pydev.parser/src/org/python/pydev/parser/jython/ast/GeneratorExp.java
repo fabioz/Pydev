@@ -32,7 +32,7 @@ public class GeneratorExp extends exprType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(38, ostream);
+        pickleThis(37, ostream);
         pickleThis(this.elt, ostream);
         pickleThis(this.generators, ostream);
     }

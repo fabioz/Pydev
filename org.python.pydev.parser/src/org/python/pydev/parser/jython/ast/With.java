@@ -38,7 +38,7 @@ public class With extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(18, ostream);
+        pickleThis(17, ostream);
         pickleThis(this.context_expr, ostream);
         pickleThis(this.optional_vars, ostream);
         pickleThis(this.body, ostream);

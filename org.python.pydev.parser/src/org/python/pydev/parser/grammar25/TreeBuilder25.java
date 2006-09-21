@@ -176,7 +176,13 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
         case JJTSUITE:
             stmtType[] stmts = new stmtType[arity];
             for (int i = arity-1; i >= 0; i--) {
-                stmts[i] = (stmtType) stack.popNode();
+                SimpleNode yield_or_stmt = stack.popNode();
+                if(yield_or_stmt instanceof Yield){
+                    stmts[i] = new Expr((Yield)yield_or_stmt);
+                    
+                }else{
+                    stmts[i] = (stmtType) yield_or_stmt;
+                }
             }
             return new Suite(stmts);
         case JJTEXPR_STMT:
@@ -422,6 +428,8 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
             ret.value = value;
             return ret;
         case JJTYIELD_STMT:
+            return stack.popNode();
+        case JJTYIELD_EXPR:
             exprType yieldExpr = null;
             if(arity > 0){
                 //we may have an empty yield, so, we have to check it before
@@ -639,6 +647,7 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
                 if(e.getMessage().equals(ExtraArgValue.class.getName())){
                     throw new ParseException("Token: '*' is not expected inside tuples.", lastPop);
                 }
+                e.printStackTrace();
                 throw new ParseException("Syntax error while detecting tuple.", lastPop);
             }
         case JJTLIST:

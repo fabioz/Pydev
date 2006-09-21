@@ -26,7 +26,7 @@ public class Import extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(23, ostream);
+        pickleThis(22, ostream);
         pickleThis(this.names, ostream);
     }
 

@@ -37,7 +37,7 @@ public class Exec extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(25, ostream);
+        pickleThis(24, ostream);
         pickleThis(this.body, ostream);
         pickleThis(this.globals, ostream);
         pickleThis(this.locals, ostream);

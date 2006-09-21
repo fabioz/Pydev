@@ -4,7 +4,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class Yield extends stmtType {
+public class Yield extends exprType {
     public exprType value;
 
     public Yield(exprType value) {
@@ -26,7 +26,7 @@ public class Yield extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(10, ostream);
+        pickleThis(38, ostream);
         pickleThis(this.value, ostream);
     }
 

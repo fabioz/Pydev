@@ -37,7 +37,7 @@ public class Print extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(14, ostream);
+        pickleThis(13, ostream);
         pickleThis(this.dest, ostream);
         pickleThis(this.values, ostream);
         pickleThis(this.nl, ostream);

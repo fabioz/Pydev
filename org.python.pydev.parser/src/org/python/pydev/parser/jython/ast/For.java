@@ -43,7 +43,7 @@ public class For extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(15, ostream);
+        pickleThis(14, ostream);
         pickleThis(this.target, ostream);
         pickleThis(this.iter, ostream);
         pickleThis(this.body, ostream);

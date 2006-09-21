@@ -151,6 +151,8 @@ class JJTPythonGrammar25State {
             } catch (ParseException exc) {
                 throw exc;
             } catch (ClassCastException exc) {
+                exc.printStackTrace();
+                throw new ParseException("Internal error:" + exc);
             } catch (Exception exc) {
                 exc.printStackTrace();
                 throw new ParseException("Internal error:" + exc);

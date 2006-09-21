@@ -51,12 +51,6 @@ public abstract class VisitorBase implements VisitorIF {
         return ret;
     }
 
-    public Object visitYield(Yield node) throws Exception {
-        Object ret = unhandled_node(node);
-        traverse(node);
-        return ret;
-    }
-
     public Object visitDelete(Delete node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
@@ -220,6 +214,12 @@ public abstract class VisitorBase implements VisitorIF {
     }
 
     public Object visitGeneratorExp(GeneratorExp node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitYield(Yield node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;

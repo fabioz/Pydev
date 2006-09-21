@@ -934,24 +934,25 @@ void small_stmt() #void: {SimpleNode simpleNode;}
 |   assert_stmt() {addToPeek("assert ", false); }
 }
 
-//expr_stmt: testlist (augassign testlist | ('=' testlist)*)
+//expr_stmt: testlist (augassign (yield_expr|testlist) |
+//                     ('=' (yield_expr|testlist))*)
 void expr_stmt() #void: {}
 {
     SmartTestList() (
-    <PLUSEQ> SmartTestList() #aug_plus(2)
-|   <MINUSEQ> SmartTestList() #aug_minus(2)
-|   <MULTIPLYEQ> SmartTestList() #aug_multiply(2)
-|   <DIVIDEEQ> SmartTestList() #aug_divide(2)
-|   <FLOORDIVIDEEQ> SmartTestList() #aug_floordivide(2)
-|   <MODULOEQ> SmartTestList() #aug_modulo(2)
-|   <ANDEQ> SmartTestList() #aug_and(2)
-|   <OREQ> SmartTestList() #aug_or(2)
-|   <XOREQ> SmartTestList() #aug_xor(2)
-|   <LSHIFTEQ> SmartTestList() #aug_lshift(2)
-|   <RSHIFTEQ> SmartTestList() #aug_rshift(2)
-|   <POWEREQ> SmartTestList() #aug_power(2)
-|   (<EQUAL> SmartTestList())* #expr_stmt(jjtree.nodeArity()+1)
-    )
+    <PLUSEQ>        (yield_expr()|SmartTestList())   #aug_plus(2)
+|   <MINUSEQ>       (yield_expr()|SmartTestList())   #aug_minus(2)
+|   <MULTIPLYEQ>    (yield_expr()|SmartTestList())   #aug_multiply(2)
+|   <DIVIDEEQ>      (yield_expr()|SmartTestList())   #aug_divide(2)
+|   <FLOORDIVIDEEQ> (yield_expr()|SmartTestList())   #aug_floordivide(2)
+|   <MODULOEQ>      (yield_expr()|SmartTestList())   #aug_modulo(2)
+|   <ANDEQ>         (yield_expr()|SmartTestList())   #aug_and(2)
+|   <OREQ>          (yield_expr()|SmartTestList())   #aug_or(2)
+|   <XOREQ>         (yield_expr()|SmartTestList())   #aug_xor(2)
+|   <LSHIFTEQ>      (yield_expr()|SmartTestList())   #aug_lshift(2)
+|   <RSHIFTEQ>      (yield_expr()|SmartTestList())   #aug_rshift(2)
+|   <POWEREQ>       (yield_expr()|SmartTestList())   #aug_power(2)
+|  (<EQUAL>         (yield_expr()|SmartTestList()))* #expr_stmt(jjtree.nodeArity()+1))
+
 }
 
 //print_stmt: 'print' (test ',')* [test] | 'print' '>>' test (, test)+ [,]
@@ -999,8 +1000,12 @@ void begin_return_stmt(): {}
 }
 
 
-//yield_stmt: 'yield' [testlist]
+//yield_stmt: yield_expr
 void yield_stmt(): {}
+{ yield_expr() }
+
+//yield_expr: 'yield' [testlist]
+void yield_expr(): {}
 { <YIELD> [SmartTestList()] {this.addToPeek("yield ",false, Yield.class);}}
 
 
@@ -1337,7 +1342,7 @@ void atom() #void: {Object spStr;Object spStr2;}
 
 |   LOOKAHEAD(2) (  
       {spStr  = createSpecialStr("(", false);} <LPAREN>  
-      insidetuporcall() 
+      (yield_expr() | insidetuporcall())
       {spStr2 = createSpecialStr(")", false);} <RPAREN> 
     ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 

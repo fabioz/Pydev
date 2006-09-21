@@ -22,7 +22,7 @@ public class Pass extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(28, ostream);
+        pickleThis(27, ostream);
     }
 
     public Object accept(VisitorIF visitor) throws Exception {

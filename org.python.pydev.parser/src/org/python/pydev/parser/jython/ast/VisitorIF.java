@@ -10,7 +10,6 @@ public interface VisitorIF {
     public Object visitFunctionDef(FunctionDef node) throws Exception;
     public Object visitClassDef(ClassDef node) throws Exception;
     public Object visitReturn(Return node) throws Exception;
-    public Object visitYield(Yield node) throws Exception;
     public Object visitDelete(Delete node) throws Exception;
     public Object visitAssign(Assign node) throws Exception;
     public Object visitAugAssign(AugAssign node) throws Exception;
@@ -39,6 +38,7 @@ public interface VisitorIF {
     public Object visitDict(Dict node) throws Exception;
     public Object visitListComp(ListComp node) throws Exception;
     public Object visitGeneratorExp(GeneratorExp node) throws Exception;
+    public Object visitYield(Yield node) throws Exception;
     public Object visitCompare(Compare node) throws Exception;
     public Object visitCall(Call node) throws Exception;
     public Object visitRepr(Repr node) throws Exception;

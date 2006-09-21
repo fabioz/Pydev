@@ -31,7 +31,7 @@ public class Assign extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(12, ostream);
+        pickleThis(11, ostream);
         pickleThis(this.targets, ostream);
         pickleThis(this.value, ostream);
     }

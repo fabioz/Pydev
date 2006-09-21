@@ -25,7 +25,6 @@ module Python
 	stmt = FunctionDef(NameTok name, arguments args, stmt* body, decorators* decs)
 	      | ClassDef(NameTok name, expr* bases, stmt* body)
 	      | Return(expr? value) 
-	      | Yield(expr value)
 
 	      | Delete(expr* targets)
 	      | Assign(expr* targets, expr value)
@@ -77,6 +76,8 @@ module Python
 	     | Dict(expr* keys, expr* values)
 	     | ListComp(expr elt, comprehension* generators)
 	     | GeneratorExp(expr elt, comprehension* generators)
+	     -- yield is an expr on 2.5
+	     | Yield(expr? value)
 	     -- need sequences for compare to distinguish between
 	     -- x < 4 < 3 and (x < 4) < 3
 	     | Compare(expr left, cmpop* ops, expr* comparators)
