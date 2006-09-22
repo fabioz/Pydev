@@ -12,7 +12,9 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -68,6 +70,28 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
         CompiledModule.COMPILED_MODULES_ENABLED = false;
     }
 
+    /**
+     * Uses the doc attribute as the module and makes the analysis, checking if no error is found.
+     */
+    protected void checkNoError() {
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs,0);
+    }
+
+    /**
+     * Uses the doc attribute as the module and makes the analysis, checking if no error is found.
+     * @return the messages that were reported as errors
+     */
+    protected IMessage[] checkError(int numberOfErrors) {
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs,numberOfErrors);
+        return msgs;
+    }
+    
 
     // ---------------------------------------------------------------------- additional info
     @Override

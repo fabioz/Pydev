@@ -107,21 +107,16 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"        pass\n"+
     			"\n"
     	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-    	
-    	printMessages(msgs,0);
+    	checkNoError();
     }
+
     
     public void testOsPath(){
         doc = new Document(
                 "from os.path import *#@UnusedWildImport\n"+
                 "print exists\n"
         );
-        analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-        
-        printMessages(msgs,0);
+        checkNoError();
         
     }
     
@@ -131,10 +126,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 "    name = ''\n"+
                 "    getattr(1, name).text().latin1\n"
         );
-        analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-        
-        printMessages(msgs,0);
+        checkNoError();
         
     }
     
@@ -195,10 +187,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document(
                 "from __future__ import generators\n"
         );
-        analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-        
-        printMessages(msgs,0);
+        checkNoError();
         
     }
     
@@ -206,10 +195,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document(
                 "from psyco.classes import __metaclass__ #@UnresolvedImport\n"
         );
-        analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-        
-        printMessages(msgs,0);
+        checkNoError();
         
     }
     
@@ -250,10 +236,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"except ImportError:\n"+
     			"    foo = None\n"
     	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-    	
-    	printMessages(msgs,0);
+    	checkNoError();
     }
     
     public void testImportWithTryExcept2(){
@@ -277,10 +260,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
             "        print cls\n"+
             ""
         );
-        analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-        
-        printMessages(msgs,0);
+        checkNoError();
     }
     
     public void testMsgInNew(){
@@ -319,10 +299,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	doc = new Document(
 			"print considerGlobal"
     	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-    	
-    	printMessages(msgs,0);
+    	checkNoError();
     	
     }
     public void testUnusedImports2(){
@@ -454,10 +431,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 "\n" +
                 ""
         );
-        analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-        
-        printMessages(msgs, 0);
+        checkNoError();
     }
     
     public void testGlu(){
@@ -467,10 +441,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     				"print glPushMatrix\n" +
     				""
     		);
-    		analyzer = new OccurrencesAnalyzer();
-    		msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-    		
-    		printMessages(msgs, 0);
+    		checkNoError();
     	}
     	
     }
@@ -482,10 +453,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     				"print glPushMatrix\n" +
     				""
     		);
-    		analyzer = new OccurrencesAnalyzer();
-    		msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-    		
-    		printMessages(msgs, 0);
+    		checkNoError();
     	}
     	
     }
@@ -497,10 +465,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     				"print glRotatef\n" +
     				""
     		);
-    		analyzer = new OccurrencesAnalyzer();
-    		msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-    		
-    		printMessages(msgs, 0);
+    		checkNoError();
     	}
     	
     }
@@ -512,10 +477,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     				"print gluLookAt" +
     				""
     		);
-    		analyzer = new OccurrencesAnalyzer();
-    		msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-    		
-    		printMessages(msgs, 0);
+    		checkNoError();
     	}
     	
     }
@@ -544,11 +506,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 				"print glcanvas.GLCanvas\n" +
 				""
     		);
-    		analyzer = new OccurrencesAnalyzer();
-    		msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-//    		CompiledModule.TRACE_COMPILED_MODULES = false;
-    		
-    		printMessages(msgs, 0);
+    		checkNoError();
     	}
     }
     
@@ -644,10 +602,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 "print encodings.latin_1\n" +
                 ""
         );
-        analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-        
-        printMessages(msgs,0);
+        checkNoError();
     }
     
     public void testRelImport() throws FileNotFoundException{
@@ -988,10 +943,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"    raise RuntimeError('err')\n"+       
     			""      
     	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-    	
-    	printMessages(msgs, 0);
+    	checkNoError();
     	assertEquals(0, msgs.length);
     	
     }
@@ -1003,10 +955,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"    raise RuntimeError('err')\n"+       
     			""      
     	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-    	
-    	printMessages(msgs, 0);
+    	checkNoError();
     	assertEquals(0, msgs.length);
     	
     }
@@ -1232,10 +1181,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"        pass\n"+
     			""   
     	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-    	
-    	printMessages(msgs, 0);
+    	checkNoError();
     }
     
     
@@ -1262,10 +1208,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"                               \n"+
     			""   
     	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-    	
-    	printMessages(msgs, 0);
+    	checkNoError();
     	
     }
     
@@ -1993,10 +1936,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
             "        msg='success at %s' % i\n" +
             "    return msg\n"
         );
-        analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-        
-        printMessages(msgs, 0);
+        checkNoError();
     }
     
     public void testTupleVar() {
@@ -2021,10 +1961,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
             "\n" +
             "" 
         );
-        analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-        
-        printMessages(msgs, 0);
+        checkNoError();
     }
     
     public void testClassMethodCls() {
@@ -2037,10 +1974,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 "\n" +
                 "" 
         );
-        analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-        
-        printMessages(msgs, 0);
+        checkNoError();
     }
     
     public void testClassMethodCls2() {
@@ -2053,10 +1987,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"\n" +
     			"" 
     	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-    	
-    	printMessages(msgs, 0);
+    	checkNoError();
     }
     
     public void testClassMethodCls3() {
@@ -2085,10 +2016,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 "\n" +
                 "" 
         );
-        analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-        
-        printMessages(msgs, 0);
+        checkNoError();
     }
     
     public void testNoSelf() {
@@ -2171,10 +2099,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 			"    return str(data)[0].strip()\n"+
 			"\n"
     	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-    	
-    	printMessages(msgs, 0);
+    	checkNoError();
     }
     
     public void testUndefinedVar1() {
@@ -2225,10 +2150,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	doc = new Document(
     			"for k,v in {}.iteritmes(): print k,v"
     	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-    	
-    	printMessages(msgs, 0);
+    	checkNoError();
     }
     
     
@@ -2239,10 +2161,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 			"    for i in xrange(10):    \n"+
 			"        coerce(dict[i].text.strip())\n"
     	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-    	
-    	printMessages(msgs, 0);
+    	checkNoError();
     }
     
     public void testDefinedInClassAndInLocal() {
@@ -2255,10 +2174,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"            print foo\n"+
     			"\n"
     	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-    	
-    	printMessages(msgs, 0);
+    	checkNoError();
     }
     
     public void testDefinedInClassAndInLocal2() {
@@ -2271,10 +2187,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"            print i #should not be undefined!\n"+
     			"\n"
     	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-    	
-    	printMessages(msgs, 0);
+    	checkNoError();
     }
     
     public void testColError() {
@@ -2328,10 +2241,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 "        pass\n" +
                 "\n" +
         "");
-        analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-        
-        printMessages(msgs, 0);
+        checkNoError();
     }
     
 }
