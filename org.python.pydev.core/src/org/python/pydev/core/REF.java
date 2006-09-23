@@ -528,7 +528,7 @@ public class REF {
         try {
             final FileInputStream fileInputStream = new FileInputStream(f);
 			try {
-				Reader inputStreamReader = new InputStreamReader(fileInputStream);
+				Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(fileInputStream));
 				String pythonFileEncoding = getPythonFileEncoding(inputStreamReader, f.getAbsolutePath());
 				return pythonFileEncoding;
 			} finally {
