@@ -35,8 +35,8 @@ public class PythonPathNature implements IPythonPathNature {
      */
     private static QualifiedName projectSourcePathQualifiedName = null;
     private static QualifiedName getProjectSourcePathQualifiedName() {
-        if(projectExternalSourcePathQualifiedName == null){
-            projectExternalSourcePathQualifiedName = new QualifiedName(PydevPlugin.getPluginID(), "PROJECT_SOURCE_PATH");
+        if(projectSourcePathQualifiedName == null){
+            projectSourcePathQualifiedName = new QualifiedName(PydevPlugin.getPluginID(), "PROJECT_SOURCE_PATH");
         }
         return projectSourcePathQualifiedName;
     }
