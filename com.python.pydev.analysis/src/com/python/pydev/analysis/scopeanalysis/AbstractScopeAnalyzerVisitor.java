@@ -10,14 +10,19 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -825,8 +830,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                     
                     for(String repToCheck : new FullRepIterable(tokToCheck)){
                         if (!m.isInGlobalTokens(repToCheck, nature)) {
-                            IToken foundTok = findNameTok(token, repToCheck);
-                            onAddUndefinedVarInImportMessage(foundTok, foundAs);
+                            if(!isDefinitionUnknown(m, repToCheck)){
+                                IToken foundTok = findNameTok(token, repToCheck);
+                                onAddUndefinedVarInImportMessage(foundTok, foundAs);
+                            }
+                            break;//no need to keep checking once one is not defined
                         }
                     }
                 }else if(foundAs.isImport() && !foundAs.importInfo.wasResolved){
@@ -840,6 +848,41 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         return found;
     }
 
+
+    /**
+     * @return whether we're actually unable to identify that the representation
+     * we're looking exists or not, so, 
+     * True is returned if we're really unable to identify if that token does
+     * not exist and
+     * False if we're sure it does not exist 
+     */
+    private boolean isDefinitionUnknown(IModule m, String repToCheck) throws Exception {
+        if(!(m instanceof SourceModule)){
+            return false;
+        }
+        repToCheck = FullRepIterable.headAndTail(repToCheck, true)[0];
+        if(repToCheck.length() == 0){
+            return false;
+        }
+        IDefinition[] definitions = m.findDefinition(CompletionState.getEmptyCompletionState(repToCheck, nature), 0, 0, nature, new ArrayList<FindInfo>());
+        if(definitions.length == 1){
+            if(definitions[0] instanceof AssignDefinition){
+                AssignDefinition d = (AssignDefinition) definitions[0];
+                IDefinition[] definitions2 = d.module.findDefinition(
+                        CompletionState.getEmptyCompletionState(d.value, nature), 
+                        d.line, d.col, nature, new ArrayList<FindInfo>());
+                if(definitions2.length == 1){
+                    if(definitions2[0] instanceof Definition){
+                        Definition definition = (Definition) definitions2[0];
+                        if(definition.ast instanceof FunctionDef){
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
     protected Found makeFound(IToken token) {
 		return new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
