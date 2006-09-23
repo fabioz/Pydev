@@ -116,7 +116,7 @@ public abstract class AbstractModule implements IModule {
             
             if(ifHasGetAttributeConsiderInTokens && 
                     //getattribute
-                    rep.equals("__getattribute__") && 
+                    (rep.equals("__getattribute__") || rep.equals("__getattr__")) && 
                     //but not defined in the builtins (it must be overriden)
                    token.getParentPackage().startsWith("__builtin__") == false){
                 return true;
