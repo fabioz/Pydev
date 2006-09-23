@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Scope;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -45,11 +45,11 @@ public class ScopeAnalysis {
 	 * @param scope the scope we're in
 	 * @return a list of entries with the occurrences
 	 */
-    public static List<ASTEntry> getLocalOcurrences(String occurencesFor, IModule module, Scope scope) {
+    public static List<ASTEntry> getLocalOcurrences(String occurencesFor, IModule module, ILocalScope scope) {
     	SimpleNode simpleNode=null;
     	
-    	if(scope.scope.size() > 0){
-    		simpleNode = scope.scope.get(scope.scope.size()-1);
+    	if(scope.getScopeStack().size() > 0){
+    		simpleNode = (SimpleNode) scope.getScopeStack().get(scope.getScopeStack().size()-1);
     		
     	}else if (module instanceof SourceModule){
     		SourceModule m = (SourceModule) module;

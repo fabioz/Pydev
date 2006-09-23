@@ -12,7 +12,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         try {
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameImportFromReference();
+            test.testRename3();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);

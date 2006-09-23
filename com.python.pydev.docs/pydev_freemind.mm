@@ -175,9 +175,9 @@
 <node COLOR="#990000" CREATED="1140628578109" ID="Freemind_Link_1136288053" MODIFIED="1159030545123" TEXT="Should recognize assignment in range()&#xa;E.g.:&#xa;class A:&#xa;    a,b,c = range(3)&#xa;&#xa;A.a should appear in code-completion">
 <font NAME="SansSerif" SIZE="14"/>
 </node>
+<node COLOR="#990000" CREATED="1148498768420" ID="Freemind_Link_366418378" MODIFIED="1159041159379" TEXT="Making ctrl+2+kill should also clear the compiled modules cache">
+<font NAME="SansSerif" SIZE="14"/>
 </node>
-<node COLOR="#00b439" CREATED="1148498768420" ID="Freemind_Link_366418378" MODIFIED="1148498794654" TEXT="Making ctrl+2+kill should also clear the compiled modules cache">
-<font NAME="SansSerif" SIZE="16"/>
 </node>
 </node>
 <node COLOR="#0033ff" CREATED="1139937919875" FOLDED="true" ID="Freemind_Link_342607119" MODIFIED="1140001041875" POSITION="left" TEXT="other improvements">

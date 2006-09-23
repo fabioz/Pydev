@@ -5,6 +5,7 @@ package com.python.pydev.refactoring.wizards.rename;
 
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.editor.codecompletion.revisited.visitors.LocalScope;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.ast.ClassDef;
 
@@ -21,7 +22,7 @@ public class PyRenameSelfAttributeProcess extends AbstractRenameRefactorProcess{
     }
 
     protected void checkInitialOnLocalScope(RefactoringStatus status, RefactoringRequest request) {
-        ClassDef classDef = this.definition.scope.getClassDef();
+        ClassDef classDef = ((LocalScope)this.definition.scope).getClassDef();
         if(classDef == null){
             status.addFatalError("We're trying to rename an instance variable, but we cannot find a class definition.");
         }
