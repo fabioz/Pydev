@@ -79,13 +79,19 @@ public interface IModule {
     public abstract IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager);
 
     /**
-     * 
      * @return the docstring for a module.
      */
     public abstract String getDocString();
 
+    /**
+     * @return the name of the module
+     */
     public abstract String getName();
 
-    public abstract List<IToken> getLocalImportedModules(int line, int col);
+    /**
+     * @return the local scope in the module for a given line and column
+     * May return null if no scope is found
+     */
+    public abstract ILocalScope getLocalScope(int line, int col);
 
 }

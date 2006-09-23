@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -148,7 +149,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
         if(rep.equals(tokenToFind) && line == n.beginLine && col >= n.beginColumn && col <= n.beginColumn+rep.length()){
             foundAsDefinition = true;
             // if it is found as a definition it is an 'exact' match, so, erase all the others.
-            Scope scope = new Scope(this.defsStack);
+            ILocalScope scope = new LocalScope(this.defsStack);
             for (Iterator<Definition> it = definitions.iterator(); it.hasNext();) {
                 Definition d = it.next();
                 if(!d.scope.equals(scope)){
@@ -166,7 +167,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
     public Object visitAssign(Assign node) throws Exception {
-        Scope scope = new Scope(this.defsStack);
+        ILocalScope scope = new LocalScope(this.defsStack);
         if(foundAsDefinition && !scope.equals(definitionFound.scope)){ //if it is found as a definition it is an 'exact' match, so, we do not keep checking it
             return null;
         }

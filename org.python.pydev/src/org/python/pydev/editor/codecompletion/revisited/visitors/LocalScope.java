@@ -11,19 +11,24 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
 /**
  * @author Fabio Zadrozny
  */
-public class Scope {
+public class LocalScope implements ILocalScope {
 
     public FastStack<SimpleNode> scope = new FastStack<SimpleNode>();
     
@@ -31,19 +36,23 @@ public class Scope {
 
     public int ifMainLine = -1;
     
-    public Scope(FastStack<SimpleNode> scope){
+    public LocalScope(FastStack<SimpleNode> scope){
         this.scope.addAll(scope);
+    }
+    
+    public FastStack getScopeStack(){
+        return scope;
     }
     
     /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
     public boolean equals(Object obj) {
-        if (!(obj instanceof Scope)) {
+        if (!(obj instanceof LocalScope)) {
             return false;
         }
         
-        Scope s = (Scope) obj;
+        LocalScope s = (LocalScope) obj;
         
         if(this.scope.size() != s.scope.size()){
             return false;
@@ -52,12 +61,11 @@ public class Scope {
         return checkIfScopesMatch(s);
     }
     
-    /**
-     * Checks if this scope is an outer scope of the scope passed as a param (s).
-     * Or if it is the same scope. 
+    /** 
+     * @see org.python.pydev.core.ILocalScope#isOuterOrSameScope(org.python.pydev.editor.codecompletion.revisited.visitors.LocalScope)
      */
-    public boolean isOuterOrSameScope(Scope s){
-        if(this.scope.size() > s.scope.size()){
+    public boolean isOuterOrSameScope(ILocalScope s){
+        if(this.scope.size() > s.getScopeStack().size()){
             return false;
         }
  
@@ -69,8 +77,8 @@ public class Scope {
      * @return if the scope passed as a parameter starts with the same scope we have here. It should not be
      * called if the size of the scope we're checking is bigger than the size of 'this' scope. 
      */
-    private boolean checkIfScopesMatch(Scope s) {
-        Iterator otIt = s.scope.iterator();
+    private boolean checkIfScopesMatch(ILocalScope s) {
+        Iterator otIt = s.getScopeStack().iterator();
         
         for (Iterator iter = this.scope.iterator(); iter.hasNext();) {
             SimpleNode element = (SimpleNode) iter.next();
@@ -92,18 +100,18 @@ public class Scope {
         return true;
     }
     
-    /**
-     * @return all the local tokens found 
+    /** 
+     * @see org.python.pydev.core.ILocalScope#getAllLocalTokens()
      */
     public IToken[] getAllLocalTokens(){
-        return getLocalTokens(Integer.MAX_VALUE, Integer.MAX_VALUE);
+        return getLocalTokens(Integer.MAX_VALUE, Integer.MAX_VALUE, false);
     }
     
     
-    /**
-     * @param endLine tokens will only be recognized if its beginLine is higher than this parameter.
+    /** 
+     * @see org.python.pydev.core.ILocalScope#getLocalTokens(int, int, boolean)
      */
-    public IToken[] getLocalTokens(int endLine, int col){
+    public IToken[] getLocalTokens(int endLine, int col, boolean onlyArgs){
         Set<SourceToken> comps = new HashSet<SourceToken>();
         
         for (Iterator iter = this.scope.iterator(); iter.hasNext();) {
@@ -115,7 +123,9 @@ public class Scope {
                     String s = NodeUtils.getRepresentationString(f.args.args[i]);
                     comps.add(new SourceToken(f.args.args[i], s, "", "", "", PyCodeCompletion.TYPE_PARAM));
                 }
-                
+                if(onlyArgs){
+                    continue;
+                }
                 try {
                     for (int i = 0; i < f.body.length; i++) {
 		                GlobalModelVisitor visitor = new GlobalModelVisitor(GlobalModelVisitor.GLOBAL_TOKENS, "");
@@ -143,7 +153,48 @@ public class Scope {
     }
 
     /**
-     * @return the modules that are imported in the current (local) scope as tokens
+     * 
+     * @param argName this is the argument (cannot have dots)
+     * @param activationToken this is the actual activation token we're looking for
+     * (may have dots).
+     * 
+     * Note that argName == activationToken first part before the dot (they may be equal)
+     * @return a list of tokens for the local 
+     */
+    public IToken[] getInterfaceForLocal(String argName, String activationToken) {
+        Set<SourceToken> comps = new HashSet<SourceToken>();
+        
+        for (Iterator iter = this.scope.iterator(); iter.hasNext();) {
+            SimpleNode element = (SimpleNode) iter.next();
+            
+            if (element instanceof FunctionDef) {
+                FunctionDef f = (FunctionDef) element;
+                for (int i = 0; i < f.args.args.length; i++) {
+                    String s = NodeUtils.getRepresentationString(f.args.args[i]);
+                    if(s.equals(argName)){
+                        String dottedActTok = activationToken+'.';
+                        //ok, that's the scope we have to analyze
+                        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(f);
+                        Iterator<ASTEntry> iterator = visitor.getIterator(Attribute.class);
+                        
+                        while(iterator.hasNext()){
+                            ASTEntry entry = iterator.next();
+                            String rep = NodeUtils.getFullRepresentationString(entry.node);
+                            if(rep.startsWith(dottedActTok)){
+                                rep = rep.substring(dottedActTok.length());
+                                comps.add(new SourceToken(entry.node, FullRepIterable.getFirstPart(rep), "", "", "", PyCodeCompletion.TYPE_PARAM));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return (SourceToken[]) comps.toArray(new SourceToken[0]);
+    }
+
+
+    /** 
+     * @see org.python.pydev.core.ILocalScope#getLocalImportedModules(int, int, java.lang.String)
      */
     public List<IToken> getLocalImportedModules(int line, int col, String moduleName) {
         ArrayList<IToken> importedModules = new ArrayList<IToken>();
@@ -164,8 +215,8 @@ public class Scope {
         return importedModules;
     }
 
-    /**
-     * @return the first class scope found or null if there is None
+    /** 
+     * @see org.python.pydev.core.ILocalScope#getClassDef()
      */
 	public ClassDef getClassDef() {
 		for(SimpleNode node : this.scope){
@@ -176,15 +227,16 @@ public class Scope {
 		return null;
 	}
 
-	/**
-	 * @return whether the last element found in this scope is a class definition
-	 */
+	/** 
+     * @see org.python.pydev.core.ILocalScope#isLastClassDef()
+     */
 	public boolean isLastClassDef() {
 		if(this.scope.size() > 0 && this.scope.peek() instanceof ClassDef){
 			return true;
 		}
 		return false;
 	}
+
 
 
 }

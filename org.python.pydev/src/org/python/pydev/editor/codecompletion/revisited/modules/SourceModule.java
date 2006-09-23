@@ -16,6 +16,7 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
@@ -31,7 +32,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindDefinitionModelVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.GlobalModelVisitor;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Scope;
+import org.python.pydev.editor.codecompletion.revisited.visitors.LocalScope;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -207,7 +208,7 @@ public class SourceModule extends AbstractModule {
                                         value = d.value;
                                         
                                     }else if (d.ast instanceof Name){
-                                        ClassDef classDef = d.scope.getClassDef();
+                                        ClassDef classDef = ((LocalScope)d.scope).getClassDef();
                                         if(classDef != null){
                                         	FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(actToks[actToks.length-1], d.line, d.col, d.module);
 	                                        classDef.accept(visitor);
@@ -434,7 +435,7 @@ public class SourceModule extends AbstractModule {
 							Tuple<Integer, Integer> def = getLineColForDefinition(ast2);
 							FastStack<SimpleNode> stack = new FastStack<SimpleNode>();
 							stack.add(classDef);
-							Scope scope = new Scope(stack);
+							ILocalScope scope = new LocalScope(stack);
 							return new Definition[]{new Definition(def.o1, def.o2, token.getRepresentation(), ast2, scope, module)};
                             
 						}else{
@@ -536,7 +537,7 @@ public class SourceModule extends AbstractModule {
     	
     	IToken[] tokens = null;
     	if(nature != null){
-    		tokens = nature.getAstManager().getCompletionsForModule(this, state.getCopyWithActTok(firstPart));
+    		tokens = nature.getAstManager().getCompletionsForModule(this, state.getCopyWithActTok(firstPart), true);
     	}else{
     		tokens = getGlobalTokens();
     	}
@@ -572,7 +573,7 @@ public class SourceModule extends AbstractModule {
                         return new Definition(def.o1, def.o2, rep, a, scopeVisitor.scope, module);
                     }else{
                         //line, col
-                        return new Definition(def.o1, def.o2, rep, a, new Scope(new FastStack<SimpleNode>()), module);
+                        return new Definition(def.o1, def.o2, rep, a, new LocalScope(new FastStack<SimpleNode>()), module);
                     }
                 }else{
                 	IToken comp = (IToken) token; //Compiled or Concrete token
@@ -635,25 +636,24 @@ public class SourceModule extends AbstractModule {
                 ast.accept(scopeVisitor);
 	        }
 	        
-	        return scopeVisitor.scope.getLocalTokens(line, col);
+	        return scopeVisitor.scope.getLocalTokens(line, col, false);
         } catch (Exception e) {
             e.printStackTrace();
             return new IToken[0];
         }
     }
 
-    @Override
-    public List<IToken> getLocalImportedModules(int line, int col) {
+    public ILocalScope getLocalScope(int line, int col) {
         try {
             FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
             if (ast != null){
                 ast.accept(scopeVisitor);
             }
             
-            return scopeVisitor.scope.getLocalImportedModules(line, col, name);
+            return scopeVisitor.scope;
         } catch (Exception e) {
             e.printStackTrace();
-            return new ArrayList<IToken>();
+            return null;
         }
     }
     

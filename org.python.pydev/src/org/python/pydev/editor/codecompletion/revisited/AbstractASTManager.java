@@ -18,6 +18,7 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
@@ -34,6 +35,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.editor.codecompletion.revisited.visitors.LocalScope;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -287,7 +289,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      */
     public IToken[] getCompletionsForToken(File file, IDocument doc, ICompletionState state) {
         IModule module = createModule(file, doc, state, this);
-        return getCompletionsForModule(module, state);
+        return getCompletionsForModule(module, state, true, true);
     }
 
 	/** 
@@ -300,7 +302,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 	        SimpleNode n = obj.o1;
 	        IModule module = AbstractModule.createModule(n);
         
-            completionsForModule = getCompletionsForModule(module, state);
+            completionsForModule = getCompletionsForModule(module, state, true, true);
 
         } catch (CompletionRecursionException e) {
             completionsForModule = new IToken[]{ new ConcreteToken(e.getMessage(), e.getMessage(), "","", PyCodeCompletion.TYPE_UNKNOWN)};
@@ -365,15 +367,26 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForModule(org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.CompletionState, boolean)
      */
     public IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods) {
+        return getCompletionsForModule(module, state, true, false);
+    }
+    
+    /** 
+     * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForModule(org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.CompletionState, boolean, boolean)
+     */
+    public IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods, boolean lookForArgumentCompletion) {
         if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
             Log.toLogFile(this, "getCompletionsForModule");
         }
         ArrayList<IToken> importedModules = new ArrayList<IToken>();
+        ILocalScope localScope = null;
         if(state.getLocalImportsGotten() == false){
             //in the first analyzed module, we have to get the local imports too. 
             state.setLocalImportsGotten (true);
             if(module != null){
-                importedModules.addAll(module.getLocalImportedModules(state.getLine(), state.getCol()));
+                localScope = module.getLocalScope(state.getLine(), state.getCol());
+                if(localScope != null){
+                    importedModules.addAll(localScope.getLocalImportedModules(state.getLine(), state.getCol(), module.getName()));
+                }
             }
         }
 
@@ -385,7 +398,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         String act = state.getActivationToken();
         int parI = act.indexOf('(');
         if(parI != -1){
-            state.setActivationToken(act.substring(0, parI));
+            act = act.substring(0, parI);
+            state.setActivationToken(act);
             state.setLookingForInstance(true);
         }
         	
@@ -431,16 +445,16 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             }else{ //ok, we have a token, find it and get its completions.
                 
                 //first check if the token is a module... if it is, get the completions for that module.
-                IToken[] t = findTokensOnImportedMods(importedModules.toArray(new IToken[0]), state, module);
-                if(t != null && t.length > 0){
-                    return t;
+                IToken[] tokens = findTokensOnImportedMods(importedModules.toArray(new IToken[0]), state, module);
+                if(tokens != null && tokens.length > 0){
+                    return tokens;
                 }
                 
                 //if it is an __init__, modules on the same level are treated as local tokens
                 if(searchSameLevelMods){
-	                t = searchOnSameLevelMods(initial, state);
-	                if(t != null && t.length > 0){
-	                	return t;
+	                tokens = searchOnSameLevelMods(initial, state);
+	                if(tokens != null && tokens.length > 0){
+	                	return tokens;
 	                }
                 }
 
@@ -465,7 +479,6 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 }
 
                 //it was not a module (would have returned already), so, try to get the completions for a global token defined.
-                IToken[] tokens = null;
                 tokens = module.getGlobalTokens(state, this);
                 if (tokens.length > 0){
                     return tokens;
@@ -481,6 +494,13 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 	                    }
 	                }
                 }
+
+                if(lookForArgumentCompletion){
+                    tokens = getArgsCompletion(state, localScope);
+                    if(tokens != null && tokens.length > 0){
+                        return tokens;
+                    }
+                }
                 
                 return getAssignCompletions( module, state);
             }
@@ -491,6 +511,30 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         }
         
         return new IToken[0];
+    }
+
+
+
+
+    /**
+     * Get the completions based on the arguments received
+     * 
+     * @param state this is the state used for the completion
+     * @param localScope this is the scope we're currently on (may be null)
+     */
+    private IToken[] getArgsCompletion(ICompletionState state, ILocalScope localScope) {
+        if (localScope != null){
+            LocalScope s = (LocalScope) localScope;
+            IToken[] args = localScope.getLocalTokens(-1,-1,true); //only to get the args
+            String activationToken = state.getActivationToken();
+            String firstPart = FullRepIterable.getFirstPart(activationToken);
+            for (IToken token : args) {
+                if(token.getRepresentation().equals(firstPart)){
+                    return s.getInterfaceForLocal(firstPart, state.getActivationToken());
+                }
+            }
+        }
+        return null;
     }
 
     /**

@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.parser.jython.ast.Assign;
 
@@ -36,7 +37,7 @@ public class AssignDefinition extends Definition{
      * @param line
      * @param col
      */
-    public AssignDefinition(String value, String target, int targetPos, Assign ast, int line, int col, Scope scope, IModule module){
+    public AssignDefinition(String value, String target, int targetPos, Assign ast, int line, int col, ILocalScope scope, IModule module){
         super(line, col, value, ast, scope, module);
         this.target = target;
         this.targetPos = targetPos;

@@ -7,7 +7,6 @@ package org.python.pydev.editor.codecompletion.revisited.modules;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
@@ -15,6 +14,7 @@ import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
@@ -274,11 +274,8 @@ public abstract class AbstractModule implements IModule {
         return new EmptyModule(m, f);
     }
 
-    /** 
-     * @see org.python.pydev.core.IModule#getLocalImportedModules(int, int)
-     */
-    public List <IToken> getLocalImportedModules(int line, int col) {
-        return new ArrayList<IToken>();
+    public ILocalScope getLocalScope(int line, int col) {
+        return null;
     }
 
     /** 

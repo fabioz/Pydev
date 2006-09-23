@@ -7,6 +7,7 @@ package org.python.pydev.editor.codecompletion.revisited.visitors;
 
 import org.eclipse.jface.util.Assert;
 import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -50,14 +51,14 @@ public class Definition implements IDefinition {
     /**
      * Node with the path of classes / funcs to get to an assign.
      */
-    public Scope scope;
+    public ILocalScope scope;
 
     /**
      * Determines whether this definition was found as a local.
      */
     private boolean foundAsLocal;
     
-    public Definition(int line, int col, String value, SimpleNode ast, Scope scope, IModule module){
+    public Definition(int line, int col, String value, SimpleNode ast, ILocalScope scope, IModule module){
     	this(line, col, value, ast, scope, module, false);
     }
     /**
@@ -66,7 +67,7 @@ public class Definition implements IDefinition {
      * 
      * The line and col are defined starting at 1 (and not 0)
      */
-    public Definition(int line, int col, String value, SimpleNode ast, Scope scope, IModule module, boolean foundAsLocal){
+    public Definition(int line, int col, String value, SimpleNode ast, ILocalScope scope, IModule module, boolean foundAsLocal){
     	Assert.isNotNull(value, "Invalid value.");
     	Assert.isNotNull(module, "Invalid Module.");
 
@@ -80,11 +81,11 @@ public class Definition implements IDefinition {
     }
     
     
-    public Definition(org.python.pydev.core.IToken tok, Scope scope, IModule module){
+    public Definition(org.python.pydev.core.IToken tok, ILocalScope scope, IModule module){
     	this(tok, scope, module, false);
     }
     
-    public Definition(org.python.pydev.core.IToken tok, Scope scope, IModule module, boolean foundAsLocal){
+    public Definition(org.python.pydev.core.IToken tok, ILocalScope scope, IModule module, boolean foundAsLocal){
     	Assert.isNotNull(tok, "Invalid value.");
     	Assert.isNotNull(module, "Invalid Module.");
     	

@@ -26,7 +26,7 @@ public class FindScopeVisitor extends AbstractVisitor {
     /**
      * This is the scope.
      */
-    public Scope scope = new Scope(new FastStack<SimpleNode>());
+    public LocalScope scope = new LocalScope(new FastStack<SimpleNode>());
     
     /**
      * Variable to mark if we found scope.
@@ -71,7 +71,7 @@ public class FindScopeVisitor extends AbstractVisitor {
 	            //scope is locked at this time.
 	            found = true;
 	            int original = scope.ifMainLine;
-	            scope = new Scope((FastStack<SimpleNode>) this.stackScope.clone());
+	            scope = new LocalScope((FastStack<SimpleNode>) this.stackScope.clone());
 	            scope.ifMainLine = original;
 	        }
         }else{

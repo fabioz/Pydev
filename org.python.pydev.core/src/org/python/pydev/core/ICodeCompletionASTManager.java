@@ -177,6 +177,7 @@ public interface ICodeCompletionASTManager {
      * @param line
      */
     public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods);
+    public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods, boolean lookForArgumentCompletion);
 
     /**
      * This method gets the completions for a wild import. 

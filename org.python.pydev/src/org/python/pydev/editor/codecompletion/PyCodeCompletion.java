@@ -41,7 +41,7 @@ import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Scope;
+import org.python.pydev.editor.codecompletion.revisited.visitors.LocalScope;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -362,7 +362,7 @@ public class PyCodeCompletion {
      * Get self completions when you already have a scope
      */
     @SuppressWarnings("unchecked")
-    public static IToken[] getSelfCompletions(Scope scope, CompletionRequest request, List theList, CompletionState state, boolean getOnlySupers) throws BadLocationException {
+    public static IToken[] getSelfCompletions(LocalScope scope, CompletionRequest request, List theList, CompletionState state, boolean getOnlySupers) throws BadLocationException {
     	IToken[] comps = new IToken[0];
         while(scope.scope.size() > 0){
             SimpleNode node = (SimpleNode) scope.scope.pop();
