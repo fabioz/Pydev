@@ -59,7 +59,7 @@
 </node>
 </node>
 </node>
-<node COLOR="#0033ff" CREATED="1139594227703" FOLDED="true" ID="Freemind_Link_1643430887" MODIFIED="1142643906171" POSITION="right" TEXT="Code Completion">
+<node COLOR="#0033ff" CREATED="1139594227703" ID="Freemind_Link_1643430887" MODIFIED="1142643906171" POSITION="right" TEXT="Code Completion">
 <font NAME="SansSerif" SIZE="18"/>
 <node COLOR="#00b439" CREATED="1139594237328" ID="Freemind_Link_215044614" MODIFIED="1140001041687" TEXT="Code Completion for parameters: &#xa;bring the data as &apos;ctx insensitive after &apos;x&apos; characters">
 <edge WIDTH="thin"/>
@@ -69,12 +69,6 @@
 <font NAME="SansSerif" SIZE="16"/>
 </node>
 <node COLOR="#00b439" CREATED="1139594344859" ID="Freemind_Link_378572787" MODIFIED="1140001041734" TEXT="filter method if there is some assert isinstance(xxx,Class)">
-<font NAME="SansSerif" SIZE="16"/>
-</node>
-<node COLOR="#00b439" CREATED="1139594431937" ID="Freemind_Link_1599281754" MODIFIED="1140001041734" TEXT="calltips for methods should be implemented">
-<font NAME="SansSerif" SIZE="16"/>
-</node>
-<node COLOR="#00b439" CREATED="1140628578109" ID="Freemind_Link_1136288053" MODIFIED="1140628630953" TEXT="Should recognize assignment in range()&#xa;E.g.:&#xa;class A:&#xa;    a,b,c = range(3)&#xa;&#xa;A.a should appear in code-completion">
 <font NAME="SansSerif" SIZE="16"/>
 </node>
 </node>
@@ -133,7 +127,7 @@
 <node COLOR="#00b439" CREATED="1139999925890" ID="Freemind_Link_901862754" MODIFIED="1140001041843" TEXT="make dict.foo give an error">
 <font NAME="SansSerif" SIZE="16"/>
 </node>
-<node COLOR="#00b439" CREATED="1139999953484" ID="Freemind_Link_382561698" MODIFIED="1140001041843" TEXT="Enable the user to &apos;annotate&apos; classes as &apos;dynamic&apos; &#xa;classes (and make it automatic if it has __getattr__)">
+<node COLOR="#00b439" CREATED="1139999953484" ID="Freemind_Link_382561698" MODIFIED="1159030566701" TEXT="Enable the user to &apos;annotate&apos; classes as &apos;dynamic&apos; &#xa;classes (already working if it has __getattr__ or __getattribute__)">
 <font NAME="SansSerif" SIZE="16"/>
 </node>
 <node COLOR="#00b439" CREATED="1148498654641" FOLDED="true" ID="Freemind_Link_107838497" MODIFIED="1148498657501" TEXT="Fixed">
@@ -175,12 +169,18 @@
 <font NAME="SansSerif" SIZE="12"/>
 </node>
 </node>
+<node COLOR="#990000" CREATED="1139594431937" ID="Freemind_Link_1599281754" MODIFIED="1159030541076" TEXT="calltips for methods should be implemented">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1140628578109" ID="Freemind_Link_1136288053" MODIFIED="1159030545123" TEXT="Should recognize assignment in range()&#xa;E.g.:&#xa;class A:&#xa;    a,b,c = range(3)&#xa;&#xa;A.a should appear in code-completion">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
 </node>
 <node COLOR="#00b439" CREATED="1148498768420" ID="Freemind_Link_366418378" MODIFIED="1148498794654" TEXT="Making ctrl+2+kill should also clear the compiled modules cache">
 <font NAME="SansSerif" SIZE="16"/>
 </node>
 </node>
-<node COLOR="#0033ff" CREATED="1139937919875" ID="Freemind_Link_342607119" MODIFIED="1140001041875" POSITION="left" TEXT="other improvements">
+<node COLOR="#0033ff" CREATED="1139937919875" FOLDED="true" ID="Freemind_Link_342607119" MODIFIED="1140001041875" POSITION="left" TEXT="other improvements">
 <font NAME="SansSerif" SIZE="18"/>
 <node COLOR="#00b439" CREATED="1140106715906" ID="Freemind_Link_1375402745" MODIFIED="1140106864265" TEXT="Make script to handle all the buld proccess:&#xa;- Creating build: OK&#xa;- Creating e-mail message:&#xa;- Uploading files to sourceforge (partial: only html)&#xa;- Uploading files to fabioz.com&#xa;- Updating site.xml&#xa;- Printing what else needs to be done in sf">
 <font NAME="SansSerif" SIZE="16"/>
