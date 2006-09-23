@@ -27,12 +27,29 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PythonPathNature implements IPythonPathNature {
 
+    private IProject project;
+
+
     /**
      * This is the property that has the python path - associated with the project.
      */
-    private static final QualifiedName PROJECT_SOURCE_PATH = new QualifiedName(PydevPlugin.getPluginID(), "PROJECT_SOURCE_PATH");
-    private static final QualifiedName PROJECT_EXTERNAL_SOURCE_PATH = new QualifiedName(PydevPlugin.getPluginID(), "PROJECT_EXTERNAL_SOURCE_PATH");
-    private IProject project;
+    private static QualifiedName projectSourcePathQualifiedName = null;
+    private static QualifiedName getProjectSourcePathQualifiedName() {
+        if(projectExternalSourcePathQualifiedName == null){
+            projectExternalSourcePathQualifiedName = new QualifiedName(PydevPlugin.getPluginID(), "PROJECT_SOURCE_PATH");
+        }
+        return projectSourcePathQualifiedName;
+    }
+    /**
+     * This is the property that has the external python path - associated with the project.
+     */
+    private static QualifiedName projectExternalSourcePathQualifiedName = null;
+    private static QualifiedName getProjectExternalSourcePathQualifiedName() {
+        if(projectExternalSourcePathQualifiedName == null){
+            projectExternalSourcePathQualifiedName = new QualifiedName(PydevPlugin.getPluginID(), "PROJECT_EXTERNAL_SOURCE_PATH");
+        }
+        return projectExternalSourcePathQualifiedName;
+    }
 
 
     public void setProject(IProject project){
@@ -134,20 +151,20 @@ public class PythonPathNature implements IPythonPathNature {
 
     public void setProjectSourcePath(String newSourcePath) throws CoreException {
         synchronized(project){
-            project.setPersistentProperty(PythonPathNature.PROJECT_SOURCE_PATH, newSourcePath);
+            project.setPersistentProperty(PythonPathNature.getProjectSourcePathQualifiedName(), newSourcePath);
         }
     }
 
     public void setProjectExternalSourcePath(String newExternalSourcePath) throws CoreException {
         synchronized(project){
-            project.setPersistentProperty(PythonPathNature.PROJECT_EXTERNAL_SOURCE_PATH, newExternalSourcePath);
+            project.setPersistentProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName(), newExternalSourcePath);
         }
     }
 
     public String getProjectSourcePath() throws CoreException {
         synchronized(project){
             boolean restore = false;
-            String projectSourcePath = project.getPersistentProperty(PythonPathNature.PROJECT_SOURCE_PATH);
+            String projectSourcePath = project.getPersistentProperty(PythonPathNature.getProjectSourcePathQualifiedName());
             if(projectSourcePath == null){
             	//has not been set
             	return "";
@@ -191,7 +208,7 @@ public class PythonPathNature implements IPythonPathNature {
     public String getProjectExternalSourcePath() throws CoreException {
         synchronized(project){
             //no need to validate because those are always 'file-system' related
-            String extPath = project.getPersistentProperty(PythonPathNature.PROJECT_EXTERNAL_SOURCE_PATH);
+            String extPath = project.getPersistentProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName());
             if(extPath == null){
             	extPath = "";
             }

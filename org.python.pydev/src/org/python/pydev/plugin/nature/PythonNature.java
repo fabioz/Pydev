@@ -69,11 +69,6 @@ public class PythonNature implements IPythonNature {
     public static final String BUILDER_ID = "org.python.pydev.PyDevBuilder";
     
     /**
-     * constant that stores the name of the python version we are using for the project with this nature
-     */
-    private static final QualifiedName PYTHON_PROJECT_VERSION = new QualifiedName(PydevPlugin.getPluginID(), "PYTHON_PROJECT_VERSION");
-    
-    /**
      * Project associated with this nature.
      */
     private IProject project;
@@ -107,6 +102,19 @@ public class PythonNature implements IPythonNature {
      * This is used to keep the builtin module
      */
     private IModule builtinMod;
+
+    
+    /**
+     * constant that stores the name of the python version we are using for the project with this nature
+     */
+    private static QualifiedName pythonProjectVersion = null;
+    private static QualifiedName getPythonProjectVersionQualifiedName() {
+        if(pythonProjectVersion == null){
+            //we need to do this because the plugin ID may not be known on 'static' time
+            pythonProjectVersion = new QualifiedName(PydevPlugin.getPluginID(), "PYTHON_PROJECT_VERSION");
+        }
+        return pythonProjectVersion;
+    }
 
     /**
      * This method is called only when the project has the nature added..
@@ -475,7 +483,7 @@ public class PythonNature implements IPythonNature {
     public String getVersion() throws CoreException {
         if(project != null){
         	if(persistentProperty == null){
-	            persistentProperty = project.getPersistentProperty(PYTHON_PROJECT_VERSION);
+	            persistentProperty = project.getPersistentProperty(getPythonProjectVersionQualifiedName());
 	            if(persistentProperty == null){ //there is no such property set (let's set it to the default)
 	                String defaultVersion = getDefaultVersion();
 	                setVersion(defaultVersion);
@@ -494,7 +502,7 @@ public class PythonNature implements IPythonNature {
 		clearCaches();
         if(project != null){
         	this.persistentProperty = version;
-            project.setPersistentProperty(PYTHON_PROJECT_VERSION, version);
+            project.setPersistentProperty(getPythonProjectVersionQualifiedName(), version);
         }
     }
 
