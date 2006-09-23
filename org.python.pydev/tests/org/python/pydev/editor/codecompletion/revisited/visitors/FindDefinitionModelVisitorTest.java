@@ -69,6 +69,7 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
 		assertEquals(1, defs.length);
 		assertEquals("ExistingClass", defs[0].value);
 		assertNotSame(module, defs[0].module);
+		assertEquals("testAssist.assist", defs[0].module.getName());
 		
     }
 

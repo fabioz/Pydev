@@ -569,10 +569,10 @@ public class SourceModule extends AbstractModule {
                                 PydevPlugin.log(e);
                             }
                         }
-                        return new Definition(def.o1, def.o2, tok, a, scopeVisitor.scope, module);
+                        return new Definition(def.o1, def.o2, rep, a, scopeVisitor.scope, module);
                     }else{
                         //line, col
-                        return new Definition(def.o1, def.o2, tok, a, new Scope(new FastStack<SimpleNode>()), module);
+                        return new Definition(def.o1, def.o2, rep, a, new Scope(new FastStack<SimpleNode>()), module);
                     }
                 }else{
                 	IToken comp = (IToken) token; //Compiled or Concrete token
