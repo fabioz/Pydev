@@ -20,7 +20,8 @@ public class NotConfiguredInterpreterException extends RuntimeException {
      * 
      */
     public NotConfiguredInterpreterException() {
-        super();
+        super("Interpreter is not properly configured!\n" +
+              "Please go to window->preferences->PyDev->Python (or Jython) Interpreters and configure it.");
     }
 
     /**

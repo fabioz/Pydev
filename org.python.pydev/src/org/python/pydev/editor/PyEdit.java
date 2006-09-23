@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.BadLocationException;
@@ -58,10 +59,12 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PyPartitionScanner;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
+import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.autoedit.IIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
@@ -81,7 +84,9 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.ui.ColorCache;
+import org.python.pydev.ui.NotConfiguredInterpreterException;
 
 /**
  * The TextWidget.
@@ -993,7 +998,16 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         IProject project = getProject();
         IPythonNature pythonNature = PythonNature.getPythonNature(project);
         if(pythonNature == null){
-            pythonNature = PydevPlugin.getInfoForFile(getEditorFile()).o1;
+            Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
+            if(infoForFile == null){
+                NotConfiguredInterpreterException e = new NotConfiguredInterpreterException();
+                ErrorDialog.openError(PyAction.getShell(), 
+                        "Error: no interpreter configured", "Interpreter not configured\n(Please, Configure it under window->preferences->PyDev)", 
+                        PydevPlugin.makeStatus(IStatus.ERROR, e.getMessage(), e));
+                throw e;
+                
+            }
+            pythonNature = infoForFile.o1;
         }
         return pythonNature;
     }
