@@ -829,7 +829,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                     }
                     
                     for(String repToCheck : new FullRepIterable(tokToCheck)){
-                        if (!m.isInGlobalTokens(repToCheck, nature)) {
+                        if (!m.isInGlobalTokens(repToCheck, nature, true, true)) {
                             if(!isDefinitionUnknown(m, repToCheck)){
                                 IToken foundTok = findNameTok(token, repToCheck);
                                 onAddUndefinedVarInImportMessage(foundTok, foundAs);
