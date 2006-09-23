@@ -93,9 +93,17 @@ public abstract class AbstractModule implements IModule {
      * @see org.python.pydev.core.IModule#isInGlobalTokens(java.lang.String, org.python.pydev.plugin.nature.PythonNature, boolean)
      */
     public boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods){
-    	if(isInDirectGlobalTokens(tok, nature)){
-    		return true;
-    	}
+        return isInGlobalTokens(tok, nature, true, false);
+    }
+    
+    public boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, boolean ifHasGetAttributeConsiderInTokens){
+        //it's just worth checking it if it is not dotted...
+        if(tok.indexOf(".") == -1){
+        	if(isInDirectGlobalTokens(tok, nature)){
+        		return true;
+        	}
+        }
+        
     	//if still not found, we have to get all the tokens, including regular and wild imports
         ICompletionState state = CompletionState.getEmptyCompletionState(nature);
         ICodeCompletionASTManager astManager = nature.getAstManager();
@@ -104,7 +112,17 @@ public abstract class AbstractModule implements IModule {
         String head = headAndTail[1];
         IToken[] globalTokens = astManager.getCompletionsForModule(this, state, searchSameLevelMods);
         for (IToken token : globalTokens) {
-            if(token.getRepresentation().equals(head)){
+            String rep = token.getRepresentation();
+            
+            if(ifHasGetAttributeConsiderInTokens && 
+                    //getattribute
+                    rep.equals("__getattribute__") && 
+                    //but not defined in the builtins (it must be overriden)
+                   token.getParentPackage().startsWith("__builtin__") == false){
+                return true;
+            }
+            
+            if(rep.equals(head)){
                 return true;
             }
         }

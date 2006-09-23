@@ -20,7 +20,15 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(FindDefinitionModelVisitorTest.class);
+        try{
+            FindDefinitionModelVisitorTest test = new FindDefinitionModelVisitorTest();
+            test.setUp();
+            test.testFind();
+            test.tearDown();
+            junit.textui.TestRunner.run(FindDefinitionModelVisitorTest.class);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     /*

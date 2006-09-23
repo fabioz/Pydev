@@ -50,6 +50,14 @@ public interface IModule {
     public abstract boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods);
 
     /**
+     * @param ifHasGetAttributeConsiderInTokens if this true, consider that the token is in the tokens if a __getattribute__
+     * is found.
+     * 
+     * @return whether the passed token is part of the global tokens of this module (including imported tokens).
+     */
+    public boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, boolean ifHasGetAttributeConsiderInTokens);
+    
+    /**
      * This function can be called to find possible definitions of a token (state activation token), based on its name, line and
      * column.
      * 
