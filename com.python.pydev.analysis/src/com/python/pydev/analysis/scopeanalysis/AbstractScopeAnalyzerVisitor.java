@@ -868,10 +868,20 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         if(definitions.length == 1){
             if(definitions[0] instanceof AssignDefinition){
                 AssignDefinition d = (AssignDefinition) definitions[0];
+                
+                //if the value is currently None, it will be set later on
+                if(d.value.equals("None")){
+                    return true;
+                }
+                
+                //ok, go to the definition of whatever is set
                 IDefinition[] definitions2 = d.module.findDefinition(
                         CompletionState.getEmptyCompletionState(d.value, nature), 
                         d.line, d.col, nature, new ArrayList<FindInfo>());
+                
                 if(definitions2.length == 1){
+                    //and if it is a function, we're actually unable to find
+                    //out about its return value
                     if(definitions2[0] instanceof Definition){
                         Definition definition = (Definition) definitions2[0];
                         if(definition.ast instanceof FunctionDef){
