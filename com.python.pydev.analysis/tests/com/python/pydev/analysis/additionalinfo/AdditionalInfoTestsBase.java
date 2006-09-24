@@ -35,6 +35,7 @@ import com.python.pydev.analysis.ctrl_1.MarkerStub;
 public class AdditionalInfoTestsBase extends AnalysisTestsBase {
 
     protected IPyDevCompletionParticipant participant;
+    protected boolean useOriginalRequestCompl = false;
     
     @Override
     protected void setUp() throws Exception {
@@ -42,6 +43,10 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
     }
 
     public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl, PythonNature nature) throws CoreException, BadLocationException{
+        if(useOriginalRequestCompl){
+            return super.requestCompl(file, strDoc, documentOffset, returned, retCompl, nature);
+        }
+        
         if(documentOffset == -1)
             documentOffset = strDoc.length();
         

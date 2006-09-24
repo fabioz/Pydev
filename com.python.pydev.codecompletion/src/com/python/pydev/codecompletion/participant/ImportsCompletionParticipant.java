@@ -13,7 +13,9 @@ import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
@@ -22,6 +24,8 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 
 public class ImportsCompletionParticipant implements IPyDevCompletionParticipant{
+
+    private static final Collection EMPTY_COLLECTION = new ArrayList();
 
     public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state) {
         ArrayList<CtxInsensitiveImportComplProposal> list = new ArrayList<CtxInsensitiveImportComplProposal>();
@@ -74,5 +78,9 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             }
         }
         return list;
+    }
+
+    public Collection getArgsCompletion(ICompletionState state, ILocalScope localScope, IToken[] interfaceForLocal) {
+        return EMPTY_COLLECTION;
     }
 }

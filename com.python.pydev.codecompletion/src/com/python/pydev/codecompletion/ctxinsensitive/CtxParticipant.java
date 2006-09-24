@@ -5,13 +5,17 @@ package com.python.pydev.codecompletion.ctxinsensitive;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.ILocalScope;
+import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
@@ -87,6 +91,31 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
     
         }        
         return completions;
+    }
+
+    public Collection getArgsCompletion(ICompletionState state, ILocalScope localScope, IToken[] interfaceForLocal) {
+        ArrayList<IToken> ret = new ArrayList<IToken>();
+        String qual = state.getQualifier();
+        if(interfaceForLocal.length >= 3 || qual.length() >= 3){ //at least n characters or 3 interface tokens required
+            
+            HashSet<String> filterWithModules = new HashSet<String>();
+            for (IToken token : interfaceForLocal) {
+                List<IInfo> tokensEqualTo = AdditionalProjectInterpreterInfo.getTokensEqualTo(token.getRepresentation(), state.getNature(), AbstractAdditionalInterpreterInfo.INNER);
+                for (IInfo info : tokensEqualTo) {
+                    filterWithModules.add(info.getDeclaringModuleName());
+                }
+            }
+            
+            
+            List<IInfo> tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, state.getNature(), AbstractAdditionalInterpreterInfo.INNER);
+            for (IInfo info : tokensStartingWith) {
+                if(filterWithModules.size() == 0 || filterWithModules.contains(info.getDeclaringModuleName())){
+                    ret.add(new SourceToken(null, info.getName(), null, null, info.getDeclaringModuleName(), info.getType()));
+                }
+            }
+            
+        }
+        return ret;
     }
 
 
