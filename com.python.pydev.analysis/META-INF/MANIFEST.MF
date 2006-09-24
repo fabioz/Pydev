@@ -23,6 +23,7 @@ Bundle-ClassPath: analysis.jar, retroweaver-rt.jar
 Export-Package: com.python.pydev.analysis,
  com.python.pydev.analysis.actions,
  com.python.pydev.analysis.additionalinfo,
+ com.python.pydev.analysis.additionalinfo.builders,
  com.python.pydev.analysis.additionalinfo.dependencies,
  com.python.pydev.analysis.builder,
  com.python.pydev.analysis.ctrl_1,

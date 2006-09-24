@@ -19,7 +19,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
-import com.python.pydev.analysis.additionalinfo.InterpreterObserver;
+import com.python.pydev.analysis.additionalinfo.builders.InterpreterObserver;
 import com.python.pydev.analysis.messages.IMessage;
 
 public class AnalysisTestsBase extends CodeCompletionTestsBase {

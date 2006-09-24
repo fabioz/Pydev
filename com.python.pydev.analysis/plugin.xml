@@ -31,7 +31,7 @@
    </extension>
 
    <extension point="org.python.pydev.pydev_interpreter_observer">
-  		<interpreter_observer class="com.python.pydev.analysis.additionalinfo.InterpreterObserver"/>
+  		<interpreter_observer class="com.python.pydev.analysis.additionalinfo.builders.InterpreterObserver"/>
    </extension>
    
    <extension point="org.python.pydev.pydev_ctrl_1">

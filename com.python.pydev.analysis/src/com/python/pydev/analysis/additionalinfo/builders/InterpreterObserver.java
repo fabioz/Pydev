@@ -1,7 +1,7 @@
 /*
  * Created on 07/09/2005
  */
-package com.python.pydev.analysis.additionalinfo;
+package com.python.pydev.analysis.additionalinfo.builders;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -25,6 +25,11 @@ import org.python.pydev.ui.NotConfiguredInterpreterException;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.JobProgressComunicator;
+
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 
 
 public class InterpreterObserver implements IInterpreterObserver {

@@ -41,4 +41,5 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
     	assertNotContains("xml - xmlrpclib", proposals);
     }
     
+    
 }

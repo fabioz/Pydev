@@ -5,7 +5,7 @@
 <cloud COLOR="#99ffff"/>
 <font NAME="SansSerif" SIZE="20"/>
 <hook NAME="accessories/plugins/AutomaticLayout.properties"/>
-<node COLOR="#0033ff" CREATED="1139594080375" FOLDED="true" ID="_" MODIFIED="1140001041531" POSITION="right" TEXT="New Project Wizard">
+<node COLOR="#0033ff" CREATED="1139594080375" ID="_" MODIFIED="1140001041531" POSITION="right" TEXT="New Project Wizard">
 <edge WIDTH="thin"/>
 <font NAME="SansSerif" SIZE="18"/>
 <node COLOR="#00b439" CREATED="1139594135046" ID="Freemind_Link_1097477604" MODIFIED="1140001041546" TEXT="Select external projects to add to pythonpath">
@@ -15,7 +15,7 @@
 <font NAME="SansSerif" SIZE="16"/>
 </node>
 </node>
-<node COLOR="#0033ff" CREATED="1139594201281" ID="Freemind_Link_91517654" MODIFIED="1140001041546" POSITION="left" TEXT="Bugs (not in sf)">
+<node COLOR="#0033ff" CREATED="1139594201281" FOLDED="true" ID="Freemind_Link_91517654" MODIFIED="1140001041546" POSITION="left" TEXT="Bugs (not in sf)">
 <font NAME="SansSerif" SIZE="18"/>
 <icon BUILTIN="full-1"/>
 <node COLOR="#00b439" CREATED="1139595096843" ID="Freemind_Link_148953784" MODIFIED="1140001041593" TEXT="&#xa;def Foo(self):&#xa;    print _Bar()&#xa;&#xa;def _Bar():&#xa;    pass&#xa;&#xa;try:&#xa;    # Should show duplicated error (shows unused import)&#xa;    from empty2 import Bar2 as _Bar &#xa;except:&#xa;    #if available, use it&#xa;    pass&#xa;">
@@ -61,14 +61,13 @@
 </node>
 <node COLOR="#0033ff" CREATED="1139594227703" ID="Freemind_Link_1643430887" MODIFIED="1142643906171" POSITION="right" TEXT="Code Completion">
 <font NAME="SansSerif" SIZE="18"/>
-<node COLOR="#00b439" CREATED="1139594237328" ID="Freemind_Link_215044614" MODIFIED="1140001041687" TEXT="Code Completion for parameters: &#xa;bring the data as &apos;ctx insensitive after &apos;x&apos; characters">
-<edge WIDTH="thin"/>
-<font NAME="SansSerif" SIZE="16"/>
-</node>
-<node COLOR="#00b439" CREATED="1139594311703" ID="Freemind_Link_1252891293" MODIFIED="1142644060562" STYLE="bubble" TEXT="filter compatible interfaces if there is some &#xa;method already declared (in the context)">
-<font NAME="SansSerif" SIZE="16"/>
-</node>
 <node COLOR="#00b439" CREATED="1139594344859" ID="Freemind_Link_378572787" MODIFIED="1140001041734" TEXT="filter method if there is some assert isinstance(xxx,Class)">
+<font NAME="SansSerif" SIZE="16"/>
+</node>
+<node COLOR="#00b439" CREATED="1159114467587" ID="Freemind_Link_1560311735" MODIFIED="1159114500446" TEXT="If there is a module:&#xa;foo.py&#xa;foo/__init__.py&#xa;&#xa;and one of those is deleted, the other should not&#xa;be disturbed">
+<font NAME="SansSerif" SIZE="16"/>
+</node>
+<node COLOR="#00b439" CREATED="1159114506634" ID="Freemind_Link_1332563188" MODIFIED="1159114520430" TEXT="Context insensitive info should be available for builtins">
 <font NAME="SansSerif" SIZE="16"/>
 </node>
 </node>
@@ -78,7 +77,7 @@
 <node COLOR="#00b439" CREATED="1140000887734" HGAP="29" ID="Freemind_Link_617691308" MODIFIED="1140001041734" TEXT="Find references" VSHIFT="-3">
 <font NAME="SansSerif" SIZE="16"/>
 </node>
-<node COLOR="#00b439" CREATED="1139594480906" ID="Freemind_Link_739678165" MODIFIED="1140001041734" TEXT="Refactoring">
+<node COLOR="#00b439" CREATED="1139594480906" FOLDED="true" ID="Freemind_Link_739678165" MODIFIED="1140001041734" TEXT="Refactoring">
 <font NAME="SansSerif" SIZE="16"/>
 <node COLOR="#990000" CREATED="1150238086375" ID="Freemind_Link_1906576894" MODIFIED="1150238101468" TEXT="Rename variables">
 <font NAME="SansSerif" SIZE="14"/>
@@ -90,6 +89,9 @@
 <node COLOR="#111111" CREATED="1150238218937" ID="Freemind_Link_1819546957" MODIFIED="1150238228703" TEXT="Extract to some other module"/>
 </node>
 <node COLOR="#990000" CREATED="1150238111562" ID="Freemind_Link_1218789951" MODIFIED="1150238118218" TEXT="Inline variable">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1159114528118" ID="Freemind_Link_13263638" MODIFIED="1159114554087" TEXT="Transform a module in a package (foo.py to foo/__init__.py)">
 <font NAME="SansSerif" SIZE="14"/>
 </node>
 </node>
@@ -176,6 +178,13 @@
 <font NAME="SansSerif" SIZE="14"/>
 </node>
 <node COLOR="#990000" CREATED="1148498768420" ID="Freemind_Link_366418378" MODIFIED="1159041159379" TEXT="Making ctrl+2+kill should also clear the compiled modules cache">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1139594311703" ID="Freemind_Link_1252891293" MODIFIED="1159114440290" STYLE="bubble" TEXT="filter compatible interfaces if there is some &#xa;method already declared (in the context)">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1139594237328" ID="Freemind_Link_215044614" MODIFIED="1159114460430" TEXT="Code Completion for parameters: &#xa;bring the data as &apos;ctx insensitive after &apos;x&apos; characters">
+<edge WIDTH="thin"/>
 <font NAME="SansSerif" SIZE="14"/>
 </node>
 </node>
