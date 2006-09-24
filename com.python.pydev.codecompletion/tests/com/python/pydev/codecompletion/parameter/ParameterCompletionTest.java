@@ -28,7 +28,7 @@ public class ParameterCompletionTest extends AdditionalInfoTestsBase {
             // DEBUG_TESTS_BASE = true;
             ParameterCompletionTest test = new ParameterCompletionTest();
             test.setUp();
-            test.testCompletion();
+            test.testCompletion2();
             test.tearDown();
             System.out.println("Finished");
 
@@ -81,6 +81,14 @@ public class ParameterCompletionTest extends AdditionalInfoTestsBase {
                 "def m1(a):\n" +
                 "    a.existingM";
         requestCompl(s, -1, -1, new String[]{"existingMethod()"}); //at least 3 chars needed by default
+    }
+    
+    public void testCompletion2() throws CoreException, BadLocationException {
+        String s = "" +
+        "def m1(a):\n" +
+        "    a.another()\n" +
+        "    a.assertE";
+        requestCompl(s, -1, -1, new String[]{"assertEquals"}); //at least 3 chars needed by default
     }
 
     // ----------------------------------------------------------------------------------------------- asserts
