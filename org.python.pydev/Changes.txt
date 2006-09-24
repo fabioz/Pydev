@@ -5,6 +5,7 @@ Removed the default PyLint options, because as its interface changed, this was g
 Changed the grammar, so, now 'yield' is correctly parsed as an expression
 Giving better error message when external file is opened without any interpreter selected
 Completions for parameters based on the tokens that were defined for a parameter in a given context
+Types for the builtins gotten even on large libraries (such as wx) -- it was only being marked as builtin before
 
 Pydev Extensions:
 Code analysis: analysis on imported modules do no longer give you errors on classes that have __getattribute__ overriden, are assigns to None initially or assigns to a function call

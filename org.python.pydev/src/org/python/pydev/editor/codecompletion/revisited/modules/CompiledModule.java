@@ -15,6 +15,7 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
@@ -65,6 +66,7 @@ public class CompiledModule extends AbstractModule{
      * 
      * @param module - module from where to get completions.
      */
+    @SuppressWarnings("unchecked")
     public CompiledModule(String name, int tokenTypes, ICodeCompletionASTManager manager){
         super(name);
         if(COMPILED_MODULES_ENABLED){
@@ -92,6 +94,12 @@ public class CompiledModule extends AbstractModule{
 					PydevPlugin.log(e2);
 				}
 	        }
+            if(tokens != null && tokens.length > 0){
+                List<IModulesObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_MODULES_OBSERVER);
+                for (IModulesObserver observer : participants) {
+                    observer.notifyCompiledModuleCreated(this, manager);
+                }
+            }
         }else{
             //not used if not enabled.
             tokens = new CompiledToken[0];

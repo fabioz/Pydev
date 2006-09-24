@@ -236,7 +236,15 @@ def GenerateImportsTipForModule( mod ):
                             pass
     
                     retType = TYPE_FUNCTION
-                
+                    
+                elif inspect.isclass(obj):
+                    retType = TYPE_CLASS
+                    
+                elif inspect.ismodule(obj):
+                    retType = TYPE_IMPORT
+                    
+                else:
+                    retType = TYPE_ATTR
                 
                 
                 #add token and doc to return - assure only strings.
@@ -246,10 +254,25 @@ def GenerateImportsTipForModule( mod ):
                 ret.append(   (d, '', args, TYPE_BUILTIN_AS_STR)   )
             
         else: #getCompleteInfo == False
-        
-            #ok, no complete info, let's try to do this as fast and clean as possible
-            #so, no docs for this kind of information, only the signatures
-            ret.append(   (d, '', args, TYPE_BUILTIN_AS_STR)   )
+            try:
+                obj = getattr(mod, d)
+            except: #just ignore and get it without aditional info
+                ret.append(   (d, '', args, TYPE_BUILTIN_AS_STR)   )
+            else:
+                if inspect.ismethod(obj) or inspect.isbuiltin(obj) or inspect.isfunction(obj) or inspect.isroutine(obj):
+                    retType = TYPE_FUNCTION
+                    
+                elif inspect.isclass(obj):
+                    retType = TYPE_CLASS
+                    
+                elif inspect.ismodule(obj):
+                    retType = TYPE_IMPORT
+                    
+                else:
+                    retType = TYPE_ATTR
+                #ok, no complete info, let's try to do this as fast and clean as possible
+                #so, no docs for this kind of information, only the signatures
+                ret.append(   (d, '', args, retType)   )
             
     return ret
 

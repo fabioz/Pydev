@@ -29,6 +29,7 @@ public class ExtensionHelper {
     //pydev
     public final static String PYDEV_COMPLETION = "org.python.pydev.pydev_completion";
     public final static String PYDEV_BUILDER = "org.python.pydev.pydev_builder";
+    public final static String PYDEV_MODULES_OBSERVER = "org.python.pydev.pydev_modules_observer";
     public final static String PYDEV_INTERPRETER_OBSERVER = "org.python.pydev.pydev_interpreter_observer";
     public final static String PYDEV_PARSER_OBSERVER = "org.python.pydev.parser.pydev_parser_observer";
     public static final String PYDEV_CTRL_1 = "org.python.pydev.pydev_ctrl_1";
