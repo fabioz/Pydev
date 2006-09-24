@@ -6,6 +6,8 @@ package org.python.pydev.editor.codecompletion;
 import java.util.Collection;
 
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.ILocalScope;
+import org.python.pydev.core.IToken;
 
 public interface IPyDevCompletionParticipant {
 
@@ -23,5 +25,7 @@ public interface IPyDevCompletionParticipant {
      * @see org.python.pydev.core.IToken
      */
     Collection getGlobalCompletions(CompletionRequest request, ICompletionState state);
+
+    Collection getArgsCompletion(ICompletionState state, ILocalScope localScope, IToken[] interfaceForLocal);
 
 }

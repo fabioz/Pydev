@@ -22,6 +22,7 @@ public class CompletionState implements ICompletionState {
     public int line;
     public int col;
     public IPythonNature nature;
+    public String qualifier;
     
     public Memo<String> memory = new Memo<String>();
     public Memo<Definition> definitionMemory = new Memo<Definition>();
@@ -44,6 +45,7 @@ public class CompletionState implements ICompletionState {
         state.col = col;
         state.importedModsCalled = importedModsCalled;
         state.nature = nature;
+        state.qualifier = qualifier;
         
         state.memory = memory;
         state.wildImportMemory = wildImportMemory;
@@ -125,11 +127,12 @@ public class CompletionState implements ICompletionState {
      * @param qual
      * @param nature2
      */
-    public CompletionState(int line2, int col2, String token, IPythonNature nature2) {
+    public CompletionState(int line2, int col2, String token, IPythonNature nature2, String qualifier) {
         this.line = line2;
         this.col = col2;
         this.activationToken = token;
         this.nature = nature2;
+        this.qualifier = qualifier;
     }
     
     public CompletionState(){
@@ -199,14 +202,14 @@ public class CompletionState implements ICompletionState {
      * @return a default completion state for globals (empty act. token)
      */
     public static ICompletionState getEmptyCompletionState(IPythonNature nature) {
-        return new CompletionState(0,0,"", nature);
+        return new CompletionState(0,0,"", nature,"");
     }
     
     /**
      * @return a default completion state for globals (act token defined)
      */
     public static ICompletionState getEmptyCompletionState(String token, IPythonNature nature) {
-        return new CompletionState(0,0,token, nature);
+        return new CompletionState(0,0,token, nature,"");
     }
 
     public String getActivationToken() {
@@ -284,6 +287,10 @@ public class CompletionState implements ICompletionState {
         CompletionState copy = getCopy();
         copy.setActivationToken(value);
         return copy;
+    }
+
+    public String getQualifier() {
+        return this.qualifier;
     }
     
 }

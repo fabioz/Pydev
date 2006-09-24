@@ -80,7 +80,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 		
         IToken[] comps = null;
         Document doc = new Document(sDoc);
-        ICompletionState state = new CompletionState(line,col, token, nature);
+        ICompletionState state = new CompletionState(line,col, token, nature, "");
         comps = ((ICodeCompletionASTManager)nature.getAstManager()).getCompletionsForToken(doc, state);
         assertEquals(9, comps.length);
 
@@ -106,7 +106,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 		
         IToken[] comps = null;
         Document doc = new Document(sDoc);
-        ICompletionState state = new CompletionState(line,col, token, nature);
+        ICompletionState state = new CompletionState(line,col, token, nature,"");
         ICodeCompletionASTManager a = (ICodeCompletionASTManager)nature.getAstManager();
         comps = a.getCompletionsForToken(doc, state);
         assertFalse(comps.length == 0);
@@ -125,7 +125,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 		
         IToken[] comps = null;
         Document doc = new Document(sDoc);
-        ICompletionState state = new CompletionState(line,col, token, nature);
+        ICompletionState state = new CompletionState(line,col, token, nature,"");
         ICodeCompletionASTManager a = (ICodeCompletionASTManager)nature.getAstManager();
         comps = a.getCompletionsForToken(doc, state);
         assertEquals(0, comps.length);
@@ -146,7 +146,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 
 		IToken[] comps = null;
         Document doc = new Document(sDoc);
-        ICompletionState state = new CompletionState(line,col, token, nature);
+        ICompletionState state = new CompletionState(line,col, token, nature,"");
 		comps = ((ICodeCompletionASTManager)nature.getAstManager()).getCompletionsForToken(doc, state);
 		assertTrue(comps.length > 5);
         ASTManagerTest.assertIsIn("assertEquals", comps);
@@ -167,7 +167,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 
 		IToken[] comps = null;
         Document doc = new Document(sDoc);
-        ICompletionState state = new CompletionState(line,col, token, nature);
+        ICompletionState state = new CompletionState(line,col, token, nature,"");
 		comps = ((ICodeCompletionASTManager)nature.getAstManager()).getCompletionsForToken(doc, state);
 		ASTManagerTest.assertIsIn("SetWidget", comps);
         ASTManagerTest.assertIsIn("assertEquals", comps);
@@ -189,7 +189,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 
 		IToken[] comps = null;
         Document doc = new Document(sDoc);
-        ICompletionState state = new CompletionState(line,col, token, nature);
+        ICompletionState state = new CompletionState(line,col, token, nature,"");
 		comps = ((ICodeCompletionASTManager)nature.getAstManager()).getCompletionsForToken(doc, state);
 		assertTrue(comps.length > 5);
         ASTManagerTest.assertIsIn("assertEquals", comps);
@@ -210,7 +210,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 		
         IToken[] comps = null;
         Document doc = new Document(sDoc);
-        ICompletionState state = new CompletionState(line,col, token, nature);
+        ICompletionState state = new CompletionState(line,col, token, nature,"");
         comps = ((ICodeCompletionASTManager)nature.getAstManager()).getCompletionsForToken(doc, state);
         assertEquals(9, comps.length);
 
@@ -237,7 +237,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 
 		IToken[] comps = null;
         Document doc = new Document(sDoc);
-        ICompletionState state = new CompletionState(line,col, token, nature);
+        ICompletionState state = new CompletionState(line,col, token, nature,"");
 		comps = ((ICodeCompletionASTManager)nature.getAstManager()).getCompletionsForToken(doc, state);
 		assertTrue(comps.length > 5);
         ASTManagerTest.assertIsIn("assertEquals", comps);
@@ -259,7 +259,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 
 		IToken[] comps = null;
         Document doc = new Document(sDoc);
-        ICompletionState state = new CompletionState(line,col, token, nature);
+        ICompletionState state = new CompletionState(line,col, token, nature,"");
 		comps = ((ICodeCompletionASTManager)nature.getAstManager()).getCompletionsForToken(doc, state);
         ASTManagerTest.assertIsIn("test1", comps);
         ASTManagerTest.assertIsIn("test2", comps);

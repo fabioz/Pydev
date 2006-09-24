@@ -417,7 +417,7 @@ public class SourceModule extends AbstractModule {
         		//ok, we are in a class, so, let's get the self completions
         		String classRep = NodeUtils.getRepresentationString(classDef);
 				IToken[] globalTokens = getGlobalTokens(
-        				new CompletionState(line, col, classRep, nature), 
+        				new CompletionState(line, col, classRep, nature,""), 
         				nature.getAstManager());
 				
         		String withoutSelf = rep.substring(5);

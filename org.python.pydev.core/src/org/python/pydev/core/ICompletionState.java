@@ -61,5 +61,7 @@ public interface ICompletionState {
 
     ICompletionState getCopyWithActTok(String value);
 
+    String getQualifier();
+
 
 }

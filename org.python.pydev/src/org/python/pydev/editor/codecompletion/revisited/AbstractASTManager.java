@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.SortedMap;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
@@ -30,6 +32,7 @@ import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
+import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -251,11 +254,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             
             IToken[] globalTokens;
             if(tok != null && tok.length() > 0){
-                CompletionState state2 = new CompletionState(-1,-1,tok,nature);
+                CompletionState state2 = new CompletionState(-1,-1,tok,nature,"");
                 state2.builtinsGotten = true; //we don't want to get builtins here
                 globalTokens = m.getGlobalTokens(state2, this);
             }else{
-                CompletionState state2 = new CompletionState(-1,-1,"",nature);
+                CompletionState state2 = new CompletionState(-1,-1,"",nature,"");
                 state2.builtinsGotten = true; //we don't want to get builtins here
                 globalTokens = getCompletionsForModule(m, state2);
             }
@@ -522,6 +525,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @param state this is the state used for the completion
      * @param localScope this is the scope we're currently on (may be null)
      */
+    @SuppressWarnings("unchecked")
     private IToken[] getArgsCompletion(ICompletionState state, ILocalScope localScope) {
         if (localScope != null){
             LocalScope s = (LocalScope) localScope;
@@ -530,12 +534,32 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             String firstPart = FullRepIterable.getFirstPart(activationToken);
             for (IToken token : args) {
                 if(token.getRepresentation().equals(firstPart)){
-                    return s.getInterfaceForLocal(firstPart, state.getActivationToken());
+                    IToken[] interfaceForLocal = s.getInterfaceForLocal(firstPart, state.getActivationToken());
+                    Collection argsCompletionFromParticipants = getArgsCompletionFromParticipants(state, localScope, interfaceForLocal);
+                    for (IToken t : interfaceForLocal) {
+                        if(!t.getRepresentation().equals(state.getQualifier())){
+                            argsCompletionFromParticipants.add(t);
+                        }
+                    }
+                    return (IToken[]) argsCompletionFromParticipants.toArray(new IToken[0]);
                 }
             }
         }
         return null;
     }
+    
+    @SuppressWarnings("unchecked")
+    private Collection getArgsCompletionFromParticipants(ICompletionState state, ILocalScope localScope, IToken[] interfaceForLocal) {
+        ArrayList ret = new ArrayList();
+        
+        List participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);
+        for (Iterator iter = participants.iterator(); iter.hasNext();) {
+            IPyDevCompletionParticipant participant = (IPyDevCompletionParticipant) iter.next();
+            ret.addAll(participant.getArgsCompletion(state, localScope, interfaceForLocal));
+        }
+        return ret;
+    }
+
 
     /**
      * Attempt to search on modules on the same level as this one (this will only happen if we are in an __init__

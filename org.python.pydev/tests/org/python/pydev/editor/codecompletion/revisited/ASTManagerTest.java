@@ -73,7 +73,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         		"    def a(self):     \n" +   
         		"        pass         \n";
         doc = new Document(sDoc);
-        state = new CompletionState(line,col, token, nature);
+        state = new CompletionState(line,col, token, nature,"");
         comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(1, comps.length);
         assertEquals("makeit", comps[0].getRepresentation());
@@ -94,7 +94,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
 		col = 16;
 		token = "";
 		doc = new Document(sDoc);
-        state = new CompletionState(line,col, token, nature);
+        state = new CompletionState(line,col, token, nature,"");
         comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(3, comps.length);
         assertIsIn("unittest", comps);
@@ -119,7 +119,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
 		col = 16;
 		token = "";
 		doc = new Document(sDoc);
-        state = new CompletionState(line,col, token, nature);
+        state = new CompletionState(line,col, token, nature,"");
         comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(4, comps.length);
         assertIsIn("unittest", comps);
@@ -145,7 +145,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
 		col = 16;
 		token = "";
 		doc = new Document(sDoc);
-        state = new CompletionState(line,col, token, nature);
+        state = new CompletionState(line,col, token, nature,"");
         comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(3, comps.length);
         assertIsIn("unittest", comps);
@@ -165,7 +165,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
 		col = 13;
 		token = "Classe1";
 		doc = new Document(sDoc);
-        state = new CompletionState(line,col, token, nature);
+        state = new CompletionState(line,col, token, nature,"");
         comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(2, comps.length);
         assertIsIn("a", comps);
@@ -185,7 +185,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
 		col = 9;
 		token = "Classe1";
 		doc = new Document(sDoc);
-        state = new CompletionState(line,col, token, nature);
+        state = new CompletionState(line,col, token, nature,"");
         comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(3, comps.length);
         assertIsIn("foo", comps);
@@ -210,7 +210,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
 		col = 9;
 		token = "LinkedList";
 		doc = new Document(sDoc);
-        state = new CompletionState(line,col, token, nature);
+        state = new CompletionState(line,col, token, nature,"");
         comps = getManager().getCompletionsForToken(doc, state);
         assertIsIn("first", comps);
         assertIsIn("last", comps);
@@ -226,7 +226,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
 			"class A(B):pass          \n" +    
 			"class B(A):pass          \n";
         doc = new Document(sDoc);
-        state = new CompletionState(line,col, token, nature);
+        state = new CompletionState(line,col, token, nature,"");
         comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(0, comps.length); //no tokens returned
         
@@ -241,7 +241,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
 			"from testlib.unittest.relative import Test1 \n" +    
 			"\n";
         doc = new Document(sDoc);
-        state = new CompletionState(line,col, token, nature);
+        state = new CompletionState(line,col, token, nature,"");
         comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(1, comps.length);
         assertIsIn("test1", comps);
@@ -256,7 +256,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
             "database.Database.fromContentsCopy(self, cont)";
         col = sDoc.length()-3;
         doc = new Document(sDoc);
-        state = new CompletionState(line,col, token, nature);
+        state = new CompletionState(line,col, token, nature,"");
         comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(1, comps.length );
         assertIsIn("contentsCopy", comps);
@@ -270,7 +270,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         		"def met(par1, par2):          \n" +    
         		"    print                     \n";
         doc = new Document(sDoc);
-        state = new CompletionState(line,col, token, nature);
+        state = new CompletionState(line,col, token, nature,"");
         comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(3, comps.length );
         assertIsIn("par1", comps);
@@ -286,7 +286,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         		"    def met(self, par1, par2):   \n" +    
         		"        print                    \n";
         doc = new Document(sDoc);
-        state = new CompletionState(line,col, token, nature);
+        state = new CompletionState(line,col, token, nature,"");
         comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(4, comps.length );
         assertIsIn("par1", comps);
@@ -304,7 +304,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         		"        loc1 = 10                \n" +    
         		"        print                    \n";
         doc = new Document(sDoc);
-        state = new CompletionState(line,col, token, nature);
+        state = new CompletionState(line,col, token, nature,"");
         comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(5, comps.length );
         assertIsIn("par1", comps);
@@ -324,7 +324,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         		"        print                    \n" +
         		"        ignoreLineAfter = 5      \n";
         doc = new Document(sDoc);
-        state = new CompletionState(line,col, token, nature);
+        state = new CompletionState(line,col, token, nature,"");
         comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(5, comps.length );
         assertIsIn("par1", comps);

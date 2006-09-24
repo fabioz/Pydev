@@ -18,6 +18,11 @@ import org.python.pydev.core.log.Log;
 
 public class ExtensionHelper {
 
+    /**
+     * This should be used to add participants at test-time. It should be the name
+     * of the extension point to a list (which will be returned)
+     */
+    public static Map<String, List> testingParticipants;
     
     private static Map<String, IExtension[]> extensionsCache = new HashMap<String, IExtension[]>();
     
@@ -84,6 +89,10 @@ public class ExtensionHelper {
      */
     @SuppressWarnings("unchecked")
     public static List getParticipants(String type) {
+        if(testingParticipants != null){
+            return testingParticipants.get(type);
+        }
+        
         ArrayList list = new ArrayList();
         IExtension[] extensions = getExtensions(type);
         // For each extension ...

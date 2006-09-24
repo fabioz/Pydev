@@ -7,8 +7,8 @@ Giving better error message when external file is opened without any interpreter
 Completions for parameters based on the tokens that were defined for a parameter in a given context
 
 Pydev Extensions:
-Code analysis: analysis on imported modules do no longer give you errors on classes that have __getattribute__ overriden, 
-               are assigns to None initially or assigns to a function call
+Code analysis: analysis on imported modules do no longer give you errors on classes that have __getattribute__ overriden, are assigns to None initially or assigns to a function call
+Completions for parameters based on the interface of the tokens defined in a context, looking for all the methods/attributes declared in classes available to the project
 
 after 1.2.2
 

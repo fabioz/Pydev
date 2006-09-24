@@ -214,7 +214,7 @@ public class PyCodeCompletion {
             int line = request.doc.getLineOfOffset(request.documentOffset);
             IRegion region = request.doc.getLineInformation(line);
 
-            CompletionState state = new CompletionState(line, request.documentOffset - region.getOffset(), null, request.nature);
+            CompletionState state = new CompletionState(line, request.documentOffset - region.getOffset(), null, request.nature, request.qualifier);
             state.isInCalltip = request.isInCalltip;
 
             boolean importsTip = false;
@@ -406,7 +406,7 @@ public class PyCodeCompletion {
                         IModule module = AbstractModule.createModuleFromDoc("", null, request.doc, request.nature, line);
                       
                         ASTManager astMan = ((ASTManager)request.nature.getAstManager());
-                        comps = astMan.getAssignCompletions(module, new CompletionState(line, col, request.activationToken, request.nature));
+                        comps = astMan.getAssignCompletions(module, new CompletionState(line, col, request.activationToken, request.nature, request.qualifier));
 
                     }
                 }
