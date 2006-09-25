@@ -40,6 +40,9 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 	public static final String AUTOCOMPLETE_ON_PAR = "AUTOCOMPLETE_ON_PAR";
 	public static final boolean DEFAULT_AUTOCOMPLETE_ON_PAR = false;
 	
+	public static final String DEBUG_CODE_COMPLETION = "DEBUG_CODE_COMPLETION";
+	public static final boolean DEFAULT_DEBUG_CODE_COMPLETION = false;
+	
     /**
      */
     public PyCodeCompletionPreferencesPage() {
@@ -73,7 +76,18 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 		addField(new BooleanFieldEditor(
 		        AUTOCOMPLETE_ON_PAR, "Autocomplete on ','?", p));
 
+		addField(new BooleanFieldEditor(
+                DEBUG_CODE_COMPLETION, "Debug code completion?.", p));
+		
     }
+    
+    @Override
+    public boolean performOk() {
+        boolean ret = super.performOk();
+        PyCodeCompletion.DEBUG_CODE_COMPLETION = isToDebugCodeCompletion();
+        return ret;
+    }
+    
 
     /*
      * (non-Javadoc)
@@ -106,6 +120,13 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     
     public static boolean useAutocomplete() {
         return PydevPrefs.getPreferences().getBoolean(PyCodeCompletionPreferencesPage.USE_AUTOCOMPLETE);
+    }
+    
+    public static boolean isToDebugCodeCompletion() {
+        if(PydevPlugin.getDefault() == null){
+            return false;
+        }
+        return PydevPrefs.getPreferences().getBoolean(PyCodeCompletionPreferencesPage.DEBUG_CODE_COMPLETION);
     }
 
     public static int getAutocompleteDelay() {

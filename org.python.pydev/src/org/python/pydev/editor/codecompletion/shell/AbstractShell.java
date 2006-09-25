@@ -205,11 +205,16 @@ public abstract class AbstractShell {
     public synchronized static AbstractShell getServerShell(int relatedId, int id) throws IOException, Exception {
     	AbstractShell pythonShell = null;
     	synchronized(shells){
-    		dbg("getServerShell", 2);
+            if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+                Log.toLogFile("Getting shell relatedId:"+relatedId+" id:"+id);
+            }
 	        Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(relatedId);
 	        pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
 	        
 	        if(pythonShell == null){
+                if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+                    Log.toLogFile("pythonShell == null");
+                }
 	            if(relatedId == IPythonNature.PYTHON_RELATED){
 	                pythonShell = new PythonShell();
 	            }else if(relatedId == IPythonNature.JYTHON_RELATED){
@@ -217,7 +222,15 @@ public abstract class AbstractShell {
 	            }else{
 	                throw new RuntimeException("unknown related id");
 	            }
+                if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+                    Log.toLogFile("pythonShell.startIt()");
+                    Log.addLogLevel();
+                }
             	pythonShell.startIt(); //first start it
+            	if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+            	    Log.remLogLevel();
+            	    Log.toLogFile("Finished pythonShell.startIt()");
+            	}
 	            
 	            //then make it accessible
 	            typeToShell.put(new Integer(id), pythonShell);
@@ -342,6 +355,7 @@ public abstract class AbstractShell {
 				String osName = System.getProperty("os.name");
 				if (process == null) {
 					String msg = "Error creating python process - got null process(" + execMsg + ") - os:" + osName;
+                    dbg(msg, 1);
                     PydevPlugin.log(msg);
 					throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
 				}

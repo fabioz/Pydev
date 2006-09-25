@@ -65,7 +65,7 @@ public class PyCodeCompletion {
      * for some bug (at this moment this is being specifically added because of a halting bug
      * for pydev in linux: https://sourceforge.net/tracker/index.php?func=detail&aid=1509582&group_id=85796&atid=577329)
      */
-    public static final boolean DEBUG_CODE_COMPLETION = false;
+    public static boolean DEBUG_CODE_COMPLETION = PyCodeCompletionPreferencesPage.isToDebugCodeCompletion();
     
     /**
      * Type for unknown.
