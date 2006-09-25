@@ -13,7 +13,7 @@ import com.python.pydev.refactoring.RefactoringPlugin;
 public class MarkOccurrencesPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 	
 	public static final String USE_MARK_OCCURRENCES = "USE_MARK_OCCURRENCES";
-    public static final boolean DEFAULT_USE_MARK_OCCURRENCES = false;
+    public static final boolean DEFAULT_USE_MARK_OCCURRENCES = true;
 	private static PyPreferencesCache cache;
 
 	public MarkOccurrencesPreferencesPage() {
