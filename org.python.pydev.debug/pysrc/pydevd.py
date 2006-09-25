@@ -11,7 +11,7 @@ bufferStdErrToServer = False
 
 #this is because jython does not have staticmethods
 PyDBCtx_threadToCtx = {}
-PyDBCtx_Lock = threading.Lock()
+PyDBCtx_Lock = threading.RLock()
 PyDBCtx_Threads = {}#weakref.WeakValueDictionary()
 
 PyDBCtx_UseLocks = False #I don't know why jython halts when using this synchronization...
@@ -91,7 +91,7 @@ class PyDBCtx:
         self.filename = NormFile(frame.f_code.co_filename)
         self.base = os.path.basename( self.filename )
         self.thread_id = threadId
-        self.lock = threading.Lock()
+        self.lock = threading.RLock()
         
     def __str__(self):
         return 'PyDBCtx [%s %s %s]' % (self.base, self.thread_id)
@@ -123,8 +123,9 @@ class PyDBCommandThread(PyDBDaemonThread):
                     pydevd_log(0, 'Finishing debug communication...(2)')
                 time.sleep(0.5)
         except:
+            pass
             #only got this error in interpreter shutdown
-            pydevd_log(0, 'Finishing debug communication...(3)')
+            #pydevd_log(0, 'Finishing debug communication...(3)')
             
 
 class PyDBAdditionalThreadInfo:
@@ -169,7 +170,7 @@ class PyDB:
         self.cmdQueue = {}     # the hash of Queues. Key is thread id, value is thread
         self.breakpoints = {}
         self.readyToRun = False
-        self.lock = threading.Lock()
+        self.lock = threading.RLock()
         self.finishDebuggingSession = False
         
     def acquire(self):
@@ -827,6 +828,8 @@ def settrace(host='localhost', stdoutToServer = False, stderrToServer = False):
   
         debugger.setSuspend(t, CMD_SET_BREAK)
         
+        #that's right, debug only threads that pass through this function
+        #(so, we just call sys.settrace and not threading.settrace)
         sys.settrace(debugger.trace_dispatch)
         PyDBCommandThread(debugger).start()
         
@@ -843,6 +846,7 @@ def settrace(host='localhost', stdoutToServer = False, stderrToServer = False):
             additionalInfo = PyDBAdditionalThreadInfo()
             t.additionalInfo = additionalInfo
             
+        sys.settrace(debugger.trace_dispatch)
         debugger.setSuspend(t, CMD_SET_BREAK)
     
 if __name__ == '__main__':
