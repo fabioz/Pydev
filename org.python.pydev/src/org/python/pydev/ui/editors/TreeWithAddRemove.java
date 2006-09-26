@@ -166,20 +166,16 @@ public class TreeWithAddRemove extends Composite{
                             Object object = objects[i];
                             if (object instanceof IPath) {
                                 IPath p = (IPath) object;
-                                //this got it relative to the workspace root, and not to the project!!
-                                //this was corrected in the PythonPathNature.java class, that verifies it
-                                //for that before getting it (checks for compatibility with the project).
+                                //IMPORTANT: get it relative to the workspace root, and not to the project!!
+                                //(historical reasons)
                                 String pathAsString = getPathAsString(p);
-                                
-//                                IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-//                                IResource resource = root.findMember(p);
-//                                p = resource.getProjectRelativePath();
-//                                String pathAsString = getPathAsString(p);
-                                
                                 addTreeItem(pathAsString);
                             }else if(object instanceof IFile){
+                            	//IMPORTANT: get it relative to the workspace root, and not to the project!!
+                            	//(historical reasons)
                                 IFile p = (IFile) object;
                                 String pathAsString = getPathAsString(p.getProjectRelativePath());
+                                pathAsString = "/"+p.getProject().getName()+pathAsString;
                                 if(pathAsString.endsWith(".jar") || pathAsString.endsWith(".zip")){
                                     addTreeItem(pathAsString);
                                 }
