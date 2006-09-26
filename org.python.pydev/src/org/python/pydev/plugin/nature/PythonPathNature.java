@@ -9,6 +9,7 @@ package org.python.pydev.plugin.nature;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -113,29 +114,23 @@ public class PythonPathNature implements IPythonPathNature {
                 }
                 if(r instanceof IContainer){
                     container = (IContainer) r;
-                }
-                
-//                this is code to get it relative to the project... I was pursuing this solution, but as too many
-//                things already related to it being relative to the workspace, just the getProjectSourcePath was changed
-//                if(container == null){
-//                    IPath projectPath = project.getFullPath();
-//                    projectPath.append(p);
-//                    p = projectPath;
-//                    //try to get it relative to the project 
-//                    r = root.findMember(p);
-//                    if(r instanceof IContainer){
-//                        container = (IContainer) r;
-//                    }
-//                }
-                
-                if(container != null){
                     buf.append(REF.getFileAbsolutePath(container.getLocation().toFile()));
                     buf.append("|");
-                }else{ //the location was not found
-                    
-                    //not in workspace?... maybe it was removed, so, do nothing, but let the user know about it
-                    PydevPlugin.log("Unable to find the path "+strings[i]+" in the project were it\n" +
-                            "is added as a source folder for pydev (project: "+project.getName()+")");
+                
+                }else if(r instanceof IFile){ //jar file
+                	String extension = r.getFileExtension();
+                	if(extension == null || extension.equals("jar") == false){
+                		PydevPlugin.log("Error: the path "+strings[i]+" is a file but is not a .jar file.");
+                		
+                	}else{
+	                	buf.append(REF.getFileAbsolutePath(r.getLocation().toFile()));
+	                	buf.append("|");
+                	}
+                
+                }else{
+	                //not in workspace?... maybe it was removed, so, do nothing, but let the user know about it
+	                PydevPlugin.log("Unable to find the path "+strings[i]+" in the project were it\n" +
+	                        "is added as a source folder for pydev (project: "+project.getName()+")");
                 }
             }
         }
