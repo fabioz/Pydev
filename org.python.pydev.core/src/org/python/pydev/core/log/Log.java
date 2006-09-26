@@ -65,7 +65,7 @@ public class Log {
 		toLogFile(buffer.toString());
 	}
 
-    public synchronized static void toLogFile(String buffer) {
+    private synchronized static void toLogFile(String buffer) {
         synchronized(lock){
             try{
                 IPath stateLocation = CorePlugin.getDefault().getStateLocation().append("PydevLog.log");

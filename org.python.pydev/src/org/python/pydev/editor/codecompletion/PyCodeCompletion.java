@@ -302,8 +302,7 @@ public class PyCodeCompletion {
         
         if(DEBUG_CODE_COMPLETION){
             Log.remLogLevel();
-            Log.toLogFile(this, "Finished completion. Returned:"+ret.size()+" completions.");
-            Log.toLogFile("");
+            Log.toLogFile(this, "Finished completion. Returned:"+ret.size()+" completions.\r\n");
         }
 
         return ret;
