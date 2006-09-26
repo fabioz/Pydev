@@ -10,6 +10,8 @@ Add the zips to the right places in org.python.pydev.site
 
 run scripts: cmd_rsync*.bat
 
+Change site.xml in fabioz.com
+
 add zips to sf
 
 tag repository: e.g.: pydev_1_2_3
