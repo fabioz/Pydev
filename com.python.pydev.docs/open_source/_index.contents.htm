@@ -42,6 +42,23 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 <h4>Major highlights:</h4>
 
 
+<ul>
+<li>Completions for parameters based on the tokens that were defined for it in a given context
+</li><li>Removed the default PyLint options, because its command-line interface changed (that was crashing PyLint in newer versions)
+</li><li>Changed the grammar so that 'yield' is correctly parsed as an expression
+</li><li>Giving better error message when external file is opened without any interpreter selected
+</li><li>Icons for the builtins gotten on large libraries (such as wx -- it was optimized not to do that before)
+</li><li>Adding jars relative to the project now works correctly
+</li><li><strong>Patched (Kovan): </strong>The debugger is now able to get the variables in a context when handling negative payloads
+</li>
+
+</ul>
+
+
+
+<h3>New Release: 1.2.3</h3>
+
+<h4>Major highlights:</h4>
 
 <ul>
 <li>When the user specifies an invalid interpreter, a better error report is given (previously it was only shown in the error log)

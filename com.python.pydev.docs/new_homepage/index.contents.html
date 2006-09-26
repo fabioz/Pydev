@@ -12,9 +12,26 @@ some of its features below.</p>
 <h3>News</h3>
 
 	<ul>
-		<li><h4>Release 1.2.3 <IMG src="images/new.png" border="0" /></h4></li>
+		<li><h4>Release 1.2.4 <IMG src="images/new.png" border="0" /></h4></li>
 		<ul>
-			<li>Support for python 2.5 has been added</li>
+			<li><strong>Code analysis</strong>: analysis on imported modules do no longer give you errors on</li>
+				<ul>
+					<li>classes that have __getattribute__ or __getattr__ overriden</li>
+					<li>assigns that are initially None </li>
+					<li>assigns to a function call and not a class definition</li>
+				</ul>
+			<ul>
+			</ul>
+			<li><strong>Completions for parameters in a context-insensitive way</strong>, looking for all the methods/attributes 
+			declared in classes available to the project (after 3 chars)
+			</li>
+	</ul>
+	</ul>
+	
+	<ul>
+		<li><h4>Release 1.2.3</h4></li>
+		<ul>
+			<li>Support for <strong>python 2.5</strong> has been added</li>
 			<li>Some minor issues on mark occurrences when the definition for something could not be found were fixed
 			</li>
 		</ul>
