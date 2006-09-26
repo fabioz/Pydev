@@ -74,7 +74,7 @@ public abstract class AbstractShell {
             System.out.println(string);
         }
         if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
-            Log.toLogFile(AbstractShell.class, string);
+            Log.toLogFile(string, AbstractShell.class);
         }
     }
 
@@ -205,15 +205,18 @@ public abstract class AbstractShell {
     public synchronized static AbstractShell getServerShell(int relatedId, int id) throws IOException, Exception {
     	AbstractShell pythonShell = null;
     	synchronized(shells){
+    	    if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+    	        Log.toLogFile("Synchronizing on shells...", AbstractShell.class);
+    	    }
             if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
-                Log.toLogFile("Getting shell relatedId:"+relatedId+" id:"+id);
+                Log.toLogFile( "Getting shell relatedId:"+relatedId+" id:"+id, AbstractShell.class);
             }
 	        Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(relatedId);
 	        pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
 	        
 	        if(pythonShell == null){
                 if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
-                    Log.toLogFile("pythonShell == null");
+                    Log.toLogFile("pythonShell == null", AbstractShell.class);
                 }
 	            if(relatedId == IPythonNature.PYTHON_RELATED){
 	                pythonShell = new PythonShell();
@@ -223,29 +226,19 @@ public abstract class AbstractShell {
 	                throw new RuntimeException("unknown related id");
 	            }
                 if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
-                    Log.toLogFile("pythonShell.startIt()");
+                    Log.toLogFile("pythonShell.startIt()", AbstractShell.class);
                     Log.addLogLevel();
                 }
             	pythonShell.startIt(); //first start it
             	if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
             	    Log.remLogLevel();
-            	    Log.toLogFile("Finished pythonShell.startIt()");
+            	    Log.toLogFile("Finished pythonShell.startIt()", AbstractShell.class);
             	}
 	            
 	            //then make it accessible
 	            typeToShell.put(new Integer(id), pythonShell);
 	        }
             
-    	}
-    	if(pythonShell != null){
-	    	//if the shell is still starting, we will not return it (timeout is 2 seconds)
-    		int numberOfConnectionAttempts = PyCodeCompletionPreferencesPage.getNumberOfConnectionAttempts();
-    		Object lock = new Object();
-    		for (int i = 0; pythonShell.inStart && i < numberOfConnectionAttempts; i++) {
-    			synchronized (lock) {
-					lock.wait(DEFAULT_SLEEP_BETWEEN_ATTEMPTS);
-    			}
-			}
     	}
     	return pythonShell;
     }
@@ -361,8 +354,8 @@ public abstract class AbstractShell {
 				}
 				try {
 					int exitVal = process.exitValue(); //should throw exception saying that it still is not terminated...
-					String msg = "Error creating python process - exited before creating sockets - exitValue = ("
-							+ exitVal + ")(" + execMsg + ") - os:" + osName;
+					String msg = "Error creating python process - exited before creating sockets - exitValue = ("+ exitVal + ")(" + execMsg + ") - os:" + osName;
+					dbg(msg, 1);
 					PydevPlugin.log(msg);
 					throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
 				} catch (IllegalThreadStateException e2) { //this is ok
@@ -382,6 +375,7 @@ public abstract class AbstractShell {
 				int maxAttempts = PyCodeCompletionPreferencesPage.getNumberOfConnectionAttempts();
 				while (!connected && attempts < maxAttempts && !finishedForGood) {
 					attempts += 1;
+					dbg("connecting attept..."+attempts,1);
 					try {
 						if (socketToWrite == null || socketToWrite.isConnected() == false) {
 							socketToWrite = new Socket("127.0.0.1", pWrite); //we should write in this port
@@ -399,12 +393,18 @@ public abstract class AbstractShell {
 						}
 					} catch (IOException e1) {
 						if (socketToWrite != null && socketToWrite.isConnected() == true) {
-							PydevPlugin.log(IStatus.ERROR, "Attempt: " + attempts + " of " + maxAttempts
-									+ " failed, trying again...(socketToWrite already binded)", e1);
+							String msg = "Attempt: " + attempts + " of " + maxAttempts + 
+                            " failed, trying again...(socketToWrite already binded)";
+                            
+							dbg(msg,1);
+                            PydevPlugin.log(IStatus.ERROR, msg, e1);
 						}
 						if (socketToWrite != null && !socketToWrite.isConnected() == true) {
-						    PydevPlugin.log(IStatus.ERROR, "Attempt: " + attempts + " of " + maxAttempts
-						            + " failed, trying again...(socketToWrite still not binded)", e1);
+						    String msg = "Attempt: " + attempts + " of " + maxAttempts +
+                            " failed, trying again...(socketToWrite still not binded)";
+                            
+						    dbg(msg,1);
+                            PydevPlugin.log(IStatus.ERROR, msg, e1);
 						}
 					}
 
@@ -429,8 +429,11 @@ public abstract class AbstractShell {
 					}
 
 					String output = getProcessOutput();
-					Exception exception = new Exception("Error connecting to python process (" + execMsg + ") "
-							+ isAlive + " the output of the process is: " + output);
+					String msg = "Error connecting to python process (" + execMsg + ") " +
+                    isAlive + " the output of the process is: " + output;
+                    
+                    Exception exception = new Exception(msg);
+                    dbg(msg, 1);
                     PydevPlugin.log(exception);
 					throw exception;
 				}
@@ -884,7 +887,7 @@ public abstract class AbstractShell {
      * @param token the token we are looking for
      * @return the file where the token was defined, its line and its column (or null if it was not found)
      */
-    public Tuple<String[],int []> getLineCol(String moduleName, String token, List pythonpath) {
+    public synchronized Tuple<String[],int []> getLineCol(String moduleName, String token, List pythonpath) {
         while(isInOperation){
             sleepALittle(100);
         }
