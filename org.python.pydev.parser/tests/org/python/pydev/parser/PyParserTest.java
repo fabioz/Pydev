@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -24,7 +25,7 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-//            test.testc();
+            test.testYield2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
@@ -122,6 +123,17 @@ public class PyParserTest extends PyParserTestBase{
                 "def m():\n" +
                 "    yield 1";
         parseLegalDocStr(s);
+    }
+    
+    public void testYield2() {
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_4);
+    	String s = "" +
+    	"class Generator:\n" +
+    	"    def __iter__(self): \n" +
+    	"        for a in range(10):\n" +
+    	"            yield foo(a)\n" +
+    	"";
+    	parseLegalDocStr(s);
     }
 
     
@@ -272,9 +284,11 @@ public class PyParserTest extends PyParserTestBase{
     }
     
     public void testOnTestContextLib() {
-        String loc = TestDependent.PYTHON_LIB+"test/test_contextlib.py";
-        String s = REF.getFileContents(new File(loc));
-        parseLegalDocStr(s,"(file: test_contextlib.py)");
+        if(TestDependent.HAS_PYTHON_TESTS){
+        	String loc = TestDependent.PYTHON_LIB+"test/test_contextlib.py";
+	        String s = REF.getFileContents(new File(loc));
+	        parseLegalDocStr(s,"(file: test_contextlib.py)");
+        }
     }
     
     public void testOnCalendar() {

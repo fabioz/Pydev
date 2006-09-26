@@ -177,7 +177,13 @@ public final class TreeBuilder24 implements PythonGrammar24TreeConstants {
         case JJTSUITE:
             stmtType[] stmts = new stmtType[arity];
             for (int i = arity-1; i >= 0; i--) {
-                stmts[i] = (stmtType) stack.popNode();
+                SimpleNode yield_or_stmt = stack.popNode();
+                if(yield_or_stmt instanceof Yield){
+                    stmts[i] = new Expr((Yield)yield_or_stmt);
+                    
+                }else{
+                    stmts[i] = (stmtType) yield_or_stmt;
+                }
             }
             return new Suite(stmts);
         case JJTEXPR_STMT:

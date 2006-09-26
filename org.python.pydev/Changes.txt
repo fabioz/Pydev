@@ -1,17 +1,21 @@
 after 1.2.3
 
 Pydev:
-Removed the default PyLint options, because as its interface changed, this was giving errors on newer versions
-Changed the grammar, so, now 'yield' is correctly parsed as an expression
+Completions for parameters based on the tokens that were defined for it in a given context
+Removed the default PyLint options, because its command-line interface changed (was crashing PyLint in newer versions)
+Changed the grammar, so that 'yield' is correctly parsed as an expression
 Giving better error message when external file is opened without any interpreter selected
-Completions for parameters based on the tokens that were defined for a parameter in a given context
-Types for the builtins gotten even on large libraries (such as wx) -- it was only being marked as builtin before
-Adding jars in a project/relative way now works correctly
-When having negative payloads, the debugger is still able to get the variables in a context (patch by kovan)
+Icons for the builtins gotten on large libraries (such as wx)
+Adding jars relative to the project now works correctly
+The debugger is now able to get the variables in a context when handling negative payloads (patch by kovan)
 
 Pydev Extensions:
-Code analysis: analysis on imported modules do no longer give you errors on classes that have __getattribute__ overriden, are assigns to None initially or assigns to a function call
+Code analysis: analysis on imported modules do no longer give you errors on:
+- classes that have __getattribute__ overriden
+- assigns that are initially None 
+- assigns to a function call and not a class definition
 Completions for parameters in a context-insensitive way, looking for all the methods/attributes declared in classes available to the project (after 3 chars)
+Note: Builtins are still not handled here.
 
 after 1.2.2
 
