@@ -371,7 +371,7 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
     
 
 	// thread_id\tresume_reason
-	static Pattern threadRunPattern = Pattern.compile("(\\d+)\\t(\\w*)");
+	static Pattern threadRunPattern = Pattern.compile("(-?\\d+)\\t(\\w*)");
 	/**
 	 * ThreadRun event processing
 	 */
