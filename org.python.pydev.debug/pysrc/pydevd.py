@@ -1,5 +1,4 @@
 import traceback
-import weakref
 from pydevd_comm import * #@UnusedWildImport
 import pydevd_io
 import pydevd_frame

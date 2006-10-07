@@ -28,13 +28,12 @@ class PyDBFrame:
         
         t = self.t
         additionalInfo = self.additionalInfo
-        filename = self.filename
 
         # Let's check to see if we are in a line that has a breakpoint. If we don't have a breakpoint, 
         # we will return nothing for the next trace
         #also, after we hit a breakpoint and go to some other debugging state, we have to force the set trace anyway,
         #so, that's why the additional checks are there.
-        breakpoint = self.mainDebugger.breakpoints.get(filename, None)
+        breakpoint = self.mainDebugger.breakpoints.get(self.filename, None)
         if breakpoint is None and additionalInfo.pydev_state == STATE_RUN and \
            additionalInfo.pydev_step_stop is None and additionalInfo.pydev_step_cmd is None:
             #print 'skipping', self.base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
