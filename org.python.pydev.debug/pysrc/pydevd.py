@@ -2,6 +2,7 @@ import traceback
 import weakref
 from pydevd_comm import * #@UnusedWildImport
 import pydevd_io
+import pydevd_frame
 
 DONT_TRACE = ('pydevd.py' , 'threading.py', 'pydevd_vars.py', 'pydevd_comm.py')
 
@@ -9,103 +10,20 @@ connected = False
 bufferStdOutToServer = False
 bufferStdErrToServer = False
 
-#this is because jython does not have staticmethods
-PyDBCtx_threadToCtx = {}
-PyDBCtx_Lock = threading.RLock()
-PyDBCtx_Threads = {}#weakref.WeakValueDictionary()
-
-PyDBCtx_UseLocks = False #I don't know why jython halts when using this synchronization...
-PyDBCtxObjUseLocks = True
 PyDBUseLocks = True
 
-def PyDBCtx_LockAcquire():
-    if PyDBCtx_UseLocks:
-        PyDBCtx_Lock.acquire()
-    return True
-    
-def PyDBCtx_LockRelease():
-    if PyDBCtx_UseLocks:
-        PyDBCtx_Lock.release()
-    return True
-    
-def PyDBCtx_GetCtxs():
-    PyDBCtx_LockAcquire()
+NORM_FILENAME = {}
+
+def GetFilenameAndBase(frame):
+    f = frame.f_code.co_filename
     try:
-        ret = []
-        for v in PyDBCtx_threadToCtx.values():
-            ret += v.values()
-    finally:
-        PyDBCtx_LockRelease()
-    return ret
-
-def PyDBCtx_GetCtx(frame, currThread):
-    PyDBCtx_LockAcquire()
-    try:
-        #keep the last frame for each thread (previously we were keeping all the frames, in the context,
-        #but that was a bad thing, as things in the frames did not die).
-        threadId = id(currThread)
-        PyDBCtx_Threads[threadId] = weakref.ref(currThread)
-        currThread._lastFrame = frame
-        
-        #we create a context for each thread
-        ctxs = PyDBCtx_threadToCtx.get(threadId)
-        if ctxs is None:
-            ctxs = {}
-            PyDBCtx_threadToCtx[threadId] = ctxs
-            
-        #and for each thread, the code for the frame
-        key = frame.f_code
-        ctx = ctxs.get(key)
-        if ctx is None:
-            ctx = PyDBCtx(frame, threadId)
-            ctxs[key] = ctx
-    finally:
-        PyDBCtx_LockRelease()
-
-    return ctx
-
-def PyDBCtx_SetTraceForAllFileCtxs(f):
-    PyDBCtx_LockAcquire()
-    try:
-        g = GetGlobalDebugger()
-        if g:
-            for ctx in PyDBCtx_GetCtxs():
-                if ctx.filename == f:
-                    thread = PyDBCtx_Threads.get(ctx.thread_id)()#it is a weakref
-                    if thread is not None:
-                        frame = thread._lastFrame
-                        while frame:
-                            currFile = NormFile(frame.f_code.co_filename)
-                            if f == currFile:
-                                frame.f_trace = g.trace_dispatch
-                            frame = frame.f_back
-    finally:
-        PyDBCtx_LockRelease()
-
-
-class PyDBCtx:
-    '''This class is used to keep track of the contexts we pass through (acting as a cache for them).
-    '''
-            
-    def __init__(self, frame, threadId):
-        self.filename = NormFile(frame.f_code.co_filename)
-        self.base = os.path.basename( self.filename )
-        self.thread_id = threadId
-        self.lock = threading.RLock()
-        
-    def __str__(self):
-        return 'PyDBCtx [%s %s %s]' % (self.base, self.thread_id)
-    
-    def acquire(self):
-        if PyDBCtxObjUseLocks:
-            self.lock.acquire()
-        return True
-        
-    def release(self):
-        if PyDBCtxObjUseLocks:
-            self.lock.release()
-        return True
-        
+        return NORM_FILENAME[f]
+    except KeyError:
+        filename = NormFile(f)
+        base = os.path.basename(filename)
+        NORM_FILENAME[f] = filename, base
+        return filename, base
+     
 class PyDBCommandThread(PyDBDaemonThread):
     
     def __init__(self, pyDb):
@@ -236,17 +154,17 @@ class PyDB:
             queue = self.getInternalQueue(thread_id)
             queue.put(int_cmd)
 
-    def checkOutput(self, out, ctx):
+    def checkOutput(self, out, outCtx):
         '''Checks the output to see if we have to send some buffered output to the debug server
         
         @param out: sys.stdout or sys.stderr
-        @param ctx: the context indicating: 1=stdout and 2=stderr (to know the colors to write it)
+        @param outCtx: the context indicating: 1=stdout and 2=stderr (to know the colors to write it)
         '''
         
         try:
             v = out.getvalue()
             if v:
-                self.cmdFactory.makeIoMessage(v, ctx, self)
+                self.cmdFactory.makeIoMessage(v, outCtx, self)
         except:
             traceback.print_exc()
         
@@ -402,7 +320,6 @@ class PyDB:
                     
                         
                     self.breakpoints[file] = breakDict
-                    PyDBCtx_SetTraceForAllFileCtxs(file)
                     
                 elif id == CMD_REMOVE_BREAK:
                     #command to remove some breakpoint
@@ -498,13 +415,9 @@ class PyDB:
  
         cmd = self.cmdFactory.makeThreadRunMessage(id(thread), info.pydev_step_cmd)
         self.writer.addCommand(cmd)
-                
-
+    
     def trace_dispatch(self, frame, event, arg):
-        ''' This is the main callback for the debugger. 
-        
-        It is called for each new context we enter       
-        After we hit some breakpoint, it is called for every line executed (until we exit debug state).
+        ''' This is the callback used when we enter some context in the debugger. 
         
         We also decorate the thread we are in with info about the debugging.
         The attributes added are:
@@ -513,156 +426,47 @@ class PyDB:
             pydev_step_cmd
             pydev_notify_kill 
         '''
-        if self.finishDebuggingSession:
-            #that was not working very well because jython gave some socket errors
-            threads = threading.enumerate()
-            for t in threads: 
-                if hasattr(t, 'doKill'):
-                    t.doKill()
-            time.sleep(0.2) #give them some time to release their locks...
-            try:
-                import java.lang.System
-                java.lang.System.exit(0)
-            except:
-                sys.exit(0)
-
-        if event not in ('call', 'line', 'return', 'exception'): #jython has an 'exception' event that must be treated too (surprise, surprise)
-            return None
-        
-        
-        t = threading.currentThread()
-        ctx = PyDBCtx_GetCtx(frame, t)
-        base = ctx.base
-
-        if base in DONT_TRACE: #we don't want to debug threading or anything related to pydevd
-            return None
-
-        # if thread is not alive, cancel trace_dispatch processing
-        if not t.isAlive():
-            self.processThreadNotAlive(id(t))
-            return None # suspend tracing
-        
         try:
-            additionalInfo = t.additionalInfo
-        except AttributeError:
-            additionalInfo = PyDBAdditionalThreadInfo()
-            t.additionalInfo = additionalInfo
-            
-        filename = ctx.filename
-        released = False
-        ctx.acquire()
-        try:
+            if self.finishDebuggingSession:
+                #that was not working very well because jython gave some socket errors
+                threads = threading.enumerate()
+                for t in threads: 
+                    if hasattr(t, 'doKill'):
+                        t.doKill()
+                time.sleep(0.2) #give them some time to release their locks...
+                try:
+                    import java.lang.System
+                    java.lang.System.exit(0)
+                except:
+                    sys.exit(0)
     
-            # Let's check to see if we are in a line that has a breakpoint. If we don't have a breakpoint, 
-            # we will return nothing for the next trace
-            #also, after we hit a breakpoint and go to some other debugging state, we have to force the set trace anyway,
-            #so, that's why the additional checks are there.
-            if not self.breakpoints.has_key(filename) and additionalInfo.pydev_state == PyDB.STATE_RUN and \
-               additionalInfo.pydev_step_stop is None and additionalInfo.pydev_step_cmd is None:
-                #print 'skipping', base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
-                return self.stopTracingFrame(frame)
+            if event not in ('call', 'line', 'return', 'exception'): #jython has an 'exception' event that must be treated too (strangely it is called when doing a wild import)
+                return None
+            
+            
+            t = threading.currentThread()
+            filename, base = GetFilenameAndBase(frame)
     
-            else:
-                #print 'NOT skipped', base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
-                #We just hit a breakpoint or we are already in step mode. Either way, let's trace this frame
-                frame.f_trace = self.trace_dispatch
-            
-            
+            if base in DONT_TRACE: #we don't want to debug threading or anything related to pydevd
+                return None
+    
+            # if thread is not alive, cancel trace_dispatch processing
+            if not t.isAlive():
+                self.processThreadNotAlive(id(t))
+                return None # suspend tracing
             
             try:
-                line = int(frame.f_lineno)
-                if additionalInfo.pydev_state != PyDB.STATE_SUSPEND and self.breakpoints.has_key(filename) and self.breakpoints[filename].has_key(line):
-                    #ok, hit breakpoint, now, we have to discover if it is a conditional breakpoint
-                    # lets do the conditional stuff here
-                    condition = self.breakpoints[filename][line][1]
-    
-                    if condition is not None:
-                        try:
-                            val = eval(condition, frame.f_globals, frame.f_locals)
-                            if not val:
-                                return None
-                                
-                        except:
-                            print >> sys.stderr, 'Error while evaluating expression'
-                            traceback.print_exc()
-                            return self.stopTracingFrame(frame)
-                    
-                    #when we hit a breakpoint, we set the tracing function for the callers of the current frame, because
-                    #we may have to do some return
-                    SetTraceForParents(frame, self.trace_dispatch)
-                    self.setSuspend(t, CMD_SET_BREAK)
-                    
-                # if thread has a suspend flag, we suspend with a busy wait
-                if additionalInfo.pydev_state == PyDB.STATE_SUSPEND:
-                    released = True
-                    ctx.release()
-                    self.doWaitSuspend(t, frame, event, arg)
-                    return self.trace_dispatch
-                
-            except:
-                traceback.print_exc()
-                raise
-    
-            #step handling. We stop when we hit the right frame
-            try:
-                if additionalInfo.pydev_step_cmd == CMD_STEP_INTO and event in ('line', 'return'):
-                    self.setSuspend(t, CMD_STEP_INTO)
-                    released = True
-                    ctx.release()
-                    self.doWaitSuspend(t, frame, event, arg)      
-                    
-                
-                elif additionalInfo.pydev_step_cmd == CMD_STEP_OVER and event in ('line', 'return'): 
-                    if additionalInfo.pydev_step_stop == frame:
-                        self.setSuspend(t, CMD_STEP_OVER)
-                        released = True
-                        ctx.release()
-                        self.doWaitSuspend(t, frame, event, arg)
-                    
-                    
-                elif additionalInfo.pydev_step_cmd == CMD_STEP_RETURN:
-                    if event == 'return':
-                        additionalInfo.pydev_return_call_count += 1
-                    elif event == 'call':
-                        additionalInfo.pydev_return_call_count -= 1
-                        
-                    if additionalInfo.pydev_stop_on_return_count_1 and additionalInfo.pydev_return_call_count == 1 \
-                        and additionalInfo.pydev_step_stop == frame.f_back  and event in ('line', 'return'):
-                        
-                        additionalInfo.pydev_return_call_count == 0
-                        additionalInfo.pydev_stop_on_return_count_1 = False
-                        self.setSuspend(t, CMD_STEP_RETURN)
-                        released = True
-                        ctx.release()
-                        self.doWaitSuspend(t, frame, event, arg)
-                        
-                    if additionalInfo.pydev_step_stop == frame and event in ('line', 'return'):
-                        self.setSuspend(t, CMD_STEP_RETURN)
-                        released = True
-                        ctx.release()
-                        self.doWaitSuspend(t, frame, event, arg)
-            except:
-                traceback.print_exc()
-                additionalInfo.pydev_step_cmd = None
-        finally:
-            if not released:
-                ctx.release()
-        
-        
-        #if we are quitting, let's stop the tracing
-        retVal = None
-        if not self.quitting:
-            retVal = self.trace_dispatch
-
-        return retVal
-
-    def stopTracingFrame(self, frame):
-        '''Removes the f_trace hook from the frame and returns None
-        '''
-        
-        if hasattr(frame, 'f_trace'):
-            del frame.f_trace
-        return None
+                additionalInfo = t.additionalInfo
+            except AttributeError:
+                additionalInfo = PyDBAdditionalThreadInfo()
+                t.additionalInfo = additionalInfo
+            
+            #each new frame...
+            dbFrame = pydevd_frame.PyDBFrame(self, filename, base, additionalInfo, t)
+            return dbFrame.trace_dispatch(frame, event, arg)
+        except:
+            traceback.print_exc()
+            return None
 
     def run(self, file, globals=None, locals=None):
 
@@ -771,11 +575,6 @@ def setupType():
     except:
         type = 'python'
 
-
-def SetTraceForAll(frame, dispatch_func):
-    frame.f_trace = dispatch_func
-    SetTraceForParents(frame, dispatch_func)
-    
 def SetTraceForParents(frame, dispatch_func):
     frame = frame.f_back
     while frame:
