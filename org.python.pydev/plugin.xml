@@ -953,21 +953,21 @@
 	    allowMultiple="false"
 	    category="org.python.pydev"
 	    class="org.eclipse.ui.navigator.CommonNavigator"
-	    id="org.eclipse.ui.examples.navigator.view"
+	    id="org.python.pydev.navigator.view"
 	    name="Pydev Package Explorer"/>
 </extension>
    
 <!-- Declare the viewer configuration, and the default content/action bindings -->
 <extension point="org.eclipse.ui.navigator.viewer">
-	<viewer viewerId="org.eclipse.ui.examples.navigator.view"/>
-	<viewerContentBinding viewerId="org.eclipse.ui.examples.navigator.view">
+	<viewer viewerId="org.python.pydev.navigator.view"/>
+	<viewerContentBinding viewerId="org.python.pydev.navigator.view">
 		<includes>
 			<contentExtension pattern="org.eclipse.ui.navigator.resourceContent"/>
 			<contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/> 
 			<contentExtension pattern="org.eclipse.ui.examples.navigator.filters.*"/> 
 		</includes>
 	</viewerContentBinding>
-	<viewerActionBinding viewerId="org.eclipse.ui.examples.navigator.view">
+	<viewerActionBinding viewerId="org.python.pydev.navigator.view">
 		<includes>
 			<actionExtension pattern="org.eclipse.ui.navigator.resources.*"/>
 		</includes>
@@ -993,5 +993,43 @@
       </commonFilter>
    </extension>
 
-	
+  <!-- Declare a content extension that renders the contents of a properties file -->
+  <extension point="org.eclipse.ui.navigator.navigatorContent">
+         
+      <navigatorContent 
+            id="org.python.pydev.navigator.pythoncontent" 
+            name="Properties File Contents"
+            contentProvider="org.python.pydev.navigator.PythonFileProvider"
+            labelProvider="org.python.pydev.navigator.PythonLabelProvider" 
+            activeByDefault="true"
+            priority="normal" >
+         <triggerPoints>
+         	<or>
+	            <and>
+	               <instanceof value="org.eclipse.core.resources.IResource"/>
+	               <test
+	                     forcePluginActivation="true"
+	                     property="org.eclipse.core.resources.extension"
+	                     value="py"/>
+	            </and>
+				<instanceof value="org.python.pydev.navigator.PythonTreeData"/>
+			</or>
+         </triggerPoints>
+         <possibleChildren>
+            <or>
+               <instanceof value="org.python.pydev.navigator.PythonTreeData"/> 
+            </or>
+         </possibleChildren>
+      </navigatorContent>
+   </extension>
+   <!-- Bind the Properties content extension to the viewer -->
+   <extension
+         point="org.eclipse.ui.navigator.viewer">
+      <viewerContentBinding viewerId="org.python.pydev.navigator.view">
+         <includes>
+            <contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
+         </includes>
+      </viewerContentBinding>
+   </extension>
+
 </plugin>
