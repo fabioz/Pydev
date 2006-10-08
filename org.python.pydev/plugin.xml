@@ -1036,6 +1036,9 @@
                 <instanceof value="org.python.pydev.navigator.PythonNode"/>
             </or>
          </possibleChildren>
+         <commonSorter
+               class="org.python.pydev.navigator.PythonNodeSorter"
+               id="org.python.pydev.navigator.pythonnodesorter"/>
       </navigatorContent>
    </extension>
    <!-- Bind the Properties content extension to the viewer -->
