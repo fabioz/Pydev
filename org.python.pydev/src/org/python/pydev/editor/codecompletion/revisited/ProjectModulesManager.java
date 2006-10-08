@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import java.io.File;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -28,6 +29,7 @@ import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
 import org.python.pydev.plugin.PydevPlugin;
@@ -243,7 +245,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
             IModule module;
             if (m instanceof ProjectModulesManager) {
                 ProjectModulesManager pM = (ProjectModulesManager) m;
-                module = pM.superGetModule(name, nature, dontSearchInit);
+                module = pM.getModuleInDirectManager(name, nature, dontSearchInit);
 
             }else{
                 module = m.getModule(name, nature, dontSearchInit); //we already have the system manager here...
@@ -255,7 +257,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         return super.getModule(name, nature, dontSearchInit);
     }
     
-    protected IModule superGetModule(String name, IPythonNature nature, boolean dontSearchInit) {
+    public IModule getModuleInDirectManager(String name, IPythonNature nature, boolean dontSearchInit) {
         return super.getModule(name, nature, dontSearchInit);
     }
 
@@ -281,7 +283,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
             String mod;
             if (m instanceof ProjectModulesManager) {
                 ProjectModulesManager pM = (ProjectModulesManager) m;
-                mod = pM.superResolveModule(full);
+                mod = pM.resolveModuleInDirectManager(full);
             
             }else{
                 mod = m.resolveModule(full);
@@ -294,9 +296,15 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         return super.resolveModule(full);
     }
 
-    protected String superResolveModule(String full) {
+    public String resolveModuleInDirectManager(String full) {
         return super.resolveModule(full);
     }
+    
+    public String resolveModuleInDirectManager(IResource member, IProject container) {
+        File inOs = member.getRawLocation().toFile();
+        return resolveModuleInDirectManager(REF.getFileAbsolutePath(inOs));
+    }
+
     
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#changePythonPath(java.lang.String, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)

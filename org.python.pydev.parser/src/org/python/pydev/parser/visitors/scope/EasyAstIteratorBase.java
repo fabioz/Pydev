@@ -235,8 +235,7 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      * @return a list with all the class and method definitions
      */
     public List<ASTEntry> getClassesAndMethodsList() {
-        Iterator<ASTEntry> classesAndMethodsIterator = getClassesAndMethodsIterator();
-        return getIteratorAsList(classesAndMethodsIterator);
+        return getAsList(new Class[]{ClassDef.class, FunctionDef.class});
     }
     
     /**
@@ -265,11 +264,7 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
         return getIterator(new Class[]{class_});
     }
 
-    /**
-     * @param classes the classes we are searching for
-     * @return an iterator with nodes found from the passed classes
-     */
-    public Iterator<ASTEntry> getIterator(Class ... classes) {
+    public List<ASTEntry> getAsList(Class ... classes) {
         List<ASTEntry> newList = new ArrayList<ASTEntry>();
         for (Iterator iter = nodes.iterator(); iter.hasNext();) {
             ASTEntry entry = (ASTEntry) iter.next();
@@ -277,7 +272,19 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
                 newList.add(entry);
             }
         }
-        return newList.iterator();
+        return newList;
+    }
+    
+    public List<ASTEntry> getAsList(Class class_) {
+        return getAsList(new Class[]{class_});
+    }
+    
+    /**
+     * @param classes the classes we are searching for
+     * @return an iterator with nodes found from the passed classes
+     */
+    public Iterator<ASTEntry> getIterator(Class ... classes) {
+        return getAsList(classes).iterator();
     }
 
     /**
@@ -319,11 +326,5 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
         return false;
     }
     
-    public List<ASTEntry> getAsList(Class class_) {
-        return getAsList(new Class[]{class_});
-    }
-    public List<ASTEntry> getAsList(Class[] classes) {
-        return getIteratorAsList(getIterator(classes));
-    }
 
 }

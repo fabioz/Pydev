@@ -4,7 +4,6 @@
  */
 package org.python.pydev.navigator;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
@@ -19,23 +18,18 @@ public class PythonLabelProvider implements ILabelProvider{
     }
     
     public Image getImage(Object element) {
+        if(element instanceof PythonNode){
+            PythonNode node = (PythonNode) element;
+            return node.entry.getImage();
+        }
         return provider.getImage(element);
     }
 
     public String getText(Object element) {
-        if(element instanceof IFile){
-            IFile f = (IFile) element;
-            StringBuffer buffer = new StringBuffer();
-            buffer.append(f.getName());
-            buffer.append(" (");
-            buffer.append(f.getFullPath().removeFileExtension().removeLastSegments(1));
-            buffer.append(")");
-            return buffer.toString();
-        }else if(element instanceof PythonTreeData){
-            PythonTreeData data = (PythonTreeData) element;
-            return data.toString();
+        if(element instanceof PythonNode){
+            PythonNode node = (PythonNode) element;
+            return node.entry.toString();
         }
-        
         return provider.getText(element);
     }
 

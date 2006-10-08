@@ -1,3 +1,9 @@
+after 1.2.4
+
+Pydev:
+Crash when debugging wxPython programs should not happen anymore
+A Pydev package explorer was contributed
+
 after 1.2.3
 
 Pydev:

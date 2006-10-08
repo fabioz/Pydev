@@ -955,8 +955,7 @@
 	    class="org.eclipse.ui.navigator.CommonNavigator"
 	    id="org.python.pydev.navigator.view"
 	    name="Pydev Package Explorer"/>
-</extension>
-   
+</extension> 
 <!-- Declare the viewer configuration, and the default content/action bindings -->
 <extension point="org.eclipse.ui.navigator.viewer">
 	<viewer viewerId="org.python.pydev.navigator.view"/>
@@ -982,13 +981,21 @@
             id="org.eclipse.ui.examples.navigator.filters.hideNonPydevProjects"
             name="Hide non-Pydev Projects">
          <filterExpression>
-            <not>
-               <adapt type="org.eclipse.core.resources.IProject">
-                  <test
-                        property="org.eclipse.core.resources.projectNature"
-                        value="org.python.pydev.pythonNature"/>
-               </adapt>
-            </not>
+         	<and>
+	            <not>
+	               <adapt type="org.eclipse.core.resources.IProject">
+	                  <test
+	                        property="org.eclipse.core.resources.projectNature"
+	                        value="org.python.pydev.pythonNature"/>
+	               </adapt>
+	            </not>
+	            
+				<not><instanceof value="org.eclipse.core.resources.IFolder"/>
+				</not><not><instanceof value="org.eclipse.core.resources.IStorage"/>
+                </not><not><instanceof value="org.eclipse.core.resources.IFile"/>
+                </not><not><instanceof value="org.python.pydev.navigator.PythonNode"/>
+                </not>
+	        </and>
          </filterExpression>
       </commonFilter>
    </extension>
@@ -998,26 +1005,35 @@
          
       <navigatorContent 
             id="org.python.pydev.navigator.pythoncontent" 
-            name="Properties File Contents"
+            name="Pydev Navigator Content"
             contentProvider="org.python.pydev.navigator.PythonFileProvider"
             labelProvider="org.python.pydev.navigator.PythonLabelProvider" 
             activeByDefault="true"
-            priority="normal" >
+            priority="high" >
          <triggerPoints>
          	<or>
+				<instanceof value="org.eclipse.core.resources.IWorkspaceRoot" />
 	            <and>
-	               <instanceof value="org.eclipse.core.resources.IResource"/>
+	               <instanceof value="org.eclipse.core.resources.IProject"/>
 	               <test
 	                     forcePluginActivation="true"
-	                     property="org.eclipse.core.resources.extension"
-	                     value="py"/>
+	                     property="org.eclipse.core.resources.projectNature"
+	                     value="org.python.pydev.pythonNature"/>
 	            </and>
-				<instanceof value="org.python.pydev.navigator.PythonTreeData"/>
+				<instanceof value="org.eclipse.core.resources.IFolder"/>
+				<instanceof value="org.eclipse.core.resources.IStorage"/>
+                <instanceof value="org.eclipse.core.resources.IFile"/>
+                <instanceof value="org.python.pydev.navigator.PythonNode"/>
 			</or>
          </triggerPoints>
          <possibleChildren>
             <or>
-               <instanceof value="org.python.pydev.navigator.PythonTreeData"/> 
+				<adapt type="org.eclipse.core.resources.IProject" />
+				<instanceof value="org.eclipse.core.resources.IWorkspaceRoot" />
+				<instanceof value="org.eclipse.core.resources.IFolder" />
+				<instanceof value="org.eclipse.core.resources.IStorage"/>
+				<instanceof value="org.eclipse.core.resources.IFile" />
+                <instanceof value="org.python.pydev.navigator.PythonNode"/>
             </or>
          </possibleChildren>
       </navigatorContent>
@@ -1027,7 +1043,7 @@
          point="org.eclipse.ui.navigator.viewer">
       <viewerContentBinding viewerId="org.python.pydev.navigator.view">
          <includes>
-            <contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
+			<contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
          </includes>
       </viewerContentBinding>
    </extension>

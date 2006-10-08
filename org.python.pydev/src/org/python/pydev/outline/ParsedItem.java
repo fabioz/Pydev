@@ -6,14 +6,23 @@ package org.python.pydev.outline;
 
 import java.util.ArrayList;
 
+import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.bundle.ImageCache;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.UIConstants;
 
 public class ParsedItem implements Comparable{
 
@@ -33,6 +42,42 @@ public class ParsedItem implements Comparable{
         this.astChildrenEntries = astChildren;
     }
 
+
+    // returns images based upon element type
+    public Image getImage() {
+        ImageCache imageCache = PydevPlugin.getImageCache();
+        if(astThis == null){
+            return imageCache.get("ERROR");
+        }
+        
+        SimpleNode token = astThis.node;
+        if (token instanceof ClassDef) {
+            return imageCache.get(UIConstants.CLASS_ICON);
+        }
+        else if (token instanceof FunctionDef) {
+            if (NodeUtils.getNameFromNameTok((NameTok) ((FunctionDef)token).name).startsWith("_")) {
+                return imageCache.get(UIConstants.PRIVATE_METHOD_ICON);
+            }
+            else
+                return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
+        }
+        else if (token instanceof Import) {
+            return imageCache.get(UIConstants.IMPORT_ICON);
+        }
+        else if (token instanceof ImportFrom) {
+            return imageCache.get(UIConstants.IMPORT_ICON);
+        }
+        else if (token instanceof commentType) {
+            return imageCache.get(UIConstants.COMMENT);
+        }
+        else if (token instanceof Attribute || token instanceof Name || token instanceof NameTok) {
+            return imageCache.get(UIConstants.PUBLIC_ATTR_ICON);
+        }
+        else {
+            return imageCache.get("ERROR");
+        }
+    }
+    
     public ParsedItem[] getChildren() {
         if(children != null ){
             return children;
