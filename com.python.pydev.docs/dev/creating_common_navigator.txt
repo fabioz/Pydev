@@ -1,0 +1,16 @@
+Ok, I've been thinkering about the next thing to do in pydev, and after taking a look at several options, creating a package explorer (instead of just using the regular navigator) seemed like a nice addition -- that's actually an old request but only when Eclipse 3.2 was added, a 'default' way of doing it was provided, so, here we go...
+
+After searching the net for some time, the best resources to help in this implementation were:
+
+<ul>
+<li><a href="http://scribbledideas.blogspot.com/2006/05/building-common-navigator-based-viewer.html">http://scribbledideas.blogspot.com/2006/05/building-common-navigator-based-viewer.html</a>
+</li>
+<li><a href="http://scribbledideas.blogspot.com/2006/06/what-does-common-navigator-framework.html">http://scribbledideas.blogspot.com/2006/06/what-does-common-navigator-framework.html</a>
+</li>
+<li><a href="http://scribbledideas.blogspot.com/2006/05/building-common-navigator-based-viewer_22.html">http://scribbledideas.blogspot.com/2006/05/building-common-navigator-based-viewer_22.html</a>
+</li>
+<li><a href="http://wiki.eclipse.org/index.php/Common_Navigator_Framework">http://wiki.eclipse.org/index.php/Common_Navigator_Framework</a></li>
+</ul>
+After passing the first and second tutorial in the blog, it became clear how to actually add content to make the outline of the python files in the custom navigator... I've already checked in a version that has a basic outline for python classes, but there are still some points to play with, such as making the sort of the tokens from files and making the flat/hierarchical view.
+
+The working sets will not be available right now, as this 'common navigator framework' still does not support it (but it appears that Eclipse 3.2.1 will support it).
