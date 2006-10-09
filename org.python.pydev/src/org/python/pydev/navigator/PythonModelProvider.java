@@ -48,7 +48,7 @@ import org.python.pydev.plugin.nature.PythonNature;
  * 
  * @author Fabio
  */
-public class PythonFileProvider extends BaseWorkbenchContentProvider implements IResourceChangeListener {
+public class PythonModelProvider extends BaseWorkbenchContentProvider implements IResourceChangeListener {
 	
 	/**
 	 * Object representing an empty array.
@@ -69,7 +69,7 @@ public class PythonFileProvider extends BaseWorkbenchContentProvider implements 
     
     
 	/**
-	 * @see PythonFileProvider#getResourceInPythonModel(Object, boolean)
+	 * @see PythonModelProvider#getResourceInPythonModel(Object, boolean)
 	 */
 	protected Object getResourceInPythonModel(Object object) {
 		return getResourceInPythonModel(object, false);
