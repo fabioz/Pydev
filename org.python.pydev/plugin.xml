@@ -334,7 +334,7 @@
                id="org.python.pydev.editor.actions.pySelectWord">
          </action>
 
-		<!-- This is for the refactoring having the existing action (definition) -->
+        <!-- This is for the refactoring having the existing action (definition) -->
          <action
                definitionId="org.python.pydev.refactoring.extractmethod"
                label="Extract Method"
@@ -614,7 +614,7 @@
       <key
             sequence="HOME"
             contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.editor.actions.firstChar"	
+            commandId="org.python.pydev.editor.actions.firstChar"    
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <!--TODO: guessing at name "BACKSPACE, needs verification -->
@@ -800,7 +800,7 @@
       <key
             sequence="Ctrl+1"
             contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.editors.PyEdit.CorrectionAssist"	
+            commandId="org.python.pydev.editors.PyEdit.CorrectionAssist"    
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
    </extension>
@@ -853,19 +853,19 @@
       </builder>
     </extension>
 <!-- Communicate pylint problems as markers -->
-	<extension 
-		point="org.eclipse.core.resources.markers"
+    <extension 
+        point="org.eclipse.core.resources.markers"
         name="PyLint Problem"
-		id="pylintproblemmarker">
-	   <super type="org.eclipse.core.resources.problemmarker"/>
-	   <persistent value="true"/>
-	</extension>
+        id="pylintproblemmarker">
+       <super type="org.eclipse.core.resources.problemmarker"/>
+       <persistent value="true"/>
+    </extension>
 <!-- templates -->
     <extension point="org.eclipse.ui.editors.templates">
          <contextType
             class="org.python.pydev.editor.templates.PyContextType"
             id="org.python.pydev.editor.templates.python"/>
-	</extension>
+    </extension>
    <extension-point id="pydev_builder" name="Pydev Builder" schema="schema/pydev_builder.exsd"/>
 <!-- extensions -->
    <extension-point id="pydev_completion" name="Pydev completion" schema="schema/pydev_completion.exsd"/>
@@ -947,58 +947,70 @@
    </extension>
 
 
+<!-- ********************** Pydev Package Explorer ********************** --> 
+<!-- ********************** Pydev Package Explorer ********************** --> 
+<!-- ********************** Pydev Package Explorer ********************** --> 
+<!-- ********************** Pydev Package Explorer ********************** --> 
+
 <!-- Declare the view part to hold the default implementation --> 
 <extension point="org.eclipse.ui.views">
-	<view
-	    allowMultiple="false"
-	    category="org.python.pydev"
-	    class="org.eclipse.ui.navigator.CommonNavigator"
-	    id="org.python.pydev.navigator.view"
-	    name="Pydev Package Explorer"/>
+    <view
+        allowMultiple="false"
+        category="org.python.pydev"
+        class="org.eclipse.ui.navigator.CommonNavigator"
+        id="org.python.pydev.navigator.view"
+        name="Pydev Package Explorer"/>
 </extension> 
+
+
 <!-- Declare the viewer configuration, and the default content/action bindings -->
 <extension point="org.eclipse.ui.navigator.viewer">
-	<viewer viewerId="org.python.pydev.navigator.view"/>
-	<viewerContentBinding viewerId="org.python.pydev.navigator.view">
-		<includes>
-			<contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
-			<contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/> 
-			<contentExtension pattern="org.eclipse.ui.examples.navigator.filters.*"/> 
-		</includes>
-	</viewerContentBinding>
-	<viewerActionBinding viewerId="org.python.pydev.navigator.view">
-		<includes>
-			<actionExtension pattern="org.eclipse.ui.navigator.resources.*"/>
-		</includes>
-	</viewerActionBinding>
+    <viewer viewerId="org.python.pydev.navigator.view">
+        <popupMenu
+                allowsPlatformContributions="true"
+                id="org.python.pydev.navigator.view#PopupMenu">  
+             <insertionPoint name="group.new"/>
+             <insertionPoint
+                   name="group.open"
+                   separator="true"/>
+             <insertionPoint name="group.openWith"/>   
+             <insertionPoint name="group.edit"
+                   separator="true"/>   
+             <insertionPoint name="group.reorganize" />         
+             <insertionPoint
+                   name="group.port"
+                   separator="true"/>     
+             <insertionPoint
+                   name="group.build"
+                   separator="true"/> 
+             <insertionPoint
+                   name="group.generate"
+                   separator="true"/> 
+             <insertionPoint
+                   name="group.search"
+                   separator="true"/>              
+             <insertionPoint
+                   name="additions"
+                   separator="true"/>              
+             <insertionPoint
+                   name="group.properties"
+                   separator="true"/>             
+        </popupMenu>
+    </viewer>
+    <viewerContentBinding viewerId="org.python.pydev.navigator.view">
+        <includes>
+            <contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
+            <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/> 
+            <contentExtension pattern="org.eclipse.ui.examples.navigator.filters.*"/> 
+        </includes>
+    </viewerContentBinding>
+    <viewerActionBinding viewerId="org.python.pydev.navigator.view">
+        <includes>
+            <actionExtension pattern="org.eclipse.ui.navigator.resources.*"/>
+        </includes>
+    </viewerActionBinding>
 </extension>
    
-   <!-- Declare a simple filter example that uses core expressions -->
-   <extension
-         point="org.eclipse.ui.navigator.navigatorContent">
-      <commonFilter
-            activeByDefault="true"
-            id="org.eclipse.ui.examples.navigator.filters.hideNonPydevProjects"
-            name="Hide non-Pydev Projects">
-         <filterExpression>
-         	<and>
-	            <not>
-	               <adapt type="org.eclipse.core.resources.IProject">
-	                  <test
-	                        property="org.eclipse.core.resources.projectNature"
-	                        value="org.python.pydev.pythonNature"/>
-	               </adapt>
-	            </not>
-	            
-				<not><instanceof value="org.eclipse.core.resources.IFolder"/>
-				</not><not><instanceof value="org.eclipse.core.resources.IStorage"/>
-                </not><not><instanceof value="org.eclipse.core.resources.IFile"/>
-                </not><not><instanceof value="org.python.pydev.navigator.IChildResource"/>
-                </not>
-	        </and>
-         </filterExpression>
-      </commonFilter>
-   </extension>
 
   <!-- Declare a content extension that renders the contents of a properties file -->
   <extension point="org.eclipse.ui.navigator.navigatorContent">
@@ -1011,43 +1023,75 @@
             activeByDefault="true"
             priority="high" >
          <triggerPoints>
-         	<or>
-				<instanceof value="org.eclipse.core.resources.IWorkspaceRoot" />
-	            <and>
-	               <instanceof value="org.eclipse.core.resources.IProject"/>
-	               <test
-	                     forcePluginActivation="true"
-	                     property="org.eclipse.core.resources.projectNature"
-	                     value="org.python.pydev.pythonNature"/>
-	            </and>
-				<instanceof value="org.eclipse.core.resources.IFolder"/>
-				<instanceof value="org.eclipse.core.resources.IStorage"/>
+             <or>
+                <instanceof value="org.eclipse.core.resources.IWorkspaceRoot" />
+                <and>
+                   <instanceof value="org.eclipse.core.resources.IProject"/>
+                   <test
+                         forcePluginActivation="true"
+                         property="org.eclipse.core.resources.projectNature"
+                         value="org.python.pydev.pythonNature"/>
+                </and>
+                <instanceof value="org.eclipse.core.resources.IFolder"/>
+                <instanceof value="org.eclipse.core.resources.IStorage"/>
                 <instanceof value="org.eclipse.core.resources.IFile"/>
                 <instanceof value="org.python.pydev.navigator.IChildResource"/>
-			</or>
+            </or>
          </triggerPoints>
          <possibleChildren>
             <or>
-				<adapt type="org.eclipse.core.resources.IProject" />
-				<instanceof value="org.eclipse.core.resources.IWorkspaceRoot" />
-				<instanceof value="org.eclipse.core.resources.IFolder" />
-				<instanceof value="org.eclipse.core.resources.IStorage"/>
-				<instanceof value="org.eclipse.core.resources.IFile" />
+                <adapt type="org.eclipse.core.resources.IProject" />
+                <instanceof value="org.eclipse.core.resources.IWorkspaceRoot" />
+                <instanceof value="org.eclipse.core.resources.IFolder" />
+                <instanceof value="org.eclipse.core.resources.IStorage"/>
+                <instanceof value="org.eclipse.core.resources.IFile" />
                 <instanceof value="org.python.pydev.navigator.IChildResource"/>
             </or>
          </possibleChildren>
          <commonSorter
                class="org.python.pydev.navigator.PythonNodeSorter"
                id="org.python.pydev.navigator.pythonnodesorter"/>
+         <actionProvider
+               class="org.python.pydev.navigator.actions.PythonActionProvider"
+               id="org.python.pydev.navigator.actions.pythonActionProvider"/>
       </navigatorContent>
-   </extension>
-   <!-- Bind the Properties content extension to the viewer -->
-   <extension point="org.eclipse.ui.navigator.viewer">
-      <viewerContentBinding viewerId="org.python.pydev.navigator.view">
-         <includes>
-			<contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
-         </includes>
-      </viewerContentBinding>
-   </extension>
+      
+      <commonFilter
+            activeByDefault="true"
+            id="org.eclipse.ui.examples.navigator.filters.hideNonPydevProjects"
+            name="Hide non-Pydev Projects">
+         <filterExpression>
+             <and>
+                <not>
+                   <adapt type="org.eclipse.core.resources.IProject">
+                      <test
+                            property="org.eclipse.core.resources.projectNature"
+                            value="org.python.pydev.pythonNature"/>
+                   </adapt>
+                </not>
+                
+                <not><instanceof value="org.eclipse.core.resources.IFolder"/>
+                </not><not><instanceof value="org.eclipse.core.resources.IStorage"/>
+                </not><not><instanceof value="org.eclipse.core.resources.IFile"/>
+                </not><not><instanceof value="org.python.pydev.navigator.IChildResource"/>
+                </not>
+            </and>
+         </filterExpression>
+      </commonFilter>
+
+    </extension>
+    <!-- Bind the content extension to the viewer -->
+    <extension point="org.eclipse.ui.navigator.viewer">
+        <viewerContentBinding viewerId="org.python.pydev.navigator.view">
+            <includes>
+                <contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
+            </includes>
+        </viewerContentBinding>
+        <viewerActionBinding viewerId="org.python.pydev.navigator.view">
+            <includes>
+                <actionExtension pattern="org.python.pydev.navigator.actions.*"/>
+            </includes>
+        </viewerActionBinding>
+    </extension>
 
 </plugin>

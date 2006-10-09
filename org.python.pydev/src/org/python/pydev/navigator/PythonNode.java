@@ -34,7 +34,7 @@ public class PythonNode implements Comparable, IChildResource {
 		return parent;
 	}
 
-	public Object getActualObject() {
+	public ParsedItem getActualObject() {
 		return entry;
 	}
 
@@ -42,4 +42,7 @@ public class PythonNode implements Comparable, IChildResource {
 		return pythonFile.getSourceFolder();
 	}
 
+    public PythonFile getPythonFile(){
+        return pythonFile;
+    }
 }

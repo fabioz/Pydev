@@ -27,7 +27,7 @@ public class ItemPointer {
 		this(file, new Location(), new Location());
 	}
 
-	public ItemPointer(File file, SimpleNode n) {
+	public ItemPointer(Object file, SimpleNode n) {
         int line = n.beginLine;
         int col = n.beginColumn;
         
