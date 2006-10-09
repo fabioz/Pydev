@@ -1006,7 +1006,7 @@
       <navigatorContent 
             id="org.python.pydev.navigator.pythoncontent" 
             name="Pydev Navigator Content"
-            contentProvider="org.python.pydev.navigator.PythonFileProvider"
+            contentProvider="org.python.pydev.navigator.PythonModelProvider"
             labelProvider="org.python.pydev.navigator.PythonLabelProvider" 
             activeByDefault="true"
             priority="high" >
