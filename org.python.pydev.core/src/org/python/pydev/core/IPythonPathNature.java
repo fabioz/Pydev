@@ -7,6 +7,7 @@
 package org.python.pydev.core;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -60,6 +61,12 @@ public interface IPythonPathNature {
      * @throws CoreException
      */
     public String getProjectExternalSourcePath() throws CoreException;
+
+    /**
+     * @return only the project source paths as a list of strings (paths are relative to the project location)
+     * @throws CoreException
+     */
+    public Set<String> getProjectSourcePathSet() throws CoreException;
 
     
 }

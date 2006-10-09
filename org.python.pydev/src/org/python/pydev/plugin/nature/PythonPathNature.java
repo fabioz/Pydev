@@ -6,7 +6,10 @@
  */
 package org.python.pydev.plugin.nature;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -146,6 +149,7 @@ public class PythonPathNature implements IPythonPathNature {
 
     public void setProjectSourcePath(String newSourcePath) throws CoreException {
         synchronized(project){
+            projectSourcePathSet = null;
             project.setPersistentProperty(PythonPathNature.getProjectSourcePathQualifiedName(), newSourcePath);
         }
     }
@@ -156,6 +160,20 @@ public class PythonPathNature implements IPythonPathNature {
         }
     }
 
+    /**
+     * Cache for the project source path.
+     */
+    private Set<String> projectSourcePathSet;
+    
+    public Set<String> getProjectSourcePathSet() throws CoreException {
+        if(projectSourcePathSet == null){
+            String projectSourcePath = getProjectSourcePath();
+            String[] paths = projectSourcePath.split("\\|");
+            projectSourcePathSet = new HashSet<String>(Arrays.asList(paths));
+        }
+        return projectSourcePathSet;
+    }
+    
     public String getProjectSourcePath() throws CoreException {
         synchronized(project){
             boolean restore = false;
@@ -187,6 +205,7 @@ public class PythonPathNature implements IPythonPathNature {
             
             //it was wrong and has just been fixed
             if(restore){
+                projectSourcePathSet = null;
                 projectSourcePath = buffer.toString();
                 setProjectSourcePath(projectSourcePath);
                 PythonNature nature = PythonNature.getPythonNature(project);

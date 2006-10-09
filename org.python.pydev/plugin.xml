@@ -994,6 +994,7 @@
 				</not><not><instanceof value="org.eclipse.core.resources.IStorage"/>
                 </not><not><instanceof value="org.eclipse.core.resources.IFile"/>
                 </not><not><instanceof value="org.python.pydev.navigator.PythonNode"/>
+                </not><not><instanceof value="org.python.pydev.navigator.PythonSourceFolder"/>
                 </not>
 	        </and>
          </filterExpression>
@@ -1024,6 +1025,7 @@
 				<instanceof value="org.eclipse.core.resources.IStorage"/>
                 <instanceof value="org.eclipse.core.resources.IFile"/>
                 <instanceof value="org.python.pydev.navigator.PythonNode"/>
+                <instanceof value="org.python.pydev.navigator.PythonSourceFolder"/>
 			</or>
          </triggerPoints>
          <possibleChildren>
@@ -1034,6 +1036,7 @@
 				<instanceof value="org.eclipse.core.resources.IStorage"/>
 				<instanceof value="org.eclipse.core.resources.IFile" />
                 <instanceof value="org.python.pydev.navigator.PythonNode"/>
+                <instanceof value="org.python.pydev.navigator.PythonSourceFolder"/>
             </or>
          </possibleChildren>
          <commonSorter

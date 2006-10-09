@@ -5,18 +5,21 @@
 package org.python.pydev.navigator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -44,7 +47,11 @@ public class PythonFileProvider extends BaseWorkbenchContentProvider implements 
 
     public Object[] getChildren(Object parentElement) {
 
-        if (parentElement instanceof IFile) {
+        if (parentElement instanceof PythonNode) {
+            PythonNode node = (PythonNode) parentElement;
+            return getChildrenFromParsedItem(parentElement, node.entry);
+            
+        }else if (parentElement instanceof IFile) {
             // if it's a file, we want to show the classes and methods
             IFile file = (IFile) parentElement;
             if (PythonPathHelper.isValidSourceFile(file)) {
@@ -65,27 +72,70 @@ public class PythonFileProvider extends BaseWorkbenchContentProvider implements 
 
                                 OutlineCreatorVisitor visitor = OutlineCreatorVisitor.create(sourceModule.getAst());
                                 ParsedItem root = new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0]));
-                                ParsedItem[] children = root.getChildren();
-
-                                PythonNode p[] = new PythonNode[children.length];
-                                int i = 0;
-                                // in this case, we just want to return the roots
-                                for (ParsedItem e : children) {
-                                    p[i] = new PythonNode(file, e);
-                                    i++;
-                                }
-                                Arrays.sort(p);
-                                return p;
+                                return getChildrenFromParsedItem(parentElement, root);
                             }
                         }
                     }
                 }
             }
         }
-        return super.getChildren(parentElement);
+        IProject project = null;
+        PythonNature nature = PythonNature.getPythonNature(project);
+        if(parentElement instanceof IResource){
+            IResource resource = (IResource) parentElement;
+            project = resource.getProject();
+            nature = PythonNature.getPythonNature(project);
+        }
+        
+        Object[] children = super.getChildren(parentElement);
+        if(nature != null){
+            Object[] ret = new Object[children.length];
+            for (int i = 0; i < children.length; i++) {
+                Object object = children[i];
+                ret[i] = object;
+                if (object instanceof IFolder) {
+                    IFolder folder = (IFolder) object;
+                    
+                    try {
+                        //check for source folder
+                        Set<String> sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet();
+                        IPath fullPath = folder.getFullPath();
+                        if(sourcePathSet.contains(fullPath.toString())){
+                            ret[i] = new PythonSourceFolder(parentElement, folder);
+                        }
+                    } catch (CoreException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+            children = ret;
+        }
+        return children;
+    }
+
+    /**
+     * @param parentElement
+     * @param root
+     * @return
+     */
+    private Object[] getChildrenFromParsedItem(Object parentElement, ParsedItem root) {
+        ParsedItem[] children = root.getChildren();
+
+        PythonNode p[] = new PythonNode[children.length];
+        int i = 0;
+        // in this case, we just want to return the roots
+        for (ParsedItem e : children) {
+            p[i] = new PythonNode(parentElement, e);
+            i++;
+        }
+        return p;
     }
 
     public Object getParent(Object element) {
+        if (element instanceof PythonSourceFolder) {
+            PythonSourceFolder folder = (PythonSourceFolder) element;
+            return folder.parentElement;
+        }
         if (element instanceof PythonNode) {
             // just return the root
             PythonNode node = (PythonNode) element;
