@@ -6,7 +6,7 @@ package org.python.pydev.navigator;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -48,6 +48,43 @@ public class PythonFileProvider extends BaseWorkbenchContentProvider implements 
 	
 	private static final Object[] EMPTY = new Object[0];
 
+	private Set<PythonSourceFolder> sourceFolders = new HashSet<PythonSourceFolder>();
+	
+	protected Object getResourceInPythonModel(Object object) {
+		return getResourceInPythonModel(object, false);
+	}
+	
+    /**
+     * Given some IResource in the filesystem, return the representation for it in the python model
+     * or the resource itself if it could not be found in the python model.
+     */
+	protected Object getResourceInPythonModel(Object object, boolean remove) {
+		Object f = null;
+		PythonSourceFolder sourceFolder = null;
+		
+		for (Iterator<PythonSourceFolder> it = sourceFolders.iterator();f == null && it.hasNext();) {
+			sourceFolder = it.next();
+			if(sourceFolder.getActualObject().equals(object)){
+				f = sourceFolder;
+			}else{
+				f = sourceFolder.getChild(object);
+			}
+		}
+		if(f == null){
+			f = object;
+		}else{
+			if(remove){
+				if(f == sourceFolder){
+					sourceFolders.remove(f);
+				}else{
+					sourceFolder.removeChild(object);
+				}
+			}
+		}
+		return f;
+	}
+
+	
 	/**
 	 * @return the children for some element
 	 */
@@ -82,7 +119,7 @@ public class PythonFileProvider extends BaseWorkbenchContentProvider implements 
             }else if (parentElement instanceof PythonFile) {
                 // if it's a file, we want to show the classes and methods
             	PythonFile file = (PythonFile) parentElement;
-                if (PythonPathHelper.isValidSourceFile(file.file)) {
+                if (PythonPathHelper.isValidSourceFile(file.getActualObject())) {
 
                     if (nature != null) {
                         ICodeCompletionASTManager astManager = nature.getAstManager();
@@ -90,7 +127,7 @@ public class PythonFileProvider extends BaseWorkbenchContentProvider implements 
 
                         if (modulesManager instanceof ProjectModulesManager) {
                             ProjectModulesManager projectModulesManager = (ProjectModulesManager) modulesManager;
-                            String moduleName = projectModulesManager.resolveModuleInDirectManager(file.file, project);
+                            String moduleName = projectModulesManager.resolveModuleInDirectManager(file.getActualObject(), project);
                             if (moduleName != null) {
                                 IModule module = projectModulesManager.getModuleInDirectManager(moduleName, nature, true);
                                 if (module instanceof SourceModule) {
@@ -139,6 +176,7 @@ public class PythonFileProvider extends BaseWorkbenchContentProvider implements 
                             IPath fullPath = folder.getFullPath();
                             if(sourcePathSet.contains(fullPath.toString())){
                                 ret[i] = new PythonSourceFolder(parentElement, folder);
+                                sourceFolders.add((PythonSourceFolder) ret[i]);
                             }
                         } catch (CoreException e) {
                             throw new RuntimeException(e);
@@ -470,41 +508,20 @@ public class PythonFileProvider extends BaseWorkbenchContentProvider implements 
                     	//now, we have to make a bridge among the tree and
                     	//the python model (so, if some element is removed,
                     	//we have to create an actual representation for it)
-                    	
                         if (addedObjects.length > 0) {
-                        	Object[] expandedElements = treeViewer.getExpandedElements();
-                        	boolean keepOn = true;
-                        	for (Object o : expandedElements) {
-                        		if(o instanceof IChildResource){
-                        			IChildResource childResource = (IChildResource) o;
-                        			if(childResource.getActualObject().equals(resource)){
-                        				keepOn = false;
-                        				Object[] objs = wrapChildren(resource, childResource.getSourceFolder(), addedObjects);
-                        				treeViewer.add(childResource, objs);
-                        			}
-                        		}
-                        	}
-                        	if(keepOn){
+                        	Object childResource = getResourceInPythonModel(resource);
+                    		if(childResource instanceof IChildResource){
+                				treeViewer.add(childResource, wrapChildren(childResource, 
+                						((IChildResource)childResource).getSourceFolder(), addedObjects));
+                    		}else{
                         		treeViewer.add(resource, addedObjects);
                         	}
                         }
                         
                         if (removedObjects.length > 0) {
-                        	Object[] expandedElements = treeViewer.getVisibleExpandedElements();
-                        	HashMap<Object, Object> map = new HashMap<Object, Object>();
-                        	for (Object o : expandedElements) {
-                        		if(o instanceof IChildResource){
-                        			IChildResource childResource = (IChildResource) o;
-                        			map.put(childResource.getActualObject(), childResource);
-                        		}
-                        	}
                         	ArrayList<Object> rem = new ArrayList<Object>();
                         	for (Object object : removedObjects) {
-								Object f = map.get(object);
-								if(f == null){
-									f = object;
-								}
-								rem.add(f);
+								rem.add(getResourceInPythonModel(object, true));
 							}
                     		treeViewer.remove(rem.toArray());
                         }
@@ -530,7 +547,7 @@ public class PythonFileProvider extends BaseWorkbenchContentProvider implements 
     private Runnable getRefreshRunnable(final IResource resource) {
         return new Runnable() {
             public void run() {
-                ((StructuredViewer) viewer).refresh(resource);
+                ((StructuredViewer) viewer).refresh(getResourceInPythonModel(resource));
             }
         };
     }
@@ -544,9 +561,10 @@ public class PythonFileProvider extends BaseWorkbenchContentProvider implements 
     private Runnable getUpdateRunnable(final IResource resource) {
         return new Runnable() {
             public void run() {
-                ((StructuredViewer) viewer).update(resource, null);
+                ((StructuredViewer) viewer).update(getResourceInPythonModel(resource), null);
             }
         };
     }
+
 
 }

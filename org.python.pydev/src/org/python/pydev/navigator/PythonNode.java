@@ -39,7 +39,7 @@ public class PythonNode implements Comparable, IChildResource {
 	}
 
 	public PythonSourceFolder getSourceFolder() {
-		return pythonFile.pythonSourceFolder;
+		return pythonFile.getSourceFolder();
 	}
 
 }

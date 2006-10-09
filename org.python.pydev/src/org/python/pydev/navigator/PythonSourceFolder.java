@@ -4,8 +4,8 @@
  */
 package org.python.pydev.navigator;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 import org.eclipse.core.resources.IFolder;
 
@@ -16,7 +16,7 @@ public class PythonSourceFolder implements IChildResource{
 
     public IFolder folder;
     public Object parentElement;
-    public Map<Object, IChildResource> children = new WeakHashMap<Object, IChildResource>();
+    public Map<Object, IChildResource> children = new HashMap<Object, IChildResource>();
 
     public PythonSourceFolder(Object parentElement, IFolder folder) {
         this.parentElement = parentElement;
@@ -39,7 +39,7 @@ public class PythonSourceFolder implements IChildResource{
 		children.put(actualObject, child);
 	}
 	
-	public void removeChild(Object actualObject, IChildResource child){
+	public void removeChild(Object actualObject){
 		children.remove(actualObject);
 	}
 	

@@ -8,31 +8,10 @@ import org.eclipse.core.resources.IFile;
  * 
  * @author fabioz
  */
-public class PythonFile implements IChildResource{
+public class PythonFile extends ChildResource<IFile>{
 
-    public IFile file;
-    public Object parentElement;
-    //it knows its direct parent and the source folder
-	public PythonSourceFolder pythonSourceFolder;
-
-	public PythonFile(Object parentElement, IFile file, PythonSourceFolder pythonSourceFolder) {
-        this.parentElement = parentElement;
-        this.file = file;
-        this.pythonSourceFolder = pythonSourceFolder;
-    }
-
-	public Object getParent() {
-		return parentElement;
+	public PythonFile(Object parentElement, IFile actualObject, PythonSourceFolder pythonSourceFolder) {
+		super(parentElement, actualObject, pythonSourceFolder);
 	}
-
-	public Object getActualObject() {
-		return file;
-	}
-
-	public PythonSourceFolder getSourceFolder() {
-		return pythonSourceFolder;
-	}
-
-
 
 }
