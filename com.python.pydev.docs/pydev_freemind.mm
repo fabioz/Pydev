@@ -188,6 +188,27 @@
 <font NAME="SansSerif" SIZE="14"/>
 </node>
 </node>
+<node COLOR="#00b439" CREATED="1160419231483" ID="Freemind_Link_401508002" MODIFIED="1160419241139" TEXT="Create a package explorer">
+<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1160419242701" ID="Freemind_Link_1687672488" MODIFIED="1160419251842" TEXT="Support the python model">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1160419254357" ID="Freemind_Link_168343573" MODIFIED="1160419260295" TEXT="Create source folder">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1160419261560" ID="Freemind_Link_1892285196" MODIFIED="1160419279544" TEXT="Show outline for python files">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1160419282107" ID="Freemind_Link_263053812" MODIFIED="1160419289638" TEXT="Communicate when source folder changes">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1160419290826" ID="Freemind_Link_193317991" MODIFIED="1160419299310" TEXT="See flat layout">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1160419316529" ID="Freemind_Link_1406439693" MODIFIED="1160419327420" TEXT="Create simple actions (delete, rename...)">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+</node>
 </node>
 <node COLOR="#0033ff" CREATED="1139937919875" FOLDED="true" ID="Freemind_Link_342607119" MODIFIED="1140001041875" POSITION="left" TEXT="other improvements">
 <font NAME="SansSerif" SIZE="18"/>
