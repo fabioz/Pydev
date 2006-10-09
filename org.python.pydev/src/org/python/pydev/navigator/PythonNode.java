@@ -6,14 +6,16 @@ package org.python.pydev.navigator;
 
 import org.python.pydev.outline.ParsedItem;
 
-public class PythonNode implements Comparable {
+public class PythonNode implements Comparable, IChildResource {
 
     public Object parent;
     public ParsedItem entry;
+	public PythonFile pythonFile;
 
-    public PythonNode(Object parent, ParsedItem e) {
+    public PythonNode(PythonFile pythonFile, Object parent, ParsedItem e) {
         this.parent = parent;
         this.entry = e;
+        this.pythonFile = pythonFile;
     }
     
     @Override
@@ -27,5 +29,17 @@ public class PythonNode implements Comparable {
         }
         return entry.compareTo(((PythonNode)o).entry);
     }
+
+	public Object getParent() {
+		return parent;
+	}
+
+	public Object getActualObject() {
+		return entry;
+	}
+
+	public PythonSourceFolder getSourceFolder() {
+		return pythonFile.pythonSourceFolder;
+	}
 
 }

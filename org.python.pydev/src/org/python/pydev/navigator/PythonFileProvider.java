@@ -6,6 +6,7 @@ package org.python.pydev.navigator;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -44,115 +45,173 @@ import org.python.pydev.plugin.nature.PythonNature;
  * @author Fabio
  */
 public class PythonFileProvider extends BaseWorkbenchContentProvider implements IResourceChangeListener {
+	
+	private static final Object[] EMPTY = new Object[0];
 
+	/**
+	 * @return the children for some element
+	 */
     public Object[] getChildren(Object parentElement) {
+    	Object[] childrenToReturn = null;
+    	
+    	//------------------------------------------- get some common resources (project and nature)
+        IProject project = null;
+        PythonNature nature = null;
+        if(parentElement instanceof IChildResource){
+        	IChildResource childRes = (IChildResource) parentElement;
+        	Object obj = childRes.getActualObject();
+        	if(obj instanceof IResource){
+				IResource resource = (IResource) obj;
+	        	project = resource.getProject();
+	        	nature = PythonNature.getPythonNature(project);
+        	}
+        	//--------------------------------------------------- treat things from the python model
+        	
+        	
+        	
+        	
+        	//------------------------------------------------------------------- treat python nodes 
+            if (parentElement instanceof PythonNode) {
+                PythonNode node = (PythonNode) parentElement;
+                childrenToReturn = getChildrenFromParsedItem(parentElement, node.entry, node.pythonFile);
+               
+                
+                
+                
+            //------------------------------------- treat python files (add the classes/methods,etc)
+            }else if (parentElement instanceof PythonFile) {
+                // if it's a file, we want to show the classes and methods
+            	PythonFile file = (PythonFile) parentElement;
+                if (PythonPathHelper.isValidSourceFile(file.file)) {
 
-        if (parentElement instanceof PythonNode) {
-            PythonNode node = (PythonNode) parentElement;
-            return getChildrenFromParsedItem(parentElement, node.entry);
-            
-        }else if (parentElement instanceof IFile) {
-            // if it's a file, we want to show the classes and methods
-            IFile file = (IFile) parentElement;
-            if (PythonPathHelper.isValidSourceFile(file)) {
-                IProject project = file.getProject();
-                PythonNature nature = PythonNature.getPythonNature(project);
+                    if (nature != null) {
+                        ICodeCompletionASTManager astManager = nature.getAstManager();
+                        IModulesManager modulesManager = astManager.getModulesManager();
 
-                if (nature != null) {
-                    ICodeCompletionASTManager astManager = nature.getAstManager();
-                    IModulesManager modulesManager = astManager.getModulesManager();
+                        if (modulesManager instanceof ProjectModulesManager) {
+                            ProjectModulesManager projectModulesManager = (ProjectModulesManager) modulesManager;
+                            String moduleName = projectModulesManager.resolveModuleInDirectManager(file.file, project);
+                            if (moduleName != null) {
+                                IModule module = projectModulesManager.getModuleInDirectManager(moduleName, nature, true);
+                                if (module instanceof SourceModule) {
+                                    SourceModule sourceModule = (SourceModule) module;
 
-                    if (modulesManager instanceof ProjectModulesManager) {
-                        ProjectModulesManager projectModulesManager = (ProjectModulesManager) modulesManager;
-                        String moduleName = projectModulesManager.resolveModuleInDirectManager(file, project);
-                        if (moduleName != null) {
-                            IModule module = projectModulesManager.getModuleInDirectManager(moduleName, nature, true);
-                            if (module instanceof SourceModule) {
-                                SourceModule sourceModule = (SourceModule) module;
-
-                                OutlineCreatorVisitor visitor = OutlineCreatorVisitor.create(sourceModule.getAst());
-                                ParsedItem root = new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0]));
-                                return getChildrenFromParsedItem(parentElement, root);
+                                    OutlineCreatorVisitor visitor = OutlineCreatorVisitor.create(sourceModule.getAst());
+                                    ParsedItem root = new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0]));
+                                    childrenToReturn = getChildrenFromParsedItem(parentElement, root, file);
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-        IProject project = null;
-        PythonNature nature = PythonNature.getPythonNature(project);
-        if(parentElement instanceof IResource){
+            
+            
+            //------------------------------------------------------------- treat folders and others
+            else{
+    			Object[] children = super.getChildren(childRes.getActualObject());
+                childrenToReturn = wrapChildren(childRes, childRes.getSourceFolder(), children);
+            }
+            
+
+            
+            
+            
+        } else if(parentElement instanceof IResource){
             IResource resource = (IResource) parentElement;
             project = resource.getProject();
             nature = PythonNature.getPythonNature(project);
-        }
-        
-        Object[] children = super.getChildren(parentElement);
-        if(nature != null){
-            Object[] ret = new Object[children.length];
-            for (int i = 0; i < children.length; i++) {
-                Object object = children[i];
-                ret[i] = object;
-                if (object instanceof IFolder) {
-                    IFolder folder = (IFolder) object;
-                    
-                    try {
-                        //check for source folder
-                        Set<String> sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet();
-                        IPath fullPath = folder.getFullPath();
-                        if(sourcePathSet.contains(fullPath.toString())){
-                            ret[i] = new PythonSourceFolder(parentElement, folder);
+            
+            
+            //replace folders -> source folders (we should only get here on a path that's not below a source folder)
+            childrenToReturn = super.getChildren(parentElement);
+            if(nature != null){
+                Object[] ret = new Object[childrenToReturn.length];
+                for (int i=0; i < childrenToReturn.length; i++) {
+                	Object object = childrenToReturn[i];
+                    ret[i] = object;
+                    if (object instanceof IFolder) {
+                        IFolder folder = (IFolder) object;
+                        
+                        try {
+                            //check for source folder
+                            Set<String> sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet();
+                            IPath fullPath = folder.getFullPath();
+                            if(sourcePathSet.contains(fullPath.toString())){
+                                ret[i] = new PythonSourceFolder(parentElement, folder);
+                            }
+                        } catch (CoreException e) {
+                            throw new RuntimeException(e);
                         }
-                    } catch (CoreException e) {
-                        throw new RuntimeException(e);
                     }
                 }
+                childrenToReturn = ret;
             }
-            children = ret;
         }
-        return children;
+        
+        if(childrenToReturn == null){
+        	return EMPTY;
+        }
+        return childrenToReturn;
     }
 
     /**
-     * @param parentElement
-     * @param root
+     * This method changes the contents 
+     * @param pythonSourceFolder
+     * @param children
      * @return
      */
-    private Object[] getChildrenFromParsedItem(Object parentElement, ParsedItem root) {
+	private Object[] wrapChildren(Object parent, PythonSourceFolder pythonSourceFolder, Object[] children) {
+		Object[] childrenToReturn;
+		Object[] ret = new Object[children.length];
+
+		for (int i = 0; i < children.length; i++) {
+		    Object object = children[i];
+			if(object instanceof IFolder){
+				IFolder folder = (IFolder) object;
+				ret[i] = new PythonFolder(parent, folder, pythonSourceFolder);
+				
+			}else if(object instanceof IFile){
+				IFile file = (IFile) object;
+				ret[i] = new PythonFile(parent, file, pythonSourceFolder);
+				
+			}else{
+				ret[i] = new PythonResource(parent, object, pythonSourceFolder);
+			}
+		}
+		childrenToReturn = ret;
+		return childrenToReturn;
+	}
+    
+    /**
+     * @return the parent for some element.
+     */
+    public Object getParent(Object element) {
+        if (element instanceof IChildResource) {
+            // just return the parent
+        	IChildResource resource = (IChildResource) element;
+        	return resource.getParent();
+        }
+        return super.getParent(element);
+    }
+
+
+    /**
+     * @param parentElement this is the elements returned
+     * @param root this is the parsed item that has children that we want to return
+     * @return the children elements (PythonNode) for the passed parsed item
+     */
+    private Object[] getChildrenFromParsedItem(Object parentElement, ParsedItem root, PythonFile pythonFile) {
         ParsedItem[] children = root.getChildren();
 
         PythonNode p[] = new PythonNode[children.length];
         int i = 0;
         // in this case, we just want to return the roots
         for (ParsedItem e : children) {
-            p[i] = new PythonNode(parentElement, e);
+            p[i] = new PythonNode(pythonFile, parentElement, e);
             i++;
         }
         return p;
-    }
-
-    public Object getParent(Object element) {
-        if (element instanceof PythonSourceFolder) {
-            PythonSourceFolder folder = (PythonSourceFolder) element;
-            return folder.parentElement;
-        }
-        if (element instanceof PythonNode) {
-            // just return the root
-            PythonNode node = (PythonNode) element;
-            return node.parent;
-        }
-        return super.getParent(element);
-    }
-
-    public boolean hasChildren(Object element) {
-        return super.hasChildren(element);
-    }
-
-    /**
-     * Get the roots
-     */
-    public Object[] getElements(Object inputElement) {
-        return super.getElements(inputElement);
     }
 
     private Viewer viewer;
@@ -269,7 +328,6 @@ public class PythonFileProvider extends BaseWorkbenchContentProvider implements 
         while (runnableIterator.hasNext()) {
             ((Runnable) runnableIterator.next()).run();
         }
-
     }
 
     /**
@@ -409,11 +467,46 @@ public class PythonFileProvider extends BaseWorkbenchContentProvider implements 
                         treeViewer.getControl().setRedraw(false);
                     }
                     try {
+                    	//now, we have to make a bridge among the tree and
+                    	//the python model (so, if some element is removed,
+                    	//we have to create an actual representation for it)
+                    	
                         if (addedObjects.length > 0) {
-                            treeViewer.add(resource, addedObjects);
+                        	Object[] expandedElements = treeViewer.getExpandedElements();
+                        	boolean keepOn = true;
+                        	for (Object o : expandedElements) {
+                        		if(o instanceof IChildResource){
+                        			IChildResource childResource = (IChildResource) o;
+                        			if(childResource.getActualObject().equals(resource)){
+                        				keepOn = false;
+                        				Object[] objs = wrapChildren(resource, childResource.getSourceFolder(), addedObjects);
+                        				treeViewer.add(childResource, objs);
+                        			}
+                        		}
+                        	}
+                        	if(keepOn){
+                        		treeViewer.add(resource, addedObjects);
+                        	}
                         }
+                        
                         if (removedObjects.length > 0) {
-                            treeViewer.remove(removedObjects);
+                        	Object[] expandedElements = treeViewer.getVisibleExpandedElements();
+                        	HashMap<Object, Object> map = new HashMap<Object, Object>();
+                        	for (Object o : expandedElements) {
+                        		if(o instanceof IChildResource){
+                        			IChildResource childResource = (IChildResource) o;
+                        			map.put(childResource.getActualObject(), childResource);
+                        		}
+                        	}
+                        	ArrayList<Object> rem = new ArrayList<Object>();
+                        	for (Object object : removedObjects) {
+								Object f = map.get(object);
+								if(f == null){
+									f = object;
+								}
+								rem.add(f);
+							}
+                    		treeViewer.remove(rem.toArray());
                         }
                     } finally {
                         if (hasRename) {

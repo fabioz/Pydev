@@ -961,7 +961,7 @@
 	<viewer viewerId="org.python.pydev.navigator.view"/>
 	<viewerContentBinding viewerId="org.python.pydev.navigator.view">
 		<includes>
-			<contentExtension pattern="org.eclipse.ui.navigator.resourceContent"/>
+			<contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
 			<contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/> 
 			<contentExtension pattern="org.eclipse.ui.examples.navigator.filters.*"/> 
 		</includes>
@@ -993,8 +993,7 @@
 				<not><instanceof value="org.eclipse.core.resources.IFolder"/>
 				</not><not><instanceof value="org.eclipse.core.resources.IStorage"/>
                 </not><not><instanceof value="org.eclipse.core.resources.IFile"/>
-                </not><not><instanceof value="org.python.pydev.navigator.PythonNode"/>
-                </not><not><instanceof value="org.python.pydev.navigator.PythonSourceFolder"/>
+                </not><not><instanceof value="org.python.pydev.navigator.IChildResource"/>
                 </not>
 	        </and>
          </filterExpression>
@@ -1024,8 +1023,7 @@
 				<instanceof value="org.eclipse.core.resources.IFolder"/>
 				<instanceof value="org.eclipse.core.resources.IStorage"/>
                 <instanceof value="org.eclipse.core.resources.IFile"/>
-                <instanceof value="org.python.pydev.navigator.PythonNode"/>
-                <instanceof value="org.python.pydev.navigator.PythonSourceFolder"/>
+                <instanceof value="org.python.pydev.navigator.IChildResource"/>
 			</or>
          </triggerPoints>
          <possibleChildren>
@@ -1035,8 +1033,7 @@
 				<instanceof value="org.eclipse.core.resources.IFolder" />
 				<instanceof value="org.eclipse.core.resources.IStorage"/>
 				<instanceof value="org.eclipse.core.resources.IFile" />
-                <instanceof value="org.python.pydev.navigator.PythonNode"/>
-                <instanceof value="org.python.pydev.navigator.PythonSourceFolder"/>
+                <instanceof value="org.python.pydev.navigator.IChildResource"/>
             </or>
          </possibleChildren>
          <commonSorter
@@ -1045,8 +1042,7 @@
       </navigatorContent>
    </extension>
    <!-- Bind the Properties content extension to the viewer -->
-   <extension
-         point="org.eclipse.ui.navigator.viewer">
+   <extension point="org.eclipse.ui.navigator.viewer">
       <viewerContentBinding viewerId="org.python.pydev.navigator.view">
          <includes>
 			<contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>

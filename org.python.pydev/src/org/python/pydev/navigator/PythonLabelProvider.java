@@ -30,6 +30,10 @@ public class PythonLabelProvider implements ILabelProvider{
             PythonNode node = (PythonNode) element;
             return node.entry.getImage();
         }
+        if(element instanceof IChildResource){
+        	IChildResource resource = (IChildResource) element;
+			return provider.getImage(resource.getActualObject());
+        }
         return provider.getImage(element);
     }
 
@@ -44,6 +48,10 @@ public class PythonLabelProvider implements ILabelProvider{
         if(element instanceof PythonSourceFolder){
             PythonSourceFolder sourceFolder = (PythonSourceFolder) element;
             return provider.getText(sourceFolder.folder);
+        }
+        if(element instanceof IChildResource){
+        	IChildResource resource = (IChildResource) element;
+        	return provider.getText(resource.getActualObject());
         }
         return provider.getText(element);
     }
