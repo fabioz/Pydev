@@ -966,6 +966,7 @@
 <!-- Declare the viewer configuration, and the default content/action bindings -->
 <extension point="org.eclipse.ui.navigator.viewer">
     <viewer viewerId="org.python.pydev.navigator.view">
+    <!--
         <popupMenu
                 allowsPlatformContributions="true"
                 id="org.python.pydev.navigator.view#PopupMenu">  
@@ -996,9 +997,11 @@
                    name="group.properties"
                    separator="true"/>             
         </popupMenu>
+    -->
     </viewer>
     <viewerContentBinding viewerId="org.python.pydev.navigator.view">
         <includes>
+            <!-- <contentExtension pattern="org.eclipse.ui.navigator.resourceContent"/> -->
             <contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
             <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/> 
             <contentExtension pattern="org.eclipse.ui.examples.navigator.filters.*"/> 
