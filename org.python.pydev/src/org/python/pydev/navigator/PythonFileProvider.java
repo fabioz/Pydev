@@ -38,18 +38,39 @@ import org.python.pydev.parser.visitors.scope.OutlineCreatorVisitor;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**
- * A good part was gotten from org.eclipse.ui.model.WorkbenchContentProvider
+ * A good part of the refresh for the model was gotten from org.eclipse.ui.model.WorkbenchContentProvider
+ * (mostly just changed the way to get content changes in python files)
  * 
- * (mostly changed to get content changes in python files)
+ * There are other important notifications that we need to learn about. 
+ * Namely:
+ *  - When a source folder is created
+ *  - When the way to see it changes (flat or not)
  * 
  * @author Fabio
  */
 public class PythonFileProvider extends BaseWorkbenchContentProvider implements IResourceChangeListener {
 	
+	/**
+	 * Object representing an empty array.
+	 */
 	private static final Object[] EMPTY = new Object[0];
 
+	/**
+	 * These are the source folders that can be found in this file provider. The way we
+	 * see things in this provider, the python model starts only after some source folder
+	 * is found.
+	 */
 	private Set<PythonSourceFolder> sourceFolders = new HashSet<PythonSourceFolder>();
 	
+    /**
+     * This is the viewer that we're using to see the contents of this file provider.
+     */
+    private Viewer viewer;
+    
+    
+	/**
+	 * @see PythonFileProvider#getResourceInPythonModel(Object, boolean)
+	 */
 	protected Object getResourceInPythonModel(Object object) {
 		return getResourceInPythonModel(object, false);
 	}
@@ -58,7 +79,7 @@ public class PythonFileProvider extends BaseWorkbenchContentProvider implements 
      * Given some IResource in the filesystem, return the representation for it in the python model
      * or the resource itself if it could not be found in the python model.
      */
-	protected Object getResourceInPythonModel(Object object, boolean remove) {
+	protected Object getResourceInPythonModel(Object object, boolean removeFoundResource) {
 		Object f = null;
 		PythonSourceFolder sourceFolder = null;
 		
@@ -73,7 +94,7 @@ public class PythonFileProvider extends BaseWorkbenchContentProvider implements 
 		if(f == null){
 			f = object;
 		}else{
-			if(remove){
+			if(removeFoundResource){
 				if(f == sourceFolder){
 					sourceFolders.remove(f);
 				}else{
@@ -153,7 +174,7 @@ public class PythonFileProvider extends BaseWorkbenchContentProvider implements 
 
             
             
-            
+        // now, this happens if we're not below a python model(so, we may only find a source folder here)
         } else if(parentElement instanceof IResource){
             IResource resource = (IResource) parentElement;
             project = resource.getProject();
@@ -194,10 +215,15 @@ public class PythonFileProvider extends BaseWorkbenchContentProvider implements 
     }
 
     /**
-     * This method changes the contents 
-     * @param pythonSourceFolder
-     * @param children
-     * @return
+     * This method changes the contents of the children so that the actual types are mapped to 
+     * elements of our python model.
+     * 
+     * @param parent the parent (from the python model)
+     * @param pythonSourceFolder this is the source folder that contains this resource
+     * @param children these are the children thot should be wrapped (note that this array
+     * is not actually changed -- a new array is created and returned).
+     * 
+     * @return an array with the wrapped types 
      */
 	private Object[] wrapChildren(Object parent, PythonSourceFolder pythonSourceFolder, Object[] children) {
 		Object[] childrenToReturn;
@@ -252,12 +278,12 @@ public class PythonFileProvider extends BaseWorkbenchContentProvider implements 
         return p;
     }
 
-    private Viewer viewer;
 
     /*
      * (non-Javadoc) Method declared on IContentProvider.
      */
     public void dispose() {
+    	this.sourceFolders = null;
         if (viewer != null) {
             IWorkspace workspace = null;
             Object obj = viewer.getInput();
