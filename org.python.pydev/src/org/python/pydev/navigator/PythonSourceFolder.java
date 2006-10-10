@@ -7,9 +7,7 @@ package org.python.pydev.navigator;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 
 /**
@@ -51,15 +49,6 @@ public class PythonSourceFolder implements IChildResource, IAdaptable{
 	}
 
     public Object getAdapter(Class adapter) {
-        if (adapter == IFolder.class) {
-            return this.getActualObject();
-        }
-        if (adapter == IContainer.class) {
-            return this.getActualObject();
-        }
-        if (adapter == IResource.class) {
-            return this.getActualObject();
-        }
-        return null;
+        return folder.getAdapter(adapter);
     }
 }

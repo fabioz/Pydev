@@ -1,7 +1,6 @@
 package org.python.pydev.navigator;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 
 /**
@@ -17,13 +16,7 @@ public class PythonFile extends ChildResource<IFile> implements IAdaptable{
 	}
 
     public Object getAdapter(Class adapter) {
-        if (adapter == IFile.class) {
-            return this.getActualObject();
-        }
-        if (adapter == IResource.class) {
-            return this.getActualObject();
-        }
-        return null;
+        return this.getActualObject().getAdapter(adapter);
     }
 
 }
