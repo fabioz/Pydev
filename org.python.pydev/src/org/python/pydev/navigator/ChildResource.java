@@ -3,9 +3,9 @@ package org.python.pydev.navigator;
 
 public class ChildResource<X> implements IChildResource{
 
-	private Object parentElement;
-	private X actualObject;
-	private PythonSourceFolder pythonSourceFolder;
+	protected Object parentElement;
+	protected X actualObject;
+	protected PythonSourceFolder pythonSourceFolder;
 
 	public ChildResource(Object parentElement, X actualObject, PythonSourceFolder pythonSourceFolder) {
 		this.parentElement = parentElement;
