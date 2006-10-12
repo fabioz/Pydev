@@ -6,6 +6,9 @@ package org.python.pydev.navigator.actions;
 
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.actions.ActionFactory;
+import org.eclipse.ui.actions.DeleteResourceAction;
 import org.eclipse.ui.navigator.CommonActionProvider;
 import org.eclipse.ui.navigator.ICommonActionConstants;
 import org.eclipse.ui.navigator.ICommonActionExtensionSite;
@@ -16,6 +19,7 @@ import org.eclipse.ui.navigator.ICommonViewerWorkbenchSite;
 public class PythonActionProvider extends CommonActionProvider{
     
     private OpenPythonNodeAction openAction;
+    //private DeleteResourceAction deleteResourceAction;
 
     @Override
     public void init(ICommonActionExtensionSite aSite) {
@@ -23,6 +27,7 @@ public class PythonActionProvider extends CommonActionProvider{
         if(viewSite instanceof ICommonViewerWorkbenchSite){
             ICommonViewerWorkbenchSite site = (ICommonViewerWorkbenchSite) viewSite;
             openAction = new OpenPythonNodeAction(site.getPage(), site.getSelectionProvider());
+            //deleteResourceAction = new DeleteResourceAction(site.getShell());
         }
     }
     
@@ -35,6 +40,9 @@ public class PythonActionProvider extends CommonActionProvider{
         if(openAction.isEnabled()){
             actionBars.setGlobalActionHandler(ICommonActionConstants.OPEN, openAction);
         }
+        //if(deleteResourceAction.isEnabled()){
+        //    actionBars.setGlobalActionHandler(ActionFactory.DELETE.getId(), deleteResourceAction);
+        //}
     }
     
     /* (non-Javadoc)
@@ -44,6 +52,9 @@ public class PythonActionProvider extends CommonActionProvider{
         if(openAction.isEnabled()){
             menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openAction);        
         }
+//        if(deleteResourceAction.isEnabled()){
+//            menu.appendToGroup(ICommonMenuConstants.GROUP_EDIT, deleteResourceAction);        
+//        }
     }
 
 }

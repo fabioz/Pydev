@@ -1001,7 +1001,7 @@
     </viewer>
     <viewerContentBinding viewerId="org.python.pydev.navigator.view">
         <includes>
-            <!-- <contentExtension pattern="org.eclipse.ui.navigator.resourceContent"/> -->
+            <!--<contentExtension pattern="org.eclipse.ui.navigator.resourceContent"/>-->
             <contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
             <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/> 
             <contentExtension pattern="org.eclipse.ui.examples.navigator.filters.*"/> 
@@ -1057,6 +1057,12 @@
          <actionProvider
                class="org.python.pydev.navigator.actions.PythonActionProvider"
                id="org.python.pydev.navigator.actions.pythonActionProvider"/>
+		 <!--<override
+				policy="InvokeAlwaysRegardlessOfSuppressedExt"
+				suppressedExtensionId="org.eclipse.ui.navigator.resourceContent"/>
+				That's to use the pipeline (still not working well)
+		-->
+
       </navigatorContent>
       
       <commonFilter
@@ -1088,6 +1094,7 @@
         <viewerContentBinding viewerId="org.python.pydev.navigator.view">
             <includes>
                 <contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
+                <!--<contentExtension pattern="org.eclipse.ui.navigator.resourceContent"/>-->
             </includes>
         </viewerContentBinding>
         <viewerActionBinding viewerId="org.python.pydev.navigator.view">
