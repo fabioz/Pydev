@@ -75,7 +75,7 @@ True, False = 1,0
 
 # We don't need to add the same assist proposal more than once.
 if not (cmd == 'onCreateActions' or (DEBUG and cmd == 'onSave')):
-    from org.python.pydev.jython import ExitScriptException
+    from org.python.pydev.jython import ExitScriptException #@UnresolvedImport
     raise ExitScriptException()
 
 # We want a fresh interpreter if we're debugging this script!

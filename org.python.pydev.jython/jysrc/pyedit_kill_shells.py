@@ -16,8 +16,8 @@ if cmd == 'onCreateActions':
     from org.eclipse.jface.action import Action #@UnresolvedImport
     from org.python.pydev.editor.codecompletion.shell import AbstractShell #@UnresolvedImport
     from org.eclipse.jface.dialogs import MessageDialog #@UnresolvedImport
-    from org.python.pydev.plugin import PydevPlugin
-    from org.eclipse.core.runtime import NullProgressMonitor
+    from org.python.pydev.plugin import PydevPlugin #@UnresolvedImport
+    from org.eclipse.core.runtime import NullProgressMonitor #@UnresolvedImport
     
     class ListCommand(Action):
         def run(self):
