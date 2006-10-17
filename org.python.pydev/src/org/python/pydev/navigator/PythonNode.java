@@ -45,4 +45,9 @@ public class PythonNode implements Comparable, IChildResource {
     public PythonFile getPythonFile(){
         return pythonFile;
     }
+    
+    public int getRank() {
+        return IChildResource.RANK_PYTHON_NODE;
+    }
+
 }

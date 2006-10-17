@@ -12,7 +12,7 @@ import org.eclipse.core.runtime.IAdaptable;
 public class PythonFile extends ChildResource<IFile> implements IAdaptable{
 
 	public PythonFile(Object parentElement, IFile actualObject, PythonSourceFolder pythonSourceFolder) {
-		super(parentElement, actualObject, pythonSourceFolder);
+		super(parentElement, actualObject, pythonSourceFolder, IChildResource.RANK_PYTHON_FILE);
 	}
 
     public Object getAdapter(Class adapter) {

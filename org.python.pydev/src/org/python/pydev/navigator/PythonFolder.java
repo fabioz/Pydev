@@ -6,7 +6,7 @@ import org.eclipse.core.runtime.IAdaptable;
 public class PythonFolder extends ChildResource<IFolder> implements IAdaptable{
 
     public PythonFolder(Object parentElement, IFolder folder, PythonSourceFolder pythonSourceFolder) {
-		super(parentElement, folder, pythonSourceFolder);
+		super(parentElement, folder, pythonSourceFolder, IChildResource.RANK_PYTHON_FOLDER);
     }
 
     public Object getAdapter(Class adapter) {

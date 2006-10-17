@@ -1052,8 +1052,8 @@
             </or>
          </possibleChildren>
          <commonSorter
-               class="org.python.pydev.navigator.PythonNodeSorter"
-               id="org.python.pydev.navigator.pythonnodesorter"/>
+               class="org.python.pydev.navigator.PythonModelSorter"
+               id="org.python.pydev.navigator.pythonmodelsorter"/>
          <actionProvider
                class="org.python.pydev.navigator.actions.PythonActionProvider"
                id="org.python.pydev.navigator.actions.pythonActionProvider"/>

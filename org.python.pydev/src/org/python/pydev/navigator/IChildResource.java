@@ -7,7 +7,13 @@ package org.python.pydev.navigator;
  */
 public interface IChildResource {
 	
-	/**
+	int RANK_SOURCE_FOLDER = 0;
+	int RANK_PYTHON_FOLDER = 1;
+	int RANK_PYTHON_FILE = 2;
+    int RANK_PYTHON_RESOURCE = 3;
+    int RANK_PYTHON_NODE = 4;
+
+    /**
 	 * @return the parent for this resource
 	 */
 	Object getParent();
@@ -21,4 +27,9 @@ public interface IChildResource {
 	 * @return the source folder that contains this resource
 	 */
 	PythonSourceFolder getSourceFolder();
+
+    /**
+     * @return the ranking for the object. Lower values have higher priorities
+     */
+    int getRank();
 }

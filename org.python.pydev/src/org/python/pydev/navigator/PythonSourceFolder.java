@@ -51,4 +51,8 @@ public class PythonSourceFolder implements IChildResource, IAdaptable{
     public Object getAdapter(Class adapter) {
         return folder.getAdapter(adapter);
     }
+
+    public int getRank() {
+        return IChildResource.RANK_SOURCE_FOLDER;
+    }
 }
