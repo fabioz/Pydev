@@ -64,7 +64,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
 
         Object parent = modification.getParent();
         if (parent instanceof IContainer) {
-            Object pythonParent = getResourceInPythonModel(parent);
+            Object pythonParent = getResourceInPythonModel((IResource) parent, true);
             if (pythonParent instanceof IChildResource) {
                 IChildResource parentResource = (IChildResource) pythonParent;
                 modification.setParent(parentResource);
@@ -82,7 +82,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             if(child instanceof IResource){
                 childrenItr.remove();
                 IResource res = (IResource) child;
-                Object pythonParent = getResourceInPythonModel(res.getParent());
+                Object pythonParent = getResourceInPythonModel(res.getParent(), true);
                 if(pythonParent instanceof IChildResource){
                     IChildResource parent = (IChildResource) pythonParent;
                     if(res instanceof IFolder){

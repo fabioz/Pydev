@@ -6,9 +6,11 @@ package org.python.pydev.navigator;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
@@ -62,7 +64,7 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
      * see things in this provider, the python model starts only after some source folder
      * is found.
      */
-    private Set<PythonSourceFolder> sourceFolders = new HashSet<PythonSourceFolder>();
+    private Map<IProject, Set<PythonSourceFolder>> projectToSourceFolders = new HashMap<IProject, Set<PythonSourceFolder>>();
     
     /**
      * This is the viewer that we're using to see the contents of this file provider.
@@ -71,17 +73,25 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
     
     
     /**
-     * @see PythonModelProvider#getResourceInPythonModel(Object, boolean)
+     * @see PythonModelProvider#getResourceInPythonModel(IResource, boolean, boolean)
      */
-    protected Object getResourceInPythonModel(Object object) {
-        return getResourceInPythonModel(object, false);
+    protected Object getResourceInPythonModel(IResource object) {
+        return getResourceInPythonModel(object, false, false);
+    }
+    
+    /**
+     * @see PythonModelProvider#getResourceInPythonModel(IResource, boolean, boolean)
+     */
+    protected Object getResourceInPythonModel(IResource object, boolean returnNullIfNotFound) {
+        return getResourceInPythonModel(object, false, returnNullIfNotFound);
     }
     
     /**
      * Given some IResource in the filesystem, return the representation for it in the python model
      * or the resource itself if it could not be found in the python model.
      */
-    protected Object getResourceInPythonModel(Object object, boolean removeFoundResource) {
+    protected Object getResourceInPythonModel(IResource object, boolean removeFoundResource, boolean returnNullIfNotFound) {
+        Set<PythonSourceFolder> sourceFolders = getProjectSourceFolders(object);
         Object f = null;
         PythonSourceFolder sourceFolder = null;
         
@@ -94,7 +104,11 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
             }
         }
         if(f == null){
-            f = object;
+            if(returnNullIfNotFound){
+                return null;
+            }else{
+                return object;
+            }
         }else{
             if(removeFoundResource){
                 if(f == sourceFolder){
@@ -108,6 +122,15 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
     }
 
     
+    private Set<PythonSourceFolder> getProjectSourceFolders(IResource object) {
+        Set<PythonSourceFolder> sourceFolder = projectToSourceFolders.get(object.getProject());
+        if(sourceFolder == null){
+            sourceFolder = new HashSet<PythonSourceFolder>();
+            projectToSourceFolders.put(object.getProject(), sourceFolder);
+        }
+        return sourceFolder;
+    }
+
     /**
      * @return the children for some element
      */
@@ -188,7 +211,7 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
             if(nature != null){
                 Object[] ret = new Object[childrenToReturn.length];
                 for (int i=0; i < childrenToReturn.length; i++) {
-                    Object object = childrenToReturn[i];
+                    Object object = getResourceInPythonModel((IResource) childrenToReturn[i]);
                     ret[i] = object;
                     if (object instanceof IFolder) {
                         IFolder folder = (IFolder) object;
@@ -199,6 +222,8 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
                             IPath fullPath = folder.getFullPath();
                             if(sourcePathSet.contains(fullPath.toString())){
                                 ret[i] = new PythonSourceFolder(parentElement, folder);
+                                //System.out.println("Created source folder: "+ret[i]+" - "+folder.getProject()+" - "+folder.getProjectRelativePath());
+                                Set<PythonSourceFolder> sourceFolders = getProjectSourceFolders(resource);
                                 sourceFolders.add((PythonSourceFolder) ret[i]);
                             }
                         } catch (CoreException e) {
@@ -233,16 +258,21 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
 
         for (int i = 0; i < children.length; i++) {
             Object object = children[i];
-            if(object instanceof IFolder){
-                IFolder folder = (IFolder) object;
-                ret[i] = new PythonFolder(parent, folder, pythonSourceFolder);
-                
-            }else if(object instanceof IFile){
-                IFile file = (IFile) object;
-                ret[i] = new PythonFile(parent, file, pythonSourceFolder);
-                
+            Object existing = getResourceInPythonModel((IResource) object, true);
+            if(existing == null){
+                if(object instanceof IFolder){
+                    IFolder folder = (IFolder) object;
+                    ret[i] = new PythonFolder(parent, folder, pythonSourceFolder);
+                    
+                }else if(object instanceof IFile){
+                    IFile file = (IFile) object;
+                    ret[i] = new PythonFile(parent, file, pythonSourceFolder);
+                    
+                }else{
+                    ret[i] = new PythonResource(parent, object, pythonSourceFolder);
+                }
             }else{
-                ret[i] = new PythonResource(parent, object, pythonSourceFolder);
+                ret[i] = existing;
             }
         }
         childrenToReturn = ret;
@@ -254,19 +284,22 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
         LinkedHashSet convertedChildren = new LinkedHashSet();
         for (Iterator childrenItr = currentChildren.iterator(); childrenItr.hasNext();) {
             Object child = childrenItr.next();
-            if(child instanceof IFolder){
-                childrenItr.remove();
-                IFolder folder = (IFolder) child;
-                convertedChildren.add(new PythonFolder(parent, folder, pythonSourceFolder));
-                
-            }else if(child instanceof IFile){
-                childrenItr.remove();
-                IFile file = (IFile) child;
-                convertedChildren.add(new PythonFile(parent, file, pythonSourceFolder));
-                
-            }else if (child instanceof IResource){
-                childrenItr.remove();
-                convertedChildren.add(new PythonResource(parent, child, pythonSourceFolder));
+            Object existing = getResourceInPythonModel((IResource) child, true);
+            if(existing == null){
+                if(child instanceof IFolder){
+                    childrenItr.remove();
+                    IFolder folder = (IFolder) child;
+                    convertedChildren.add(new PythonFolder(parent, folder, pythonSourceFolder));
+                    
+                }else if(child instanceof IFile){
+                    childrenItr.remove();
+                    IFile file = (IFile) child;
+                    convertedChildren.add(new PythonFile(parent, file, pythonSourceFolder));
+                    
+                }else if (child instanceof IResource){
+                    childrenItr.remove();
+                    convertedChildren.add(new PythonResource(parent, child, pythonSourceFolder));
+                }
             }
         }
         if (!convertedChildren.isEmpty()) {
@@ -312,7 +345,7 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
      * (non-Javadoc) Method declared on IContentProvider.
      */
     public void dispose() {
-        this.sourceFolders = null;
+        this.projectToSourceFolders = null;
         if (viewer != null) {
             IWorkspace workspace = null;
             Object obj = viewer.getInput();
@@ -566,8 +599,9 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
                         if (addedObjects.length > 0) {
                             Object childResource = getResourceInPythonModel(resource);
                             if(childResource instanceof IChildResource){
-                                treeViewer.add(childResource, wrapChildren(childResource, 
-                                        ((IChildResource)childResource).getSourceFolder(), addedObjects));
+                                PythonSourceFolder sourceFolder = ((IChildResource)childResource).getSourceFolder();
+                                Object[] children = wrapChildren(childResource, sourceFolder, addedObjects);
+                                treeViewer.add(childResource, children);
                             }else{
                                 treeViewer.add(resource, addedObjects);
                             }
@@ -576,7 +610,7 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
                         if (removedObjects.length > 0) {
                             ArrayList<Object> rem = new ArrayList<Object>();
                             for (Object object : removedObjects) {
-                                rem.add(getResourceInPythonModel(object, true));
+                                rem.add(getResourceInPythonModel((IResource) object, true, false));
                             }
                             treeViewer.remove(rem.toArray());
                         }
