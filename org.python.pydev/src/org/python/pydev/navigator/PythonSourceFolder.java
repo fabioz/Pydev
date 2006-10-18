@@ -13,11 +13,11 @@ import org.eclipse.core.runtime.IAdaptable;
 /**
  * @author Fabio
  */
-public class PythonSourceFolder implements IChildResource, IAdaptable{
+public class PythonSourceFolder implements IWrappedResource, IAdaptable{
 
     public IFolder folder;
     public Object parentElement;
-    public Map<Object, IChildResource> children = new HashMap<Object, IChildResource>();
+    public Map<Object, IWrappedResource> children = new HashMap<Object, IWrappedResource>();
 
     public PythonSourceFolder(Object parentElement, IFolder folder) {
         this.parentElement = parentElement;
@@ -36,7 +36,7 @@ public class PythonSourceFolder implements IChildResource, IAdaptable{
 		return this;
 	}
 	
-	public void addChild(Object actualObject, IChildResource child){
+	public void addChild(Object actualObject, IWrappedResource child){
 		children.put(actualObject, child);
 	}
 	
@@ -53,6 +53,6 @@ public class PythonSourceFolder implements IChildResource, IAdaptable{
     }
 
     public int getRank() {
-        return IChildResource.RANK_SOURCE_FOLDER;
+        return IWrappedResource.RANK_SOURCE_FOLDER;
     }
 }

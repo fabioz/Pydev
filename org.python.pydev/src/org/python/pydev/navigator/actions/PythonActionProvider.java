@@ -19,7 +19,8 @@ import org.eclipse.ui.navigator.ICommonViewerWorkbenchSite;
 public class PythonActionProvider extends CommonActionProvider{
     
     private OpenPythonNodeAction openAction;
-    //private DeleteResourceAction deleteResourceAction;
+//    private PyOpenPythonFileAction openResourceAction;
+//    private PyDeleteResourceAction deleteResourceAction;
 
     @Override
     public void init(ICommonActionExtensionSite aSite) {
@@ -27,7 +28,9 @@ public class PythonActionProvider extends CommonActionProvider{
         if(viewSite instanceof ICommonViewerWorkbenchSite){
             ICommonViewerWorkbenchSite site = (ICommonViewerWorkbenchSite) viewSite;
             openAction = new OpenPythonNodeAction(site.getPage(), site.getSelectionProvider());
-            //deleteResourceAction = new DeleteResourceAction(site.getShell());
+//            openResourceAction = new PyOpenPythonFileAction(site.getPage(), site.getSelectionProvider());
+            
+//            deleteResourceAction = new PyDeleteResourceAction(site.getShell(), site.getSelectionProvider());
         }
     }
     
@@ -40,9 +43,12 @@ public class PythonActionProvider extends CommonActionProvider{
         if(openAction.isEnabled()){
             actionBars.setGlobalActionHandler(ICommonActionConstants.OPEN, openAction);
         }
-        //if(deleteResourceAction.isEnabled()){
-        //    actionBars.setGlobalActionHandler(ActionFactory.DELETE.getId(), deleteResourceAction);
-        //}
+//        if(openResourceAction.isEnabled()){
+//            actionBars.setGlobalActionHandler(ICommonActionConstants.OPEN, openResourceAction);
+//        }
+//        if(deleteResourceAction.isEnabled()){
+//            actionBars.setGlobalActionHandler(ActionFactory.DELETE.getId(), deleteResourceAction);
+//        }
     }
     
     /* (non-Javadoc)
@@ -52,6 +58,9 @@ public class PythonActionProvider extends CommonActionProvider{
         if(openAction.isEnabled()){
             menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openAction);        
         }
+//        if(openResourceAction.isEnabled()){
+//            menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openResourceAction);        
+//        }
 //        if(deleteResourceAction.isEnabled()){
 //            menu.appendToGroup(ICommonMenuConstants.GROUP_EDIT, deleteResourceAction);        
 //        }

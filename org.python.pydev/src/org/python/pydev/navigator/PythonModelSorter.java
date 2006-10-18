@@ -16,9 +16,9 @@ public class PythonModelSorter extends ViewerSorter{
         }
         
         //now, on to the priorities (if both have different classes)
-        if(e1 instanceof IChildResource && e2 instanceof IChildResource){
-            IChildResource resource1 = (IChildResource) e1;
-            IChildResource resource2 = (IChildResource) e2;
+        if(e1 instanceof IWrappedResource && e2 instanceof IWrappedResource){
+            IWrappedResource resource1 = (IWrappedResource) e1;
+            IWrappedResource resource2 = (IWrappedResource) e2;
             int r1 = resource1.getRank();
             int r2 = resource2.getRank();
             if(r1 == r2){

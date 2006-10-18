@@ -5,7 +5,7 @@ package org.python.pydev.navigator;
  * 
  * @author fabioz
  */
-public interface IChildResource {
+public interface IWrappedResource {
 	
 	int RANK_SOURCE_FOLDER = 0;
 	int RANK_PYTHON_FOLDER = 1;

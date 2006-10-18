@@ -1,7 +1,6 @@
 package org.python.pydev.navigator;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.IAdaptable;
 
 /**
  * Note that the python file here does not actually mean a .py or .pyw file (it can be
@@ -9,14 +8,10 @@ import org.eclipse.core.runtime.IAdaptable;
  * 
  * @author fabioz
  */
-public class PythonFile extends ChildResource<IFile> implements IAdaptable{
+public class PythonFile extends WrappedResource<IFile> {
 
 	public PythonFile(Object parentElement, IFile actualObject, PythonSourceFolder pythonSourceFolder) {
-		super(parentElement, actualObject, pythonSourceFolder, IChildResource.RANK_PYTHON_FILE);
+		super(parentElement, actualObject, pythonSourceFolder, IWrappedResource.RANK_PYTHON_FILE);
 	}
-
-    public Object getAdapter(Class adapter) {
-        return this.getActualObject().getAdapter(adapter);
-    }
 
 }

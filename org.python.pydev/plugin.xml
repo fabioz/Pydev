@@ -966,9 +966,9 @@
 <!-- Declare the viewer configuration, and the default content/action bindings -->
 <extension point="org.eclipse.ui.navigator.viewer">
     <viewer viewerId="org.python.pydev.navigator.view">
-    <!--
+    	<!-- allowsPlatformContributions="true" allows it to show the cvs stuff -->
         <popupMenu
-                allowsPlatformContributions="true"
+                allowsPlatformContributions="true" 
                 id="org.python.pydev.navigator.view#PopupMenu">  
              <insertionPoint name="group.new"/>
              <insertionPoint
@@ -997,21 +997,15 @@
                    name="group.properties"
                    separator="true"/>             
         </popupMenu>
-    -->
     </viewer>
     <viewerContentBinding viewerId="org.python.pydev.navigator.view">
         <includes>
-            <!--<contentExtension pattern="org.eclipse.ui.navigator.resourceContent"/>-->
+            <contentExtension pattern="org.eclipse.ui.navigator.resourceContent"/>
             <contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
             <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/> 
-            <contentExtension pattern="org.eclipse.ui.examples.navigator.filters.*"/> 
+            <contentExtension pattern="org.python.pydev.navigator.filters.*"/> 
         </includes>
     </viewerContentBinding>
-    <viewerActionBinding viewerId="org.python.pydev.navigator.view">
-        <includes>
-            <actionExtension pattern="org.eclipse.ui.navigator.resources.*"/>
-        </includes>
-    </viewerActionBinding>
 </extension>
    
 
@@ -1038,7 +1032,8 @@
                 <instanceof value="org.eclipse.core.resources.IFolder"/>
                 <instanceof value="org.eclipse.core.resources.IStorage"/>
                 <instanceof value="org.eclipse.core.resources.IFile"/>
-                <instanceof value="org.python.pydev.navigator.IChildResource"/>
+                <instanceof value="org.eclipse.core.resources.IResource"/>
+                <instanceof value="org.python.pydev.navigator.IWrappedResource"/>
             </or>
          </triggerPoints>
          <possibleChildren>
@@ -1048,7 +1043,8 @@
                 <instanceof value="org.eclipse.core.resources.IFolder" />
                 <instanceof value="org.eclipse.core.resources.IStorage"/>
                 <instanceof value="org.eclipse.core.resources.IFile" />
-                <instanceof value="org.python.pydev.navigator.IChildResource"/>
+                <instanceof value="org.eclipse.core.resources.IResource"/>
+                <instanceof value="org.python.pydev.navigator.IWrappedResource"/>
             </or>
          </possibleChildren>
          <commonSorter
@@ -1057,17 +1053,15 @@
          <actionProvider
                class="org.python.pydev.navigator.actions.PythonActionProvider"
                id="org.python.pydev.navigator.actions.pythonActionProvider"/>
-		 <!--<override
+		 <override
 				policy="InvokeAlwaysRegardlessOfSuppressedExt"
 				suppressedExtensionId="org.eclipse.ui.navigator.resourceContent"/>
-				That's to use the pipeline (still not working well)
-		-->
 
       </navigatorContent>
       
       <commonFilter
             activeByDefault="true"
-            id="org.eclipse.ui.examples.navigator.filters.hideNonPydevProjects"
+            id="org.python.pydev.navigator.filters.hideNonPydevProjects"
             name="Hide non-Pydev Projects">
          <filterExpression>
              <and>
@@ -1082,7 +1076,8 @@
                 <not><instanceof value="org.eclipse.core.resources.IFolder"/>
                 </not><not><instanceof value="org.eclipse.core.resources.IStorage"/>
                 </not><not><instanceof value="org.eclipse.core.resources.IFile"/>
-                </not><not><instanceof value="org.python.pydev.navigator.IChildResource"/>
+                </not><not><instanceof value="org.eclipse.core.resources.IResource"/>
+                </not><not><instanceof value="org.python.pydev.navigator.IWrappedResource"/>
                 </not>
             </and>
          </filterExpression>
@@ -1094,12 +1089,13 @@
         <viewerContentBinding viewerId="org.python.pydev.navigator.view">
             <includes>
                 <contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
-                <!--<contentExtension pattern="org.eclipse.ui.navigator.resourceContent"/>-->
+                <contentExtension pattern="org.eclipse.ui.navigator.resourceContent"/>
             </includes>
         </viewerContentBinding>
         <viewerActionBinding viewerId="org.python.pydev.navigator.view">
             <includes>
                 <actionExtension pattern="org.python.pydev.navigator.actions.*"/>
+	            <actionExtension pattern="org.eclipse.ui.navigator.resources.*"/>
             </includes>
         </viewerActionBinding>
     </extension>

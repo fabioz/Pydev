@@ -6,7 +6,7 @@ package org.python.pydev.navigator;
 
 import org.python.pydev.outline.ParsedItem;
 
-public class PythonNode implements Comparable, IChildResource {
+public class PythonNode implements Comparable, IWrappedResource {
 
     public Object parent;
     public ParsedItem entry;
@@ -47,7 +47,7 @@ public class PythonNode implements Comparable, IChildResource {
     }
     
     public int getRank() {
-        return IChildResource.RANK_PYTHON_NODE;
+        return IWrappedResource.RANK_PYTHON_NODE;
     }
 
 }

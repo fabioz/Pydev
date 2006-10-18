@@ -140,8 +140,8 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
         //------------------------------------------- get some common resources (project and nature)
         IProject project = null;
         PythonNature nature = null;
-        if(parentElement instanceof IChildResource){
-            IChildResource childRes = (IChildResource) parentElement;
+        if(parentElement instanceof IWrappedResource){
+            IWrappedResource childRes = (IWrappedResource) parentElement;
             Object obj = childRes.getActualObject();
             if(obj instanceof IResource){
                 IResource resource = (IResource) obj;
@@ -268,8 +268,11 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
                     IFile file = (IFile) object;
                     ret[i] = new PythonFile(parent, file, pythonSourceFolder);
                     
+                }else if(object instanceof IResource){
+                    ret[i] = new PythonResource(parent, (IResource) object, pythonSourceFolder);
+                    
                 }else{
-                    ret[i] = new PythonResource(parent, object, pythonSourceFolder);
+                    ret[i] = existing;
                 }
             }else{
                 ret[i] = existing;
@@ -298,7 +301,7 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
                     
                 }else if (child instanceof IResource){
                     childrenItr.remove();
-                    convertedChildren.add(new PythonResource(parent, child, pythonSourceFolder));
+                    convertedChildren.add(new PythonResource(parent, (IResource) child, pythonSourceFolder));
                 }
             }
         }
@@ -313,9 +316,9 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
      * @return the parent for some element.
      */
     public Object getParent(Object element) {
-        if (element instanceof IChildResource) {
+        if (element instanceof IWrappedResource) {
             // just return the parent
-            IChildResource resource = (IChildResource) element;
+            IWrappedResource resource = (IWrappedResource) element;
             return resource.getParent();
         }
         return super.getParent(element);
@@ -598,8 +601,8 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
                         //we have to create an actual representation for it)
                         if (addedObjects.length > 0) {
                             Object childResource = getResourceInPythonModel(resource);
-                            if(childResource instanceof IChildResource){
-                                PythonSourceFolder sourceFolder = ((IChildResource)childResource).getSourceFolder();
+                            if(childResource instanceof IWrappedResource){
+                                PythonSourceFolder sourceFolder = ((IWrappedResource)childResource).getSourceFolder();
                                 Object[] children = wrapChildren(childResource, sourceFolder, addedObjects);
                                 treeViewer.add(childResource, children);
                             }else{
