@@ -600,22 +600,11 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
                         //the python model (so, if some element is removed,
                         //we have to create an actual representation for it)
                         if (addedObjects.length > 0) {
-                            Object childResource = getResourceInPythonModel(resource);
-                            if(childResource instanceof IWrappedResource){
-                                PythonSourceFolder sourceFolder = ((IWrappedResource)childResource).getSourceFolder();
-                                Object[] children = wrapChildren(childResource, sourceFolder, addedObjects);
-                                treeViewer.add(childResource, children);
-                            }else{
-                                treeViewer.add(resource, addedObjects);
-                            }
+                            treeViewer.add(resource, addedObjects);
                         }
                         
                         if (removedObjects.length > 0) {
-                            ArrayList<Object> rem = new ArrayList<Object>();
-                            for (Object object : removedObjects) {
-                                rem.add(getResourceInPythonModel((IResource) object, true, false));
-                            }
-                            treeViewer.remove(rem.toArray());
+                            treeViewer.remove(removedObjects);
                         }
                     } finally {
                         if (hasRename) {

@@ -29,9 +29,12 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
     @SuppressWarnings("unchecked")
     public void getPipelinedChildren(Object parent, Set currentChildren) {
         Object[] children = getChildren(parent);
-        for (Iterator iter = currentChildren.iterator(); iter.hasNext();)
-            if (iter.next() instanceof IResource)
+        for (Iterator iter = currentChildren.iterator(); iter.hasNext();){
+            Object next = iter.next();
+            if (next instanceof IResource && !(next instanceof IWrappedResource)){
                 iter.remove();
+            }
+        }
         currentChildren.addAll(Arrays.asList(children));
     }
 
@@ -39,9 +42,12 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
     public void getPipelinedElements(Object input, Set currentElements) {
         Object[] children = getElements(input);
 
-        for (Iterator iter = currentElements.iterator(); iter.hasNext();)
-            if (iter.next() instanceof IResource)
+        for (Iterator iter = currentElements.iterator(); iter.hasNext();){
+            Object next = iter.next();
+            if (next instanceof IResource && !(next instanceof IWrappedResource)){
                 iter.remove();
+            }
+        }
 
         currentElements.addAll(Arrays.asList(children));
     }
@@ -79,19 +85,25 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         LinkedHashSet convertedChildren = new LinkedHashSet();
         for (Iterator childrenItr = currentChildren.iterator(); childrenItr.hasNext();) {
             Object child = childrenItr.next();
-            if(child instanceof IResource){
+            if(child instanceof IResource && !(child instanceof IWrappedResource)){
                 childrenItr.remove();
                 IResource res = (IResource) child;
-                Object pythonParent = getResourceInPythonModel(res.getParent(), true);
-                if(pythonParent instanceof IWrappedResource){
-                    IWrappedResource parent = (IWrappedResource) pythonParent;
-                    if(res instanceof IFolder){
-                        convertedChildren.add(new PythonFolder(parent, (IFolder) res, parent.getSourceFolder()));
-                    }else if(res instanceof IFile){
-                        convertedChildren.add(new PythonFile(parent, (IFile) res, parent.getSourceFolder()));
-                    }else if (child instanceof IResource){
-                        childrenItr.remove();
-                        convertedChildren.add(new PythonResource(parent, (IResource) child, parent.getSourceFolder()));
+                
+                Object resourceInPythonModel = getResourceInPythonModel(res, true);
+                if(resourceInPythonModel != null){
+                    convertedChildren.add(resourceInPythonModel);
+                    
+                }else{
+                    Object pythonParent = getResourceInPythonModel(res.getParent(), true);
+                    if(pythonParent instanceof IWrappedResource){
+                        IWrappedResource parent = (IWrappedResource) pythonParent;
+                        if(res instanceof IFolder){
+                            convertedChildren.add(new PythonFolder(parent, (IFolder) res, parent.getSourceFolder()));
+                        }else if(res instanceof IFile){
+                            convertedChildren.add(new PythonFile(parent, (IFile) res, parent.getSourceFolder()));
+                        }else if (child instanceof IResource){
+                            convertedChildren.add(new PythonResource(parent, (IResource) child, parent.getSourceFolder()));
+                        }
                     }
                 }
                 
