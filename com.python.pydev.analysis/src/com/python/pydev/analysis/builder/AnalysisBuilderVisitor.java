@@ -92,7 +92,6 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
         String moduleName = getModuleName(resource);
         PythonNature nature = getPythonNature(resource);
-        
         fillDependenciesAndRemoveInfo(moduleName, nature, true, monitor, isFullBuild());
     }
     
@@ -111,14 +110,16 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
      * @param analyzeDependent determines if we should add dependent modules to be analyzed later
      */
     public static void fillDependenciesAndRemoveInfo(String moduleName, PythonNature nature, boolean analyzeDependent, IProgressMonitor monitor, boolean isFullBuild) {
-        AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
-        boolean generateDelta;
-        if(isFullBuild){
-            generateDelta = false;
-        }else{
-            generateDelta = true;
+        if(moduleName != null && nature != null){
+            AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
+            boolean generateDelta;
+            if(isFullBuild){
+                generateDelta = false;
+            }else{
+                generateDelta = true;
+            }
+            info.removeInfoFromModule(moduleName, generateDelta);
         }
-        info.removeInfoFromModule(moduleName, generateDelta);
     }
 
 }
