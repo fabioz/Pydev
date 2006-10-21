@@ -18,14 +18,6 @@ except:
     False = 0
     True = 1
 
-#let's see if we can use yield
-try:
-    def yieldStmt():yield(True)
-    yieldStmt()
-    hasYield = True
-except:
-    hasYield = False
-
 #------------------------------------------------------------------------------------------------------ class for errors
 
 class VariableError(RuntimeError):pass
@@ -155,7 +147,6 @@ def frameVarsToXML(frame):
     """ dumps frame variables to XML
     <var name="var_name" scope="local" type="type" value="value"/>
     """    
-#    print "frameVarsToXML"
     xml = ""
     keys = frame.f_locals.keys()
     keys.sort()    
@@ -168,26 +159,16 @@ def frameVarsToXML(frame):
             print >>sys.stderr,"unexpected error, recovered safely", str(e)
     return xml
 
-if not hasYield:
-    def iterFrames(initialFrame):
-        '''NO-YIELD VERSION: Iterates through all the frames starting at the specified frame (which will be the first returned item)'''
-        #cannot use yield
-        frames = []
+def iterFrames(initialFrame):
+    '''NO-YIELD VERSION: Iterates through all the frames starting at the specified frame (which will be the first returned item)'''
+    #cannot use yield
+    frames = []
+    
+    while initialFrame is not None:
+        frames.append(initialFrame)
+        initialFrame = initialFrame.f_back
         
-        while initialFrame is not None:
-            frames.append(initialFrame)
-            initialFrame = initialFrame.f_back
-            
-        return frames
-else:
-    def iterFrames(initialFrame):
-        '''Iterates through all the frames starting at the specified frame (which will be the first returned item)'''
-        #let's use yield
-        while initialFrame is not None:
-            yield (initialFrame)
-            initialFrame = initialFrame.f_back
-            
-        raise StopIteration()
+    return frames
 
 def findFrame(thread_id, frame_id):
     """ returns a frame on the thread that has a given frame_id """
