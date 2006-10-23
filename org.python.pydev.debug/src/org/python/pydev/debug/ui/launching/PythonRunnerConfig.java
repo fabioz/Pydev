@@ -26,6 +26,8 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
+import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.core.Constants;
@@ -34,6 +36,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.plugin.PyunitPrefsPage;
 import org.python.pydev.plugin.SocketUtil;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -182,6 +185,24 @@ public class PythonRunnerConfig {
         }
         return null;
     }
+
+    /**
+     * Returns the location of the selected interpreter in the launch configuration
+     * @param conf
+     * @return the string location of the selected interpreter in the launch configuration
+     * @throws CoreException if unable to retrieve the launch configuration attribute or if unable to 
+     * resolve the default interpreter.
+     */
+    private static String getInterpreterLocation(ILaunchConfiguration conf, IPythonNature nature) throws CoreException {
+		IInterpreterManager interpreterManager = PydevPlugin.getInterpreterManager(nature);
+        String location = conf.getAttribute(Constants.ATTR_INTERPRETER, (String) null);
+		if (location != null && location.equals(Constants.ATTR_INTERPRETER_DEFAULT)){
+			location = interpreterManager.getDefaultInterpreter();
+		}
+		return location;
+	}
+    
+    
     /**
      * Expands and returns the python interprter attribute of the given launch
      * configuration. The intepreter path is verified to point to an existing
@@ -194,8 +215,8 @@ public class PythonRunnerConfig {
      * resolved location does not point to an existing directory in the local
      * file system
      */
-    public static IPath getInterpreter(ILaunchConfiguration configuration) throws CoreException {
-        String location = configuration.getAttribute(Constants.ATTR_INTERPRETER, (String) null);
+    public static IPath getInterpreter(ILaunchConfiguration configuration, IPythonNature nature) throws CoreException {
+        String location = getInterpreterLocation(configuration, nature);
         if (location == null) {
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get python interpreter for run", null));
         } else {
@@ -219,8 +240,6 @@ public class PythonRunnerConfig {
 		isInteractive = mode.equals("interactive");
 		
         resource = getLocation(conf);
-		interpreter = getInterpreter(conf);
-        interpreterLocation = conf.getAttribute(Constants.ATTR_INTERPRETER, (String) null);
 		arguments = getArguments(conf);
 		IPath workingPath = getWorkingDirectory(conf);
 		workingDirectory = workingPath == null ? null : workingPath.toFile();
@@ -240,6 +259,10 @@ public class PythonRunnerConfig {
             CoreException e = PydevPlugin.log("Could not get project for resource: "+resource);
             throw e;
         }
+
+        // We need the project to find out the default interpreter from the InterpreterManager.
+        interpreterLocation = getInterpreterLocation(conf, (IPythonNature) project.getNature(PythonNature.PYTHON_NATURE_ID));
+		interpreter = getInterpreter(conf, (IPythonNature) project.getNature(PythonNature.PYTHON_NATURE_ID));
         
         //make the environment
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();

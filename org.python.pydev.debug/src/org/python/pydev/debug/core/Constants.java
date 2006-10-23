@@ -36,6 +36,7 @@ public interface Constants {
 	static final String ATTR_PROGRAM_ARGUMENTS = "org.eclipse.ui.externaltools" + ".ATTR_TOOL_ARGUMENTS";
 
 	static final String ATTR_INTERPRETER = PLUGIN_ID + ".ATTR_INTERPRETER";
+	static final String ATTR_INTERPRETER_DEFAULT = "__default"; //$NO-NLS-1$; 
 	static final String ATTR_PROJECT = PLUGIN_ID + ".ATTR_PROJECT";
 	static final String ATTR_RESOURCE_TYPE = PLUGIN_ID + ".ATTR_RESOURCE_TYPE";
 	

@@ -7,6 +7,7 @@
 package org.python.pydev.debug.ui;
 
 import java.io.File;
+import java.util.Arrays;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -46,6 +47,9 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
     Text programArgumentField;
     Combo interpreterComboField;
     Text vmArgumentsField;
+    
+    // View constant
+    static final String DEFAULT_INTERPRETER_NAME = "Default Interpreter";
 
     protected ModifyListener modifyListener = new ModifyListener() {
         public void modifyText(ModifyEvent e) {       
@@ -156,7 +160,18 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         label6.setLayoutData (data);
 
         interpreterComboField = new Combo (comp, SWT.DROP_DOWN);
-        interpreterComboField.setItems (this.interpreterManager.getInterpreters());
+        String[] interpreters = this.interpreterManager.getInterpreters();
+        if (interpreters.length > 0){
+        	// There is at least one interpreter defined, add the default interpreter option at the beginning.
+            String[] interpreterNames = interpreters;
+            interpreters = new String[interpreterNames.length+1];
+            interpreters[0] = ArgumentsTab.DEFAULT_INTERPRETER_NAME;
+            
+            for (int i = 0; i < interpreterNames.length; i ++){
+            	interpreters[i+1] = interpreterNames[i];
+            }
+        }
+        interpreterComboField.setItems (interpreters);
         interpreterComboField.select(0);
         data = new GridData ();
         data.horizontalAlignment = GridData.FILL;
@@ -273,7 +288,7 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         String vmArguments = "";
         try {
             baseDirectory = conf.getAttribute(Constants.ATTR_WORKING_DIRECTORY, "");
-            interpreter = conf.getAttribute(Constants.ATTR_INTERPRETER, "");
+            interpreter = conf.getAttribute(Constants.ATTR_INTERPRETER, Constants.ATTR_INTERPRETER_DEFAULT);
             vmArguments = conf.getAttribute(Constants.ATTR_VM_ARGUMENTS,"");
             arguments = conf.getAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, "");
         }
@@ -290,10 +305,17 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         
             int selectThis = -1;
             
-            for (int i=0; i< interpreters.length; i++){
-                if (interpreter.equals(interpreters[i])){
-                    selectThis = i;
-                }
+            if (interpreter.equals(Constants.ATTR_INTERPRETER_DEFAULT))
+            {
+            	selectThis = 0;
+            }
+            else {
+            	for (int i=1; i< interpreters.length; i++){
+            		if (interpreter.equals(interpreters[i])){
+            			selectThis = i;
+            			break;
+            		}
+            	}
             }
             
             if (selectThis == -1) {
@@ -324,7 +346,13 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         value = vmArgumentsField.getText().trim();
         setAttribute(conf, Constants.ATTR_VM_ARGUMENTS, value);
         
-        value = interpreterComboField.getText();
+        if (interpreterComboField.getSelectionIndex() == 0){
+        	// The default was selected
+        	value = Constants.ATTR_INTERPRETER_DEFAULT;
+        	
+        }else{
+        	value = interpreterComboField.getText();
+        }
         setAttribute(conf, Constants.ATTR_INTERPRETER, value);
     }
     
@@ -333,6 +361,15 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
      * @return true if the interpreter is configured in pydev
      */
     protected boolean checkIfInterpreterExists(String interpreter) {
+    	if (interpreter.equals(Constants.ATTR_INTERPRETER_DEFAULT))	{
+    	    if(this.interpreterManager.getDefaultInterpreter() != null){
+    			// The default interpreter is selected, and we have a default interpreter
+	    		return true;
+	    	}
+	    	//otherwise, the default is selected, but we have no default
+	    	return false;
+    	}
+    	
         String[] interpreters = this.interpreterManager.getInterpreters();
         for (int i = 0; i < interpreters.length; i++) {
             if (interpreters[i] != null && interpreters[i].equals(interpreter)) {
