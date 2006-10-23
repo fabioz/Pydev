@@ -467,6 +467,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     protected void doSetInput(IEditorInput input) throws CoreException {
         super.doSetInput(input);
         IDocument document = getDocument(input);
+        //see if we have to change the encoding of the file on load
+        fixEncoding(input, document);
+
         checkAndCreateParserIfNeeded();
         if(document != null){
             parser.setDocument(document);
@@ -521,6 +524,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
                         new Job("Change encoding") {
 
                             protected IStatus run(IProgressMonitor monitor) {
+                                System.out.println("Changing Encoding");
                                 try {
                                     file.setCharset(encoding, monitor);
                                     ((TextFileDocumentProvider) getDocumentProvider()).setEncoding(input, encoding);
