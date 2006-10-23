@@ -966,7 +966,7 @@
 <!-- Declare the viewer configuration, and the default content/action bindings -->
 <extension point="org.eclipse.ui.navigator.viewer">
     <viewer viewerId="org.python.pydev.navigator.view">
-    	<!-- allowsPlatformContributions="true" allows it to show the cvs stuff -->
+    	<!-- allowsPlatformContributions="true" allows it to show the cvs stuff 
         <popupMenu
                 allowsPlatformContributions="true" 
                 id="org.python.pydev.navigator.view#PopupMenu">  
@@ -996,7 +996,7 @@
              <insertionPoint
                    name="group.properties"
                    separator="true"/>             
-        </popupMenu>
+        </popupMenu>-->
     </viewer>
     <viewerContentBinding viewerId="org.python.pydev.navigator.view">
         <includes>
@@ -1053,6 +1053,7 @@
          <actionProvider
                class="org.python.pydev.navigator.actions.PythonActionProvider"
                id="org.python.pydev.navigator.actions.pythonActionProvider"/>
+         <!-- that's so that we only have the python content shown, and not the resource content -->
 		 <override
 				policy="InvokeAlwaysRegardlessOfSuppressedExt"
 				suppressedExtensionId="org.eclipse.ui.navigator.resourceContent"/>
@@ -1082,8 +1083,9 @@
             </and>
          </filterExpression>
       </commonFilter>
-
+      
     </extension>
+
     <!-- Bind the content extension to the viewer -->
     <extension point="org.eclipse.ui.navigator.viewer">
         <viewerContentBinding viewerId="org.python.pydev.navigator.view">
@@ -1100,4 +1102,15 @@
         </viewerActionBinding>
     </extension>
 
-</plugin>
+    <extension point="org.eclipse.core.runtime.adapters">
+         <factory class="org.python.pydev.navigator.ModelAdapter" adaptableType="org.python.pydev.navigator.IWrappedResource">
+			<adapter type="org.eclipse.core.resources.IResource"/>
+			<adapter type="org.eclipse.core.resources.IFolder"/>
+			<adapter type="org.eclipse.core.resources.IContainer"/>
+			<adapter type="org.eclipse.core.resources.IFile"/>
+			<adapter type="org.eclipse.debug.ui.actions.ILaunchable"/>
+			<adapter type="org.eclipse.ui.IContributorResourceAdapter"/>
+         </factory>
+    </extension>
+    
+ </plugin>

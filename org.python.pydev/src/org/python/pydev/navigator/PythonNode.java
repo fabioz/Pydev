@@ -30,7 +30,7 @@ public class PythonNode implements Comparable, IWrappedResource {
         return entry.compareTo(((PythonNode)o).entry);
     }
 
-	public Object getParent() {
+	public Object getParentElement() {
 		return parent;
 	}
 

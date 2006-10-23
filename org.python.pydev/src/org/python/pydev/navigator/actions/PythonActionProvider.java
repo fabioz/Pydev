@@ -6,9 +6,6 @@ package org.python.pydev.navigator.actions;
 
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IWorkbenchActionConstants;
-import org.eclipse.ui.actions.ActionFactory;
-import org.eclipse.ui.actions.DeleteResourceAction;
 import org.eclipse.ui.navigator.CommonActionProvider;
 import org.eclipse.ui.navigator.ICommonActionConstants;
 import org.eclipse.ui.navigator.ICommonActionExtensionSite;
@@ -20,7 +17,7 @@ public class PythonActionProvider extends CommonActionProvider{
     
     private OpenPythonNodeAction openAction;
 //    private PyOpenPythonFileAction openResourceAction;
-//    private PyDeleteResourceAction deleteResourceAction;
+//    private DeleteResourceAction deleteResourceAction;
 
     @Override
     public void init(ICommonActionExtensionSite aSite) {
@@ -30,7 +27,7 @@ public class PythonActionProvider extends CommonActionProvider{
             openAction = new OpenPythonNodeAction(site.getPage(), site.getSelectionProvider());
 //            openResourceAction = new PyOpenPythonFileAction(site.getPage(), site.getSelectionProvider());
             
-//            deleteResourceAction = new PyDeleteResourceAction(site.getShell(), site.getSelectionProvider());
+//            deleteResourceAction = new DeleteResourceAction(site.getShell());
         }
     }
     

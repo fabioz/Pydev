@@ -7,6 +7,7 @@ public class PythonResource extends WrappedResource<IResource> {
 
 	public PythonResource(Object parentElement, IResource object, PythonSourceFolder pythonSourceFolder) {
 		super(parentElement, object, pythonSourceFolder, IWrappedResource.RANK_PYTHON_RESOURCE);
+        //System.out.println("Created PythonResource:"+this+" - "+actualObject+" parent:"+parentElement);
     }
 
 }

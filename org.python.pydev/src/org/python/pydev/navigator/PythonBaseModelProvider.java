@@ -282,36 +282,6 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
         return childrenToReturn;
     }
     
-    @SuppressWarnings("unchecked")
-    protected boolean wrapChildren(Object parent, PythonSourceFolder pythonSourceFolder, Set currentChildren) {
-        LinkedHashSet convertedChildren = new LinkedHashSet();
-        for (Iterator childrenItr = currentChildren.iterator(); childrenItr.hasNext();) {
-            Object child = childrenItr.next();
-            Object existing = getResourceInPythonModel((IResource) child, true);
-            if(existing == null){
-                if(child instanceof IFolder){
-                    childrenItr.remove();
-                    IFolder folder = (IFolder) child;
-                    convertedChildren.add(new PythonFolder(parent, folder, pythonSourceFolder));
-                    
-                }else if(child instanceof IFile){
-                    childrenItr.remove();
-                    IFile file = (IFile) child;
-                    convertedChildren.add(new PythonFile(parent, file, pythonSourceFolder));
-                    
-                }else if (child instanceof IResource){
-                    childrenItr.remove();
-                    convertedChildren.add(new PythonResource(parent, (IResource) child, pythonSourceFolder));
-                }
-            }
-        }
-        if (!convertedChildren.isEmpty()) {
-            currentChildren.addAll(convertedChildren);
-            return true;
-        }
-        return false;
-    }
-    
     /**
      * @return the parent for some element.
      */
@@ -319,7 +289,7 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
         if (element instanceof IWrappedResource) {
             // just return the parent
             IWrappedResource resource = (IWrappedResource) element;
-            return resource.getParent();
+            return resource.getParentElement();
         }
         return super.getParent(element);
     }

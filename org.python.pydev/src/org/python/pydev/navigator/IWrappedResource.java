@@ -16,7 +16,7 @@ public interface IWrappedResource {
     /**
 	 * @return the parent for this resource
 	 */
-	Object getParent();
+	Object getParentElement();
 	
 	/**
 	 * @return the actual object we are wrapping here

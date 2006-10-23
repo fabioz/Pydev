@@ -57,7 +57,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
     }
 
     public PipelinedShapeModification interceptAdd(PipelinedShapeModification addModification) {
-        convertToPythonElements(addModification);
+        convertToPythonElements(addModification, true);
         return addModification;
     }
 
@@ -66,7 +66,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
      * 
      * @param modification the shape modification to convert
      */
-    private boolean convertToPythonElements(PipelinedShapeModification modification) {
+    private void convertToPythonElements(PipelinedShapeModification modification, boolean isAdd) {
 
         Object parent = modification.getParent();
         if (parent instanceof IContainer) {
@@ -74,11 +74,63 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             if (pythonParent instanceof IWrappedResource) {
                 IWrappedResource parentResource = (IWrappedResource) pythonParent;
                 modification.setParent(parentResource);
-                return wrapChildren(parentResource, parentResource.getSourceFolder(), modification.getChildren());
+                wrapChildren(parentResource, parentResource.getSourceFolder(), modification.getChildren(), isAdd);
             }
+            
+        }else if(parent == null){
+            wrapChildren(null, null, modification.getChildren(), isAdd);
+        }
+        
+    }
+    
+    
+    @SuppressWarnings("unchecked")
+    protected boolean wrapChildren(Object parent, PythonSourceFolder pythonSourceFolder, Set currentChildren, boolean isAdd) {
+        LinkedHashSet convertedChildren = new LinkedHashSet();
+        for (Iterator childrenItr = currentChildren.iterator(); childrenItr.hasNext();) {
+            Object child = childrenItr.next();
+            Object existing = getResourceInPythonModel((IResource) child, true);
+            if(existing != null && isAdd){
+                childrenItr.remove();
+                convertedChildren.add(existing);
+            }
+            if(existing == null && !isAdd){
+                throw new RuntimeException("In the remove, the resource:"+child+" did not exist.");
+            }
+            
+            if(existing == null){
+                //add
+                if(child instanceof IFolder){
+                    childrenItr.remove();
+                    IFolder folder = (IFolder) child;
+                    convertedChildren.add(new PythonFolder(parent, folder, pythonSourceFolder));
+                    
+                }else if(child instanceof IFile){
+                    childrenItr.remove();
+                    IFile file = (IFile) child;
+                    convertedChildren.add(new PythonFile(parent, file, pythonSourceFolder));
+                    
+                }else if (child instanceof IResource){
+                    childrenItr.remove();
+                    convertedChildren.add(new PythonResource(parent, (IResource) child, pythonSourceFolder));
+                }else{
+                    throw new RuntimeException("Unexpected class:"+child.getClass());
+                }
+            }else if(!isAdd){
+                //remove
+                childrenItr.remove();
+                convertedChildren.add(existing);
+                IWrappedResource wrapped = (IWrappedResource) existing;
+                wrapped.getSourceFolder().removeChild((IResource) child);
+            }
+        }
+        if (!convertedChildren.isEmpty()) {
+            currentChildren.addAll(convertedChildren);
+            return true;
         }
         return false;
     }
+
     
     @SuppressWarnings("unchecked")
     private boolean convertToPythonElements(Set currentChildren) {
@@ -122,7 +174,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
     }
 
     public PipelinedShapeModification interceptRemove(PipelinedShapeModification removeModification) {
-        convertToPythonElements(removeModification);
+        convertToPythonElements(removeModification, false);
         return removeModification;
     }
 

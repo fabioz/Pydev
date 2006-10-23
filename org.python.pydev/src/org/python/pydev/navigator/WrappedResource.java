@@ -5,7 +5,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.ui.IContributorResourceAdapter;
 
 
-public class WrappedResource<X> implements IWrappedResource, IContributorResourceAdapter, IAdaptable{
+public class WrappedResource<X extends IResource> implements IWrappedResource, IContributorResourceAdapter, IAdaptable{
 
 	protected Object parentElement;
 	protected X actualObject;
@@ -24,7 +24,7 @@ public class WrappedResource<X> implements IWrappedResource, IContributorResourc
 		return actualObject;
 	}
 
-	public Object getParent() {
+	public Object getParentElement() {
 		return parentElement;
 	}
 
