@@ -150,13 +150,15 @@ public class PythonPathNature implements IPythonPathNature {
     public void setProjectSourcePath(String newSourcePath) throws CoreException {
         synchronized(project){
             projectSourcePathSet = null;
-            project.setPersistentProperty(PythonPathNature.getProjectSourcePathQualifiedName(), newSourcePath);
+            PythonNature nature = PythonNature.getPythonNature(project);
+            nature.getStore().setProperty(PythonPathNature.getProjectSourcePathQualifiedName(), newSourcePath);
         }
     }
 
     public void setProjectExternalSourcePath(String newExternalSourcePath) throws CoreException {
         synchronized(project){
-            project.setPersistentProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName(), newExternalSourcePath);
+        	PythonNature nature = PythonNature.getPythonNature(project);
+            nature.getStore().setProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName(), newExternalSourcePath);
         }
     }
 
@@ -177,7 +179,8 @@ public class PythonPathNature implements IPythonPathNature {
     public String getProjectSourcePath() throws CoreException {
         synchronized(project){
             boolean restore = false;
-            String projectSourcePath = project.getPersistentProperty(PythonPathNature.getProjectSourcePathQualifiedName());
+            PythonNature nature = PythonNature.getPythonNature(project);
+            String projectSourcePath = nature.getStore().getProperty(PythonPathNature.getProjectSourcePathQualifiedName());
             if(projectSourcePath == null){
             	//has not been set
             	return "";
@@ -208,7 +211,6 @@ public class PythonPathNature implements IPythonPathNature {
                 projectSourcePathSet = null;
                 projectSourcePath = buffer.toString();
                 setProjectSourcePath(projectSourcePath);
-                PythonNature nature = PythonNature.getPythonNature(project);
                 if(nature != null){
                     //yeap, everything has to be done from scratch, as all the filesystem paths have just
                     //been turned to dust!
@@ -222,7 +224,8 @@ public class PythonPathNature implements IPythonPathNature {
     public String getProjectExternalSourcePath() throws CoreException {
         synchronized(project){
             //no need to validate because those are always 'file-system' related
-            String extPath = project.getPersistentProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName());
+            PythonNature nature = PythonNature.getPythonNature(project);
+        	String extPath = nature.getStore().getProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName());
             if(extPath == null){
             	extPath = "";
             }

@@ -93,6 +93,8 @@ public class PythonNature implements IPythonNature {
      */
     private IPythonPathNature pythonPathNature = new PythonPathNature();
     
+    private PythonNatureStore pythonNatureStore = new PythonNatureStore(this);
+    
     /**
      * This is used to keep the builtin completions
      */
@@ -238,6 +240,12 @@ public class PythonNature implements IPythonNature {
         if (initializationStarted == false) {
             initializationStarted = true;
             
+            try {
+            	migrateToNatureStore();
+            } catch (CoreException e) {
+            	PydevPlugin.log(e);
+            };
+            
             Job codeCompletionLoadJob = new Job("Pydev code completion") {
 
                 @SuppressWarnings("unchecked")
@@ -296,6 +304,16 @@ public class PythonNature implements IPythonNature {
 
 
     /**
+     * This method makes sure that all parameters are migrated to the new PythonNatureStore storage mechanism.
+     * It simply queries each property, which will do the migration automatically.
+     */
+    private void migrateToNatureStore() throws CoreException {
+   		getStore().getProperty(getPythonProjectVersionQualifiedName());
+   		pythonPathNature.getProjectSourcePath();
+   		pythonPathNature.getProjectExternalSourcePath();
+	}
+
+	/**
      * Returns the directory that should store completions.
      * 
      * @param p
@@ -483,7 +501,7 @@ public class PythonNature implements IPythonNature {
     public String getVersion() throws CoreException {
         if(project != null){
         	if(persistentProperty == null){
-	            persistentProperty = project.getPersistentProperty(getPythonProjectVersionQualifiedName());
+	            persistentProperty = getStore().getProperty(getPythonProjectVersionQualifiedName());
 	            if(persistentProperty == null){ //there is no such property set (let's set it to the default)
 	                String defaultVersion = getDefaultVersion();
 	                setVersion(defaultVersion);
@@ -502,7 +520,7 @@ public class PythonNature implements IPythonNature {
 		clearCaches();
         if(project != null){
         	this.persistentProperty = version;
-            project.setPersistentProperty(getPythonProjectVersionQualifiedName(), version);
+            getStore().setProperty(getPythonProjectVersionQualifiedName(), version);
         }
     }
 
@@ -687,6 +705,10 @@ public class PythonNature implements IPythonNature {
         } catch (CoreException e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    protected PythonNatureStore getStore(){
+    	return pythonNatureStore;
     }
 
 }

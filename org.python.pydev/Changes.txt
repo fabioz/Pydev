@@ -4,9 +4,10 @@ Pydev:
 Crash when debugging wxPython programs should not happen anymore
 A Pydev package explorer was contributed
 When opening a file, the encoding is considered (and not only when saving it).
-Patches from Gergely:
+Patches from Gergely Kis:
 	- Option for having a 'default interpreter' in the combo for selecting which interpreter to use for a run
-
+	- Saving the things related to the pydev project in a .pydevproject to be commited 
+	
 after 1.2.3
 
 Pydev:
