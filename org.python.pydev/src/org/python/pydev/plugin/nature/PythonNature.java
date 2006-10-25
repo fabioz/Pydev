@@ -93,7 +93,7 @@ public class PythonNature implements IPythonNature {
      */
     private IPythonPathNature pythonPathNature = new PythonPathNature();
     
-    private PythonNatureStore pythonNatureStore = new PythonNatureStore(this);
+    private PythonNatureStore pythonNatureStore = new PythonNatureStore();
     
     /**
      * This is used to keep the builtin completions
@@ -149,6 +149,7 @@ public class PythonNature implements IPythonNature {
     public void setProject(IProject project) {
         this.project = project;
         this.pythonPathNature.setProject(project);
+        this.pythonNatureStore.setProject(project);
     }
 
     public static synchronized IPythonNature addNature(IEditorInput element) {
@@ -495,23 +496,34 @@ public class PythonNature implements IPythonNature {
     private String persistentProperty = null;
     
     /**
+     * Returns the Python version of the Project. It dynamically recomputes the version from the PythonNatureStore's value
+     * because it might have changed on disk (e.g. a repository update).
      * @return the python version for the project
      * @throws CoreException 
      */
     public String getVersion() throws CoreException {
         if(project != null){
-        	if(persistentProperty == null){
-	            persistentProperty = getStore().getProperty(getPythonProjectVersionQualifiedName());
-	            if(persistentProperty == null){ //there is no such property set (let's set it to the default)
-	                String defaultVersion = getDefaultVersion();
-	                setVersion(defaultVersion);
-	                persistentProperty = defaultVersion;
+            String storeVersion = getStore().getProperty(getPythonProjectVersionQualifiedName());
+        	if (persistentProperty == null) {
+	            if(storeVersion == null){ //there is no such property set (let's set it to the default)
+	                storeVersion = getDefaultVersion();
 	            }
-        	}
+                setVersion(storeVersion);
+        	} else if (!persistentProperty.equals(storeVersion)){
+                if (storeVersion == null) {
+                    // Something very bad happened in the store, log it
+                    PydevPlugin.log("Possible PythonNatureStore corruption, storeVersion == null but persistentProperty != null; storing persistentProperty");
+                    getStore().setProperty(getPythonProjectVersionQualifiedName(), persistentProperty);
+                } else {
+                    // The storeVersion has changed for some reason
+                    setVersion(storeVersion);
+                }
+            }
             return persistentProperty;
         }
         return null;
     }
+    
     /**
      * set the project version given the constants provided
      * @throws CoreException 

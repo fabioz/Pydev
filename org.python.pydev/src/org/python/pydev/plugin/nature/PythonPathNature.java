@@ -151,14 +151,14 @@ public class PythonPathNature implements IPythonPathNature {
         synchronized(project){
             projectSourcePathSet = null;
             PythonNature nature = PythonNature.getPythonNature(project);
-            nature.getStore().setProperty(PythonPathNature.getProjectSourcePathQualifiedName(), newSourcePath);
+            nature.getStore().setPathProperty(PythonPathNature.getProjectSourcePathQualifiedName(), newSourcePath);
         }
     }
 
     public void setProjectExternalSourcePath(String newExternalSourcePath) throws CoreException {
         synchronized(project){
         	PythonNature nature = PythonNature.getPythonNature(project);
-            nature.getStore().setProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName(), newExternalSourcePath);
+            nature.getStore().setPathProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName(), newExternalSourcePath);
         }
     }
 
@@ -180,7 +180,7 @@ public class PythonPathNature implements IPythonPathNature {
         synchronized(project){
             boolean restore = false;
             PythonNature nature = PythonNature.getPythonNature(project);
-            String projectSourcePath = nature.getStore().getProperty(PythonPathNature.getProjectSourcePathQualifiedName());
+            String projectSourcePath = nature.getStore().getPathProperty(PythonPathNature.getProjectSourcePathQualifiedName());
             if(projectSourcePath == null){
             	//has not been set
             	return "";
@@ -225,7 +225,7 @@ public class PythonPathNature implements IPythonPathNature {
         synchronized(project){
             //no need to validate because those are always 'file-system' related
             PythonNature nature = PythonNature.getPythonNature(project);
-        	String extPath = nature.getStore().getProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName());
+        	String extPath = nature.getStore().getPathProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName());
             if(extPath == null){
             	extPath = "";
             }
