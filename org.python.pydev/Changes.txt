@@ -8,6 +8,9 @@ Patches from Gergely Kis:
 	- Option for having a 'default interpreter' in the combo for selecting which interpreter to use for a run
 	- Saving the things related to the pydev project in a .pydevproject to be commited 
 	
+Patch from Gregory Golberg:	
+	- Ctrl+Shift+D allows for a display variable for quickly evaluating stuff.
+
 Pydev Extensions:
 Minor bug on mark occurrences fixed
 The quick outline now will go to the 'sole item' in the tree even if it is not selected.

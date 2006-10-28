@@ -27,7 +27,8 @@ Require-Bundle: org.junit,
  org.python.pydev,
  org.eclipse.jdt,
  org.eclipse.jdt.core,
- org.eclipse.jdt.launching
+ org.eclipse.jdt.launching,
+ org.eclipse.core.expressions
 Eclipse-AutoStart: true
 Export-Package: org.python.pydev.debug.codecoverage,
  org.python.pydev.debug.core,
