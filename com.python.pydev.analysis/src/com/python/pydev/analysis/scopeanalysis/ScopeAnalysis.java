@@ -157,7 +157,7 @@ public class ScopeAnalysis {
         
         while(iterator.hasNext()){
             ASTEntry entry = iterator.next();
-            String rep = NodeUtils.getFullRepresentationString(entry.node);
+            String rep = NodeUtils.getFullRepresentationString(entry.node, true);
             if (rep.equals(occurencesFor)){
                 ret.add(entry);
             }

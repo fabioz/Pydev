@@ -25,7 +25,7 @@ import com.python.pydev.refactoring.wizards.rename.PyRenameProcessor;
 
 public class RefactoringTestBase extends CodeCompletionTestsBase {
     
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
 
     protected void setUp() throws Exception {
