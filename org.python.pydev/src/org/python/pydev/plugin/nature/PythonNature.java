@@ -93,6 +93,9 @@ public class PythonNature implements IPythonNature {
      */
     private IPythonPathNature pythonPathNature = new PythonPathNature();
     
+    /**
+     * Used to actually store settings for the pythonpath
+     */
     private PythonNatureStore pythonNatureStore = new PythonNatureStore();
     
     /**
@@ -110,7 +113,7 @@ public class PythonNature implements IPythonNature {
      * constant that stores the name of the python version we are using for the project with this nature
      */
     private static QualifiedName pythonProjectVersion = null;
-    private static QualifiedName getPythonProjectVersionQualifiedName() {
+    static QualifiedName getPythonProjectVersionQualifiedName() {
         if(pythonProjectVersion == null){
             //we need to do this because the plugin ID may not be known on 'static' time
             pythonProjectVersion = new QualifiedName(PydevPlugin.getPluginID(), "PYTHON_PROJECT_VERSION");
@@ -149,7 +152,7 @@ public class PythonNature implements IPythonNature {
     public void setProject(IProject project) {
         this.project = project;
         this.pythonPathNature.setProject(project);
-        this.pythonNatureStore.setProject(project);
+        this.getStore().setProject(project);
     }
 
     public static synchronized IPythonNature addNature(IEditorInput element) {
@@ -241,12 +244,6 @@ public class PythonNature implements IPythonNature {
         if (initializationStarted == false) {
             initializationStarted = true;
             
-            try {
-            	migrateToNatureStore();
-            } catch (CoreException e) {
-            	PydevPlugin.log(e);
-            };
-            
             Job codeCompletionLoadJob = new Job("Pydev code completion") {
 
                 @SuppressWarnings("unchecked")
@@ -303,16 +300,6 @@ public class PythonNature implements IPythonNature {
         }
     }
 
-
-    /**
-     * This method makes sure that all parameters are migrated to the new PythonNatureStore storage mechanism.
-     * It simply queries each property, which will do the migration automatically.
-     */
-    private void migrateToNatureStore() throws CoreException {
-   		getStore().getProperty(getPythonProjectVersionQualifiedName());
-   		pythonPathNature.getProjectSourcePath();
-   		pythonPathNature.getProjectExternalSourcePath();
-	}
 
 	/**
      * Returns the directory that should store completions.
@@ -503,7 +490,7 @@ public class PythonNature implements IPythonNature {
      */
     public String getVersion() throws CoreException {
         if(project != null){
-            String storeVersion = getStore().getProperty(getPythonProjectVersionQualifiedName());
+            String storeVersion = getStore().getPropertyFromXml(getPythonProjectVersionQualifiedName());
         	if (persistentProperty == null) {
 	            if(storeVersion == null){ //there is no such property set (let's set it to the default)
 	                storeVersion = getDefaultVersion();
@@ -513,7 +500,7 @@ public class PythonNature implements IPythonNature {
                 if (storeVersion == null) {
                     // Something very bad happened in the store, log it
                     PydevPlugin.log("Possible PythonNatureStore corruption, storeVersion == null but persistentProperty != null; storing persistentProperty");
-                    getStore().setProperty(getPythonProjectVersionQualifiedName(), persistentProperty);
+                    getStore().setPropertyToXml(getPythonProjectVersionQualifiedName(), persistentProperty, true);
                 } else {
                     // The storeVersion has changed for some reason
                     setVersion(storeVersion);
@@ -532,7 +519,7 @@ public class PythonNature implements IPythonNature {
 		clearCaches();
         if(project != null){
         	this.persistentProperty = version;
-            getStore().setProperty(getPythonProjectVersionQualifiedName(), version);
+            getStore().setPropertyToXml(getPythonProjectVersionQualifiedName(), version, true);
         }
     }
 

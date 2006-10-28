@@ -1,7 +1,7 @@
 /*
  * Created on 24/09/2005
  */
-package org.python.pydev.editor.codecompletion.revisited;
+package org.python.pydev.plugin.nature;
 
 import java.net.URI;
 import java.util.Map;
@@ -23,27 +23,21 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IPluginDescriptor;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.content.IContentTypeMatcher;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.plugin.nature.FileStub2;
-import org.python.pydev.plugin.nature.PythonNature;
 
-public class ProjectStub implements IProject {
+public class ProjectStub2 implements IProject {
 
-    String name;
-	public IProject[] referencedProjects;
-	public IProject[] referencingProjects;
-	private PythonNature nature;
-	private String path;
+    public FileStub2 fileStub;
     
-    public ProjectStub(String name, String path2, IProject[] referencedProjects, IProject[] referencingProjects) {
-    	this.path = path2;
-    	this.name = name;
-    	this.referencedProjects = referencedProjects;
-        this.referencingProjects = referencingProjects;
+    public ProjectStub2() {
+    }
+
+    public IFile getFile(String name) {
+        fileStub = new FileStub2(name);
+        return fileStub;
     }
 
     public void build(int kind, String builderName, Map args, IProgressMonitor monitor) throws CoreException {
@@ -78,22 +72,12 @@ public class ProjectStub implements IProject {
         throw new RuntimeException("not impl");
     }
 
-    public IFile getFile(String name) {
-        fileStub = new FileStub2(name);
-        return fileStub;
-    }
-    
-    public FileStub2 fileStub;
-
     public IFolder getFolder(String name) {
         throw new RuntimeException("not impl");
     }
 
     public IProjectNature getNature(String natureId) throws CoreException {
-    	if(nature == null){
-    		throw new RuntimeException("not expected");
-    	}
-    	return nature;
+        throw new RuntimeException("not expected");
     }
 
     public IPath getPluginWorkingLocation(IPluginDescriptor plugin) {
@@ -101,22 +85,22 @@ public class ProjectStub implements IProject {
     }
 
     public IPath getWorkingLocation(String id) {
-        return new Path(path);
+        throw new RuntimeException("not expected");
     }
 
     public IProject[] getReferencedProjects() throws CoreException {
         //no referenced projects
-        return referencedProjects;
+        throw new RuntimeException("not expected");
     }
 
     public IProject[] getReferencingProjects() {
-        return referencingProjects;
+        throw new RuntimeException("not expected");
     }
 
     public boolean hasNature(String natureId) throws CoreException {
-    	if(PythonNature.PYTHON_NATURE_ID.equals(natureId)){
-    		return true;
-    	}
+        if(PythonNature.PYTHON_NATURE_ID.equals(natureId)){
+            return true;
+        }
         throw new RuntimeException("not expected");
     }
 
@@ -278,7 +262,7 @@ public class ProjectStub implements IProject {
     }
 
     public String getName() {
-        return name;
+        throw new RuntimeException("not impl");
     }
 
     public IContainer getParent() {
@@ -289,13 +273,14 @@ public class ProjectStub implements IProject {
         if(key.getLocalName().equals("PYTHON_PROJECT_VERSION")){
             return IPythonNature.PYTHON_VERSION_2_5;//for tests, always the latest version
         }
+        //this is just for backward-compatibility
         if(key.getLocalName().equals("PROJECT_SOURCE_PATH")){
-            return this.path;
+            return "/test";
         }
         if(key.getLocalName().equals("PROJECT_EXTERNAL_SOURCE_PATH")){
             return "";
         }
-        throw new RuntimeException("not impl");
+        throw new RuntimeException(key.getLocalName());
     }
 
     public IProject getProject() {
@@ -433,24 +418,24 @@ public class ProjectStub implements IProject {
         throw new RuntimeException("not impl");
     }
 
-	public void setNature(PythonNature nature) {
-		this.nature = nature;
-	}
+    public void setNature(PythonNature nature) {
+        throw new RuntimeException("not impl");
+    }
 
-	public IResourceProxy createProxy() {
-		return null;
-	}
+    public IResourceProxy createProxy() {
+        return null;
+    }
 
-	public URI getLocationURI() {
-		return null;
-	}
+    public URI getLocationURI() {
+        return null;
+    }
 
-	public URI getRawLocationURI() {
-		return null;
-	}
+    public URI getRawLocationURI() {
+        return null;
+    }
 
-	public boolean isLinked(int options) {
-		return false;
-	}
+    public boolean isLinked(int options) {
+        return false;
+    }
 
 }

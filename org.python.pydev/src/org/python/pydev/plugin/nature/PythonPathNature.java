@@ -38,7 +38,7 @@ public class PythonPathNature implements IPythonPathNature {
      * This is the property that has the python path - associated with the project.
      */
     private static QualifiedName projectSourcePathQualifiedName = null;
-    private static QualifiedName getProjectSourcePathQualifiedName() {
+    static QualifiedName getProjectSourcePathQualifiedName() {
         if(projectSourcePathQualifiedName == null){
             projectSourcePathQualifiedName = new QualifiedName(PydevPlugin.getPluginID(), "PROJECT_SOURCE_PATH");
         }
@@ -48,7 +48,7 @@ public class PythonPathNature implements IPythonPathNature {
      * This is the property that has the external python path - associated with the project.
      */
     private static QualifiedName projectExternalSourcePathQualifiedName = null;
-    private static QualifiedName getProjectExternalSourcePathQualifiedName() {
+    static QualifiedName getProjectExternalSourcePathQualifiedName() {
         if(projectExternalSourcePathQualifiedName == null){
             projectExternalSourcePathQualifiedName = new QualifiedName(PydevPlugin.getPluginID(), "PROJECT_EXTERNAL_SOURCE_PATH");
         }
