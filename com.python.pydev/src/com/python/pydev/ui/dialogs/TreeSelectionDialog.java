@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
@@ -25,6 +26,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
 
 /**
@@ -213,6 +215,27 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
             list.addAll(getAllChildren(object));
         }
         return list;
+    }
+
+    
+    /*
+     * @see SelectionStatusDialog#computeResult()
+     */
+    @SuppressWarnings("unchecked")
+    protected void computeResult() {
+        IStructuredSelection selection = (IStructuredSelection) getTreeViewer().getSelection();
+        List list = selection.toList();
+        if(list.size() > 0){
+            setResult(list);
+        }else{
+            TreeItem[] items = getTreeViewer().getTree().getItems();
+            if(items.length == 1){
+                //there is only one item filtered in the tree.
+                list = new ArrayList();
+                list.add(items[0].getData());
+                setResult(list);
+            }
+        }
     }
 
 

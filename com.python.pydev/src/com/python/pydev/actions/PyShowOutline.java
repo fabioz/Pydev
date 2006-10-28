@@ -48,6 +48,7 @@ public class PyShowOutline extends PyAction{
 
         dialog.setTitle("Pydev: Quick Outline");
         dialog.setMessage("Filter");
+        dialog.setAllowMultiple(false);
         dialog.setInput(ast);
         dialog.open();
         Object[] result = dialog.getResult();
