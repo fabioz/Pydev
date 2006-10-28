@@ -8,6 +8,9 @@ Patches from Gergely Kis:
 	- Option for having a 'default interpreter' in the combo for selecting which interpreter to use for a run
 	- Saving the things related to the pydev project in a .pydevproject to be commited 
 	
+Pydev Extensions:
+Minor bug on mark occurrences fixed
+
 after 1.2.3
 
 Pydev:
