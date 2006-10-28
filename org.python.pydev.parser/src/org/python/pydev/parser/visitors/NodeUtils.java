@@ -240,6 +240,10 @@ public class NodeUtils {
     
     
     public static String getFullRepresentationString(SimpleNode node) {
+        return getFullRepresentationString(node, false);
+    }
+    
+    public static String getFullRepresentationString(SimpleNode node, boolean fullOnSubscriptOrCall) {
     	if (node instanceof Dict){
     		return "dict";
     	}
@@ -274,13 +278,22 @@ public class NodeUtils {
         	StringBuffer buf = new StringBuffer();
         	for (Object part : attributeParts) {
 				if(part instanceof Call){
-					//stop on a call (that's what we usually want, since the end will depend on the things that 
-					//return from the call).
-					return buf.toString();
+                    //stop on a call (that's what we usually want, since the end will depend on the things that 
+                    //return from the call).
+				    if(!fullOnSubscriptOrCall){
+				        return buf.toString();
+                    }else{
+                        buf.append("()");//call
+                    }
 					
 				}else if (part instanceof Subscript){
-					//stop on a subscript : e.g.: in bb.cc[10].d we only want the bb.cc part
-		            return getFullRepresentationString(((Subscript)part).value);
+				    if(!fullOnSubscriptOrCall){
+				        //stop on a subscript : e.g.: in bb.cc[10].d we only want the bb.cc part
+				        return getFullRepresentationString(((Subscript)part).value);
+                    }else{
+                        buf.append(getFullRepresentationString(((Subscript)part).value));
+                        buf.append("[]");//subscript access
+                    }
 
 				}else{
 					//otherwise, just add another dot and keep going.
