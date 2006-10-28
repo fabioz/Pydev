@@ -10,6 +10,7 @@ Patches from Gergely Kis:
 	
 Pydev Extensions:
 Minor bug on mark occurrences fixed
+The quick outline now will go to the 'sole item' in the tree even if it is not selected.
 
 after 1.2.3
 
