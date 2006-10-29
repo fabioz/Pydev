@@ -1017,6 +1017,7 @@
       <navigatorContent 
             id="org.python.pydev.navigator.pythoncontent" 
             name="Pydev Navigator Content"
+            icon="icons/python_16x16.png"
             contentProvider="org.python.pydev.navigator.PythonModelProvider"
             labelProvider="org.python.pydev.navigator.PythonLabelProvider" 
             activeByDefault="true"
