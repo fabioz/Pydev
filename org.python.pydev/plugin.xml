@@ -1065,6 +1065,7 @@
       <commonFilter
             activeByDefault="true"
             id="org.python.pydev.navigator.filters.hideNonPydevProjects"
+            description="%HideNonPydevProjects.description"
             name="Hide non-Pydev Projects">
          <filterExpression>
              <and>
