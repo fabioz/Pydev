@@ -943,6 +943,7 @@
    <extension point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension targetID="org.python.pydev.ui.PythonPerspective">
          <showInPart id="org.eclipse.ui.views.ResourceNavigator"/>
+         <showInPart id="org.python.pydev.navigator.view"/>
       </perspectiveExtension>
    </extension>
 
@@ -957,8 +958,9 @@
     <view
         allowMultiple="false"
         category="org.python.pydev"
-        class="org.eclipse.ui.navigator.CommonNavigator"
+        class="org.python.pydev.navigator.ui.PydevPackageExplorer"
         id="org.python.pydev.navigator.view"
+        icon="icons/pydev_package_explorer.gif"
         name="Pydev Package Explorer"/>
 </extension> 
 
