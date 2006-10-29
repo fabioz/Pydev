@@ -1094,6 +1094,7 @@
             <includes>
                 <contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
                 <contentExtension pattern="org.eclipse.ui.navigator.resourceContent"/>
+                <contentExtension pattern="org.python.pydev.navigator.actions.pythonLinkHelper"/>
             </includes>
         </viewerContentBinding>
         <viewerActionBinding viewerId="org.python.pydev.navigator.view">
@@ -1119,5 +1120,20 @@
          </factory>
     </extension>
     -->
+	<extension point="org.eclipse.ui.navigator.linkHelper">
+		<linkHelper
+			class="org.python.pydev.navigator.actions.PythonLinkHelper"
+			id="org.python.pydev.navigator.actions.pythonLinkHelper">
+			<selectionEnablement>
+				<or>
+					<instanceof value="org.eclipse.core.resources.IFile"/>
+					<instanceof value="org.python.pydev.navigator.IWrappedResource"/>
+				</or>
+			</selectionEnablement>
+			<editorInputEnablement>
+				<instanceof value="org.eclipse.ui.IFileEditorInput"/>
+			</editorInputEnablement>
+		</linkHelper>
+	</extension>
     
  </plugin>
