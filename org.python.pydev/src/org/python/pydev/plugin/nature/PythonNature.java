@@ -263,8 +263,7 @@ public class PythonNature implements IPythonNature {
 								}
 
 								if (astManager != null) {
-									List<IInterpreterObserver> participants = ExtensionHelper
-											.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+									List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
 									for (IInterpreterObserver observer : participants) {
 										try {
 											observer.notifyNatureRecreated(nature, jobProgressComunicator);
@@ -386,6 +385,7 @@ public class PythonNature implements IPythonNature {
                 }
 
                 initializationFinished = true;
+                PythonNatureListenersManager.notifyPythonPathRebuilt(project, nature.pythonPathNature.getCompleteProjectPythonPath());
                 //end task
                 jobProgressComunicator.done();
                 return Status.OK_STATUS;

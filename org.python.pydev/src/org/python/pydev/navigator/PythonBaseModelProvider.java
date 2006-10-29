@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,7 +38,9 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.outline.ParsedItem;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.parser.visitors.scope.OutlineCreatorVisitor;
+import org.python.pydev.plugin.nature.IPythonNatureListener;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.nature.PythonNatureListenersManager;
 
 /**
  * A good part of the refresh for the model was gotten from org.eclipse.ui.model.WorkbenchContentProvider
@@ -51,8 +53,7 @@ import org.python.pydev.plugin.nature.PythonNature;
  * 
  * @author Fabio
  */
-public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implements IResourceChangeListener {
-
+public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implements IResourceChangeListener, IPythonNatureListener {
 
     /**
      * Object representing an empty array.
@@ -71,6 +72,23 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
      */
     private Viewer viewer;
     
+    /**
+     * Constructor... registers itself as a python nature listener
+     */
+    public PythonBaseModelProvider(){
+        PythonNatureListenersManager.addPythonNatureListener(this);
+    }
+    
+    /**
+     * Notification received when the pythonpath has been changed or rebuilt.
+     */
+    public void notifyPythonPathRebuilt(IProject project, List<String> projectPythonpath) {
+        projectToSourceFolders.remove(project);
+        Runnable refreshRunnable = getRefreshRunnable(project);
+        final Collection<Runnable> runnables = new ArrayList<Runnable>();
+        runnables.add(refreshRunnable);
+        processRunnables(runnables);
+    }
     
     /**
      * @see PythonModelProvider#getResourceInPythonModel(IResource, boolean, boolean)
@@ -130,6 +148,14 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
         }
         return sourceFolder;
     }
+    
+    public boolean hasChildren(Object element) {
+        if(element instanceof IWrappedResource){
+            return true;//python elements always have children (for performance reasons)
+        }
+        return getChildren(element).length > 0;
+    }
+
 
     /**
      * @return the children for some element
@@ -380,7 +406,6 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
      * @param delta
      */
     protected void processDelta(IResourceDelta delta) {
-
         Control ctrl = viewer.getControl();
         if (ctrl == null || ctrl.isDisposed()) {
             return;
@@ -388,7 +413,17 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
 
         final Collection<Runnable> runnables = new ArrayList<Runnable>();
         processDelta(delta, runnables);
+        processRunnables(runnables);
+    }
 
+    /**
+     * @param runnables
+     */
+    private void processRunnables(final Collection<Runnable> runnables) {
+        Control ctrl = viewer.getControl();
+        if (ctrl == null || ctrl.isDisposed()) {
+            return;
+        }
         if (runnables.isEmpty()) {
             return;
         }
@@ -414,7 +449,6 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
                 }
             });
         }
-
     }
 
     /**
@@ -616,5 +650,6 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
             }
         };
     }
+
 
 }

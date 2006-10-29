@@ -1102,6 +1102,10 @@
         </viewerActionBinding>
     </extension>
 
+	<!-- has been removed because it has actually no contribution, as it is not possible to adapt
+	to IResources for simple actions such as delete/move/rename... so, instead of that the wrapper
+	classes themselves work as IResources and actually implement the interface (and just delegate
+	the methods).
     <extension point="org.eclipse.core.runtime.adapters">
          <factory class="org.python.pydev.navigator.ModelAdapter" adaptableType="org.python.pydev.navigator.IWrappedResource">
 			<adapter type="org.eclipse.core.resources.IResource"/>
@@ -1112,5 +1116,6 @@
 			<adapter type="org.eclipse.ui.IContributorResourceAdapter"/>
          </factory>
     </extension>
+    -->
     
  </plugin>

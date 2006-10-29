@@ -40,6 +40,13 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
         return (IResource) getActualObject();
     }
 
+    public boolean equals(Object other) {
+        if(other instanceof IWrappedResource){
+            return this == other;
+        }
+        return actualObject.equals(other);
+    }
+
     public Object getAdapter(Class adapter) {
         if(adapter == IContributorResourceAdapter.class){
             return this;

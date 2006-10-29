@@ -132,8 +132,8 @@ public class PythonPathNature implements IPythonPathNature {
                 
                 }else{
 	                //not in workspace?... maybe it was removed, so, do nothing, but let the user know about it
-	                PydevPlugin.log("Unable to find the path "+strings[i]+" in the project were it\n" +
-	                        "is added as a source folder for pydev (project: "+project.getName()+")");
+	                PydevPlugin.log("Unable to find the path "+strings[i]+" in the project were it's \n" +
+	                        "added as a source folder for pydev (project: "+project.getName()+")");
                 }
             }
         }

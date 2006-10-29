@@ -4,6 +4,7 @@
  */
 package org.python.pydev.navigator;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 
@@ -29,6 +30,24 @@ public class PythonModelSorter extends ViewerSorter{
                 return 1;
             }
         }
-        return 0;
+        //wrapped resources always have priority over non-wrapped resources
+        if(e1 instanceof IWrappedResource){
+            return -1;
+        }
+        if(e2 instanceof IWrappedResource){
+            return 1;
+            
+        }
+        
+        if(e1 instanceof IContainer && e2 instanceof IContainer){
+            return super.compare(viewer, e1, e2);
+        }
+        if(e1 instanceof IContainer){
+            return -1;
+        }
+        if(e2 instanceof IContainer){
+            return 1;
+        }
+        return super.compare(viewer, e1, e2);
     }
 }
