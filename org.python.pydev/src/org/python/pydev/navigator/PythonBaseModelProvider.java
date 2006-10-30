@@ -143,7 +143,7 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
     }
 
     
-    private Set<PythonSourceFolder> getProjectSourceFolders(IResource object) {
+    protected Set<PythonSourceFolder> getProjectSourceFolders(IResource object) {
         Set<PythonSourceFolder> sourceFolder = projectToSourceFolders.get(object.getProject());
         if(sourceFolder == null){
             sourceFolder = new HashSet<PythonSourceFolder>();
