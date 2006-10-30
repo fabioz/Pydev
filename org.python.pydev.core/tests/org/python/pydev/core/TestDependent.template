@@ -22,6 +22,7 @@ public class TestDependent {
     public static final String TEST_PYDEV_PLUGIN_LOC = TEST_PYDEV_BASE_LOC+"org.python.pydev/";
     public static final String TEST_PYDEV_JYTHON_PLUGIN_LOC = TEST_PYDEV_BASE_LOC+"org.python.pydev.jython/";
     public static final String TEST_PYDEV_PARSER_PLUGIN_LOC = TEST_PYDEV_BASE_LOC+"org.python.pydev.parser/";
+    public static final String TEST_PYDEV_DEBUG_PLUGIN_LOC = TEST_PYDEV_BASE_LOC+"org.python.pydev.debug/";
 
     //java info
     public static final String JAVA_LOCATION="C:/Program Files/Java/jre1.5.0_04/bin/java.exe";
@@ -42,4 +43,5 @@ public class TestDependent {
 	public static String CYGWIN_PYTHON_EXE="E:/install/Utils.Cygwin/bin/python2.4.exe";
 	public static final String CYGWIN_CYGPATH_LOCATION = "c:/bin/cygwin/bin/cygpath.exe";
 	public static final String CYGWIN_UNIX_CYGPATH_LOCATION = "/usr/bin/cygpath.exe";
+	public static final boolean HAS_PYTHON_TESTS = false;
 }
