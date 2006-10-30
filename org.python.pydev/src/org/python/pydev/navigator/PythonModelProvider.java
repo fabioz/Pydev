@@ -75,6 +75,10 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
                 IWrappedResource parentResource = (IWrappedResource) pythonParent;
                 modification.setParent(parentResource);
                 wrapChildren(parentResource, parentResource.getSourceFolder(), modification.getChildren(), isAdd);
+            }else if(pythonParent == null){
+                //this may happen when a source folder is added 
+                //TODO:Check if it is actually a source folder (and create it in the model as needed)
+                wrapChildren(null, null, modification.getChildren(), isAdd, false);
             }
             
         }else if(parent == null){
@@ -83,9 +87,12 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         
     }
     
+    protected boolean wrapChildren(Object parent, PythonSourceFolder pythonSourceFolder, Set currentChildren, boolean isAdd) {
+        return wrapChildren(parent, pythonSourceFolder, currentChildren, isAdd, true);
+    }
     
     @SuppressWarnings("unchecked")
-    protected boolean wrapChildren(Object parent, PythonSourceFolder pythonSourceFolder, Set currentChildren, boolean isAdd) {
+    protected boolean wrapChildren(Object parent, PythonSourceFolder pythonSourceFolder, Set currentChildren, boolean isAdd, boolean createIfNonExisting) {
         LinkedHashSet convertedChildren = new LinkedHashSet();
         for (Iterator childrenItr = currentChildren.iterator(); childrenItr.hasNext();) {
             Object child = childrenItr.next();
@@ -95,10 +102,10 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
                 convertedChildren.add(existing);
             }
             if(existing == null && !isAdd){
-                throw new RuntimeException("In the remove, the resource:"+child+" did not exist.");
+                return false; //it has already been removed
             }
             
-            if(existing == null){
+            if(existing == null && createIfNonExisting){
                 //add
                 if(child instanceof IFolder){
                     childrenItr.remove();
@@ -132,43 +139,6 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
     }
 
     
-    @SuppressWarnings("unchecked")
-    private boolean convertToPythonElements(Set currentChildren) {
-        LinkedHashSet convertedChildren = new LinkedHashSet();
-        for (Iterator childrenItr = currentChildren.iterator(); childrenItr.hasNext();) {
-            Object child = childrenItr.next();
-            if(child instanceof IResource && !(child instanceof IWrappedResource)){
-                childrenItr.remove();
-                IResource res = (IResource) child;
-                
-                Object resourceInPythonModel = getResourceInPythonModel(res, true);
-                if(resourceInPythonModel != null){
-                    convertedChildren.add(resourceInPythonModel);
-                    
-                }else{
-                    Object pythonParent = getResourceInPythonModel(res.getParent(), true);
-                    if(pythonParent instanceof IWrappedResource){
-                        IWrappedResource parent = (IWrappedResource) pythonParent;
-                        if(res instanceof IFolder){
-                            convertedChildren.add(new PythonFolder(parent, (IFolder) res, parent.getSourceFolder()));
-                        }else if(res instanceof IFile){
-                            convertedChildren.add(new PythonFile(parent, (IFile) res, parent.getSourceFolder()));
-                        }else if (child instanceof IResource){
-                            convertedChildren.add(new PythonResource(parent, (IResource) child, parent.getSourceFolder()));
-                        }
-                    }
-                }
-                
-            }
-        }
-        if (!convertedChildren.isEmpty()) {
-            currentChildren.addAll(convertedChildren);
-            return true;
-        }
-        return false;        
-        
-    }
-
     public boolean interceptRefresh(PipelinedViewerUpdate refreshSynchronization) {
         return convertToPythonElements(refreshSynchronization.getRefreshTargets());
     }
