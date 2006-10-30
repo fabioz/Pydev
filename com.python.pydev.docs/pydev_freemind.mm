@@ -190,22 +190,30 @@
 </node>
 <node COLOR="#00b439" CREATED="1160419231483" ID="Freemind_Link_401508002" MODIFIED="1160419241139" TEXT="Create a package explorer">
 <font NAME="SansSerif" SIZE="16"/>
-<node COLOR="#990000" CREATED="1160419242701" ID="Freemind_Link_1687672488" MODIFIED="1160419251842" TEXT="Support the python model">
+<node COLOR="#990000" CREATED="1160419242701" ID="Freemind_Link_1687672488" MODIFIED="1162169671558" TEXT="Support the python model">
 <font NAME="SansSerif" SIZE="14"/>
+<icon BUILTIN="button_ok"/>
 </node>
-<node COLOR="#990000" CREATED="1160419254357" ID="Freemind_Link_168343573" MODIFIED="1160419260295" TEXT="Create source folder">
+<node COLOR="#990000" CREATED="1160419254357" ID="Freemind_Link_168343573" MODIFIED="1162169672636" TEXT="Create source folder">
 <font NAME="SansSerif" SIZE="14"/>
+<icon BUILTIN="button_ok"/>
 </node>
-<node COLOR="#990000" CREATED="1160419261560" ID="Freemind_Link_1892285196" MODIFIED="1160419279544" TEXT="Show outline for python files">
+<node COLOR="#990000" CREATED="1160419261560" ID="Freemind_Link_1892285196" MODIFIED="1162169674230" TEXT="Show outline for python files">
 <font NAME="SansSerif" SIZE="14"/>
+<icon BUILTIN="button_ok"/>
 </node>
-<node COLOR="#990000" CREATED="1160419282107" ID="Freemind_Link_263053812" MODIFIED="1160419289638" TEXT="Communicate when source folder changes">
+<node COLOR="#990000" CREATED="1160419282107" ID="Freemind_Link_263053812" MODIFIED="1162169675901" TEXT="Communicate when source folder changes">
 <font NAME="SansSerif" SIZE="14"/>
+<icon BUILTIN="button_ok"/>
 </node>
 <node COLOR="#990000" CREATED="1160419290826" ID="Freemind_Link_193317991" MODIFIED="1160419299310" TEXT="See flat layout">
 <font NAME="SansSerif" SIZE="14"/>
 </node>
-<node COLOR="#990000" CREATED="1160419316529" ID="Freemind_Link_1406439693" MODIFIED="1160419327420" TEXT="Create simple actions (delete, rename...)">
+<node COLOR="#990000" CREATED="1160419316529" ID="Freemind_Link_1406439693" MODIFIED="1162169678558" TEXT="Create simple actions (delete, rename...)">
+<font NAME="SansSerif" SIZE="14"/>
+<icon BUILTIN="button_ok"/>
+</node>
+<node COLOR="#990000" CREATED="1162169683620" ID="Freemind_Link_156445896" MODIFIED="1162169709573" TEXT="known bugs:&#xa;Renaming the source folder has &apos;bad&apos; results">
 <font NAME="SansSerif" SIZE="14"/>
 </node>
 </node>
