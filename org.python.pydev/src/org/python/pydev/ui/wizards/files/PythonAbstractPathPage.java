@@ -386,9 +386,9 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
         IPythonPathNature nature = PythonNature.getPythonPathNature(f.getProject());
         if(nature != null){
             String[] srcPaths = PythonNature.getStrAsStrItems(nature.getProjectSourcePath());
-            String relFolder = f.getFullPath().toString();
+            String relFolder = f.getFullPath().toString()+"/";
             for (String src : srcPaths) {
-                if(relFolder.startsWith(src)){
+                if(relFolder.startsWith(src+"/")){
                     return src;
                 }
             }

@@ -150,8 +150,8 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
     }
     
     public boolean hasChildren(Object element) {
-        if(element instanceof IWrappedResource){
-            return true;//python elements always have children (for performance reasons)
+        if(element instanceof PythonFile){
+            return true;//python file elements always have children (for performance reasons)
         }
         return getChildren(element).length > 0;
     }
