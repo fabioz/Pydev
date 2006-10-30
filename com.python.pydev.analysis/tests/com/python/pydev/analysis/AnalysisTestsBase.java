@@ -3,18 +3,27 @@
  */
 package com.python.pydev.analysis;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -51,11 +60,34 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
         observer = new InterpreterObserver();
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
+        
+        final String paths;
         if(TestDependent.HAS_WXPYTHON_INSTALLED){
-            restorePythonPath(TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES+"|"+TestDependent.PYTHON_WXPYTHON_PACKAGES, false);
+        	paths = TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES+"|"+TestDependent.PYTHON_WXPYTHON_PACKAGES;
         }else{
-            restorePythonPath(TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES, false);
+            paths = TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES;
         }
+        String lower = paths.toLowerCase();
+        lower = StringUtils.replaceAllSlashes(lower);
+		final Set s = new HashSet(Arrays.asList(lower.split("\\|")));
+        InterpreterInfo.configurePathsCallback = new ICallback<Boolean, Tuple<List<String>, List<String>>>(){
+        	
+        	public Boolean call(Tuple<List<String>, List<String>> arg) {
+        		List<String> toAsk = arg.o1;
+        		List<String> l = arg.o2;
+        		
+        		for(String t:toAsk){
+        			if(s.contains(StringUtils.replaceAllSlashes(t.toLowerCase()))){
+        				l.add(t);
+        				//System.out.println("Added:"+t);
+        			}
+        		}
+        		return Boolean.TRUE;
+        	}
+        	
+        };
+        
+        restorePythonPath(paths, false);
         prefs = new AnalysisPreferencesStub();
         analyzer = new OccurrencesAnalyzer();
         
