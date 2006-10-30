@@ -23,10 +23,13 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.dialogs.ListSelectionDialog;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.uiutils.RunInUiThread;
+import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
@@ -82,6 +85,8 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
      * not want to keep it in the 'configuration', as a giant Base64 string.
      */
     public SystemModulesManager modulesManager = new SystemModulesManager(forcedLibs);
+    
+    public static ICallback<Boolean, Tuple<List<String>, List<String>>> configurePathsCallback = null;
 
     /**
      * This is the version for the python interpreter (it is regarded as a String with Major and Minor version
@@ -198,72 +203,78 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
                 }
             }
         }
-        
-        if(toAsk.size() > 0){
-            Runnable runnable = new Runnable(){
 
-                public void run() {
-                    ListSelectionDialog dialog = new ListSelectionDialog(Display.getDefault().getActiveShell(), toAsk, 
-                            new IStructuredContentProvider(){
-
-                                @SuppressWarnings("unchecked")
-                                public Object[] getElements(Object inputElement) {
-                                    List<String> elements = (List<String>) inputElement;
-                                    return elements.toArray(new String[0]);
-                                }
-
-                                public void dispose() {
-                                }
-
-                                public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-                                }},
-                                
-                                
-                                new ILabelProvider(){
-
-                                public Image getImage(Object element) {
-                                    return PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM);
-                                }
-
-                                public String getText(Object element) {
-                                    return element.toString();
-                                }
-
-                                public void addListener(ILabelProviderListener listener) {
-                                }
-
-                                public void dispose() {
-                                }
-
-                                public boolean isLabelProperty(Object element, String property) {
-                                    return true;
-                                }
-
-                                public void removeListener(ILabelProviderListener listener) {
-                                }}, 
-                                
-                            "Select the folders to be added to the SYSTEM pythonpath!\n" +
-                            "\n" +
-                            "IMPORTANT: The folders for your PROJECTS should NOT be added here, but in your project configuration.\n\n" +
-                            "Check:http://fabioz.com/pydev/manual_101_interpreter.html for more details.");
-                    dialog.setInitialSelections(l.toArray(new String[0]));
-                    dialog.open();
-                    Object[] result = dialog.getResult();
-                    l.clear();
-                    for (Object string : result) {
-                        l.add((String) string);
-                    }
-                    
-                }
-                
-            };
-            try{
-                RunInUiThread.sync(runnable);
-            }catch(NoClassDefFoundError e){
-            }catch(UnsatisfiedLinkError e){
-                //this means that we're running unit-tests, so, we don't have to do anything about it
-                //as 'l' is already ok.
-            }
+        if(ProjectModulesManager.IN_TESTS){
+        	if(InterpreterInfo.configurePathsCallback != null){
+        		InterpreterInfo.configurePathsCallback.call(new Tuple<List<String>, List<String>>(toAsk, l));
+        	}
+        }else{
+	        if(toAsk.size() > 0){
+	            Runnable runnable = new Runnable(){
+	
+	                public void run() {
+	                    ListSelectionDialog dialog = new ListSelectionDialog(Display.getDefault().getActiveShell(), toAsk, 
+	                            new IStructuredContentProvider(){
+	
+	                                @SuppressWarnings("unchecked")
+	                                public Object[] getElements(Object inputElement) {
+	                                    List<String> elements = (List<String>) inputElement;
+	                                    return elements.toArray(new String[0]);
+	                                }
+	
+	                                public void dispose() {
+	                                }
+	
+	                                public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+	                                }},
+	                                
+	                                
+	                                new ILabelProvider(){
+	
+	                                public Image getImage(Object element) {
+	                                    return PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM);
+	                                }
+	
+	                                public String getText(Object element) {
+	                                    return element.toString();
+	                                }
+	
+	                                public void addListener(ILabelProviderListener listener) {
+	                                }
+	
+	                                public void dispose() {
+	                                }
+	
+	                                public boolean isLabelProperty(Object element, String property) {
+	                                    return true;
+	                                }
+	
+	                                public void removeListener(ILabelProviderListener listener) {
+	                                }}, 
+	                                
+	                            "Select the folders to be added to the SYSTEM pythonpath!\n" +
+	                            "\n" +
+	                            "IMPORTANT: The folders for your PROJECTS should NOT be added here, but in your project configuration.\n\n" +
+	                            "Check:http://fabioz.com/pydev/manual_101_interpreter.html for more details.");
+	                    dialog.setInitialSelections(l.toArray(new String[0]));
+	                    dialog.open();
+	                    Object[] result = dialog.getResult();
+	                    l.clear();
+	                    for (Object string : result) {
+	                        l.add((String) string);
+	                    }
+	                    
+	                }
+	                
+	            };
+	            try{
+	                RunInUiThread.sync(runnable);
+	            }catch(NoClassDefFoundError e){
+	            }catch(UnsatisfiedLinkError e){
+	                //this means that we're running unit-tests, so, we don't have to do anything about it
+	                //as 'l' is already ok.
+	            }
+	        }
         }
 
         ArrayList<String> l1 = new ArrayList<String>();
