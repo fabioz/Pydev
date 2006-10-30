@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Runalltests Plug-in
-Bundle-SymbolicName: com.python.pydev.runalltests
+Bundle-Name: Runalltests2 Plug-in
+Bundle-SymbolicName: com.python.pydev.runalltests2
 Bundle-Version: 1.0.0
-Bundle-Activator: com.python.pydev.runalltests.RunalltestsPlugin
+Bundle-Activator: com.python.pydev.runalltests2.Activator
 Bundle-Vendor: PYTHON
 Bundle-Localization: plugin
 Require-Bundle: org.junit,
@@ -23,4 +23,4 @@ Require-Bundle: org.junit,
  com.python.pydev.debug,
  com.python.pydev.fastparser,
  com.python.pydev.refactoring
-Eclipse-AutoStart: true
+Eclipse-LazyStart: true

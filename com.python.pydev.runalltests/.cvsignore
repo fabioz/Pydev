@@ -1,5 +1,3 @@
-bin
-indexcache
-python.pydevsysteminfo
-testProjectStub.pydevinfo
 AdditionalProjectInterpreterInfo.pydevinfo
+python.pydevsysteminfo
+indexcache

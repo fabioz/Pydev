@@ -1,3 +1,4 @@
+package com.python.pydev.runalltests2;
 //reference: http://www.eclipsezone.com/eclipse/forums/t65337.html
 import java.lang.reflect.Modifier;
 import java.util.Enumeration;
