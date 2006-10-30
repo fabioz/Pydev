@@ -21,6 +21,25 @@ import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
  */
 public class PythonPathHelperTest extends CodeCompletionTestsBase {
 
+    public static void main(String[] args) {
+        
+        try {
+            PythonPathHelperTest test = new PythonPathHelperTest();
+            test.setUp();
+            test.testResolvePath();
+            test.tearDown();
+            System.out.println("Finished");
+            junit.textui.TestRunner.run(PythonPathHelperTest.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } catch(Error e){
+            e.printStackTrace();
+        } catch(Throwable e){
+            e.printStackTrace();
+        }
+    }
+    
+    
     
 	public String qual = "";
 	public String token = "";
@@ -50,8 +69,9 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
     
     public void testResolvePath(){
         PythonPathHelper helper = new PythonPathHelper();
-        helper.setPythonPath(TestDependent.PYTHON_INSTALL+"Lib| "+TestDependent.PYTHON_INSTALL+"Lib/site-packages|"+
-                TestDependent.TEST_PYSRC_LOC);
+        String path = TestDependent.PYTHON_INSTALL+"Lib| "+TestDependent.PYTHON_INSTALL+"Lib/site-packages|"+
+		                TestDependent.TEST_PYSRC_LOC;
+		helper.setPythonPath(path);
         
         assertEquals("unittest",helper.resolveModule(TestDependent.PYTHON_INSTALL+"Lib/unittest.py"));
         assertEquals("compiler.ast",helper.resolveModule(TestDependent.PYTHON_INSTALL+"Lib/compiler/ast.py"));
@@ -308,24 +328,6 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         String loc = TestDependent.TEST_PYSRC_LOC+"testenc/encutf8.py";
         String encoding = REF.getPythonFileEncoding(new File(loc));
         assertEquals("utf-8", encoding.toLowerCase());
-    }
-
-    public static void main(String[] args) {
-        
-        try {
-            PythonPathHelperTest test = new PythonPathHelperTest();
-            test.setUp();
-            test.testGetEncoding2();
-            test.tearDown();
-            System.out.println("Finished");
-            junit.textui.TestRunner.run(PythonPathHelperTest.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } catch(Error e){
-            e.printStackTrace();
-        } catch(Throwable e){
-            e.printStackTrace();
-        }
     }
 }
 

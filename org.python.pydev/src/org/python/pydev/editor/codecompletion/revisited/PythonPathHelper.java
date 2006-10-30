@@ -225,6 +225,8 @@ public class PythonPathHelper implements Serializable{
      * @return a String with the module that the file or folder should represent. E.g.: compiler.ast
      */
     public String resolveModule(String fullPath, final boolean requireFileToExist){
+    	fullPath = REF.getFileAbsolutePath(fullPath);
+    	String absPath = fullPath;
         fullPath = getDefaultPathStr(fullPath);
         final File moduleFile = new File(fullPath);
         
@@ -236,7 +238,7 @@ public class PythonPathHelper implements Serializable{
         boolean isFile = moduleFile.isFile();
 		if(isFile){
             
-            if(isValidFileMod(REF.getFileAbsolutePath(moduleFile)) == false){
+            if(isValidFileMod(absPath) == false){
                 return null;
             }
         }
