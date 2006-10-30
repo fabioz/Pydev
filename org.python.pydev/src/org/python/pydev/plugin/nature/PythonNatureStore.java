@@ -35,6 +35,7 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -43,16 +44,15 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 
 /**
- * This class stores PythonNature and PythonPathNature properties inside the 
- * project in a file instead of persistent properties. This allows PYTHONPATH and 
- * Python project version to be checked in into version control systems.
+ * This class stores PythonNature and PythonPathNature properties inside the project in a file instead of persistent properties. This allows PYTHONPATH and Python project version to be checked in into
+ * version control systems.
  * 
  * @author Gergely Kis <gergely.kis@gmail.com>
  * 
  */
 
 class PythonNatureStore implements IResourceChangeListener {
-    
+
     final static String STORE_FILE_NAME = ".pydevproject";
 
     final static String PYDEV_PROJECT_DESCRIPTION = "pydev_project";
@@ -60,22 +60,22 @@ class PythonNatureStore implements IResourceChangeListener {
     final static String PYDEV_NATURE_PROPERTY = "pydev_property";
 
     final static String PYDEV_NATURE_PATH_PROPERTY = "pydev_pathproperty";
-    
+
     final static String PYDEV_PATH = "path";
-    
+
     final static String PYDEV_NATURE_PROPERTY_NAME = "name";
 
     private IProject project = null;
-    
-    private IFile xmlFile = null; 
+
+    private IFile xmlFile = null;
 
     long modStamp = IFile.NULL_STAMP;
-    
+
     /**
      * 0 means we're not in a store job
      */
     private int onStoreJob = 0;
-    
+
     /**
      * This is the dom document that is used to manipulate the xml info.
      */
@@ -83,10 +83,10 @@ class PythonNatureStore implements IResourceChangeListener {
 
     /**
      * Sets the projaect to be used.
+     * 
      * @param project the project related to this store.
      * 
-     * Note: the side-effect of this method is that the contents of the xml file
-     * are either created (if the file still does not exist) or just loaded. 
+     * Note: the side-effect of this method is that the contents of the xml file are either created (if the file still does not exist) or just loaded.
      */
     public void setProject(IProject project) {
         this.project = project;
@@ -96,14 +96,14 @@ class PythonNatureStore implements IResourceChangeListener {
         } catch (CoreException e) {
             throw new RuntimeException(e);
         }
-        if(!ProjectModulesManager.IN_TESTS){
+        if (!ProjectModulesManager.IN_TESTS) {
             project.getWorkspace().addResourceChangeListener(this);
         }
     }
 
-
     /**
      * Retrieve a path property as a combined string with | character as path separator
+     * 
      * @param key
      * @return the combined path string or null if the property is not set.
      * @throws CoreException
@@ -116,6 +116,7 @@ class PythonNatureStore implements IResourceChangeListener {
 
     /**
      * Set a path property. If the value is null the property is removed.
+     * 
      * @param key the name of the property
      * @param value the combined string of paths with | character as separator
      * @throws CoreException
@@ -127,9 +128,8 @@ class PythonNatureStore implements IResourceChangeListener {
     }
 
     /**
-     * Loads the Xml representation of the PythonNature properties from the project resource.
-     * If the project resource does not exist then an empty representation is created, and its 
-     * storage is requested in the project folder.
+     * Loads the Xml representation of the PythonNature properties from the project resource. If the project resource does not exist then an empty representation is created, and its storage is
+     * requested in the project folder.
      * 
      * @return true if some change has actually happened in the file and false otherwise
      * @throws CoreException
@@ -143,15 +143,14 @@ class PythonNatureStore implements IResourceChangeListener {
                     // Someone removed the project descriptor, store it from the memory model
                     scheduleStoreJob();
                     return true;
-                } 
-                else {
+                } else {
                     // The document never existed
                     document = parser.newDocument();
                     ProcessingInstruction version = document.createProcessingInstruction("eclipse-pydev", "version=\"1.0\""); //$NON-NLS-1$ //$NON-NLS-2$
                     document.appendChild(version);
                     Element configRootElement = document.createElement(PYDEV_PROJECT_DESCRIPTION);
                     document.appendChild(configRootElement);
-                    
+
                     migrateProperty(PythonNature.getPythonProjectVersionQualifiedName());
                     migratePath(PythonPathNature.getProjectSourcePathQualifiedName());
                     migratePath(PythonPathNature.getProjectExternalSourcePathQualifiedName());
@@ -179,51 +178,52 @@ class PythonNatureStore implements IResourceChangeListener {
         }
     }
 
-
     private void migratePath(QualifiedName key) throws CoreException {
         // Try to migrate from persistent property
         String[] propertyVal = getArrayFromPathString(project.getPersistentProperty(key));
         if (propertyVal != null) {
-            //set in the xml
+            // set in the xml
             setPathPropertyToXml(key, propertyVal, false);
-            //and remove from the project
+            // and remove from the project
             project.setPersistentProperty(key, (String) null);
         }
     }
 
-
     /**
      * Get the root node of the project description
+     * 
      * @return the root Node object
      * @throws CoreException if root node is not present
      */
-    private Node getRootNodeInXml () throws CoreException {
+    private Node getRootNodeInXml() throws CoreException {
         NodeList nodeList = document.getElementsByTagName(PYDEV_PROJECT_DESCRIPTION);
         if (nodeList != null && nodeList.getLength() > 0) {
             return nodeList.item(0);
         }
         throw new CoreException(new Status(IStatus.ERROR, "PythonNatureStore", -3, "Corrupted .pydevproject", null));
     }
-    
+
     /**
      * Assemble a string representation of a QualifiedName typed key
+     * 
      * @param key
      * @return the assembled string key representation
      */
     private String getKeyString(QualifiedName key) {
         String keyString = key.getQualifier() != null ? key.getQualifier() : "";
-        return keyString + "." + key.getLocalName();        
+        return keyString + "." + key.getLocalName();
     }
-    
+
     /**
      * Finds a property node as a direct child of the root node with the specified type and key.
+     * 
      * @param type
      * @param key
      * @return The property node or null if a node with the supplied key and type cannot be found.
      * @throws CoreException
      */
     private Node findPropertyNodeInXml(String type, QualifiedName key) throws CoreException {
-        Node root = getRootNodeInXml(); 
+        Node root = getRootNodeInXml();
         NodeList childNodes = root.getChildNodes();
         if (childNodes != null && childNodes.getLength() > 0) {
             String keyString = getKeyString(key);
@@ -242,18 +242,18 @@ class PythonNatureStore implements IResourceChangeListener {
         }
         return null;
     }
-    
+
     /**
      * Returns the text contents of a nodes' children. The children shall have the specified type.
+     * 
      * @param node
      * @param type
      * @return the array of strings with the text contents or null if the node has no children.
      */
-    private String[] getChildValuesWithType(Node node, String type)
-    {
+    private String[] getChildValuesWithType(Node node, String type) {
         NodeList childNodes = node.getChildNodes();
         if (childNodes != null && childNodes.getLength() > 0) {
-            List<String> result = new ArrayList<String>(); 
+            List<String> result = new ArrayList<String>();
             for (int i = 0; i < childNodes.getLength(); i++) {
                 Node child = childNodes.item(i);
                 if (child.getNodeName().equals(type)) {
@@ -263,12 +263,12 @@ class PythonNatureStore implements IResourceChangeListener {
             String[] retval = new String[result.size()];
             return result.toArray(retval);
         }
-        return null;        
+        return null;
     }
 
     /**
-     * Add children to a node with specified type and text contents. For each
-     * values array element a new child is created.
+     * Add children to a node with specified type and text contents. For each values array element a new child is created.
+     * 
      * @param node
      * @param type
      * @param values
@@ -279,21 +279,21 @@ class PythonNatureStore implements IResourceChangeListener {
         assert (type != null);
         for (int i = 0; i < values.length; i++) {
             Node child = document.createElement(type);
-            child.setTextContent(values[i]);
+            setTextContent(values[i], child);
             node.appendChild(child);
-        }        
+        }
     }
 
     /**
      * Convert an array of path strings to a single string separated by | characters.
+     * 
      * @param pathArray
      * @return the assembled string of paths or null if the input was null
      */
     private String getPathStringFromArray(String[] pathArray) {
         if (pathArray != null) {
             StringBuffer s = new StringBuffer("");
-            for (int i = 0; i < pathArray.length; i ++)
-            {
+            for (int i = 0; i < pathArray.length; i++) {
                 if (i > 0) {
                     s.append('|');
                 }
@@ -306,20 +306,21 @@ class PythonNatureStore implements IResourceChangeListener {
 
     /**
      * Convert a single string of paths separated by | characters to an array of strings.
+     * 
      * @param pathString
      * @return the splitted array of strings or null if the input was null
      */
     private String[] getArrayFromPathString(String pathString) {
         if (pathString != null) {
-            return pathString.split("\\|");        
+            return pathString.split("\\|");
         }
         return null;
     }
 
-    /** 
-     * Retrieve a string property with the specified key from the Xml representation.
-     * If the key is not in the Xml representation, the eclipse persistent property
-     * of the same key is read and migrated into the Xml representation.
+    /**
+     * Retrieve a string property with the specified key from the Xml representation. If the key is not in the Xml representation, the eclipse persistent property of the same key is read and migrated
+     * into the Xml representation.
+     * 
      * @param key
      * @return The value of the property or null if the property is not set.
      * @throws CoreException
@@ -328,7 +329,7 @@ class PythonNatureStore implements IResourceChangeListener {
         try {
             Node propertyNode = findPropertyNodeInXml(PYDEV_NATURE_PROPERTY, key);
 
-            if (propertyNode != null){
+            if (propertyNode != null) {
                 return propertyNode.getTextContent();
             }
 
@@ -340,8 +341,8 @@ class PythonNatureStore implements IResourceChangeListener {
     }
 
     /**
-     * Store a string property in the Xml representation and request 
-     * the storage of the changes. If the value is is null, the property is removed.
+     * Store a string property in the Xml representation and request the storage of the changes. If the value is is null, the property is removed.
+     * 
      * @param key
      * @param value
      * @throws CoreException
@@ -349,26 +350,24 @@ class PythonNatureStore implements IResourceChangeListener {
     public void setPropertyToXml(QualifiedName key, String value, boolean scheduleStore) throws CoreException {
         try {
             Node child = findPropertyNodeInXml(PYDEV_NATURE_PROPERTY, key);
-            if (child != null)
-            {
+            if (child != null) {
                 if (value == null) {
                     // remove child from file
                     getRootNodeInXml().removeChild(child);
                 } else {
-                    child.setTextContent(value);
+                    setTextContent(value, child);
                 }
                 scheduleStoreJob();
-            } 
-            else if (value != null) {
+            } else if (value != null) {
                 // The property is not in the file and we need to set it
                 Node property = document.createElement(PYDEV_NATURE_PROPERTY);
                 Node propertyName = document.createAttribute(PYDEV_NATURE_PROPERTY_NAME);
                 propertyName.setNodeValue(getKeyString(key));
                 property.getAttributes().setNamedItem(propertyName);
-                property.setTextContent(value);
+                setTextContent(value, property);
                 getRootNodeInXml().appendChild(property);
-                
-                if(scheduleStore){
+
+                if (scheduleStore) {
                     scheduleStoreJob();
                 }
             }
@@ -380,9 +379,25 @@ class PythonNatureStore implements IResourceChangeListener {
     }
 
     /**
-     * Retrieve the value of a path property from the Xml representation. If the property is 
-     * not found in the Xml document, the eclipse persistent property of the same key 
-     * is read and migrated to the xml representation. 
+     * This function was gotten as a copy of the Node.setTextContent, because this function 
+     * is not available in java 1.4
+     */
+    public void setTextContent(String textContent, Node self) throws DOMException {
+        // get rid of any existing children
+        Node child;
+        while ((child = self.getFirstChild()) != null) {
+            self.removeChild(child);
+        }
+        // create a Text node to hold the given content
+        if (textContent != null && textContent.length() != 0) {
+            self.appendChild(document.createTextNode(textContent));
+        }
+    }
+
+    /**
+     * Retrieve the value of a path property from the Xml representation. If the property is not found in the Xml document, the eclipse persistent property of the same key is read and migrated to the
+     * xml representation.
+     * 
      * @param key
      * @return the array of strings representing paths
      * @throws CoreException
@@ -390,11 +405,11 @@ class PythonNatureStore implements IResourceChangeListener {
     private String[] getPathPropertyFromXml(QualifiedName key) throws CoreException {
         try {
             Node propertyNode = findPropertyNodeInXml(PYDEV_NATURE_PATH_PROPERTY, key);
-            
+
             if (propertyNode != null) {
                 return getChildValuesWithType(propertyNode, PYDEV_PATH);
             }
-            
+
             return null;
         } catch (Exception e) {
             IStatus status = new Status(IStatus.ERROR, "PythonNatureStore", -1, e.toString(), e);
@@ -403,8 +418,8 @@ class PythonNatureStore implements IResourceChangeListener {
     }
 
     /**
-     * Store a path property in the xml document and request the storage of changes.
-     * If the paths parameter is null the property is removed from the document.
+     * Store a path property in the xml document and request the storage of changes. If the paths parameter is null the property is removed from the document.
+     * 
      * @param key
      * @param paths
      * @throws CoreException
@@ -412,24 +427,22 @@ class PythonNatureStore implements IResourceChangeListener {
     private void setPathPropertyToXml(QualifiedName key, String[] paths, boolean scheduleStore) throws CoreException {
         try {
             Node oldChild = findPropertyNodeInXml(PYDEV_NATURE_PATH_PROPERTY, key);
-            if (oldChild != null && paths == null)
-            {
+            if (oldChild != null && paths == null) {
                 getRootNodeInXml().removeChild(oldChild);
                 scheduleStoreJob();
-            } 
-            else if (paths != null) {
+            } else if (paths != null) {
                 // The property is not in the file and we need to set it
-                Node property = document.createElement(PYDEV_NATURE_PATH_PROPERTY);              
+                Node property = document.createElement(PYDEV_NATURE_PATH_PROPERTY);
                 Node propertyName = document.createAttribute(PYDEV_NATURE_PROPERTY_NAME);
                 propertyName.setNodeValue(getKeyString(key));
                 property.getAttributes().setNamedItem(propertyName);
                 addChildValuesWithType(property, PYDEV_PATH, paths);
                 if (oldChild == null) {
-                    getRootNodeInXml().appendChild(property);                    
+                    getRootNodeInXml().appendChild(property);
                 } else {
                     getRootNodeInXml().replaceChild(property, oldChild);
                 }
-                if(scheduleStore){
+                if (scheduleStore) {
                     scheduleStoreJob();
                 }
             }
@@ -439,9 +452,10 @@ class PythonNatureStore implements IResourceChangeListener {
             throw new CoreException(status);
         }
     }
-    
+
     /**
      * Serializes an Xml document to an array of bytes.
+     * 
      * @param doc
      * @return the array of bytes representing the Xml document
      * @throws IOException
@@ -465,10 +479,10 @@ class PythonNatureStore implements IResourceChangeListener {
 
     /**
      * Schedules a job to store the internal Xml representation as a project resource.
-     *
+     * 
      */
     private void scheduleStoreJob() {
-        if(ProjectModulesManager.IN_TESTS){
+        if (ProjectModulesManager.IN_TESTS) {
             try {
                 doStore(new NullProgressMonitor());
             } catch (IOException e) {
@@ -478,10 +492,10 @@ class PythonNatureStore implements IResourceChangeListener {
             } catch (CoreException e) {
                 throw new RuntimeException(e);
             }
-            
-        }else{
+
+        } else {
             Job storeJob = new Job("Store Pydev Project Descriptor") {
-    
+
                 @Override
                 protected IStatus run(IProgressMonitor monitor) {
                     try {
@@ -496,39 +510,37 @@ class PythonNatureStore implements IResourceChangeListener {
                     }
                 }
             };
-    
+
             storeJob.setRule(project);
             storeJob.schedule();
         }
     }
 
     public void resourceChanged(IResourceChangeEvent event) {
-        if(onStoreJob != 0){
-            return; //we're on a store job from the store itself, this means that we must 
-                    //call the rebuildPath programatically (and that the resource change
-                    //is actually already reflected in our document and file)
+        if (onStoreJob != 0) {
+            return; // we're on a store job from the store itself, this means that we must
+            // call the rebuildPath programatically (and that the resource change
+            // is actually already reflected in our document and file)
         }
         IResourceDelta delta = event.getDelta().findMember(xmlFile.getFullPath());
-        if (delta != null)
-        {
-            if (xmlFile.getModificationStamp() != modStamp)
-            {
+        if (delta != null) {
+            if (xmlFile.getModificationStamp() != modStamp) {
                 Job loadJob = new Job("Reload Pydev Project Descriptor") {
 
                     @Override
                     protected IStatus run(IProgressMonitor monitor) {
                         try {
                             monitor.beginTask("Loading Pydev Project Descriptor", 10);
-                            
+
                             synchronized (xmlFile) {
-                                if(loadFromFile()){
+                                if (loadFromFile()) {
                                     PythonNature nature = PythonNature.getPythonNature(project);
-                                    if(nature != null){
+                                    if (nature != null) {
                                         nature.rebuildPath();
                                     }
                                 }
                             }
-                            
+
                             return Status.OK_STATUS;
                         } catch (CoreException e) {
                             return e.getStatus();
@@ -541,27 +553,26 @@ class PythonNatureStore implements IResourceChangeListener {
                 };
 
                 loadJob.setRule(project);
-                loadJob.schedule();                    
+                loadJob.schedule();
             }
         }
     }
-
 
     /**
      * This is the function that actually stores the contents of the xml into the file with the configurations.
      */
     private IStatus doStore(IProgressMonitor monitor) throws IOException, TransformerException, CoreException {
-        try{
-            //that's because while we're in a store job, we don't want to listen to resource changes (we just
-            //want resource changes from the user).
+        try {
+            // that's because while we're in a store job, we don't want to listen to resource changes (we just
+            // want resource changes from the user).
             onStoreJob++;
             synchronized (xmlFile) {
                 if (document == null) {
                     return new Status(Status.ERROR, "PythonNatureStore.scheduleStoreJob", -2, "document == null", null);
                 }
-    
+
                 ByteArrayInputStream is = new ByteArrayInputStream(serializeDocument(document));
-    
+
                 if (!xmlFile.exists()) {
                     xmlFile.create(is, true, monitor);
                     modStamp = xmlFile.getModificationStamp();
@@ -572,7 +583,7 @@ class PythonNatureStore implements IResourceChangeListener {
                 xmlFile.refreshLocal(IResource.DEPTH_ZERO, monitor);
             }
             return Status.OK_STATUS;
-        }finally{
+        } finally {
             onStoreJob--;
         }
     }
