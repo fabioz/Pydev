@@ -15,16 +15,9 @@
 <font NAME="SansSerif" SIZE="16"/>
 </node>
 </node>
-<node COLOR="#0033ff" CREATED="1139594201281" FOLDED="true" ID="Freemind_Link_91517654" MODIFIED="1140001041546" POSITION="left" TEXT="Bugs (not in sf)">
+<node COLOR="#0033ff" CREATED="1139594201281" ID="Freemind_Link_91517654" MODIFIED="1140001041546" POSITION="left" TEXT="Bugs (not in sf)">
 <font NAME="SansSerif" SIZE="18"/>
 <icon BUILTIN="full-1"/>
-<node COLOR="#00b439" CREATED="1139595096843" ID="Freemind_Link_148953784" MODIFIED="1140001041593" TEXT="&#xa;def Foo(self):&#xa;    print _Bar()&#xa;&#xa;def _Bar():&#xa;    pass&#xa;&#xa;try:&#xa;    # Should show duplicated error (shows unused import)&#xa;    from empty2 import Bar2 as _Bar &#xa;except:&#xa;    #if available, use it&#xa;    pass&#xa;">
-<edge WIDTH="thin"/>
-<font NAME="SansSerif" SIZE="16"/>
-</node>
-<node COLOR="#00b439" CREATED="1140103999359" ID="Freemind_Link_9314489" MODIFIED="1148498578002" TEXT="Chandler:&#xa;&#xa;http://wiki.osafoundation.org/bin/view/Projects/GettingChandler&#xa;http://wiki.osafoundation.org/bin/view/Projects/BuildingChandler">
-<font NAME="SansSerif" SIZE="16"/>
-</node>
 <node COLOR="#00b439" CREATED="1148498545612" FOLDED="true" ID="Freemind_Link_92003531" MODIFIED="1148498581221" TEXT="Fixed">
 <font NAME="SansSerif" SIZE="16"/>
 <icon BUILTIN="button_ok"/>
@@ -55,6 +48,19 @@
 <font NAME="SansSerif" SIZE="14"/>
 </node>
 <node COLOR="#990000" CREATED="1150661235406" ID="Freemind_Link_266065152" MODIFIED="1151160186578" TEXT="When trying to run with &apos;old&apos; interpreter, let the user know about it.">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+</node>
+<node COLOR="#00b439" CREATED="1162397397296" ID="Freemind_Link_296581732" MODIFIED="1162397408828" TEXT="high-priority">
+<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1162397425828" ID="Freemind_Link_1950177921" MODIFIED="1162397453859" TEXT="Making an F3 on &apos;import operation&apos; &#xa;gives a NullPointerException">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+</node>
+<node COLOR="#00b439" CREATED="1162397413781" FOLDED="true" ID="Freemind_Link_1064002379" MODIFIED="1162397417515" TEXT="low-priority">
+<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1139595096843" ID="Freemind_Link_148953784" MODIFIED="1162397420171" TEXT="&#xa;def Foo(self):&#xa;    print _Bar()&#xa;&#xa;def _Bar():&#xa;    pass&#xa;&#xa;try:&#xa;    # Should show duplicated error (shows unused import)&#xa;    from empty2 import Bar2 as _Bar &#xa;except:&#xa;    #if available, use it&#xa;    pass&#xa;">
+<edge WIDTH="thin"/>
 <font NAME="SansSerif" SIZE="14"/>
 </node>
 </node>
@@ -214,6 +220,9 @@
 <icon BUILTIN="button_ok"/>
 </node>
 <node COLOR="#990000" CREATED="1162169683620" ID="Freemind_Link_156445896" MODIFIED="1162169709573" TEXT="known bugs:&#xa;Renaming the source folder has &apos;bad&apos; results">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1162397378062" ID="Freemind_Link_1486386825" MODIFIED="1162397386593" TEXT="Create a filter for .pyc files">
 <font NAME="SansSerif" SIZE="14"/>
 </node>
 </node>
