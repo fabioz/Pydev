@@ -1,19 +1,36 @@
 after 1.2.4
 
 Pydev:
-Crash when debugging wxPython programs should not happen anymore
-A Pydev package explorer was contributed
-When opening a file, the encoding is considered (and not only when saving it).
-Patches from Gergely Kis:
-	- Option for having a 'default interpreter' in the combo for selecting which interpreter to use for a run
-	- Saving the things related to the pydev project in a .pydevproject to be commited 
-	
-Patch from Gregory Golberg:	
-	- Ctrl+Shift+D allows for a display variable for quickly evaluating stuff.
+<ul>
+	<li><strong>Pydev package explorer</strong> was created. Features already implemented:
+		<ul>
+			<li>Common resource actions (delete, copy, rename, team...)</li>
+			<li>Shows the Source folder with a different icon</li>
+			<li>Linking mode enabled</li>
+			<li>Shows the outline for a python file</li>
+			<li>Opening an item in the outline opens the correct place in the correspondent file</li>
+		</ul>
+	</li>
+	<li>Debugger bug-fix: Crash when debugging wxPython programs should not happen anymore</li>
+	<li>When opening a file, the encoding is considered (and not only when saving it)</li>
+	<li>Patches from <strong>Gergely Kis</strong>:
+		<ul>
+		<li>Option for having a 'default interpreter' in the combo for selecting which interpreter to use for a run</li>
+		<li>Saving the things related to the pydev project in a .pydevproject file to be commited</li>
+		</ul>
+	</li>
+	<li>Patch from <strong>Gregory Golberg</strong>:	
+		<ul>
+		<li><strong>Ctrl+Shift+D</strong> when a variable is selected in debug mode shows the variable value</li>
+		</ul>
+	</li>
+</ul>
 
 Pydev Extensions:
-Minor bug on mark occurrences fixed
-The quick outline now will go to the 'sole item' in the tree even if it is not selected.
+<ul>
+	<li>Minor bug on mark occurrences fixed</li>
+	<li>The quick outline now will go to the 'sole item' in the tree even if it is not selected (and OK is pressed)</li>
+</ul>
 
 after 1.2.3
 
