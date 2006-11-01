@@ -34,7 +34,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -437,22 +436,7 @@ class PythonNatureStore implements IResourceChangeListener {
     // internal method returning whether to take the given node's text content
     final boolean hasTextContent(Node child) {
         return child.getNodeType() != Node.COMMENT_NODE &&
-            child.getNodeType() != Node.PROCESSING_INSTRUCTION_NODE &&
-            (child.getNodeType() != Node.TEXT_NODE ||
-             checkIgnorableWhitespace(child));
-    }
-
-    /**
-     * @param child
-     * @return
-     */
-    private boolean checkIgnorableWhitespace(Node child) {
-        try{
-            Boolean object = (Boolean) REF.invoke(child, "isIgnorableWhitespace", new Object[0]);
-            return object.booleanValue() == false;
-        }catch(Exception e){
-            return false;
-        }
+            child.getNodeType() != Node.PROCESSING_INSTRUCTION_NODE;
     }
 
 
