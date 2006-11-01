@@ -12,6 +12,8 @@ run scripts: cmd_rsync*.bat
 
 Change site.xml in fabioz.com
 
+Change descript.ion in fabioz.com
+
 add zips to sf
 
 tag repository: e.g.: pydev_1_2_3

@@ -50,16 +50,16 @@ REM ** CUSTOMIZE ** Enter your rsync command(s) here
 
 REM Copying open source stuff
 REM Copying open source homepage
-rsync --exclude "*.db" -r /cygdrive/e/eclipse_workspace/com.python.pydev.docs/open_source/final/ shell.sourceforge.net:/home/groups/p/py/pydev/htdocs/
+rsync --exclude "*.db" -r /cygdrive/e/fabioz_projects/com.python.pydev.docs/open_source/final/ shell.sourceforge.net:/home/groups/p/py/pydev/htdocs/
 
 REM Copying open source features
-rsync --exclude "com*" -r /cygdrive/e/eclipse_workspace/org.python.pydev.site/features/ shell.sourceforge.net:/home/groups/p/py/pydev/htdocs/updates/features/
+rsync --exclude "com*" -r /cygdrive/e/fabioz_projects/org.python.pydev.site/features/ shell.sourceforge.net:/home/groups/p/py/pydev/htdocs/updates/features/
 
 REM Copying open source plugins
-rsync --exclude "com*" -r /cygdrive/e/eclipse_workspace/org.python.pydev.site/plugins/ shell.sourceforge.net:/home/groups/p/py/pydev/htdocs/updates/plugins/
+rsync --exclude "com*" -r /cygdrive/e/fabioz_projects/org.python.pydev.site/plugins/ shell.sourceforge.net:/home/groups/p/py/pydev/htdocs/updates/plugins/
 
 REM Copying open source plugins
-rsync /cygdrive/e/eclipse_workspace/org.python.pydev.site/site.xml shell.sourceforge.net:/home/groups/p/py/pydev/htdocs/updates/site.xml
+rsync /cygdrive/e/fabioz_projects/org.python.pydev.site/site.xml shell.sourceforge.net:/home/groups/p/py/pydev/htdocs/updates/site.xml
 
 
 

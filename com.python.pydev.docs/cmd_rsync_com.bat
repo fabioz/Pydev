@@ -51,13 +51,13 @@ REM ** CUSTOMIZE ** Enter your rsync command(s) here
 REM Copying open source stuff
 REM Copying open source homepage
 
-rsync --exclude "*.db" -r /cygdrive/e/eclipse_workspace/com.python.pydev.docs/new_homepage/final/ \\ironman\users\fabioz\www\pydev\
+rsync --exclude "*.db" -r /cygdrive/e/fabioz_projects/com.python.pydev.docs/new_homepage/final/ \\ironman\users\fabioz\www\pydev\
 
-rsync --exclude "*-src-*" -r /cygdrive/e/eclipse_workspace/org.python.pydev.site/zips/ \\ironman\users\fabioz\www\pydev\zips\
+rsync --exclude "*-src-*" -r /cygdrive/e/fabioz_projects/org.python.pydev.site/zips/ \\ironman\users\fabioz\www\pydev\zips\
 
-rsync --exclude "com.esss*" -r /cygdrive/e/eclipse_workspace/org.python.pydev.site/features/ \\ironman\users\fabioz\www\pydev\updates\features\
+rsync --exclude "com.esss*" -r /cygdrive/e/fabioz_projects/org.python.pydev.site/features/ \\ironman\users\fabioz\www\pydev\updates\features\
 
-rsync --exclude "com.esss*" -r /cygdrive/e/eclipse_workspace/org.python.pydev.site/plugins/ \\ironman\users\fabioz\www\pydev\updates\plugins\
+rsync --exclude "com.esss*" -r /cygdrive/e/fabioz_projects/org.python.pydev.site/plugins/ \\ironman\users\fabioz\www\pydev\updates\plugins\
 
 
 
