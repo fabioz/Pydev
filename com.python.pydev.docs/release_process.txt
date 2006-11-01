@@ -18,6 +18,6 @@ add zips to sf
 
 tag repository: e.g.: pydev_1_2_3
 
-send e-mail
-
 add news in forum
+
+send e-mail
