@@ -1,18 +1,29 @@
 <h2>New on: LAST_VERSION_TAG</h2>
 
-
 <ul>
-<li>Completions for parameters based on the tokens that were defined for it in a given context
-</li><li>Removed the default PyLint options, because its command-line interface changed (that was crashing PyLint in newer versions)
-</li><li>Changed the grammar so that 'yield' is correctly parsed as an expression
-</li><li>Giving better error message when external file is opened without any interpreter selected
-</li><li>Icons for the builtins gotten on large libraries (such as wx -- it was optimized not to do that before)
-</li><li>Adding jars relative to the project now works correctly
-</li><li>The debugger is now able to get the variables in a context when handling negative payloads (<strong>patch by Javier Sanz</strong>)
-</li>
-
+	<li><strong>Pydev package explorer</strong> was created. Features already implemented:
+		<ul>
+			<li>Common resource actions (delete, copy, rename, team...)</li>
+			<li>Shows the Source folder with a different icon</li>
+			<li>Linking mode enabled</li>
+			<li>Shows the outline for a python file</li>
+			<li>Opening an item in the outline opens the correct place in the correspondent file</li>
+		</ul>
+	</li>
+	<li>Debugger bug-fix: Crash when debugging wxPython programs should not happen anymore</li>
+	<li>When opening a file, the encoding is considered (and not only when saving it)</li>
+	<li>Patches from <strong>Gergely Kis</strong>:
+		<ul>
+		<li>Option for having a 'default interpreter' in the combo for selecting which interpreter to use for a run</li>
+		<li>Saving the things related to the pydev project in a .pydevproject file to be commited</li>
+		</ul>
+	</li>
+	<li>Patch from <strong>Gregory Golberg</strong>:	
+		<ul>
+		<li><strong>Ctrl+Shift+D</strong> when a variable is selected in debug mode shows the variable value</li>
+		</ul>
+	</li>
 </ul>
-
 
 
 <br/>
@@ -70,6 +81,19 @@
 
 <hr/>
 <h2>Features History</h2>
+
+<h2>New on: 1.2.4</h2>
+
+<ul>
+<li>Completions for parameters based on the tokens that were defined for it in a given context
+</li><li>Removed the default PyLint options, because its command-line interface changed (that was crashing PyLint in newer versions)
+</li><li>Changed the grammar so that 'yield' is correctly parsed as an expression
+</li><li>Giving better error message when external file is opened without any interpreter selected
+</li><li>Icons for the builtins gotten on large libraries (such as wx -- it was optimized not to do that before)
+</li><li>Adding jars relative to the project now works correctly
+</li><li>The debugger is now able to get the variables in a context when handling negative payloads (<strong>patch by Javier Sanz</strong>)
+</li>
+</ul>
 
 <h2>New on: 1.2.3</h2>
 

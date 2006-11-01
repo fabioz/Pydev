@@ -1,14 +1,5 @@
 
 
-
-<h3>Some History</h3>
-
-
-PyDev has <b><A class="menu_links_normal" href="http://pydev.blogspot.com/">Fabio Zadrozny</A></b> as its maintainer since October 2004.
-It has been created by <b><A class="menu_links_normal" href="http://blogs.osafoundation.org/atotic/cat_work_log.html">Aleks Totic</A></b> at
-July 2003.
-
-
 <h3>What is PyDev?</h3>
 
 PyDev is a plugin that enables users to use <strong>Eclipse</strong> for <strong>Python</strong> and <strong>Jython</strong> development 
@@ -20,18 +11,18 @@ the provided features, you can check <strong><a href="features.html">here</a></s
 <br/>
 <br/>
 <br/>
-<h3><a href="http://www.fabioz.com/pydev">PyDev Extensions <IMG src="images/general/new.png" border="0" /></a></h3>
+<h3><a href="http://www.fabioz.com/pydev"><IMG src="images/sponsors/extensions2.gif" border="1" /></a></h3>
 
-Pydev now has a new 'partner': <strong><a href="http://www.fabioz.com/pydev">Pydev Extensions</a></strong>. It works with Pydev, 
-and delivers a number of features that can make it
-an <strong>'unique'</strong> environment, providing (among other features) <strong>code-analysis</strong> (does not depend on external features
-and is much faster), <strong>code completion with auto-import</strong>, a much better implementation of <strong>go to definition</strong>, 
-remote debugging, 'quick-fixes', etc.<br/><br/>
+<strong><a href="http://www.fabioz.com/pydev">Pydev Extensions</a></strong>
+is a plugin that extends Pydev, and delivers a number of features such as <strong>code-analysis</strong>, 
+<strong>code completion with auto-import</strong>, a much better implementation of <strong>go to definition, 
+remote debugging, 'quick-fixes', mark-occurrences</strong>, among others.<br/><br/>
 
 If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev Extensions homepage</a><br/>
 <br/>
 <br/>
 <br/>
+
 <hr/>
 <h2>News: </h2>
 
@@ -41,77 +32,30 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 
 <h4>Major highlights:</h4>
 
-
 <ul>
-<li>Completions for parameters based on the tokens that were defined for it in a given context
-</li><li>Removed the default PyLint options, because its command-line interface changed (that was crashing PyLint in newer versions)
-</li><li>Changed the grammar so that 'yield' is correctly parsed as an expression
-</li><li>Giving better error message when external file is opened without any interpreter selected
-</li><li>Icons for the builtins gotten on large libraries (such as wx -- it was optimized not to do that before)
-</li><li>Adding jars relative to the project now works correctly
-</li><li><strong>Patched (Javier Sanz): </strong>The debugger is now able to get the variables in a context when handling negative payloads
-</li>
-
+	<li><strong>Pydev package explorer View</strong> was created. Features already implemented:
+		<ul>
+			<li>Common resource actions (delete, copy, rename, team...)</li>
+			<li>Shows the Source folder with a different icon</li>
+			<li>Linking mode enabled</li>
+			<li>Shows the outline for a python file</li>
+			<li>Opening an item in the outline opens the correct place in the correspondent file</li>
+		</ul>
+	</li>
+	<li>Debugger bug-fix: Crash when debugging wxPython programs should not happen anymore</li>
+	<li>When opening a file, the encoding is considered (and not only when saving it)</li>
+	<li>Patches from <strong>Gergely Kis</strong>:
+		<ul>
+		<li>Option for having a 'default interpreter' in the combo for selecting which interpreter to use for a run</li>
+		<li>Saving the things related to the pydev project in a .pydevproject file to be commited</li>
+		</ul>
+	</li>
+	<li>Patch from <strong>Gregory Golberg</strong>:	
+		<ul>
+		<li><strong>Ctrl+Shift+D</strong> when a variable is selected in debug mode shows the variable value</li>
+		</ul>
+	</li>
 </ul>
-
-
-
-<h3>New Release: 1.2.3</h3>
-
-<h4>Major highlights:</h4>
-
-<ul>
-<li>When the user specifies an invalid interpreter, a better error report is given (previously it was only shown in the error log)
-</li><li>When threads die, the debugger is notified about it (so that they are removed from the stack)
-</li><li>Writing the preferences to the disk is now buffered
-</li><li>Fixed problem when debugging in jython with the statement "from xxx import *"
-</li><li>Fixed one issue with the indentation engine
-</li><li>Commenting a line does not remove a blank line in the end anymore
-</li><li>Added debug mode for unit-test 
-</li><li>Added the possibility of setting the <strong>-Dpython.cachedir</strong> for running the jython shell (errors can arise in unix-based machines if jython is not able to write its cache)
-
-<h4>Contributions</h4>
-<ul>
-</li>
-
-<li><strong>Darrell Maples</strong>:
-	<ul>
-		<li>Unit-test refactoring</li>
-		<li>Run as jython unit-test</li>
-		<li>Filter test methods to run</li>
-	</ul>
-</li>
-<br/>
-<li><strong>Joel Hedlund</strong> 
-	<ul>
-        <li>
-        Added a support to ease adding options to Ctrl+1 in the scripting engine
-        </li>
-		<li>
-Added a ctrl+1 for the case:<br/>
-<br/>
-def m1(self, arg=None):<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;arg |<-- Ctrl+1 shows option to do:<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;<br/>
-def m1(self, arg=None):<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;if arg is None:<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;arg = []<br/><br/>
-        </li>
-	</ul>
-</li>    
-</ul>
-
-<h4>Support for python 2.5</h4>
-<ul>
-</li><li>Added the new relative import
-</li><li>Added the new if expression
-</li><li>Added the unified try..except..finally statement
-</li><li>Added the with x:... statement
-</li><li>Indenting after the new with statement
-</li><li>Recognizing 'with' as a keyword in syntax highlighting
-</ul>
-</ul>
-
 
 
 <br/>
@@ -164,13 +108,9 @@ Keep up-to-date with releases:
 <br/>
 
 
-<a href="http://www.fabioz.com/pydev/manual_101_root.html">Getting started manual</a> (on the Pydev Extensions homepage)
-<br/>
-<br/>
 
 
-
-<a href="http://pydev.blogspot.com/">Get development info here</a> (my Blog). 
+<a href="http://pydev.blogspot.com/">Get development info here</a> (Blog). 
 <br/>
 <br/>
 
