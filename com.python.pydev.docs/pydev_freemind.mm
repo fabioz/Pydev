@@ -219,10 +219,14 @@
 <font NAME="SansSerif" SIZE="14"/>
 <icon BUILTIN="button_ok"/>
 </node>
-<node COLOR="#990000" CREATED="1162169683620" ID="Freemind_Link_156445896" MODIFIED="1162169709573" TEXT="known bugs:&#xa;Renaming the source folder has &apos;bad&apos; results">
+<node COLOR="#990000" CREATED="1162169683620" ID="Freemind_Link_156445896" MODIFIED="1162425225124" TEXT="known bugs:&#xa;Renaming the source folder has &apos;bad&apos; results">
 <font NAME="SansSerif" SIZE="14"/>
+<icon BUILTIN="button_ok"/>
 </node>
 <node COLOR="#990000" CREATED="1162397378062" ID="Freemind_Link_1486386825" MODIFIED="1162397386593" TEXT="Create a filter for .pyc files">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1162425231905" ID="Freemind_Link_472779941" MODIFIED="1162425240531" TEXT="Have a working set">
 <font NAME="SansSerif" SIZE="14"/>
 </node>
 </node>
