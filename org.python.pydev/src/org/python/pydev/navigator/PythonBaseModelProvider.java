@@ -31,6 +31,7 @@ import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.model.BaseWorkbenchContentProvider;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
@@ -384,6 +385,7 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
             newWorkspace = (IWorkspace) newInput;
         } else if (newInput instanceof IContainer) {
             newWorkspace = ((IContainer) newInput).getWorkspace();
+        } else if (newInput instanceof IWorkingSet) {
         }
 
         if (oldWorkspace != newWorkspace) {
