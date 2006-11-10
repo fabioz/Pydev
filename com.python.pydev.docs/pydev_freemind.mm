@@ -240,5 +240,23 @@
 <font NAME="SansSerif" SIZE="16"/>
 </node>
 </node>
+<node COLOR="#0033ff" CREATED="1163117573303" ID="Freemind_Link_1096200764" MODIFIED="1163117585162" POSITION="right" TEXT="TODO for releases">
+<font NAME="SansSerif" SIZE="18"/>
+<node COLOR="#00b439" CREATED="1163117587444" ID="Freemind_Link_727671719" MODIFIED="1163117600959" TEXT="release 1.2.6">
+<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1163117606287" ID="Freemind_Link_1768648504" MODIFIED="1163117614834" TEXT="package explorer pendencies">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1163117617397" ID="Freemind_Link_378112726" MODIFIED="1163117632350" TEXT="the license pop-up should only pop if the editor is open">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1163117635100" ID="Freemind_Link_1768518263" MODIFIED="1163117646741" TEXT="put menus only on the pydev perspective">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1163117660381" ID="Freemind_Link_1637750053" MODIFIED="1163117664959" TEXT="high-priority bugs">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+</node>
+</node>
 </node>
 </map>
