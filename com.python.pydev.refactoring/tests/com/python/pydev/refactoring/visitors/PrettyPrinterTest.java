@@ -11,13 +11,13 @@ import org.python.pydev.parser.jython.ast.Module;
 
 public class PrettyPrinterTest extends PyParserTestBase{
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     public static void main(String[] args) {
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testImport6();
+            test.testComments3();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -1234,6 +1234,22 @@ public class PrettyPrinterTest extends PyParserTestBase{
         "    def m1(self,a,#c1\n" +
         "        b):#c2\n" +
         "        pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+        
+    }
+    
+    public void testComments3() throws Exception {
+        String s = ""+
+        "# comment before\n" +
+        "i = 0\n" +
+        "while (i < 2):# while test comment on-line\n" +
+        "    print 'under 5'\n" +
+        "    i += 1# augmented assignment on-line\n" +
+        "    # this comment disappears\n" +
+        "else:# else on-line\n" +
+        "    print 'bigger'# print on-line\n" +
+        "# after the second body (but actually in the module node)!" +
         "";
         checkPrettyPrintEqual(s);
         
