@@ -88,7 +88,7 @@ public final class TreeBuilder24 implements PythonGrammar24TreeConstants {
     }
 
     private stmtType[] popSuite() {
-        return ((Suite) stack.popNode()).body;
+        return getBodyAndSpecials();
     }
 
     private exprType[] makeExprs() {

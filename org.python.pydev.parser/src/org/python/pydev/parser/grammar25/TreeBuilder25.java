@@ -91,7 +91,7 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
     }
 
     private stmtType[] popSuite() {
-        return ((Suite) stack.popNode()).body;
+        return getBodyAndSpecials();
     }
 
     private exprType[] makeExprs() {
