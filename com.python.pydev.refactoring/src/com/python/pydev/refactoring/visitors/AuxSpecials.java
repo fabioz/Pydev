@@ -105,12 +105,13 @@ public class AuxSpecials {
             if(o instanceof commentType){
                 commentType c = (commentType)o;
                 if(c.beginLine > line){
-                	state.writeNewLine();
-                	if(isNewScope){
-                		state.writeIndent(1);
-                	}else{
-                		state.writeIndent();
-                	}
+                	if(state.writeNewLine(false)){
+                    	if(isNewScope){
+                    		state.writeIndent(1);
+                    	}else{
+                    		state.writeIndent();
+                    	}
+                    }
                 }
 				state.write(c.id);
                 state.writeNewLine();

@@ -11,13 +11,13 @@ import org.python.pydev.parser.jython.ast.Module;
 
 public class PrettyPrinterTest extends PyParserTestBase{
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     public static void main(String[] args) {
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testComments3();
+            test.testComment3();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -153,7 +153,6 @@ public class PrettyPrinterTest extends PyParserTestBase{
         String s = ""+
         "class Foo:\n" +
         "    pass\n" +
-        "\n" +
         "#--- barrr\n" +
         "a = 10\n" +
         "#--- fooo" +

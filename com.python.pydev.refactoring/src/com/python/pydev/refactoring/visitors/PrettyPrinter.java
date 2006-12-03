@@ -209,7 +209,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         if(!state.inStmt()){
             auxComment.startRecord();
         }
-        auxComment.writeSpecialsAfter(node);
+        auxComment.writeSpecialsAfter(node, false);
         
         if(!state.inStmt()){
             checkEndRecord();
@@ -351,7 +351,6 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             auxComment.startRecord();
             state.indent();
             auxComment.writeSpecialsBefore(node.orelse);
-            auxComment.writeSpecialsAfter(node.orelse);
             afterNode(node.orelse);
             node.orelse.accept(this);
             dedent();

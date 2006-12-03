@@ -47,8 +47,16 @@ public class WriteState implements IWriterEraser {
     }
     
     public void writeNewLine() throws IOException {
-        lastState = LAST_STATE_NEW_LINE;
-        writer.write(prefs.getNewLine());
+        writeNewLine(true);
+    }
+    
+    public boolean writeNewLine(boolean force) throws IOException {
+        if(force || lastState == LAST_STATE_WRITE){
+            lastState = LAST_STATE_NEW_LINE;
+            writer.write(prefs.getNewLine());
+            return true;
+        }
+        return false;
     }
 
     public void writeIndent(int i) throws IOException {
