@@ -56,6 +56,9 @@
 <node COLOR="#990000" CREATED="1162397425828" ID="Freemind_Link_1950177921" MODIFIED="1162397453859" TEXT="Making an F3 on &apos;import operation&apos; &#xa;gives a NullPointerException">
 <font NAME="SansSerif" SIZE="14"/>
 </node>
+<node COLOR="#990000" CREATED="1165273710019" ID="Freemind_Link_703745039" MODIFIED="1165273737964" TEXT="Pydev package explorer:&#xa;If project is closed/reopened, an error occurs.">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
 </node>
 <node COLOR="#00b439" CREATED="1162397413781" FOLDED="true" ID="Freemind_Link_1064002379" MODIFIED="1162397417515" TEXT="low-priority">
 <font NAME="SansSerif" SIZE="16"/>

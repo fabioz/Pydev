@@ -137,33 +137,36 @@ public class AnalysisBuilderRunnable implements Runnable{
     
     public void doAnalysis(){
         try {
+            //if the resource is not open, there's not much we can do...
+            IResource r = resource.get();
+            if(r == null || !r.getProject().isOpen()){
+                return;
+            }
+            
             AnalysisRunner runner = new AnalysisRunner();
             checkStop();
             
             IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
             analysisPreferences.clearCaches();
 
-            if (!runner.canDoAnalysis(document) || !PyDevBuilderVisitor.isInPythonPath(resource.get()) || //just get problems in resources that are in the pythonpath
+            if (!runner.canDoAnalysis(document) || !PyDevBuilderVisitor.isInPythonPath(r) || //just get problems in resources that are in the pythonpath
                     analysisPreferences.makeCodeAnalysis() == false //let's see if we should do code analysis
             ) {
-                IResource r = resource.get();
-                if(r != null){
-                    synchronized(r){
-                        runner.deleteMarkers(r);
-                    }
+                synchronized(r){
+                    runner.deleteMarkers(r);
                 }
                 return;
             }
 
             checkStop();
-            PythonNature nature = PythonNature.getPythonNature(resource.get());
+            PythonNature nature = PythonNature.getPythonNature(r);
 
             //remove dependency information (and anything else that was already generated), but first, gather the modules dependent on this one.
             if(!isFullBuild){
             	//if it is a full build, that info is already removed
             	AnalysisBuilderVisitor.fillDependenciesAndRemoveInfo(moduleName, nature, analyzeDependent, monitor, isFullBuild);
             }
-            recreateCtxInsensitiveInfo(resource.get(), document, module, nature);
+            recreateCtxInsensitiveInfo(r, document, module, nature);
 
             //monitor.setTaskName("Analyzing module: " + moduleName);
             monitor.worked(1);
@@ -184,8 +187,7 @@ public class AnalysisBuilderRunnable implements Runnable{
             checkStop();
             
             //don't stop after setting to add / remove the markers
-            
-            IResource r = resource.get();
+            r = resource.get();
             if(r != null){
                 synchronized(r){
                     runner.addMarkers(resource.get(), document, messages, existing);
