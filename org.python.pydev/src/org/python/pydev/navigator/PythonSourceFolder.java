@@ -43,7 +43,7 @@ public class PythonSourceFolder implements IWrappedResource, IAdaptable, IFolder
     public PythonSourceFolder(Object parentElement, IFolder folder) {
         this.parentElement = parentElement;
         this.folder = folder;
-        //System.out.println("Created PythonSourceFolder:"+this+" - "+folder+" parent:"+parentElement);
+        System.out.println("Created PythonSourceFolder:"+this+" - "+folder+" parent:"+parentElement);
     }
 
 	public Object getParentElement() {
@@ -112,10 +112,20 @@ public class PythonSourceFolder implements IWrappedResource, IAdaptable, IFolder
 
     public boolean equals(Object other) {
         if(other instanceof PythonSourceFolder){
-            return this == other;
+            if(other == this){
+                return true;
+            }
+            PythonSourceFolder f = (PythonSourceFolder) other;
+            return this.folder.equals(f.folder);
         }
         return folder.equals(other);
     }
+    
+    @Override
+    public int hashCode() {
+        return folder.hashCode();
+    }
+    
     public void accept(IResourceProxyVisitor visitor, int memberFlags) throws CoreException {
         folder.accept(visitor, memberFlags);
     }

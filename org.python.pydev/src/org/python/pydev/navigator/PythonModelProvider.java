@@ -75,10 +75,12 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         Object parent = modification.getParent();
         if (parent instanceof IContainer) {
             Object pythonParent = getResourceInPythonModel((IResource) parent, true);
+            
             if (pythonParent instanceof IWrappedResource) {
                 IWrappedResource parentResource = (IWrappedResource) pythonParent;
                 modification.setParent(parentResource);
                 wrapChildren((IResource) parentResource, parentResource.getSourceFolder(), modification.getChildren(), isAdd);
+                
             }else if(pythonParent == null){
                 //this may happen when a source folder is added 
                 //TODO:Check if it is actually a source folder (and create it in the model as needed)

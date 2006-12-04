@@ -568,7 +568,17 @@ class PythonNatureStore implements IResourceChangeListener {
             // call the rebuildPath programatically (and that the resource change
             // is actually already reflected in our document and file)
         }
-        IResourceDelta delta = event.getDelta().findMember(xmlFile.getFullPath());
+        
+        if(!project.isOpen()){
+            return; // project closed... no need to do anything if the project is closed
+        }
+        
+        IResourceDelta eventDelta = event.getDelta();
+        if(eventDelta == null){
+            return; //no delta here... move on
+        }
+        
+        IResourceDelta delta = eventDelta.findMember(xmlFile.getFullPath());
         if (delta != null) {
             if (xmlFile.getModificationStamp() != modStamp) {
                 Job loadJob = new Job("Reload Pydev Project Descriptor") {

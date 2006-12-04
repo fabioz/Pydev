@@ -25,6 +25,16 @@ public class PythonNatureListenersManager {
         pythonNatureListeners.add(new WeakReference<IPythonNatureListener>(listener));
     }
     
+    public static void removePythonNatureListener(IPythonNatureListener provider) {
+        for(Iterator<WeakReference<IPythonNatureListener>> it = pythonNatureListeners.iterator();it.hasNext();){
+            WeakReference<IPythonNatureListener> ref = it.next();
+            if(ref.get() == provider){
+                it.remove();
+            }
+        }
+    }
+    
+    
     /**
      * Notification that the pythonpath has been rebuilt.
      * 
@@ -46,6 +56,6 @@ public class PythonNatureListenersManager {
             }
         }
     }
-    
+
     
 }

@@ -42,11 +42,20 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
 
     public boolean equals(Object other) {
         if(other instanceof IWrappedResource){
-            return this == other;
+            if(other == this){
+                return true;
+            }
+            IWrappedResource w = (IWrappedResource) other;
+            return this.actualObject.equals(w.getActualObject());
         }
         return actualObject.equals(other);
     }
 
+    @Override
+    public int hashCode() {
+        return this.getActualObject().hashCode();
+    }
+    
     public Object getAdapter(Class adapter) {
         if(adapter == IContributorResourceAdapter.class){
             return this;

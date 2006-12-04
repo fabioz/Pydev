@@ -5,9 +5,7 @@
 package org.python.pydev.navigator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -233,8 +231,11 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
         } else if(parentElement instanceof IResource){
             IResource resource = (IResource) parentElement;
             project = resource.getProject();
-            nature = PythonNature.getPythonNature(project);
             
+            //we can only get the nature if the project is open
+            if(project != null && project.isOpen()){
+                nature = PythonNature.getPythonNature(project);
+            }
             
             //replace folders -> source folders (we should only get here on a path that's not below a source folder)
             childrenToReturn = super.getChildren(parentElement);
@@ -243,7 +244,7 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
                 for (int i=0; i < childrenToReturn.length; i++) {
                     Object object = getResourceInPythonModel((IResource) childrenToReturn[i]);
                     ret[i] = object;
-                    if (object instanceof IFolder) {
+                    if (object instanceof IFolder && !(object instanceof PythonSourceFolder)) {
                         IFolder folder = (IFolder) object;
                         
                         try {
@@ -361,6 +362,8 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
                 workspace.removeResourceChangeListener(this);
             }
         }
+        
+        PythonNatureListenersManager.removePythonNatureListener(this);
 
         super.dispose();
     }
