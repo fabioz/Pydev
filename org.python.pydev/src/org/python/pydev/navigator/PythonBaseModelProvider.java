@@ -4,6 +4,8 @@
  */
 package org.python.pydev.navigator;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,6 +42,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.outline.ParsedItem;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.parser.visitors.scope.OutlineCreatorVisitor;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.IPythonNatureListener;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
@@ -153,7 +156,25 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
     
     public boolean hasChildren(Object element) {
         if(element instanceof PythonFile){
-            return true;//python file elements always have children (for performance reasons)
+            PythonFile f = (PythonFile) element;
+            if(PythonPathHelper.isValidSourceFile(f.getActualObject())){
+                try {
+                    InputStream contents = f.getContents();
+                    try{
+                        if(contents.read() == -1){
+                            return false; //if there is no content in the file, it has no children
+                        }else{
+                            return true; //if it has any content, it has children (performance reasons)
+                        }
+                    }finally{
+                        contents.close();
+                    }
+                } catch (Exception e) {
+                    PydevPlugin.log(e);
+                    return false;
+                }
+            }
+            return false; 
         }
         return getChildren(element).length > 0;
     }
@@ -197,19 +218,22 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
 
                     if (nature != null) {
                         ICodeCompletionASTManager astManager = nature.getAstManager();
-                        IModulesManager modulesManager = astManager.getModulesManager();
-
-                        if (modulesManager instanceof ProjectModulesManager) {
-                            ProjectModulesManager projectModulesManager = (ProjectModulesManager) modulesManager;
-                            String moduleName = projectModulesManager.resolveModuleInDirectManager(file.getActualObject(), project);
-                            if (moduleName != null) {
-                                IModule module = projectModulesManager.getModuleInDirectManager(moduleName, nature, true);
-                                if (module instanceof SourceModule) {
-                                    SourceModule sourceModule = (SourceModule) module;
-
-                                    OutlineCreatorVisitor visitor = OutlineCreatorVisitor.create(sourceModule.getAst());
-                                    ParsedItem root = new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0]));
-                                    childrenToReturn = getChildrenFromParsedItem(parentElement, root, file);
+                        //the nature may still not be restored...
+                        if(astManager != null){
+                            IModulesManager modulesManager = astManager.getModulesManager();
+    
+                            if (modulesManager instanceof ProjectModulesManager) {
+                                ProjectModulesManager projectModulesManager = (ProjectModulesManager) modulesManager;
+                                String moduleName = projectModulesManager.resolveModuleInDirectManager(file.getActualObject(), project);
+                                if (moduleName != null) {
+                                    IModule module = projectModulesManager.getModuleInDirectManager(moduleName, nature, true);
+                                    if (module instanceof SourceModule) {
+                                        SourceModule sourceModule = (SourceModule) module;
+    
+                                        OutlineCreatorVisitor visitor = OutlineCreatorVisitor.create(sourceModule.getAst());
+                                        ParsedItem root = new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0]));
+                                        childrenToReturn = getChildrenFromParsedItem(parentElement, root, file);
+                                    }
                                 }
                             }
                         }

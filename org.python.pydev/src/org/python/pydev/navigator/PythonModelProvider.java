@@ -148,9 +148,12 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
                     }
                     
                 }else if(child instanceof IFile){
-                    childrenItr.remove();
-                    IFile file = (IFile) child;
-                    convertedChildren.add(new PythonFile(parent, file, pythonSourceFolder));
+                    if(pythonSourceFolder != null){
+                        //if the python source folder is null, that means that this is a file that is not actually below a source folder.
+                        childrenItr.remove();
+                        IFile file = (IFile) child;
+                        convertedChildren.add(new PythonFile(parent, file, pythonSourceFolder));
+                    }
                     
                 }else if (child instanceof IResource){
                     childrenItr.remove();
