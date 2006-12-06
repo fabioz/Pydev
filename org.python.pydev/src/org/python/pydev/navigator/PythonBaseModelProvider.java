@@ -4,7 +4,6 @@
  */
 package org.python.pydev.navigator;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,6 +25,7 @@ import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.StructuredViewer;
@@ -184,6 +184,13 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
      * @return the children for some element
      */
     public Object[] getChildren(Object parentElement) {
+        
+        //------------------------------------------- for the working set, just return the children directly
+        if(parentElement instanceof IWorkingSet){
+            IWorkingSet set = (IWorkingSet) parentElement;
+            return set.getElements();
+        }
+        
         Object[] childrenToReturn = null;
         
         //------------------------------------------- get some common resources (project and nature)
@@ -375,15 +382,21 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
     public void dispose() {
         this.projectToSourceFolders = null;
         if (viewer != null) {
-            IWorkspace workspace = null;
+            IWorkspace[] workspace = null;
             Object obj = viewer.getInput();
             if (obj instanceof IWorkspace) {
-                workspace = (IWorkspace) obj;
+                workspace = new IWorkspace[]{(IWorkspace) obj};
             } else if (obj instanceof IContainer) {
-                workspace = ((IContainer) obj).getWorkspace();
+                workspace = new IWorkspace[]{((IContainer) obj).getWorkspace()};
+            } else if (obj instanceof IWorkingSet) {
+                IWorkingSet newWorkingSet = (IWorkingSet) obj;
+                workspace = getWorkspaces(newWorkingSet);
             }
+            
             if (workspace != null) {
-                workspace.removeResourceChangeListener(this);
+                for (IWorkspace w : workspace) {
+                    w.removeResourceChangeListener(this);
+                }
             }
         }
         
@@ -399,30 +412,60 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
         super.inputChanged(viewer, oldInput, newInput);
 
         this.viewer = viewer;
-        IWorkspace oldWorkspace = null;
-        IWorkspace newWorkspace = null;
+        IWorkspace[] oldWorkspace = null;
+        IWorkspace[] newWorkspace = null;
 
+        //get the old
         if (oldInput instanceof IWorkspace) {
-            oldWorkspace = (IWorkspace) oldInput;
+            oldWorkspace = new IWorkspace[]{(IWorkspace) oldInput};
         } else if (oldInput instanceof IContainer) {
-            oldWorkspace = ((IContainer) oldInput).getWorkspace();
+            oldWorkspace = new IWorkspace[]{((IContainer) oldInput).getWorkspace()};
+        } else if (oldInput instanceof IWorkingSet) {
+            IWorkingSet oldWorkingSet = (IWorkingSet) oldInput;
+            oldWorkspace = getWorkspaces(oldWorkingSet);
         }
 
+        //and the new
         if (newInput instanceof IWorkspace) {
-            newWorkspace = (IWorkspace) newInput;
+            newWorkspace = new IWorkspace[]{(IWorkspace) newInput};
         } else if (newInput instanceof IContainer) {
-            newWorkspace = ((IContainer) newInput).getWorkspace();
+            newWorkspace = new IWorkspace[]{((IContainer) newInput).getWorkspace()};
         } else if (newInput instanceof IWorkingSet) {
+            IWorkingSet newWorkingSet = (IWorkingSet) newInput;
+            newWorkspace = getWorkspaces(newWorkingSet);
         }
 
-        if (oldWorkspace != newWorkspace) {
-            if (oldWorkspace != null) {
-                oldWorkspace.removeResourceChangeListener(this);
-            }
-            if (newWorkspace != null) {
-                newWorkspace.addResourceChangeListener(this, IResourceChangeEvent.POST_CHANGE);
+        //now, let's treat the workspace
+        if (oldWorkspace != null) {
+            for (IWorkspace workspace : oldWorkspace) {
+                workspace.removeResourceChangeListener(this);
             }
         }
+        if (newWorkspace != null) {
+            for (IWorkspace workspace : newWorkspace) {
+                workspace.addResourceChangeListener(this, IResourceChangeEvent.POST_CHANGE);
+            }
+        }
+        
+    }
+
+    /**
+     * @param newWorkingSet
+     */
+    private IWorkspace[] getWorkspaces(IWorkingSet newWorkingSet) {
+        IAdaptable[] elements = newWorkingSet.getElements();
+        HashSet<IWorkspace> set = new HashSet<IWorkspace>();
+        
+        for (IAdaptable adaptable : elements) {
+            IResource adapter = (IResource) adaptable.getAdapter(IResource.class);
+            if(adapter != null){
+                IWorkspace workspace = adapter.getWorkspace();
+                set.add(workspace);
+            }else{
+                PydevPlugin.log("Was not expecting that IWorkingSet adaptable didn't return anything...");
+            }
+        }
+        return set.toArray(new IWorkspace[0]);
     }
 
     /*

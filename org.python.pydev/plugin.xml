@@ -1037,6 +1037,7 @@
                 <instanceof value="org.eclipse.core.resources.IFile"/>
                 <instanceof value="org.eclipse.core.resources.IResource"/>
                 <instanceof value="org.python.pydev.navigator.IWrappedResource"/>
+                <instanceof value="org.eclipse.ui.IWorkingSet"/>
             </or>
          </triggerPoints>
          <possibleChildren>
@@ -1083,10 +1084,35 @@
                 </not><not><instanceof value="org.eclipse.core.resources.IFile"/>
                 </not><not><instanceof value="org.eclipse.core.resources.IResource"/>
                 </not><not><instanceof value="org.python.pydev.navigator.IWrappedResource"/>
+                </not><not><instanceof value="org.eclipse.ui.IWorkingSet"/>
                 </not>
             </and>
          </filterExpression>
       </commonFilter>
+  	  <commonFilter
+		        activeByDefault="true"
+		        name="Hide .pyc files"
+		        description="Hides *.pyc files"
+		        id="org.python.pydev.navigator.filters.hidePycFiles"> 
+	         <filterExpression>
+	         	<and>
+		            <instanceof value="org.eclipse.core.resources.IFile"/>
+	            	<test property="org.eclipse.core.resources.name" value="*.pyc"/>
+		        </and>
+	         </filterExpression>		        
+	  </commonFilter>		 
+  	  <commonFilter
+		        activeByDefault="true"
+		        name="Hide .pyo files"
+		        description="Hides *.pyo files"
+		        id="org.python.pydev.navigator.filters.hidePyoFiles"> 
+	         <filterExpression>
+	         	<and>
+		            <instanceof value="org.eclipse.core.resources.IFile"/>
+	            	<test property="org.eclipse.core.resources.name" value="*.pyo"/>
+		        </and>
+	         </filterExpression>		        
+	  </commonFilter>		 
       
     </extension>
 

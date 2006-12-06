@@ -24,22 +24,29 @@ import org.eclipse.ui.navigator.PipelinedViewerUpdate;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**
+ * This is the Model provider for python elements.
  * 
+ * It intercepts the adds/removes and changes the original elements for elements
+ * that actually reflect the python model (with source folder, etc).
  * 
  * @author Fabio
  */
 public class PythonModelProvider extends PythonBaseModelProvider implements IPipelinedTreeContentProvider {
 
+    /**
+     * This method 
+     * @see org.eclipse.ui.navigator.IPipelinedTreeContentProvider#getPipelinedChildren(java.lang.Object, java.util.Set)
+     */
     @SuppressWarnings("unchecked")
-    public void getPipelinedChildren(Object parent, Set currentChildren) {
+    public void getPipelinedChildren(Object parent, Set currentElements) {
         Object[] children = getChildren(parent);
-        for (Iterator iter = currentChildren.iterator(); iter.hasNext();){
+        for (Iterator iter = currentElements.iterator(); iter.hasNext();){
             Object next = iter.next();
             if (next instanceof IResource && !(next instanceof IWrappedResource)){
                 iter.remove();
             }
         }
-        currentChildren.addAll(Arrays.asList(children));
+        currentElements.addAll(Arrays.asList(children));
     }
 
     @SuppressWarnings("unchecked")

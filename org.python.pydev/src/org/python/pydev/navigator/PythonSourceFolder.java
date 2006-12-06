@@ -43,7 +43,7 @@ public class PythonSourceFolder implements IWrappedResource, IAdaptable, IFolder
     public PythonSourceFolder(Object parentElement, IFolder folder) {
         this.parentElement = parentElement;
         this.folder = folder;
-        System.out.println("Created PythonSourceFolder:"+this+" - "+folder+" parent:"+parentElement);
+//        System.out.println("Created PythonSourceFolder:"+this+" - "+folder+" parent:"+parentElement);
     }
 
 	public Object getParentElement() {
