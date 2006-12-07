@@ -112,6 +112,9 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
     /**
      * Given some IResource in the filesystem, return the representation for it in the python model
      * or the resource itself if it could not be found in the python model.
+     * 
+     * Note that this method only returns some resource already created (it does not 
+     * create some resource if it still does not exist)
      */
     protected Object getResourceInPythonModel(IResource object, boolean removeFoundResource, boolean returnNullIfNotFound) {
         Set<PythonSourceFolder> sourceFolders = getProjectSourceFolders(object);
@@ -144,7 +147,10 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
         return f;
     }
 
-    
+    /**
+     * @param object: the resource we're interested in
+     * @return a set with the PythonSourceFolder that exist in the project that contains it
+     */
     protected Set<PythonSourceFolder> getProjectSourceFolders(IResource object) {
         Set<PythonSourceFolder> sourceFolder = projectToSourceFolders.get(object.getProject());
         if(sourceFolder == null){
@@ -154,6 +160,14 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
         return sourceFolder;
     }
     
+    /**
+     * @return whether there are children for the given element. Note that there is 
+     * an optimization in this method, so that it works correctly for elements that 
+     * are not python files, and returns true if it is a python file with any content
+     * (even if that content does not actually map to a node. 
+     * 
+     * @see org.eclipse.ui.model.BaseWorkbenchContentProvider#hasChildren(java.lang.Object)
+     */
     public boolean hasChildren(Object element) {
         if(element instanceof PythonFile){
             PythonFile f = (PythonFile) element;
@@ -181,7 +195,13 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
 
 
     /**
-     * @return the children for some element
+     * The inputs for this method are:
+     * 
+     * IWorkingSet (in which case it will return the projects -- IResource -- that are a part of the working set)
+     * IResource (in which case it will return IWrappedResource or IResources)
+     * IWrappedResource (in which case it will return IWrappedResources)
+     * 
+     * @return the children for some element (IWrappedResource or IResource)
      */
     public Object[] getChildren(Object parentElement) {
         
@@ -193,112 +213,137 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
         
         Object[] childrenToReturn = null;
         
-        //------------------------------------------- get some common resources (project and nature)
-        IProject project = null;
-        PythonNature nature = null;
         if(parentElement instanceof IWrappedResource){
-            IWrappedResource childRes = (IWrappedResource) parentElement;
-            Object obj = childRes.getActualObject();
-            if(obj instanceof IResource){
-                IResource resource = (IResource) obj;
-                project = resource.getProject();
+            // we're below some python model
+            childrenToReturn = getChildrenForIWrappedResource((IWrappedResource) parentElement);
+            
+            
+        } else if(parentElement instanceof IResource){
+            // now, this happens if we're not below a python model(so, we may only find a source folder here)
+            childrenToReturn = getChildrenForIResource((IResource) parentElement);
+        }
+        
+        if(childrenToReturn == null){
+            return EMPTY;
+        }
+        return childrenToReturn;
+    }
+
+    /**
+     * @param parentElement an IResource from where we want to get the children.
+     *  
+     * @return as we're not below a source folder here, we have still not entered the 'python' domain,
+     * and as the starting point for the 'python' domain is always a source folder, the things
+     * that can be returned are IResources and PythonSourceFolders.
+     */
+    private Object[] getChildrenForIResource(IResource parentElement) {
+        PythonNature nature = null;
+        IProject project = parentElement.getProject();
+        
+        //we can only get the nature if the project is open
+        if(project != null && project.isOpen()){
+            nature = PythonNature.getPythonNature(project);
+        }
+        
+        //replace folders -> source folders (we should only get here on a path that's not below a source folder)
+        Object[] childrenToReturn = super.getChildren(parentElement);
+        
+        if(nature != null){
+            //if we don't have a python nature in this project, there is no way we can have a PythonSourceFolder
+            Object[] ret = new Object[childrenToReturn.length];
+            for (int i=0; i < childrenToReturn.length; i++) {
+                
+                //now, first we have to try to get it (because it might already be created)
+                Object object = getResourceInPythonModel((IResource) childrenToReturn[i]);
+                ret[i] = object;
+                
+                //if it is a folder (that is not already a PythonSourceFolder, it might be that we have to create a PythonSourceFolder)
+                if (object instanceof IFolder && !(object instanceof PythonSourceFolder)) {
+                    IFolder folder = (IFolder) object;
+                    
+                    try {
+                        //check if it is a source folder (and if it is, create it) 
+                        Set<String> sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet();
+                        IPath fullPath = folder.getFullPath();
+                        if(sourcePathSet.contains(fullPath.toString())){
+                            ret[i] = new PythonSourceFolder(parentElement, folder);
+                            Set<PythonSourceFolder> sourceFolders = getProjectSourceFolders(parentElement);
+                            sourceFolders.add((PythonSourceFolder) ret[i]);
+                        }
+                    } catch (CoreException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+            childrenToReturn = ret;
+        }
+        return childrenToReturn;
+    }
+
+    /**
+     * @param wrappedResourceParent: this is the parent that is an IWrappedResource (which means
+     * that children will also be IWrappedResources)
+     * 
+     * @return the children (an array of IWrappedResources)
+     */
+    private Object[] getChildrenForIWrappedResource(IWrappedResource wrappedResourceParent) {
+        //------------------------------------------------------------------- get python nature 
+        PythonNature nature = null;
+        Object[] childrenToReturn = null;
+        Object obj = wrappedResourceParent.getActualObject();
+        IProject project = null;
+        if(obj instanceof IResource){
+            IResource resource = (IResource) obj;
+            project = resource.getProject();
+            if(project != null && project.isOpen()){
                 nature = PythonNature.getPythonNature(project);
             }
-            //--------------------------------------------------- treat things from the python model
+        }
+        
+        //------------------------------------------------------------------- treat python nodes 
+        if (wrappedResourceParent instanceof PythonNode) {
+            PythonNode node = (PythonNode) wrappedResourceParent;
+            childrenToReturn = getChildrenFromParsedItem(wrappedResourceParent, node.entry, node.pythonFile);
+           
             
             
             
-            
-            //------------------------------------------------------------------- treat python nodes 
-            if (parentElement instanceof PythonNode) {
-                PythonNode node = (PythonNode) parentElement;
-                childrenToReturn = getChildrenFromParsedItem(parentElement, node.entry, node.pythonFile);
-               
-                
-                
-                
-            //------------------------------------- treat python files (add the classes/methods,etc)
-            }else if (parentElement instanceof PythonFile) {
-                // if it's a file, we want to show the classes and methods
-                PythonFile file = (PythonFile) parentElement;
-                if (PythonPathHelper.isValidSourceFile(file.getActualObject())) {
+        //------------------------------------- treat python files (add the classes/methods,etc)
+        }else if (wrappedResourceParent instanceof PythonFile) {
+            // if it's a file, we want to show the classes and methods
+            PythonFile file = (PythonFile) wrappedResourceParent;
+            if (PythonPathHelper.isValidSourceFile(file.getActualObject())) {
 
-                    if (nature != null) {
-                        ICodeCompletionASTManager astManager = nature.getAstManager();
-                        //the nature may still not be restored...
-                        if(astManager != null){
-                            IModulesManager modulesManager = astManager.getModulesManager();
-    
-                            if (modulesManager instanceof ProjectModulesManager) {
-                                ProjectModulesManager projectModulesManager = (ProjectModulesManager) modulesManager;
-                                String moduleName = projectModulesManager.resolveModuleInDirectManager(file.getActualObject(), project);
-                                if (moduleName != null) {
-                                    IModule module = projectModulesManager.getModuleInDirectManager(moduleName, nature, true);
-                                    if (module instanceof SourceModule) {
-                                        SourceModule sourceModule = (SourceModule) module;
-    
-                                        OutlineCreatorVisitor visitor = OutlineCreatorVisitor.create(sourceModule.getAst());
-                                        ParsedItem root = new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0]));
-                                        childrenToReturn = getChildrenFromParsedItem(parentElement, root, file);
-                                    }
+                if (nature != null) {
+                    ICodeCompletionASTManager astManager = nature.getAstManager();
+                    //the nature may still not be completely restored...
+                    if(astManager != null){
+                        IModulesManager modulesManager = astManager.getModulesManager();
+   
+                        if (modulesManager instanceof ProjectModulesManager) {
+                            ProjectModulesManager projectModulesManager = (ProjectModulesManager) modulesManager;
+                            String moduleName = projectModulesManager.resolveModuleInDirectManager(file.getActualObject(), project);
+                            if (moduleName != null) {
+                                IModule module = projectModulesManager.getModuleInDirectManager(moduleName, nature, true);
+                                if (module instanceof SourceModule) {
+                                    SourceModule sourceModule = (SourceModule) module;
+   
+                                    OutlineCreatorVisitor visitor = OutlineCreatorVisitor.create(sourceModule.getAst());
+                                    ParsedItem root = new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0]));
+                                    childrenToReturn = getChildrenFromParsedItem(wrappedResourceParent, root, file);
                                 }
                             }
                         }
                     }
                 }
             }
-            
-            
-            //------------------------------------------------------------- treat folders and others
-            else{
-                Object[] children = super.getChildren(childRes.getActualObject());
-                childrenToReturn = wrapChildren(childRes, childRes.getSourceFolder(), children);
-            }
-            
-
-            
-            
-        // now, this happens if we're not below a python model(so, we may only find a source folder here)
-        } else if(parentElement instanceof IResource){
-            IResource resource = (IResource) parentElement;
-            project = resource.getProject();
-            
-            //we can only get the nature if the project is open
-            if(project != null && project.isOpen()){
-                nature = PythonNature.getPythonNature(project);
-            }
-            
-            //replace folders -> source folders (we should only get here on a path that's not below a source folder)
-            childrenToReturn = super.getChildren(parentElement);
-            if(nature != null){
-                Object[] ret = new Object[childrenToReturn.length];
-                for (int i=0; i < childrenToReturn.length; i++) {
-                    Object object = getResourceInPythonModel((IResource) childrenToReturn[i]);
-                    ret[i] = object;
-                    if (object instanceof IFolder && !(object instanceof PythonSourceFolder)) {
-                        IFolder folder = (IFolder) object;
-                        
-                        try {
-                            //check for source folder
-                            Set<String> sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet();
-                            IPath fullPath = folder.getFullPath();
-                            if(sourcePathSet.contains(fullPath.toString())){
-                                ret[i] = new PythonSourceFolder(parentElement, folder);
-                                //System.out.println("Created source folder: "+ret[i]+" - "+folder.getProject()+" - "+folder.getProjectRelativePath());
-                                Set<PythonSourceFolder> sourceFolders = getProjectSourceFolders(resource);
-                                sourceFolders.add((PythonSourceFolder) ret[i]);
-                            }
-                        } catch (CoreException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }
-                childrenToReturn = ret;
-            }
         }
         
-        if(childrenToReturn == null){
-            return EMPTY;
+        
+        //------------------------------------------------------------- treat folders and others
+        else{
+            Object[] children = super.getChildren(wrappedResourceParent.getActualObject());
+            childrenToReturn = wrapChildren(wrappedResourceParent, wrappedResourceParent.getSourceFolder(), children);
         }
         return childrenToReturn;
     }

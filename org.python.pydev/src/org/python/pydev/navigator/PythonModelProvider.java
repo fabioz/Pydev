@@ -34,51 +34,82 @@ import org.python.pydev.plugin.nature.PythonNature;
 public class PythonModelProvider extends PythonBaseModelProvider implements IPipelinedTreeContentProvider {
 
     /**
-     * This method 
+     * This method basically replaces all the elements for other resource elements
+     * or for wrapped elements.
+     *  
      * @see org.eclipse.ui.navigator.IPipelinedTreeContentProvider#getPipelinedChildren(java.lang.Object, java.util.Set)
      */
     @SuppressWarnings("unchecked")
     public void getPipelinedChildren(Object parent, Set currentElements) {
         Object[] children = getChildren(parent);
-        for (Iterator iter = currentElements.iterator(); iter.hasNext();){
-            Object next = iter.next();
-            if (next instanceof IResource && !(next instanceof IWrappedResource)){
-                iter.remove();
-            }
-        }
+        currentElements.clear();
         currentElements.addAll(Arrays.asList(children));
     }
 
+    /**
+     * This method basically replaces all the elements for other resource elements
+     * or for wrapped elements.
+     * 
+     * @see org.eclipse.ui.navigator.IPipelinedTreeContentProvider#getPipelinedElements(java.lang.Object, java.util.Set)
+     */
     @SuppressWarnings("unchecked")
     public void getPipelinedElements(Object input, Set currentElements) {
         Object[] children = getElements(input);
-
-        for (Iterator iter = currentElements.iterator(); iter.hasNext();){
-            Object next = iter.next();
-            if (next instanceof IResource && !(next instanceof IWrappedResource)){
-                iter.remove();
-            }
-        }
-
+        currentElements.clear();
         currentElements.addAll(Arrays.asList(children));
     }
 
+    /**
+     * This method basically get the actual parent for the resource or the parent 
+     * for a wrapped element.
+     * 
+     * @see org.eclipse.ui.navigator.IPipelinedTreeContentProvider#getPipelinedParent(java.lang.Object, java.lang.Object)
+     */
     public Object getPipelinedParent(Object object, Object aSuggestedParent) {
         return getParent(object);
     }
 
+    /**
+     * This method intercepts some addition to the tree and converts its elements to python 
+     * elements.
+     * 
+     * @see org.eclipse.ui.navigator.IPipelinedTreeContentProvider#interceptAdd(org.eclipse.ui.navigator.PipelinedShapeModification)
+     */
     public PipelinedShapeModification interceptAdd(PipelinedShapeModification addModification) {
         convertToPythonElements(addModification, true);
         return addModification;
     }
+    
+    public boolean interceptRefresh(PipelinedViewerUpdate refreshSynchronization) {
+        return convertToPythonElements(refreshSynchronization.getRefreshTargets());
+    }
+
+    public PipelinedShapeModification interceptRemove(PipelinedShapeModification removeModification) {
+        convertToPythonElements(removeModification, false);
+        return removeModification;
+    }
+
+    public boolean interceptUpdate(PipelinedViewerUpdate updateSynchronization) {
+        return convertToPythonElements(updateSynchronization.getRefreshTargets());
+    }
+
+    public void init(ICommonContentExtensionSite aConfig) {
+    }
+
+    public void restoreState(IMemento aMemento) {
+    }
+
+    public void saveState(IMemento aMemento) {
+    }
+
 
     /**
      * Converts the shape modification to use Python elements.
      * 
-     * @param modification the shape modification to convert
+     * @param modification: the shape modification to convert
+     * @param isAdd: boolean indicating whether this convertion is happening in an add operation 
      */
     private void convertToPythonElements(PipelinedShapeModification modification, boolean isAdd) {
-
         Object parent = modification.getParent();
         if (parent instanceof IContainer) {
             Object pythonParent = getResourceInPythonModel((IResource) parent, true);
@@ -184,26 +215,5 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
     }
 
     
-    public boolean interceptRefresh(PipelinedViewerUpdate refreshSynchronization) {
-        return convertToPythonElements(refreshSynchronization.getRefreshTargets());
-    }
-
-    public PipelinedShapeModification interceptRemove(PipelinedShapeModification removeModification) {
-        convertToPythonElements(removeModification, false);
-        return removeModification;
-    }
-
-    public boolean interceptUpdate(PipelinedViewerUpdate updateSynchronization) {
-        return convertToPythonElements(updateSynchronization.getRefreshTargets());
-    }
-
-    public void init(ICommonContentExtensionSite aConfig) {
-    }
-
-    public void restoreState(IMemento aMemento) {
-    }
-
-    public void saveState(IMemento aMemento) {
-    }
 
 }
