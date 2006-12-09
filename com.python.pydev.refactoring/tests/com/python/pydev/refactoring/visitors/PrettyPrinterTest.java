@@ -5,9 +5,11 @@ package com.python.pydev.refactoring.visitors;
 
 import java.io.IOException;
 
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.TryFinally;
 
 public class PrettyPrinterTest extends PyParserTestBase{
 
@@ -17,13 +19,31 @@ public class PrettyPrinterTest extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testComment3();
+            test.testTryFinallyBeginNode();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    public void testTryFinallyBeginNode() throws Exception {
+        doTryFinallyBeginNode(IPythonNature.GRAMMAR_PYTHON_VERSION_2_4);
+        doTryFinallyBeginNode(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
+    }
+    
+    public void doTryFinallyBeginNode(int version) throws Exception {
+        String str = "" +
+                "try:\n" +
+                "    a = 1\n" +
+                "finally:\n" +
+                "    pass\n" +
+                "";
+        SimpleNode node = checkPrettyPrintEqual(str);
+        Module m = (Module) node;
+        SimpleNode f = (SimpleNode) m.body[0];
+        assertEquals(1, f.beginLine);
     }
     
     public void test25If() throws Exception {
@@ -1264,24 +1284,26 @@ public class PrettyPrinterTest extends PyParserTestBase{
         prefs = new PrettyPrinterPrefs("\n");
     }
 
-    public void checkPrettyPrintEqual(String s, String expected) throws Exception, IOException {
-        checkPrettyPrintEqual(s, prefs, expected);
+    public SimpleNode checkPrettyPrintEqual(String s, String expected) throws Exception, IOException {
+        return checkPrettyPrintEqual(s, prefs, expected);
         
     }
-    public void checkPrettyPrintEqual(String s) throws Exception, IOException {
-        checkPrettyPrintEqual(s, s);
+    public SimpleNode checkPrettyPrintEqual(String s) throws Exception, IOException {
+        return checkPrettyPrintEqual(s, s);
     }
     
     /**
      * @param s
+     * @return 
      * @throws Exception
      * @throws IOException
      */
-    public static void checkPrettyPrintEqual(String s, PrettyPrinterPrefs prefs, String expected) throws Exception, IOException {
+    public static SimpleNode checkPrettyPrintEqual(String s, PrettyPrinterPrefs prefs, String expected) throws Exception, IOException {
         SimpleNode node = parseLegalDocStr(s);
         final WriterEraser stringWriter = makePrint(prefs, node);
 
         assertEquals(expected, stringWriter.getBuffer().toString());
+        return node;
     }
 
     /**
