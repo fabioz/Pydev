@@ -34,6 +34,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
@@ -252,13 +253,19 @@ public abstract class PyRefactorAction extends PyAction {
             new Job("Performing: "+action.getClass().getName()){
 
                 @Override
-                protected IStatus run(IProgressMonitor monitor) {
-                    try{
-                        Operation o = new Operation(null, action);
-                        o.execute(monitor);
-                    } catch (Exception e) {
-                        PydevPlugin.log(e);
-                    }
+                protected IStatus run(final IProgressMonitor monitor) {
+                    RunInUiThread.sync(new Runnable(){
+
+                        public void run() {
+                            try{
+                                Operation o = new Operation(null, action);
+                                o.execute(monitor);
+                            } catch (Exception e) {
+                                PydevPlugin.log(e);
+                            }
+                        }
+                        
+                    });
                     return Status.OK_STATUS;
                 }
                 

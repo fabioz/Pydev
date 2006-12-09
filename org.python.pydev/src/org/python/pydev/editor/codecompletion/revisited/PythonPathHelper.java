@@ -151,8 +151,9 @@ public class PythonPathHelper implements Serializable{
         return false;
     }
     
-    private final static String[] DOTTED_VALID_SOURCE_FILES = new String[]{".py", ".pyw"};
-    private final static String[] VALID_SOURCE_FILES = new String[]{"py", "pyw"};
+    public final static String[] WILDCARD_VALID_SOURCE_FILES = new String[]{"*.py", "*.pyw"};
+    public final static String[] DOTTED_VALID_SOURCE_FILES = new String[]{".py", ".pyw"};
+    public final static String[] VALID_SOURCE_FILES = new String[]{"py", "pyw"};
     
     public final static String[] getDottedValidSourceFiles() {
     	return DOTTED_VALID_SOURCE_FILES;

@@ -63,6 +63,9 @@ public class RefactoringRequest{
      */
 	public String moduleName;
     
+    /**
+     * Information acquired during the refactoring process -- see class for more info.
+     */
     public DuringProcessInfo duringProcessInfo;
     
     /**
@@ -89,7 +92,10 @@ public class RefactoringRequest{
         
     }
 
-
+    /**
+     * Default constructor... the user is responsible for filling the needed information
+     * later.
+     */
     public RefactoringRequest() {
     }
     

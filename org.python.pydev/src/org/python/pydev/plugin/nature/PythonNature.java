@@ -618,6 +618,26 @@ public class PythonNature implements IPythonNature {
     	return getModuleNameForResource(absPath, p) != null; 
     }
     
+    /**
+     * Resolve the module given the absolute path of the file in the filesystem.
+     * 
+     * @param fileAbsolutePath the absolute file path
+     * @return the module name
+     */
+    public String resolveModule(String fileAbsolutePath) {
+        String moduleName = null;
+        
+        if(astManager != null){
+            moduleName = astManager.getModulesManager().resolveModule(fileAbsolutePath);
+        }
+        return moduleName;
+        
+    }
+    
+    /**
+     * Resolve the module name for a given file 
+     * @see org.python.pydev.core.IPythonNature#resolveModule(java.io.File)
+     */
     public String resolveModule(File file) {
     	String moduleName = null;
     	

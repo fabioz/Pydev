@@ -15,6 +15,8 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.docutils.PySelection;
@@ -32,7 +34,13 @@ import org.python.pydev.plugin.PydevPrefs;
 public abstract class PyAction implements IEditorActionDelegate {
 
     public static Shell getShell() {
-        return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+        IWorkbench workbench = PlatformUI.getWorkbench();
+        IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
+        if(activeWorkbenchWindow == null){
+            PydevPlugin.log("Error. Not currently with thread access (so, there is no activeWorkbenchWindow available)");
+            return null;
+        }
+        return activeWorkbenchWindow.getShell();
     }
     
 
