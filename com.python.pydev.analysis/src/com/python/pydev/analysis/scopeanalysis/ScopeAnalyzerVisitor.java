@@ -45,7 +45,6 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 
     private String completeNameToFind="";
     private String nameToFind="";
-	private PySelection ps;
 	private List<Tuple3<Found, Integer, ASTEntry>> foundOccurrences = new ArrayList<Tuple3<Found, Integer, ASTEntry>>();
 	private FastStack<ASTEntry> parents; //initialized on demand
 	
@@ -62,22 +61,35 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 	private Found hitAsUndefined = null;
 	
 	private boolean finished = false;
+    private int currLine;
+    private int currCol;
 
+    /**
+     * Constructor when we have a PySelection object
+     * @throws BadLocationException
+     */
 	public ScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current,  
-            IDocument document, IProgressMonitor monitor, PySelection ps) {
-        super(nature, moduleName, current, document, monitor);
+	        IDocument document, IProgressMonitor monitor, PySelection ps) throws BadLocationException {
+        this(nature, moduleName, current, document, monitor, ps.getCurrToken().o1, 
+                ps.getAbsoluteCursorOffset(), ps.getActivationTokenAndQual(true));
         
-        try {
-			Tuple<String, Integer> currToken = ps.getCurrToken();
-			nameToFind = currToken.o1;
-			
-			String[] tokenAndQual = ps.getActivationTokenAndQual(true);
-			completeNameToFind = tokenAndQual[0]+tokenAndQual[1];
-			
-		} catch (BadLocationException e) {
-			Log.log(e);
-		}
-		this.ps = ps;
+    }
+    
+    /**
+     * Base constructor (when a PySelection is not available)
+     * @throws BadLocationException 
+     */
+	public ScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current,  
+            IDocument document, IProgressMonitor monitor, String pNameToFind, int absoluteCursorOffset,
+            String[] tokenAndQual) throws BadLocationException {
+        
+        super(nature, moduleName, current, document, monitor);
+        IRegion region = document.getLineInformationOfOffset(absoluteCursorOffset);
+        currLine = document.getLineOfOffset(absoluteCursorOffset);
+        currCol = absoluteCursorOffset - region.getOffset();
+
+		nameToFind = pNameToFind;
+		completeNameToFind = tokenAndQual[0]+tokenAndQual[1];
     }
 
 
@@ -268,12 +280,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 		}
 		List<GenAndTok> all = found.getAll();
 		
-		int absoluteCursorOffset = ps.getAbsoluteCursorOffset();
 		try {
-			IRegion region = document.getLineInformationOfOffset(absoluteCursorOffset);
-			int currLine = document.getLineOfOffset(absoluteCursorOffset);
-			int currCol = absoluteCursorOffset - region.getOffset();
-			
 			for (GenAndTok gen : all) {
 				for (IToken tok2 : gen.getAllTokens()) {
 					if(checkToken(found, currLine, currCol, tok2, parent)){
@@ -388,8 +395,8 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 				}
 				plus += string.length()+1; //len + dot
 			}
-			nameAst.beginColumn = AbstractMessage.getStartCol(token, ps.getDoc())+plus;
-			nameAst.beginLine = AbstractMessage.getStartLine(token, ps.getDoc());
+			nameAst.beginColumn = AbstractMessage.getStartCol(token, document)+plus;
+			nameAst.beginLine = AbstractMessage.getStartLine(token, document);
             Tuple3<String, Integer, Integer> t = new Tuple3<String, Integer, Integer>(nameToFind, nameAst.beginColumn, nameAst.beginLine);
             if (!s.contains(t)){
                 s.add(t);

@@ -117,7 +117,7 @@ public class PyRenameProcessor extends RenameProcessor {
             return status;
         }
         
-        if(! DocUtils.isWord(request.duringProcessInfo.name)){
+        if(request.duringProcessInfo.name != null && ! DocUtils.isWord(request.duringProcessInfo.name)){
             status.addFatalError("The new name is not valid:"+request.duringProcessInfo.name);
             return status;
         }
@@ -182,9 +182,11 @@ public class PyRenameProcessor extends RenameProcessor {
         return fChange;
     }
 
+    static RefactoringParticipant[] EMPTY_REFACTORING_PARTICIPANTS = new RefactoringParticipant[0];
+    
     @Override
     public RefactoringParticipant[] loadParticipants(RefactoringStatus status, SharableParticipants sharedParticipants) throws CoreException {
-        return null; // no participants are loaded
+        return EMPTY_REFACTORING_PARTICIPANTS; // no participants are loaded
     }
 
     public List<ASTEntry> getOcurrences() {

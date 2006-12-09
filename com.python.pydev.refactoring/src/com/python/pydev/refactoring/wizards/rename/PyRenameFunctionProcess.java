@@ -101,19 +101,16 @@ public class PyRenameFunctionProcess extends AbstractRenameRefactorProcess{
     
 
     protected void checkInitialOnLocalScope(RefactoringStatus status, RefactoringRequest request) {
-        Tuple<String, IDocument> key = new Tuple<String, IDocument>(request.moduleName, request.doc);
         SimpleNode root = request.getAST();
-        List<ASTEntry> ocurrences;
         
         if(!definition.module.getName().equals(request.moduleName)){
         	//it was found in another module
-        	ocurrences = ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, root, false);
+            docOccurrences.addAll(ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, root, false));
         	
         }else{
-            ocurrences = getLocalOcurrences(request.duringProcessInfo.initialName, root, status);
+            docOccurrences.addAll( getLocalOcurrences(request.duringProcessInfo.initialName, root, status));
         }
         
-        occurrences.put(key, ocurrences);
     }
 
 }

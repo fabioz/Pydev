@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
@@ -54,7 +55,8 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
      * key: tuple with module name and the document representing that module
      * value: list of ast entries to be replaced
      */
-    protected Map<Tuple<String, IDocument>, List<ASTEntry>> occurrences;
+    protected List<ASTEntry> docOccurrences = new ArrayList<ASTEntry>();
+    protected Map<Tuple<String, IFile>, List<ASTEntry>> fileOccurrences;
 
     /**
      * @param definition the definition on where this rename should be applied (we will find the references based 
@@ -62,7 +64,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
      */
     public AbstractRenameRefactorProcess(Definition definition){
         this.definition = definition;
-        occurrences = new HashMap<Tuple<String,IDocument>, List<ASTEntry>>();
+        fileOccurrences = new HashMap<Tuple<String,IFile>, List<ASTEntry>>();
     }
     
     /**
@@ -73,10 +75,19 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
      * @param oc the occurrences to add
      */
     protected void addOccurrences(RefactoringRequest request, List<ASTEntry> oc) {
-        Tuple<String, IDocument> key = new Tuple<String, IDocument>(request.moduleName, request.doc);
-        List<ASTEntry> existent = occurrences.get(key);
+        docOccurrences.addAll(oc);
+    }
+
+    /**
+     * @param oc
+     * @param doc
+     * @param modName
+     */
+    protected void addOccurrences(List<ASTEntry> oc, IFile doc, String modName) {
+        Tuple<String, IFile> key = new Tuple<String, IFile>(modName, doc);
+        List<ASTEntry> existent = fileOccurrences.get(key);
         if(existent == null){
-        	occurrences.put(key, oc);
+        	fileOccurrences.put(key, oc);
         }else{
         	existent.addAll(oc);
         }
@@ -138,7 +149,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
      */
     public void checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context, RefactoringStatus status, CompositeChange fChange) {
         DocumentChange docChange = new DocumentChange("RenameChange: "+request.duringProcessInfo.name, request.doc);
-        if(occurrences == null){
+        if(docOccurrences.size() == 0){
             status.addFatalError("No occurrences found.");
             return;
         }
@@ -147,7 +158,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
         docChange.setEdit(rootEdit);
         docChange.setKeepPreviewEdits(true);
 
-        for (Tuple<TextEdit, String> t : getAllRenameEdits()) {
+        for (Tuple<TextEdit, String> t : getAllRenameEdits(docOccurrences)) {
             rootEdit.addChild(t.o1);
             docChange.addTextEditGroup(new TextEditGroup(t.o2, t.o1));
         }
@@ -165,17 +176,9 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
      * @return true if all is ok and false otherwise
      */
     protected boolean occurrencesValid(RefactoringStatus status){
-        if(occurrences.size() == 0){
-            status.addFatalError("No occurrences searched for:"+request.duringProcessInfo.initialName);
+        if(docOccurrences.size() == 0){
+            status.addFatalError("No occurrences found for:"+request.duringProcessInfo.initialName);
             return false;
-        }
-        
-        for(Iterator<List<ASTEntry>> it = occurrences.values().iterator(); it.hasNext();){
-            List<ASTEntry> entries = it.next();
-            if(entries.size() == 0){
-                status.addFatalError("Could not find any occurrences of:"+request.duringProcessInfo.initialName);
-                return false;
-            }
         }
         return true;
     }
@@ -186,16 +189,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
      * @see com.python.pydev.refactoring.wizards.IRefactorProcess#getOcurrences()
      */
     public List<ASTEntry> getOcurrences() {
-        if(occurrences == null){
-            return null;
-        }
-        if(occurrences.size() > 1){
-            throw new RuntimeException("This interface cannot get the occurrences for multiple modules.");
-        }
-        if(occurrences.size() == 1){
-            return occurrences.values().iterator().next();
-        }
-        return null;
+        return docOccurrences;
     }
 
     
@@ -207,9 +201,10 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
 		List<ASTEntry> entryOccurrences = new ArrayList<ASTEntry>();
     	
         IModule module = request.getModule();
-		ScopeAnalyzerVisitor visitor = new ScopeAnalyzerVisitor(request.nature, request.moduleName, 
-        		module, request.doc, new NullProgressMonitor(), request.ps);
         try {
+            ScopeAnalyzerVisitor visitor = new ScopeAnalyzerVisitor(request.nature, request.moduleName, 
+                    module, request.doc, new NullProgressMonitor(), request.ps);
+            
 			request.getAST().accept(visitor);
 			entryOccurrences = visitor.getEntryOccurrences();
 		} catch (Exception e) {
