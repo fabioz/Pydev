@@ -211,7 +211,7 @@ class WriterThread(PyDBDaemonThread):
                 try:
                     cmd = self.cmdQueue.get(1)
                 except:
-                    pydevd_log(0, 'Finishing debug communication...(1)')
+                    #pydevd_log(0, 'Finishing debug communication...(1)')
                     #when liberating the thread here, we could have errors because we were shutting down
                     #but the thread was still not liberated
                     return

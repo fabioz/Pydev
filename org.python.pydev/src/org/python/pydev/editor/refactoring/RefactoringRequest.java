@@ -130,7 +130,7 @@ public class RefactoringRequest{
 	 */
 	public String resolveModule(){
 		if(moduleName == null){
-			if (file != null){
+			if (file != null && nature != null){
 				moduleName = nature.resolveModule(file);
 			}
 		}

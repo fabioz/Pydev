@@ -1,3 +1,25 @@
+after 1.2.5
+
+Pydev:
+<ul>
+	<li>Pydev package explorer
+		<ul>
+			<li>Filters for .pyc and .pyo files created</li>
+			<li>Working set integration added (just available for Eclipse <strong>3.2.1</strong></li>
+			<li>Some minor bugs fixed</li>
+		</ul>
+	</li>
+	<li>Fixed: When a file from a project that was deleted was still opened inside pydev, Eclipse would not start-up correctly</li>
+	<li>Minor fixes in the grammar</li>
+</ul>
+
+Extensions:
+
+<ul>
+	<li>Fix on code analysis on nested list-comprehensions</li>
+</ul>
+	
+
 after 1.2.4
 
 Pydev:

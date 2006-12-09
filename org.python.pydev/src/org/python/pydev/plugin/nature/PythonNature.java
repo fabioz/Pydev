@@ -174,7 +174,7 @@ public class PythonNature implements IPythonNature {
      * @return 
      */
     public static synchronized IPythonNature addNature(IProject project, IProgressMonitor monitor) throws CoreException {
-        if (project == null) {
+        if (project == null || !project.isOpen()) {
             return null;
         }
         if(monitor == null){
@@ -463,7 +463,7 @@ public class PythonNature implements IPythonNature {
      * @return the python nature for a project (or null if it does not exist for the project)
      */
     public static PythonNature getPythonNature(IProject project) {
-        if(project != null){
+        if(project != null && project.isOpen()){
             try {
                 IProjectNature n = project.getNature(PYTHON_NATURE_ID);
                 if(n instanceof PythonNature){

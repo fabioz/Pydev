@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.internal.resources.ResourceException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -123,6 +124,13 @@ public class PyParser {
      * should only be called for testing. does not register as a thread
      */
     public PyParser(IGrammarVersionProvider grammarVersionProvider) {
+        if(grammarVersionProvider == null){
+            grammarVersionProvider = new IGrammarVersionProvider(){
+                public int getGrammarVersion() {
+                    return IPythonNature.LATEST_GRAMMAR_VERSION;
+                }
+            };
+        }
         this.grammarVersionProvider = grammarVersionProvider;
         parserListeners = new ArrayList<IParserObserver>();
         scheduler = new ParserScheduler(this);
@@ -328,6 +336,12 @@ public class PyParser {
         		if(markers.length > 0){
         			original.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
         		}
+        	} catch (ResourceException e) {
+        	    //ok, if it is a resource exception, it may have happened because the resource does not exist anymore
+        	    //so, there is no need to log this failure
+                if(original.exists()){
+                    Log.log(e);
+                }
         	} catch (CoreException e) {
         		Log.log(e);
         	}

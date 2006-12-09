@@ -1000,6 +1000,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      */
     public IPythonNature getPythonNature() {
         IProject project = getProject();
+        if(project == null || !project.isOpen()){
+            return null;
+        }
         IPythonNature pythonNature = PythonNature.getPythonNature(project);
         if(pythonNature == null){
             Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
