@@ -1843,78 +1843,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals(0, msgs.length);
     }
     
-    public void testListComprehension() {
-        doc = new Document(
-                "def m1():\n" +
-                "    print [i for i in range(10)]" 
-        );
-        analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-        
-        printMessages(msgs);
-        assertEquals(0, msgs.length);
-    }
-    
-    public void testListComprehension2() {
-        doc = new Document(
-                "enumeratedDays = ((0, ('monday', 'mon')), (1, ('tuesday', 'tue')))\n" +
-                "print dict((day, index) for index, daysRep in enumeratedDays for day in daysRep)\n"
-        );
-        analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-        
-        printMessages(msgs);
-    }
-    
-    public void testListComprehension3() {
-        doc = new Document(
-                "enumeratedDays = ((0, ('monday', 'mon')), (1, ('tuesday', 'tue')))\n" +
-                "print dict((index) for index, daysRep in (enumeratedDays for day in daysRep))\n"
-        );
-        analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-        
-        printMessages(msgs, 1); 
-        assertEquals("Undefined variable: daysRep", msgs[0].getMessage());
-    }
-    
-    public void testListComprehension3a() {
-        doc = new Document(
-                "enumeratedDays = ((0, ('monday', 'mon')), (1, ('tuesday', 'tue')))\n" +
-                "print dict((day, index) for index, daysRep in (foo for day in enumeratedDays))\n"
-        );
-        analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-        
-        assertEquals(2, msgs.length); 
-        assertContainsMsg("Undefined variable: foo", msgs);
-        assertContainsMsg("Undefined variable: day", msgs);
-    }
-    
-    public void testListComprehension3b() {
-        doc = new Document(
-                "enumeratedDays = ((0, ('monday', 'mon')), (1, ('tuesday', 'tue')))\n" +
-                "print dict((day, index) for index, daysRep in (day for day in enumeratedDays))\n"
-        );//the day from the "(day for day in enumeratedDays)" should not be kept in the scope
-        analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-        
-        printMessages(msgs, 1); 
-        assertEquals("Undefined variable: day", msgs[0].getMessage());
-    }
-    
-    
-    public void testListComprehension4() {
-        doc = new Document(
-                "enumeratedDays = ((0, ('monday', 'mon')), (1, ('tuesday', 'tue')))\n" +
-                "print dict((day, index) for index, daysRep in enumeratedDays for day in bla)\n"
-        );
-        analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-        
-        printMessages(msgs, 1);
-        assertEquals("Undefined variable: bla", msgs[0].getMessage());
-    }
+
     
     public void testUnusedInFor() {
     	doc = new Document(

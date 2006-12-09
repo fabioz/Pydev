@@ -627,6 +627,15 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             return null;
         }
         
+        //then the generators...
+        if (node.generators != null) {
+            for (int i = 0; i < node.generators.length; i++) {
+                if (node.generators[i] != null)
+                    node.generators[i].accept(this);
+            }
+        }
+    
+        
         //we need to take care of 'nested list comprehensions'
         if(node.elt instanceof ListComp){
             //print dict((day, index) for index, daysRep in enumeratedDays for day in daysRep)
@@ -638,13 +647,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             return null;
         }
         
-        if (node.generators != null) {
-            for (int i = 0; i < node.generators.length; i++) {
-                if (node.generators[i] != null)
-                    node.generators[i].accept(this);
-            }
-        }
-    
         if (node.elt != null){
             node.elt.accept(this);
         }

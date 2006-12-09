@@ -9,7 +9,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Module;
-import org.python.pydev.parser.jython.ast.TryFinally;
 
 public class PrettyPrinterTest extends PyParserTestBase{
 
@@ -19,7 +18,7 @@ public class PrettyPrinterTest extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testTryFinallyBeginNode();
+            test.testListComp5();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -27,6 +26,14 @@ public class PrettyPrinterTest extends PyParserTestBase{
             e.printStackTrace();
         }
     }
+    
+    public void testListComp5() throws Exception {
+        String s = 
+            "data = [[1,2,3],[4,5,6]]\n" +
+            "newdata = [[val * 2 for val in lst] for lst in data]\n";
+        checkPrettyPrintEqual(s);
+    }
+    
     
     public void testTryFinallyBeginNode() throws Exception {
         doTryFinallyBeginNode(IPythonNature.GRAMMAR_PYTHON_VERSION_2_4);
