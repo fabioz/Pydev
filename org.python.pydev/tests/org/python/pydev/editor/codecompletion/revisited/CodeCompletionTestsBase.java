@@ -6,7 +6,9 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -55,11 +57,23 @@ public class CodeCompletionTestsBase extends TestCase {
 	 */
 	public static PythonNature nature2;
 	
-	public static Class restored;
-	public static Class restored2;
+    /**
+     * A map with the name of the project pointing to the last class that restored the
+     * nature. This is done in this way because we don't want the nature to be recreated
+     * all the time among tests from the same test case.
+     */
+	public static Map<String, Class> restoredClass = new HashMap<String, Class>();
 	
+    /**
+     * Serves the same purpose that the restoredClass serves, but for the system 
+     * python nature.
+     */
 	public static Class restoredSystem;
 	public Preferences preferences;
+    
+    /**
+     * Whether we want to debug problems in this class.
+     */
     protected static boolean DEBUG_TESTS_BASE = false;
 
 	/*
@@ -81,48 +95,100 @@ public class CodeCompletionTestsBase extends TestCase {
         ProjectModulesManager.IN_TESTS = false;
     }
     
+    /**
+     * Backwards-compatibility interface
+     */
     protected boolean restoreProjectPythonPath(boolean force, String path){
-        if(restored == null || restored != this.getClass() || force){
-            //cache
-            restored = this.getClass();
-            nature = createNature();
-            ProjectStub projectStub = new ProjectStub("testProjectStub", path, new IProject[0], new IProject[0]);
-			nature.setProject(projectStub);
-			projectStub.setNature(nature);
-    	    nature.setAstManager(new ASTManager());
-    	    
-    	    ASTManager astManager = ((ASTManager)nature.getAstManager());
-            astManager.setNature(nature);
-            astManager.setProject(projectStub, false);
-            astManager.changePythonPath(path, projectStub, getProgressMonitor(),null);
+        return restoreProjectPythonPath(force, path, "testProjectStub");
+    }
+    
+    /**
+     * Backwards-compatibility interface
+     */
+    protected boolean restoreProjectPythonPath2(boolean force, String path){
+        return restoreProjectPythonPath2(force, path, "testProjectStub2");
+    }
+    
+    /**
+     * A method that creates the default nature
+     * 
+     * @param force whether the creation of the new nature should be forced
+     * @param path the pythonpath for the new nature
+     * @param name the name for the project
+     * @return true if the creation was needed and false if it wasn't
+     */
+    protected boolean restoreProjectPythonPath(boolean force, String path, String name){
+        PythonNature n = checkNewNature(name, force);
+        if(n != null){
+            nature = n;
+            ProjectStub projectStub = new ProjectStub(name, path, new IProject[0], new IProject[0]);
+            
+            setAstManager(path, projectStub, nature);
             return true;
         }
         return false;
     }
     
-    protected boolean restoreProjectPythonPath2(boolean force, String path){
-    	if(restored2 == null || restored2 != this.getClass() || force){
-    		//cache
-    		restored2 = this.getClass();
-    		nature2 = createNature();
+    /**
+     * A method that creates a project that references the project from the 'default' nature
+     * (and adds itself as a reference in the other project). 
+     * 
+     * @param force whether the creation of the new nature should be forced
+     * @param path the pythonpath for the new nature
+     * @param name the name for the project
+     * @return true if the creation was needed and false if it wasn't
+     */
+    protected boolean restoreProjectPythonPath2(boolean force, String path, String name){
+        PythonNature n = checkNewNature(name, force);
+        if(n != null){
+    		nature2 = n;
             
-    		ProjectStub natureProject = (ProjectStub) nature.getProject();
-            ProjectStub projectStub = new ProjectStub("testProjectStub2", path, new IProject[]{natureProject}, new IProject[0]);
+    		ProjectStub projectFromNature1 = (ProjectStub) nature.getProject();
+            //create a new project referencing the first one
+            ProjectStub projectFromNature2 = new ProjectStub(name, path, new IProject[]{projectFromNature1}, new IProject[0]);
             
             //as we're adding a reference, we also have to set the referencing...
-            natureProject.referencingProjects = new IProject[]{projectStub};
+            projectFromNature1.referencingProjects = new IProject[]{projectFromNature2};
             
-			nature2.setProject(projectStub); //references the project 1
-			projectStub.setNature(nature2);
-    		nature2.setAstManager(new ASTManager());
-    		
-    		ASTManager astManager = ((ASTManager)nature2.getAstManager());
-    		astManager.setNature(nature2);
-    		astManager.setProject(projectStub, false);
-    		astManager.changePythonPath(path, projectStub, getProgressMonitor(),null);
+			setAstManager(path, projectFromNature2, nature2);
     		return true;
     	}
     	return false;
+    }
+    
+    /**
+     * Checks if we have to create a new nature for the given name
+     * 
+     * @param name the name of the project to be checked for the creation of the nature
+     * @param force whether the creation of the new nature should be forced
+     * @return the PythonNature created (if needed) or null if the creation was not needed
+     */
+    protected PythonNature checkNewNature(String name, boolean force){
+        Class restored = CodeCompletionTestsBase.restoredClass.get(name);
+        if(restored == null || restored != this.getClass() || force){
+            //cache
+            CodeCompletionTestsBase.restoredClass.put(name, this.getClass());
+            return createNature();
+        }        
+        return null;
+    }
+
+    /**
+     * This method sets the ast manager for a nature and restores the pythonpath
+     * with the path passed
+     * @param path the pythonpath that shoulb be set for this nature
+     * @param projectStub the project where the nature should be set
+     * @param pNature the nature we're interested in
+     */
+    protected void setAstManager(String path, ProjectStub projectStub, PythonNature pNature) {
+        pNature.setProject(projectStub); //references the project 1
+        projectStub.setNature(pNature);
+        pNature.setAstManager(new ASTManager());
+        
+        ASTManager astManager = ((ASTManager)pNature.getAstManager());
+        astManager.setNature(pNature);
+        astManager.setProject(projectStub, false);
+        astManager.changePythonPath(path, projectStub, getProgressMonitor(),null);
     }
 
     /**
@@ -132,6 +198,9 @@ public class CodeCompletionTestsBase extends TestCase {
         return PydevPlugin.getPythonInterpreterManager();
     }
 
+    /**
+     * @return a PythonNature that is regarded as a python nature with the latest grammar.
+     */
     public static PythonNature createStaticNature() {
         return new PythonNature(){
             @Override
@@ -360,8 +429,11 @@ public class CodeCompletionTestsBase extends TestCase {
     }
     
     /**
-     * @param string
-     * @param codeCompletionProposals
+     * If this method does not find the completion we're looking for, it throws
+     * a failure exception.
+     * 
+     * @param string the string we're looking for 
+     * @param codeCompletionProposals the proposals found
      */
     protected void assertContains(String string, ICompletionProposal[] codeCompletionProposals) {
         for (int i = 0; i < codeCompletionProposals.length; i++) {
@@ -376,8 +448,11 @@ public class CodeCompletionTestsBase extends TestCase {
     }
     
     /**
-     * @param string
-     * @param codeCompletionProposals
+     * If this method does not find the completion we're looking for, it throws
+     * a failure exception.
+     * 
+     * @param string the string we're looking for 
+     * @param codeCompletionProposals the proposals found
      */
     protected void assertNotContains(String string, ICompletionProposal[] codeCompletionProposals) {
     	for (int i = 0; i < codeCompletionProposals.length; i++) {
@@ -400,8 +475,7 @@ public class CodeCompletionTestsBase extends TestCase {
     }
 
     /**
-     * @param codeCompletionProposals
-     * @return
+     * @return StringBuffer with a string representing the array of proposals found.
      */
     protected StringBuffer getAvailableAsStr(ICompletionProposal[] codeCompletionProposals) {
         StringBuffer buffer = new StringBuffer();
