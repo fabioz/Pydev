@@ -7,10 +7,10 @@ package org.python.pydev.core;
 public class TestDependent {
 
     //NOTE: this should be gotten from some variable to point to the python lib (less system dependence, but still, some).
-    public static String PYTHON_EXE="D:/bin/Python24/python.exe";
     public static final String PYTHON_INSTALL="D:/bin/Python24/";
-    public static final String PYTHON_LIB="D:/bin/Python24/Lib/";
-    public static final String PYTHON_SITE_PACKAGES="D:/bin/Python24/Lib/site-packages/";
+    public static String PYTHON_EXE=PYTHON_INSTALL+"python.exe";
+    public static final String PYTHON_LIB=PYTHON_INSTALL+"Lib/";
+    public static final String PYTHON_SITE_PACKAGES=PYTHON_LIB+"site-packages/";
     public static final String PYTHON_WXPYTHON_PACKAGES="D:/bin/Python24/Lib/site-packages/wx-2.6-msw-ansi/";
     public static final String PYTHON_NUMARRAY_PACKAGES="D:/bin/Python24/Lib/site-packages/numarray/";
     

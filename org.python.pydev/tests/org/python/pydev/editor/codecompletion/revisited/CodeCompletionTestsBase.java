@@ -258,7 +258,7 @@ public class CodeCompletionTestsBase extends TestCase {
     /**
      * @return a progress monitor
      */
-    private IProgressMonitor getProgressMonitor() {
+    protected IProgressMonitor getProgressMonitor() {
         if (DEBUG_TESTS_BASE){
             return new PrintProgressMonitor();
         }
