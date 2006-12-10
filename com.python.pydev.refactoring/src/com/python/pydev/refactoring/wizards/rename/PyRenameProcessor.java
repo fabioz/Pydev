@@ -109,6 +109,13 @@ public class PyRenameProcessor extends RenameProcessor {
         return true;
     }
 
+    /**
+     * In this method we have to check the conditions for doing the refactorings
+     * and finding the definition / references that will be affected in the
+     * refactoring. 
+     * 
+     * @see org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor#checkInitialConditions(org.eclipse.core.runtime.IProgressMonitor)
+     */
     @Override
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
         RefactoringStatus status = new RefactoringStatus();

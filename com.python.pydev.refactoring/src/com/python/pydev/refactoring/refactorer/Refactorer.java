@@ -29,7 +29,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
 		return false;
 	}
     public boolean canRename() {
-        return false;
+        return true;
     }
     public boolean canInlineLocalVariable() {
         return false;
