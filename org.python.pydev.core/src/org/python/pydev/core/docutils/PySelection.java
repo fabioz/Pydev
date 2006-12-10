@@ -114,13 +114,17 @@ public class PySelection {
 		this.textSelection = new TextSelection(doc, getAbsoluteCursorOffset(line, col), len);
     }
     
-    public int getAbsoluteCursorOffset(int line, int col) {
+    public static int getAbsoluteCursorOffset(IDocument doc, int line, int col) {
         try {
-            IRegion offsetR = this.doc.getLineInformation(line);
+            IRegion offsetR = doc.getLineInformation(line);
             return offsetR.getOffset() + col;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    public int getAbsoluteCursorOffset(int line, int col) {
+        return getAbsoluteCursorOffset(doc, line, col);
     }
 
     
