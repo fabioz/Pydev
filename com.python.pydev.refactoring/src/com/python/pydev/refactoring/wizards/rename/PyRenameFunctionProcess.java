@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.eclipse.jface.util.Assert;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -28,29 +29,29 @@ import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
  * - on a global scope
  * - in an inner scope (inside of another method)
  */
-public class PyRenameFunctionProcess extends AbstractRenameRefactorProcess{
+public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProcess{
 
     public PyRenameFunctionProcess(Definition definition) {
         super(definition);
         Assert.isTrue(this.definition.ast instanceof FunctionDef);
     }
 
+    /**
+     * This method is the method that should be used to get the occurrences in the same
+     * module where the function is defined.
+     * 
+     * @param occurencesFor the name of the function we're looking for
+     * @param simpleNode the root of the module
+     * @param status if we're unable to find the reference for the function definition in this module,
+     * an error is added to this status.
+     * 
+     * @return a list with the entries with the references (and definition) to the function searched.
+     */
     private List<ASTEntry> getLocalOcurrences(String occurencesFor, SimpleNode simpleNode, RefactoringStatus status) {
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
         
         //get the entry for the function itself
-        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(simpleNode);
-        Iterator<ASTEntry> it = visitor.getIterator(FunctionDef.class);
-        ASTEntry functionDefEntry = null;
-        while(it.hasNext()){
-            functionDefEntry = it.next();
-            
-            if(functionDefEntry.node.beginLine == this.definition.ast.beginLine && 
-                    functionDefEntry.node.beginColumn == this.definition.ast.beginColumn){
-                
-                break;
-            }
-        }
+        ASTEntry functionDefEntry = getOriginalFunctionInAst(simpleNode);
         
         if(functionDefEntry == null){
             status.addFatalError("Unable to find the original definition for the function definition.");
@@ -67,7 +68,7 @@ public class PyRenameFunctionProcess extends AbstractRenameRefactorProcess{
 	        	
 	        	//get the entry for the self.xxx that access that attribute in the class
 				SequencialASTIteratorVisitor classVisitor = SequencialASTIteratorVisitor.create(parentNode);
-		        it = classVisitor.getIterator(Attribute.class);
+                Iterator<ASTEntry> it = classVisitor.getIterator(Attribute.class);
 		        while(it.hasNext()){
 		            ASTEntry entry = it.next();
 		            List<SimpleNode> parts = NodeUtils.getAttributeParts((Attribute) entry.node);
@@ -96,8 +97,32 @@ public class PyRenameFunctionProcess extends AbstractRenameRefactorProcess{
         //get the references to Names that access that method in the same scope
         return ret;
     }
-    
 
+    /**
+     * @param simpleNode this is the module with the AST that has the function definition
+     * @return the function definition that matches the original definition as an ASTEntry
+     */
+    private ASTEntry getOriginalFunctionInAst(SimpleNode simpleNode) {
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(simpleNode);
+        Iterator<ASTEntry> it = visitor.getIterator(FunctionDef.class);
+        ASTEntry functionDefEntry = null;
+        while(it.hasNext()){
+            functionDefEntry = it.next();
+            
+            if(functionDefEntry.node.beginLine == this.definition.ast.beginLine && 
+                    functionDefEntry.node.beginColumn == this.definition.ast.beginColumn){
+                
+                break;
+            }
+        }
+        return functionDefEntry;
+    }
+    
+    /**
+     * Checks the local scope for references.
+     * 
+     * @see com.python.pydev.refactoring.wizards.rename.AbstractRenameRefactorProcess#checkInitialOnLocalScope(org.eclipse.ltk.core.refactoring.RefactoringStatus, org.python.pydev.editor.refactoring.RefactoringRequest)
+     */
     protected void checkInitialOnLocalScope(RefactoringStatus status, RefactoringRequest request) {
         SimpleNode root = request.getAST();
         
@@ -109,6 +134,17 @@ public class PyRenameFunctionProcess extends AbstractRenameRefactorProcess{
             docOccurrences.addAll( getLocalOcurrences(request.duringProcessInfo.initialName, root, status));
         }
         
+    }
+
+    @Override
+    protected List<ASTEntry> getEntryOccurrences(RefactoringStatus status, String initialName, SourceModule module) {
+        SimpleNode root = module.getAst();
+        
+        if(!definition.module.getName().equals(module.getName())){
+            return ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, root, false);
+        }else{
+            return getLocalOcurrences(request.duringProcessInfo.initialName, root, status);
+        }
     }
 
 }

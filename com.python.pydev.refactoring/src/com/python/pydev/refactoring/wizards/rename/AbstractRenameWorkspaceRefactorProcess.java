@@ -1,0 +1,147 @@
+/*
+ * Created on Dec 10, 2006
+ * @author Fabio
+ */
+package com.python.pydev.refactoring.wizards.rename;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.plugin.nature.PythonNature;
+
+/**
+ * This class provides helper methods for finding things in the workspace. 
+ * 
+ * The user is only required to implement {@link #getEntryOccurrences(String, SourceModule)} to
+ * return the available references in the given module.
+ * 
+ * @author Fabio
+ */
+public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRenameRefactorProcess{
+
+    public static final boolean DEBUG_FILTERED_MODULES = false;
+    
+    public AbstractRenameWorkspaceRefactorProcess(Definition definition) {
+        super(definition);
+    }
+    
+    /**
+     * Gets and returns only the occurrences that point to what we're looking for, meaning that
+     * we have to filter out references that may be pointing to some other definition,
+     * and not the one we're actually refering to.
+     * 
+     * @param initialName the name we're looking for
+     * @param module the module we're analyzing right now
+     * @return a list with the references that point to the definition we're renaming. 
+     */
+    protected List<ASTEntry> getOccurrencesInOtherModule(RefactoringStatus status, String initialName, SourceModule module, PythonNature nature) {
+        List<ASTEntry> entryOccurrences = getEntryOccurrences(status, initialName, module);
+        
+        for (Iterator<ASTEntry> iter = entryOccurrences.iterator(); iter.hasNext();) {
+            ASTEntry entry = iter.next();
+            int line = entry.node.beginLine-1;
+            int col = entry.node.beginColumn-1;
+            try {
+                Definition[] definitions = module.findDefinition(new CompletionState(line, col, initialName, nature, ""), line, col, nature, null);
+                for (Definition localDefinition : definitions) {
+                    //if within one module any of the definitions pointed to some class in some other module,
+                    //that means that the tokens in this module actually point to some other class 
+                    //(with the same name), and we can't actually rename them.
+                    String foundModName = localDefinition.module.getName();
+                    if(foundModName != null && !foundModName.equals(this.definition.module.getName())){
+                        if(DEBUG_FILTERED_MODULES){
+                            System.out.println("The entries found on module:"+module.getName()+" had the definition found on module:"+
+                                    foundModName+" and were removed from the elements to be renamed.");
+                            
+                        }
+                        return new ArrayList<ASTEntry>();
+                    }
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            
+        }
+        return entryOccurrences;
+    }
+    
+    /**
+     * Default implementation for checking the tokens in the workspace.
+     * 
+     * @see com.python.pydev.refactoring.wizards.rename.AbstractRenameRefactorProcess#checkInitialOnWorkspace(org.eclipse.ltk.core.refactoring.RefactoringStatus, org.python.pydev.editor.refactoring.RefactoringRequest)
+     */
+    @Override
+    protected void checkInitialOnWorkspace(RefactoringStatus status, RefactoringRequest request) {
+        checkInitialOnLocalScope(status, request);
+        doCheckInitialOnWorkspace(status, request);
+    }
+    
+    /**
+     * This method is made to be used in the checkInitialOnWorkspace implementation.
+     * 
+     * It will find files with possible references in the workspace (from the token
+     * name we're searching) and for each file that maps to a module it will 
+     * call getOccurrencesInOtherModule, and will add those occurrences to
+     * the map with the file pointing to the entries.
+     * 
+     * @param status used to add some error status to the refactoring
+     * @param request the request used for the refactoring
+     */
+    protected void doCheckInitialOnWorkspace(RefactoringStatus status, RefactoringRequest request){
+        try{
+            Set<IFile> references = new HashSet<IFile>(findFilesWithPossibleReferences(request));
+            
+            for (IFile file : references) {
+                IProject project = file.getProject();
+                PythonNature nature = PythonNature.getPythonNature(project);
+                if(nature != null){
+                    ProjectModulesManager modulesManager = (ProjectModulesManager) nature.getAstManager().getModulesManager();
+                    String modName = modulesManager.resolveModuleInDirectManager(file, project);
+                    if(modName != null){
+                        if(!request.moduleName.equals(modName)){
+                            //we've already checked the module from the request...
+                            SourceModule module = (SourceModule) nature.getAstManager().getModule(modName, nature, true, false);
+                            
+                            if(module != null){
+                                List<ASTEntry> entryOccurrences = getOccurrencesInOtherModule(status, request.duringProcessInfo.initialName, module, nature);
+                                if(entryOccurrences.size() > 0){
+                                    addOccurrences(entryOccurrences, file, modName);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        
+    }
+    
+    /**
+     * This method is called for each module that may have some reference to the definition
+     * we're looking for. 
+     * 
+     * It will be called for all the modules but the one in the request (for that one
+     * the checkInitialOnLocalScope is called).
+     * 
+     * @param initialName this is the name of the token we're looking for
+     * @param module this is the module that may contain references to that module
+     * @return a list of entries that are references to the given module.
+     */
+    protected abstract List<ASTEntry> getEntryOccurrences(RefactoringStatus status, String initialName, SourceModule module);
+
+
+}

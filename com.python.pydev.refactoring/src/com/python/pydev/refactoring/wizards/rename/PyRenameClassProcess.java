@@ -5,19 +5,16 @@ package com.python.pydev.refactoring.wizards.rename;
 
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
+import org.eclipse.jface.util.Assert;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
-import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
-import com.python.pydev.refactoring.refactorer.RefactorerFindReferences;
 import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
 
 /**
@@ -27,60 +24,59 @@ import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
  * @see RefactorProcessFactory#getProcess(Definition) for details on choosing the 
  * appropriate process.
  * 
+ * Note that the definition found may map to some module that is not actually
+ * the current module, meaning that we may have a RenameClassProcess even
+ * if the class definition is on some other module.
+ * 
+ * Important: the assumptions that can be made given this are:
+ * - The current module has the token that maps to the definition found (so, it
+ * doesn't need to be double checked)
+ * - The module where the definition was found also does not need double checking
+ * 
+ * - All other modules need double checking if there is some other token in the 
+ * workspace with the same name.
+ * 
  * @author Fabio
  */
-public class PyRenameClassProcess extends AbstractRenameRefactorProcess{
+public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess{
 
+    /**
+     * Do we want to debug?
+     */
+    public static final boolean DEBUG_CLASS_PROCESS = false;
+    
+    /**
+     * Creates the rename class process with a definition.
+     * 
+     * @param definition a definition with a ClassDef.
+     */
     public PyRenameClassProcess(Definition definition) {
         super(definition);
+        Assert.isTrue(this.definition.ast instanceof ClassDef);
     }
 
     /**
      * When checking the class on a local scope, we have to cover the class declaration
      * itself and any access to it (global)
      * 
-     * 
      * @see com.python.pydev.refactoring.wizards.rename.AbstractRenameRefactorProcess#checkInitialOnLocalScope(org.eclipse.ltk.core.refactoring.RefactoringStatus, org.python.pydev.editor.refactoring.RefactoringRequest)
      */
     protected void checkInitialOnLocalScope(RefactoringStatus status, RefactoringRequest request) {
         SimpleNode root = request.getAST();
+        
         List<ASTEntry> oc = ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, root);
-        addOccurrences(request, oc);
-        oc = ScopeAnalysis.getAttributeReferences(request.duringProcessInfo.initialName, root);
+        oc.addAll(ScopeAnalysis.getAttributeReferences(request.duringProcessInfo.initialName, root));
+        
 		addOccurrences(request, oc);
     }
-    
+
     /**
-     * For files that do not have the class declaration, we have to get:
-     * @see com.python.pydev.refactoring.wizards.rename.AbstractRenameRefactorProcess#checkInitialOnWorkspace(org.eclipse.ltk.core.refactoring.RefactoringStatus, org.python.pydev.editor.refactoring.RefactoringRequest)
+     * This method is called for each module that may have some reference to the definition
+     * we're looking for. 
      */
-    protected void checkInitialOnWorkspace(RefactoringStatus status, RefactoringRequest request) {
-        try{
-            checkInitialOnLocalScope(status, request);
-            
-            List<IFile> references = new RefactorerFindReferences().findPossibleReferences(request);
-            for (IFile file : references) {
-                IProject project = file.getProject();
-                PythonNature nature = PythonNature.getPythonNature(project);
-                if(nature != null){
-                    ProjectModulesManager modulesManager = (ProjectModulesManager) nature.getAstManager().getModulesManager();
-                    String modName = modulesManager.resolveModuleInDirectManager(file, project);
-                    if(modName != null){
-                        if(!request.moduleName.equals(modName)){
-                            //we've already checked the module from the request...
-                            SourceModule module = (SourceModule) nature.getAstManager().getModule(modName, nature, true, false);
-                            
-                            List<ASTEntry> entryOccurrences = ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, module.getAst());
-                            addOccurrences(entryOccurrences, file, modName);
-                            
-                            entryOccurrences = ScopeAnalysis.getAttributeReferences(request.duringProcessInfo.initialName, module.getAst());
-                            addOccurrences(entryOccurrences, file, modName);
-                        }
-                    }
-                }
-            }
-        }catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    protected List<ASTEntry> getEntryOccurrences(RefactoringStatus status, String initialName, SourceModule module) {
+        List<ASTEntry> entryOccurrences = ScopeAnalysis.getLocalOcurrences(initialName, module.getAst());
+        entryOccurrences.addAll(ScopeAnalysis.getAttributeReferences(initialName, module.getAst()));
+        return entryOccurrences;
     }
 }

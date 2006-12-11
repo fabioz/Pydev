@@ -1,19 +1,33 @@
 /*
- * Created on Apr 30, 2006
+ * Created on Dec 10, 2006
+ * @author Fabio
  */
 package com.python.pydev.refactoring.refactorer.refactorings.rename;
 
-import org.eclipse.core.runtime.CoreException;
+import java.util.List;
+import java.util.Map;
 
-public class RenameClassRefactoringTest extends RefactoringTestBase {
+import org.python.pydev.parser.visitors.scope.ASTEntry;
+
+import com.python.pydev.refactoring.wizards.rename.PyRenameClassProcess;
+
+
+/**
+ * Class that should test the renaming of classes within a number of modules in
+ * the workspace.
+ * 
+ * @author Fabio
+ */
+public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
 
 
     public static void main(String[] args) {
         try {
-            RenameClassRefactoringTest test = new RenameClassRefactoringTest();
-            test.setUp();
-            test.testRenameClassVar();
-            test.tearDown();
+            DEBUG_REFERENCES = false;
+//            RenameClassRefactoringTest test = new RenameClassRefactoringTest();
+//            test.setUp();
+//            test.testRename1();
+//            test.tearDown();
 
             junit.textui.TestRunner.run(RenameClassRefactoringTest.class);
         } catch (Throwable e) {
@@ -21,27 +35,31 @@ public class RenameClassRefactoringTest extends RefactoringTestBase {
         }
     }
 
-    public void testRenameClass() throws CoreException {
-        String str = "" +
-        "class %s:\n" +
-        "   pass\n" +
-        "print %s\n" +
-        "\n";
-        int line = 2;
-        int col = 8;
-        checkRename(str, line, col, "Foo", false, true);
+    
+    protected Class getProcessUnderTest() {
+        return PyRenameClassProcess.class;
+    }
+
+    
+    public void testRename1() throws Exception {
+        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass.renfoo", 0, 8);
+        assertTrue(references.containsKey("reflib.renameclass.renfoo") == false); //the current module does not have a separated key here
+        assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
+        
+        assertTrue(references.containsKey("reflib.renameclass.__init__") == false);
+        
+        //the modules with a duplicate definition here should not be in the results.
+        assertTrue(references.containsKey("reflib.renameclass.accessdup") == false);
+        assertTrue(references.containsKey("reflib.renameclass.duprenfoo") == false);
+    }
+
+    
+    public void testRename2() throws Exception {
+        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass.accessfoo", 0, 22);
+        assertTrue(references.containsKey("reflib.renameclass.accessfoo") == false); //the current module does not have a separated key here
+        assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
+        assertTrue(references.containsKey("reflib.renameclass.renfoo")); //the module where it is actually defined
     }
     
-    public void testRenameClassVar() throws CoreException {
-    	String str = "" +
-    	"class Foo:\n" +
-    	"    %s = 10\n" +
-    	"    def m1(self):\n" +
-    	"        print self.%s\n" +
-    	"\n" +
-    	"\n" +
-    	"\n";
-    	checkRename(str, 1, 5, "bla", false, true);
-    }
 
 }

@@ -1,10 +1,10 @@
 /*
  * Created on Apr 9, 2006
  */
-package com.python.pydev.refactoring.refactorer.refactorings.rename;
+package com.python.pydev.refactoring.refactorer.refactorings.renamelocal;
 
 
-public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
+public class RenameSelfVariableRefactoringTest extends RefactoringLocalTestBase{
     public static void main(String[] args) {
         try {
             RenameSelfVariableRefactoringTest test = new RenameSelfVariableRefactoringTest();

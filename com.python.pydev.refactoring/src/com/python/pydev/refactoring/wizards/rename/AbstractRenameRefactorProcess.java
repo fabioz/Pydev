@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
@@ -28,11 +29,15 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitor;
+import com.python.pydev.refactoring.refactorer.RefactorerFindReferences;
 import com.python.pydev.refactoring.wizards.IRefactorProcess;
 
 /**
@@ -189,6 +194,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
         throw new RuntimeException("Not implemented search on workspace:"+this.getClass().getName());
     }
     
+
     
     /**
      * In this method, changes from the occurrences found in the current document and 
@@ -265,7 +271,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
     }
     
     /**
-     * Implemented from the super interface. Should only be called when we've looked things in the local scope
+     * Implemented from the super interface. Should return the occurrences from the current document
      *  
      * @see com.python.pydev.refactoring.wizards.IRefactorProcess#getOcurrences()
      */
@@ -273,6 +279,15 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
         return docOccurrences;
     }
 
+    /**
+     * Implemented from the super interface. Should return the occurrences found in other documents
+     * (but should not return the ones found in the current document)
+     * 
+     * @see com.python.pydev.refactoring.wizards.IRefactorProcess#getOccurrencesInOtherFiles()
+     */
+    public Map<Tuple<String, IFile>, List<ASTEntry>> getOccurrencesInOtherFiles() {
+        return this.fileOccurrences;
+    }
     
 
     /**
@@ -295,5 +310,18 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
 		}
 		return entryOccurrences;
 	}
+    
+    /**
+     * This functions tries to find the modules that may have matches for a given request.
+     * 
+     * Note that it may return files that don't actually contain what we're looking for.
+     * 
+     * @param request the rquest for a rename.
+     * @return a list with the files that may contain matches for the refactoring.
+     */
+    protected List<IFile> findFilesWithPossibleReferences(RefactoringRequest request) {
+        return new RefactorerFindReferences().findPossibleReferences(request);
+    }
+
 
 }

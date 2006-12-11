@@ -1,12 +1,12 @@
 /*
  * Created on Mar 1, 2006
  */
-package com.python.pydev.refactoring.refactorer.refactorings.rename;
+package com.python.pydev.refactoring.refactorer.refactorings.renamelocal;
 
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
 
-public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
+public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase {
 
     public static void main(String[] args) {
         try {

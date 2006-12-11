@@ -3,9 +3,9 @@
  */
 package com.python.pydev.refactoring.refactorer.refactorings.extract;
 
-import com.python.pydev.refactoring.refactorer.refactorings.rename.RefactoringTestBase;
+import com.python.pydev.refactoring.refactorer.refactorings.renamelocal.RefactoringLocalTestBase;
 
-public class ExtractMethodTest extends RefactoringTestBase {
+public class ExtractMethodTest extends RefactoringLocalTestBase {
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ExtractMethodTest.class);

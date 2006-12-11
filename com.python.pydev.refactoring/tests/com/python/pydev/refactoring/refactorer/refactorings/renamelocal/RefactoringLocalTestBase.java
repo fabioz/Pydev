@@ -1,7 +1,7 @@
 /*
  * Created on Apr 9, 2006
  */
-package com.python.pydev.refactoring.refactorer.refactorings.rename;
+package com.python.pydev.refactoring.refactorer.refactorings.renamelocal;
 
 import java.util.ArrayList;
 
@@ -23,7 +23,7 @@ import com.python.pydev.refactoring.refactorer.Refactorer;
 import com.python.pydev.refactoring.wizards.extract.PyExtractMethodProcessor;
 import com.python.pydev.refactoring.wizards.rename.PyRenameProcessor;
 
-public class RefactoringTestBase extends CodeCompletionTestsBase {
+public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
     
     private static final boolean DEBUG = false;
 

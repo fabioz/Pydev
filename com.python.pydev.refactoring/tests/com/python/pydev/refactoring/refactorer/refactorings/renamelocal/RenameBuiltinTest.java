@@ -1,7 +1,7 @@
-package com.python.pydev.refactoring.refactorer.refactorings.rename;
+package com.python.pydev.refactoring.refactorer.refactorings.renamelocal;
 
 
-public class RenameBuiltinTest extends RefactoringTestBase {
+public class RenameBuiltinTest extends RefactoringLocalTestBase {
 
 	public static void main(String[] args) {
 		junit.textui.TestRunner.run(RenameBuiltinTest.class);

@@ -31,6 +31,17 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class RefactorerFindReferences {
     
+    /**
+     * If this field is not null, the return will be forced without actually doing
+     * a search in files.
+     * 
+     * This is intended to help in testing features that depend on the search.
+     */
+    public static List<IFile> FORCED_RETURN;
+    
+    /**
+     * class used to configure the input for a text search.
+     */
     private static class PyTextSearchInput extends TextSearchInput {
         
         private final String fSearchText;
@@ -72,6 +83,10 @@ public class RefactorerFindReferences {
      * interested in -- it is just a helper to refine our search).
      */
     public List<IFile> findPossibleReferences(RefactoringRequest request) {
+        if(FORCED_RETURN != null){
+            return FORCED_RETURN;
+        }
+        
         List<IFile> l = new ArrayList<IFile>();
         
         try {

@@ -4,8 +4,11 @@
 package com.python.pydev.refactoring.wizards.rename;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -16,6 +19,7 @@ import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
@@ -75,11 +79,20 @@ import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
  */
 public class PyRenameProcessor extends RenameProcessor {
 
+    /**
+     * This is the request that triggered this processor
+     */
     private RefactoringRequest request;
 
+    /**
+     * The change object as required by the Eclipse Language Toolkit
+     */
     private CompositeChange fChange;
 
-    private List<IRefactorProcess> process;
+    /**
+     * A list of processes that were activated for doing the rename
+     */
+    public List<IRefactorProcess> process;
 
     public PyRenameProcessor(RefactoringRequest request) {
         this.request = request;
@@ -196,6 +209,10 @@ public class PyRenameProcessor extends RenameProcessor {
         return EMPTY_REFACTORING_PARTICIPANTS; // no participants are loaded
     }
 
+    /**
+     * @return the list of occurrences that are found in the current document. 
+     * Does not get the occurrences if they are in other files
+     */
     public List<ASTEntry> getOcurrences() {
         if(process == null || process.size() == 0){
             return null;
@@ -208,6 +225,36 @@ public class PyRenameProcessor extends RenameProcessor {
             }
         }
         return occurrences;
+    }
+    
+    /**
+     * @return a map that points the references found in other files 
+     * Note that this will exclude the references found in this buffer. 
+     */
+    public Map<Tuple<String, IFile>, List<ASTEntry>> getOccurrencesInOtherFiles(){
+        HashMap<Tuple<String, IFile>, List<ASTEntry>> m = new HashMap<Tuple<String, IFile>, List<ASTEntry>>();
+        if(process == null || process.size() == 0){
+            return null;
+        }
+        
+        for(IRefactorProcess p : process){
+            Map<Tuple<String, IFile>, List<ASTEntry>> o = p.getOccurrencesInOtherFiles();
+            if(o != null){
+                
+                for (Map.Entry<Tuple<String, IFile>, List<ASTEntry>> entry : o.entrySet()) {
+                    Tuple<String,IFile> key = entry.getKey();
+                    
+                    List<ASTEntry> existingOccurrences = m.get(key);
+                    if(existingOccurrences == null){
+                        existingOccurrences = new ArrayList<ASTEntry>();
+                        m.put(key, existingOccurrences);
+                    }
+                    
+                    existingOccurrences.addAll(entry.getValue());
+                }
+            }
+        }
+        return m;
     }
 
 }

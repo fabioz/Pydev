@@ -52,6 +52,8 @@ public class RefactorProcessFactory {
                 return new PyRenameFunctionProcess(definition);
             }
             if(NodeUtils.isImport(definition.ast)){
+                //this means that we found an import and we cannot actually map that import to a definition
+                //(so, it is an unresolved import)
             	return new PyRenameImportProcess(definition);
             }
         }else{
