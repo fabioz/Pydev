@@ -400,6 +400,14 @@ public class NodeUtils {
         if(ast2 instanceof Import || ast2 instanceof ImportFrom){
             return 1;
         }
+        if(ast2 instanceof ClassDef){
+            ClassDef def = (ClassDef) ast2;
+            return def.name.beginColumn;
+        }
+        if(ast2 instanceof FunctionDef){
+            FunctionDef def = (FunctionDef) ast2;
+            return def.name.beginColumn;
+        }
         return ast2.beginColumn;
     }
 
