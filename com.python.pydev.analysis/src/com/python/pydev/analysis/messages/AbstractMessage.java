@@ -17,8 +17,6 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.ClassDef;
-import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -108,14 +106,10 @@ public abstract class AbstractMessage implements IMessage{
     	
     }
     public static int getStartCol(IToken generator, IDocument doc, String shortMessage, boolean returnAsName) {
-        int colDefinition=0;
        
         //not import...
         if(!generator.isImport()){
-            colDefinition = generator.getColDefinition();
-            if(colDefinition > 0){
-                return fixCol(generator, colDefinition);
-            }
+            return generator.getColDefinition();
         }
         
         //ok, it is an import... (can only be a source token)
@@ -186,23 +180,6 @@ public abstract class AbstractMessage implements IMessage{
         return null;
     }
 
-    /**
-     * Fix the column for a class or function def
-     */
-    private static int fixCol(IToken generator, int col) {
-        if(generator instanceof SourceToken){
-            SimpleNode ast = ((SourceToken)generator).getAst();
-            if(ast instanceof ClassDef){
-            	ClassDef d = (ClassDef) ast;
-                return d.name.beginColumn;
-            }
-            if(ast instanceof FunctionDef){
-            	FunctionDef d = (FunctionDef) ast;
-            	return d.name.beginColumn;
-            }
-        }
-        return col;
-    }
 
     /**
      * @see com.python.pydev.analysis.messages.IMessage#getEndLine(org.eclipse.jface.text.IDocument)
@@ -292,13 +269,7 @@ public abstract class AbstractMessage implements IMessage{
         
         //no import... make it regular
         if(generator instanceof SourceToken){
-            int colEnd = ((SourceToken)generator).getColEnd(getOnlyToFirstDot);
-            
-            if(colEnd == -1){
-                return -1;
-            }
-            endCol = fixCol(generator, colEnd);
-            return endCol;
+            return ((SourceToken)generator).getColEnd(getOnlyToFirstDot);
         }
         return -1;
     }

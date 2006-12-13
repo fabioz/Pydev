@@ -111,11 +111,10 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
             
             if(functionDefEntry.node.beginLine == this.definition.ast.beginLine && 
                     functionDefEntry.node.beginColumn == this.definition.ast.beginColumn){
-                
-                break;
+                return functionDefEntry;
             }
         }
-        return functionDefEntry;
+        return null;
     }
     
     /**

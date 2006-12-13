@@ -144,6 +144,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
     	org.python.pydev.core.Tuple<IToken, Found> found = scope.isInNamesToIgnore(rep);
     	if(found != null){
     		found.o2.getSingle().references.add(token);
+            checkToken(found.o2, token, peekParent());
     	}
     	return found != null;
     }
@@ -283,7 +284,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 		try {
 			for (GenAndTok gen : all) {
 				for (IToken tok2 : gen.getAllTokens()) {
-					if(checkToken(found, currLine, currCol, tok2, parent)){
+					if(checkToken(found, tok2, parent)){
 						return found; //ok, found it
 					}
 				}
@@ -294,7 +295,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 		return null;
 	}
 
-	private boolean checkToken(Found found, int currLine, int currCol, IToken generator, ASTEntry parent) {
+	private boolean checkToken(Found found, IToken generator, ASTEntry parent) {
 		int startLine = AbstractMessage.getStartLine(generator, this.document)-1;
 		int endLine = AbstractMessage.getEndLine(generator, this.document, false)-1;
 		

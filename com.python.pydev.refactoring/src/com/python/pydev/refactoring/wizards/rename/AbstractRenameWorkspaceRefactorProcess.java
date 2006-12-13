@@ -85,7 +85,11 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
     @Override
     protected void checkInitialOnWorkspace(RefactoringStatus status, RefactoringRequest request) {
         checkInitialOnLocalScope(status, request);
-        doCheckInitialOnWorkspace(status, request);
+        //if the user has set that we should only find references in the local scope in the checkInitialOnLocalScope
+        //we should not try to find other references in the workspace.
+        if(!request.findReferencesOnlyOnLocalScope && !status.hasFatalError()){
+            doCheckInitialOnWorkspace(status, request);
+        }
     }
     
     /**

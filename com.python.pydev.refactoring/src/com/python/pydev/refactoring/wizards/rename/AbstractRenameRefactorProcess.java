@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
@@ -29,12 +28,11 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
-import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitor;
 import com.python.pydev.refactoring.refactorer.RefactorerFindReferences;
@@ -128,7 +126,12 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
             StringBuffer entryBuf = new StringBuffer(buf.toString());
             entryBuf.append(entry.node.beginLine);
             entryBuf.append(")");
-            int offset = PySelection.getAbsoluteCursorOffset(doc, entry.node.beginLine-1, entry.node.beginColumn-1);
+            SimpleNode node = entry.node;
+            if(node instanceof ClassDef){
+                ClassDef def = (ClassDef) node;
+                node = def.name;
+            }
+            int offset = PySelection.getAbsoluteCursorOffset(doc, node.beginLine-1, node.beginColumn-1);
             if(!s.contains(offset)){
 	            s.add(offset);
 	            ret.add(new Tuple<TextEdit, String>(createRenameEdit(offset), entryBuf.toString()));

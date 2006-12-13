@@ -10,9 +10,10 @@ public class RenameClassRefactoringTest extends RefactoringLocalTestBase {
 
     public static void main(String[] args) {
         try {
+            DEBUG = true;
             RenameClassRefactoringTest test = new RenameClassRefactoringTest();
             test.setUp();
-            test.testRenameClassVar();
+            test.testRenameClass();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameClassRefactoringTest.class);

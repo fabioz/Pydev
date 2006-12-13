@@ -1,5 +1,5 @@
 /*
- * Created on Dec 10, 2006
+ * Created on Dec 12, 2006
  * @author Fabio
  */
 package com.python.pydev.refactoring.refactorer.refactorings.rename;
@@ -11,25 +11,16 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.refactoring.wizards.rename.PyRenameClassProcess;
 
-
-/**
- * Class that should test the renaming of classes within a number of modules in
- * the workspace.
- * 
- * @author Fabio
- */
-public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
-
-
+public class RefactoringLocalToken extends RefactoringRenameTestBase {
     public static void main(String[] args) {
         try {
-            DEBUG_REFERENCES = true;
-            RenameClassRefactoringTest test = new RenameClassRefactoringTest();
-            test.setUp();
-            test.testRename2();
-            test.tearDown();
+            DEBUG_REFERENCES = false;
+//            RefactoringLocalToken test = new RefactoringLocalToken();
+//            test.setUp();
+//            test.testRename1();
+//            test.tearDown();
 
-            junit.textui.TestRunner.run(RenameClassRefactoringTest.class);
+            junit.textui.TestRunner.run(RefactoringLocalToken.class);
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -59,14 +50,6 @@ public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
         assertTrue(references.containsKey("reflib.renameclass.accessfoo") == false); //the current module does not have a separated key here
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
         assertTrue(references.containsKey("reflib.renameclass.renfoo")); //the module where it is actually defined
-    }
-    
-    public void testRenameLocalClass() throws Exception {
-        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamelocaltoken.__init__", 1, 12);
-        assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
-        assertEquals(1, references.size());
-        List<ASTEntry> entries = references.get(CURRENT_MODULE_IN_REFERENCES);
-        assertEquals(2, entries.size());
     }
     
 

@@ -3,6 +3,7 @@
  */
 package com.python.pydev.refactoring.wizards.rename;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.util.Assert;
@@ -12,7 +13,9 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
@@ -63,13 +66,54 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
      */
     protected void checkInitialOnLocalScope(RefactoringStatus status, RefactoringRequest request) {
         SimpleNode root = request.getAST();
-        
-        List<ASTEntry> oc = ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, root);
+        List<ASTEntry> oc;
+        if(request.moduleName.equals(definition.module.getName())){
+            ASTEntry classDefInAst = getOriginalClassDefInAst(root);
+            
+            if(classDefInAst == null){
+                status.addFatalError("Unable to find the original definition for the class definition.");
+                return;
+            }
+            
+            while(classDefInAst.parent != null){
+                if(classDefInAst.parent.node instanceof FunctionDef){
+                    request.findReferencesOnlyOnLocalScope = true; //it is in a local scope.
+                    break;
+                }
+                classDefInAst = classDefInAst.parent;
+            }
+
+            //it is defined in the module we're looking for
+            oc = this.getOccurrencesWithScopeAnalyzer(request);
+        }else{
+            //it is defined in some other module
+            oc = ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, root);
+        }
         oc.addAll(ScopeAnalysis.getAttributeReferences(request.duringProcessInfo.initialName, root));
         
 		addOccurrences(request, oc);
     }
 
+
+    /**
+     * @param simpleNode this is the module with the AST that has the function definition
+     * @return the function definition that matches the original definition as an ASTEntry
+     */
+    private ASTEntry getOriginalClassDefInAst(SimpleNode simpleNode) {
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(simpleNode);
+        Iterator<ASTEntry> it = visitor.getIterator(ClassDef.class);
+        ASTEntry classDefEntry = null;
+        while(it.hasNext()){
+            classDefEntry = it.next();
+            
+            if(classDefEntry.node.beginLine == this.definition.ast.beginLine && 
+                    classDefEntry.node.beginColumn == this.definition.ast.beginColumn){
+                return classDefEntry;
+            }
+        }
+        return null;
+    }
+    
     /**
      * This method is called for each module that may have some reference to the definition
      * we're looking for. 
