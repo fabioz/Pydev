@@ -58,7 +58,7 @@ public class PyContextInformationValidator implements IContextInformationValidat
                     return;
                 }
             } catch (BadLocationException e) {
-                throw new RuntimeException(e);
+                //just ignore it -- and go with offset-1, as we did get a char > than the doc len
             }
             offset--;
         }
