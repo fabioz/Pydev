@@ -5,11 +5,11 @@ http://www.eclipse.org/articles/Article-PDE-Automation/automation.html
 http://dev.eclipse.org/viewcvs/index.cgi/~checkout~/pde-build-home/articles/Automated%20Builds/article.html?rev=HEAD&content-type=text/html
 
 COMP HOME -------------------------------------------------------------------------------
-set EC_HOME="C:\bin\eclipse\ec with space 320"
-set EC_WORKSPACE="D:\workspace with spaces"
+set EC_HOME=D:\bin\eclipse321
+set EC_WORKSPACE=X:\
 set RETROWEAVER_HOME=E:\Install\Dev.Java\retroweaver-all\retroweaver
-set PDE_BUILD_SCRIPTS=\plugins\org.eclipse.pde.build_3.2.0.v20060518\scripts
-d:
+set PDE_BUILD_SCRIPTS=\plugins\org.eclipse.pde.build_3.2.1.r321_v20060823\scripts
+x:
 
 set PYDEV_VERSION=1.2.5
 set BUILD_ID=1_2_5
