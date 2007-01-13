@@ -3,3 +3,4 @@ workspace
 .cvspass
 cachedir
 indexcache
+.metadata
