@@ -20,6 +20,7 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.dialogs.ListSelectionDialog;
@@ -93,6 +94,13 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
      * for python in the format '2.5' or '2.4'.
      */
     private String version;
+    
+    public List<String> getPythonPath() {
+        ArrayList<String> ret = new ArrayList<String>();
+        ret.addAll(libs);
+        ret.addAll(dllLibs);
+        return ret;
+    }
     
     public InterpreterInfo(String version, String exe, Collection<String> libs0){
         this.executableOrJar = exe;
@@ -204,6 +212,7 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
             }
         }
 
+        final Boolean[] result = new Boolean[]{true}; //true == OK, false == CANCELLED
         if(ProjectModulesManager.IN_TESTS){
         	if(InterpreterInfo.configurePathsCallback != null){
         		InterpreterInfo.configurePathsCallback.call(new Tuple<List<String>, List<String>>(toAsk, l));
@@ -257,12 +266,18 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
 	                            "IMPORTANT: The folders for your PROJECTS should NOT be added here, but in your project configuration.\n\n" +
 	                            "Check:http://fabioz.com/pydev/manual_101_interpreter.html for more details.");
 	                    dialog.setInitialSelections(l.toArray(new String[0]));
-	                    dialog.open();
-	                    Object[] result = dialog.getResult();
-	                    l.clear();
-	                    for (Object string : result) {
-	                        l.add((String) string);
-	                    }
+	                    int i = dialog.open();
+                        if(i == Window.OK){
+                            result[0] = true;
+    	                    Object[] result = dialog.getResult();
+    	                    l.clear();
+    	                    for (Object string : result) {
+    	                        l.add((String) string);
+    	                    }
+                        }else{
+                            result[0] = false;
+                            
+                        }
 	                    
 	                }
 	                
@@ -277,6 +292,11 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
 	        }
         }
 
+        if(result[0] == false){
+            //cancelled by the user
+            return null;
+        }
+        
         ArrayList<String> l1 = new ArrayList<String>();
         if(libsSplit.length > 1){
 	        String dllLibs = libsSplit[1];

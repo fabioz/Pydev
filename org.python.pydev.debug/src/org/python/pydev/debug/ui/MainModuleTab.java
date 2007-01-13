@@ -4,7 +4,6 @@
 package org.python.pydev.debug.ui;
 
 import java.io.File;
-import java.util.Iterator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -36,10 +35,10 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.ui.dialogs.PythonModulePickerDialog;
 
 /**
@@ -85,7 +84,6 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
 
     private List pythonpath;
     
-
     private IInterpreterManager interpreterManager;
     
     public MainModuleTab(IInterpreterManager interpreterManager) {
@@ -139,6 +137,14 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
     
     public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
         //no defaults to set
+    }
+    
+    public String getSelectedInterpreter(ILaunchConfiguration configuration){
+        try {
+            return configuration.getAttribute(Constants.ATTR_INTERPRETER, "");
+        } catch (CoreException e) {
+            return interpreterManager.getDefaultInterpreter();
+        }
     }
     
     public void initializeFrom(ILaunchConfiguration configuration) {
@@ -270,24 +276,15 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
     }   
 
 
-    private void updatePythonpath() {
+    /**
+     * Called from the arguments tab when the pythonpath changes.
+     * @param pythonpath 
+     */
+    public void updatePythonpath(String pythonpath) {
         this.pythonpath.removeAll();
-        IProject project = getProjectFromTextWidget();
-        IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
-        if(pythonPathNature != null){
-            java.util.List paths = pythonPathNature.getCompleteProjectPythonPath();
-            if(paths == null) {
-            	this.pythonpath.add("Code completion task is running, no PYTHONPATH information available");
-            	// TODO: Make a progress dialog shown until code completition task 
-            	// is finished and PYTHONPATH is available
-            } else {
-	            for (Iterator iter = paths.iterator(); iter.hasNext();) {
-	                String element = (String) iter.next();
-	                this.pythonpath.add(element);
-	            }
-            }
-        }else{
-            this.pythonpath.add("Unable to get the pythonpath associated with the current project for the run (no pydev nature associated).");
+        java.util.List<String> paths = SimpleRunner.splitPythonpath(pythonpath);
+        for(String p:paths){
+            this.pythonpath.add(p);
         }
     }
 
@@ -336,8 +333,6 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
                     
                     browseModuleButton.setEnabled(true);
                 }
-                updatePythonpath();
-                
                 updateLaunchConfigurationDialog();
             }else{
                 updateLaunchConfigurationDialog();

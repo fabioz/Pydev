@@ -7,7 +7,6 @@
 package org.python.pydev.debug.ui;
 
 import java.io.File;
-import java.util.Arrays;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -72,14 +71,15 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
     };    
     
     private IInterpreterManager interpreterManager;
-    private Button button;
+    private Button buttonSeeResultingCommandLine;
     private ILaunchConfigurationWorkingCopy workingCopyForCommandLineGeneration;
     private Text text;
+    private MainModuleTab mainModuleTab;
 
     private SelectionListener listener = new SelectionListener(){
 
         public void widgetSelected(SelectionEvent e) {
-            if(e.getSource() == button){
+            if(e.getSource() == buttonSeeResultingCommandLine){
                 try {
                     //ok, show the command-line to the user
                     ILaunchConfigurationDialog launchConfigurationDialog = getLaunchConfigurationDialog();
@@ -87,16 +87,7 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
                     for (int i = 0; i < tabs.length; i++) {
                         tabs[i].performApply(workingCopyForCommandLineGeneration);
                     }
-                    String run;
-                    if(interpreterManager.isJython()){
-                        run = PythonRunnerConfig.RUN_JYTHON;
-                    }else if(interpreterManager.isPython()){
-                        run = PythonRunnerConfig.RUN_REGULAR;
-                    }else{
-                        throw new RuntimeException("Should be python or jython interpreter (found unknown).");
-                    }
-                    
-                    PythonRunnerConfig config = new PythonRunnerConfig(workingCopyForCommandLineGeneration, launchConfigurationDialog.getMode(), run);
+                    PythonRunnerConfig config = getConfig(workingCopyForCommandLineGeneration, launchConfigurationDialog);
                     String commandLineAsString = config.getCommandLineAsString();
                     commandLineAsString = WordUtils.wrap(commandLineAsString, 80);
                     commandLineAsString += "\n\nThe PYTHONPATH that will be used is:\n\n";
@@ -108,12 +99,36 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
             }
         }
 
-        public void widgetDefaultSelected(SelectionEvent e) {
-        }};
-    
 
-    public ArgumentsTab(IInterpreterManager interpreterManager) {
+        public void widgetDefaultSelected(SelectionEvent e) {
+        }
+    };
+
+    /**
+     * @param conf the launch configuration to be used
+     * @param launchConfigurationDialog the dialog for the launch configuration
+     * @return a PythonRunnerConfig configured with the given launch configuration
+     * @throws CoreException
+     */
+    private PythonRunnerConfig getConfig(ILaunchConfiguration conf, ILaunchConfigurationDialog launchConfigurationDialog) throws CoreException {
+        String run;
+        if(interpreterManager.isJython()){
+            run = PythonRunnerConfig.RUN_JYTHON;
+        }else if(interpreterManager.isPython()){
+            run = PythonRunnerConfig.RUN_REGULAR;
+        }else{
+            throw new RuntimeException("Should be python or jython interpreter (found unknown).");
+        }
+        
+        PythonRunnerConfig config = new PythonRunnerConfig(conf, launchConfigurationDialog.getMode(), run);
+        return config;
+    }
+    
+        
+
+    public ArgumentsTab(IInterpreterManager interpreterManager, MainModuleTab mainModuleTab) {
         this.interpreterManager = interpreterManager;
+        this.mainModuleTab = mainModuleTab;
     }
 
 
@@ -198,13 +213,13 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         vmArgumentsField.setLayoutData(data);
         vmArgumentsField.addModifyListener(modifyListener);
 
-        button = new Button (comp, SWT.NONE);
-        button.setText ("See resulting command-line for the given parameters");
+        buttonSeeResultingCommandLine = new Button (comp, SWT.NONE);
+        buttonSeeResultingCommandLine.setText ("See resulting command-line for the given parameters");
         data = new GridData ();
         data.horizontalSpan = 2;
         data.horizontalAlignment = GridData.FILL;
-        button.setLayoutData (data);
-        button.addSelectionListener(this.listener);
+        buttonSeeResultingCommandLine.setLayoutData (data);
+        buttonSeeResultingCommandLine.addSelectionListener(this.listener);
         
         text = new Text (comp, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
         text.setText ("In case you are in doubt how will the run happen, click the button to \n" +
@@ -328,6 +343,14 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
                 interpreterComboField.select(selectThis);
             }
         }
+        
+        try {
+            PythonRunnerConfig config = getConfig(conf, getLaunchConfigurationDialog());
+            mainModuleTab.updatePythonpath(config.pythonpathUsed);
+        } catch (CoreException e) {
+            PydevPlugin.log(e);
+        }
+
     }
     
     /**
@@ -354,6 +377,13 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         	value = interpreterComboField.getText();
         }
         setAttribute(conf, Constants.ATTR_INTERPRETER, value);
+
+        try {
+            PythonRunnerConfig config = getConfig(conf, getLaunchConfigurationDialog());
+            mainModuleTab.updatePythonpath(config.pythonpathUsed);
+        } catch (CoreException e) {
+            PydevPlugin.log(e);
+        }
     }
     
     /**
@@ -391,6 +421,12 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         }else{
             conf.setAttribute(name, value);
         }
+    }
+    
+    @Override
+    public void dispose() {
+        super.dispose();
+        this.mainModuleTab = null;
     }
         
 }

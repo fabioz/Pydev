@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
@@ -20,7 +23,6 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
 
     private static final long serialVersionUID = 2L;
     private String[] builtins;
-	private transient IPythonNature nature;
 
     /**
      * @param forcedLibs
@@ -55,11 +57,11 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
     }
 
 	public void setPythonNature(IPythonNature nature) {
-		this.nature = nature;
+		throw new RuntimeException("The system manager does not have a related nature");
 	}
 
 	public IPythonNature getNature() {
-		return nature;
+	    return null;
 	}
 
 	public ISystemModulesManager getSystemModulesManager() {
@@ -75,8 +77,18 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
 		return super.resolveModule(full);
 	}
 
-	public List<String> getCompletePythonPath() {
-		return new ArrayList<String>(super.getPythonPath());
+	public List<String> getCompletePythonPath(String interpreter) {
+	    throw new RuntimeException("The system manager does needs a related nature for this");
+   }
+    
+	public List<String> getCompletePythonPath(String interpreter, IPythonNature nature2) {
+        if(interpreter == null){
+		    return new ArrayList<String>(super.getPythonPath());
+        }else{
+            IInterpreterManager manager = nature2.getRelatedInterpreterManager();
+            IInterpreterInfo info = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
+            return info.getPythonPath();
+        }
 	}
 
 	public IModule getRelativeModule(String name, IPythonNature nature) {

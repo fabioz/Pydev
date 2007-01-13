@@ -59,6 +59,12 @@ public class PythonInterpreterManager extends AbstractInterpreterManager{
 
         Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputWithInterpreter(executable, REF.getFileAbsolutePath(script), null, null, null, monitor);
         InterpreterInfo info = createInfoFromOutput(monitor, outTup);
+        
+        if(info == null){
+            //cancelled
+            return null;
+        }
+
         info.restoreCompiledLibs(monitor);
         
         return new Tuple<InterpreterInfo,String>(info, outTup.o1);

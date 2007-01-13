@@ -113,7 +113,7 @@ public class CompiledModule extends AbstractModule{
 		}
 		AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
 		synchronized(shell){
-            Tuple<String, List<String[]>> completions = shell.getImportCompletions(name, manager.getModulesManager().getCompletePythonPath());
+            Tuple<String, List<String[]>> completions = shell.getImportCompletions(name, manager.getModulesManager().getCompletePythonPath(null)); //default
             String fPath = completions.o1;
             if(!fPath.equals("None")){
                 this.file = new File(fPath);
@@ -218,7 +218,7 @@ public class CompiledModule extends AbstractModule{
 	            AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
 	            synchronized(shell){
 		            String act = name+"."+state.getActivationToken();
-                    List<String[]> completions = shell.getImportCompletions(act, manager.getModulesManager().getCompletePythonPath()).o2;
+                    List<String[]> completions = shell.getImportCompletions(act, manager.getModulesManager().getCompletePythonPath(null)).o2;//default
 		            
 		            ArrayList<IToken> array = new ArrayList<IToken>();
 		            
@@ -273,7 +273,7 @@ public class CompiledModule extends AbstractModule{
         String token = state.getActivationToken();
         AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
         synchronized(shell){
-            Tuple<String[],int[]> def = shell.getLineCol(this.name, token, nature.getAstManager().getModulesManager().getCompletePythonPath());
+            Tuple<String[],int[]> def = shell.getLineCol(this.name, token, nature.getAstManager().getModulesManager().getCompletePythonPath(null)); //default
             if(def == null){
                 return new Definition[0];
             }

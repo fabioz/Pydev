@@ -10,6 +10,8 @@ Pydev:
 		</ul>
 	</li>
 	<li>Fixed: When a file from a project that was deleted was still opened inside pydev, Eclipse would not start-up correctly</li>
+	<li>Fixed: When a different interpreter is chosen in the run dialog, the pythonpath is correctly gotten
+	<li>Fixed: Cancelling the addition of an interpreter no longer raises any exceptions.
 	<li>Minor fixes in the grammar</li>
 </ul>
 

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -45,7 +46,7 @@ public abstract class SimpleRunner {
      * @return the system environment with the PYTHONPATH env variable added for a given project (if it is null, return it with the
      * default PYTHONPATH added).
      */
-    public String[] getEnvironment(IProject project) throws CoreException {
+    public String[] getEnvironment(IProject project, String interpreter) throws CoreException {
         PythonNature pythonNature = PythonNature.getPythonNature(project);
         if(pythonNature == null){ //no associated nature in the project... just get the default env
             return getDefaultSystemEnvAsArray();
@@ -55,10 +56,11 @@ public abstract class SimpleRunner {
         String pythonPathEnvStr = "";
     	try {
             
-            if (PydevPlugin.getInterpreterManager(pythonNature).hasInfoOnDefaultInterpreter(pythonNature)){ //check if we have a default interpreter.
-                pythonPathEnvStr = makePythonPathEnvString(project);
+            if (PydevPlugin.getInterpreterManager(pythonNature).hasInfoOnInterpreter(interpreter)){ //check if we have a default interpreter.
+                pythonPathEnvStr = makePythonPathEnvString(project, interpreter);
             }
         } catch (Exception e) {
+            PydevPlugin.log(e);
             return null; //we cannot get it
         }
     
@@ -195,9 +197,10 @@ public abstract class SimpleRunner {
      * Creates a string that can be passed as the PYTHONPATH 
      * 
      * @param project the project we want to get the settings from. If it is null, the system pythonpath is returned 
+     * @param interpreter this is the interpreter to be used to create the env.
      * @return a string that can be used as the PYTHONPATH env variable
      */
-    public static String makePythonPathEnvString(IProject project) {
+    public static String makePythonPathEnvString(IProject project, String interpreter) {
         List paths;
         if(project == null){
             return ""; //no pythonpath can be gotten (set to empty, so that the default is gotten)
@@ -210,7 +213,7 @@ public abstract class SimpleRunner {
                     "please configure it correcly (please check the pydev faq at \n" +
                     "http://pydev.sf.net/faq.html for better information on how to do it).");
         }
-    	paths = pythonPathNature.getCompleteProjectPythonPath();
+    	paths = pythonPathNature.getCompleteProjectPythonPath(interpreter);
     
         String separator = getPythonPathSeparator();
     	StringBuffer pythonpath = new StringBuffer();
@@ -298,7 +301,7 @@ public abstract class SimpleRunner {
         Process process = null;
         try {
             monitor.setTaskName("Making pythonpath environment..."+executionString);
-            String[] envp = getEnvironment(project);
+            String[] envp = getEnvironment(project, null); //default
             monitor.setTaskName("Making exec..."+executionString);
             process = Runtime.getRuntime().exec(executionString, envp, workingDir);
         } catch (Exception e) {
@@ -362,5 +365,19 @@ public abstract class SimpleRunner {
      * @return a string with the output of the process (stdout)
      */
     public abstract Tuple<String,String>  runAndGetOutput(String script, String args[], File workingDir, IProject project);
+
+    /**
+     * @param pythonpath the pythonpath string to be used 
+     * @return a list of strings with the elements of the pythonpath
+     */
+    public static List<String> splitPythonpath(String pythonpath) {
+        ArrayList<String> splitted = new ArrayList<String>();
+        StringTokenizer tokenizer = new StringTokenizer(pythonpath, getPythonPathSeparator());
+        while(tokenizer.hasMoreTokens()){
+            splitted.add(tokenizer.nextToken());
+        }
+        return splitted;
+        
+    }
 
 }

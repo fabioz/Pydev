@@ -196,9 +196,13 @@ public class PythonRunnerConfig {
     private static String getInterpreterLocation(ILaunchConfiguration conf, IPythonNature nature) throws CoreException {
 		IInterpreterManager interpreterManager = PydevPlugin.getInterpreterManager(nature);
         String location = conf.getAttribute(Constants.ATTR_INTERPRETER, (String) null);
+        
 		if (location != null && location.equals(Constants.ATTR_INTERPRETER_DEFAULT)){
 			location = interpreterManager.getDefaultInterpreter();
-		}
+            
+		}else if(interpreterManager.hasInfoOnInterpreter(location) == false){
+	        throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error. The interprer: "+location+" is not configured in the pydev prefeences.", null));
+        }
 		return location;
 	}
     
@@ -271,8 +275,8 @@ public class PythonRunnerConfig {
         if(envp == null){
             //ok, the user has done nothing to the environment, just get all the default environment and
             //put the pythonpath in it
-            envp = new SimplePythonRunner().getEnvironment(project);
-            pythonpathUsed = SimpleRunner.makePythonPathEnvString(project);
+            envp = new SimplePythonRunner().getEnvironment(project, interpreterLocation);
+            pythonpathUsed = SimpleRunner.makePythonPathEnvString(project, interpreterLocation);
         }else{
     		boolean win32= Platform.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32);
 
@@ -282,7 +286,7 @@ public class PythonRunnerConfig {
 
     		if(!specifiedPythonpath(envMap)){
 	    		
-	            String pythonpath = SimpleRunner.makePythonPathEnvString(project);
+	            String pythonpath = SimpleRunner.makePythonPathEnvString(project, interpreterLocation);
                 pythonpathUsed = pythonpath; 
 	            //override it if it was the ambient pythonpath
 	            for (int i = 0; i < envp.length; i++) {

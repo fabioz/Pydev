@@ -3,6 +3,8 @@
  */
 package org.python.pydev.core;
 
+import java.util.List;
+
 public interface IInterpreterInfo {
     
     /**
@@ -14,5 +16,10 @@ public interface IInterpreterInfo {
      * @return a constant as defined in IGrammarVersionProvider.
      */
     public int getGrammarVersion();
+    
+    /**
+     * @return a list of strings representing the pythonpath for this interpreter info.
+     */
+    public List<String> getPythonPath();
 
 }

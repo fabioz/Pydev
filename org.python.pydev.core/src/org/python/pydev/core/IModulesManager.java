@@ -91,9 +91,11 @@ public interface IModulesManager {
     public abstract String[] getBuiltins();
 
     /**
+     * @param interpreter: this is the interpreter that should be used for getting the pythonpathString interpreter
+     *                     (if it is null, the default interpreter is used)
      * @return the paths that constitute the pythonpath as a list of strings
      */
-    public abstract List<String> getCompletePythonPath();
+    public abstract List<String> getCompletePythonPath(String interpreter);
 
     public abstract SortedMap<ModulesKey,ModulesKey> getAllModulesStartingWith(String moduleToGetTokensFrom);
     public abstract SortedMap<ModulesKey,ModulesKey> getAllDirectModulesStartingWith(String moduleToGetTokensFrom);

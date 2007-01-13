@@ -69,6 +69,10 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
 		String output = outTup.o1;
         
         InterpreterInfo info = createInfoFromOutput(monitor, outTup);
+        if(info == null){
+            //cancelled
+            return null;
+        }
         //the executable is the jar itself
         info.executableOrJar = executable;
         

@@ -23,9 +23,10 @@ import org.python.pydev.plugin.PydevPlugin;
 public class PythonTabGroup extends AbstractLaunchConfigurationTabGroup {
 
 	public void createTabs(ILaunchConfigurationDialog arg0, String arg1) {
+        MainModuleTab mainModuleTab = new MainModuleTab(PydevPlugin.getPythonInterpreterManager());
 		ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
-			new MainModuleTab(PydevPlugin.getPythonInterpreterManager()),
-			new ArgumentsTab(PydevPlugin.getPythonInterpreterManager()),          
+            mainModuleTab,
+			new ArgumentsTab(PydevPlugin.getPythonInterpreterManager(), mainModuleTab),          
 			new RefreshTab(),
 			new EnvironmentTab(),
 			new CommonTab()	};

@@ -182,6 +182,10 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 	    		try {
 	
 	    			tup = createInterpreterInfo(executable, monitor);
+                    if(tup == null){
+                        //cancelled (in the dialog that asks the user to choose the valid paths)
+                        return null;
+                    }
 	                info = tup.o1;
 	                
 	    	    } catch (Exception e) {
@@ -225,6 +229,10 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     public String addInterpreter(String executable, IProgressMonitor monitor) {
         exeToInfo.remove(executable); //always clear it
         InterpreterInfo info = getInterpreterInfo(executable, monitor);
+        if(info == null){
+            //cancelled on the screen that the user has to choose paths...
+            return null;
+        }
         return info.executableOrJar;
     }
 

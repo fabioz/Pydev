@@ -385,7 +385,7 @@ public class PythonNature implements IPythonNature {
                 }
 
                 initializationFinished = true;
-                PythonNatureListenersManager.notifyPythonPathRebuilt(project, nature.pythonPathNature.getCompleteProjectPythonPath());
+                PythonNatureListenersManager.notifyPythonPathRebuilt(project, nature.pythonPathNature.getCompleteProjectPythonPath(null)); //default
                 //end task
                 jobProgressComunicator.done();
                 return Status.OK_STATUS;

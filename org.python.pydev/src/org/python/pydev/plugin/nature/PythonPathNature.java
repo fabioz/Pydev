@@ -61,12 +61,12 @@ public class PythonPathNature implements IPythonPathNature {
     }
     
 
-    public List getCompleteProjectPythonPath() {
+    public List getCompleteProjectPythonPath(String interpreter) {
         IModulesManager projectModulesManager = getProjectModulesManager();
         if(projectModulesManager == null){
             return null;
         }
-        return projectModulesManager.getCompletePythonPath();
+        return projectModulesManager.getCompletePythonPath(interpreter);
     }
     
     private IModulesManager getProjectModulesManager(){

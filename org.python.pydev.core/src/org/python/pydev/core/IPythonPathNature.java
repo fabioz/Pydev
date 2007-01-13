@@ -24,9 +24,11 @@ public interface IPythonPathNature {
     public void setProject(IProject project);
 
     /**
+     * @param interpreter: this is the interpreter that should be used for getting the pythonpathString interpreter
+     *                     (if it is null, the default interpreter is used)
      * @return the pythonpath (source and externals) for the project as a list of strings
      */
-    public List getCompleteProjectPythonPath();
+    public List getCompleteProjectPythonPath(String interpreter);
 
     /**
      * @return the pythonpath (source and externals) as a string (paths separated by | )
