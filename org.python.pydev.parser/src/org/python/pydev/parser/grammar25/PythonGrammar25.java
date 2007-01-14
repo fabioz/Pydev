@@ -7,6 +7,7 @@ import java.util.Iterator;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.ImportFrom;
@@ -203,37 +204,37 @@ public class PythonGrammar25 implements/*@bgen(jjtree)*/ PythonGrammar25TreeCons
 
 
 
-    Object makeInt(String s, int radix) {
+   Object[] makeInt(String s, int radix, String token) {
         if (s.endsWith("L") || s.endsWith("l")) {
             s = s.substring(0, s.length()-1);
-            return hostLiteralMkr.newLong(new java.math.BigInteger(s, radix));
+            return new Object[]{hostLiteralMkr.newLong(new java.math.BigInteger(s, radix)), Num.Long, token};
         }
         int ndigits = s.length();
         int i=0;
         while (i < ndigits && s.charAt(i) == '0')
             i++;
         if ((ndigits - i) > 11) {
-            return hostLiteralMkr.newLong(new java.math.BigInteger(s, radix));
+            return new Object[]{hostLiteralMkr.newLong(new java.math.BigInteger(s, radix)), Num.Long, token};
         }
 
         long l = Long.valueOf(s, radix).longValue();
         if (l > 0xffffffffl || (radix == 10 && l > Integer.MAX_VALUE)) {
-            return hostLiteralMkr.newLong(new java.math.BigInteger(s, radix));
+            return new Object[]{hostLiteralMkr.newLong(new java.math.BigInteger(s, radix)), Num.Long, token};
         }
-        return hostLiteralMkr.newInteger((int) l);
+        return new Object[]{hostLiteralMkr.newInteger((int) l), Num.Int, token};
     }
 
-    Object makeFloat(String s) {
-        return hostLiteralMkr.newFloat(Double.valueOf(s).doubleValue());
+    Object[] makeFloat(String s) {
+        return new Object[]{hostLiteralMkr.newFloat(Double.valueOf(s).doubleValue()), Num.Float, s};
     }
 
-    Object makeLong(String s) {
-        return hostLiteralMkr.newLong(s);
+    Object[] makeLong(String s) {
+        return new Object[]{hostLiteralMkr.newLong(s), Num.Long, s};
     }
 
-    Object makeComplex(String s) {
-        s = s.substring(0, s.length() - 1);
-        return hostLiteralMkr.newImaginary(Double.valueOf(s).doubleValue());
+    Object[] makeComplex(String s) {
+        String compNumber = s.substring(0, s.length() - 1);
+        return new Object[]{hostLiteralMkr.newImaginary(Double.valueOf(compNumber).doubleValue()), Num.Comp, s};
     }
 
     /**
@@ -6652,7 +6653,7 @@ public class PythonGrammar25 implements/*@bgen(jjtree)*/ PythonGrammar25TreeCons
       case HEXNUMBER:
         t = jj_consume_token(HEXNUMBER);
             String s = t.image.substring(2, t.image.length());
-            jjtn000.setImage(makeInt(s, 16));
+            jjtn000.setImage(makeInt(s, 16, t.image));
             jjtree.closeNodeScope(jjtn000, true);
             jjtc000 = false;
             jjtreeCloseNodeScope(jjtn000);
@@ -6660,18 +6661,18 @@ public class PythonGrammar25 implements/*@bgen(jjtree)*/ PythonGrammar25TreeCons
         break;
       case OCTNUMBER:
         t = jj_consume_token(OCTNUMBER);
-                        jjtn000.setImage(makeInt(t.image, 8));
-                                                                   jjtree.closeNodeScope(jjtn000, true);
-                                                                   jjtc000 = false;
-                                                                   jjtreeCloseNodeScope(jjtn000);
+                        jjtn000.setImage(makeInt(t.image, 8, t.image));
+                                                                            jjtree.closeNodeScope(jjtn000, true);
+                                                                            jjtc000 = false;
+                                                                            jjtreeCloseNodeScope(jjtn000);
 
         break;
       case DECNUMBER:
         t = jj_consume_token(DECNUMBER);
-                        jjtn000.setImage(makeInt(t.image, 10));
-                                                                    jjtree.closeNodeScope(jjtn000, true);
-                                                                    jjtc000 = false;
-                                                                    jjtreeCloseNodeScope(jjtn000);
+                        jjtn000.setImage(makeInt(t.image, 10, t.image));
+                                                                             jjtree.closeNodeScope(jjtn000, true);
+                                                                             jjtc000 = false;
+                                                                             jjtreeCloseNodeScope(jjtn000);
 
         break;
       case FLOAT:
@@ -7700,11 +7701,6 @@ public class PythonGrammar25 implements/*@bgen(jjtree)*/ PythonGrammar25TreeCons
     try { return !jj_3_29(); }
     catch(LookaheadSuccess ls) { return true; }
     finally { jj_save(28, xla); }
-  }
-
-  final private boolean jj_3R_103() {
-    if (jj_scan_token(EXCEPT)) return true;
-    return false;
   }
 
   final private boolean jj_3R_102() {
@@ -8885,6 +8881,11 @@ public class PythonGrammar25 implements/*@bgen(jjtree)*/ PythonGrammar25TreeCons
 
   final private boolean jj_3R_104() {
     if (jj_scan_token(DEF)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_103() {
+    if (jj_scan_token(EXCEPT)) return true;
     return false;
   }
 

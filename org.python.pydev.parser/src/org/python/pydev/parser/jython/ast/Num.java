@@ -4,15 +4,19 @@ import org.python.pydev.parser.jython.SimpleNode;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class Num extends exprType {
+public class Num extends exprType implements num_typeType {
     public Object n;
+    public int type;
+    public String num;
 
-    public Num(Object n) {
+    public Num(Object n, int type, String num) {
         this.n = n;
+        this.type = type;
+        this.num = num;
     }
 
-    public Num(Object n, SimpleNode parent) {
-        this(n);
+    public Num(Object n, int type, String num, SimpleNode parent) {
+        this(n, type, num);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
     }
@@ -21,6 +25,12 @@ public class Num extends exprType {
         StringBuffer sb = new StringBuffer("Num[");
         sb.append("n=");
         sb.append(dumpThis(this.n));
+        sb.append(", ");
+        sb.append("type=");
+        sb.append(dumpThis(this.type, num_typeType.num_typeTypeNames));
+        sb.append(", ");
+        sb.append("num=");
+        sb.append(dumpThis(this.num));
         sb.append("]");
         return sb.toString();
     }
@@ -28,6 +38,8 @@ public class Num extends exprType {
     public void pickle(DataOutputStream ostream) throws IOException {
         pickleThis(42, ostream);
         pickleThis(this.n, ostream);
+        pickleThis(this.type, ostream);
+        pickleThis(this.num, ostream);
     }
 
     public Object accept(VisitorIF visitor) throws Exception {

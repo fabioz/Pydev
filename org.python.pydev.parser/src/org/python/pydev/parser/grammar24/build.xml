@@ -1,7 +1,7 @@
 <project name="jython-parser" default="parser">
 
     <property name="javaccHome" value="E:\install\Dev.JavaCC\javacc-4.0" />
-    <property name="basedir" value="e:\eclipse_workspace\org.python.pydev.parser\src\org\python\pydev\parser\grammar24" />
+    <property name="basedir" value="X:\org.python.pydev.parser\src\org\python\pydev\parser\grammar24" />
     <property name="parser.dir" value="${basedir}" />
 
     <!-- print out some usage hints -->

@@ -64,6 +64,9 @@ module Python
 	
 	-- strings:    '''             """            '              "
 	str_type = TripleSingle | TripleDouble | SingleSingle | SingleDouble
+	
+	-- numbers:    integer  |     long     |     float    |       hex      |     octcal   |      complex
+	num_type =      Int     |     Long     |     Float    |       Hex      |       Oct    |       Comp	
 
 	expr = BoolOp(boolop op, expr* values)
 	     | BinOp(expr left, operator op, expr right)
@@ -83,7 +86,7 @@ module Python
 	     | Compare(expr left, cmpop* ops, expr* comparators)
 	     | Call(expr func, expr* args, keyword* keywords, expr? starargs, expr? kwargs)
 	     | Repr(expr value)
-	     | Num(object n) -- a number as a PyObject.
+	     | Num(object n, num_type type, string num) -- a number as a PyObject.
 	     | Str(string s, str_type type, bool unicode, bool raw) 
 	     | StrJoin(expr* strs) -- the inner expr should always be of type Str
 	     -- other literals? bools?

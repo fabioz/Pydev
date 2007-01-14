@@ -166,8 +166,8 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
             addSpecialsAndClearOriginal(n, name);
             return name;
         case JJTNUM:
-            //throw new RuntimeException("how to handle this? -- fabio")
-            return new Num(n.getImage());
+        	Object[] numimage = (Object[]) n.getImage();
+            return new Num(numimage[0], (Integer)numimage[1], (String)numimage[2]);
         case JJTUNICODE:
         case JJTSTRING:
             Object[] image = (Object[]) n.getImage();
