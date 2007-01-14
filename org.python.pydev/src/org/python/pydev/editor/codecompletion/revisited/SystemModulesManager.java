@@ -5,7 +5,6 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -23,6 +22,10 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
 
     private static final long serialVersionUID = 2L;
     private String[] builtins;
+    /**
+     * The system modules manager may have a nature if we create a SystemASTManager
+     */
+    private transient IPythonNature nature;
 
     /**
      * @param forcedLibs
@@ -57,11 +60,11 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
     }
 
 	public void setPythonNature(IPythonNature nature) {
-		throw new RuntimeException("The system manager does not have a related nature");
+		this.nature = nature;
 	}
 
 	public IPythonNature getNature() {
-	    return null;
+	    return this.nature;
 	}
 
 	public ISystemModulesManager getSystemModulesManager() {
@@ -78,12 +81,12 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
 	}
 
 	public List<String> getCompletePythonPath(String interpreter) {
-	    throw new RuntimeException("The system manager does needs a related nature for this");
+	    return super.getPythonPath();
    }
     
 	public List<String> getCompletePythonPath(String interpreter, IPythonNature nature2) {
         if(interpreter == null){
-		    return new ArrayList<String>(super.getPythonPath());
+		    return super.getPythonPath();
         }else{
             IInterpreterManager manager = nature2.getRelatedInterpreterManager();
             IInterpreterInfo info = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());

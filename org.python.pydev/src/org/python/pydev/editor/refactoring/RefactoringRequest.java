@@ -15,7 +15,9 @@ import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.nature.SystemPythonNature;
 
 /**
  * This class encapsulates all the info needed in order to do a refactoring
@@ -113,11 +115,21 @@ public class RefactoringRequest{
 		this.doc = doc;
 		this.ps = ps2;
 		this.operation = operation2;
-		this.nature = nature2;
+        
+		if(nature2 == null){
+		    Tuple<SystemPythonNature,String> infoForFile = PydevPlugin.getInfoForFile(f);
+		    if(infoForFile != null){
+		        this.nature = infoForFile.o1;
+                this.moduleName = infoForFile.o2;
+		    }
+		}else{
+		    this.nature = nature2;
+		    if(f != null){
+		        this.moduleName = resolveModule();
+		    }
+        }
+        
 		this.pyEdit = pyEdit2;
-		if(f != null){
-			this.moduleName = resolveModule();
-		}
 	}
 
     public synchronized void communicateWork(String desc) {

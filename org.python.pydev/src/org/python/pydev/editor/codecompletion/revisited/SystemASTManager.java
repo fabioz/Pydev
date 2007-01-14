@@ -10,6 +10,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
+@SuppressWarnings("serial")
 public class SystemASTManager extends AbstractASTManager{
 	
 	private IInterpreterManager manager;
