@@ -447,14 +447,14 @@
 <!-- command: next method / class-->
       <command
             name="Next Method or Class"
-            description="Navigates to the next method or class declaration"
+            description="Navigates to the next method or class definition"
             categoryId="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.navigation.nextMethod">
       </command>
 <!-- command: previous method / class-->
       <command
             name="Previous Method or Class"
-            description="Navigates to the previous method or class declaration"
+            description="Navigates to the previous method or class definition"
             categoryId="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.navigation.previousMethod">
       </command>
@@ -509,8 +509,8 @@
       </command>
 <!-- command: Go To Defition-->
       <command
-            name="Python Go To Declaration"
-            description="Goes to the declaration of a python element"
+            name="Python Go To Definition"
+            description="Goes to the definition of a python element"
             categoryId="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.navigation.pyGoToDefinition">
       </command>

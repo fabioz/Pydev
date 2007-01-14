@@ -151,7 +151,7 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
     }
     
     /**
-     * @return wether we are in a class or method declaration scope
+     * @return wether we are in a class or method definition scope
      */
     protected boolean isInClassMethodDecl() {
         Iterator iterator = stack.iterator();
@@ -171,7 +171,7 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
     }
 
     /**
-     * @return whether we are in a class declaration scope
+     * @return whether we are in a class definition scope
      */
     protected boolean isInClassDecl() {
         if(stack.size() == 0){
