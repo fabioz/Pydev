@@ -57,27 +57,34 @@
 <extension point="org.eclipse.ui.actionSets">
   <actionSet
         label="Pydev Navigate"
-        visible="true"
-        id="com.python.pydev.analysis.actionSet">
+        visible="false"
+        id="com.python.pydev.navigate.actionSet">
      <menu
-           label="Pydev Na&amp;vigate"
-           id="pyNavigateMenu">
-        <separator
-              name="pyNavigateGroup">
-        </separator>
+           label="Pydev"
+           id="pyGeneralMenu">
+        <separator name="pyNavigateGroup"/>
      </menu>
      <action
            label="&amp;Globals Browser"
            icon="icons/opentype.gif"
            class="com.python.pydev.analysis.actions.PyGlobalsBrowserWorkbench"
            tooltip="Pydev: Globals Browser"
-           menubarPath="pyNavigateMenu/pyNavigateGroup"
-           toolbarPath="Group"
+           menubarPath="pyGeneralMenu/pyNavigateGroup"
+           toolbarPath="pyNavigateGroup"
            id="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench"
            definitionId="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench">
      </action>
   </actionSet>
 </extension>
+<extension point="org.eclipse.ui.perspectiveExtensions">
+    <perspectiveExtension targetID="org.python.pydev.ui.PythonPerspective">
+        <actionSet id="com.python.pydev.navigate.actionSet"/>
+    </perspectiveExtension>
+    <perspectiveExtension targetID="org.eclipse.debug.ui.DebugPerspective">
+        <actionSet id="com.python.pydev.navigate.actionSet"/>
+    </perspectiveExtension>
+</extension>
+
 <!-- We cannot add another binding because Eclipse already has one
 <extension point="org.eclipse.ui.commands">
       <command
