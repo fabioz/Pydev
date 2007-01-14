@@ -26,7 +26,7 @@ public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
             DEBUG_REFERENCES = true;
             RenameClassRefactoringTest test = new RenameClassRefactoringTest();
             test.setUp();
-            test.testRename2();
+            test.testRenameLocalClass();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameClassRefactoringTest.class);
