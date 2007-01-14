@@ -78,7 +78,9 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
             while(classDefInAst.parent != null){
                 if(classDefInAst.parent.node instanceof FunctionDef){
                     request.findReferencesOnlyOnLocalScope = true; //it is in a local scope.
-                    break;
+                    oc = this.getOccurrencesWithScopeAnalyzer(request);
+                    addOccurrences(request, oc);
+                    return;
                 }
                 classDefInAst = classDefInAst.parent;
             }
@@ -89,11 +91,7 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
             //it is defined in some other module
             oc = ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, root);
         }
-        if(!request.findReferencesOnlyOnLocalScope){ 
-            //if it is not in a local scope, we should get more info about it (otherwise, the scope
-            //analysis is more than enough)
-            oc.addAll(ScopeAnalysis.getAttributeReferences(request.duringProcessInfo.initialName, root));
-        }
+        oc.addAll(ScopeAnalysis.getAttributeReferences(request.duringProcessInfo.initialName, root));
         
 		addOccurrences(request, oc);
     }
