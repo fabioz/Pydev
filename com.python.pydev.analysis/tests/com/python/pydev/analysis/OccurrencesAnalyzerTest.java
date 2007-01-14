@@ -1492,7 +1492,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testGlobal() {
-        //no need to warn if global variable is unused (and it should be defined at the global declaration)
+        //no need to warn if global variable is unused (and it should be defined at the global definition)
         doc = new Document(
                 "def m():                         \n" +
                 "    global __progress            \n" +
@@ -1507,7 +1507,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testGlobal2() {
-        //no need to warn if global variable is unused (and it should be defined at the global declaration)
+        //no need to warn if global variable is unused (and it should be defined at the global definition)
         doc = new Document(
                 "def m():                         \n" +
                 "    global __progress            \n" +

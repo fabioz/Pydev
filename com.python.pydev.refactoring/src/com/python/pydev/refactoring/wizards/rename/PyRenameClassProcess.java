@@ -59,7 +59,7 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
     }
 
     /**
-     * When checking the class on a local scope, we have to cover the class declaration
+     * When checking the class on a local scope, we have to cover the class definition
      * itself and any access to it (global)
      * 
      * @see com.python.pydev.refactoring.wizards.rename.AbstractRenameRefactorProcess#checkInitialOnLocalScope(org.eclipse.ltk.core.refactoring.RefactoringStatus, org.python.pydev.editor.refactoring.RefactoringRequest)
