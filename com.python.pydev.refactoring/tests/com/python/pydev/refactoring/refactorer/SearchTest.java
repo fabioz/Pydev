@@ -19,7 +19,7 @@ public class SearchTest extends AdditionalInfoTestsBase {
 		try {
 			SearchTest test = new SearchTest();
 			test.setUp();
-			test.testSearchImport2();
+			test.testSearch14();
 			test.tearDown();
 
 			junit.textui.TestRunner.run(SearchTest.class);
@@ -295,6 +295,29 @@ public class SearchTest extends AdditionalInfoTestsBase {
 		//found the module
 		assertEquals(0, pointers[0].start.line);
 		assertEquals(6, pointers[0].start.column);
+	}
+	
+	
+	public void testSearch14() throws Exception {
+//		from someparent.somechild import configport config
+//		config.whateveryoulike()
+		
+		String line = "config.whateveryoulike()";
+		final File file = new File(TestDependent.TEST_PYSRC_LOC+"otherparent/navigationtest.py");
+		RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
+		refactoringRequest.ps = new PySelection(refactoringRequest.doc, 1, 0); 
+		
+		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
+		if(pointers.length != 1){
+			for (ItemPointer pointer : pointers) {
+				System.out.println(pointer);
+			}
+		}
+		assertEquals(1, pointers.length);
+		assertEquals(new File(TestDependent.TEST_PYSRC_LOC+"someparent/somechild/config.py"), pointers[0].file);
+		//found the module
+		assertEquals(0, pointers[0].start.line);
+		assertEquals(0, pointers[0].start.column);
 	}
 
     public void testSearchImport() throws Exception {
