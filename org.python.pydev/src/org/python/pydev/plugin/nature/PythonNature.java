@@ -477,38 +477,29 @@ public class PythonNature implements IPythonNature {
     }
 
     /**
-     * Stores the version (the actual version is as a persistent property in the project).
+     * Stores the version as a cache (the actual version is set in the xml file).
      * This is so that we don't have a runtime penalty for it.
      */
-    private String persistentProperty = null;
+    private String versionPropertyCache = null;
     
     /**
-     * Returns the Python version of the Project. It dynamically recomputes the version from the PythonNatureStore's value
+     * Returns the Python version of the Project. 
      * because it might have changed on disk (e.g. a repository update).
      * @return the python version for the project
      * @throws CoreException 
      */
     public String getVersion() throws CoreException {
         if(project != null){
-            String storeVersion = getStore().getPropertyFromXml(getPythonProjectVersionQualifiedName());
-        	if (persistentProperty == null) {
+        	if (versionPropertyCache == null) {
+        	    String storeVersion = getStore().getPropertyFromXml(getPythonProjectVersionQualifiedName());
 	            if(storeVersion == null){ //there is no such property set (let's set it to the default)
-	                storeVersion = getDefaultVersion();
-	            }
-                setVersion(storeVersion);
-        	} else if (!persistentProperty.equals(storeVersion)){
-                if (storeVersion == null) {
-                    // Something very bad happened in the store, log it
-                    PydevPlugin.log("Possible PythonNatureStore corruption, storeVersion == null but persistentProperty != null; storing persistentProperty");
-                    getStore().setPropertyToXml(getPythonProjectVersionQualifiedName(), persistentProperty, true);
-                } else {
-                    // The storeVersion has changed for some reason
-                    setVersion(storeVersion);
+	                setVersion(getDefaultVersion()); //will set the versionPropertyCache too
+	            }else{
+	                versionPropertyCache = storeVersion;   
                 }
-            }
-            return persistentProperty;
+        	} 
         }
-        return null;
+        return versionPropertyCache;
     }
     
     /**
@@ -518,7 +509,7 @@ public class PythonNature implements IPythonNature {
     public void setVersion(String version) throws CoreException{
 		clearCaches();
         if(project != null){
-        	this.persistentProperty = version;
+        	this.versionPropertyCache = version;
             getStore().setPropertyToXml(getPythonProjectVersionQualifiedName(), version, true);
         }
     }
@@ -671,6 +662,7 @@ public class PythonNature implements IPythonNature {
         this.builtinCompletions = null; //when the interpreter is changed, we have to reset it
         this.builtinMod = null;
         this.isJython = null;
+        this.versionPropertyCache = null;
     }
     
     Boolean isJython = null; //cache
