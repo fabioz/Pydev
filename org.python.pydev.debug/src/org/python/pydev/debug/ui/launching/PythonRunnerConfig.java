@@ -201,7 +201,7 @@ public class PythonRunnerConfig {
 			location = interpreterManager.getDefaultInterpreter();
             
 		}else if(interpreterManager.hasInfoOnInterpreter(location) == false){
-	        throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error. The interprer: "+location+" is not configured in the pydev prefeences.", null));
+	        throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error. The interprer: "+location+" is not configured in the pydev preferences as a '"+nature.getVersion()+"' interpreter (as required by the project:"+nature.getProject().getName()+").", null));
         }
 		return location;
 	}
