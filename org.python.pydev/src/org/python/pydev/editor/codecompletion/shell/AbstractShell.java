@@ -385,7 +385,7 @@ public abstract class AbstractShell {
 							serverSocket.setSoTimeout(milisSleep * 2); //let's give it a higher timeout, as we're already half - connected
 							try {
 								socketToRead = serverSocket.accept();
-                                socketToRead.setSoTimeout(100);
+                                socketToRead.setSoTimeout(5000);
 								connected = true;
 								dbg("connected! ",1);
 							} catch (SocketTimeoutException e) {

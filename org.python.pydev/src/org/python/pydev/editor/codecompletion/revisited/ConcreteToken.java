@@ -6,29 +6,25 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 /**
+ * A concrete token is created for representing modules.
  * 
+ * E.g.: if there is a module called foo.bar.config, a concrete token for with rep: config 
+ * and parentPackage foo.bar.config is created.
  * 
  * @author Fabio Zadrozny
  */
 public class ConcreteToken extends AbstractToken{
 
-    
-
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
 
     /**
-     * 
-     * @param rep
-     * @param doc
-     * @param parentPackage
-     * @param type
+     * @param rep The representation for this token
+     * @param doc the document that contains the token
+     * @param parentPackage the parent package for the token (in this case, the module itself)
+     * @param type the type for this token
      */
     public ConcreteToken(String rep, String doc, String args, String parentPackage, int type) {
         super(rep, doc, args, parentPackage, type);
     }
-
-
+    
 }

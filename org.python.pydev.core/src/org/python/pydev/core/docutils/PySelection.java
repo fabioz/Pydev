@@ -105,6 +105,12 @@ public class PySelection {
         this.textSelection = selection;
     }
 
+    /**
+     * Creates a selection from a document
+     * @param doc the document to be used
+     * @param line the line (starts at 0)
+     * @param col the col (starts at 0)
+     */
     public PySelection(IDocument doc, int line, int col) {
     	this(doc, line, col, 0);
     }

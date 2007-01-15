@@ -17,11 +17,11 @@ import org.python.pydev.parser.jython.ast.ClassDef;
  */
 public abstract class AbstractToken implements IToken{
 
-    private String rep;
-    private String originalRep;
-    private String doc;
-    private String args;
-    private String parentPackage;
+    protected String rep;
+    protected String originalRep;
+    protected String doc;
+    protected String args;
+    protected String parentPackage;
     public int type;
 
     public AbstractToken(String rep, String doc, String args, String parentPackage, int type, String originalRep){

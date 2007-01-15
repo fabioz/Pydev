@@ -57,7 +57,10 @@ public class Definition implements IDefinition {
      * Determines whether this definition was found as a local.
      */
     private boolean foundAsLocal;
-    
+
+    /**
+	 * The line and col are defined starting at 1 (and not 0)
+	 */
     public Definition(int line, int col, String value, SimpleNode ast, ILocalScope scope, IModule module){
     	this(line, col, value, ast, scope, module, false);
     }
@@ -134,6 +137,13 @@ public class Definition implements IDefinition {
             return false;
         }
 
+        if(scope == d.scope){
+        	return true;
+        }
+        if(scope == null || d.scope == null){
+        	return false;
+        }
+        
         if(!scope.equals(d.scope)){
             return false;
         }

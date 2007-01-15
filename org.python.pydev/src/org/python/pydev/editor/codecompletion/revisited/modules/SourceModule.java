@@ -27,6 +27,7 @@ import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.ConcreteToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindDefinitionModelVisitor;
@@ -575,9 +576,22 @@ public class SourceModule extends AbstractModule {
                         //line, col
                         return new Definition(def.o1, def.o2, rep, a, new LocalScope(new FastStack<SimpleNode>()), module);
                     }
-                }else{
-                	IToken comp = (IToken) token; //Compiled or Concrete token
-                    String parentPackage = comp.getParentPackage();
+                }else if(token instanceof ConcreteToken){
+                	//a contrete token represents a module
+                	String modName = token.getParentPackage();
+                	if(modName.length() > 0){
+                		modName+= ".";
+                	}
+                	modName += token.getRepresentation();
+                	IModule module = nature.getAstManager().getModule(modName, nature, true);
+                	if(module == null){
+                		return null;
+                	}else{
+                		return new Definition(0+1, 0+1, "", null, null, module); // it is the module itself
+                	}
+                	
+                }else if(token instanceof CompiledToken){
+                    String parentPackage = token.getParentPackage();
                     FullRepIterable iterable = new FullRepIterable(parentPackage, true);
                     
                     IModule module = null;
@@ -590,12 +604,14 @@ public class SourceModule extends AbstractModule {
                     if(module == null){
                         return null;
                     }
+                    
                     int length = module.getName().length();
                     String finalRep = "";
                     if(parentPackage.length() > length){
                         finalRep = parentPackage.substring(length + 1)+'.';
                     }
-                    finalRep += comp.getRepresentation();
+                    finalRep += token.getRepresentation();
+                    
                     try {
                         IDefinition[] definitions = module.findDefinition(state.getCopyWithActTok(finalRep), -1, -1, nature, new ArrayList<FindInfo>());
                         if(definitions.length > 0){
@@ -604,6 +620,8 @@ public class SourceModule extends AbstractModule {
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
+                }else{
+                	throw new RuntimeException("Unexpected token:"+token.getClass());
                 }
             }
         }
