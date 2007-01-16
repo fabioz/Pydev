@@ -13,6 +13,7 @@ Pydev:
 	<li>Fixed: When a different interpreter is chosen in the run dialog, the pythonpath is correctly gotten
 	<li>Fixed: Cancelling the addition of an interpreter no longer raises any exceptions.
 	<li>Minor fixes in the grammar</li>
+	<li>Fix: when Pydev was started, it would re-save the .pydevproject file even if no change was done</li>
 </ul>
 
 Extensions:
