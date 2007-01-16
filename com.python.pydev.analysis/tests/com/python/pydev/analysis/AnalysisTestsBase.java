@@ -11,7 +11,6 @@ import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterManager;
@@ -69,7 +68,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
         }
         String lower = paths.toLowerCase();
         lower = StringUtils.replaceAllSlashes(lower);
-		final Set s = new HashSet(Arrays.asList(lower.split("\\|")));
+		final Set<String> s = new HashSet<String>(Arrays.asList(lower.split("\\|")));
         InterpreterInfo.configurePathsCallback = new ICallback<Boolean, Tuple<List<String>, List<String>>>(){
         	
         	public Boolean call(Tuple<List<String>, List<String>> arg) {

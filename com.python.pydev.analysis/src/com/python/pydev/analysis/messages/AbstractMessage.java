@@ -79,7 +79,38 @@ public abstract class AbstractMessage implements IMessage{
     }
 
     public static int getStartLine(IToken generator, IDocument doc) {
-    	return generator.getLineDefinition();
+    	return getStartLine(generator, doc, generator.getRepresentation());
+    }
+    
+    public static int getStartLine(IToken generator, IDocument doc, String shortMessage) {
+    	return getStartLine(generator, doc, shortMessage, false);
+    	
+    }
+    public static int getStartLine(IToken generator, IDocument doc, String shortMessage, boolean returnAsName) {
+        if(!generator.isImport()){
+        	return generator.getLineDefinition();
+        }
+        
+        //ok, it is an import... (can only be a source token)
+        SourceToken s = (SourceToken) generator;
+        
+        SimpleNode ast = s.getAst();
+        if(ast instanceof ImportFrom){
+            ImportFrom i = (ImportFrom) ast;
+            //if it is a wild import, it starts on the module name
+            if(AbstractVisitor.isWildImport(i)){
+                return i.module.beginLine;
+            }else{
+                //no wild import, let's check the 'as name'
+            	return getNameForRepresentation(i, shortMessage, returnAsName).beginLine;
+            }
+            
+        }else if(ast instanceof Import){
+            return getNameForRepresentation(ast, shortMessage, returnAsName).beginLine;
+            
+        }else{
+            throw new RuntimeException("It is not an import");
+        }
     }
     
     int startCol = -1;
@@ -127,8 +158,7 @@ public abstract class AbstractMessage implements IMessage{
             }
             
         }else if(ast instanceof Import){
-            NameTok it = getNameForRepresentation(ast, shortMessage, returnAsName);
-            return it.beginColumn;
+            return getNameForRepresentation(ast, shortMessage, returnAsName).beginColumn;
             
         }else{
             throw new RuntimeException("It is not an import");
@@ -197,7 +227,11 @@ public abstract class AbstractMessage implements IMessage{
     }
     public static int getEndLine(IToken generator, IDocument doc, boolean getOnlyToFirstDot) {
     	if(generator instanceof SourceToken){
-    		return ((SourceToken)generator).getLineEnd(getOnlyToFirstDot);
+    		if(!generator.isImport()){
+    			return ((SourceToken)generator).getLineEnd(getOnlyToFirstDot);
+    		}
+    		return getStartLine(generator, doc); //for an import, the endline == startline
+
     	}else{
     		return -1;
     	}

@@ -26,7 +26,8 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testMetaclass();
+            analyzer2.testMultilineImport();
+            analyzer2.testImportNotFound6();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -569,6 +570,34 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         assertContainsMsg("Unused import: path", msgs);
     }
     
+    public void testMultilineImport(){
+    	
+    	doc = new Document(
+    			"from os import (pathNotDef1,\n" +
+    			"                notDefined)\n" +
+    			""
+    	);
+    	analyzer = new OccurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	IMessage message;
+    	
+    	printMessages(msgs,4);
+    	
+    	message = assertContainsMsg("Unresolved import: pathNotDef1", msgs);
+    	assertEquals(1, message.getStartLine(doc));
+    	
+    	message = assertContainsMsg("Unresolved import: notDefined", msgs);
+    	assertEquals(2, message.getStartLine(doc));
+    	assertEquals(2, message.getEndLine(doc));
+    	
+    	assertEquals(17, message.getStartCol(doc));
+    	assertEquals(27, message.getEndCol(doc));
+    	
+    	assertContainsMsg("Unused import: notDefined", msgs);
+    	assertContainsMsg("Unused import: pathNotDef1", msgs);
+    }
+    
     public void testImportNotFound4(){
         
         doc = new Document(
@@ -592,7 +621,8 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs,1);
-        assertContainsMsg("Unused import: os", msgs);
+        IMessage msg = assertContainsMsg("Unused import: os", msgs);
+        assertEquals(1, msg.getStartLine(doc));
     }
     
     public void testImportNotFound7(){
