@@ -24,7 +24,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	try {
 			ScopeAnalyzerVisitorTest test = new ScopeAnalyzerVisitorTest();
 			test.setUp();
-			test.testIt21();
+			test.testIt23();
 			test.tearDown();
 			junit.textui.TestRunner.run(ScopeAnalyzerVisitorTest.class);
 		} catch (Exception e) {
@@ -289,14 +289,32 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     }
     
     public void testIt21() throws Exception {
+    	doc = new Document(
+    			"class LocalFoo: \n" +
+    			"    pass        \n" +
+    			"print LocalFoo  \n"
+    	);
+    	List<IToken> tokenOccurrences = getTokenOccurrences(2, 8);
+    	assertEquals(2, tokenOccurrences.size());
+    	
+    }
+    
+    public void testIt22() throws Exception {
         doc = new Document(
-                "class LocalFoo: \n" +
-                "    pass        \n" +
-                "print LocalFoo  \n"
+                "class LocalFoo(object): \n" +
+                "    pass        \n"
         );
-        List<IToken> tokenOccurrences = getTokenOccurrences(2, 8);
-        assertEquals(2, tokenOccurrences.size());
-        
+        List<IToken> tokenOccurrences = getTokenOccurrences(0, 17);
+        assertEquals(1, tokenOccurrences.size());
+    }
+    
+    public void testIt23() throws Exception {
+    	doc = new Document(
+    			"class Foo(object): \n" +
+    			"    pass        \n"
+    	);
+    	List<IToken> tokenOccurrences = getTokenOccurrences(0, 7);
+    	assertEquals(1, tokenOccurrences.size());
     }
     
 //    do we want to check self ?
@@ -353,6 +371,10 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	assertEquals(6, toks.get(1).getColDefinition()-1);
 	}
 	
+	/**
+	 * @param line: 0 based
+	 * @param col: 0 based
+	 */
 	private List<IToken> getTokenOccurrences(int line, int col) throws Exception {
 		ScopeAnalyzerVisitor visitor = doVisit(line, col);
 		List<IToken> ret = visitor.getTokenOccurrences();

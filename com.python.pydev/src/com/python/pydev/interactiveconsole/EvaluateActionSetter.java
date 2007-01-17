@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.widgets.Display;
@@ -102,8 +103,8 @@ public class EvaluateActionSetter implements IPyEditListener{
     /**
      * This method associates Ctrl+new line with the evaluation of commands in the console. 
      */
-    public void onCreateActions(ListResourceBundle resources, final PyEdit edit) {
-        new PyEditConsoleListener(this, edit);
+    public void onCreateActions(ListResourceBundle resources, final PyEdit edit, IProgressMonitor monitor) {
+        new PyEditConsoleListener(this, edit, monitor);
         final EvaluateAction evaluateAction = new EvaluateAction(edit);
         evaluateAction.setActionDefinitionId(EVALUATE_ACTION_ID);
         evaluateAction.setId(EVALUATE_ACTION_ID);
@@ -118,11 +119,11 @@ public class EvaluateActionSetter implements IPyEditListener{
     }
 
     
-    public void onSave(PyEdit edit) {
+    public void onSave(PyEdit edit, IProgressMonitor monitor) {
         //ignore
     }
 
-    public void onDispose(PyEdit edit) {
+    public void onDispose(PyEdit edit, IProgressMonitor monitor) {
         if(isConsoleEnvActive(edit)){
             ConsoleEnv env = fConsoleEnv.get(edit);
             if(env != null){
@@ -131,7 +132,7 @@ public class EvaluateActionSetter implements IPyEditListener{
         }
     }
 
-    public void onSetDocument(IDocument document, PyEdit edit) {
+    public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
         //ignore
     }
 

@@ -5,6 +5,7 @@ package com.python.pydev.interactiveconsole;
 
 import java.util.ListResourceBundle;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
@@ -22,21 +23,21 @@ public class PyEditConsoleListener implements IPyEditListener, IDocumentListener
     private PyEdit edit;
     private EvaluateActionSetter setter;
 
-    public PyEditConsoleListener(EvaluateActionSetter setter, PyEdit edit) {
+    public PyEditConsoleListener(EvaluateActionSetter setter, PyEdit edit, IProgressMonitor monitor) {
         this.setter = setter;
         this.edit = edit;
         this.edit.addPyeditListener(this);
         IDocument document = this.edit.getDocument();
         if(document != null){
             //start listening the doc
-            onSetDocument(document, edit);
+            onSetDocument(document, edit, monitor);
         }
     }
 
     /**
      * When the editor is disposed, we have to stop listening to its doc (and remove the PyEdit reference).
      */
-    public void onDispose(PyEdit edit) {
+    public void onDispose(PyEdit edit, IProgressMonitor monitor) {
         if(this.doc != null){
             this.doc.removeDocumentListener(this);
             this.doc = null;
@@ -47,7 +48,7 @@ public class PyEditConsoleListener implements IPyEditListener, IDocumentListener
     /**
      * Ok, we have to listen to changes in the document
      */
-    public void onSetDocument(IDocument document, PyEdit edit) {
+    public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
         if(this.doc != null){
             this.doc.removeDocumentListener(this);
         }
@@ -94,11 +95,11 @@ public class PyEditConsoleListener implements IPyEditListener, IDocumentListener
         }
     }
 
-    public void onSave(PyEdit edit) {
+    public void onSave(PyEdit edit, IProgressMonitor monitor) {
         //ignore
     }
 
-    public void onCreateActions(ListResourceBundle resources, PyEdit edit) {
+    public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
         //ignore
     }
 }

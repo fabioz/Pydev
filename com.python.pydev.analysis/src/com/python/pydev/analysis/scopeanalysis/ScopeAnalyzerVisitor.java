@@ -340,6 +340,9 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 		
 		for (Tuple3<IToken, Integer, ASTEntry> tup: complete) {
 			IToken token = tup.o1;
+			if(!(token instanceof SourceToken)){ // we want only the source tokens for this module
+				continue;
+			}
 			
 			//if it is different, we have to make partial names
 			SourceToken sourceToken = (SourceToken)tup.o1;

@@ -6,6 +6,7 @@ package com.python.pydev.refactoring.markocurrences;
 import java.lang.ref.WeakReference;
 import java.util.ListResourceBundle;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
@@ -22,16 +23,16 @@ import org.python.pydev.editor.PyEdit;
  */
 public class MarkOccurrencesDispatcher implements IPyEditListener, IDocumentListener, IPyEditListener2{
     
-    public void onSave(PyEdit edit) {
+    public void onSave(PyEdit edit, IProgressMonitor monitor) {
     }
 
-    public void onCreateActions(ListResourceBundle resources, PyEdit edit) {
+    public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
     }
 
-    public void onDispose(PyEdit edit) {
+    public void onDispose(PyEdit edit, IProgressMonitor monitor) {
     }
     
-    public void onSetDocument(IDocument document, PyEdit edit) {
+    public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
     }
 
     public void documentAboutToBeChanged(DocumentEvent event) {
@@ -41,7 +42,6 @@ public class MarkOccurrencesDispatcher implements IPyEditListener, IDocumentList
     }
 
     public void handleCursorPositionChanged(PyEdit edit) {
-        MarkOccurrencesJob job = MarkOccurrencesJob.get();
-        job.scheduleRequest(new WeakReference<PyEdit>(edit));
+    	MarkOccurrencesJob.scheduleRequest(new WeakReference<PyEdit>(edit));
     }
 }
