@@ -38,6 +38,7 @@ public class FileResourceStub implements IFile {
 
     private File actualFile;
     private IProject project;
+    private String fileContents;
 
     public FileResourceStub(File file, IProject project) {
         this.actualFile = file;
@@ -51,6 +52,17 @@ public class FileResourceStub implements IFile {
         }
         FileResourceStub o = (FileResourceStub) obj;
         return this.actualFile.equals(o.actualFile);
+    }
+    
+    /**
+     * For testing purposes
+     * @return
+     */
+    public String getFileContents(){
+        if(this.fileContents == null){
+            this.fileContents = REF.getFileContents(actualFile);
+        }
+        return this.fileContents;
     }
     
     @Override
