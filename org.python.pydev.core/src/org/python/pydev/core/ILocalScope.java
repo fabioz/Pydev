@@ -38,7 +38,8 @@ public interface ILocalScope {
 
     /**
      * @return the scope stack with simple nodes
+     * @note SimpleNode is not declared because we only have it in the parser (and not in the local scope)
      */
-    public FastStack getScopeStack();
+    public FastStack /*<SimpleNode>*/ getScopeStack();
 
 }

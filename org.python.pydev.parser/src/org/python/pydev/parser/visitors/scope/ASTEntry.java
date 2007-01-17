@@ -3,6 +3,7 @@
  */
 package org.python.pydev.parser.visitors.scope;
 
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -129,5 +130,21 @@ public class ASTEntry{
         } else{
         	return node;
         }
+	}
+	
+	@Override
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("AstEntry<");
+		buffer.append(getName());
+		buffer.append(" (");
+		buffer.append(FullRepIterable.getLastPart(node.getClass().getName()));
+		buffer.append(" L=");
+		buffer.append(node.beginLine);
+		buffer.append(" C=");
+		buffer.append(node.beginColumn);
+		buffer.append(")");
+		buffer.append(">");
+		return buffer.toString();
 	}
 }
