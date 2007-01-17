@@ -69,6 +69,13 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
     protected Map<Tuple<String, IFile>, List<ASTEntry>> fileOccurrences = new HashMap<Tuple<String,IFile>, List<ASTEntry>>();
 
     /**
+     * May be used by subclasses
+     */
+    public AbstractRenameRefactorProcess(){
+    	
+    }
+    
+    /**
      * @param definition the definition on where this rename should be applied (we will find the references based 
      * on this definition).
      */

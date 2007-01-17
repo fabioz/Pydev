@@ -33,6 +33,12 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
 
     public static final boolean DEBUG_FILTERED_MODULES = false;
     
+    /**
+     * May be used by subclasses
+     */
+    protected AbstractRenameWorkspaceRefactorProcess() {
+    	
+    }
     public AbstractRenameWorkspaceRefactorProcess(Definition definition) {
         super(definition);
     }

@@ -7,6 +7,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinitio
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 import com.python.pydev.refactoring.wizards.rename.PyRenameAnyLocalProcess;
@@ -15,6 +16,7 @@ import com.python.pydev.refactoring.wizards.rename.PyRenameClassProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameFunctionProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameImportProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameLocalProcess;
+import com.python.pydev.refactoring.wizards.rename.PyRenameParameterProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameSelfAttributeProcess;
 
 public class RefactorProcessFactory {
@@ -46,6 +48,13 @@ public class RefactorProcessFactory {
         if(definition.ast != null){
             if(definition.ast instanceof ClassDef){
                 return new PyRenameClassProcess(definition);
+            }
+            
+            if(definition.ast instanceof Name){
+            	Name n = (Name) definition.ast;
+            	if(n.ctx == Name.Param){
+            		return new PyRenameParameterProcess(definition);
+            	}
             }
             
             if(definition.ast instanceof FunctionDef){

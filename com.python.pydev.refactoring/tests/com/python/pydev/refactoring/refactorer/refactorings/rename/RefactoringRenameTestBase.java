@@ -20,6 +20,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.eclipseresourcestubs.FileResourceStub;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
@@ -103,7 +104,8 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             assertEquals(1, processes.size());
             
             for(IRefactorProcess p:processes){
-                assertTrue(getProcessUnderTest().isInstance(p)); //we should only activate the rename class process in this test case
+                assertTrue( StringUtils.format("Expected %s. Received:%s", getProcessUnderTest(), p.getClass()),
+                			getProcessUnderTest().isInstance(p)); //we should only activate the rename class process in this test case
             }
         }
     }

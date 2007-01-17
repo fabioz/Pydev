@@ -31,6 +31,18 @@ import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
  */
 public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProcess{
 
+	/**
+	 * This is a cache to improve the lookup if it is requested more times 
+	 */
+	private ASTEntry functionDefEntryCache;
+	
+	/**
+	 * To be used by subclasses
+	 */
+	protected PyRenameFunctionProcess() {
+		
+	}
+	
     public PyRenameFunctionProcess(Definition definition) {
         super(definition);
         Assert.isTrue(this.definition.ast instanceof FunctionDef);
@@ -103,18 +115,21 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
      * @return the function definition that matches the original definition as an ASTEntry
      */
     private ASTEntry getOriginalFunctionInAst(SimpleNode simpleNode) {
-        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(simpleNode);
-        Iterator<ASTEntry> it = visitor.getIterator(FunctionDef.class);
-        ASTEntry functionDefEntry = null;
-        while(it.hasNext()){
-            functionDefEntry = it.next();
-            
-            if(functionDefEntry.node.beginLine == this.definition.ast.beginLine && 
-                    functionDefEntry.node.beginColumn == this.definition.ast.beginColumn){
-                return functionDefEntry;
-            }
-        }
-        return null;
+    	if(functionDefEntryCache == null){
+	        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(simpleNode);
+	        Iterator<ASTEntry> it = visitor.getIterator(FunctionDef.class);
+	        ASTEntry functionDefEntry = null;
+	        while(it.hasNext()){
+	            functionDefEntry = it.next();
+	            
+	            if(functionDefEntry.node.beginLine == this.definition.ast.beginLine && 
+	                    functionDefEntry.node.beginColumn == this.definition.ast.beginColumn){
+	            	functionDefEntryCache = functionDefEntry;
+	            	break;
+	            }
+	        }
+    	}
+        return functionDefEntryCache;
     }
     
     /**
@@ -126,15 +141,35 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
         SimpleNode root = request.getAST();
         
         if(!definition.module.getName().equals(request.moduleName)){
-        	//it was found in another module
-            docOccurrences.addAll(ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, root, false));
+			//it was found in another module
+            docOccurrences.addAll(getEntryOccurrencesInOtherModule(request, root));
         	
         }else{
-            docOccurrences.addAll( getLocalOcurrences(request.duringProcessInfo.initialName, root, status));
+            docOccurrences.addAll(getEntryOccurrencesInSameModule(status, request, root));
         }
         
     }
 
+    
+    /**
+     * Will return the occurrences if we're in the same module for the method definition
+     */
+	protected List<ASTEntry> getEntryOccurrencesInSameModule(RefactoringStatus status, RefactoringRequest request, SimpleNode root) {
+		return getLocalOcurrences(request.duringProcessInfo.initialName, root, status);
+	}
+
+	/**
+	 * Will return the occurrences if we're NOT in the same module as the method definition
+	 */
+	protected List<ASTEntry> getEntryOccurrencesInOtherModule(RefactoringRequest request, SimpleNode root) {
+		return ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, root, false);
+	}
+
+    /**
+     * This method is called for each module that may have some reference to the definition
+     * we're looking for.
+     * (Abstract in superclass) 
+     */
     @Override
     protected List<ASTEntry> getEntryOccurrences(RefactoringStatus status, String initialName, SourceModule module) {
         SimpleNode root = module.getAst();

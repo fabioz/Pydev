@@ -63,5 +63,14 @@ public class RenameFunctionRefactoringTest extends RefactoringRenameTestBase {
         checkProcessors();
     }
     
+    public void testRename3() throws Exception {
+    	Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameparameter.methoddef", 0, 6);
+    	assertTrue(references.containsKey("reflib.renameparameter.methodaccess")); 
+    	assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
+    	assertEquals(2, references.get("reflib.renameparameter.methodaccess").size());
+    	assertEquals(1, references.get(CURRENT_MODULE_IN_REFERENCES).size());
+    	checkProcessors();
+    }
+    
 
 }
