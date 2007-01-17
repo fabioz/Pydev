@@ -2,6 +2,10 @@ package org.python.pydev.editor;
 
 import java.lang.ref.WeakReference;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.editor.PyEdit.MyResources;
 import org.python.pydev.plugin.PydevPlugin;
@@ -10,6 +14,10 @@ public class PyEditNotifier {
 	
 	private WeakReference<PyEdit> pyEdit;
 
+	public static interface INotifierRunnable{
+		public void run(IProgressMonitor monitor);
+	}
+	
 	public PyEditNotifier(PyEdit edit){
 		this.pyEdit = new WeakReference<PyEdit>(edit);
 	}
@@ -19,11 +27,13 @@ public class PyEditNotifier {
     	if(edit == null){
     		return;
     	}
-    	Runnable runnable = new Runnable(){
-    		public void run(){
+    	INotifierRunnable runnable = new INotifierRunnable(){
+    		public void run(final IProgressMonitor monitor){
 		        for(IPyEditListener listener : edit.getAllListeners()){
 		            try {
-		                listener.onCreateActions(resources, edit);
+		            	if(!monitor.isCanceled()){
+		            		listener.onCreateActions(resources, edit, monitor);
+		            	}
 		            } catch (Exception e) {
 		                //must not fail
 		                PydevPlugin.log(e);
@@ -39,11 +49,13 @@ public class PyEditNotifier {
     	if(edit == null){
     		return;
     	}
-    	Runnable runnable = new Runnable(){
-    		public void run(){
+    	INotifierRunnable runnable = new INotifierRunnable(){
+    		public void run(IProgressMonitor monitor){
     			for(IPyEditListener listener : edit.getAllListeners()){
     				try {
-    					listener.onSave(edit);
+		            	if(!monitor.isCanceled()){
+		            		listener.onSave(edit, monitor);
+		            	}
     				} catch (Throwable e) {
     					//must not fail
     					PydevPlugin.log(e);
@@ -55,11 +67,19 @@ public class PyEditNotifier {
 
     }
 
-	private void runIt(Runnable runnable) {
-		Thread thread = new Thread(runnable);
-		thread.setPriority(Thread.MIN_PRIORITY);
-        thread.setName("PyEditNotifier");
-		thread.start();
+	private void runIt(final INotifierRunnable runnable) {
+		Job job = new Job("PyEditNotifier"){
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				runnable.run(monitor);
+				return Status.OK_STATUS;
+			}
+			
+		};
+		job.setPriority(Job.BUILD);
+		job.setSystem(true);
+		job.schedule();
 	}
 
     public void notifyOnDispose() {
@@ -68,11 +88,13 @@ public class PyEditNotifier {
     		return;
     	}
     	
-    	Runnable runnable = new Runnable(){
-    		public void run(){
+    	INotifierRunnable runnable = new INotifierRunnable(){
+    		public void run(IProgressMonitor monitor){
     			for(IPyEditListener listener : edit.getAllListeners()){
     				try {
-    					listener.onDispose(edit);
+		            	if(!monitor.isCanceled()){
+		            		listener.onDispose(edit, monitor);
+		            	}
     				} catch (Throwable e) {
     					//no need to worry... as we're disposing, in shutdown, we may not have access to some classes anymore
     				}
@@ -90,11 +112,13 @@ public class PyEditNotifier {
     	if(edit == null){
     		return;
     	}
-    	Runnable runnable = new Runnable(){
-    		public void run(){
+    	INotifierRunnable runnable = new INotifierRunnable(){
+    		public void run(IProgressMonitor monitor){
     			for(IPyEditListener listener : edit.getAllListeners()){
     				try {
-    					listener.onSetDocument(document, edit);
+		            	if(!monitor.isCanceled()){
+		            		listener.onSetDocument(document, edit, monitor);
+		            	}
     				} catch (Exception e) {
     					//must not fail
     					PydevPlugin.log(e);

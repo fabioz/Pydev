@@ -6,6 +6,7 @@ package org.python.pydev.editor.scripting;
 import java.util.HashMap;
 import java.util.ListResourceBundle;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
@@ -34,21 +35,21 @@ public class PyEditScripting implements IPyEditListener {
         													 //the org.python.pydev.jython/jysrc directory and some user specified dir (if any).
 	}
 
-	public void onSave(PyEdit edit) {
+	public void onSave(PyEdit edit, IProgressMonitor monitor) {
     	HashMap<String, Object> locals = new HashMap<String, Object>();
     	locals.put("cmd", "onSave");
     	locals.put("editor", edit);
     	doExec(locals); 
     }
 
-    public void onCreateActions(ListResourceBundle resources, PyEdit edit) {
+    public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
         HashMap<String, Object> locals = new HashMap<String, Object>();
         locals.put("cmd", "onCreateActions");
         locals.put("editor", edit);
         doExec(locals);
     }
 
-    public void onDispose(PyEdit edit) {
+    public void onDispose(PyEdit edit, IProgressMonitor monitor) {
     	HashMap<String, Object> locals = new HashMap<String, Object>();
     	locals.put("cmd", "onDispose");
     	locals.put("editor", edit);
@@ -58,7 +59,7 @@ public class PyEditScripting implements IPyEditListener {
         interpreter = null;
     }
 
-    public void onSetDocument(IDocument document, PyEdit edit) {
+    public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
     	HashMap<String, Object> locals = new HashMap<String, Object>();
     	locals.put("cmd", "onSetDocument");
     	locals.put("document", document);

@@ -120,4 +120,14 @@ public class ASTEntry{
             return name;
         }
     }
+
+	public SimpleNode getNameNode() {
+        if (node instanceof ClassDef){
+            return ((ClassDef)node).name;
+        } else if (node instanceof FunctionDef){
+            return ((FunctionDef)node).name;
+        } else{
+        	return node;
+        }
+	}
 }
