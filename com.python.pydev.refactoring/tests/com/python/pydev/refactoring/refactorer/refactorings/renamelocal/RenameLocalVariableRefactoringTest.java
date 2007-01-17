@@ -12,7 +12,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         try {
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameParamFromCall();
+            test.testRenameParameter2();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -82,7 +82,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
                 "\n";
         int line = 2;
         int col = 16;
-        checkRename(str, line, col);
+        checkRename(str, line, col, "foo", false, true);
     }
     
     public void testRenameParameter() throws Exception {
@@ -94,7 +94,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     	"\n";
     	int line = 1;
     	int col = 16;
-    	checkRename(str, line, col, "foo", false);
+    	checkRename(str, line, col, "foo", false, true);
     }
     
     public void testRenameParameter2() throws Exception {
@@ -106,7 +106,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     	"\n";
     	int line = 1;
     	int col = 16;
-    	checkRename(str, line, col, "foo", false);
+    	checkRename(str, line, col, "foo", false, true);
     }
     
     public void testRenameLocalMethod() throws Exception {

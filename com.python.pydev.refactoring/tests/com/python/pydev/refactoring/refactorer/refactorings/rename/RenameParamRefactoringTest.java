@@ -13,10 +13,10 @@ public class RenameParamRefactoringTest extends RefactoringRenameTestBase  {
     public static void main(String[] args) {
         try {
             DEBUG_REFERENCES = false;
-//            RenameParamRefactoringTest test = new RenameParamRefactoringTest();
-//            test.setUp();
-//            test.testRename1();
-//            test.tearDown();
+            RenameParamRefactoringTest test = new RenameParamRefactoringTest();
+            test.setUp();
+            test.testRenameParameter();
+            test.tearDown();
 
             junit.textui.TestRunner.run(RenameParamRefactoringTest.class);
         } catch (Throwable e) {
@@ -35,7 +35,8 @@ public class RenameParamRefactoringTest extends RefactoringRenameTestBase  {
         Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameparameter.methoddef", 0, 14); 
     	assertTrue(references.containsKey("reflib.renameparameter.methodaccess")); 
     	assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
-		
+        assertEquals(2, references.get(CURRENT_MODULE_IN_REFERENCES).size());
+        assertEquals(2, references.get("reflib.renameparameter.methodaccess").size());
 	}
 
 }

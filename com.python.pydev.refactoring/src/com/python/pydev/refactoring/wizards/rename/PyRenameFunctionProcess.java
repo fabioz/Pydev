@@ -142,10 +142,10 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
         
         if(!definition.module.getName().equals(request.moduleName)){
 			//it was found in another module
-            docOccurrences.addAll(getEntryOccurrencesInOtherModule(request, root));
+            docOccurrences.addAll(getEntryOccurrencesInOtherModule(request.duringProcessInfo.initialName, root));
         	
         }else{
-            docOccurrences.addAll(getEntryOccurrencesInSameModule(status, request, root));
+            docOccurrences.addAll(getEntryOccurrencesInSameModule(status, request.duringProcessInfo.initialName, root));
         }
         
     }
@@ -154,15 +154,15 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
     /**
      * Will return the occurrences if we're in the same module for the method definition
      */
-	protected List<ASTEntry> getEntryOccurrencesInSameModule(RefactoringStatus status, RefactoringRequest request, SimpleNode root) {
-		return getLocalOcurrences(request.duringProcessInfo.initialName, root, status);
+	protected List<ASTEntry> getEntryOccurrencesInSameModule(RefactoringStatus status, String initialName, SimpleNode root) {
+		return getLocalOcurrences(initialName, root, status);
 	}
 
 	/**
 	 * Will return the occurrences if we're NOT in the same module as the method definition
 	 */
-	protected List<ASTEntry> getEntryOccurrencesInOtherModule(RefactoringRequest request, SimpleNode root) {
-		return ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, root, false);
+	protected List<ASTEntry> getEntryOccurrencesInOtherModule(String initialName, SimpleNode root) {
+		return ScopeAnalysis.getLocalOcurrences(initialName, root, false);
 	}
 
     /**
@@ -175,9 +175,9 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
         SimpleNode root = module.getAst();
         
         if(!definition.module.getName().equals(module.getName())){
-            return ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, root, false);
+            return ScopeAnalysis.getLocalOcurrences(initialName, root, false);
         }else{
-            return getLocalOcurrences(request.duringProcessInfo.initialName, root, status);
+            return getLocalOcurrences(initialName, root, status);
         }
     }
 

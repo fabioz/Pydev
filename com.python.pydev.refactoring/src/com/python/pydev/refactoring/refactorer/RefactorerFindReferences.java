@@ -19,6 +19,7 @@ import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.FileTextSearchScope;
 import org.eclipse.search.ui.text.TextSearchQueryProvider;
 import org.eclipse.search.ui.text.TextSearchQueryProvider.TextSearchInput;
+import org.python.pydev.core.REF;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
@@ -84,7 +85,15 @@ public class RefactorerFindReferences {
      */
     public List<IFile> findPossibleReferences(RefactoringRequest request) {
         if(FORCED_RETURN != null){
-            return FORCED_RETURN;
+            ArrayList<IFile> ret = new ArrayList<IFile>();
+            for(IFile f: FORCED_RETURN){
+                //only for testing purposes
+                String object = (String) REF.invoke(f, "getFileContents", new Object[0]);
+                if(object.indexOf(request.duringProcessInfo.initialName) != -1){
+                    ret.add(f);
+                }
+            }
+            return ret;
         }
         
         List<IFile> l = new ArrayList<IFile>();

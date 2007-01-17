@@ -1,18 +1,25 @@
 package com.python.pydev.refactoring.wizards.rename;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.util.Assert;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
+import com.python.pydev.refactoring.wizards.rename.visitors.FindCallVisitor;
 
 /**
  * The rename parameter is based on the rename function, because it will basically:
@@ -32,7 +39,9 @@ import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
  */
 public class PyRenameParameterProcess extends PyRenameFunctionProcess{
 
-	public PyRenameParameterProcess(Definition definition) {
+	private String functionName;
+
+    public PyRenameParameterProcess(Definition definition) {
 		super(); 
 		//empty, because we'll actually supply a different definition for the superclass (the method 
 		//definition, and not the parameter, which we receive here).
@@ -40,38 +49,68 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
 		Assert.isNotNull(definition.scope, "The scope for a rename parameter must always be provided.");
 		
 		FunctionDef node = (FunctionDef) definition.scope.getScopeStack().peek();
-		super.definition = new Definition(node.name.beginLine, node.name.beginColumn, ((NameTok)node.name).id, node, definition.scope, definition.module);
-		
+		super.definition = new Definition(node.beginLine, node.beginColumn, ((NameTok)node.name).id, node, definition.scope, definition.module);
+		this.functionName = ((NameTok)node.name).id;
 	}
 	
 	
 	/**
 	 * These are the methods that we need to override to change the function occurrences for parameter occurrences
 	 */
-	protected List<ASTEntry> getEntryOccurrencesInSameModule(RefactoringStatus status, RefactoringRequest request, SimpleNode root) {
-		List<ASTEntry> occurrences = super.getEntryOccurrencesInSameModule(status, request, root);
-		return getParameterOccurences(occurrences);
-	}
-
-	protected List<ASTEntry> getEntryOccurrencesInOtherModule(RefactoringRequest request, SimpleNode root) {
-		List<ASTEntry> occurrences = super.getEntryOccurrencesInOtherModule(request, root);
-		return getParameterOccurences(occurrences);
+	protected List<ASTEntry> getEntryOccurrencesInSameModule(RefactoringStatus status, String initialName, SimpleNode root) {
+		List<ASTEntry> occurrences = super.getEntryOccurrencesInSameModule(status, this.functionName, root);
+		return getParameterOccurences(occurrences, root);
 	}
 	
-    protected List<ASTEntry> getEntryOccurrences(RefactoringStatus status, String initialName, SourceModule module) {
-        List<ASTEntry> occurrences = super.getEntryOccurrences(status, initialName, module);
-        return getParameterOccurences(occurrences);
+    protected List<ASTEntry> getOccurrencesInOtherModule(RefactoringStatus status, String initialName, SourceModule module, PythonNature nature) {
+        List<ASTEntry> occurrences = super.getOccurrencesInOtherModule(status, this.functionName, module, nature);
+        return getParameterOccurences(occurrences, module.getAst());
+        
     }
 	
     /**
      * This method changes function occurrences for parameter occurrences
      */
-    private List<ASTEntry> getParameterOccurences(List<ASTEntry> occurrences) {
+    private List<ASTEntry> getParameterOccurences(List<ASTEntry> occurrences, SimpleNode root) {
+        List<ASTEntry> ret = new ArrayList<ASTEntry>();
     	for (ASTEntry entry : occurrences) {
-			System.out.println(entry);
+            
+            if(entry.parent != null && entry.parent.node instanceof FunctionDef){
+                processFunctionDef(ret, entry);
+                
+            }else if(entry.node instanceof Name){
+                processFoundName(root, ret, entry);
+                
+            }
 		}
-    	return occurrences;
+    	return ret;
 	}
+
+
+    private void processFunctionDef(List<ASTEntry> ret, ASTEntry entry) {
+        //this is the actual function definition, so, let's take a look at its arguments... 
+        
+        FunctionDef node = (FunctionDef) entry.parent.node;
+        List<ASTEntry> found = ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, node);
+        ret.addAll(found);
+    }
+
+
+    private void processFoundName(SimpleNode root, List<ASTEntry> ret, ASTEntry entry) {
+        Name name = (Name) entry.node;
+        if(name.ctx == Name.Load){
+            Call call = FindCallVisitor.findCall(name, root);
+            List<ASTEntry> found = ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, call);
+            for (ASTEntry entry2 : found) {
+                if(entry2.node instanceof NameTok){
+                    NameTok name2 = (NameTok) entry2.node;
+                    if(name2.ctx == NameTok.KeywordName){
+                        ret.add(entry2);
+                    }
+                }
+            }
+        }
+    }
 
 
 }
