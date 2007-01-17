@@ -57,7 +57,10 @@ public class MarkOccurrencesJob extends Job{
     private static final boolean DEBUG = false;
     private static MarkOccurrencesJob singleton;
     
-    private static long lastRequestTime = -1;
+    /**
+     * Make it thread safe
+     */
+    private static volatile long lastRequestTime = -1;
 
     /**
      * This is the editor to be analyzed

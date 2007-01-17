@@ -39,19 +39,19 @@ public class AnalysisBuilderRunnable implements Runnable{
     /**
      * Field that should know all the threads.
      */
-    private static Map<String, AnalysisBuilderRunnable> availableThreads;
+    private volatile static Map<String, AnalysisBuilderRunnable> availableThreads;
     
     /**
      * @return Returns the availableThreads.
      */
-    private static Map<String, AnalysisBuilderRunnable> getAvailableThreads() {
+    private static synchronized Map<String, AnalysisBuilderRunnable> getAvailableThreads() {
         if(availableThreads == null){
             availableThreads = Collections.synchronizedMap(new HashMap<String, AnalysisBuilderRunnable>());
         }
         return availableThreads;
     }
     
-    private void removeFromThreads() {
+    private synchronized void removeFromThreads() {
         Map<String, AnalysisBuilderRunnable> available = getAvailableThreads();
         synchronized(available){
             AnalysisBuilderRunnable analysisBuilderThread = available.get(moduleName);
