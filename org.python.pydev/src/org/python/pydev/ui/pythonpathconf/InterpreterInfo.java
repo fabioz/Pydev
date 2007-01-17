@@ -94,11 +94,13 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
      * for python in the format '2.5' or '2.4'.
      */
     private String version;
-    
+
+    /**
+     * @return the pythonpath to be used (only the folders)
+     */
     public List<String> getPythonPath() {
         ArrayList<String> ret = new ArrayList<String>();
         ret.addAll(libs);
-        ret.addAll(dllLibs);
         return ret;
     }
     
