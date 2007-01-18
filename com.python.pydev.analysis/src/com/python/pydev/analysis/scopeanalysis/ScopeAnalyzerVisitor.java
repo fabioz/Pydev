@@ -51,9 +51,13 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
     
     /**
      * List of tuple with: 
-     * the token found
-     * the delta to the column that the token we're looking for was found
-     * the entry that is the parent of this found
+     * 
+     * - the token found
+     * 
+     * - the delta to the column that the token we're looking for was found (delta from the currCol)
+     * negative values mean that it is undefined
+     * 
+     * - the entry that is the parent of this found
      */
 	private List<Tuple3<Found, Integer, ASTEntry>> foundOccurrences = new ArrayList<Tuple3<Found, Integer, ASTEntry>>();
 	private FastStack<ASTEntry> parents; //initialized on demand
@@ -177,7 +181,8 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 			prev = new ArrayList<Tuple3<Found, Integer, ASTEntry>>();
 			map.put(modName, prev);
 		}
-		prev.add(new Tuple3<Found, Integer, ASTEntry>(found, 0, peekParent()));
+		
+		prev.add(new Tuple3<Found, Integer, ASTEntry>(found, -1, peekParent())); //col delta is undefined
 	}
 	
 	@Override
@@ -393,7 +398,11 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 		int startCol = AbstractMessage.getStartCol(generator, this.document, generator.getRepresentation(), true)-1;
 		int endCol = AbstractMessage.getEndCol(generator, this.document, generator.getRepresentation(), false)-1;
 		if(currLine >= startLine && currLine <= endLine && currCol >= startCol && currCol <= endCol){
-			Tuple3<Found, Integer, ASTEntry> foundOccurrence = new Tuple3<Found, Integer, ASTEntry>(found, currCol-startCol, parent);
+			int colDelta = 0; 
+			if(currLine == startLine || currLine == endLine){
+				colDelta = currCol-startCol; 
+			}
+			Tuple3<Found, Integer, ASTEntry> foundOccurrence = new Tuple3<Found, Integer, ASTEntry>(found, colDelta, parent);
 			//ok, it's a valid occurrence, so, let's add it.
 			addFoundOccurrence(foundOccurrence);
 			return true;
@@ -516,34 +525,32 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 	 */
 	private ArrayList<Tuple3<IToken, Integer, ASTEntry>> getCompleteTokenOccurrences() {
 		//that's because we don't want duplicates
-		Set<Tuple<IToken, Integer>> f = new HashSet<Tuple<IToken, Integer>>();
-		
+		Set<IToken> f = new HashSet<IToken>();
 		ArrayList<Tuple3<IToken, Integer, ASTEntry>> ret = new ArrayList<Tuple3<IToken, Integer, ASTEntry>>();
 		
 		for (Tuple3<Found, Integer, ASTEntry> found : foundOccurrences) {
-			getImportEntries(found, ret, f);
 			
 			List<GenAndTok> all = found.o1.getAll();
 			
 			for (GenAndTok tok : all) {
 				
-				Tuple<IToken, Integer> tup = new Tuple<IToken, Integer>(tok.generator, found.o2);
 				Tuple3<IToken, Integer, ASTEntry> tup3 = new Tuple3<IToken, Integer, ASTEntry>(tok.generator, found.o2, found.o3);
 				
-				if(!f.contains(tup)){
-					f.add(tup);
+				if(!f.contains(tok.generator)){
+					f.add(tok.generator);
 					ret.add(tup3);
 				}
 				
 				for (IToken t: tok.references){
-					tup = new Tuple<IToken, Integer>(t, found.o2);
 					tup3 = new Tuple3<IToken, Integer, ASTEntry>(t, found.o2, found.o3);
-					if(!f.contains(tup)){
-						f.add(tup);
+					if(!f.contains(t)){
+						f.add(t);
 						ret.add(tup3);
 					}
 				}
 			}
+			
+			getImportEntries(found, ret, f);
 		}
 		return ret;
 	}
@@ -552,26 +559,33 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 	 * This method finds entries for found tokens that are the same import, but that may still not be there
 	 * because they are either in some other scope or are in the module part of an ImportFrom
 	 */
-	private void getImportEntries(Tuple3<Found, Integer, ASTEntry> found, ArrayList<Tuple3<IToken, Integer, ASTEntry>> ret, Set<Tuple<IToken, Integer>> f) {
+	private void getImportEntries(Tuple3<Found, Integer, ASTEntry> found, ArrayList<Tuple3<IToken, Integer, ASTEntry>> ret, Set<IToken> f) {
 		if(found.o1.isImport()){
 			//now, as it is an import, we have to check if there are more matching imports found
 			String key = UNRESOLVED_MOD_NAME;
 			if(found.o1.importInfo.mod != null){
 				key = found.o1.importInfo.mod.getName();
 			}
-			List<Tuple3<Found, Integer, ASTEntry>> unresolved = importsFound.get(key);
 			List<Tuple3<Found, Integer, ASTEntry>> fromModule = importsFoundFromModuleName.get(key);
+			List<Tuple3<Found, Integer, ASTEntry>> fromImports = importsFound.get(key);
 			
-			if(fromModule != null){
-				for (Tuple3<Found, Integer, ASTEntry> foundInFromModule : fromModule) {
-					IToken generator = foundInFromModule.o1.getSingle().generator;
-					Tuple<IToken, Integer> tup = new Tuple<IToken, Integer>(generator, foundInFromModule.o2);
-					Tuple3<IToken, Integer, ASTEntry> tup3 = new Tuple3<IToken, Integer, ASTEntry>(generator, foundInFromModule.o2, foundInFromModule.o3);
-					
-					if(!f.contains(tup)){
-						f.add(tup);
-						ret.add(tup3);
-					}
+			checkImportEntries(ret, f, fromModule);
+			checkImportEntries(ret, f, fromImports);
+			
+		}
+	}
+
+	private void checkImportEntries(ArrayList<Tuple3<IToken, Integer, ASTEntry>> ret, 
+			Set<IToken> f, List<Tuple3<Found, Integer, ASTEntry>> importEntries) {
+		
+		if(importEntries != null){
+			for (Tuple3<Found, Integer, ASTEntry> foundInFromModule : importEntries) {
+				IToken generator = foundInFromModule.o1.getSingle().generator;
+				Tuple3<IToken, Integer, ASTEntry> tup3 = new Tuple3<IToken, Integer, ASTEntry>(generator, foundInFromModule.o2, foundInFromModule.o3);
+				
+				if(!f.contains(generator)){
+					f.add(generator);
+					ret.add(tup3);
 				}
 			}
 		}

@@ -24,7 +24,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	try {
 			ScopeAnalyzerVisitorTest test = new ScopeAnalyzerVisitorTest();
 			test.setUp();
-			test.testIt24();
+			test.testIt3();
 			test.tearDown();
 			junit.textui.TestRunner.run(ScopeAnalyzerVisitorTest.class);
 		} catch (Exception e) {
@@ -336,6 +336,22 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	);
     	List<IToken> tokenOccurrences = getTokenOccurrences(1, 12);
     	assertEquals(2, tokenOccurrences.size());
+    }
+    
+    
+    public void testIt26() throws Exception {
+    	doc = new Document(
+    			"def m1():\n" +
+    			"    import os\n" +
+    			"    print os\n" +
+    			"    \n" +
+    			"def m2():\n" +
+    			"    import os\n" +
+    			"    print os\n" +
+    			"\n" 
+    	);
+    	List<IToken> tokenOccurrences = getTokenOccurrences(1, 12);
+    	assertEquals(4, tokenOccurrences.size());
     }
     
 //    do we want to check self ?
