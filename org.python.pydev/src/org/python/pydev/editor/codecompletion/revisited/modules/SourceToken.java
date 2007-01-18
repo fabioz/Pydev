@@ -24,10 +24,11 @@ import org.python.pydev.parser.visitors.NodeUtils;
  */
 public class SourceToken extends AbstractToken{
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
+    
+    /**
+     * The AST that generated this SourceToken
+     */
     private SimpleNode ast;
 
     /**
