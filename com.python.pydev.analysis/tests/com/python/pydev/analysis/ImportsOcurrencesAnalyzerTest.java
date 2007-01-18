@@ -14,7 +14,7 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
         	ImportsOcurrencesAnalyzerTest analyzer2 = new ImportsOcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testQt();
+            analyzer2.testFromNotExistent();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -259,6 +259,20 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
     	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs,0); 
+    }
+    
+    
+    public void testFromNotExistent() throws Exception {
+        doc = new Document(
+                "from notExistent import foo\n"+ 
+                "\n"
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs, 2); 
+        assertContainsMsg("Unused import: foo", msgs);
+        assertContainsMsg("Unresolved import: foo", msgs);
     }
     
     public void testQt() throws Exception {

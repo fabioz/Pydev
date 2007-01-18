@@ -92,7 +92,14 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 		completeNameToFind = tokenAndQual[0]+tokenAndQual[1];
     }
 
-
+	@Override
+	public Object visitImportFrom(ImportFrom node) throws Exception {
+	    Object ret = super.visitImportFrom(node);
+        //the import from will generate the tokens that go into the module namespace, but still, it needs to
+        //create tokens that will not be used in code-analysis, but will be used in matching tokens
+        //regarding its module.
+        return ret;
+	}
 
     @Override
     protected void onLastScope(ScopeItems m) {

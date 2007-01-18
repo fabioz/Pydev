@@ -102,7 +102,7 @@ public class Scope implements Iterable<ScopeItems>{
      * - wild imports (kind of obvious)
      * - imports such as import os.path (one token is created for os and one for os.path) 
      */
-    public void addImportTokens(List list, IToken generator) {
+    public void addImportTokens(List<IToken> list, IToken generator) {
     	FastStack<TryExcept> tryExceptNodes = scope.peek().getCurrTryExceptNodes();
     	boolean reportUndefinedImports = true;
     	for (TryExcept except : tryExceptNodes) {
@@ -138,8 +138,8 @@ public class Scope implements Iterable<ScopeItems>{
     	}
     	
         ScopeItems m = scope.peek();
-        for (Iterator iter = list.iterator(); iter.hasNext();) {
-            IToken o = (IToken) iter.next();
+        for (Iterator<IToken> iter = list.iterator(); iter.hasNext();) {
+            IToken o = iter.next();
             //System.out.println("adding: "+o.getRepresentation());
             Found found = addToken(generator, m, o, o.getRepresentation());
 

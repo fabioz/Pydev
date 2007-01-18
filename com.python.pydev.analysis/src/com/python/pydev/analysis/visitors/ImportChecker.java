@@ -32,6 +32,10 @@ public class ImportChecker {
 
     private AbstractScopeAnalyzerVisitor visitor;
 
+    /**
+     * This is the information stored about some import:
+     * Contains the actual module, the representation in the current module and whether it was resolved or not.
+     */
     public static class ImportInfo{
     	public IModule mod;
     	public String rep;

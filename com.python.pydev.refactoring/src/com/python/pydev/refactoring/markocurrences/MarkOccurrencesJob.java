@@ -201,7 +201,7 @@ public class MarkOccurrencesJob extends Job{
 	/**
 	 * @return true if the annotations were removed and added without any problems and false otherwise
      */
-    private boolean addAnnotations(final PyEdit pyEdit, IAnnotationModel annotationModel, final RefactoringRequest req, PyRenameProcessor processor) throws BadLocationException {
+    private synchronized boolean addAnnotations(final PyEdit pyEdit, IAnnotationModel annotationModel, final RefactoringRequest req, PyRenameProcessor processor) throws BadLocationException {
         //add the annotations
         synchronized (getLockObject(annotationModel)) {
             List<ASTEntry> occurrences = processor.getOcurrences();
@@ -306,7 +306,7 @@ public class MarkOccurrencesJob extends Job{
      * @param annotationModel
      */
     @SuppressWarnings("unchecked")
-	private void removeOccurenceAnnotations(IAnnotationModel annotationModel, PyEdit pyEdit) {
+	private synchronized void removeOccurenceAnnotations(IAnnotationModel annotationModel, PyEdit pyEdit) {
         //remove the annotations
         synchronized(getLockObject(annotationModel)){
         	Map<String, Object> cache = pyEdit.cache;
