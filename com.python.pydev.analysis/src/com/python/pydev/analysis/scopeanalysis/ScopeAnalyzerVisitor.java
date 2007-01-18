@@ -5,7 +5,6 @@ package com.python.pydev.analysis.scopeanalysis;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,7 +12,6 @@ import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -21,24 +19,17 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStack;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
-import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
-import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
-import com.python.pydev.analysis.messages.AbstractMessage;
 import com.python.pydev.analysis.visitors.Found;
-import com.python.pydev.analysis.visitors.GenAndTok;
-import com.python.pydev.analysis.visitors.ScopeItems;
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 
 /**
@@ -148,12 +139,14 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
         }
         return ret;
     }
+    
     @Override
     public void onImportInfoSetOnFound(Found found) {
         super.onImportInfoSetOnFound(found);
         addFoundToImportsMap(found, importsFound);
     }
     
+    @SuppressWarnings("unchecked")
     @Override
     protected void onGetCompleteTokenOccurrences(Tuple3<Found, Integer, ASTEntry> found, Set<IToken> f, ArrayList<Tuple3<IToken, Integer, ASTEntry>> ret) {
         //other matches for the imports that we had already found.
@@ -163,6 +156,43 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
         
         ret.addAll(fromModule);
         ret.addAll(fromImports);
+        
+        //let's iterate through the imports that are to be recognized as the same import we're checking and get the
+        //individual occurrences for each one of those (but this only happens if the context of the current 
+        //import is different from the context of that import)
+        for (Tuple3<IToken, Integer, ASTEntry> tuple3 : fromImports) {
+            try {
+                SourceToken tok = (SourceToken) tuple3.o1;
+                SimpleNode ast = tok.getAst();
+                int line = 0;
+                int col = 0;
+                if(ast instanceof Import){
+                    Import import1 = (Import) ast;
+                    line = import1.names[0].beginLine-1;
+                    col = import1.names[0].beginColumn-1;
+                    
+                }else{
+                    throw new RuntimeException();
+                }
+                PySelection ps = new PySelection(this.document, line, col);
+                ScopeAnalyzerVisitorWithoutImports analyzerVisitorWithoutImports = new ScopeAnalyzerVisitorWithoutImports(
+                        this.nature, this.moduleName, this.current, this.document, this.monitor, ps );
+                SourceModule s = (SourceModule) this.current;
+                s.getAst().accept(analyzerVisitorWithoutImports);
+                analyzerVisitorWithoutImports.checkFinished();
+                ArrayList<Tuple3<IToken,Integer,ASTEntry>> completeTokenOccurrences = analyzerVisitorWithoutImports.getCompleteTokenOccurrences();
+                
+                for (Tuple3<IToken, Integer, ASTEntry> oc : completeTokenOccurrences) {
+                    if(!f.contains(oc.o1)){
+                        f.add(oc.o1);
+                        ret.add(oc);
+                    }
+                }
+                
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
 	/**

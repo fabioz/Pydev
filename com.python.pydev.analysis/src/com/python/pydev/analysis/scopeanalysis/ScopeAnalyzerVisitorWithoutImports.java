@@ -1,10 +1,8 @@
 package com.python.pydev.analysis.scopeanalysis;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -36,16 +34,15 @@ import com.python.pydev.analysis.messages.AbstractMessage;
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.analysis.visitors.GenAndTok;
 import com.python.pydev.analysis.visitors.ScopeItems;
-import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 
 /**
- * This is almost the same as the ScopeAnalyzer, but it won't find imports that may be related.
- *
+ * This is almost the same as the ScopeAnalyzer, but it won't find imports that may be related
+ * nor imports that are generated from the module part of an ImportFrom
  */
 public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVisitor{
     
-    private String completeNameToFind="";
-    private String nameToFind="";
+    protected String completeNameToFind="";
+    protected String nameToFind="";
     
     /**
      * List of tuple with: 
@@ -76,6 +73,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
     private boolean finished = false;
     private int currLine;
     private int currCol;
+    protected int absoluteCursorOffset;
 
     /**
      * Constructor when we have a PySelection object
@@ -97,6 +95,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
             String[] tokenAndQual) throws BadLocationException {
         
         super(nature, moduleName, current, document, monitor);
+        this.absoluteCursorOffset = absoluteCursorOffset;
         IRegion region = document.getLineInformationOfOffset(absoluteCursorOffset);
         currLine = document.getLineOfOffset(absoluteCursorOffset);
         currCol = absoluteCursorOffset - region.getOffset();
@@ -240,7 +239,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
     /**
      * If it is still not finished we'll have to finish it (end the last scope).
      */
-    private void checkFinished() {
+    protected void checkFinished() {
         if(!finished){
             finished = true;
             endScope(null); //finish the last scope
@@ -439,7 +438,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
     /**
      * @return all the occurrences found in a 'complete' way (dotted name).
      */
-    private ArrayList<Tuple3<IToken, Integer, ASTEntry>> getCompleteTokenOccurrences() {
+    protected ArrayList<Tuple3<IToken, Integer, ASTEntry>> getCompleteTokenOccurrences() {
         //that's because we don't want duplicates
         Set<IToken> f = new HashSet<IToken>();
         ArrayList<Tuple3<IToken, Integer, ASTEntry>> ret = new ArrayList<Tuple3<IToken, Integer, ASTEntry>>();

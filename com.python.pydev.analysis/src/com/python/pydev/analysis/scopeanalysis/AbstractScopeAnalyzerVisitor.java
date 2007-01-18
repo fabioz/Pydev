@@ -97,7 +97,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     /**
      * To keep track of cancels
      */
-    private volatile IProgressMonitor monitor;
+    protected volatile IProgressMonitor monitor;
     
     /**
      * Document we're working on.
