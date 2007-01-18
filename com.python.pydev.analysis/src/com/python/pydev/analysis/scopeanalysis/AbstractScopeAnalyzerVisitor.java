@@ -97,7 +97,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     /**
      * To keep track of cancels
      */
-    private IProgressMonitor monitor;
+    private volatile IProgressMonitor monitor;
     
     /**
      * Document we're working on.
@@ -314,7 +314,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 
                 ICompletionState state = CompletionState.getEmptyCompletionState(nature);
                 state.setBuiltinsGotten (true); //we don't want any builtins
-                List completionsForWildImport = nature.getAstManager().getCompletionsForWildImport(state, current, new ArrayList(), wildImport);
+                List<IToken> completionsForWildImport = nature.getAstManager().getCompletionsForWildImport(state, current, new ArrayList(), wildImport);
                 scope.addImportTokens(completionsForWildImport, wildImport);
             }else{
                 List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
@@ -959,6 +959,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
 	 */
     protected void onFoundUnresolvedImportPart(IToken token, String rep, Found foundAs) {
     }
+    /**
+     * This one is not abstract, but is provided as a hook, as the others.
+     */
+	public void onImportInfoSetOnFound(Found found) {
+	}
 
 
 }

@@ -4,8 +4,10 @@
 package com.python.pydev.analysis.scopeanalysis;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -37,14 +39,22 @@ import com.python.pydev.analysis.messages.AbstractMessage;
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.analysis.visitors.GenAndTok;
 import com.python.pydev.analysis.visitors.ScopeItems;
+import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 
 /**
  * This class is used to discover the occurrences of some token having its scope as something important.
  */
 public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 
-    private String completeNameToFind="";
+	private String completeNameToFind="";
     private String nameToFind="";
+    
+    /**
+     * List of tuple with: 
+     * the token found
+     * the delta to the column that the token we're looking for was found
+     * the entry that is the parent of this found
+     */
 	private List<Tuple3<Found, Integer, ASTEntry>> foundOccurrences = new ArrayList<Tuple3<Found, Integer, ASTEntry>>();
 	private FastStack<ASTEntry> parents; //initialized on demand
 	
@@ -54,6 +64,24 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 	 * as that same undefined).
 	 */
 	private List<Found> undefinedFound = new ArrayList<Found>();
+
+	/**
+	 * This is the key in the importsFoundFromModuleName for tokens that were not resolved.
+	 */
+	private static final String UNRESOLVED_MOD_NAME = "__UNRESOLVED__MOD__NAME__!";
+	
+	/**
+	 * It contains import artificially generated, such as module names in ImportFrom
+	 * E.g.: from os.path import xxx will generate an import for 'os' and an import for 'path'
+	 * artificially, just to make matches
+	 */
+	private Map<String, List<Tuple3<Found, Integer, ASTEntry>>> importsFoundFromModuleName = new HashMap<String, List<Tuple3<Found, Integer, ASTEntry>>>();
+	/**
+	 * Same as the importsFoundFromModuleName, but works on the imports that actually become tokens
+	 * in the namespace.
+	 */
+	private Map<String, List<Tuple3<Found, Integer, ASTEntry>>> importsFound = new HashMap<String, List<Tuple3<Found, Integer, ASTEntry>>>();
+	
 	/**
 	 * This one is not null only if it is the name we're looking for in the exact position (even if it does
 	 * not have a definition).
@@ -98,7 +126,64 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
         //the import from will generate the tokens that go into the module namespace, but still, it needs to
         //create tokens that will not be used in code-analysis, but will be used in matching tokens
         //regarding its module.
+	    NameTok tokModName = (NameTok)node.module;
+		for(String m: new FullRepIterable(tokModName.id)){
+			if(m.indexOf(".") == -1){
+				aliasType[] names = new aliasType[1];
+				NameTok importNameTok = new NameTok(m, NameTok.ImportModule);
+				
+				importNameTok.beginLine = tokModName.beginLine;
+				importNameTok.beginColumn = tokModName.beginColumn;
+				
+				names[0] = new aliasType(importNameTok, null);
+				names[0].beginLine = tokModName.beginLine;
+				names[0].beginColumn = tokModName.beginColumn;
+				
+				Import importTok = new Import(names);
+				importTok.beginLine = tokModName.beginLine;
+				importTok.beginColumn = tokModName.beginColumn;
+				
+				List<IToken> createdTokens = AbstractVisitor.makeImportToken(importTok, null, "", true);
+				for (IToken token : createdTokens) {
+					ImportInfo info = this.scope.importChecker.visitImportToken(token, false);
+					Found found = new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
+					found.importInfo = info;
+					
+					addFoundToImportsMap(found, importsFoundFromModuleName);
+				}
+			}
+	    }
         return ret;
+	}
+
+	/**
+	 * Used to add some Found that is related to an import to a 'global import register'.
+	 * This is needed because, unlike other regular tokens, we want to find imports that are
+	 * in diferent contexts as being in the same context.
+	 * 
+	 * @param found this is the Found that we want to add to the imports
+	 * @param map this is the map that contains the imports Found occurrences (it has to be passed,
+	 * as there is a map for the imports that are actually in the namespace and another for those
+	 * that are 'artificially' generated).
+	 */
+	private void addFoundToImportsMap(Found found, Map<String, List<Tuple3<Found, Integer, ASTEntry>>> map) {
+		ImportInfo info = found.importInfo;
+		String modName = UNRESOLVED_MOD_NAME;
+		if(info.mod != null){
+			modName = info.mod.getName();
+		}
+		List<Tuple3<Found, Integer, ASTEntry>> prev = map.get(modName);
+		if(prev == null){
+			prev = new ArrayList<Tuple3<Found, Integer, ASTEntry>>();
+			map.put(modName, prev);
+		}
+		prev.add(new Tuple3<Found, Integer, ASTEntry>(found, 0, peekParent()));
+	}
+	
+	@Override
+	public void onImportInfoSetOnFound(Found found) {
+		super.onImportInfoSetOnFound(found);
+		addFoundToImportsMap(found, importsFound);
 	}
 
     @Override
@@ -263,12 +348,11 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
                 //we cannot get the locals
                 for(Found f :this.undefinedFound){
                 	if(f.getSingle().generator.getRepresentation().startsWith(foundRep)){
-//                    if(f.getSingle().scopeFound == hitAsUndefined.getSingle().scopeFound){
                         if (foundOccurrences.size() == 1){
 	                        Tuple3<Found, Integer, ASTEntry> hit = foundOccurrences.get(0);
-	                        foundOccurrences.add(new Tuple3<Found, Integer, ASTEntry>(f, hit.o2, hit.o3));
+	                        Tuple3<Found, Integer, ASTEntry> foundOccurrence = new Tuple3<Found, Integer, ASTEntry>(f, hit.o2, hit.o3);
+	                        addFoundOccurrence(foundOccurrence);
                         }
-//                    }
                 	}
                 }
             }
@@ -309,11 +393,20 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 		int startCol = AbstractMessage.getStartCol(generator, this.document, generator.getRepresentation(), true)-1;
 		int endCol = AbstractMessage.getEndCol(generator, this.document, generator.getRepresentation(), false)-1;
 		if(currLine >= startLine && currLine <= endLine && currCol >= startCol && currCol <= endCol){
+			Tuple3<Found, Integer, ASTEntry> foundOccurrence = new Tuple3<Found, Integer, ASTEntry>(found, currCol-startCol, parent);
 			//ok, it's a valid occurrence, so, let's add it.
-			foundOccurrences.add(new Tuple3<Found, Integer, ASTEntry>(found, currCol-startCol, parent));
+			addFoundOccurrence(foundOccurrence);
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Used to add an occurrence to the found occurrences.
+	 * @param foundOccurrence
+	 */
+	private void addFoundOccurrence(Tuple3<Found, Integer, ASTEntry> foundOccurrence) {
+		foundOccurrences.add(foundOccurrence);
 	}
     
 
@@ -428,6 +521,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 		ArrayList<Tuple3<IToken, Integer, ASTEntry>> ret = new ArrayList<Tuple3<IToken, Integer, ASTEntry>>();
 		
 		for (Tuple3<Found, Integer, ASTEntry> found : foundOccurrences) {
+			getImportEntries(found, ret, f);
 			
 			List<GenAndTok> all = found.o1.getAll();
 			
@@ -452,6 +546,35 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 			}
 		}
 		return ret;
+	}
+
+	/**
+	 * This method finds entries for found tokens that are the same import, but that may still not be there
+	 * because they are either in some other scope or are in the module part of an ImportFrom
+	 */
+	private void getImportEntries(Tuple3<Found, Integer, ASTEntry> found, ArrayList<Tuple3<IToken, Integer, ASTEntry>> ret, Set<Tuple<IToken, Integer>> f) {
+		if(found.o1.isImport()){
+			//now, as it is an import, we have to check if there are more matching imports found
+			String key = UNRESOLVED_MOD_NAME;
+			if(found.o1.importInfo.mod != null){
+				key = found.o1.importInfo.mod.getName();
+			}
+			List<Tuple3<Found, Integer, ASTEntry>> unresolved = importsFound.get(key);
+			List<Tuple3<Found, Integer, ASTEntry>> fromModule = importsFoundFromModuleName.get(key);
+			
+			if(fromModule != null){
+				for (Tuple3<Found, Integer, ASTEntry> foundInFromModule : fromModule) {
+					IToken generator = foundInFromModule.o1.getSingle().generator;
+					Tuple<IToken, Integer> tup = new Tuple<IToken, Integer>(generator, foundInFromModule.o2);
+					Tuple3<IToken, Integer, ASTEntry> tup3 = new Tuple3<IToken, Integer, ASTEntry>(generator, foundInFromModule.o2, foundInFromModule.o3);
+					
+					if(!f.contains(tup)){
+						f.add(tup);
+						ret.add(tup3);
+					}
+				}
+			}
+		}
 	}
 	
 	

@@ -51,7 +51,7 @@ public class Scope implements Iterable<ScopeItems>{
     /**
      * used to check for invalid imports
      */
-    private ImportChecker importChecker;
+    public ImportChecker importChecker;
 
 
     /**
@@ -153,6 +153,7 @@ public class Scope implements Iterable<ScopeItems>{
             }
             //can be either the one resolved in the wild import or in this token (if it is not a wild import)
         	found.importInfo= importInfo;
+        	visitor.onImportInfoSetOnFound(found);
         }
     }
     

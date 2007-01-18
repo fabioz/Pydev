@@ -326,6 +326,18 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
         assertEquals(2, tokenOccurrences.size());
     }
     
+    public void testIt25() throws Exception {
+    	doc = new Document(
+    			"def m1():\n" +
+    			"    import os\n" +
+    			"def m2():\n" +
+    			"    import os\n" +
+    			"\n" 
+    	);
+    	List<IToken> tokenOccurrences = getTokenOccurrences(1, 12);
+    	assertEquals(2, tokenOccurrences.size());
+    }
+    
 //    do we want to check self ?
 //    public void testIt16() throws Exception {
 //    	doc = new Document(
