@@ -162,24 +162,30 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
         //import is different from the context of that import)
         for (Tuple3<IToken, Integer, ASTEntry> tuple3 : fromImports) {
             try {
+                if(!(tuple3.o1 instanceof SourceToken)){
+                    continue;
+                }
+                
                 SourceToken tok = (SourceToken) tuple3.o1;
                 SimpleNode ast = tok.getAst();
                 int line = 0;
                 int col = 0;
-                if(ast instanceof Import){
-                    Import import1 = (Import) ast;
-                    line = import1.names[0].beginLine-1;
-                    col = import1.names[0].beginColumn-1;
-                    
-                }else{
-                    throw new RuntimeException();
+                if(!(ast instanceof Import)){
+                    continue;
                 }
+                
+                Import import1 = (Import) ast;
+                line = import1.names[0].beginLine-1;
+                col = import1.names[0].beginColumn-1;
                 PySelection ps = new PySelection(this.document, line, col);
                 ScopeAnalyzerVisitorWithoutImports analyzerVisitorWithoutImports = new ScopeAnalyzerVisitorWithoutImports(
                         this.nature, this.moduleName, this.current, this.document, this.monitor, ps );
+                
                 SourceModule s = (SourceModule) this.current;
                 s.getAst().accept(analyzerVisitorWithoutImports);
                 analyzerVisitorWithoutImports.checkFinished();
+                
+                //now, let's get the token occurrences for the analyzer that worked without gathering the imports
                 ArrayList<Tuple3<IToken,Integer,ASTEntry>> completeTokenOccurrences = analyzerVisitorWithoutImports.getCompleteTokenOccurrences();
                 
                 for (Tuple3<IToken, Integer, ASTEntry> oc : completeTokenOccurrences) {
