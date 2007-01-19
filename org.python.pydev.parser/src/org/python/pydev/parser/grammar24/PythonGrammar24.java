@@ -58,6 +58,7 @@ public class PythonGrammar24 implements/*@bgen(jjtree)*/ PythonGrammar24TreeCons
                 throw new RuntimeException("Error, expecting another class.");
             }
         }
+        t = convertStringToSpecialStr(t);
         peeked.addSpecial(t, after);
     }
 
@@ -138,8 +139,19 @@ public class PythonGrammar24 implements/*@bgen(jjtree)*/ PythonGrammar24TreeCons
     }
 
     private void addSpecialToken(Object o, int strategy) {
+        o = convertStringToSpecialStr(o);
         token_source.specialTokens.add(new Object[]{o, strategy});
     }
+
+        private Object convertStringToSpecialStr(Object o) {
+                if (o instanceof String) {
+                        try {
+                                o = createSpecialStr((String) o);
+                        } catch (ParseException e) {
+                        }
+                }
+                return o;
+        }
 
     private void addSpecialToken(Object o) {
         //the default is adding after the previous token
@@ -2774,7 +2786,7 @@ public class PythonGrammar24 implements/*@bgen(jjtree)*/ PythonGrammar24TreeCons
            jjtree.closeNodeScope(jjtn000, true);
            jjtc000 = false;
            jjtreeCloseNodeScope(jjtn000);
-          this.addToPeek("elif ",false);
+          this.addToPeek("elif",false);
     } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);

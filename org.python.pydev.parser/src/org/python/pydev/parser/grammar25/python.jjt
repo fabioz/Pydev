@@ -88,6 +88,7 @@ public class PythonGrammar25 implements IGrammar
                 throw new RuntimeException("Error, expecting class:"+class_+" received class:"+peeked.getClass()+" Representation:"+peeked);
             }
         }
+        t = convertStringToSpecialStr(t);
         peeked.addSpecial(t, after);
     }
 
@@ -168,8 +169,19 @@ public class PythonGrammar25 implements IGrammar
     }
 
     private void addSpecialToken(Object o, int strategy) {
+		o = convertStringToSpecialStr(o);
         token_source.specialTokens.add(new Object[]{o, strategy});
     }
+    
+	private Object convertStringToSpecialStr(Object o) {
+		if (o instanceof String) {
+			try {
+				o = createSpecialStr((String) o);
+			} catch (ParseException e) {
+			}
+		}
+		return o;
+	}
     
     private void addSpecialToken(Object o) {
         //the default is adding after the previous token
@@ -1107,7 +1119,7 @@ void begin_if_stmt(): {Object spStr;}
 }
 
 void begin_elif_stmt(): {}
-{ <ELIF> {this.addToPeek("elif ",false);}
+{ <ELIF> {this.addToPeek("elif",false);}
 }
 
 
