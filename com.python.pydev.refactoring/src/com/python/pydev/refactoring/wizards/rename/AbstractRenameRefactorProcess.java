@@ -36,6 +36,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitor;
 import com.python.pydev.refactoring.refactorer.RefactorerFindReferences;
+import com.python.pydev.refactoring.refactorer.RefactorerRequestConstants;
 import com.python.pydev.refactoring.wizards.IRefactorProcess;
 
 /**
@@ -125,9 +126,9 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
         List<Tuple<TextEdit, String>> ret = new ArrayList<Tuple<TextEdit, String>>();
         StringBuffer buf = new StringBuffer();
         buf.append("Change: ");
-        buf.append(request.duringProcessInfo.initialName);
+        buf.append(request.initialName);
         buf.append(" >> ");
-        buf.append(request.duringProcessInfo.name);
+        buf.append(request.inputName);
         buf.append(" (line:");
         for(ASTEntry entry : ocurrences){
             StringBuffer entryBuf = new StringBuffer(buf.toString());
@@ -157,7 +158,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
      * @return a TextEdit correponding to a rename.
      */
     protected TextEdit createRenameEdit(int offset) {
-        return new ReplaceEdit(offset, request.duringProcessInfo.initialName.length(), request.duringProcessInfo.name);
+        return new ReplaceEdit(offset, request.initialName.length(), request.inputName);
     }
     
     /**
@@ -169,7 +170,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
     public void checkInitialConditions(IProgressMonitor pm, RefactoringStatus status, RefactoringRequest request) {
         this.request = request;
         
-        if(request.findReferencesOnlyOnLocalScope == true){
+        if((Boolean)request.getAdditionalInfo(RefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false)){
             checkInitialOnLocalScope(status, request);
             
         }else{
@@ -226,7 +227,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
         for(Map.Entry<Tuple<String, IFile>, List<ASTEntry>> entry : fileOccurrences.entrySet()){
             Tuple<String, IFile> tup = entry.getKey();
             IDocument docFromResource = REF.getDocFromResource(tup.o2);
-            TextFileChange fileChange = new TextFileChange("RenameChange: "+request.duringProcessInfo.name, tup.o2);
+            TextFileChange fileChange = new TextFileChange("RenameChange: "+request.inputName, tup.o2);
             
             MultiTextEdit rootEdit = new MultiTextEdit();
             fileChange.setEdit(rootEdit);
@@ -248,7 +249,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
      * @param fChange tho 'root' change.
      */
     private void createCurrModuleChange(RefactoringStatus status, CompositeChange fChange) {
-        DocumentChange docChange = new DocumentChange("RenameChange: "+request.duringProcessInfo.name, request.doc);
+        DocumentChange docChange = new DocumentChange("RenameChange: "+request.inputName, request.getDoc());
         if(docOccurrences.size() == 0){
             status.addFatalError("No occurrences found.");
             return;
@@ -274,7 +275,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
      */
     protected boolean occurrencesValid(RefactoringStatus status){
         if(docOccurrences.size() == 0){
-            status.addFatalError("No occurrences found for:"+request.duringProcessInfo.initialName);
+            status.addFatalError("No occurrences found for:"+request.initialName);
             return false;
         }
         return true;
@@ -311,7 +312,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
         IModule module = request.getModule();
         try {
             ScopeAnalyzerVisitor visitor = new ScopeAnalyzerVisitor(request.nature, request.moduleName, 
-                    module, request.doc, new NullProgressMonitor(), request.ps);
+                    module, request.getDoc(), new NullProgressMonitor(), request.ps);
             
 			request.getAST().accept(visitor);
 			entryOccurrences = visitor.getEntryOccurrences();

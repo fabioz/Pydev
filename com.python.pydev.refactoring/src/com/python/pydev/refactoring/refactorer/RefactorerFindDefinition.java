@@ -59,7 +59,7 @@ public class RefactorerFindDefinition {
         //1. we have to know what we're looking for (activationToken)
         request.communicateWork("Finding Definition");
         List<ItemPointer> pointers = new ArrayList<ItemPointer>();
-        String[] tokenAndQual = PySelection.getActivationTokenAndQual(request.doc, request.ps.getAbsoluteCursorOffset(), true);
+        String[] tokenAndQual = PySelection.getActivationTokenAndQual(request.getDoc(), request.ps.getAbsoluteCursorOffset(), true);
         
         String modName = null;
         
@@ -72,7 +72,7 @@ public class RefactorerFindDefinition {
             if(infoForFile != null){
                 modName = infoForFile.o2;
                 request.nature = infoForFile.o1;
-                request.duringProcessInfo.name = modName;
+                request.inputName = modName;
             }else{
                 return new ItemPointer[0];
             }
@@ -154,7 +154,7 @@ public class RefactorerFindDefinition {
             throw new RuntimeException(e);
         }
         
-        if(pointers.size() == 0 && request.findDefinitionInAdditionalInfo){
+        if(pointers.size() == 0 && ((Boolean)request.getAdditionalInfo(RefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, true))){
             String lookForInterface = tokenAndQual[1];
             List<IInfo> tokensEqualTo = AdditionalProjectInterpreterInfo.getTokensEqualTo(lookForInterface, request.nature,
                     AbstractAdditionalInterpreterInfo.TOP_LEVEL | AbstractAdditionalInterpreterInfo.INNER);

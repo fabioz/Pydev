@@ -33,6 +33,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.python.pydev.refactoring.TestDependentRefactoring;
 import com.python.pydev.refactoring.refactorer.RefactorerFindReferences;
+import com.python.pydev.refactoring.refactorer.RefactorerRequestConstants;
 import com.python.pydev.refactoring.refactorer.refactorings.renamelocal.RefactoringLocalTestBase;
 import com.python.pydev.refactoring.wizards.IRefactorProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameProcessor;
@@ -228,7 +229,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             PySelection ps = new PySelection(doc, line, col);
             
             RefactoringRequest request = new RefactoringRequest(null, ps, natureRefactoring);
-            request.findReferencesOnlyOnLocalScope = false;
+            request.setAdditionalInfo(RefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);
             request.moduleName = moduleName;
             request.fillInitialNameAndOffset();
     

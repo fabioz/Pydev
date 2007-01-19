@@ -21,6 +21,8 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.nature.PythonNature;
 
+import com.python.pydev.refactoring.refactorer.RefactorerRequestConstants;
+
 /**
  * This class provides helper methods for finding things in the workspace. 
  * 
@@ -93,7 +95,8 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
         checkInitialOnLocalScope(status, request);
         //if the user has set that we should only find references in the local scope in the checkInitialOnLocalScope
         //we should not try to find other references in the workspace.
-        if(!request.findReferencesOnlyOnLocalScope && !status.hasFatalError()){
+        boolean onlyInLocalScope = (Boolean)request.getAdditionalInfo(RefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);
+        if(!onlyInLocalScope && !status.hasFatalError()){
             doCheckInitialOnWorkspace(status, request);
         }
     }
@@ -125,7 +128,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
                             SourceModule module = (SourceModule) nature.getAstManager().getModule(modName, nature, true, false);
                             
                             if(module != null){
-                                List<ASTEntry> entryOccurrences = getOccurrencesInOtherModule(status, request.duringProcessInfo.initialName, module, nature);
+                                List<ASTEntry> entryOccurrences = getOccurrencesInOtherModule(status, request.initialName, module, nature);
                                 if(entryOccurrences.size() > 0){
                                     addOccurrences(entryOccurrences, file, modName);
                                 }

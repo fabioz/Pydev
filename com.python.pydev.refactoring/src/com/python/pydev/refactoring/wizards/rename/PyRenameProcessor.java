@@ -132,13 +132,13 @@ public class PyRenameProcessor extends RenameProcessor {
     @Override
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
         RefactoringStatus status = new RefactoringStatus();
-        if(! DocUtils.isWord(request.duringProcessInfo.initialName)){
-            status.addFatalError("The initial name is not valid:"+request.duringProcessInfo.initialName);
+        if(! DocUtils.isWord(request.initialName)){
+            status.addFatalError("The initial name is not valid:"+request.initialName);
             return status;
         }
         
-        if(request.duringProcessInfo.name != null && ! DocUtils.isWord(request.duringProcessInfo.name)){
-            status.addFatalError("The new name is not valid:"+request.duringProcessInfo.name);
+        if(request.inputName != null && ! DocUtils.isWord(request.inputName)){
+            status.addFatalError("The new name is not valid:"+request.inputName);
             return status;
         }
         
@@ -183,7 +183,7 @@ public class PyRenameProcessor extends RenameProcessor {
     @Override
     public RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context) throws CoreException, OperationCanceledException {
         RefactoringStatus status = new RefactoringStatus();
-        fChange = new CompositeChange("RenameChange: "+request.duringProcessInfo.name);
+        fChange = new CompositeChange("RenameChange: "+request.inputName);
         
         if(process == null || process.size() == 0){
             status.addFatalError("Refactoring Process not defined: the pre-conditions were not satisfied.");

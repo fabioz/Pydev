@@ -20,6 +20,7 @@ import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 
 import com.python.pydev.refactoring.refactorer.Refactorer;
+import com.python.pydev.refactoring.refactorer.RefactorerRequestConstants;
 import com.python.pydev.refactoring.wizards.extract.PyExtractMethodProcessor;
 import com.python.pydev.refactoring.wizards.rename.PyRenameProcessor;
 
@@ -100,7 +101,7 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
     	
     	RefactoringRequest request = new RefactoringRequest(null, ps, nature);
     	request.moduleName = "foo";
-    	request.duringProcessInfo.name = newName;
+    	request.inputName = newName;
     	request.fillInitialNameAndOffset();
     	
     	applyExtractMethodRefactoring(request, expectError);
@@ -122,9 +123,9 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
         PySelection ps = new PySelection(doc, line, col);
         
         RefactoringRequest request = new RefactoringRequest(null, ps, nature);
-        request.findReferencesOnlyOnLocalScope = onlyOnLocalScope;
+        request.setAdditionalInfo(RefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, onlyOnLocalScope);
         request.moduleName = "foo";
-        request.duringProcessInfo.name = newName;
+        request.inputName = newName;
         request.fillInitialNameAndOffset();
         
         applyRenameRefactoring(request, expectError);
@@ -133,7 +134,7 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
             System.out.println(refactored);
         }
         if(!expectError){
-            assertEquals(initialName, request.duringProcessInfo.initialName); 
+            assertEquals(initialName, request.initialName); 
             assertEquals(StringUtils.format(strDoc, getSame("bb")),  refactored);
         }else{
             //cannot have changed

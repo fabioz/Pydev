@@ -40,6 +40,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.PydevPlugin;
+import com.python.pydev.refactoring.refactorer.RefactorerRequestConstants;
 import com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage;
 import com.python.pydev.refactoring.wizards.rename.PyRenameProcessor;
 
@@ -193,7 +194,7 @@ public class MarkOccurrencesJob extends Job{
 	        //ok, pre-conditions suceeded
 			return new Tuple3<RefactoringRequest,PyRenameProcessor,Boolean>(req,processor,true);
         }catch(Throwable e){
-        	Log.log("Error in occurrences while analyzing modName:"+req.moduleName+" initialName:"+req.duringProcessInfo.initialName);
+        	Log.log("Error in occurrences while analyzing modName:"+req.moduleName+" initialName:"+req.initialName);
         	throw new RuntimeException(e);
         }
 	}
@@ -221,7 +222,7 @@ public class MarkOccurrencesJob extends Job{
                     
                     try {
                         Annotation annotation = new Annotation(PydevPlugin.OCCURRENCE_ANNOTATION_TYPE, false, "occurrence");
-                        Position position = new Position(lineInformation.getOffset() + node.beginColumn - 1, req.duringProcessInfo.initialName.length());
+                        Position position = new Position(lineInformation.getOffset() + node.beginColumn - 1, req.initialName.length());
                         toAddAsMap.put(annotation, position);
                         annotations.add(annotation);
 						
@@ -269,9 +270,9 @@ public class MarkOccurrencesJob extends Job{
         }
         
         req.fillInitialNameAndOffset();
-        req.duringProcessInfo.name = "foo";
-        req.findDefinitionInAdditionalInfo = false;
-        req.findReferencesOnlyOnLocalScope = true;
+        req.inputName = "foo";
+        req.setAdditionalInfo(RefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
+        req.setAdditionalInfo(RefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, true);
         return req;
     }
 
@@ -288,7 +289,7 @@ public class MarkOccurrencesJob extends Job{
             }
    
             @Override
-            protected String perform(IAction action, String name, Operation operation) throws Exception {
+            protected String perform(IAction action, String name, IProgressMonitor monitor) throws Exception {
                 throw new RuntimeException("Perform should not be called in this case.");
             }
    

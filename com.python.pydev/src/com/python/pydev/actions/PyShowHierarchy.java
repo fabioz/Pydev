@@ -1,5 +1,6 @@
 package com.python.pydev.actions;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
@@ -41,7 +42,7 @@ public class PyShowHierarchy extends PyRefactorAction{
     private HierarchyNodeModel model;
 
 	@Override
-	protected String perform(IAction action, String name, Operation operation) throws Exception {
+	protected String perform(IAction action, String name, IProgressMonitor monitor) throws Exception {
         Runnable r = new Runnable() {
             public void run() {
                 IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
@@ -60,7 +61,7 @@ public class PyShowHierarchy extends PyRefactorAction{
 		    //set whatever is needed for the hierarchy
 		    IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
 		    if(pyRefactoring instanceof IPyRefactoring2){
-		        RefactoringRequest refactoringRequest = getRefactoringRequest(operation);
+		        RefactoringRequest refactoringRequest = getRefactoringRequest(monitor);
 		        IPyRefactoring2 r2 = (IPyRefactoring2) pyRefactoring;
 		        model = r2.findClassHierarchy(refactoringRequest);
 		    }

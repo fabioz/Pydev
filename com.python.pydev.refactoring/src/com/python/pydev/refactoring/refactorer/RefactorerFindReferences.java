@@ -89,7 +89,7 @@ public class RefactorerFindReferences {
             for(IFile f: FORCED_RETURN){
                 //only for testing purposes
                 String object = (String) REF.invoke(f, "getFileContents", new Object[0]);
-                if(object.indexOf(request.duringProcessInfo.initialName) != -1){
+                if(object.indexOf(request.initialName) != -1){
                     ret.add(f);
                 }
             }
@@ -107,7 +107,7 @@ public class RefactorerFindReferences {
             resourcesToSearch.addAll(Arrays.asList(project.getReferencedProjects()));
             resourcesToSearch.add(project);
             
-            TextSearchInput textSearchInput = new PyTextSearchInput(request.duringProcessInfo.initialName, 
+            TextSearchInput textSearchInput = new PyTextSearchInput(request.initialName, 
                     true, false, FileTextSearchScope.newSearchScope(resourcesToSearch.toArray(new IProject[0]),
                             PythonPathHelper.WILDCARD_VALID_SOURCE_FILES, true));
             

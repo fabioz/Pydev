@@ -28,13 +28,13 @@ public class PyRenameAnyLocalProcess extends AbstractRenameRefactorProcess{
             if(oc.size() > 0){
                 addOccurrences(request, oc); 
             }else{
-                addOccurrences(request, ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, request.getAST(), false));
+                addOccurrences(request, ScopeAnalysis.getLocalOcurrences(request.initialName, request.getAST(), false));
             }
             return;
             
         }else{
             //attribute search
-            addOccurrences(request, ScopeAnalysis.getAttributeReferences(request.duringProcessInfo.initialName, request.getAST()));
+            addOccurrences(request, ScopeAnalysis.getAttributeReferences(request.initialName, request.getAST()));
         }
     }
 }

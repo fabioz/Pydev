@@ -47,7 +47,7 @@ public class PyRenameRefactoringWizard extends RefactoringWizard {
             protected RefactoringStatus validateTextField(String text) {
                 RefactoringStatus status = new RefactoringStatus();
                 if(DocUtils.isWord(text)){
-                    req.duringProcessInfo.name = text;
+                    req.inputName = text;
                 }else{
                     status.addFatalError("The name:"+text+" is not a valid identifier.");
                 }

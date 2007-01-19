@@ -88,7 +88,7 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
         //this is the actual function definition, so, let's take a look at its arguments... 
         
         FunctionDef node = (FunctionDef) entry.parent.node;
-        List<ASTEntry> found = ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, node);
+        List<ASTEntry> found = ScopeAnalysis.getLocalOcurrences(request.initialName, node);
         ret.addAll(found);
     }
 
@@ -97,7 +97,7 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
         Name name = (Name) entry.node;
         if(name.ctx == Name.Load){
             Call call = FindCallVisitor.findCall(name, root);
-            List<ASTEntry> found = ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, call);
+            List<ASTEntry> found = ScopeAnalysis.getLocalOcurrences(request.initialName, call);
             for (ASTEntry entry2 : found) {
                 if(entry2.node instanceof NameTok){
                     NameTok name2 = (NameTok) entry2.node;

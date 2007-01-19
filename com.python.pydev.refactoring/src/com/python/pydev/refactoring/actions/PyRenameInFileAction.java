@@ -165,7 +165,7 @@ public class PyRenameInFileAction extends Action{
 				i++;
                 try {
 					IRegion lineInformation = document.getLineInformation(entry.node.beginLine - 1);
-                    ProposalPosition proposalPosition = new ProposalPosition(document, lineInformation.getOffset() + entry.node.beginColumn - 1, req.duringProcessInfo.initialName.length(), i , new ICompletionProposal[0]);
+                    ProposalPosition proposalPosition = new ProposalPosition(document, lineInformation.getOffset() + entry.node.beginColumn - 1, req.initialName.length(), i , new ICompletionProposal[0]);
                     if(found.contains(proposalPosition) == false){
                     	found.add(proposalPosition);
                     	group.addPosition(proposalPosition);

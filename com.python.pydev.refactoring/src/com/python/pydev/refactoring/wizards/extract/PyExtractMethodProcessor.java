@@ -81,16 +81,16 @@ public class PyExtractMethodProcessor extends RefactoringProcessor{
 	@Override
 	public RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context) throws CoreException, OperationCanceledException {
         RefactoringStatus status = new RefactoringStatus();
-        fChange = new CompositeChange("ExtractMethodChange: "+request.duringProcessInfo.name);
+        fChange = new CompositeChange("ExtractMethodChange: "+request.inputName);
         
-        DocumentChange docChange = new DocumentChange("ExtractMethodChange: ", request.doc);
+        DocumentChange docChange = new DocumentChange("ExtractMethodChange: ", request.getDoc());
         MultiTextEdit rootEdit = new MultiTextEdit();
         docChange.setEdit(rootEdit);
         docChange.setKeepPreviewEdits(true);
         
         SimpleNode ast = request.getAST();
-        PyASTChanger astChanger = new PyASTChanger(request.doc, ast, request.nature.getGrammarVersion());
-        Expr expr = new Expr(PyASTFactory.makeCall(request.duringProcessInfo.name));
+        PyASTChanger astChanger = new PyASTChanger(request.getDoc(), ast, request.nature.getGrammarVersion());
+        Expr expr = new Expr(PyASTFactory.makeCall(request.inputName));
         astChanger.addStmtToNode(ast, "body", 0, expr, false);
         
         Tuple<DocumentChange, MultiTextEdit> tup = new Tuple<DocumentChange, MultiTextEdit>(docChange, rootEdit);

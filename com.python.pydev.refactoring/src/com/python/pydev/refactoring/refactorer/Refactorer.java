@@ -61,7 +61,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
         try {
             RenameRefactoring renameRefactoring = new RenameRefactoring(new PyRenameProcessor(request));
             request.fillInitialNameAndOffset();
-            final PyRenameRefactoringWizard wizard = new PyRenameRefactoringWizard(renameRefactoring, "Rename", "inputPageDescription", request, request.duringProcessInfo.initialName);
+            final PyRenameRefactoringWizard wizard = new PyRenameRefactoringWizard(renameRefactoring, "Rename", "inputPageDescription", request, request.initialName);
             try {
                 RefactoringWizardOpenOperation op = new RefactoringWizardOpenOperation(wizard);
                 op.run(PyAction.getShell(), "Rename Refactor Action");
