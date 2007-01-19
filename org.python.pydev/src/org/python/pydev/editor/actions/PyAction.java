@@ -44,9 +44,8 @@ public abstract class PyAction implements IEditorActionDelegate {
     }
     
 
-
 	// Always points to the current editor
-	protected IEditorPart targetEditor;
+	protected volatile IEditorPart targetEditor;
 
 	public void setEditor(IEditorPart targetEditor) {
 		this.targetEditor = targetEditor;
@@ -222,16 +221,6 @@ public abstract class PyAction implements IEditorActionDelegate {
 		e.printStackTrace();
 	}
 
-	protected void print(Object o) {
-		System.out.println(o);
-	}
-
-	protected void print(boolean b) {
-		System.out.println(b);
-	}
-    protected void print(int i) {
-		System.out.println(i);
-	}
 
     /**
      * 
@@ -247,62 +236,6 @@ public abstract class PyAction implements IEditorActionDelegate {
         return getLineWithoutComments(ps.getCursorLineContents());
     }
 
-    /**
-     * @param document
-     * @param offset
-     * @param string
-     * @return
-     */
-    public static boolean lineContains(IDocument document, int offset, String tok) {
-        try {
-            IRegion lineInformation = getRegionOfOffset(document, offset);
-            return regionContains(document, tok, lineInformation);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    /**
-     * @param document
-     * @param tok
-     * @param lineInformation
-     * @return
-     * @throws BadLocationException
-     */
-    private static boolean regionContains(IDocument document, String tok, IRegion lineInformation) throws BadLocationException {
-        String line = document.get(lineInformation.getOffset(), lineInformation.getLength());
-        return line.indexOf(tok) != -1;
-    }
-
-    /**
-     * @param document
-     * @param offset
-     * @return
-     * @throws BadLocationException
-     */
-    private static IRegion getRegionOfOffset(IDocument document, int offset) throws BadLocationException {
-        int lineOfOffset = document.getLineOfOffset(offset);
-        IRegion lineInformation = document.getLineInformation(lineOfOffset);
-        return lineInformation;
-    }
-
-    /**
-     * @param document
-     * @param offset
-     * @param string
-     * @return
-     */
-    public static boolean nextLineContains(IDocument document, int offset, String tok) {
-        try {
-            int lineOfOffset = document.getLineOfOffset(offset);
-            IRegion lineInformation = document.getLineInformation(lineOfOffset+1);
-            return regionContains(document, tok, lineInformation);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
 
     /**
      * Counts the number of occurences of a certain character in a string.

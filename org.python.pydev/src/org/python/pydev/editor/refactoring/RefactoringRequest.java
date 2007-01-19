@@ -54,7 +54,7 @@ public class RefactoringRequest{
 	public PyEdit pyEdit;
 	
 	/**
-	 * The module for the passed document
+	 * The module for the passed document. Has a getter that caches the result here.
 	 */
     private IModule module;
     
@@ -62,6 +62,16 @@ public class RefactoringRequest{
      * The module name (may be null)
      */
 	public String moduleName;
+	
+	/**
+	 * The new name in a refactoring (may be null if not applicable)
+	 */
+	public String inputName;
+	
+	/**
+	 * The initial representation of the selected name
+	 */
+	public String initialName;
     
     /**
      * This is used so that specific refactoring engines can add information regarding its specifics in
@@ -90,16 +100,6 @@ public class RefactoringRequest{
     public void setAdditionalInfo(String key, Object value){
         this.additionalRefactoringInfo.put(key, value);
     }
-    
-    /**
-     * The new name in a refactoring (may be null if not applicable)
-     */
-    public String inputName;
-    
-    /**
-     * The initial representation of the selected name
-     */
-    public String initialName;
 
     /**
      * Default constructor... the user is responsible for filling the needed information
@@ -116,6 +116,10 @@ public class RefactoringRequest{
 		this(file, selection, null, nature, null); 
 	}
 
+    /**
+     * Assigns parameters to attributes (tries to resolve the module name and create a SystemPythonNature if the 
+     * nature is not specified)
+     */
 	public RefactoringRequest(File file, PySelection ps, IProgressMonitor monitor, IPythonNature nature, PyEdit pyEdit) {
 		this.file = file;
 		this.ps = ps;
