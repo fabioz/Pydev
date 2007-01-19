@@ -13,6 +13,7 @@ public class PrettyPrinterPrefs {
 
     public PrettyPrinterPrefs(String newLine) {
         this.newLine = newLine;
+        tokReplacement.put("elif", "elif ");
     }
 
     public String getNewLine() {
