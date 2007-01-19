@@ -24,6 +24,11 @@ import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
  * @author Fabio
  */
 public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2{
+    
+    public String getName() {
+        return "Pydev Extensions Refactorer";
+    }
+    
     //-------------------------------------------- things we currently cannot do
 	public boolean canExtract() {
 		return false;
