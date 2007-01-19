@@ -6,6 +6,7 @@
 package org.python.pydev.editor.actions.refactoring;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
@@ -24,13 +25,14 @@ public class PyInlineLocalVariable extends PyRefactorAction {
      * @throws BadLocationException
      * @throws CoreException
      */
-    protected String perform(IAction action, String name, Operation operation) throws BadLocationException, CoreException {
-        return getPyRefactoring().inlineLocalVariable(getRefactoringRequest(operation));
+    protected String perform(IAction action, String name, IProgressMonitor monitor) throws BadLocationException, CoreException {
+        return getPyRefactoring().inlineLocalVariable(getRefactoringRequest(monitor));
     }
     
     IPyRefactoring pyRefactoring;
+    
     /**
-     * @return
+     * @return the IPyRefactoring engine to be used
      */
     protected IPyRefactoring getPyRefactoring() {
         if(pyRefactoring == null){

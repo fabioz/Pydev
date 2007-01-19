@@ -7,6 +7,7 @@ package org.python.pydev.editor.actions;
 import java.io.File;
 import java.util.HashSet;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -29,13 +30,19 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
+ * This is a refactoring action, but it does not follow the default cycle -- so, it overrides the run
+ * and always uses the same cycle... because in this case, we do not need any additional information
+ * before starting the refactoring... the go to definition always only depends upon the current 
+ * selected text -- and if more than 1 match is found, it asks the user to select the one that
+ * is more likely the match)
+ * 
  * @author Fabio Zadrozny
- *  
  */
 public class PyGoToDefinition extends PyRefactorAction {
     IPyRefactoring pyRefactoring;
+    
     /**
-     * @return
+     * @return the refactoring engine to be used
      */
     protected IPyRefactoring getPyRefactoring() {
         if(pyRefactoring == null){
@@ -43,7 +50,12 @@ public class PyGoToDefinition extends PyRefactorAction {
         }
         return pyRefactoring;
     }
+    
 
+    /**
+     * We do some additional checking because the default backend
+     * @return true if the conditions are ok and false otherwise
+     */
     protected boolean areRefactorPreconditionsOK(RefactoringRequest request) {
         try {
             IPyRefactoring pyRefactoring = getPyRefactoring();
@@ -61,10 +73,9 @@ public class PyGoToDefinition extends PyRefactorAction {
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
+    /**
+     * Overrides the run and calls -- and the whole default refactoring cycle from the beggining, 
+     * because unlike most refactoring operations, this one can work with dirty editors.
      */
     public void run(IAction action) {
     	request = null;
@@ -159,9 +170,8 @@ public class PyGoToDefinition extends PyRefactorAction {
 
 
     /**
-     * @param openAction
-     * @param itemPointer
-     * @param pyEdit 
+     * @param itemPointer this is the item pointer that gives the location that should be opened
+     * @param pyEdit the editor (so that we can gen the open action)
      */
     private void doOpen(ItemPointer itemPointer, PyEdit pyEdit) {
         File f = (File) itemPointer.file;
@@ -177,18 +187,23 @@ public class PyGoToDefinition extends PyRefactorAction {
     }
 
     /**
-     * @param node
-     * @return
+     * @return an array of ItemPointer with the definitions found
      */
     private ItemPointer[] findDefinition(PyEdit pyEdit) {
         IPyRefactoring pyRefactoring = getPyRefactoring("canFindDefinition");
         return pyRefactoring.findDefinition(getRefactoringRequest());
     }
 
-    protected String perform(IAction action, String name, Operation operation) throws Exception {
+    /**
+     * As we're not using the default refactoring cycle, this method is not even called
+     */
+    protected String perform(IAction action, String name, IProgressMonitor monitor) throws Exception {
         return null;
     }
 
+    /**
+     * As we're not using the default refactoring cycle, this method is not even called
+     */
     protected String getInputMessage() {
         return null;
     }

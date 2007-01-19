@@ -772,7 +772,7 @@ public class PySelection {
     }
 
     /**
-     * @return the current token and its initial offset
+     * @return the current token and its initial offset for this token
      * @throws BadLocationException
      */
     public Tuple<String, Integer> getCurrToken() throws BadLocationException {

@@ -14,13 +14,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
@@ -31,10 +29,10 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
@@ -50,14 +48,23 @@ public abstract class PyRefactorAction extends PyAction {
 
     protected IWorkbenchWindow workbenchWindow;
 
-    public final class Operation extends WorkspaceModifyOperation {
+    private final class Operation extends WorkspaceModifyOperation {
+        
+        /**
+         * A string with the status of the operation (only useful if using the default refactoring cycle.
+         * Will be checked for a string starting with "ERROR:")
+         */
         public String statusOfOperation;
 
+        /**
+         * The name the user chose (only available if using the default refactoring cycle)
+         */
         private final String nameUsed;
 
+        /**
+         * The action to be performed
+         */
         private final IAction action;
-
-        public IProgressMonitor monitor;
 
         public Operation(String nameUsed, IAction action) {
             super();
@@ -65,13 +72,16 @@ public abstract class PyRefactorAction extends PyAction {
             this.action = action;
         }
 
+        /**
+         * Execute the actual refactoring (needs to ask for user input if not using the default
+         * refactoring cycle)
+         */
         protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
                 InterruptedException {
 
             try {
-                this.monitor = monitor;
                 monitor.beginTask("Refactor", IProgressMonitor.UNKNOWN);
-                this.statusOfOperation = perform(action, nameUsed, this);
+                this.statusOfOperation = perform(action, nameUsed, monitor);
                 monitor.done();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -81,10 +91,9 @@ public abstract class PyRefactorAction extends PyAction {
     }
 
     /**
-     * @param edit
-     * @param msg
+     * @param msg the message to be shown
      */
-    protected String getInput(PyEdit edit, String msg) {
+    protected String getInput(String msg) {
         InputDialog d = new InputDialog(getPyEditShell(), "Refactoring", msg, getDefaultValue(), null);
 
         int retCode = d.open();
@@ -95,7 +104,7 @@ public abstract class PyRefactorAction extends PyAction {
     }
 
     /**
-     * @return
+     * @return the default value for some input dialog
      */
     protected String getDefaultValue() {
         return "";
@@ -125,18 +134,26 @@ public abstract class PyRefactorAction extends PyAction {
     public RefactoringRequest getRefactoringRequest(){
     	return getRefactoringRequest(null, null);
     }
-    public RefactoringRequest getRefactoringRequest(Operation operation){
-    	return getRefactoringRequest(null, operation);
+    public RefactoringRequest getRefactoringRequest(IProgressMonitor monitor){
+    	return getRefactoringRequest(null, monitor);
     }
-    protected RefactoringRequest request; 
-    public RefactoringRequest getRefactoringRequest(String name, Operation operation){
+    
+    /**
+     * This is the refactoring request
+     */
+    protected volatile RefactoringRequest request; 
+    
+    /**
+     * @return the refactoring request (it is created and cached if still not available)
+     */
+    public RefactoringRequest getRefactoringRequest(String name, IProgressMonitor monitor){
         if(request == null){
             //testing first with whole lines.
             PyEdit pyEdit = getPyEdit(); //may not be available in tests, that's why it is important to be able to operate without it
-    		request = createRefactoringRequest(operation, pyEdit, ps);
+    		request = createRefactoringRequest(monitor, pyEdit, ps);
         }
-        request.operation = operation;
-        request.duringProcessInfo.name = name;
+        request.monitor = monitor;
+        request.inputName = name;
 		return request;
     }
 
@@ -144,20 +161,22 @@ public abstract class PyRefactorAction extends PyAction {
      * @param operation the operation we're doing (may be null)
      * @param pyEdit the editor from where we'll get the info
      */
-    public static RefactoringRequest createRefactoringRequest(Operation operation, PyEdit pyEdit, PySelection ps) {
+    public static RefactoringRequest createRefactoringRequest(IProgressMonitor monitor, PyEdit pyEdit, PySelection ps) {
         File file = pyEdit.getEditorFile();
-        IDocument doc = pyEdit.getDocument();
         IPythonNature nature = pyEdit.getPythonNature();
-        return new RefactoringRequest(file, doc, ps, operation, nature, pyEdit);
+        return new RefactoringRequest(file, ps, monitor, nature, pyEdit);
     }
 
+    /**
+     * Refreshes the given PyEdit
+     */
     private void refreshEditor(PyEdit edit) throws CoreException {
         IFile file = (IFile) ((FileEditorInput) edit.getEditorInput()).getAdapter(IFile.class);
         file.refreshLocal(IResource.DEPTH_INFINITE, null);
     }
 
     /**
-     * @param edit
+     * Refreshes the editors after a refactoring.
      * @throws CoreException
      */
     protected void refreshEditors(PyEdit edit) throws CoreException {
@@ -195,6 +214,12 @@ public abstract class PyRefactorAction extends PyAction {
 
     }
 
+    /**
+     * Checks if the refactoring preconditions are met.
+     * @param request the request for the refactoring
+     * @param pyRefactoring the engine to do the refactoring
+     * @return true if they are ok and false otherwise
+     */
     protected boolean areRefactorPreconditionsOK(RefactoringRequest request, IPyRefactoring pyRefactoring) {
         try {
             checkAvailableForRefactoring(request, pyRefactoring);
@@ -203,7 +228,6 @@ public abstract class PyRefactorAction extends PyAction {
                     new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, e.getMessage(), null));
             return false;
         }
-        
         
         workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
@@ -227,14 +251,22 @@ public abstract class PyRefactorAction extends PyAction {
         return true;
     }
 
+    /**
+     * This is the current text selection
+     */
     protected PySelection ps;
+    
+    /**
+     * @return the refactoring engine that should be used for this action (because one engine may provide
+     * the extract method and the other the rename)
+     */
     protected abstract IPyRefactoring getPyRefactoring();
 
 
-    /*
-     * (non-Javadoc)
+    /**
+     * Actually executes this action.
      * 
-     * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
+     * Checks preconditions... if 
      */
     public void run(final IAction action) {
         // Select from text editor
@@ -246,26 +278,22 @@ public abstract class PyRefactorAction extends PyAction {
         if (areRefactorPreconditionsOK(req, pyRefactoring) == false) {
             return;
         }
+
         
+        //Should we use the default refactoring cycle (basically, the BRM cycle) or not?
         if(!pyRefactoring.useDefaultRefactoringActionCycle()){
             //this way, we don't provide anything to sync, ask the input, etc... that's all up to the 
             //pyrefactoring instance in the perform action
-            new Job("Performing: "+action.getClass().getName()){
+            new UIJob("Performing: "+action.getClass().getName()){
 
                 @Override
-                protected IStatus run(final IProgressMonitor monitor) {
-                    RunInUiThread.sync(new Runnable(){
-
-                        public void run() {
-                            try{
-                                Operation o = new Operation(null, action);
-                                o.execute(monitor);
-                            } catch (Exception e) {
-                                PydevPlugin.log(e);
-                            }
-                        }
-                        
-                    });
+                public IStatus runInUIThread(final IProgressMonitor monitor) {
+                    try{
+                        Operation o = new Operation(null, action);
+                        o.execute(monitor);
+                    } catch (Exception e) {
+                        PydevPlugin.log(e);
+                    }
                     return Status.OK_STATUS;
                 }
                 
@@ -273,13 +301,15 @@ public abstract class PyRefactorAction extends PyAction {
             return;
         }
 
+        //Now, if the user did choose the 'default' refactoring cycle, let's go on and ask the questions
+        //needed and go on to the request
         String msg = getInputMessage();
         String name = "";
-        if (msg != null)
-            name = getInput(getPyEdit(), msg);
+        if (msg != null){
+            name = getInput(msg);
+        }
 
-        final String nameUsed = name;
-        Operation operation = new Operation(nameUsed, action);
+        Operation operation = new Operation(name, action);
 
         ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(getPyEditShell());
         monitorDialog.setBlockOnOpen(false);
@@ -297,7 +327,7 @@ public abstract class PyRefactorAction extends PyAction {
             e1.printStackTrace();
         }
 
-        if (operation.statusOfOperation.startsWith("ERROR:")) {
+        if (operation.statusOfOperation != null && operation.statusOfOperation.startsWith("ERROR:")) {
             restartRefactorShell();
             String[] strings = operation.statusOfOperation.split("DETAILS:");
 
@@ -319,7 +349,7 @@ public abstract class PyRefactorAction extends PyAction {
     }
 
     /**
-     *  
+     * If the engine has a shell... restart it
      */
     private void restartRefactorShell() {
         Thread thread = new Thread() {
@@ -333,30 +363,31 @@ public abstract class PyRefactorAction extends PyAction {
     }
 
     /**
-     * @return
+     * @return a shell from the PyEdit
      */
     protected Shell getPyEditShell() {
         return getPyEdit().getSite().getShell();
     }
 
     /**
+     * This is the method that should be actually overriden to perform the refactoring action.
      * 
-     * @param action
-     * @param name
-     * @param operation
+     * @param action the action to be performed 
+     * @param name the name that the user typed if using the default refactoring cycle (otherwise it is null)
+     * @param monitor the monitor for the operation
      * @return the status returned by the server for the refactoring.
      * @throws Exception
      */
-    protected abstract String perform(IAction action, String name, Operation operation) throws Exception;
+    protected abstract String perform(IAction action, String name, IProgressMonitor monitor) throws Exception;
 
     /**
-     * 
      * @return null if no input message is needed.
+     * @note only used in default refactoring cycle
      */
     protected abstract String getInputMessage();
 
     /**
-     * should throw an exception if we cannot do a refactoring in this editor.
+     * Should throw an exception if we cannot do a refactoring in this editor.
      * @param pyRefactoring the refactoring engine
      */
     public static void checkAvailableForRefactoring(RefactoringRequest request, IPyRefactoring pyRefactoring) {

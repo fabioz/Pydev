@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.actions.refactoring;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 
@@ -18,10 +19,10 @@ public class PyRename extends PyRefactorAction {
      * 
      *     renameByCoordinates(filename, line, column, newname)
      */
-    protected String perform(IAction action, String name, Operation operation) throws Exception {
+    protected String perform(IAction action, String name, IProgressMonitor monitor) throws Exception {
         String res = "";
         pyRefactoring = getPyRefactoring();
-        res = pyRefactoring.rename(getRefactoringRequest(name, operation));
+        res = pyRefactoring.rename(getRefactoringRequest(name, monitor));
         return res;
     }
 

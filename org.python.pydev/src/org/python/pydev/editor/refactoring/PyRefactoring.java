@@ -83,7 +83,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
 		        pytonShell.changePythonPath(request.nature.getPythonPathNature().getCompleteProjectPythonPath(null)); //default
 	            pytonShell.write(str);
 	 
-	            return URLDecoder.decode(pytonShell.read(request.operation), "UTF-8");
+	            return URLDecoder.decode(pytonShell.read(request.monitor), "UTF-8");
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	            
@@ -108,7 +108,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
         s+=        "|"+request.getBeginCol();
         s+=        "|"+request.getEndLine();
         s+=        "|"+request.getEndCol();
-        s+=        "|"+request.duringProcessInfo.name;
+        s+=        "|"+request.inputName;
         s+=        "END@@";
 //        System.out.println("Extract: "+s);
         String string = makeAction(s, request);
@@ -121,7 +121,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
     /** Requests a rename operation in the shell
      */
     public String rename(RefactoringRequest request) {
-        if(request.duringProcessInfo.name == null || request.duringProcessInfo.name.equals("")){
+        if(request.inputName == null || request.inputName.equals("")){
             return "";
         }
         File editorFile = request.file;
@@ -130,7 +130,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
         s+=        "|"+REF.getFileAbsolutePath(editorFile);
         s+=        "|"+request.getBeginLine();
         s+=        "|"+request.getBeginCol();
-        s+=        "|"+request.duringProcessInfo.name;
+        s+=        "|"+request.inputName;
         s+=        "END@@";
 //        System.out.println("Extract: "+s);
         String string = makeAction(s, request);
@@ -213,7 +213,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
         s+=        "|"+request.getBeginCol();
         s+=        "|"+request.getEndLine();
         s+=        "|"+request.getEndCol();
-        s+=        "|"+request.duringProcessInfo.name;
+        s+=        "|"+request.inputName;
         s+=        "END@@";
 //        System.out.println("Extract: "+s);
         String string = makeAction(s, request);

@@ -19,11 +19,11 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.plugin.PydevPlugin;
@@ -500,10 +500,10 @@ public abstract class AbstractShell {
      */
     protected abstract String createServerProcess(int pWrite, int pRead) throws IOException;
 
-    protected synchronized void communicateWork(String desc, Operation operation) {
-        if(operation != null){
-            operation.monitor.setTaskName(desc);
-            operation.monitor.worked(1);
+    protected synchronized void communicateWork(String desc, IProgressMonitor monitor) {
+        if(monitor != null){
+            monitor.setTaskName(desc);
+            monitor.worked(1);
         }
     }
 
@@ -527,7 +527,7 @@ public abstract class AbstractShell {
      * @return
      * @throws IOException
      */
-    public synchronized String read(Operation operation) throws IOException {
+    public synchronized String read(IProgressMonitor monitor) throws IOException {
         if(finishedForGood){
             throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to read from it.");
         }
@@ -560,7 +560,7 @@ public abstract class AbstractShell {
                 if (s.indexOf("@@PROCESSING_END@@") != -1) { //each time we get a processing message, reset j to 0.
                     s = s.replaceAll("@@PROCESSING_END@@", "");
                     j = 0;
-                    communicateWork("Processing...", operation);
+                    communicateWork("Processing...", monitor);
                 }
 
                 //processing with some kind of status
@@ -570,9 +570,9 @@ public abstract class AbstractShell {
                     j = 0;
                     s = URLDecoder.decode(s, ENCODING_UTF_8);
                     if (s.trim().equals("") == false) {
-                        communicateWork("Processing: " + s, operation);
+                        communicateWork("Processing: " + s, monitor);
                     } else {
-                        communicateWork("Processing...", operation);
+                        communicateWork("Processing...", monitor);
                     }
                     s = "";
                 }

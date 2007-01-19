@@ -25,66 +25,37 @@ public interface IPyRefactoring {
     public void addPropertyListener(IPropertyListener l);
 
     /**
-     * Extract method
+     * Extract method: does the actual extraction given some request
+     * The canExtract() method defines whether the extract method will be used from
+     * this engine or not (if false, it will use the default refactoring engine)
      * 
-     * @param editor
-     * @param beginLine
-     * @param beginCol
-     * @param endLine
-     * @param endCol
-     * @param name
-     * @param operation
+     * @return: A string with the status of the refactoring (it will be analyzed if using the
+     * default refactoring cycle for an ERROR: substring and shown to the user if found)
      */
     public String extract(RefactoringRequest request);
     public boolean canExtract();
 
     /**
      * Rename something (class, method, local...)
-     * 
-     * @param editor
-     * @param beginLine
-     * @param beginCol
-     * @param name
-     * @param operation
      */
     public String rename(RefactoringRequest request);
     public boolean canRename();
 
     /**
      * Find where something is defined (many results because it may seem something is defined in several places)
-     * 
-     * @param editor
-     * @param beginLine
-     * @param beginCol
-     * @param operation
-     * @return
+     * @return an ItemPointer to some definition
      */
     public ItemPointer[] findDefinition(RefactoringRequest request) throws TooManyMatchesException;
     public boolean canFindDefinition();
 
     /**
      * Inline a local variable
-     * 
-     * @param editor
-     * @param beginLine
-     * @param beginCol
-     * @param operation
-     * @return
      */
     public String inlineLocalVariable(RefactoringRequest request);
     public boolean canInlineLocalVariable();
 
     /**
      * Extract a local variable from something
-     * 
-     * @param editor
-     * @param beginLine
-     * @param beginCol
-     * @param endLine
-     * @param endCol
-     * @param name
-     * @param operation
-     * @return
      */
     public String extractLocalVariable(RefactoringRequest request);
     public boolean canExtractLocalVariable();
