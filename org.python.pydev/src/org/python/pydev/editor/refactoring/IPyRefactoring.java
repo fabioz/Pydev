@@ -16,6 +16,13 @@ import org.python.pydev.editor.model.ItemPointer;
 public interface IPyRefactoring {
 
 	public static final int REFACTOR_RESULT_PROP = 1;
+    
+    /**
+     * @return The name for the user that represents this refactoring engine.
+     * 
+     * This is useful for 'solving conflicts' if more than one refactoring engine provides the same action.
+     */
+    public String getName();
 
     /**
      * Want to hear Refactoring things?

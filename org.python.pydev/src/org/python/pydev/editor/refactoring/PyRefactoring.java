@@ -32,6 +32,10 @@ import org.python.pydev.editor.model.Location;
  */
 public class PyRefactoring extends AbstractPyRefactoring {
     
+    public String getName() {
+        return "BRM Refactorer";
+    }
+    
     /**
      * Default constructor. Initializes the refactoring shell.
      */
