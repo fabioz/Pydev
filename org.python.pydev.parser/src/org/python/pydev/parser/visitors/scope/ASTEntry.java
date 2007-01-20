@@ -4,6 +4,7 @@
 package org.python.pydev.parser.visitors.scope;
 
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.structure.DecoratableObject;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -25,7 +26,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
  * 
  * @author Fabio
  */
-public class ASTEntry{
+public class ASTEntry extends DecoratableObject{
     /**
      * This is the parent of this entry. It may be null
      */
@@ -50,6 +51,7 @@ public class ASTEntry{
      * This is the column where the entry finishes (most iterators will NOT give you that)
      */
     public int endCol;
+    
     
     public ASTEntry(ASTEntry parent, SimpleNode node){
         this(parent);

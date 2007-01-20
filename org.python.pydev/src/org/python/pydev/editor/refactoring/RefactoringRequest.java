@@ -4,8 +4,6 @@
 package org.python.pydev.editor.refactoring;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
@@ -13,6 +11,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.structure.DecoratableObject;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -24,8 +23,11 @@ import org.python.pydev.plugin.nature.SystemPythonNature;
 /**
  * This class encapsulates all the info needed in order to do a refactoring
  * As we'd have a getter/setter without any side-effects, let's leave them all public...
+ * 
+ * It is a Decoratable Object, so that clients can add additional information to this
+ * object at runtime.
  */
-public class RefactoringRequest{
+public class RefactoringRequest extends DecoratableObject{
 	
 	/**
 	 * The file associated with the editor where the refactoring is being requested
@@ -73,34 +75,6 @@ public class RefactoringRequest{
 	 */
 	public String initialName;
     
-    /**
-     * This is used so that specific refactoring engines can add information regarding its specifics in
-     * the request.
-     */
-    private Map<String, Object> additionalRefactoringInfo = new HashMap<String, Object>();
-
-    /**
-     * @param key this is the key for which we have some additional value relative to the
-     * refactoring request using it
-     * @param defaultValue this is the default value that should be returned if there
-     * is currently no value for the given key
-     * @return the additional info (if available) or the default specified
-     */
-    public Object getAdditionalInfo(String key, Object defaultValue){
-        Object val = this.additionalRefactoringInfo.get(key);
-        if(val == null){
-            return defaultValue;
-        }
-        return val;
-    }
-    
-    /**
-     * Set some value for some additional info for this request.
-     */
-    public void setAdditionalInfo(String key, Object value){
-        this.additionalRefactoringInfo.put(key, value);
-    }
-
     /**
      * Default constructor... the user is responsible for filling the needed information
      * later.

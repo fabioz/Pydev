@@ -114,7 +114,7 @@ public abstract class AbstractVisitor extends VisitorBase{
      * This function creates source tokens from an import node.
      * 
      * @param node the import node
-     * @param moduleName the module name
+     * @param moduleName the module name where this token was found
      * @param tokens OUT used to add the source tokens (may create many from a single import)
      * @param allowForMultiple is used to indicate if an import in the format import os.path should generate one token for os
      * and another for os.path or just one for both with os.path
