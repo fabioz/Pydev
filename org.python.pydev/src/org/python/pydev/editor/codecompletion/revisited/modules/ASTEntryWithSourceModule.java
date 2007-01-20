@@ -9,8 +9,8 @@ public class ASTEntryWithSourceModule extends ASTEntry{
 
     private SourceModule module;
 
-    public ASTEntryWithSourceModule(ASTEntry parent, SourceModule module) {
-        super(parent, module.getAst());
+    public ASTEntryWithSourceModule(SourceModule module) {
+        super(null, module.getAst());
         this.module = module;
     }
     

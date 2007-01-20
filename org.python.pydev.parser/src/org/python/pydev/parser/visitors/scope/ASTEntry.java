@@ -56,7 +56,9 @@ public class ASTEntry extends DecoratableObject{
     public ASTEntry(ASTEntry parent, SimpleNode node){
         this(parent);
         this.node = node;
-        this.endLine = node.beginLine;
+        if(node != null){
+            this.endLine = node.beginLine;
+        }
     }
     
     public ASTEntry(ASTEntry parent){

@@ -62,7 +62,7 @@ public class PycRemoverBuilderVisitor extends PyDevBuilderVisitor{
             //the .py has just been removed, so, remove the .pyc if it exists
             try {
                 File file = new File(loc);
-                IFile[] files = PydevPlugin.getWorkspaceFile(file);
+                IFile[] files = PydevPlugin.getWorkspaceFiles(file);
                 
                 if(files == null){
                     return ;
