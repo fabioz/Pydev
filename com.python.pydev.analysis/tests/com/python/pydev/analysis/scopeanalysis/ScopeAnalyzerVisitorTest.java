@@ -25,7 +25,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	try {
 			ScopeAnalyzerVisitorTest test = new ScopeAnalyzerVisitorTest();
 			test.setUp();
-			test.testIt27();
+			test.testIt27a();
 			test.tearDown();
 			junit.textui.TestRunner.run(ScopeAnalyzerVisitorTest.class);
 		} catch (Exception e) {
@@ -393,6 +393,25 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     
     
     public void testIt27() throws Exception {
+        doc = new Document(
+                "def m1():\n" +
+                "    import os.path\n" +
+                "    print os.path\n" +
+                "    \n" +
+                "def m2():\n" +
+                "    import os.path\n" +
+                "    print os.path\n" +
+                "\n" 
+        );
+        List<IToken> tokenOccurrences = getTokenOccurrences(1, 15);
+        assertEquals(4, tokenOccurrences.size());
+        assertContains(1, 14, tokenOccurrences);
+        assertContains(2, 13, tokenOccurrences);
+        assertContains(5, 14, tokenOccurrences);
+        assertContains(6, 13, tokenOccurrences);
+    }
+    
+    public void testIt27a() throws Exception {
         doc = new Document(
                 "def m1():\n" +
                 "    import os.path.os\n" +

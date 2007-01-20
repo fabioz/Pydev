@@ -137,9 +137,18 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
         addFoundToImportsMap(found, importsFound);
     }
     
+    /**
+     * Called for each found occurrence in the complete token occurrences
+     * 
+     * Is used to add other returns to ret
+     */
     @SuppressWarnings("unchecked")
     @Override
-    protected void onGetCompleteTokenOccurrences(Tuple3<Found, Integer, ASTEntry> found, Set<IToken> f, ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> ret) {
+    protected void onGetCompleteTokenOccurrences(
+            Tuple3<Found, Integer, ASTEntry> found, 
+            Set<IToken> f, 
+            ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> ret) {
+        
         //other matches for the imports that we had already found.
         Tuple matchingImportEntries = getImportEntries(found, f);
         List<Tuple4<IToken, Integer, ASTEntry, Found>> fromModule = (List<Tuple4<IToken, Integer, ASTEntry, Found>>) matchingImportEntries.o1;
@@ -181,7 +190,10 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
                 ArrayList<Tuple4<IToken,Integer,ASTEntry,Found>> completeTokenOccurrences = analyzerVisitorWithoutImports.getCompleteTokenOccurrences();
                 
                 for (Tuple4<IToken, Integer, ASTEntry, Found> oc : completeTokenOccurrences) {
-                    if(!f.contains(oc.o1)){
+                    if(!f.contains(oc.o1) && !oc.o1.isImport()){ //the import should be already added
+                        if(oc.o2 < tuple3.o2){
+                            oc.o2 = tuple3.o2;
+                        }
                         f.add(oc.o1);
                         ret.add(oc);
                     }
@@ -210,8 +222,8 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
 			List<Tuple3<Found, Integer, ASTEntry>> fromModule = importsFoundFromModuleName.get(key);
 			List<Tuple3<Found, Integer, ASTEntry>> fromImports = importsFound.get(key);
 			
-			checkImportEntries(fromModuleRet, f, fromModule);
-			checkImportEntries(fromImportsRet, f, fromImports);
+			checkImportEntries(fromModuleRet, f, fromModule, found.o2);
+			checkImportEntries(fromImportsRet, f, fromImports, found.o2);
 			
 		}
         return new Tuple(fromModuleRet, fromImportsRet);
@@ -221,12 +233,20 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
      * Checks the import entries for imports that are the same as the one that should be already found.
      */
 	@SuppressWarnings("unchecked")
-    private void checkImportEntries(List<Tuple4<IToken, Integer, ASTEntry, Found>> ret, Set<IToken> f, List<Tuple3<Found, Integer, ASTEntry>> importEntries) {
+    private void checkImportEntries(
+            List<Tuple4<IToken, Integer, ASTEntry, Found>> ret, 
+            Set<IToken> f, 
+            List<Tuple3<Found, Integer, ASTEntry>> importEntries,
+            int colDelta) {
 		
 		if(importEntries != null){
 			for (Tuple3<Found, Integer, ASTEntry> foundInFromModule : importEntries) {
 				IToken generator = foundInFromModule.o1.getSingle().generator;
-				Tuple4<IToken, Integer, ASTEntry, Found> tup3 = new Tuple4(generator, foundInFromModule.o2, foundInFromModule.o3, foundInFromModule.o1);
+                
+				Tuple4<IToken, Integer, ASTEntry, Found> tup3 = new Tuple4(generator, 
+                        colDelta > foundInFromModule.o2?colDelta:foundInFromModule.o2, 
+                                foundInFromModule.o3, 
+                                foundInFromModule.o1);
 				
 				if(!f.contains(generator)){
 					f.add(generator);
