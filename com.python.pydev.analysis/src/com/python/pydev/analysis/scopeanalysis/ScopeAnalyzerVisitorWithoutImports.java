@@ -247,8 +247,8 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
         ASTEntry parent = popParent(node);
         if(hitAsUndefined == null){
             for (String rep : new FullRepIterable(this.completeNameToFind, true)){
-                Found found = m.get(rep);
-                if(found != null){
+                List<Found> foundItems = m.getAll(rep);
+                for(Found found : foundItems){
                     if(checkFound(found, parent) != null){
                         return;
                     }

@@ -22,7 +22,9 @@ public class CompositeMessage extends AbstractMessage{
     List<IMessage> msgs = new ArrayList<IMessage>();
     
     public void addMessage(IMessage msg){
-        msgs.add(msg);
+        if(!msgs.contains(msg)){
+            msgs.add(msg);
+        }
     }
 
     public String getShortMessage() {
@@ -39,5 +41,17 @@ public class CompositeMessage extends AbstractMessage{
         return buffer.toString();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof CompositeMessage)){
+            return false;
+        }
+        CompositeMessage m = (CompositeMessage) obj;
+        return m.getMessage().equals(getMessage());
+    }
 
+    @Override
+    public int hashCode() {
+        return getMessage().hashCode();
+    }
 }

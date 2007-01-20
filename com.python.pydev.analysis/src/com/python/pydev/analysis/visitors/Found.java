@@ -50,6 +50,11 @@ public class Found implements Iterable<GenAndTok>{
     public void addGeneratorToFound(IToken generator2, IToken tok2, int scopeId, ScopeItems scopeFound) {
         this.found.add(new GenAndTok(generator2, tok2, scopeId, scopeFound));
     }
+    
+    public void addGeneratorsFromFound(Found found2) {
+        this.found.addAll(found2.found);
+    }
+
 
     public GenAndTok getSingle() {
         return found.get(found.size() -1); //always returns the last (this is the one that is binded at the current place in the scope)
@@ -81,5 +86,6 @@ public class Found implements Iterable<GenAndTok>{
 	public boolean isWildImport() {
 		return getSingle().generator.isWildImport();
 	}
+
 
 }

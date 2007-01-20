@@ -21,5 +21,19 @@ public class Message extends AbstractMessage {
     public Object getShortMessage() {
         return message;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof Message)){
+            return false;
+        }
+        Message m = (Message) obj;
+        return this.getMessage().equals(m.getMessage());
+    }
+    
+    @Override
+    public int hashCode() {
+        return getMessage().hashCode();
+    }
 
 }

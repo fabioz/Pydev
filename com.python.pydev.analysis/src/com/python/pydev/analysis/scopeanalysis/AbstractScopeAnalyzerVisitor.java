@@ -738,16 +738,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         while(i >= 0){
             String sub = fullRep.substring(0,i);
             i = fullRep.indexOf('.', i+1);
-            Found found = m.get(sub);
-            if(found != null){
-                foundItems.add(found);
-            }
+            foundItems.addAll(m.getAll(sub));
         }
         
-        Found found = m.get(fullRep);
-        if(found != null){
-            foundItems.add(found);
-        }
+        foundItems.addAll(m.getAll(fullRep));
         return foundItems;
     }
 

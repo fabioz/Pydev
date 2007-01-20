@@ -10,6 +10,7 @@ import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_UNUSED_VARIABL
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.HashSet;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.Document;
@@ -26,8 +27,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testMultilineImport();
-            analyzer2.testImportNotFound6();
+            analyzer2.testReimport();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -703,9 +703,15 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
-        printMessages(msgs, 2);
-        assertContainsMsg("Unused import: toimport", msgs);
+        printMessages(msgs, 3);
+        assertContainsMsg("Unused import: toimport", msgs, 1);
+        assertContainsMsg("Unused import: toimport", msgs, 2);
         assertContainsMsg("Import redefinition: toimport", msgs);
+        HashSet set = new HashSet();
+        for (IMessage m : msgs) {
+            set.add(m);
+        }
+        assertEquals(2, set.size()); //that's because we actually only have those 2 messages (but one appears 2 times)
     }
     
     public void testRelativeNotUndefined() throws FileNotFoundException{
@@ -767,11 +773,12 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
-        assertEquals(1, msgs.length);
-        assertContainsMsg("Import redefinition: os", msgs);
-        assertEquals(8, msgs[0].getStartCol(doc));
-        assertEquals(10, msgs[0].getEndCol(doc));
-        assertEquals(2, msgs[0].getStartLine(doc));
+        printMessages(msgs, 2);
+        IMessage message = assertContainsMsg("Import redefinition: os", msgs, 2);
+        assertContainsMsg("Unused import: os", msgs, 1);
+        assertEquals(8,  message.getStartCol(doc));
+        assertEquals(10, message.getEndCol(doc));
+        assertEquals(2,  message.getStartLine(doc));
     }
     
     public void testReimport2(){
@@ -784,9 +791,33 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
-        assertEquals(2, msgs.length);
+        printMessages(msgs, 3);
         assertContainsMsg("Import redefinition: os", msgs);
-        assertContainsMsg("Unused import: os", msgs);
+        assertContainsMsg("Unused import: os", msgs, 1);
+        assertContainsMsg("Unused import: os", msgs, 2);
+        HashSet set = new HashSet();
+        for (IMessage m : msgs) {
+            set.add(m);
+        }
+        assertEquals(2, set.size()); //that's because we actually only have those 2 messages (but one appears 2 times)
+
+    }
+    
+    public void testReimport5(){
+        
+        doc = new Document(
+                "import os \n" +
+                "print os  \n"+
+                "import os \n"+
+                ""
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs, 2);
+        assertContainsMsg("Import redefinition: os", msgs, 3);
+        assertContainsMsg("Unused import: os", msgs, 3);
+        
     }
     
     public void testReimport3(){

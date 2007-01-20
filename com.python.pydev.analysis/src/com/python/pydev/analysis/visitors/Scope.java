@@ -225,12 +225,12 @@ public class Scope implements Iterable<ScopeItems>{
             }
         }
         
-        Found newFound = new Found(o,(SourceToken) generator, m.getScopeId(), m);
-        m.put(rep, newFound);
 
+        Found newFound = new Found(o,(SourceToken) generator, m.getScopeId(), m);
         if(isReimport){
             visitor.onAddReimportMessage(newFound);
         }
+        m.put(rep, newFound);
         return newFound;
     }
     
@@ -276,7 +276,7 @@ public class Scope implements Iterable<ScopeItems>{
         List<Found> ret = new ArrayList<Found>();
         for (ScopeItems m : scope) {
             
-            Found f = m.get(name);
+            Found f = m.getLastAppearance(name);
             if(f != null){
                 if(setUsed){
                     f.setUsed(true);
@@ -296,7 +296,7 @@ public class Scope implements Iterable<ScopeItems>{
         while (topDown.hasNext()) {
         	ScopeItems m = topDown.next();
             if((m.getScopeType() & acceptedScopes) != 0){
-	            Found f = m.get(name);
+	            Found f = m.getLastAppearance(name);
 	            if(f != null){
 	                if(setUsed){
 	                    f.setUsed(true);

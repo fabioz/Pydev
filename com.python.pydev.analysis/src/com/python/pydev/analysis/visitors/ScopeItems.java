@@ -16,7 +16,7 @@ import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.ast.TryExcept;
 
 public class ScopeItems {
-    private Map<String,Found> m = new HashMap<String,Found>();
+    private Map<String,List<Found>> m = new HashMap<String,List<Found>>();
     
     /**
      * Stack for names that should not generate warnings, such as builtins, method names, etc.
@@ -33,16 +33,39 @@ public class ScopeItems {
         this.scopeType = scopeType;
     }
 
-    public Found get(String rep) {
-        return m.get(rep);
+
+    public Found getLastAppearance(String rep) {
+        List<Found> foundItems = m.get(rep);
+        if(foundItems == null || foundItems.size() == 0){
+            return null;
+        }
+        return foundItems.get(foundItems.size()-1);
     }
 
+    public List<Found> getAll(String rep){
+        List<Found> r = m.get(rep);
+        if(r == null){
+            return new ArrayList<Found>(0);
+        }
+        return r;
+    }
+    
     public void put(String rep, Found found) {
-        m.put(rep, found);
+        List<Found> foundItems = m.get(rep);
+        if(foundItems == null){
+            foundItems = new ArrayList<Found>();
+            m.put(rep, foundItems);
+        }
+        
+        foundItems.add(found);
     }
 
     public Collection<Found> values() {
-        return m.values();
+        ArrayList<Found> ret = new ArrayList<Found>();
+        for (List<Found> foundItems : m.values()) {
+            ret.addAll(foundItems);
+        }
+        return ret;
     }
 
     public void addIfSubScope() {
@@ -89,7 +112,7 @@ public class ScopeItems {
         buffer.append("ScopeItem (type:");
         buffer.append(Scope.getScopeTypeStr(scopeType));
         buffer.append(")\n");
-        for (Map.Entry<String, Found> entry : m.entrySet()) {
+        for (Map.Entry<String, List<Found>> entry : m.entrySet()) {
             buffer.append(entry.getKey());
             buffer.append(": contains ");
             buffer.append(entry.getValue());
@@ -98,18 +121,17 @@ public class ScopeItems {
         return buffer.toString();
     }
     
-    public Set<Map.Entry<String, Found>> entrySet(){
-    	return m.entrySet();
-    }
 
     /**
      * @return all the used items
      */
     public List<Tuple<String, Found>> getUsedItems() {
         ArrayList<Tuple<String, Found>> found = new ArrayList<Tuple<String, Found>>();
-        for (Map.Entry<String, Found> entry : m.entrySet()) {
-            if(entry.getValue().isUsed()){
-                found.add(new Tuple<String, Found>(entry.getKey(), entry.getValue()));
+        for (Map.Entry<String, List<Found>> entry : m.entrySet()) {
+            for (Found f : entry.getValue()) {
+                if(f.isUsed()){
+                    found.add(new Tuple<String, Found>(entry.getKey(), f));
+                }
             }
         }
         return found;
