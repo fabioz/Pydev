@@ -24,6 +24,18 @@ Extensions:
 	<li>The pydev navigate action is now only shown in the pydev/debug perspective</li>
 	<li>The pydev remote debugging actions are now only shown in the debug perspective</li>
 	<li>Fix: go to definition sometimes failed to find module definitions</li>
+	<li>Added refactoring support for rename
+		<ul>
+			<li>Supports preview</li>
+			<li>Integrated in the editor (but not in the package explorer)</li>
+			<li>Supports undo/redo</li>
+			<li>Rename class</li>
+			<li>Rename method</li>
+			<li>Rename attribute</li>
+			<li>Rename imports</li>
+			<li>Rename local variable</li>
+		</ul>
+	</li>
 </ul>
 	
 
