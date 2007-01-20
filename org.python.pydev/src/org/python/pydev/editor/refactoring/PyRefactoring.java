@@ -14,6 +14,7 @@ import java.util.StringTokenizer;
 import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.model.ItemPointer;
@@ -258,8 +259,8 @@ public class PyRefactoring extends AbstractPyRefactoring {
      * @param string
      */
     private void communicateRefactorResult(String string) {
-        List l = refactorResultAsList(string);
-        setLastRefactorResults(new Object[]{this, l});
+        List<String> l = refactorResultAsList(string);
+        setLastRefactorResults(new Tuple<IPyRefactoring, List<String>>(this, l));
     }
 
     public boolean canExtract() {

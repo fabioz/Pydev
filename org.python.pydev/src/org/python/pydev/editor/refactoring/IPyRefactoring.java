@@ -6,8 +6,11 @@
 package org.python.pydev.editor.refactoring;
 
 
+import java.util.List;
+
 import org.eclipse.ui.IPropertyListener;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.model.ItemPointer;
 
 /**
@@ -81,12 +84,12 @@ public interface IPyRefactoring {
     /**
      * @param lastRefactorResults The lastRefactorResults to set.
      */
-    public void setLastRefactorResults(Object[] lastRefactorResults);
+    public void setLastRefactorResults(Tuple<IPyRefactoring, List<String>> lastRefactorResults);
 
     /**
      * @return Returns the lastRefactorResults.
      */
-    public Object[] getLastRefactorResults();
+    public Tuple<IPyRefactoring, List<String>> getLastRefactorResults();
     public void firePropertyChange();
 
     /**

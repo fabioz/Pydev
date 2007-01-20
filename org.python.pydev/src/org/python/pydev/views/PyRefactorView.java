@@ -2,7 +2,6 @@ package org.python.pydev.views;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.jface.action.Action;
@@ -23,6 +22,7 @@ import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
@@ -137,21 +137,21 @@ public class PyRefactorView extends ViewPart implements IPropertyListener,
         viewer.getControl().setFocus();
     }
 
+    @SuppressWarnings("unchecked")
     public void propertyChanged(Object source, int propId) {
-        if (source == null){
+        if (source == null || propId != IPyRefactoring.REFACTOR_RESULT_PROP){
             return;
         }
         
-        Object[] sources = (Object[]) source;
-        
-        if(sources[0]== null || sources[1]== null){
-            return;
-        }
-        
-        if (sources[0] instanceof IPyRefactoring && propId == IPyRefactoring.REFACTOR_RESULT_PROP) {
+        if(source instanceof Tuple){
+            Tuple<IPyRefactoring, List<String>> sources = (Tuple<IPyRefactoring, List<String>>) source;
+            
+            if(sources.o1== null || sources.o2== null){
+                return;
+            }
             
             elements.clear();
-            elements.addAll((Collection) sources[1]);
+            elements.addAll(sources.o2);
         }
          
     }
@@ -163,6 +163,6 @@ public class PyRefactorView extends ViewPart implements IPropertyListener,
         return elements.toArray();
     }
 
-    private List elements = new ArrayList();
+    private List<String> elements = new ArrayList<String>();
 
 }

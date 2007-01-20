@@ -6,12 +6,12 @@
 package org.python.pydev.editor.refactoring;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.ui.IPropertyListener;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 
 /**
@@ -22,10 +22,10 @@ public abstract class AbstractPyRefactoring implements IPyRefactoring{
     /**
      * Instead of making all static, let's use a singleton... it may be useful...
      */
-    private static IPyRefactoring pyRefactoring;
-    private static IPyRefactoring defaultPyRefactoring;
+    private volatile static IPyRefactoring pyRefactoring;
+    private volatile static IPyRefactoring defaultPyRefactoring;
     private List<IPropertyListener> propChangeListeners = new ArrayList<IPropertyListener>();
-    private Object[] lastRefactorResults;
+    private Tuple<IPyRefactoring, List<String>> lastRefactorResults;
 
     
     
@@ -93,16 +93,13 @@ public abstract class AbstractPyRefactoring implements IPyRefactoring{
     }
 
 
-    public void setLastRefactorResults(Object[] lastRefactorResults) {
-        if(lastRefactorResults.length != 2){
-            throw new RuntimeException("Refactor Results should be a 2 elements tuple.");
-        }
-        if(lastRefactorResults[0] != null && !(lastRefactorResults[0] instanceof IPyRefactoring)){
-            throw new RuntimeException("First argument should be an IPyRefactoring object");
-        }
-        if(lastRefactorResults[1] != null && !(lastRefactorResults[1] instanceof Collection)){
-            throw new RuntimeException("Second argument should be a collection with a list of strings pointing to the changed files.");
-        }
+    /**
+     * 
+     * @param lastRefactorResults: 
+     * - First element should be an IPyRefactoring object
+     * - Second element should be a collection with a list of strings pointing to the changed files.
+     */
+    public void setLastRefactorResults(Tuple<IPyRefactoring, List<String>> lastRefactorResults) {
         this.lastRefactorResults = lastRefactorResults;
 
         firePropertyChange();
@@ -118,7 +115,7 @@ public abstract class AbstractPyRefactoring implements IPyRefactoring{
         }
     }
 
-    public Object []getLastRefactorResults() {
+    public Tuple<IPyRefactoring, List<String>> getLastRefactorResults() {
         return lastRefactorResults;
     }
 
