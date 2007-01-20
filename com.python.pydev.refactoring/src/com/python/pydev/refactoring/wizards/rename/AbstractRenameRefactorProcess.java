@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
@@ -27,7 +28,9 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -35,6 +38,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitor;
+import com.python.pydev.refactoring.changes.PyRenameResourceChange;
 import com.python.pydev.refactoring.refactorer.RefactorerFindReferences;
 import com.python.pydev.refactoring.refactorer.RefactorerRequestConstants;
 import com.python.pydev.refactoring.wizards.IRefactorProcess;
@@ -215,31 +219,81 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
      */
     public void checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context, RefactoringStatus status, CompositeChange fChange) {
         createCurrModuleChange(status, fChange);
-        createOtherFileChanges(fChange);
+        createOtherFileChanges(fChange, status);
     }
 
     /**
      * Create the changes for references in other modules.
      * 
      * @param fChange the 'root' change.
+     * @param status the status of the change
      */
-    private void createOtherFileChanges(CompositeChange fChange) {
+    private void createOtherFileChanges(CompositeChange fChange, RefactoringStatus status) {
         for(Map.Entry<Tuple<String, IFile>, List<ASTEntry>> entry : fileOccurrences.entrySet()){
+            //key = module name, IFile for the module (__init__ file may be found if it is a package)
             Tuple<String, IFile> tup = entry.getKey();
-            IDocument docFromResource = REF.getDocFromResource(tup.o2);
-            TextFileChange fileChange = new TextFileChange("RenameChange: "+request.inputName, tup.o2);
             
-            MultiTextEdit rootEdit = new MultiTextEdit();
-            fileChange.setEdit(rootEdit);
-            fileChange.setKeepPreviewEdits(true);
-
-            for (Tuple<TextEdit, String> t : getAllRenameEdits(entry.getValue(), docFromResource)) {
-                rootEdit.addChild(t.o1);
-                fileChange.addTextEditGroup(new TextEditGroup(t.o2, t.o1));
+            //check the text changes
+            List<ASTEntry> astEntries = filterAstEntries(entry.getValue(), AST_ENTRIES_FILTER_TEXT);
+            if(astEntries.size() > 0){
+                IDocument docFromResource = REF.getDocFromResource(tup.o2);
+                TextFileChange fileChange = new TextFileChange("RenameChange: "+request.inputName, tup.o2);
+                
+                MultiTextEdit rootEdit = new MultiTextEdit();
+                fileChange.setEdit(rootEdit);
+                fileChange.setKeepPreviewEdits(true);
+    
+                for (Tuple<TextEdit, String> t : getAllRenameEdits(astEntries, docFromResource)) {
+                    rootEdit.addChild(t.o1);
+                    fileChange.addTextEditGroup(new TextEditGroup(t.o2, t.o1));
+                }
+                
+                fChange.add(fileChange);
             }
             
-            fChange.add(fileChange);
+            //now, check for file changes
+            astEntries = filterAstEntries(entry.getValue(), AST_ENTRIES_FILTER_FILE);
+            if(astEntries.size() > 0){
+                IResource resourceToRename = tup.o2;
+                String newName = request.inputName+".py";
+                
+                //if we have an __init__ file but the initial token is not an __init__ file, it means
+                //that we have to rename the folder that contains the __init__ file
+                if(tup.o1.endsWith(".__init__") && !request.initialName.equals("__init__")){
+                    resourceToRename = resourceToRename.getParent();
+                    newName = request.inputName;
+                    
+                    if(!resourceToRename.getName().equals(request.initialName)){
+                        status.addFatalError(StringUtils.format("Error. The package that was found (%s) for renaming does not match the initial token found (%s)", 
+                                resourceToRename.getName(), request.initialName));
+                        return;
+                    }
+                }
+                
+                fChange.add(new PyRenameResourceChange(resourceToRename, newName, StringUtils.format("Renaming %s to %s", 
+                        resourceToRename.getName(), request.inputName)));
+            }
         }
+    }
+
+    public final static int AST_ENTRIES_FILTER_TEXT = 1;
+    public final static int AST_ENTRIES_FILTER_FILE = 2;
+    private List<ASTEntry> filterAstEntries(List<ASTEntry> value, int astEntryFilter) {
+        ArrayList<ASTEntry> ret = new ArrayList<ASTEntry>();
+        
+        for (ASTEntry entry : value) {
+            if(entry instanceof ASTEntryWithSourceModule){
+                if((astEntryFilter & AST_ENTRIES_FILTER_FILE) != 0){
+                    ret.add(entry);
+                }
+            }else{
+                if((astEntryFilter & AST_ENTRIES_FILTER_TEXT) != 0){
+                    ret.add(entry);
+                }
+            }
+        }
+        
+        return ret;
     }
 
     /**

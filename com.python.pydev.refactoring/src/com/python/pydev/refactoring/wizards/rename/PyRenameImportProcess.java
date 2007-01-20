@@ -5,6 +5,9 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.core.IModule;
+import org.python.pydev.core.ISystemModulesManager;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -64,10 +67,36 @@ public class PyRenameImportProcess extends AbstractRenameRefactorProcess{
                 throw new RuntimeException("Expecting import info from the found entry.");
             }
             if(found.importInfo.wasResolved){
+                //it cannot be a compiled extension
+                if(!(found.importInfo.mod instanceof SourceModule)){
+                    status.addFatalError(StringUtils.format("Error. The module %s may not be renamed\n" +
+                            "(Because it was found as a compiled extension).",found.importInfo.mod.getName()));
+                    return;
+                }
+                
+                //nor be a system module
+                ISystemModulesManager systemModulesManager = request.nature.getAstManager().getModulesManager().getSystemModulesManager();
+                IModule systemModule = systemModulesManager.getModule(found.importInfo.mod.getName(), request.nature, true);
+                if(systemModule != null){
+                    status.addFatalError(StringUtils.format("Error. The module '%s' may not be renamed\n" +
+                            "Only project modules may be renamed\n" +
+                            "(and it was found as being a system module).",
+                            found.importInfo.mod.getName()));
+                    return;
+                }
+                
+                //now, let's make the mapping from the filesystem to the Eclipse workspace
                 SourceModule mod = (SourceModule) found.importInfo.mod;
                 IFile workspaceFile = null; 
                 try{
                     workspaceFile = PydevPlugin.getWorkspaceFile(mod.getFile());
+                    if(workspaceFile == null){
+                        status.addFatalError(StringUtils.format("Error. Unable to resolve the file:\n" +
+                                "%s\n" +
+                                "to a file in the Eclipse workspace.",
+                                mod.getFile()));
+                        return;
+                    }
                 }catch(IllegalStateException e){
                     //this can happen on tests (but if not on tests, we want to re-throw it
                     if(!e.getMessage().equals("Workspace is closed.")){
@@ -75,6 +104,7 @@ public class PyRenameImportProcess extends AbstractRenameRefactorProcess{
                     }
                     //otherwise, let's just keep going in the test and add it as a valid entry
                 }
+                
                 
                 List<ASTEntry> lst = new ArrayList<ASTEntry>();
                 lst.add(new ASTEntryWithSourceModule(mod));
