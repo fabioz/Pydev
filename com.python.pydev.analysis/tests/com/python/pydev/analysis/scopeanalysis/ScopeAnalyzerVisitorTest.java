@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -24,7 +25,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	try {
 			ScopeAnalyzerVisitorTest test = new ScopeAnalyzerVisitorTest();
 			test.setUp();
-			test.testIt26();
+			test.testIt27();
 			test.tearDown();
 			junit.textui.TestRunner.run(ScopeAnalyzerVisitorTest.class);
 		} catch (Exception e) {
@@ -326,6 +327,42 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
         assertEquals(2, tokenOccurrences.size());
     }
     
+    public void testIt24a() throws Exception {
+        doc = new Document(
+                "import os\n" +
+                "from os import path\n"
+        );
+        List<IToken> tokenOccurrences = getTokenOccurrences(1, 6);
+        assertEquals(2, tokenOccurrences.size());
+    }
+    
+    public void testIt24b() throws Exception {
+        doc = new Document(
+                "from os import path\n" +
+                "import os\n"
+        );
+        List<IToken> tokenOccurrences = getTokenOccurrences(0, 6);
+        assertEquals(2, tokenOccurrences.size());
+    }
+    
+    public void testIt24c() throws Exception {
+        doc = new Document(
+                "from os import path\n" +
+                "import os\n"
+        );
+        List<IToken> tokenOccurrences = getTokenOccurrences(1, 8);
+        assertEquals(2, tokenOccurrences.size());
+    }
+    
+    public void testIt24d() throws Exception {
+        doc = new Document(
+                "from notFound import path\n" +
+                "import notFound\n"
+        );
+        List<IToken> tokenOccurrences = getTokenOccurrences(1, 8);
+        assertEquals(2, tokenOccurrences.size());
+    }
+    
     public void testIt25() throws Exception {
     	doc = new Document(
     			"def m1():\n" +
@@ -354,6 +391,45 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	assertEquals(4, tokenOccurrences.size());
     }
     
+    
+    public void testIt27() throws Exception {
+        doc = new Document(
+                "def m1():\n" +
+                "    import os.path.os\n" +
+                "    print os.path.os\n" +
+                "    \n" +
+                "def m2():\n" +
+                "    import os.path.os\n" +
+                "    print os.path.os\n" +
+                "\n" 
+        );
+        List<IToken> tokenOccurrences = getTokenOccurrences(1, 20);
+        assertEquals(4, tokenOccurrences.size());
+        assertContains(1, 19, tokenOccurrences);
+        assertContains(2, 18, tokenOccurrences);
+        assertContains(5, 19, tokenOccurrences);
+        assertContains(6, 18, tokenOccurrences);
+    }
+    
+    /**
+     * Check if we have some occurrence at the line/col specified
+     */
+    private void assertContains(int line, int col, List<IToken> tokenOccurrences) {
+        StringBuffer buf = new StringBuffer(StringUtils.format("Not Found at L:%s C:%s", line, col));
+        for (IToken token : tokenOccurrences) {
+            if(token.getLineDefinition()-1 == line && token.getColDefinition()-1 == col){
+                return;
+            }
+            buf.append("\nFound:");
+            buf.append(" L:");
+            buf.append(token.getLineDefinition()-1);
+            buf.append(" C:");
+            buf.append(token.getColDefinition()-1);
+        }
+        fail(buf.toString());
+        
+    }
+
 //    do we want to check self ?
 //    public void testIt16() throws Exception {
 //    	doc = new Document(
@@ -422,7 +498,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
 	private ScopeAnalyzerVisitor doVisit(int line, int col) throws Exception {
 		SourceModule mod = (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0);
 		PySelection ps = new PySelection(doc, line, col);
-        ScopeAnalyzerVisitor visitor = new ScopeAnalyzerVisitor(nature, "mod1", mod, doc, new NullProgressMonitor(), ps);
+        ScopeAnalyzerVisitor visitor = new ScopeAnalyzerVisitor(nature, "mod1", mod, new NullProgressMonitor(), ps);
         mod.getAst().accept(visitor);
 		return visitor;
 	}

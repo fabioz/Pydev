@@ -11,13 +11,13 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
+import org.python.pydev.core.Tuple4;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -42,20 +42,10 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
      * Constructor when we have a PySelection object
      * @throws BadLocationException
      */
-    public ScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current,  
-            IDocument document, IProgressMonitor monitor, PySelection ps) throws BadLocationException {
-        super(nature, moduleName, current, document, monitor, ps);
+    public ScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current,
+            IProgressMonitor monitor, PySelection ps) throws BadLocationException {
+        super(nature, moduleName, current, monitor, ps);
         
-    }
-    
-    /**
-     * Base constructor (when a PySelection is not available)
-     * @throws BadLocationException 
-     */
-    public ScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current,  
-            IDocument document, IProgressMonitor monitor, String pNameToFind, int absoluteCursorOffset,
-            String[] tokenAndQual) throws BadLocationException {
-        super(nature, moduleName, current, document, monitor, pNameToFind, absoluteCursorOffset, tokenAndQual);
     }
     
     /**
@@ -127,12 +117,13 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
                 importTok.beginLine = tokModName.beginLine;
                 importTok.beginColumn = tokModName.beginColumn;
                 
-                List<IToken> createdTokens = AbstractVisitor.makeImportToken(importTok, null, "", true);
+                List<IToken> createdTokens = AbstractVisitor.makeImportToken(importTok, null, this.current.getName(), true);
                 for (IToken token : createdTokens) {
                     ImportInfo info = this.scope.importChecker.visitImportToken(token, false);
                     Found found = new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
                     found.importInfo = info;
                     
+                    checkFound(found, peekParent()); //check if this is actually a match
                     addFoundToImportsMap(found, importsFoundFromModuleName);
                 }
             }
@@ -148,11 +139,11 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
     
     @SuppressWarnings("unchecked")
     @Override
-    protected void onGetCompleteTokenOccurrences(Tuple3<Found, Integer, ASTEntry> found, Set<IToken> f, ArrayList<Tuple3<IToken, Integer, ASTEntry>> ret) {
+    protected void onGetCompleteTokenOccurrences(Tuple3<Found, Integer, ASTEntry> found, Set<IToken> f, ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> ret) {
         //other matches for the imports that we had already found.
         Tuple matchingImportEntries = getImportEntries(found, f);
-        List<Tuple3<IToken, Integer, ASTEntry>> fromModule = (List<Tuple3<IToken, Integer, ASTEntry>>) matchingImportEntries.o1;
-        List<Tuple3<IToken, Integer, ASTEntry>> fromImports = (List<Tuple3<IToken, Integer, ASTEntry>>) matchingImportEntries.o2;
+        List<Tuple4<IToken, Integer, ASTEntry, Found>> fromModule = (List<Tuple4<IToken, Integer, ASTEntry, Found>>) matchingImportEntries.o1;
+        List<Tuple4<IToken, Integer, ASTEntry, Found>> fromImports = (List<Tuple4<IToken, Integer, ASTEntry, Found>>) matchingImportEntries.o2;
         
         ret.addAll(fromModule);
         ret.addAll(fromImports);
@@ -160,7 +151,8 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
         //let's iterate through the imports that are to be recognized as the same import we're checking and get the
         //individual occurrences for each one of those (but this only happens if the context of the current 
         //import is different from the context of that import)
-        for (Tuple3<IToken, Integer, ASTEntry> tuple3 : fromImports) {
+        for (Tuple4<IToken, Integer, ASTEntry, Found> tuple3 : fromImports) {
+            
             try {
                 if(!(tuple3.o1 instanceof SourceToken)){
                     continue;
@@ -179,16 +171,16 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
                 col = import1.names[0].beginColumn-1;
                 PySelection ps = new PySelection(this.document, line, col);
                 ScopeAnalyzerVisitorWithoutImports analyzerVisitorWithoutImports = new ScopeAnalyzerVisitorWithoutImports(
-                        this.nature, this.moduleName, this.current, this.document, this.monitor, ps );
+                        this.nature, this.moduleName, this.current, this.monitor, ps );
                 
                 SourceModule s = (SourceModule) this.current;
                 s.getAst().accept(analyzerVisitorWithoutImports);
                 analyzerVisitorWithoutImports.checkFinished();
                 
                 //now, let's get the token occurrences for the analyzer that worked without gathering the imports
-                ArrayList<Tuple3<IToken,Integer,ASTEntry>> completeTokenOccurrences = analyzerVisitorWithoutImports.getCompleteTokenOccurrences();
+                ArrayList<Tuple4<IToken,Integer,ASTEntry,Found>> completeTokenOccurrences = analyzerVisitorWithoutImports.getCompleteTokenOccurrences();
                 
-                for (Tuple3<IToken, Integer, ASTEntry> oc : completeTokenOccurrences) {
+                for (Tuple4<IToken, Integer, ASTEntry, Found> oc : completeTokenOccurrences) {
                     if(!f.contains(oc.o1)){
                         f.add(oc.o1);
                         ret.add(oc);
@@ -207,8 +199,8 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
 	 */
 	@SuppressWarnings("unchecked")
     private Tuple getImportEntries(Tuple3<Found, Integer, ASTEntry> found, Set<IToken> f) {
-        List<Tuple3<IToken, Integer, ASTEntry>> fromModuleRet = new ArrayList<Tuple3<IToken, Integer, ASTEntry>>();
-        List<Tuple3<IToken, Integer, ASTEntry>> fromImportsRet = new ArrayList<Tuple3<IToken, Integer, ASTEntry>>();
+        List<Tuple4<IToken, Integer, ASTEntry, Found>> fromModuleRet = new ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>>();
+        List<Tuple4<IToken, Integer, ASTEntry, Found>> fromImportsRet = new ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>>();
 		if(found.o1.isImport()){
 			//now, as it is an import, we have to check if there are more matching imports found
 			String key = UNRESOLVED_MOD_NAME;
@@ -228,12 +220,13 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
     /**
      * Checks the import entries for imports that are the same as the one that should be already found.
      */
-	private void checkImportEntries(List<Tuple3<IToken, Integer, ASTEntry>> ret, Set<IToken> f, List<Tuple3<Found, Integer, ASTEntry>> importEntries) {
+	@SuppressWarnings("unchecked")
+    private void checkImportEntries(List<Tuple4<IToken, Integer, ASTEntry, Found>> ret, Set<IToken> f, List<Tuple3<Found, Integer, ASTEntry>> importEntries) {
 		
 		if(importEntries != null){
 			for (Tuple3<Found, Integer, ASTEntry> foundInFromModule : importEntries) {
 				IToken generator = foundInFromModule.o1.getSingle().generator;
-				Tuple3<IToken, Integer, ASTEntry> tup3 = new Tuple3<IToken, Integer, ASTEntry>(generator, foundInFromModule.o2, foundInFromModule.o3);
+				Tuple4<IToken, Integer, ASTEntry, Found> tup3 = new Tuple4(generator, foundInFromModule.o2, foundInFromModule.o3, foundInFromModule.o1);
 				
 				if(!f.contains(generator)){
 					f.add(generator);

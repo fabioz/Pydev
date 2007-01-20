@@ -53,6 +53,22 @@ public class ImportChecker {
     		this.rep = rep;
     		this.wasResolved = wasResolved;
     	}
+        
+        @Override
+        public String toString() {
+            StringBuffer buffer = new StringBuffer();
+            buffer.append("ImportInfo(");
+            buffer.append(" Resolved:");
+            buffer.append(wasResolved);
+            if(wasResolved){
+                buffer.append(" Rep:");
+                buffer.append(rep);
+                buffer.append(" Mod:");
+                buffer.append(mod.getName());
+            }
+            buffer.append(")");
+            return buffer.toString();
+        }
     }
     
     /**

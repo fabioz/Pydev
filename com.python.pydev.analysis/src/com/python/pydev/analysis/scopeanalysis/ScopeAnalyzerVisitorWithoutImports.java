@@ -15,6 +15,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
+import org.python.pydev.core.Tuple4;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
@@ -41,6 +42,7 @@ import com.python.pydev.analysis.visitors.ScopeItems;
  */
 public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVisitor{
     
+    public static String FOUND_ADDITIONAL_INFO_IN_AST_ENTRY = "FOUND_ADDITIONAL_INFO_IN_AST_ENTRY";
     protected String completeNameToFind="";
     protected String nameToFind="";
     
@@ -80,17 +82,17 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
      * @throws BadLocationException
      */
     public ScopeAnalyzerVisitorWithoutImports(IPythonNature nature, String moduleName, IModule current,  
-            IDocument document, IProgressMonitor monitor, PySelection ps) throws BadLocationException {
-        this(nature, moduleName, current, document, monitor, ps.getCurrToken().o1, 
+             IProgressMonitor monitor, PySelection ps) throws BadLocationException {
+        this(nature, moduleName, current, ps.getDoc(), monitor, ps.getCurrToken().o1, 
                 ps.getAbsoluteCursorOffset(), ps.getActivationTokenAndQual(true));
         
     }
     
     /**
-     * Base constructor (when a PySelection is not available)
+     * Base constructor (after data from the PySelection is gotten)
      * @throws BadLocationException 
      */
-    public ScopeAnalyzerVisitorWithoutImports(IPythonNature nature, String moduleName, IModule current,  
+    private ScopeAnalyzerVisitorWithoutImports(IPythonNature nature, String moduleName, IModule current,  
             IDocument document, IProgressMonitor monitor, String pNameToFind, int absoluteCursorOffset,
             String[] tokenAndQual) throws BadLocationException {
         
@@ -189,6 +191,13 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
 
 
     /**
+     * Will peek the parent if the node is not null (otherwise will return null)
+     */
+    protected ASTEntry popParent(SimpleNode node) {
+        return parents.pop();
+    }
+    
+    /**
      * If the 'parents' stack is higher than 0, peek it (may return null)
      */
     protected ASTEntry peekParent() {
@@ -199,16 +208,6 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
         return parent;
     }
 
-    /**
-     * If the 'parents' stack is higher than 0, pop it (may return null)
-     */
-    private ASTEntry popParent(SimpleNode node) {
-        ASTEntry parent = null;
-        if(node != null){
-            parent = parents.pop();
-        }
-        return parent;
-    }
     
     /**
      * When we start the scope, we have to put an entry in the parents.
@@ -217,9 +216,6 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
     protected void onAfterStartScope(int newScopeType, SimpleNode node) {
         if(parents == null){
             parents = new FastStack<ASTEntry>();
-        }
-        if(node == null){
-            return;
         }
         if(parents.size() == 0){
             parents.push(new ASTEntry(null, node));
@@ -248,11 +244,12 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
 
     @Override
     protected void onAfterEndScope(SimpleNode node, ScopeItems m) {
+        ASTEntry parent = popParent(node);
         if(hitAsUndefined == null){
             for (String rep : new FullRepIterable(this.completeNameToFind, true)){
                 Found found = m.get(rep);
                 if(found != null){
-                    if(checkFound(node, found) != null){
+                    if(checkFound(found, parent) != null){
                         return;
                     }
                 }
@@ -280,13 +277,12 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
         
     }
 
-    private Found checkFound(SimpleNode node, Found found) {
-        ASTEntry parent = popParent(node);
-        return checkFound(found, parent);
-    }
-
     
-    private Found checkFound(Found found, ASTEntry parent) {
+    /**
+     * Checks to see if the given found is actually a match to the current position.
+     * @return the same Found passed on the parameter if it is a match (and null otherwise)
+     */
+    protected Found checkFound(Found found, ASTEntry parent) {
         if(found == null){
             return null;
         }
@@ -359,10 +355,10 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
         checkFinished();
         Set<Tuple3<String, Integer, Integer>> s = new HashSet<Tuple3<String, Integer, Integer>>(); 
         
-        ArrayList<Tuple3<IToken, Integer, ASTEntry>> complete = getCompleteTokenOccurrences();
+        ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> complete = getCompleteTokenOccurrences();
         ArrayList<ASTEntry> ret = new ArrayList<ASTEntry>();
         
-        for (Tuple3<IToken, Integer, ASTEntry> tup: complete) {
+        for (Tuple4<IToken, Integer, ASTEntry, Found> tup: complete) {
             IToken token = tup.o1;
             if(!(token instanceof SourceToken)){ // we want only the source tokens for this module
                 continue;
@@ -406,7 +402,9 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
                 continue; //can happen on wild imports
             }
             if(nameToFind.equals(representation)){
-                ret.add(new ASTEntry(tup.o3, ast));
+                ASTEntry entry = new ASTEntry(tup.o3, ast);
+                entry.setAdditionalInfo(FOUND_ADDITIONAL_INFO_IN_AST_ENTRY, tup.o4);
+                ret.add(entry);
                 continue;
             }
             if(!FullRepIterable.containsPart(representation, nameToFind)){
@@ -428,7 +426,9 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
             Tuple3<String, Integer, Integer> t = new Tuple3<String, Integer, Integer>(nameToFind, nameAst.beginColumn, nameAst.beginLine);
             if (!s.contains(t)){
                 s.add(t);
-                ret.add(new ASTEntry(tup.o3, nameAst));
+                ASTEntry entry = new ASTEntry(tup.o3, nameAst);
+                entry.setAdditionalInfo(FOUND_ADDITIONAL_INFO_IN_AST_ENTRY, tup.o4);
+                ret.add(entry);
             }
         }
         
@@ -437,30 +437,31 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
 
     /**
      * @return all the occurrences found in a 'complete' way (dotted name).
+     * The ASTEtries are decorated with the Found here...
      */
-    protected ArrayList<Tuple3<IToken, Integer, ASTEntry>> getCompleteTokenOccurrences() {
+    @SuppressWarnings("unchecked")
+    protected ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> getCompleteTokenOccurrences() {
         //that's because we don't want duplicates
         Set<IToken> f = new HashSet<IToken>();
-        ArrayList<Tuple3<IToken, Integer, ASTEntry>> ret = new ArrayList<Tuple3<IToken, Integer, ASTEntry>>();
+        ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> ret = new ArrayList();
         
         for (Tuple3<Found, Integer, ASTEntry> found : foundOccurrences) {
-            
             List<GenAndTok> all = found.o1.getAll();
             
             for (GenAndTok tok : all) {
                 
-                Tuple3<IToken, Integer, ASTEntry> tup3 = new Tuple3<IToken, Integer, ASTEntry>(tok.generator, found.o2, found.o3);
+                Tuple4<IToken, Integer, ASTEntry, Found> tup4 = new Tuple4(tok.generator, found.o2, found.o3, found.o1);
                 
                 if(!f.contains(tok.generator)){
                     f.add(tok.generator);
-                    ret.add(tup3);
+                    ret.add(tup4);
                 }
                 
                 for (IToken t: tok.references){
-                    tup3 = new Tuple3<IToken, Integer, ASTEntry>(t, found.o2, found.o3);
+                    tup4 = new Tuple4(t, found.o2, found.o3, found.o1);
                     if(!f.contains(t)){
                         f.add(t);
-                        ret.add(tup3);
+                        ret.add(tup4);
                     }
                 }
             }
@@ -474,7 +475,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
      * To be overriden
      * @param ret 
      */
-    protected void onGetCompleteTokenOccurrences(Tuple3<Found, Integer, ASTEntry> found, Set<IToken> f, ArrayList<Tuple3<IToken, Integer, ASTEntry>> ret){
+    protected void onGetCompleteTokenOccurrences(Tuple3<Found, Integer, ASTEntry> found, Set<IToken> f, ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> ret){
         
     }
 

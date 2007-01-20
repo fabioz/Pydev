@@ -312,7 +312,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
         IModule module = request.getModule();
         try {
             ScopeAnalyzerVisitor visitor = new ScopeAnalyzerVisitor(request.nature, request.moduleName, 
-                    module, request.getDoc(), new NullProgressMonitor(), request.ps);
+                    module, new NullProgressMonitor(), request.ps);
             
 			request.getAST().accept(visitor);
 			entryOccurrences = visitor.getEntryOccurrences();
