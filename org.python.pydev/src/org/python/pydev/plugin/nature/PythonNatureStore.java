@@ -34,6 +34,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -195,12 +196,12 @@ class PythonNatureStore implements IResourceChangeListener {
      * @return the root Node object
      * @throws CoreException if root node is not present
      */
-    private Node getRootNodeInXml() throws CoreException {
+    private Node getRootNodeInXml() {
         NodeList nodeList = document.getElementsByTagName(PYDEV_PROJECT_DESCRIPTION);
         if (nodeList != null && nodeList.getLength() > 0) {
             return nodeList.item(0);
         }
-        throw new CoreException(new Status(IStatus.ERROR, "PythonNatureStore", -3, "Corrupted .pydevproject", null));
+        throw new RuntimeException(StringUtils.format("Error. Unable to get the %s tag by its name.", PYDEV_PROJECT_DESCRIPTION));
     }
 
     /**
@@ -222,7 +223,7 @@ class PythonNatureStore implements IResourceChangeListener {
      * @return The property node or null if a node with the supplied key and type cannot be found.
      * @throws CoreException
      */
-    private Node findPropertyNodeInXml(String type, QualifiedName key) throws CoreException {
+    private Node findPropertyNodeInXml(String type, QualifiedName key) {
         Node root = getRootNodeInXml();
         NodeList childNodes = root.getChildNodes();
         if (childNodes != null && childNodes.getLength() > 0) {
@@ -325,7 +326,7 @@ class PythonNatureStore implements IResourceChangeListener {
      * @return The value of the property or null if the property is not set.
      * @throws CoreException
      */
-    public String getPropertyFromXml(QualifiedName key) throws CoreException {
+    public String getPropertyFromXml(QualifiedName key){
         try {
             Node propertyNode = findPropertyNodeInXml(PYDEV_NATURE_PROPERTY, key);
 
@@ -335,8 +336,7 @@ class PythonNatureStore implements IResourceChangeListener {
 
             return null;
         } catch (Exception e) {
-            IStatus status = new Status(IStatus.ERROR, "PythonNatureStore", -1, e.toString(), e);
-            throw new CoreException(status);
+            throw new RuntimeException(e);
         }
     }
 

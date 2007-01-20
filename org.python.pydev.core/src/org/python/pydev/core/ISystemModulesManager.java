@@ -5,7 +5,7 @@ package org.python.pydev.core;
 
 import java.util.Collection;
 
-public interface ISystemModulesManager {
+public interface ISystemModulesManager extends IModulesManager {
 
     public abstract void regenerateForcedBuilltins(Collection<String> forcedLibs);
 

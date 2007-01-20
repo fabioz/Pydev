@@ -454,7 +454,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     /**
      * This method returns the module that corresponds to the path passed as a parameter.
      * 
-     * @param name the name of the module we're looking for
+     * @param name the name of the module we're looking for  (e.g.: mod1.mod2)
      * @param dontSearchInit is used in a negative form because initially it was isLookingForRelative, but
      * it actually defines if we should look in __init__ modules too, so, the name matches the old signature.
      * 
