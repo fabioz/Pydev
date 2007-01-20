@@ -15,7 +15,7 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase  {
             DEBUG_REFERENCES = false;
             RenameModuleRefactoringTest test = new RenameModuleRefactoringTest();
             test.setUp();
-            test.testRenameModule();
+            test.testRenameModuleInWorkspace();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameModuleRefactoringTest.class);
@@ -29,16 +29,24 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase  {
         return PyRenameImportProcess.class;
     }
     
-    public void testRenameModule() throws Exception {
-        //importer.py:
+    public void testRenameModuleInWorkspace() throws Exception {
+        //importer.py and importer2.py are the same:
+        //
         //import mod1
         //from mod1 import submod1
+        
         Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamemodule.importer", 0, 8); 
+        assertEquals(3, references.size());
+        
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
         assertEquals(2, references.get(CURRENT_MODULE_IN_REFERENCES).size());
+        
     	assertTrue(references.containsKey("reflib.renamemodule.mod1.__init__")); //module renamed 
-    	assertEquals(2, references.size());
         assertEquals(1, references.get("reflib.renamemodule.mod1.__init__").size());
+        
+        assertTrue(references.containsKey("reflib.renamemodule.importer2")); 
+        assertEquals(2, references.get("reflib.renamemodule.importer2").size());
 	}
+    
 
 }

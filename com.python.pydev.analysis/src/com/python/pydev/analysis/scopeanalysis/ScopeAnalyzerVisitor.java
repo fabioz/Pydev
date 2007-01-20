@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -45,7 +46,12 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
     public ScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current,
             IProgressMonitor monitor, PySelection ps) throws BadLocationException {
         super(nature, moduleName, current, monitor, ps);
-        
+    }
+    
+    protected ScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current,  
+            IDocument document, IProgressMonitor monitor, String pNameToFind, int absoluteCursorOffset,
+            String[] tokenAndQual) throws BadLocationException {
+        super(nature, moduleName, current, document, monitor, pNameToFind, absoluteCursorOffset, tokenAndQual);
     }
     
     /**
@@ -58,12 +64,12 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
      * E.g.: from os.path import xxx will generate an import for 'os' and an import for 'path'
      * artificially, just to make matches
      */
-    private Map<String, List<Tuple3<Found, Integer, ASTEntry>>> importsFoundFromModuleName = new HashMap<String, List<Tuple3<Found, Integer, ASTEntry>>>();
+    protected Map<String, List<Tuple3<Found, Integer, ASTEntry>>> importsFoundFromModuleName = new HashMap<String, List<Tuple3<Found, Integer, ASTEntry>>>();
     /**
      * Same as the importsFoundFromModuleName, but works on the imports that actually become tokens
      * in the namespace.
      */
-    private Map<String, List<Tuple3<Found, Integer, ASTEntry>>> importsFound = new HashMap<String, List<Tuple3<Found, Integer, ASTEntry>>>();
+    protected Map<String, List<Tuple3<Found, Integer, ASTEntry>>> importsFound = new HashMap<String, List<Tuple3<Found, Integer, ASTEntry>>>();
 
     
 

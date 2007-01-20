@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -16,7 +18,9 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitor;
+import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitorForImports;
 import com.python.pydev.analysis.visitors.Found;
+import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
 
 /**
@@ -28,12 +32,17 @@ import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
  * Currently we do not support this type of refactoring for global refactorings (it always
  * acts locally).
  */
-public class PyRenameImportProcess extends AbstractRenameRefactorProcess{
+public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProcess{
 
     public static final int TYPE_RENAME_MODULE = 1;
     public static final int TYPE_RENAME_UNRESOLVED_IMPORT = 2;
     
     protected int type=-1;
+    
+    /**
+     * The import info for the module that we're resolving
+     */
+    protected ImportInfo importInfo;
     
     /**
      * @param definition this is the definition we're interested in.
@@ -52,8 +61,10 @@ public class PyRenameImportProcess extends AbstractRenameRefactorProcess{
     }
 
     @Override
-    protected void checkInitialOnWorkspace(RefactoringStatus status, RefactoringRequest request) {
-        checkInitialOnLocalScope(status, request);
+    protected void doCheckInitialOnWorkspace(RefactoringStatus status, RefactoringRequest request) {
+        
+        boolean wasResolved = false;
+        
         //now, on the workspace, we need to find the module definition as well as the imports for it...
         //the local scope should have already determined which is the module to be renamed (unless it
         //is an unresolved import, in which case we'll only make a local refactor)
@@ -67,6 +78,9 @@ public class PyRenameImportProcess extends AbstractRenameRefactorProcess{
                 throw new RuntimeException("Expecting import info from the found entry.");
             }
             if(found.importInfo.wasResolved){
+                this.importInfo = found.importInfo;
+                wasResolved = true;
+                
                 //it cannot be a compiled extension
                 if(!(found.importInfo.mod instanceof SourceModule)){
                     status.addFatalError(StringUtils.format("Error. The module %s may not be renamed\n" +
@@ -111,5 +125,29 @@ public class PyRenameImportProcess extends AbstractRenameRefactorProcess{
                 addOccurrences(lst, workspaceFile, mod.getName());
             }
         }
+
+        if(wasResolved){
+            //now, if we've been able to resolve it, let's keep on with the 'default' way of getting workspace occurrences
+            //(if we haven't been able to resolve it, there's no way to find matching imports in the workspace)
+            super.doCheckInitialOnWorkspace(status, request);
+        }
     }
+
+    @Override
+    protected List<ASTEntry> getEntryOccurrences(RefactoringStatus status, String initialName, SourceModule module) {
+        List<ASTEntry> entryOccurrences = new ArrayList<ASTEntry>();
+        
+        try {
+            ScopeAnalyzerVisitorForImports visitor = new ScopeAnalyzerVisitorForImports(request.nature, module.getName(), 
+                    module, new NullProgressMonitor(), request.ps.getCurrToken().o1, request.ps.getActivationTokenAndQual(true), importInfo);
+            
+            module.getAst().accept(visitor);
+            entryOccurrences = visitor.getEntryOccurrences();
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        return entryOccurrences;
+    }
+    
+
 }

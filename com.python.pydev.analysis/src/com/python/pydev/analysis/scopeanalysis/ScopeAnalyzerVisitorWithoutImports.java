@@ -92,15 +92,17 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
      * Base constructor (after data from the PySelection is gotten)
      * @throws BadLocationException 
      */
-    private ScopeAnalyzerVisitorWithoutImports(IPythonNature nature, String moduleName, IModule current,  
+    protected ScopeAnalyzerVisitorWithoutImports(IPythonNature nature, String moduleName, IModule current,  
             IDocument document, IProgressMonitor monitor, String pNameToFind, int absoluteCursorOffset,
             String[] tokenAndQual) throws BadLocationException {
         
         super(nature, moduleName, current, document, monitor);
         this.absoluteCursorOffset = absoluteCursorOffset;
-        IRegion region = document.getLineInformationOfOffset(absoluteCursorOffset);
-        currLine = document.getLineOfOffset(absoluteCursorOffset);
-        currCol = absoluteCursorOffset - region.getOffset();
+        if(document != null){
+            IRegion region = document.getLineInformationOfOffset(absoluteCursorOffset);
+            currLine = document.getLineOfOffset(absoluteCursorOffset);
+            currCol = absoluteCursorOffset - region.getOffset();
+        }
 
         nameToFind = pNameToFind;
         completeNameToFind = tokenAndQual[0]+tokenAndQual[1];
@@ -302,7 +304,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
         return null;
     }
 
-    private boolean checkToken(Found found, IToken generator, ASTEntry parent) {
+    protected boolean checkToken(Found found, IToken generator, ASTEntry parent) {
         int startLine = AbstractMessage.getStartLine(generator, this.document)-1;
         int endLine = AbstractMessage.getEndLine(generator, this.document, false)-1;
         
@@ -399,36 +401,35 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
             }
             
             if(representation == null){
-                continue; //can happen on wild imports
-            }
-            if(nameToFind.equals(representation)){
+                //do nothing
+                //can happen on wild imports
+                
+            }else if(nameToFind.equals(representation)){
                 ASTEntry entry = new ASTEntry(tup.o3, ast);
                 entry.setAdditionalInfo(FOUND_ADDITIONAL_INFO_IN_AST_ENTRY, tup.o4);
                 ret.add(entry);
-                continue;
-            }
-            if(!FullRepIterable.containsPart(representation, nameToFind)){
-                continue;
-            }
+                
+            }else if(FullRepIterable.containsPart(representation, nameToFind)){
             
-            Name nameAst = new Name(nameToFind, Name.Store);
-            String[] strings = FullRepIterable.dotSplit(representation);
-            
-            int plus = 0;
-            for (String string : strings) {
-                if(string.equals(nameToFind) && (plus + nameToFind.length() >= tup.o2) ){
-                    break;
+                Name nameAst = new Name(nameToFind, Name.Store);
+                String[] strings = FullRepIterable.dotSplit(representation);
+                
+                int plus = 0;
+                for (String string : strings) {
+                    if(string.equals(nameToFind) && (plus + nameToFind.length() >= tup.o2) ){
+                        break;
+                    }
+                    plus += string.length()+1; //len + dot
                 }
-                plus += string.length()+1; //len + dot
-            }
-            nameAst.beginColumn = AbstractMessage.getStartCol(token, document)+plus;
-            nameAst.beginLine = AbstractMessage.getStartLine(token, document);
-            Tuple3<String, Integer, Integer> t = new Tuple3<String, Integer, Integer>(nameToFind, nameAst.beginColumn, nameAst.beginLine);
-            if (!s.contains(t)){
-                s.add(t);
-                ASTEntry entry = new ASTEntry(tup.o3, nameAst);
-                entry.setAdditionalInfo(FOUND_ADDITIONAL_INFO_IN_AST_ENTRY, tup.o4);
-                ret.add(entry);
+                nameAst.beginColumn = AbstractMessage.getStartCol(token, document)+plus;
+                nameAst.beginLine = AbstractMessage.getStartLine(token, document);
+                Tuple3<String, Integer, Integer> t = new Tuple3<String, Integer, Integer>(nameToFind, nameAst.beginColumn, nameAst.beginLine);
+                if (!s.contains(t)){
+                    s.add(t);
+                    ASTEntry entry = new ASTEntry(tup.o3, nameAst);
+                    entry.setAdditionalInfo(FOUND_ADDITIONAL_INFO_IN_AST_ENTRY, tup.o4);
+                    ret.add(entry);
+                }
             }
         }
         
