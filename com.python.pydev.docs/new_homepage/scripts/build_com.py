@@ -100,6 +100,7 @@ def main():
     template('../template1.html     ', 'terms'                     , 'License'                         )
     template('../template1.html     ', 'download'                  , 'Download'                        )
     template('../template1.html     ', 'buy'                       , 'Buy'                             )
+    template('../template1.html     ', 'buy_renew'                 , 'Renew'                           )
     template('../template1.html     ', 'manual'                    , 'Manual'                          )
     template('../template1.html     ', 'about'                     , 'About'                           )
     
