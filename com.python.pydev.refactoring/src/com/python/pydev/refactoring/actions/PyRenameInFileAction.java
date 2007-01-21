@@ -38,7 +38,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.refactoring.markocurrences.MarkOccurrencesJob;
-import com.python.pydev.refactoring.wizards.rename.PyRenameProcessor;
+import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 
 /**
  * This action should mark to rename all the occurrences found for some name in the file
@@ -145,7 +145,7 @@ public class PyRenameInFileAction extends Action{
 			return false;
 		}
 		
-		PyRenameProcessor processor = new PyRenameProcessor(req);
+		PyRenameEntryPoint processor = new PyRenameEntryPoint(req);
         
         //process it to get what we need
 		processor.checkInitialConditions(monitor);

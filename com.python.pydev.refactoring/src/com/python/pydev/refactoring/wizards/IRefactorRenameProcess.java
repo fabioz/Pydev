@@ -14,11 +14,18 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
-public interface IRefactorProcess {
+public interface IRefactorRenameProcess {
 
-    public abstract void checkInitialConditions(RefactoringRequest request, RefactoringStatus status);
+    /**
+     * In this method, implementors should find the references in the workspace (or local scope -- as
+     * determined by the request) that should be renamed
+     */
+    public abstract void findReferencesToRename(RefactoringRequest request, RefactoringStatus status);
 
-    public abstract void checkFinalConditions(RefactoringRequest request, CheckConditionsContext context, RefactoringStatus status, CompositeChange fChange);
+    /**
+     * In this method, implementors should fill the change object with the renames that were found.
+     */
+    public abstract void fillRefactoringChangeObject(RefactoringRequest request, CheckConditionsContext context, RefactoringStatus status, CompositeChange fChange);
 
     /**
      * @return a list of entries with the ocurrences that will be affected in the refactoring or null if it

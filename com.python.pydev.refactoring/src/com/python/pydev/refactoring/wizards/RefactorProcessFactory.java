@@ -24,7 +24,7 @@ public class RefactorProcessFactory {
 	/**
 	 * Decides which process should take care of the request.
 	 */
-    public static IRefactorProcess getProcess(Definition definition) {
+    public static IRefactorRenameProcess getProcess(Definition definition) {
         if(definition instanceof AssignDefinition){
             AssignDefinition d = (AssignDefinition) definition;
             if(d.target.indexOf('.') != -1){
@@ -80,7 +80,7 @@ public class RefactorProcessFactory {
         return new PyRenameLocalProcess(definition);
     }
 
-	public static IRefactorProcess getRenameAnyProcess() {
+	public static IRefactorRenameProcess getRenameAnyProcess() {
 		return new PyRenameAnyLocalProcess();
 	}
 

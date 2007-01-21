@@ -14,7 +14,7 @@ import org.python.pydev.editor.refactoring.TooManyMatchesException;
 import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.refactoring.IPyRefactoring2;
-import com.python.pydev.refactoring.wizards.rename.PyRenameProcessor;
+import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 import com.python.pydev.refactoring.wizards.rename.PyRenameRefactoringWizard;
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 
@@ -64,7 +64,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
      */
 	public String rename(RefactoringRequest request) {
         try {
-            RenameRefactoring renameRefactoring = new RenameRefactoring(new PyRenameProcessor(request));
+            RenameRefactoring renameRefactoring = new RenameRefactoring(new PyRenameEntryPoint(request));
             request.fillInitialNameAndOffset();
             final PyRenameRefactoringWizard wizard = new PyRenameRefactoringWizard(renameRefactoring, "Rename", "inputPageDescription", request, request.initialName);
             try {

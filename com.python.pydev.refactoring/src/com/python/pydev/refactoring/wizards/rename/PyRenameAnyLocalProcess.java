@@ -3,6 +3,7 @@ package com.python.pydev.refactoring.wizards.rename;
 import java.util.List;
 
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
@@ -36,5 +37,11 @@ public class PyRenameAnyLocalProcess extends AbstractRenameRefactorProcess{
             //attribute search
             addOccurrences(request, ScopeAnalysis.getAttributeReferences(request.initialName, request.getAST()));
         }
+    }
+    
+    @Override
+    protected void checkInitialOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
+        status.addWarning(StringUtils.format("Unable to find the definition for the token: %s, so, rename will only happen in the local scope.", request.initialName));
+        this.checkInitialOnLocalScope(request, status);
     }
 }

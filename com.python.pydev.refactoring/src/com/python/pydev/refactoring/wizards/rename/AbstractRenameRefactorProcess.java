@@ -40,14 +40,14 @@ import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitor;
 import com.python.pydev.refactoring.changes.PyRenameResourceChange;
 import com.python.pydev.refactoring.refactorer.RefactorerFindReferences;
 import com.python.pydev.refactoring.refactorer.RefactorerRequestConstants;
-import com.python.pydev.refactoring.wizards.IRefactorProcess;
+import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
 
 /**
  * This class presents the basic functionality for doing a rename.
  * 
  * @author Fabio
  */
-public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
+public abstract class AbstractRenameRefactorProcess implements IRefactorRenameProcess{
 
     /**
      * The request for the refactor
@@ -168,7 +168,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
      * This function is used to redirect where the initial should should target
      * (in the local or workspace scope).
      */
-    public void checkInitialConditions(RefactoringRequest request, RefactoringStatus status) {
+    public void findReferencesToRename(RefactoringRequest request, RefactoringStatus status) {
         this.request = request;
         
         if((Boolean)request.getAdditionalInfo(RefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false)){
@@ -182,6 +182,16 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
             return;
         }
         
+    }
+
+    
+    /**
+     * In this method, changes from the occurrences found in the current document and 
+     * other files are transformed to the objects required by the Eclipse Language Toolkit
+     */
+    public void fillRefactoringChangeObject(RefactoringRequest request, CheckConditionsContext context, RefactoringStatus status, CompositeChange fChange) {
+        createCurrModuleChange(status, fChange);
+        createOtherFileChanges(fChange, status);
     }
     
     /**
@@ -206,16 +216,6 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
         throw new RuntimeException("Not implemented search on workspace:"+this.getClass().getName());
     }
     
-
-    
-    /**
-     * In this method, changes from the occurrences found in the current document and 
-     * other files are transformed to the objects required by the Eclipse Language Toolkit
-     */
-    public void checkFinalConditions(RefactoringRequest request, CheckConditionsContext context, RefactoringStatus status, CompositeChange fChange) {
-        createCurrModuleChange(status, fChange);
-        createOtherFileChanges(fChange, status);
-    }
 
     /**
      * Create the changes for references in other modules.
@@ -333,7 +333,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
     /**
      * Implemented from the super interface. Should return the occurrences from the current document
      *  
-     * @see com.python.pydev.refactoring.wizards.IRefactorProcess#getOcurrences()
+     * @see com.python.pydev.refactoring.wizards.IRefactorRenameProcess#getOcurrences()
      */
     public List<ASTEntry> getOcurrences() {
         return docOccurrences;
@@ -343,7 +343,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
      * Implemented from the super interface. Should return the occurrences found in other documents
      * (but should not return the ones found in the current document)
      * 
-     * @see com.python.pydev.refactoring.wizards.IRefactorProcess#getOccurrencesInOtherFiles()
+     * @see com.python.pydev.refactoring.wizards.IRefactorRenameProcess#getOccurrencesInOtherFiles()
      */
     public Map<Tuple<String, IFile>, List<ASTEntry>> getOccurrencesInOtherFiles() {
         return this.fileOccurrences;
