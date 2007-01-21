@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.console.ConsolePlugin;
@@ -123,9 +124,13 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 	                            int priority = ((Integer)el[2]).intValue();
 	                            String id    = (String) el[3];
 	                            int line     = ((Integer)el[4]).intValue();
-	        		            PydevMarkerUtils.createMarker(resource, document, "ID:"+id+" "+tok , 
-	        		            		line, 0,line, 0,  
-	        		            		type, priority);
+	        		            try {
+                                    PydevMarkerUtils.createMarker(resource, document, "ID:"+id+" "+tok , 
+                                    		line, 0,line, 0,  
+                                    		type, priority);
+                                } catch (BadLocationException e) {
+                                    // ignore (the file may have changed during the time we were analyzing the file)
+                                }
 	                        }
 	
 	                        return PydevPlugin.makeStatus(Status.OK, "", null);

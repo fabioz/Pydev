@@ -84,19 +84,19 @@ public class PydevMarkerUtils {
 
     public static void createMarker(IResource resource, IDocument doc, String message, 
             int lineStart, int colStart, int lineEnd, int colEnd, 
-            String markerType, int severity) {
+            String markerType, int severity) throws BadLocationException {
         createMarker(resource, doc, message, lineStart, colStart, lineEnd, colEnd, markerType, severity, null);
     }
 
     public static IMarker createMarker(IResource resource, IDocument doc, String message, 
             int lineStart, int colStart, int lineEnd, int colEnd, 
-            String markerType, int severity, Map<String, Object> additionalInfo) {
+            String markerType, int severity, Map<String, Object> additionalInfo) throws BadLocationException {
         return createMarker(resource, doc, message, lineStart, colStart, lineEnd, colEnd, markerType, severity, additionalInfo, null);
     }
     
     public static IMarker createMarker(IResource resource, IDocument doc, String message, 
             int lineStart, int colStart, int lineEnd, int colEnd, 
-            String markerType, int severity, Map<String, Object> additionalInfo, List<IMarker> existingMarkers) {
+            String markerType, int severity, Map<String, Object> additionalInfo, List<IMarker> existingMarkers) throws BadLocationException {
     	synchronized (resource) {
 
 	        existingMarkers = checkExistingMarkers(resource, markerType, existingMarkers);
@@ -130,7 +130,7 @@ public class PydevMarkerUtils {
 	                endAbsolute = start.getOffset() + buffer.length();
 	            }
 	        } catch (BadLocationException e) {
-	            throw new RuntimeException("Unable to get the location requested for the resource "+resource.getLocation(), e);
+                throw e;
 	        } catch (Exception e) {
 	            throw new RuntimeException(e);
 	        }
@@ -205,7 +205,7 @@ public class PydevMarkerUtils {
     
 
 
-    public static IMarker createMarker(IResource resource, IDocument doc, String message, int lineNumber, String markerType, int severity, boolean userEditable, boolean istransient, List<IMarker> existingMarkers) {
+    public static IMarker createMarker(IResource resource, IDocument doc, String message, int lineNumber, String markerType, int severity, boolean userEditable, boolean istransient, List<IMarker> existingMarkers) throws BadLocationException {
     	synchronized (resource) {
 	    	HashMap<String, Object> map = new HashMap<String, Object>();
 	    	map.put(IMarker.USER_EDITABLE, new Boolean(userEditable));
