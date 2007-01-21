@@ -12,7 +12,6 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
@@ -168,17 +167,15 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
     /**
      * This function is used to redirect where the initial should should target
      * (in the local or workspace scope).
-     * 
-     * @see com.python.pydev.refactoring.wizards.IRefactorProcess#checkInitialConditions(org.eclipse.core.runtime.IProgressMonitor, org.eclipse.ltk.core.refactoring.RefactoringStatus, org.python.pydev.editor.refactoring.RefactoringRequest)
      */
-    public void checkInitialConditions(IProgressMonitor pm, RefactoringStatus status, RefactoringRequest request) {
+    public void checkInitialConditions(RefactoringRequest request, RefactoringStatus status) {
         this.request = request;
         
         if((Boolean)request.getAdditionalInfo(RefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false)){
-            checkInitialOnLocalScope(status, request);
+            checkInitialOnLocalScope(request, status);
             
         }else{
-            checkInitialOnWorkspace(status, request);
+            checkInitialOnWorkspace(request, status);
         }
 
         if(!occurrencesValid(status)){
@@ -194,7 +191,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
      * @param status object where the status can be set (to add errors/warnings)
      * @param request the request used for this check
      */
-    protected void checkInitialOnLocalScope(RefactoringStatus status, RefactoringRequest request) {
+    protected void checkInitialOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         throw new RuntimeException("Not implemented search on local scope:"+this.getClass().getName());
     }
     
@@ -205,7 +202,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
      * @param status object where the status can be set (to add errors/warnings)
      * @param request the request used for this check
      */
-    protected void checkInitialOnWorkspace(RefactoringStatus status, RefactoringRequest request) {
+    protected void checkInitialOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
         throw new RuntimeException("Not implemented search on workspace:"+this.getClass().getName());
     }
     
@@ -214,10 +211,8 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
     /**
      * In this method, changes from the occurrences found in the current document and 
      * other files are transformed to the objects required by the Eclipse Language Toolkit
-     *  
-     * @see com.python.pydev.refactoring.wizards.IRefactorProcess#checkFinalConditions(org.eclipse.core.runtime.IProgressMonitor, org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext, org.eclipse.ltk.core.refactoring.RefactoringStatus, org.eclipse.ltk.core.refactoring.TextChange)
      */
-    public void checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context, RefactoringStatus status, CompositeChange fChange) {
+    public void checkFinalConditions(RefactoringRequest request, CheckConditionsContext context, RefactoringStatus status, CompositeChange fChange) {
         createCurrModuleChange(status, fChange);
         createOtherFileChanges(fChange, status);
     }

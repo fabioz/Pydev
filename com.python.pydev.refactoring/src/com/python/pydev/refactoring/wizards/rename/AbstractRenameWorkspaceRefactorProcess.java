@@ -87,12 +87,10 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
     
     /**
      * Default implementation for checking the tokens in the workspace.
-     * 
-     * @see com.python.pydev.refactoring.wizards.rename.AbstractRenameRefactorProcess#checkInitialOnWorkspace(org.eclipse.ltk.core.refactoring.RefactoringStatus, org.python.pydev.editor.refactoring.RefactoringRequest)
      */
     @Override
-    protected void checkInitialOnWorkspace(RefactoringStatus status, RefactoringRequest request) {
-        checkInitialOnLocalScope(status, request);
+    protected void checkInitialOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
+        checkInitialOnLocalScope(request, status);
         //if the user has set that we should only find references in the local scope in the checkInitialOnLocalScope
         //we should not try to find other references in the workspace.
         boolean onlyInLocalScope = (Boolean)request.getAdditionalInfo(RefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);

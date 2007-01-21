@@ -131,50 +131,55 @@ public class PyRenameProcessor extends RenameProcessor {
      */
     @Override
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+        request.pushMonitor(pm);
         RefactoringStatus status = new RefactoringStatus();
-        if(! DocUtils.isWord(request.initialName)){
-            status.addFatalError("The initial name is not valid:"+request.initialName);
-            return status;
-        }
-        
-        if(request.inputName != null && ! DocUtils.isWord(request.inputName)){
-            status.addFatalError("The new name is not valid:"+request.inputName);
-            return status;
-        }
-        
-        SimpleNode ast = request.getAST();
-        if(ast == null){
-            status.addFatalError("AST not generated (syntax error).");
-            return status;
-        }
-        IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
-        ItemPointer[] pointers = pyRefactoring.findDefinition(request);
-        
-        process = new ArrayList<IRefactorProcess>();
-        
-        if(pointers.length == 0){
-        	//no definition found
-        	IRefactorProcess p = RefactorProcessFactory.getRenameAnyProcess();
-        	process.add(p);
-        	p.checkInitialConditions(pm, status, this.request);
-        	
-        }else{
-	        for (ItemPointer pointer : pointers){
-	            if(pointer.definition == null){
-	                status.addFatalError("The definition found is not valid. "+pointer);
-	            }
-	            if(DEBUG){
-	                System.out.println("Found:"+pointer.definition);
-	            }
-	            
-	            IRefactorProcess p = RefactorProcessFactory.getProcess(pointer.definition);
-	            if(p == null){
-	                status.addFatalError("Refactoring Process not defined: the definition found is not valid:"+pointer.definition);
-	                return status;
-	            }
-	            process.add(p);
-	            p.checkInitialConditions(pm, status, this.request);
-	        }
+        try{
+            if(! DocUtils.isWord(request.initialName)){
+                status.addFatalError("The initial name is not valid:"+request.initialName);
+                return status;
+            }
+            
+            if(request.inputName != null && ! DocUtils.isWord(request.inputName)){
+                status.addFatalError("The new name is not valid:"+request.inputName);
+                return status;
+            }
+            
+            SimpleNode ast = request.getAST();
+            if(ast == null){
+                status.addFatalError("AST not generated (syntax error).");
+                return status;
+            }
+            IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
+            ItemPointer[] pointers = pyRefactoring.findDefinition(request);
+            
+            process = new ArrayList<IRefactorProcess>();
+            
+            if(pointers.length == 0){
+            	//no definition found
+            	IRefactorProcess p = RefactorProcessFactory.getRenameAnyProcess();
+            	process.add(p);
+            	p.checkInitialConditions(this.request, status);
+            	
+            }else{
+    	        for (ItemPointer pointer : pointers){
+    	            if(pointer.definition == null){
+    	                status.addFatalError("The definition found is not valid. "+pointer);
+    	            }
+    	            if(DEBUG){
+    	                System.out.println("Found:"+pointer.definition);
+    	            }
+    	            
+    	            IRefactorProcess p = RefactorProcessFactory.getProcess(pointer.definition);
+    	            if(p == null){
+    	                status.addFatalError("Refactoring Process not defined: the definition found is not valid:"+pointer.definition);
+    	                return status;
+    	            }
+    	            process.add(p);
+    	            p.checkInitialConditions(this.request, status);
+    	        }
+            }
+        }finally{
+            request.popMonitor();
         }
         return status;
     }
@@ -182,16 +187,21 @@ public class PyRenameProcessor extends RenameProcessor {
 
     @Override
     public RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context) throws CoreException, OperationCanceledException {
+        request.pushMonitor(pm);
         RefactoringStatus status = new RefactoringStatus();
-        fChange = new CompositeChange("RenameChange: "+request.inputName);
-        
-        if(process == null || process.size() == 0){
-            status.addFatalError("Refactoring Process not defined: the pre-conditions were not satisfied.");
-            return status;
-        }
-        
-        for (IRefactorProcess p : process) {
-            p.checkFinalConditions(pm, context, status, fChange);
+        try{
+            fChange = new CompositeChange("RenameChange: "+request.inputName);
+            
+            if(process == null || process.size() == 0){
+                status.addFatalError("Refactoring Process not defined: the pre-conditions were not satisfied.");
+                return status;
+            }
+            
+            for (IRefactorProcess p : process) {
+                p.checkFinalConditions(request, context, status, fChange);
+            }
+        }finally{
+            request.popMonitor();
         }
         return status;
     }

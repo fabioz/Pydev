@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
@@ -17,9 +16,9 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 public interface IRefactorProcess {
 
-    public abstract void checkInitialConditions(IProgressMonitor pm, RefactoringStatus status, RefactoringRequest request);
+    public abstract void checkInitialConditions(RefactoringRequest request, RefactoringStatus status);
 
-    public abstract void checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context, RefactoringStatus status, CompositeChange fChange);
+    public abstract void checkFinalConditions(RefactoringRequest request, CheckConditionsContext context, RefactoringStatus status, CompositeChange fChange);
 
     /**
      * @return a list of entries with the ocurrences that will be affected in the refactoring or null if it

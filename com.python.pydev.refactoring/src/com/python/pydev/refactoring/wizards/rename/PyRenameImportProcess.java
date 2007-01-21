@@ -56,7 +56,7 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
         }
 	}
 	
-    protected void checkInitialOnLocalScope(RefactoringStatus status, RefactoringRequest request) {
+    protected void checkInitialOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
 		addOccurrences(request, getOccurrencesWithScopeAnalyzer(request));
     }
 

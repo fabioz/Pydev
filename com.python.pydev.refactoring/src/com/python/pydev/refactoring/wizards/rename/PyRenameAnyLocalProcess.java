@@ -18,7 +18,7 @@ public class PyRenameAnyLocalProcess extends AbstractRenameRefactorProcess{
 		super(null);
 	}
 	
-    protected void checkInitialOnLocalScope(RefactoringStatus status, RefactoringRequest request) {
+    protected void checkInitialOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         String[] tokenAndQual = request.ps.getActivationTokenAndQual(true);
         String completeNameToFind = tokenAndQual[0]+tokenAndQual[1];
         boolean attributeSearch = completeNameToFind.indexOf('.') != -1;

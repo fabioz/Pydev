@@ -12,7 +12,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
@@ -112,7 +111,7 @@ public class RefactorerFindReferences {
                             PythonPathHelper.WILDCARD_VALID_SOURCE_FILES, true));
             
             final ISearchQuery query = searchQueryProvider.createQuery(textSearchInput);
-            IStatus status = query.run(new NullProgressMonitor());
+            IStatus status = query.run(request.getMonitor());
             
             if (status.matches(IStatus.CANCEL)) {
                 return l;

@@ -17,16 +17,16 @@ public class PyRenameLocalProcess extends AbstractRenameRefactorProcess{
     }
 
 
-    protected void checkInitialOnWorkspace(RefactoringStatus status, RefactoringRequest request) {
+    protected void checkInitialOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
         addOccurrences(request, ScopeAnalysis.getLocalOcurrences(request.initialName, definition.module, definition.scope));
     }
 
-    protected void checkInitialOnLocalScope(RefactoringStatus status, RefactoringRequest request) {
+    protected void checkInitialOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         if(!definition.module.getName().equals(request.moduleName)){
         	//it was found in another module, but we want to keep things local
         	addOccurrences(request, ScopeAnalysis.getLocalOcurrences(request.initialName, request.getAST()));
         }else{
-            checkInitialOnWorkspace(status, request);
+            checkInitialOnWorkspace(request, status);
         }
     }
 

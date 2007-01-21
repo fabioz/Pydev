@@ -23,7 +23,7 @@ public class PyRenameAttributeProcess extends AbstractRenameRefactorProcess{
     }
 
 
-    protected void checkInitialOnLocalScope(RefactoringStatus status, RefactoringRequest request) {
+    protected void checkInitialOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         SimpleNode ast = request.getAST();
 		
         List<ASTEntry> attributeOcurrences = ScopeAnalysis.getAttributeOcurrences(this.target, ast);

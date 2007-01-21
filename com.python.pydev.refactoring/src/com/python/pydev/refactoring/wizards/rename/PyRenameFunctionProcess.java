@@ -134,10 +134,8 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
     
     /**
      * Checks the local scope for references.
-     * 
-     * @see com.python.pydev.refactoring.wizards.rename.AbstractRenameRefactorProcess#checkInitialOnLocalScope(org.eclipse.ltk.core.refactoring.RefactoringStatus, org.python.pydev.editor.refactoring.RefactoringRequest)
      */
-    protected void checkInitialOnLocalScope(RefactoringStatus status, RefactoringRequest request) {
+    protected void checkInitialOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         SimpleNode root = request.getAST();
         
         if(!definition.module.getName().equals(request.moduleName)){

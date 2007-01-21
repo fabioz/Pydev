@@ -24,8 +24,7 @@ public class ScopeAnalyzerVisitorForImports extends ScopeAnalyzerVisitor {
     private ImportInfo importInfo;
 
     /**
-     * @param importInfo
-     *            we'll try to find matches for the given import info.
+     * @param importInfo we'll try to find matches for the given import info.
      */
     public ScopeAnalyzerVisitorForImports(IPythonNature nature, String moduleName, IModule current, IProgressMonitor monitor, 
             String nameToFind, String[] tokenAndQual, ImportInfo importInfo) throws BadLocationException {
@@ -57,6 +56,7 @@ public class ScopeAnalyzerVisitorForImports extends ScopeAnalyzerVisitor {
         return ret;
     }
 
+    @SuppressWarnings("unchecked")
     private void addImports(ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> ret, Map<String, List<Tuple3<Found, Integer, ASTEntry>>> map) {
         for(List<Tuple3<Found, Integer, ASTEntry>> fList:map.values()){
             for (Tuple3<Found, Integer, ASTEntry> foundInFromModule : fList) {
