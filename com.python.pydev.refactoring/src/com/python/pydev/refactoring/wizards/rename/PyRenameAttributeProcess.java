@@ -6,6 +6,7 @@ package com.python.pydev.refactoring.wizards.rename;
 import java.util.List;
 
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -13,8 +14,11 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 
-public class PyRenameAttributeProcess extends AbstractRenameRefactorProcess{
+public class PyRenameAttributeProcess extends AbstractRenameWorkspaceRefactorProcess{
 
+    /**
+     * Target is the full name. E.g.: foo.bar (and the initialName would be just 'bar')
+     */
 	private String target;
 
     public PyRenameAttributeProcess(Definition definition, String target) {
@@ -31,6 +35,12 @@ public class PyRenameAttributeProcess extends AbstractRenameRefactorProcess{
 		
 		attributeOcurrences = ScopeAnalysis.getAttributeReferences(this.target, ast);
 		addOccurrences(request, attributeOcurrences);
+    }
+
+
+    @Override
+    protected List<ASTEntry> getEntryOccurrences(RefactoringStatus status, String initialName, SourceModule module) {
+        return ScopeAnalysis.getAttributeReferences(initialName, module.getAst()); //will get the self.xxx occurrences
     }
 
 }
