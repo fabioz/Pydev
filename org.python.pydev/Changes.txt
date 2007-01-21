@@ -9,6 +9,7 @@ Pydev:
 			<li>Some minor bugs fixed</li>
 		</ul>
 	</li>
+	<li>Fixed: Multi-line Templates indent correctly</li>
 	<li>Fixed: When a file from a project that was deleted was still opened inside pydev, Eclipse would not start-up correctly</li>
 	<li>Fixed: When a different interpreter is chosen in the run dialog, the pythonpath is correctly gotten
 	<li>Fixed: Cancelling the addition of an interpreter no longer raises any exceptions.
@@ -24,7 +25,7 @@ Extensions:
 	<li>The pydev navigate action is now only shown in the pydev/debug perspective</li>
 	<li>The pydev remote debugging actions are now only shown in the debug perspective</li>
 	<li>Fix: go to definition sometimes failed to find module definitions</li>
-	<li>Added refactoring support for rename
+	<li>Added refactoring support for rename (note that this is still beta -- but should be already better than BRM)
 		<ul>
 			<li>Supports preview</li>
 			<li>Integrated in the editor (but not in the package explorer)</li>

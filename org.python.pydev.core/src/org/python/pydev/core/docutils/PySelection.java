@@ -1244,14 +1244,17 @@ public class PySelection {
 
 
     /**
-     * @param selection
-     * @return
+     * @param selection the text from where we want to get the indentation
+     * @return a string representing the whitespaces and tabs befor the first char in the passed line.
      */
     public static String getIndentationFromLine(String selection) {
         int firstCharPosition = getFirstCharPosition(selection);
         return selection.substring(0, firstCharPosition);
     }
 
+    public String getIndentationFromLine() {
+        return getIndentationFromLine(getCursorLineContents());
+    }
 
     /**
      * @param src
