@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.IModule;
@@ -123,7 +124,7 @@ public class AnalysisBuilderRunnable implements Runnable{
     
     private void checkStop(){
         if(this.internalCancelMonitor.isCanceled() || monitor.isCanceled()){
-            throw new CancelledException();
+            throw new OperationCanceledException();
         }
     }
     
@@ -201,7 +202,7 @@ public class AnalysisBuilderRunnable implements Runnable{
                     }
                 }
             }
-        } catch (CancelledException e) {
+        } catch (OperationCanceledException e) {
             //ok, ignore it
             //System.out.println("Ok, canceled previous");
         } catch (Exception e){

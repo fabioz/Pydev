@@ -12,6 +12,8 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
@@ -90,9 +92,15 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
      */
     @Override
     protected void findReferencesToRenameOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
-        findReferencesToRenameOnLocalScope(request, status);
-        //if the user has set that we should only find references in the local scope in the checkInitialOnLocalScope
-        //we should not try to find other references in the workspace.
+        request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 50));
+        try{
+            findReferencesToRenameOnLocalScope(request, status);
+            //if the user has set that we should only find references in the local scope in the checkInitialOnLocalScope
+            //we should not try to find other references in the workspace.
+        }finally{
+            request.getMonitor().done();
+            request.popMonitor();
+        }
         boolean onlyInLocalScope = (Boolean)request.getAdditionalInfo(RefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);
         if(!onlyInLocalScope && !status.hasFatalError()){
             doCheckInitialOnWorkspace(status, request);
@@ -111,22 +119,33 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
      * @param request the request used for the refactoring
      */
     protected void doCheckInitialOnWorkspace(RefactoringStatus status, RefactoringRequest request){
+        request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 50));
         try{
             Set<IFile> references = new HashSet<IFile>(findFilesWithPossibleReferences(request));
+            request.getMonitor().beginTask("Possible references to analyze:"+references.size(), references.size());
             
             for (IFile file : references) {
+                request.getMonitor().worked(1);
                 IProject project = file.getProject();
                 PythonNature nature = PythonNature.getPythonNature(project);
                 if(nature != null){
                     ProjectModulesManager modulesManager = (ProjectModulesManager) nature.getAstManager().getModulesManager();
+                    
+                    request.checkCancelled();
                     String modName = modulesManager.resolveModuleInDirectManager(file, project);
+                    
                     if(modName != null){
                         if(!request.moduleName.equals(modName)){
                             //we've already checked the module from the request...
+                            
+                            request.checkCancelled();
                             SourceModule module = (SourceModule) nature.getAstManager().getModule(modName, nature, true, false);
                             
                             if(module != null){
+                                
+                                request.checkCancelled();
                                 List<ASTEntry> entryOccurrences = getOccurrencesInOtherModule(status, request.initialName, module, nature);
+                                
                                 if(entryOccurrences.size() > 0){
                                     addOccurrences(entryOccurrences, file, modName);
                                 }
@@ -135,8 +154,13 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
                     }
                 }
             }
+        }catch (OperationCanceledException e) {
+            //that's ok
         }catch (Exception e) {
             throw new RuntimeException(e);
+        }finally{
+            request.getMonitor().done();
+            request.popMonitor();
         }
         
     }

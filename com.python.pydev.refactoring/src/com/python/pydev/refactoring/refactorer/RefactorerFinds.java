@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -19,7 +20,6 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editor.refactoring.CancelledException;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.exprType;
@@ -208,7 +208,7 @@ public class RefactorerFinds {
                 return model;
             }
             
-        } catch (CancelledException e) {
+        } catch (OperationCanceledException e) {
             //ignore
         } catch (Exception e) {
             throw new RuntimeException(e);

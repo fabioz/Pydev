@@ -130,6 +130,8 @@ public class PyRenameEntryPoint extends RenameProcessor {
     @Override
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
         request.pushMonitor(pm);
+        request.getMonitor().beginTask("Checking refactoring pre-conditions...", 100);
+        
         RefactoringStatus status = new RefactoringStatus();
         try {
             if (!DocUtils.isWord(request.initialName)) {
@@ -153,6 +155,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
                 return status;
             }
             IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
+            request.communicateWork("Finding definition");
             ItemPointer[] pointers = pyRefactoring.findDefinition(request);
 
             process = new ArrayList<IRefactorRenameProcess>();
@@ -185,8 +188,10 @@ public class PyRenameEntryPoint extends RenameProcessor {
                 return status;
             }
 
+        } catch (OperationCanceledException e) {
+            // OK
         } finally {
-            request.popMonitor();
+            request.popMonitor().done();
         }
         return status;
     }
@@ -208,15 +213,20 @@ public class PyRenameEntryPoint extends RenameProcessor {
             throws CoreException, OperationCanceledException {
         request.pushMonitor(pm);
         RefactoringStatus status = new RefactoringStatus();
-        if (process == null || process.size() == 0) {
-            status.addFatalError("Refactoring Process not defined: the refactoring cycle did not complet correctly.");
-            return status;
-        }
         try {
+            if (process == null || process.size() == 0) {
+                status.addFatalError("Refactoring Process not defined: the refactoring cycle did not complet correctly.");
+                return status;
+            }
+            
             fChange = new CompositeChange("RenameChange: " + request.inputName);
 
+            request.getMonitor().beginTask("Finding references", 2*100*process.size());
+            //(each process has 100 for finding references and 100 for creating change object)
+            
             // now, check the initial and final conditions
             for (IRefactorRenameProcess p : process) {
+                request.checkCancelled();
                 p.findReferencesToRename(request, status);
                 if (status.hasFatalError() || request.getMonitor().isCanceled()) {
                     return status;
@@ -225,14 +235,17 @@ public class PyRenameEntryPoint extends RenameProcessor {
             if (fillChangeObject) {
                 // and final condition (for creating the change)
                 for (IRefactorRenameProcess p : process) {
+                    request.checkCancelled();
                     p.fillRefactoringChangeObject(request, context, status, fChange);
                     if (status.hasFatalError() || request.getMonitor().isCanceled()) {
                         return status;
                     }
                 }
             }
+        } catch (OperationCanceledException e) {
+            // OK
         } finally {
-            request.popMonitor();
+            request.popMonitor().done();
         }
         return status;
     }

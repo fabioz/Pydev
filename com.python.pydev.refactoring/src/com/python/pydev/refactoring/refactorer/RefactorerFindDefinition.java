@@ -60,7 +60,7 @@ public class RefactorerFindDefinition {
     public ItemPointer[] findDefinition(RefactoringRequest request) {
         //ok, let's find the definition.
         //1. we have to know what we're looking for (activationToken)
-        request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 50));
+        request.createSubMonitor(50);
         request.getMonitor().beginTask("Find definition", 5);
         try{
             request.communicateWork("Finding Definition");

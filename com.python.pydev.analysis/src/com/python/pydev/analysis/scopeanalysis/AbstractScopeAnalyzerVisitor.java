@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
@@ -52,7 +53,6 @@ import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.plugin.PydevPlugin;
 
-import com.python.pydev.analysis.builder.CancelledException;
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.analysis.visitors.GenAndTok;
 import com.python.pydev.analysis.visitors.Scope;
@@ -130,7 +130,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     
     private void checkStop(){
         if(monitor.isCanceled()){
-            throw new CancelledException();
+            throw new OperationCanceledException();
         }
     }
 
