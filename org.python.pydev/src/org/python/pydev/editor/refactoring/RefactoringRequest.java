@@ -7,7 +7,9 @@ import java.io.File;
 import java.util.Stack;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -254,6 +256,17 @@ public class RefactoringRequest extends DecoratableObject{
      */
     public IProgressMonitor getMonitor() {
         return this.monitors.peek();
+    }
+
+    /**
+     * Creates a new SubMonitor (that will act on the current monitor)
+     */
+    public void createSubMonitor(int i) {
+        IProgressMonitor monitor = getMonitor();
+        if(monitor == null){
+            monitor = new NullProgressMonitor();
+        }
+        pushMonitor(new SubProgressMonitor(monitor, 50));        
     }
 
 
