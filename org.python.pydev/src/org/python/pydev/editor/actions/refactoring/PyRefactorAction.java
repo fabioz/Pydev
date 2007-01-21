@@ -152,7 +152,7 @@ public abstract class PyRefactorAction extends PyAction {
             PyEdit pyEdit = getPyEdit(); //may not be available in tests, that's why it is important to be able to operate without it
     		request = createRefactoringRequest(monitor, pyEdit, ps);
         }
-        request.monitor = monitor;
+        request.pushMonitor(monitor);
         request.inputName = name;
 		return request;
     }

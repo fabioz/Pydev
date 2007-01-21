@@ -4,6 +4,7 @@
 package org.python.pydev.editor.refactoring;
 
 import java.io.File;
+import java.util.Stack;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
@@ -42,8 +43,10 @@ public class RefactoringRequest extends DecoratableObject{
 	/**
 	 * The progress monitor to give feedback to the user (may be checked in another thread)
      * May be null
+     * 
+     * Note that this is the monitor for the initial request, but, clients may use it in othe
 	 */
-	public volatile IProgressMonitor monitor;
+	private volatile Stack<IProgressMonitor> monitors = new Stack<IProgressMonitor>();
 	
 	/**
 	 * The nature used 
@@ -97,7 +100,7 @@ public class RefactoringRequest extends DecoratableObject{
 	public RefactoringRequest(File file, PySelection ps, IProgressMonitor monitor, IPythonNature nature, PyEdit pyEdit) {
 		this.file = file;
 		this.ps = ps;
-		this.monitor = monitor;
+		this.pushMonitor(monitor);
         
 		if(nature == null){
 		    Tuple<SystemPythonNature,String> infoForFile = PydevPlugin.getInfoForFile(file);
@@ -120,11 +123,11 @@ public class RefactoringRequest extends DecoratableObject{
      * @param desc Some string to be shown in the progress
      */
     public synchronized void communicateWork(String desc) {
-        if(monitor != null){
-            monitor.setTaskName(desc);
-            monitor.worked(1);
+        if(getMonitor() != null){
+            getMonitor().setTaskName(desc);
+            getMonitor().worked(1);
             
-            if(monitor.isCanceled()){
+            if(getMonitor().isCanceled()){
                 throw new CancelledException();
             }
         }
@@ -221,6 +224,28 @@ public class RefactoringRequest extends DecoratableObject{
      */
     public IDocument getDoc() {
         return ps.getDoc();
+    }
+
+    /**
+     * Sets the monitor to be used (because it may change depending on the current step we're in)
+     * @param monitor the monitor to be used
+     */
+    public void pushMonitor(IProgressMonitor monitor){
+        this.monitors.push(monitor);
+    }
+    
+    /**
+     * Removes and returns the current top-most progress monitor
+     */
+    public IProgressMonitor popMonitor(){
+        return this.monitors.pop();
+    }
+    
+    /**
+     * @return the current progress monitor 
+     */
+    public IProgressMonitor getMonitor() {
+        return this.monitors.peek();
     }
 
 
