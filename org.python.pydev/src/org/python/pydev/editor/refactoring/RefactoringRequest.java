@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.Stack;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -122,16 +123,23 @@ public class RefactoringRequest extends DecoratableObject{
      * Used to make the work communication (also checks to see if it has been cancelled)
      * @param desc Some string to be shown in the progress
      */
-    public synchronized void communicateWork(String desc) {
+    public synchronized void communicateWork(String desc) throws OperationCanceledException {
         if(getMonitor() != null){
             getMonitor().setTaskName(desc);
             getMonitor().worked(1);
-            
-            if(getMonitor().isCanceled()){
-                throw new CancelledException();
-            }
+            checkCancelled();
         }
     }
+    
+    /**
+     * Checks if the process was cancelled (throws CancelledException in this case)
+     */
+    public void checkCancelled() throws OperationCanceledException {
+        if(getMonitor().isCanceled()){
+            throw new OperationCanceledException();
+        }
+    }
+
 
 	/**
 	 * @return the module name or null if it is not possible to determine the module name
@@ -247,6 +255,7 @@ public class RefactoringRequest extends DecoratableObject{
     public IProgressMonitor getMonitor() {
         return this.monitors.peek();
     }
+
 
 
 }
