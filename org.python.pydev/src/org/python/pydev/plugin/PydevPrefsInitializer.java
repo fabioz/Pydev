@@ -4,6 +4,7 @@
 package org.python.pydev.plugin;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
+import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
@@ -88,6 +89,11 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         //initialize pyunit prefs
         node.putInt(PyunitPrefsPage.PYUNIT_VERBOSITY, PyunitPrefsPage.DEFAULT_PYUNIT_VERBOSITY);
         node.put(PyunitPrefsPage.PYUNIT_TEST_FILTER, PyunitPrefsPage.DEFAULT_PYUNIT_TEST_FILTER);
+        
+        // Docstrings
+        node.put(DocstringsPrefPage.P_DOCSTRINGCHARACTER, DocstringsPrefPage.DEFAULT_P_DOCSTRINGCHARACTER);
+        node.put(DocstringsPrefPage.P_TYPETAGGENERATION, DocstringsPrefPage.DEFAULT_P_TYPETAGGENERATION);
+        node.put(DocstringsPrefPage.P_DONT_GENERATE_TYPETAGS, DocstringsPrefPage.DEFAULT_P_DONT_GENERATE_TYPETAGS);
     }
 
 }

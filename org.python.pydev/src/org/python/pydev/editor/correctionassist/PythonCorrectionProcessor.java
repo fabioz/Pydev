@@ -24,7 +24,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
-import org.python.pydev.editor.correctionassist.heuristics.AssistDocString;
+import org.python.pydev.editor.correctionassist.docstrings.AssistDocString;
 import org.python.pydev.editor.correctionassist.heuristics.AssistImport;
 import org.python.pydev.editor.correctionassist.heuristics.AssistTry;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
