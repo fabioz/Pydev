@@ -63,7 +63,7 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
      * When checking the class on a local scope, we have to cover the class definition
      * itself and any access to it (global)
      */
-    protected void checkInitialOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
+    protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         SimpleNode root = request.getAST();
         List<ASTEntry> oc;
         if(request.moduleName.equals(definition.module.getName())){

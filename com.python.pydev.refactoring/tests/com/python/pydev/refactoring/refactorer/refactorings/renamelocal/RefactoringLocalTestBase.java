@@ -22,7 +22,7 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import com.python.pydev.refactoring.refactorer.Refactorer;
 import com.python.pydev.refactoring.refactorer.RefactorerRequestConstants;
 import com.python.pydev.refactoring.wizards.extract.PyExtractMethodProcessor;
-import com.python.pydev.refactoring.wizards.rename.PyRenameProcessor;
+import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 
 public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
     
@@ -57,11 +57,14 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
     /** Applies a rename refactoring 
      */
     protected void applyRenameRefactoring(RefactoringRequest request, boolean expectError) throws CoreException {
-        PyRenameProcessor processor = new PyRenameProcessor(request);
+        PyRenameEntryPoint processor = new PyRenameEntryPoint(request);
         checkStatus(processor.checkInitialConditions(new NullProgressMonitor()), expectError);
         checkStatus(processor.checkFinalConditions(new NullProgressMonitor(), null), expectError);
         Change change = processor.createChange(new NullProgressMonitor());
-        change.perform(new NullProgressMonitor());
+        if(!expectError){
+            //otherwise, if there is an error, the change may be null
+            change.perform(new NullProgressMonitor());
+        }
     }
 
     /** Applies an extract method refactoring 

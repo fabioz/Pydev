@@ -19,7 +19,7 @@ public class PyRenameAnyLocalProcess extends AbstractRenameRefactorProcess{
 		super(null);
 	}
 	
-    protected void checkInitialOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
+    protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         String[] tokenAndQual = request.ps.getActivationTokenAndQual(true);
         String completeNameToFind = tokenAndQual[0]+tokenAndQual[1];
         boolean attributeSearch = completeNameToFind.indexOf('.') != -1;
@@ -40,8 +40,8 @@ public class PyRenameAnyLocalProcess extends AbstractRenameRefactorProcess{
     }
     
     @Override
-    protected void checkInitialOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
+    protected void findReferencesToRenameOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
         status.addWarning(StringUtils.format("Unable to find the definition for the token: %s, so, rename will only happen in the local scope.", request.initialName));
-        this.checkInitialOnLocalScope(request, status);
+        this.findReferencesToRenameOnLocalScope(request, status);
     }
 }

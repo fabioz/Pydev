@@ -21,7 +21,7 @@ public class PyRenameSelfAttributeProcess extends AbstractRenameRefactorProcess{
         this.target = target;
     }
 
-    protected void checkInitialOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
+    protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         ClassDef classDef = ((LocalScope)this.definition.scope).getClassDef();
         if(classDef == null){
             status.addFatalError("We're trying to rename an instance variable, but we cannot find a class definition.");

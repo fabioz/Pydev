@@ -172,10 +172,10 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
         this.request = request;
         
         if((Boolean)request.getAdditionalInfo(RefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false)){
-            checkInitialOnLocalScope(request, status);
+            findReferencesToRenameOnLocalScope(request, status);
             
         }else{
-            checkInitialOnWorkspace(request, status);
+            findReferencesToRenameOnWorkspace(request, status);
         }
 
         if(!occurrencesValid(status)){
@@ -201,7 +201,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * @param status object where the status can be set (to add errors/warnings)
      * @param request the request used for this check
      */
-    protected void checkInitialOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
+    protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         throw new RuntimeException("Not implemented search on local scope:"+this.getClass().getName());
     }
     
@@ -212,7 +212,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * @param status object where the status can be set (to add errors/warnings)
      * @param request the request used for this check
      */
-    protected void checkInitialOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
+    protected void findReferencesToRenameOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
         throw new RuntimeException("Not implemented search on workspace:"+this.getClass().getName());
     }
     

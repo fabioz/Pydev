@@ -35,8 +35,8 @@ import com.python.pydev.refactoring.TestDependentRefactoring;
 import com.python.pydev.refactoring.refactorer.RefactorerFindReferences;
 import com.python.pydev.refactoring.refactorer.RefactorerRequestConstants;
 import com.python.pydev.refactoring.refactorer.refactorings.renamelocal.RefactoringLocalTestBase;
-import com.python.pydev.refactoring.wizards.IRefactorProcess;
-import com.python.pydev.refactoring.wizards.rename.PyRenameProcessor;
+import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
+import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 
 /**
  * A class used for the refactorings that need the rename project (in pysrcrefactoring)
@@ -53,7 +53,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     /**
      * This is the last rename processor used (so, we may query it about other things)
      */
-    protected PyRenameProcessor lastProcessorUsed;
+    protected PyRenameEntryPoint lastProcessorUsed;
     
     /**
      * Backwards-compatibility interface
@@ -101,10 +101,10 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
      */
     protected void checkProcessors() {
         if(lastProcessorUsed != null){
-            List<IRefactorProcess> processes = lastProcessorUsed.process;
+            List<IRefactorRenameProcess> processes = lastProcessorUsed.process;
             assertEquals(1, processes.size());
             
-            for(IRefactorProcess p:processes){
+            for(IRefactorRenameProcess p:processes){
                 assertTrue( StringUtils.format("Expected %s. Received:%s", getProcessUnderTest(), p.getClass()),
                 			getProcessUnderTest().isInstance(p)); //we should only activate the rename class process in this test case
             }
@@ -233,8 +233,9 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             request.moduleName = moduleName;
             request.fillInitialNameAndOffset();
     
-            PyRenameProcessor processor = new PyRenameProcessor(request);
+            PyRenameEntryPoint processor = new PyRenameEntryPoint(request);
             checkStatus(processor.checkInitialConditions(new NullProgressMonitor()), expectError);
+            checkStatus(processor.checkFinalConditions(new NullProgressMonitor(), null, false), expectError);
             occurrencesToReturn = processor.getOccurrencesInOtherFiles();
             occurrencesToReturn.put(new Tuple<String, IFile>(CURRENT_MODULE_IN_REFERENCES, null), processor.getOcurrences());
             lastProcessorUsed = processor;
