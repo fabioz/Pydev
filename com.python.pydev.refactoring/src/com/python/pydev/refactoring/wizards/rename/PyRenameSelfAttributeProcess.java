@@ -3,17 +3,21 @@
  */
 package com.python.pydev.refactoring.wizards.rename;
 
+import java.util.List;
+
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.editor.codecompletion.revisited.visitors.LocalScope;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
-import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 
-public class PyRenameSelfAttributeProcess extends AbstractRenameRefactorProcess{
+public class PyRenameSelfAttributeProcess extends AbstractRenameWorkspaceRefactorProcess{
 
-
+    /**
+     * Target is 'self.attr'
+     */
     private String target;
 
 	public PyRenameSelfAttributeProcess(Definition definition, String target) {
@@ -22,10 +26,11 @@ public class PyRenameSelfAttributeProcess extends AbstractRenameRefactorProcess{
     }
 
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
-        ClassDef classDef = ((LocalScope)this.definition.scope).getClassDef();
-        if(classDef == null){
-            status.addFatalError("We're trying to rename an instance variable, but we cannot find a class definition.");
-        }
-        addOccurrences(request, ScopeAnalysis.getAttributeOcurrences(target, classDef));
+        addOccurrences(request, ScopeAnalysis.getAttributeReferences(request.initialName, request.getAST()));
+    }
+
+    @Override
+    protected List<ASTEntry> getEntryOccurrences(RefactoringStatus status, String initialName, SourceModule module) {
+        return ScopeAnalysis.getAttributeReferences(initialName, module.getAst()); //will get the self.xxx occurrences
     }
 }

@@ -170,7 +170,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
      * we're looking for. 
      * 
      * It will be called for all the modules but the one in the request (for that one
-     * the checkInitialOnLocalScope is called).
+     * the findReferencesToRenameOnLocalScope is called).
      * 
      * @param initialName this is the name of the token we're looking for
      * @param module this is the module that may contain references to that module

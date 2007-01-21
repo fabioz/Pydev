@@ -10,6 +10,7 @@ import java.util.List;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.core.log.Log;
@@ -115,6 +116,8 @@ public class AnalysisRunner {
                         additionalInfo,
                         existing);
             }
+        } catch (BadLocationException e) {
+            //ignore (the file may have changed during the time we started and finished the analysis)
         } catch (Exception e) {
             Log.log(e);
         }
