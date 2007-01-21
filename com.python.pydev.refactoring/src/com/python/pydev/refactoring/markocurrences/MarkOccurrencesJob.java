@@ -131,6 +131,8 @@ public class MarkOccurrencesJob extends Job{
 	            }else{
 	            	removeOccurenceAnnotations(annotationModel, pyEdit);
 	            }
+            } catch (OperationCanceledException e) {
+                throw e;//rethrow this error...
             } catch (Throwable e) {
             	Log.log(e);
             	Log.log("Error while analyzing the file:"+pyEdit.getIFile());

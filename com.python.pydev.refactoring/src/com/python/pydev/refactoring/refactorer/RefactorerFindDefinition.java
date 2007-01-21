@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CancellationException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -156,7 +155,7 @@ public class RefactorerFindDefinition {
                     }
                 }
                 AnalysisPlugin.getAsPointers(pointers, selected.toArray(new Definition[0]));
-            } catch (CancellationException e) {
+            } catch (OperationCanceledException e) {
                 throw e;
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -184,7 +183,7 @@ public class RefactorerFindDefinition {
             return pointers.toArray(new ItemPointer[0]);
         }catch(OperationCanceledException e){
             //that's ok... it was cancelled
-            return null;
+            throw e;
         }finally{
             request.getMonitor().done();
             request.popMonitor();
