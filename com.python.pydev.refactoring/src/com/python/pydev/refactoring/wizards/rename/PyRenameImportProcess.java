@@ -149,5 +149,9 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
         return entryOccurrences;
     }
     
+    @Override
+    protected boolean getRecheckWhereDefinitionWasFound() {
+        return false;
+    }
 
 }

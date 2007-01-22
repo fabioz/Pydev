@@ -33,4 +33,10 @@ public class PyRenameSelfAttributeProcess extends AbstractRenameWorkspaceRefacto
     protected List<ASTEntry> getEntryOccurrences(RefactoringStatus status, String initialName, SourceModule module) {
         return ScopeAnalysis.getAttributeReferences(initialName, module.getAst()); //will get the self.xxx occurrences
     }
+    
+    @Override
+    protected boolean getRecheckWhereDefinitionWasFound() {
+        return false;
+    }
+
 }

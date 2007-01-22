@@ -43,4 +43,9 @@ public class PyRenameAttributeProcess extends AbstractRenameWorkspaceRefactorPro
         return ScopeAnalysis.getAttributeReferences(initialName, module.getAst()); //will get the self.xxx occurrences
     }
 
+    @Override
+    protected boolean getRecheckWhereDefinitionWasFound() {
+        return false;
+    }
+
 }

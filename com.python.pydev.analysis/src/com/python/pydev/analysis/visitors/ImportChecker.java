@@ -37,20 +37,27 @@ public class ImportChecker {
      * Contains the actual module, the representation in the current module and whether it was resolved or not.
      */
     public static class ImportInfo{
+        /**
+         * This is the module where this info was found
+         */
     	public IModule mod;
+        /**
+         * This is the token that relates to this import info (in the module it was found)
+         */
+    	public IToken token;
+    	/**
+         * This is the representation where it was found 
+    	 */
     	public String rep;
+        /**
+         * Determines whether it was resolved or not (if not resolved, the other attributes may be null)
+         */
     	public boolean wasResolved;
 	    	
-    	public ImportInfo(){
-    		this(null,null,false);
-    	}
-    	public ImportInfo(IModule mod, String rep){
-    		this(mod, rep, false);
-    	}
-    	
-    	public ImportInfo(IModule mod, String rep, boolean wasResolved){
+    	public ImportInfo(IModule mod, String rep, IToken token, boolean wasResolved){
     		this.mod = mod;
     		this.rep = rep;
+            this.token = token;
     		this.wasResolved = wasResolved;
     	}
         
@@ -92,6 +99,14 @@ public class ImportChecker {
      * token we were looking for.
      */
     public ImportInfo visitImportToken(IToken token, boolean reportUndefinedImports) {
+        return visitImportToken(reportUndefinedImports, token, moduleName, nature, visitor);
+    }
+
+    /**
+     * This is so that we can use it without actually being in some visit.
+     */
+    public static ImportInfo visitImportToken(boolean reportUndefinedImports, IToken token, String moduleName,
+            IPythonNature nature, AbstractScopeAnalyzerVisitor visitor) {
         //try to find it as a relative import
         boolean wasResolved = false;
         Tuple3<IModule, String, IToken> modTok = null;
@@ -119,9 +134,9 @@ public class ImportChecker {
         
         //might still return a modTok, even if the token we were looking for was not found.
         if(modTok != null){
-        	return new ImportInfo(modTok.o1, modTok.o2, wasResolved);
+        	return new ImportInfo(modTok.o1, modTok.o2, modTok.o3, wasResolved);
         }else{
-        	return new ImportInfo(null, null, wasResolved);
+        	return new ImportInfo(null, null, null, wasResolved);
         }
     }
 

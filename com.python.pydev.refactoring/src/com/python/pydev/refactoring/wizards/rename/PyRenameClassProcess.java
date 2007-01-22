@@ -124,4 +124,10 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
         entryOccurrences.addAll(ScopeAnalysis.getAttributeReferences(initialName, module.getAst()));
         return entryOccurrences;
     }
+    
+    @Override
+    protected boolean getRecheckWhereDefinitionWasFound() {
+        return true;
+    }
+
 }

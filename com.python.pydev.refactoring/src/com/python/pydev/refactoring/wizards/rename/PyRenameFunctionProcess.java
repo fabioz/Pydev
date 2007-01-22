@@ -47,6 +47,11 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
         super(definition);
         Assert.isTrue(this.definition.ast instanceof FunctionDef);
     }
+    
+    @Override
+    protected boolean getRecheckWhereDefinitionWasFound() {
+        return true;
+    }
 
     /**
      * This method is the method that should be used to get the occurrences in the same

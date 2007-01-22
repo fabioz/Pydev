@@ -15,7 +15,7 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase  {
             DEBUG_REFERENCES = false;
             RenameModuleRefactoringTest test = new RenameModuleRefactoringTest();
             test.setUp();
-            test.testRenameModuleInWorkspace();
+            test.testRenameModuleInWorkspace2();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameModuleRefactoringTest.class);
@@ -46,6 +46,29 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase  {
         
         assertTrue(references.containsKey("reflib.renamemodule.importer2")); 
         assertEquals(2, references.get("reflib.renamemodule.importer2").size());
+    }
+    
+    public void testRenameModuleInWorkspace2() throws Exception {
+        //importer.py and importer2.py are the same:
+        //
+        //import mod1
+        //from mod1 import submod1
+        
+        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamemodule.importer", 1, 18); 
+        System.out.println(references);
+        assertEquals(4, references.size());
+        
+        assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
+        assertEquals(1, references.get(CURRENT_MODULE_IN_REFERENCES).size());
+        
+        assertTrue(references.containsKey("reflib.renamemodule.mod1.submod1")); //module renamed 
+        assertEquals(1, references.get("reflib.renamemodule.mod1.submod1").size());
+        
+        assertTrue(references.containsKey("reflib.renamemodule.importer2")); 
+        assertEquals(1, references.get("reflib.renamemodule.importer2").size());
+        
+        assertTrue(references.containsKey("reflib.renamemodule.importer3")); 
+        assertEquals(1, references.get("reflib.renamemodule.importer3").size());
 	}
     
 

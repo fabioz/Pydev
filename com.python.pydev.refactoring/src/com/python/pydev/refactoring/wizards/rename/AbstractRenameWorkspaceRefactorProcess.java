@@ -58,34 +58,42 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
      */
     protected List<ASTEntry> getOccurrencesInOtherModule(RefactoringStatus status, String initialName, SourceModule module, PythonNature nature) {
         List<ASTEntry> entryOccurrences = getEntryOccurrences(status, initialName, module);
-        
-        for (Iterator<ASTEntry> iter = entryOccurrences.iterator(); iter.hasNext();) {
-            ASTEntry entry = iter.next();
-            int line = entry.node.beginLine-1;
-            int col = entry.node.beginColumn-1;
-            try {
-                Definition[] definitions = module.findDefinition(new CompletionState(line, col, initialName, nature, ""), line, col, nature, null);
-                for (Definition localDefinition : definitions) {
-                    //if within one module any of the definitions pointed to some class in some other module,
-                    //that means that the tokens in this module actually point to some other class 
-                    //(with the same name), and we can't actually rename them.
-                    String foundModName = localDefinition.module.getName();
-                    if(foundModName != null && !foundModName.equals(this.definition.module.getName())){
-                        if(DEBUG_FILTERED_MODULES){
-                            System.out.println("The entries found on module:"+module.getName()+" had the definition found on module:"+
-                                    foundModName+" and were removed from the elements to be renamed.");
-                            
+
+        if(getRecheckWhereDefinitionWasFound()){
+            for (Iterator<ASTEntry> iter = entryOccurrences.iterator(); iter.hasNext();) {
+                ASTEntry entry = iter.next();
+                int line = entry.node.beginLine-1;
+                int col = entry.node.beginColumn-1;
+                try {
+                    Definition[] definitions = module.findDefinition(new CompletionState(line, col, initialName, nature, ""), line, col, nature, null);
+                    for (Definition localDefinition : definitions) {
+                        //if within one module any of the definitions pointed to some class in some other module,
+                        //that means that the tokens in this module actually point to some other class 
+                        //(with the same name), and we can't actually rename them.
+                        String foundModName = localDefinition.module.getName();
+                        if(foundModName != null && !foundModName.equals(this.definition.module.getName())){
+                            if(DEBUG_FILTERED_MODULES){
+                                System.out.println("The entries found on module:"+module.getName()+" had the definition found on module:"+
+                                        foundModName+" and were removed from the elements to be renamed.");
+                                
+                            }
+                            return new ArrayList<ASTEntry>();
                         }
-                        return new ArrayList<ASTEntry>();
                     }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+                
             }
-            
         }
         return entryOccurrences;
     }
+    
+    /**
+     * @return true if the definitions found should be re-checked for the module where it was defined
+     * and false otherwise (the visitor already got correct matches)
+     */
+    protected abstract boolean getRecheckWhereDefinitionWasFound();
     
     /**
      * Default implementation for checking the tokens in the workspace.
