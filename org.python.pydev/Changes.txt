@@ -9,7 +9,7 @@ Pydev:
 			<li>Some minor bugs fixed</li>
 		</ul>
 	</li>
-	<li>Patch by Olof Wolgast: The 'create docstrings' assistant has more options
+	<li>Patch by Olof Wolgast: The 'create docstrings' assistant has more options (windows > preferences > pydev > docstrings)
 		<ul>
 			<li>Choose between single and double quotes</li>
 			<li>Option to create @type too</li>
@@ -18,24 +18,20 @@ Pydev:
 	</li>
 	<li>Fix: Multi-line Templates indent correctly</li>
 	<li>Fix: When a file from a project that was deleted was still opened inside pydev, Eclipse would not start-up correctly</li>
-	<li>Fix: When a different interpreter is chosen in the run dialog, the pythonpath is correctly gotten
-	<li>Fix: Cancelling the addition of an interpreter no longer raises any exceptions.
+	<li>Fix: When a different interpreter is chosen in the run dialog, the pythonpath is correctly gotten</li>
+	<li>Fix: Cancelling the addition of an interpreter no longer raises any exceptions.</li>
 	<li>Fix: when Pydev was started, it would re-save the .pydevproject file even if no change was done</li>
 	<li>Minor fixes in the grammar</li>
+	<li>Grammar Patch by Ueli Kistler, Dennis Hunziker</li>
 </ul>
 
 Extensions:
 
 <ul>
-	<li>Fix on code analysis on nested list-comprehensions</li>
-	<li>Menu: Now the debug/navigate actions are all under a 'Pydev' menu</li>
-	<li>The pydev navigate action is now only shown in the pydev/debug perspective</li>
-	<li>The pydev remote debugging actions are now only shown in the debug perspective</li>
-	<li>Fix: go to definition sometimes failed to find module definitions</li>
 	<li>Added refactoring support for rename (note that this is still BETA -- but should be already better than BRM)
 		<ul>
 			<li>Supports preview</li>
-			<li>Integrated in the editor (but not in the package explorer)</li>
+			<li>Integrated in the editor (but not in the package explorer, so, it can rename a module, but only through an import to that module)</li>
 			<li>Supports undo/redo</li>
 			<li>Rename class</li>
 			<li>Rename method</li>
@@ -44,6 +40,11 @@ Extensions:
 			<li>Rename local variable</li>
 		</ul>
 	</li>
+	<li>Menu: Now the debug/navigate actions are all under a 'Pydev' menu</li>
+	<li>The pydev navigate action is now only shown in the pydev/debug perspective</li>
+	<li>The pydev remote debugging actions are now only shown in the debug perspective</li>
+	<li>Fix: code analysis problem when working with nested list-comprehensions</li>
+	<li>Fix: go to definition sometimes failed to find module definitions</li>
 </ul>
 	
 
