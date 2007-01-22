@@ -11,6 +11,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
@@ -118,6 +119,8 @@ public class ASTEntry extends DecoratableObject{
         }else if(node instanceof NameTok){
             NameTok a = (NameTok) node;
             name = a.id;
+        }else if(node instanceof Module){
+            name = "Module";
         }
         if(name == null){
             throw new RuntimeException("Unable to get node name: "+node);
