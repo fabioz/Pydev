@@ -219,7 +219,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
                 return status;
             }
             
-            fChange = new CompositeChange("RenameChange: " + request.inputName);
+            fChange = new CompositeChange("RenameChange: '" + request.initialName+ "' to '"+request.inputName+"'");
 
             request.getMonitor().beginTask("Finding references", 2*100*process.size());
             //(each process has 100 for finding references and 100 for creating change object)

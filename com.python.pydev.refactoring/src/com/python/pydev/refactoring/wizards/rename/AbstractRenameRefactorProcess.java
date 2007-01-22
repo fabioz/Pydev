@@ -298,7 +298,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * @param fChange tho 'root' change.
      */
     private void createCurrModuleChange(RefactoringStatus status, CompositeChange fChange) {
-        DocumentChange docChange = new DocumentChange("RenameChange: "+request.inputName, request.getDoc());
+        DocumentChange docChange = new DocumentChange("Current module: "+request.getModule().getName(), request.getDoc());
         if(docOccurrences.size() == 0){
             status.addFatalError("No occurrences found.");
             return;
