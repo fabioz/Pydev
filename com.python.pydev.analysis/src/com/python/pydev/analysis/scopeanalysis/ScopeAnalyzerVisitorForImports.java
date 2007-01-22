@@ -17,7 +17,6 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.analysis.visitors.Found;
-import com.python.pydev.analysis.visitors.ImportChecker;
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 
 /**
@@ -59,7 +58,6 @@ public class ScopeAnalyzerVisitorForImports extends ScopeAnalyzerVisitor {
                             }
                             
                         }
-                        System.out.println(definition);
                     }
                 } catch (Exception e) {
                     throw new RuntimeException(e);

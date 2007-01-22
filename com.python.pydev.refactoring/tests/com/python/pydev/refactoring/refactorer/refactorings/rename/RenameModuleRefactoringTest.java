@@ -55,8 +55,7 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase  {
         //from mod1 import submod1
         
         Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamemodule.importer", 1, 18); 
-        System.out.println(references);
-        assertEquals(4, references.size());
+        assertEquals(5, references.size());
         
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
         assertEquals(1, references.get(CURRENT_MODULE_IN_REFERENCES).size());
@@ -69,6 +68,9 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase  {
         
         assertTrue(references.containsKey("reflib.renamemodule.importer3")); 
         assertEquals(1, references.get("reflib.renamemodule.importer3").size());
+        
+        assertTrue(references.containsKey("reflib.renamemodule.importer4")); 
+        assertEquals(1, references.get("reflib.renamemodule.importer4").size());
 	}
     
 
