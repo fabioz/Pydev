@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -130,10 +131,13 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
         request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 50));
         try{
             Set<IFile> references = new HashSet<IFile>(findFilesWithPossibleReferences(request));
-            request.getMonitor().beginTask("Possible references to analyze:"+references.size(), references.size());
-            
+            int total = references.size();
+            request.getMonitor().beginTask("Possible references to analyze:"+total, total);
+            request.getMonitor().setTaskName(StringUtils.format("Analyzing: %s files", total));
+            int i=0;
             for (IFile file : references) {
-                request.getMonitor().worked(1);
+                i++;
+                request.communicateWork(StringUtils.format("Analyzing %s (%s of %s)", file.getName(), i, total));
                 IProject project = file.getProject();
                 PythonNature nature = PythonNature.getPythonNature(project);
                 if(nature != null){
