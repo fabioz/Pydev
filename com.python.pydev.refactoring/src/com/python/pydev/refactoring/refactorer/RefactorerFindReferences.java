@@ -6,6 +6,7 @@ package com.python.pydev.refactoring.refactorer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -42,7 +43,7 @@ public class RefactorerFindReferences {
     /**
      * class used to configure the input for a text search.
      */
-    private static class PyTextSearchInput extends TextSearchInput {
+    public static class PyTextSearchInput extends TextSearchInput {
         
         private final String fSearchText;
         private final boolean fIsCaseSensitive;
@@ -112,7 +113,7 @@ public class RefactorerFindReferences {
             
             final ISearchQuery query = searchQueryProvider.createQuery(textSearchInput);
             IStatus status = query.run(request.getMonitor());
-            
+
             if (status.matches(IStatus.CANCEL)) {
                 return l;
             }
