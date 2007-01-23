@@ -52,10 +52,6 @@ public class PydevPrefs extends AbstractPydevPrefs {
 		appearanceComposite.setLayout(layout);
 
 		addTextField(appearanceComposite, "Tab length:", TAB_WIDTH, 3, 0, true);
-
-		addTextField(appearanceComposite, "Multi-block char (ctrl+4):", MULTI_BLOCK_COMMENT_CHAR, 2, 0, false);
-        
-		addTextField(appearanceComposite, "Single-block char (ctrl+shift+4):", SINGLE_BLOCK_COMMENT_CHAR, 2, 0, false);
         
 		addCheckBox(appearanceComposite, "Replace tabs with spaces when typing?", SUBSTITUTE_TABS, 0);
 		

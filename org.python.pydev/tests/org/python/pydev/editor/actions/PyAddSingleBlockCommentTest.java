@@ -23,14 +23,18 @@ public class PyAddSingleBlockCommentTest extends TestCase {
         String s = "cc";
         
         Document doc = new Document(s);
-        PyAddSingleBlockComment.perform(new PySelection(doc, 0,0,0));
+        new PyAddSingleBlockComment(10, true).perform(new PySelection(doc, 0,0,0));
         assertEquals("#------ cc", doc.get());
         
         s = "    cc";
         
         doc = new Document(s);
-        PyAddSingleBlockComment.perform(new PySelection(doc, 0,0,0));
+        new PyAddSingleBlockComment(10, true).perform(new PySelection(doc, 0,0,0));
         assertEquals("    #-- cc", doc.get());
+        
+        doc = new Document("cc");
+        new PyAddSingleBlockComment(10, false).perform(new PySelection(doc, 0,0,0));
+        assertEquals("#cc ------", doc.get());
         
     }
 

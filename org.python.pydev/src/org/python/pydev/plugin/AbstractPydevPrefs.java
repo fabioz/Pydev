@@ -91,12 +91,6 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final String TAB_WIDTH = "TAB_WIDTH";
     public static final int DEFAULT_TAB_WIDTH = 4;
     
-    public static final String MULTI_BLOCK_COMMENT_CHAR = "MULTI_BLOCK_COMMENT_CHAR";
-    public static final String DEFAULT_MULTI_BLOCK_COMMENT_CHAR = "=";
-    
-    public static final String SINGLE_BLOCK_COMMENT_CHAR = "SINGLE_BLOCK_COMMENT_CHAR";
-    public static final String DEFAULT_SINGLE_BLOCK_COMMENT_CHAR = "-";
-    
     //checkboxes
     public static final String SUBSTITUTE_TABS = "SUBSTITUTE_TABS";
     public static final boolean DEFAULT_SUBSTITUTE_TABS = true;
@@ -296,8 +290,6 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_INDENT_TO_PAR_LEVEL));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_DEDENT_ELSE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, SMART_INDENT_PAR));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, MULTI_BLOCK_COMMENT_CHAR));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, SINGLE_BLOCK_COMMENT_CHAR));
         
         //Auto eat colon and braces
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_COLON));

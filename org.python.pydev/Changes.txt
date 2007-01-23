@@ -40,6 +40,7 @@ Extensions:
 			<li>Rename local variable</li>
 		</ul>
 	</li>
+	<li>Block comments: added the option to align single-line block comment to the left</li>
 	<li>Menu: Now the debug/navigate actions are all under a 'Pydev' menu</li>
 	<li>The pydev navigate action is now only shown in the pydev/debug perspective</li>
 	<li>The pydev remote debugging actions are now only shown in the debug perspective</li>

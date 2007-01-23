@@ -10,13 +10,28 @@ import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PydevPrefs;
 
 public class PyAddSingleBlockComment extends PyAction {
-    /* Selection element */
+    private boolean alignRight=true;
+    private int defaultCols=80;
+
+    public PyAddSingleBlockComment(){
+        //default
+    }
+    
+    /**
+     * For tests: assigns the default values
+     */
+    PyAddSingleBlockComment(int defaultCols, boolean alignLeft){
+        this.defaultCols = defaultCols;
+        this.alignRight = alignLeft;
+        
+    }
 
     public void run(IAction action) {
         try {
@@ -37,7 +52,7 @@ public class PyAddSingleBlockComment extends PyAction {
      * @param ps Given PySelection
      * @return boolean The success or failure of the action
      */
-    public static boolean perform(PySelection ps) {
+    public boolean perform(PySelection ps) {
         // What we'll be replacing the selected text with
         StringBuffer strbuf = new StringBuffer();
 
@@ -49,11 +64,28 @@ public class PyAddSingleBlockComment extends PyAction {
             // For each line, comment them out
             for (i = ps.getStartLineIndex(); i <= ps.getEndLineIndex(); i++) {
                 String line = StringUtils.rightTrim(ps.getLine(i));
-                String fullCommentLine = getFullCommentLine(line);
-                strbuf.append(fullCommentLine);
-                strbuf.append(line.trim());
-                if(i != ps.getEndLineIndex()){
-                    strbuf.append(ps.getEndLineDelim());
+                if(getAlignRight()){
+                    strbuf.append(getRightAlignedFullCommentLine(line));
+                    strbuf.append(line.trim());
+                    if(i != ps.getEndLineIndex()){
+                        strbuf.append(ps.getEndLineDelim());
+                    }
+                }else{
+                    Tuple<Integer,Character> colsAndChar = getColsAndChar();
+                    int cols = colsAndChar.o1;
+                    char c = colsAndChar.o2;
+                    
+                    StringBuffer buffer = makeBufferToIndent(line, cols);            
+                    buffer.append('#');
+                    buffer.append(line.trim());
+                    buffer.append(' ');
+                    while(buffer.length() < cols){
+                        buffer.append(c);
+                    }
+                    strbuf.append(buffer);
+                    if(i != ps.getEndLineIndex()){
+                        strbuf.append(ps.getEndLineDelim());
+                    }
                 }
             }
 
@@ -68,6 +100,30 @@ public class PyAddSingleBlockComment extends PyAction {
         return false;
     }
 
+    private boolean getAlignRight() {
+        try{
+            return PydevPlugin.getDefault().getPluginPreferences().getBoolean(CommentBlocksPreferences.SINGLE_BLOCK_COMMENT_ALIGN_RIGHT);
+        }catch(NullPointerException e){
+            //ignore... we're in the tests env
+        }
+        return this.alignRight;
+    }
+    
+    protected Tuple<Integer, Character> getColsAndChar(){
+        int cols = this.defaultCols;
+        char c = '-';
+        
+        try{
+            IPreferenceStore chainedPrefStore = PydevPlugin.getChainedPrefStore();
+            cols = chainedPrefStore.getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
+            Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
+            c = prefs.getString(CommentBlocksPreferences.SINGLE_BLOCK_COMMENT_CHAR).charAt(0);
+        }catch(NullPointerException e){
+            //ignore... we're in the tests env
+        }
+        return new Tuple<Integer, Character>(cols, c);
+    }
+
     /**
      * Currently returns a string with the comment block.
      * 
@@ -75,40 +131,32 @@ public class PyAddSingleBlockComment extends PyAction {
      * 
      * @return Comment line string, or a default one if Preferences are null
      */
-    protected static String getFullCommentLine(String line) {
-        try {
-            IPreferenceStore chainedPrefStore = null; 
-            int cols = 10;
-            char c = '-';
-            
-            try{
-                chainedPrefStore = PydevPlugin.getChainedPrefStore();
-                cols = chainedPrefStore.getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
-                Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
-                c = prefs.getString(PydevPrefs.SINGLE_BLOCK_COMMENT_CHAR).charAt(0);
-            }catch(NullPointerException e){
-                //ignore... we're in the tests env
-            }
-            StringBuffer buffer = new StringBuffer(cols);
-            for (int i = 0; i < line.length(); i++) {
-                char ch = line.charAt(i);
-                if(ch == '\t' || ch == ' '){
-                    buffer.append(ch);
-                }else{
-                    break;
-                }
-            }            
-            
-            
-            buffer.append("#");
-            for (int i = 0; i + line.length() < cols - 2; i++) {
-                buffer.append(c);
-            }
-            buffer.append(" ");
-            return buffer.toString();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    protected String getRightAlignedFullCommentLine(String line) {
+        Tuple<Integer,Character> colsAndChar = getColsAndChar();
+        int cols = colsAndChar.o1;
+        char c = colsAndChar.o2;
+        
+        StringBuffer buffer = makeBufferToIndent(line, cols);            
+        
+        buffer.append("#");
+        for (int i = 0; i + line.length() < cols - 2; i++) {
+            buffer.append(c);
         }
+        buffer.append(" ");
+        return buffer.toString();
+    }
+
+    private StringBuffer makeBufferToIndent(String line, int cols) {
+        StringBuffer buffer = new StringBuffer(cols);
+        for (int i = 0; i < line.length(); i++) {
+            char ch = line.charAt(i);
+            if(ch == '\t' || ch == ' '){
+                buffer.append(ch);
+            }else{
+                break;
+            }
+        }
+        return buffer;
     }
 
 }

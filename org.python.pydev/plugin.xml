@@ -128,16 +128,28 @@
             id="org.python.pydev.prefs.debugPage">
       </page>
       <page
+      		name="Pyunit"
             category="org.python.pydev.prefs"
             class="org.python.pydev.plugin.PyunitPrefsPage"
-            id="org.python.pydev.prefs.pyunitPage"
-            name="Pyunit"/>
+            id="org.python.pydev.prefs.pyunitPage"/>
       <page
             name="Code Formatter"
             category="org.python.pydev.prefs"
             class="org.python.pydev.plugin.PyCodeFormatterPage"
-            id="org.python.pydev.plugin.pyCodeFormatterPage">
-      </page>
+            id="org.python.pydev.plugin.pyCodeFormatterPage"/>
+            
+      <page
+      		name="Docstrings"
+            category="org.python.pydev.plugin.pyCodeFormatterPage"
+            class="org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage"
+            id="org.python.pydev.editor.correctionassist.docstrings.DocstringsPreferencePage"/>
+
+      <page
+      		name="Block Comments"
+            category="org.python.pydev.plugin.pyCodeFormatterPage"
+            class="org.python.pydev.editor.commentblocks.CommentBlocksPreferences"
+            id="org.python.pydev.editor.commentblocks.CommentBlocksPreferences"/>
+
       <page
             name="Code Completion"
             class="org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage"
@@ -171,11 +183,6 @@
             class="org.python.pydev.builder.PyDevBuilderPrefPage"
             id="org.python.pydev.builder.pyDevBuilderPrefPage">
       </page>
-      <page
-            category="org.python.pydev.prefs"
-            class="org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage"
-            id="org.python.pydev.editor.correctionassist.docstrings.DocstringsPreferencePage"
-            name="Docstrings"/>
    </extension>
 <!-- Editor menus -->
    <extension point="org.eclipse.ui.editorActions">

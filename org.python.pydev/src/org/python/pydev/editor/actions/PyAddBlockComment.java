@@ -11,8 +11,8 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PydevPrefs;
 
 /**
  * Creates a comment block.  Comment blocks are slightly different than regular comments 
@@ -104,7 +104,7 @@ public class PyAddBlockComment extends PyAction {
             Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
             char c;
             try {
-                c = prefs.getString(PydevPrefs.MULTI_BLOCK_COMMENT_CHAR).charAt(0);
+                c = prefs.getString(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_CHAR).charAt(0);
             } catch (Exception e) {
                 c = '=';
             }

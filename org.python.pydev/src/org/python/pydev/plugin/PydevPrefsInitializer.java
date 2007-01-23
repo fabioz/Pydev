@@ -4,6 +4,7 @@
 package org.python.pydev.plugin;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
+import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.jface.resource.StringConverter;
@@ -29,8 +30,11 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         node.putBoolean(PydevPrefs.AUTO_WRITE_IMPORT_STR, PydevPrefs.DEFAULT_AUTO_WRITE_IMPORT_STR);
     
         node.putInt(PydevPrefs.TAB_WIDTH, PydevPrefs.DEFAULT_TAB_WIDTH);
-        node.put(PydevPrefs.MULTI_BLOCK_COMMENT_CHAR, PydevPrefs.DEFAULT_MULTI_BLOCK_COMMENT_CHAR);
-        node.put(PydevPrefs.SINGLE_BLOCK_COMMENT_CHAR, PydevPrefs.DEFAULT_SINGLE_BLOCK_COMMENT_CHAR);
+        
+        //comment blocks
+        node.put(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_CHAR, CommentBlocksPreferences.DEFAULT_MULTI_BLOCK_COMMENT_CHAR);
+        node.put(CommentBlocksPreferences.SINGLE_BLOCK_COMMENT_CHAR, CommentBlocksPreferences.DEFAULT_SINGLE_BLOCK_COMMENT_CHAR);
+        node.putBoolean(CommentBlocksPreferences.SINGLE_BLOCK_COMMENT_ALIGN_RIGHT, CommentBlocksPreferences.DEFAULT_SINGLE_BLOCK_COMMENT_ALIGN_RIGHT);
         
         //checkboxes
         node.putBoolean(PydevPrefs.SUBSTITUTE_TABS, PydevPrefs.DEFAULT_SUBSTITUTE_TABS);
