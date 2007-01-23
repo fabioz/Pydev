@@ -24,6 +24,27 @@ public class PyPreferencesCache implements IPropertyChangeListener {
 		}
 		return b;
 	}
+    
+	/**
+     * This is for a 'special case', when the value must be higher than 0
+     *  
+     * @param key this is the key we're interested in
+     * @param defaultIfZeroOrLess the value to be returned if the actual value found is 0 or less
+	 */
+	public int getInt(String key, int defaultIfZeroOrLess) {
+	    Integer b = (Integer) cache.get(key);
+        
+	    if(b == null || b <= 0){
+	        b = this.preferenceStore.getInt(key);
+            
+            if(b <= 0){
+                b = defaultIfZeroOrLess;
+            }
+	        cache.put(key, b);
+	    }
+        
+	    return b;
+	}
 	
 	public int getInt(String key) {
 		Integer b = (Integer) cache.get(key);

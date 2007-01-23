@@ -31,7 +31,7 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
 	public DefaultIndentPrefs(){
 		PyPreferencesCache c = getCache();
 		useSpaces = c.getBoolean(PydevPrefs.SUBSTITUTE_TABS);
-		tabWidth = c.getInt(PydevPrefs.TAB_WIDTH);
+		tabWidth = c.getInt(PydevPrefs.TAB_WIDTH, 4);
 	}
 
     public boolean getUseSpaces() {
@@ -43,17 +43,27 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
         return useSpaces;
     }
 
+    public static int getStaticTabWidth(){
+        int w = PydevPlugin.getDefault().getPluginPreferences().getInt(PydevPrefs.TAB_WIDTH);
+        if(w <= 0){ //tab width should never be 0 or less (in this case, let's make the default 4)
+            w = 4;
+        }
+        return w;
+    }
+    
     public int getTabWidth() {
-        if(tabWidth != getCache().getInt(PydevPrefs.TAB_WIDTH)){
-            tabWidth = getCache().getInt(PydevPrefs.TAB_WIDTH);
+        PyPreferencesCache c = getCache();
+        if(tabWidth != c.getInt(PydevPrefs.TAB_WIDTH, 4)){
+            tabWidth = c.getInt(PydevPrefs.TAB_WIDTH, 4);
             regenerateIndentString();
         }
         return tabWidth;
     }
 
     public void regenerateIndentString(){
-    	getCache().clear(PydevPrefs.TAB_WIDTH);
-    	getCache().clear(PydevPrefs.SUBSTITUTE_TABS);
+    	PyPreferencesCache c = getCache();
+        c.clear(PydevPrefs.TAB_WIDTH);
+    	c.clear(PydevPrefs.SUBSTITUTE_TABS);
         indentString = super.getIndentationString();
     }
     /**

@@ -21,6 +21,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 
@@ -318,7 +319,7 @@ public abstract class PyAction implements IEditorActionDelegate {
      */
     public static String getStaticIndentationString(PyEdit edit) {
         try {
-            int tabWidth = PydevPrefs.getPreferences().getInt(PydevPrefs.TAB_WIDTH);
+            int tabWidth = DefaultIndentPrefs.getStaticTabWidth();
             boolean useSpaces = PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS);
             boolean forceTabs = false;
             if (edit != null){

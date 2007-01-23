@@ -66,6 +66,7 @@ import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyOpenAction;
+import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.IIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
@@ -381,7 +382,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
                         return;
                     }
                     getIndentPrefs().regenerateIndentString();
-                    sourceViewer.getTextWidget().setTabs(PydevPlugin.getDefault().getPluginPreferences().getInt(PydevPrefs.TAB_WIDTH));
+                    sourceViewer.getTextWidget().setTabs(DefaultIndentPrefs.getStaticTabWidth());
                     
                 }else if (property.equals(PydevPrefs.SUBSTITUTE_TABS)) {
                 	getIndentPrefs().regenerateIndentString();

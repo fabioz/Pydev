@@ -31,6 +31,7 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
@@ -132,7 +133,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
      */
     public void resetIndentPrefixes() {
         Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
-        int tabWidth = prefs.getInt(PydevPrefs.TAB_WIDTH);
+        int tabWidth = DefaultIndentPrefs.getStaticTabWidth();
         StringBuffer spaces = new StringBuffer(8);
 
         for (int i = 0; i < tabWidth; i++) {
@@ -181,7 +182,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
      * Python uses its own tab width, since I think that its standard is 8
      */
     public int getTabWidth(ISourceViewer sourceViewer) {
-        return PydevPlugin.getDefault().getPluginPreferences().getInt(PydevPrefs.TAB_WIDTH);
+        return DefaultIndentPrefs.getStaticTabWidth();
     }
 
     public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {

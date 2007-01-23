@@ -11,6 +11,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.plugin.PydevPrefs;
 
 /**
@@ -270,7 +271,7 @@ public class PyBackspace extends PyAction {
     //	should tab be converted to spaces?
     boolean useSpaces = PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS);
 
-    int tabWidth = PydevPrefs.getPreferences().getInt(PydevPrefs.TAB_WIDTH);
+    int tabWidth = DefaultIndentPrefs.getStaticTabWidth();
     
     Boolean forceTabs;
     
@@ -290,11 +291,11 @@ public class PyBackspace extends PyAction {
         
         if (identString == null || 
                 forceTabs == null|| 
-                tabWidth != PydevPrefs.getPreferences().getInt(PydevPrefs.TAB_WIDTH) ||
+                tabWidth != DefaultIndentPrefs.getStaticTabWidth() ||
                 useSpaces != PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS) ||
                 forceTabs != pyEdit.getIndentPrefs().getForceTabs()) {
             
-            tabWidth = PydevPrefs.getPreferences().getInt(PydevPrefs.TAB_WIDTH);
+            tabWidth = DefaultIndentPrefs.getStaticTabWidth();
             useSpaces = PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS);
             forceTabs = pyEdit.getIndentPrefs().getForceTabs();
             
