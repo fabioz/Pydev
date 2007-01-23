@@ -33,6 +33,7 @@ public class CompletionState implements ICompletionState {
     public Memo<String> resolveImportMemory = new Memo<String>();
     public Memo<String> findDefinitionMemory = new Memo<String>();
     public Memo<IToken> findResolveImportMemory = new Memo<IToken>();
+    public Memo<String> findModuleCompletionsMemory = new Memo<String>();
     
     public boolean builtinsGotten=false;
     public boolean localImportsGotten=false;
@@ -56,6 +57,7 @@ public class CompletionState implements ICompletionState {
         state.resolveImportMemory = resolveImportMemory;
         state.findDefinitionMemory = findDefinitionMemory;
         state.findResolveImportMemory = findResolveImportMemory;
+        state.findModuleCompletionsMemory = findModuleCompletionsMemory;
         
         state.builtinsGotten = builtinsGotten;
         state.localImportsGotten = localImportsGotten;
@@ -157,7 +159,7 @@ public class CompletionState implements ICompletionState {
      */
     public void checkWildImportInMemory(IModule caller, IModule wild) {
         if(this.wildImportMemory.isInRecursion(caller, wild)){
-            throw new CompletionRecursionException("Possible recursion found (caller: "+caller.getName()+", import: "+wild.getName()+" ) - stopping analysis.");
+            throw new CompletionRecursionException("Possible recursion found -- probably programming error -- (caller: "+caller.getName()+", import: "+wild.getName()+" ) - stopping analysis.");
         }
         
     }
@@ -168,7 +170,7 @@ public class CompletionState implements ICompletionState {
      */
     public void checkDefinitionMemory(IModule module, IDefinition definition) {
         if(this.definitionMemory.isInRecursion(module, (Definition) definition)){
-            throw new CompletionRecursionException("Possible recursion found (token: "+definition+") - stopping analysis.");
+            throw new CompletionRecursionException("Possible recursion found -- probably programming error --  (module: "+module.getName()+", token: "+definition+") - stopping analysis.");
         }
 
     }
@@ -178,7 +180,7 @@ public class CompletionState implements ICompletionState {
      */
     public void checkFindMemory(IModule module, String value) {
         if(this.findMemory.isInRecursion(module, value)){
-            throw new CompletionRecursionException("Possible recursion found (value: "+value+") - stopping analysis.");
+            throw new CompletionRecursionException("Possible recursion found -- probably programming error --  (module: "+module.getName()+", value: "+value+") - stopping analysis.");
         }
         
     }
@@ -188,14 +190,14 @@ public class CompletionState implements ICompletionState {
      */
     public void checkResolveImportMemory(IModule module, String value) {
         if(this.resolveImportMemory.isInRecursion(module, value)){
-            throw new CompletionRecursionException("Possible recursion found (value: "+value+") - stopping analysis.");
+            throw new CompletionRecursionException("Possible recursion found -- probably programming error --  (module: "+module.getName()+", value: "+value+") - stopping analysis.");
         }
         
     }
 
 	public void checkFindDefinitionMemory(IModule mod, String tok) {
 		if(this.findDefinitionMemory.isInRecursion(mod, tok)){
-			throw new CompletionRecursionException("Possible recursion found (value: "+tok+") - stopping analysis.");
+			throw new CompletionRecursionException("Possible recursion found -- probably programming error --  (module: "+mod.getName()+", value: "+tok+") - stopping analysis.");
 		}
 	}
 	
@@ -205,7 +207,7 @@ public class CompletionState implements ICompletionState {
      */
     public void checkMemory(IModule module, String base) {
         if(this.memory.isInRecursion(module, base)){
-            throw new CompletionRecursionException("Possible recursion found (token: "+base+") - stopping analysis.");
+            throw new CompletionRecursionException("Possible recursion found -- probably programming error --  (module: "+module.getName()+", token: "+base+") - stopping analysis.");
         }
     }
     
@@ -215,8 +217,18 @@ public class CompletionState implements ICompletionState {
      */
     public void checkFindResolveImportMemory(IToken token) {
         if(this.findResolveImportMemory.isInRecursion(null, token)){
-            throw new CompletionRecursionException("Possible recursion found (token: "+token+") - stopping analysis.");
+            throw new CompletionRecursionException("Possible recursion found -- probably programming error --  (token: "+token+") - stopping analysis.");
         }
+    }
+    
+    /**
+     * @param module
+     * @param base
+     */
+	public void checkFindModuleCompletionsMemory(IModule mod, String tok) {
+    	if(this.findModuleCompletionsMemory.isInRecursion(mod, tok)){
+    		throw new CompletionRecursionException("Possible recursion found -- probably programming error --  (module: "+mod.getName()+", token: "+tok+") - stopping analysis.");
+    	}
     }
 
     /**
@@ -313,6 +325,7 @@ public class CompletionState implements ICompletionState {
     public String getQualifier() {
         return this.qualifier;
     }
+
 
     
 }

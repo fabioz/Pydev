@@ -4,12 +4,16 @@
 package org.python.pydev.editor.codecompletion;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
@@ -21,7 +25,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testCompleteImportBuiltinReference();
+            builtins.testRecursion();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -60,6 +64,15 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         super.tearDown();
         AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, null);
     }
+    
+	public void testRecursion() throws FileNotFoundException, CoreException, BadLocationException{
+		String file = TestDependent.TEST_PYSRC_LOC+"testrec3/rec.py";
+		String strDoc = "RuntimeError.";
+		File f = new File(file);
+		nature.getAstManager().getCompletionsForToken(f, new Document(REF.getFileContents(f)), CompletionState.getEmptyCompletionState("RuntimeError", nature));
+		requestCompl(f, strDoc, strDoc.length(), -1, new String[]{"__doc__", "__getitem__()", "__init__()", "__module__", "__str__()"});   
+	}
+	
 
     
     public void testCompleteImportBuiltin() throws BadLocationException, IOException, Exception{

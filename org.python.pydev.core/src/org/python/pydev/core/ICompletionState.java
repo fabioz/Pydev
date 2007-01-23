@@ -47,6 +47,8 @@ public interface ICompletionState {
 
     void checkFindDefinitionMemory(IModule mod, String tok);
     
+    void checkFindModuleCompletionsMemory(IModule mod, String tok);
+    
     void checkFindResolveImportMemory(IToken tok);
     
     boolean getIsInCalltip();

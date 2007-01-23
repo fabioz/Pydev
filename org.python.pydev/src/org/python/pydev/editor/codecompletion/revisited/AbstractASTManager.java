@@ -473,9 +473,14 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                     
                     
                     if (mod != null) {
-                        IToken[] completionsForModule = getCompletionsForModule(mod, state);
-                        if(completionsForModule.length > 0)
-                            return completionsForModule;
+                    	try{
+                    		state.checkFindModuleCompletionsMemory(mod, state.getActivationToken());
+	                        IToken[] completionsForModule = getCompletionsForModule(mod, state);
+	                        if(completionsForModule.length > 0)
+	                            return completionsForModule;
+                    	}catch(CompletionRecursionException e){
+                    		return new IToken[0]; //just return it...
+                    	}
                     } else {
                         //"Module not found:" + name.getRepresentation()
                     }
