@@ -4,11 +4,14 @@
 package com.python.pydev.analysis.visitors;
 
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple3;
+import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 
 import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
 
@@ -76,6 +79,27 @@ public class ImportChecker {
             buffer.append(")");
             return buffer.toString();
         }
+
+        /**
+         * @return the definition that matches this
+         */
+		public Definition getModuleDefinitionFromImportInfo(IPythonNature nature) {
+            try {
+                IDefinition[] definitions = this.mod.findDefinition(CompletionState.getEmptyCompletionState(this.rep, nature), -1, -1, nature, null);
+                for (IDefinition definition : definitions) {
+                    if(definition instanceof Definition){
+                        Definition d = (Definition) definition;
+                        if(d.module != null && d.value.length() == 0 && d.ast == null){
+                            return d;
+                        }
+                        
+                    }
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+		}
     }
     
     /**

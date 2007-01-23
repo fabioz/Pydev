@@ -20,7 +20,6 @@ import org.python.pydev.plugin.PydevPlugin;
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitor;
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitorForImports;
 import com.python.pydev.analysis.visitors.Found;
-import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
 
 /**
@@ -40,9 +39,9 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
     protected int type=-1;
     
     /**
-     * The import info for the module that we're resolving
+     * The module for which we're looking for references
      */
-    protected ImportInfo importInfo;
+    protected SourceModule moduleToFind;
     
     /**
      * @param definition this is the definition we're interested in.
@@ -78,7 +77,17 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                 throw new RuntimeException("Expecting import info from the found entry.");
             }
             if(found.importInfo.wasResolved){
-                this.importInfo = found.importInfo;
+            	Definition d = found.importInfo.getModuleDefinitionFromImportInfo(request.nature);
+            	if(d == null || d.module == null){
+            		status.addFatalError(StringUtils.format("Unable to find the definition for the module."));
+            		return;
+            	}
+            	if(!(d.module instanceof SourceModule)){
+            		status.addFatalError(StringUtils.format("Only source modules may be renamed (the module %s was found as a %s module)", d.module.getName(), d.module.getClass()));
+            		return;
+            	}
+            	
+            	this.moduleToFind = (SourceModule) d.module;
                 wasResolved = true;
                 
                 //it cannot be a compiled extension
@@ -100,15 +109,14 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                 }
                 
                 //now, let's make the mapping from the filesystem to the Eclipse workspace
-                SourceModule mod = (SourceModule) found.importInfo.mod;
                 IFile workspaceFile = null; 
                 try{
-                    workspaceFile = PydevPlugin.getWorkspaceFile(mod.getFile());
+                    workspaceFile = PydevPlugin.getWorkspaceFile(moduleToFind.getFile());
                     if(workspaceFile == null){
                         status.addFatalError(StringUtils.format("Error. Unable to resolve the file:\n" +
                                 "%s\n" +
                                 "to a file in the Eclipse workspace.",
-                                mod.getFile()));
+                                moduleToFind.getFile()));
                         return;
                     }
                 }catch(IllegalStateException e){
@@ -121,8 +129,8 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                 
                 
                 List<ASTEntry> lst = new ArrayList<ASTEntry>();
-                lst.add(new ASTEntryWithSourceModule(mod));
-                addOccurrences(lst, workspaceFile, mod.getName());
+                lst.add(new ASTEntryWithSourceModule(moduleToFind));
+                addOccurrences(lst, workspaceFile, moduleToFind.getName());
             }
         }
 
@@ -139,7 +147,7 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
         
         try {
             ScopeAnalyzerVisitorForImports visitor = new ScopeAnalyzerVisitorForImports(request.nature, module.getName(), 
-                    module, new NullProgressMonitor(), request.ps.getCurrToken().o1, request.ps.getActivationTokenAndQual(true), importInfo);
+                    module, new NullProgressMonitor(), request.ps.getCurrToken().o1, request.ps.getActivationTokenAndQual(true), moduleToFind);
             
             module.getAst().accept(visitor);
             entryOccurrences = visitor.getEntryOccurrences();

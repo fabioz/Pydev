@@ -6,13 +6,12 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.Tuple4;
-import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
@@ -24,15 +23,15 @@ import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
  */
 public class ScopeAnalyzerVisitorForImports extends ScopeAnalyzerVisitor {
 
-    private ImportInfo importInfo;
+    private SourceModule moduleToFind;
 
     /**
      * @param importInfo we'll try to find matches for the given import info.
      */
     public ScopeAnalyzerVisitorForImports(IPythonNature nature, String moduleName, IModule current, IProgressMonitor monitor, 
-            String nameToFind, String[] tokenAndQual, ImportInfo importInfo) throws BadLocationException {
+            String nameToFind, String[] tokenAndQual, SourceModule moduleToFind) throws BadLocationException {
         super(nature, moduleName, current, null, monitor, nameToFind, -1, tokenAndQual);
-        this.importInfo = importInfo;
+        this.moduleToFind = moduleToFind;
     }
 
     @Override
@@ -44,26 +43,15 @@ public class ScopeAnalyzerVisitorForImports extends ScopeAnalyzerVisitor {
         //if it doesn't end up matching with the token we're looking for... so, we must keep on going with the
         //import definitions until we actually find what we're looking for.
         ImportInfo info = found.importInfo;
-        
         if (info != null && info.wasResolved) {
             if(info.rep.length() != 0 && info.token.isImport()){
                 //we only actually had a match with a module if the representation found is empty
-                try {
-                    IDefinition[] definitions = info.mod.findDefinition(CompletionState.getEmptyCompletionState(info.rep, nature), -1, -1, nature, null);
-                    for (IDefinition definition : definitions) {
-                        if(definition instanceof Definition){
-                            Definition d = (Definition) definition;
-                            if(d.module != null && d.module.getName().equals(this.importInfo.mod.getName()) && d.value.length() == 0 && d.ast == null){
-                                return true;
-                            }
-                            
-                        }
-                    }
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+            	Definition definition = info.getModuleDefinitionFromImportInfo(nature);
+            	if(definition != null && definition.module.getName().equals(this.moduleToFind.getName())){
+            		return true;
+            	}
                 
-            }else if(info.mod.getName().equals(this.importInfo.mod.getName())){
+            }else if(info.mod.getName().equals(this.moduleToFind.getName())){
                 //ok, exact (and direct) match
                 return true;
             }

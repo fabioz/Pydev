@@ -234,8 +234,9 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             request.fillInitialNameAndOffset();
     
             PyRenameEntryPoint processor = new PyRenameEntryPoint(request);
-            checkStatus(processor.checkInitialConditions(new NullProgressMonitor()), expectError);
-            checkStatus(processor.checkFinalConditions(new NullProgressMonitor(), null, false), expectError);
+            NullProgressMonitor nullProgressMonitor = new NullProgressMonitor();
+			checkStatus(processor.checkInitialConditions(nullProgressMonitor), expectError);
+            checkStatus(processor.checkFinalConditions(nullProgressMonitor, null, false), expectError);
             occurrencesToReturn = processor.getOccurrencesInOtherFiles();
             occurrencesToReturn.put(new Tuple<String, IFile>(CURRENT_MODULE_IN_REFERENCES, null), processor.getOcurrences());
             lastProcessorUsed = processor;
