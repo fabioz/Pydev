@@ -47,6 +47,8 @@ public interface ICompletionState {
 
     void checkFindDefinitionMemory(IModule mod, String tok);
     
+    void checkFindResolveImportMemory(IToken tok);
+    
     boolean getIsInCalltip();
 
     public static final int LOOKING_FOR_INSTANCE_UNDEFINED=0;

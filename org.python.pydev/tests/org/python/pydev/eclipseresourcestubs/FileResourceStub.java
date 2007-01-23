@@ -135,7 +135,7 @@ public class FileResourceStub implements IFile {
     }
 
     public String getName() {
-        throw new RuntimeException("Not impl");
+        return this.actualFile.getName();
     }
 
     public boolean isReadOnly() {

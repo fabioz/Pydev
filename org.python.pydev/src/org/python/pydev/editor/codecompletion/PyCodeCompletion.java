@@ -286,7 +286,10 @@ public class PyCodeCompletion {
                         }
                         alreadyChecked.add(strRep);
                         
-                        IToken token2 = astManager.resolveImport(CompletionState.getEmptyCompletionState(token.getRepresentation(), request.nature), token);
+                        ICompletionState s = state.getCopyForResolveImportWithActTok(token.getRepresentation());
+                        s.checkFindResolveImportMemory(token);
+                        
+                        IToken token2 = astManager.resolveImport(s, token);
                         if(token2 != null && initialToken != token2){
                             initialToken.setArgs(token2.getArgs());
                             initialToken.setDocStr(token2.getDocStr());

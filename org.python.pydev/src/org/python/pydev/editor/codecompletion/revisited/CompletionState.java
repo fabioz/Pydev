@@ -12,6 +12,7 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 
 /**
@@ -31,6 +32,7 @@ public class CompletionState implements ICompletionState {
     public Memo<String> findMemory = new Memo<String>();
     public Memo<String> resolveImportMemory = new Memo<String>();
     public Memo<String> findDefinitionMemory = new Memo<String>();
+    public Memo<IToken> findResolveImportMemory = new Memo<IToken>();
     
     public boolean builtinsGotten=false;
     public boolean localImportsGotten=false;
@@ -53,10 +55,19 @@ public class CompletionState implements ICompletionState {
         state.findMemory = findMemory;
         state.resolveImportMemory = resolveImportMemory;
         state.findDefinitionMemory = findDefinitionMemory;
+        state.findResolveImportMemory = findResolveImportMemory;
         
         state.builtinsGotten = builtinsGotten;
         state.localImportsGotten = localImportsGotten;
         state.isInCalltip = isInCalltip;
+        
+        return state;
+    }
+    
+    public ICompletionState getCopyForResolveImportWithActTok(String actTok) {
+        CompletionState state = (CompletionState) getEmptyCompletionState(actTok, this.nature);
+        state.nature = nature;
+        state.findResolveImportMemory = findResolveImportMemory;
         
         return state;
     }
@@ -197,6 +208,16 @@ public class CompletionState implements ICompletionState {
             throw new CompletionRecursionException("Possible recursion found (token: "+base+") - stopping analysis.");
         }
     }
+    
+    /**
+     * @param module
+     * @param base
+     */
+    public void checkFindResolveImportMemory(IToken token) {
+        if(this.findResolveImportMemory.isInRecursion(null, token)){
+            throw new CompletionRecursionException("Possible recursion found (token: "+token+") - stopping analysis.");
+        }
+    }
 
     /**
      * @return a default completion state for globals (empty act. token)
@@ -292,5 +313,6 @@ public class CompletionState implements ICompletionState {
     public String getQualifier() {
         return this.qualifier;
     }
+
     
 }
