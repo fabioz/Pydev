@@ -257,13 +257,23 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
         //note: delay and auto activate are set on PyContentAssistant constructor.
 
         pyContentAssistant.setDocumentPartitioning(IPythonPartitions.PYTHON_PARTITION_TYPE);
-        pyContentAssistant.setRepeatedInvocationMode(true);
+        try{
+        	pyContentAssistant.setRepeatedInvocationMode(true);
+        }catch(Exception e){
+        	PydevPlugin.log(e);
+        }
+        
         try {
             pyContentAssistant.setRepeatedInvocationTrigger(KeySequence.getInstance("Ctrl+Space"));
         } catch (ParseException e) {
             PydevPlugin.log(e);
         }
-        pyContentAssistant.setStatusLineVisible(true);
+        
+        try{
+        	pyContentAssistant.setStatusLineVisible(true);
+        }catch(Exception e){
+        	PydevPlugin.log(e);
+        }
         
         return pyContentAssistant;
     }
