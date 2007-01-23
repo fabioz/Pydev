@@ -26,11 +26,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.search.core.text.TextSearchMatchAccess;
 import org.eclipse.search.core.text.TextSearchRequestor;
 import org.eclipse.search.core.text.TextSearchScope;
-import org.eclipse.search.internal.core.text.DocumentCharSequence;
-import org.eclipse.search.internal.core.text.FileCharSequenceProvider;
-import org.eclipse.search.internal.ui.Messages;
-import org.eclipse.search.internal.ui.SearchMessages;
-import org.eclipse.search.internal.ui.SearchPlugin;
 import org.eclipse.search.ui.NewSearchUI;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -42,6 +37,12 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.docutils.StringUtils;
 
+import com.python.pydev.PydevPlugin;
+
+
+/**
+ * Currently this class bails out on the first match to the 'complete' token we're looking for.
+ */
 public class PythonTextSearchVisitor  {
 	
 	public static class ReusableMatchAccess extends TextSearchMatchAccess {
@@ -100,10 +101,14 @@ public class PythonTextSearchVisitor  {
 	
 	private final ReusableMatchAccess fMatchAccess;
 	
+	public PythonTextSearchVisitor(String searchText) {
+        this(new TextSearchRequestor(){}, searchText); //initialize with a requestor that does nothing
+    }
+    
 	public PythonTextSearchVisitor(TextSearchRequestor collector, String searchText) {
 		fCollector= collector;
 		fSearchText = searchText;
-		fStatus= new MultiStatus(NewSearchUI.PLUGIN_ID, IStatus.OK, SearchMessages.TextSearchEngine_statusMessage, null);
+		fStatus= new MultiStatus(NewSearchUI.PLUGIN_ID, IStatus.OK, "Problems encountered during text search.", null);
 		
 		fFileCharSequenceProvider= new FileCharSequenceProvider();
 		fMatchAccess= new ReusableMatchAccess();
@@ -115,7 +120,7 @@ public class PythonTextSearchVisitor  {
         fNumberOfFilesToScan= files.length;
         fCurrentFile= null;
         
-        Job monitorUpdateJob= new Job(SearchMessages.TextSearchVisitor_progress_updating_job) {
+        Job monitorUpdateJob= new Job("Search progress polling") {
         	private int fLastNumberOfScannedFiles= 0;
         	
         	public IStatus run(IProgressMonitor inner) {
@@ -123,8 +128,7 @@ public class PythonTextSearchVisitor  {
 					IFile file= fCurrentFile;
 					if (file != null) {
 						String fileName= file.getName();
-						Object[] args= { fileName, new Integer(fNumberOfScannedFiles), new Integer(fNumberOfFilesToScan)};
-						fProgressMonitor.subTask(Messages.format(SearchMessages.TextSearchVisitor_scanning, args));
+						fProgressMonitor.subTask(StringUtils.format("Scanning file %s of %s: %s", fNumberOfScannedFiles, fNumberOfFilesToScan, fileName));
 						int steps= fNumberOfScannedFiles - fLastNumberOfScannedFiles;
 						fProgressMonitor.worked(steps);
 						fLastNumberOfScannedFiles += steps;
@@ -177,7 +181,7 @@ public class PythonTextSearchVisitor  {
 	 */
 	private Map evalNonFileBufferDocuments() {
 		Map result= new HashMap();
-		IWorkbench workbench= SearchPlugin.getDefault().getWorkbench();
+		IWorkbench workbench= PydevPlugin.getDefault().getWorkbench();
 		IWorkbenchWindow[] windows= workbench.getWorkbenchWindows();
 		for (int i= 0; i < windows.length; i++) {
 			IWorkbenchPage[] pages= windows[i].getPages();
@@ -194,7 +198,8 @@ public class PythonTextSearchVisitor  {
 		return result;
 	}
 
-	private void evaluateTextEditor(Map result, IEditorPart ep) {
+	@SuppressWarnings("unchecked")
+    private void evaluateTextEditor(Map result, IEditorPart ep) {
 		IEditorInput input= ep.getEditorInput();
 		if (input instanceof IFileEditorInput) {
 			IFile file= ((IFileEditorInput) input).getFile();
@@ -226,7 +231,7 @@ public class PythonTextSearchVisitor  {
 			if (document != null) {
 				DocumentCharSequence documentCharSequence= new DocumentCharSequence(document);
 				// assume all documents are non-binary
-				locateMatches(file, documentCharSequence);
+				hasMatch(file, documentCharSequence);
 			} else {
 				CharSequence seq= null;
 				try {
@@ -234,7 +239,7 @@ public class PythonTextSearchVisitor  {
 					if (hasBinaryContent(seq, file) && !fCollector.reportBinaryFile(file)) {
 						return true;
 					}
-					locateMatches(file, seq);
+					hasMatch(file, seq);
 				} catch (FileCharSequenceProvider.FileCharSequenceException e) {
 					e.throwWrappedException();
 				} finally {
@@ -242,36 +247,31 @@ public class PythonTextSearchVisitor  {
 						try {
 							fFileCharSequenceProvider.releaseCharSequence(seq);
 						} catch (IOException e) {
-							SearchPlugin.log(e);
+							org.python.pydev.plugin.PydevPlugin.log(e);
 						}
 					}
 				}
 			}
 		} catch (UnsupportedCharsetException e) {
-			String[] args= { getCharSetName(file), file.getFullPath().makeRelative().toString()};
-			String message= Messages.format(SearchMessages.TextSearchVisitor_unsupportedcharset, args); 
+			String message= StringUtils.format("File %s has been skipped: Unsupported encoding %s", file.getFullPath().makeRelative(), getCharSetName(file)); 
 			fStatus.add(new Status(IStatus.WARNING, NewSearchUI.PLUGIN_ID, IStatus.WARNING, message, e));
 		} catch (IllegalCharsetNameException e) {
-			String[] args= { getCharSetName(file), file.getFullPath().makeRelative().toString()};
-			String message= Messages.format(SearchMessages.TextSearchVisitor_illegalcharset, args);
+			String message= StringUtils.format("File %s has been skipped: Illegal encoding %s.", file.getFullPath().makeRelative(), getCharSetName(file));
 			fStatus.add(new Status(IStatus.WARNING, NewSearchUI.PLUGIN_ID, IStatus.WARNING, message, e));
 		} catch (IOException e) {
-			String[] args= { getExceptionMessage(e), file.getFullPath().makeRelative().toString()};
-			String message= Messages.format(SearchMessages.TextSearchVisitor_error, args); 
+			String message= StringUtils.format("File %s has been skipped, problem while reading: (%s).", file.getFullPath().makeRelative(), getExceptionMessage(e)); 
 			fStatus.add(new Status(IStatus.WARNING, NewSearchUI.PLUGIN_ID, IStatus.WARNING, message, e));
 		} catch (CoreException e) {
-			String[] args= { getExceptionMessage(e), file.getFullPath().makeRelative().toString()};
-			String message= Messages.format(SearchMessages.TextSearchVisitor_error, args); 
+			String message= StringUtils.format("File %s has been skipped, problem while reading: (%s).", file.getFullPath().makeRelative(), getExceptionMessage(e)); 
 			fStatus.add(new Status(IStatus.WARNING, NewSearchUI.PLUGIN_ID, IStatus.WARNING, message, e));
 		} catch (StackOverflowError e) {
-			String message= SearchMessages.TextSearchVisitor_patterntoocomplex0;
-			fStatus.add(new Status(IStatus.ERROR, NewSearchUI.PLUGIN_ID, IStatus.ERROR, message, e));
+			fStatus.add(new Status(IStatus.ERROR, NewSearchUI.PLUGIN_ID, IStatus.ERROR, "Search pattern is too complex. Search cancelled.", e));
 			return false;
 		} finally {
 			fNumberOfScannedFiles++;
 		}
 		if (fProgressMonitor.isCanceled())
-			throw new OperationCanceledException(SearchMessages.TextSearchVisitor_canceled);
+			throw new OperationCanceledException("Operation Canceled");
 		
 		return true;
 	}
@@ -299,30 +299,61 @@ public class PythonTextSearchVisitor  {
 		return false;
 	}
 
-	private void locateMatches(IFile file, CharSequence searchInput) throws CoreException {
+    
+    /**
+     * This method will return true if there is any match in the given searchInput regarding the
+     * fSearchText.
+     * 
+     * It will call the TextSearchRequestor.acceptPatternMatch on the first match and then bail out...
+     * 
+     * @note that it has to be a 'token' match, and not only a substring match for it to be valid.
+     * 
+     * @param file this is the file that contains the match
+     * @param searchInput the sequence where we want to find the match
+     * @return true if a match was found and false otherwise.
+     * @throws CoreException
+     */
+	public boolean hasMatch(IFile file, CharSequence searchInput) throws CoreException {
 		try {
 			int k= 0;
 			int total = 0;
-
+			char prev = (char)-1;
+			int len = fSearchText.length();
+            
 			try{
 				for(int i=0;;i++){
 					total+=1;
 					char c = searchInput.charAt(i);
-					if(c == fSearchText.charAt(k)){
+					if(c == fSearchText.charAt(k) && (k>0 || !Character.isJavaIdentifierPart(prev))){
 						k+=1;
-						if(k == fSearchText.length()-1){
+                        if(k == len){
 							k=0;
-							fMatchAccess.initialize(file, 0, 1, searchInput);
-							fCollector.acceptPatternMatch(fMatchAccess);
-							return; //return on first match 
+                            
+                            //now, we have to see if is really an 'exact' match (so, either we're in the last
+                            //char or the next char is not actually a word)
+                            boolean ok = false;
+                            try{
+                                c = searchInput.charAt(i+1);
+                                if(!Character.isJavaIdentifierPart(c)){
+                                    ok = true;
+                                }
+                            }catch(IndexOutOfBoundsException e){
+                                ok = true;
+                            }
+                            if(ok){
+    							fMatchAccess.initialize(file, 0, 0, searchInput);
+    							fCollector.acceptPatternMatch(fMatchAccess);
+    							return true; //return on first match
+                            }
 						}
 					}else{
 						k=0;
 					}
+                    prev = c;
 					
 					if (total++ == 20) {
 						if (fProgressMonitor.isCanceled()) {
-							throw new OperationCanceledException(SearchMessages.TextSearchVisitor_canceled);
+							throw new OperationCanceledException("Operation Canceled");
 						}
 						total= 0;
 					}
@@ -334,6 +365,7 @@ public class PythonTextSearchVisitor  {
 		} finally {
 			fMatchAccess.initialize(null, 0, 0, new String()); // clear references
 		}
+        return false;
 	}
 	
 	

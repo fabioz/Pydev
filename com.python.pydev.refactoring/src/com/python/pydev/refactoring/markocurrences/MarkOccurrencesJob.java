@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -133,6 +134,14 @@ public class MarkOccurrencesJob extends Job{
 	            }
             } catch (OperationCanceledException e) {
                 throw e;//rethrow this error...
+            } catch (AssertionFailedException e) {
+                String message = e.getMessage();
+                if(message.indexOf("The file:") != -1 && message.indexOf("does not exist.") != -1){
+                    //don't even report it (the file was probably removed while we were doing the analysis)
+                }else{
+                    Log.log(e);
+                    Log.log("Error while analyzing the file:"+pyEdit.getIFile());
+                }
             } catch (Throwable e) {
             	Log.log(e);
             	Log.log("Error while analyzing the file:"+pyEdit.getIFile());

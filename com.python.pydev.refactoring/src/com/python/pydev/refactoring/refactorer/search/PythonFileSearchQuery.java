@@ -1,7 +1,6 @@
 package com.python.pydev.refactoring.refactorer.search;
 
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -9,14 +8,12 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.search.core.text.TextSearchMatchAccess;
 import org.eclipse.search.core.text.TextSearchRequestor;
-import org.eclipse.search.internal.ui.Messages;
-import org.eclipse.search.internal.ui.SearchMessages;
-import org.eclipse.search.internal.ui.text.FileMatch;
 import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.ISearchResult;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.FileTextSearchScope;
 import org.eclipse.search.ui.text.Match;
+import org.python.pydev.core.docutils.StringUtils;
 
 /**
  * Based on the org.eclipse.search.internal.ui.text.FileSearchQuery
@@ -28,7 +25,7 @@ public class PythonFileSearchQuery implements ISearchQuery {
 		private final AbstractTextSearchResult fResult;
 		private final boolean fIsFileSearchOnly;
 		private final boolean fSearchInBinaries;
-		private ArrayList fCachedMatches;
+		private ArrayList<Match> fCachedMatches;
 		
 		private TextSearchResultCollector(AbstractTextSearchResult result, boolean isFileSearchOnly, boolean searchInBinaries) {
 			fResult= result;
@@ -52,13 +49,14 @@ public class PythonFileSearchQuery implements ISearchQuery {
 			return fSearchInBinaries;
 		}
 
-		public boolean acceptPatternMatch(TextSearchMatchAccess matchRequestor) throws CoreException {
+		@SuppressWarnings("unchecked")
+        public boolean acceptPatternMatch(TextSearchMatchAccess matchRequestor) throws CoreException {
 			fCachedMatches.add(new FileMatch(matchRequestor.getFile(), matchRequestor.getMatchOffset(), matchRequestor.getMatchLength()));
 			return true;
 		}
 
 		public void beginReporting() {
-			fCachedMatches= new ArrayList();
+			fCachedMatches= new ArrayList<Match>();
 		}
 		
 		public void endReporting() {
@@ -68,7 +66,7 @@ public class PythonFileSearchQuery implements ISearchQuery {
 
 		private void flushMatches() {
 			if (!fCachedMatches.isEmpty()) {
-				fResult.addMatches((Match[]) fCachedMatches.toArray(new Match[fCachedMatches.size()]));
+				fResult.addMatches(fCachedMatches.toArray(new Match[fCachedMatches.size()]));
 				fCachedMatches.clear();
 			}
 		}
@@ -99,7 +97,7 @@ public class PythonFileSearchQuery implements ISearchQuery {
 		boolean searchInBinaries= !isScopeAllFileTypes();
 		
 		TextSearchResultCollector collector= new TextSearchResultCollector(textResult, false, searchInBinaries);
-		return PythonTextSearchEngine.search(fScope, collector, fSearchText, monitor);
+		return new PythonTextSearchVisitor(collector, fSearchText).search(fScope, monitor);
 	}
 	
 	private boolean isScopeAllFileTypes() {
@@ -114,7 +112,7 @@ public class PythonFileSearchQuery implements ISearchQuery {
 	
 
 	public String getLabel() {
-		return SearchMessages.FileSearchQuery_label; 
+		return "Python File Search"; 
 	}
 	
 	public String getSearchString() {
@@ -128,27 +126,21 @@ public class PythonFileSearchQuery implements ISearchQuery {
 			if (isScopeAllFileTypes()) {
 				// search all file extensions
 				if (nMatches == 1) {
-					Object[] args= { searchString, fScope.getDescription() };
-					return Messages.format(SearchMessages.FileSearchQuery_singularLabel, args);
+					return StringUtils.format("%s - 1 match in %s", searchString, fScope.getDescription() );
 				}
-				Object[] args= { searchString, new Integer(nMatches), fScope.getDescription() };
-				return Messages.format(SearchMessages.FileSearchQuery_pluralPattern, args); 
+				return StringUtils.format("%s - {1} matches in %s", searchString, new Integer(nMatches), fScope.getDescription() ); 
 			}
 			// search selected file extensions
 			if (nMatches == 1) {
-				Object[] args= { searchString, fScope.getDescription(), fScope.getFilterDescription() };
-				return Messages.format(SearchMessages.FileSearchQuery_singularPatternWithFileExt, args);
+				return StringUtils.format("%s - 1 match in %s (%s)", searchString, fScope.getDescription(), fScope.getFilterDescription() );
 			}
-			Object[] args= { searchString, new Integer(nMatches), fScope.getDescription(), fScope.getFilterDescription() };
-			return Messages.format(SearchMessages.FileSearchQuery_pluralPatternWithFileExt, args);
+			return StringUtils.format("%s - {1} matches in %s (%s)", searchString, new Integer(nMatches), fScope.getDescription(), fScope.getFilterDescription() );
 		}
 		// file search
 		if (nMatches == 1) {
-			Object[] args= { fScope.getFilterDescription(), fScope.getDescription() };
-			return Messages.format(SearchMessages.FileSearchQuery_singularLabel_fileNameSearch, args); 
+			return StringUtils.format("1 file name matching %s in %s", fScope.getFilterDescription(), fScope.getDescription() ); 
 		}
-		Object[] args= { fScope.getFilterDescription(), new Integer(nMatches), fScope.getDescription() };
-		return Messages.format(SearchMessages.FileSearchQuery_pluralPattern_fileNameSearch, args); 
+		return StringUtils.format("%s file names matching %s in %s", fScope.getFilterDescription(), new Integer(nMatches), fScope.getDescription() ); 
 	}
 
 	
