@@ -14,10 +14,12 @@ Change site.xml in fabioz.com
 
 Change descript.ion in fabioz.com
 
-add zips to sf
+add zips to sf (upload.sourceforge.net - anonymous)
 
 tag repository: e.g.: pydev_1_2_3
 
 add news in forum
 
 send e-mail
+
+Add blog post

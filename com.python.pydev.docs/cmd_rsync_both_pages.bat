@@ -7,7 +7,7 @@ REM By Tevfik K. (http://itefix.no)
 REM *****************************************************************
 
 REM ** CUSTOMIZE ** Specify where to find rsync and related files (C:\CWRSYNC)
-SET CWRSYNCHOME=C:\PROGRAM FILES\CWRSYNC
+SET CWRSYNCHOME=C:\Program Files (x86)\cwRsync
 
 REM Set CYGWIN variable to 'nontsec'. That makes sure that permissions
 REM on your windows machine are not updated as a side effect of cygwin
