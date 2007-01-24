@@ -2,26 +2,23 @@ after 1.2.5
 
 Pydev:
 <ul>
-	<li>Pydev package explorer (Still BETA, so, use it with care -- the navigator is still the preferred way of browsing your project)
-		<ul>
-			<li>Filters for .pyc and .pyo files created</li>
-			<li>Working set integration added (just available for Eclipse <strong>3.2.1</strong></li>
-			<li>Some minor bugs fixed</li>
-		</ul>
-	</li>
-	<li>Patch by Olof Wolgast: The 'create docstrings' assistant has more options (windows > preferences > pydev > code formatter > docstrings)
-		<ul>
-			<li>Option to choose between single and double quotes</li>
-			<li>Option to create '@type' too and not only '@param'</li>
-			<li>Option to skip creation of the @type tag for parameters starting with some prefix (if 'Custom' is chosen)</li>
-		</ul>
-	</li>
-	<li>Block comments now have more options (windows > preferences > pydev > code formatter > block comments)
-		<ul>
-			<li>Option to align single-line block comment to the left or right</li>
-			<li>Option to put class name above class if applied on a class definition</li>
-		</ul>
-	</li>
+	<li>Pydev package explorer (Still BETA, so, use it with care -- the navigator is still the preferred way of browsing your project)</li>
+	<ul>
+		<li>Filters for .pyc and .pyo files created</li>
+		<li>Working set integration added (just available for Eclipse <strong>3.2.1</strong></li>
+		<li>Some minor bugs fixed</li>
+	</ul>
+	<li>Patch by Olof Wolgast: The 'create docstrings' assistant has more options (windows > preferences > pydev > code formatter > docstrings)</li>
+	<ul>
+		<li>Option to choose between single and double quotes</li>
+		<li>Option to create '@type' too and not only '@param'</li>
+		<li>Option to skip creation of the @type tag for parameters starting with some prefix (if 'Custom' is chosen)</li>
+	</ul>
+	<li>Block comments now have more options (windows > preferences > pydev > code formatter > block comments)</li>
+	<ul>
+		<li>Option to align single-line block comment to the left or right</li>
+		<li>Option to put class name above class if applied on a class definition</li>
+	</ul>
 	<li>Fix: Multi-line Templates indent correctly</li>
 	<li>Fix: When a file from a project that was deleted was still opened inside pydev, Eclipse would not start-up correctly</li>
 	<li>Fix: When a different interpreter is chosen in the run dialog, the pythonpath is correctly gotten</li>
@@ -35,21 +32,24 @@ Pydev:
 Extensions:
 
 <ul>
-	<li>Added refactoring support for rename (note that this is still BETA, so, review your changes before applying them -- but should be already better than BRM)
-		<ul>
-			<li>Supports preview</li>
-			<li>Integrated in the editor (but not in the package explorer, so, it can rename a module, but only through an import to that module)</li>
-			<li>Supports undo/redo</li>
-			<li>Rename class</li>
-			<li>Rename method</li>
-			<li>Rename attribute</li>
-			<li>Rename imports</li>
-			<li>Rename local variable</li>
-		</ul>
-	</li>
-	<li>Menu: Now the debug/navigate actions are all under a 'Pydev' menu</li>
-	<li>The pydev navigate action is now only shown in the pydev/debug perspective</li>
-	<li>The pydev remote debugging actions are now only shown in the debug perspective</li>
+	<li>Added refactoring support for rename (still BETA, so, review your changes before applying them)</li>
+	<ul>
+		<li>Keybinding: Alt+Shift+R</li>
+		<li>Supports preview</li>
+		<li>Integrated in the editor (but not in the package explorer, so, it can rename a module, but only through an import to that module)</li>
+		<li>Supports undo/redo</li>
+		<li>Rename class</li>
+		<li>Rename method</li>
+		<li>Rename attribute</li>
+		<li>Rename imports</li>
+		<li>Rename local variable</li>
+	</ul>
+	<li>Menu changes:</li>
+	<ul>
+		<li>Now the debug/navigate actions are all under a 'Pydev' menu</li>
+		<li>The pydev navigate action is now only initially shown in the pydev/debug perspective</li>
+		<li>The pydev remote debugging actions are now only initially shown in the debug perspective</li>
+	</ul>
 	<li>Fix: code analysis problem when working with nested list-comprehensions</li>
 	<li>Fix: go to definition sometimes failed to find module definitions</li>
 </ul>
