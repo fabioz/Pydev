@@ -2,27 +2,32 @@ after 1.2.5
 
 Pydev:
 <ul>
-	<li>Pydev package explorer
+	<li>Pydev package explorer (Still BETA, so, use it with care -- the navigator is still the preferred way of browsing your project)
 		<ul>
 			<li>Filters for .pyc and .pyo files created</li>
 			<li>Working set integration added (just available for Eclipse <strong>3.2.1</strong></li>
 			<li>Some minor bugs fixed</li>
 		</ul>
 	</li>
-	<li>Patch by Olof Wolgast: The 'create docstrings' assistant has more options (windows > preferences > pydev > docstrings)
+	<li>Patch by Olof Wolgast: The 'create docstrings' assistant has more options (windows > preferences > pydev > code formatter > docstrings)
 		<ul>
-			<li>Choose between single and double quotes</li>
-			<li>Option to create @type too</li>
-			<li>Option to skip creation of the @type tag for parameters starting with some prefix (if Custom is chosen)</li>
+			<li>Option to choose between single and double quotes</li>
+			<li>Option to create '@type' too and not only '@param'</li>
+			<li>Option to skip creation of the @type tag for parameters starting with some prefix (if 'Custom' is chosen)</li>
 		</ul>
 	</li>
-	<li>Block comments: added the option to align single-line block comment to the left</li>
-	<li>Block comments: added the option to put class name above class if applied on a class definition</li>
+	<li>Block comments now have more options (windows > preferences > pydev > code formatter > block comments)
+		<ul>
+			<li>Option to align single-line block comment to the left or right</li>
+			<li>Option to put class name above class if applied on a class definition</li>
+		</ul>
+	</li>
 	<li>Fix: Multi-line Templates indent correctly</li>
 	<li>Fix: When a file from a project that was deleted was still opened inside pydev, Eclipse would not start-up correctly</li>
 	<li>Fix: When a different interpreter is chosen in the run dialog, the pythonpath is correctly gotten</li>
 	<li>Fix: Cancelling the addition of an interpreter no longer raises any exceptions.</li>
 	<li>Fix: when Pydev was started, it would re-save the .pydevproject file even if no change was done</li>
+	<li>Fix: When tab width was set to 0 it could halt the editor (now if 0 is set, 4 is assumed)</li>
 	<li>Minor fixes in the grammar</li>
 	<li>Grammar Patch by Ueli Kistler, Dennis Hunziker</li>
 </ul>
@@ -30,7 +35,7 @@ Pydev:
 Extensions:
 
 <ul>
-	<li>Added refactoring support for rename (note that this is still BETA -- but should be already better than BRM)
+	<li>Added refactoring support for rename (note that this is still BETA, so, review your changes before applying them -- but should be already better than BRM)
 		<ul>
 			<li>Supports preview</li>
 			<li>Integrated in the editor (but not in the package explorer, so, it can rename a module, but only through an import to that module)</li>
