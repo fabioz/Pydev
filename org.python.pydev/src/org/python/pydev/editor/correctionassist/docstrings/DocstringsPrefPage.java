@@ -2,6 +2,7 @@ package org.python.pydev.editor.correctionassist.docstrings;
 
 import java.util.StringTokenizer;
 
+import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.jface.dialogs.InputDialog;
@@ -54,7 +55,13 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements
 	 * @return
 	 */
 	public static String getPreferredDocstringCharacter() {
-		return PydevPrefs.getPreferences().getString(P_DOCSTRINGCHARACTER);
+        PydevPlugin plugin = PydevPlugin.getDefault();
+        if(plugin == null){
+            return "'";//testing...
+            
+        }
+		Preferences preferences = PydevPrefs.getPreferences();
+        return preferences.getString(P_DOCSTRINGCHARACTER);
 	}
 
 	/**
@@ -71,19 +78,20 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements
 	 * Determines, from the preferences, whether a type tag should be generated
 	 * for a function / method parameter.
 	 * 
-	 * @param parameterName
-	 *            The name of the parameter.
-	 * @return
+	 * @param parameterName The name of the parameter.
+	 * @return true if it should be generated and false otherwise
 	 */
-	public static boolean typeTagShouldBeGenerated(String parameterName) {
-		String preference = PydevPrefs.getPreferences().getString(
-				P_TYPETAGGENERATION);
+	public static boolean getTypeTagShouldBeGenerated(String parameterName) {
+        if(PydevPlugin.getDefault() == null){
+            //on tests
+            return true;
+        }
+		String preference = PydevPrefs.getPreferences().getString(P_TYPETAGGENERATION);
 		if (preference.equals(TYPETAG_GENERATION_NEVER)) {
 			return false;
 		} else if (preference.equals(TYPETAG_GENERATION_ALWAYS)) {
 			return true;
-		} else // TYPETAG_GENERATION_CUSTOM - check prefix.
-		{
+		} else {// TYPETAG_GENERATION_CUSTOM - check prefix.
 			String prefixesString = PydevPrefs.getPreferences().getString(P_DONT_GENERATE_TYPETAGS);
 			StringTokenizer st = new StringTokenizer(prefixesString, "\0"); // "\0" is the separator
 			

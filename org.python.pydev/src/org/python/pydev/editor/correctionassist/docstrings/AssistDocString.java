@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.ImageCache;
@@ -53,7 +54,7 @@ public class AssistDocString implements IAssistProps {
         if (FunctionPattern.matcher(ps.getCursorLineContents()).matches()) {
             for (String paramName : params) {
                 buf.append(inAndIndent + "@param " + paramName + ":");
-                if (DocstringsPrefPage.typeTagShouldBeGenerated(paramName)) {
+                if (DocstringsPrefPage.getTypeTagShouldBeGenerated(paramName)) {
                     buf.append(inAndIndent + "@type " + paramName + ":");
                 }
             }
@@ -61,13 +62,16 @@ public class AssistDocString implements IAssistProps {
             // It's a class declaration - do nothing.
         }
         buf.append(inAndIndent + docStringMarker);
-        buf.append(inAndIndent);
 
         int lineOfOffset = ps.getLineOfOffset(tuple.o2);
         String comp = buf.toString();
         int offsetPosToAdd = ps.getEndLineOffset(lineOfOffset);
 
-        l.add(new PyCompletionProposal(comp, offsetPosToAdd, 0, newOffset, imageCache.get(UIConstants.ASSIST_DOCSTRING), "Make docstring",
+        Image image = null; //may be null (testing)
+        if(imageCache != null){
+            image = imageCache.get(UIConstants.ASSIST_DOCSTRING);
+        }
+        l.add(new PyCompletionProposal(comp, offsetPosToAdd, 0, newOffset, image, "Make docstring",
                 null, null, IPyCompletionProposal.PRIORITY_DEFAULT));
         return l;
     }
@@ -87,8 +91,8 @@ public class AssistDocString implements IAssistProps {
                                     // with a space between the parentheses.
 
     public static final Pattern FunctionPattern = Pattern.compile("\\s*def\\s+" + identifierPattern + "\\s*\\(" + argumentsPattern
-            + "\\)\\s*:\\s*");
+            + "\\)\\s*:.*");
 
     public static final Pattern ClassPattern = Pattern.compile("class\\s+" + identifierPattern
-            + "\\s*(?:\\(\\s*[a-zA-Z_.]+\\s*\\))?\\s*:\\s*");
+            + "\\s*(?:\\(\\s*[a-zA-Z_.]+\\s*\\))?\\s*:.*");
 }
