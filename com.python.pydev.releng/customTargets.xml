@@ -102,6 +102,7 @@
 	</replaceregexp>
 	
 	<replaceregexp file="${buildDirectory}\features\com.python.pydev.extensions\feature.xml" match='version="0(.*)"' replace='version="${pydev.version}"' byline="true"/>
+	<replaceregexp file="${buildDirectory}\plugins\com.python.pydev\src\com\python\pydev\PydevPlugin.java" match='public static final String version =(.*)"' replace='public static final String version ="${pydev.version}"' byline="true"/>
 </target>
 
 <!-- ===================================================================== -->

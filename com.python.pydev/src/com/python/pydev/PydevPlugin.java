@@ -30,6 +30,8 @@ import com.python.pydev.util.PydevExtensionNotifier;
  */
 public class PydevPlugin extends AbstractUIPlugin {
 
+    public static final String version = "REPLACE_VERSION";
+
 	//The shared instance.
 	private static PydevPlugin plugin;
 	private PydevExtensionNotifier notifier;
