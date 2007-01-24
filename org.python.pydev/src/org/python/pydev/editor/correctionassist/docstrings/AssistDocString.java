@@ -86,9 +86,9 @@ public class AssistDocString implements IAssistProps {
             + "\\s*)*" + ")?\\s*"; // The last whitespace is for empty lists
                                     // with a space between the parentheses.
 
-    private static final Pattern FunctionPattern = Pattern.compile("\\s*def\\s+" + identifierPattern + "\\s*\\(" + argumentsPattern
+    public static final Pattern FunctionPattern = Pattern.compile("\\s*def\\s+" + identifierPattern + "\\s*\\(" + argumentsPattern
             + "\\)\\s*:\\s*");
 
-    private static final Pattern ClassPattern = Pattern.compile("class\\s+" + identifierPattern
+    public static final Pattern ClassPattern = Pattern.compile("class\\s+" + identifierPattern
             + "\\s*(?:\\(\\s*[a-zA-Z_.]+\\s*\\))?\\s*:\\s*");
 }

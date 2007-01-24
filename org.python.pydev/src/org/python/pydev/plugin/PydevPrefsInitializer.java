@@ -33,6 +33,7 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         
         //comment blocks
         node.put(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_CHAR, CommentBlocksPreferences.DEFAULT_MULTI_BLOCK_COMMENT_CHAR);
+        node.putBoolean(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_SHOW_ONLY_CLASS_NAME, CommentBlocksPreferences.DEFAULT_MULTI_BLOCK_COMMENT_SHOW_ONLY_CLASS_NAME);
         node.put(CommentBlocksPreferences.SINGLE_BLOCK_COMMENT_CHAR, CommentBlocksPreferences.DEFAULT_SINGLE_BLOCK_COMMENT_CHAR);
         node.putBoolean(CommentBlocksPreferences.SINGLE_BLOCK_COMMENT_ALIGN_RIGHT, CommentBlocksPreferences.DEFAULT_SINGLE_BLOCK_COMMENT_ALIGN_RIGHT);
         

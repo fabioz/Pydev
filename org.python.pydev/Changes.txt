@@ -16,6 +16,8 @@ Pydev:
 			<li>Option to skip creation of the @type tag for parameters starting with some prefix (if Custom is chosen)</li>
 		</ul>
 	</li>
+	<li>Block comments: added the option to align single-line block comment to the left</li>
+	<li>Block comments: added the option to put class name above class if applied on a class definition</li>
 	<li>Fix: Multi-line Templates indent correctly</li>
 	<li>Fix: When a file from a project that was deleted was still opened inside pydev, Eclipse would not start-up correctly</li>
 	<li>Fix: When a different interpreter is chosen in the run dialog, the pythonpath is correctly gotten</li>
@@ -40,7 +42,6 @@ Extensions:
 			<li>Rename local variable</li>
 		</ul>
 	</li>
-	<li>Block comments: added the option to align single-line block comment to the left</li>
 	<li>Menu: Now the debug/navigate actions are all under a 'Pydev' menu</li>
 	<li>The pydev navigate action is now only shown in the pydev/debug perspective</li>
 	<li>The pydev remote debugging actions are now only shown in the debug perspective</li>

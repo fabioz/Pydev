@@ -23,9 +23,6 @@ import org.python.pydev.core.docutils.PySelection;
  */
 public class PyRemoveBlockComment extends PyAddBlockComment 
 {
-	/* Selection element */
-	private static PySelection ps;
-
 
 	/**
 	 * Grabs the selection information and performs the action.
@@ -35,9 +32,9 @@ public class PyRemoveBlockComment extends PyAddBlockComment
 		try 
 		{
 			// Select from text editor
-			ps = new PySelection ( getTextEditor ( ));
+            PySelection ps = new PySelection ( getTextEditor ( ));
 			// Perform the action
-			perform ( );
+			perform (ps);
 
 			// Put cursor at the first area of the selection
 			getTextEditor ( ).selectAndReveal ( ps.getEndLine().getOffset ( ), 0 );
@@ -48,25 +45,13 @@ public class PyRemoveBlockComment extends PyAddBlockComment
 		}		
 	}
 
-	
-	/**
-	 * Performs the action with the class' PySelection.
-	 * 
-	 * @return boolean The success or failure of the action
-	 */
-	public static boolean perform ( )
-	{
-		return perform ( ps );
-	}
-
-
 	/**
 	 * Performs the action with a given PySelection
 	 * 
 	 * @param ps Given PySelection
 	 * @return boolean The success or failure of the action
 	 */
-	public static boolean perform ( PySelection ps ) 
+	public boolean perform ( PySelection ps ) 
 	{
 		// What we'll be replacing the selected text with
 		StringBuffer strbuf = new StringBuffer ( );
