@@ -11,7 +11,33 @@ some of its features below.</p>
 
 <h3>News</h3>
 	<ul>
-		<li><h4>Release 1.2.5 <IMG src="images/new.png" border="0" /></h4></li>
+		<li><h4>Release 1.2.6 <IMG src="images/new.png" border="0" /></h4></li>
+		<ul>
+			<li>Added <strong><a href="manual_adv_refactoring.html">refactoring support for rename</a></strong> (still <strong>BETA</strong>, so, don't forget to review your changes before applying them)</li>
+			<ul>
+				<li>Keybinding: <strong>Alt+Shift+R</strong></li>
+				<li>Supports <strong>preview</strong></li>
+				<li>Integrated in the editor (but not in the package explorer, so, it can rename a module, but only through an import to that module)</li>
+				<li>Supports <strong>undo/redo</strong> in the workspace</li>
+				<li>Rename class</li>
+				<li>Rename method</li>
+				<li>Rename attribute</li>
+				<li>Rename imports</li>
+				<li>Rename local variable</li>
+			</ul>
+			<li>Menu changes:</li>
+			<ul>
+				<li>Now the debug/navigate actions are all under a 'Pydev' menu</li>
+				<li>The pydev navigate action is now only initially shown in the pydev/debug perspective</li>
+				<li>The pydev remote debugging actions are now only initially shown in the debug perspective</li>
+			</ul>
+			<li>Fix: code analysis problem when working with nested list-comprehensions</li>
+			<li>Fix: go to definition sometimes failed to find module definitions</li>
+		</ul>
+	</ul>
+	
+	<ul>
+		<li><h4>Release 1.2.5</h4></li>
 		<ul>
 			<li>Minor bug on mark occurrences fixed</li>
 			<li>The quick outline now will go to the 'sole item' in the tree even if it is not selected (and OK is pressed)</li>
@@ -34,14 +60,7 @@ some of its features below.</p>
 	</ul>
 	
 	<ul>
-		<li><h4>Release 1.2.3</h4></li>
-		<ul>
-			<li>Support for <strong>python 2.5</strong> has been added</li>
-			<li>Some minor issues on mark occurrences when the definition for something could not be found were fixed
-			</li>
-		</ul>
 		<br/>
-		
 		<li>Two <strong>screencasts</strong> demonstrating pydev and pydev extensions have been created. They are hosted at <a href="http://showmedo.com/videos/series?name=PyDevEclipseList">ShowMeDo.com</a>.</li>
 		<br/>
 		<li><strong>NOTE</strong>: Pydev <strong>1.2.0</strong> and onward only <strong>support Eclipse 3.2</strong>, so, if you're using <strong>Eclipse 3.1</strong>, 
@@ -56,6 +75,7 @@ some of its features below.</p>
 
 <h3>Some feature-highlights</h3>
 <ul>
+<li><strong>Support for python 2.5</strong> (added on <strong>1.2.3</strong>)</li>
 <li><a href="manual_adv_markoccurrences.html"><strong>Mark Occurrences</strong></a> is able to highlight all the occurrences of some token in a file (added on <strong>1.0.7</strong>)</li>
 <li><a href="manual_adv_renameoccurrences.html"><strong>Rename Occurrences</strong></a> is able to rename all the occurrences of some token in a file (<strong>Ctrl+2+R</strong> -- added on <strong>1.0.7</strong>)</li>
 <li><a href="manual_adv_interactive_console.html"><strong>Interactive Console</strong> binded to the Pydev Editor</a> (added on <strong>1.0.4</strong>)
@@ -108,6 +128,37 @@ PyDev Extensions, the potential for future improvements is exciting!"
 <p>
 	Eric Wittmann, Zoundry LLC.
 </p>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
 <br/>
 <br/>
 </right_area>

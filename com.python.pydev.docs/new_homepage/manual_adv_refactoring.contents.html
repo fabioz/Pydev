@@ -10,6 +10,39 @@
 		As our 'base', we will use the example below:
 	</p>
 	<p align="center"><IMG src="images/refactor/refactor_base.png" border="1"/></p><br/>
+
+
+	<p>
+		<strong>Renaming</strong>: This refactoring is provided by Pydev Extensions and provides a 
+		<strong>preview</strong> and <strong>undo/redo</strong> (the others are provided by BRM and have undo/redo only for the current editor
+		-- which should be ok as they are refactorings that work only in the local scope).<br/>
+
+		<ul>
+			<li>Features: </li>		
+			<ul>
+				<li>Keybinding: <strong>Alt+Shift+R</strong></li>
+				<li>Supports <strong>preview</strong></li>
+				<li>Integrated in the editor (but not in the package explorer, so, it can rename a module, but only through an import to that module)</li>
+				<li>Supports <strong>undo/redo</strong> in the workspace</li>
+				<li>Rename class</li>
+				<li>Rename method</li>
+				<li>Rename attribute</li>
+				<li>Rename imports</li>
+				<li>Rename local variable</li>
+			</ul>	
+		</ul>	
+		Let's say we want to rename our 'newVar', and call it 'renamedVar'. To do that, mark it and press <strong>Alt+Shift+R</strong>
+		and set the name to 'renamedVar'
+	</p>
+	<br/><p align="center"><IMG src="images/refactor/refactor_rename1.png" border="1"/></p><br/>
+
+	
+	<p>
+		That would give us the following result:
+	</p>
+	<br/><p align="center"><IMG src="images/refactor/refactor_rename2.png" border="1"/></p><br/>
+	<hr/>
+
 	
 	
 	<p>
@@ -55,19 +88,6 @@
 	<br/><p align="center"><IMG src="images/refactor/refactor_extract_var2.png" border="1"/></p><br/>
 
 	
-	<hr/>
-	<p>
-		<strong>Renaming</strong>: (Use this with care... it is only 'well' suited for local variables and parameters)
-		Let's say we want to rename our 'newVar', and call it 'renamedVar'. To do that, mark it and press <strong>Alt+Shift+R</strong>
-		and set the name to 'renamedVar'
-	</p>
-	<br/><p align="center"><IMG src="images/refactor/refactor_rename1.png" border="1"/></p><br/>
-
-	
-	<p>
-		That would give us the following result:
-	</p>
-	<br/><p align="center"><IMG src="images/refactor/refactor_rename2.png" border="1"/></p><br/>
 	<p>
 		And that's it for the refactoring... hope you enjoy it.
 	</p>

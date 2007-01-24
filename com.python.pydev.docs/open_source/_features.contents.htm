@@ -1,28 +1,29 @@
 <h2>New on: LAST_VERSION_TAG</h2>
 
 <ul>
-	<li><strong>Pydev package explorer</strong> was created. Features already implemented:
-		<ul>
-			<li>Common resource actions (delete, copy, rename, team...)</li>
-			<li>Shows the Source folder with a different icon</li>
-			<li>Linking mode enabled</li>
-			<li>Shows the outline for a python file</li>
-			<li>Opening an item in the outline opens the correct place in the correspondent file</li>
-		</ul>
-	</li>
-	<li>Debugger bug-fix: Crash when debugging wxPython programs should not happen anymore</li>
-	<li>When opening a file, the encoding is considered (and not only when saving it)</li>
-	<li>Patches from <strong>Gergely Kis</strong>:
-		<ul>
-		<li>Option for having a 'default interpreter' in the combo for selecting which interpreter to use for a run</li>
-		<li>Saving the things related to the pydev project in a .pydevproject file to be commited</li>
-		</ul>
-	</li>
-	<li>Patch from <strong>Gregory Golberg</strong>:	
-		<ul>
-		<li><strong>Ctrl+Shift+D</strong> when a variable is selected in debug mode shows the variable value</li>
-		</ul>
-	</li>
+	<li><strong>Pydev package explorer</strong> (Still <strong>BETA</strong>, so, use it with care -- the navigator is still the preferred way of browsing your project)</li>
+	<ul>
+		<li>Filters for .pyc and .pyo files created</li>
+		<li>Working set integration added (just available for Eclipse <strong>3.2.1</strong>)</li>
+		<li>Some minor bugs fixed</li>
+	</ul>
+	<li>Patch by <strong>Olof Wolgast</strong>: The <strong>'create docstrings'</strong> assistant has more options (windows > preferences > pydev > code formatter > docstrings)</li>
+	<ul>
+		<li>Option to choose between <strong>single and double quotes</strong></li>
+		<li>Option to <strong>create '@type'</strong> too and not only '@param'</li>
+		<li>Option to <strong>skip creation of the @type</strong> tag for parameters starting with some prefix (if 'Custom' is chosen)</li>
+	</ul>
+	<li><strong>Block comments</strong> now have more options (windows > preferences > pydev > code formatter > block comments)</li>
+	<ul>
+		<li>Option to <strong>align single-line block comment to the left or right</strong></li>
+		<li>Option to put class name above class if applied on a class definition</li>
+	</ul>
+	<li><strong>Fix</strong>: Multi-line Templates indent correctly</li>
+	<li><strong>Fix</strong>: When a file from a project that was deleted was still opened inside pydev, Eclipse would not start-up correctly</li>
+	<li><strong>Fix</strong>: When a different interpreter is chosen in the run dialog, the pythonpath is correctly gotten</li>
+	<li><strong>Fix</strong>: when Pydev was started, it would re-save the .pydevproject file even if no change was done</li>
+	<li><strong>Fix</strong>: When tab width was set to 0 it could halt the editor (now if 0 is set, 4 is assumed)</li>
+	<li>Grammar Patch by <strong>Ueli Kistler, Dennis Hunziker</strong></li>
 </ul>
 
 
@@ -81,6 +82,34 @@
 
 <hr/>
 <h2>Features History</h2>
+
+<h2>New on: 1.2.5</h2>
+
+<ul>
+	<li><strong>Pydev package explorer</strong> was created. Features already implemented:
+		<ul>
+			<li>Common resource actions (delete, copy, rename, team...)</li>
+			<li>Shows the Source folder with a different icon</li>
+			<li>Linking mode enabled</li>
+			<li>Shows the outline for a python file</li>
+			<li>Opening an item in the outline opens the correct place in the correspondent file</li>
+		</ul>
+	</li>
+	<li>Debugger bug-fix: Crash when debugging wxPython programs should not happen anymore</li>
+	<li>When opening a file, the encoding is considered (and not only when saving it)</li>
+	<li>Patches from <strong>Gergely Kis</strong>:
+		<ul>
+		<li>Option for having a 'default interpreter' in the combo for selecting which interpreter to use for a run</li>
+		<li>Saving the things related to the pydev project in a .pydevproject file to be commited</li>
+		</ul>
+	</li>
+	<li>Patch from <strong>Gregory Golberg</strong>:	
+		<ul>
+		<li><strong>Ctrl+Shift+D</strong> when a variable is selected in debug mode shows the variable value</li>
+		</ul>
+	</li>
+</ul>
+
 
 <h2>New on: 1.2.4</h2>
 
