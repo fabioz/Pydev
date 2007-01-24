@@ -1,3 +1,8 @@
+after 1.2.6
+
+Pydev:
+<li>Fix: 'create docstrings' assist creates @param even if there is a comment in a function definition</li>
+
 after 1.2.5
 
 Pydev:

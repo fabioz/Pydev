@@ -83,6 +83,8 @@ import org.python.pydev.ui.interpreters.PythonInterpreterManager;
  */
 public class PydevPlugin extends AbstractUIPlugin implements Preferences.IPropertyChangeListener {
 	
+    public static final String version = "REPLACE_VERSION";
+    
     // ----------------- SINGLETON THINGS -----------------------------
     public static IBundleInfo info;
     public static IBundleInfo getBundleInfo(){

@@ -66,21 +66,21 @@ class PythonNatureStore implements IResourceChangeListener {
 
     final static String PYDEV_NATURE_PROPERTY_NAME = "name";
 
-    private IProject project = null;
+    private volatile IProject project = null;
 
-    private IFile xmlFile = null;
+    private volatile IFile xmlFile = null;
 
-    long modStamp = IFile.NULL_STAMP;
+    private volatile long modStamp = IFile.NULL_STAMP;
 
     /**
      * 0 means we're not in a store job
      */
-    private int onStoreJob = 0;
+    private volatile int onStoreJob = 0;
 
     /**
      * This is the dom document that is used to manipulate the xml info.
      */
-    private Document document = null;
+    private volatile Document document = null;
 
     /**
      * Sets the projaect to be used.
@@ -89,7 +89,7 @@ class PythonNatureStore implements IResourceChangeListener {
      * 
      * Note: the side-effect of this method is that the contents of the xml file are either created (if the file still does not exist) or just loaded.
      */
-    public void setProject(IProject project) {
+    public synchronized void setProject(IProject project) {
         this.project = project;
         this.xmlFile = project.getFile(STORE_FILE_NAME);
         try {
