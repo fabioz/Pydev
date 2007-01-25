@@ -23,3 +23,5 @@ add news in forum
 send e-mail
 
 Add blog post
+
+update in eclipse plugin central: EPIC: Login > find Pydev plugin > Modify link > add update site
