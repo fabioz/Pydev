@@ -7,14 +7,14 @@ package org.python.pydev.editor.actions;
 
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PyDocIterator;
 import org.python.pydev.core.docutils.PySelection;
-
-import junit.framework.TestCase;
 
 /**
  * @author Fabio Zadrozny
@@ -396,4 +396,50 @@ public class PySelectionTest extends TestCase {
         assertEquals("  ",iterator.next());
         
     }
+    
+    public void testGetLineToColon() throws Exception {
+		PySelection selection = new PySelection(new Document("class A:\r\n    pass"), 0);
+		assertEquals("class A:", selection.getToColon());
+		
+		selection = new PySelection(new Document("class A:"), 0);
+		assertEquals("class A:", selection.getToColon());
+		
+		selection = new PySelection(new Document("class "), 0);
+		assertEquals("", selection.getToColon());//no colon
+		
+		selection = new PySelection(new Document("class A(\r\na,\r\nb):\r\n    pass"), 0);
+		assertEquals("class A(\r\na,\r\nb):", selection.getToColon());
+	}
+    
+    public void testIsInClassOrFunctionLine() throws Exception {
+		matchFunc("def f( x ): #comment");
+		matchFunc("def f( x, (a,b) ): #comment");
+		matchFunc("def f( x=10 ): #comment");
+		matchFunc("def f( x=10 )   : #comment");
+		matchFunc("def f( *args, **kwargs ): #comment");
+        
+		matchClass("class A( object ): #comment");
+		matchClass("class A( class10 ): #comment");
+		matchClass("class A( class10 )   : #comment");
+		matchClass("class A10( class10,b.b ): ");
+        matchClass("class Information:");
+        matchClass("class Information( ", false);
+        matchClass("class Information ", false);
+        matchClass("class Information( UserDict.UserDict, IInformation ):");
+	}
+
+    private void matchClass(String cls) {
+    	matchClass(cls, true);
+    }
+	private void matchClass(String cls, boolean match) {
+		if(match){
+			assertTrue("Failed to match class:"+cls, new PySelection(new Document(cls)).isInClassLine());
+		}else{
+			assertFalse("Matched class (when it shouldn't match):"+cls, new PySelection(new Document(cls)).isInClassLine());
+		}
+	}
+
+	private void matchFunc(String func) {
+		assertTrue("Failed to match func:"+func, new PySelection(new Document(func)).isInFunctionLine());
+	}
 }

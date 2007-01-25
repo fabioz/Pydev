@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -1364,18 +1365,21 @@ public class PySelection {
 	/**
 	 * Class to help iterating through the document
 	 */
-    private class DocIterator implements Iterator{
+    private class DocIterator implements Iterator<String>{
         private int startingLine;
         private boolean forward;
         private boolean isFirst = true;
+		private int numberOfLines;
+		
         public DocIterator(boolean forward){
             this.startingLine = getCursorLine();
             this.forward = forward;
+            numberOfLines = getDoc().getNumberOfLines();
         }
 
         public boolean hasNext() {
             if(forward){
-                throw new RuntimeException("Forward iterator not implemented.");
+                return startingLine < numberOfLines;
             }else{
                 return startingLine >= 0;
             }
@@ -1383,20 +1387,21 @@ public class PySelection {
 
         /**
          * Note that the first thing it returns is the lineContents to cursor (and only after that
-         * does it return from the full line).
+         * does it return from the full line -- if it is iterating backwards).
          */
-        public Object next() {
+        public String next() {
         	try {
         		String line;
-				if (isFirst) {
-					line = getLineContentsToCursor();
-					isFirst = false;
-				}else{
-					line = getLine(startingLine);
-				}
 				if (forward) {
-					throw new RuntimeException("Forward iterator not implemented.");
+					line = getLine(startingLine);
+					startingLine++;
 				} else {
+					if (isFirst) {
+						line = getLineContentsToCursor();
+						isFirst = false;
+					}else{
+						line = getLine(startingLine);
+					}
 					startingLine--;
 				}
 				return line;
@@ -1450,7 +1455,42 @@ public class PySelection {
 		}
 	}
 
+	/**
+	 * @return the contents from the document starting at the cursor line until a colon is reached. 
+	 */
+	public String getToColon() {
+		StringBuffer buffer = new StringBuffer();
+		
+		for(int i = getLineOffset(); i < doc.getLength();i++){
+			try {
+				char c = doc.getChar(i);
+				buffer.append(c);
+				if(c == ':'){
+					return buffer.toString();
+				}
+			} catch (BadLocationException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return ""; //unable to find a colon
+	}
+	
+	public boolean isInFunctionLine() {
+		return FunctionPattern.matcher(getToColon().trim()).matches();
+	}
 
+	public boolean isInClassLine() {
+		return ClassPattern.matcher(getToColon().trim()).matches();
+	}
+
+	//(\\s|\\w|\\.|\\,|\\=|\\*)
+	//(\\s|\\w)
+	
+	//spaces* 'def' space+ identifier space* ( (space|char|.|,|=|*|(|))* ):
+    private static final Pattern FunctionPattern = Pattern.compile("\\s*def\\s+[a-zA-Z]\\w*\\s*\\((\\s|\\w|\\.|\\,|\\=|\\*|\\(|\\))*\\)\\s*:");
+
+    //spaces* 'class' space+ identifier space* (? (.|char|space |,)* )?
+    private static final Pattern ClassPattern = Pattern.compile("\\s*class\\s+[a-zA-Z]\\w*\\s*\\(?(\\s|\\w|\\.|\\,)*\\)?\\s*:");
 
 
 

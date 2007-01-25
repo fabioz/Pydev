@@ -8,7 +8,6 @@ package org.python.pydev.editor.correctionassist.docstrings;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -51,7 +50,7 @@ public class AssistDocString implements IAssistProps {
         buf.append(inAndIndent);
 
         int newOffset = buf.length();
-        if (FunctionPattern.matcher(ps.getCursorLineContents()).matches()) {
+        if (ps.isInFunctionLine()) {
             for (String paramName : params) {
                 buf.append(inAndIndent + "@param " + paramName + ":");
                 if (DocstringsPrefPage.getTypeTagShouldBeGenerated(paramName)) {
@@ -81,18 +80,7 @@ public class AssistDocString implements IAssistProps {
      *      java.lang.String)
      */
     public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
-        return FunctionPattern.matcher(sel).matches() || ClassPattern.matcher(sel).matches();
+    	return ps.isInFunctionLine() || ps.isInClassLine();
     }
-
-    private static final String identifierPattern = "[a-zA-Z_]\\w*";
-
-    private static final String argumentsPattern = "(" + "\\s*" + identifierPattern + "\\s*" + "(?:\\s*,\\s*" + identifierPattern
-            + "\\s*)*" + ")?\\s*"; // The last whitespace is for empty lists
-                                    // with a space between the parentheses.
-
-    public static final Pattern FunctionPattern = Pattern.compile("\\s*def\\s+" + identifierPattern + "\\s*\\(" + argumentsPattern
-            + "\\)\\s*:.*");
-
-    public static final Pattern ClassPattern = Pattern.compile("class\\s+" + identifierPattern
-            + "\\s*(?:\\(\\s*[a-zA-Z_.]+\\s*\\))?\\s*:.*");
+    
 }

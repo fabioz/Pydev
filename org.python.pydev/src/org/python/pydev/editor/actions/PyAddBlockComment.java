@@ -10,7 +10,6 @@ import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
-import org.python.pydev.editor.correctionassist.docstrings.AssistDocString;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -76,8 +75,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
             
             boolean classBehaviour = false;
             if(startLineIndex == endLineIndex && getUseClassNameBehaviour()){
-                String line = ps.getLine(startLineIndex);
-                if(AssistDocString.ClassPattern.matcher(line).matches()){
+                if(ps.isInClassLine()){
                     //just get the class name
                     classBehaviour = true;
                 }

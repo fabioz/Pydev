@@ -12,27 +12,36 @@ public class PyAddBlockCommentTest extends TestCase {
     public void testBlock() throws Exception {
         Document doc = null;
         
-        doc = new Document("cc");
-        new PyAddBlockComment(10, true, true).perform(new PySelection(doc, 0,0,0));
-        assertEquals("" +
-                "#---------\r\n" +
-                "# cc\r\n" +
-                "#---------", doc.get());
+//        doc = new Document("cc");
+//        new PyAddBlockComment(10, true, true).perform(new PySelection(doc, 0,0,0));
+//        assertEquals("" +
+//                "#---------\r\n" +
+//                "# cc\r\n" +
+//                "#---------", doc.get());
+//        
+//        doc = new Document("\tcc");
+//        new PyAddBlockComment(10, true, true).perform(new PySelection(doc, 0,0,0));
+//        assertEquals("" +
+//                "#---------\r\n" +
+//                "#\tcc\r\n" +
+//                "#---------", doc.get());
+//        
+//        doc = new Document("class Foo(object):");
+//        new PyAddBlockComment(10, true, true).perform(new PySelection(doc, 0,0,0));
+//        assertEquals("" +
+//                "#---------\r\n" +
+//                "# Foo\r\n" +
+//                "#---------\r\n" +
+//                "class Foo(object):", doc.get());
         
-        doc = new Document("\tcc");
-        new PyAddBlockComment(10, true, true).perform(new PySelection(doc, 0,0,0));
-        assertEquals("" +
-                "#---------\r\n" +
-                "#\tcc\r\n" +
-                "#---------", doc.get());
         
-        doc = new Document("class Foo(object):");
+        doc = new Document("class Information( UserDict.UserDict, IInformation ):");
         new PyAddBlockComment(10, true, true).perform(new PySelection(doc, 0,0,0));
         assertEquals("" +
-                "#---------\r\n" +
-                "# Foo\r\n" +
-                "#---------\r\n" +
-                "class Foo(object):", doc.get());
+        		"#---------\r\n" +
+        		"# Information\r\n" +
+        		"#---------\r\n" +
+        		"class Information( UserDict.UserDict, IInformation ):", doc.get());
         
         doc = new Document("class Foo(object):");
         new PyAddBlockComment(10, true, false).perform(new PySelection(doc, 0,0,0));
