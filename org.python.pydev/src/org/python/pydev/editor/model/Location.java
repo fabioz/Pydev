@@ -15,6 +15,9 @@ import org.eclipse.jface.text.IDocument;
  */
 public class Location {
 
+	/**
+	 * Location: line and col start at 0
+	 */
 	public int line;
 	public int column;
 

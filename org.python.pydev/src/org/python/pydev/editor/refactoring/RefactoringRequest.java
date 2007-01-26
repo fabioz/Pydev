@@ -174,7 +174,7 @@ public class RefactoringRequest extends DecoratableObject{
      * @return the initial column selected (starting at 1)
      */
     public int getBeginCol() {
-        return ps.getAbsoluteCursorOffset() - ps.getStartLine().getOffset();
+        return ps.getAbsoluteCursorOffset() - ps.getStartLine().getOffset() + 1;
     }
 
     /**

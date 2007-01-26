@@ -64,7 +64,8 @@ public class FindScopeVisitor extends AbstractVisitor {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#unhandled_node(org.python.pydev.parser.jython.SimpleNode)
      */
-    protected Object unhandled_node(SimpleNode node) throws Exception {
+    @SuppressWarnings("unchecked")
+	protected Object unhandled_node(SimpleNode node) throws Exception {
         //the line passed in starts at 1 and the lines for the visitor nodes start at 0
         if(! found && !(node instanceof Module)){
 	        if(line <= node.beginLine ){

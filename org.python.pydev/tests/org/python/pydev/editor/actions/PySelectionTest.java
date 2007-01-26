@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.actions;
 
+import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -426,6 +427,26 @@ public class PySelectionTest extends TestCase {
         matchClass("class Information( ", false);
         matchClass("class Information ", false);
         matchClass("class Information( UserDict.UserDict, IInformation ):");
+	}
+
+    
+    public void testLineBreak() throws Exception {
+    	List<Integer> lineOffsets = PySelection.getLineBreakOffsets("aa\r\nbb\rcc\ndd\r\na");
+    	compare(new Integer[]{2, 6, 9, 12}, lineOffsets);
+    	
+    	lineOffsets = PySelection.getLineStartOffsets("d\r\na");
+    	compare(new Integer[]{0, 3}, lineOffsets);
+    	
+    	lineOffsets = PySelection.getLineStartOffsets("aa\r\nbb\rcc\ndd\r\na");
+    	compare(new Integer[]{0, 4, 7, 10, 14}, lineOffsets);
+	}
+    
+	private void compare(Integer[] is, List<Integer> offsets) {
+		for(int i=0;i<is.length;i++){
+			if(is[i]!=offsets.get(i)){
+				fail(Arrays.deepToString(is)+" differs from "+offsets);
+			}
+		}
 	}
 
     private void matchClass(String cls) {

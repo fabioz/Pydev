@@ -8,6 +8,7 @@ public interface expr_contextType {
     public static final int AugLoad = 4;
     public static final int AugStore = 5;
     public static final int Param = 6;
+    public static final int Artificial = 7;
 
     public static final String[] expr_contextTypeNames = new String[] {
         "<undef>",
@@ -17,5 +18,6 @@ public interface expr_contextType {
         "AugLoad",
         "AugStore",
         "Param",
+        "Artificial",
     };
 }

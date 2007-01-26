@@ -287,7 +287,7 @@ public class SourceModule extends AbstractModule {
      * @return
      */
     private List<IToken> getToks(ICompletionState initialState, ICodeCompletionASTManager manager, SimpleNode ast) {
-        List<IToken> modToks = modToks = new ArrayList<IToken>(Arrays.asList(GlobalModelVisitor.getTokens(ast, GlobalModelVisitor.INNER_DEFS, name)));//name = moduleName
+        List<IToken> modToks = new ArrayList<IToken>(Arrays.asList(GlobalModelVisitor.getTokens(ast, GlobalModelVisitor.INNER_DEFS, name)));//name = moduleName
         
         try {
             //COMPLETION: get the completions for the whole hierarchy if this is a class!!
@@ -354,7 +354,7 @@ public class SourceModule extends AbstractModule {
         }
         
         //this visitor checks for assigns for the token
-        FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(rep, line, col+1, this);
+        FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(rep, line, col, this);
         if (ast != null){
             ast.accept(visitor);
         }

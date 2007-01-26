@@ -939,6 +939,38 @@ public class PySelection {
     
     }
 
+    
+    public static List<Integer> getLineStartOffsets(String replacementString) {
+    	ArrayList<Integer> ret = new ArrayList<Integer>();
+    	
+    	int foundAt = 0;
+    	
+    	//we may have line breaks with \r\n, or only \n or \r
+    	for (int i = 0; i < replacementString.length(); i++) {
+    		char c = replacementString.charAt(i);
+    		if(c == '\r'){
+    			foundAt = i;
+    			
+    			i++;
+    			if(i < replacementString.length()){
+    				c = replacementString.charAt(i);
+    			}
+    		}
+    		
+    		if(c == '\n'){
+    			foundAt = i;
+    			i++;
+    		}
+    		if(foundAt != -1){
+    			ret.add(i);
+    			foundAt = -1;
+    		}
+    	}
+    	
+    	return ret;
+    }
+    
+    
 
     public static List<Integer> getLineBreakOffsets(String replacementString) {
         ArrayList<Integer> ret = new ArrayList<Integer>();
@@ -948,12 +980,13 @@ public class PySelection {
         
         //we may have line breaks with \r\n, or only \n or \r
         for (int i = 0; i < replacementString.length(); i++) {
-            if(replacementString.charAt(i) == '\r'){
+            char c = replacementString.charAt(i);
+			if(c == '\r'){
                 lineBreaks++;
                 ret.add(i);
                 ignoreNextNAt = i + 1;
-            }
-            if(replacementString.charAt(i) == '\n'){
+                
+            }else if(c == '\n'){
                 if(ignoreNextNAt != i){
                     ret.add(i);
                     lineBreaks++;
@@ -963,17 +996,20 @@ public class PySelection {
         
         return ret;
     }
+    
+    
     public static int countLineBreaks(String replacementString) {
         int lineBreaks = 0;
         int ignoreNextNAt = -1;
         
         //we may have line breaks with \r\n, or only \n or \r
         for (int i = 0; i < replacementString.length(); i++) {
-            if(replacementString.charAt(i) == '\r'){
+            char c = replacementString.charAt(i);
+			if(c == '\r'){
                 lineBreaks++;
                 ignoreNextNAt = i + 1;
-            }
-            if(replacementString.charAt(i) == '\n'){
+                
+            }else if(c == '\n'){
                 if(ignoreNextNAt != i){
                     lineBreaks++;
                 }

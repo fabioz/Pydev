@@ -17,8 +17,10 @@ import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
+import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
@@ -134,19 +136,49 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
      */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         defsStack.push(node);
+        if(node.args != null && node.args.args != null){
+	        for(exprType arg:node.args.args){
+	        	if(arg instanceof Name){
+	        		checkParam((Name) arg);
+	        	}
+	        }
+        }
         node.traverse(this);
         defsStack.pop();
         checkDeclaration(node, (NameTok) node.name);
         return null;
     }
+    
+    /**
+     * @param node the declaration node we're interested in (class or function)
+     * @param name the token that represents the name of that declaration
+     */
+    private void checkParam(Name name) {
+    	String rep = NodeUtils.getRepresentationString(name);
+    	if(rep.equals(tokenToFind) && line == name.beginLine && col >= name.beginColumn && col <= name.beginColumn+rep.length()){
+    		foundAsDefinition = true;
+    		// if it is found as a definition it is an 'exact' match, so, erase all the others.
+    		ILocalScope scope = new LocalScope(this.defsStack);
+    		for (Iterator<Definition> it = definitions.iterator(); it.hasNext();) {
+    			Definition d = it.next();
+    			if(!d.scope.equals(scope)){
+    				it.remove();
+    			}
+    		}
+    		
+    		
+    		definitionFound = new Definition(line, name.beginColumn, rep, name, scope, module);
+    		definitions.add(definitionFound);
+    	}
+    }
 
     /**
      * @param node the declaration node we're interested in (class or function)
-     * @param n the token that represents the name of that declaration
+     * @param name the token that represents the name of that declaration
      */
-    private void checkDeclaration(SimpleNode node, NameTok n) {
+    private void checkDeclaration(SimpleNode node, NameTok name) {
         String rep = NodeUtils.getRepresentationString(node);
-        if(rep.equals(tokenToFind) && line == n.beginLine && col >= n.beginColumn && col <= n.beginColumn+rep.length()){
+        if(rep.equals(tokenToFind) && line == name.beginLine && col >= name.beginColumn && col <= name.beginColumn+rep.length()){
             foundAsDefinition = true;
             // if it is found as a definition it is an 'exact' match, so, erase all the others.
             ILocalScope scope = new LocalScope(this.defsStack);
@@ -158,7 +190,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
             }
             
             
-            definitionFound = new Definition(line, n.beginColumn, rep, node, scope, module);
+            definitionFound = new Definition(line, name.beginColumn, rep, node, scope, module);
             definitions.add(definitionFound);
         }
     }
