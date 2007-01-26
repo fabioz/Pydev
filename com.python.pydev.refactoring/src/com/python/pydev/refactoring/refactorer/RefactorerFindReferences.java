@@ -6,7 +6,6 @@ package com.python.pydev.refactoring.refactorer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;

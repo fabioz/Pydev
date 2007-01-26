@@ -93,7 +93,6 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-        checkProcessors();
     }
     
     /**
@@ -176,6 +175,8 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
 
     /**
      * Gets the references for the rename without expecting any error.
+     * @param line: starts at 0
+     * @param col: starts at 0
      */
     protected Map<String, List<ASTEntry>> getReferencesForRenameSimple(String moduleName, int line, int col) {
         Map<String, List<ASTEntry>> referencesForRename = getReferencesForRenameSimple(moduleName, line, col, false);
@@ -236,10 +237,12 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             PyRenameEntryPoint processor = new PyRenameEntryPoint(request);
             NullProgressMonitor nullProgressMonitor = new NullProgressMonitor();
 			checkStatus(processor.checkInitialConditions(nullProgressMonitor), expectError);
+			lastProcessorUsed = processor;
+	        checkProcessors();
+
             checkStatus(processor.checkFinalConditions(nullProgressMonitor, null, false), expectError);
             occurrencesToReturn = processor.getOccurrencesInOtherFiles();
             occurrencesToReturn.put(new Tuple<String, IFile>(CURRENT_MODULE_IN_REFERENCES, null), processor.getOcurrences());
-            lastProcessorUsed = processor;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -19,7 +19,7 @@ public class SearchTest extends AdditionalInfoTestsBase {
 		try {
 			SearchTest test = new SearchTest();
 			test.setUp();
-			test.testSearch14();
+			test.testOnParam();
 			test.tearDown();
 
 			junit.textui.TestRunner.run(SearchTest.class);
@@ -476,6 +476,24 @@ public class SearchTest extends AdditionalInfoTestsBase {
         
         assertEquals(1, pointers.length);
         assertEquals(1, pointers[0].start.line);
+    }
+    
+    
+    public void testOnParam() throws Exception {
+    	String str ="" +
+    	"tok = 10\n" +
+    	"def m1(tok=tok):\n" + //parameter tok (left side)
+    	"    '@param tok: this is tok'\n" +
+    	"    #checking tok right?\n" +
+    	"";
+    	
+    	RefactoringRequest refactoringRequest = createRefactoringRequest(new Document(str), "foo", 1, 9);
+    	
+    	refactoringRequest.setAdditionalInfo(RefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
+    	ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
+    	
+    	assertEquals(1, pointers.length);
+    	assertEquals(1, pointers[0].start.line);
     }
     
     public void testOnSameName2() throws Exception {

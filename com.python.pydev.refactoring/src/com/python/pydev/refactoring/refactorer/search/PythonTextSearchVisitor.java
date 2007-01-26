@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.search.core.text.TextSearchMatchAccess;
 import org.eclipse.search.core.text.TextSearchRequestor;
 import org.eclipse.search.core.text.TextSearchScope;
 import org.eclipse.search.ui.NewSearchUI;
@@ -38,6 +37,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.docutils.StringUtils;
 
 import com.python.pydev.PydevPlugin;
+import com.python.pydev.analysis.scopeanalysis.TokenMatching;
 
 
 /**
@@ -45,46 +45,6 @@ import com.python.pydev.PydevPlugin;
  */
 public class PythonTextSearchVisitor  {
 	
-	public static class ReusableMatchAccess extends TextSearchMatchAccess {
-		
-		private int fOffset;
-		private int fLength;
-		private IFile fFile;
-		private CharSequence fContent;
-		
-		public void initialize(IFile file, int offset, int length, CharSequence content) {
-			fFile= file;
-			fOffset= offset;
-			fLength= length;
-			fContent= content;
-		}
-				
-		public IFile getFile() {
-			return fFile;
-		}
-		
-		public int getMatchOffset() {
-			return fOffset;
-		}
-		
-		public int getMatchLength() {
-			return fLength;
-		}
-
-		public int getFileContentLength() {
-			return fContent.length();
-		}
-
-		public char getFileContentChar(int offset) {
-			return fContent.charAt(offset);
-		}
-
-		public String getFileContent(int offset, int length) {
-			return fContent.subSequence(offset, offset + length).toString(); // must pass a copy!
-		}
-	}
-	
-
 	private final TextSearchRequestor fCollector;
 	
 	private Map fDocumentsInEditors;
@@ -98,8 +58,8 @@ public class PythonTextSearchVisitor  {
 	private final MultiStatus fStatus;
 	
 	private final FileCharSequenceProvider fFileCharSequenceProvider;
-	
-	private final ReusableMatchAccess fMatchAccess;
+
+	private TokenMatching fTokenMatching;
 	
 	public PythonTextSearchVisitor(String searchText) {
         this(new TextSearchRequestor(){}, searchText); //initialize with a requestor that does nothing
@@ -111,7 +71,7 @@ public class PythonTextSearchVisitor  {
 		fStatus= new MultiStatus(NewSearchUI.PLUGIN_ID, IStatus.OK, "Problems encountered during text search.", null);
 		
 		fFileCharSequenceProvider= new FileCharSequenceProvider();
-		fMatchAccess= new ReusableMatchAccess();
+		fTokenMatching = new TokenMatching(collector, fSearchText);
 	}
 	
 	public IStatus search(IFile[] files, IProgressMonitor monitor) {
@@ -300,75 +260,6 @@ public class PythonTextSearchVisitor  {
 	}
 
     
-    /**
-     * This method will return true if there is any match in the given searchInput regarding the
-     * fSearchText.
-     * 
-     * It will call the TextSearchRequestor.acceptPatternMatch on the first match and then bail out...
-     * 
-     * @note that it has to be a 'token' match, and not only a substring match for it to be valid.
-     * 
-     * @param file this is the file that contains the match
-     * @param searchInput the sequence where we want to find the match
-     * @return true if a match was found and false otherwise.
-     * @throws CoreException
-     */
-	public boolean hasMatch(IFile file, CharSequence searchInput) throws CoreException {
-		try {
-			int k= 0;
-			int total = 0;
-			char prev = (char)-1;
-			int len = fSearchText.length();
-            
-			try{
-				for(int i=0;;i++){
-					total+=1;
-					char c = searchInput.charAt(i);
-					if(c == fSearchText.charAt(k) && (k>0 || !Character.isJavaIdentifierPart(prev))){
-						k+=1;
-                        if(k == len){
-							k=0;
-                            
-                            //now, we have to see if is really an 'exact' match (so, either we're in the last
-                            //char or the next char is not actually a word)
-                            boolean ok = false;
-                            try{
-                                c = searchInput.charAt(i+1);
-                                if(!Character.isJavaIdentifierPart(c)){
-                                    ok = true;
-                                }
-                            }catch(IndexOutOfBoundsException e){
-                                ok = true;
-                            }
-                            if(ok){
-    							fMatchAccess.initialize(file, 0, 0, searchInput);
-    							fCollector.acceptPatternMatch(fMatchAccess);
-    							return true; //return on first match
-                            }
-						}
-					}else{
-						k=0;
-					}
-                    prev = c;
-					
-					if (total++ == 20) {
-						if (fProgressMonitor.isCanceled()) {
-							throw new OperationCanceledException("Operation Canceled");
-						}
-						total= 0;
-					}
-				}
-			}catch(IndexOutOfBoundsException e){
-				//that's because we don'th check for the len of searchInput.len because it may be slow
-			}
-			
-		} finally {
-			fMatchAccess.initialize(null, 0, 0, new String()); // clear references
-		}
-        return false;
-	}
-	
-	
 	private String getExceptionMessage(Exception e) {
 		String message= e.getLocalizedMessage();
 		if (message == null) {
@@ -395,6 +286,10 @@ public class PythonTextSearchVisitor  {
 		} catch (CoreException e) {
 			return "unknown"; //$NON-NLS-1$
 		}
+	}
+
+	public boolean hasMatch(IFile file, CharSequence seq) throws CoreException {
+		return fTokenMatching.hasMatch(file, seq, fProgressMonitor);
 	}
 
 }

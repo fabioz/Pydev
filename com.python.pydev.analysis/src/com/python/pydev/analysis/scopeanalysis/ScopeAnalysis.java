@@ -4,17 +4,23 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
+import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
+import org.python.pydev.plugin.PydevPlugin;
 
 public class ScopeAnalysis {
 
@@ -78,11 +84,21 @@ public class ScopeAnalysis {
 	 * @return a list of occurrences with the matches we're looking for.
 	 * Does only return the first name in attributes if onlyFirstAttribPart is true (otherwise will check all attribute parts)
 	 */
-	public static List<ASTEntry> getLocalOcurrences(String occurencesFor, SimpleNode simpleNode, final boolean onlyFirstAttribPart) {
+	public static List<ASTEntry> getLocalOcurrences(final String occurencesFor, SimpleNode simpleNode, final boolean onlyFirstAttribPart) {
 	    List<ASTEntry> ret = new ArrayList<ASTEntry>();
 	    
 	    SequencialASTIteratorVisitor visitor = new SequencialASTIteratorVisitor(){
 	    	@Override
+	    	protected Object unhandled_node(SimpleNode node) throws Exception {
+	    		Object r = super.unhandled_node(node);
+	    		//now, we have to check it for occurrences in comments and strings too... (and create 
+	    		//names for those)
+	    		checkComments(node.specialsBefore, occurencesFor);
+	    		checkComments(node.specialsAfter, occurencesFor);
+	    		return r;
+	    	}
+	    	
+			@Override
 	    	public Object visitAttribute(Attribute node) throws Exception {
 	    		if(onlyFirstAttribPart){
 	    			//this will visit the attribute parts if call, subscript, etc.
@@ -101,7 +117,7 @@ public class ScopeAnalysis {
             //all that because we don't want to visit the name of the function if we've started in a function scope
             FunctionDef d = (FunctionDef) simpleNode;
             try {
-                d.args.accept(visitor);
+            	//decorators
                 if(d.decs != null){
                     for(decoratorsType dec : d.decs){
                         if(dec != null){
@@ -109,6 +125,23 @@ public class ScopeAnalysis {
                         }
                     }
                 }
+                
+                //don't do d.args directly because we don't want to check the 'defaults'
+                if(d.args != null){
+	                if(d.args.args != null){
+	                	for(exprType arg:d.args.args){
+	                		arg.accept(visitor);
+	                	}
+	                }
+	                if(d.args.vararg != null){
+	                	d.args.vararg.accept(visitor);
+	                }
+	                if(d.args.kwarg != null){
+	                	d.args.kwarg.accept(visitor);
+	                }
+                }
+                
+                //and at last... the body
                 if(d.body != null){
                     for(stmtType exp: d.body){
                         if(exp != null){
@@ -164,5 +197,47 @@ public class ScopeAnalysis {
         }
         return ret;
    }
+
+    
+    
+    /**
+     * @param specials a list that may contain comments
+     * @param match a string to match in the comments
+     * @return a list with names matching the gives token
+     */
+	public static List<Name> checkComments(List<Object> specials, String match) {
+		List<Name> r = new ArrayList<Name>();
+		
+		if(specials != null){
+			for(Object s:specials){
+				if(s instanceof commentType){
+					commentType comment = (commentType) s;
+					try {
+						ArrayList<Integer> offsets = TokenMatching.getMatchOffsets(match, comment.id);
+						List<Integer> lineStartOffsets = PySelection.getLineStartOffsets(comment.id);
+						
+						for (Integer offset : offsets) {
+							int line=0;
+							Name name = new Name(match, Name.Artificial);
+							
+							for(Integer lineStartOffset:lineStartOffsets){
+								if(lineStartOffset < offset){
+									name.beginLine = comment.beginLine+line;
+									name.beginColumn = comment.beginColumn+offset-lineStartOffset;
+								}else{
+									break;
+								}
+								line++;
+							}
+							r.add(name);
+						}
+					} catch (CoreException e) {
+						PydevPlugin.log(e);
+					}
+				}
+			}
+		}
+		return r;
+	}
 
 }

@@ -30,9 +30,10 @@ public class RenameParamRefactoringTest extends RefactoringRenameTestBase  {
     }
     
     public void testRenameParameter() throws Exception {
-    	//Line 0 = "def Method1(param1, param2=None):"
+    	//Line 1 = "def Method1(param1=param1, param2=None):"
     	//rename param1
-        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameparameter.methoddef", 0, 14); 
+        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameparameter.methoddef", 1, 14); 
+        System.out.println(references);
     	assertTrue(references.containsKey("reflib.renameparameter.methodaccess")); 
     	assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
         assertEquals(2, references.get(CURRENT_MODULE_IN_REFERENCES).size());

@@ -10,9 +10,10 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
 
     public static void main(String[] args) {
         try {
+        	DEBUG = true;
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameParameter2();
+            test.testRenameParamDocs();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -469,6 +470,18 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     	int line = 1;
     	int col = 12;
     	checkRename(str, line, col, "fooo", false, true);
+    }
+    
+    
+    public void testRenameParamDocs() throws Exception {
+    	String str = "" +
+    	"tok = 10\n" +
+    	"def m1(%s=tok):\n" + //only get the tok that is a parameter the docs and comments
+    	"    '@param %s: this is %s'\n" +
+    	"    #checking %s right?\n" +
+    	"";
+    	
+    	checkRename(str, 1, 7, "tok", false, true);
     }
     
 
