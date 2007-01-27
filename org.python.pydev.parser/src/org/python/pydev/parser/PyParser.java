@@ -28,6 +28,7 @@ import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -413,7 +414,10 @@ public class PyParser {
         }
 
         IDocument newDoc = new Document(startDoc);
-        StringBuffer endingComments = PySelection.removeEndingComments(newDoc);
+        Tuple3<StringBuffer, Integer, Integer> tup3 = PySelection.removeEndingComments(newDoc);
+        commentType endingComments = new commentType(tup3.o1.toString());
+        endingComments.beginLine = tup3.o2;
+        endingComments.beginColumn = tup3.o3;
         try {
             //make sure it ends with a new line
             newDoc.replace(newDoc.getLength(), 0, "\n");
@@ -455,7 +459,7 @@ public class PyParser {
             SimpleNode newRoot = grammar.file_input(); // parses the file
             if(newRoot != null){
                 Module m = (Module) newRoot;
-                m.addSpecial(new commentType(endingComments.toString()), true);
+                m.addSpecial(endingComments, true);
             }
             return new Tuple<SimpleNode, Throwable>(newRoot,null);
 		

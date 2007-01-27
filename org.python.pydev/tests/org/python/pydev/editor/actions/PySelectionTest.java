@@ -14,6 +14,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PyDocIterator;
 import org.python.pydev.core.docutils.PySelection;
 
@@ -30,7 +31,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testGetCurrLineWithoutCommsOrLiterals();
+            test.testRemoveEndingComments2();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
@@ -266,14 +267,18 @@ public class PySelectionTest extends TestCase {
     }
     
     public void testRemoveEndingComments() throws Exception {
-        String s = "class Foo:pass\n" +
+        String s = 
+                "class Foo:pass\n" +
                 "#comm1\n" +
                 "#comm2\n" +
                 "print 'no comm'\n" +
                 "#comm3\n" +
                 "#comm4";
         doc = new Document(s);
-        StringBuffer buffer = PySelection.removeEndingComments(doc);
+        Tuple3<StringBuffer, Integer, Integer> tup3 = PySelection.removeEndingComments(doc);
+        StringBuffer buffer = tup3.o1;
+        assertEquals((Integer)4, tup3.o2);
+        assertEquals((Integer)17, tup3.o3);
         
         assertEquals("\n#comm3\n" +
                 "#comm4", buffer.toString());
@@ -283,13 +288,16 @@ public class PySelectionTest extends TestCase {
                 "print 'no comm'\n", doc.get());
     }
     public void testRemoveEndingComments2() throws Exception {
-        String s = "class C: \n" +
-        "    pass\n" +
-        "#end\n" +
-        "";
+        String s = 
+            "class C: \n" +
+            "    pass\n" +
+            "#end\n" +
+            "";
         doc = new Document(s);
-        StringBuffer buffer = PySelection.removeEndingComments(doc);
-        
+        Tuple3<StringBuffer, Integer, Integer> tup3 = PySelection.removeEndingComments(doc);
+        StringBuffer buffer = tup3.o1;
+        assertEquals((Integer)2, tup3.o2);
+        assertEquals((Integer)10, tup3.o3);
         assertEquals("\n#end\n" , buffer.toString());
         assertEquals("class C: \n" +
                 "    pass\n" 

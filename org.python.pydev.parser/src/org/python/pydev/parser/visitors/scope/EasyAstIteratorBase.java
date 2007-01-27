@@ -104,13 +104,15 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
 
     /**
      * @param node the node we're adding in an 'atomic' way
+     * @return the ast entry that was created in this 'atomic' add
      */
-    protected void atomic(SimpleNode node) {
+    protected ASTEntry atomic(SimpleNode node) {
     	ASTEntry entry;
     	entry = createEntry();
         entry.node = node;
         entry.endLine = NodeUtils.getLineEnd(node);
         doAddNode(entry);
+        return entry;
     }
 
     /**

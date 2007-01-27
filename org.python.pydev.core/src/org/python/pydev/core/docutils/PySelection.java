@@ -382,17 +382,20 @@ public class PySelection {
     /**
      * Removes comments at the end of the document
      * @param doc this is the document from where the comments must be removed
-     * @return a StringBuffer with the comments that have been removed
+     * @return a tuple with: StringBuffer with the comments that have been removed,
+     * beginLine for the comments beginColumn for the comments
+     * (both starting at 1)
      */
-    public static StringBuffer removeEndingComments(IDocument doc){
+    public static Tuple3<StringBuffer,Integer,Integer> removeEndingComments(IDocument doc){
         StringBuffer comments = new StringBuffer();
         int lines = doc.getNumberOfLines();
         String delimiter = PySelection.getDelimiter(doc);
+        
         for (int i = lines-1; i >= 0; i--) {
             String line = PySelection.getLine(doc, i);
             String trimmed = line.trim();
             if(trimmed.length() > 0 && trimmed.charAt(0) != '#'){
-                return comments;
+                return new Tuple3<StringBuffer,Integer,Integer>(comments,i+1,line.length()+2);
             }
             comments.insert(0,line);
             comments.insert(0,delimiter);
@@ -404,7 +407,8 @@ public class PySelection {
                 //ignore
             }
         }
-        return comments;
+        
+        return new Tuple3<StringBuffer,Integer,Integer>(comments,0,0);
     }
     
     /**

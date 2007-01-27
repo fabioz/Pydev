@@ -70,7 +70,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
 		String strDoc = "RuntimeError.";
 		File f = new File(file);
 		nature.getAstManager().getCompletionsForToken(f, new Document(REF.getFileContents(f)), CompletionState.getEmptyCompletionState("RuntimeError", nature));
-		requestCompl(f, strDoc, strDoc.length(), -1, new String[]{"__doc__", "__getitem__()", "__init__()", "__module__", "__str__()"});   
+		requestCompl(f, strDoc, strDoc.length(), -1, new String[]{"__doc__", "__getitem__()", "__init__()", "__str__()"});   
 	}
 	
 

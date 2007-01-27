@@ -665,5 +665,27 @@ public class NodeUtils {
     }
 
     
+    protected static final String[] strTypes = new String[]{
+        "'''",
+        "\"\"\"",
+        "'",
+        "\""
+    };
+
+    public static String getStringToPrint(Str node){
+        StringBuffer buffer = new StringBuffer();
+        if(node.unicode){
+            buffer.append("u");
+        }
+        if(node.raw){
+            buffer.append("r");
+        }
+        final String s = strTypes[node.type-1];
+        
+        buffer.append(s);
+        buffer.append(node.s);
+        buffer.append(s);
+        return buffer.toString();
+    }
 
 }
