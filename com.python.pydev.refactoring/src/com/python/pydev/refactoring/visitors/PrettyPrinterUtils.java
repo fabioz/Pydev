@@ -123,12 +123,6 @@ public class PrettyPrinterUtils extends VisitorBase{
             " not in ",
         };
 
-    protected static final String[] strTypes = new String[]{
-            "'''",
-            "\"\"\"",
-            "'",
-            "\""
-        };
 
     /**
      * 

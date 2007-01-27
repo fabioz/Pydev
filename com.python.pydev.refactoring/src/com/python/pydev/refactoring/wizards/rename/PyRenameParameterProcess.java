@@ -80,6 +80,7 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
                 
             }
 		}
+        ret.addAll(ScopeAnalysis.getCommentOcurrences(request.initialName, root));
     	return ret;
 	}
 
@@ -89,6 +90,7 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
         
         FunctionDef node = (FunctionDef) entry.parent.node;
         List<ASTEntry> found = ScopeAnalysis.getLocalOcurrences(request.initialName, node);
+        ret.addAll(ScopeAnalysis.getStringOcurrences(request.initialName, node));
         ret.addAll(found);
     }
 

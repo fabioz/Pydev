@@ -60,6 +60,7 @@ import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
  * statements that 'need' to be on a new line:
@@ -596,23 +597,15 @@ public class PrettyPrinter extends PrettyPrinterUtils{
 	@Override
     public Object visitStr(Str node) throws Exception {
     	auxComment.writeSpecialsBefore(node);
-        if(node.unicode){
-            state.write("u");
-        }
-        if(node.raw){
-            state.write("r");
-        }
-        final String s = strTypes[node.type-1];
         
-    	state.write(s);
-    	state.write(node.s);
-    	state.write(s);
+    	state.write(NodeUtils.getStringToPrint(node));
     	if(!state.inStmt()){
             fixNewStatementCondition();
     	}
     	auxComment.writeSpecialsAfter(node);
     	return null;
     }
+    
 
     @Override
     public Object visitClassDef(ClassDef node) throws Exception {

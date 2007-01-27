@@ -13,6 +13,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
@@ -79,7 +80,64 @@ public class ScopeAnalysis {
 		return ScopeAnalysis.getLocalOcurrences(occurencesFor, simpleNode, true);
 	}
 
+    
 
+    /**
+     * @return a list of ast entries that are found inside strings.
+     */
+    public static List<ASTEntry> getStringOcurrences(final String occurencesFor, SimpleNode simpleNode) {
+        final List<ASTEntry> ret = new ArrayList<ASTEntry>();
+        
+        SequencialASTIteratorVisitor visitor = new SequencialASTIteratorVisitor(){
+            @Override
+            public Object visitStr(Str node) throws Exception {
+                List<Name> names = checkSimpleNodeForTokenMatch(occurencesFor, new ArrayList<Name>(), node, NodeUtils.getStringToPrint(node));
+                for (Name name : names){
+                    ret.add(atomic(name));
+                }
+                return super.visitStr(node);
+            }
+            
+        };   
+        try {
+            simpleNode.accept(visitor);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return ret;
+    }
+
+
+    /**
+     * @return a list of ast entries that are found inside comments.
+     */
+	public static List<ASTEntry> getCommentOcurrences(final String occurencesFor, SimpleNode simpleNode) {
+	    final List<ASTEntry> ret = new ArrayList<ASTEntry>();
+
+        SequencialASTIteratorVisitor visitor = new SequencialASTIteratorVisitor(){
+            @Override
+            protected Object unhandled_node(SimpleNode node) throws Exception {
+                Object r = super.unhandled_node(node);
+                //now, we have to check it for occurrences in comments and strings too... (and create 
+                //names for those)
+                List<Name> names = checkComments(node.specialsBefore, occurencesFor);
+                names.addAll(checkComments(node.specialsAfter, occurencesFor));
+                for (Name name : names){
+                    ret.add(atomic(name));
+                }
+                return r;
+            }
+            
+        };   
+        try {
+            simpleNode.accept(visitor);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return ret;
+    }
+    
+    
 	/**
 	 * @return a list of occurrences with the matches we're looking for.
 	 * Does only return the first name in attributes if onlyFirstAttribPart is true (otherwise will check all attribute parts)
@@ -88,15 +146,6 @@ public class ScopeAnalysis {
 	    List<ASTEntry> ret = new ArrayList<ASTEntry>();
 	    
 	    SequencialASTIteratorVisitor visitor = new SequencialASTIteratorVisitor(){
-	    	@Override
-	    	protected Object unhandled_node(SimpleNode node) throws Exception {
-	    		Object r = super.unhandled_node(node);
-	    		//now, we have to check it for occurrences in comments and strings too... (and create 
-	    		//names for those)
-	    		checkComments(node.specialsBefore, occurencesFor);
-	    		checkComments(node.specialsAfter, occurencesFor);
-	    		return r;
-	    	}
 	    	
 			@Override
 	    	public Object visitAttribute(Attribute node) throws Exception {
@@ -212,32 +261,43 @@ public class ScopeAnalysis {
 			for(Object s:specials){
 				if(s instanceof commentType){
 					commentType comment = (commentType) s;
-					try {
-						ArrayList<Integer> offsets = TokenMatching.getMatchOffsets(match, comment.id);
-						List<Integer> lineStartOffsets = PySelection.getLineStartOffsets(comment.id);
-						
-						for (Integer offset : offsets) {
-							int line=0;
-							Name name = new Name(match, Name.Artificial);
-							
-							for(Integer lineStartOffset:lineStartOffsets){
-								if(lineStartOffset < offset){
-									name.beginLine = comment.beginLine+line;
-									name.beginColumn = comment.beginColumn+offset-lineStartOffset;
-								}else{
-									break;
-								}
-								line++;
-							}
-							r.add(name);
-						}
-					} catch (CoreException e) {
-						PydevPlugin.log(e);
-					}
+					checkSimpleNodeForTokenMatch(match, r, comment, comment.id);
 				}
 			}
 		}
 		return r;
 	}
+
+
+    /**
+     * Looks for a match in the given string and fills the List<Name> with Names according to those positions.
+     * @return the list of names (same as ret)
+     */
+    private static List<Name> checkSimpleNodeForTokenMatch(String match, List<Name> ret, SimpleNode node, String fullString) {
+        try {
+            ArrayList<Integer> offsets = TokenMatching.getMatchOffsets(match, fullString);
+        	List<Integer> lineStartOffsets = PySelection.getLineStartOffsets(fullString);
+        	
+        	for (Integer offset : offsets) {
+        		int line=0;
+        		Name name = new Name(match, Name.Artificial);
+        		
+        		for(Integer lineStartOffset:lineStartOffsets){
+        			if(lineStartOffset < offset){
+        				name.beginLine = node.beginLine+line;
+        				name.beginColumn = node.beginColumn+offset-lineStartOffset;
+        			}else{
+        				break;
+        			}
+        			line++;
+        		}
+        		ret.add(name);
+        	}
+        } catch (CoreException e) {
+        	PydevPlugin.log(e);
+        }
+        return ret;
+    }
+
 
 }
