@@ -633,6 +633,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * (non-Javadoc)
      * 
      * @see org.eclipse.ui.texteditor.AbstractTextEditor#createActions()
+     * 
+     * TODO: Fix content assist to work in emacs mode:  
+     * http://wiki.eclipse.org/index.php/FAQ_How_do_I_add_Content_Assist_to_my_editor%3F
+     * http://www.eclipse.org/newsportal/article.php?id=61744&group=eclipse.platform#61744
      */
     protected void createActions() {
         super.createActions();
