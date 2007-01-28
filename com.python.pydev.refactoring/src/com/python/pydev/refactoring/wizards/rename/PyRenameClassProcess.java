@@ -14,6 +14,7 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
@@ -66,8 +67,9 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         SimpleNode root = request.getAST();
         List<ASTEntry> oc;
+        ASTEntry classDefInAst = null;
         if(request.moduleName.equals(definition.module.getName())){
-            ASTEntry classDefInAst = getOriginalClassDefInAst(root);
+            classDefInAst = getOriginalClassDefInAst(root);
             
             if(classDefInAst == null){
                 status.addFatalError("Unable to find the original definition for the class definition.");
@@ -90,8 +92,22 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
             //it is defined in some other module
             oc = ScopeAnalysis.getLocalOcurrences(request.initialName, root);
         }
-        oc.addAll(ScopeAnalysis.getAttributeReferences(request.initialName, root));
         
+        List<ASTEntry> attributeReferences = ScopeAnalysis.getAttributeReferences(request.initialName, root);
+        
+        if(classDefInAst != null){
+            NameTokType funcName = ((ClassDef)classDefInAst.node).name;
+            for (ASTEntry entry : attributeReferences) {
+                if(entry.node != funcName){
+                    oc.add(entry);
+                }
+            }
+        }else{
+            oc.addAll(attributeReferences);
+        }
+
+        oc.addAll(ScopeAnalysis.getCommentOcurrences(request.initialName, root));
+        oc.addAll(ScopeAnalysis.getStringOcurrences(request.initialName, root));
 		addOccurrences(request, oc);
     }
 

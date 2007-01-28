@@ -26,7 +26,7 @@ public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
             DEBUG_REFERENCES = true;
             RenameClassRefactoringTest test = new RenameClassRefactoringTest();
             test.setUp();
-            test.testRenameLocalClass();
+            test.testRename1();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameClassRefactoringTest.class);
@@ -43,14 +43,21 @@ public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
     
     public void testRename1() throws Exception {
         Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass.renfoo", 0, 8);
-        assertTrue(references.containsKey("reflib.renameclass.renfoo") == false); //the current module does not have a separated key here
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
         
-        assertTrue(references.containsKey("reflib.renameclass.__init__") == false);
+        assertFalse(references.containsKey("reflib.renameclass.renfoo")); //the current module does not have a separated key here
+        assertFalse(references.containsKey("reflib.renameclass.__init__"));
         
         //the modules with a duplicate definition here should not be in the results.
-        assertTrue(references.containsKey("reflib.renameclass.accessdup") == false);
-        assertTrue(references.containsKey("reflib.renameclass.duprenfoo") == false);
+        assertFalse(references.containsKey("reflib.renameclass.accessdup"));
+        assertFalse(references.containsKey("reflib.renameclass.duprenfoo"));
+        assertEquals(4, references.get(CURRENT_MODULE_IN_REFERENCES).size());
+        assertContains(1, 7, references.get(CURRENT_MODULE_IN_REFERENCES));
+        assertContains(4, 7, references.get(CURRENT_MODULE_IN_REFERENCES));
+        assertContains(6, 11, references.get(CURRENT_MODULE_IN_REFERENCES));
+        assertContains(7, 10, references.get(CURRENT_MODULE_IN_REFERENCES));
+        
+
     }
 
     
