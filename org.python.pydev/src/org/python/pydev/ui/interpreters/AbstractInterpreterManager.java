@@ -125,7 +125,8 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      */
     public boolean hasInfoOnInterpreter(String interpreter) {
         if(interpreter == null){
-            return false;
+            InterpreterInfo info = (InterpreterInfo) exeToInfo.get(getDefaultInterpreter());
+            return info != null;
         }
         interpreter = interpreter.toLowerCase();
         String[] interpreters = getInterpreters();
