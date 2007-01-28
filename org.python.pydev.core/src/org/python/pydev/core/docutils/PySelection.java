@@ -946,28 +946,27 @@ public class PySelection {
     
     public static List<Integer> getLineStartOffsets(String replacementString) {
     	ArrayList<Integer> ret = new ArrayList<Integer>();
-    	
-    	int foundAt = 0;
+    	ret.add(0);//there is always a starting one at 0
     	
     	//we may have line breaks with \r\n, or only \n or \r
     	for (int i = 0; i < replacementString.length(); i++) {
     		char c = replacementString.charAt(i);
     		if(c == '\r'){
-    			foundAt = i;
+    		    i++;
+    			int foundAt = i;
     			
-    			i++;
     			if(i < replacementString.length()){
     				c = replacementString.charAt(i);
+    				if(c == '\n'){
+//    				    i++;
+    				    foundAt = i+1;
+    				}
     			}
-    		}
-    		
-    		if(c == '\n'){
-    			foundAt = i;
-    			i++;
-    		}
-    		if(foundAt != -1){
-    			ret.add(i);
-    			foundAt = -1;
+    			ret.add(foundAt);
+                
+    		}else if(c == '\n'){
+    		    i++;
+    		    ret.add(i);
     		}
     	}
     	
