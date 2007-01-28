@@ -20,7 +20,7 @@ import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 
 import com.python.pydev.refactoring.refactorer.Refactorer;
-import com.python.pydev.refactoring.refactorer.RefactorerRequestConstants;
+import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 import com.python.pydev.refactoring.wizards.extract.PyExtractMethodProcessor;
 import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 
@@ -126,7 +126,7 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
         PySelection ps = new PySelection(doc, line, col);
         
         RefactoringRequest request = new RefactoringRequest(null, ps, nature);
-        request.setAdditionalInfo(RefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, onlyOnLocalScope);
+        request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, onlyOnLocalScope);
         request.moduleName = "foo";
         request.inputName = newName;
         request.fillInitialNameAndOffset();

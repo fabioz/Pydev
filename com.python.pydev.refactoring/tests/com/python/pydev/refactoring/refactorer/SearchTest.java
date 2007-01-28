@@ -425,7 +425,7 @@ public class SearchTest extends AdditionalInfoTestsBase {
         RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
         refactoringRequest.ps = new PySelection(refactoringRequest.getDoc(), 3, line.length()-"1(self):".length()); //find the 'static1' method itself
         
-        refactoringRequest.setAdditionalInfo(RefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
+        refactoringRequest.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
         
         assertEquals(1, pointers.length);
@@ -450,7 +450,7 @@ public class SearchTest extends AdditionalInfoTestsBase {
         RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
         refactoringRequest.ps = new PySelection(refactoringRequest.getDoc(), 0, line.length()-"Static(object):".length()); //find the 'TestStatic' class itself
         
-        refactoringRequest.setAdditionalInfo(RefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
+        refactoringRequest.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
         
         assertEquals(1, pointers.length);
@@ -471,7 +471,7 @@ public class SearchTest extends AdditionalInfoTestsBase {
         
         RefactoringRequest refactoringRequest = createRefactoringRequest(new Document(str), "foo", 1, 9);
         
-        refactoringRequest.setAdditionalInfo(RefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
+        refactoringRequest.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
         
         assertEquals(1, pointers.length);
@@ -489,7 +489,7 @@ public class SearchTest extends AdditionalInfoTestsBase {
     	
     	RefactoringRequest refactoringRequest = createRefactoringRequest(new Document(str), "foo", 1, 9);
     	
-    	refactoringRequest.setAdditionalInfo(RefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
+    	refactoringRequest.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
     	ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
     	
     	assertEquals(1, pointers.length);
@@ -506,7 +506,7 @@ public class SearchTest extends AdditionalInfoTestsBase {
         
         RefactoringRequest refactoringRequest = createRefactoringRequest(new Document(str), "foo", 1, 9);
         
-        refactoringRequest.setAdditionalInfo(RefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
+        refactoringRequest.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
         
         assertEquals(2, pointers.length);

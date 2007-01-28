@@ -161,7 +161,7 @@ public class RefactorerFindDefinition {
                 throw new RuntimeException(e);
             }
             
-            if(pointers.size() == 0 && ((Boolean)request.getAdditionalInfo(RefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, true))){
+            if(pointers.size() == 0 && ((Boolean)request.getAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, true))){
                 String lookForInterface = tokenAndQual[1];
                 List<IInfo> tokensEqualTo = AdditionalProjectInterpreterInfo.getTokensEqualTo(lookForInterface, request.nature,
                         AbstractAdditionalInterpreterInfo.TOP_LEVEL | AbstractAdditionalInterpreterInfo.INNER);

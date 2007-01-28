@@ -18,7 +18,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
-import com.python.pydev.refactoring.refactorer.RefactorerRequestConstants;
+import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
 
 /**
@@ -76,7 +76,7 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
             
             while(classDefInAst.parent != null){
                 if(classDefInAst.parent.node instanceof FunctionDef){
-                    request.setAdditionalInfo(RefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, true); //it is in a local scope.
+                    request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, true); //it is in a local scope.
                     oc = this.getOccurrencesWithScopeAnalyzer(request);
                     addOccurrences(request, oc);
                     return;

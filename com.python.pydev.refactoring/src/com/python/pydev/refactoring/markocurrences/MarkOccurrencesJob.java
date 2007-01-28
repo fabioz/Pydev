@@ -41,7 +41,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.PydevPlugin;
-import com.python.pydev.refactoring.refactorer.RefactorerRequestConstants;
+import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 import com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage;
 import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 
@@ -282,8 +282,8 @@ public class MarkOccurrencesJob extends Job{
         
         req.fillInitialNameAndOffset();
         req.inputName = "foo";
-        req.setAdditionalInfo(RefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
-        req.setAdditionalInfo(RefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, true);
+        req.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
+        req.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, true);
         return req;
     }
 

@@ -24,7 +24,7 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.nature.PythonNature;
 
-import com.python.pydev.refactoring.refactorer.RefactorerRequestConstants;
+import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 
 /**
  * This class provides helper methods for finding things in the workspace. 
@@ -110,7 +110,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
             request.getMonitor().done();
             request.popMonitor();
         }
-        boolean onlyInLocalScope = (Boolean)request.getAdditionalInfo(RefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);
+        boolean onlyInLocalScope = (Boolean)request.getAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);
         if(!onlyInLocalScope && !status.hasFatalError()){
             doCheckInitialOnWorkspace(status, request);
         }

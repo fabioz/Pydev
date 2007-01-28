@@ -4,6 +4,8 @@
 package com.python.pydev.refactoring.wizards.rename;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,10 +38,11 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
+import com.python.pydev.analysis.scopeanalysis.AstEntryScopeAnalysisConstants;
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitor;
 import com.python.pydev.refactoring.changes.PyRenameResourceChange;
+import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 import com.python.pydev.refactoring.refactorer.RefactorerFindReferences;
-import com.python.pydev.refactoring.refactorer.RefactorerRequestConstants;
 import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
 
 /**
@@ -127,16 +130,31 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
     	Set<Integer> s = new HashSet<Integer>();
     	
         List<Tuple<TextEdit, String>> ret = new ArrayList<Tuple<TextEdit, String>>();
-        StringBuffer buf = new StringBuffer();
-        buf.append("Change: ");
-        buf.append(request.initialName);
-        buf.append(" >> ");
-        buf.append(request.inputName);
-        buf.append(" (line:");
+        //ocurrences = sortOccurrences(ocurrences);
+        
+        
         for(ASTEntry entry : ocurrences){
-            StringBuffer entryBuf = new StringBuffer(buf.toString());
+            StringBuffer entryBuf = new StringBuffer();
+            
+            Integer loc = (Integer)entry.getAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, 0);
+            
+            if(loc == AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_IN_COMMENT){
+                entryBuf.append("Change (comment): ");
+                
+            }else if(loc == AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_IN_STRING){
+                entryBuf.append("Change (string): ");
+                
+            }else{
+                entryBuf.append("Change: ");
+            }
+            entryBuf.append(request.initialName);
+            entryBuf.append(" >> ");
+            entryBuf.append(request.inputName);
+            entryBuf.append(" (line:");
             entryBuf.append(entry.node.beginLine);
             entryBuf.append(")");
+            
+            
             SimpleNode node = entry.node;
             if(node instanceof ClassDef){
                 ClassDef def = (ClassDef) node;
@@ -149,6 +167,29 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
             }
         }
         return ret;
+    }
+
+    /**
+     * This method is used to sort the occurrences given the place where they were found
+     */
+    public static List<ASTEntry> sortOccurrences(List<ASTEntry> ocurrences) {
+        ocurrences = new ArrayList<ASTEntry>(ocurrences);
+
+        Collections.sort(ocurrences, new Comparator<ASTEntry>(){
+
+            public int compare(ASTEntry o1, ASTEntry o2) {
+                int o1Found = (Integer) o1.getAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, 0);  
+                int o2Found = (Integer) o2.getAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, 0);  
+                if(o1Found == o2Found){
+                    return 0;
+                }
+                if(o1Found < o2Found){
+                    return -1;
+                }else{
+                    return 1;
+                }
+            }});
+        return ocurrences;
     }
 
     /**
@@ -171,7 +212,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
     public void findReferencesToRename(RefactoringRequest request, RefactoringStatus status) {
         this.request = request;
         
-        if((Boolean)request.getAdditionalInfo(RefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false)){
+        if((Boolean)request.getAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false)){
             findReferencesToRenameOnLocalScope(request, status);
             
         }else{

@@ -93,7 +93,9 @@ public class ScopeAnalysis {
             public Object visitStr(Str node) throws Exception {
                 List<Name> names = checkSimpleNodeForTokenMatch(occurencesFor, new ArrayList<Name>(), node, NodeUtils.getStringToPrint(node));
                 for (Name name : names){
-                    ret.add(atomic(name));
+                    ASTEntry astEntryToAdd = atomic(name);
+                    astEntryToAdd.setAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_IN_STRING);
+                    ret.add(astEntryToAdd);
                 }
                 return super.visitStr(node);
             }
@@ -123,7 +125,9 @@ public class ScopeAnalysis {
                 List<Name> names = checkComments(node.specialsBefore, occurencesFor);
                 names.addAll(checkComments(node.specialsAfter, occurencesFor));
                 for (Name name : names){
-                    ret.add(atomic(name));
+                    ASTEntry astEntryToAdd = atomic(name);
+                    astEntryToAdd.setAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_IN_COMMENT);
+                    ret.add(astEntryToAdd);
                 }
                 return r;
             }

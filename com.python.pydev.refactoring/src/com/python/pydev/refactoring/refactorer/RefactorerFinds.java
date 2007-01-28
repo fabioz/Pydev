@@ -187,7 +187,7 @@ public class RefactorerFinds {
      */
     public HierarchyNodeModel findClassHierarchy(RefactoringRequest request) {
         try {
-            request.setAdditionalInfo(RefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
+            request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
             ItemPointer[] pointers = this.refactorer.findDefinition(request);
             if(pointers.length == 1){
                 //ok, this is the default one.

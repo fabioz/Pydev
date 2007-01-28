@@ -5,7 +5,7 @@ package com.python.pydev.refactoring.refactorer;
  * 
  * @author Fabio
  */
-public class RefactorerRequestConstants {
+public class AstEntryRefactorerRequestConstants {
     public static final String FIND_DEFINITION_IN_ADDITIONAL_INFO = "findDefinitionInAdditionalInfo";
     public static final String FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE = "findReferencesOnlyOnLocalScope";
 }
