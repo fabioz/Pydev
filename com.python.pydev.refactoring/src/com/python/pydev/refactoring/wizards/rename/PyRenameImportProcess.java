@@ -142,7 +142,7 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
     }
 
     @Override
-    protected List<ASTEntry> getEntryOccurrences(RefactoringStatus status, String initialName, SourceModule module) {
+    protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName, SourceModule module) {
         List<ASTEntry> entryOccurrences = new ArrayList<ASTEntry>();
         
         try {

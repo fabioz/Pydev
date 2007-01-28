@@ -285,7 +285,11 @@ public class ScopeAnalysis {
         		for(Integer lineStartOffset:lineStartOffsets){
         			if(lineStartOffset < offset){
         				name.beginLine = node.beginLine+line;
-        				name.beginColumn = node.beginColumn+offset-lineStartOffset;
+                        if(line == 0){
+                            name.beginColumn = node.beginColumn+offset-lineStartOffset;
+                        }else{
+                            name.beginColumn = offset-lineStartOffset+1;
+                        }
         			}else{
         				break;
         			}

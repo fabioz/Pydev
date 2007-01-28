@@ -119,7 +119,7 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
      * This method is called for each module that may have some reference to the definition
      * we're looking for. 
      */
-    protected List<ASTEntry> getEntryOccurrences(RefactoringStatus status, String initialName, SourceModule module) {
+    protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName, SourceModule module) {
         List<ASTEntry> entryOccurrences = ScopeAnalysis.getLocalOcurrences(initialName, module.getAst());
         entryOccurrences.addAll(ScopeAnalysis.getAttributeReferences(initialName, module.getAst()));
         return entryOccurrences;

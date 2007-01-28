@@ -16,6 +16,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
@@ -99,7 +100,12 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
 		        }
 		        
 		        final List<ASTEntry> attributeReferences = ScopeAnalysis.getAttributeReferences(occurencesFor, simpleNode);
-				ret.addAll(attributeReferences);
+		        NameTokType funcName = ((FunctionDef)functionDefEntry.node).name;
+                for (ASTEntry entry : attributeReferences) {
+                    if(entry.node != funcName){
+                        ret.add(entry);
+                    }
+                }
 		        
 	        }else if(parentNode instanceof FunctionDef){
 		    	//get the references inside of the parent (this will include the function itself)
@@ -174,9 +180,10 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
      * (Abstract in superclass) 
      */
     @Override
-    protected List<ASTEntry> getEntryOccurrences(RefactoringStatus status, String initialName, SourceModule module) {
+    protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName, SourceModule module) {
         SimpleNode root = module.getAst();
         
+        //note that the definition may be found in a module that is not actually the 'current' module
         if(!definition.module.getName().equals(module.getName())){
             return ScopeAnalysis.getLocalOcurrences(initialName, root, false);
         }else{

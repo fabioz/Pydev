@@ -3,6 +3,7 @@ package com.python.pydev.refactoring.refactorer.refactorings.rename;
 import java.util.List;
 import java.util.Map;
 
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.refactoring.wizards.rename.PyRenameParameterProcess;
@@ -15,7 +16,7 @@ public class RenameParamRefactoringTest extends RefactoringRenameTestBase  {
             DEBUG_REFERENCES = false;
             RenameParamRefactoringTest test = new RenameParamRefactoringTest();
             test.setUp();
-            test.testRenameParameter();
+            test.testRenameParameter2();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameParamRefactoringTest.class);
@@ -33,11 +34,33 @@ public class RenameParamRefactoringTest extends RefactoringRenameTestBase  {
     	//Line 1 = "def Method1(param1=param1, param2=None):"
     	//rename param1
         Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameparameter.methoddef", 1, 14); 
-        System.out.println(references);
+        assertEquals(2, references.size());
     	assertTrue(references.containsKey("reflib.renameparameter.methodaccess")); 
     	assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
         assertEquals(2, references.get(CURRENT_MODULE_IN_REFERENCES).size());
         assertEquals(2, references.get("reflib.renameparameter.methodaccess").size());
 	}
+    
+    public void testRenameParameter2() throws Exception {
+        //Line 1 = "def Method1(param1=param1, param2=None):"
+        //rename param1
+        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameparameter.methoddef2", 1, 19); 
+        assertEquals(1, references.size());
+        assertEquals(4, references.get(CURRENT_MODULE_IN_REFERENCES).size());
+        assertContains(2, 18, references.get(CURRENT_MODULE_IN_REFERENCES));
+        assertContains(4, 20, references.get(CURRENT_MODULE_IN_REFERENCES));
+        assertContains(4, 38, references.get(CURRENT_MODULE_IN_REFERENCES));
+        assertContains(7, 6, references.get(CURRENT_MODULE_IN_REFERENCES));
+    }
+
+    private void assertContains(int line, int col, List<ASTEntry> names) {
+        for (ASTEntry name : names) {
+            if(name.node.beginLine == line && name.node.beginColumn == col){
+                return;
+            }
+        }
+        fail(StringUtils.format("Unable to find line:%s col:%s in %s", line, col, names));
+        
+    }
 
 }

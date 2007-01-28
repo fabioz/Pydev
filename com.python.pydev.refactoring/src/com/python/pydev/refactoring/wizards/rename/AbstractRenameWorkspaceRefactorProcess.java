@@ -58,7 +58,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
      * @return a list with the references that point to the definition we're renaming. 
      */
     protected List<ASTEntry> getOccurrencesInOtherModule(RefactoringStatus status, String initialName, SourceModule module, PythonNature nature) {
-        List<ASTEntry> entryOccurrences = getEntryOccurrences(status, initialName, module);
+        List<ASTEntry> entryOccurrences = findReferencesOnOtherModule(status, initialName, module);
 
         if(getRecheckWhereDefinitionWasFound()){
             for (Iterator<ASTEntry> iter = entryOccurrences.iterator(); iter.hasNext();) {
@@ -188,7 +188,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
      * @param module this is the module that may contain references to that module
      * @return a list of entries that are references to the given module.
      */
-    protected abstract List<ASTEntry> getEntryOccurrences(RefactoringStatus status, String initialName, SourceModule module);
+    protected abstract List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName, SourceModule module);
 
 
 }

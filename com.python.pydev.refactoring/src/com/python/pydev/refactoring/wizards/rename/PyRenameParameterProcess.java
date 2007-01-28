@@ -76,7 +76,10 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
                 processFunctionDef(ret, entry);
                 
             }else if(entry.node instanceof Name){
-                processFoundName(root, ret, entry);
+                processFoundName(root, ret, (Name) entry.node);
+                
+            }else if(entry.node instanceof NameTok){
+                processFoundNameTok(root, ret, (NameTok) entry.node);
                 
             }
 		}
@@ -95,17 +98,28 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
     }
 
 
-    private void processFoundName(SimpleNode root, List<ASTEntry> ret, ASTEntry entry) {
-        Name name = (Name) entry.node;
+    private void processFoundNameTok(SimpleNode root, List<ASTEntry> ret, NameTok name) {
+        if(name.ctx == NameTok.Attrib){
+            Call call = FindCallVisitor.findCall(name, root);
+            processCall(ret, call);
+        }
+    }
+    
+    private void processFoundName(SimpleNode root, List<ASTEntry> ret, Name name) {
         if(name.ctx == Name.Load){
             Call call = FindCallVisitor.findCall(name, root);
-            List<ASTEntry> found = ScopeAnalysis.getLocalOcurrences(request.initialName, call);
-            for (ASTEntry entry2 : found) {
-                if(entry2.node instanceof NameTok){
-                    NameTok name2 = (NameTok) entry2.node;
-                    if(name2.ctx == NameTok.KeywordName){
-                        ret.add(entry2);
-                    }
+            processCall(ret, call);
+        }
+    }
+
+
+    private void processCall(List<ASTEntry> ret, Call call) {
+        List<ASTEntry> found = ScopeAnalysis.getLocalOcurrences(request.initialName, call);
+        for (ASTEntry entry2 : found) {
+            if(entry2.node instanceof NameTok){
+                NameTok name2 = (NameTok) entry2.node;
+                if(name2.ctx == NameTok.KeywordName){
+                    ret.add(entry2);
                 }
             }
         }

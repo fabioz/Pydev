@@ -26,7 +26,7 @@ public class RenameFunctionRefactoringTest extends RefactoringRenameTestBase {
             DEBUG_REFERENCES = false;
             RenameFunctionRefactoringTest test = new RenameFunctionRefactoringTest();
             test.setUp();
-            test.testRename3();
+            test.testRename4();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameFunctionRefactoringTest.class);
@@ -70,6 +70,13 @@ public class RenameFunctionRefactoringTest extends RefactoringRenameTestBase {
     	assertEquals(4, references.get("reflib.renameparameter.methodaccess").size());
     	assertEquals(1, references.get(CURRENT_MODULE_IN_REFERENCES).size());
     	checkProcessors();
+    }
+    
+    public void testRename4() throws Exception {
+        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamefunction.classfunc", 1, 8);
+        assertEquals(1, references.size()); 
+        assertEquals(2, references.get(CURRENT_MODULE_IN_REFERENCES).size());
+        checkProcessors();
     }
     
 

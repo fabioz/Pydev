@@ -39,7 +39,7 @@ public class PyRenameAttributeProcess extends AbstractRenameWorkspaceRefactorPro
 
 
     @Override
-    protected List<ASTEntry> getEntryOccurrences(RefactoringStatus status, String initialName, SourceModule module) {
+    protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName, SourceModule module) {
         return ScopeAnalysis.getAttributeReferences(initialName, module.getAst()); //will get the self.xxx occurrences
     }
 

@@ -183,6 +183,9 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
         if(DEBUG_REFERENCES){
             for (Map.Entry<String, List<ASTEntry>> entry : referencesForRename.entrySet()) {
                 System.out.println(entry.getKey());
+                for(ASTEntry e :entry.getValue()){
+                    System.out.println(e);
+                }
             }
         }
         return referencesForRename;
