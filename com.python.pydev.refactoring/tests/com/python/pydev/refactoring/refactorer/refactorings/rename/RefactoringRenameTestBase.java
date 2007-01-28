@@ -252,5 +252,19 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
 
         return occurrencesToReturn;
     }
+   
+    /**
+     * Used to see if some line/col is available in a list of entries.
+     */
+    protected void assertContains(int line, int col, List<ASTEntry> names) {
+        for (ASTEntry name : names) {
+            if(name.node.beginLine == line && name.node.beginColumn == col){
+                return;
+            }
+        }
+        fail(StringUtils.format("Unable to find line:%s col:%s in %s", line, col, names));
+        
+    }
+
 
 }

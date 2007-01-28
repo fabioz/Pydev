@@ -3,7 +3,6 @@ package com.python.pydev.refactoring.refactorer.refactorings.rename;
 import java.util.List;
 import java.util.Map;
 
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.refactoring.wizards.rename.PyRenameParameterProcess;
@@ -53,14 +52,5 @@ public class RenameParamRefactoringTest extends RefactoringRenameTestBase  {
         assertContains(7, 6, references.get(CURRENT_MODULE_IN_REFERENCES));
     }
 
-    private void assertContains(int line, int col, List<ASTEntry> names) {
-        for (ASTEntry name : names) {
-            if(name.node.beginLine == line && name.node.beginColumn == col){
-                return;
-            }
-        }
-        fail(StringUtils.format("Unable to find line:%s col:%s in %s", line, col, names));
-        
-    }
 
 }

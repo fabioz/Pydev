@@ -23,10 +23,10 @@ public class RenameFunctionRefactoringTest extends RefactoringRenameTestBase {
 
     public static void main(String[] args) {
         try {
-            DEBUG_REFERENCES = false;
+            DEBUG_REFERENCES = true;
             RenameFunctionRefactoringTest test = new RenameFunctionRefactoringTest();
             test.setUp();
-            test.testRename4();
+            test.testRename1();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameFunctionRefactoringTest.class);
@@ -43,15 +43,24 @@ public class RenameFunctionRefactoringTest extends RefactoringRenameTestBase {
     
     public void testRename1() throws Exception {
         Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamefunction.renfoo", 0, 8);
-        assertTrue(references.containsKey("reflib.renamefunction.renfoo") == false); //the current module does not have a separated key here
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
+        assertTrue(references.containsKey("reflib.renamefunction.accessfoo")); 
         
-        assertTrue(references.containsKey("reflib.renamefunction.__init__") == false);
+        assertFalse(references.containsKey("reflib.renamefunction.renfoo")); //the current module does not have a separated key here
+        assertFalse(references.containsKey("reflib.renamefunction.__init__"));
         
         //the modules with a duplicate definition here should not be in the results.
-        assertTrue(references.containsKey("reflib.renamefunction.accessdup") == false);
-        assertTrue(references.containsKey("reflib.renamefunction.duprenfoo") == false);
-        checkProcessors();
+        assertFalse(references.containsKey("reflib.renamefunction.accessdup"));
+        assertFalse(references.containsKey("reflib.renamefunction.duprenfoo"));
+        
+        assertEquals(4, references.get(CURRENT_MODULE_IN_REFERENCES).size());
+        assertContains(1, 5, references.get(CURRENT_MODULE_IN_REFERENCES));
+        assertContains(4, 7, references.get(CURRENT_MODULE_IN_REFERENCES));
+        assertContains(5, 14, references.get(CURRENT_MODULE_IN_REFERENCES));
+        assertContains(6, 15, references.get(CURRENT_MODULE_IN_REFERENCES));
+        
+        assertEquals(2, references.size());
+        assertEquals(2, references.get("reflib.renamefunction.accessfoo").size());
     }
 
     

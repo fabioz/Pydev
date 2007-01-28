@@ -287,6 +287,9 @@ public class ScopeAnalysis {
         		Name name = new Name(match, Name.Artificial);
         		
         		for(Integer lineStartOffset:lineStartOffsets){
+                    if(line == 0 && lineStartOffset > 0){
+                        line = 1;//because it starts with a new line
+                    }
         			if(lineStartOffset < offset){
         				name.beginLine = node.beginLine+line;
                         if(line == 0){

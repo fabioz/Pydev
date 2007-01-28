@@ -14,6 +14,7 @@ public class ScopeAnalysisCommentsTest extends TestCase{
     	try {
 			ScopeAnalysisCommentsTest test = new ScopeAnalysisCommentsTest();
 			test.setUp();
+            test.test1();
 			test.tearDown();
 			junit.textui.TestRunner.run(ScopeAnalysisCommentsTest.class);
 		} catch (Exception e) {
@@ -34,4 +35,32 @@ public class ScopeAnalysisCommentsTest extends TestCase{
 		assertEquals(10, names.get(0).beginLine);
 		assertEquals(20+1, names.get(0).beginColumn);
 	}
+    
+    public void test2() throws Exception {
+        ArrayList<Object> c = new ArrayList<Object>();
+        commentType comment = new commentType("\r\n#comment with RenFoo\r\n");
+        comment.beginLine=5;
+        comment.beginColumn=22;
+        c.add(comment);
+        
+        List<Name> names = ScopeAnalysis.checkComments(c, "RenFoo");
+        assertEquals(1, names.size());
+        
+        assertEquals(6, names.get(0).beginLine);
+        assertEquals(15, names.get(0).beginColumn);
+    }
+    
+    public void test3() throws Exception {
+        ArrayList<Object> c = new ArrayList<Object>();
+        commentType comment = new commentType("\r\n\r\n\n#comment with RenFoo\r\n");
+        comment.beginLine=5;
+        comment.beginColumn=22;
+        c.add(comment);
+        
+        List<Name> names = ScopeAnalysis.checkComments(c, "RenFoo");
+        assertEquals(1, names.size());
+        
+        assertEquals(8, names.get(0).beginLine);
+        assertEquals(15, names.get(0).beginColumn);
+    }
 }

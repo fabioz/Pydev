@@ -116,6 +116,8 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
         	ret.addAll(ScopeAnalysis.getLocalOcurrences(occurencesFor, simpleNode));
         }
         
+        ret.addAll(ScopeAnalysis.getCommentOcurrences(occurencesFor, simpleNode));
+        ret.addAll(ScopeAnalysis.getStringOcurrences(occurencesFor, simpleNode));
         
         //get the references to Names that access that method in the same scope
         return ret;
