@@ -28,6 +28,7 @@ import org.python.pydev.editor.codecompletion.revisited.ProjectStub;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -263,6 +264,9 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             SimpleNode node = name.node;
             if(node instanceof ClassDef){
                 node = ((ClassDef)node).name; 
+            }
+            if(node instanceof FunctionDef){
+                node = ((FunctionDef)node).name; 
             }
             if(node.beginLine == line && node.beginColumn == col){
                 return;

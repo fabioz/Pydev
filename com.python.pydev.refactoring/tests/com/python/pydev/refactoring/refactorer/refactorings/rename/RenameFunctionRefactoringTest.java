@@ -59,8 +59,13 @@ public class RenameFunctionRefactoringTest extends RefactoringRenameTestBase {
         assertContains(5, 14, references.get(CURRENT_MODULE_IN_REFERENCES));
         assertContains(6, 15, references.get(CURRENT_MODULE_IN_REFERENCES));
         
+        assertEquals(4, references.get("reflib.renamefunction.accessfoo").size());
+        assertContains(1, 20, references.get("reflib.renamefunction.accessfoo"));
+        assertContains(4, 7, references.get("reflib.renamefunction.accessfoo"));
+        assertContains(5, 17, references.get("reflib.renamefunction.accessfoo"));
+        assertContains(7, 5, references.get("reflib.renamefunction.accessfoo"));
+        
         assertEquals(2, references.size());
-        assertEquals(2, references.get("reflib.renamefunction.accessfoo").size());
     }
 
     
