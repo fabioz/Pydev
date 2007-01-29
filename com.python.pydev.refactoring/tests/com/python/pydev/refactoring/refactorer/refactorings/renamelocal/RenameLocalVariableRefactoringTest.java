@@ -13,7 +13,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         	DEBUG = true;
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameParamDocs2();
+            test.testRenameImportLocally4();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -176,6 +176,8 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     	"from extendable.constants import %s\n" +
     	"def run():\n" +
     	"    print %s\n" +
+        "    #comment %s\n" +
+        "    'string %s'" +
     	"\n" +
     	"";
     	int line = 2;
@@ -495,6 +497,18 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     	
     	checkRename(str, 2, 7, "tok", false, true);
     }
+    
+    public void testRenameComment() throws Exception {
+        String str = "" +
+        "%s = 10\n" +
+        "#checking %s right?\n"+
+        "def m1(a=%s):\n" + 
+        "    pass\n" +
+        "";
+        
+        checkRename(str, 1, 11, "tok", false, true);
+    }
+    
     
 
 }
