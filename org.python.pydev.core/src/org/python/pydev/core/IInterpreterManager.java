@@ -138,7 +138,8 @@ public interface IInterpreterManager {
     public int getRelatedId();
 
     /**
-     * @param interpreter the interpreter we care about
+     * @param interpreter the interpreter we care about. If null is passed, it should go for info
+     * on the default interpreter
      * @return whether the interpreter has information on this manager.
      */
     public boolean hasInfoOnInterpreter(String interpreter);

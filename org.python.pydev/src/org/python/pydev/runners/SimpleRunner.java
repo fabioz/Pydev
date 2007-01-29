@@ -301,7 +301,7 @@ public abstract class SimpleRunner {
         Process process = null;
         try {
             monitor.setTaskName("Making pythonpath environment..."+executionString);
-            String[] envp = getEnvironment(project, null); //default
+            String[] envp = getEnvironment(project, null); //should get the environment for the default interpreter and the given project
             monitor.setTaskName("Making exec..."+executionString);
             process = Runtime.getRuntime().exec(executionString, envp, workingDir);
         } catch (Exception e) {
