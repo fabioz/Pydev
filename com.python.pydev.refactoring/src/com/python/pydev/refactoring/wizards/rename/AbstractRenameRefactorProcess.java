@@ -36,6 +36,8 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.analysis.scopeanalysis.AstEntryScopeAnalysisConstants;
@@ -159,6 +161,10 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
             if(node instanceof ClassDef){
                 ClassDef def = (ClassDef) node;
                 node = def.name;
+            }
+            if(node instanceof FunctionDef){
+            	FunctionDef def = (FunctionDef) node;
+            	node = def.name;
             }
             int offset = PySelection.getAbsoluteCursorOffset(doc, node.beginLine-1, node.beginColumn-1);
             if(!s.contains(offset)){

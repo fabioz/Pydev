@@ -35,6 +35,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.IParserObserver;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.refactoring.markocurrences.MarkOccurrencesJob;
@@ -165,7 +166,7 @@ public class PyRenameInFileAction extends Action{
 				i++;
                 try {
 					IRegion lineInformation = document.getLineInformation(entry.node.beginLine - 1);
-                    ProposalPosition proposalPosition = new ProposalPosition(document, lineInformation.getOffset() + entry.node.beginColumn - 1, req.initialName.length(), i , new ICompletionProposal[0]);
+                    ProposalPosition proposalPosition = new ProposalPosition(document, lineInformation.getOffset() + NodeUtils.getColDefinition(entry.node) -1, req.initialName.length(), i , new ICompletionProposal[0]);
                     if(found.contains(proposalPosition) == false){
                     	found.add(proposalPosition);
                     	group.addPosition(proposalPosition);

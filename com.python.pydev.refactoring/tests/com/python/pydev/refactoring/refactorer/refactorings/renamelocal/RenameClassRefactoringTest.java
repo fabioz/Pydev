@@ -13,7 +13,7 @@ public class RenameClassRefactoringTest extends RefactoringLocalTestBase {
             DEBUG = true;
             RenameClassRefactoringTest test = new RenameClassRefactoringTest();
             test.setUp();
-            test.testRenameClass();
+            test.testRenameClassComments();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameClassRefactoringTest.class);
@@ -43,6 +43,24 @@ public class RenameClassRefactoringTest extends RefactoringLocalTestBase {
     	"\n" +
     	"\n";
     	checkRename(str, 1, 5, "bla", false, true);
+    }
+    
+    public void testRenameClassComments() throws CoreException {
+    	String str = "" +
+    	"#===================================================================================================\n" +
+    	"# Cache\n" +
+    	"#===================================================================================================\n" +
+    	"class Cache(object):\n" +
+    	"    def ClearCaches(self):\n" +
+    	"        self.calc_cache.clear()\n" +
+    	"#===================================================================================================\n" +
+    	"# %s\n" +
+    	"#===================================================================================================\n" +
+    	"class %s(object):\n" +
+    	"    def __init__(self, info):\n" +
+    	"        self.info = info\n" +
+    	"\n";
+    	checkRename(str, 9, 7, "ExportMethodCalcBase", false, true);
     }
 
 }
