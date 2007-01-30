@@ -11,6 +11,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
@@ -122,15 +123,33 @@ public class ScopeAnalysis {
                 Object r = super.unhandled_node(node);
                 //now, we have to check it for occurrences in comments and strings too... (and create 
                 //names for those)
-                List<Name> names = checkComments(node.specialsBefore, occurencesFor);
+                checkNode(occurencesFor, ret, node);
+                return r;
+            }
+
+            @Override
+            public Object visitClassDef(ClassDef node) throws Exception {
+            	Object r = super.visitClassDef(node);
+            	checkNode(occurencesFor, ret, node);
+            	return r;
+            }
+            
+            @Override
+            public Object visitFunctionDef(FunctionDef node) throws Exception {
+            	Object r = super.visitFunctionDef(node);
+            	checkNode(occurencesFor, ret, node);
+            	return r;
+            }
+            
+			private void checkNode(final String occurencesFor, final List<ASTEntry> ret, SimpleNode node) {
+				List<Name> names = checkComments(node.specialsBefore, occurencesFor);
                 names.addAll(checkComments(node.specialsAfter, occurencesFor));
                 for (Name name : names){
                     ASTEntry astEntryToAdd = atomic(name);
                     astEntryToAdd.setAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_IN_COMMENT);
                     ret.add(astEntryToAdd);
                 }
-                return r;
-            }
+			}
             
         };   
         try {
