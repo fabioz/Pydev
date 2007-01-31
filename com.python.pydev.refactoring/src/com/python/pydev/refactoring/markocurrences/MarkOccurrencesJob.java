@@ -205,7 +205,7 @@ public class MarkOccurrencesJob extends Job{
 	        //ok, pre-conditions suceeded
 			return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(req,processor,true);
         }catch(Throwable e){
-        	Log.log("Error in occurrences while analyzing modName:"+req.moduleName+" initialName:"+req.initialName);
+        	Log.log("Error in occurrences while analyzing modName:"+req.moduleName+" initialName:"+req.initialName+" line (start at 0):"+req.ps.getCursorLine());
         	throw new RuntimeException(e);
         }
 	}

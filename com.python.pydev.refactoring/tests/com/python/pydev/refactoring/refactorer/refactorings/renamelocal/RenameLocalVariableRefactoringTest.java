@@ -13,7 +13,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         	DEBUG = true;
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameImportLocally4();
+            test.testRenameParam();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -58,6 +58,21 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
             "        %s.Leaf.setUp(self)";
 
         checkRename(str, line, col, "noleaf", false, true);
+    }
+    
+    public void testRenameParam() throws Exception {
+    	//the difference is that in this one we find the leaf module and in the first we don't
+    	int line = 2;
+    	int col = 24;
+    	String str = 
+    		"class MyProjectHandler(object):\n" +
+    		"    def testProjectManager(self):\n" +
+    		"        def MyClose(s, %s):\n" +
+    		"            pass\n" +
+    		"        foo(MyProjectHandler, Close = MyClose)\n" +
+    		"";
+    	
+    	checkRename(str, line, col, "project_id", false, true);
     }
 
     public void testRenameImportFromReference2() throws Exception {

@@ -114,6 +114,9 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
 
 
     private void processCall(List<ASTEntry> ret, Call call) {
+    	if(call == null){
+    		return;
+    	}
         List<ASTEntry> found = ScopeAnalysis.getLocalOcurrences(request.initialName, call);
         for (ASTEntry entry2 : found) {
             if(entry2.node instanceof NameTok){
