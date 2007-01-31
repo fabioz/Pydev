@@ -85,6 +85,11 @@ class PydevTestRunner:
         """ turns directory separators into dots and removes the ".py*" extension 
             so the string can be used as import statement """
         dirname, fname = os.path.split(s)
+        
+        if fname.count('.') > 1:
+            #if there's a file named xxx.xx.py, it is not a valid module, so, let's not load it...
+            return 
+        
         imp_stmt_pieces = [dirname.replace("\\","/").replace("/", "."), 
                            os.path.splitext(fname)[0]]
         if len(imp_stmt_pieces[0]) == 0:
