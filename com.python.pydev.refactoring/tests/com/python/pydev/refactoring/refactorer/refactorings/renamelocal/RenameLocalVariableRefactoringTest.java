@@ -13,7 +13,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         	DEBUG = true;
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameParam();
+            test.testCall();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -296,6 +296,20 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     	int line = 2;
     	int col = 19;
     	checkRename(str, line, col, "met1", false, true);
+    }
+    
+    
+    public void testCall() throws Exception {
+    	String str = "" +
+    	"class A(object):\n" +
+    	"    %s( A, self ).__init__( a,b )\n" +
+    	"\n" +
+    	"\n" +
+    	"\n" +
+    	"";
+    	int line = 1;
+    	int col = 5;
+    	checkRename(str, line, col, "super", false, true);
     }
     
     
