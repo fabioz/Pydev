@@ -13,7 +13,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         	DEBUG = true;
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testCall();
+            test.testAttrRename();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -46,6 +46,20 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         int line = 2;
         int col = 10;
         checkRename(getDefaultDocStr(), line, col, "bb", true, false, "aaa bb");
+    }
+    
+    public void testAttrRename() throws Exception {
+    	int line = 2;
+    	int col = 14;
+    	String str = 
+    		"class Bar(object):\n" +
+    		"    def _GetFoo(self):\n" +
+    		"        self.%s()\n" +
+    		"    def %s(self):\n" +
+    		"        pass\n" +
+    		"";
+    	
+    	checkRename(str, line, col, "_foo", false, true);
     }
 
     public void testRenameImportFromReference() throws Exception {
