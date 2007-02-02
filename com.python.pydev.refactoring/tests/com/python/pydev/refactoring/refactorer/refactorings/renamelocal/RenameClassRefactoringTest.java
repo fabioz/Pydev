@@ -45,6 +45,17 @@ public class RenameClassRefactoringTest extends RefactoringLocalTestBase {
     	checkRename(str, 1, 5, "bla", false, true);
     }
     
+    public void testRenameClassCall() throws CoreException {
+    	String str = "" +
+    	"class Foo:\n" +
+    	"    def DoBar(self):\n" +
+    	"        %s(1,2)\n" +
+    	"class %s(object):\n" +
+    	"    pass\n" +
+    	"\n";
+    	checkRename(str, 2, 9, "Bar", false, true);
+    }
+    
     public void testRenameClassComments() throws CoreException {
     	String str = "" +
     	"#===================================================================================================\n" +
