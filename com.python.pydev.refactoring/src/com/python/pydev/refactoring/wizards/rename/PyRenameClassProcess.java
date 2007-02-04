@@ -19,7 +19,6 @@ import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
-import com.python.pydev.analysis.messages.AbstractMessage;
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
@@ -110,7 +109,7 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
             //it is defined in the module we're looking for
             oc.addAll(this.getOccurrencesWithScopeAnalyzer(request));
         }else{
-            //it is defined in some other module (or as a comment... so, we won't have an exact match)
+            //it is defined in some other module (or as a comment... so, we won't have an exact match in the position)
             oc.addAll(ScopeAnalysis.getLocalOcurrences(request.initialName, root));
         }
         

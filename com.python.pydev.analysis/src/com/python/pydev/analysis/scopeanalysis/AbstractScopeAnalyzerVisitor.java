@@ -194,12 +194,16 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             IToken tok = single.tok;
             String rep = tok.getRepresentation();
             if(rep.equals(token.getRepresentation())){
+                //found match in names to ignore... 
                 it.remove();
+                onNotDefinedFoundLater(n, found);
             }
         }
     }
 
-	protected void addToNamesToIgnore(IToken token, ScopeItems currScopeItems, org.python.pydev.core.Tuple<IToken, Found> tup) {
+
+
+    protected void addToNamesToIgnore(IToken token, ScopeItems currScopeItems, org.python.pydev.core.Tuple<IToken, Found> tup) {
 		currScopeItems.namesToIgnore.put(token.getRepresentation(), tup);
 		onAfterAddToNamesToIgnore(currScopeItems, tup);
 	}
@@ -434,6 +438,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         return null;
     }
 
+    @Override
+    public Object visitCall(Call node) throws Exception {
+        // TODO Auto-generated method stub
+        return super.visitCall(node);
+    }
+    
     /**
      * In this function, the visitor will transverse the value of the attribute as needed,
      * if it is a subscript, call, etc, as those things are not actually a part of the attribute,
@@ -798,7 +808,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             }
             if(addToNotDefined && !doCheckIsInNamesToIgnore(rep, token)){
                 if(scope.size() > 1){ //if we're not in the global scope, it might be defined later
-                    probablyNotDefined.add(makeFound(token)); //we are not in the global scope, so it might be defined later...
+                    Found foundForProbablyNotDefined = makeFound(token);
+                    probablyNotDefined.add(foundForProbablyNotDefined); //we are not in the global scope, so it might be defined later...
+                    onAddToProbablyNotDefined(token, foundForProbablyNotDefined);
                 }else{
                     onAddUndefinedMessage(token, makeFound(token)); //it is in the global scope, so, it is undefined.
                 }
@@ -930,6 +942,17 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     protected abstract void onLastScope(ScopeItems m);
 
     protected abstract void onAddUndefinedMessage(IToken token, Found foundAs);
+    
+    /**
+     * This one is not abstract, but is provided as a hook, as the others.
+     */
+    protected void onAddToProbablyNotDefined(IToken token, Found foundForProbablyNotDefined){
+    }
+    /**
+     * This one is not abstract, but is provided as a hook, as the others.
+     */
+    protected void onNotDefinedFoundLater(Found foundInProbablyNotDefined, Found laterFound) {
+    }
 
     protected abstract void onAddUndefinedVarInImportMessage(IToken foundTok, Found foundAs);
 

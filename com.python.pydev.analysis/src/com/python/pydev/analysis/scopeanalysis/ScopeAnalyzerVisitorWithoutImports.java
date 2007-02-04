@@ -174,6 +174,24 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
         onAddUndefinedMessage(token, foundAs);
     }
 
+    @Override
+    protected void onAddToProbablyNotDefined(IToken token, Found foundForProbablyNotDefined) {
+        super.onAddToProbablyNotDefined(token, foundForProbablyNotDefined);
+        onAddUndefinedMessage(token, foundForProbablyNotDefined);
+    }
+    
+    @Override
+    protected void onNotDefinedFoundLater(Found foundInProbablyNotDefined, Found laterFound) {
+        super.onNotDefinedFoundLater(foundInProbablyNotDefined, laterFound);
+        if(hitAsUndefined == foundInProbablyNotDefined){
+            //we have a 'late' match
+            hitAsUndefined = null;
+            Tuple3<Found, Integer, ASTEntry> tup = new Tuple3<Found, Integer, ASTEntry>(laterFound, -1, peekParent());
+            laterFound.addGeneratorsFromFound(foundInProbablyNotDefined);
+            addFoundOccurrence(tup);
+        }
+    }
+
     
     @Override
     protected void onAddUndefinedMessage(IToken token, Found found) {
