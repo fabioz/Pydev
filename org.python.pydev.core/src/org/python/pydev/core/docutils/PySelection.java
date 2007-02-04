@@ -306,6 +306,20 @@ public class PySelection {
 		ParsingUtils.removeLiterals(buf);
 		return buf.toString();
 	}
+    
+    /**
+     * @return the current column that is selected from the cursor.
+     */
+    public int getCursorColumn() {
+        try {
+            int absoluteOffset = getAbsoluteCursorOffset();
+            IRegion region = doc.getLineInformationOfOffset(absoluteOffset);
+            return absoluteOffset - region.getOffset();
+        } catch (BadLocationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     /**
      * Gets current line from document.
@@ -1530,6 +1544,8 @@ public class PySelection {
 
     //spaces* 'class' space+ identifier space* (? (.|char|space |,)* )?
     private static final Pattern ClassPattern = Pattern.compile("\\s*class\\s+[a-zA-Z]\\w*\\s*\\(?(\\s|\\w|\\.|\\,)*\\)?\\s*:");
+
+
 
 
 
