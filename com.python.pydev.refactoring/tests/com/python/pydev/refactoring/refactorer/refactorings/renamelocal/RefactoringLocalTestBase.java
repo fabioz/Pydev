@@ -58,12 +58,13 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
      */
     protected void applyRenameRefactoring(RefactoringRequest request, boolean expectError) throws CoreException {
         PyRenameEntryPoint processor = new PyRenameEntryPoint(request);
-        checkStatus(processor.checkInitialConditions(new NullProgressMonitor()), expectError);
-        checkStatus(processor.checkFinalConditions(new NullProgressMonitor(), null), expectError);
-        Change change = processor.createChange(new NullProgressMonitor());
+        NullProgressMonitor nullProgressMonitor = new NullProgressMonitor();
+        checkStatus(processor.checkInitialConditions(nullProgressMonitor), expectError);
+        checkStatus(processor.checkFinalConditions(nullProgressMonitor, null), expectError);
+        Change change = processor.createChange(nullProgressMonitor);
         if(!expectError){
             //otherwise, if there is an error, the change may be null
-            change.perform(new NullProgressMonitor());
+            change.perform(nullProgressMonitor);
         }
     }
 

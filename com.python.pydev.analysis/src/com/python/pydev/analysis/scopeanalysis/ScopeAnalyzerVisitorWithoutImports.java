@@ -75,7 +75,6 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
     private boolean finished = false;
     private int currLine;
     private int currCol;
-    protected int absoluteCursorOffset;
 
     /**
      * Constructor when we have a PySelection object
@@ -97,7 +96,6 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
             String[] tokenAndQual) throws BadLocationException {
         
         super(nature, moduleName, current, document, monitor);
-        this.absoluteCursorOffset = absoluteCursorOffset;
         if(document != null){
             IRegion region = document.getLineInformationOfOffset(absoluteCursorOffset);
             currLine = document.getLineOfOffset(absoluteCursorOffset);
@@ -308,8 +306,9 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
         int startLine = AbstractMessage.getStartLine(generator, this.document)-1;
         int endLine = AbstractMessage.getEndLine(generator, this.document, false)-1;
         
-        int startCol = AbstractMessage.getStartCol(generator, this.document, generator.getRepresentation(), true)-1;
-        int endCol = AbstractMessage.getEndCol(generator, this.document, generator.getRepresentation(), false)-1;
+        String rep = generator.getRepresentation();
+        int startCol = AbstractMessage.getStartCol(generator, this.document, rep, true)-1;
+        int endCol = AbstractMessage.getEndCol(generator, this.document, rep, false)-1;
         if(currLine >= startLine && currLine <= endLine && currCol >= startCol && currCol <= endCol){
             int colDelta = 0; 
             if(currLine == startLine || currLine == endLine){

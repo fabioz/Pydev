@@ -3,6 +3,7 @@
  */
 package com.python.pydev.refactoring.wizards.rename;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -18,6 +19,7 @@ import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
+import com.python.pydev.analysis.messages.AbstractMessage;
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
@@ -66,9 +68,28 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
      */
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         SimpleNode root = request.getAST();
-        List<ASTEntry> oc;
+        List<ASTEntry> oc = new ArrayList<ASTEntry>();
+        
+        oc.addAll(ScopeAnalysis.getCommentOcurrences(request.initialName, root));
+        oc.addAll(ScopeAnalysis.getStringOcurrences(request.initialName, root));
+        int currLine = request.ps.getCursorLine();
+        int currCol = request.ps.getCursorColumn();
+        int tokenLen = request.initialName.length();
+        boolean foundAsComment = false;
+        for(ASTEntry entry:oc){
+            //it may be that we are actually hitting it in a comment and not in the class itself...
+            //(for a comment it is ok just to check the line)
+            int startLine = entry.node.beginLine-1;
+            int startCol = entry.node.beginColumn-1;
+            int endCol = entry.node.beginColumn+tokenLen-1;
+            if(currLine == startLine && currCol >= startCol && currCol <= endCol){
+                foundAsComment = true;
+                break;
+            }
+        }
+
         ASTEntry classDefInAst = null;
-        if(request.moduleName.equals(definition.module.getName())){
+        if(!foundAsComment && request.moduleName.equals(definition.module.getName())){
             classDefInAst = getOriginalClassDefInAst(root);
             
             if(classDefInAst == null){
@@ -79,7 +100,7 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
             while(classDefInAst.parent != null){
                 if(classDefInAst.parent.node instanceof FunctionDef){
                     request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, true); //it is in a local scope.
-                    oc = this.getOccurrencesWithScopeAnalyzer(request);
+                    oc.addAll(this.getOccurrencesWithScopeAnalyzer(request));
                     addOccurrences(request, oc);
                     return;
                 }
@@ -87,10 +108,10 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
             }
 
             //it is defined in the module we're looking for
-            oc = this.getOccurrencesWithScopeAnalyzer(request);
+            oc.addAll(this.getOccurrencesWithScopeAnalyzer(request));
         }else{
-            //it is defined in some other module
-            oc = ScopeAnalysis.getLocalOcurrences(request.initialName, root);
+            //it is defined in some other module (or as a comment... so, we won't have an exact match)
+            oc.addAll(ScopeAnalysis.getLocalOcurrences(request.initialName, root));
         }
         
         List<ASTEntry> attributeReferences = ScopeAnalysis.getAttributeReferences(request.initialName, root);
@@ -106,8 +127,6 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
             oc.addAll(attributeReferences);
         }
 
-        oc.addAll(ScopeAnalysis.getCommentOcurrences(request.initialName, root));
-        oc.addAll(ScopeAnalysis.getStringOcurrences(request.initialName, root));
 		addOccurrences(request, oc);
     }
 

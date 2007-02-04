@@ -78,6 +78,9 @@ public abstract class AbstractMessage implements IMessage{
     	return line;
     }
 
+    /**
+     * @return the starting line fro the given token (starting at 1)
+     */
     public static int getStartLine(IToken generator, IDocument doc) {
     	return getStartLine(generator, doc, generator.getRepresentation());
     }
@@ -115,7 +118,7 @@ public abstract class AbstractMessage implements IMessage{
     
     int startCol = -1;
     /**
-     * gets the start col of the message
+     * gets the start col of the message (starting at 1)
      *  
      * @see com.python.pydev.analysis.messages.IMessage#getStartCol(org.eclipse.jface.text.IDocument)
      */
