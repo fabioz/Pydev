@@ -367,15 +367,22 @@ public class NodeUtils {
         if(ast2 instanceof FunctionDef){
             return ((FunctionDef)ast2).name.beginLine;
         }
+        if(ast2 instanceof ClassDef){
+            return ((ClassDef)ast2).name.beginLine;
+        }
         return ast2.beginLine;
     }
 
+    
+    public static int getColDefinition(SimpleNode ast2) {
+        return getColDefinition(ast2, true);
+    }
     
     /**
      * @param ast2 the node to work with
      * @return the column definition of a node
      */
-    public static int getColDefinition(SimpleNode ast2) {
+    public static int getColDefinition(SimpleNode ast2, boolean always1ForImports) {
         if(ast2 instanceof Attribute){
             //if it is an attribute, we always have to move backward to the first defined token (Attribute.value)
             
@@ -397,8 +404,10 @@ public class NodeUtils {
                 return getColDefinition(value);
             }
         }
-        if(ast2 instanceof Import || ast2 instanceof ImportFrom){
-            return 1;
+        if(always1ForImports){
+            if(ast2 instanceof Import || ast2 instanceof ImportFrom){
+                return 1;
+            }
         }
         return getClassOrFuncColDefinition(ast2);
     }
