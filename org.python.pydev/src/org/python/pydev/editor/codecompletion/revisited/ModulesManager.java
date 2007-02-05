@@ -433,7 +433,9 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     	}
     	ModulesKey startingWith = new ModulesKey(strStartingWith, null);
     	ModulesKey endingWith = new ModulesKey(startingWith+"z", null);
-    	return modulesKeys.subMap(startingWith, endingWith);
+    	//we don't want it to be backed up by the same set (because it may be changed, so, we may get
+    	//a java.util.ConcurrentModificationException on places that use it)
+    	return new TreeMap<ModulesKey, ModulesKey>(modulesKeys.subMap(startingWith, endingWith));
     }
     
     public SortedMap<ModulesKey,ModulesKey> getAllModulesStartingWith(String strStartingWith) {
