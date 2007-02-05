@@ -438,12 +438,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         return null;
     }
 
-    @Override
-    public Object visitCall(Call node) throws Exception {
-        // TODO Auto-generated method stub
-        return super.visitCall(node);
-    }
-    
+        
     /**
      * In this function, the visitor will transverse the value of the attribute as needed,
      * if it is a subscript, call, etc, as those things are not actually a part of the attribute,
