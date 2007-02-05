@@ -23,7 +23,6 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -167,8 +166,6 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
                 if(whatToShow == SHOW_ALL){
                     try {
                         objects = getPythonProposals(viewer, documentOffset, doc, request);
-                    } catch (CompletionRecursionException e) {
-                        //thats ok
                     } catch (Throwable e) {
                         setError(e);
                     }

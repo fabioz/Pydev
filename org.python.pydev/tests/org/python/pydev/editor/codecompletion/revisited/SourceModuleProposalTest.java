@@ -12,6 +12,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -89,7 +90,11 @@ public class SourceModuleProposalTest extends TestCase {
         SourceModuleProposal s = new SourceModuleProposal("",0,0,0,null,"",null,"",mod, IPyCompletionProposal.PRIORITY_DEFAULT);
         s.doc = doc;
         if(tokDef != null)
-            s.definition = mod.findGlobalTokDef(CompletionState.getEmptyCompletionState(tokDef, null), null);
+			try {
+				s.definition = mod.findGlobalTokDef(CompletionState.getEmptyCompletionState(tokDef, null), null);
+			} catch (CompletionRecursionException e) {
+				throw new RuntimeException(e);
+			}
         s.addTo = addTo;
         IRegion region = doc.getLineInformation(line);
         assertEquals(region.getOffset()+region.getLength(), s.getReplacementOffset());

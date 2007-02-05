@@ -3,12 +3,12 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.codecompletion.revisited;
+package org.python.pydev.core.structure;
 
 /**
  * @author Fabio Zadrozny
  */
-public class CompletionRecursionException extends RuntimeException {
+public class CompletionRecursionException extends Exception {
 
     /**
      * 

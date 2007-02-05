@@ -12,6 +12,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -65,11 +66,15 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, null);
     }
     
-	public void testRecursion() throws FileNotFoundException, CoreException, BadLocationException{
+	public void testRecursion() throws FileNotFoundException, CoreException, BadLocationException, CompletionRecursionException{
 		String file = TestDependent.TEST_PYSRC_LOC+"testrec3/rec.py";
 		String strDoc = "RuntimeError.";
 		File f = new File(file);
-		nature.getAstManager().getCompletionsForToken(f, new Document(REF.getFileContents(f)), CompletionState.getEmptyCompletionState("RuntimeError", nature));
+		try{
+			nature.getAstManager().getCompletionsForToken(f, new Document(REF.getFileContents(f)), CompletionState.getEmptyCompletionState("RuntimeError", nature));
+		}catch(CompletionRecursionException e){
+			//that's ok... we're asking for it here...
+		}
 		requestCompl(f, strDoc, strDoc.length(), -1, new String[]{"__doc__", "__getitem__()", "__init__()", "__str__()"});   
 	}
 	

@@ -34,9 +34,9 @@ import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
-import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
@@ -377,8 +377,13 @@ public class PyCodeCompletion {
                         if(d.bases[i] instanceof Name){
                             Name n = (Name) d.bases[i];
 	                        state.activationToken = n.id;
-	        	            IToken[] completions = request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state);
-	        	            gottenComps.addAll(Arrays.asList(completions));
+	        	            IToken[] completions;
+							try {
+								completions = request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state);
+								gottenComps.addAll(Arrays.asList(completions));
+							} catch (CompletionRecursionException e) {
+								//ok...
+							}
                         }
                     }
                     comps = (IToken[]) gottenComps.toArray(new IToken[0]);
@@ -396,7 +401,11 @@ public class PyCodeCompletion {
                     if(actTokStrs.length == 1){
                         //ok, it's just really self, let's get on to get the completions
                         state.activationToken = NodeUtils.getNameFromNameTok((NameTok) d.name);
-        	            comps = request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state);
+        	            try {
+							comps = request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state);
+						} catch (CompletionRecursionException e) {
+							//ok
+						}
         	            
                     }else{
                         //it's not only self, so, first we have to get the definition of the token

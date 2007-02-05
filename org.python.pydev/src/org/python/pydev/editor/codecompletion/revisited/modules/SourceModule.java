@@ -23,9 +23,9 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
+import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
-import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ConcreteToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
@@ -271,8 +271,9 @@ public class SourceModule extends AbstractModule {
      * @param manager
      * @param value
      * @return
+     * @throws CompletionRecursionException 
      */
-    private IToken[] getValueCompletions(ICompletionState initialState, ICodeCompletionASTManager manager, String value, IModule module) {
+    private IToken[] getValueCompletions(ICompletionState initialState, ICodeCompletionASTManager manager, String value, IModule module) throws CompletionRecursionException {
         initialState.checkFindMemory(this, value);
         ICompletionState copy = initialState.getCopy();
         copy.setActivationToken(value);
@@ -483,8 +484,9 @@ public class SourceModule extends AbstractModule {
 
     /**
      * Finds the definitions for some module and a token from that module
+     * @throws CompletionRecursionException 
      */
-	private void findDefinitionsFromModAndTok(IPythonNature nature, ArrayList<Definition> toRet, String moduleImported, SourceModule mod, ICompletionState state) {
+	private void findDefinitionsFromModAndTok(IPythonNature nature, ArrayList<Definition> toRet, String moduleImported, SourceModule mod, ICompletionState state) throws CompletionRecursionException {
         String tok = state.getActivationToken();
 		if(tok != null){
         	if(tok.length() > 0){
@@ -529,8 +531,9 @@ public class SourceModule extends AbstractModule {
      * @param tok
      * @param nature 
      * @return
+     * @throws CompletionRecursionException 
      */
-    public Definition findGlobalTokDef(ICompletionState state, IPythonNature nature) {
+    public Definition findGlobalTokDef(ICompletionState state, IPythonNature nature) throws CompletionRecursionException {
         String tok = state.getActivationToken();
     	String[] headAndTail = FullRepIterable.headAndTail(tok);
     	String firstPart = headAndTail[0];

@@ -3,6 +3,8 @@
  */
 package org.python.pydev.core;
 
+import org.python.pydev.core.structure.CompletionRecursionException;
+
 
 
 
@@ -19,7 +21,7 @@ public interface ICompletionState {
 
     void setBuiltinsGotten(boolean b);
 
-    void raiseNFindTokensOnImportedModsCalled(IModule mod, String tok);
+    void raiseNFindTokensOnImportedModsCalled(IModule mod, String tok) throws CompletionRecursionException;
     
     void setCol(int i);
 
@@ -33,23 +35,23 @@ public interface ICompletionState {
 
     int getCol();
 
-    void checkDefinitionMemory(IModule module, IDefinition definition);
+    void checkDefinitionMemory(IModule module, IDefinition definition) throws CompletionRecursionException;
 
-    void checkWildImportInMemory(IModule current, IModule mod);
+    void checkWildImportInMemory(IModule current, IModule mod) throws CompletionRecursionException;
     
-    public void checkResolveImportMemory(IModule module, String value);
+    public void checkResolveImportMemory(IModule module, String value) throws CompletionRecursionException;
 
     boolean getBuiltinsGotten();
 
-    void checkMemory(IModule module, String base);
+    void checkMemory(IModule module, String base) throws CompletionRecursionException;
 
-    void checkFindMemory(IModule module, String value);
+    void checkFindMemory(IModule module, String value) throws CompletionRecursionException;
 
-    void checkFindDefinitionMemory(IModule mod, String tok);
+    void checkFindDefinitionMemory(IModule mod, String tok) throws CompletionRecursionException;
     
-    void checkFindModuleCompletionsMemory(IModule mod, String tok);
+    void checkFindModuleCompletionsMemory(IModule mod, String tok) throws CompletionRecursionException;
     
-    void checkFindResolveImportMemory(IToken tok);
+    void checkFindResolveImportMemory(IToken tok) throws CompletionRecursionException;
     
     boolean getIsInCalltip();
 

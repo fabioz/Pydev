@@ -11,6 +11,7 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.structure.CompletionRecursionException;
 
 /**
  * @author Fabio Zadrozny
@@ -82,8 +83,9 @@ public interface ICodeCompletionASTManager {
      * 
      * @param initial: this is the initial module (e.g.: foo.bar) or an empty string.
      * @return a Set with the imports as tuples with the name, the docstring.
+     * @throws CompletionRecursionException 
      */
-    public abstract IToken[] getCompletionsForImport(ImportInfo original, ICompletionRequest request);
+    public abstract IToken[] getCompletionsForImport(ImportInfo original, ICompletionRequest request) throws CompletionRecursionException;
 
 
     /**
@@ -102,8 +104,9 @@ public interface ICodeCompletionASTManager {
      * @param doc
      * @param state
      * @return
+     * @throws CompletionRecursionException 
      */
-    public abstract IToken[] getCompletionsForToken(File file, IDocument doc, ICompletionState state);
+    public abstract IToken[] getCompletionsForToken(File file, IDocument doc, ICompletionState state) throws CompletionRecursionException;
     
     /**
      * 
@@ -143,8 +146,9 @@ public interface ICodeCompletionASTManager {
     
     /**
      * Finds the tokens on the given imported modules
+     * @throws CompletionRecursionException 
      */
-    public IToken[] findTokensOnImportedMods( IToken[] importedModules, ICompletionState state, IModule current);
+    public IToken[] findTokensOnImportedMods( IToken[] importedModules, ICompletionState state, IModule current) throws CompletionRecursionException;
 
 
     /**
@@ -156,7 +160,7 @@ public interface ICodeCompletionASTManager {
      * @param qualifier
      * @return
      */
-    public abstract IToken[] getCompletionsForToken(IDocument doc, ICompletionState state);
+    public abstract IToken[] getCompletionsForToken(IDocument doc, ICompletionState state) throws CompletionRecursionException;
 
     /**
      * @param file
@@ -166,7 +170,7 @@ public interface ICodeCompletionASTManager {
      * @param col
      * @param line
      */
-    public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state);
+    public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state) throws CompletionRecursionException;
     
     /**
      * @param file
@@ -176,8 +180,8 @@ public interface ICodeCompletionASTManager {
      * @param col
      * @param line
      */
-    public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods);
-    public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods, boolean lookForArgumentCompletion);
+    public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods) throws CompletionRecursionException;
+    public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods, boolean lookForArgumentCompletion) throws CompletionRecursionException;
 
     /**
      * This method gets the completions for a wild import. 
@@ -222,8 +226,9 @@ public interface ICodeCompletionASTManager {
      * @param tokName the name of the token we're looking for
      * @param nature the nature we're looking for
      * @return the actual token in the module (or null if it was not possible to find it).
+     * @throws CompletionRecursionException 
      */
-    public IToken getRepInModule(IModule module, String tokName, IPythonNature nature);
+    public IToken getRepInModule(IModule module, String tokName, IPythonNature nature) throws CompletionRecursionException;
     
     /**
      * This method gathers an IToken correspondent to the actual token for some import
@@ -232,7 +237,8 @@ public interface ICodeCompletionASTManager {
      * @param imported the token generated from an ImportFrom 
      * @return the IToken: the actual token that generated that import or the import passed if we weren't
      * able to find its actual definition
+     * @throws CompletionRecursionException 
      */
-    public IToken resolveImport(ICompletionState state, IToken imported);
+    public IToken resolveImport(ICompletionState state, IToken imported) throws CompletionRecursionException;
 
 }
