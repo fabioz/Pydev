@@ -9,6 +9,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple3;
+import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -143,8 +144,14 @@ public class ImportChecker {
         		if(modTok.o2.length() == 0){
         		    wasResolved = true;
                     
-        		} else if( astManager.getRepInModule(modTok.o1, modTok.o2, nature) != null){
-        		    wasResolved = true;
+        		} else{
+        			try {
+						if( astManager.getRepInModule(modTok.o1, modTok.o2, nature) != null){
+							wasResolved = true;
+						}
+					} catch (CompletionRecursionException e) {
+						//not resolved...
+					}
                 }
         	}
         	
