@@ -3,6 +3,10 @@ after 1.2.6
 Pydev:
 <li>Fix: 'create docstrings' assist creates @param even if there is a comment in a function definition</li>
 <li>Fix: the PYTHONPATH passed to PyLint was not containing the project PYTHONPATH</li>
+<li>Fix: halt when making a code-completion</li>
+
+Pydev Extensions:
+<li>Mark occurrences and rename now will also get the token in comments</li>
 
 after 1.2.5
 
