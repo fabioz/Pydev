@@ -39,13 +39,13 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase  {
         assertEquals(3, references.size());
         
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
-        assertEquals(2, references.get(CURRENT_MODULE_IN_REFERENCES).size());
+        assertEquals(4, references.get(CURRENT_MODULE_IN_REFERENCES).size());
         
     	assertTrue(references.containsKey("reflib.renamemodule.mod1.__init__")); //module renamed 
         assertEquals(1, references.get("reflib.renamemodule.mod1.__init__").size());
         
         assertTrue(references.containsKey("reflib.renamemodule.importer2")); 
-        assertEquals(2, references.get("reflib.renamemodule.importer2").size());
+        assertEquals(4, references.get("reflib.renamemodule.importer2").size());
     }
     
     public void testRenameModuleInWorkspace2() throws Exception {

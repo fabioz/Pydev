@@ -9,6 +9,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
@@ -26,12 +27,21 @@ public class PyRenameSelfAttributeProcess extends AbstractRenameWorkspaceRefacto
     }
 
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
-        addOccurrences(request, ScopeAnalysis.getAttributeReferences(request.initialName, request.getAST()));
+        SimpleNode root = request.getAST();
+		List<ASTEntry> oc = ScopeAnalysis.getAttributeReferences(request.initialName, root);
+        oc.addAll(ScopeAnalysis.getCommentOcurrences(request.initialName, root));
+        oc.addAll(ScopeAnalysis.getStringOcurrences(request.initialName, root));
+
+		addOccurrences(request, oc);
     }
 
     @Override
     protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName, SourceModule module) {
-        return ScopeAnalysis.getAttributeReferences(initialName, module.getAst()); //will get the self.xxx occurrences
+        SimpleNode root = module.getAst();
+		List<ASTEntry> oc = ScopeAnalysis.getAttributeReferences(initialName, root);
+		oc.addAll(ScopeAnalysis.getCommentOcurrences(request.initialName, root));
+		oc.addAll(ScopeAnalysis.getStringOcurrences(request.initialName, root));
+		return oc; //will get the self.xxx occurrences
     }
     
     @Override

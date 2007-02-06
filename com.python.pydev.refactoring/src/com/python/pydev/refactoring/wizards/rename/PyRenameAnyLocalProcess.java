@@ -1,10 +1,12 @@
 package com.python.pydev.refactoring.wizards.rename;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
@@ -24,19 +26,24 @@ public class PyRenameAnyLocalProcess extends AbstractRenameRefactorProcess{
         String completeNameToFind = tokenAndQual[0]+tokenAndQual[1];
         boolean attributeSearch = completeNameToFind.indexOf('.') != -1;
             
-        if (!attributeSearch){
-            List<ASTEntry> oc = getOccurrencesWithScopeAnalyzer(request);
-            if(oc.size() > 0){
-                addOccurrences(request, oc); 
-            }else{
-                addOccurrences(request, ScopeAnalysis.getLocalOcurrences(request.initialName, request.getAST(), false));
+        List<ASTEntry> oc = new ArrayList<ASTEntry>();
+        SimpleNode root = request.getAST();
+        oc.addAll(ScopeAnalysis.getCommentOcurrences(request.initialName, root));
+        oc.addAll(ScopeAnalysis.getStringOcurrences(request.initialName, root));
+
+		if (!attributeSearch){
+            List<ASTEntry> occurrencesWithScopeAnalyzer = getOccurrencesWithScopeAnalyzer(request);
+            oc.addAll(occurrencesWithScopeAnalyzer);
+            
+            if(occurrencesWithScopeAnalyzer.size() == 0){
+            	oc.addAll(ScopeAnalysis.getLocalOcurrences(request.initialName, root, false));
             }
-            return;
             
         }else{
             //attribute search
-            addOccurrences(request, ScopeAnalysis.getAttributeReferences(request.initialName, request.getAST()));
+            oc.addAll(ScopeAnalysis.getAttributeReferences(request.initialName, root));
         }
+		addOccurrences(request, oc); 
     }
     
     @Override

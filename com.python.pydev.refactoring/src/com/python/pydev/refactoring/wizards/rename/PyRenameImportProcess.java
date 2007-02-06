@@ -14,9 +14,11 @@ import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSour
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.PydevPlugin;
 
+import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitor;
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitorForImports;
 import com.python.pydev.analysis.visitors.Found;
@@ -56,7 +58,12 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
 	}
 	
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
-		addOccurrences(request, getOccurrencesWithScopeAnalyzer(request));
+		List<ASTEntry> oc = getOccurrencesWithScopeAnalyzer(request);
+		SimpleNode root = request.getAST();
+        oc.addAll(ScopeAnalysis.getCommentOcurrences(request.initialName, root));
+        oc.addAll(ScopeAnalysis.getStringOcurrences(request.initialName, root));
+
+		addOccurrences(request, oc);
     }
 
     @Override
@@ -149,8 +156,12 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
             ScopeAnalyzerVisitorForImports visitor = new ScopeAnalyzerVisitorForImports(request.nature, module.getName(), 
                     module, new NullProgressMonitor(), request.ps.getCurrToken().o1, request.ps.getActivationTokenAndQual(true), moduleToFind);
             
-            module.getAst().accept(visitor);
+            SimpleNode root = module.getAst();
+			root.accept(visitor);
             entryOccurrences = visitor.getEntryOccurrences();
+            entryOccurrences.addAll(ScopeAnalysis.getCommentOcurrences(request.initialName, root));
+            entryOccurrences.addAll(ScopeAnalysis.getStringOcurrences(request.initialName, root));
+
         } catch (Exception e) {
             Log.log(e);
         }

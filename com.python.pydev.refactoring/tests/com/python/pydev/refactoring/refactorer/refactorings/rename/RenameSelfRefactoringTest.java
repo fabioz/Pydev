@@ -35,7 +35,7 @@ public class RenameSelfRefactoringTest extends RefactoringRenameTestBase  {
         Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameself.renameselfclass", 2, 14); 
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
         assertTrue(references.containsKey("reflib.renameself.renameselfclass2")); 
-        assertEquals(1, references.get(CURRENT_MODULE_IN_REFERENCES).size());
-        assertEquals(2, references.get("reflib.renameself.renameselfclass2").size());
+        assertEquals(3, references.get(CURRENT_MODULE_IN_REFERENCES).size());
+        assertEquals(4, references.get("reflib.renameself.renameselfclass2").size());
     }
 }

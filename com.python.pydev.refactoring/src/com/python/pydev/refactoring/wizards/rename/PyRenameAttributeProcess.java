@@ -3,6 +3,7 @@
  */
 package com.python.pydev.refactoring.wizards.rename;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -30,10 +31,11 @@ public class PyRenameAttributeProcess extends AbstractRenameWorkspaceRefactorPro
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         SimpleNode ast = request.getAST();
 		
-        List<ASTEntry> attributeOcurrences = ScopeAnalysis.getAttributeOcurrences(this.target, ast);
-		addOccurrences(request, attributeOcurrences);
-		
-		attributeOcurrences = ScopeAnalysis.getAttributeReferences(this.target, ast);
+        List<ASTEntry> attributeOcurrences = new ArrayList<ASTEntry>(); 
+        attributeOcurrences.addAll(ScopeAnalysis.getAttributeOcurrences(this.target, ast));
+		attributeOcurrences.addAll(ScopeAnalysis.getAttributeReferences(this.target, ast));
+        attributeOcurrences.addAll(ScopeAnalysis.getCommentOcurrences(request.initialName, ast));
+        attributeOcurrences.addAll(ScopeAnalysis.getStringOcurrences(request.initialName, ast));
 		addOccurrences(request, attributeOcurrences);
     }
 

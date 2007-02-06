@@ -35,7 +35,7 @@ public class RenameAttributeRefactoringTest extends RefactoringRenameTestBase  {
         Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameattribute.attr2", 1, 8); 
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
         assertTrue(references.containsKey("reflib.renameattribute.attr1")); 
-        assertEquals(1, references.get(CURRENT_MODULE_IN_REFERENCES).size());
+        assertEquals(3, references.get(CURRENT_MODULE_IN_REFERENCES).size());
         assertEquals(1, references.get("reflib.renameattribute.attr1").size());
     }
 }
