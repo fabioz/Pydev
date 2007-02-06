@@ -11,7 +11,15 @@ some of its features below.</p>
 
 <h3>News</h3>
 	<ul>
-		<li><h4>Release 1.2.6 <IMG src="images/new.png" border="0" /></h4></li>
+		<li><h4>Release 1.2.7 <IMG src="images/new.png" border="0" /></h4></li>
+		<ul>
+			<li>Mark occurrences and rename now will also get the token in comments</li>
+			<li>Rename refactoring bugfixes (but still BETA)</li>
+		</ul>
+	</ul>
+
+	<ul>
+		<li><h4>Release 1.2.6</h4></li>
 		<ul>
 			<li>Added <strong><a href="manual_adv_refactoring.html">refactoring support for rename</a></strong> (still <strong>BETA</strong>, so, don't forget to review your changes before applying them)</li>
 			<ul>
@@ -44,20 +52,6 @@ some of its features below.</p>
 		</ul>
 	</ul>
 	
-	<ul>
-		<li><h4>Release 1.2.4</h4></li>
-		<ul>
-			<li><strong>Code analysis</strong>: analysis on imported modules do no longer give you errors on</li>
-				<ul>
-					<li>classes that have __getattribute__ or __getattr__ overriden</li>
-					<li>assigns that are initially None </li>
-					<li>assigns to a function call and not a class definition</li>
-				</ul>
-			<li><strong>Completions for parameters in a context-insensitive way</strong>, looking for all the methods/attributes 
-			declared in classes available to the project (after 3 chars)
-			</li>
-		</ul>
-	</ul>
 	
 	<ul>
 		<br/>
@@ -75,12 +69,13 @@ some of its features below.</p>
 
 <h3>Some feature-highlights</h3>
 <ul>
-<li><strong>Support for python 2.5</strong> (added on <strong>1.2.3</strong>)</li>
-<li><a href="manual_adv_markoccurrences.html"><strong>Mark Occurrences</strong></a> is able to highlight all the occurrences of some token in a file (added on <strong>1.0.7</strong>)</li>
-<li><a href="manual_adv_renameoccurrences.html"><strong>Rename Occurrences</strong></a> is able to rename all the occurrences of some token in a file (<strong>Ctrl+2+R</strong> -- added on <strong>1.0.7</strong>)</li>
-<li><a href="manual_adv_interactive_console.html"><strong>Interactive Console</strong> binded to the Pydev Editor</a> (added on <strong>1.0.4</strong>)
-</li><li><strong><a href="manual_adv_open_decl_quick.html">Open Definition Quick-outline</a></strong> (added on <strong>1.0.3</strong>)
-</li><li><strong><a href="manual_adv_debug_console.html">Debug console</a></strong> (added on <strong>1.0.2</strong> -- allows interactive probing in suspended mode) <a href="manual_adv_debug_console.html"></a>
+<li><a href="manual_adv_refactoring.html"><strong>Rename refactoring</strong></a>: renames all occurrences for some token in your workspace -- with preview and undo/redo (<strong>1.2.6</strong>)</li>
+<li><strong>Support for python 2.5</strong> (<strong>1.2.3</strong>)</li>
+<li><a href="manual_adv_markoccurrences.html"><strong>Mark Occurrences</strong></a> is able to highlight all the occurrences of some token in a file (<strong>1.0.7</strong>)</li>
+<li><a href="manual_adv_renameoccurrences.html"><strong>Rename Occurrences</strong></a>: renames all the occurrences of some token in a file (<strong>Ctrl+2+R</strong> -- <strong>1.0.7</strong>)</li>
+<li><a href="manual_adv_interactive_console.html"><strong>Interactive Console</strong> binded to the Pydev Editor</a> (<strong>1.0.4</strong>)
+</li><li><strong><a href="manual_adv_open_decl_quick.html">Open Definition Quick-outline</a></strong> (<strong>1.0.3</strong>)
+</li><li><strong><a href="manual_adv_debug_console.html">Debug console</a></strong> (<strong>1.0.2</strong> -- allows interactive probing in suspended mode) <a href="manual_adv_debug_console.html"></a>
 </li><li ><strong><a href="manual_adv_complnoctx.html">Code completion with auto-import</a></strong>
 </li><li ><strong><a href="manual_adv_code_analysis.html">Code analysis</a></strong> (PyLint replacement, but much faster)
 </li><li ><strong><a href="manual_adv_assistants.html">Quick-Fix</a></strong> for problems found in code analysis
