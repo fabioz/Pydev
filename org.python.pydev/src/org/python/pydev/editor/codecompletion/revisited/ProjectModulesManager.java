@@ -373,7 +373,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
             }
             return (ModulesManager[]) list.toArray(new ModulesManager[list.size()]);
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            //PydevPlugin.log(e); not logged anymore (this may happen if the project was closed and a thread was still running this)
             if(checkSystemManager && systemModulesManager != null){
                 return new ModulesManager[]{systemModulesManager};
             }else{
