@@ -152,6 +152,7 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 		return true;
 	}
 
+    //Breakpoints ------------------------------------------------------------------------------------------------------
 	public boolean supportsBreakpoint(IBreakpoint breakpoint) {
 		return breakpoint instanceof PyBreakpoint;
 	}
@@ -182,7 +183,10 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 			breakpointAdded(breakpoint);
 		}
 	}
+	//End Breakpoints --------------------------------------------------------------------------------------------------
 
+    
+    // Storage retrieval is not supported
 	public boolean supportsStorageRetrieval() {
 		return false;
 	}
@@ -577,4 +581,5 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 		// System.err.println("Need adapter " + adapter.toString());
 		return super.getAdapter(adapter);
 	}
+
 }

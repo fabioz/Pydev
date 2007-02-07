@@ -270,10 +270,21 @@ class PyDB:
                         t.additionalInfo.pydev_state = PyDB.STATE_RUN
                         
                         
+                elif id == CMD_CHANGE_VARIABLE:
+                    #the text is: thread\tstackframe\tFRAME|GLOBAL\tattribute_to_change\tvalue_to_change
+                    try:
+                        thread_id, frame_id, scope, attr, value = text.split('\t', 4)
+                        thread_id = long(thread_id)
+                        
+                        int_cmd = InternalChangeVariable(seq, thread_id, frame_id, scope, attr, value)
+                        self.postInternalCommand(int_cmd, thread_id)
+                            
+                    except:
+                        traceback.print_exc()
+                    
                 elif id == CMD_GET_VARIABLE:
                     #we received some command to get a variable
-                    #the text is: thread\tstackframe\tLOCAL|GLOBAL\tattributes*
-                    
+                    #the text is: thread\tstackframe\tFRAME|GLOBAL\tattributes*
                     try:
                         thread_id, frame_id, scopeattrs = text.split('\t', 2)
                         thread_id = long(thread_id)

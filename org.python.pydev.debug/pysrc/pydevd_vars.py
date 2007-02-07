@@ -246,3 +246,21 @@ def evaluateExpression( thread_id, frame_id, expression, doExec ):
         except Exception, e:
             result = str( e )
         return result
+    
+def changeAttrExpression( thread_id, frame_id, attr, expression ):
+    '''returns the result of the evaluated expression
+    @param doExec: determines if we should do an exec or an eval
+    '''
+    frame = findFrame(thread_id, frame_id)
+    
+    try:
+        expression = expression.replace('@LINE@', '\n')
+        exec '%s=%s' % (attr, expression) in frame.f_globals, frame.f_locals
+            
+    except Exception, e:
+        traceback.print_exc()
+    
+
+
+
+

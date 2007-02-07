@@ -24,28 +24,23 @@ import org.python.pydev.debug.model.remote.ICommandResponseListener;
  */
 public class PyVariableCollection extends PyVariable implements ICommandResponseListener, IVariableLocator {
 
-	IVariableLocator locator;
 	PyVariable[] variables = new PyVariable[0];
 	IVariable[] waitVariables = null;
 	int requestedVariables = 0; // Network request state: 0 did not request, 1 requested, 2 requested & arrived
 	boolean fireChangeEvent = true;
 	
 	public PyVariableCollection(AbstractDebugTarget target, String name, String type, String value, IVariableLocator locator) {
-		super(target, name, type, value);
-		this.locator = locator;
+		super(target, name, type, value, locator);
 	}
 	
 	public String getDetailText() throws DebugException {
 		return super.getDetailText();
 	}
 
-	public String getPyDBLocation() {
-		return locator.getPyDBLocation() + "\t" + name;
-	}
 
 	private IVariable[] getWaitVariables() {
 		if (waitVariables == null) {
-			PyVariable waitVar = new PyVariable(target, "wait", "", "for network");
+			PyVariable waitVar = new PyVariable(target, "wait", "", "for network", locator);
 			waitVariables = new IVariable[1];
 			waitVariables[0] = waitVar;
 		}
@@ -53,7 +48,7 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
 	}
 	
 	public IVariable[] getTimedoutVariables() {
-		return new IVariable[]{new PyVariable(target, "err:", "", "Timed out while getting var.")};
+		return new IVariable[]{new PyVariable(target, "err:", "", "Timed out while getting var.", locator)};
 	}
 
 	/**
@@ -82,7 +77,7 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
 			tempVariables = XMLUtils.XMLToVariables(target, locator, payload);
 		} catch (CoreException e) {
 			tempVariables = new PyVariable[1];
-			tempVariables[0] = new PyVariable(target, "Error", "pydev ERROR", "Could not resolve variable");
+			tempVariables[0] = new PyVariable(target, "Error", "pydev ERROR", "Could not resolve variable", locator);
 			
 			String msg = e.getMessage(); //we don't want to show this error
 			if(msg.indexOf("Error resolving frame:") == -1 && msg.indexOf("from thread:") == -1){

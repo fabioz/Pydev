@@ -91,6 +91,7 @@ CMD_EVALUATE_EXPRESSION = 113
 CMD_GET_FRAME = 114
 CMD_EXEC_EXPRESSION = 115
 CMD_WRITE_TO_CONSOLE = 116
+CMD_CHANGE_VARIABLE = 117
 CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901 
@@ -482,6 +483,29 @@ class InternalGetVariable(InternalThreadCommand):
             s = StringIO.StringIO()
             traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], file = s)
             cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving variables " + s.getvalue())
+            dbg.writer.addCommand(cmd)
+
+
+class InternalChangeVariable(InternalThreadCommand):
+    """ changes the value of a variable """
+    def __init__(self, seq, thread_id, frame_id, scope, attr, expression):
+        self.sequence = seq
+        self.thread_id = thread_id
+        self.frame_id = frame_id
+        self.scope = scope
+        self.attr = attr
+        self.expression = expression
+     
+    def doIt(self, dbg):
+        """ Converts request into python variable """
+        try:
+            pydevd_vars.changeAttrExpression( self.thread_id, self.frame_id, self.attr, self.expression )
+        except Exception:
+            traceback.print_exc()
+            exc_info = sys.exc_info()
+            s = StringIO.StringIO()
+            traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], file = s)
+            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error changing variable %s - %s" % (self.attr, s.getvalue()))
             dbg.writer.addCommand(cmd)
 
 

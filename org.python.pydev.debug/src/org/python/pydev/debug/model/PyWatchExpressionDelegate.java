@@ -65,7 +65,7 @@ public class PyWatchExpressionDelegate
 			if (variables.length == 0) {
 				variables = new PyVariable[1];
 				variables[0] = new PyVariable(
-					(AbstractDebugTarget)context.getDebugTarget(), "Error", "pydev ERROR", "Could not resolve variable");
+					(AbstractDebugTarget)context.getDebugTarget(), "Error", "pydev ERROR", "Could not resolve variable", null);
 			}
 			return variables[0];
 		}
@@ -123,7 +123,7 @@ public class PyWatchExpressionDelegate
 			synchronized(variables) {
 				variables = new PyVariable[1];
 				variables[0] = new PyVariable(
-					(PyDebugTarget)context.getDebugTarget(), "Error", "pydev ERROR", "Could not resolve variable");
+					(PyDebugTarget)context.getDebugTarget(), "Error", "pydev ERROR", "Could not resolve variable", null);
 			}
 			PydevDebugPlugin.log(IStatus.ERROR, "Error fetching a variable", e);
 		}

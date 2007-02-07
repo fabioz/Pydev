@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.model.IStackFrame;
-import org.eclipse.debug.core.model.IThread;
 import org.python.pydev.core.REF;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.xml.sax.Attributes;
@@ -120,7 +119,7 @@ public class XMLUtils {
 		if ("True".equals(isContainer)){
 			var = new PyVariableCollection(target, name, type, value, locator);
 		}else{ 
-			var = new PyVariable(target,  name, type, value);
+			var = new PyVariable(target,  name, type, value, locator);
 		}
 		return var;
 	}

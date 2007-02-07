@@ -15,6 +15,8 @@ import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
+import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
+import org.python.pydev.debug.model.remote.ChangeVariableCommand;
 
 /**
  * Represents a python variable.
@@ -24,24 +26,30 @@ import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
  * class.
  * 
  */
-public class PyVariable extends PlatformObject implements IVariable, IValue {
+public class PyVariable extends PlatformObject implements IVariable, IValue, IVariableLocator {
 	
 	protected String name;
 	protected String type;
 	protected String value;
 	protected AbstractDebugTarget target;
 	protected boolean isModified;
+    protected IVariableLocator locator;
 	
 	//Only create one instance of an empty array to be returned
 	private static final IVariable[] EMPTY_IVARIABLE_ARRAY = new IVariable[0]; 
 
-	public PyVariable(AbstractDebugTarget target, String name, String type, String value) {
+	public PyVariable(AbstractDebugTarget target, String name, String type, String value, IVariableLocator locator) {
 		this.value = value;
 		this.name = name;
 		this.type = type;
 		this.target = target;
+        this.locator = locator;
 		isModified = false;
 	}
+
+    public String getPyDBLocation() {
+        return locator.getPyDBLocation() + "\t" + name;
+    }
 
 	public String getDetailText() throws DebugException {
 		return getValueString();
@@ -82,7 +90,7 @@ public class PyVariable extends PlatformObject implements IVariable, IValue {
 	 * When implemented, recently changed variables are shown in red.
 	 */
 	public boolean supportsValueModification() {
-		return true;
+		return this.locator != null;
 	}
 
 	public boolean hasValueChanged() throws DebugException {
@@ -94,13 +102,15 @@ public class PyVariable extends PlatformObject implements IVariable, IValue {
 	}
 	
 	public void setValue(String expression) throws DebugException {
+        ChangeVariableCommand changeVariableCommand = getChangeVariableCommand(target.getDebugger(), expression);
+        target.getDebugger().postCommand(changeVariableCommand);
 	}
 
 	public void setValue(IValue value) throws DebugException {
 	}
 	
 	public boolean verifyValue(String expression) throws DebugException {
-		return false;
+		return true;
 	}
 
 	public boolean verifyValue(IValue value) throws DebugException {
@@ -146,5 +156,10 @@ public class PyVariable extends PlatformObject implements IVariable, IValue {
 	public String getReferenceTypeName() throws DebugException {
 		return type;
 	}
+    
+    public ChangeVariableCommand getChangeVariableCommand(AbstractRemoteDebugger dbg, String expression) {
+        return new ChangeVariableCommand(dbg, getPyDBLocation(), expression);
+    }
+
 
 }
