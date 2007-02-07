@@ -2,6 +2,7 @@ after 1.2.6
 
 Pydev:
 <ul>
+<li>Debugger: change value working</li>
 <li>Fix: the PYTHONPATH passed to <strong>PyLint</strong> was not containing the project PYTHONPATH</li>
 <li>Fix: halt when making a code-completion</li>
 <li>Fix: 'create docstrings' assist creates <strong>@param</strong> even if there is a comment in a function definition</li>
