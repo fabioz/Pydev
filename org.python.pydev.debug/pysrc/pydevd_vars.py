@@ -248,8 +248,10 @@ def evaluateExpression( thread_id, frame_id, expression, doExec ):
         return result
     
 def changeAttrExpression( thread_id, frame_id, attr, expression ):
-    '''returns the result of the evaluated expression
-    @param doExec: determines if we should do an exec or an eval
+    '''Changes some attribute in a given frame.
+    @note: it will (currently) work if we're not in the topmost frame (that's a python
+    deficiency -- and it appears that there is no way of making it currently work --
+    will probably need some change to the python internals)
     '''
     frame = findFrame(thread_id, frame_id)
     

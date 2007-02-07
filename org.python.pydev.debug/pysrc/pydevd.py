@@ -273,9 +273,12 @@ class PyDB:
                 elif id == CMD_CHANGE_VARIABLE:
                     #the text is: thread\tstackframe\tFRAME|GLOBAL\tattribute_to_change\tvalue_to_change
                     try:
-                        thread_id, frame_id, scope, attr, value = text.split('\t', 4)
+                        thread_id, frame_id, scope, attr_and_value = text.split('\t', 3)
                         thread_id = long(thread_id)
                         
+                        tab_index = attr_and_value.rindex('\t')
+                        attr = attr_and_value[0:tab_index].replace('\t', '.')
+                        value = attr_and_value[tab_index+1:]
                         int_cmd = InternalChangeVariable(seq, thread_id, frame_id, scope, attr, value)
                         self.postInternalCommand(int_cmd, thread_id)
                             
@@ -367,6 +370,7 @@ class PyDB:
                     
                 if cmd: 
                     self.writer.addCommand(cmd)
+                    del cmd
                     
             except Exception, e:
                 traceback.print_exc(e)

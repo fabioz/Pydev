@@ -7,6 +7,7 @@ package org.python.pydev.debug.model;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.PlatformObject;
+import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IDebugTarget;
@@ -101,9 +102,17 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
 		isModified = mod;
 	}
 	
+	/**
+	 * This method is called when some value has to be changed to some other expression.
+	 * 
+	 * Note that it will (currently) only work for changing local values that are in the topmost frame.
+	 * -- python has no way of making it work right now (see: pydevd_vars.changeAttrExpression) 
+	 */
 	public void setValue(String expression) throws DebugException {
         ChangeVariableCommand changeVariableCommand = getChangeVariableCommand(target.getDebugger(), expression);
         target.getDebugger().postCommand(changeVariableCommand);
+        this.value = expression;
+        target.getDebugger().getTarget().fireEvent(new DebugEvent(this, DebugEvent.CONTENT|DebugEvent.CHANGE));
 	}
 
 	public void setValue(IValue value) throws DebugException {
