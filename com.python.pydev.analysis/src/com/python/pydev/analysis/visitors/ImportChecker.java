@@ -138,7 +138,14 @@ public class ImportChecker {
 		if(token instanceof SourceToken){
         	
         	ICodeCompletionASTManager astManager = nature.getAstManager();
-            modTok = astManager.findOnImportedMods(new IToken[]{token}, nature, token.getRepresentation(), moduleName);
+        	CompletionState state = new CompletionState();
+        	state.activationToken = token.getRepresentation();
+        	state.nature = nature;
+            try {
+				modTok = astManager.findOnImportedMods(new IToken[]{token}, state, moduleName);
+			} catch (CompletionRecursionException e1) {
+				modTok = null;//unable to resolve it
+			}
         	if(modTok != null && modTok.o1 != null){
 
         		if(modTok.o2.length() == 0){
