@@ -257,15 +257,16 @@ def changeAttrExpression( thread_id, frame_id, attr, expression ):
     
     try:
         expression = expression.replace('@LINE@', '\n')
-        if hasattr(frame, 'savelocals'):
-            if attr in frame.f_locals:
-                frame.f_locals[attr] = eval(expression, frame.f_globals, frame.f_locals)
-                frame.savelocals()
-                return
-                
-            elif attr in frame.f_globals:
-                frame.f_globals[attr] = eval(expression, frame.f_globals, frame.f_locals)
-                return
+#tests (needs proposed patch in python accepted)
+#        if hasattr(frame, 'savelocals'):
+#            if attr in frame.f_locals:
+#                frame.f_locals[attr] = eval(expression, frame.f_globals, frame.f_locals)
+#                frame.savelocals()
+#                return
+#                
+#            elif attr in frame.f_globals:
+#                frame.f_globals[attr] = eval(expression, frame.f_globals, frame.f_locals)
+#                return
             
         #default way (only works for changing it in the topmost frame)
         exec '%s=%s' % (attr, expression) in frame.f_globals, frame.f_locals
