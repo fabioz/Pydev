@@ -396,7 +396,7 @@ public class SourceModule extends AbstractModule {
         List<IToken> localImportedModules = scopeVisitor.scope.getLocalImportedModules(line, col, this.name);
         for (IToken tok : localImportedModules) {
         	if(tok.getRepresentation().equals(rep)){
-                Tuple3<IModule, String, IToken> o = nature.getAstManager().findOnImportedMods(new IToken[]{tok}, nature, rep, this.getName());
+                Tuple3<IModule, String, IToken> o = nature.getAstManager().findOnImportedMods(new IToken[]{tok}, state.getCopyWithActTok(rep), this.getName());
                 if(o != null && o.o1 instanceof SourceModule){
                     ICompletionState copy = state.getCopy();
                     copy.setActivationToken(o.o2);
@@ -453,7 +453,7 @@ public class SourceModule extends AbstractModule {
         String tok = rep;
         SourceModule mod = this;
 
-        Tuple3<IModule, String, IToken> o = nature.getAstManager().findOnImportedMods(nature, rep, this);
+        Tuple3<IModule, String, IToken> o = nature.getAstManager().findOnImportedMods(state.getCopyWithActTok(rep), this);
         
         if(o != null && o.o1 instanceof SourceModule){
             mod =  (SourceModule) o.o1;

@@ -123,8 +123,9 @@ public interface ICodeCompletionASTManager {
      * 0: mod
      * 1: tok (string)
      * 2: actual tok
+     * @throws CompletionRecursionException 
      */
-    public abstract Tuple3<IModule, String, IToken> findOnImportedMods( IPythonNature nature, String activationToken, IModule current);
+    public abstract Tuple3<IModule, String, IToken> findOnImportedMods( ICompletionState state, IModule current) throws CompletionRecursionException;
 
     /**
      * This function tries to find some activation token defined in some imported module.  
@@ -141,8 +142,9 @@ public interface ICodeCompletionASTManager {
      * 0: mod
      * 1: tok (string)
      * 2: actual tok
+     * @throws CompletionRecursionException 
      */
-    public abstract Tuple3<IModule, String, IToken> findOnImportedMods( IToken[] importedModules, IPythonNature nature, String activationToken, String currentModuleName);
+    public abstract Tuple3<IModule, String, IToken> findOnImportedMods( IToken[] importedModules, ICompletionState state, String currentModuleName) throws CompletionRecursionException;
     
     /**
      * Finds the tokens on the given imported modules

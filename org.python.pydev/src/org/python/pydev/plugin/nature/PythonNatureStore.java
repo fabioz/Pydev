@@ -336,7 +336,7 @@ class PythonNatureStore implements IResourceChangeListener {
 
             return null;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error on document:"+document, e);
         }
     }
 

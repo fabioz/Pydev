@@ -84,20 +84,22 @@ public abstract class AbstractModule implements IModule {
     }
 
     /** 
+     * @throws CompletionRecursionException 
      * @see org.python.pydev.core.IModule#isInGlobalTokens(java.lang.String, org.python.pydev.plugin.nature.PythonNature)
      */
-    public boolean isInGlobalTokens(String tok, IPythonNature nature){
+    public boolean isInGlobalTokens(String tok, IPythonNature nature) throws CompletionRecursionException{
     	return isInGlobalTokens(tok, nature, true);
     }
     
     /** 
+     * @throws CompletionRecursionException 
      * @see org.python.pydev.core.IModule#isInGlobalTokens(java.lang.String, org.python.pydev.plugin.nature.PythonNature, boolean)
      */
-    public boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods){
+    public boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods) throws CompletionRecursionException{
         return isInGlobalTokens(tok, nature, true, false);
     }
     
-    public boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, boolean ifHasGetAttributeConsiderInTokens){
+    public boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, boolean ifHasGetAttributeConsiderInTokens) throws CompletionRecursionException{
         //it's just worth checking it if it is not dotted...
         if(tok.indexOf(".") == -1){
         	if(isInDirectGlobalTokens(tok, nature)){
@@ -111,12 +113,7 @@ public abstract class AbstractModule implements IModule {
         String[] headAndTail = FullRepIterable.headAndTail(tok);
         state.setActivationToken (headAndTail[0]);
         String head = headAndTail[1];
-        IToken[] globalTokens;
-		try {
-			globalTokens = astManager.getCompletionsForModule(this, state, searchSameLevelMods);
-		} catch (CompletionRecursionException e) {
-			globalTokens = new IToken[0];
-		}
+        IToken[] globalTokens = astManager.getCompletionsForModule(this, state, searchSameLevelMods);
         for (IToken token : globalTokens) {
             String rep = token.getRepresentation();
             

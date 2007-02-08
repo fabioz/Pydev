@@ -6,6 +6,8 @@ package org.python.pydev.core;
 import java.io.File;
 import java.util.List;
 
+import org.python.pydev.core.structure.CompletionRecursionException;
+
 public interface IModule {
 
     /**
@@ -41,21 +43,23 @@ public interface IModule {
      */
     public abstract IToken[] getLocalTokens(int line, int col);
 
-    public abstract boolean isInGlobalTokens(String tok, IPythonNature nature);
+    public abstract boolean isInGlobalTokens(String tok, IPythonNature nature) throws CompletionRecursionException;
 
     /**
      * @param tok the token we are looking for
      * @return whether the passed token is part of the global tokens of this module (including imported tokens).
+     * @throws CompletionRecursionException 
      */
-    public abstract boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods);
+    public abstract boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods) throws CompletionRecursionException;
 
     /**
      * @param ifHasGetAttributeConsiderInTokens if this true, consider that the token is in the tokens if a __getattribute__
      * is found.
      * 
      * @return whether the passed token is part of the global tokens of this module (including imported tokens).
+     * @throws CompletionRecursionException 
      */
-    public boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, boolean ifHasGetAttributeConsiderInTokens);
+    public boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, boolean ifHasGetAttributeConsiderInTokens) throws CompletionRecursionException;
     
     /**
      * This function can be called to find possible definitions of a token (state activation token), based on its name, line and

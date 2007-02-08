@@ -757,7 +757,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      */
     public IToken resolveImport(ICompletionState state, IToken imported) throws CompletionRecursionException {
         String curModName = imported.getParentPackage();
-        Tuple3<IModule, String, IToken> modTok = findOnImportedMods(new IToken[]{imported}, state.getNature(), imported.getRepresentation(), curModName);
+        Tuple3<IModule, String, IToken> modTok = findOnImportedMods(new IToken[]{imported}, state.getCopyWithActTok(imported.getRepresentation()), curModName);
         if(modTok != null && modTok.o1 != null){
 
             if(modTok.o2.length() == 0){
@@ -865,7 +865,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     }
 
     public IToken[] findTokensOnImportedMods( IToken[] importedModules, ICompletionState state, IModule current) throws CompletionRecursionException {
-        Tuple3<IModule, String, IToken> o = findOnImportedMods(importedModules, state.getNature(), state.getActivationToken(), current.getName());
+        Tuple3<IModule, String, IToken> o = findOnImportedMods(importedModules, state, current.getName());
         
         if(o == null)
             return null;
@@ -898,10 +898,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @return tuple with:
      * 0: mod
      * 1: tok
+     * @throws CompletionRecursionException 
      */
-    public Tuple3<IModule, String, IToken> findOnImportedMods( IPythonNature nature, String activationToken, IModule current) {
+    public Tuple3<IModule, String, IToken> findOnImportedMods( ICompletionState state, IModule current) throws CompletionRecursionException {
         IToken[] importedModules = current.getTokenImportedModules();
-        return findOnImportedMods(importedModules, nature, activationToken, current.getName());
+        return findOnImportedMods(importedModules, state, current.getName());
     }
     
     /**
@@ -919,18 +920,19 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * 0: mod
      * 1: tok (string)
      * 2: actual tok
+     * @throws CompletionRecursionException 
      */
-    public Tuple3<IModule, String, IToken> findOnImportedMods( IToken[] importedModules, IPythonNature nature, String activationToken, String currentModuleName) {
+    public Tuple3<IModule, String, IToken> findOnImportedMods( IToken[] importedModules, ICompletionState state, String currentModuleName) throws CompletionRecursionException {
         	
-    	FullRepIterable iterable = new FullRepIterable(activationToken, true);
+    	FullRepIterable iterable = new FullRepIterable(state.getActivationToken(), true);
     	for(String tok : iterable){
     		for (IToken importedModule : importedModules) {
         	
 	            final String modRep = importedModule.getRepresentation(); //this is its 'real' representation (alias) on the file (if it is from xxx import a as yyy, it is yyy)
 	            
 	            if(modRep.equals(tok)){
-                    String act = activationToken;
-	            	Tuple<IModule, String> r = findOnImportedMods(importedModule, tok, nature, act, currentModuleName);
+                    String act = state.getActivationToken();
+	            	Tuple<IModule, String> r = findOnImportedMods(importedModule, tok, state, act, currentModuleName);
                     if(r == null){
                         return null;
                     }
@@ -944,10 +946,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     
     /**
      * Checks if some module can be resolved and returns the module it is resolved to (and to which token).
+     * @throws CompletionRecursionException 
      * 
      */
-    protected Tuple<IModule, String> findOnImportedMods(IToken importedModule, String tok, IPythonNature nature, 
-    		String activationToken, String currentModuleName) {
+    protected Tuple<IModule, String> findOnImportedMods(IToken importedModule, String tok, ICompletionState state, 
+    		String activationToken, String currentModuleName) throws CompletionRecursionException {
         
         
         Tuple<IModule, String> modTok = null;
@@ -979,7 +982,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                     }
                     relative += "."+tok;
                     
-                    modTok = findModuleFromPath(relative, nature, false, null);
+                    modTok = findModuleFromPath(relative, state.getNature(), false, null);
                     mod = modTok.o1;
                     if(checkValidity(currentModuleName, mod)){
                         Tuple<IModule, String> ret = fixTok(modTok, tok, activationToken);
@@ -995,7 +998,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         
         //check as relative with complete rep
         String asRelativeImport = importedModule.getAsRelativeImport(currentModuleName);
-		modTok = findModuleFromPath(asRelativeImport, nature, true, currentModuleName);
+		modTok = findModuleFromPath(asRelativeImport, state.getNature(), true, currentModuleName);
         mod = modTok.o1;
         if(checkValidity(currentModuleName, mod)){
             Tuple<IModule, String> ret = fixTok(modTok, tok, activationToken);
@@ -1009,10 +1012,10 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         if(!originalWithoutRep.endsWith("__init__")){
         	originalWithoutRep = originalWithoutRep + ".__init__";
         }
-		modTok = findModuleFromPath(originalWithoutRep, nature, true, null);
+		modTok = findModuleFromPath(originalWithoutRep, state.getNature(), true, null);
         mod = modTok.o1;
         if(modTok.o2.endsWith("__init__") == false && checkValidity(currentModuleName, mod)){
-        	if(mod.isInGlobalTokens(importedModule.getRepresentation(), nature, false)){
+        	if(mod.isInGlobalTokens(importedModule.getRepresentation(), state.getNature(), false)){
         		//then this is the token we're looking for (otherwise, it might be a module).
         		Tuple<IModule, String> ret =  fixTok(modTok, tok, activationToken);
         		if(ret.o2.length() == 0){
@@ -1027,7 +1030,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
         
         //the most 'simple' case: check as absolute with original rep
-        modTok = findModuleFromPath(importedModule.getOriginalRep(), nature, false, null);
+        modTok = findModuleFromPath(importedModule.getOriginalRep(), state.getNature(), false, null);
         mod = modTok.o1;
         if(checkValidity(currentModuleName, mod)){
             Tuple<IModule, String> ret =  fixTok(modTok, tok, activationToken);
@@ -1040,7 +1043,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
         
         //ok, one last shot, to see a relative looking in folders __init__
-        modTok = findModuleFromPath(asRelativeImport, nature, false, null);
+        modTok = findModuleFromPath(asRelativeImport, state.getNature(), false, null);
         mod = modTok.o1;
         if(checkValidity(currentModuleName, mod)){
             Tuple<IModule, String> ret = fixTok(modTok, tok, activationToken);
@@ -1055,7 +1058,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             //if it is not the initial token we were looking for, it is correct
             //if it is in the global tokens of the found module it is correct
             //if none of this situations was found, we probably just found the same token we had when we started (unless I'm mistaken...)
-            else if(activationToken.length() == 0 || ret.o2.equals(activationToken) == false || mod.isInGlobalTokens(activationToken, nature, false)){
+            else if(activationToken.length() == 0 || ret.o2.equals(activationToken) == false || mod.isInGlobalTokens(activationToken, state.getNature(), false)){
                 return ret;
             }
         }
