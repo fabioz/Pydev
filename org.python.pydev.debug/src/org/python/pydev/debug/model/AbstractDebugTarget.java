@@ -218,7 +218,7 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
                 processThreadRun(payload);
                 
             }else{
-                PydevDebugPlugin.log(IStatus.WARNING, "Unexpected debugger command" + sCmdCode, null);
+                PydevDebugPlugin.log(IStatus.WARNING, "Unexpected debugger command:" + sCmdCode+"\nseq:"+sSeqCode+"\npayload:"+payload, null);
             }
         } catch (Exception e) {
             PydevDebugPlugin.log(IStatus.ERROR, "Error processing: " + sCmdCode+"\npayload: "+payload, e); 
