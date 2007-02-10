@@ -175,8 +175,8 @@ public class InterpreterObserver implements IInterpreterObserver {
         }
         double delta = System.currentTimeMillis()-startsAt;
         delta = delta/1000; // in secs
-        System.out.println("Time to restore additional info in secs: "+delta);
-        System.out.println("Time to restore additional info in mins: "+delta/60.0);
+//        System.out.println("Time to restore additional info in secs: "+delta);
+//        System.out.println("Time to restore additional info in mins: "+delta/60.0);
         return info;
     }
 

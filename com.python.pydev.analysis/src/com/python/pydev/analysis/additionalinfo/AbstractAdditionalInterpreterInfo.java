@@ -73,7 +73,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
     /**
      * Do you want to debug this class?
      */
-    private static final boolean DEBUG_ADDITIONAL_INFO = true;
+    private static final boolean DEBUG_ADDITIONAL_INFO = false;
 
     /**
      * Defines that some operation should be done on top level tokens
