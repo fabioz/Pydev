@@ -141,7 +141,7 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
     
     public String getSelectedInterpreter(ILaunchConfiguration configuration){
         try {
-            return configuration.getAttribute(Constants.ATTR_INTERPRETER, "");
+            return configuration.getAttribute(Constants.ATTR_INTERPRETER, Constants.ATTR_INTERPRETER_DEFAULT);
         } catch (CoreException e) {
             return interpreterManager.getDefaultInterpreter();
         }

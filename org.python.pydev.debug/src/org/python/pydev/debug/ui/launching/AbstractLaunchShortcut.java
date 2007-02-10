@@ -189,11 +189,10 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 //			String baseDirectory = varManager.generateVariableExpression("workspace_loc",resource.getRawLocation().removeLastSegments(1).toString());
 			String baseDirectory = resource.getRawLocation().removeLastSegments(1).toString();
 			String arguments = "";
-            String interpreter = pythonInterpreterManager.getDefaultInterpreter();
 			
             workingCopy.setAttribute(Constants.ATTR_PROJECT,projName);
             workingCopy.setAttribute(Constants.ATTR_RESOURCE_TYPE,resource.getType());
-            workingCopy.setAttribute(Constants.ATTR_INTERPRETER,interpreter);
+            workingCopy.setAttribute(Constants.ATTR_INTERPRETER, Constants.ATTR_INTERPRETER_DEFAULT);
             
             workingCopy.setAttribute(IDebugUIConstants.ATTR_LAUNCH_IN_BACKGROUND, false);
 			workingCopy.setAttribute(Constants.ATTR_LOCATION,location);

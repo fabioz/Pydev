@@ -9,6 +9,7 @@ Pydev:
 <li>Fix: block comment for class will recognize better when it is on a class definition line</li>
 <li>Ctrl+Tab and Ctrl+Shift+Tab keybindings removed from convert tabs to space-tabs (and vice-versa) -- they are still available in the source menu</li>
 <li>The remove block comments (Ctrl+5) will now remove contiguous comments -- so, if several lines are commented, putting the cursor in any of those lines and pressing Ctrl+5 will remove all those comments</li>
+<li>When creating a new launch, the 'default' option is chosen, so, if the default interpreter changes later, this won't affect existing launch configurations</li>
 </ul>
 
 Pydev Extensions:

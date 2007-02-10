@@ -195,7 +195,7 @@ public class PythonRunnerConfig {
      */
     private static String getInterpreterLocation(ILaunchConfiguration conf, IPythonNature nature) throws CoreException {
 		IInterpreterManager interpreterManager = PydevPlugin.getInterpreterManager(nature);
-        String location = conf.getAttribute(Constants.ATTR_INTERPRETER, (String) null);
+        String location = conf.getAttribute(Constants.ATTR_INTERPRETER, Constants.ATTR_INTERPRETER_DEFAULT);
         
 		if (location != null && location.equals(Constants.ATTR_INTERPRETER_DEFAULT)){
 			location = interpreterManager.getDefaultInterpreter();

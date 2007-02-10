@@ -48,7 +48,7 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
     Text vmArgumentsField;
     
     // View constant
-    static final String DEFAULT_INTERPRETER_NAME = "Default Interpreter";
+    public static final String DEFAULT_INTERPRETER_NAME = "Default Interpreter";
 
     protected ModifyListener modifyListener = new ModifyListener() {
         public void modifyText(ModifyEvent e) {       
@@ -246,7 +246,7 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         setMessage(null);
         String interpreter;
         try {
-            interpreter = launchConfig.getAttribute(Constants.ATTR_INTERPRETER, "" );
+            interpreter = launchConfig.getAttribute(Constants.ATTR_INTERPRETER, Constants.ATTR_INTERPRETER_DEFAULT);
         } catch (CoreException e) {
             setErrorMessage("No interpreter? " + e.getMessage());
             return false;
