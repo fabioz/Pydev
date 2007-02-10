@@ -44,7 +44,11 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
     }
 
     public static int getStaticTabWidth(){
-        int w = PydevPlugin.getDefault().getPluginPreferences().getInt(PydevPrefs.TAB_WIDTH);
+        PydevPlugin default1 = PydevPlugin.getDefault();
+        if(default1 == null){
+            return 4;
+        }
+        int w = default1.getPluginPreferences().getInt(PydevPrefs.TAB_WIDTH);
         if(w <= 0){ //tab width should never be 0 or less (in this case, let's make the default 4)
             w = 4;
         }

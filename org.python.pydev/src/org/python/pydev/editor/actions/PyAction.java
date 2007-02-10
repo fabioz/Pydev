@@ -329,7 +329,7 @@ public abstract class PyAction implements IEditorActionDelegate {
             String identString;
 
             if (useSpaces && !forceTabs){
-                identString = PyAction.createStaticSpaceString(tabWidth, tabWidth);
+                identString = PyAction.createStaticSpaceString(tabWidth);
             }else{
                 identString = "\t";
             }
@@ -342,8 +342,8 @@ public abstract class PyAction implements IEditorActionDelegate {
         }
     }
 
-    public static String createStaticSpaceString(int width, int tabWidth) {
-        StringBuffer b = new StringBuffer(width);
+    private static String createStaticSpaceString(int tabWidth) {
+        StringBuffer b = new StringBuffer(tabWidth);
         while (tabWidth-- > 0)
             b.append(" ");
         return b.toString();

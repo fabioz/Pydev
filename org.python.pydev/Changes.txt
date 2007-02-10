@@ -7,6 +7,8 @@ Pydev:
 <li>Fix: halting condition on code-completion execution</li>
 <li>Fix: 'create docstrings' assist creates <strong>@param</strong> even if there is a comment in a function definition</li>
 <li>Fix: block comment for class will recognize better when it is on a class definition line</li>
+<li>Ctrl+Tab and Ctrl+Shift+Tab keybindings removed from convert tabs to space-tabs (and vice-versa) -- they are still available in the source menu</li>
+<li>The remove block comments (Ctrl+5) will now remove contiguous comments -- so, if several lines are commented, putting the cursor in any of those lines and pressing Ctrl+5 will remove all those comments</li>
 </ul>
 
 Pydev Extensions:

@@ -643,18 +643,6 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Shift+Ctrl+Tab"
-            contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.editor.actions.convertSpaceToTab"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
-      <key
-            sequence="Ctrl+Tab"
-            contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.editor.actions.convertTabToSpace"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
-      <key
             sequence="Ctrl+5"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.removeBlockComment"

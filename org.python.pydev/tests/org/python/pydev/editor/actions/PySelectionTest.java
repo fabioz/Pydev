@@ -426,7 +426,9 @@ public class PySelectionTest extends TestCase {
 		matchFunc("def f( x=10 ): #comment");
 		matchFunc("def f( x=10 )   : #comment");
 		matchFunc("def f( *args, **kwargs ): #comment");
+		matchFunc("def __foo__( *args, **kwargs ): #comment");
         
+		matchClass("class __A( object ): #comment");
 		matchClass("class A( object ): #comment");
 		matchClass("class A( class10 ): #comment");
 		matchClass("class A( class10 )   : #comment");

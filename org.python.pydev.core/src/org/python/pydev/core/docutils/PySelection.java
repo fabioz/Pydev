@@ -751,7 +751,7 @@ public class PySelection {
     }
 
     /**
-     * @return the offset mapping to the end of the current line.
+     * @return the offset mapping to the end of the current 'end' line.
      */
     public int getEndLineOffset() {
         IRegion endLine = getEndLine();
@@ -1540,10 +1540,24 @@ public class PySelection {
 	//(\\s|\\w)
 	
 	//spaces* 'def' space+ identifier space* ( (space|char|.|,|=|*|(|))* ):
-    private static final Pattern FunctionPattern = Pattern.compile("\\s*def\\s+[a-zA-Z]\\w*\\s*\\((\\s|\\w|\\.|\\,|\\=|\\*|\\(|\\))*\\)\\s*:");
+    private static final Pattern FunctionPattern = Pattern.compile("\\s*def\\s+\\w*\\s*\\((\\s|\\w|\\.|\\,|\\=|\\*|\\(|\\))*\\)\\s*:");
 
     //spaces* 'class' space+ identifier space* (? (.|char|space |,)* )?
-    private static final Pattern ClassPattern = Pattern.compile("\\s*class\\s+[a-zA-Z]\\w*\\s*\\(?(\\s|\\w|\\.|\\,)*\\)?\\s*:");
+    private static final Pattern ClassPattern = Pattern.compile("\\s*class\\s+\\w*\\s*\\(?(\\s|\\w|\\.|\\,)*\\)?\\s*:");
+
+
+    public static boolean isCommentLine(String line) {
+        for(int j=0;j<line.length();j++){
+            char c = line.charAt(j);
+            if(c != ' '){
+                if(c=='#'){
+                    //ok, it starts with # (so, it is a comment)
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
 
 

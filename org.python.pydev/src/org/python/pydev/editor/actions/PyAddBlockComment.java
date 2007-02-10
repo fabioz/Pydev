@@ -9,6 +9,7 @@ package org.python.pydev.editor.actions;
 import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -59,7 +60,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
      * @param ps Given PySelection
      * @return boolean The success or failure of the action
      */
-    public boolean perform(PySelection ps) {
+    public int perform(PySelection ps) {
         // What we'll be replacing the selected text with
         StringBuffer strbuf = new StringBuffer();
 
@@ -67,7 +68,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
         ps.selectCompleteLine();
 
         try {
-            String fullCommentLine = getFullCommentLine();
+            String fullCommentLine;
             String endLineDelim = ps.getEndLineDelim();
             
             int startLineIndex = ps.getStartLineIndex();
@@ -82,12 +83,21 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
             }
             
             // Start of block
-            strbuf.append("#" + fullCommentLine + endLineDelim);
 
             if(classBehaviour){
                 String line = ps.getLine(startLineIndex);
+                int classIndex = line.indexOf("class ");
+                fullCommentLine = getFullCommentLine(classIndex);
+                String spacesBefore;
+                if(classIndex > 0){
+                    spacesBefore = line.substring(0, classIndex);
+                }else{
+                    spacesBefore = "";
+                }
+                
+                strbuf.append(spacesBefore+"#" + fullCommentLine + endLineDelim);
                 String initialLine = line;
-                line = line.substring(line.indexOf("class ")+6);
+                line = line.substring(classIndex+6);
                 StringBuffer className = new StringBuffer();
                 for(int i=0;i<line.length();i++){
                     char cN = line.charAt(i);
@@ -98,15 +108,20 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
                     }
                 }
                 
+                strbuf.append(spacesBefore);
                 strbuf.append("# ");
                 strbuf.append(className);
                 strbuf.append(endLineDelim);
+                
+                strbuf.append(spacesBefore);
                 strbuf.append("#" + fullCommentLine);
                 strbuf.append(endLineDelim);
                 strbuf.append(initialLine);
                 
                 
             }else{
+                fullCommentLine = getFullCommentLine(0);
+                strbuf.append("#" + fullCommentLine + endLineDelim);
                 // For each line, comment them out
                 for (int i = startLineIndex; i <= endLineIndex; i++) {
                     strbuf.append("#");
@@ -121,16 +136,18 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
                 strbuf.append("#" + fullCommentLine);
             }
             
+            int startOffset = ps.getStartLine().getOffset();
+            String str = strbuf.toString();
             // Replace the text with the modified information
-            ps.getDoc().replace(ps.getStartLine().getOffset(), ps.getSelLength(), strbuf.toString());
+            ps.getDoc().replace(startOffset, ps.getSelLength(), str);
 
-            return true;
+            return startOffset+str.length();
         } catch (Exception e) {
             beep(e);
         }
 
         // In event of problems, return false
-        return false;
+        return -1;
     }
 
     @Override
@@ -143,9 +160,9 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
      * 
      * @return Comment line string, or a default one if Preferences are null
      */
-    protected String getFullCommentLine() {
+    protected String getFullCommentLine(int subtract) {
         Tuple<Integer,Character> colsAndChar = getColsAndChar();
-        int cols = colsAndChar.o1;
+        int cols = colsAndChar.o1-subtract;
         char c = colsAndChar.o2;
 
         StringBuffer buffer = new StringBuffer(cols);

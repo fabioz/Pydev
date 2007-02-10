@@ -34,10 +34,13 @@ public abstract class AbstractBlockCommentAction extends PyAction {
             // Select from text editor
             PySelection ps = new PySelection(getTextEditor());
             // Perform the action
-            perform(ps);
-
-            // Put cursor at the first area of the selection
-            revealSelEndLine(ps);
+            int toSelect = perform(ps);
+            if(toSelect != -1){
+                getTextEditor().selectAndReveal(toSelect, 0);
+            }else{
+                // Put cursor at the first area of the selection
+                revealSelEndLine(ps);
+            }
         } catch (Exception e) {
             beep(e);
         }
@@ -46,13 +49,13 @@ public abstract class AbstractBlockCommentAction extends PyAction {
     /**
      * Actually performs the action 
      */
-    public abstract boolean perform(PySelection ps);
+    public abstract int perform(PySelection ps);
     
     
     /**
      * @return the number of columns to be used (and the char too)
      */
-    protected Tuple<Integer, Character> getColsAndChar(){
+    public Tuple<Integer, Character> getColsAndChar(){
         int cols = this.defaultCols;
         char c = '-';
         
