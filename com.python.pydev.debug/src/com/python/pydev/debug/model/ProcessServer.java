@@ -6,8 +6,10 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 
+import com.python.pydev.debug.DebugPluginPrefsInitializer;
 import com.python.pydev.debug.remote.RemoteDebuggerServer;
 
 public class ProcessServer extends Process {	
@@ -29,7 +31,7 @@ public class ProcessServer extends Process {
             pipedErrOutputStream= new PipedOutputStream();
             
             inputStream = new PipedInputStream(pipedOutputStream);
-            pipedOutputStream.write("Debug Server\r\n".getBytes());
+            pipedOutputStream.write(StringUtils.format("Debug Server at port: %s\r\n",DebugPluginPrefsInitializer.getRemoteDebuggerPort()).getBytes());
             pipedOutputStream.flush();
             
             

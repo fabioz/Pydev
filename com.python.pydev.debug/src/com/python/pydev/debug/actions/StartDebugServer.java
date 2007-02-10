@@ -4,9 +4,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.eclipse.jface.dialogs.MessageDialog;
 
-import com.python.pydev.debug.DebugPlugin;
 import com.python.pydev.debug.remote.RemoteDebuggerServer;
 import com.python.pydev.debug.ui.launching.PydevdServerLaunchShortcut;
 
@@ -19,7 +17,6 @@ import com.python.pydev.debug.ui.launching.PydevdServerLaunchShortcut;
  * @see IWorkbenchWindowActionDelegate
  */
 public class StartDebugServer implements IWorkbenchWindowActionDelegate {
-	private IWorkbenchWindow window;
 	/**
 	 * The constructor.
 	 */
@@ -33,10 +30,6 @@ public class StartDebugServer implements IWorkbenchWindowActionDelegate {
 	 * @see IWorkbenchWindowActionDelegate#run
 	 */
 	public void run(IAction action) {
-		/*MessageDialog.openInformation(
-			window.getShell(),
-			"Extensions Debug Plug-in",
-			"WOHOOOOOOOO start");*/
 		PydevdServerLaunchShortcut s = new PydevdServerLaunchShortcut();
 		s.launch(null,"run","");
 		
@@ -67,6 +60,5 @@ public class StartDebugServer implements IWorkbenchWindowActionDelegate {
 	 * @see IWorkbenchWindowActionDelegate#init
 	 */
 	public void init(IWorkbenchWindow window) {
-		this.window = window;
 	}
 }

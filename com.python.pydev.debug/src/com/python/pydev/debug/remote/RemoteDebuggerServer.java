@@ -2,6 +2,7 @@ package com.python.pydev.debug.remote;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.SocketException;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
@@ -10,6 +11,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 
+import com.python.pydev.debug.DebugPluginPrefsInitializer;
 import com.python.pydev.debug.model.ProcessServer;
 import com.python.pydev.debug.model.PyDebugTargetServer;
 
@@ -18,54 +20,63 @@ import com.python.pydev.debug.model.PyDebugTargetServer;
  * Note that if it for some reason exits (in the case of an exception), the thread will be recreated.
  */
 public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runnable {
-    private final int PORT = 5678;
-	private final int TIMEOUT = 0;
+	private final static int TIMEOUT = 0;
     
     /**
      * The socket that should be used to listen for clients that want a remote debug session.
      */
-	private static ServerSocket serverSocket;
+	private volatile static ServerSocket serverSocket;
     
     /**
      * The launch that generated this debug server 
      */
-	private ILaunch launch;
+	private volatile ILaunch launch;
     
     /**
      * Are we terminated?
      */
-	private boolean terminated;
+	private volatile boolean terminated;
     
     /**
      * An emulation of a process, to make Eclipse happy (and so that we have somewhere to write to).
      */
-    private ProcessServer serverProcess;
+    private volatile ProcessServer serverProcess;
     
     /**
      * The iprocess that is created for the debug server
      */
-    private IProcess iProcess;
+    private volatile IProcess iProcess;
+
+    private volatile static int remoteDebuggerPort=-1;
 	
-	private static RemoteDebuggerServer remoteServer;
-	private static Thread remoteServerThread;
-	
+    /**
+     * This is the server
+     */
+	private volatile static RemoteDebuggerServer remoteServer;
+    
+    /**
+     * The thread for the debug
+     */
+	private volatile static Thread remoteServerThread;
+    
 	private RemoteDebuggerServer() {	
 	}
 	
 	public static synchronized RemoteDebuggerServer getInstance() {
+        if(remoteDebuggerPort != DebugPluginPrefsInitializer.getRemoteDebuggerPort()){
+            if(remoteServer != null){
+                remoteServer.stopListening();
+                remoteServer.dispose();
+            }
+            remoteServer = null;
+            remoteServerThread = null;
+        }
 		if( remoteServer==null ) {
             remoteServer = new RemoteDebuggerServer();
 		}
 		if( remoteServerThread==null ) {
 		    remoteServerThread = new Thread(remoteServer);
-		    remoteServerThread.start();
-        }
-		return remoteServer;
-	}
-	
-	public void run() {
-		try {
-            //the serverSocket is static, so, if it already existed, let's close it so it can be recreated.
+            remoteDebuggerPort = DebugPluginPrefsInitializer.getRemoteDebuggerPort();
             if(serverSocket != null){
                 try {
                     serverSocket.close();
@@ -74,18 +85,34 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
                 }
             }
             
-			serverSocket = new ServerSocket( PORT );
-            serverSocket.setReuseAddress(true);
+            try {
+                //System.out.println("starting at:"+remoteDebuggerPort);
+                serverSocket = new ServerSocket( remoteDebuggerPort );
+                serverSocket.setReuseAddress(true);
+                serverSocket.setSoTimeout( TIMEOUT );
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+		    remoteServerThread.start();
+        }
+		return remoteServer;
+	}
+	
+	public void run() {
+		try {
+            //the serverSocket is static, so, if it already existed, let's close it so it can be recreated.
 			terminated = false;
 			while( true ) {
-				serverSocket.setSoTimeout( TIMEOUT );
-				socket = serverSocket.accept(); //will be blocked here until a client connects
+				socket = serverSocket.accept(); //will be blocked here until a client connects (or user starts in another port)
 				startDebugging();
 			}
+		} catch (SocketException e) {		
+            //ignore (will create a new one later)
 		} catch (Exception e) {		
             Log.log(e);
 		}		
-        remoteServerThread = null;
 	}		
 	
 	private void startDebugging() throws InterruptedException {		
@@ -102,11 +129,15 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
 		}		
 	}
 
-	public void stopListening() {
-		terminated = true;
+	public synchronized void stopListening() {
+        if(terminated){
+            return;
+        }
+        terminated = true;
 		try {
-            if (launch.canTerminate())
+            if (launch != null && launch.canTerminate()){
                 launch.terminate();
+            }
         } catch (Exception e) {
             Log.log(e);
         }
@@ -139,21 +170,20 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
 		//dispose() calls terminate() that calls disconnect()
 	}
 
-	public void setServerProcess(ProcessServer p) {
-        this.serverProcess = p;
-    }
     
-	public void setLaunch(ILaunch launch) {
+	public void setLaunch(ILaunch launch, ProcessServer p, IProcess pro) {
+        if(this.launch != null){
+            this.stopListening();
+        }
+        terminated = false; //we have a launch... so, it's not finished
+        this.serverProcess = p;
 		this.launch = launch;
+		this.iProcess = pro;
 	}
 
 	public boolean isTerminated() {
 		return terminated;
 	}
-
-    public void setIProcess(IProcess pro) {
-        this.iProcess = pro;
-    }
 
     public IProcess getIProcess() {
         return this.iProcess;

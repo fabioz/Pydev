@@ -59,8 +59,16 @@
     </perspectiveExtension>
 </extension>
 
-   <extension point="org.python.pydev.debug.pydev_debug_console_input_listener">
+<extension point="org.python.pydev.debug.pydev_debug_console_input_listener">
   		<builder_participant class="com.python.pydev.debug.console.EvaluationConsoleInputListener"/>
-   </extension>
+</extension>
+
+<extension point="org.python.pydev.pydev_debug_preferences_page">
+  		<debug_preferences_page_participant class="com.python.pydev.debug.ui.DebugPreferencesPageExt"/>
+</extension>
+
+<extension point="org.eclipse.core.runtime.preferences">
+      <initializer class="com.python.pydev.debug.DebugPluginPrefsInitializer"/>
+</extension>
 
 </plugin>

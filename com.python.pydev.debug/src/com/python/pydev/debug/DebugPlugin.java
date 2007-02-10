@@ -11,7 +11,9 @@ import com.python.pydev.PydevPlugin;
  */
 public class DebugPlugin extends AbstractUIPlugin {
 
-	//The shared instance.
+	public static final String DEFAULT_PYDEV_DEBUG_SCOPE = "org.python.pydev.debug";
+    
+    //The shared instance.
 	private static DebugPlugin plugin;	
 	
 	/**
@@ -26,6 +28,7 @@ public class DebugPlugin extends AbstractUIPlugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		new DebugPluginPrefsInitializer().initializeDefaultPreferences();
 		PydevPlugin.getDefault().checkValid();
 	}
 

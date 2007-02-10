@@ -23,7 +23,8 @@ public class PydevdServerLaunchConfigurationDelegate extends AbstractLaunchConfi
 	 * Modelled after Ant & Java runners
 	 * see WorkbenchLaunchConfigurationDelegate::launch
 	 */
-	public void launch(ILaunchConfiguration conf, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {		
+	@SuppressWarnings("unchecked")
+    public void launch(ILaunchConfiguration conf, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {		
 		if (monitor == null){
 			monitor = new NullProgressMonitor();
         }
@@ -40,9 +41,7 @@ public class PydevdServerLaunchConfigurationDelegate extends AbstractLaunchConfi
 		        
 		IProcess pro = DebugPlugin.newProcess( launch, p, label, processAttributes );
 		
-		RemoteDebuggerServer.getInstance().setLaunch(launch);
-		RemoteDebuggerServer.getInstance().setServerProcess(p);
-		RemoteDebuggerServer.getInstance().setIProcess(pro);
+		RemoteDebuggerServer.getInstance().setLaunch(launch, p, pro);
 	}
 		
 	@Override
