@@ -239,7 +239,7 @@ public class PyCodeCompletion {
                 
                 List completions = new ArrayList();
                 if (trimmed.equals("self") || trimmed.startsWith("self")) {
-                    state.setLookingForInstance(true);
+                    state.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
                     getSelfCompletions(request, theList, state);
 
                 } else {
@@ -529,7 +529,8 @@ public class PyCodeCompletion {
      */
     private String getArgs(IToken element, ICompletionState state) {
         String args = "";
-        boolean lookingForInstance = state.getIsLookingForInstance();
+        int lookingFor = state.isLookingFor();
+        boolean lookingForInstance = lookingFor==ICompletionState.LOOKING_FOR_INSTANCE_UNDEFINED || lookingFor==ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE;
         if(element.getArgs().trim().length() > 0){
             StringBuffer buffer = new StringBuffer("(");
             StringTokenizer strTok = new StringTokenizer(element.getArgs(), "( ,)");

@@ -301,21 +301,15 @@ public class CompletionState implements ICompletionState {
         return isInCalltip;
     }
 
-    public void setLookingForInstance(boolean b) {
-        if(this.lookingForInstance == LOOKING_FOR_INSTANCE_UNDEFINED){
-            if(b){
-                this.lookingForInstance = LOOKING_FOR_INSTANCED_VARIABLE;
-            }else{
-                this.lookingForInstance = LOOKING_FOR_UNBOUND_VARIABLE;
-            }
+    public void setLookingFor(int b) {
+        //the 1st is the one that counts
+        if(this.lookingForInstance == ICompletionState.LOOKING_FOR_INSTANCE_UNDEFINED){
+            this.lookingForInstance = b;
         }
     }
 
-    public boolean getIsLookingForInstance() {
-        if(this.lookingForInstance == LOOKING_FOR_INSTANCE_UNDEFINED || this.lookingForInstance == LOOKING_FOR_INSTANCED_VARIABLE){
-            return true; 
-        }
-        return false;
+    public int isLookingFor() {
+        return this.lookingForInstance;
     }
 
     public ICompletionState getCopyWithActTok(String value) {

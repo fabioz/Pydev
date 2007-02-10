@@ -408,7 +408,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         if(parI != -1){
             act = act.substring(0, parI);
             state.setActivationToken(act);
-            state.setLookingForInstance(true);
+            state.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
         }
         	
         if (module != null) {

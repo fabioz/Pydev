@@ -255,7 +255,7 @@ public class SourceModule extends AbstractModule {
                     }
                 } else if(rep.equals(activationToken)){
                     if(ast instanceof ClassDef){
-                        initialState.setLookingForInstance(false);
+                        initialState.setLookingFor(ICompletionState.LOOKING_FOR_UNBOUND_VARIABLE);
                     }
                     return (IToken[]) getToks(initialState, manager, ast).toArray(new IToken[0]);
 	            }

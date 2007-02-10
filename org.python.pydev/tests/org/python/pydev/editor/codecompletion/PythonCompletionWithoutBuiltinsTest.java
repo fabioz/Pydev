@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testClassmethod();
+	      test.testSelfCase();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -751,6 +751,25 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         Document document = new Document(s);
         p.apply(document);
         assertEquals(StringUtils.format(s0, "hod1(a, b)"), document.get());
+    }
+    
+    public void testClassmethod2() throws Exception {
+        String s0 = 
+            "class Foo:\n" +
+            "    @classmethod\n" +
+            "    def method1(cls, a, b):\n" +
+            "        cls.m%s";
+        
+        String s = StringUtils.format(s0, "");
+        ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length); 
+        PyCompletionProposal p = (PyCompletionProposal) proposals[0];
+        assertEquals("method1(a, b)", p.getDisplayString());
+        
+        
+        Document document = new Document(s);
+        p.apply(document);
+        assertEquals(StringUtils.format(s0, "ethod1(a, b)"), document.get());
     }
     
 
