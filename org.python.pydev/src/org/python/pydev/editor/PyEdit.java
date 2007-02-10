@@ -525,7 +525,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
                         new Job("Change encoding") {
 
                             protected IStatus run(IProgressMonitor monitor) {
-                                System.out.println("Changing Encoding");
                                 try {
                                     file.setCharset(encoding, monitor);
                                     ((TextFileDocumentProvider) getDocumentProvider()).setEncoding(input, encoding);

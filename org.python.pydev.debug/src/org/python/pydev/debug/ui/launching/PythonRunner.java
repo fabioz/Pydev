@@ -157,7 +157,7 @@ public class PythonRunner {
         // Launch & connect to the debugger		
         subMonitor.subTask("Constructing command_line...");
         String commandLineAsString = SimpleRunner.getCommandLineAsString(cmdLine);
-        System.out.println("running command line: "+commandLineAsString);
+        //System.out.println("running command line: "+commandLineAsString);
         Map processAttributes = new HashMap();
             
         processAttributes.put(IProcess.ATTR_CMDLINE, commandLineAsString);
