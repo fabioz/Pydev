@@ -455,5 +455,15 @@
 	<handler class="org.python.pydev.debug.ui.actions.EvalExpressionAction" commandId="org.python.pydev.debug.command.Display">
 	</handler>
 </extension>
+	
+<extension point="org.eclipse.ui.preferencePages">
+      <page
+            name="Debug"
+            category="org.python.pydev.prefs"
+            class="org.python.pydev.debug.ui.DebugPrefsPage"
+            id="org.python.pydev.prefs.debugPage">
+      </page>
+</extension>
+
 </plugin>
 

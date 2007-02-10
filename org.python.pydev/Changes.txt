@@ -13,6 +13,7 @@ Pydev:
 
 Pydev Extensions:
 <li>Mark occurrences and rename now will also get the token in comments</li>
+<li>The remote debugger port can now be specified</li>
 
 after 1.2.5
 

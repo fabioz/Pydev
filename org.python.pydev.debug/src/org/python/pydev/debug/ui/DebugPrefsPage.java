@@ -3,14 +3,20 @@
  * Created: Jun 23, 2003
  * License: Common Public License v1.0
  */
-package org.python.pydev.plugin;
+package org.python.pydev.debug.ui;
+
+import java.util.List;
 
 import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevPrefs;
 
 /**
  * Debug preferences.
@@ -36,12 +42,23 @@ public class DebugPrefsPage extends FieldEditorPreferencePage
 	/**
 	 * Creates the editors
 	 */
-	protected void createFieldEditors() {
+	@SuppressWarnings("unchecked")
+    protected void createFieldEditors() {
 		Composite p = getFieldEditorParent();
-		IntegerFieldEditor ife = new IntegerFieldEditor(PydevPrefs.CONNECT_TIMEOUT, "Connect timeout for debugger (ms)", p, 10);
-		addField(ife);
+		addField(new IntegerFieldEditor(PydevPrefs.CONNECT_TIMEOUT, "Connect timeout for debugger (ms)", p, 10));
+        List<IDebugPreferencesPageParticipant> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_DEBUG_PREFERENCES_PAGE);
+        for (IDebugPreferencesPageParticipant participant : participants) {
+            participant.createFieldEditors(this, p);
+        }
 	}
 
+    /**
+     * Make it available for extensions
+     */
+    @Override
+    public void addField(FieldEditor editor) {
+        super.addField(editor);
+    }
 	
 
 	/**

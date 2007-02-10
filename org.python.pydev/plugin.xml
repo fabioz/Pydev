@@ -15,8 +15,7 @@
       </editor>
    </extension>
 <!-- Initialize our preferences -->
-   <extension
-         point="org.eclipse.core.runtime.preferences">
+   <extension point="org.eclipse.core.runtime.preferences">
       <initializer class="org.python.pydev.builder.pylint.PyLintPrefInitializer"/>
       <initializer class="org.python.pydev.plugin.PydevPrefsInitializer"/>
       <initializer class="org.python.pydev.editor.codecompletion.PyCodeCompletionInitializer"/>
@@ -96,8 +95,7 @@
       </page>
    </extension>
 <!-- Preference page -->
-   <extension
-         point="org.eclipse.ui.preferencePages">
+   <extension point="org.eclipse.ui.preferencePages">
       <page
             name="Pydev"
             class="org.python.pydev.plugin.PydevPrefs"
@@ -120,12 +118,6 @@
             category="org.python.pydev.prefs"
             class="org.python.pydev.ui.pythonpathconf.JythonInterpreterPreferencesPage"
             id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython">
-      </page>
-      <page
-            name="Debug"
-            category="org.python.pydev.prefs"
-            class="org.python.pydev.plugin.DebugPrefsPage"
-            id="org.python.pydev.prefs.debugPage">
       </page>
       <page
       		name="Pyunit"
@@ -879,6 +871,7 @@
    <extension-point id="pydev_pyedit_listener" name="PyEdit Listener" schema="schema/pydev_pyedit_listener.exsd"/>
    <extension-point id="pydev_formatter" name="Pydev Formatter" schema="schema/pydev_formatter.exsd"/>
    <extension-point id="pydev_globals_browser" name="Pydev Globals Browser" schema="schema/pydev_globals_browser.exsd"/>
+   <extension-point id="pydev_debug_preferences_page" name="Pydev Debug Preferences Page" schema="schema/pydev_debug_preferences_page.exsd"/>
 <!-- wizards -->
    <extension point="org.eclipse.ui.newWizards">
       <category

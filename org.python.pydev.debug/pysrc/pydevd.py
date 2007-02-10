@@ -595,7 +595,7 @@ def SetTraceForParents(frame, dispatch_func):
         frame.f_trace = dispatch_func
         frame = frame.f_back
 
-def settrace(host='localhost', stdoutToServer = False, stderrToServer = False):
+def settrace(host='localhost', stdoutToServer = False, stderrToServer = False, port=5678):
     '''
     @param host: the user may specify another host, if the debug server is not in the same machine
     @param stdoutToServer: when this is true, the stdout is passed to the debug server
@@ -615,7 +615,7 @@ def settrace(host='localhost', stdoutToServer = False, stderrToServer = False):
         setupType()
         
         debugger = PyDB()
-        debugger.connect(host, 5678)
+        debugger.connect(host, port)
         
         net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.reader" id="-1"/></xml>')
         debugger.writer.addCommand(net)
