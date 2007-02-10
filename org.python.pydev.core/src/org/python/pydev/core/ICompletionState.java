@@ -61,13 +61,15 @@ public interface ICompletionState {
     
     /**
      * Identifies if we should be looking for an instance (in which case, self should not
-     * be added to the parameters)
+     * be added to the parameters -- otherwise, it should)
      */
     void setLookingForInstance(boolean b);
 
     ICompletionState getCopyWithActTok(String value);
 
     String getQualifier();
+
+    boolean getIsLookingForInstance();
 
 
 }

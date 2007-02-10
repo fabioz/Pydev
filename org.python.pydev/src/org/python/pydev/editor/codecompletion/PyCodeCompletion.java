@@ -298,7 +298,7 @@ public class PyCodeCompletion {
                     }
                 }
             }
-            changeItokenToCompletionPropostal(viewer, request, ret, theList, importsTip, state.getIsLookingForInstance());
+            changeItokenToCompletionPropostal(viewer, request, ret, theList, importsTip, state);
         } catch (CompletionRecursionException e) {
             ret.add(new CompletionProposal("",request.documentOffset,0,0,null,e.getMessage(), null,null));
         }
@@ -433,7 +433,7 @@ public class PyCodeCompletion {
      * tokens to actual completions as requested by the Eclipse infrastructure.
      * @param lookingForInstance if looking for instance, we should not add the 'self' as parameter.
      */
-    private void changeItokenToCompletionPropostal(ITextViewer viewer, CompletionRequest request, List<ICompletionProposal> convertedProposals, List iTokenList, boolean importsTip, boolean lookingForInstance) {
+    private void changeItokenToCompletionPropostal(ITextViewer viewer, CompletionRequest request, List<ICompletionProposal> convertedProposals, List iTokenList, boolean importsTip, ICompletionState state) {
         for (Iterator iter = iTokenList.iterator(); iter.hasNext();) {
             
             Object obj = iter.next();
@@ -455,7 +455,7 @@ public class PyCodeCompletion {
                         }
                     }
                     if(getIt){
-    	                args = getArgs(element, lookingForInstance);                
+    	                args = getArgs(element, state);                
     	                if(args.length()>0){
     	                    l++; //cursor position is name + '('
     	                }
@@ -527,15 +527,25 @@ public class PyCodeCompletion {
      * @param args
      * @return
      */
-    private String getArgs(IToken element, boolean lookingForInstance) {
+    private String getArgs(IToken element, ICompletionState state) {
         String args = "";
+        boolean lookingForInstance = state.getIsLookingForInstance();
         if(element.getArgs().trim().length() > 0){
             StringBuffer buffer = new StringBuffer("(");
             StringTokenizer strTok = new StringTokenizer(element.getArgs(), "( ,)");
 
             while(strTok.hasMoreTokens()){
                 String tok = strTok.nextToken();
-                if(!lookingForInstance || tok.equals("self") == false){
+                boolean addIt;
+                if(lookingForInstance && tok.equals("self")){
+                    addIt=false;
+                }else if(!lookingForInstance && tok.equals("cls")){
+                    addIt=false;
+                }else{
+                    addIt=true;
+                }
+                
+                if(addIt){
                     if(buffer.length() > 1){
                         buffer.append(", ");
                     }
