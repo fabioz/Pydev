@@ -58,6 +58,7 @@ public interface ICompletionState {
     public static final int LOOKING_FOR_INSTANCE_UNDEFINED=0;
     public static final int LOOKING_FOR_INSTANCED_VARIABLE=1;
     public static final int LOOKING_FOR_UNBOUND_VARIABLE=2;
+    public static final int LOOKING_FOR_CLASSMETHOD_VARIABLE=3;
     
     /**
      * Identifies if we should be looking for an instance (in which case, self should not
