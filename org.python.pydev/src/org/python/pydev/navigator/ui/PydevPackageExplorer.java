@@ -5,7 +5,7 @@
 package org.python.pydev.navigator.ui;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -55,8 +55,9 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
         if (element != null) {
             if (revealAndVerify(element))
                 return true;
-            if (element instanceof IJavaElement) {
-                IResource resource= ((IJavaElement)element).getResource();
+            if (element instanceof IAdaptable) {
+                IAdaptable adaptable = (IAdaptable) element;
+                IResource resource = (IResource) adaptable.getAdapter(IResource.class);
                 if (resource != null) {
                     if (revealAndVerify(resource))
                         return true;
