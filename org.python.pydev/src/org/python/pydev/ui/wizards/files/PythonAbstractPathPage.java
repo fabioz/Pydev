@@ -11,6 +11,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -200,6 +201,11 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
         
         Object element = selection.getFirstElement();
         
+        if (element instanceof IAdaptable) {
+            IAdaptable adaptable = (IAdaptable) element;
+            element = adaptable.getAdapter(IResource.class);
+        }
+        
         if (element instanceof IResource) {
             IResource f = (IResource) element;
             element = f.getProject();
@@ -265,6 +271,14 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
         Object element = selection.getFirstElement();
         
         try {
+            if (element instanceof IAdaptable) {
+                IAdaptable adaptable = (IAdaptable) element;
+                element = adaptable.getAdapter(IFile.class);
+                if(element == null){
+                    element = adaptable.getAdapter(IFolder.class);
+                }
+            }
+
             if (element instanceof IFile) {
                 IFile f = (IFile) element;
                 element = f.getParent();
@@ -343,6 +357,18 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
         Object element = selection.getFirstElement();
         
         try {
+            
+            if (element instanceof IAdaptable) {
+                IAdaptable adaptable = (IAdaptable) element;
+                element = adaptable.getAdapter(IFile.class);
+                if(element == null){
+                    element = adaptable.getAdapter(IProject.class);
+                }
+                if(element == null){
+                    element = adaptable.getAdapter(IFolder.class);
+                }
+            }
+
             if (element instanceof IFile) {
                 IFile f = (IFile) element;
                 element = f.getParent();
