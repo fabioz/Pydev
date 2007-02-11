@@ -32,7 +32,8 @@ Require-Bundle: org.junit,
  org.eclipse.ltk.core.refactoring,
  org.eclipse.ltk.ui.refactoring,
  org.eclipse.ui.navigator,
- org.eclipse.ui.navigator.resources
+ org.eclipse.ui.navigator.resources,
+ org.eclipse.core.filesystem
 Eclipse-AutoStart: true
 Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.builder,
