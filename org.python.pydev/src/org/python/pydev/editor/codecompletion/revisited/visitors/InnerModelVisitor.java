@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Call;
@@ -26,11 +27,11 @@ public class InnerModelVisitor extends AbstractVisitor {
      * List that contains heuristics to find attributes.
      */
     private List attrsHeuristics = new ArrayList();
-    
-    public InnerModelVisitor(String moduleName){
+
+    public InnerModelVisitor(String moduleName, ICompletionState state){
     	this.moduleName = moduleName;
-        attrsHeuristics.add(new HeuristicFindAttrs(HeuristicFindAttrs.WHITIN_METHOD_CALL, HeuristicFindAttrs.IN_KEYWORDS, "properties.create", moduleName));
-        attrsHeuristics.add(new HeuristicFindAttrs(HeuristicFindAttrs.WHITIN_ANY	    , HeuristicFindAttrs.IN_ASSIGN  , "", moduleName));
+        attrsHeuristics.add(new HeuristicFindAttrs(HeuristicFindAttrs.WHITIN_METHOD_CALL, HeuristicFindAttrs.IN_KEYWORDS, "properties.create", moduleName, state));
+        attrsHeuristics.add(new HeuristicFindAttrs(HeuristicFindAttrs.WHITIN_ANY	    , HeuristicFindAttrs.IN_ASSIGN  , "", moduleName, state));
     }
     
     /**

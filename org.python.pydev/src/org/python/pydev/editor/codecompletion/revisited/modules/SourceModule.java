@@ -85,7 +85,7 @@ public class SourceModule extends AbstractModule {
      * its tokens.
      */
     public IToken[] getWildImportedModules() {
-        return getTokens(GlobalModelVisitor.WILD_MODULES);
+        return getTokens(GlobalModelVisitor.WILD_MODULES, null);
     }
 
     /**
@@ -98,7 +98,7 @@ public class SourceModule extends AbstractModule {
      * @return an array of references to the modules that are imported from this one in the global context.
      */
     public IToken[] getTokenImportedModules() {
-        return getTokens(GlobalModelVisitor.ALIAS_MODULES);
+        return getTokens(GlobalModelVisitor.ALIAS_MODULES, null);
     }
 
     /**
@@ -115,14 +115,14 @@ public class SourceModule extends AbstractModule {
      * The tokens can be class definitions, method definitions and attributes.
      */
     public IToken[] getGlobalTokens() {
-        return getTokens(GlobalModelVisitor.GLOBAL_TOKENS);
+        return getTokens(GlobalModelVisitor.GLOBAL_TOKENS, null);
     }
 
     /**
      * @return a string representing the module docstring.
      */
     public String getDocString() {
-        IToken[] l = getTokens(GlobalModelVisitor.MODULE_DOCSTRING);
+        IToken[] l = getTokens(GlobalModelVisitor.MODULE_DOCSTRING, null);
         if (l.length > 0) {
             SimpleNode a = ((SourceToken) l[0]).getAst();
 
@@ -135,9 +135,9 @@ public class SourceModule extends AbstractModule {
      * @param which
      * @return a list of IToken
      */
-    private IToken[] getTokens(int which) {
+    private IToken[] getTokens(int which, ICompletionState state) {
         try {
-            return GlobalModelVisitor.getTokens(ast, which, name);
+            return GlobalModelVisitor.getTokens(ast, which, name, state);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -163,7 +163,7 @@ public class SourceModule extends AbstractModule {
      * @see org.python.pydev.core.IModule#getGlobalTokens(org.python.pydev.core.ICompletionState, org.python.pydev.core.ICodeCompletionASTManager)
      */
     public IToken[] getGlobalTokens(ICompletionState initialState, ICodeCompletionASTManager manager) {
-        IToken[] t = getTokens(GlobalModelVisitor.GLOBAL_TOKENS);
+        IToken[] t = getTokens(GlobalModelVisitor.GLOBAL_TOKENS, initialState);
         
         if(t instanceof SourceToken[]){
 	        SourceToken[] tokens = (SourceToken[]) t;
@@ -288,7 +288,7 @@ public class SourceModule extends AbstractModule {
      * @return
      */
     private List<IToken> getToks(ICompletionState initialState, ICodeCompletionASTManager manager, SimpleNode ast) {
-        List<IToken> modToks = new ArrayList<IToken>(Arrays.asList(GlobalModelVisitor.getTokens(ast, GlobalModelVisitor.INNER_DEFS, name)));//name = moduleName
+        List<IToken> modToks = new ArrayList<IToken>(Arrays.asList(GlobalModelVisitor.getTokens(ast, GlobalModelVisitor.INNER_DEFS, name, initialState)));//name = moduleName
         
         try {
             //COMPLETION: get the completions for the whole hierarchy if this is a class!!

@@ -25,6 +25,7 @@ import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
@@ -238,8 +239,12 @@ public class PyCodeCompletion {
                 }
                 
                 List completions = new ArrayList();
-                if (trimmed.equals("self") || trimmed.startsWith("self")) {
+                if (trimmed.equals("self") || FullRepIterable.getFirstPart(trimmed).equals("self")) {
                     state.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+                    getSelfOrClsCompletions(request, theList, state, false);
+                    
+                }else if (trimmed.equals("cls") || FullRepIterable.getFirstPart(trimmed).equals("cls")) { 
+                    state.setLookingFor(ICompletionState.LOOKING_FOR_CLASSMETHOD_VARIABLE);
                     getSelfOrClsCompletions(request, theList, state, false);
 
                 } else {
@@ -379,8 +384,8 @@ public class PyCodeCompletion {
                     
                     String trimmed = request.activationToken.replace('.', ' ').trim();
                     String[] actTokStrs = trimmed.split(" ");
-                    if(actTokStrs.length == 0 || actTokStrs[0].equals("self") == false){
-                        throw new AssertionError("We need to have at least one token (self) for doing completions in the class.");
+                    if(actTokStrs.length == 0 || (!actTokStrs[0].equals("self")&& !actTokStrs[0].equals("cls")) ){
+                        throw new AssertionError("We need to have at least one token (self or cls) for doing completions in the class.");
                     }
                     
                     if(actTokStrs.length == 1){

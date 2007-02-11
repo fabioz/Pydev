@@ -205,7 +205,7 @@ public class LocalScope implements ILocalScope {
                 FunctionDef f = (FunctionDef) element;
                 for (int i = 0; i < f.body.length; i++) {
 
-                    IToken[] tokens = GlobalModelVisitor.getTokens(f.body[i], GlobalModelVisitor.ALIAS_MODULES, moduleName);
+                    IToken[] tokens = GlobalModelVisitor.getTokens(f.body[i], GlobalModelVisitor.ALIAS_MODULES, moduleName, null);
                     for (IToken token : tokens) {
                         importedModules.add(token);
                     }

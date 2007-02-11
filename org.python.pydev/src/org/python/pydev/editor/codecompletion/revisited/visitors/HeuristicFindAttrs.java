@@ -5,11 +5,15 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
+import java.util.Stack;
+
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
+import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Name;
@@ -29,16 +33,29 @@ import org.python.pydev.parser.jython.ast.exprType;
 public class HeuristicFindAttrs extends AbstractVisitor {
 
     /**
+     * Whether we should add the attributes that are added as 'self.xxx = 10'
+     */
+    private boolean discoverSelfAttrs = true;
+
+    /**
      * @param where
      * @param how
      * @param methodCall
+     * @param state 
      */
-    public HeuristicFindAttrs(int where, int how, String methodCall, String moduleName) {
+    public HeuristicFindAttrs(int where, int how, String methodCall, String moduleName, ICompletionState state) {
         this.where = where;
         this.how = how;
         this.methodCall = methodCall;
         this.moduleName = moduleName;
+        if(state != null){
+            if(state.isLookingFor() == ICompletionState.LOOKING_FOR_CLASSMETHOD_VARIABLE){
+                this.discoverSelfAttrs = false;
+            }
+        }
     }
+    
+    public Stack<SimpleNode> stack = new Stack<SimpleNode>();
     
     public static final int WHITIN_METHOD_CALL = 0;
     public static final int WHITIN_INIT = 1;
@@ -113,7 +130,7 @@ public class HeuristicFindAttrs extends AbstractVisitor {
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitFunctionDef(org.python.pydev.parser.jython.ast.FunctionDef)
      */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
-        
+        stack.push(node);
         if(entryPointCorrect == false){
 	        entryPointCorrect = true;
 	        inFuncDef = true;
@@ -127,12 +144,19 @@ public class HeuristicFindAttrs extends AbstractVisitor {
 	        entryPointCorrect = false;
 	        inFuncDef = false;
         } 
-        
+        stack.pop();
         
         return null;
     }
     //END ENTRY POINTS
     
+    @Override
+    public Object visitClassDef(ClassDef node) throws Exception {
+        stack.push(node);
+        Object r = super.visitClassDef(node);
+        stack.pop();
+        return r;
+    }
     
     
     
@@ -182,8 +206,17 @@ public class HeuristicFindAttrs extends AbstractVisitor {
         if(how == IN_ASSIGN && inAssing){
             if(node.value instanceof Name){
                 String id = ((Name)node.value).id;
-                if(id != null && id.equals("self")){
-                    addToken(node);
+                if(id != null){
+                    if(this.discoverSelfAttrs){
+                        if(id.equals("self")){
+                            addToken(node);
+                           
+                        }
+                    }else{
+                        if (id.equals("cls")){
+                            addToken(node);
+                        }
+                    }
                 }
             }
         }

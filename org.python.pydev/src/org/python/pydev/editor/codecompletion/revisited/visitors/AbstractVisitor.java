@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -215,14 +216,15 @@ public abstract class AbstractVisitor extends VisitorBase{
      * 
      * @param ast
      * @param which
+     * @param state 
      * @param name
      * @return
      * @throws Exception
      */
-    public static IToken[] getTokens(SimpleNode ast, int which, String moduleName) {
+    public static IToken[] getTokens(SimpleNode ast, int which, String moduleName, ICompletionState state) {
         AbstractVisitor modelVisitor;
         if(which == INNER_DEFS){
-            modelVisitor = new InnerModelVisitor(moduleName);
+            modelVisitor = new InnerModelVisitor(moduleName, state);
         }else{
             modelVisitor = new GlobalModelVisitor(which, moduleName);
         }

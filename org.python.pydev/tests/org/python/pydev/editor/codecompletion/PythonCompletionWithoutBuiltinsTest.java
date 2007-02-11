@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testClassmethod2();
+	      test.testClassmethod3();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -770,6 +770,34 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         Document document = new Document(s);
         p.apply(document);
         assertEquals(StringUtils.format(s0, "ethod1(a, b)"), document.get());
+    }
+    
+    public void testClassmethod3() throws Exception {
+        String s0 = 
+            "class Foo:\n" +
+            "    def __init__(self):\n" +
+            "        self.myvar = 10\n" +
+            "\n" +
+            "    def method3(self, a, b):\n" +
+            "        pass\n" +
+            "\n" +
+            "    myvar3=10\n" +
+            "    @classmethod\n" +
+            "    def method2(cls, a, b):\n" +
+            "        cls.myvar2 = 20\n" +
+            "\n" +
+            "    @classmethod\n" +
+            "    def method1(cls, a, b):\n" +
+            "        cls.m%s";
+        
+        String s = StringUtils.format(s0, "");
+        ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(5, proposals.length); 
+        assertContains("method1(a, b)", proposals);
+        assertContains("method2(a, b)", proposals);
+        assertContains("method3(self, a, b)", proposals);
+        assertContains("myvar2", proposals);
+        assertContains("myvar3", proposals);
     }
     
 
