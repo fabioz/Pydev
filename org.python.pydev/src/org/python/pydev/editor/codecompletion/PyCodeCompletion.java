@@ -240,7 +240,7 @@ public class PyCodeCompletion {
                 List completions = new ArrayList();
                 if (trimmed.equals("self") || trimmed.startsWith("self")) {
                     state.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
-                    getSelfCompletions(request, theList, state);
+                    getSelfOrClsCompletions(request, theList, state, false);
 
                 } else {
 
@@ -323,36 +323,21 @@ public class PyCodeCompletion {
         return ret;
     }
 
-    /**
-     * @param request
-     * @param pythonNature
-     * @param astManager
-     * @param theList OUT - returned completions are added here. (IToken instances)
-     * @param line 
-     * @param state
-     * @return the same tokens added in theList
-     */
-    public static IToken[] getSelfCompletions(CompletionRequest request, List theList, CompletionState state) {
-        return getSelfCompletions(request, theList, state, false);
-    }
     
     /**
-     * @param request
-     * @param pythonNature
-     * @param astManager
+     * @param request this is the request for the completion
      * @param theList OUT - returned completions are added here. (IToken instances)
-     * @param line 
-     * @param state
+     * @param getOnlySupers whether we should only get things from super classes (in this case, we won't get things from the current class)
      * @return the same tokens added in theList
      */
-    public static IToken[] getSelfCompletions(CompletionRequest request, List theList, CompletionState state, boolean getOnlySupers) {
+    public static IToken[] getSelfOrClsCompletions(CompletionRequest request, List theList, CompletionState state, boolean getOnlySupers) {
     	IToken[] comps = new IToken[0];
         SimpleNode s = PyParser.reparseDocument(new PyParser.ParserInfo(request.doc, true, request.nature, state.line)).o1;
         if(s != null){
             FindScopeVisitor visitor = new FindScopeVisitor(state.line, 0);
             try {
                 s.accept(visitor);
-                comps = getSelfCompletions(visitor.scope, request, theList, state, getOnlySupers);
+                comps = getSelfOrClsCompletions(visitor.scope, request, theList, state, getOnlySupers);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -364,7 +349,7 @@ public class PyCodeCompletion {
      * Get self completions when you already have a scope
      */
     @SuppressWarnings("unchecked")
-    public static IToken[] getSelfCompletions(LocalScope scope, CompletionRequest request, List theList, CompletionState state, boolean getOnlySupers) throws BadLocationException {
+    public static IToken[] getSelfOrClsCompletions(LocalScope scope, CompletionRequest request, List theList, CompletionState state, boolean getOnlySupers) throws BadLocationException {
     	IToken[] comps = new IToken[0];
         while(scope.scope.size() > 0){
             SimpleNode node = (SimpleNode) scope.scope.pop();
