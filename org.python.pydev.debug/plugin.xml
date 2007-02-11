@@ -235,7 +235,7 @@
            		 	<or>
                		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
                		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
-               		    <instanceof value="org.eclipse.core.resources.IFolder" />
+               		    <adapt type="org.eclipse.core.resources.IFolder" />
                		</or>
            		 </iterate>
               </with>
@@ -256,7 +256,7 @@
            		 	<or>
                		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
                		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
-               		    <instanceof value="org.eclipse.core.resources.IFolder" />
+               		    <adapt type="org.eclipse.core.resources.IFolder" />
                		</or>
            		 </iterate>
               </with>
@@ -277,7 +277,7 @@
            		 	<or>
                		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
                		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
-               		    <instanceof value="org.eclipse.core.resources.IFolder" />
+               		    <adapt type="org.eclipse.core.resources.IFolder" />
                		</or>
            		 </iterate>
               </with>
