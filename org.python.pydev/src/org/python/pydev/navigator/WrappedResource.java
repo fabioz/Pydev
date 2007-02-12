@@ -7,16 +7,16 @@ import org.eclipse.ui.IContributorResourceAdapter;
 
 public class WrappedResource<X extends IResource> implements IWrappedResource, IContributorResourceAdapter, IAdaptable{
 
-	protected Object parentElement;
+	protected IWrappedResource parentElement;
 	protected X actualObject;
 	protected PythonSourceFolder pythonSourceFolder;
     protected int rank;
 
-	public WrappedResource(Object parentElement, X actualObject, PythonSourceFolder pythonSourceFolder, int rank) {
+	public WrappedResource(IWrappedResource parentElement, X actualObject, PythonSourceFolder pythonSourceFolder, int rank) {
 		this.parentElement = parentElement;
 		this.actualObject = actualObject;
 		this.pythonSourceFolder = pythonSourceFolder;
-		this.pythonSourceFolder.addChild(actualObject, this);
+		this.pythonSourceFolder.addChild(this);
         this.rank = rank;
 	}
 	

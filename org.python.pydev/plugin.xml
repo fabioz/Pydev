@@ -960,44 +960,36 @@
 
 <!-- Declare the viewer configuration, and the default content/action bindings -->
 <extension point="org.eclipse.ui.navigator.viewer">
+    <viewerContentBinding viewerId="org.eclipse.ui.navigator.ProjectExplorer">
+        <includes>
+            <contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
+            <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/> 
+            <contentExtension pattern="org.python.pydev.navigator.filters.*"/> 
+        </includes>
+    </viewerContentBinding>
+</extension>
+<extension point="org.eclipse.ui.navigator.viewer">
     <viewer viewerId="org.python.pydev.navigator.view">
     	<!-- allowsPlatformContributions="true" allows it to show the cvs stuff 
-        <popupMenu
-                allowsPlatformContributions="true" 
-                id="org.python.pydev.navigator.view#PopupMenu">  
+        -->
+        <popupMenu allowsPlatformContributions="true" id="org.python.pydev.navigator.view#PopupMenu">  
              <insertionPoint name="group.new"/>
-             <insertionPoint
-                   name="group.open"
-                   separator="true"/>
+             <insertionPoint name="group.open" separator="true"/>
              <insertionPoint name="group.openWith"/>   
-             <insertionPoint name="group.edit"
-                   separator="true"/>   
+             <insertionPoint name="group.edit" separator="true"/>   
              <insertionPoint name="group.reorganize" />         
-             <insertionPoint
-                   name="group.port"
-                   separator="true"/>     
-             <insertionPoint
-                   name="group.build"
-                   separator="true"/> 
-             <insertionPoint
-                   name="group.generate"
-                   separator="true"/> 
-             <insertionPoint
-                   name="group.search"
-                   separator="true"/>              
-             <insertionPoint
-                   name="additions"
-                   separator="true"/>              
-             <insertionPoint
-                   name="group.properties"
-                   separator="true"/>             
-        </popupMenu>-->
+             <insertionPoint name="group.port" separator="true"/>     
+             <insertionPoint name="group.build" separator="true"/> 
+             <insertionPoint name="group.generate" separator="true"/> 
+             <insertionPoint name="group.search" separator="true"/>              
+             <insertionPoint name="additions" separator="true"/>              
+             <insertionPoint name="group.properties" separator="true"/>             
+        </popupMenu>
     </viewer>
     <viewerContentBinding viewerId="org.python.pydev.navigator.view">
         <includes>
             <contentExtension pattern="org.eclipse.ui.navigator.resourceContent"/>
             <contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
-            <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/> 
             <contentExtension pattern="org.python.pydev.navigator.filters.*"/> 
         </includes>
     </viewerContentBinding>
@@ -1014,7 +1006,7 @@
             contentProvider="org.python.pydev.navigator.PythonModelProvider"
             labelProvider="org.python.pydev.navigator.PythonLabelProvider" 
             activeByDefault="true"
-            priority="high" >
+            priority="high">
          <triggerPoints>
              <or>
                 <instanceof value="org.eclipse.core.resources.IWorkspaceRoot" />
@@ -1054,14 +1046,48 @@
 		 <override
 				policy="InvokeAlwaysRegardlessOfSuppressedExt"
 				suppressedExtensionId="org.eclipse.ui.navigator.resourceContent"/>
+        <dropAssistant
+              class="org.python.pydev.navigator.actions.copied.PyResourceDropAdapterAssistant"
+              id="org.python.pydev.navigator.actions.PyResourceDropAdapterAssistant">
+           <possibleDropTargets>
+              <or>
+                 <adapt type="org.eclipse.core.resources.IProject"/>
+                 <adapt type="org.eclipse.core.resources.IFolder"/>
+                 <adapt type="org.eclipse.core.resources.IFile"/>
+              </or>
+           </possibleDropTargets>
+        </dropAssistant>        
+
 
       </navigatorContent>
-      
-      <commonFilter
-            activeByDefault="true"
-            id="org.python.pydev.navigator.filters.hideNonPydevProjects"
-            description="%HideNonPydevProjects.description"
-            name="Hide non-Pydev Projects">
+	  <commonWizard menuGroupId="org.python.pydev.ui.wizards" type="new" wizardId="org.python.pydev.ui.wizards.files.PythonPackageWizard">
+	     <enablement>
+	        <or>
+	           <adapt type="org.eclipse.core.resources.IFolder"/>
+	           <adapt type="org.eclipse.core.resources.IFile"/>
+	           <adapt type="org.eclipse.core.resources.IProject">
+	              <test
+	                    property="org.eclipse.core.resources.projectNature"
+	                    value="org.eclipse.jdt.core.javanature"/>
+	           </adapt>
+	        </or>
+	     </enablement>
+	  </commonWizard>
+	  <commonWizard menuGroupId="org.python.pydev.ui.wizards" type="new" wizardId="org.python.pydev.ui.wizards.files.PythonModuleWizard">
+	     <enablement>
+	        <or>
+	           <adapt type="org.eclipse.core.resources.IFolder"/>
+	           <adapt type="org.eclipse.core.resources.IFile"/>
+	           <adapt type="org.eclipse.core.resources.IProject">
+	              <test
+	                    property="org.eclipse.core.resources.projectNature"
+	                    value="org.eclipse.jdt.core.javanature"/>
+	           </adapt>
+	        </or>
+	     </enablement>
+	  </commonWizard>
+	  
+      <commonFilter activeByDefault="true" id="org.python.pydev.navigator.filters.hideNonPydevProjects" description="%HideNonPydevProjects.description" name="Hide non-Pydev Projects">
          <filterExpression>
              <and>
                 <not>
@@ -1082,31 +1108,26 @@
             </and>
          </filterExpression>
       </commonFilter>
-  	  <commonFilter
-		        activeByDefault="true"
-		        name="Hide .pyc files"
-		        description="Hides *.pyc files"
-		        id="org.python.pydev.navigator.filters.hidePycFiles"> 
-	         <filterExpression>
-	         	<and>
-		            <instanceof value="org.eclipse.core.resources.IFile"/>
-	            	<test property="org.eclipse.core.resources.name" value="*.pyc"/>
-		        </and>
-	         </filterExpression>		        
-	  </commonFilter>		 
-  	  <commonFilter
-		        activeByDefault="true"
-		        name="Hide .pyo files"
-		        description="Hides *.pyo files"
-		        id="org.python.pydev.navigator.filters.hidePyoFiles"> 
-	         <filterExpression>
-	         	<and>
-		            <instanceof value="org.eclipse.core.resources.IFile"/>
-	            	<test property="org.eclipse.core.resources.name" value="*.pyo"/>
-		        </and>
-	         </filterExpression>		        
-	  </commonFilter>		 
       
+  	  <commonFilter activeByDefault="true" name="Hide .pyc files" description="Hides *.pyc files" id="org.python.pydev.navigator.filters.hidePycFiles"> 
+	      <filterExpression><and><adapt type="org.eclipse.core.resources.IFile"/><test property="org.eclipse.core.resources.name" value="*.pyc"/></and></filterExpression>		        
+	  </commonFilter>		 
+	  
+  	  <commonFilter activeByDefault="true" name="Hide .pyo files" description="Hides *.pyo files" id="org.python.pydev.navigator.filters.hidePyoFiles"> 
+	      <filterExpression> <and> <adapt type="org.eclipse.core.resources.IFile"/>  <test property="org.eclipse.core.resources.name" value="*.pyo"/> </and> </filterExpression>		        
+	  </commonFilter>		 
+	  
+	  <!-- the ones below are copied from org.eclipse.ui.navigator.resources, with changes from 'instanceof' to 'adapt type'-->
+      <commonFilter name=".* resources" description="Hide .*resources" activeByDefault="true" id="org.python.pydev.navigator.filters.startsWithDot" >
+         <filterExpression>	<and> <adapt type="org.eclipse.core.resources.IResource"/> <test property="org.eclipse.core.resources.name" value=".*"/> </and> </filterExpression>
+      </commonFilter>
+      <commonFilter name=".class resources" description="Hide .class resources" activeByDefault="true" id="org.python.pydev.navigator.filters.endsWithClass" >
+         <filterExpression>	<and> <adapt type="org.eclipse.core.resources.IFile"/> <test property="org.eclipse.core.resources.name" value="*.class"/>	</and> </filterExpression>
+      </commonFilter> 
+      <commonFilter name="Hide closed projects" description="Hide closed projects" activeByDefault="false" id="org.python.pydev.navigator.filters.closedProject">
+         <filterExpression>	<and><adapt type="org.eclipse.core.resources.IProject"/>	<test property="org.eclipse.core.resources.open" value="false"/> </and> </filterExpression>
+      </commonFilter>
+      	  
     </extension>
 
     <!-- Bind the content extension to the viewer -->
@@ -1130,6 +1151,7 @@
 	to IResources for simple actions such as delete/move/rename... so, instead of that the wrapper
 	classes themselves work as IResources and actually implement the interface (and just delegate
 	the methods).
+    -->
     <extension point="org.eclipse.core.runtime.adapters">
          <factory class="org.python.pydev.navigator.ModelAdapter" adaptableType="org.python.pydev.navigator.IWrappedResource">
 			<adapter type="org.eclipse.core.resources.IResource"/>
@@ -1140,15 +1162,13 @@
 			<adapter type="org.eclipse.ui.IContributorResourceAdapter"/>
          </factory>
     </extension>
-    -->
 	<extension point="org.eclipse.ui.navigator.linkHelper">
 		<linkHelper
 			class="org.python.pydev.navigator.actions.PythonLinkHelper"
 			id="org.python.pydev.navigator.actions.pythonLinkHelper">
 			<selectionEnablement>
 				<or>
-					<instanceof value="org.eclipse.core.resources.IFile"/>
-					<instanceof value="org.python.pydev.navigator.IWrappedResource"/>
+					<adapt type="org.eclipse.core.resources.IFile"/>
 				</or>
 			</selectionEnablement>
 			<editorInputEnablement>

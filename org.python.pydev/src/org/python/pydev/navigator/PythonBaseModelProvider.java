@@ -75,7 +75,7 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
     /**
      * This is the viewer that we're using to see the contents of this file provider.
      */
-    private Viewer viewer;
+    protected Viewer viewer;
     
     /**
      * Constructor... registers itself as a python nature listener
@@ -359,7 +359,7 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
      * 
      * @return an array with the wrapped types 
      */
-    protected Object[] wrapChildren(Object parent, PythonSourceFolder pythonSourceFolder, Object[] children) {
+    protected Object[] wrapChildren(IWrappedResource parent, PythonSourceFolder pythonSourceFolder, Object[] children) {
         Object[] childrenToReturn;
         Object[] ret = new Object[children.length];
 

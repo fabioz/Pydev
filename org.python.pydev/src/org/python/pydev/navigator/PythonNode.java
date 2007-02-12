@@ -8,10 +8,28 @@ import org.python.pydev.outline.ParsedItem;
 
 public class PythonNode implements Comparable, IWrappedResource {
 
+    /**
+     * This is sthe parent (PythonFile or PythonNode) for this object
+     */
     public Object parent;
+    
+    /**
+     * The entry itself
+     */
     public ParsedItem entry;
+    
+    /**
+     * The pythonfile where this node is contained
+     */
 	public PythonFile pythonFile;
 
+    /**
+     * Constructor
+     * 
+     * @param pythonFile this is the file that contains this node
+     * @param parent this is the parent for this item (a PythonFile or another PythonNode)
+     * @param e the parsed item that represents this node.
+     */
     public PythonNode(PythonFile pythonFile, Object parent, ParsedItem e) {
         this.parent = parent;
         this.entry = e;
@@ -48,6 +66,10 @@ public class PythonNode implements Comparable, IWrappedResource {
     
     public int getRank() {
         return IWrappedResource.RANK_PYTHON_NODE;
+    }
+
+    public Object getAdapter(Class adapter) {
+        return pythonFile.getAdapter(adapter);
     }
 
 }

@@ -1,11 +1,14 @@
 package org.python.pydev.navigator;
 
+import org.eclipse.core.runtime.IAdaptable;
+
+
 /**
  * Interface for a child resource (a resource that has a parent)
  * 
  * @author fabioz
  */
-public interface IWrappedResource {
+public interface IWrappedResource extends IAdaptable {
 	
 	int RANK_SOURCE_FOLDER = 0;
 	int RANK_PYTHON_FOLDER = 1;

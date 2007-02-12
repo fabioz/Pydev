@@ -61,7 +61,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
 
     /**
      * This method basically get the actual parent for the resource or the parent 
-     * for a wrapped element.
+     * for a wrapped element (which may be a resource or a wrapped resource).
      * 
      * @see org.eclipse.ui.navigator.IPipelinedTreeContentProvider#getPipelinedParent(java.lang.Object, java.lang.Object)
      */
@@ -96,13 +96,21 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
     public void init(ICommonContentExtensionSite aConfig) {
     }
 
-    public void restoreState(IMemento aMemento) {
+    
+    /**
+     * This is the function that is responsible for restoring the paths in the tree.
+     */
+    public void restoreState(IMemento memento) {
+    	new PyPackageStateSaver(this, viewer, memento).restoreState();
     }
 
-    public void saveState(IMemento aMemento) {
+    /**
+     * This is the function that is responsible for saving the paths in the tree.
+     */
+    public void saveState(IMemento memento) {
+    	new PyPackageStateSaver(this, viewer, memento).saveState();
     }
-
-
+    
     /**
      * Converts the shape modification to use Python elements.
      * 
@@ -117,12 +125,12 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             if (pythonParent instanceof IWrappedResource) {
                 IWrappedResource parentResource = (IWrappedResource) pythonParent;
                 modification.setParent(parentResource);
-                wrapChildren((IResource) parentResource, parentResource.getSourceFolder(), modification.getChildren(), isAdd);
+                wrapChildren(parentResource, parentResource.getSourceFolder(), modification.getChildren(), isAdd);
                 
             }else if(pythonParent == null){
                 //this may happen when a source folder is added 
-                //TODO:Check if it is actually a source folder (and create it in the model as needed)
-                wrapChildren((IResource)parent, null, modification.getChildren(), isAdd);
+                
+                wrapChildren(parent, null, modification.getChildren(), isAdd);
             }
             
         }else if(parent == null){
@@ -134,7 +142,12 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
     /**
      * Actually wraps some resource into a wrapped resource.
      * 
-     * @param parent this is the parent (it may be null -- in the case of a remove)
+     * @param parent this is the parent 
+     *        it may be null -- in the case of a remove
+     *        it may be a wrapped resource (if it is in the python model)
+     *        it may be a resource (if it is a source folder)
+     *  
+     * 
      * @param pythonSourceFolder this is the python source folder for the resource (it may be null if the resource itself is a source folder
      *        or if it is actually a resource that has already been removed)
      * @param currentChildren those are the children that should be wrapped
@@ -142,7 +155,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
      * @return
      */
     @SuppressWarnings("unchecked")
-    protected boolean wrapChildren(IResource parent, PythonSourceFolder pythonSourceFolder, Set currentChildren, boolean isAdd) {
+    protected boolean wrapChildren(Object parent, PythonSourceFolder pythonSourceFolder, Set currentChildren, boolean isAdd) {
         LinkedHashSet convertedChildren = new LinkedHashSet();
         for (Iterator childrenItr = currentChildren.iterator(); childrenItr.hasNext();) {
             Object child = childrenItr.next();
@@ -164,7 +177,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
                     //it may be a PythonSourceFolder
                     if(pythonSourceFolder == null && parent != null){
                     	try {
-                    		IProject project = parent.getProject();
+                    		IProject project = ((IContainer)parent).getProject();
                             PythonNature nature = PythonNature.getPythonNature(project);
                             if(nature!= null){
 	                            //check for source folder
@@ -182,7 +195,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
                             throw new RuntimeException(e);
                         }                    	
                     }else{
-                    	convertedChildren.add(new PythonFolder(parent, folder, pythonSourceFolder));
+                    	convertedChildren.add(new PythonFolder((IWrappedResource) parent, folder, pythonSourceFolder));
                     }
                     
                 }else if(child instanceof IFile){
@@ -190,12 +203,12 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
                         //if the python source folder is null, that means that this is a file that is not actually below a source folder.
                         childrenItr.remove();
                         IFile file = (IFile) child;
-                        convertedChildren.add(new PythonFile(parent, file, pythonSourceFolder));
+                        convertedChildren.add(new PythonFile((IWrappedResource) parent, file, pythonSourceFolder));
                     }
                     
                 }else if (child instanceof IResource){
                     childrenItr.remove();
-                    convertedChildren.add(new PythonResource(parent, (IResource) child, pythonSourceFolder));
+                    convertedChildren.add(new PythonResource((IWrappedResource) parent, (IResource) child, pythonSourceFolder));
                 }else{
                     throw new RuntimeException("Unexpected class:"+child.getClass());
                 }
@@ -213,6 +226,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         }
         return false;
     }
+
 
     
 
