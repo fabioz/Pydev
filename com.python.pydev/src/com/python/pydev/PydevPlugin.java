@@ -20,6 +20,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
 
 import com.python.pydev.license.ClientEncryption;
@@ -52,6 +53,10 @@ public class PydevPlugin extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		
+		if(!version.equals(org.python.pydev.plugin.PydevPlugin.version)){
+			String msg = StringUtils.format("Error: the pydev com plugin version (%s) differs from the org plugin version (%s)", version, org.python.pydev.plugin.PydevPlugin.version);
+			org.python.pydev.plugin.PydevPlugin.log(msg);
+		}
 		checkValid();
 	}
 
