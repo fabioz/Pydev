@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
+import org.python.pydev.core.StringMatcher;
 
 /**
  * This class extends the 'default' element tree selection dialog so that the user is able to filter the matches
