@@ -189,7 +189,10 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
 	                                //System.out.println("Created source folder: "+ret[i]+" - "+folder.getProject()+" - "+folder.getProjectRelativePath());
 	                                Set<PythonSourceFolder> sourceFolders = getProjectSourceFolders(folder);
 	                                sourceFolders.add((PythonSourceFolder) sourceFolder);
-	                            }
+	                            }else{
+	                                //ok, it is not a source folder (it is a regular folder)... so, let's add it as a regular resource
+                                    convertedChildren.add(folder);
+                                }
                             }
                         } catch (CoreException e) {
                             throw new RuntimeException(e);
