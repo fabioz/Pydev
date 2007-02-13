@@ -13,6 +13,7 @@ import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.navigator.PythonNode;
 import org.python.pydev.outline.ParsedItem;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 public class OpenPythonNodeAction extends Action {
 
@@ -53,7 +54,8 @@ public class OpenPythonNodeAction extends Action {
     public void run() {
         if (isEnabled()) {
             ParsedItem actualObject = data.getActualObject();
-            new PyOpenAction().run(new ItemPointer( data.getPythonFile().getActualObject(), actualObject.astThis.node));
+            new PyOpenAction().run(new ItemPointer( data.getPythonFile().getActualObject(), 
+            		NodeUtils.getNameTokFromNode(actualObject.astThis.node)));
         }
     }
 

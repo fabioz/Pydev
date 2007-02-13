@@ -3,6 +3,7 @@ package org.python.pydev.navigator.properties;
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.resources.IResource;
 import org.python.pydev.navigator.IWrappedResource;
+import org.python.pydev.navigator.PythonNode;
 
 public class PyPropertyTester extends PropertyTester{
 
@@ -22,6 +23,9 @@ public class PyPropertyTester extends PropertyTester{
 	@Override
 	public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
 		if(receiver instanceof IWrappedResource){
+			if(receiver instanceof PythonNode){
+				return false;//do not filter python nodes.
+			}
 			IWrappedResource resource = (IWrappedResource) receiver;
 			IResource res = (IResource) resource.getAdapter(IResource.class);
 			if(res != null){

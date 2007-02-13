@@ -17,6 +17,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbenchPage;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.navigator.PythonNode;
 
 public class PyOpenPythonFileAction extends Action {
     
@@ -45,6 +46,9 @@ public class PyOpenPythonFileAction extends Action {
                 Iterator iterator = sSelection.iterator();
                 while(iterator.hasNext()){
                     Object element = iterator.next();
+                    if(element instanceof PythonNode){
+                    	return false;
+                    }
                     if(element instanceof IAdaptable){
                         IAdaptable adaptable = (IAdaptable) element;
                         IFile file = (IFile) adaptable.getAdapter(IFile.class);

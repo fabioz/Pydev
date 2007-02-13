@@ -326,29 +326,25 @@ public class NodeUtils {
     	return false;
     }
     
+    public static SimpleNode getNameTokFromNode(SimpleNode ast2){
+    	if (ast2 instanceof ClassDef){
+    		ClassDef c = (ClassDef) ast2;
+    		return c.name;
+    	}
+    	if (ast2 instanceof FunctionDef){
+    		FunctionDef c = (FunctionDef) ast2;
+    		return c.name;
+    	}
+    	return ast2;
+    	
+    }
 
     public static int getNameLineDefinition(SimpleNode ast2) {
-        if (ast2 instanceof ClassDef){
-            ClassDef c = (ClassDef) ast2;
-            return getLineDefinition(c.name);
-        }
-        if (ast2 instanceof FunctionDef){
-            FunctionDef c = (FunctionDef) ast2;
-            return getLineDefinition(c.name);
-        }
-        return getLineDefinition(ast2);
+        return getLineDefinition(getNameTokFromNode(ast2));
     }
     
     public static int getNameColDefinition(SimpleNode ast2) {
-        if (ast2 instanceof ClassDef){
-            ClassDef c = (ClassDef) ast2;
-            return getColDefinition(c.name);
-        }
-        if (ast2 instanceof FunctionDef){
-            FunctionDef c = (FunctionDef) ast2;
-            return getColDefinition(c.name);
-        }
-        return getColDefinition(ast2);
+        return getColDefinition(getNameTokFromNode(ast2));
     }
     
     /**

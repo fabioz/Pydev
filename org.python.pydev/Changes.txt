@@ -2,20 +2,22 @@ after 1.2.6
 
 Pydev:
 <ul>
-<li>Debugger: change value implemented</li>
-<li>The remove block comments (Ctrl+5) will now remove contiguous comments -- if several lines are commented, putting the cursor in any of those lines and pressing Ctrl+5 will remove all those comments</li>
-<li>When creating a new launch, the 'default' option is chosen, so, if the default interpreter changes later, this won't affect existing launch configurations</li>
-<li>'cls' does not appear as 1st parameter on code completion anymore</li>
-<li>Completion for cls on classmethods now works correctly</li>
-<li>Ctrl+Tab and Ctrl+Shift+Tab keybindings removed from convert tabs to space-tabs (and vice-versa) -- they are still available in the source menu</li>
-<li>Fix: the PYTHONPATH passed to <strong>PyLint</strong> was not containing the project PYTHONPATH</li>
-<li>Fix: halting condition on code-completion execution</li>
-<li>Fix: 'create docstrings' assist creates <strong>@param</strong> even if there is a comment in a function definition</li>
-<li>Fix: block comment for class will recognize better when it is on a class definition line</li>
+<li><strong>Debugger</strong>: change value implemented</li>
+<li><strong>Pydev Package Explorer</strong>: Default actions (copy, paste, rename, etc) reimplemented (see <a href="http://pydev.blogspot.com/2006/12/package-explorer-status-for-pydev.html">blog</a> to see what this fixed)</li>
+<li><strong>Block Comments</strong>: The remove block comments (Ctrl+5) will now remove contiguous comments -- if several lines are commented, putting the cursor in any of those lines and pressing Ctrl+5 will remove all those comments</li>
+<li><strong>Launch</strong>: When creating a new launch, the 'default' option is chosen, so, if the default interpreter changes later, this won't affect existing launch configurations</li>
+<li><strong>Code Completion</strong>: 'cls' does not appear as 1st parameter on code completion anymore</li>
+<li><strong>Code Completion</strong>: completions for cls on classmethods now works correctly</li>
+<li><strong>Keybindings</strong>: Ctrl+Tab and Ctrl+Shift+Tab keybindings removed from convert tabs to space-tabs (and vice-versa) -- they are still available in the source menu</li>
+<li><strong>Fix</strong>: the PYTHONPATH passed to <strong>PyLint</strong> was not containing the project PYTHONPATH</li>
+<li><strong>Fix</strong>: halting condition on code-completion execution</li>
+<li><strong>Fix</strong>: 'create docstrings' assist creates <strong>@param</strong> even if there is a comment in a function definition</li>
+<li><strong>Fix</strong>: block comment for class will recognize better when it is on a class definition line</li>
 </ul>
 
 Pydev Extensions:
 <li>Mark occurrences and rename now will also get the tokens in comments and strings</li>
+<li>Rename refactoring bugfixes (but still BETA)</li>
 <li>The remote debugger port can now be specified</li>
 
 after 1.2.5
