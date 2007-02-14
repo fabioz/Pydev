@@ -20,7 +20,6 @@ public class PyPropertyTester extends PropertyTester{
 		return expectedValue == null ? "" : expectedValue.toString(); //$NON-NLS-1$
 	}
 
-	@Override
 	public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
 		if(receiver instanceof IWrappedResource){
 			if(receiver instanceof PythonNode){
