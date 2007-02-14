@@ -425,30 +425,39 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
      * (non-Javadoc) Method declared on IContentProvider.
      */
     public void dispose() {
-        this.projectToSourceFolders = null;
-        if (viewer != null) {
-            IWorkspace[] workspace = null;
-            Object obj = viewer.getInput();
-            if (obj instanceof IWorkspace) {
-                workspace = new IWorkspace[]{(IWorkspace) obj};
-            } else if (obj instanceof IContainer) {
-                workspace = new IWorkspace[]{((IContainer) obj).getWorkspace()};
-            } else if (obj instanceof IWorkingSet) {
-                IWorkingSet newWorkingSet = (IWorkingSet) obj;
-                workspace = getWorkspaces(newWorkingSet);
-            }
-            
-            if (workspace != null) {
-                for (IWorkspace w : workspace) {
-                    w.removeResourceChangeListener(this);
-                }
-            }
-        }
-        
-        PythonNatureListenersManager.removePythonNatureListener(this);
-
-        super.dispose();
+    	try{
+	        this.projectToSourceFolders = null;
+	        if (viewer != null) {
+	            IWorkspace[] workspace = null;
+	            Object obj = viewer.getInput();
+	            if (obj instanceof IWorkspace) {
+	                workspace = new IWorkspace[]{(IWorkspace) obj};
+	            } else if (obj instanceof IContainer) {
+	                workspace = new IWorkspace[]{((IContainer) obj).getWorkspace()};
+	            } else if (obj instanceof IWorkingSet) {
+	                IWorkingSet newWorkingSet = (IWorkingSet) obj;
+	                workspace = getWorkspaces(newWorkingSet);
+	            }
+	            
+	            if (workspace != null) {
+	                for (IWorkspace w : workspace) {
+	                    w.removeResourceChangeListener(this);
+	                }
+	            }
+	        }
+	        
+	        PythonNatureListenersManager.removePythonNatureListener(this);
+    	}catch (Exception e) {
+			PydevPlugin.log(e);
+    	}
+    	
+    	try{
+	        super.dispose();
+    	}catch (Exception e) {
+    		PydevPlugin.log(e);
+		}
     }
+    	
 
     /*
      * (non-Javadoc) Method declared on IContentProvider.

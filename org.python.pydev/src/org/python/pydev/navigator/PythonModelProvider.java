@@ -4,10 +4,13 @@
  */
 package org.python.pydev.navigator;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -29,10 +32,15 @@ import org.python.pydev.plugin.nature.PythonNature;
  * It intercepts the adds/removes and changes the original elements for elements
  * that actually reflect the python model (with source folder, etc).
  * 
+ * 
+ * Tests for package explorer:
+ * 1. Start eclipse with a file deep in the structure and without having anything expanded in the tree, make a 'show in'
+ * 
  * @author Fabio
  */
 public class PythonModelProvider extends PythonBaseModelProvider implements IPipelinedTreeContentProvider {
 
+	
     /**
      * This method basically replaces all the elements for other resource elements
      * or for wrapped elements.
@@ -120,7 +128,8 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
     private void convertToPythonElements(PipelinedShapeModification modification, boolean isAdd) {
         Object parent = modification.getParent();
         if (parent instanceof IContainer) {
-            Object pythonParent = getResourceInPythonModel((IResource) parent, true);
+        	IContainer parentContainer = (IContainer) parent;
+            Object pythonParent = getResourceInPythonModel(parentContainer, true);
             
             if (pythonParent instanceof IWrappedResource) {
                 IWrappedResource parentResource = (IWrappedResource) pythonParent;
@@ -128,9 +137,44 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
                 wrapChildren(parentResource, parentResource.getSourceFolder(), modification.getChildren(), isAdd);
                 
             }else if(pythonParent == null){
-                //this may happen when a source folder is added 
-                
-                wrapChildren(parent, null, modification.getChildren(), isAdd);
+            	Object parentInWrap = parentContainer;
+            	PythonSourceFolder sourceFolderInWrap = null;
+            	
+                //this may happen when a source folder is added or some element that still doesn't have it's parent in the model...
+            	//so, we have to get the parent's parent until we actually 'know' that it is not in the model (or until we run
+            	//out of parents to try)
+            	//the case in which we reproduce this is Test 1 (described in the class)
+            	Stack<Object> found = new Stack<Object>();
+            	while(true){
+            		//add the current to the found
+            		found.add(parentContainer);
+            		parentContainer = parentContainer.getParent();
+            		Object p = getResourceInPythonModel(parentContainer, true);
+            		if(p instanceof IProject){
+            			break;
+            		}
+            		
+            		if(p instanceof IWrappedResource){
+            			IWrappedResource wrappedResource = (IWrappedResource) p;
+            			sourceFolderInWrap = wrappedResource.getSourceFolder();
+            			
+            			while(found.size() > 0){
+            				Object f = found.pop();
+							//creating is enough to add it to the model
+            				if(f instanceof IFile){
+            					wrappedResource = new PythonFile(wrappedResource, (IFile)f, sourceFolderInWrap);
+            				}else if(f instanceof IFolder){
+            					wrappedResource = new PythonFolder(wrappedResource, (IFolder)f, sourceFolderInWrap);
+            				}
+            			}
+            			parentInWrap = wrappedResource;
+            			break;
+            		}
+            		
+            	}
+            	
+            	
+                wrapChildren(parentInWrap, sourceFolderInWrap, modification.getChildren(), isAdd);
             }
             
         }else if(parent == null){
