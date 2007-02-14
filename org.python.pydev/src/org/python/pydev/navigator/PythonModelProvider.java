@@ -4,11 +4,9 @@
  */
 package org.python.pydev.navigator;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
@@ -149,6 +147,9 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             		//add the current to the found
             		found.add(parentContainer);
             		parentContainer = parentContainer.getParent();
+            		if(parentContainer == null){
+            			break;
+            		}
             		Object p = getResourceInPythonModel(parentContainer, true);
             		if(p instanceof IProject){
             			break;
