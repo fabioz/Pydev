@@ -23,7 +23,6 @@ public class PythonActionProvider extends CommonActionProvider{
     private OpenPythonNodeAction openAction;
     private PyOpenPythonFileAction openResourceAction;
     private PyDeleteResourceAction deleteResourceAction;
-    private PyRenameResourceAction renameResourceAction;
     private PyCopyResourceAction copyResourceAction;
     private Clipboard clipboard;
     private PyPasteAction pasteAction;
@@ -42,7 +41,6 @@ public class PythonActionProvider extends CommonActionProvider{
             openResourceAction = new PyOpenPythonFileAction(site.getPage(), site.getSelectionProvider());
             
             deleteResourceAction = new PyDeleteResourceAction(shell, site.getSelectionProvider());
-            renameResourceAction = new PyRenameResourceAction(shell, site.getSelectionProvider());
             copyResourceAction = new PyCopyResourceAction(shell, site.getSelectionProvider(), clipboard);
             pasteAction = new PyPasteAction(shell, site.getSelectionProvider(), clipboard);
             moveResourceAction = new PyMoveResourceAction(shell, site.getSelectionProvider());
@@ -83,9 +81,6 @@ public class PythonActionProvider extends CommonActionProvider{
         if(moveResourceAction.isEnabled()){
             actionBars.setGlobalActionHandler(ActionFactory.MOVE.getId(), moveResourceAction);
         }
-        if(renameResourceAction.isEnabled()){
-            actionBars.setGlobalActionHandler(ActionFactory.RENAME.getId(), renameResourceAction);
-        }
     }
     
     /* (non-Javadoc)
@@ -109,9 +104,6 @@ public class PythonActionProvider extends CommonActionProvider{
         }
         if(moveResourceAction.isEnabled()){
             menu.appendToGroup(ICommonMenuConstants.GROUP_EDIT, moveResourceAction);        
-        }
-        if(renameResourceAction.isEnabled()){
-            menu.appendToGroup(ICommonMenuConstants.GROUP_EDIT, renameResourceAction);        
         }
     }
 

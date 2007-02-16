@@ -1041,7 +1041,12 @@
                id="org.python.pydev.navigator.pythonmodelsorter"/>
          <actionProvider
                class="org.python.pydev.navigator.actions.PythonActionProvider"
-               id="org.python.pydev.navigator.actions.pythonActionProvider"/>
+               id="org.python.pydev.navigator.actions.pythonActionProvider"
+               overrides="org.eclipse.ui.navigator.resources.actions.EditActions"/>
+         <actionProvider
+               class="org.python.pydev.navigator.actions.PythonRefactorActionProvider"
+               id="org.python.pydev.navigator.actions.pythonRefactorActionProvider"
+               overrides="org.eclipse.ui.navigator.resources.actions.RefactorActions"/>
          <!-- that's so that we only have the python content shown, and not the resource content -->
 		 <override
 				policy="InvokeAlwaysRegardlessOfSuppressedExt"
