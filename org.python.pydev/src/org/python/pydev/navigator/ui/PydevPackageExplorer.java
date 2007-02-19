@@ -17,10 +17,12 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.internal.navigator.ContributorTrackingSet;
 import org.eclipse.ui.internal.navigator.NavigatorContentService;
 import org.eclipse.ui.navigator.CommonNavigator;
+import org.eclipse.ui.navigator.CommonViewer;
 import org.eclipse.ui.navigator.INavigatorPipelineService;
 import org.eclipse.ui.navigator.PipelinedShapeModification;
 import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
+import org.python.pydev.navigator.PythonFile;
 
 public class PydevPackageExplorer extends CommonNavigator implements IShowInTarget {
 	/**
@@ -90,6 +92,31 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
 		}
 		return false;
 	}
+    
+    public void selectReveal(ISelection selection) {
+        CommonViewer commonViewer = getCommonViewer();
+        if (commonViewer != null) {
+            if(selection instanceof IStructuredSelection) {
+                //we don't want to expand PythonFiles
+                Object[] newSelection = ((IStructuredSelection)selection).toArray();
+                for (int i = 0; i < newSelection.length; i++) {
+                    Object object = newSelection[i];
+                    if(object instanceof PythonFile){
+                        PythonFile file = (PythonFile) object;
+                        newSelection[i] = file.getParentElement();
+                    }
+                }
+                
+                Object[] expandedElements = commonViewer.getExpandedElements();
+                Object[] newExpandedElements = new Object[newSelection.length + expandedElements.length];
+                System.arraycopy(expandedElements, 0, newExpandedElements, 0, expandedElements.length);
+                System.arraycopy(newSelection, 0, newExpandedElements, expandedElements.length, newSelection.length);
+                commonViewer.setExpandedElements(newExpandedElements);
+            }
+            commonViewer.setSelection(selection, true);
+        }
+    }
+
 
 	private boolean revealAndVerify(Object element) {
 		if (element == null){
