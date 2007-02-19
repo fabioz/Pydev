@@ -476,7 +476,7 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
                 }
             }
             setErrorMessage(null);
-            setMessage("Page validated.");
+            setMessage(getDescription());
             setPageComplete(true);
         } catch (Exception e) {
             PydevPlugin.log(e);

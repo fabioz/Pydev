@@ -32,6 +32,12 @@ public abstract class AbstractPythonWizard extends Wizard implements INewWizard 
      */
     protected IStructuredSelection selection;
 
+    protected String description;
+    
+    public AbstractPythonWizard(String description){
+        this.description = description;
+    }
+
     public void init(IWorkbench workbench, IStructuredSelection selection) {
         this.workbench = workbench;
         this.selection = selection;
@@ -57,7 +63,7 @@ public abstract class AbstractPythonWizard extends Wizard implements INewWizard 
      */
     public void addPages() {
         filePage = createPathPage();
-        filePage.setDescription("Create a new Python module");
+        filePage.setDescription(this.description);
         addPage(filePage);
     }
 

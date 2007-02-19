@@ -14,11 +14,15 @@ import org.python.pydev.plugin.nature.PythonNature;
 
 public class PythonSourceFolderWizard extends AbstractPythonWizard {
 
+    public PythonSourceFolderWizard() {
+        super("Create a new Source Folder");
+    }
+
     public static final String WIZARD_ID = "org.python.pydev.ui.wizards.files.PythonSourceFolderWizard";
 
     @Override
     protected PythonAbstractPathPage createPathPage() {
-        return new PythonAbstractPathPage("Create a new Source Folder", selection){
+        return new PythonAbstractPathPage(this.description, selection){
 
             @Override
             protected boolean shouldCreateSourceFolderSelect() {

@@ -20,11 +20,15 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
  */
 public class PythonModuleWizard extends AbstractPythonWizard {
 
+    public PythonModuleWizard() {
+        super("Create a new Python module");
+    }
+
     public static final String WIZARD_ID = "org.python.pydev.ui.wizards.files.PythonModuleWizard";
 
     @Override
     protected PythonAbstractPathPage createPathPage() {
-        return new PythonAbstractPathPage("Create a new Python module", selection){
+        return new PythonAbstractPathPage(this.description, selection){
 
             @Override
             protected boolean shouldCreatePackageSelect() {
