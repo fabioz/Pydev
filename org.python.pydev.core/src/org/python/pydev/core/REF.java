@@ -26,6 +26,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -516,7 +517,7 @@ public class REF {
     /**
      * The encoding declared in the document is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
      */
-    public static String getPythonFileEncoding(IDocument doc, String fileLocation) {
+    public static String getPythonFileEncoding(IDocument doc, String fileLocation) throws IllegalCharsetNameException{
         Reader inputStreamReader = new StringReader(doc.get());
         return getPythonFileEncoding(inputStreamReader, fileLocation);
     }
@@ -524,7 +525,7 @@ public class REF {
     /**
      * The encoding declared in the file is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
      */
-    public static String getPythonFileEncoding(File f) {
+    public static String getPythonFileEncoding(File f) throws IllegalCharsetNameException{
         try {
             final FileInputStream fileInputStream = new FileInputStream(f);
 			try {
@@ -547,7 +548,7 @@ public class REF {
      * Will close the reader.
      * @param fileLocation the file we want to get the encoding from (just passed for giving a better message if it fails -- may be null).
      */
-    public static String getPythonFileEncoding(Reader inputStreamReader, String fileLocation) {
+    public static String getPythonFileEncoding(Reader inputStreamReader, String fileLocation) throws IllegalCharsetNameException{
         String ret = null;
         BufferedReader reader = new BufferedReader(inputStreamReader);
         try{
@@ -609,7 +610,7 @@ public class REF {
     /**
      * @param fileLocation may be null
      */
-    public static String getValidEncoding(String ret, String fileLocation) {
+    public static String getValidEncoding(String ret, String fileLocation) throws IllegalCharsetNameException{
         if(ret == null){
             return ret;
         }

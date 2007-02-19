@@ -517,30 +517,34 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     private void fixEncoding(final IEditorInput input, IDocument document) {
         if (input instanceof FileEditorInput) {
             final IFile file = (IFile) ((FileEditorInput) input).getAdapter(IFile.class);
-            final String encoding = REF.getPythonFileEncoding(document, file.getFullPath().toOSString());
-            if (encoding != null) {
-                try {
-                    if (encoding.equals(file.getCharset()) == false) {
-
-                        new Job("Change encoding") {
-
-                            protected IStatus run(IProgressMonitor monitor) {
-                                try {
-                                    file.setCharset(encoding, monitor);
-                                    ((TextFileDocumentProvider) getDocumentProvider()).setEncoding(input, encoding);
-                                    //refresh it...
-                                    file.refreshLocal(IResource.DEPTH_INFINITE, null);
-                                } catch (CoreException e) {
-                                    PydevPlugin.log(e);
+            try{
+                final String encoding = REF.getPythonFileEncoding(document, file.getFullPath().toOSString());
+                if (encoding != null) {
+                    try {
+                        if (encoding.equals(file.getCharset()) == false) {
+    
+                            new Job("Change encoding") {
+    
+                                protected IStatus run(IProgressMonitor monitor) {
+                                    try {
+                                        file.setCharset(encoding, monitor);
+                                        ((TextFileDocumentProvider) getDocumentProvider()).setEncoding(input, encoding);
+                                        //refresh it...
+                                        file.refreshLocal(IResource.DEPTH_INFINITE, null);
+                                    } catch (CoreException e) {
+                                        PydevPlugin.log(e);
+                                    }
+                                    return Status.OK_STATUS;
                                 }
-                                return Status.OK_STATUS;
-                            }
-
-                        }.schedule();
+    
+                            }.schedule();
+                        }
+                    } catch (CoreException e) {
+                        PydevPlugin.log(e);
                     }
-                } catch (CoreException e) {
-                    PydevPlugin.log(e);
                 }
+            }catch (Exception e) {
+                PydevPlugin.log(e);
             }
         }
     }
