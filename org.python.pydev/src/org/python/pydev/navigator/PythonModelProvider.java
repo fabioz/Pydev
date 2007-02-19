@@ -254,9 +254,13 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
                         convertedChildren.add(new PythonFile((IWrappedResource) parent, file, pythonSourceFolder));
                     }
                     
+                }else if (child instanceof IProject){
+                    //do nothing (because a project is never going to be an IWrappedResource)
+                    
                 }else if (child instanceof IResource){
                     childrenItr.remove();
                     convertedChildren.add(new PythonResource((IWrappedResource) parent, (IResource) child, pythonSourceFolder));
+                    
                 }else{
                     throw new RuntimeException("Unexpected class:"+child.getClass());
                 }
