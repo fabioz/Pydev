@@ -1,3 +1,10 @@
+after 1.2.7
+<ul>
+<li><strong>Package Explorer</strong>: many fixes (thanks for the bug reports)</li>
+<li><strong>Debugger</strong>: a fix for debugging in jython and a number of small optimizations</li>
+</ul>
+
+
 after 1.2.6
 
 Pydev:
