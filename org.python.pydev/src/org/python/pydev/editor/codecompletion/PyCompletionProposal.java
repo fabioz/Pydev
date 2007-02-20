@@ -121,8 +121,11 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
         }
 	    if(onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS){
 	        try {
-                String args = fArgs.substring(1, fArgs.length()-1); //remove the parentesis
-	            document.replace(fReplacementOffset+fReplacementLength, 0, args);
+                String args;
+                if(fArgs.length() > 0){
+                    args = fArgs.substring(1, fArgs.length()-1); //remove the parentesis
+                    document.replace(fReplacementOffset+fReplacementLength, 0, args);
+                }
 	        } catch (BadLocationException x) {
 	            // ignore
                 x.printStackTrace();

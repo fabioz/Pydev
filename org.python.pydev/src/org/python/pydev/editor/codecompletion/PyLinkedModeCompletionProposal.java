@@ -42,7 +42,10 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
             return new Point(fReplacementOffset + fCursorPosition, firstParameterLen); //the difference is the firstParameterLen here (instead of 0)
         }
         if(onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS ){
-            return new Point(fReplacementOffset + fCursorPosition-1, firstParameterLen); //the difference is the firstParameterLen here (instead of 0)
+            if(fArgs.length() > 0){
+                return new Point(fReplacementOffset + fCursorPosition-1, firstParameterLen); //the difference is the firstParameterLen here (instead of 0)
+            }
+            return null;
         }
         throw new RuntimeException("Unexpected apply mode:"+onApplyAction);
     }
@@ -57,7 +60,12 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
         }
         if(onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS){
             try {
-                String args = fArgs.substring(1, fArgs.length()-1); //remove the parentesis
+                String args;
+                if(fArgs.length() > 0){
+                    args = fArgs.substring(1, fArgs.length()-1); //remove the parentesis
+                }else{
+                    args = "";
+                }
                 super.apply(doc);
                 int iPar = -1;
                 int exitPos = offset + args.length()+1;

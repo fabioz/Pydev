@@ -13,7 +13,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ContentAssistEvent;
-import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.ICompletionListener;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
@@ -52,9 +51,9 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     
     public void updateStatus(){
         if(whatToShow == SHOW_ALL){
-            pyContentAssistant.setStatusMessage("Press Ctrl+Space for templates.");
+            pyContentAssistant.setIterationStatusMessage("Press %s for templates.");
         }else{
-            pyContentAssistant.setStatusMessage("Press Ctrl+Space for default completions.");
+            pyContentAssistant.setIterationStatusMessage("Press %s for default completions.");
         }
     }
     //-------- end cycling through regular completions and templates
@@ -84,7 +83,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     /**
      * These are the activation chars (cache)
      */
-    private char[] activationChars = null;
+    private static char[] activationChars = null;
 
     /**
      * This is the class that manages the context information (validates it and
@@ -95,13 +94,13 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     /**
      * This is the content assistant that is used to start this processor.
      */
-    private ContentAssistant pyContentAssistant;
+    private PyContentAssistant pyContentAssistant;
     
     /**
      * @param edit the editor that works with this processor
      * @param pyContentAssistant the content assistant that will invoke this completion
      */
-    public PythonCompletionProcessor(PyEdit edit, ContentAssistant pyContentAssistant) {
+    public PythonCompletionProcessor(PyEdit edit, PyContentAssistant pyContentAssistant) {
         this.edit = edit;
         this.pyContentAssistant = pyContentAssistant;
         
@@ -270,10 +269,13 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     }
 
     /**
-     * 
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getCompletionProposalAutoActivationCharacters()
      */
     public char[] getCompletionProposalAutoActivationCharacters() {
+        return getStaticCompletionProposalAutoActivationCharacters();
+    }
+    
+    public static char[] getStaticCompletionProposalAutoActivationCharacters() {
         if(activationChars != null){ //let's cache this
             return activationChars;
         }
@@ -297,15 +299,11 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * @param toAdd
      * @return
      */
-    private char[] addChar(char[] c, char toAdd) {
+    public static char[] addChar(char[] c, char toAdd) {
         char[] c1 = new char[c.length + 1];
 
-        int i;
-
-        for (i = 0; i < c.length; i++) {
-            c1[i] = c[i];
-        }
-        c1[i] = toAdd;
+        System.arraycopy(c, 0, c1, 0, c.length);
+        c1[c.length] = toAdd;
         return c1;
 
     }

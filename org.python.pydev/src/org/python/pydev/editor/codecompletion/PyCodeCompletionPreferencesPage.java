@@ -30,12 +30,15 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 
 	public static final String AUTOCOMPLETE_ON_DOT = "AUTOCOMPLETE_ON_DOT";
 	public static final boolean DEFAULT_AUTOCOMPLETE_ON_DOT = true;
+	
+	public static final String AUTOCOMPLETE_ON_ALL_ASCII_CHARS = "AUTOCOMPLETE_ON_ALL_ASCII_CHARS";
+	public static final boolean DEFAULT_AUTOCOMPLETE_ON_ALL_ASCII_CHARS = false;
 
 	public static final String USE_AUTOCOMPLETE = "USE_AUTOCOMPLETE";
 	public static final boolean DEFAULT_USE_AUTOCOMPLETE = true;
 
 	public static final String AUTOCOMPLETE_DELAY = "AUTOCOMPLETE_DELAY";
-	public static final int DEFAULT_AUTOCOMPLETE_DELAY = 100;
+	public static final int DEFAULT_AUTOCOMPLETE_DELAY = 0;
 
 	public static final String AUTOCOMPLETE_ON_PAR = "AUTOCOMPLETE_ON_PAR";
 	public static final boolean DEFAULT_AUTOCOMPLETE_ON_PAR = false;
@@ -75,6 +78,9 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 		
 		addField(new BooleanFieldEditor(
 		        AUTOCOMPLETE_ON_PAR, "Autocomplete on ','?", p));
+		
+		addField(new BooleanFieldEditor(
+		        AUTOCOMPLETE_ON_ALL_ASCII_CHARS, "Autocomplete on all ASCII chars?", p));
 
 		addField(new BooleanFieldEditor(
                 DEBUG_CODE_COMPLETION, "Debug code completion?.", p));
@@ -120,6 +126,10 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     
     public static boolean useAutocomplete() {
         return PydevPrefs.getPreferences().getBoolean(PyCodeCompletionPreferencesPage.USE_AUTOCOMPLETE);
+    }
+    
+    public static boolean useAutocompleteOnAllAsciiChars() {
+        return PydevPrefs.getPreferences().getBoolean(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_ON_ALL_ASCII_CHARS);
     }
     
     public static boolean isToDebugCodeCompletion() {

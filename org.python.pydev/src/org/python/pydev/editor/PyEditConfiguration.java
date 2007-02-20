@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
 import org.python.pydev.editor.codecompletion.PythonStringCompletionProcessor;
@@ -41,7 +42,6 @@ import org.python.pydev.editor.correctionassist.PythonCorrectionProcessor;
 import org.python.pydev.editor.hover.PyAnnotationHover;
 import org.python.pydev.editor.hover.PyTextHover;
 import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
-import org.python.pydev.editor.simpleassist.SimpleContentAssistant;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.ColorCache;
@@ -243,7 +243,9 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
      */
     public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
         // next create a content assistant processor to populate the completions window
-    	PythonCompletionProcessor processor = new PythonCompletionProcessor(this.getEdit(), pyContentAssistant);
+        PythonCompletionProcessor defaultPythonProcessor = new PythonCompletionProcessor(this.getEdit(), pyContentAssistant);
+        
+        IContentAssistProcessor processor = new SimpleAssistProcessor(this.getEdit(), defaultPythonProcessor, pyContentAssistant);
     	PythonCompletionProcessor stringProcessor = new PythonStringCompletionProcessor(this.getEdit(), pyContentAssistant);
 
         // No code completion in comments
@@ -258,6 +260,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
         //note: delay and auto activate are set on PyContentAssistant constructor.
 
         pyContentAssistant.setDocumentPartitioning(IPythonPartitions.PYTHON_PARTITION_TYPE);
+        pyContentAssistant.setAutoActivationDelay(PyCodeCompletionPreferencesPage.getAutocompleteDelay());
         try{
         	pyContentAssistant.setRepeatedInvocationMode(true);
         }catch(Exception e){
@@ -307,43 +310,6 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
         return assistant;
     }
 
-    
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getContentAssistant(org.eclipse.jface.text.source.ISourceViewer)
-     */
-    public SimpleContentAssistant getSimpleAssistant(ISourceViewer sourceViewer) {
-        // create a content assistant:
-        SimpleContentAssistant assistant = new SimpleContentAssistant();
-        PythonCompletionProcessor defaultPythonProcessor = new PythonCompletionProcessor(this.getEdit(), assistant);
-
-        
-        // next create a content assistant processor to populate the completions window
-        IContentAssistProcessor processor = new SimpleAssistProcessor(this.getEdit(), defaultPythonProcessor, assistant);
-        
-        // Correction assist works only on default content
-        assistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
-        assistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
-        
-        //delay and auto activate set on PyContentAssistant constructor.
-        
-        assistant.setDocumentPartitioning(IPythonPartitions.PYTHON_PARTITION_TYPE);
-       
-        assistant.enableAutoActivation(true);
-        assistant.setAutoActivationDelay(0);
-        assistant.enableAutoInsert(false);
-
-        //cycling
-        assistant.setRepeatedInvocationMode(true);
-        try {
-            assistant.setRepeatedInvocationTrigger(KeySequence.getInstance("Ctrl+Space"));
-        } catch (ParseException e) {
-            PydevPlugin.log(e);
-        }
-        assistant.setStatusLineVisible(true); 
-        return assistant;
-    }
     
     // The presenter instance for the information window
     private static final DefaultInformationControl.IInformationPresenter presenter = new DefaultInformationControl.IInformationPresenter() {

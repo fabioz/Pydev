@@ -287,7 +287,7 @@ for k in keyword.kwlist:
    icon="icons/template.gif"
    id="org.python.pydev.editor.templates.python.break"
    name="break">
-   <pattern>break ${cursor}</pattern>
+   <pattern>break${cursor}</pattern>
 </template>
 <template
    autoinsert="true"
@@ -296,7 +296,7 @@ for k in keyword.kwlist:
    icon="icons/template.gif"
    id="org.python.pydev.editor.templates.python.continue"
    name="continue">
-   <pattern>continue ${cursor}</pattern>
+   <pattern>continue${cursor}</pattern>
 </template>
 <template
    autoinsert="true"
@@ -314,7 +314,7 @@ for k in keyword.kwlist:
    icon="icons/template.gif"
    id="org.python.pydev.editor.templates.python.elif"
    name="elif">
-   <pattern>elif ${cursor}</pattern>
+   <pattern>elif${cursor}</pattern>
 </template>
 <template
    autoinsert="true"
@@ -323,8 +323,9 @@ for k in keyword.kwlist:
    icon="icons/template.gif"
    id="org.python.pydev.editor.templates.python.else"
    name="else">
-   <pattern>else ${cursor}</pattern>
+   <pattern>else${cursor}</pattern>
 </template>
+<!-- removed try.. related
 <template
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
@@ -332,7 +333,7 @@ for k in keyword.kwlist:
    icon="icons/template.gif"
    id="org.python.pydev.editor.templates.python.except"
    name="except">
-   <pattern>except ${cursor}</pattern>
+   <pattern>except${cursor}:</pattern>
 </template>
 <template
    autoinsert="true"
@@ -350,8 +351,9 @@ for k in keyword.kwlist:
    icon="icons/template.gif"
    id="org.python.pydev.editor.templates.python.finally"
    name="finally">
-   <pattern>finally ${cursor}</pattern>
+   <pattern>finally:${cursor}</pattern>
 </template>
+-->
 <template
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
@@ -379,6 +381,7 @@ for k in keyword.kwlist:
    name="global">
    <pattern>global ${cursor}</pattern>
 </template>
+<!-- removed short ones
 <template
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
@@ -386,8 +389,9 @@ for k in keyword.kwlist:
    icon="icons/template.gif"
    id="org.python.pydev.editor.templates.python.if"
    name="if">
-   <pattern>if ${cursor}</pattern>
+   <pattern>if ${cursor}:</pattern>
 </template>
+-->
 <template
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
@@ -397,6 +401,7 @@ for k in keyword.kwlist:
    name="import">
    <pattern>import ${cursor}</pattern>
 </template>
+<!-- removed short ones
 <template
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
@@ -415,6 +420,7 @@ for k in keyword.kwlist:
    name="is">
    <pattern>is ${cursor}</pattern>
 </template>
+-->
 <template
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
@@ -422,7 +428,7 @@ for k in keyword.kwlist:
    icon="icons/template.gif"
    id="org.python.pydev.editor.templates.python.lambda"
    name="lambda">
-   <pattern>lambda ${cursor}</pattern>
+   <pattern>lambda ${args}:${cursor}</pattern>
 </template>
 <template
    autoinsert="true"
@@ -433,6 +439,7 @@ for k in keyword.kwlist:
    name="not">
    <pattern>not ${cursor}</pattern>
 </template>
+<!-- removed short ones
 <template
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
@@ -442,6 +449,7 @@ for k in keyword.kwlist:
    name="or">
    <pattern>or ${cursor}</pattern>
 </template>
+-->
 <template
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
@@ -449,7 +457,7 @@ for k in keyword.kwlist:
    icon="icons/template.gif"
    id="org.python.pydev.editor.templates.python.pass"
    name="pass">
-   <pattern>pass ${cursor}</pattern>
+   <pattern>pass${cursor}</pattern>
 </template>
 <template
    autoinsert="true"
@@ -460,6 +468,7 @@ for k in keyword.kwlist:
    name="return">
    <pattern>return ${cursor}</pattern>
 </template>
+<!-- removed the try.. related because ctrl+1 handles it in a block (and better)
 <template
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
@@ -467,8 +476,9 @@ for k in keyword.kwlist:
    icon="icons/template.gif"
    id="org.python.pydev.editor.templates.python.try"
    name="try">
-   <pattern>try ${cursor}</pattern>
+   <pattern>try:${cursor}</pattern>
 </template>
+-->
 <template
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
@@ -476,7 +486,7 @@ for k in keyword.kwlist:
    icon="icons/template.gif"
    id="org.python.pydev.editor.templates.python.while"
    name="while">
-   <pattern>while ${cursor}</pattern>
+   <pattern>while ${cursor}:</pattern>
 </template>
 <template
    autoinsert="true"

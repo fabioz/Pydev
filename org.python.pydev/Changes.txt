@@ -2,8 +2,15 @@ after 1.2.7
 <ul>
 <li><strong>Package Explorer</strong>: many fixes (thanks for the bug reports)</li>
 <li><strong>Debugger</strong>: a fix for debugging in jython and a number of small optimizations</li>
+<li><strong>Code-completion</strong>: now works in emacs mode</li>
+<li><strong>Code-completion</strong>: added the possibility of auto-completing for all ascii chars (so, it starts completing once you start writing)</li>
 </ul>
 
+
+Pydev Extensions:
+<ul>
+<li><strong>Simple Completions</strong>: some keywords were removed from the default list (the 2-letter ones because they're barely worth it and those related to 'try', as there's already an assistant that creates 'try' blocks)</li>
+</ul>
 
 after 1.2.6
 

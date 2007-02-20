@@ -29,7 +29,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -47,9 +46,11 @@ import org.eclipse.ui.internal.util.SWTResourceUtil;
 import org.eclipse.ui.part.EditorActionBarContributor;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
+import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
+import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.eclipse.ui.texteditor.TextOperationAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
@@ -612,13 +613,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     }
 
 
-    private static final String TEMPLATE_PROPOSALS_ID = "org.python.pydev.editors.PyEdit.TemplateProposals";
-
-    private static final String CONTENTASSIST_PROPOSAL_ID = "org.python.pydev.editors.PyEdit.ContentAssistProposal";
-
     private static final String CORRECTIONASSIST_PROPOSAL_ID = "org.python.pydev.editors.PyEdit.CorrectionAssist";
-
-    private static final String SIMPLEASSIST_PROPOSAL_ID = "org.python.pydev.editors.PyEdit.SimpleAssist";
     
     public static final int CORRECTIONASSIST_PROPOSALS = 999777;
 
@@ -657,29 +652,13 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 
         
         
-        
-        // -------------------------------------------------------------------------------------
-        //simple assistant for extending later
-        action = new TextOperationAction(resources, "SimpleAssist", this, SIMPLEASSIST_PROPOSALS); //$NON-NLS-1$
-        
-        action.setActionDefinitionId(SIMPLEASSIST_PROPOSAL_ID);
-        setAction(SIMPLEASSIST_PROPOSAL_ID, action); //$NON-NLS-1$ 
-        setActivationCodeToSimpleCompletion();
-        
-        
-        
-        
         // -------------------------------------------------------------------------------------
         // This action will fire a CONTENTASSIST_PROPOSALS operation
         // when executed
-        action = new TextOperationAction(resources, "ContentAssistProposal", this, SourceViewer.CONTENTASSIST_PROPOSALS);
-
-        action.setActionDefinitionId(CONTENTASSIST_PROPOSAL_ID);
-        // Tell the editor about this new action
-        setAction(CONTENTASSIST_PROPOSAL_ID, action);
-        // Tell the editor to execute this action
-        // when Ctrl+Spacebar is pressed
-        setActivationCodeToDefaultCompletion();
+        action = new ContentAssistAction(resources, "ContentAssistProposal.", this);
+        action.setActionDefinitionId(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS);
+        setAction("ContentAssistProposal", action); 
+        markAsStateDependentAction("ContentAssistProposal", true); 
 
         
         // ----------------------------------------------------------------------------------------
@@ -698,22 +677,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         
         
         notifier.notifyOnCreateActions(resources);
-    }
-
-    /**
-     * Used so that Ctrl+Space is binded to the simple assist
-     */
-    public void setActivationCodeToSimpleCompletion() {
-        removeActionActivationCode(CONTENTASSIST_PROPOSAL_ID);
-        setActionActivationCode(SIMPLEASSIST_PROPOSAL_ID, ' ', -1, SWT.CTRL);
-    }
-
-    /**
-     * Used so that Ctrl+Space is binded to the default assist
-     */
-    public void setActivationCodeToDefaultCompletion() {
-        removeActionActivationCode(SIMPLEASSIST_PROPOSAL_ID);
-        setActionActivationCode(CONTENTASSIST_PROPOSAL_ID, ' ', -1, SWT.CTRL);
     }
 
 
