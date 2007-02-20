@@ -1,7 +1,9 @@
 from pydevd_comm import * #@UnusedWildImport
+from pydevd_constants import STATE_RUN, STATE_SUSPEND 
 import traceback
-STATE_RUN = 1
-STATE_SUSPEND = 2 # thread states
+
+#jython has an 'exception' event that must be treated too (strangely it is called when doing a wild import)
+ACCEPTED_EVENTS = {'call':1, 'line':1, 'return':1, 'exception':1}
 
 class PyDBFrame:
     '''This makes the tracing for a given frame, so, the trace_dispatch
@@ -24,7 +26,7 @@ class PyDBFrame:
         self.mainDebugger.doWaitSuspend(*args, **kwargs)
         
     def trace_dispatch(self, frame, event, arg):
-        if event not in ('call', 'line', 'return', 'exception'):
+        if event not in ACCEPTED_EVENTS:
             return None
         
         additionalInfo = self.additionalInfo
@@ -89,7 +91,7 @@ class PyDBFrame:
                     additionalInfo.pydev_return_call_count -= 1
                     
                 if additionalInfo.pydev_stop_on_return_count_1 and additionalInfo.pydev_return_call_count == 1 \
-                    and additionalInfo.pydev_step_stop == frame.f_back  and event in ('line', 'return'):
+                    and additionalInfo.pydev_step_stop == frame.f_back and event in ('line', 'return'):
                     
                     additionalInfo.pydev_return_call_count == 0
                     additionalInfo.pydev_stop_on_return_count_1 = False

@@ -1,9 +1,24 @@
 import traceback
 from pydevd_comm import * #@UnusedWildImport
+from pydevd_constants import STATE_RUN, STATE_SUSPEND
 import pydevd_io
 import pydevd_frame
 
-DONT_TRACE = ('pydevd.py' , 'threading.py', 'pydevd_vars.py', 'pydevd_comm.py')
+DONT_TRACE = {
+              #commonly used things from the stdlib that we don't want to trace
+              'threading.py':1, 
+              'Queue.py':1, 
+              'socket.py':1, 
+              
+              #things from pydev that we don't want to trace
+              'pydevd_comm.py':1,
+              'pydevd_constants.py':1,
+              'pydevd_frame.py':1, 
+              'pydevd_io.py':1 ,
+              'pydevd_resolver.py':1 ,
+              'pydevd_vars.py':1,
+              'pydevd.py':1 ,
+              }
 
 connected = False
 bufferStdOutToServer = False
@@ -47,7 +62,7 @@ class PyDBCommandThread(PyDBDaemonThread):
 
 class PyDBAdditionalThreadInfo:
     def __init__(self):
-        self.pydev_state = PyDB.STATE_RUN 
+        self.pydev_state = STATE_RUN 
         self.pydev_step_stop = None
         self.pydev_step_cmd = None
         self.pydev_notify_kill = False
@@ -70,8 +85,6 @@ class PyDB:
        These are placed on the internal command queue.
     """
     
-    STATE_RUN = 1
-    STATE_SUSPEND = 2 # thread states
     RUNNING_THREAD_IDS = {} #this is a dict of thread ids pointing to thread ids. Whenever a command
                             #is passed to the java end that acknowledges that a thread was created,
                             #the thread id should be passed here -- and if at some time we do not find
@@ -260,14 +273,14 @@ class PyDB:
                     t = pydevd_findThreadById(text)
                     if t: 
                         t.additionalInfo.pydev_step_cmd = None
-                        t.additionalInfo.pydev_state = PyDB.STATE_RUN
+                        t.additionalInfo.pydev_state = STATE_RUN
                         
                 elif id == CMD_STEP_INTO or id == CMD_STEP_OVER or id == CMD_STEP_RETURN:
                     #we received some command to make a single step
                     t = pydevd_findThreadById(text)
                     if t:
                         t.additionalInfo.pydev_step_cmd = id
-                        t.additionalInfo.pydev_state = PyDB.STATE_RUN
+                        t.additionalInfo.pydev_state = STATE_RUN
                         
                         
                 elif id == CMD_CHANGE_VARIABLE:
@@ -395,7 +408,7 @@ class PyDB:
             thread.additionalInfo.pydev_notify_kill = True
 
     def setSuspend(self, thread, stop_reason):
-        thread.additionalInfo.pydev_state = PyDB.STATE_SUSPEND
+        thread.additionalInfo.pydev_state = STATE_SUSPEND
         thread.stop_reason = stop_reason
 
     def doWaitSuspend(self, thread, frame, event, arg):
@@ -408,7 +421,7 @@ class PyDB:
         self.writer.addCommand(cmd)
         
         info = thread.additionalInfo
-        while info.pydev_state == PyDB.STATE_SUSPEND and not self.finishDebuggingSession:            
+        while info.pydev_state == STATE_SUSPEND and not self.finishDebuggingSession:            
             self.processInternalCommands()
             time.sleep(0.2)
             
@@ -454,16 +467,12 @@ class PyDB:
                 except:
                     sys.exit(0)
     
-            if event not in ('call', 'line', 'return', 'exception'): #jython has an 'exception' event that must be treated too (strangely it is called when doing a wild import)
-                return None
-            
-            
-            t = threading.currentThread()
             filename, base = GetFilenameAndBase(frame)
     
             if base in DONT_TRACE: #we don't want to debug threading or anything related to pydevd
                 return None
     
+            t = threading.currentThread()
             # if thread is not alive, cancel trace_dispatch processing
             if not t.isAlive():
                 self.processThreadNotAlive(id(t))
