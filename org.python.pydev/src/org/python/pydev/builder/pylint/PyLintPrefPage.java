@@ -85,7 +85,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
 		addField(new BooleanFieldEditor(USE_PYLINT, "Use pylint?", p));
 		addField(new BooleanFieldEditor(USE_CONSOLE, "Redirect Pylint output to console?", p));
-		addField(new IntegerFieldEditor(MAX_PYLINT_DELTA, "Max delta to run PyLint?", p));
+		addField(new IntegerFieldEditor(MAX_PYLINT_DELTA, "Max simultaneous processes for PyLint?", p));
 		FileFieldEditor fileField = new FileFieldEditor(PYLINT_FILE_LOCATION, "Location of pylint (lint.py):", true, p);
 		addField(fileField);
 
