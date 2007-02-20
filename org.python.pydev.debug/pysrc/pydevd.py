@@ -595,12 +595,15 @@ def SetTraceForParents(frame, dispatch_func):
         frame.f_trace = dispatch_func
         frame = frame.f_back
 
-def settrace(host='localhost', stdoutToServer = False, stderrToServer = False, port=5678):
+def settrace(host='localhost', stdoutToServer = False, stderrToServer = False, port=5678, suspend=True):
     '''
     @param host: the user may specify another host, if the debug server is not in the same machine
     @param stdoutToServer: when this is true, the stdout is passed to the debug server
     @param stderrToServer: when this is true, the stderr is passed to the debug server
-    so that they are printed in its console and not in this process console.
+        so that they are printed in its console and not in this process console.
+    @param port: specifies which port to use for communicating with the server (note that the server must be started 
+        in the same port)
+    @param suspend: whether a breakpoint should be emulated as soon as this function is called. 
     '''
     
     global connected
@@ -639,7 +642,8 @@ def settrace(host='localhost', stdoutToServer = False, stderrToServer = False, p
             additionalInfo = PyDBAdditionalThreadInfo()
             t.additionalInfo = additionalInfo
   
-        debugger.setSuspend(t, CMD_SET_BREAK)
+        if suspend:
+            debugger.setSuspend(t, CMD_SET_BREAK)
         
         #that's right, debug only threads that pass through this function
         #(so, we just call sys.settrace and not threading.settrace)
@@ -660,7 +664,8 @@ def settrace(host='localhost', stdoutToServer = False, stderrToServer = False, p
             t.additionalInfo = additionalInfo
             
         sys.settrace(debugger.trace_dispatch)
-        debugger.setSuspend(t, CMD_SET_BREAK)
+        if suspend:
+            debugger.setSuspend(t, CMD_SET_BREAK)
     
 if __name__ == '__main__':
     print >>sys.stderr, "pydev debugger"

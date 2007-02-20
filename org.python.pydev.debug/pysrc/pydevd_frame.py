@@ -15,6 +15,7 @@ class PyDBFrame:
         self.t = t
         self.filename = filename
         self.base = base
+        self.breakpoints = self.mainDebugger.breakpoints
     
     def setSuspend(self, *args, **kwargs):
         self.mainDebugger.setSuspend(*args, **kwargs)
@@ -26,25 +27,19 @@ class PyDBFrame:
         if event not in ('call', 'line', 'return', 'exception'):
             return None
         
-        t = self.t
         additionalInfo = self.additionalInfo
 
         # Let's check to see if we are in a line that has a breakpoint. If we don't have a breakpoint, 
         # we will return nothing for the next trace
         #also, after we hit a breakpoint and go to some other debugging state, we have to force the set trace anyway,
         #so, that's why the additional checks are there.
-        breakpoint = self.mainDebugger.breakpoints.get(self.filename, None)
+        breakpoint = self.breakpoints.get(self.filename, None)
         if breakpoint is None and additionalInfo.pydev_state == STATE_RUN and \
            additionalInfo.pydev_step_stop is None and additionalInfo.pydev_step_cmd is None:
             #print 'skipping', self.base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
             return None
 
-        else:
-            #print 'NOT skipped', self.base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
-            #We just hit a breakpoint or we are already in step mode. Either way, let's trace this frame
-            frame.f_trace = self.trace_dispatch
-        
-        
+        t = self.t #thread
         try:
             line = int(frame.f_lineno)
             if additionalInfo.pydev_state != STATE_SUSPEND and breakpoint is not None and breakpoint.has_key(line):
