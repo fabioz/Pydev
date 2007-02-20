@@ -156,8 +156,15 @@ public class RefactoringRequest extends DecoratableObject{
 	}
 	
     // Some shortcuts to the PySelection
+	/**
+	 * @return the initial column selected (starting at 0)
+	 */
+	public int getBeginCol() {
+	    return ps.getAbsoluteCursorOffset() - ps.getStartLine().getOffset();
+	}
+    
     /**
-     * @return the final column selected (starting at 1)
+     * @return the final column selected (starting at 0)
      */
     public int getEndCol() {
         return ps.getAbsoluteCursorOffset() + ps.getSelLength() - ps.getEndLine().getOffset();
@@ -168,13 +175,6 @@ public class RefactoringRequest extends DecoratableObject{
      */
     public int getEndLine() {
         return ps.getEndLineIndex() + 1;
-    }
-
-    /**
-     * @return the initial column selected (starting at 1)
-     */
-    public int getBeginCol() {
-        return ps.getAbsoluteCursorOffset() - ps.getStartLine().getOffset() + 1;
     }
 
     /**

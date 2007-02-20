@@ -87,10 +87,16 @@ public class SourceToken extends AbstractToken{
         return ast;
     }
 
+    /**
+     * @return line starting at 1
+     */
     public int getLineDefinition() {
         return NodeUtils.getLineDefinition(ast);
     }
     
+    /**
+     * @return col starting at 1
+     */
     public int getColDefinition() {
         return NodeUtils.getColDefinition(ast);
     }

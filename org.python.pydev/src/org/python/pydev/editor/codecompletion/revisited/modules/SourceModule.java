@@ -194,7 +194,7 @@ public class SourceModule extends AbstractModule {
                                 if(iActTok > actToks.length){
                                     break; //unable to find it
                                 }
-                                definitions = findDefinition(initialState.getCopyWithActTok(value), token.getLineDefinition(), token.getColDefinition(), manager.getNature(), new ArrayList<FindInfo>());
+                                definitions = findDefinition(initialState.getCopyWithActTok(value), token.getLineDefinition(), token.getColDefinition()+1, manager.getNature(), new ArrayList<FindInfo>());
                                 if(definitions.length == 1){
                                     Definition d = definitions[0];
                                     if(d.ast instanceof Assign){
@@ -225,7 +225,7 @@ public class SourceModule extends AbstractModule {
                                         	if(d.module instanceof SourceModule){
                                         		SourceModule m = (SourceModule) d.module;
                                         		String joined = FullRepIterable.joinFirstParts(actToks);
-                                                Definition[] definitions2 = m.findDefinition(initialState.getCopyWithActTok(joined), d.line, d.col,manager.getNature(), null);
+                                                Definition[] definitions2 = m.findDefinition(initialState.getCopyWithActTok(joined), d.line, d.col, manager.getNature(), null);
                                         		if(definitions2.length == 0){
                                         			return new IToken[0];
                                         		}
@@ -337,6 +337,10 @@ public class SourceModule extends AbstractModule {
         return modToks;
     }
 
+    /**
+     * @param line: starts at 1
+     * @param col: starts at 1
+     */
     @SuppressWarnings("unchecked")
 	public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature, List<FindInfo> lFindInfo) throws Exception{
         String rep = state.getActivationToken();
@@ -419,7 +423,7 @@ public class SourceModule extends AbstractModule {
         		//ok, we are in a class, so, let's get the self completions
         		String classRep = NodeUtils.getRepresentationString(classDef);
 				IToken[] globalTokens = getGlobalTokens(
-        				new CompletionState(line, col, classRep, nature,""), 
+        				new CompletionState(line-1, col-1, classRep, nature,""), 
         				nature.getAstManager());
 				
         		String withoutSelf = rep.substring(5);
@@ -465,7 +469,7 @@ public class SourceModule extends AbstractModule {
             if (tok == null || tok.length() == 0 ){
                 return new Definition[]{new Definition(1,1,"",null,null,o.o1)};
             }else{
-                return (Definition[]) o.o1.findDefinition(state.getCopyWithActTok(tok), 0, 0, nature, lFindInfo);
+                return (Definition[]) o.o1.findDefinition(state.getCopyWithActTok(tok), -1, -1, nature, lFindInfo);
             }
         }
         
@@ -664,6 +668,10 @@ public class SourceModule extends AbstractModule {
         }
     }
 
+    /**
+     * @param line: at 1
+     * @param col: at 1
+     */
     public ILocalScope getLocalScope(int line, int col) {
         try {
             FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);

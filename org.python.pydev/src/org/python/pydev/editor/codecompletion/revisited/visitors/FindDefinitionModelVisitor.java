@@ -63,6 +63,8 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     
     /**
      * Constructor
+     * @param line: starts at 1
+     * @param col: starts at 1
      */
     public FindDefinitionModelVisitor(String token, int line, int col, IModule module){
         this.tokenToFind = token;

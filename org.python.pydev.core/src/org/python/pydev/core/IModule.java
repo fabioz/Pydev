@@ -65,6 +65,8 @@ public interface IModule {
      * This function can be called to find possible definitions of a token (state activation token), based on its name, line and
      * column.
      * 
+     * @param line: starts at 1 (-1 if not available)
+     * @param col: starts at 1 (-1 if not available)
      * @param findInfo: this is debug information gathered during a find
      * @return array of definitions.
      * @throws Exception
@@ -95,6 +97,8 @@ public interface IModule {
     /**
      * @return the local scope in the module for a given line and column
      * May return null if no scope is found
+     * @param line: starts at 1
+     * @param col: starts at 1
      */
     public abstract ILocalScope getLocalScope(int line, int col);
 

@@ -27,6 +27,8 @@ public interface ILocalScope {
     public IToken[] getLocalTokens(int endLine, int col, boolean onlyArgs);
 
     /**
+     * @param line: starts at 1
+     * @param col: starts at 1
      * @return the modules that are imported in the current (local) scope as tokens
      */
     public List<IToken> getLocalImportedModules(int line, int col, String moduleName);

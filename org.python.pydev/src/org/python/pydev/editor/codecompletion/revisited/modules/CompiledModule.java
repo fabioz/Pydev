@@ -290,7 +290,7 @@ public class CompiledModule extends AbstractModule{
             if(foundLine == 0 && foundAs.length() > 0 && mod != null){
                 IModule sourceMod = AbstractModule.createModuleFromDoc(mod.getName(), f, new Document(REF.getFileContents(f)), nature, 0);
                 if(sourceMod instanceof SourceModule){
-                    Definition[] definitions = (Definition[]) sourceMod.findDefinition(state.getCopyWithActTok(foundAs), 0, 0, nature, findInfo);
+                    Definition[] definitions = (Definition[]) sourceMod.findDefinition(state.getCopyWithActTok(foundAs), -1, -1, nature, findInfo);
                     if(definitions.length > 0){
                         return definitions;
                     }

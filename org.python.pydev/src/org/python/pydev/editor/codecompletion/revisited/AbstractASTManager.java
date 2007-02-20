@@ -391,9 +391,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             //in the first analyzed module, we have to get the local imports too. 
             state.setLocalImportsGotten (true);
             if(module != null){
-                localScope = module.getLocalScope(state.getLine(), state.getCol());
+                localScope = module.getLocalScope(state.getLine()+1, state.getCol()+1);
                 if(localScope != null){
-                    importedModules.addAll(localScope.getLocalImportedModules(state.getLine(), state.getCol(), module.getName()));
+                    importedModules.addAll(localScope.getLocalImportedModules(state.getLine()+1, state.getCol()+1, module.getName()));
                 }
             }
         }
@@ -633,7 +633,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         if (module instanceof SourceModule) {
             SourceModule s = (SourceModule) module;
             try {
-                Definition[] defs = s.findDefinition(state, state.getLine(), state.getCol(), state.getNature(), new ArrayList<FindInfo>());
+                Definition[] defs = s.findDefinition(state, state.getLine()+1, state.getCol()+1, state.getNature(), new ArrayList<FindInfo>());
                 for (int i = 0; i < defs.length; i++) {
                     if(!(defs[i].ast instanceof FunctionDef)){
                         //we might want to extend that later to check the return of some function...

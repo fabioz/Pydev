@@ -23,16 +23,28 @@ public interface ICompletionState {
 
     void raiseNFindTokensOnImportedModsCalled(IModule mod, String tok) throws CompletionRecursionException;
     
+    /**
+     * @param i: starting at 0
+     */
     void setCol(int i);
 
+    /**
+     * @param i: starting at 0
+     */
     void setLine(int i);
 
     void setLocalImportsGotten(boolean b);
 
     boolean getLocalImportsGotten();
 
+    /**
+     * @return the line for the request (starting at 0)
+     */
     int getLine();
 
+    /**
+     * @return the col for the request (starting at 0)
+     */
     int getCol();
 
     void checkDefinitionMemory(IModule module, IDefinition definition) throws CompletionRecursionException;

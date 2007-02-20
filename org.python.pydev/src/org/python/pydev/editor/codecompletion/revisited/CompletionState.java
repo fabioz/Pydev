@@ -135,8 +135,8 @@ public class CompletionState implements ICompletionState {
     }
     
     /**
-     * @param line2
-     * @param col2
+     * @param line2 starting at 0
+     * @param col2 starting at 0
      * @param token
      * @param qual
      * @param nature2
@@ -237,14 +237,14 @@ public class CompletionState implements ICompletionState {
      * @return a default completion state for globals (empty act. token)
      */
     public static ICompletionState getEmptyCompletionState(IPythonNature nature) {
-        return new CompletionState(0,0,"", nature,"");
+        return new CompletionState(-1,-1,"", nature,"");
     }
     
     /**
      * @return a default completion state for globals (act token defined)
      */
     public static ICompletionState getEmptyCompletionState(String token, IPythonNature nature) {
-        return new CompletionState(0,0,token, nature,"");
+        return new CompletionState(-1,-1,token, nature,"");
     }
 
     public String getActivationToken() {
@@ -263,10 +263,16 @@ public class CompletionState implements ICompletionState {
         builtinsGotten = b;
     }
 
+    /**
+     * @param i: starting at 0
+     */
     public void setCol(int i) {
         col = i;
     }
 
+    /**
+     * @param i: starting at 0
+     */
     public void setLine(int i) {
         line = i;
     }
