@@ -63,10 +63,10 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
         if(getRecheckWhereDefinitionWasFound()){
             for (Iterator<ASTEntry> iter = entryOccurrences.iterator(); iter.hasNext();) {
                 ASTEntry entry = iter.next();
-                int line = entry.node.beginLine-1;
-                int col = entry.node.beginColumn-1;
+                int line = entry.node.beginLine;
+                int col = entry.node.beginColumn;
                 try {
-                    Definition[] definitions = module.findDefinition(new CompletionState(line, col, initialName, nature, ""), line, col, nature, null);
+                    Definition[] definitions = module.findDefinition(new CompletionState(line-1, col-1, initialName, nature, ""), line, col, nature, null);
                     for (Definition localDefinition : definitions) {
                         //if within one module any of the definitions pointed to some class in some other module,
                         //that means that the tokens in this module actually point to some other class 

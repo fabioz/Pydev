@@ -77,7 +77,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             }
             tok += info.getName();
             try {
-                IDefinition[] definitions = mod.findDefinition(CompletionState.getEmptyCompletionState(tok, nature), 0, 0, nature, new ArrayList<FindInfo>());
+                IDefinition[] definitions = mod.findDefinition(CompletionState.getEmptyCompletionState(tok, nature), -1, -1, nature, new ArrayList<FindInfo>());
                 getAsPointers(pointers, (Definition[]) definitions);
             } catch (Exception e) {
                 throw new RuntimeException(e);

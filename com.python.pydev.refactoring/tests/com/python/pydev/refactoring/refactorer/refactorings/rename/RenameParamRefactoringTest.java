@@ -32,7 +32,7 @@ public class RenameParamRefactoringTest extends RefactoringRenameTestBase  {
     public void testRenameParameter() throws Exception {
     	//Line 1 = "def Method1(param1=param1, param2=None):"
     	//rename param1
-        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameparameter.methoddef", 1, 14); 
+        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameparameter.methoddef", 1, 12); 
         assertEquals(2, references.size());
     	assertTrue(references.containsKey("reflib.renameparameter.methodaccess")); 
     	assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
@@ -41,9 +41,9 @@ public class RenameParamRefactoringTest extends RefactoringRenameTestBase  {
 	}
     
     public void testRenameParameter2() throws Exception {
-        //Line 1 = "def Method1(param1=param1, param2=None):"
-        //rename param1
-        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameparameter.methoddef2", 1, 19); 
+        //    def mm(self, barparam):"
+        //rename barparam
+        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameparameter.methoddef2", 1, 17); 
         assertEquals(1, references.size());
         assertEquals(4, references.get(CURRENT_MODULE_IN_REFERENCES).size());
         assertContains(2, 18, references.get(CURRENT_MODULE_IN_REFERENCES));

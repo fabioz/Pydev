@@ -867,7 +867,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         if(repToCheck.length() == 0){
             return false;
         }
-        IDefinition[] definitions = m.findDefinition(CompletionState.getEmptyCompletionState(repToCheck, nature), 0, 0, nature, new ArrayList<FindInfo>());
+        IDefinition[] definitions = m.findDefinition(CompletionState.getEmptyCompletionState(repToCheck, nature), -1, -1, nature, new ArrayList<FindInfo>());
         if(definitions.length == 1){
             if(definitions[0] instanceof AssignDefinition){
                 AssignDefinition d = (AssignDefinition) definitions[0];

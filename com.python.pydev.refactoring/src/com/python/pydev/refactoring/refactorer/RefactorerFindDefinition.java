@@ -141,7 +141,7 @@ public class RefactorerFindDefinition {
                 //2. check findDefinition (SourceModule)
                 ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
                 
-                IDefinition[] definitions = mod.findDefinition(CompletionState.getEmptyCompletionState(tok, request.nature), request.getBeginLine(), request.getBeginCol(), request.nature, lFindInfo);
+                IDefinition[] definitions = mod.findDefinition(CompletionState.getEmptyCompletionState(tok, request.nature), request.getBeginLine(), request.getBeginCol()+1, request.nature, lFindInfo);
                 request.communicateWork("Found:"+definitions.length+ " definitions");
                 for (IDefinition definition : definitions) {
                     boolean doAdd = true;
@@ -216,7 +216,7 @@ public class RefactorerFindDefinition {
             }
             whereWePassed.add(t1);
             
-            Definition[] found = (Definition[]) d.module.findDefinition(CompletionState.getEmptyCompletionState(tok, request.nature), d.line-1, d.col-1, request.nature, lFindInfo);
+            Definition[] found = (Definition[]) d.module.findDefinition(CompletionState.getEmptyCompletionState(tok, request.nature), d.line, d.col, request.nature, lFindInfo);
             if(found != null && found.length == 1){
                 Tuple3<String,Integer,Integer> tupFromDefinition = getTupFromDefinition(found[0]);
                 if(tupFromDefinition == null){
