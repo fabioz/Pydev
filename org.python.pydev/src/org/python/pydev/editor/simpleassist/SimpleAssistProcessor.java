@@ -218,7 +218,11 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
     public char[] getCompletionProposalAutoActivationCharacters() {
         if(autoActivationCharsCache == null){
             char[] defaultAutoActivationCharacters = defaultPythonProcessor.getCompletionProposalAutoActivationCharacters();
-            useAutocompleteOnAllAsciiCharsCache = PyCodeCompletionPreferencesPage.useAutocompleteOnAllAsciiChars();
+            
+            useAutocompleteOnAllAsciiCharsCache = 
+            	PyCodeCompletionPreferencesPage.useAutocompleteOnAllAsciiChars() &&
+            	PyCodeCompletionPreferencesPage.useAutocomplete();
+            
             if(this.participants.size() == 0 && !useAutocompleteOnAllAsciiCharsCache){
                 return defaultAutoActivationCharacters;
             }

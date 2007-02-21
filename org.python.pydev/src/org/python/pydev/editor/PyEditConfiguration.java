@@ -242,11 +242,11 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
      * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getContentAssistant(org.eclipse.jface.text.source.ISourceViewer)
      */
     public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
-        // next create a content assistant processor to populate the completions window
-        PythonCompletionProcessor defaultPythonProcessor = new PythonCompletionProcessor(this.getEdit(), pyContentAssistant);
+		// next create a content assistant processor to populate the completions window
+        IContentAssistProcessor processor = new SimpleAssistProcessor(edit, 
+        		new PythonCompletionProcessor(edit, pyContentAssistant), pyContentAssistant);
         
-        IContentAssistProcessor processor = new SimpleAssistProcessor(this.getEdit(), defaultPythonProcessor, pyContentAssistant);
-    	PythonCompletionProcessor stringProcessor = new PythonStringCompletionProcessor(this.getEdit(), pyContentAssistant);
+    	PythonCompletionProcessor stringProcessor = new PythonStringCompletionProcessor(edit, pyContentAssistant);
 
         // No code completion in comments
         pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_STRING1);
@@ -255,7 +255,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
         pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_STRING2);
         pyContentAssistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
         pyContentAssistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
-        pyContentAssistant.enableAutoActivation(true);
+        pyContentAssistant.enableAutoActivation(true); //always true, but the chars depend on whether it is activated or not in the preferences
 
         //note: delay and auto activate are set on PyContentAssistant constructor.
 

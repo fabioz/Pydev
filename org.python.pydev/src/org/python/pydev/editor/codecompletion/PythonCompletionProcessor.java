@@ -83,7 +83,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     /**
      * These are the activation chars (cache)
      */
-    private static char[] activationChars = null;
+    private volatile static char[] activationChars = null;
 
     /**
      * This is the class that manages the context information (validates it and
@@ -276,20 +276,23 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     }
     
     public static char[] getStaticCompletionProposalAutoActivationCharacters() {
-        if(activationChars != null){ //let's cache this
-            return activationChars;
+        if(activationChars == null){ //let's cache this
+	     
+        	if(!PyCodeCompletionPreferencesPage.useAutocomplete()){
+        		activationChars = new char[0];
+        		
+        	}else{
+		        char[] c = new char[0];
+		        if (PyCodeCompletionPreferencesPage.isToAutocompleteOnDot()) {
+		            c = addChar(c, '.');
+		        }
+		        if (PyCodeCompletionPreferencesPage.isToAutocompleteOnPar()) {
+		            c = addChar(c, '(');
+		        }
+		        activationChars = c;
+        	}
         }
-        
-        char[] c = new char[0];
-        if (PyCodeCompletionPreferencesPage.isToAutocompleteOnDot()) {
-            c = addChar(c, '.');
-        }
-        if (PyCodeCompletionPreferencesPage.isToAutocompleteOnPar()) {
-            c = addChar(c, '(');
-        }
-        activationChars = c;
- 
-        return c;
+        return activationChars;
     }
 
     /**
