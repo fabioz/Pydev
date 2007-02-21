@@ -631,7 +631,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     }
 
     public List<String> getPythonPath(){
-        return new ArrayList<String>(pythonPathHelper.pythonpath);
+        return pythonPathHelper.getPythonpath();
     }
 
 }

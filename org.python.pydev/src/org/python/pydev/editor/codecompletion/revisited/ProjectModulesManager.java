@@ -423,8 +423,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
      * @see org.python.pydev.core.IProjectModulesManager#getCompletePythonPath()
      */
     public List<String> getCompletePythonPath(String interpreter){
-        List<String> l = new ArrayList<String>();
-        l.addAll(this.pythonPathHelper.pythonpath);
+        List<String> l = this.pythonPathHelper.getPythonpath();
         ModulesManager[] managersInvolved = getManagersInvolved(true);
         for (ModulesManager m:managersInvolved) {
             if(m instanceof SystemModulesManager){
@@ -432,7 +431,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
                 l.addAll(systemModulesManager.getCompletePythonPath(interpreter, nature));
                 
             }else{
-                l.addAll(m.pythonPathHelper.pythonpath);
+                l.addAll(m.pythonPathHelper.getPythonpath());
             }
         }
         return l;

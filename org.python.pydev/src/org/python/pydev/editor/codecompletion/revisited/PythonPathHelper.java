@@ -40,7 +40,7 @@ public class PythonPathHelper implements Serializable{
     /**
      * This is a list of Files containg the pythonpath.
      */
-    public List<String> pythonpath = new ArrayList<String>();
+    private volatile List<String> pythonpath = new ArrayList<String>();
     
     /**
      * Returns the default path given from the string.
@@ -244,108 +244,111 @@ public class PythonPathHelper implements Serializable{
             }
         }
         
-        //go through our pythonpath and check the beggining
-        for (Iterator iter = pythonpath.iterator(); iter.hasNext();) {
-            
-            String element = getDefaultPathStr((String) iter.next());
-            if(fullPath.startsWith(element)){
-                String s = fullPath.substring(element.length());
-                if(s.startsWith("/")){
-                    s = s.substring(1);
-                }
-                s = s.replaceAll("/",".");
-                
-            
-                //if it is a valid module, let's find out if it exists...
-                if(isValidModule(s)){
-                    if(s.indexOf(".") != -1){
-                        File root = new File(element);
-                        if(root.exists() == false){
-                            continue;
-                        }
-                        
-                        //this means that more than 1 module is specified, so, in order to get it,
-                        //we have to go and see if all the folders to that module have __init__.py in it...
-                        String[] modulesParts = FullRepIterable.dotSplit(s);
-                        
-                        if(modulesParts.length > 1 && isFile){
-                            String[] t = new String[modulesParts.length -1];
-                            
-                            for (int i = 0; i < modulesParts.length-1; i++) {
-                                t[i] = modulesParts[i];
-                            }
-                            t[t.length -1] = t[t.length -1]+"."+modulesParts[modulesParts.length-1];
-                            modulesParts = t;
-                        }
-                        
-                        //here, in modulesParts, we have something like 
-                        //["compiler", "ast.py"] - if file
-                        //["pywin","debugger"] - if folder
-                        //
-                        //root starts with the pythonpath folder that starts with the same
-                        //chars as the full path passed in.
-                        boolean isValid = true;
-                        for (int i = 0; i < modulesParts.length && root != null; i++) {
-                        	root = new File(REF.getFileAbsolutePath(root) + "/" + modulesParts[i]);
-                        	
-                            //check if file is in root...
-                            if(isValidFileMod(modulesParts[i])){
-                                if(root.exists() && root.isFile()){
-                                    break;
-                                }
-                                
-                            }else{
-                                //this part is a folder part... check if it is a valid module (has init).
-	                            if(isFileOrFolderWithInit(root) == false){
-	                                isValid = false;
-	                                break;
-	                            }
-	                            //go on and check the next part.
-                            }                            
-                        }
-                        if(isValid){
-                            if(isFile){
-                                s = stripExtension(s);
-                            }else if(moduleFile.exists() == false){
-                            	//ok, it does not exist, so isFile will not work, let's just check if it is
-                            	//a valid module (ends with .py or .pyw) and if it is, strip the extension
-                            	if(isValidFileMod(s)){
-                            		s = stripExtension(s);
-                            	}
-                            }
-	                        return s;
-                        }
-                    }else{
-                        //simple part, we don't have to go into subfolders to check validity...
-                        if(isFile){
-                            throw new RuntimeException("This should never happen... if it is a file, it always has a dot, so, this should not happen...");
-                        }else if (moduleFile.isDirectory() && isFileOrFolderWithInit(moduleFile) == false){
-                            return null;
-                        }
-                        return s;
-                    }
-                }
-            }
-            
-        }
-        //ok, it was not found in any existing way, so, if we don't require the file to exist, let's just do some simpler search and get the 
-        //first match (if any)... this is useful if the file we are looking for has just been deleted
-        if(requireFileToExist == false){
-            //we have to remove the last part (.py, .pyc, .pyw)
-            fullPath = FullRepIterable.headAndTail(fullPath)[0];
-            for (String element : pythonpath) {
-                element = getDefaultPathStr(element);
-                if(fullPath.startsWith(element)){
-                    String s = fullPath.substring(element.length());
-                    if(s.startsWith("/")){
-                        s = s.substring(1);
-                    }
-                    s = s.replaceAll("/",".");
-                    return s;
-                }                
-            }
-        }
-        return null;
+		synchronized (pythonpath) {
+			//go through our pythonpath and check the beggining
+			for (Iterator iter = pythonpath.iterator(); iter.hasNext();) {
+				
+				String element = getDefaultPathStr((String) iter.next());
+				if(fullPath.startsWith(element)){
+					String s = fullPath.substring(element.length());
+					if(s.startsWith("/")){
+						s = s.substring(1);
+					}
+					s = s.replaceAll("/",".");
+					
+					
+					//if it is a valid module, let's find out if it exists...
+					if(isValidModule(s)){
+						if(s.indexOf(".") != -1){
+							File root = new File(element);
+							if(root.exists() == false){
+								continue;
+							}
+							
+							//this means that more than 1 module is specified, so, in order to get it,
+							//we have to go and see if all the folders to that module have __init__.py in it...
+							String[] modulesParts = FullRepIterable.dotSplit(s);
+							
+							if(modulesParts.length > 1 && isFile){
+								String[] t = new String[modulesParts.length -1];
+								
+								for (int i = 0; i < modulesParts.length-1; i++) {
+									t[i] = modulesParts[i];
+								}
+								t[t.length -1] = t[t.length -1]+"."+modulesParts[modulesParts.length-1];
+								modulesParts = t;
+							}
+							
+							//here, in modulesParts, we have something like 
+							//["compiler", "ast.py"] - if file
+							//["pywin","debugger"] - if folder
+							//
+							//root starts with the pythonpath folder that starts with the same
+							//chars as the full path passed in.
+							boolean isValid = true;
+							for (int i = 0; i < modulesParts.length && root != null; i++) {
+								root = new File(REF.getFileAbsolutePath(root) + "/" + modulesParts[i]);
+								
+								//check if file is in root...
+								if(isValidFileMod(modulesParts[i])){
+									if(root.exists() && root.isFile()){
+										break;
+									}
+									
+								}else{
+									//this part is a folder part... check if it is a valid module (has init).
+									if(isFileOrFolderWithInit(root) == false){
+										isValid = false;
+										break;
+									}
+									//go on and check the next part.
+								}                            
+							}
+							if(isValid){
+								if(isFile){
+									s = stripExtension(s);
+								}else if(moduleFile.exists() == false){
+									//ok, it does not exist, so isFile will not work, let's just check if it is
+									//a valid module (ends with .py or .pyw) and if it is, strip the extension
+									if(isValidFileMod(s)){
+										s = stripExtension(s);
+									}
+								}
+								return s;
+							}
+						}else{
+							//simple part, we don't have to go into subfolders to check validity...
+							if(isFile){
+								throw new RuntimeException("This should never happen... if it is a file, it always has a dot, so, this should not happen...");
+							}else if (moduleFile.isDirectory() && isFileOrFolderWithInit(moduleFile) == false){
+								return null;
+							}
+							return s;
+						}
+					}
+				}
+				
+			}
+			//ok, it was not found in any existing way, so, if we don't require the file to exist, let's just do some simpler search and get the 
+			//first match (if any)... this is useful if the file we are looking for has just been deleted
+			if(requireFileToExist == false){
+				//we have to remove the last part (.py, .pyc, .pyw)
+				fullPath = FullRepIterable.headAndTail(fullPath)[0];
+				for (String element : pythonpath) {
+					element = getDefaultPathStr(element);
+					if(fullPath.startsWith(element)){
+						String s = fullPath.substring(element.length());
+						if(s.startsWith("/")){
+							s = s.substring(1);
+						}
+						s = s.replaceAll("/",".");
+						return s;
+					}                
+				}
+			}
+			return null;
+			
+		}
     }
 
     /**
@@ -405,9 +408,11 @@ public class PythonPathHelper implements Serializable{
      * @return
      */
     public List<String> setPythonPath(String string) {
-        pythonpath.clear();
-        getPythonPathFromStr(string, pythonpath);
-        return new ArrayList<String>(pythonpath);
+    	synchronized (pythonpath) {
+    		pythonpath.clear();
+    		getPythonPathFromStr(string, pythonpath);
+    		return new ArrayList<String>(pythonpath);
+		}
     }
 
     /**
@@ -427,6 +432,12 @@ public class PythonPathHelper implements Serializable{
                 }
             }
         }
+	}
+
+
+
+	public List<String> getPythonpath() {
+		return new ArrayList<String>(this.pythonpath);
 	}
 
 }

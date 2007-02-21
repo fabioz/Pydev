@@ -27,6 +27,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -36,6 +37,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
+import org.python.pydev.plugin.PydevPlugin;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -78,6 +80,11 @@ class PythonNatureStore implements IResourceChangeListener {
     private volatile int onStoreJob = 0;
 
     /**
+     * Whether the file has already been loaded
+     */
+    private volatile boolean loaded = false;
+    
+    /**
      * This is the dom document that is used to manipulate the xml info.
      */
     private volatile Document document = null;
@@ -90,18 +97,42 @@ class PythonNatureStore implements IResourceChangeListener {
      * Note: the side-effect of this method is that the contents of the xml file are either created (if the file still does not exist) or just loaded.
      */
     public synchronized void setProject(IProject project) {
-        this.project = project;
-        this.xmlFile = project.getFile(STORE_FILE_NAME);
-        try {
-            loadFromFile();
-        } catch (CoreException e) {
-            throw new RuntimeException(e);
-        }
-        if (!ProjectModulesManager.IN_TESTS) {
-            project.getWorkspace().addResourceChangeListener(this);
+    	try{
+	        this.project = project;
+	        this.xmlFile = project.getFile(STORE_FILE_NAME);
+	        try {
+	            loadFromFile();
+	        } catch (CoreException e) {
+	            throw new RuntimeException(e);
+	        }
+	        if (!ProjectModulesManager.IN_TESTS) {
+	            project.getWorkspace().addResourceChangeListener(this);
+	        }
+        }finally{
+        	loaded = true;
         }
     }
 
+    /**
+     * Waits for the load to happen... up to 30 secs
+     */
+    private void waitForLoad() {
+    	int i = 0;
+    	while(!loaded && i < 120){ //120 * 250 = 30.000 millis = 30 secs
+    		synchronized (this) {
+				try {
+					wait(250);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+    		i++;
+    	}
+    	if(!loaded){
+    		PydevPlugin.log(StringUtils.format("Waited 30 seconds for loading: %s and it didn't finish.", xmlFile));
+    	}
+    }
+    
     /**
      * Retrieve a path property as a combined string with | character as path separator
      * 
@@ -110,12 +141,13 @@ class PythonNatureStore implements IResourceChangeListener {
      * @throws CoreException
      */
     public String getPathProperty(QualifiedName key) throws CoreException {
+    	waitForLoad();
         synchronized (xmlFile) {
             return getPathStringFromArray(getPathPropertyFromXml(key));
         }
     }
 
-    /**
+	/**
      * Set a path property. If the value is null the property is removed.
      * 
      * @param key the name of the property
@@ -123,6 +155,7 @@ class PythonNatureStore implements IResourceChangeListener {
      * @throws CoreException
      */
     public void setPathProperty(QualifiedName key, String value) throws CoreException {
+    	waitForLoad();
         synchronized (xmlFile) {
             setPathPropertyToXml(key, getArrayFromPathString(value), true);
         }
@@ -197,6 +230,7 @@ class PythonNatureStore implements IResourceChangeListener {
      * @throws CoreException if root node is not present
      */
     private Node getRootNodeInXml() {
+    	Assert.isNotNull(document);
         NodeList nodeList = document.getElementsByTagName(PYDEV_PROJECT_DESCRIPTION);
         if (nodeList != null && nodeList.getLength() > 0) {
             return nodeList.item(0);
@@ -327,6 +361,7 @@ class PythonNatureStore implements IResourceChangeListener {
      * @throws CoreException
      */
     public String getPropertyFromXml(QualifiedName key){
+    	waitForLoad();
         try {
             Node propertyNode = findPropertyNodeInXml(PYDEV_NATURE_PROPERTY, key);
 
@@ -348,6 +383,7 @@ class PythonNatureStore implements IResourceChangeListener {
      * @throws CoreException
      */
     public void setPropertyToXml(QualifiedName key, String value, boolean scheduleStore) throws CoreException {
+    	waitForLoad();
         try {
             Node child = findPropertyNodeInXml(PYDEV_NATURE_PROPERTY, key);
             if (child != null) {
@@ -382,7 +418,7 @@ class PythonNatureStore implements IResourceChangeListener {
      * This function was gotten as a copy of the Node.setTextContent, because this function 
      * is not available in java 1.4
      */
-    public void setTextContent(String textContent, Node self) throws DOMException {
+    private void setTextContent(String textContent, Node self) throws DOMException {
         // get rid of any existing children
         Node child;
         while ((child = self.getFirstChild()) != null) {
@@ -395,7 +431,7 @@ class PythonNatureStore implements IResourceChangeListener {
     }
     
     
-    public String getTextContent(Node self) throws DOMException {
+    private String getTextContent(Node self) throws DOMException {
         StringBuffer fBufferStr = new StringBuffer();
         Node child = self.getFirstChild();
         if (child != null) {
@@ -423,7 +459,7 @@ class PythonNatureStore implements IResourceChangeListener {
 
     
     // internal method taking a StringBuffer in parameter
-    void getTextContent(StringBuffer buf, Node self) throws DOMException {
+    private void getTextContent(StringBuffer buf, Node self) throws DOMException {
         Node child = self.getFirstChild();
         while (child != null) {
             if (hasTextContent(child)) {
@@ -434,7 +470,7 @@ class PythonNatureStore implements IResourceChangeListener {
     }
 
     // internal method returning whether to take the given node's text content
-    final boolean hasTextContent(Node child) {
+    private final boolean hasTextContent(Node child) {
         return child.getNodeType() != Node.COMMENT_NODE &&
             child.getNodeType() != Node.PROCESSING_INSTRUCTION_NODE;
     }
