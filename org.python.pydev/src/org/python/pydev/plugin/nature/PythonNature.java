@@ -150,9 +150,9 @@ public class PythonNature implements IPythonNature {
      * @see org.eclipse.core.resources.IProjectNature#setProject(org.eclipse.core.resources.IProject)
      */
     public void setProject(IProject project) {
-        this.project = project;
+    	this.getStore().setProject(project);
         this.pythonPathNature.setProject(project);
-        this.getStore().setProject(project);
+        this.project = project;
     }
 
     public static synchronized IPythonNature addNature(IEditorInput element) {

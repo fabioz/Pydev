@@ -103,7 +103,7 @@ class PythonNatureStore implements IResourceChangeListener {
 	        try {
 	            loadFromFile();
 	        } catch (CoreException e) {
-	            throw new RuntimeException(e);
+	            throw new RuntimeException("Error loading project: "+project, e);
 	        }
 	        if (!ProjectModulesManager.IN_TESTS) {
 	            project.getWorkspace().addResourceChangeListener(this);
@@ -192,6 +192,11 @@ class PythonNatureStore implements IResourceChangeListener {
                     return true;
                 }
             } else {
+            	try{
+            		xmlFile.refreshLocal(0, new NullProgressMonitor());
+            	}catch(Exception e){
+            		PydevPlugin.log(e);
+            	}
                 document = parser.parse(xmlFile.getContents());
                 modStamp = xmlFile.getModificationStamp();
                 return true;
@@ -235,7 +240,7 @@ class PythonNatureStore implements IResourceChangeListener {
         if (nodeList != null && nodeList.getLength() > 0) {
             return nodeList.item(0);
         }
-        throw new RuntimeException(StringUtils.format("Error. Unable to get the %s tag by its name.", PYDEV_PROJECT_DESCRIPTION));
+        throw new RuntimeException(StringUtils.format("Error. Unable to get the %s tag by its name. Project: %s", PYDEV_PROJECT_DESCRIPTION, project));
     }
 
     /**
@@ -371,7 +376,7 @@ class PythonNatureStore implements IResourceChangeListener {
 
             return null;
         } catch (Exception e) {
-            throw new RuntimeException("Error on document:"+document, e);
+            throw new RuntimeException("Error on document:"+document+" project:"+project, e);
         }
     }
 
@@ -397,13 +402,15 @@ class PythonNatureStore implements IResourceChangeListener {
                 }
                 scheduleStoreJob();
             } else if (value != null) {
-                // The property is not in the file and we need to set it
-                Node property = document.createElement(PYDEV_NATURE_PROPERTY);
-                Node propertyName = document.createAttribute(PYDEV_NATURE_PROPERTY_NAME);
-                propertyName.setNodeValue(getKeyString(key));
-                property.getAttributes().setNamedItem(propertyName);
-                setTextContent(value, property);
-                getRootNodeInXml().appendChild(property);
+            	synchronized (document) {
+	                // The property is not in the file and we need to set it
+	                Node property = document.createElement(PYDEV_NATURE_PROPERTY);
+	                Node propertyName = document.createAttribute(PYDEV_NATURE_PROPERTY_NAME);
+	                propertyName.setNodeValue(getKeyString(key));
+	                property.getAttributes().setNamedItem(propertyName);
+	                setTextContent(value, property);
+	                getRootNodeInXml().appendChild(property);
+            	}
 
                 if (scheduleStore) {
                     scheduleStoreJob();
@@ -569,12 +576,8 @@ class PythonNatureStore implements IResourceChangeListener {
         if (ProjectModulesManager.IN_TESTS) {
             try {
                 doStore(new NullProgressMonitor());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (TransformerException e) {
-                throw new RuntimeException(e);
-            } catch (CoreException e) {
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new RuntimeException("Error scheduling on project:"+project, e);
             }
 
         } else {
