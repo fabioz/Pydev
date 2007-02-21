@@ -41,6 +41,11 @@ class PyDBFrame:
             #print 'skipping', self.base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
             return None
 
+        else:
+            #print 'NOT skipped', self.base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
+            #We just hit a breakpoint or we are already in step mode. Either way, let's trace this frame
+            frame.f_trace = self.trace_dispatch
+
         t = self.t #thread
         try:
             line = int(frame.f_lineno)
