@@ -63,6 +63,15 @@ public class REF {
         }
         return true;
     }
+    
+    public static Field getAttrFromClass(Class c, String attr){
+    	try {
+    		return c.getDeclaredField(attr);
+    	} catch (SecurityException e) {
+    	} catch (NoSuchFieldException e) {
+    	}
+    	return null;
+    }
 
     public static Field getAttr(Object o, String attr){
         try {

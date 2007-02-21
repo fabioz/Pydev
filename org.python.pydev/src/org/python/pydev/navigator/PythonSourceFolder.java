@@ -21,7 +21,7 @@ import org.eclipse.ui.IContributorResourceAdapter;
  * 
  * @author Fabio
  */
-public class PythonSourceFolder implements IWrappedResource, IAdaptable{
+public class PythonSourceFolder implements IWrappedResource, IAdaptable, IContributorResourceAdapter{
 
     public IFolder folder;
     public Object parentElement;
