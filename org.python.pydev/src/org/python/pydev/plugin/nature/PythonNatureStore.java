@@ -383,7 +383,9 @@ class PythonNatureStore implements IResourceChangeListener {
      * @throws CoreException
      */
     public void setPropertyToXml(QualifiedName key, String value, boolean scheduleStore) throws CoreException {
-    	waitForLoad();
+    	if(scheduleStore){
+    		waitForLoad();
+    	}
         try {
             Node child = findPropertyNodeInXml(PYDEV_NATURE_PROPERTY, key);
             if (child != null) {
