@@ -37,10 +37,9 @@ public class PyGlobalsBrowser extends PyAction{
 
         if(pythonNature != null){
             List<AbstractAdditionalInterpreterInfo> additionalInfo = new ArrayList<AbstractAdditionalInterpreterInfo>();
-            List<IPythonNature> pythonNatures = new ArrayList<IPythonNature>();
-            additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfo(pythonNature, true, true);
-            pythonNatures.add(pythonNature);
-            doSelect(pythonNatures, additionalInfo, selectedText);
+            Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>> tup = AdditionalProjectInterpreterInfo.getAdditionalInfoAndNature(pythonNature, true, true);
+			additionalInfo = tup.o1;
+            doSelect(tup.o2, additionalInfo, selectedText);
             
         }else{
             getFromSystemManager(selectedText);
@@ -155,13 +154,6 @@ public class PyGlobalsBrowser extends PyAction{
                 if(pointers.size() > 0){
                     new PyOpenAction().run(pointers.get(0));
                     return; //don't check the other natures
-                }else{
-                    PydevPlugin.logInfo("Unable to find the location of the entry:"+entry);
-                    IModule module = astManager.getModule(entry.getDeclaringModuleName(), pythonNature, true);
-                    if(module != null && module.getFile() != null){
-                        new PyOpenAction().run(new ItemPointer(module.getFile()));
-                        return; //don't check the other natures
-                    }
                 }
             }
         }

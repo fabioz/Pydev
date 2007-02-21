@@ -22,6 +22,7 @@ import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IDeltaProcessor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -203,7 +204,13 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
      * @return all the additional info that is bounded with some nature (including related projects)
      */
     public static List<AbstractAdditionalInterpreterInfo> getAdditionalInfo(IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects) {
+    	return getAdditionalInfoAndNature(nature, addSystemInfo, addReferencingProjects).o1;
+    }
+    
+	public static Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>> getAdditionalInfoAndNature(IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects) {
         List<AbstractAdditionalInterpreterInfo> ret = new ArrayList<AbstractAdditionalInterpreterInfo>();
+        List<IPythonNature> natures = new ArrayList<IPythonNature>();
+        
         IProject project = nature.getProject();
         
         //get for the system info
@@ -217,6 +224,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
 	        AbstractAdditionalInterpreterInfo additionalInfoForProject = getAdditionalInfoForProject(project);
 	        if(additionalInfoForProject != null){
 	            ret.add(additionalInfoForProject);
+	            natures.add(PythonNature.getPythonNature(project));
 	        }
 	        
 	        try {
@@ -227,6 +235,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
 	                if(additionalInfoForProject != null){
 	                    ret.add(additionalInfoForProject);
 	                }
+	                natures.add(PythonNature.getPythonNature(refProject));
 	            }
 
                 if(addReferencingProjects){
@@ -235,6 +244,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
                         additionalInfoForProject = getAdditionalInfoForProject(refProject);
                         if(additionalInfoForProject != null){
                             ret.add(additionalInfoForProject);
+                            natures.add(PythonNature.getPythonNature(refProject));
                         }
                     }
                 }
@@ -243,7 +253,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
 		    }
             
         }
-        return ret;
+		return new Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>>(ret, natures);
     }
 
     /**
