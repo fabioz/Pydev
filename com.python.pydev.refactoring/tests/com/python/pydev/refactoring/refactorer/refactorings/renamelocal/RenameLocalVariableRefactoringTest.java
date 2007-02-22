@@ -13,7 +13,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         	DEBUG = true;
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testCommentRename();
+            test.testRenameString2();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -563,6 +563,33 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         "";
         
         checkRename(str, 1, 11, "tok", false, true);
+    }
+    
+    public void testRenameString() throws Exception {
+        String str = "" +
+        "%s = 10\n" +
+        "'''\n"+
+        "%s\n" +
+        "%s\n" +
+        "'''\n"+
+        "";
+        
+        checkRename(str, 0, 1, "tok", false, true);
+    }
+    
+    public void testRenameString2() throws Exception {
+        String str = "" +
+        "%s = 10\r\n" +
+        "'''\r\n"+
+        "%s\r\n" +
+        "\r\n" +
+        "\r\n" +
+        "%s\r\n" +
+        "\r\n" +
+        "'''\r\n"+
+        "";
+        
+        checkRename(str, 0, 1, "tok", false, true);
     }
     
     

@@ -72,10 +72,11 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
      */
     private void applyExtractMethodRefactoring(RefactoringRequest request, boolean expectError) throws OperationCanceledException, CoreException {
     	PyExtractMethodProcessor processor = new PyExtractMethodProcessor(request);
-    	checkStatus(processor.checkInitialConditions(new NullProgressMonitor()), expectError);
-    	checkStatus(processor.checkFinalConditions(new NullProgressMonitor(), null), expectError);
-    	Change change = processor.createChange(new NullProgressMonitor());
-    	change.perform(new NullProgressMonitor());
+    	NullProgressMonitor monitor = new NullProgressMonitor();
+        checkStatus(processor.checkInitialConditions(monitor), expectError);
+    	checkStatus(processor.checkFinalConditions(monitor, null), expectError);
+    	Change change = processor.createChange(monitor);
+    	change.perform(monitor);
 	}
     
     protected void checkStatus(RefactoringStatus status, boolean expectError) {

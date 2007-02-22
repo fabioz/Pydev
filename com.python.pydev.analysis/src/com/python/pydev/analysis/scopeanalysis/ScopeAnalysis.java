@@ -92,7 +92,8 @@ public class ScopeAnalysis {
         SequencialASTIteratorVisitor visitor = new SequencialASTIteratorVisitor(){
             @Override
             public Object visitStr(Str node) throws Exception {
-                List<Name> names = checkSimpleNodeForTokenMatch(occurencesFor, new ArrayList<Name>(), node, NodeUtils.getStringToPrint(node));
+                String str = NodeUtils.getStringToPrint(node);
+                List<Name> names = checkSimpleNodeForTokenMatch(occurencesFor, new ArrayList<Name>(), node, str);
                 for (Name name : names){
                     ASTEntry astEntryToAdd = atomic(name);
                     astEntryToAdd.setAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_IN_STRING);
@@ -296,7 +297,7 @@ public class ScopeAnalysis {
      * Looks for a match in the given string and fills the List<Name> with Names according to those positions.
      * @return the list of names (same as ret)
      */
-    private static List<Name> checkSimpleNodeForTokenMatch(String match, List<Name> ret, SimpleNode node, String fullString) {
+    public static List<Name> checkSimpleNodeForTokenMatch(String match, List<Name> ret, SimpleNode node, String fullString) {
         try {
             ArrayList<Integer> offsets = TokenMatching.getMatchOffsets(match, fullString);
         	List<Integer> lineStartOffsets = PySelection.getLineStartOffsets(fullString);
@@ -309,7 +310,7 @@ public class ScopeAnalysis {
                     if(line == 0 && lineStartOffset > 0){
                         line = 1;//because it starts with a new line
                     }
-        			if(lineStartOffset < offset){
+        			if(lineStartOffset <= offset){
         				name.beginLine = node.beginLine+line;
                         if(line == 0){
                             name.beginColumn = node.beginColumn+offset-lineStartOffset;

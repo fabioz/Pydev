@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import junit.framework.TestCase;
 
@@ -14,7 +16,7 @@ public class ScopeAnalysisCommentsTest extends TestCase{
     	try {
 			ScopeAnalysisCommentsTest test = new ScopeAnalysisCommentsTest();
 			test.setUp();
-            test.test1();
+            test.test5();
 			test.tearDown();
 			junit.textui.TestRunner.run(ScopeAnalysisCommentsTest.class);
 		} catch (Exception e) {
@@ -62,5 +64,39 @@ public class ScopeAnalysisCommentsTest extends TestCase{
         
         assertEquals(8, names.get(0).beginLine);
         assertEquals(15, names.get(0).beginColumn);
+    }
+    
+    public void test4() throws Exception {
+        ArrayList<Object> c = new ArrayList<Object>();
+        Str str = new Str("\nfoo\nfoo\n", Str.TripleSingle, false, false);
+        str.beginLine=5;
+        str.beginColumn=0;
+        c.add(str);
+        
+        List<ASTEntry> names = ScopeAnalysis.getStringOcurrences("foo", str);
+        assertEquals(2, names.size());
+        
+        assertEquals(6, names.get(0).node.beginLine);
+        assertEquals(1, names.get(0).node.beginColumn);
+        
+        assertEquals(7, names.get(1).node.beginLine);
+        assertEquals(1, names.get(1).node.beginColumn);
+    }
+    
+    public void test5() throws Exception {
+        ArrayList<Object> c = new ArrayList<Object>();
+        Str str = new Str("\nfoo\n\n\nfoo\n", Str.TripleSingle, false, false);
+        str.beginLine=5;
+        str.beginColumn=0;
+        c.add(str);
+        
+        List<ASTEntry> names = ScopeAnalysis.getStringOcurrences("foo", str);
+        assertEquals(2, names.size());
+        
+        assertEquals(6, names.get(0).node.beginLine);
+        assertEquals(1, names.get(0).node.beginColumn);
+        
+        assertEquals(9, names.get(1).node.beginLine);
+        assertEquals(1, names.get(1).node.beginColumn);
     }
 }
