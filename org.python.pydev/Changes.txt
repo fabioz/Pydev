@@ -11,6 +11,7 @@ after 1.2.7
 Pydev Extensions:
 <ul>
 <li><strong>Simple Completions</strong>: some keywords were removed from the default list (the 2-letter ones because they're barely worth it and those related to 'try', as there's already an assistant that creates 'try' blocks)</li>
+<li><strong>Rename refactoring</strong>: matches in multi-line strings are now correct</li>
 </ul>
 
 after 1.2.6

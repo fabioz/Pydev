@@ -31,7 +31,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testLineBreak();
+            test.testLineStart();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
@@ -443,7 +443,11 @@ public class PySelectionTest extends TestCase {
     public void testLineBreak() throws Exception {
     	List<Integer> lineOffsets = PySelection.getLineBreakOffsets("aa\r\nbb\rcc\ndd\r\na");
     	compare(new Integer[]{2, 6, 9, 12}, lineOffsets);
-    	
+    }
+    
+	public void testLineStart() throws Exception {
+	    List<Integer> lineOffsets;
+        
     	lineOffsets = PySelection.getLineStartOffsets("\r\n\r\n\n#comment with RenFoo\r\n");
     	compare(new Integer[]{0, 2, 4, 5, 27}, lineOffsets);
     	
@@ -452,6 +456,10 @@ public class PySelectionTest extends TestCase {
     	
     	lineOffsets = PySelection.getLineStartOffsets("aa\r\nbb\rcc\ndd\r\na");
     	compare(new Integer[]{0, 4, 7, 10, 14}, lineOffsets);
+        
+    	lineOffsets = PySelection.getLineStartOffsets("\n\nfoo\nfoo\n");
+    	compare(new Integer[]{0, 1, 2, 6, 10}, lineOffsets);
+    	
 	}
     
 	private void compare(Integer[] is, List<Integer> offsets) {

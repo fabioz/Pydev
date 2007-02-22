@@ -979,8 +979,7 @@ public class PySelection {
     			ret.add(foundAt);
                 
     		}else if(c == '\n'){
-    		    i++;
-    		    ret.add(i);
+    		    ret.add(i+1);
     		}
     	}
     	
