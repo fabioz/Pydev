@@ -33,7 +33,7 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.cache.LRUCache;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
@@ -488,7 +488,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                 		n = cache.getObj(new ModulesKey(name+".__init__", null), this);
                 	}
                 	if(n instanceof EmptyModule || n instanceof SourceModule){ //it is actually found as a source module, so, we have to 'coerce' it to a compiled module
-                		n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
+                		n = new CompiledModule(name, IPyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
                 		doAddSingleModule(new ModulesKey(n.getName(), null), n);
                 		return n;
                 	}
@@ -497,7 +497,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                 if(name.equals(forcedBuiltin)){
                     n = cache.getObj(new ModulesKey(name, null), this);
                     if(n == null || n instanceof EmptyModule || n instanceof SourceModule){ //still not created or not defined as compiled module (as it should be)
-                        n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
+                        n = new CompiledModule(name, IPyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
                         doAddSingleModule(new ModulesKey(n.getName(), null), n);
                         return n;
                     }
@@ -509,7 +509,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         }
         if(foundStartingWithBuiltin){
             //ok, just add it if it is some module that actually exists
-            n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
+            n = new CompiledModule(name, IPyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
             IToken[] globalTokens = n.getGlobalTokens();
             if(globalTokens.length > 0 && contains(globalTokens, "__file__")){
                 doAddSingleModule(new ModulesKey(name, null), n);
@@ -563,7 +563,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                 }
 
             }else{ //ok, it does not have a file associated, so, we treat it as a builtin (this can happen in java jars)
-                n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
+                n = new CompiledModule(name, IPyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
             }
             
             if (n != null) {

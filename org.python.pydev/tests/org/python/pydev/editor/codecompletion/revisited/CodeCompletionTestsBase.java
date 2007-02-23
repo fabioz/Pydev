@@ -26,7 +26,8 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.BundleInfoStub;
@@ -374,7 +375,7 @@ public class CodeCompletionTestsBase extends TestCase {
     
     // ================================================================= helpers for doing code completion requests
     
-    protected PyCodeCompletion codeCompletion;
+    protected IPyCodeCompletion codeCompletion;
     
     public ICompletionProposal[] requestCompl(String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
     	return requestCompl(strDoc, documentOffset, returned, retCompl, nature);
@@ -414,7 +415,7 @@ public class CodeCompletionTestsBase extends TestCase {
         CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion);
 
         List props = codeCompletion.getCodeCompletionProposals(null, request);
-        ICompletionProposal[] codeCompletionProposals = codeCompletion.onlyValidSorted(props, request.qualifier, request.isInCalltip);
+        ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValidSorted(props, request.qualifier, request.isInCalltip);
         
         
         for (int i = 0; i < retCompl.length; i++) {

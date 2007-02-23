@@ -22,7 +22,7 @@ import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocString;
 import org.python.pydev.editor.correctionassist.heuristics.AssistImport;
@@ -148,7 +148,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
             }
         }
 
-        Collections.sort(results, PyCodeCompletion.PROPOSAL_COMPARATOR);
+        Collections.sort(results, IPyCodeCompletion.PROPOSAL_COMPARATOR);
 
         return (ICompletionProposal[]) results.toArray(new ICompletionProposal[0]);
     }

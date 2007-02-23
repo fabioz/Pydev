@@ -22,7 +22,8 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
@@ -115,7 +116,7 @@ public class PyGoToDefinition extends PyRefactorAction {
                                 ElementListSelectionDialog dialog = new ElementListSelectionDialog(shell, new ILabelProvider(){
 
                                     public Image getImage(Object element) {
-                                        return PyCodeCompletion.getImageForType(PyCodeCompletion.TYPE_PACKAGE);
+                                        return PyCodeCompletionImages.getImageForType(IPyCodeCompletion.TYPE_PACKAGE);
                                     }
 
                                     public String getText(Object element) {

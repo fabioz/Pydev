@@ -5,7 +5,6 @@
  */
 package org.python.pydev.editor.codecompletion;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,12 +17,10 @@ import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
@@ -32,8 +29,6 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
-import org.python.pydev.core.bundle.ImageCache;
-import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
@@ -50,14 +45,12 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.UIConstants;
 
 /**
  * @author Dmoore
  * @author Fabio Zadrozny
  */
-public class PyCodeCompletion {
+public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
     
     /**
@@ -68,112 +61,8 @@ public class PyCodeCompletion {
      */
     public static boolean DEBUG_CODE_COMPLETION = PyCodeCompletionPreferencesPage.isToDebugCodeCompletion();
     
-    /**
-     * Type for unknown.
-     */
-    public static final int TYPE_UNKNOWN = -1;
-
-    /**
-     * Type for import (used to decide the icon)
-     */
-    public static final int TYPE_IMPORT = 0;
-    
-    /**
-     * Type for class (used to decide the icon)
-     */
-    public static final int TYPE_CLASS = 1;
-    
-    /**
-     * Type for function (used to decide the icon)
-     */
-    public static final int TYPE_FUNCTION = 2;
-    
-    /**
-     * Type for attr (used to decide the icon)
-     */
-    public static final int TYPE_ATTR = 3;
-    
-    /**
-     * Type for attr (used to decide the icon)
-     */
-    public static final int TYPE_BUILTIN = 4;
-    
-    /**
-     * Type for parameter (used to decide the icon)
-     */
-    public static final int TYPE_PARAM = 5;
-    
-    /**
-     * Type for package (used to decide the icon)
-     */
-    public static final int TYPE_PACKAGE = 6;
-
-    /**
-     * Type for relative import
-     */
-    public static final int TYPE_RELATIVE_IMPORT = 7;
-    
-
-    /**
-     * Returns an image for the given type
-     * @param type
-     * @return
-     */
-    public static Image getImageForType(int type){
-        try {
-            ImageCache imageCache = PydevPlugin.getImageCache();
-            if (imageCache == null)
-                return null;
-
-            switch (type) {
-            case PyCodeCompletion.TYPE_IMPORT:
-                return imageCache.get(UIConstants.COMPLETION_IMPORT_ICON);
-
-            case PyCodeCompletion.TYPE_CLASS:
-                return imageCache.get(UIConstants.COMPLETION_CLASS_ICON);
-
-            case PyCodeCompletion.TYPE_FUNCTION:
-                return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
-
-            case PyCodeCompletion.TYPE_ATTR:
-                return imageCache.get(UIConstants.PUBLIC_ATTR_ICON);
-
-            case PyCodeCompletion.TYPE_BUILTIN:
-                return imageCache.get(UIConstants.BUILTINS_ICON);
-
-            case PyCodeCompletion.TYPE_PARAM:
-                return imageCache.get(UIConstants.COMPLETION_PARAMETERS_ICON);
-
-            case PyCodeCompletion.TYPE_PACKAGE:
-                return imageCache.get(UIConstants.COMPLETION_PACKAGE_ICON);
-                
-            case PyCodeCompletion.TYPE_RELATIVE_IMPORT:
-                return imageCache.get(UIConstants.COMPLETION_RELATIVE_IMPORT_ICON);
-
-            default:
-                return null;
-            }
-            
-        } catch (Exception e) {
-            PydevPlugin.log(e, false);
-            return null;
-        }
-    }
-
-    /**
-     * Returns a list with the tokens to use for autocompletion.
-     * 
-     * The list is composed from tuples containing the following:
-     * 
-     * 0 - String  - token name
-     * 1 - String  - token description
-     * 2 - Integer - token type (see constants)
-     * @param viewer 
-     * 
-     * @return list of IToken.
-     * 
-     * (This is where we do the "REAL" work).
-     * @throws BadLocationException
+    /* (non-Javadoc)
+     * @see org.python.pydev.editor.codecompletion.IPyCodeCompletion#getCodeCompletionProposals(org.eclipse.jface.text.ITextViewer, org.python.pydev.editor.codecompletion.CompletionRequest)
      */
     @SuppressWarnings("unchecked")
     public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException {
@@ -457,7 +346,7 @@ public class PyCodeCompletion {
                 int type = element.getType();
                 
                 int priority = IPyCompletionProposal.PRIORITY_DEFAULT;
-                if(type == PyCodeCompletion.TYPE_PARAM){
+                if(type == IPyCodeCompletion.TYPE_PARAM){
                     priority = IPyCompletionProposal.PRIORITY_LOCALS;
                 }
                 
@@ -476,7 +365,7 @@ public class PyCodeCompletion {
                     pyContextInformation = new PyCalltipsContextInformation(contextArgs, contextArgs, request);
                 }
                 PyCompletionProposal proposal = new PyLinkedModeCompletionProposal(name+args,
-                        request.documentOffset - request.qlen, request.qlen, l, getImageForType(type), null, 
+                        request.documentOffset - request.qlen, request.qlen, l, PyCodeCompletionImages.getImageForType(type), null, 
                         pyContextInformation, docStr, priority, onApplyAction, args);
                 convertedProposals.add(proposal);
                     
@@ -492,12 +381,12 @@ public class PyCodeCompletion {
                 }
 
                 int priority = IPyCompletionProposal.PRIORITY_DEFAULT;
-                if(type == PyCodeCompletion.TYPE_PARAM){
+                if(type == IPyCodeCompletion.TYPE_PARAM){
                     priority = IPyCompletionProposal.PRIORITY_LOCALS;
                 }
                 
                 PyCompletionProposal proposal = new PyCompletionProposal(name,
-                        request.documentOffset - request.qlen, request.qlen, name.length(), getImageForType(type), null, null, docStr, priority);
+                        request.documentOffset - request.qlen, request.qlen, name.length(), PyCodeCompletionImages.getImageForType(type), null, null, docStr, priority);
                 
                 convertedProposals.add(proposal);
                 
@@ -545,7 +434,7 @@ public class PyCodeCompletion {
             }
             buffer.append(")");
             args = buffer.toString();
-        } else if (element.getType() == PyCodeCompletion.TYPE_FUNCTION){
+        } else if (element.getType() == IPyCodeCompletion.TYPE_FUNCTION){
             args = "()";
         }
         
@@ -553,258 +442,5 @@ public class PyCodeCompletion {
     }
 
 
-
-    /**
-     * Returns non empty string if we are in imports section 
-     * 
-     * @param theActivationToken
-     * @param edit
-     * @param doc
-     * @param documentOffset
-     * @return single space string if we are in imports but without any module
-     *         string with current module (e.g. foo.bar.
-     */
-    public ImportInfo getImportsTipperStr(CompletionRequest request) {
-        
-        IDocument doc = request.doc;
-        int documentOffset = request.documentOffset;
-        
-        return getImportsTipperStr(doc, documentOffset);
-    }
-    
-
-    public static ImportInfo getImportsTipperStr(IDocument doc, int documentOffset) {
-        IRegion region;
-        try {
-            region = doc.getLineInformationOfOffset(documentOffset);
-            String trimmedLine = doc.get(region.getOffset(), documentOffset-region.getOffset());
-            trimmedLine = trimmedLine.trim();
-            return getImportsTipperStr(trimmedLine, true);
-        } catch (BadLocationException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    /**
-     * @param doc
-     * @param documentOffset
-     * @return the import info or null if none is available
-     */
-    public static ImportInfo getImportsTipperStr(String trimmedLine, boolean returnEvenEmpty) {
-        String importMsg = "";
-        
-        if(!trimmedLine.startsWith("from") && !trimmedLine.startsWith("import")){
-            return new ImportInfo("", false); //it is not an import
-        }
-        
-        int fromIndex = trimmedLine.indexOf("from");
-        int importIndex = trimmedLine.indexOf("import");
-        boolean foundImportOnArray = false;
-
-        //check if we have a from or an import.
-        if(fromIndex  != -1 || importIndex != -1){
-            trimmedLine = trimmedLine.replaceAll("#.*", ""); //remove comments 
-            String[] strings = trimmedLine.split(" ");
-            
-            if(fromIndex != -1 && importIndex == -1){
-                if(strings.length > 2){
-                    //user has spaces as in  'from xxx uuu'
-                    return new ImportInfo("", foundImportOnArray);
-                }
-            }
-            
-            for (int i = 0; i < strings.length; i++) {
-                if(strings[i].equals("import")){
-                    foundImportOnArray = true;
-                }
-                
-                if(strings[i].equals("from")==false && strings[i].equals("import")==false){
-                    if(importMsg.length() != 0){
-                        importMsg += '.';
-                    }
-                    importMsg += strings[i];
-                }
-                //now, if we have a from xxx import something, we'll always want to return only the xxx
-                if(fromIndex != -1 && importIndex == -1 && (foundImportOnArray || i == strings.length-1)){
-                    if(importMsg.length() == 0){
-                        return doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray);
-                    }
-                    if(importMsg.startsWith(".")){
-                        return new ImportInfo(importMsg, foundImportOnArray);
-                    }
-                    if(importMsg.indexOf(".") == -1){
-                        return doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray);
-                    }
-                    return new ImportInfo(importMsg.substring(0, importMsg.lastIndexOf(".")+1), foundImportOnArray);
-                    
-                }
-            }
-            
-            if(fromIndex  != -1 && importIndex != -1){
-                if(strings.length == 3){
-                    importMsg += '.';
-                }
-            }
-        }else{
-            return new ImportInfo("", foundImportOnArray);
-        }
-        if (importMsg.indexOf(".") == -1){
-            //we have only import fff or from iii (so, we're going for all imports).
-            return doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray);
-        }
-
-        if(fromIndex == -1 && importMsg.indexOf(',') != -1){
-            //we have something like import xxx, yyy, ...
-            importMsg = importMsg.substring(importMsg.lastIndexOf(',')+1, importMsg.length());
-            if(importMsg.startsWith(".")){
-                importMsg = importMsg.substring(1);
-            }
-            
-            int j = importMsg.lastIndexOf('.');
-            if(j != -1){
-                importMsg = importMsg.substring(0, j);
-                return new ImportInfo(importMsg, foundImportOnArray);
-            }else{
-                return doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray);
-            }
-            
-        }else{
-            //now, we may still have something like 'unittest.test,' or 'unittest.test.,'
-            //so, we have to remove this comma (s).
-            int i;
-            boolean removed = false;
-            while ( ( i = importMsg.indexOf(',')) != -1){
-                if(importMsg.charAt(i-1) == '.'){
-                    int j = importMsg.lastIndexOf('.');
-                    importMsg = importMsg.substring(0, j);
-                }
-                
-                int j = importMsg.lastIndexOf('.');
-                importMsg = importMsg.substring(0, j);
-                removed = true;
-            }
-    
-            //if it is something like aaa.sss.bb : removes the bb because it is the qualifier
-            //if it is something like aaa.sss.   : removes only the last point
-            if (!removed && importMsg.length() > 0 && importMsg.indexOf('.') != -1){
-                importMsg = importMsg.substring(0, importMsg.lastIndexOf('.'));
-            }
-            
-            
-            return new ImportInfo(importMsg, foundImportOnArray);
-        }
-    }
-
-    private static ImportInfo doExistingOrEmptyReturn(boolean returnEvenEmpty, String importMsg, boolean foundImportOnArray) {
-        if(returnEvenEmpty || importMsg.trim().length() > 0){
-            return new ImportInfo(" ", foundImportOnArray); 
-        }else{
-            return new ImportInfo("", foundImportOnArray); 
-        }
-    }
-
-    /**
-     * Return a document to parse, using some heuristics to make it parseable.
-     * 
-     * @param doc
-     * @param documentOffset
-     * @return
-     */
-    public static String getDocToParse(IDocument doc, int documentOffset) {
-        int lineOfOffset = -1;
-        try {
-            lineOfOffset = doc.getLineOfOffset(documentOffset);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-        
-        if(lineOfOffset!=-1){
-            String docToParseFromLine = getDocToParseFromLine(doc, lineOfOffset);
-            if(docToParseFromLine != null)
-                return docToParseFromLine;
-//                return "\n"+docToParseFromLine;
-            else
-                return "";
-        }else{
-            return "";
-        }
-    }
-
-    /**
-     * Return a document to parse, using some heuristics to make it parseable.
-     * (Changes the line specified by a pass)
-     * 
-     * @param doc
-     * @param documentOffset
-     * @param lineOfOffset
-     * @return
-     */
-    public static String getDocToParseFromLine(IDocument doc, int lineOfOffset) {
-        return DocUtils.getDocToParseFromLine(doc, lineOfOffset);
-    }
-
-    /**
-     * 
-     * @param useSimpleTipper
-     * @return the script to get the variables.
-     * 
-     * @throws CoreException
-     */
-    public static File getAutoCompleteScript() throws CoreException {
-        return PydevPlugin.getScriptWithinPySrc("simpleTipper.py");
-    }
-
-    
-    /**
-     * Filters the python completions so that only the completions we care about are shown (given the qualifier) 
-     * @param pythonAndTemplateProposals the completions to sort / filter
-     * @param qualifier the qualifier we care about
-     * @param onlyForCalltips if we should filter having in mind that we're going to show it for a calltip
-     * @return the completions to show to the user
-     */
-    @SuppressWarnings("unchecked")
-    public ICompletionProposal[] onlyValidSorted(List pythonAndTemplateProposals, String qualifier, boolean onlyForCalltips) {
-        //FOURTH: Now, we have all the proposals, only thing is deciding wich ones are valid (depending on
-        //qualifier) and sorting them correctly.
-        Collection returnProposals = new HashSet();
-        String lowerCaseQualifier = qualifier.toLowerCase();
-        
-        for (Iterator iter = pythonAndTemplateProposals.iterator(); iter.hasNext();) {
-            Object o = iter.next();
-            if (o instanceof ICompletionProposal) {
-                ICompletionProposal proposal = (ICompletionProposal) o;
-            
-                String displayString = proposal.getDisplayString();
-                if(onlyForCalltips){
-                    if (displayString.equals(qualifier)){
-                        returnProposals.add(proposal);
-                        
-                    }else if (displayString.length() > qualifier.length() && displayString.startsWith(qualifier)){
-                        if(displayString.charAt(qualifier.length()) == '('){
-                            returnProposals.add(proposal);
-                            
-                        }
-                    }
-                }else if (displayString.toLowerCase().startsWith(lowerCaseQualifier)) {
-                    returnProposals.add(proposal);
-	            }
-            }else{
-                throw new RuntimeException("Error: expected instanceof ICompletionProposal and received: "+o.getClass().getName());
-            }
-        }
-
-        ICompletionProposal[] proposals = new ICompletionProposal[returnProposals.size()];
-
-        // and fill with list elements
-        returnProposals.toArray(proposals);
-
-        Arrays.sort(proposals, PROPOSAL_COMPARATOR);
-        return proposals;
-    }
-
-    /**
-     * Compares proposals so that we can order them.
-     */
-    public static final ProposalsComparator PROPOSAL_COMPARATOR = new ProposalsComparator();
 
 }

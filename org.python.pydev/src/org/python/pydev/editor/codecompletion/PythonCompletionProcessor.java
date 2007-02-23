@@ -68,7 +68,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     /**
      * This makes python code completion
      */
-    private PyCodeCompletion codeCompletion = new PyCodeCompletion();
+    private IPyCodeCompletion codeCompletion = new PyCodeCompletion();
 
     /**
      * Edit.
@@ -190,7 +190,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
             
             //to show the valid ones, we'll get the qualifier from the initial request
-            proposals = codeCompletion.onlyValidSorted(pythonAndTemplateProposals, request.qualifier, request.isInCalltip);
+            proposals = PyCodeCompletionUtils.onlyValidSorted(pythonAndTemplateProposals, request.qualifier, request.isInCalltip);
             
         } catch (RuntimeException e) {
             proposals = new ICompletionProposal[0];

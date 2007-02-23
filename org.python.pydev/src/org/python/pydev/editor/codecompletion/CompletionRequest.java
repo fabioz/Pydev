@@ -26,7 +26,7 @@ public class CompletionRequest implements ICompletionRequest{
      */
     public CompletionRequest(File editorFile, IPythonNature nature, IDocument doc,
             String activationToken, int documentOffset, int qlen,
-            PyCodeCompletion codeCompletion, 
+            IPyCodeCompletion codeCompletion, 
             String qualifier){
 
         this.editorFile = editorFile;
@@ -51,7 +51,7 @@ public class CompletionRequest implements ICompletionRequest{
      * @param codeCompletion
      */
     public CompletionRequest(File editorFile, IPythonNature nature, IDocument doc,
-            int documentOffset, PyCodeCompletion codeCompletion){
+            int documentOffset, IPyCodeCompletion codeCompletion){
 
         ActivationTokenAndQual act = PySelection.getActivationTokenAndQual(doc, documentOffset, false, true); 
         this.activationToken = act.activationToken;
@@ -102,7 +102,7 @@ public class CompletionRequest implements ICompletionRequest{
     /**
      * The engine for doing the code-completion
      */
-    public PyCodeCompletion codeCompletion;
+    public IPyCodeCompletion codeCompletion;
     
     /**
      * Defines if we're getting the completions for a calltip

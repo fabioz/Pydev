@@ -25,7 +25,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
@@ -59,7 +59,7 @@ public class CompiledModule extends AbstractModule{
      * @param module - module from where to get completions.
      */
     public CompiledModule(String name, ICodeCompletionASTManager manager){
-        this(name, PyCodeCompletion.TYPE_BUILTIN, manager);
+        this(name, IPyCodeCompletion.TYPE_BUILTIN, manager);
     }
 
     /**
@@ -147,7 +147,7 @@ public class CompiledModule extends AbstractModule{
 		            if(element.length > 0)
 		                o4 = element[3];
 		            else
-		                o4 = ""+PyCodeCompletion.TYPE_BUILTIN;
+		                o4 = ""+IPyCodeCompletion.TYPE_BUILTIN;
 		            
 		            IToken t = new CompiledToken(o1, o2, o3, name, Integer.parseInt(o4));
 		            array.add(t);
@@ -165,7 +165,7 @@ public class CompiledModule extends AbstractModule{
 		    //as we will use it for code completion on sources that map to modules, the __file__ should also
 		    //be added...
 		    if(array.size() > 0 && name.equals("__builtin__")){
-		        array.add(new CompiledToken("__file__","","",name,PyCodeCompletion.TYPE_BUILTIN));
+		        array.add(new CompiledToken("__file__","","",name,IPyCodeCompletion.TYPE_BUILTIN));
 		    }
 		    
 		    tokens = array.toArray(new CompiledToken[0]);

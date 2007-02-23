@@ -7,7 +7,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IToken;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -154,16 +154,16 @@ public abstract class AbstractToken implements IToken{
         int otherT = comp.getType();
         
         if(thisT != otherT){
-            if (thisT == PyCodeCompletion.TYPE_PARAM)
+            if (thisT == IPyCodeCompletion.TYPE_PARAM)
                 return -1;
 
-            if (otherT == PyCodeCompletion.TYPE_PARAM)
+            if (otherT == IPyCodeCompletion.TYPE_PARAM)
                 return 1;
 
-            if (thisT == PyCodeCompletion.TYPE_IMPORT)
+            if (thisT == IPyCodeCompletion.TYPE_IMPORT)
                 return -1;
 
-            if (otherT == PyCodeCompletion.TYPE_IMPORT)
+            if (otherT == IPyCodeCompletion.TYPE_IMPORT)
                 return 1;
         }
         

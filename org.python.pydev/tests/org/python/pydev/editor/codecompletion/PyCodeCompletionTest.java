@@ -18,12 +18,12 @@ public class PyCodeCompletionTest extends TestCase {
         junit.textui.TestRunner.run(PyCodeCompletionTest.class);
     }
     
-    PyCodeCompletion completion;
+    IPyCodeCompletion completion;
     
     public void doTest(String s, String expected){
         Document doc = new Document(s);
         int length = s.length();
-        String tipperStr = PyCodeCompletion.getImportsTipperStr(doc, length).importsTipperStr;
+        String tipperStr = PyCodeCompletionUtils.getImportsTipperStr(doc, length).importsTipperStr;
         assertEquals(expected, tipperStr);
         
     }
