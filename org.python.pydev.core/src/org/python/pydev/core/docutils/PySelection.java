@@ -871,7 +871,7 @@ public class PySelection {
      * May return null if it was not found.
      */
     public String getPreviousLineThatAcceptsElse() {
-        DocIterator iterator = new DocIterator(false);
+        DocIterator iterator = new DocIterator(false, this);
         while(iterator.hasNext()){
             String line = (String) iterator.next();
             String trimmed = line.trim();
@@ -890,7 +890,7 @@ public class PySelection {
      * - a string with the lowest indent (null if none was found)
      */
     public Tuple3<String, String, String> getPreviousLineThatStartsScope() {
-        DocIterator iterator = new DocIterator(false);
+        DocIterator iterator = new DocIterator(false, this);
         String foundDedent = null;
         int lowest = Integer.MAX_VALUE;
         String lowestStr = null;
@@ -1417,18 +1417,24 @@ public class PySelection {
 	/**
 	 * Class to help iterating through the document
 	 */
-    private class DocIterator implements Iterator<String>{
+    public static class DocIterator implements Iterator<String>{
         private int startingLine;
         private boolean forward;
         private boolean isFirst = true;
 		private int numberOfLines;
+		private PySelection ps;
 		
-        public DocIterator(boolean forward){
-            this.startingLine = getCursorLine();
+        public DocIterator(boolean forward, PySelection ps){
+            this.startingLine = ps.getCursorLine();
             this.forward = forward;
-            numberOfLines = getDoc().getNumberOfLines();
+            numberOfLines = ps.getDoc().getNumberOfLines();
+            this.ps = ps;
         }
 
+        public int getCurrentLine(){
+        	return startingLine;
+        }
+        
         public boolean hasNext() {
             if(forward){
                 return startingLine < numberOfLines;
@@ -1445,14 +1451,14 @@ public class PySelection {
         	try {
         		String line;
 				if (forward) {
-					line = getLine(startingLine);
+					line = ps.getLine(startingLine);
 					startingLine++;
 				} else {
 					if (isFirst) {
-						line = getLineContentsToCursor();
+						line = ps.getLineContentsToCursor();
 						isFirst = false;
 					}else{
-						line = getLine(startingLine);
+						line = ps.getLine(startingLine);
 					}
 					startingLine--;
 				}

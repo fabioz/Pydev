@@ -10,7 +10,7 @@ public class PythonCompletionStringsTest  extends CodeCompletionTestsBase {
             // DEBUG_TESTS_BASE = true;
             PythonCompletionStringsTest test = new PythonCompletionStringsTest();
             test.setUp();
-            test.test2();
+            test.test1();
             test.tearDown();
             System.out.println("Finished");
 

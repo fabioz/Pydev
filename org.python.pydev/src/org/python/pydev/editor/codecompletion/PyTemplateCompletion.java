@@ -68,7 +68,7 @@ public class PyTemplateCompletion extends TemplateCompletionProcessor{
      *  
      */
     protected void addTemplateProposals(ITextViewer viewer, int documentOffset,
-            List propList) {
+            List<ICompletionProposal> propList) {
         
         String str = extractPrefix(viewer, documentOffset);
 
