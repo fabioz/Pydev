@@ -110,7 +110,7 @@ public class PyStringCodeCompletion extends AbstractPyCodeCompletion{
         
 			DocIterator iterator = new DocIterator(false, ps);
 	        while(iterator.hasNext()){
-	        	String line = iterator.next();
+	        	String line = iterator.next().trim();
 	        	if(line.startsWith("def ")){
 	        		int currentLine = iterator.getCurrentLine() + 1;
 	        		PySelection selection = new PySelection(request.doc, currentLine, 0);
@@ -122,6 +122,7 @@ public class PyStringCodeCompletion extends AbstractPyCodeCompletion{
 	                                    PyCodeCompletionImages.getImageForType(IPyCodeCompletion.TYPE_PARAM), null, null, "", 0, PyCompletionProposal.ON_APPLY_DEFAULT, ""));
 	        				}
 						}
+	        			return;
 	        		}
 	        	}
 	        }

@@ -77,7 +77,24 @@ public class PythonCompletionStringsTest  extends CodeCompletionTestsBase {
 	    
 	    String[] toks = new String[]{"param"};
 	    requestCompl(doc, doc.length()-"\n   '''".length(), -1, toks); //request right after the params
-	    
-	    
 	}
+	
+	
+	public void test4() throws Exception {
+		String doc = "" +
+		"class foo(object):\n" +
+		"    \n" +
+		"    def m1(self, create2, bar2):\n" +
+		"        pass\n" +
+		"    def m1(self, create, bar):\n" +
+		"        '''\n" +
+		"            @param cr\n" +
+		"        '''\n"; 
+		
+		
+		String[] toks = new String[]{"create"};
+		requestCompl(doc, doc.length()-"\n        '''\n".length(), 1, toks); //request right after the params
+	}
+	
+	
 }
