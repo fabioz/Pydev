@@ -246,7 +246,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
         IContentAssistProcessor processor = new SimpleAssistProcessor(edit, 
         		new PythonCompletionProcessor(edit, pyContentAssistant), pyContentAssistant);
         
-    	PythonCompletionProcessor stringProcessor = new PythonStringCompletionProcessor(edit, pyContentAssistant);
+        PythonStringCompletionProcessor stringProcessor = new PythonStringCompletionProcessor(edit, pyContentAssistant);
 
         // No code completion in comments
         pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_STRING1);

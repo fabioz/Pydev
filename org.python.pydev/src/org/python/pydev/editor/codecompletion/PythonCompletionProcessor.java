@@ -68,7 +68,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     /**
      * This makes python code completion
      */
-    private IPyCodeCompletion codeCompletion = new PyCodeCompletion();
+    private IPyCodeCompletion codeCompletion;
 
     /**
      * Edit.
@@ -103,6 +103,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     public PythonCompletionProcessor(PyEdit edit, PyContentAssistant pyContentAssistant) {
         this.edit = edit;
         this.pyContentAssistant = pyContentAssistant;
+        this.codeCompletion = getCodeCompletionEngine();
         
         contextInformationValidator = new PyContextInformationValidator();
         
@@ -133,6 +134,10 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
     }
 
+
+    protected IPyCodeCompletion getCodeCompletionEngine() {
+        return new PyCodeCompletion();
+    }
 
     /**
      * This is the interface implemented to get the completions.

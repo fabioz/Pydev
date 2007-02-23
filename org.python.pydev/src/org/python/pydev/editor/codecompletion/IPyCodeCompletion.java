@@ -53,6 +53,11 @@ public interface IPyCodeCompletion {
      * Type for relative import
      */
     public static final int TYPE_RELATIVE_IMPORT = 7;
+    
+    /**
+     * Type for an epydoc field
+     */
+    public static final int TYPE_EPYDOC = 8;
 
     /**
      * Returns a list with the tokens to use for autocompletion.

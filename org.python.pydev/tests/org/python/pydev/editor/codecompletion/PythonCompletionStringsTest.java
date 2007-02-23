@@ -10,7 +10,7 @@ public class PythonCompletionStringsTest  extends CodeCompletionTestsBase {
             // DEBUG_TESTS_BASE = true;
             PythonCompletionStringsTest test = new PythonCompletionStringsTest();
             test.setUp();
-            test.test1();
+            test.test2();
             test.tearDown();
             System.out.println("Finished");
 
@@ -51,5 +51,33 @@ public class PythonCompletionStringsTest  extends CodeCompletionTestsBase {
         
         String[] toks = new String[]{"bar", "foo"};
         requestCompl(doc, doc.length()-"\n   '''".length(), toks.length, toks); //request right after the params
+	}
+	
+	public void test2() throws Exception {
+	    String doc = "" +
+	    "def m1(foo, bar):\n" +
+	    "   '''\n" +
+	    "   @\n" +
+	    "   '''"; //<- bring tokens that are already defined in the local
+	    
+	    
+	    String[] toks = new String[]{"param", "type"};
+	    requestCompl(doc, doc.length()-"\n   '''".length(), -1, toks); //request right after the params
+        
+        
+	}
+	
+	public void test3() throws Exception {
+	    String doc = "" +
+	    "def m1(foo, bar):\n" +
+	    "   '''\n" +
+	    "   @para\n" +
+	    "   '''"; //<- bring tokens that are already defined in the local
+	    
+	    
+	    String[] toks = new String[]{"param"};
+	    requestCompl(doc, doc.length()-"\n   '''".length(), -1, toks); //request right after the params
+	    
+	    
 	}
 }

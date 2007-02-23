@@ -40,6 +40,7 @@ public class UIConstants {
 	public static final String COMPLETION_RELATIVE_IMPORT_ICON = "icons/imp_rel_obj.gif";
 	public static final String COMPLETION_CLASS_ICON = "icons/class_obj.gif";
 	public static final String COMPLETION_PARAMETERS_ICON = "icons/parameters_obj.gif";
+	public static final String COMPLETION_EPYDOC = "icons/annotation_obj.gif";
 
 //content assist
 	public static final String ASSIST_TRY_EXCEPT = COMPLETION_TEMPLATE;

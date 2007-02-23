@@ -42,6 +42,9 @@ public class PyCodeCompletionImages {
                 
             case IPyCodeCompletion.TYPE_RELATIVE_IMPORT:
                 return imageCache.get(UIConstants.COMPLETION_RELATIVE_IMPORT_ICON);
+                
+            case IPyCodeCompletion.TYPE_EPYDOC:
+                return imageCache.get(UIConstants.COMPLETION_EPYDOC);
     
             default:
                 return null;
