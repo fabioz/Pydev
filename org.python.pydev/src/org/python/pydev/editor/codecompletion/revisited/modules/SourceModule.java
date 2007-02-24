@@ -167,8 +167,8 @@ public class SourceModule extends AbstractModule {
         
         if(t instanceof SourceToken[]){
 	        SourceToken[] tokens = (SourceToken[]) t;
+	        String activationToken = initialState.getActivationToken();
 	        for (int i = 0; i < tokens.length; i++) {
-	            String activationToken = initialState.getActivationToken();
                 SourceToken token = tokens[i];
                 String rep = token.getRepresentation();
                 

@@ -99,8 +99,8 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             int line = request.doc.getLineOfOffset(request.documentOffset);
             IRegion region = request.doc.getLineInformation(line);
 
-            CompletionState state = new CompletionState(line, request.documentOffset - region.getOffset(), null, request.nature, request.qualifier);
-            state.isInCalltip = request.isInCalltip;
+            ICompletionState state = new CompletionState(line, request.documentOffset - region.getOffset(), null, request.nature, request.qualifier);
+            state.setIsInCalltip(request.isInCalltip);
 
             boolean importsTip = false;
             
@@ -175,8 +175,8 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
     /**
      * Does a code-completion that will retrieve the globals in the module
      */
-    private void doGlobalsCompletion(CompletionRequest request, ICodeCompletionASTManager astManager, List<Object> tokensList, CompletionState state) throws CompletionRecursionException {
-        state.activationToken = request.activationToken;
+    private void doGlobalsCompletion(CompletionRequest request, ICodeCompletionASTManager astManager, List<Object> tokensList, ICompletionState state) throws CompletionRecursionException {
+        state.setActivationToken(request.activationToken);
         if(DEBUG_CODE_COMPLETION){
             Log.toLogFile(this,"astManager.getCompletionsForToken");
             Log.addLogLevel();
@@ -195,23 +195,24 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
     /**
      * Does a code-completion that will retrieve the all matches for some token in the module
      */
-    private void doTokenCompletion(CompletionRequest request, ICodeCompletionASTManager astManager, List<Object> tokensList, String trimmed, CompletionState state) throws CompletionRecursionException {
+    private void doTokenCompletion(CompletionRequest request, ICodeCompletionASTManager astManager, List<Object> tokensList, String trimmed, ICompletionState state) throws CompletionRecursionException {
         if (request.activationToken.endsWith(".")) {
             request.activationToken = request.activationToken.substring(0, request.activationToken.length() - 1);
         }
         
+        char[] toks = new char[]{'.', ' '};
         List<Object> completions = new ArrayList<Object>();
-        if (trimmed.equals("self") || FullRepIterable.getFirstPart(trimmed).equals("self")) {
+        if (trimmed.equals("self") || FullRepIterable.getFirstPart(trimmed, toks).equals("self")) {
             state.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
             getSelfOrClsCompletions(request, tokensList, state, false);
             
-        }else if (trimmed.equals("cls") || FullRepIterable.getFirstPart(trimmed).equals("cls")) { 
+        }else if (trimmed.equals("cls") || FullRepIterable.getFirstPart(trimmed, toks).equals("cls")) { 
             state.setLookingFor(ICompletionState.LOOKING_FOR_CLASSMETHOD_VARIABLE);
             getSelfOrClsCompletions(request, tokensList, state, false);
 
         } else {
 
-            state.activationToken = request.activationToken;
+            state.setActivationToken(request.activationToken);
 
             //Ok, looking for a token in globals.
             IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
@@ -286,11 +287,11 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * @param getOnlySupers whether we should only get things from super classes (in this case, we won't get things from the current class)
      * @return the same tokens added in theList
      */
-    public static IToken[] getSelfOrClsCompletions(CompletionRequest request, List theList, CompletionState state, boolean getOnlySupers) {
+    public static IToken[] getSelfOrClsCompletions(CompletionRequest request, List theList, ICompletionState state, boolean getOnlySupers) {
     	IToken[] comps = new IToken[0];
-        SimpleNode s = PyParser.reparseDocument(new PyParser.ParserInfo(request.doc, true, request.nature, state.line)).o1;
+        SimpleNode s = PyParser.reparseDocument(new PyParser.ParserInfo(request.doc, true, request.nature, state.getLine())).o1;
         if(s != null){
-            FindScopeVisitor visitor = new FindScopeVisitor(state.line, 0);
+            FindScopeVisitor visitor = new FindScopeVisitor(state.getLine(), 0);
             try {
                 s.accept(visitor);
                 comps = getSelfOrClsCompletions(visitor.scope, request, theList, state, getOnlySupers);
@@ -305,7 +306,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * Get self completions when you already have a scope
      */
     @SuppressWarnings("unchecked")
-    public static IToken[] getSelfOrClsCompletions(LocalScope scope, CompletionRequest request, List theList, CompletionState state, boolean getOnlySupers) throws BadLocationException {
+    public static IToken[] getSelfOrClsCompletions(LocalScope scope, CompletionRequest request, List theList, ICompletionState state, boolean getOnlySupers) throws BadLocationException {
     	IToken[] comps = new IToken[0];
         while(scope.scope.size() > 0){
             SimpleNode node = (SimpleNode) scope.scope.pop();
@@ -317,7 +318,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                     for (int i = 0; i < d.bases.length; i++) {
                         if(d.bases[i] instanceof Name){
                             Name n = (Name) d.bases[i];
-	                        state.activationToken = n.id;
+	                        state.setActivationToken(n.id);
 	        	            IToken[] completions;
 							try {
 								completions = request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state);
@@ -341,7 +342,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                     
                     if(actTokStrs.length == 1){
                         //ok, it's just really self, let's get on to get the completions
-                        state.activationToken = NodeUtils.getNameFromNameTok((NameTok) d.name);
+                        state.setActivationToken(NodeUtils.getNameFromNameTok((NameTok) d.name));
         	            try {
 							comps = request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state);
 						} catch (CompletionRecursionException e) {

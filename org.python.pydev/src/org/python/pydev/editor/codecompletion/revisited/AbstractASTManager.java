@@ -638,7 +638,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 for (int i = 0; i < defs.length; i++) {
                     if(!(defs[i].ast instanceof FunctionDef)){
                         //we might want to extend that later to check the return of some function...
-                                
+                        state.setLookingFor(ICompletionState.LOOKING_FOR_ASSIGN);
 	                    ICompletionState copy = state.getCopy();
 	                    copy.setActivationToken (defs[i].value);
 	                    copy.setLine(defs[i].line);
@@ -815,7 +815,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             
             //now, what we will do is try to do a code completion in os and see if path is found
             if(state == null){
-                state = CompletionState.getEmptyCompletionState(actToken, nature);
+                state = CompletionStateFactory.getEmptyCompletionState(actToken, nature);
             }else{
                 state = state.getCopy();
                 state.setActivationToken(actToken);

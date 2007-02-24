@@ -26,7 +26,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
-import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.PydevPlugin;
@@ -250,7 +250,7 @@ public class CompiledModule extends AbstractModule{
         if(tok.indexOf('.') == -1){
             return super.isInDirectGlobalTokens(tok, nature);
         }else{
-            ICompletionState state = CompletionState.getEmptyCompletionState(nature);
+            ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature);
             String[] headAndTail = FullRepIterable.headAndTail(tok);
             state.setActivationToken (headAndTail[0]);
             String head = headAndTail[1];

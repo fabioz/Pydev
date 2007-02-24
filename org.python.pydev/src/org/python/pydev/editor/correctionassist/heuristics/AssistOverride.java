@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.bundle.ImageCache;
@@ -49,7 +50,7 @@ public class AssistOverride implements IAssistProps {
         //code completion to see members of class...
         String[] strs = PySelection.getActivationTokenAndQual(ps.getDoc(), ps.getAbsoluteCursorOffset(), false);
         String tok = strs[1];
-        CompletionState state = new CompletionState(ps.getStartLineIndex(), ps.getAbsoluteCursorOffset() - ps.getStartLine().getOffset(), null, nature,"");
+        ICompletionState state = new CompletionState(ps.getStartLineIndex(), ps.getAbsoluteCursorOffset() - ps.getStartLine().getOffset(), null, nature,"");
         CompletionRequest request = new CompletionRequest(file, nature, ps.getDoc(), "self", ps.getAbsoluteCursorOffset(), 0, new PyCodeCompletion(), "");
         IToken[] selfCompletions = PyCodeCompletion.getSelfOrClsCompletions(request, new ArrayList(), state, true);
 

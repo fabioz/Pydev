@@ -42,33 +42,12 @@ public class CompletionState implements ICompletionState {
     
     public int lookingForInstance=LOOKING_FOR_INSTANCE_UNDEFINED;
 
-    public CompletionState getCopy(){
-        CompletionState state = new CompletionState();
-        state.activationToken = activationToken;
-        state.line = line;
-        state.col = col;
-        state.importedModsCalled = importedModsCalled;
-        state.nature = nature;
-        state.qualifier = qualifier;
-        
-        state.memory = memory;
-        state.wildImportMemory = wildImportMemory;
-        state.definitionMemory = definitionMemory;
-        state.findMemory = findMemory;
-        state.resolveImportMemory = resolveImportMemory;
-        state.findDefinitionMemory = findDefinitionMemory;
-        state.findResolveImportMemory = findResolveImportMemory;
-        state.findModuleCompletionsMemory = findModuleCompletionsMemory;
-        
-        state.builtinsGotten = builtinsGotten;
-        state.localImportsGotten = localImportsGotten;
-        state.isInCalltip = isInCalltip;
-        
-        return state;
+    public ICompletionState getCopy(){
+        return new CompletionStateWrapper(this);
     }
     
     public ICompletionState getCopyForResolveImportWithActTok(String actTok) {
-        CompletionState state = (CompletionState) getEmptyCompletionState(actTok, this.nature);
+        CompletionState state = (CompletionState) CompletionStateFactory.getEmptyCompletionState(actTok, this.nature);
         state.nature = nature;
         state.findResolveImportMemory = findResolveImportMemory;
         
@@ -233,20 +212,6 @@ public class CompletionState implements ICompletionState {
     	}
     }
 
-    /**
-     * @return a default completion state for globals (empty act. token)
-     */
-    public static ICompletionState getEmptyCompletionState(IPythonNature nature) {
-        return new CompletionState(-1,-1,"", nature,"");
-    }
-    
-    /**
-     * @return a default completion state for globals (act token defined)
-     */
-    public static ICompletionState getEmptyCompletionState(String token, IPythonNature nature) {
-        return new CompletionState(-1,-1,token, nature,"");
-    }
-
     public String getActivationToken() {
         return activationToken;
     }
@@ -319,13 +284,17 @@ public class CompletionState implements ICompletionState {
     }
 
     public ICompletionState getCopyWithActTok(String value) {
-        CompletionState copy = getCopy();
+        ICompletionState copy = getCopy();
         copy.setActivationToken(value);
         return copy;
     }
 
     public String getQualifier() {
         return this.qualifier;
+    }
+
+    public void setIsInCalltip(boolean isInCalltip) {
+        this.isInCalltip = isInCalltip;
     }
 
 

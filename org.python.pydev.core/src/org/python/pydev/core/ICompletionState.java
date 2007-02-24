@@ -71,6 +71,7 @@ public interface ICompletionState {
     public static final int LOOKING_FOR_INSTANCED_VARIABLE=1;
     public static final int LOOKING_FOR_UNBOUND_VARIABLE=2;
     public static final int LOOKING_FOR_CLASSMETHOD_VARIABLE=3;
+    public static final int LOOKING_FOR_ASSIGN = 4;
     
     /**
      * Identifies if we should be looking for an instance (in which case, self should not
@@ -83,6 +84,10 @@ public interface ICompletionState {
     String getQualifier();
 
     int isLookingFor();
+
+    void setIsInCalltip(boolean isInCalltip);
+
+    ICompletionState getCopyForResolveImportWithActTok(String representation);
 
 
 }

@@ -22,7 +22,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.structure.CompletionRecursionException;
-import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.PyParser;
@@ -108,7 +108,7 @@ public abstract class AbstractModule implements IModule {
         }
         
     	//if still not found, we have to get all the tokens, including regular and wild imports
-        ICompletionState state = CompletionState.getEmptyCompletionState(nature);
+        ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature);
         ICodeCompletionASTManager astManager = nature.getAstManager();
         String[] headAndTail = FullRepIterable.headAndTail(tok);
         state.setActivationToken (headAndTail[0]);

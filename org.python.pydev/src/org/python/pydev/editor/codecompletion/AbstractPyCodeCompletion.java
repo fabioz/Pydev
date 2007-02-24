@@ -138,7 +138,9 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
     protected String getArgs(IToken element, ICompletionState state) {
         String args = "";
         int lookingFor = state.isLookingFor();
-        boolean lookingForInstance = lookingFor==ICompletionState.LOOKING_FOR_INSTANCE_UNDEFINED || lookingFor==ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE;
+        boolean lookingForInstance = lookingFor==ICompletionState.LOOKING_FOR_INSTANCE_UNDEFINED || 
+                                     lookingFor==ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE ||
+                                     lookingFor==ICompletionState.LOOKING_FOR_ASSIGN;
         if(element.getArgs().trim().length() > 0){
             StringBuffer buffer = new StringBuffer("(");
             StringTokenizer strTok = new StringTokenizer(element.getArgs(), "( ,)");

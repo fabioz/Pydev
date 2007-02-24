@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testNoCompletionsForContext();
+	      test.testDeepNested6();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -357,7 +357,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 		String s;
 		s = "from extendable import nested\n"+ 
 		"print nested.NestedClass.";   
-		requestCompl(s, -1, 1, new String[] { "nestedMethod()" });
+		requestCompl(s, -1, 1, new String[] { "nestedMethod(self)" });
 	}
 	
 	
@@ -365,7 +365,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 		String s;
 		s = "from extendable.namecheck import samename\n"+ 
 		"print samename.";   
-		requestCompl(s, -1, 1, new String[] { "method1()" });
+		requestCompl(s, -1, 1, new String[] { "method1(self)" });
 	}
 	
 	
@@ -373,7 +373,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 		String s;
 		s = "from extendable import namecheck\n"+ 
 		"print namecheck.samename.";   
-		requestCompl(s, -1, 1, new String[] { "method1()" });
+		requestCompl(s, -1, 1, new String[] { "method1(self)" });
 	}
 	
 	public void testCompositeImport() throws BadLocationException, IOException, Exception{
@@ -833,6 +833,24 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertContains("method3(self, a, b)", proposals);
         assertContains("myvar2", proposals);
         assertContains("myvar3", proposals);
+    }
+    
+    
+    public void testClassmethod4() throws Exception {
+        String s0 = 
+            "from extendable.classmet.mod1 import Foo\n" +
+            "Foo.Class%s";
+        
+        String s = StringUtils.format(s0, "");
+        ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length); 
+        PyCompletionProposal p = (PyCompletionProposal) proposals[0];
+        assertEquals("ClassMet()", p.getDisplayString());
+        
+        
+        Document document = new Document(s);
+        p.apply(document);
+        assertEquals(StringUtils.format(s0, "Met()"), document.get());
     }
     
 

@@ -183,6 +183,23 @@ public class FullRepIterable implements Iterable<String>{
 	}
 	
 	/**
+	 * @return All that is before the first dot (or the whole string if there is no dot)
+	 */
+	public static String getFirstPart(String tokToCheck, char[] toks) {
+        String ret = tokToCheck;
+        for(char c: toks){
+    	    int i = tokToCheck.indexOf(c);
+    	    if(i != -1){
+                String s = tokToCheck.substring(0, i);
+                if(s.length() < ret.length()){
+                    ret = s;
+                }
+    	    }
+        }
+	    return ret;
+	}
+	
+	/**
 	 * @return All that is before the last dot (or an empty string if there is no dot)
 	 */
 	public static String getWithoutLastPart(String currentModuleName) {
