@@ -22,7 +22,7 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
-import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -54,7 +54,7 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
         IDocument doc = new Document(strDoc);
         CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion);
 
-        ICompletionState state = CompletionState.getEmptyCompletionState(nature);
+        ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature);
         List props = new ArrayList(participant.getGlobalCompletions(request, state));
         ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValidSorted(props, request.qualifier, request.isInCalltip);
         

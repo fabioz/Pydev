@@ -18,7 +18,7 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
@@ -120,7 +120,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         this.scope = new Scope(this, nature, moduleName);
         
         startScope(Scope.SCOPE_TYPE_GLOBAL, null); //initial scope - there is only one 'global' 
-        List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(CompletionState.getEmptyCompletionState(nature), new ArrayList());
+        List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(CompletionStateFactory.getEmptyCompletionState(nature), new ArrayList());
         for(IToken t : builtinCompletions){
         	Found found = makeFound(t);
         	org.python.pydev.core.Tuple<IToken, Found> tup = new org.python.pydev.core.Tuple<IToken, Found>(t, found);
@@ -316,7 +316,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             if(AbstractVisitor.isWildImport(node)){
                 IToken wildImport = AbstractVisitor.makeWildImportToken(node, null, moduleName);
                 
-                ICompletionState state = CompletionState.getEmptyCompletionState(nature);
+                ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature);
                 state.setBuiltinsGotten (true); //we don't want any builtins
                 List<IToken> completionsForWildImport = nature.getAstManager().getCompletionsForWildImport(state, current, new ArrayList(), wildImport);
                 scope.addImportTokens(completionsForWildImport, wildImport);
@@ -867,7 +867,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         if(repToCheck.length() == 0){
             return false;
         }
-        IDefinition[] definitions = m.findDefinition(CompletionState.getEmptyCompletionState(repToCheck, nature), -1, -1, nature, new ArrayList<FindInfo>());
+        IDefinition[] definitions = m.findDefinition(CompletionStateFactory.getEmptyCompletionState(repToCheck, nature), -1, -1, nature, new ArrayList<FindInfo>());
         if(definitions.length == 1){
             if(definitions[0] instanceof AssignDefinition){
                 AssignDefinition d = (AssignDefinition) definitions[0];
@@ -879,7 +879,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 
                 //ok, go to the definition of whatever is set
                 IDefinition[] definitions2 = d.module.findDefinition(
-                        CompletionState.getEmptyCompletionState(d.value, nature), 
+                        CompletionStateFactory.getEmptyCompletionState(d.value, nature), 
                         d.line, d.col, nature, new ArrayList<FindInfo>());
                 
                 if(definitions2.length == 1){

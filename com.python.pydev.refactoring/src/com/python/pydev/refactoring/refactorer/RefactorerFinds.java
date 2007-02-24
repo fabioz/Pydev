@@ -15,7 +15,7 @@ import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -47,7 +47,7 @@ public class RefactorerFinds {
             String n = NodeUtils.getFullRepresentationString(exp);
             final int line = exp.beginLine;
             final int col = exp.beginColumn+n.length(); //the col must be the last char because it can be a dotted name
-            final Definition[] defs = (Definition[])d.module.findDefinition(CompletionState.getEmptyCompletionState(n, nature), line, col, nature, new ArrayList<FindInfo>());
+            final Definition[] defs = (Definition[])d.module.findDefinition(CompletionStateFactory.getEmptyCompletionState(n, nature), line, col, nature, new ArrayList<FindInfo>());
             if(defs.length > 0){
                 definitions.addAll(Arrays.asList(defs));
             }else{

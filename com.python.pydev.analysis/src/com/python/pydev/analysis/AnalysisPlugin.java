@@ -16,7 +16,7 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.bundle.ImageCache;
-import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
@@ -77,7 +77,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             }
             tok += info.getName();
             try {
-                IDefinition[] definitions = mod.findDefinition(CompletionState.getEmptyCompletionState(tok, nature), -1, -1, nature, new ArrayList<FindInfo>());
+                IDefinition[] definitions = mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, nature), -1, -1, nature, new ArrayList<FindInfo>());
                 getAsPointers(pointers, (Definition[]) definitions);
             } catch (Exception e) {
                 throw new RuntimeException(e);

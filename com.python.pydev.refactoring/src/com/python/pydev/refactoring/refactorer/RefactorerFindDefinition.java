@@ -23,7 +23,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
@@ -141,7 +141,7 @@ public class RefactorerFindDefinition {
                 //2. check findDefinition (SourceModule)
                 ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
                 
-                IDefinition[] definitions = mod.findDefinition(CompletionState.getEmptyCompletionState(tok, request.nature), request.getBeginLine(), request.getBeginCol()+1, request.nature, lFindInfo);
+                IDefinition[] definitions = mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, request.nature), request.getBeginLine(), request.getBeginCol()+1, request.nature, lFindInfo);
                 request.communicateWork("Found:"+definitions.length+ " definitions");
                 for (IDefinition definition : definitions) {
                     boolean doAdd = true;
@@ -216,7 +216,7 @@ public class RefactorerFindDefinition {
             }
             whereWePassed.add(t1);
             
-            Definition[] found = (Definition[]) d.module.findDefinition(CompletionState.getEmptyCompletionState(tok, request.nature), d.line, d.col, request.nature, lFindInfo);
+            Definition[] found = (Definition[]) d.module.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, request.nature), d.line, d.col, request.nature, lFindInfo);
             if(found != null && found.length == 1){
                 Tuple3<String,Integer,Integer> tupFromDefinition = getTupFromDefinition(found[0]);
                 if(tupFromDefinition == null){

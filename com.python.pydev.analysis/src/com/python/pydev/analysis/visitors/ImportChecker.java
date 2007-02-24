@@ -4,13 +4,14 @@
 package com.python.pydev.analysis.visitors;
 
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.structure.CompletionRecursionException;
-import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 
@@ -86,7 +87,7 @@ public class ImportChecker {
          */
 		public Definition getModuleDefinitionFromImportInfo(IPythonNature nature) {
             try {
-                IDefinition[] definitions = this.mod.findDefinition(CompletionState.getEmptyCompletionState(this.rep, nature), -1, -1, nature, null);
+                IDefinition[] definitions = this.mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(this.rep, nature), -1, -1, nature, null);
                 for (IDefinition definition : definitions) {
                     if(definition instanceof Definition){
                         Definition d = (Definition) definition;
@@ -138,9 +139,7 @@ public class ImportChecker {
 		if(token instanceof SourceToken){
         	
         	ICodeCompletionASTManager astManager = nature.getAstManager();
-        	CompletionState state = new CompletionState();
-        	state.activationToken = token.getRepresentation();
-        	state.nature = nature;
+        	ICompletionState state = CompletionStateFactory.getEmptyCompletionState(token.getRepresentation(), nature);
             try {
 				modTok = astManager.findOnImportedMods(new IToken[]{token}, state, moduleName);
 			} catch (CompletionRecursionException e1) {
