@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testDeepNested6();
+	      test.testRecursion();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -853,5 +853,12 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(StringUtils.format(s0, "Met()"), document.get());
     }
     
+    public void testRecursion() throws Exception {
+        String s = 
+            "import testrec4\n" +
+            "testrec4.url_for.";
+        ICompletionProposal[] proposals = requestCompl(s, s.length(), 1, new String[] {"m1(self)"});
+        assertEquals(1, proposals.length); 
+    }
 
 }
