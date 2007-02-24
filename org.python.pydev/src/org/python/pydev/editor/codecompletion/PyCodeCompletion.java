@@ -19,6 +19,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
@@ -27,6 +28,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
@@ -61,38 +63,34 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
     /* (non-Javadoc)
      * @see org.python.pydev.editor.codecompletion.IPyCodeCompletion#getCodeCompletionProposals(org.eclipse.jface.text.ITextViewer, org.python.pydev.editor.codecompletion.CompletionRequest)
      */
-    @SuppressWarnings("unchecked")
     public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException {
         if(DEBUG_CODE_COMPLETION){
             Log.toLogFile(this,"Starting getCodeCompletionProposals");
             Log.addLogLevel();
             Log.toLogFile(this,"Request:"+request);
         }
-        ArrayList ret = new ArrayList();
+        
+        ArrayList<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
+        
+        //let's see if we should do a code-completion in the current scope...
+        if(!isValidCompletionContext(request)){
+            request.showTemplates = false;
+            return ret;
+        }
+        
         try {
         	IPythonNature pythonNature = request.nature;
-            if (pythonNature == null) {
-                throw new RuntimeException("Unable to get python nature.");
-            }
+            checkPythonNature(pythonNature);
+            
             ICodeCompletionASTManager astManager = pythonNature.getAstManager();
-            if (astManager == null) { //we're probably still loading it.
-                return new ArrayList();
+            if (astManager == null) { 
+                //we're probably still loading it.
+                return ret;
             }
-
-            List theList = new ArrayList();
-            try {
-                if(DEBUG_CODE_COMPLETION){
-                    Log.toLogFile(this,"AbstractShell.getServerShell");
-                }
-                if (CompiledModule.COMPILED_MODULES_ENABLED) {
-                    AbstractShell.getServerShell(request.nature, AbstractShell.COMPLETION_SHELL); //just start it
-                }
-                if(DEBUG_CODE_COMPLETION){
-                    Log.toLogFile(this,"END AbstractShell.getServerShell");
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            
+            //list of Object[], IToken or ICompletionProposal
+            List<Object> tokensList = new ArrayList<Object>();
+            lazyStartShell(request);
 
             String trimmed = request.activationToken.replace('.', ' ').trim();
 
@@ -105,65 +103,23 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             state.isInCalltip = request.isInCalltip;
 
             boolean importsTip = false;
-            //code completion in imports 
+            
             if (importsTipper.importsTipperStr.length() != 0) {
+                //code completion in imports 
+                importsTip = doImportCompletion(request, astManager, tokensList, importsTipper);
 
-                //get the project and make the code completion!!
-                //so, we want to do a code completion for imports...
-                //let's see what we have...
-
-                importsTip = true;
-                importsTipper.importsTipperStr = importsTipper.importsTipperStr.trim();
-                IToken[] imports = astManager.getCompletionsForImport(importsTipper, request);
-                theList.addAll(Arrays.asList(imports));
-
-                //code completion for a token
             } else if (trimmed.equals("") == false && request.activationToken.indexOf('.') != -1) {
+                //code completion for a token
+                doTokenCompletion(request, astManager, tokensList, trimmed, state);
 
-                if (request.activationToken.endsWith(".")) {
-                    request.activationToken = request.activationToken.substring(0, request.activationToken.length() - 1);
-                }
-                
-                List completions = new ArrayList();
-                if (trimmed.equals("self") || FullRepIterable.getFirstPart(trimmed).equals("self")) {
-                    state.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
-                    getSelfOrClsCompletions(request, theList, state, false);
-                    
-                }else if (trimmed.equals("cls") || FullRepIterable.getFirstPart(trimmed).equals("cls")) { 
-                    state.setLookingFor(ICompletionState.LOOKING_FOR_CLASSMETHOD_VARIABLE);
-                    getSelfOrClsCompletions(request, theList, state, false);
-
-                } else {
-
-                    state.activationToken = request.activationToken;
-
-                    //Ok, looking for a token in globals.
-                    IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
-                    theList.addAll(Arrays.asList(comps));
-                }
-                theList.addAll(completions);
-
-            } else { //go to globals
-
-                state.activationToken = request.activationToken;
-                if(DEBUG_CODE_COMPLETION){
-                    Log.toLogFile(this,"astManager.getCompletionsForToken");
-                    Log.addLogLevel();
-                }
-                IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
-                if(DEBUG_CODE_COMPLETION){
-                    Log.remLogLevel();
-                    Log.toLogFile(this,"END astManager.getCompletionsForToken");
-                }
-
-                theList.addAll(Arrays.asList(comps));
-                
-                theList.addAll(getGlobalsFromParticipants(request, state));
+            } else { 
+                //go to globals
+                doGlobalsCompletion(request, astManager, tokensList, state);
             }
 
             Set<String> alreadyChecked = new HashSet<String>();
             
-            for(ListIterator it=theList.listIterator(); it.hasNext();){
+            for(ListIterator it=tokensList.listIterator(); it.hasNext();){
                 Object o = it.next();
                 if(o instanceof IToken){
                     alreadyChecked.clear();
@@ -189,7 +145,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                     }
                 }
             }
-            changeItokenToCompletionPropostal(viewer, request, ret, theList, importsTip, state);
+            changeItokenToCompletionPropostal(viewer, request, ret, tokensList, importsTip, state);
         } catch (CompletionRecursionException e) {
             ret.add(new CompletionProposal("",request.documentOffset,0,0,null,e.getMessage(), null,null));
         }
@@ -202,8 +158,117 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         return ret;
     }
 
+    /**
+     * @return whether we're currently in a valid context for a code-completion request for this engine.
+     */
+    private boolean isValidCompletionContext(CompletionRequest request) {
+        //this engine does not work 'correctly' in the default scope on: 
+        //- class definitions - after 'class' and before '('
+        //- method definitions - after 'def' and before '(' 
+        PySelection ps = request.getPySelection();
+        if(ps.isInDeclarationLine() != PySelection.DECLARATION_NONE){
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Does a code-completion that will retrieve the globals in the module
+     */
+    private void doGlobalsCompletion(CompletionRequest request, ICodeCompletionASTManager astManager, List<Object> tokensList, CompletionState state) throws CompletionRecursionException {
+        state.activationToken = request.activationToken;
+        if(DEBUG_CODE_COMPLETION){
+            Log.toLogFile(this,"astManager.getCompletionsForToken");
+            Log.addLogLevel();
+        }
+        IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
+        if(DEBUG_CODE_COMPLETION){
+            Log.remLogLevel();
+            Log.toLogFile(this,"END astManager.getCompletionsForToken");
+        }
+
+        tokensList.addAll(Arrays.asList(comps));
+        
+        tokensList.addAll(getGlobalsFromParticipants(request, state));
+    }
+
+    /**
+     * Does a code-completion that will retrieve the all matches for some token in the module
+     */
+    private void doTokenCompletion(CompletionRequest request, ICodeCompletionASTManager astManager, List<Object> tokensList, String trimmed, CompletionState state) throws CompletionRecursionException {
+        if (request.activationToken.endsWith(".")) {
+            request.activationToken = request.activationToken.substring(0, request.activationToken.length() - 1);
+        }
+        
+        List<Object> completions = new ArrayList<Object>();
+        if (trimmed.equals("self") || FullRepIterable.getFirstPart(trimmed).equals("self")) {
+            state.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+            getSelfOrClsCompletions(request, tokensList, state, false);
+            
+        }else if (trimmed.equals("cls") || FullRepIterable.getFirstPart(trimmed).equals("cls")) { 
+            state.setLookingFor(ICompletionState.LOOKING_FOR_CLASSMETHOD_VARIABLE);
+            getSelfOrClsCompletions(request, tokensList, state, false);
+
+        } else {
+
+            state.activationToken = request.activationToken;
+
+            //Ok, looking for a token in globals.
+            IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
+            tokensList.addAll(Arrays.asList(comps));
+        }
+        tokensList.addAll(completions);
+    }
+
+    /**
+     * Does a code-completion that will check for imports
+     */
+    private boolean doImportCompletion(CompletionRequest request, ICodeCompletionASTManager astManager, List<Object> tokensList, ImportInfo importsTipper) throws CompletionRecursionException {
+        boolean importsTip;
+        //get the project and make the code completion!!
+        //so, we want to do a code completion for imports...
+        //let's see what we have...
+
+        importsTip = true;
+        importsTipper.importsTipperStr = importsTipper.importsTipperStr.trim();
+        IToken[] imports = astManager.getCompletionsForImport(importsTipper, request);
+        tokensList.addAll(Arrays.asList(imports));
+        return importsTip;
+    }
+
+    /**
+     * Checks if the python nature is valid
+     */
+    private void checkPythonNature(IPythonNature pythonNature) {
+        if (pythonNature == null) {
+            throw new RuntimeException("Unable to get python nature.");
+        }
+    }
+
+    /**
+     * Pre-initializes the shell (NOT in a thread, as we may need it shortly, so, no use in putting it into a thread)
+     */
+    private void lazyStartShell(CompletionRequest request) {
+        try {
+            if(DEBUG_CODE_COMPLETION){
+                Log.toLogFile(this,"AbstractShell.getServerShell");
+            }
+            if (CompiledModule.COMPILED_MODULES_ENABLED) {
+                AbstractShell.getServerShell(request.nature, AbstractShell.COMPLETION_SHELL); //just start it
+            }
+            if(DEBUG_CODE_COMPLETION){
+                Log.toLogFile(this,"END AbstractShell.getServerShell");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * @return completions added from contributors
+     */
     @SuppressWarnings("unchecked")
-    private Collection getGlobalsFromParticipants(CompletionRequest request, ICompletionState state) {
+    private Collection<Object> getGlobalsFromParticipants(CompletionRequest request, ICompletionState state) {
         ArrayList ret = new ArrayList();
         
         List participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);

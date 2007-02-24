@@ -63,11 +63,17 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
                 }
                 //END
                 
+                if(name.equals(request.fullQualifier) && args.trim().length() == 0){
+                    //we don't want to get the tokens that are equal to the current 'full' qualifier
+                    //...unless it adds the parameters to a call...
+                    continue; 
+                }
+                
                 String docStr = element.getDocStr();
                 int type = element.getType();
                 
                 int priority = IPyCompletionProposal.PRIORITY_DEFAULT;
-                if(type == IPyCodeCompletion.TYPE_PARAM){
+                if(type == IPyCodeCompletion.TYPE_PARAM || type == IPyCodeCompletion.TYPE_LOCAL){
                     priority = IPyCompletionProposal.PRIORITY_LOCALS;
                 }
                 
@@ -88,6 +94,8 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
                 PyCompletionProposal proposal = new PyLinkedModeCompletionProposal(name+args,
                         request.documentOffset - request.qlen, request.qlen, l, PyCodeCompletionImages.getImageForType(type), null, 
                         pyContextInformation, docStr, priority, onApplyAction, args);
+                
+
                 convertedProposals.add(proposal);
                     
             

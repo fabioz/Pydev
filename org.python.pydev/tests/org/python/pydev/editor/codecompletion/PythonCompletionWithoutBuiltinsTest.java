@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testClassmethod3();
+	      test.testNoCompletionsForContext();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -648,8 +648,10 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
     
     public void testApply() throws Exception {
-        String s = "from extendable.nested2 import mod2\n"+    
-                   "mod2";    
+        String s0 = "from extendable.nested2 import mod2, mod3\n"+    
+                   "mod%s";    
+        String s = StringUtils.format(s0, "2");
+        
         int offset = s.length()-1;
         ICompletionProposal[] proposals = requestCompl(s, offset, -1, new String[] {});
         assertEquals(1, proposals.length); 
@@ -657,7 +659,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         Document d = new Document(s);
         p.fLen = 1;
         p.applyOnDoc(offset, true, d, 3);
-        assertEquals(s, d.get());
+        assertEquals(StringUtils.format(s0, "3"), d.get());
     }
     
     public void testCalltips1() throws CoreException, BadLocationException {
@@ -730,6 +732,39 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         Document document = new Document(s);
         p.apply(document);
         assertEquals(StringUtils.format(s0, "a, b"), document.get());
+    }
+    
+    public void testDuplicate() throws Exception {
+        String s = 
+            "class Foo(object):\n" +
+            "    def __init__(self):\n" +
+            "        self.attribute = 1\n" +
+            "        self.attribute2 = 2";
+        
+        ICompletionProposal[] proposals = requestCompl(s, s.length()-"ute2 = 2".length(), 1, new String[] {"attribute"});
+        assertEquals(1, proposals.length); 
+    }
+    
+    public void testDuplicate2() throws Exception {
+        String s = 
+            "class Bar(object):\n" +
+            "    def __init__(self):\n" +
+            "        foobar = 10\n" +
+            "        foofoo = 20";
+        //locals work because it will only get the locals that are before the cursor line
+        ICompletionProposal[] proposals = requestCompl(s, s.length()-"foo = 20".length(), 1, new String[] {"foobar"});
+        assertEquals(1, proposals.length); 
+    }
+    
+    public void testNoCompletionsForContext() throws Exception {
+        String s = 
+            "class Foo(object):\n" +
+            "    pass\n" +
+            "class F(object):\n" +
+            "    pass";
+        //we don't want completions when we're declaring a class
+        ICompletionProposal[] proposals = requestCompl(s, s.length()-"(object):\n    pass".length(), 0, new String[] {});
+        assertEquals(0, proposals.length); 
     }
     
     public void testClassmethod() throws Exception {

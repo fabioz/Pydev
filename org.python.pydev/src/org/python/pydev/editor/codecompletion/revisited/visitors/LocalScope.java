@@ -135,7 +135,7 @@ public class LocalScope implements ILocalScope {
                             SourceToken tok = (SourceToken) iterator.next();
                             
                             //if it is found here, it is a local type
-                            tok.type = IPyCodeCompletion.TYPE_PARAM;
+                            tok.type = IPyCodeCompletion.TYPE_LOCAL;
                             if(tok.getAst().beginLine <= endLine){
                                 comps.add(tok);
                             }

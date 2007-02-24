@@ -31,7 +31,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testLineStart();
+            test.testIsInDecl();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
@@ -484,4 +484,13 @@ public class PySelectionTest extends TestCase {
 	private void matchFunc(String func) {
 		assertTrue("Failed to match func:"+func, new PySelection(new Document(func)).isInFunctionLine());
 	}
+    
+    
+    public void testIsInDecl() throws Exception {
+        assertEquals(PySelection.DECLARATION_CLASS, new PySelection(new Document("class A(foo):\r\n    pass"), 7).isInDeclarationLine());
+        assertEquals(0, new PySelection(new Document("class A(foo):\r\n    pass"), 9).isInDeclarationLine());
+        
+        assertEquals(PySelection.DECLARATION_METHOD, new PySelection(new Document("def A(foo):\r\n    pass"), 5).isInDeclarationLine());
+        assertEquals(0, new PySelection(new Document("def A(foo):\r\n    pass"), 6).isInDeclarationLine());
+    }
 }

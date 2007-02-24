@@ -163,21 +163,16 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
             
             //SECOND: getting code completions and deciding if templates should be shown too.
-            boolean showTemplates = true;
             //Get code completion proposals
             if(PyCodeCompletionPreferencesPage.useCodeCompletion()){
-                Object[] objects = new Object[]{new ArrayList(), new Boolean(true)};
                 if(whatToShow == SHOW_ALL){
                     try {
-                        objects = getPythonProposals(viewer, documentOffset, doc, request);
+                        pythonAndTemplateProposals.addAll(getPythonProposals(viewer, documentOffset, doc, request));
                     } catch (Throwable e) {
                         setError(e);
                     }
                 }
 
-                List pythonProposals = (List) objects[0];
-                showTemplates = ((Boolean)objects[1]).booleanValue();
-                pythonAndTemplateProposals.addAll(pythonProposals);
             }
             
             
@@ -188,7 +183,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
             
             //THIRD: Get template proposals (if asked for)
-            if(showTemplates && (activationToken == null || activationToken.trim().length() == 0)){
+            if(request.showTemplates && (activationToken == null || activationToken.trim().length() == 0)){
                 List templateProposals = getTemplateProposals(viewer, documentOffset, activationToken, qualifier);
                 pythonAndTemplateProposals.addAll(templateProposals);
             }
@@ -230,18 +225,16 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * @throws CoreException
      * @throws BadLocationException
      */
-    private Object[] getPythonProposals(ITextViewer viewer, int documentOffset, IDocument doc, CompletionRequest request) throws CoreException, BadLocationException {
-        boolean showTemplates = true;
-        
+    private List getPythonProposals(ITextViewer viewer, int documentOffset, IDocument doc, CompletionRequest request) throws CoreException, BadLocationException {
         //if non empty string, we're in imports section.
         String importsTipperStr = request.codeCompletion.getImportsTipperStr(request).importsTipperStr;
         
         if (importsTipperStr.length() != 0 || request.isInCalltip){
-            showTemplates = false; //don't show templates if we are in the imports section or inside a calltip.
+            request.showTemplates = false; //don't show templates if we are in the imports section or inside a calltip.
         }
         
         List allProposals = request.codeCompletion.getCodeCompletionProposals(viewer, request);
-        return new Object[]{allProposals, new Boolean(showTemplates)};
+        return allProposals;
     }
 
     
@@ -249,9 +242,8 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     /**
      * Returns the template proposals as a list.
      */
-    private List getTemplateProposals(ITextViewer viewer, int documentOffset, String activationToken,
-            java.lang.String qualifier) {
-        List propList = new ArrayList();
+    private List getTemplateProposals(ITextViewer viewer, int documentOffset, String activationToken, java.lang.String qualifier) {
+        List<ICompletionProposal> propList = new ArrayList<ICompletionProposal>();
         this.templatesCompletion.addTemplateProposals(viewer, documentOffset, propList);
         return propList;
     }

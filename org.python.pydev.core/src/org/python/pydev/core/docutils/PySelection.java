@@ -1048,11 +1048,24 @@ public class PySelection {
         public boolean alreadyHasParams;
     }
 
+    /**
+     * Shortcut
+     */
     public String [] getActivationTokenAndQual(boolean getFullQualifier) {
         return getActivationTokenAndQual(doc, getAbsoluteCursorOffset(), getFullQualifier);
     }
     
+    /**
+     * Shortcut
+     */
+    public ActivationTokenAndQual getActivationTokenAndQual(boolean getFullQualifier, boolean handleForCalltips) {
+        return getActivationTokenAndQual(doc, getAbsoluteCursorOffset(), getFullQualifier, handleForCalltips);
+    }
     
+    
+    /**
+     * Shortcut
+     */
     public static String [] getActivationTokenAndQual(IDocument theDoc, int documentOffset, boolean getFullQualifier) {
         ActivationTokenAndQual ret = getActivationTokenAndQual(theDoc, documentOffset, getFullQualifier, false);
         return new String[]{ret.activationToken, ret.qualifier}; //will never be changed for the calltip, as we didn't request it
@@ -1562,6 +1575,44 @@ public class PySelection {
             }
         }
         return false;
+    }
+
+    public static int DECLARATION_NONE = 0;
+    public static int DECLARATION_CLASS = 1;
+    public static int DECLARATION_METHOD = 2;
+    
+    /**
+     * @return whether the current selection is on the ClassName or Function name context
+     * (just after the 'class' or 'def' tokens)
+     */
+    public int isInDeclarationLine() {
+        try {
+            String contents = getLineContentsToCursor();
+            StringTokenizer strTok = new StringTokenizer(contents);
+            if(strTok.hasMoreTokens()){
+                String tok = strTok.nextToken();
+                int decl = DECLARATION_NONE;
+                if(tok.equals("class")){
+                    decl = DECLARATION_CLASS;
+                } else if(tok.equals("def")){
+                    decl = DECLARATION_METHOD;
+                }
+                if(decl != DECLARATION_NONE){
+                    
+                    //ok, we're in a class or def line... so, if we find a '(' or ':', we're not in the declaration... 
+                    //(otherwise, we're in it)
+                    while(strTok.hasMoreTokens()){
+                        tok = strTok.nextToken();
+                        if(tok.indexOf('(') != -1 || tok.indexOf(':') != -1){
+                            return 0;
+                        }
+                    }
+                    return decl;
+                }
+            }
+        } catch (BadLocationException e) {
+        }
+        return 0;
     }
 
 

@@ -154,10 +154,10 @@ public abstract class AbstractToken implements IToken{
         int otherT = comp.getType();
         
         if(thisT != otherT){
-            if (thisT == IPyCodeCompletion.TYPE_PARAM)
+            if (thisT == IPyCodeCompletion.TYPE_PARAM || thisT == IPyCodeCompletion.TYPE_LOCAL)
                 return -1;
 
-            if (otherT == IPyCodeCompletion.TYPE_PARAM)
+            if (otherT == IPyCodeCompletion.TYPE_PARAM || otherT == IPyCodeCompletion.TYPE_LOCAL)
                 return 1;
 
             if (thisT == IPyCodeCompletion.TYPE_IMPORT)
