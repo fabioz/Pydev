@@ -22,6 +22,8 @@ import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
+import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
+import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -285,27 +287,20 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
     /*
      * (non-Javadoc)
      * 
-     * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getContentAssistant(org.eclipse.jface.text.source.ISourceViewer)
+     * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getQuickAssistAssistant(org.eclipse.jface.text.source.ISourceViewer)
      */
-    public PyCorrectionAssistant getCorrectionAssistant(ISourceViewer sourceViewer) {
+    public IQuickAssistAssistant getQuickAssistAssistant(ISourceViewer sourceViewer) {
         // create a content assistant:
         PyCorrectionAssistant assistant = new PyCorrectionAssistant();
 
         // next create a content assistant processor to populate the completions window
-        IContentAssistProcessor processor = new PythonCorrectionProcessor(this.getEdit());
+        IQuickAssistProcessor processor = new PythonCorrectionProcessor(this.getEdit());
 
         // Correction assist works on all
-        assistant.setContentAssistProcessor(processor, IPythonPartitions.PY_SINGLELINE_STRING1);
-        assistant.setContentAssistProcessor(processor, IPythonPartitions.PY_SINGLELINE_STRING2);
-        assistant.setContentAssistProcessor(processor, IPythonPartitions.PY_MULTILINE_STRING1);
-        assistant.setContentAssistProcessor(processor, IPythonPartitions.PY_MULTILINE_STRING2);
-        assistant.setContentAssistProcessor(processor, IPythonPartitions.PY_COMMENT);
-        assistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
+        assistant.setQuickAssistProcessor(processor);
         assistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
 
         //delay and auto activate set on PyContentAssistant constructor.
-
-        assistant.setDocumentPartitioning(IPythonPartitions.PYTHON_PARTITION_TYPE);
         
         return assistant;
     }

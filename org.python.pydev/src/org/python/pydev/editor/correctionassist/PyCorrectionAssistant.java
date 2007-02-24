@@ -5,7 +5,7 @@
  */
 package org.python.pydev.editor.correctionassist;
 
-import org.eclipse.jface.text.contentassist.ContentAssistant;
+import org.eclipse.jface.text.quickassist.QuickAssistAssistant;
 
 /**
  * 
@@ -14,6 +14,6 @@ import org.eclipse.jface.text.contentassist.ContentAssistant;
  * 
  * @author Fabio Zadrozny
  */
-public class PyCorrectionAssistant extends ContentAssistant{
+public class PyCorrectionAssistant extends QuickAssistAssistant{
 
 }

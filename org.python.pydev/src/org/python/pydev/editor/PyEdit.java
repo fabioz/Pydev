@@ -29,7 +29,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Display;
@@ -52,7 +51,6 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.MarkerUtilities;
-import org.eclipse.ui.texteditor.TextOperationAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.python.copiedfromeclipsesrc.PydevFileEditorInput;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
@@ -640,16 +638,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         super.createActions();
 
         MyResources resources = new MyResources();
+        IAction action;
 
-        // -------------------------------------------------------------------------------------
-        //quick fix in editor.
-        IAction action = new TextOperationAction(resources, "CorrectionAssist", this, CORRECTIONASSIST_PROPOSALS); //$NON-NLS-1$
-
-        action.setActionDefinitionId(CORRECTIONASSIST_PROPOSAL_ID);
-        setAction(CORRECTIONASSIST_PROPOSAL_ID, action); //$NON-NLS-1$ 
-        markAsStateDependentAction(CORRECTIONASSIST_PROPOSAL_ID, true); //$NON-NLS-1$ 
-        setActionActivationCode(CORRECTIONASSIST_PROPOSAL_ID, '1', -1, SWT.CTRL);
-
+        //Quick-Assist: it's added to the platform as of Eclipse 3.2, so, we do not have to put the binding here
         
         
         // -------------------------------------------------------------------------------------

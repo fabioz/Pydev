@@ -12,19 +12,18 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
-import org.eclipse.jface.text.contentassist.IContextInformation;
-import org.eclipse.jface.text.contentassist.IContextInformationValidator;
+import org.eclipse.jface.text.quickassist.IQuickAssistInvocationContext;
+import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
+import org.eclipse.jface.text.source.Annotation;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
-import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocString;
+import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
 import org.python.pydev.editor.correctionassist.heuristics.AssistImport;
 import org.python.pydev.editor.correctionassist.heuristics.AssistTry;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
@@ -68,26 +67,30 @@ import org.python.pydev.plugin.PydevPlugin;
  *                       																				 
  * @author Fabio Zadrozny
  */
-public class PythonCorrectionProcessor implements IContentAssistProcessor {
+public class PythonCorrectionProcessor implements IQuickAssistProcessor {
 
     private PyEdit edit;
+
     private ImageCache imageCache;
+
     private static Map<String, IAssistProps> additionalAssists = new HashMap<String, IAssistProps>();
-    
-    public static boolean hasAdditionalAssist(String id){
-    	synchronized (additionalAssists) {
-    		return additionalAssists.containsKey(id);
-    	}
+
+    public static boolean hasAdditionalAssist(String id) {
+        synchronized (additionalAssists) {
+            return additionalAssists.containsKey(id);
+        }
     }
-    public static void addAdditionalAssist(String id, IAssistProps assist){
-    	synchronized (additionalAssists) {
-    		additionalAssists.put(id, assist);
-    	}
+
+    public static void addAdditionalAssist(String id, IAssistProps assist) {
+        synchronized (additionalAssists) {
+            additionalAssists.put(id, assist);
+        }
     }
-    public static void removeAdditionalAssist(String id, IAssistProps assist){
-    	synchronized (additionalAssists) {
-    		additionalAssists.remove(id);
-		}
+
+    public static void removeAdditionalAssist(String id, IAssistProps assist) {
+        synchronized (additionalAssists) {
+            additionalAssists.remove(id);
+        }
     }
 
     /**
@@ -98,47 +101,41 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
         this.imageCache = new ImageCache(PydevPlugin.getDefault().getBundle().getEntry("/"));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeCompletionProposals(org.eclipse.jface.text.ITextViewer,
-     *      int)
-     */
-    public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
+    public boolean canAssist(IQuickAssistInvocationContext invocationContext) {
+        return true;
+    }
 
+    public boolean canFix(Annotation annotation) {
+        return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    public ICompletionProposal[] computeQuickAssistProposals(IQuickAssistInvocationContext invocationContext) {
+        int offset = invocationContext.getOffset();
         PySelection ps = new PySelection(edit);
 
         List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
         String sel = PyAction.getLineWithoutComments(ps);
-        
-        
+
         List<IAssistProps> assists = new ArrayList<IAssistProps>();
-        synchronized (this.additionalAssists) {
-        	for (IAssistProps prop : additionalAssists.values()) {
-				assists.add(prop);
-			}
+        synchronized (PythonCorrectionProcessor.additionalAssists) {
+            for (IAssistProps prop : additionalAssists.values()) {
+                assists.add(prop);
+            }
         }
-        
+
         assists.add(new AssistTry());
         assists.add(new AssistImport());
         assists.add(new AssistDocString());
         assists.add(new AssistAssign());
-        
+
         assists.addAll(ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_CTRL_1));
-        
+
         for (IAssistProps assist : assists) {
             try {
                 if (assist.isValid(ps, sel, edit, offset)) {
                     try {
-                        results.addAll(
-                                assist.getProps(
-                                        ps, 
-                                        imageCache, 
-                                        edit.getEditorFile(), 
-                                        edit.getPythonNature(), 
-                                        edit,
-                                        offset)
-                        );
+                        results.addAll(assist.getProps(ps, imageCache, edit.getEditorFile(), edit.getPythonNature(), edit, offset));
                     } catch (BadLocationException e) {
                         PydevPlugin.log(e);
                     }
@@ -153,50 +150,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
         return (ICompletionProposal[]) results.toArray(new ICompletionProposal[0]);
     }
 
-    
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeContextInformation(org.eclipse.jface.text.ITextViewer,
-     *      int)
-     */
-    public IContextInformation[] computeContextInformation(ITextViewer viewer, int offset) {
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getCompletionProposalAutoActivationCharacters()
-     */
-    public char[] getCompletionProposalAutoActivationCharacters() {
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getContextInformationAutoActivationCharacters()
-     */
-    public char[] getContextInformationAutoActivationCharacters() {
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getErrorMessage()
-     */
     public String getErrorMessage() {
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getContextInformationValidator()
-     */
-    public IContextInformationValidator getContextInformationValidator() {
         return null;
     }
 

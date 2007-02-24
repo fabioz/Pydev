@@ -776,26 +776,7 @@
       </key>
    </extension>
 
-   <extension point="org.eclipse.ui.commands">
-   
-   
-<!-- command: quick-fix -->
-      <command
-            description="Quick Assist."
-            id="org.python.pydev.editors.PyEdit.CorrectionAssist"
-            categoryId="org.python.pydev.ui.category.source"
-            name="Quick Assist">
-      </command>
-   </extension>
-   <extension point="org.eclipse.ui.bindings">
-<!-- binding: go to next problem-->
-      <key
-            sequence="Ctrl+1"
-            contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.editors.PyEdit.CorrectionAssist"    
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
-   </extension>
+
 
 
 <!-- file type extensions for the team (CVS) -->

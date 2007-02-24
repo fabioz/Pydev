@@ -14,23 +14,16 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IOverviewRuler;
 import org.eclipse.jface.text.source.IVerticalRuler;
-import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
-import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.PyEditConfiguration;
-import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 
 
 public class PySourceViewer extends ProjectionViewer {
 
-    private PyEditProjection projection;
-    private PyCorrectionAssistant fCorrectionAssistant;
 
-    public PySourceViewer(Composite parent, IVerticalRuler ruler, IOverviewRuler overviewRuler, boolean showsAnnotationOverview, int styles, PyEditProjection projection) {
+    public PySourceViewer(Composite parent, IVerticalRuler ruler, IOverviewRuler overviewRuler, boolean showsAnnotationOverview, int styles) {
         super(parent, ruler, overviewRuler, showsAnnotationOverview, styles);
-        this.projection = projection;
     }
     
     private boolean isInToggleCompletionStyle;
@@ -44,17 +37,6 @@ public class PySourceViewer extends ProjectionViewer {
     }
     
     
-    public void configure(SourceViewerConfiguration configuration) {
-        super.configure(configuration);
-        if (configuration instanceof PyEditConfiguration) {
-            PyEditConfiguration pyConfiguration = (PyEditConfiguration) configuration;
-
-            //ctrl 1
-            fCorrectionAssistant = pyConfiguration.getCorrectionAssistant(this);
-            fCorrectionAssistant.install(this);
-            
-        }
-    }
         
     /**
      * @param markerLine the line we want markers on
@@ -157,32 +139,5 @@ public class PySourceViewer extends ProjectionViewer {
         };
     }
     
-    /* (non-Javadoc)
-    }
-     * @see org.eclipse.jface.text.source.projection.ProjectionViewer#canDoOperation(int)
-     */
-    public boolean canDoOperation(int operation) {
-        
-        if(operation == PyEdit.CORRECTIONASSIST_PROPOSALS){
-            return true;
-        }
-        
-       return super.canDoOperation(operation);
-    }
 
-    /* (non-Javadoc)
-     * @see org.eclipse.jface.text.source.projection.ProjectionViewer#doOperation(int)
-     */
-    public void doOperation(int operation) {
-        super.doOperation(operation);
-		if (getTextWidget() == null)
-			return;
-		
-		switch (operation) {
-			case PyEdit.CORRECTIONASSIST_PROPOSALS:
-				String msg= fCorrectionAssistant.showPossibleCompletions();
-				projection.setStatusLineErrorMessage(msg);
-				return;
-		}
-    }
 }
