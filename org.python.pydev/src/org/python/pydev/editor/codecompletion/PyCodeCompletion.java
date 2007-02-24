@@ -44,6 +44,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * @author Dmoore
@@ -79,7 +80,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         }
         
         try {
-        	IPythonNature pythonNature = request.nature;
+            IPythonNature pythonNature = request.nature;
             checkPythonNature(pythonNature);
             
             ICodeCompletionASTManager astManager = pythonNature.getAstManager();
@@ -119,35 +120,42 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
             Set<String> alreadyChecked = new HashSet<String>();
             
-            for(ListIterator it=tokensList.listIterator(); it.hasNext();){
-                Object o = it.next();
-                if(o instanceof IToken){
-                    alreadyChecked.clear();
-                    IToken initialToken = (IToken) o;
-                    
-                    IToken token = initialToken;
-                    while(token.isImportFrom()){
-                        String strRep = token.toString();
-                        if(alreadyChecked.contains(strRep)){
-                            break;
-                        }
-                        alreadyChecked.add(strRep);
+            state.pushFindResolveImportMemoryCtx();
+            try{
+                for(ListIterator it=tokensList.listIterator(); it.hasNext();){
+                    Object o = it.next();
+                    if(o instanceof IToken){
+                        alreadyChecked.clear();
+                        IToken initialToken = (IToken) o;
                         
-                        ICompletionState s = state.getCopyForResolveImportWithActTok(token.getRepresentation());
-                        s.checkFindResolveImportMemory(token);
-                        
-                        IToken token2 = astManager.resolveImport(s, token);
-                        if(token2 != null && initialToken != token2){
-                            initialToken.setArgs(token2.getArgs());
-                            initialToken.setDocStr(token2.getDocStr());
-                            token = token2;
+                        IToken token = initialToken;
+                        while(token.isImportFrom()){
+                            String strRep = token.toString();
+                            if(alreadyChecked.contains(strRep)){
+                                break;
+                            }
+                            alreadyChecked.add(strRep);
+    
+                            ICompletionState s = state.getCopyForResolveImportWithActTok(token.getRepresentation());
+                            s.checkFindResolveImportMemory(token);
+                            
+                            IToken token2 = astManager.resolveImport(s, token);
+                            if(token2 != null && initialToken != token2){
+                                initialToken.setArgs(token2.getArgs());
+                                initialToken.setDocStr(token2.getDocStr());
+                                token = token2;
+                            }
                         }
                     }
                 }
+            }finally{
+                state.popFindResolveImportMemoryCtx();
             }
+            
             changeItokenToCompletionPropostal(viewer, request, ret, tokensList, importsTip, state);
         } catch (CompletionRecursionException e) {
-            ret.add(new CompletionProposal("",request.documentOffset,0,0,null,e.getMessage(), null,null));
+            //PydevPlugin.log(e);
+            //ret.add(new CompletionProposal("",request.documentOffset,0,0,null,e.getMessage(), null,null));
         }
         
         if(DEBUG_CODE_COMPLETION){

@@ -6,7 +6,9 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Stack;
 
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
@@ -33,7 +35,7 @@ public class CompletionState implements ICompletionState {
     public Memo<String> findMemory = new Memo<String>();
     public Memo<String> resolveImportMemory = new Memo<String>();
     public Memo<String> findDefinitionMemory = new Memo<String>();
-    public Memo<IToken> findResolveImportMemory = new Memo<IToken>();
+    public Stack<Memo<IToken>> findResolveImportMemory = new Stack<Memo<IToken>>();
     public Memo<String> findModuleCompletionsMemory = new Memo<String>();
     
     public boolean builtinsGotten=false;
@@ -193,15 +195,31 @@ public class CompletionState implements ICompletionState {
     }
     
     /**
-     * @param module
-     * @param base
+     * This check is a bit different from the others because of the context it will work in...
+     * 
+     *  This check is used when resolving things from imports, so, it may check for recursions found when in previous context, but 
+     *  if a recursion is found in the current context, that's ok (because it's simply trying to get the actual representation for a token)
      */
     public void checkFindResolveImportMemory(IToken token) throws CompletionRecursionException{
-        if(this.findResolveImportMemory.isInRecursion(null, token)){
-            throw new CompletionRecursionException("Possible recursion found -- probably programming error --  (token: "+token+") - stopping analysis.");
+        Iterator<Memo<IToken>> it = findResolveImportMemory.iterator();
+        while(it.hasNext()){
+            Memo<IToken> memo = it.next();
+            if(memo.isInRecursion(null, token)){
+                if(it.hasNext()){
+                    throw new CompletionRecursionException("Possible recursion found -- probably programming error --  (token: "+token+") - stopping analysis.");
+                }
+            }
         }
     }
     
+    public void popFindResolveImportMemoryCtx() {
+        findResolveImportMemory.pop();
+    }
+
+    public void pushFindResolveImportMemoryCtx() {
+        findResolveImportMemory.push(new Memo<IToken>());
+    }
+
     /**
      * @param module
      * @param base

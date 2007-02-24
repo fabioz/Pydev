@@ -134,5 +134,13 @@ public class CompletionStateWrapper implements ICompletionState {
     public void setLookingFor(int b) {
         wrapped.setLookingFor(b);
     }
+    
+    public void popFindResolveImportMemoryCtx() {
+        wrapped.popFindResolveImportMemoryCtx();
+    }
+    
+    public void pushFindResolveImportMemoryCtx() {
+        wrapped.pushFindResolveImportMemoryCtx();
+    }
 
 }

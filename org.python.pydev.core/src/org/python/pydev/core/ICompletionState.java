@@ -89,5 +89,9 @@ public interface ICompletionState {
 
     ICompletionState getCopyForResolveImportWithActTok(String representation);
 
+    void pushFindResolveImportMemoryCtx();
+
+    void popFindResolveImportMemoryCtx();
+
 
 }
