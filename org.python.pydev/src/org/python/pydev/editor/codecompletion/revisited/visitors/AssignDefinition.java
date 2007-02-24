@@ -28,6 +28,11 @@ public class AssignDefinition extends Definition{
      * if we were looking for a, target pos would be 0
      */
     public int targetPos;
+
+    /**
+     * Determines that a 'global' was added for the target before this assign
+     */
+    public boolean foundAsGlobal;
     
     /**
      * Constructor.

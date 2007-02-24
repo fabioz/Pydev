@@ -372,7 +372,7 @@ public class SourceModule extends AbstractModule {
                 if(next instanceof AssignDefinition){
                     AssignDefinition element = (AssignDefinition) next;
     	            if(element.target.startsWith("self") == false){
-    		            if(element.scope.isOuterOrSameScope(scopeVisitor.scope)){
+    		            if(element.scope.isOuterOrSameScope(scopeVisitor.scope) || element.foundAsGlobal){
     		                toRet.add(element);
     		            }
     	            }else{

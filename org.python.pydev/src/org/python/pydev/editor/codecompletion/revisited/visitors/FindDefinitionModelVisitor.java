@@ -6,8 +6,10 @@
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
@@ -16,9 +18,11 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Global;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -42,6 +46,11 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
      * Stack of classes / methods to get to a definition.
      */
     private FastStack<SimpleNode> defsStack = new FastStack<SimpleNode>();
+    
+    /**
+     * This is a stack that will keep the globals for each stack
+     */
+    private FastStack<Set<String>> globalDeclarationsStack = new FastStack<Set<String>>();
     
     /**
      * This is the module we are visiting
@@ -100,8 +109,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     		for (aliasType alias: node.names){
     			//we do not check the 'as' because if it is some 'as', it will be gotten as a global in the module
     			if( NodeUtils.isWithin(line, col, alias.name) ){
-    				moduleImported = modRep + "." + 
-    							     NodeUtils.getRepresentationString(alias.name);
+    				moduleImported = modRep + "." + NodeUtils.getRepresentationString(alias.name);
     			}
     		}
     	}
@@ -126,9 +134,14 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitClassDef(org.python.pydev.parser.jython.ast.ClassDef)
      */
     public Object visitClassDef(ClassDef node) throws Exception {
+        globalDeclarationsStack.push(new HashSet<String>());
         defsStack.push(node);
+        
         node.traverse(this);
+        
         defsStack.pop();
+        globalDeclarationsStack.pop();
+        
         checkDeclaration(node, (NameTok) node.name);
         return null;
     }
@@ -137,7 +150,9 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitFunctionDef(org.python.pydev.parser.jython.ast.FunctionDef)
      */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
+        globalDeclarationsStack.push(new HashSet<String>());
         defsStack.push(node);
+        
         if(node.args != null && node.args.args != null){
 	        for(exprType arg:node.args.args){
 	        	if(arg instanceof Name){
@@ -146,7 +161,10 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
 	        }
         }
         node.traverse(this);
+        
         defsStack.pop();
+        globalDeclarationsStack.pop();
+        
         checkDeclaration(node, (NameTok) node.name);
         return null;
     }
@@ -197,6 +215,14 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
         }
     }
     
+    @Override
+    public Object visitGlobal(Global node) throws Exception {
+        for(NameTokType n:node.names){
+            globalDeclarationsStack.peek().add(NodeUtils.getFullRepresentationString(n));
+        }
+        return null;
+    }
+    
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
@@ -224,6 +250,13 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
 	            }
 
                 definition = new AssignDefinition(value, rep, i, node, line, col, scope, module);
+                
+                for(Set<String> globals: globalDeclarationsStack){
+                    if(globals.contains(rep)){
+                        definition.foundAsGlobal = true;
+                    }
+                }
+                
 	            definitions.add(definition);
 	        }
         }

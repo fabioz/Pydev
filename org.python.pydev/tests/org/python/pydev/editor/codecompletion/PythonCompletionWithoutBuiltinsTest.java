@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testRecursion();
+	      test.testGlobal();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -734,6 +734,34 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         String s = 
             "import testrec4\n" +
             "testrec4.url_for.";
+        ICompletionProposal[] proposals = requestCompl(s, s.length(), 1, new String[] {"m1(self)"});
+        assertEquals(1, proposals.length); 
+    }
+    
+    public void testGlobal() throws Exception {
+        String s = 
+            "class Log:\n" +
+            "    def method1(self):\n" +
+            "        pass\n" +
+            "    \n" +
+            "def main():\n" +
+            "    global logger\n" +
+            "    logger = Log()\n" +
+            "    logger.method1()\n" +
+            "    \n" +
+            "def otherFunction():\n" +
+            "    logger.";
+        ICompletionProposal[] proposals = requestCompl(s, s.length(), 1, new String[] {"method1()"});
+        assertEquals(1, proposals.length); 
+    }
+    
+    public void testClassInNestedScope() throws Exception {
+        String s = 
+            "def some_function():\n" +
+            "   class Starter:\n" +
+            "       def m1(self):\n" +
+            "           pass\n" +
+            "   Starter.";
         ICompletionProposal[] proposals = requestCompl(s, s.length(), 1, new String[] {"m1(self)"});
         assertEquals(1, proposals.length); 
     }
