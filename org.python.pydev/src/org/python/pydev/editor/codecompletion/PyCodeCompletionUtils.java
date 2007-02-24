@@ -1,10 +1,10 @@
 package org.python.pydev.editor.codecompletion;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -187,7 +187,7 @@ public class PyCodeCompletionUtils {
     public static ICompletionProposal[] onlyValidSorted(List pythonAndTemplateProposals, String qualifier, boolean onlyForCalltips) {
         //FOURTH: Now, we have all the proposals, only thing is deciding wich ones are valid (depending on
         //qualifier) and sorting them correctly.
-        Collection returnProposals = new HashSet();
+        Set<ICompletionProposal> returnProposals = new HashSet<ICompletionProposal>();
         String lowerCaseQualifier = qualifier.toLowerCase();
         
         for (Iterator iter = pythonAndTemplateProposals.iterator(); iter.hasNext();) {
@@ -214,10 +214,9 @@ public class PyCodeCompletionUtils {
             }
         }
     
-        ICompletionProposal[] proposals = new ICompletionProposal[returnProposals.size()];
     
         // and fill with list elements
-        returnProposals.toArray(proposals);
+        ICompletionProposal[] proposals = returnProposals.toArray(new ICompletionProposal[returnProposals.size()]);
     
         Arrays.sort(proposals, IPyCodeCompletion.PROPOSAL_COMPARATOR);
         return proposals;

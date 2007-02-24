@@ -8,11 +8,12 @@ package org.python.pydev.editor.codecompletion;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Set;
+import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
@@ -116,40 +117,69 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 doGlobalsCompletion(request, astManager, tokensList, state);
             }
 
-            Set<String> alreadyChecked = new HashSet<String>();
+            Map<String, IToken> alreadyChecked = new HashMap<String, IToken>();
             
+            String lowerCaseQual = request.qualifier.toLowerCase();
             state.pushFindResolveImportMemoryCtx();
             try{
                 for(ListIterator it=tokensList.listIterator(); it.hasNext();){
                     Object o = it.next();
                     if(o instanceof IToken){
-                        alreadyChecked.clear();
+                        it.remove(); // always remove the tokens from the list (they'll be re-added later once they are filtered)
+                        
                         IToken initialToken = (IToken) o;
                         
                         IToken token = initialToken;
+                        String strRep = token.getRepresentation();
+                        IToken prev = alreadyChecked.get(strRep);
+                        
+                        if(prev != null){
+                            if(prev.getArgs().length() != 0){
+                                continue; // we already have a version with args... just keep going
+                            }
+                        }
+                        
+                        if(!strRep.toLowerCase().startsWith(lowerCaseQual)){
+                            //just re-add it if we're going to actually use it (depending on the qualifier)
+                            continue;
+                        }
+                        
                         while(token.isImportFrom()){
-                            String strRep = token.toString();
-                            if(alreadyChecked.contains(strRep)){
+                            //we'll only add it here if it is an import from (so, set the flag to false for the outer add)
+                            
+                            if(token.getArgs().length() > 0){
+                                //if we already have the args, there's also no reason to do it (that's what we'll do here)
                                 break;
                             }
-                            alreadyChecked.add(strRep);
-    
                             ICompletionState s = state.getCopyForResolveImportWithActTok(token.getRepresentation());
                             s.checkFindResolveImportMemory(token);
                             
                             IToken token2 = astManager.resolveImport(s, token);
                             if(token2 != null && initialToken != token2){
-                                initialToken.setArgs(token2.getArgs());
-                                initialToken.setDocStr(token2.getDocStr());
+                                String args = token2.getArgs();
+                                if(args.length() > 0){
+                                    //put it into the map (may override previous if it didn't have args)
+                                    initialToken.setArgs(args);
+                                    initialToken.setDocStr(token2.getDocStr());
+                                    break;
+                                }
                                 token = token2;
+                            }else{
+                                break;
                             }
                         }
+                        
+                        alreadyChecked.put(strRep, initialToken);
                     }
                 }
+
             }finally{
                 state.popFindResolveImportMemoryCtx();
             }
             
+            for(IToken t:alreadyChecked.values()){
+                tokensList.add(t);
+            }
             changeItokenToCompletionPropostal(viewer, request, ret, tokensList, importsTip, state);
         } catch (CompletionRecursionException e) {
             //PydevPlugin.log(e);

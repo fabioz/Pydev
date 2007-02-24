@@ -92,6 +92,13 @@ public class PyStringCodeCompletion extends AbstractPyCodeCompletion{
         if(ret.size() == 0){
             //if the size is not 0, it means that this is a place for the '@' stuff, and not for the 'default' context for a string.
             ret.addAll(getStringGlobalsFromParticipants(request, CompletionStateFactory.getEmptyCompletionState(request.activationToken, request.nature)));
+            
+            //the code-below does not work well because the module may not have an actual import for the activation token,
+            //so, it is useless too many times
+            //if(request.activationToken.length() != 0){
+            //    PyCodeCompletion completion = new PyCodeCompletion();
+            //    ret.addAll(completion.getCodeCompletionProposals(viewer, request));
+            //}
         }
         
         fillWithParams(viewer, request, ret);
