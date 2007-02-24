@@ -202,7 +202,7 @@ public class SourceModule extends AbstractModule {
                                         value = NodeUtils.getRepresentationString(assign.value);
                                         definitions = findDefinition(initialState.getCopyWithActTok(value), d.line, d.col, manager.getNature(), new ArrayList<FindInfo>());
                                     }else if(d.ast instanceof ClassDef){
-                                        IToken[] toks = (IToken[]) getToks(initialState, manager, d.ast).toArray(new IToken[0]);
+                                        IToken[] toks = (IToken[]) getClassToks(initialState, manager, d.ast).toArray(new IToken[0]);
                                         if(iActTok == actToks.length-1){
                                             return toks;
                                         }
@@ -257,7 +257,7 @@ public class SourceModule extends AbstractModule {
                     if(ast instanceof ClassDef){
                         initialState.setLookingFor(ICompletionState.LOOKING_FOR_UNBOUND_VARIABLE);
                     }
-                    return (IToken[]) getToks(initialState, manager, ast).toArray(new IToken[0]);
+                    return (IToken[]) getClassToks(initialState, manager, ast).toArray(new IToken[0]);
 	            }
 	        }
         }else{
@@ -287,7 +287,7 @@ public class SourceModule extends AbstractModule {
      * @param ast
      * @return
      */
-    private List<IToken> getToks(ICompletionState initialState, ICodeCompletionASTManager manager, SimpleNode ast) {
+    public List<IToken> getClassToks(ICompletionState initialState, ICodeCompletionASTManager manager, SimpleNode ast) {
         List<IToken> modToks = new ArrayList<IToken>(Arrays.asList(GlobalModelVisitor.getTokens(ast, GlobalModelVisitor.INNER_DEFS, name, initialState)));//name = moduleName
         
         try {

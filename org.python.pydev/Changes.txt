@@ -5,6 +5,7 @@ after 1.2.7
 <li><strong>Code-completion</strong>: now works in emacs mode</li>
 <li><strong>Code-completion</strong>: added the possibility of auto-completing for all ascii chars (so, it starts completing once you start writing)</li>
 <li><strong>Code-completion</strong>: code-completion for epydoc inside strings</li>
+<li><strong>Code-completion</strong>: assigns after global statement considered added to the global namespace</li>
 <li><strong>Fix: BRM Refactoring</strong>: wrong column was being passed to the BRM refactoring engine</li>
 </ul>
 

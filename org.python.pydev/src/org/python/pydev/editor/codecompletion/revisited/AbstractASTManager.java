@@ -39,10 +39,12 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.LocalScope;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -50,7 +52,9 @@ import org.python.pydev.parser.visitors.NodeUtils;
 
 public abstract class AbstractASTManager implements ICodeCompletionASTManager, Serializable {
 
-	public AbstractASTManager(){
+	private static final IToken[] EMPTY_ITOKEN_ARRAY = new IToken[0];
+    
+    public AbstractASTManager(){
 	}
 	
     /**
@@ -178,7 +182,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 }
             }
         }
-        return set.toArray(new IToken[0]);
+        return set.toArray(EMPTY_ITOKEN_ARRAY);
     }
 
     
@@ -438,7 +442,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
 	        if (state.getActivationToken().length() == 0) {
 
-		        List<IToken> completions = getGlobalCompletions(globalTokens, importedModules.toArray(new IToken[0]), wildImportedModules, state, module);
+		        List<IToken> completions = getGlobalCompletions(globalTokens, importedModules.toArray(EMPTY_ITOKEN_ARRAY), wildImportedModules, state, module);
 		        
 		        //now find the locals for the module
 		        if (state.getLine() >= 0){
@@ -449,12 +453,12 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 		        }
 		        completions.addAll(initial); //just addd all that are in the same level if it was an __init__
 
-                return completions.toArray(new IToken[0]);
+                return completions.toArray(EMPTY_ITOKEN_ARRAY);
                 
             }else{ //ok, we have a token, find it and get its completions.
                 
                 //first check if the token is a module... if it is, get the completions for that module.
-                IToken[] tokens = findTokensOnImportedMods(importedModules.toArray(new IToken[0]), state, module);
+                IToken[] tokens = findTokensOnImportedMods(importedModules.toArray(EMPTY_ITOKEN_ARRAY), state, module);
                 if(tokens != null && tokens.length > 0){
                     return tokens;
                 }
@@ -512,7 +516,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                     }
                 }
                 
-                return getAssignCompletions( module, state);
+                return getAssignCompletions(module, state);
             }
 
             
@@ -520,8 +524,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             System.err.println("Module passed in is null!!");
         }
         
-        return new IToken[0];
+        return EMPTY_ITOKEN_ARRAY;
     }
+
 
 
 
@@ -548,7 +553,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                             argsCompletionFromParticipants.add(t);
                         }
                     }
-                    return (IToken[]) argsCompletionFromParticipants.toArray(new IToken[0]);
+                    return (IToken[]) argsCompletionFromParticipants.toArray(EMPTY_ITOKEN_ARRAY);
                 }
             }
         }
@@ -630,26 +635,62 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @param col
      * @return
      */
-    public IToken[] getAssignCompletions( IModule module, ICompletionState state) {
+    public IToken[] getAssignCompletions(IModule module, ICompletionState state) {
         if (module instanceof SourceModule) {
             SourceModule s = (SourceModule) module;
             try {
                 Definition[] defs = s.findDefinition(state, state.getLine()+1, state.getCol()+1, state.getNature(), new ArrayList<FindInfo>());
                 for (int i = 0; i < defs.length; i++) {
-                    if(!(defs[i].ast instanceof FunctionDef)){
-                        //we might want to extend that later to check the return of some function...
-                        state.setLookingFor(ICompletionState.LOOKING_FOR_ASSIGN);
-	                    ICompletionState copy = state.getCopy();
-	                    copy.setActivationToken (defs[i].value);
-	                    copy.setLine(defs[i].line);
-	                    copy.setCol(defs[i].col);
-	                    module = defs[i].module;
-
-	                    state.checkDefinitionMemory(module, defs[i]);
-	                            
-	                    IToken[] tks = getCompletionsForModule(module, copy);
-	                    if(tks.length > 0)
-	                        return tks;
+                    Definition definition = defs[i];
+                    
+                    AssignDefinition assignDefinition = null;
+                    if(definition instanceof AssignDefinition){
+                        assignDefinition = (AssignDefinition) definition;
+                    }
+                    
+                    if(!(definition.ast instanceof FunctionDef)){
+                        if(definition.ast instanceof ClassDef){
+                            state.setLookingFor(ICompletionState.LOOKING_FOR_UNBOUND_VARIABLE);
+                            List<IToken> classToks = s.getClassToks(state, this, definition.ast);
+                            if(classToks.size() > 0){
+                                return classToks.toArray(EMPTY_ITOKEN_ARRAY);
+                            }
+                            
+                            
+                        }else{
+                            if(assignDefinition != null && assignDefinition.foundAsGlobal){
+                                //it may be declared as a global with a class defined in the local scope
+                                IToken[] allLocalTokens = assignDefinition.scope.getAllLocalTokens();
+                                for (IToken token : allLocalTokens) {
+                                    if(token.getRepresentation().equals(assignDefinition.value)){
+                                        if(token instanceof SourceToken){
+                                            SourceToken srcToken = (SourceToken) token;
+                                            if(srcToken.getAst() instanceof ClassDef){
+                                                List<IToken> classToks = s.getClassToks(state, this, srcToken.getAst());
+                                                if(classToks.size() > 0){
+                                                    return classToks.toArray(EMPTY_ITOKEN_ARRAY);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            //we might want to extend that later to check the return of some function...
+                            state.setLookingFor(ICompletionState.LOOKING_FOR_ASSIGN);
+    	                    ICompletionState copy = state.getCopy();
+    	                    copy.setActivationToken (definition.value);
+    	                    copy.setLine(definition.line);
+    	                    copy.setCol(definition.col);
+    	                    module = definition.module;
+    
+    	                    state.checkDefinitionMemory(module, definition);
+    	                            
+    	                    IToken[] tks = getCompletionsForModule(module, copy);
+    	                    if(tks.length > 0){
+    	                        return tks;
+                            }
+                        }
                     }
                 }
                 
@@ -662,7 +703,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 throw new RuntimeException("A throwable exception has been detected "+t.getClass());
             }
         }
-        return new IToken[0];
+        return EMPTY_ITOKEN_ARRAY;
     }
 
     /**

@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testGlobal();
+	      test.testGlobalClassInNestedScope();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -763,6 +763,33 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             "           pass\n" +
             "   Starter.";
         ICompletionProposal[] proposals = requestCompl(s, s.length(), 1, new String[] {"m1(self)"});
+        assertEquals(1, proposals.length); 
+    }
+    
+    public void testClassInNestedScope2() throws Exception {
+        String s = 
+            "def some_function():\n" +
+            "    class Starter:\n" +
+            "        def m1(self):\n" +
+            "            pass\n" +
+            "    s = Starter()\n" +
+            "    s.";
+        ICompletionProposal[] proposals = requestCompl(s, s.length(), 1, new String[] {"m1()"});
+        assertEquals(1, proposals.length); 
+    }
+    
+    public void testGlobalClassInNestedScope() throws Exception {
+        String s = 
+            "def some_function():\n" +
+            "    class Starter:\n" +
+            "        def m1(self):\n" +
+            "            pass\n" +
+            "    global s\n" +
+            "    s = Starter()\n" +
+            "\n" +
+            "def foo():\n" +
+            "    s.";
+        ICompletionProposal[] proposals = requestCompl(s, s.length(), 1, new String[] {"m1()"});
         assertEquals(1, proposals.length); 
     }
 
