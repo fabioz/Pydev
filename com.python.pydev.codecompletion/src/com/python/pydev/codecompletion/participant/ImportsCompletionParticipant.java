@@ -28,7 +28,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
 
     private static final Collection EMPTY_COLLECTION = new ArrayList();
 
-    public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state) {
+    private Collection getThem(CompletionRequest request, boolean addAutoImport) {
         ArrayList<CtxInsensitiveImportComplProposal> list = new ArrayList<CtxInsensitiveImportComplProposal>();
         if(request.isInCalltip){
             return list;
@@ -45,21 +45,34 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             
             String lowerQual = request.qualifier.toLowerCase();
 
+            StringBuffer realImportRep=new StringBuffer();
+            
             for (Iterator iter = allModuleNames.iterator(); iter.hasNext();) {
                 String name = (String) iter.next();
                 
                 FullRepIterable iterable = new FullRepIterable(name);
                 for (String string : iterable) {
+                    //clear the buffer...
+                    realImportRep.delete(0, realImportRep.length());
                     
                     String[] strings = FullRepIterable.headAndTail(string);
-                    String packageName = strings[0];
-                    String realImportRep = "import "+strings[1];
                     String importRep = strings[1];
+                    StringBuffer displayString = new StringBuffer(importRep);
                     
-                    String displayString = importRep;
+                    String packageName = strings[0];
+                    if(addAutoImport){
+                        realImportRep.append("import ");
+                        realImportRep.append(strings[1]);
+                    }
+                    
                     if(packageName.length() > 0){
-                        realImportRep = "from "+packageName+" "+realImportRep;
-                        displayString += " - "+ packageName;
+                        if(addAutoImport){
+                            realImportRep.insert(0, " ");
+                            realImportRep.insert(0, packageName);
+                            realImportRep.insert(0, "from ");
+                        }
+                        displayString.append(" - ");
+                        displayString.append(packageName);
                     }
                     
                     CtxInsensitiveImportComplProposal  proposal = new CtxInsensitiveImportComplProposal (
@@ -68,11 +81,11 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                             request.qlen, 
                             realImportRep.length(), 
                             img, 
-                            displayString, 
+                            displayString.toString(), 
                             (IContextInformation)null, 
                             "", 
                             importRep.toLowerCase().equals(lowerQual)? IPyCompletionProposal.PRIORITY_LOCALS_2 : IPyCompletionProposal.PRIORITY_PACKAGES,
-                            realImportRep);
+                            realImportRep.toString());
 
                     list.add(proposal);
                 }
@@ -81,7 +94,15 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         return list;
     }
 
+    public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state) {
+        return getThem(request, true);
+    }
+    
     public Collection getArgsCompletion(ICompletionState state, ILocalScope localScope, IToken[] interfaceForLocal) {
         return EMPTY_COLLECTION;
+    }
+
+    public Collection getStringGlobalCompletions(CompletionRequest request, ICompletionState state) {
+        return getThem(request, false);
     }
 }

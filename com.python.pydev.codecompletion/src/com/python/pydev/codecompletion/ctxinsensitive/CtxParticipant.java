@@ -24,8 +24,8 @@ import com.python.pydev.analysis.additionalinfo.IInfo;
 
 public class CtxParticipant implements IPyDevCompletionParticipant{
 
-    public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state) {
-    	ArrayList<CtxInsensitiveImportComplProposal> completions = new ArrayList<CtxInsensitiveImportComplProposal>();
+    private Collection getThem(CompletionRequest request, boolean addAutoImport) {
+        ArrayList<CtxInsensitiveImportComplProposal> completions = new ArrayList<CtxInsensitiveImportComplProposal>();
     	if(request.isInCalltip){
     	    return completions;
     	}
@@ -42,6 +42,8 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
         
             List<IInfo> tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, request.nature, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
             
+            StringBuffer realImportRep = new StringBuffer();
+            StringBuffer displayString = new StringBuffer();
             for (IInfo info : tokensStartingWith) {
                 //there always must be a declaringModuleName
                 String declaringModuleName = info.getDeclaringModuleName();
@@ -57,21 +59,21 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
                 }
                 
                 String rep = info.getName();
-                StringBuffer buffer = new StringBuffer();
-                buffer.append("from ");
-                buffer.append(declaringModuleName);
-                buffer.append(" import ");
-                buffer.append(rep);
-                String realImportRep = buffer.toString();
-                
-                buffer = new StringBuffer();
-                buffer.append(rep );
-                buffer.append(" - ");
-                buffer.append(declaringModuleName);
-                if(hasInit){
-                	buffer.append(".__init__");
+                if(addAutoImport){
+                    realImportRep.delete(0, realImportRep.length()); //clear the buffer
+                    realImportRep.append("from ");
+                    realImportRep.append(declaringModuleName);
+                    realImportRep.append(" import ");
+                    realImportRep.append(rep);
                 }
-                String displayString = buffer.toString();
+                
+                displayString.delete(0, displayString.length()); //clear the buffer
+                displayString.append(rep );
+                displayString.append(" - ");
+                displayString.append(declaringModuleName);
+                if(hasInit){
+                	displayString.append(".__init__");
+                }
 
                 CtxInsensitiveImportComplProposal  proposal = new CtxInsensitiveImportComplProposal (
                         rep,
@@ -79,17 +81,21 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
                         request.qlen, 
                         realImportRep.length(), 
                         AnalysisPlugin.getImageForAutoImportTypeInfo(info), 
-                        displayString, 
+                        displayString.toString(), 
                         (IContextInformation)null, 
                         "", 
                         rep.toLowerCase().equals(lowerQual)? IPyCompletionProposal.PRIORITY_LOCALS_1 : IPyCompletionProposal.PRIORITY_GLOBALS,
-                        realImportRep);
+                        realImportRep.toString());
                 
                 completions.add(proposal);
             }
     
         }        
         return completions;
+    }
+    
+    public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state) {
+        return getThem(request, true);
     }
 
     public Collection getArgsCompletion(ICompletionState state, ILocalScope localScope, IToken[] interfaceForLocal) {
@@ -104,6 +110,10 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
             
         }
         return ret;
+    }
+
+    public Collection getStringGlobalCompletions(CompletionRequest request, ICompletionState state) {
+        return getThem(request, false);
     }
 
 
