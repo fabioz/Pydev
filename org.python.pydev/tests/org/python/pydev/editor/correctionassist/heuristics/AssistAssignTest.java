@@ -7,20 +7,41 @@ package org.python.pydev.editor.correctionassist.heuristics;
 
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.codingstd.ICodingStd;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyAction;
-
-import junit.framework.TestCase;
 
 /**
  * @author Fabio Zadrozny
  */
 public class AssistAssignTest extends TestCase {
 
+
+    
+    static class NonCamelCodingStd implements ICodingStd{
+
+        public boolean localsAndAttrsCamelcase() {
+            return false;
+        }
+        
+    }
+    
+    
+    static class CamelCodingStd implements ICodingStd{
+        
+        public boolean localsAndAttrsCamelcase() {
+            return true;
+        }
+        
+    }
+
+    
     private static final boolean DEBUG = false;
 	private AssistAssign assist;
 
@@ -41,7 +62,7 @@ public class AssistAssignTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        assist = new AssistAssign();
+        assist = new AssistAssign(new CamelCodingStd());
     }
 
     /*
@@ -84,6 +105,22 @@ public class AssistAssignTest extends TestCase {
         assertContains("Assign to local (newMethod)", props);
     }
     
+    public void testSimpleUnderline() throws BadLocationException {
+        String d = ""+
+        "from testAssist import assist\n" +
+        "assist._NewMethod(a = 1, b = 2)";
+        
+        Document doc = new Document(d);
+        
+        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        String sel = PyAction.getLineWithoutComments(ps);
+        
+        assertEquals(true, assist.isValid(ps, sel, null, d.length()));
+        List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
+        assertEquals(2, props.size());
+        assertContains("Assign to local (_newMethod)", props);
+    }
+    
     public void testSimple3() throws BadLocationException {
         String d = ""+
         "from testAssist import assist\n" +
@@ -96,6 +133,40 @@ public class AssistAssignTest extends TestCase {
         
         assertEquals(false, assist.isValid(ps, sel, null, d.length()));
         
+    }
+        
+    public void testCodingStd() throws BadLocationException {
+        assist = new AssistAssign(new NonCamelCodingStd());
+        String d = ""+
+        "from testAssist import assist\n" +
+        "assist.NewMethod(a = 1, b = 2)";
+        
+        Document doc = new Document(d);
+        
+        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        String sel = PyAction.getLineWithoutComments(ps);
+        
+        assertEquals(true, assist.isValid(ps, sel, null, d.length()));
+        List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
+        assertEquals(2, props.size());
+        assertContains("Assign to local (new_method)", props);
+    }
+    
+    public void testCodingStd2() throws BadLocationException {
+        assist = new AssistAssign(new NonCamelCodingStd());
+        String d = ""+
+        "from testAssist import assist\n" +
+        "assist._NewMethod(a = 1, b = 2)";
+        
+        Document doc = new Document(d);
+        
+        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        String sel = PyAction.getLineWithoutComments(ps);
+        
+        assertEquals(true, assist.isValid(ps, sel, null, d.length()));
+        List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
+        assertEquals(2, props.size());
+        assertContains("Assign to local (_new_method)", props);
     }
     
     public void testSimple4() throws BadLocationException {

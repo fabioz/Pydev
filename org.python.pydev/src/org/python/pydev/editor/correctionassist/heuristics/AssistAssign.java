@@ -12,6 +12,7 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.codingstd.ICodingStd;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
@@ -19,12 +20,29 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
+import org.python.pydev.plugin.PyCodeStylePreferencesPage;
 import org.python.pydev.ui.UIConstants;
 
 /**
  * @author Fabio Zadrozny
  */
 public class AssistAssign implements IAssistProps {
+
+    private ICodingStd std;
+
+    public AssistAssign() {
+        this(new ICodingStd(){
+
+            public boolean localsAndAttrsCamelcase() {
+                return PyCodeStylePreferencesPage.useLocalsAndAttrsCamelCase();
+            }
+            
+        });
+    }
+    
+    public AssistAssign(ICodingStd std) {
+        this.std = std;
+    }
 
     private Image getImage(ImageCache imageCache, String c){
         if(imageCache != null)
@@ -66,15 +84,22 @@ public class AssistAssign implements IAssistProps {
 
         if(callName.length() > 0){
             //all that just to change first char to lower case.
-            callName = PyAction.lowerChar(callName, 0);
-            if (callName.startsWith("get") && callName.length() > 3){
+            if (callName.toLowerCase().startsWith("get") && callName.length() > 3){
                 callName = callName.substring(3);
-                callName = PyAction.lowerChar(callName, 0);
+            }
+            
+            for(int i=0;i<callName.length();i++){
+                char c = callName.charAt(i);
+                if(c != '_'){
+                    callName = PyAction.lowerChar(callName, i);
+                    break;
+                }
             }
         }else{
             callName = "result";
         }
         
+        callName = changeToCodingStd(callName);
         String tok = callName;
 
         int firstCharPosition = PySelection.getFirstCharPosition(ps.getDoc(), ps.getAbsoluteCursorOffset());
@@ -85,6 +110,24 @@ public class AssistAssign implements IAssistProps {
         l.add(new AssistAssignCompletionProposal("self." + callName, firstCharPosition, 0, 5, getImage(imageCache,UIConstants.ASSIST_ASSIGN_TO_CLASS),
                 "Assign to field (self."+tok+")", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, edit));
         return l;
+    }
+
+    private String changeToCodingStd(String callName) {
+        if(!this.std.localsAndAttrsCamelcase()){
+            StringBuffer ret = new StringBuffer();
+            char[] cs = callName.toCharArray();
+            for(char c: cs){
+                if(Character.isUpperCase(c)){
+                    ret.append("_");
+                    ret.append(Character.toLowerCase(c));
+                }else{
+                    ret.append(c);
+                }
+            }
+            return ret.toString();
+        }else{
+            return callName;
+        }
     }
 
     /**

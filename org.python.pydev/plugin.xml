@@ -125,20 +125,25 @@
             class="org.python.pydev.plugin.PyunitPrefsPage"
             id="org.python.pydev.prefs.pyunitPage"/>
       <page
-            name="Code Formatter"
+            name="Code Style"
             category="org.python.pydev.prefs"
-            class="org.python.pydev.plugin.PyCodeFormatterPage"
-            id="org.python.pydev.plugin.pyCodeFormatterPage"/>
+            class="org.python.pydev.plugin.PyCodeStylePreferencesPage"
+            id="org.python.pydev.plugin.pyCodeStylePreferencesPage"/>
             
       <page
+            name="Code Formatter"
+            category="org.python.pydev.plugin.pyCodeStylePreferencesPage"
+            class="org.python.pydev.plugin.PyCodeFormatterPage"
+            id="org.python.pydev.plugin.pyCodeFormatterPage"/>
+      <page
       		name="Docstrings"
-            category="org.python.pydev.plugin.pyCodeFormatterPage"
+            category="org.python.pydev.plugin.pyCodeStylePreferencesPage"
             class="org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage"
             id="org.python.pydev.editor.correctionassist.docstrings.DocstringsPreferencePage"/>
 
       <page
       		name="Block Comments"
-            category="org.python.pydev.plugin.pyCodeFormatterPage"
+            category="org.python.pydev.plugin.pyCodeStylePreferencesPage"
             class="org.python.pydev.editor.commentblocks.CommentBlocksPreferences"
             id="org.python.pydev.editor.commentblocks.CommentBlocksPreferences"/>
 

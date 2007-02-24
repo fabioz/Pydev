@@ -14,18 +14,16 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 /**
  * @author Fabio Zadrozny
  */
-public class PyCodeFormatterPage extends FieldEditorPreferencePage 
-implements IWorkbenchPreferencePage{
+public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     public static final String USE_SPACE_AFTER_COMMA = "USE_SPACE_AFTER_COMMA";
+
     public static final boolean DEFAULT_USE_SPACE_AFTER_COMMA = true;
-    
+
     public static final String USE_SPACE_FOR_PARENTESIS = "USE_SPACE_FOR_PARENTESIS";
+
     public static final boolean DEFAULT_USE_SPACE_FOR_PARENTESIS = false;
-    
-    /**
-     * @param style
-     */
+
     public PyCodeFormatterPage() {
         super(GRID);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
@@ -37,11 +35,9 @@ implements IWorkbenchPreferencePage{
     public void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
-        addField(new BooleanFieldEditor(
-		        USE_SPACE_AFTER_COMMA, "Use space after commas?", p));
+        addField(new BooleanFieldEditor(USE_SPACE_AFTER_COMMA, "Use space after commas?", p));
 
-        addField(new BooleanFieldEditor(
-		        USE_SPACE_FOR_PARENTESIS, "Use space before and after parenthesis?", p));
+        addField(new BooleanFieldEditor(USE_SPACE_FOR_PARENTESIS, "Use space before and after parenthesis?", p));
     }
 
     /**
@@ -57,6 +53,5 @@ implements IWorkbenchPreferencePage{
     public static boolean useSpaceForParentesis() {
         return PydevPrefs.getPreferences().getBoolean(USE_SPACE_FOR_PARENTESIS);
     }
-
 
 }
