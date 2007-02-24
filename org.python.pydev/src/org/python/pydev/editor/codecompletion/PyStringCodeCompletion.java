@@ -1,6 +1,8 @@
 package org.python.pydev.editor.codecompletion;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -16,9 +18,12 @@ import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateProposal;
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocIterator;
+import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -78,9 +83,17 @@ public class PyStringCodeCompletion extends AbstractPyCodeCompletion{
     /**
      * Needed interface for adding the completions on a request
      */
-    public List<ICompletionProposal> getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException {
-        ArrayList<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
+    @SuppressWarnings("unchecked")
+    public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException {
+        ArrayList ret = new ArrayList();
+        request.showTemplates = false; //don't show templates in strings
         fillWithEpydocFields(viewer, request, ret);
+        
+        if(ret.size() == 0){
+            //if the size is not 0, it means that this is a place for the '@' stuff, and not for the 'default' context for a string.
+            ret.addAll(getStringGlobalsFromParticipants(request, CompletionStateFactory.getEmptyCompletionState(request.activationToken, request.nature)));
+        }
+        
         fillWithParams(viewer, request, ret);
         return ret;
     }
@@ -204,5 +217,19 @@ public class PyStringCodeCompletion extends AbstractPyCodeCompletion{
 		return plugin.getContextTypeRegistry().getContextType(PyContextType.PY_CONTEXT_TYPE);
     }
 
+    /**
+     * @return completions added from contributors
+     */
+    @SuppressWarnings("unchecked")
+    private Collection<Object> getStringGlobalsFromParticipants(CompletionRequest request, ICompletionState state) {
+        ArrayList ret = new ArrayList();
+        
+        List participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);
+        for (Iterator iter = participants.iterator(); iter.hasNext();) {
+            IPyDevCompletionParticipant participant = (IPyDevCompletionParticipant) iter.next();
+            ret.addAll(participant.getStringGlobalCompletions(request, state));
+        }
+        return ret;
+    }
 
 }

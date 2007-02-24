@@ -25,6 +25,8 @@ public interface IPyDevCompletionParticipant {
      * @see org.python.pydev.core.IToken
      */
     Collection getGlobalCompletions(CompletionRequest request, ICompletionState state);
+    
+    Collection getStringGlobalCompletions(CompletionRequest request, ICompletionState state);
 
     Collection getArgsCompletion(ICompletionState state, ILocalScope localScope, IToken[] interfaceForLocal);
 
