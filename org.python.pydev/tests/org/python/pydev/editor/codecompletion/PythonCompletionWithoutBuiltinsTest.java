@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testAssign();
+	      test.testReturn3();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -811,4 +811,79 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, s.length(), 2, new String[] {"foo()", "bar()"});
     }
 
+    public void testAssign2() throws Exception {
+        String s = 
+            "class Foo(object):\n" +
+            "    def foo(self):\n" +
+            "        pass\n" +
+            "class Bar(object):\n" +
+            "    def bar(self):\n" +
+            "        pass\n" +
+            "    \n" +
+            "class KKK:\n" +
+            "    def m1(self):\n" +
+            "        self.c = Foo()\n" +
+            "    def m2(self):\n" +
+            "        self.c = Bar()\n" +
+            "    def m3(self):\n" +
+            "        self.c.";
+        requestCompl(s, s.length(), 2, new String[] {"foo()", "bar()"});
+    }
+    
+    
+    public void testReturn() throws Exception {
+        String s = 
+            "class Foo:\n" +
+            "    def foo(self):\n" +
+            "        pass\n" +
+            "def m1():\n" +
+            "    return Foo()\n" +
+            "def m2():\n" +
+            "    a = m1()\n" +
+            "    a.";
+        requestCompl(s, s.length(), 1, new String[] {"foo()"});
+    }
+    
+    
+    public void testReturn2() throws Exception {
+        String s = 
+            "class Foo:\n" +
+            "    def method10(self):\n" +
+            "        pass\n" +
+            "def some_function():\n" +
+            "    class Starter:\n" +
+            "        def m1(self):\n" +
+            "            pass\n" +
+            "    if 1:\n" +
+            "        return Starter()\n" +
+            "    else:\n" +
+            "        return Foo()\n" +
+            "    \n" +
+            "def foo():\n" +
+            "    some = some_function()\n" +
+            "    some.";
+        requestCompl(s, s.length(), 2, new String[] {"m1()", "method10()"});
+    }
+    
+    public void testReturn3() throws Exception {
+        String s = 
+            "class Foo:\n" +
+            "    def method10(self):\n" +
+            "        pass\n" +
+            "def some_function():\n" +
+            "    class Starter:\n" +
+            "        def m1(self):\n" +
+            "            pass\n" +
+            "    def inner():\n" +
+            "        return Starter()\n" + //ignore this one
+            "    return Foo()\n" +
+            "    \n" +
+            "def foo():\n" +
+            "    some = some_function()\n" +
+            "    some.";
+        requestCompl(s, s.length(), 1, new String[] {"method10()"});
+    }
+    
+    
+    
 }

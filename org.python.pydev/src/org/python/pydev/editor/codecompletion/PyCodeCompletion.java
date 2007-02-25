@@ -8,7 +8,6 @@ package org.python.pydev.editor.codecompletion;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +31,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
+import org.python.pydev.editor.codecompletion.revisited.AssignAnalysis;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
@@ -323,27 +323,24 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * @param getOnlySupers whether we should only get things from super classes (in this case, we won't get things from the current class)
      * @return the same tokens added in theList
      */
-    public static IToken[] getSelfOrClsCompletions(CompletionRequest request, List theList, ICompletionState state, boolean getOnlySupers) {
-    	IToken[] comps = new IToken[0];
+    public static void getSelfOrClsCompletions(CompletionRequest request, List theList, ICompletionState state, boolean getOnlySupers) {
         SimpleNode s = PyParser.reparseDocument(new PyParser.ParserInfo(request.doc, true, request.nature, state.getLine())).o1;
         if(s != null){
             FindScopeVisitor visitor = new FindScopeVisitor(state.getLine(), 0);
             try {
                 s.accept(visitor);
-                comps = getSelfOrClsCompletions(visitor.scope, request, theList, state, getOnlySupers);
+                getSelfOrClsCompletions(visitor.scope, request, theList, state, getOnlySupers);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
         }
-        return comps;
     }
     
     /**
      * Get self completions when you already have a scope
      */
     @SuppressWarnings("unchecked")
-    public static IToken[] getSelfOrClsCompletions(LocalScope scope, CompletionRequest request, List theList, ICompletionState state, boolean getOnlySupers) throws BadLocationException {
-    	IToken[] comps = new IToken[0];
+    public static void getSelfOrClsCompletions(LocalScope scope, CompletionRequest request, List theList, ICompletionState state, boolean getOnlySupers) throws BadLocationException {
         while(scope.scope.size() > 0){
             SimpleNode node = (SimpleNode) scope.scope.pop();
             if(node instanceof ClassDef){
@@ -364,7 +361,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 							}
                         }
                     }
-                    comps = (IToken[]) gottenComps.toArray(new IToken[0]);
+                    theList.addAll(gottenComps);
                 }else{
                     //ok, get the completions for the class, only thing we have to take care now is that we may 
                     //not have only 'self' for completion, but somthing lile self.foo.
@@ -380,7 +377,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                         //ok, it's just really self, let's get on to get the completions
                         state.setActivationToken(NodeUtils.getNameFromNameTok((NameTok) d.name));
         	            try {
-							comps = request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state);
+                            theList.addAll(Arrays.asList(request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state)));
 						} catch (CompletionRecursionException e) {
 							//ok
 						}
@@ -395,15 +392,11 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                         IModule module = AbstractModule.createModuleFromDoc("", null, request.doc, request.nature, line);
                       
                         ASTManager astMan = ((ASTManager)request.nature.getAstManager());
-                        comps = astMan.getAssignCompletions(module, new CompletionState(line, col, request.activationToken, request.nature, request.qualifier));
-
+                        theList.addAll(new AssignAnalysis().getAssignCompletions(astMan, module, new CompletionState(line, col, request.activationToken, request.nature, request.qualifier)));
                     }
                 }
-	            theList.addAll(Arrays.asList(comps));
             }
         }
-        return comps;
-
     }
 
 

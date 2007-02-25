@@ -15,7 +15,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionRequest;
@@ -37,15 +36,10 @@ import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
-import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.LocalScope;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.ClassDef;
-import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -54,8 +48,18 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
 	private static final IToken[] EMPTY_ITOKEN_ARRAY = new IToken[0];
     
+    private transient AssignAnalysis assignAnalysis;
+    
     public AbstractASTManager(){
 	}
+    
+    public AssignAnalysis getAssignAnalysis() {
+        if(assignAnalysis == null){
+            assignAnalysis = new AssignAnalysis();
+        }
+        return assignAnalysis;
+    }
+    
 	
     /**
      * This is the guy that will handle project things for us
@@ -516,7 +520,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                     }
                 }
                 
-                return getAssignCompletions(module, state);
+                return getAssignAnalysis().getAssignCompletions(this, module, state).toArray(EMPTY_ITOKEN_ARRAY);
             }
 
             
@@ -612,104 +616,6 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 		}
         return null;
 	}
-
-	/**
-     * If we got here, either there really is no definition from the token
-     * or it is not looking for a definition. This means that probably
-     * it is something like.
-     * 
-     * It also can happen in many scopes, so, first we have to check the current
-     * scope and then pass to higher scopes
-     * 
-     * e.g. foo = Foo()
-     *      foo. | Ctrl+Space
-     * 
-     * so, first thing is discovering in which scope we are (Storing previous scopes so 
-     * that we can search in other scopes as well).
-     * 
-     * 
-     * @param activationToken
-     * @param qualifier
-     * @param module
-     * @param line
-     * @param col
-     * @return
-     */
-    public IToken[] getAssignCompletions(IModule module, ICompletionState state) {
-        ArrayList<IToken> ret = new ArrayList<IToken>();
-        if (module instanceof SourceModule) {
-            SourceModule s = (SourceModule) module;
-            
-            try {
-                Definition[] defs = s.findDefinition(state, state.getLine()+1, state.getCol()+1, state.getNature(), new ArrayList<FindInfo>());
-                for (int i = 0; i < defs.length; i++) {
-                    //go through all definitions fonud and make a merge of it...
-                    Definition definition = defs[i];
-                    
-                    AssignDefinition assignDefinition = null;
-                    if(definition instanceof AssignDefinition){
-                        assignDefinition = (AssignDefinition) definition;
-                    }
-                    
-                    if(!(definition.ast instanceof FunctionDef)){
-                        if(definition.ast instanceof ClassDef){
-                            state.setLookingFor(ICompletionState.LOOKING_FOR_UNBOUND_VARIABLE);
-                            ret.addAll(s.getClassToks(state, this, definition.ast));
-                            
-                            
-                        }else{
-                            boolean lookForAssign = true;
-                            if(assignDefinition != null && assignDefinition.foundAsGlobal){
-                                //it may be declared as a global with a class defined in the local scope
-                                IToken[] allLocalTokens = assignDefinition.scope.getAllLocalTokens();
-                                for (IToken token : allLocalTokens) {
-                                    if(token.getRepresentation().equals(assignDefinition.value)){
-                                        if(token instanceof SourceToken){
-                                            SourceToken srcToken = (SourceToken) token;
-                                            if(srcToken.getAst() instanceof ClassDef){
-                                                List<IToken> classToks = s.getClassToks(state, this, srcToken.getAst());
-                                                if(classToks.size() > 0){
-                                                    lookForAssign = false;
-                                                    ret.addAll(classToks);
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            if(lookForAssign){
-                                //we might want to extend that later to check the return of some function...
-                                state.setLookingFor(ICompletionState.LOOKING_FOR_ASSIGN);
-        	                    ICompletionState copy = state.getCopy();
-        	                    copy.setActivationToken (definition.value);
-        	                    copy.setLine(definition.line);
-        	                    copy.setCol(definition.col);
-        	                    module = definition.module;
-        
-        	                    state.checkDefinitionMemory(module, definition);
-        	                            
-        	                    IToken[] tks = getCompletionsForModule(module, copy);
-        	                    if(tks.length > 0){
-                                    ret.addAll(Arrays.asList(tks));
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                
-            } catch (CompletionRecursionException e) {
-                //thats ok
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            } catch (Throwable t) {
-                throw new RuntimeException("A throwable exception has been detected "+t.getClass());
-            }
-        }
-        return ret.toArray(EMPTY_ITOKEN_ARRAY);
-    }
 
     /**
      * @see ICodeCompletionASTManager#getGlobalCompletions

@@ -52,11 +52,11 @@ public class AssistOverride implements IAssistProps {
         String tok = strs[1];
         ICompletionState state = new CompletionState(ps.getStartLineIndex(), ps.getAbsoluteCursorOffset() - ps.getStartLine().getOffset(), null, nature,"");
         CompletionRequest request = new CompletionRequest(file, nature, ps.getDoc(), "self", ps.getAbsoluteCursorOffset(), 0, new PyCodeCompletion(), "");
-        IToken[] selfCompletions = PyCodeCompletion.getSelfOrClsCompletions(request, new ArrayList(), state, true);
+        List<IToken> selfCompletions = new ArrayList<IToken>();
+        PyCodeCompletion.getSelfOrClsCompletions(request, selfCompletions, state, true);
 
         
-        for (int i = 0; i < selfCompletions.length; i++) {
-            IToken token = selfCompletions[i];
+        for (IToken token:selfCompletions) {
             String rep = token.getRepresentation();
             if(rep.startsWith(tok)){
 		        StringBuffer buffer = new StringBuffer( start );
