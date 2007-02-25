@@ -397,9 +397,39 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 	                            //command.caretOffset = command.offset + 7;
 	                            command.text = "():";
 	                            command.caretOffset = command.offset + 1;
+                                
 	                        } else if (hasClassMethodDef && prefs.getAutoAddSelf()) {
-	                            command.text = "(self):";
-	                            command.caretOffset = command.offset + 5;
+                                String prevLine = ps.getLine(ps.getCursorLine()-1);
+                                if(prevLine.indexOf("@classmethod") != -1){
+                                    command.text = "(cls):";
+                                    command.caretOffset = command.offset + 4;
+                                    
+                                }else if(prevLine.indexOf("@staticmethod") != -1){
+                                    command.text = "():";
+                                    command.caretOffset = command.offset + 1;
+                                    
+                                }else{
+                                    
+                                    boolean addRegular = true;
+                                    Tuple3<String, String, String> scopeStart = ps.getPreviousLineThatStartsScope(PySelection.CLASS_AND_FUNC_TOKENS, false);
+                                    if(scopeStart != null){
+                                        if(scopeStart.o1 != null && scopeStart.o1.indexOf("def ") != -1){
+                                            int iCurrDef = PySelection.getFirstCharPosition(line);
+                                            int iPrevDef = PySelection.getFirstCharPosition(scopeStart.o1);
+                                            if(iCurrDef > iPrevDef){
+                                                addRegular = false;
+                                                
+                                            }
+                                        }
+                                    }
+                                    if(addRegular){
+        	                            command.text = "(self):";
+        	                            command.caretOffset = command.offset + 5;
+                                    }else{
+                                        command.text = "():";
+                                        command.caretOffset = command.offset + 1;
+                                    }
+                                }
 	                        } else if (hasMethodDef) {
 	                            command.text = "():";
 	                            command.caretOffset = command.offset + 1;

@@ -11,6 +11,8 @@ after 1.2.7
 <li><strong>Code-completion</strong>: functions are analyzed for their return values for code-completion purposes</li>
 <li><strong>Code-completion</strong>: working on multi-line imports</li>
 <li><strong>Code-completion</strong>: can discover instance variables not declared in the class (in the scope where the class was instanced)</li>
+<li><strong>Auto-edit</strong>: adds 'self', 'cls' or no parameter based on the @clasmethod, @staticmethod declaration on previous line</li>
+<li><strong>Auto-edit</strong>: doesn't add 'self' if a method is declared in a method inner scope</li>
 <li><strong>Fix: BRM Refactoring</strong>: wrong column was being passed to the BRM refactoring engine</li>
 </ul>
 

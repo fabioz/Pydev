@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testNewLineWithNewWithConstruct();
+            s.testNoAutoSelf2();
             s.tearDown();
     		junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -1108,6 +1108,58 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	expected = "():";
     	assertEquals(expected, docCmd.text);
     	
+    }
+    
+    public void testAutoCls() {
+        TestIndentPrefs testIndentPrefs = new TestIndentPrefs(false, 4, true);
+        strategy.setIndentPrefs(testIndentPrefs);
+        String doc = null;
+        DocCmd docCmd = null;
+        String expected = null;
+        
+        doc = 
+            "class c:\n" +
+            "    @classmethod\n" +
+            "    def met";
+        docCmd = new DocCmd(doc.length(), 0, "(");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "(cls):";
+        assertEquals(expected, docCmd.text);
+        
+    }
+    
+    public void testNoAutoSelf() {
+        TestIndentPrefs testIndentPrefs = new TestIndentPrefs(false, 4, true);
+        strategy.setIndentPrefs(testIndentPrefs);
+        String doc = null;
+        DocCmd docCmd = null;
+        String expected = null;
+        
+        doc = 
+            "class c:\n" +
+            "    def met(self):\n" +
+            "        def inner";
+        docCmd = new DocCmd(doc.length(), 0, "(");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "():";
+        assertEquals(expected, docCmd.text);
+    }
+    
+    public void testNoAutoSelf2() {
+        TestIndentPrefs testIndentPrefs = new TestIndentPrefs(false, 4, true);
+        strategy.setIndentPrefs(testIndentPrefs);
+        String doc = null;
+        DocCmd docCmd = null;
+        String expected = null;
+        
+        doc = 
+            "class c:\n" +
+            "    @staticmethod\n" +
+            "    def met";
+        docCmd = new DocCmd(doc.length(), 0, "(");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "():";
+        assertEquals(expected, docCmd.text);
     }
     
     /**

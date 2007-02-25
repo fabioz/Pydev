@@ -50,6 +50,11 @@ public class PySelection {
 	    "yield"
 	};
 
+	public static final String[] CLASS_AND_FUNC_TOKENS = new String[]{
+	    "def"     ,
+	    "class"   ,
+    };
+    
 	public static final String[] INDENT_TOKENS = new String[]{
 		"if"      , 
 		"for"     , 
@@ -883,14 +888,24 @@ public class PySelection {
         return null;
     }
     
+    public Tuple3<String, String, String> getPreviousLineThatStartsScope() {
+        return getPreviousLineThatStartsScope(PySelection.INDENT_TOKENS, true);
+    }
+    
     /**
      * @return a tuple with:
      * - the line that starts the new scope 
      * - a String with the line where some dedent token was found while looking for that scope.
      * - a string with the lowest indent (null if none was found)
      */
-    public Tuple3<String, String, String> getPreviousLineThatStartsScope() {
+    public Tuple3<String, String, String> getPreviousLineThatStartsScope(String [] indentTokens, boolean considerCurrentLine) {
         DocIterator iterator = new DocIterator(false, this);
+        if(considerCurrentLine){
+            iterator = new DocIterator(false, this);
+        }else{
+            iterator = new DocIterator(false, this, getCursorLine()-1, false);
+        }
+        
         String foundDedent = null;
         int lowest = Integer.MAX_VALUE;
         String lowestStr = null;
@@ -899,7 +914,7 @@ public class PySelection {
             String line = (String) iterator.next();
             String trimmed = line.trim();
             
-            for (String dedent : PySelection.INDENT_TOKENS) {
+            for (String dedent : indentTokens) {
             	if(trimmed.startsWith(dedent)){
             		if(isCompleteToken(trimmed, dedent)){
             			return new Tuple3<String, String, String>(line, foundDedent, lowestStr);
@@ -1437,11 +1452,18 @@ public class PySelection {
 		private int numberOfLines;
 		private PySelection ps;
 		
-        public DocIterator(boolean forward, PySelection ps){
-            this.startingLine = ps.getCursorLine();
+		public DocIterator(boolean forward, PySelection ps){
+            this(forward, ps, ps.getCursorLine(), true);
+		}
+		
+        public DocIterator(boolean forward, PySelection ps, int startingLine, boolean considerFirst){
+            this.startingLine = startingLine;
             this.forward = forward;
             numberOfLines = ps.getDoc().getNumberOfLines();
             this.ps = ps;
+            if(!considerFirst){
+                isFirst = false;
+            }
         }
 
         public int getCurrentLine(){
