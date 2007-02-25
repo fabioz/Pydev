@@ -73,7 +73,7 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
                 int type = element.getType();
                 
                 int priority = IPyCompletionProposal.PRIORITY_DEFAULT;
-                if(type == IPyCodeCompletion.TYPE_PARAM || type == IPyCodeCompletion.TYPE_LOCAL){
+                if(type == IPyCodeCompletion.TYPE_PARAM || type == IPyCodeCompletion.TYPE_LOCAL || type == IPyCodeCompletion.TYPE_OBJECT_FOUND_INTERFACE){
                     priority = IPyCompletionProposal.PRIORITY_LOCALS;
                 }
                 

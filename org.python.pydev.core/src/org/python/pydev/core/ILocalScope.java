@@ -55,7 +55,7 @@ public interface ILocalScope {
      * 
      * a token for 'bar' and a token for 'kkk' will be returned
      */
-    public Collection<IToken> getInterfaceForLocal(String argName, String activationToken);
+    public Collection<IToken> getInterfaceForLocal(String activationToken);
 
     /**
      * @return Iterator for the nodes in the scope (starting with the last to the first -- or from the inner to the outer)

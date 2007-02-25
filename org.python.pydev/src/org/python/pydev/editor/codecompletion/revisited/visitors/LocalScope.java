@@ -31,6 +31,7 @@ import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
  */
 public class LocalScope implements ILocalScope {
 
+    //the first node from the stack is always the module itself (if it's not there, it means it is a compiled module scope)
     public FastStack<SimpleNode> scope = new FastStack<SimpleNode>();
     
     public int scopeEndLine = -1;
@@ -94,7 +95,14 @@ public class LocalScope implements ILocalScope {
             if(! element.getClass().equals(otElement.getClass()))
                 return false;
             
-            if(! NodeUtils.getFullRepresentationString(element).equals( NodeUtils.getFullRepresentationString(otElement)))
+            String rep1 = NodeUtils.getFullRepresentationString(element);
+            String rep2 = NodeUtils.getFullRepresentationString(otElement);
+            if(rep1 == null || rep2 == null){
+                if(rep1 != rep2){
+                    return false;
+                }
+                
+            }else if(!rep1.equals(rep2))
                 return false;
             
         }
@@ -162,32 +170,24 @@ public class LocalScope implements ILocalScope {
      * Note that argName == activationToken first part before the dot (they may be equal)
      * @return a list of tokens for the local 
      */
-    public Collection<IToken> getInterfaceForLocal(String argName, String activationToken) {
+    public Collection<IToken> getInterfaceForLocal(String activationToken) {
         Set<SourceToken> comps = new HashSet<SourceToken>();
+
+        Iterator<SimpleNode> it = this.scope.topDownIterator();
+        if(it.hasNext());
+        SimpleNode element = it.next();
         
-        for (Iterator iter = this.scope.iterator(); iter.hasNext();) {
-            SimpleNode element = (SimpleNode) iter.next();
-            
-            if (element instanceof FunctionDef) {
-                FunctionDef f = (FunctionDef) element;
-                for (int i = 0; i < f.args.args.length; i++) {
-                    String s = NodeUtils.getRepresentationString(f.args.args[i]);
-                    if(s.equals(argName)){
-                        String dottedActTok = activationToken+'.';
-                        //ok, that's the scope we have to analyze
-                        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(f);
-                        Iterator<ASTEntry> iterator = visitor.getIterator(Attribute.class);
-                        
-                        while(iterator.hasNext()){
-                            ASTEntry entry = iterator.next();
-                            String rep = NodeUtils.getFullRepresentationString(entry.node);
-                            if(rep.startsWith(dottedActTok)){
-                                rep = rep.substring(dottedActTok.length());
-                                comps.add(new SourceToken(entry.node, FullRepIterable.getFirstPart(rep), "", "", "", IPyCodeCompletion.TYPE_PARAM));
-                            }
-                        }
-                    }
-                }
+        String dottedActTok = activationToken+'.';
+        //ok, that's the scope we have to analyze
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(element);
+        Iterator<ASTEntry> iterator = visitor.getIterator(Attribute.class);
+        
+        while(iterator.hasNext()){
+            ASTEntry entry = iterator.next();
+            String rep = NodeUtils.getFullRepresentationString(entry.node);
+            if(rep.startsWith(dottedActTok)){
+                rep = rep.substring(dottedActTok.length());
+                comps.add(new SourceToken(entry.node, FullRepIterable.getFirstPart(rep), "", "", "", IPyCodeCompletion.TYPE_OBJECT_FOUND_INTERFACE));
             }
         }
         return new ArrayList<IToken>(comps);

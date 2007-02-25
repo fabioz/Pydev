@@ -35,9 +35,8 @@ public class PyCodeCompletionImages {
                 return imageCache.get(UIConstants.BUILTINS_ICON);
     
             case IPyCodeCompletion.TYPE_PARAM:
-                return imageCache.get(UIConstants.COMPLETION_PARAMETERS_ICON);
-                
             case IPyCodeCompletion.TYPE_LOCAL:
+            case IPyCodeCompletion.TYPE_OBJECT_FOUND_INTERFACE:
                 return imageCache.get(UIConstants.COMPLETION_PARAMETERS_ICON);
     
             case IPyCodeCompletion.TYPE_PACKAGE:

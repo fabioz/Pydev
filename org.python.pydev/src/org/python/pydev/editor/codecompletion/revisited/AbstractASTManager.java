@@ -37,7 +37,6 @@ import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
-import org.python.pydev.editor.codecompletion.revisited.visitors.LocalScope;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ImportFrom;
@@ -549,7 +548,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             String firstPart = FullRepIterable.getFirstPart(activationToken);
             for (IToken token : args) {
                 if(token.getRepresentation().equals(firstPart)){
-                    Collection<IToken> interfaceForLocal = localScope.getInterfaceForLocal(firstPart, state.getActivationToken());
+                    Collection<IToken> interfaceForLocal = localScope.getInterfaceForLocal(state.getActivationToken());
                     Collection argsCompletionFromParticipants = getArgsCompletionFromParticipants(state, localScope, interfaceForLocal);
                     for (IToken t : interfaceForLocal) {
                         if(!t.getRepresentation().equals(state.getQualifier())){

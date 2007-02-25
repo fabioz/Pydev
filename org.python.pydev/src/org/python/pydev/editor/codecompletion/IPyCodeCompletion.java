@@ -63,6 +63,11 @@ public interface IPyCodeCompletion {
      * Type for local (used to decide the icon)
      */
     public static final int TYPE_LOCAL = 9;
+    
+    /**
+     * Type for local (used to decide the icon)
+     */
+    public static final int TYPE_OBJECT_FOUND_INTERFACE = 10;
 
     /**
      * Returns a list with the tokens to use for autocompletion.

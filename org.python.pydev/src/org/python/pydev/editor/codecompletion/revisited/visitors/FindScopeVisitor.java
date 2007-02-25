@@ -134,5 +134,9 @@ public class FindScopeVisitor extends AbstractVisitor {
         return super.visitFunctionDef(node);
     }
 
-
+    @Override
+    public Object visitModule(Module node) throws Exception {
+        stackScope.push(node);
+        return super.visitModule(node);
+    }
 }

@@ -20,6 +20,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Global;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
@@ -223,6 +224,11 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
         return null;
     }
     
+    @Override
+    public Object visitModule(Module node) throws Exception {
+        this.defsStack.push(node);
+        return super.visitModule(node);
+    }
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */

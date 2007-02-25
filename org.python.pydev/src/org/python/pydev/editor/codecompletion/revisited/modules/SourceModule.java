@@ -25,6 +25,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.FastStack;
+import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ConcreteToken;
@@ -440,6 +441,9 @@ public class SourceModule extends AbstractModule {
 			                SimpleNode ast2 = ((SourceToken)token).getAst();
 							Tuple<Integer, Integer> def = getLineColForDefinition(ast2);
 							FastStack<SimpleNode> stack = new FastStack<SimpleNode>();
+                            if(module instanceof SourceModule){
+                                stack.add(((SourceModule)module).getAst());
+                            }
 							stack.add(classDef);
 							ILocalScope scope = new LocalScope(stack);
 							return new Definition[]{new Definition(def.o1, def.o2, token.getRepresentation(), ast2, scope, module)};
@@ -553,6 +557,11 @@ public class SourceModule extends AbstractModule {
             boolean sameRep = token.getRepresentation().equals(rep);
             if(sameRep){
                 if(token instanceof SourceToken){
+                    if(((SourceToken)token).getType() == IPyCodeCompletion.TYPE_OBJECT_FOUND_INTERFACE){
+                        //just having it extracted from the interface from an object does not mean
+                        //that it's actual definition was found
+                        continue; 
+                    }
                 	//ok, we found it
                     SimpleNode a = ((SourceToken)token).getAst();
                     Tuple<Integer, Integer> def = getLineColForDefinition(a);

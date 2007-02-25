@@ -80,7 +80,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 		        AUTOCOMPLETE_ON_PAR, "Autocomplete on ','?", p));
 		
 		addField(new BooleanFieldEditor(
-		        AUTOCOMPLETE_ON_ALL_ASCII_CHARS, "Autocomplete on all ASCII chars?", p));
+		        AUTOCOMPLETE_ON_ALL_ASCII_CHARS, "Autocomplete on all letter chars and '_'?", p));
 
 		addField(new BooleanFieldEditor(
                 DEBUG_CODE_COMPLETION, "Debug code completion?.", p));

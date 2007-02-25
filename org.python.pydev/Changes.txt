@@ -2,14 +2,15 @@ after 1.2.7
 <ul>
 <li><strong>Package Explorer</strong>: many fixes (thanks for the bug reports)</li>
 <li><strong>Debugger</strong>: a number of small optimizations</li>
-<li><strong>Code-completion</strong>: now works in emacs mode</li>
-<li><strong>Code-completion</strong>: added the possibility of auto-completing for all ascii chars (so, it starts completing once you start writing)</li>
+<li><strong>Code-completion</strong>: works in emacs mode</li>
+<li><strong>Code-completion</strong>: added the possibility of auto-completing for all letter chars and '_' (so, it starts completing once you start writing)</li>
 <li><strong>Code-completion</strong>: code-completion for epydoc inside strings</li>
 <li><strong>Code-completion</strong>: assigns after global statement considered added to the global namespace</li>
-<li><strong>Code-completion</strong>: if a class is declared in a nested scope, code-completion works for it</li>
+<li><strong>Code-completion</strong>: now works when a class is declared in a nested scope</li>
 <li><strong>Code-completion</strong>: if multiple assigns are found to some variable, the completion will be a merge of them</li>
 <li><strong>Code-completion</strong>: functions are analyzed for their return values for code-completion purposes</li>
 <li><strong>Code-completion</strong>: working on multi-line imports</li>
+<li><strong>Code-completion</strong>: can discover instance variables not declared in the class (in the scope where the class was instanced)</li>
 <li><strong>Fix: BRM Refactoring</strong>: wrong column was being passed to the BRM refactoring engine</li>
 </ul>
 
