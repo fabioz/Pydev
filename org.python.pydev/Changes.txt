@@ -8,6 +8,7 @@ after 1.2.7
 <li><strong>Code-completion</strong>: assigns after global statement considered added to the global namespace</li>
 <li><strong>Code-completion</strong>: if a class is declared in a nested scope, code-completion works for it</li>
 <li><strong>Code-completion</strong>: if multiple assigns are found to some variable, the completion will be a merge of them</li>
+<li><strong>Code-completion</strong>: functions are analyzed for their return values for code-completion purposes</li>
 <li><strong>Fix: BRM Refactoring</strong>: wrong column was being passed to the BRM refactoring engine</li>
 </ul>
 
