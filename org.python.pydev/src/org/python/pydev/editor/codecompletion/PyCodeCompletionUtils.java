@@ -8,23 +8,77 @@ import java.util.Set;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.docutils.DocUtils;
+import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.PySelection.DocIterator;
 
 public class PyCodeCompletionUtils {
 
     public static ImportInfo getImportsTipperStr(IDocument doc, int documentOffset) {
-        IRegion region;
-        try {
-            region = doc.getLineInformationOfOffset(documentOffset);
-            String trimmedLine = doc.get(region.getOffset(), documentOffset - region.getOffset());
-            trimmedLine = trimmedLine.trim();
-            return PyCodeCompletionUtils.getImportsTipperStr(trimmedLine, true);
-        } catch (BadLocationException e) {
-            throw new RuntimeException(e);
+        DocIterator iterator = new DocIterator(false, new PySelection(doc, documentOffset));
+        StringBuffer buffer = new StringBuffer();
+        
+        //it may still be a multiline-import... to check that, we have to go backward in the document and see if the
+        //lines keep ending with a \ from the import line or if the import line has a (
+        
+        boolean expectContinue = false;
+        boolean allEndingWithSlash = true;
+        boolean found = false;
+        
+        while(iterator.hasNext()){
+            String line = ParsingUtils.removeComments(iterator.next());
+            String trimmedLine = line.trim();
+            
+            if (trimmedLine.startsWith("from") || trimmedLine.startsWith("import")) {
+                if(expectContinue){
+                    boolean correct = false;
+                    
+                    if(trimmedLine.indexOf('(') != -1){
+                        correct = true;
+                    }
+                    if(trimmedLine.endsWith("\\")){
+                        if(allEndingWithSlash){
+                            correct = true;
+                        }
+                    }
+                    
+                    if(!correct){
+                        break;
+                    }
+                }
+                //that's it, we found it!
+                found = true;
+                buffer.insert(0, trimmedLine);
+                break;
+                
+            }else{
+                if(expectContinue){
+                    if(trimmedLine.indexOf(')') != -1){
+                        break;
+                    }
+                    if(allEndingWithSlash && line.length() > 0){
+                        char c = line.charAt(line.length()-1);
+                        if(c != '\\' && c != ',' && c != '('){
+                            break; //let's keep the analysis to lines that end with , ( \ (because otherwise it can be time-consuming)
+                        }
+                        if(c != '\\'){
+                            allEndingWithSlash = false;
+                        }
+                    }
+                }
+                expectContinue = true;
+                buffer.insert(0, line);
+            }
         }
+        
+        if(!found){
+            return new ImportInfo("", false); // it is not an import
+        }
+        
+        return PyCodeCompletionUtils.getImportsTipperStr(buffer.toString(), true);
     }
 
     /**
@@ -36,6 +90,7 @@ public class PyCodeCompletionUtils {
         String importMsg = "";
 
         if (!trimmedLine.startsWith("from") && !trimmedLine.startsWith("import")) {
+            
             return new ImportInfo("", false); // it is not an import
         }
 

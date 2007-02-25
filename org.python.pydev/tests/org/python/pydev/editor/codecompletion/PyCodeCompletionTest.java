@@ -30,6 +30,14 @@ public class PyCodeCompletionTest extends TestCase {
     public void testIt(){
         completion = new PyCodeCompletion();
         
+        doTest("from datetime import foo,\\\nbar\n", ""); //no \ in the prev line
+        doTest("from datetime import (foo\nbar)\n", ""); //not actually an import (we're already after it)
+        doTest("from datetime import foo\n", ""); //not actually an import (we're already in another line)
+        
+        doTest("from datetime import (\n    ", "datetime"); 
+        doTest("from datetime import foo,\\\nbar,\\\n", "datetime"); 
+        doTest("from datetime import (\n, ", "datetime");
+        
         doTest("from . import unittest , ", ".");
         
         doTest("from datetime import datetime, date, MINYEAR,", "datetime");

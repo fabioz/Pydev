@@ -531,6 +531,14 @@ public class ParsingUtils implements IPythonPartitions{
         return strings[strings.length-1];
     }
 
+    public static String removeComments(String line) {
+        int i = line.indexOf('#');
+        if(i != -1){
+            return line.substring(0, i);
+        }
+        return line;
+    }
+
 
 
 }

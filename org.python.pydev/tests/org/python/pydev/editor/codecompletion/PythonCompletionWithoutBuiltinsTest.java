@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testReturn3();
+	      test.testMultilineImportCompletion();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -80,6 +80,15 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
 	    requestCompl("from testlib.unittest.testcase.TestCase import  assertImagesNotE", new String[]{"assertImagesNotEqual"});
 	    requestCompl("from testlib.unittest.testcase.TestCase import  assertBM", new String[]{"assertBMPsNotEqual","assertBMPsEqual"});
+    }
+    
+	public void testMultilineImportCompletion() throws CoreException, BadLocationException{
+	    String s = 
+            "from testlib import (\n" +
+            "                     ";
+        
+        requestCompl(s, new String[]{"__init__", "unittest"});
+        
     }
 
     /**
