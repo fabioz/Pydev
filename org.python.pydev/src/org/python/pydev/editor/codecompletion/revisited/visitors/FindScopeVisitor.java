@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -26,7 +27,7 @@ public class FindScopeVisitor extends AbstractVisitor {
     /**
      * This is the scope.
      */
-    public LocalScope scope = new LocalScope(new FastStack<SimpleNode>());
+    public ILocalScope scope = new LocalScope(new FastStack<SimpleNode>());
     
     /**
      * Variable to mark if we found scope.
@@ -71,13 +72,13 @@ public class FindScopeVisitor extends AbstractVisitor {
 	        if(line <= node.beginLine ){
 	            //scope is locked at this time.
 	            found = true;
-	            int original = scope.ifMainLine;
+	            int original = scope.getIfMainLine();
 	            scope = new LocalScope((FastStack<SimpleNode>) this.stackScope.clone());
-	            scope.ifMainLine = original;
+	            scope.setIfMainLine(original);
 	        }
         }else{
-            if(scope.scopeEndLine == -1 && line < node.beginLine && col >= node.beginColumn){
-                scope.scopeEndLine = node.beginLine; 
+            if(scope.getScopeEndLine() == -1 && line < node.beginLine && col >= node.beginColumn){
+                scope.setScopeEndLine(node.beginLine); 
             }
         }
         return node;
@@ -104,7 +105,7 @@ public class FindScopeVisitor extends AbstractVisitor {
 	protected void checkIfMainNode(If node) {
 		Str mainNode = isIfMAinNode(node);
         if(mainNode != null){
-            scope.ifMainLine = node.beginLine;
+            scope.setIfMainLine(node.beginLine);
         }
 	}
 

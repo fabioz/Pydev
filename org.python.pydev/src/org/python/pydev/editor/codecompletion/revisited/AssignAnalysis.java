@@ -2,9 +2,11 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.python.pydev.core.FindInfo;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
@@ -144,6 +146,13 @@ public class AssignAnalysis {
                 state.checkDefinitionMemory(module, definition);
                         
                 IToken[] tks = manager.getCompletionsForModule(module, copy);
+                
+                if(assignDefinition != null){
+                    Collection<IToken> interfaceForLocal = assignDefinition.scope.getInterfaceForLocal(
+                            FullRepIterable.getFirstPart(assignDefinition.target), assignDefinition.target);
+                    ret.addAll(interfaceForLocal);
+                }
+                
                 if(tks.length > 0){
                     ret.addAll(Arrays.asList(tks));
                 }

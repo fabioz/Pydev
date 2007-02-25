@@ -544,13 +544,12 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     @SuppressWarnings("unchecked")
     private IToken[] getArgsCompletion(ICompletionState state, ILocalScope localScope) {
         if (localScope != null){
-            LocalScope s = (LocalScope) localScope;
             IToken[] args = localScope.getLocalTokens(-1,-1,true); //only to get the args
             String activationToken = state.getActivationToken();
             String firstPart = FullRepIterable.getFirstPart(activationToken);
             for (IToken token : args) {
                 if(token.getRepresentation().equals(firstPart)){
-                    IToken[] interfaceForLocal = s.getInterfaceForLocal(firstPart, state.getActivationToken());
+                    Collection<IToken> interfaceForLocal = localScope.getInterfaceForLocal(firstPart, state.getActivationToken());
                     Collection argsCompletionFromParticipants = getArgsCompletionFromParticipants(state, localScope, interfaceForLocal);
                     for (IToken t : interfaceForLocal) {
                         if(!t.getRepresentation().equals(state.getQualifier())){
@@ -565,7 +564,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     }
     
     @SuppressWarnings("unchecked")
-    private Collection getArgsCompletionFromParticipants(ICompletionState state, ILocalScope localScope, IToken[] interfaceForLocal) {
+    private Collection getArgsCompletionFromParticipants(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal) {
         ArrayList ret = new ArrayList();
         
         List participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);

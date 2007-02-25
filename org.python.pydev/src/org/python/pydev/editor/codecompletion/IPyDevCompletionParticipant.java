@@ -28,6 +28,6 @@ public interface IPyDevCompletionParticipant {
     
     Collection getStringGlobalCompletions(CompletionRequest request, ICompletionState state);
 
-    Collection getArgsCompletion(ICompletionState state, ILocalScope localScope, IToken[] interfaceForLocal);
+    Collection getArgsCompletion(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal);
 
 }

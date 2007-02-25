@@ -209,7 +209,7 @@ public class SourceModule extends AbstractModule {
                                         value = d.value;
                                         
                                     }else if (d.ast instanceof Name){
-                                        ClassDef classDef = ((LocalScope)d.scope).getClassDef();
+                                        ClassDef classDef = (ClassDef) d.scope.getClassDef();
                                         if(classDef != null){
                                         	FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(actToks[actToks.length-1], d.line, d.col, d.module);
 	                                        classDef.accept(visitor);
@@ -418,7 +418,7 @@ public class SourceModule extends AbstractModule {
         //local (which has already been covered).
         if (rep.startsWith("self.")){
         	//ok, it is some self, now, that is only valid if we are in some class definition
-        	ClassDef classDef = scopeVisitor.scope.getClassDef();
+        	ClassDef classDef = (ClassDef) scopeVisitor.scope.getClassDef();
         	if(classDef != null){
         		//ok, we are in a class, so, let's get the self completions
         		String classRep = NodeUtils.getRepresentationString(classDef);
@@ -713,7 +713,7 @@ public class SourceModule extends AbstractModule {
                 ast.accept(scopeVisitor);
 	        }
 	        
-	        return scopeVisitor.scope.scopeEndLine;
+	        return scopeVisitor.scope.getScopeEndLine();
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -730,7 +730,7 @@ public class SourceModule extends AbstractModule {
                 ast.accept(scopeVisitor);
 	        }
 	        
-	        return scopeVisitor.scope.ifMainLine;
+	        return scopeVisitor.scope.getIfMainLine();
         } catch (Exception e) {
             e.printStackTrace();
             return -1;

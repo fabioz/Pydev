@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testMultilineImportCompletion();
+	      test.testDecorateObject();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -893,6 +893,19 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, s.length(), 1, new String[] {"method10()"});
     }
     
-    
+    public void testDecorateObject() throws Exception {
+        String s = 
+            "class Foo:\n" +
+            "    def bar():pass\n"+
+            "foo = Foo()\n"+
+            "foo.one = 1\n"+
+            "foo.two =2\n"+
+            "foo.";
+        
+        requestCompl(s, new String[] {"one", "two", "bar()"});
+    }
     
 }
+
+
+

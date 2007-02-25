@@ -4,6 +4,8 @@
  */
 package org.python.pydev.core;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.python.pydev.core.structure.FastStack;
@@ -44,4 +46,32 @@ public interface ILocalScope {
      */
     public FastStack /*<SimpleNode>*/ getScopeStack();
 
+    /**
+     * @return the list of tokens that are part of the interface for some local variable.
+     * E.g.:
+     * 
+     * foo.bar
+     * foo.kkk
+     * 
+     * a token for 'bar' and a token for 'kkk' will be returned
+     */
+    public Collection<IToken> getInterfaceForLocal(String argName, String activationToken);
+
+    /**
+     * @return Iterator for the nodes in the scope (starting with the last to the first -- or from the inner to the outer)
+     */
+    public Iterator /*<SimpleNode>*/ iterator();
+
+    /**
+     * @return the class definition found previously in the scope
+     */
+    public Object /*ClassDef*/ getClassDef();
+
+    public int getScopeEndLine();
+
+    public int getIfMainLine();
+
+    public void setIfMainLine(int original);
+
+    public void setScopeEndLine(int beginLine);
 }

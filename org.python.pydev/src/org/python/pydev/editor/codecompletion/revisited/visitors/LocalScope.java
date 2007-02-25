@@ -6,6 +6,7 @@
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -161,7 +162,7 @@ public class LocalScope implements ILocalScope {
      * Note that argName == activationToken first part before the dot (they may be equal)
      * @return a list of tokens for the local 
      */
-    public IToken[] getInterfaceForLocal(String argName, String activationToken) {
+    public Collection<IToken> getInterfaceForLocal(String argName, String activationToken) {
         Set<SourceToken> comps = new HashSet<SourceToken>();
         
         for (Iterator iter = this.scope.iterator(); iter.hasNext();) {
@@ -189,7 +190,7 @@ public class LocalScope implements ILocalScope {
                 }
             }
         }
-        return (SourceToken[]) comps.toArray(new SourceToken[0]);
+        return new ArrayList<IToken>(comps);
     }
 
 
@@ -219,7 +220,8 @@ public class LocalScope implements ILocalScope {
      * @see org.python.pydev.core.ILocalScope#getClassDef()
      */
 	public ClassDef getClassDef() {
-		for(SimpleNode node : this.scope){
+		for(Iterator<SimpleNode> it = this.scope.topDownIterator(); it.hasNext();){
+            SimpleNode node = it.next();
 			if(node instanceof ClassDef){
 				return (ClassDef) node;
 			}
@@ -237,6 +239,25 @@ public class LocalScope implements ILocalScope {
 		return false;
 	}
 
+    public Iterator iterator() {
+        return scope.topDownIterator();
+    }
+
+    public int getIfMainLine() {
+        return ifMainLine;
+    }
+
+    public int getScopeEndLine() {
+        return scopeEndLine;
+    }
+
+    public void setIfMainLine(int original) {
+        this.ifMainLine = original;
+    }
+
+    public void setScopeEndLine(int beginLine) {
+        this.scopeEndLine = beginLine;
+    }
 
 
 }

@@ -23,6 +23,7 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
@@ -36,7 +37,6 @@ import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
-import org.python.pydev.editor.codecompletion.revisited.visitors.LocalScope;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -341,9 +341,9 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * Get self completions when you already have a scope
      */
     @SuppressWarnings("unchecked")
-    public static void getSelfOrClsCompletions(LocalScope scope, CompletionRequest request, List theList, ICompletionState state, boolean getOnlySupers) throws BadLocationException {
-        while(scope.scope.size() > 0){
-            SimpleNode node = (SimpleNode) scope.scope.pop();
+    public static void getSelfOrClsCompletions(ILocalScope scope, CompletionRequest request, List theList, ICompletionState state, boolean getOnlySupers) throws BadLocationException {
+        for(Iterator<SimpleNode> it = scope.iterator(); it.hasNext();){
+            SimpleNode node = it.next();
             if(node instanceof ClassDef){
                 ClassDef d = (ClassDef) node;
                 
