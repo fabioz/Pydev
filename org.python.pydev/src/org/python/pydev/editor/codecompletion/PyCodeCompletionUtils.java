@@ -59,8 +59,8 @@ public class PyCodeCompletionUtils {
                     if(trimmedLine.indexOf(')') != -1){
                         break;
                     }
-                    if(allEndingWithSlash && line.length() > 0){
-                        char c = line.charAt(line.length()-1);
+                    if(allEndingWithSlash && trimmedLine.length() > 0){
+                        char c = trimmedLine.charAt(trimmedLine.length()-1);
                         if(c != '\\' && c != ',' && c != '('){
                             break; //let's keep the analysis to lines that end with , ( \ (because otherwise it can be time-consuming)
                         }

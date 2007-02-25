@@ -35,6 +35,7 @@ public class PyCodeCompletionTest extends TestCase {
         doTest("from datetime import foo\n", ""); //not actually an import (we're already in another line)
         
         doTest("from datetime import (\n    ", "datetime"); 
+        doTest("from datetime import (\nbar, \n", "datetime"); 
         doTest("from datetime import foo,\\\nbar,\\\n", "datetime"); 
         doTest("from datetime import (\n, ", "datetime");
         
