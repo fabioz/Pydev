@@ -34,7 +34,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testGlobalClassInNestedScope();
+	      test.testAssign();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -791,6 +791,24 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             "    s.";
         ICompletionProposal[] proposals = requestCompl(s, s.length(), 1, new String[] {"m1()"});
         assertEquals(1, proposals.length); 
+    }
+    
+    public void testAssign() throws Exception {
+        String s = 
+            "class Foo(object):\n" +
+            "    def foo(self):\n" +
+            "        pass\n" +
+            "class Bar(object):\n" +
+            "    def bar(self):\n" +
+            "        pass\n" +
+            "    \n" +
+            "def m1():\n" +
+            "    if 1:\n" +
+            "        c = Foo()\n" +
+            "    elif 2:\n" +
+            "        c = Bar()\n" +
+            "    c.";
+        requestCompl(s, s.length(), 2, new String[] {"foo()", "bar()"});
     }
 
 }

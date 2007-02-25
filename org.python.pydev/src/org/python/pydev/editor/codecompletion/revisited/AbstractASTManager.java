@@ -636,11 +636,14 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @return
      */
     public IToken[] getAssignCompletions(IModule module, ICompletionState state) {
+        ArrayList<IToken> ret = new ArrayList<IToken>();
         if (module instanceof SourceModule) {
             SourceModule s = (SourceModule) module;
+            
             try {
                 Definition[] defs = s.findDefinition(state, state.getLine()+1, state.getCol()+1, state.getNature(), new ArrayList<FindInfo>());
                 for (int i = 0; i < defs.length; i++) {
+                    //go through all definitions fonud and make a merge of it...
                     Definition definition = defs[i];
                     
                     AssignDefinition assignDefinition = null;
@@ -651,13 +654,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                     if(!(definition.ast instanceof FunctionDef)){
                         if(definition.ast instanceof ClassDef){
                             state.setLookingFor(ICompletionState.LOOKING_FOR_UNBOUND_VARIABLE);
-                            List<IToken> classToks = s.getClassToks(state, this, definition.ast);
-                            if(classToks.size() > 0){
-                                return classToks.toArray(EMPTY_ITOKEN_ARRAY);
-                            }
+                            ret.addAll(s.getClassToks(state, this, definition.ast));
                             
                             
                         }else{
+                            boolean lookForAssign = true;
                             if(assignDefinition != null && assignDefinition.foundAsGlobal){
                                 //it may be declared as a global with a class defined in the local scope
                                 IToken[] allLocalTokens = assignDefinition.scope.getAllLocalTokens();
@@ -668,7 +669,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                                             if(srcToken.getAst() instanceof ClassDef){
                                                 List<IToken> classToks = s.getClassToks(state, this, srcToken.getAst());
                                                 if(classToks.size() > 0){
-                                                    return classToks.toArray(EMPTY_ITOKEN_ARRAY);
+                                                    lookForAssign = false;
+                                                    ret.addAll(classToks);
+                                                    break;
                                                 }
                                             }
                                         }
@@ -676,19 +679,21 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                                 }
                             }
                             
-                            //we might want to extend that later to check the return of some function...
-                            state.setLookingFor(ICompletionState.LOOKING_FOR_ASSIGN);
-    	                    ICompletionState copy = state.getCopy();
-    	                    copy.setActivationToken (definition.value);
-    	                    copy.setLine(definition.line);
-    	                    copy.setCol(definition.col);
-    	                    module = definition.module;
-    
-    	                    state.checkDefinitionMemory(module, definition);
-    	                            
-    	                    IToken[] tks = getCompletionsForModule(module, copy);
-    	                    if(tks.length > 0){
-    	                        return tks;
+                            if(lookForAssign){
+                                //we might want to extend that later to check the return of some function...
+                                state.setLookingFor(ICompletionState.LOOKING_FOR_ASSIGN);
+        	                    ICompletionState copy = state.getCopy();
+        	                    copy.setActivationToken (definition.value);
+        	                    copy.setLine(definition.line);
+        	                    copy.setCol(definition.col);
+        	                    module = definition.module;
+        
+        	                    state.checkDefinitionMemory(module, definition);
+        	                            
+        	                    IToken[] tks = getCompletionsForModule(module, copy);
+        	                    if(tks.length > 0){
+                                    ret.addAll(Arrays.asList(tks));
+                                }
                             }
                         }
                     }
@@ -703,7 +708,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 throw new RuntimeException("A throwable exception has been detected "+t.getClass());
             }
         }
-        return EMPTY_ITOKEN_ARRAY;
+        return ret.toArray(EMPTY_ITOKEN_ARRAY);
     }
 
     /**
