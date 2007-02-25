@@ -27,7 +27,8 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testReimport();
+            analyzer2.testUnusedVariable2();
+            analyzer2.testNoUnusedVariable();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -853,6 +854,20 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         printMessages(msgs, 1);
         assertEquals("Unused parameter: a", msgs[0].getMessage());
     
+    }
+    
+    public void testNoUnusedVariable() {
+        doc = new Document(
+                "class Class1:         \n" +
+                "    @classmethod\n" +
+                "    def met1(cls):\n" +
+                "        pass"
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs, 0);
+        
     }
     
     public void testUnusedVariable() {

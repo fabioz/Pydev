@@ -352,7 +352,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             
             if(!inNamesToIgnore){
                 
-                if(!rep.equals("self")){ 
+                if(!rep.equals("self") && !rep.equals("cls")){ 
                     scope.addToken(token,token);
                 }else{
                     addToNamesToIgnore(node); //ignore self
