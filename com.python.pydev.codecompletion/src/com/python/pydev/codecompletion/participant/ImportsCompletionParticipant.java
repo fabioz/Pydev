@@ -98,7 +98,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         return getThem(request, true);
     }
     
-    public Collection getArgsCompletion(ICompletionState state, ILocalScope localScope, IToken[] interfaceForLocal) {
+    public Collection getArgsCompletion(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal) {
         return EMPTY_COLLECTION;
     }
 

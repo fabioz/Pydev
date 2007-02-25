@@ -98,7 +98,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
         return getThem(request, true);
     }
 
-    public Collection getArgsCompletion(ICompletionState state, ILocalScope localScope, IToken[] interfaceForLocal) {
+    public Collection getArgsCompletion(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal) {
         ArrayList<IToken> ret = new ArrayList<IToken>();
         String qual = state.getQualifier();
         if(qual.length() >= 3){ //at least n characters or 3 interface tokens required
