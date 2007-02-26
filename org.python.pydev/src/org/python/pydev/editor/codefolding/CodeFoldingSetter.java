@@ -6,6 +6,8 @@
 package org.python.pydev.editor.codefolding;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -17,6 +19,8 @@ import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.eclipse.ui.IPropertyListener;
+import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.PySelection.DocIterator;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -24,8 +28,10 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
-import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
+import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
 /**
  * @author Fabio Zadrozny
@@ -95,11 +101,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
                     collapsed.add(element);
                 }
 
-                EasyASTIteratorVisitor visitor = EasyASTIteratorVisitor.create(root2);
-                //(re) insert annotations.
-                List nodes = visitor.getAsList(new Class[]{Import.class, ImportFrom.class, ClassDef.class, FunctionDef.class});
-
-                addMarks(nodes, model, collapsed);
+                addMarks(getMarks(editor.getDocument(), root2), model, collapsed);
 
                 //remove the annotations that have not been reinserted.
                 for (Iterator it = collapsed.iterator(); it.hasNext();) {
@@ -123,57 +125,14 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
      * @param collapsed
      * @param model
      */
-    private void addMarks(List nodes, ProjectionAnnotationModel model, ArrayList collapsed) {
-        int i = 0;
-
+    private void addMarks(List<FoldingEntry> nodes, ProjectionAnnotationModel model, ArrayList collapsed) {
         try {
-            for (Iterator iter = nodes.iterator(); iter.hasNext(); ++i) {
-
-                ASTEntry element = (ASTEntry) iter.next();
-                
-                int start = element.node.beginLine-1;
-                
-                
-                int end = element.endLine;
-                if (end == -1) {
-                    end = start;
-                }
-
-                try {
-    
-                    if(isImportNode(element)){
-                        //let's keep getting and checking 'glued' imports 
-                        while(iter.hasNext()){
-                            ASTEntry nextElement = (ASTEntry) iter.next();
-                            if(isImportNode(nextElement) && nextElement.endLine == end+1){
-                                end++;
-                            }else{
-                            	//will add the import node
-                                addFoldingMark(element, start, end, model, collapsed);
-                                element = nextElement;
-                                start = element.node.beginLine-1;
-                                end = element.endLine;
-                                break;
-                            }
-                        }
-                    }
-
-                    if(element.node instanceof FunctionDef){
-                        FunctionDef f = (FunctionDef) element.node;
-                        start = f.name.beginLine -1;
-                    }
-                    if (end == -1) {
-                    	end = start;
-                    }
-                    if(end < start){
-                    	end = start;
-                    }
-                
-                    addFoldingMark(element, start, end, model, collapsed);
-                } catch (BadLocationException e) {
-                    e.printStackTrace();
+            for (FoldingEntry element:nodes) {
+                if(element.startLine < element.endLine-1){
+                    addFoldingMark(element, element.startLine, element.endLine, model, collapsed);
                 }
             }
+        } catch (BadLocationException e) {
         } catch (NullPointerException e) {
         }
     }
@@ -191,7 +150,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
      * @param model
      * @throws BadLocationException
      */
-    private void addFoldingMark(ASTEntry node, int start, int end, ProjectionAnnotationModel model, ArrayList collapsed) throws BadLocationException {
+    private void addFoldingMark(FoldingEntry node, int start, int end, ProjectionAnnotationModel model, ArrayList collapsed) throws BadLocationException {
         try {
             IDocument document = editor.getDocumentProvider().getDocument(editor.getEditorInput());
             int offset = document.getLineOffset(start);
@@ -219,22 +178,16 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
 
     /**
      * We have to be careful not to remove collapsed annotations because if this happens, previous code folding is not correct.
-     * 
-     * @param position
-     * @param node
-     * @param model
-     * @param collapsed
-     * @return
      */
-    private ProjectionAnnotation getAnnotationToAdd(Position position, ASTEntry node, ProjectionAnnotationModel model, ArrayList collapsed) {
+    private ProjectionAnnotation getAnnotationToAdd(Position position, FoldingEntry node, ProjectionAnnotationModel model, ArrayList collapsed) {
         for (Iterator iter = collapsed.iterator(); iter.hasNext();) {
             PyProjectionAnnotation element = (PyProjectionAnnotation) iter.next();
-            if (element.appearsSame(node)) {
+            if (element.appearsSame(node.getAstEntry())) {
                 collapsed.remove(element); //after getting it, remove it, so we don't accidentally get it again.
                 return element;
             }
         }
-        return new PyProjectionAnnotation(node);
+        return new PyProjectionAnnotation(node.getAstEntry());
     }
 
     /*
@@ -247,5 +200,92 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
             modelChanged(editor.getAST());
         }
     }
+    
+    
+
+    /**
+     * To get the marks, we work a little with the ast and a little with the doc... the ast is good to give us all things but the comments,
+     * and the doc will give us the comments.
+     * 
+     * @return a list of entries, ordered by their appearance in the document.
+     * 
+     * Also, there should be no overlap for any of the entries
+     */
+    public static List<FoldingEntry> getMarks(IDocument doc, SimpleNode ast) {
+
+        List<FoldingEntry> ret = new ArrayList<FoldingEntry>();
+        
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(ast);
+        //(re) insert annotations.
+        List<ASTEntry> nodes = visitor.getAsList(new Class[]{Import.class, ImportFrom.class, ClassDef.class, FunctionDef.class, Str.class});            
+        for (ASTEntry entry : nodes) {
+            FoldingEntry foldingEntry = null;
+            if(entry.node instanceof Import || entry.node instanceof ImportFrom){
+                foldingEntry = new FoldingEntry(FoldingEntry.TYPE_IMPORT, entry.node.beginLine-1, entry.endLine, entry);
+                
+            }else if(entry.node instanceof ClassDef){
+                ClassDef def = (ClassDef) entry.node;
+                foldingEntry = new FoldingEntry(FoldingEntry.TYPE_DEF, def.name.beginLine-1, entry.endLine, entry);
+                
+            }else if(entry.node instanceof FunctionDef){
+                FunctionDef def = (FunctionDef) entry.node;
+                foldingEntry = new FoldingEntry(FoldingEntry.TYPE_DEF, def.name.beginLine-1, entry.endLine, entry);
+                
+            }else if(entry.node instanceof Str){
+                foldingEntry = new FoldingEntry(FoldingEntry.TYPE_STR, entry.node.beginLine-1, entry.endLine, entry);
+            }
+            if(foldingEntry != null){
+                addFoldingEntry(ret, foldingEntry);
+            }
+        }
+        
+        //and at last, get the comments
+        DocIterator it = new PySelection.DocIterator(true, new PySelection(doc,0));
+        while(it.hasNext()){
+            String string = it.next();
+            if(string.trim().startsWith("#")){
+                int l = it.getCurrentLine()-1;
+                addFoldingEntry(ret, new FoldingEntry(FoldingEntry.TYPE_COMMENT, l, l+1, new ASTEntry(null, new commentType(string))));
+            }
+        }
+        Collections.sort(ret, new Comparator<FoldingEntry>(){
+
+            public int compare(FoldingEntry o1, FoldingEntry o2) {
+                if (o1.startLine < o2.startLine){
+                    return -1;
+                }
+                if (o1.startLine > o2.startLine){
+                    return 1;
+                }
+                return 0;
+            }});
+
+        return ret;
+    }
+
+    private static void addFoldingEntry(List<FoldingEntry> ret, FoldingEntry foldingEntry) {
+        //we only group comments and imports
+        if(ret.size() > 0 && (foldingEntry.type == FoldingEntry.TYPE_COMMENT || foldingEntry.type == FoldingEntry.TYPE_IMPORT)){
+            FoldingEntry prev = ret.get(ret.size()-1);
+            if(prev.type == foldingEntry.type && prev.startLine < foldingEntry.startLine && prev.endLine == foldingEntry.startLine){
+                prev.endLine = foldingEntry.endLine;
+            }else{
+                ret.add(foldingEntry);
+            }
+        }else{
+            ret.add(foldingEntry);
+        }
+    }
 
 }
+
+
+
+
+
+
+
+
+
+
+

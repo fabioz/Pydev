@@ -14,6 +14,7 @@ after 1.2.7
 <li><strong>Auto-edit</strong>: adds 'self', 'cls' or no parameter based on the @clasmethod, @staticmethod declaration on previous line</li>
 <li><strong>Auto-edit</strong>: doesn't add 'self' if a method is declared in a method inner scope</li>
 <li><strong>Fix: BRM Refactoring</strong>: wrong column was being passed to the BRM refactoring engine</li>
+<li><strong>Code-folding</strong>: added for comments and strings</li>
 </ul>
 
 

@@ -10,7 +10,9 @@ import java.util.List;
 
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -487,6 +489,34 @@ public class NodeUtils {
     }
     
     public static int getLineEnd(SimpleNode v) {
+        if(v instanceof ImportFrom){
+            ImportFrom f = (ImportFrom) v;
+            FindLastLineVisitor findLastLineVisitor = new FindLastLineVisitor();
+            try {
+                f.accept(findLastLineVisitor);
+                SimpleNode lastNode = findLastLineVisitor.getLastNode();
+                SpecialStr lastSpecialStr = findLastLineVisitor.getLastSpecialStr();
+                if(lastSpecialStr != null && lastSpecialStr.str.equals(")")){
+                    //it was an from xxx import (euheon, utehon)
+                    return lastSpecialStr.beginLine;
+                }else{
+                    return lastNode.beginLine;
+                }
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
+        if(v instanceof Import){
+            Import f = (Import) v;
+            FindLastLineVisitor findLastLineVisitor = new FindLastLineVisitor();
+            try {
+                f.accept(findLastLineVisitor);
+                SimpleNode lastNode = findLastLineVisitor.getLastNode();
+                return lastNode.beginLine;
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
         if(v instanceof Str){
             String s = ((Str)v).s;
             int found = 0;
