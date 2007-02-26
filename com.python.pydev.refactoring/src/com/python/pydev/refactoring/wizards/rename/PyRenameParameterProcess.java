@@ -72,6 +72,12 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
     	for (ASTEntry entry : occurrences) {
             
+    		if(entry.node instanceof Name){
+				Name name = (Name) entry.node;
+				if(name.ctx == Name.Artificial){
+					continue;
+				}
+    		}
             if(entry.parent != null && entry.parent.node instanceof FunctionDef){
                 processFunctionDef(ret, entry);
                 

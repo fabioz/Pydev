@@ -13,7 +13,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         	DEBUG = true;
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameNonLocal2();
+            test.testRenameParameter3();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -149,6 +149,22 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     	"\n";
     	int line = 1;
     	int col = 16;
+    	checkRename(str, line, col, "foo", false, true);
+    }
+    
+    
+    public void testRenameParameter3() throws Exception {
+    	String str = "" +
+    	"def m1(foo):\n" +
+    	"    if foo is None:\n" +
+    	"        pass\n" +
+    	"    \n" +
+    	"#m2\n" +
+    	"def m2(%s):\n" +
+    	"    print %s\n" +
+    	"\n";
+    	int line = 5;
+    	int col = 7;
     	checkRename(str, line, col, "foo", false, true);
     }
     
