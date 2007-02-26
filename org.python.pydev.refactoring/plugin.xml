@@ -50,6 +50,11 @@
             contextId="org.eclipse.ui.globalScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M3+M2+T E"/>
+      <key
+            sequence="Shift+Alt+M"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.refactoring.ui.actions.ExtractMethodCommand"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
    </extension>
    <extension
          id="org.python.pydev.refactoring.editorContribution"

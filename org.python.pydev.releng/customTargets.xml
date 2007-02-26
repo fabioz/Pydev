@@ -140,6 +140,7 @@
 	<delete dir="${jar4}" />
 	<delete dir="${jar5}" />
 	<delete dir="${jar8}" />
+	<delete dir="${jar9}" />
 
 	<unzip src="${jar1}.jar" dest="${jar1}/out"><patternset><include name="**/*.*"/></patternset></unzip>
 	<unzip src="${jar2}.jar" dest="${jar2}/out"><patternset><include name="**/*.*"/></patternset></unzip>
@@ -147,6 +148,7 @@
 	<unzip src="${jar4}.jar" dest="${jar4}/out"><patternset><include name="**/*.*"/></patternset></unzip>
 	<unzip src="${jar5}.jar" dest="${jar5}/out"><patternset><include name="**/*.*"/></patternset></unzip>
 	<unzip src="${jar8}.jar" dest="${jar8}/out"><patternset><include name="**/*.*"/></patternset></unzip>
+	<unzip src="${jar9}.jar" dest="${jar9}/out"><patternset><include name="**/*.*"/></patternset></unzip>
 	
 	<!-- pass retroweaver -->
 	<echo message = "--------------------------------- weaving jars ${jar1}"/>
@@ -166,6 +168,9 @@
 	
 	<echo message = "--------------------------------- weaving jars ${jar8}"/>
 	<retroweaver srcdir="${jar8}/out" verbose="false" destdir="${jar8}/out" version="1.4"/>
+	
+	<echo message = "--------------------------------- weaving jars ${jar9}"/>
+	<retroweaver srcdir="${jar9}/out" verbose="false" destdir="${jar9}/out" version="1.4"/>
 
 	<echo message = "--------------------------------- weaving ended"/>
 	
@@ -175,6 +180,7 @@
 	<delete file="${jar4}.jar" />
 	<delete file="${jar5}.jar" />
 	<delete file="${jar8}.jar" />
+	<delete file="${jar9}.jar" />
 	
 	<jar jarfile="${jar1}.jar" basedir="${jar1}/out" update="true" manifest="${jar1}/out/META-INF/MANIFEST.MF" />
 	<jar jarfile="${jar2}.jar" basedir="${jar2}/out" update="true" manifest="${jar2}/out/META-INF/MANIFEST.MF" />
@@ -182,6 +188,7 @@
 	<jar jarfile="${jar4}.jar" basedir="${jar4}/out" update="true" manifest="${jar4}/out/META-INF/MANIFEST.MF" />
 	<jar jarfile="${jar5}.jar" basedir="${jar5}/out" update="true" manifest="${jar5}/out/META-INF/MANIFEST.MF" />
 	<jar jarfile="${jar8}.jar" basedir="${jar8}/out" update="true" manifest="${jar8}/out/META-INF/MANIFEST.MF" />
+	<jar jarfile="${jar9}.jar" basedir="${jar9}/out" update="true" manifest="${jar9}/out/META-INF/MANIFEST.MF" />
 	
 	
 </target>
@@ -223,6 +230,7 @@
 	<jar jarfile="${destFeats}${fol6}.jar" basedir="${eclipseTmpResults}/eclipse${fol6}" update="true" manifest="${eclipseTmpResults}/eclipse${fol6}/META-INF/MANIFEST.MF" />
 	<jar jarfile="${destFeats}${fol7}.jar" basedir="${eclipseTmpResults}/eclipse${fol7}" update="true" manifest="${eclipseTmpResults}/eclipse${fol7}/META-INF/MANIFEST.MF" />
 	<jar jarfile="${destFeats}${fol8}.jar" basedir="${eclipseTmpResults}/eclipse${fol8}" update="true" manifest="${eclipseTmpResults}/eclipse${fol8}/META-INF/MANIFEST.MF" />
+	<jar jarfile="${destFeats}${fol9}.jar" basedir="${eclipseTmpResults}/eclipse${fol9}" update="true" manifest="${eclipseTmpResults}/eclipse${fol9}/META-INF/MANIFEST.MF" />
     <echo message="Finished making jars in update site!"/> 
 
 
@@ -237,6 +245,7 @@
 	<copy todir="${EC_HOME}${fol6}"><fileset dir="${eclipseTmpResults}/eclipse${fol6}"/></copy>
 	<copy todir="${EC_HOME}${fol7}"><fileset dir="${eclipseTmpResults}/eclipse${fol7}"/></copy>
 	<copy todir="${EC_HOME}${fol8}"><fileset dir="${eclipseTmpResults}/eclipse${fol8}"/></copy>
+	<copy todir="${EC_HOME}${fol9}"><fileset dir="${eclipseTmpResults}/eclipse${fol9}"/></copy>
     <echo message="Finished making installing!"/>
 
 	<delete dir="${eclipseTmpResults}"/>

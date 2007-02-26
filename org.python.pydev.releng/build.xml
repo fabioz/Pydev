@@ -39,6 +39,7 @@
 		<property name = "plug6"  value = "org.python.pydev.help"/>
 		<property name = "plug7"  value = "org.python.pydev.templates"/>
 		<property name = "plug8"  value = "org.python.pydev.jython"/>
+		<property name = "plug9"  value = "org.python.pydev.refactoring"/>
 		
 		
 		<!-- values after compile -->
@@ -48,6 +49,7 @@
 		<property name = "jar4"  value = "${eclipseResults}/plugins/${plug4}/ast"/>
 		<property name = "jar5"  value = "${eclipseResults}/plugins/${plug5}/pydev-debug"/>
 		<property name = "jar8"  value = "${eclipseResults}/plugins/${plug8}/pydev-jython"/>
+		<property name = "jar9"  value = "${eclipseResults}/plugins/${plug9}/refactoring"/>
 		
 		<!-- values inside the jar -->
 		<property name = "fol0"  value = "/features/${plug0}_${pydev.version}"/>
@@ -59,6 +61,7 @@
 		<property name = "fol6"  value =  "/plugins/${plug6}_${pydev.version}"/>
 		<property name = "fol7"  value =  "/plugins/${plug7}_${pydev.version}"/>
 		<property name = "fol8"  value =  "/plugins/${plug8}_${pydev.version}"/>
+		<property name = "fol9"  value =  "/plugins/${plug9}_${pydev.version}"/>
 
 		
 		<!-- print some info -->
@@ -89,6 +92,7 @@
 		<copy todir="${eclipseResults}/plugins/${plug6}"> <fileset dir="${EC_WORKSPACE}/${plug6}" defaultexcludes="yes" excludes="**/*.class,**/*.pkc,**/*.idx,**/*.indexcache,**/*.pydevinfo,**/*.pydevsysteminfo" /></copy>
 		<copy todir="${eclipseResults}/plugins/${plug7}"> <fileset dir="${EC_WORKSPACE}/${plug7}" defaultexcludes="yes" excludes="**/*.class,**/*.pkc,**/*.idx,**/*.indexcache,**/*.pydevinfo,**/*.pydevsysteminfo" /></copy>
 		<copy todir="${eclipseResults}/plugins/${plug8}"> <fileset dir="${EC_WORKSPACE}/${plug8}" defaultexcludes="yes" excludes="**/*.class,**/*.pkc,**/*.idx,**/*.indexcache,**/*.pydevinfo,**/*.pydevsysteminfo" /></copy>
+		<copy todir="${eclipseResults}/plugins/${plug9}"> <fileset dir="${EC_WORKSPACE}/${plug9}" defaultexcludes="yes" excludes="**/*.class,**/*.pkc,**/*.idx,**/*.indexcache,**/*.pydevinfo,**/*.pydevsysteminfo" /></copy>
 	</target>
 	
 	<target name = "doit" depends="recreate">

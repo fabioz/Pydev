@@ -344,23 +344,25 @@
          </action>
 
         <!-- This is for the refactoring having the existing action (definition) -->
+        <!-- BRM action no longer used (PEPTIC replaced it)
          <action
                definitionId="org.python.pydev.refactoring.extractmethod"
                label="Extract Method"
                class="org.python.pydev.editor.actions.refactoring.PyExtractMethod"
                id="org.python.pydev.refactoring.extractmethod">
          </action>
+         -->
          <action
-               definitionId="org.python.pydev.refactoring.extractlocalbariable"
+               definitionId="org.python.pydev.refactoring.extractlocalvariable"
                label="Extract Local Variable"
                class="org.python.pydev.editor.actions.refactoring.PyExtractLocalVariable"
-               id="org.python.pydev.refactoring.extractlocalbariable">
+               id="org.python.pydev.refactoring.extractlocalvariable">
          </action>
          <action
-               definitionId="org.python.pydev.refactoring.inlinelocalbariable"
+               definitionId="org.python.pydev.refactoring.inlinelocalvariable"
                label="Inline Local Variable"
                class="org.python.pydev.editor.actions.refactoring.PyInlineLocalVariable"
-               id="org.python.pydev.refactoring.inlinelocalbariable">
+               id="org.python.pydev.refactoring.inlinelocalvariable">
          </action>
          <action
                definitionId="org.python.pydev.refactoring.rename"
@@ -385,12 +387,14 @@
             <separator name="refactorings"/>
          </menu>
          <!--This is for making the refactor action accessible in the editor pop-up -->
+         <!-- BRM action no longer used (PEPTIC replaced it)
          <action
                label="Extract Method"
                class="org.python.pydev.editor.actions.refactoring.PyExtractMethod"
                menubarPath="org.python.pydev.editor.refactoring/refactorings"
                id="org.python.pydev.editor.refactoring.extractmethod">
          </action>
+         -->
          <action
                label="Rename"
                class="org.python.pydev.editor.actions.refactoring.PyRename"
@@ -588,23 +592,25 @@
       </command>
       <!-- This is for making a keybinding for it-->
       <!-- Extract Method -->
+      <!-- BRM action no longer used (PEPTIC replaced it)
       <command
             name="Python Extract Method"
             description="Extract Method"
             categoryId="org.python.pydev.ui.category.refactoring"
             id="org.python.pydev.refactoring.extractmethod"/>
+      -->
       <!-- Extract Local Variable -->
       <command
             name="Python Extract Local Variable"
             description="Extract Local Variable"
             categoryId="org.python.pydev.ui.category.refactoring"
-            id="org.python.pydev.refactoring.extractlocalbariable"/>
+            id="org.python.pydev.refactoring.extractlocalvariable"/>
       <!-- Inline Local Variable -->
       <command
             name="Python Inline Local Variable"
             description="Inline Local Variable"
             categoryId="org.python.pydev.ui.category.refactoring"
-            id="org.python.pydev.refactoring.inlinelocalbariable"/>
+            id="org.python.pydev.refactoring.inlinelocalvariable"/>
       <!-- Rename -->
       <command
             name="Python Rename"
@@ -749,22 +755,24 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       -->
+      <!-- Passed to the refactoring plugin
       <key
             sequence="Shift+Alt+M"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.refactoring.extractmethod"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
+      -->
       <key
             sequence="Shift+Alt+L"
             contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.refactoring.extractlocalbariable"
+            commandId="org.python.pydev.refactoring.extractlocalvariable"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
             sequence="Shift+Alt+I"
             contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.refactoring.inlinelocalbariable"
+            commandId="org.python.pydev.refactoring.inlinelocalvariable"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key

@@ -98,4 +98,10 @@ Aleks and Fabio
          install-size="0"
          version="0.9.7.1"/>
 
+   <plugin
+         id="org.python.pydev.refactoring"
+         download-size="0"
+         install-size="0"
+         version="0.9.7.1"/>
+
 </feature>
