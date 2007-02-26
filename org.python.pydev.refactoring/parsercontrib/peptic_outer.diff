@@ -1,0 +1,18 @@
+Index: TreeBuilder25.java
+===================================================================
+RCS file: /cvsroot/pydev/org.python.pydev.parser/src/org/python/pydev/parser/grammar25/TreeBuilder25.java,v
+retrieving revision 1.10
+diff -u -r1.10 TreeBuilder25.java
+--- TreeBuilder25.java	14 Jan 2007 10:54:48 -0000	1.10
++++ TreeBuilder25.java	19 Jan 2007 19:29:07 -0000
+@@ -481,6 +481,10 @@
+             }
+             suite = (Suite)stack.popNode();
+             TryExcept tryExc = (TryExcept) stack.popNode();
++            if (outer != null) {
++            	outer.beginLine = tryExc.beginLine - 1;
++            }
++            
+             tryExc.body = suite.body;
+             tryExc.handlers = handlers;
+             tryExc.orelse = orelseSuite;

@@ -1,0 +1,77 @@
+package org.python.pydev.refactoring.tests.codegenerator.generateproperties;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
+import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
+import org.python.pydev.refactoring.ast.adapters.PropertyTextAdapter;
+import org.python.pydev.refactoring.codegenerator.generateproperties.request.GeneratePropertiesRequest;
+import org.python.pydev.refactoring.core.request.IRequestProcessor;
+
+public class MockupGeneratePropertiesRequestProcessor implements
+		IRequestProcessor<GeneratePropertiesRequest> {
+
+	private ModuleAdapter module;
+
+	private int classSelection;
+
+	private List<Integer> attributeSelection;
+
+	private int methodOffsetStrategy;
+
+	private int propertyOffsetStrategy;
+
+	private List<Integer> methodSelection;
+
+	private int accessModifier;
+
+	private MockupGeneratePropertiesRequestProcessor(ModuleAdapter module,
+			int classSelection, List<Integer> attributeSelection,
+			int methodOffsetStrategy, int propertyOffsetStrategy,
+			List<Integer> methodSelection, int accessModifier) {
+		this.module = module;
+		this.attributeSelection = attributeSelection;
+		this.classSelection = classSelection;
+		this.methodSelection = methodSelection;
+		this.propertyOffsetStrategy = propertyOffsetStrategy;
+		this.methodOffsetStrategy = methodOffsetStrategy;
+		this.accessModifier = accessModifier;
+	}
+
+	public MockupGeneratePropertiesRequestProcessor(ModuleAdapter module,
+			MockupGeneratePropertiesConfig config) {
+		this(module, config.getClassSelection(),
+				config.getAttributeSelection(), config
+						.getMethodOffsetStrategy(), config
+						.getPropertyOffsetStrategy(), config
+						.getMethodSelection(), config.getAccessModifier());
+	}
+
+	public List<GeneratePropertiesRequest> getRefactoringRequests() {
+		ClassDefAdapter clazz = module.getClasses().get(classSelection);
+
+		List<INodeAdapter> attributes = new ArrayList<INodeAdapter>();
+		for (int index : attributeSelection) {
+			attributes.add(clazz.getAttributes().get(index));
+		}
+
+		List<PropertyTextAdapter> properties = new ArrayList<PropertyTextAdapter>();
+		for (int elem : methodSelection) {
+			properties.add(new PropertyTextAdapter(elem, ""));
+		}
+
+		List<GeneratePropertiesRequest> requests = new ArrayList<GeneratePropertiesRequest>();
+		GeneratePropertiesRequest req;
+		for (INodeAdapter elem : attributes) {
+			req = new GeneratePropertiesRequest(clazz, elem, properties,
+					methodOffsetStrategy, propertyOffsetStrategy,
+					accessModifier);
+			requests.add(req);
+		}
+
+		return requests;
+	}
+
+}

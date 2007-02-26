@@ -1,0 +1,2 @@
+v = "hello"
+print `v`

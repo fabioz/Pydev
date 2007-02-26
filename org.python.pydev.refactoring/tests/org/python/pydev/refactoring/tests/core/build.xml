@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="IOTestCaseLexer" default="jflex" basedir=".">
+	<description>
+		JFlex Scanner for AbstractIOTestCases (PEPTIC sifsstud2.hsr.ch)
+	</description>
+
+	<taskdef classname="JFlex.anttask.JFlexTask" name="jflex" classpath="../../../../../../lib/JFlex.jar"/>
+
+	<target name="jflex">
+		<delete file="IOTestCaseLexer.java"/>
+		<jflex file="IOTestCaseLexer.flex" verbose="true"/>
+		<replace file="IOTestCaseLexer.java" token="/** the number of characters up to the start of the matched text */" value=""/>
+		<replace file="IOTestCaseLexer.java" token="private int yychar;" value=""/>
+		<replace file="IOTestCaseLexer.java" token="private int yycolumn;" value=""/>
+		<replace file="IOTestCaseLexer.java" token="private boolean zzAtBOL = true;" value=""/>
+		<replace file="IOTestCaseLexer.java" token="zzAtBOL  = true;" value=""/>
+		<replace file="IOTestCaseLexer.java" token="yyline = yychar = yycolumn = 0;" value="yyline = 0;"/>
+		<replace file="IOTestCaseLexer.java" token="System.out.print(yytext());" value=""/>
+	</target>
+
+</project>

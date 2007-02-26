@@ -1,0 +1,43 @@
+package org.python.pydev.refactoring.ast.visitors.selection;
+
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Break;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Continue;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Pass;
+import org.python.pydev.parser.jython.ast.Return;
+import org.python.pydev.parser.jython.ast.VisitorBase;
+import org.python.pydev.parser.jython.ast.Yield;
+
+public class SelectionValidationVisitor extends VisitorBase {
+
+	private Class[] invalidNode = new Class[] { Break.class, ClassDef.class,
+			Continue.class, FunctionDef.class, ImportFrom.class, Import.class,
+			Pass.class, Return.class, Yield.class };
+
+	@Override
+	public void traverse(SimpleNode node) throws Exception {
+		if (node != null) {
+			validateNode(node);
+			node.traverse(this);
+		}
+	}
+
+	private void validateNode(SimpleNode node) throws SelectionException {
+		for (Class clazz : invalidNode) {
+			if (clazz == node.getClass()) {
+				throw new SelectionException(node);
+			}
+		}
+	}
+
+	@Override
+	protected Object unhandled_node(SimpleNode node) throws Exception {
+		// visitorbase will call traverse
+		return null;
+	}
+
+}

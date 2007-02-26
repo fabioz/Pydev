@@ -1,0 +1,148 @@
+package org.python.pydev.refactoring.ast.visitors.position;
+
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assert;
+import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.AugAssign;
+import org.python.pydev.parser.jython.ast.BinOp;
+import org.python.pydev.parser.jython.ast.BoolOp;
+import org.python.pydev.parser.jython.ast.Call;
+import org.python.pydev.parser.jython.ast.Compare;
+import org.python.pydev.parser.jython.ast.Delete;
+import org.python.pydev.parser.jython.ast.Exec;
+import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.jython.ast.GeneratorExp;
+import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Print;
+import org.python.pydev.parser.jython.ast.Suite;
+import org.python.pydev.parser.jython.ast.TryFinally;
+import org.python.pydev.parser.jython.ast.VisitorBase;
+
+public class IndentVisitor extends VisitorBase {
+
+	private static final int DEFAULT_INDENT = 4;
+
+	private int indent;
+
+	public IndentVisitor() {
+		this.indent = DEFAULT_INDENT;
+	}
+
+	public int getIndent() {
+		return indent;
+	}
+
+	private void handleDefault(SimpleNode node) {
+		this.indent = node.beginColumn;
+	}
+
+	@Override
+	public void traverse(SimpleNode node) throws Exception {
+		// ignore
+	}
+
+	@Override
+	protected Object unhandled_node(SimpleNode node) throws Exception {
+		handleDefault(node);
+		return null;
+	}
+
+	public void visit(SimpleNode node) throws Exception {
+		if (node != null)
+			node.accept(this);
+	}
+
+	public Object visitAssert(Assert node) throws Exception {
+		handleDefault(node);
+		this.indent -= 7;
+		return null;
+	}
+
+	public Object visitAssign(Assign node) throws Exception {
+		visit(node.targets[0]);
+		return null;
+	}
+
+	public Object visitAttribute(Attribute node) throws Exception {
+		visit(node.value);
+		return null;
+	}
+
+	public Object visitAugAssign(AugAssign node) throws Exception {
+		visit(node.target);
+		return null;
+	}
+
+	public Object visitBinOp(BinOp node) throws Exception {
+		visit(node.left);
+		return null;
+	}
+
+	public Object visitBoolOp(BoolOp node) throws Exception {
+		visit(node.values[0]);
+		return null;
+	}
+
+	public Object visitCall(Call node) throws Exception {
+		visit(node.func);
+		return null;
+	}
+
+	public Object visitCompare(Compare node) throws Exception {
+		visit(node.left);
+		return null;
+	}
+
+	public Object visitDelete(Delete node) throws Exception {
+		handleDefault(node);
+		this.indent -= 4;
+		return null;
+	}
+
+	public Object visitExec(Exec node) throws Exception {
+		visit(node);
+		this.indent -= 5;
+		return null;
+	}
+
+	public Object visitExpr(Expr node) throws Exception {
+		visit(node.value);
+		return null;
+	}
+
+	public Object visitGeneratorExp(GeneratorExp node) throws Exception {
+		visit(node.elt);
+		return null;
+	}
+
+	@Override
+	public Object visitImport(Import node) throws Exception {
+		this.indent = 1;
+		return null;
+	}
+
+	@Override
+	public Object visitImportFrom(ImportFrom node) throws Exception {
+		this.indent = 1;
+		return null;
+	}
+
+	public Object visitPrint(Print node) throws Exception {
+		handleDefault(node);
+		this.indent -= 6;
+		return null;
+	}
+
+	public Object visitSuite(Suite node) throws Exception {
+		visit(node.body[0]);
+		return null;
+	}
+
+	public Object visitTryFinally(TryFinally node) throws Exception {
+		handleDefault(node);
+		return null;
+	}
+
+}

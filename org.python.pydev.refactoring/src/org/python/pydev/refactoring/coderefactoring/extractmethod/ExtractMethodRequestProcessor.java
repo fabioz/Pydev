@@ -1,0 +1,102 @@
+package org.python.pydev.refactoring.coderefactoring.extractmethod;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.eclipse.jface.text.ITextSelection;
+import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
+import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
+import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
+import org.python.pydev.refactoring.coderefactoring.extractmethod.edit.ParameterReturnDeduce;
+import org.python.pydev.refactoring.coderefactoring.extractmethod.request.ExtractMethodRequest;
+import org.python.pydev.refactoring.core.request.IRequestProcessor;
+
+public class ExtractMethodRequestProcessor implements
+		IRequestProcessor<ExtractMethodRequest> {
+
+	private int offsetStrategy;
+
+	private String methodName;
+
+	private AbstractScopeNode<?> scopeAdapter;
+
+	private ModuleAdapter parsedSelection;
+
+	private ParameterReturnDeduce deducer;
+
+	private Map<String, String> renameMap;
+
+	private List<String> parameterOrder;
+
+	private ITextSelection selection;
+
+	public ExtractMethodRequestProcessor(AbstractScopeNode<?> scopeAdapter,
+			ModuleAdapter parsedSelection, ITextSelection selection) {
+		initProcessor(scopeAdapter, parsedSelection, selection);
+	}
+
+	public void initProcessor(AbstractScopeNode<?> scopeAdapter,
+			ModuleAdapter parsedSelection, ITextSelection selection) {
+		this.methodName = "pepticMethod";
+		this.scopeAdapter = scopeAdapter;
+		this.selection = selection;
+		this.parsedSelection = parsedSelection;
+		this.deducer = new ParameterReturnDeduce(this.scopeAdapter, selection);
+		this.parameterOrder = new ArrayList<String>();
+		parameterOrder.addAll(deducer.getParameters());
+		this.renameMap = new TreeMap<String, String>();
+		initRenamedMap();
+
+		offsetStrategy = IOffsetStrategy.AFTERINIT;
+	}
+
+	private void initRenamedMap() {
+		for (String variable : deducer.getParameters()) {
+			this.renameMap.put(variable, variable);
+		}
+
+	}
+
+	public AbstractScopeNode<?> getScopeAdapter() {
+		return scopeAdapter;
+	}
+
+	public String getMethodName() {
+		return methodName;
+	}
+
+	public void setMethodName(String methodName) {
+		this.methodName = methodName;
+	}
+
+	public int getOffsetStrategy() {
+		return offsetStrategy;
+	}
+
+	public void setOffsetStrategy(int offsetStrategy) {
+		this.offsetStrategy = offsetStrategy;
+	}
+
+	public List<ExtractMethodRequest> getRefactoringRequests() {
+		List<ExtractMethodRequest> requests = new ArrayList<ExtractMethodRequest>();
+		requests.add(new ExtractMethodRequest(this.methodName, this.selection,
+				this.scopeAdapter, this.parsedSelection, parameterOrder,
+				deducer.getReturns(), this.renameMap, this.offsetStrategy));
+		return requests;
+	}
+
+	public ParameterReturnDeduce getDeducer() {
+		return deducer;
+	}
+
+	public void setParameterMap(Map<String, String> renameMap) {
+		this.renameMap = renameMap;
+	}
+
+	public void setParameterOrder(List<String> parameterOrder) {
+		this.parameterOrder = parameterOrder;
+	}
+
+}

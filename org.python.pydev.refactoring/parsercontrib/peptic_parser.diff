@@ -1,0 +1,183 @@
+Index: src/org/python/pydev/parser/jython/ast/Python.asdl
+===================================================================
+--- src/org/python/pydev/parser/jython/ast/Python.asdl	(revision 410)
++++ src/org/python/pydev/parser/jython/ast/Python.asdl	(revision 411)
+@@ -64,6 +64,9 @@
+ 	
+ 	-- strings:    '''             """            '              "
+ 	str_type = TripleSingle | TripleDouble | SingleSingle | SingleDouble
++	
++	-- numbers:    integer  |     long     |     float    |       hex      |     octcal   |      complex
++	num_type =      Int     |     Long     |     Float    |       Hex      |       Oct    |       Comp	
+ 
+ 	expr = BoolOp(boolop op, expr* values)
+ 	     | BinOp(expr left, operator op, expr right)
+@@ -83,7 +86,7 @@
+ 	     | Compare(expr left, cmpop* ops, expr* comparators)
+ 	     | Call(expr func, expr* args, keyword* keywords, expr? starargs, expr? kwargs)
+ 	     | Repr(expr value)
+-	     | Num(object n) -- a number as a PyObject.
++	     | Num(object n, num_type type, string num) -- a number as a PyObject.
+ 	     | Str(string s, str_type type, bool unicode, bool raw) 
+ 	     | StrJoin(expr* strs) -- the inner expr should always be of type Str
+ 	     -- other literals? bools?
+Index: src/org/python/pydev/parser/grammar24/python.jjt
+===================================================================
+--- src/org/python/pydev/parser/grammar24/python.jjt	(revision 410)
++++ src/org/python/pydev/parser/grammar24/python.jjt	(revision 411)
+@@ -27,6 +27,7 @@
+ import org.python.pydev.parser.jython.ast.Call;
+ import org.python.pydev.parser.jython.ast.Str;
+ import org.python.pydev.parser.jython.ast.Import;
++import org.python.pydev.parser.jython.ast.Num;
+ import org.python.pydev.parser.jython.ast.Yield;
+ import org.python.pydev.parser.jython.ast.Tuple;
+ import org.python.pydev.parser.jython.ast.ImportFrom;
+@@ -216,37 +217,37 @@
+ 
+ 
+ 
+-    Object makeInt(String s, int radix) {
++    Object[] makeInt(String s, int radix, String token) {
+         if (s.endsWith("L") || s.endsWith("l")) {
+             s = s.substring(0, s.length()-1);
+-            return hostLiteralMkr.newLong(new java.math.BigInteger(s, radix));
++            return new Object[]{hostLiteralMkr.newLong(new java.math.BigInteger(s, radix)), Num.Long, token};
+         }
+         int ndigits = s.length();
+         int i=0;
+         while (i < ndigits && s.charAt(i) == '0')
+             i++;
+         if ((ndigits - i) > 11) {
+-            return hostLiteralMkr.newLong(new java.math.BigInteger(s, radix));
++            return new Object[]{hostLiteralMkr.newLong(new java.math.BigInteger(s, radix)), Num.Long, token};
+         }
+ 
+         long l = Long.valueOf(s, radix).longValue();
+         if (l > 0xffffffffl || (radix == 10 && l > Integer.MAX_VALUE)) {
+-            return hostLiteralMkr.newLong(new java.math.BigInteger(s, radix));
++            return new Object[]{hostLiteralMkr.newLong(new java.math.BigInteger(s, radix)), Num.Long, token};
+         }
+-        return hostLiteralMkr.newInteger((int) l);
++        return new Object[]{hostLiteralMkr.newInteger((int) l), Num.Int, token};
+     }
+ 
+-    Object makeFloat(String s) {
+-        return hostLiteralMkr.newFloat(Double.valueOf(s).doubleValue());
++    Object[] makeFloat(String s) {
++        return new Object[]{hostLiteralMkr.newFloat(Double.valueOf(s).doubleValue()), Num.Float, s};
+     }
+ 
+-    Object makeLong(String s) {
+-        return hostLiteralMkr.newLong(s);
++    Object[] makeLong(String s) {
++        return new Object[]{hostLiteralMkr.newLong(s), Num.Long, s};
+     }
+ 
+-    Object makeComplex(String s) {
+-        s = s.substring(0, s.length() - 1);
+-        return hostLiteralMkr.newImaginary(Double.valueOf(s).doubleValue());
++    Object[] makeComplex(String s) {
++        String compNumber = s.substring(0, s.length() - 1);
++        return new Object[]{hostLiteralMkr.newImaginary(Double.valueOf(compNumber).doubleValue()), Num.Comp, s};
+     }
+ 
+     /**
+@@ -1397,14 +1398,14 @@
+     (
+         t=<HEXNUMBER> {
+             String s = t.image.substring(2, t.image.length());
+-            jjtThis.setImage(makeInt(s, 16));
++            jjtThis.setImage(makeInt(s, 16, t.image));
+         } {}
+     )
+ |   (
+-        t=<OCTNUMBER> { jjtThis.setImage(makeInt(t.image, 8)); } {}
++        t=<OCTNUMBER> { jjtThis.setImage(makeInt(t.image, 8, t.image)); } {}
+     )
+ |   (
+-        t=<DECNUMBER> { jjtThis.setImage(makeInt(t.image, 10)); } {}
++        t=<DECNUMBER> { jjtThis.setImage(makeInt(t.image, 10, t.image)); } {}
+     )
+ |   (
+         t=<FLOAT> { jjtThis.setImage(makeFloat(t.image)); } {}
+Index: src/org/python/pydev/parser/grammar25/python.jjt
+===================================================================
+--- src/org/python/pydev/parser/grammar25/python.jjt	(revision 410)
++++ src/org/python/pydev/parser/grammar25/python.jjt	(revision 411)
+@@ -28,6 +28,7 @@
+ import org.python.pydev.parser.jython.ast.Call;
+ import org.python.pydev.parser.jython.ast.Str;
+ import org.python.pydev.parser.jython.ast.Import;
++import org.python.pydev.parser.jython.ast.Num;
+ import org.python.pydev.parser.jython.ast.Yield;
+ import org.python.pydev.parser.jython.ast.Tuple;
+ import org.python.pydev.parser.jython.ast.ImportFrom;
+@@ -225,37 +226,37 @@
+ 
+ 
+ 
+-    Object makeInt(String s, int radix) {
++   Object[] makeInt(String s, int radix, String token) {
+         if (s.endsWith("L") || s.endsWith("l")) {
+             s = s.substring(0, s.length()-1);
+-            return hostLiteralMkr.newLong(new java.math.BigInteger(s, radix));
++            return new Object[]{hostLiteralMkr.newLong(new java.math.BigInteger(s, radix)), Num.Long, token};
+         }
+         int ndigits = s.length();
+         int i=0;
+         while (i < ndigits && s.charAt(i) == '0')
+             i++;
+         if ((ndigits - i) > 11) {
+-            return hostLiteralMkr.newLong(new java.math.BigInteger(s, radix));
++            return new Object[]{hostLiteralMkr.newLong(new java.math.BigInteger(s, radix)), Num.Long, token};
+         }
+ 
+         long l = Long.valueOf(s, radix).longValue();
+         if (l > 0xffffffffl || (radix == 10 && l > Integer.MAX_VALUE)) {
+-            return hostLiteralMkr.newLong(new java.math.BigInteger(s, radix));
++            return new Object[]{hostLiteralMkr.newLong(new java.math.BigInteger(s, radix)), Num.Long, token};
+         }
+-        return hostLiteralMkr.newInteger((int) l);
++        return new Object[]{hostLiteralMkr.newInteger((int) l), Num.Int, token};
+     }
+ 
+-    Object makeFloat(String s) {
+-        return hostLiteralMkr.newFloat(Double.valueOf(s).doubleValue());
++    Object[] makeFloat(String s) {
++        return new Object[]{hostLiteralMkr.newFloat(Double.valueOf(s).doubleValue()), Num.Float, s};
+     }
+ 
+-    Object makeLong(String s) {
+-        return hostLiteralMkr.newLong(s);
++    Object[] makeLong(String s) {
++        return new Object[]{hostLiteralMkr.newLong(s), Num.Long, s};
+     }
+ 
+-    Object makeComplex(String s) {
+-        s = s.substring(0, s.length() - 1);
+-        return hostLiteralMkr.newImaginary(Double.valueOf(s).doubleValue());
++    Object[] makeComplex(String s) {
++        String compNumber = s.substring(0, s.length() - 1);
++        return new Object[]{hostLiteralMkr.newImaginary(Double.valueOf(compNumber).doubleValue()), Num.Comp, s};
+     }
+ 
+     /**
+@@ -1468,14 +1469,14 @@
+     (
+         t=<HEXNUMBER> {
+             String s = t.image.substring(2, t.image.length());
+-            jjtThis.setImage(makeInt(s, 16));
++            jjtThis.setImage(makeInt(s, 16, t.image));
+         } {}
+     )
+ |   (
+-        t=<OCTNUMBER> { jjtThis.setImage(makeInt(t.image, 8)); } {}
++        t=<OCTNUMBER> { jjtThis.setImage(makeInt(t.image, 8, t.image)); } {}
+     )
+ |   (
+-        t=<DECNUMBER> { jjtThis.setImage(makeInt(t.image, 10)); } {}
++        t=<DECNUMBER> { jjtThis.setImage(makeInt(t.image, 10, t.image)); } {}
+     )
+ |   (
+         t=<FLOAT> { jjtThis.setImage(makeFloat(t.image)); } {}

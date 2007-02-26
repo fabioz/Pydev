@@ -1,0 +1,93 @@
+package org.python.pydev.refactoring.codegenerator.overridemethods.edit;
+
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.Call;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.Return;
+import org.python.pydev.parser.jython.ast.argumentsType;
+import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
+import org.python.pydev.refactoring.codegenerator.overridemethods.request.OverrideMethodsRequest;
+import org.python.pydev.refactoring.core.edit.AbstractInsertEdit;
+
+public class MethodEdit extends AbstractInsertEdit {
+
+	private int offsetStrategy;
+
+	private FunctionDefAdapter method;
+
+	private String baseClassName;
+
+	public MethodEdit(OverrideMethodsRequest req) {
+		super(req);
+		this.method = req.getFunctionAdapter();
+		this.baseClassName = req.getBaseClassName();
+		this.offsetStrategy = req.getOffsetStrategy();
+	}
+
+	@Override
+	protected SimpleNode getEditNode() {
+		FunctionDef origin = method.getASTNode();
+		stmtType[] body = initBody(origin);
+
+		return new FunctionDef(origin.name, origin.args, body, null);
+	}
+
+	private stmtType[] initBody(FunctionDef origin) {
+		stmtType[] body = new stmtType[1];
+		body[0] = new Return(createBaseClassCall(origin));
+		return body;
+	}
+
+	private Call createBaseClassCall(FunctionDef origin) {
+
+		exprType[] args = null;
+		exprType starargs = null;
+		exprType kwargs = null;
+
+		if (origin.args != null) {
+			args = extractArgs(origin.args);
+			starargs = extractStarargs(origin.args);
+			kwargs = extractKwargs(origin.args);
+		}
+
+		Call funCall = new Call(createAttribute(), args, null, starargs, kwargs);
+
+		return funCall;
+	}
+
+	private exprType extractKwargs(argumentsType argType) {
+		NameTok kwarg = (NameTok) argType.kwarg;
+		if (kwarg != null)
+			return new Name("**" + kwarg.id, Name.Load);
+		else
+			return null;
+	}
+
+	private exprType extractStarargs(argumentsType argType) {
+		NameTok vararg = (NameTok) argType.vararg;
+		if (vararg != null)
+			return new Name("*" + vararg.id, Name.Load);
+		else
+			return null;
+	}
+
+	private exprType[] extractArgs(argumentsType argType) {
+		return argType.args;
+	}
+
+	private Attribute createAttribute() {
+		return new Attribute(new Name(baseClassName, Name.Load), new NameTok(
+				method.getName(), NameTok.Attrib), Attribute.Load);
+	}
+
+	@Override
+	public int getOffsetStrategy() {
+		return offsetStrategy;
+	}
+
+}
