@@ -77,8 +77,7 @@ public abstract class PyCompletionProposalExtension2 extends PyCompletionProposa
      * @return
      */
     private boolean isValidChar(char c) {
-        return c != ' ' && c != '(' && c!= '{' && c != '[' && c != '"' && c!= '.' && c!= '\r' && c != '\n' &&
-               c != ')' && c != ']' && c != '}';
+    	return Character.isJavaIdentifierPart(c);
     }
 
     public void unselected(ITextViewer viewer) {
