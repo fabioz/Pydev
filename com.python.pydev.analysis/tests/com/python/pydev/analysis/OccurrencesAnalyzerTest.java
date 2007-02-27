@@ -2249,4 +2249,29 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         checkNoError();
     }
     
+    public void testNoEffect() {
+    	doc = new Document("" +
+    			"2 == 1\n" + //has no effect
+    			"if 2 == 1: pass\n" + //has effect
+    	"");
+    	analyzer = new OccurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs, 1);
+    	assertEquals("Statement apppears to have no effect", msgs[0].getMessage());
+    }
+    
+    public void testNoEffect2() {
+    	doc = new Document("" +
+    			"a = 5\n" +
+    			"a == 1\n" + //has no effect
+    			"if a == 1: pass\n" + //has effect
+    	"");
+    	analyzer = new OccurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs, 1);
+    	assertEquals("Statement apppears to have no effect", msgs[0].getMessage());
+    }
+    
 }
