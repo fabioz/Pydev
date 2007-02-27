@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jface.text.ITextSelection;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
@@ -107,13 +108,14 @@ public class ParameterReturnDeduce {
 	}
 
 	/**
-	 * Needed fix: to check if it is used, it must be in a load context
+	 * Fix (fabioz): to check if it is used, it must be in a load context
 	 */
 	private boolean isUsed(String var, List<SimpleAdapter> scopeVariables) {
 		for (SimpleAdapter adapter : scopeVariables) {
-			if (adapter.getASTNode() instanceof Name) {
-				Name scopeVar = (Name) adapter.getASTNode();
-				if (scopeVar.id.compareTo(var) == 0) {
+			SimpleNode astNode = adapter.getASTNode();
+			if (astNode instanceof Name) {
+				Name scopeVar = (Name) astNode;
+				if ((scopeVar.ctx == Name.Load || scopeVar.ctx == Name.AugLoad) && scopeVar.id.equals(var)) {
 					return true;
 				}
 			}
@@ -126,9 +128,10 @@ public class ParameterReturnDeduce {
 		// must traverse all variables, because a
 		// variable may be used in other context!
 		for (SimpleAdapter adapter : scopeVariables) {
-			if (adapter.getASTNode() instanceof Name) {
-				Name scopeVar = (Name) adapter.getASTNode();
-				if (scopeVar.id.compareTo(var) == 0) {
+			SimpleNode astNode = adapter.getASTNode();
+			if (astNode instanceof Name) {
+				Name scopeVar = (Name) astNode;
+				if (scopeVar.id.equals(var)) {
 					isStored = (scopeVar.ctx == Name.Store || scopeVar.ctx == Name.AugStore);
 				}
 			}
