@@ -10,8 +10,7 @@ import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
 public class ModuleAdapterTestSuite extends AbstractIOTestSuite {
 
 	public static Test suite() {
-		TESTDIR = "tests" + File.separator + "python" + File.separator
-				+ "adapter" + File.separator + "module";
+		TESTDIR = "tests" + File.separator + "python" + File.separator + "adapter" + File.separator + "module";
 		ModuleAdapterTestSuite testSuite = new ModuleAdapterTestSuite();
 
 		testSuite.createTests();
@@ -24,4 +23,3 @@ public class ModuleAdapterTestSuite extends AbstractIOTestSuite {
 		return new ModuleAdapterTestCase(testCaseName);
 	}
 }
-

@@ -10,8 +10,7 @@ import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
 public class SelectionExtensionTestSuite extends AbstractIOTestSuite {
 
 	public static Test suite() {
-		TESTDIR = "tests" + File.separator + "python" + File.separator
-				+ "visitor" + File.separator + "selectionextension";
+		TESTDIR = "tests" + File.separator + "python" + File.separator + "visitor" + File.separator + "selectionextension";
 		SelectionExtensionTestSuite testSuite = new SelectionExtensionTestSuite();
 
 		testSuite.createTests();

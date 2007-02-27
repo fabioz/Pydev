@@ -9,8 +9,7 @@ import org.python.pydev.refactoring.ast.visitors.context.LocalFunctionDefVisitor
 import org.python.pydev.refactoring.ast.visitors.context.ScopeAssignedVisitor;
 import org.python.pydev.refactoring.ast.visitors.context.ScopeVariablesVisitor;
 
-public abstract class AbstractScopeNode<T extends SimpleNode> extends
-		AbstractNodeAdapter<T> {
+public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNodeAdapter<T> {
 
 	private List<SimpleAdapter> usedVariables;
 
@@ -20,8 +19,7 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends
 
 	private List<ClassDefAdapter> classes;
 
-	public AbstractScopeNode(ModuleAdapter module, AbstractScopeNode<?> parent,
-			T node) {
+	public AbstractScopeNode(ModuleAdapter module, AbstractScopeNode<?> parent, T node) {
 		super(module, parent, node);
 		this.usedVariables = null;
 		this.assignedVariables = null;
@@ -31,9 +29,8 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends
 
 	public List<FunctionDefAdapter> getFunctions() {
 		if (functions == null) {
-			LocalFunctionDefVisitor visitor = VisitorFactory
-					.createContextVisitor(LocalFunctionDefVisitor.class,
-							getASTNode(), getModule(), this);
+			LocalFunctionDefVisitor visitor = VisitorFactory.createContextVisitor(LocalFunctionDefVisitor.class, getASTNode(), getModule(),
+					this);
 			functions = visitor.getAll();
 		}
 
@@ -43,9 +40,7 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends
 	public List<ClassDefAdapter> getClasses() {
 		if (this.classes == null) {
 			ClassDefVisitor visitor = null;
-			visitor = VisitorFactory
-					.createContextVisitor(ClassDefVisitor.class, this
-							.getASTNode(), getModule(), this);
+			visitor = VisitorFactory.createContextVisitor(ClassDefVisitor.class, this.getASTNode(), getModule(), this);
 
 			this.classes = visitor.getAll();
 		}
@@ -54,8 +49,7 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends
 
 	public List<SimpleAdapter> getAssignedVariables() {
 		if (assignedVariables == null) {
-			ScopeAssignedVisitor visitor = VisitorFactory.createContextVisitor(
-					ScopeAssignedVisitor.class, getASTNode(), this.getModule(),
+			ScopeAssignedVisitor visitor = VisitorFactory.createContextVisitor(ScopeAssignedVisitor.class, getASTNode(), this.getModule(),
 					this);
 			assignedVariables = visitor.getAll();
 		}
@@ -64,9 +58,8 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends
 
 	public List<SimpleAdapter> getUsedVariables() {
 		if (usedVariables == null) {
-			ScopeVariablesVisitor visitor = VisitorFactory
-					.createContextVisitor(ScopeVariablesVisitor.class,
-							getASTNode(), this.getModule(), this);
+			ScopeVariablesVisitor visitor = VisitorFactory.createContextVisitor(ScopeVariablesVisitor.class, getASTNode(),
+					this.getModule(), this);
 			usedVariables = visitor.getAll();
 		}
 		return usedVariables;
@@ -80,5 +73,5 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends
 		}
 		return false;
 	}
-	
+
 }

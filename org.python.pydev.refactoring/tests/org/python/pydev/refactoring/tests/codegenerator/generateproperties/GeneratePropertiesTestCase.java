@@ -45,13 +45,10 @@ public class GeneratePropertiesTestCase extends AbstractIOTestCase {
 		assertEquals(getExpected(), getGenerated());
 	}
 
-	private IDocument applyGenerateProperties(
-			MockupGeneratePropertiesRequestProcessor requestProcessor)
-			throws BadLocationException {
+	private IDocument applyGenerateProperties(MockupGeneratePropertiesRequestProcessor requestProcessor) throws BadLocationException {
 		IDocument refactoringDoc = new Document(getSource());
 		MultiTextEdit multi = new MultiTextEdit();
-		for (GeneratePropertiesRequest req : requestProcessor
-				.getRefactoringRequests()) {
+		for (GeneratePropertiesRequest req : requestProcessor.getRefactoringRequests()) {
 			SelectionState state = req.getSelectionState();
 
 			if (state.isGetter()) {
@@ -69,15 +66,12 @@ public class GeneratePropertiesTestCase extends AbstractIOTestCase {
 		return refactoringDoc;
 	}
 
-	private MockupGeneratePropertiesRequestProcessor setupRequestProcessor(
-			MockupGeneratePropertiesConfig config) throws Throwable {
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null,
-				new Document(getSource()));
+	private MockupGeneratePropertiesRequestProcessor setupRequestProcessor(MockupGeneratePropertiesConfig config) throws Throwable {
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()));
 		List<ClassDefAdapter> classes = module.getClasses();
 		assertTrue(classes.size() > 0);
 
-		MockupGeneratePropertiesRequestProcessor requestProcessor = new MockupGeneratePropertiesRequestProcessor(
-				module, config);
+		MockupGeneratePropertiesRequestProcessor requestProcessor = new MockupGeneratePropertiesRequestProcessor(module, config);
 		return requestProcessor;
 	}
 
@@ -87,8 +81,7 @@ public class GeneratePropertiesTestCase extends AbstractIOTestCase {
 		xstream.alias("config", MockupGeneratePropertiesConfig.class);
 
 		if (getConfig().length() > 0) {
-			config = (MockupGeneratePropertiesConfig) xstream
-					.fromXML(getConfig());
+			config = (MockupGeneratePropertiesConfig) xstream.fromXML(getConfig());
 		} else {
 			fail("Could not unserialize configuration");
 		}

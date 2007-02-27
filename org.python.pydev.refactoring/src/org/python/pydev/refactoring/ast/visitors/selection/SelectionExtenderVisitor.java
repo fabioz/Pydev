@@ -37,8 +37,7 @@ public class SelectionExtenderVisitor extends VisitorBase {
 
 	private SimpleNode extendNodeInSelection;
 
-	public SelectionExtenderVisitor(ModuleAdapter module,
-			ITextSelection selection) {
+	public SelectionExtenderVisitor(ModuleAdapter module, ITextSelection selection) {
 		this.module = module;
 		this.selection = selection;
 		this.stmtExprStack = new FastStack<SimpleNode>();
@@ -128,13 +127,11 @@ public class SelectionExtenderVisitor extends VisitorBase {
 	}
 
 	private void extendSelection(SimpleNode node) {
-		if (extendNodeInSelection != null && isExtendable(node)
-				&& node != extendNodeInSelection) {
+		if (extendNodeInSelection != null && isExtendable(node) && node != extendNodeInSelection) {
 
 			node = resolveExtendNode(node);
 
-			this.selection = this.module.extendSelection(selection,
-					extendNodeInSelection, node);
+			this.selection = this.module.extendSelection(selection, extendNodeInSelection, node);
 			this.extendNodeInSelection = null;
 			this.stmtExprStack.clear();
 		}
@@ -146,8 +143,7 @@ public class SelectionExtenderVisitor extends VisitorBase {
 
 	private SimpleNode resolveExtendNode(SimpleNode node) {
 		if (extendNodeInSelection instanceof exprType) {
-			while (!(stmtExprStack.isEmpty())
-					&& !(isExtendable(stmtExprStack.peek()))) {
+			while (!(stmtExprStack.isEmpty()) && !(isExtendable(stmtExprStack.peek()))) {
 				stmtExprStack.pop();
 			}
 			if (!(stmtExprStack.isEmpty())) {
@@ -205,7 +201,7 @@ public class SelectionExtenderVisitor extends VisitorBase {
 		visit(node.orelse);
 		return null;
 	}
-	
+
 	@Override
 	public Object visitWhile(While node) throws Exception {
 		visit(node.test);
@@ -238,7 +234,7 @@ public class SelectionExtenderVisitor extends VisitorBase {
 				extendSelection(node);
 			}
 			visit(node.orelse);
-		}		
+		}
 		return null;
 	}
 
@@ -247,8 +243,7 @@ public class SelectionExtenderVisitor extends VisitorBase {
 		return null;
 	}
 
-	private Object visitExceptionHandler(excepthandlerType node)
-			throws Exception {
+	private Object visitExceptionHandler(excepthandlerType node) throws Exception {
 		visit(node.type);
 		visit(node.name);
 		visit(node.body);

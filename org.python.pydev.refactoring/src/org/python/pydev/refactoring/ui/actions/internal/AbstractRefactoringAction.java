@@ -22,8 +22,7 @@ import org.python.pydev.refactoring.core.RefactoringInfo;
 import org.python.pydev.refactoring.ui.PythonRefactoringWizard;
 import org.python.pydev.refactoring.ui.UITexts;
 
-public abstract class AbstractRefactoringAction extends Action implements
-		IEditorActionDelegate {
+public abstract class AbstractRefactoringAction extends Action implements IEditorActionDelegate {
 
 	private AbstractPythonRefactoring refactoring;
 
@@ -47,8 +46,7 @@ public abstract class AbstractRefactoringAction extends Action implements
 		if (targetEditor != null) {
 			result = targetEditor.getSite().getShell();
 		} else {
-			result = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-					.getShell();
+			result = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		}
 		return result;
 	}
@@ -58,8 +56,7 @@ public abstract class AbstractRefactoringAction extends Action implements
 		return IDE.saveAllEditors(new IResource[] { workspaceRoot }, true);
 	}
 
-	private void setupRefactoring(Class refactoringClass, String name)
-			throws InterruptedException {
+	private void setupRefactoring(Class refactoringClass, String name) throws InterruptedException {
 		RefactoringInfo req = null;
 
 		try {
@@ -68,9 +65,7 @@ public abstract class AbstractRefactoringAction extends Action implements
 				nature = ((IPyEdit) targetEditor).getPythonNature();
 			}
 			req = new RefactoringInfo(targetEditor, nature);
-			this.refactoring = (AbstractPythonRefactoring) refactoringClass
-					.getConstructors()[0]
-					.newInstance(new Object[] { name, req });
+			this.refactoring = (AbstractPythonRefactoring) refactoringClass.getConstructors()[0].newInstance(new Object[] { name, req });
 			return;
 		} catch (Throwable e) {
 			showError(UITexts.infoUnavailable);
@@ -93,14 +88,11 @@ public abstract class AbstractRefactoringAction extends Action implements
 
 		try {
 			this.setupRefactoring(refactoring, title);
-			PythonRefactoringWizard wizard = new PythonRefactoringWizard(
-					this.refactoring);
+			PythonRefactoringWizard wizard = new PythonRefactoringWizard(this.refactoring);
 			wizard.setWindowTitle(title);
-			RefactoringWizardOpenOperation op = new RefactoringWizardOpenOperation(
-					wizard);
+			RefactoringWizardOpenOperation op = new RefactoringWizardOpenOperation(wizard);
 			op.run(this.getShell(), action.getText());
-			targetEditor.getDocumentProvider().changed(
-					targetEditor.getEditorInput());
+			targetEditor.getDocumentProvider().changed(targetEditor.getEditorInput());
 		} catch (InterruptedException e) {
 		}
 

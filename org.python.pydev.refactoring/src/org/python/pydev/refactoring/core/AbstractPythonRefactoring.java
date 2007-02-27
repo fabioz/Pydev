@@ -34,24 +34,19 @@ public abstract class AbstractPythonRefactoring extends Refactoring {
 	}
 
 	@Override
-	public RefactoringStatus checkFinalConditions(IProgressMonitor pm)
-			throws CoreException, OperationCanceledException {
+	public RefactoringStatus checkFinalConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
 		return status;
 	}
 
 	@Override
-	public RefactoringStatus checkInitialConditions(IProgressMonitor pm)
-			throws CoreException, OperationCanceledException {
+	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
 		return status;
 	}
 
-
 	@Override
-	public Change createChange(IProgressMonitor pm) throws CoreException,
-			OperationCanceledException {
+	public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
 		IChangeProcessor changeProcessor = new CompositeChangeProcessor(name, getChangeProcessors());
-		if (changeProcessor == null)
-		{
+		if (changeProcessor == null) {
 			status.addFatalError(UITexts.errorUnexpected);
 			return new NullChange();
 		}

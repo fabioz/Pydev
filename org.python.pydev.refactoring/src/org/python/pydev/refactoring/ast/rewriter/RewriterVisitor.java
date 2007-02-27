@@ -71,9 +71,8 @@ import org.python.pydev.parser.jython.ast.suiteType;
 import org.python.pydev.refactoring.ast.printer.SourcePrinter;
 
 /**
- * GoF Visitor Pattern for AST traversal (see AbstractRewriterVisitor for
- * implemented Jython Visitor class). It will traverse an Abstract Syntax Tree,
- * in order to reprint the source code.
+ * GoF Visitor Pattern for AST traversal (see AbstractRewriterVisitor for implemented Jython Visitor class). It will traverse an Abstract
+ * Syntax Tree, in order to reprint the source code.
  * 
  * @author Ueli Kistler (ukistler[at]hsr.ch)
  * 
@@ -104,16 +103,14 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 	}
 
 	private boolean handleCommaOptional(SimpleNode node) {
-		return (printer.hasSpecialAfter(node, printer.getSyntaxhelper()
-				.getComma()));
+		return (printer.hasSpecialAfter(node, printer.getSyntaxhelper().getComma()));
 	}
 
 	protected void handleCommentAfter(SimpleNode node) {
 		printer.printCommentAfter(node);
 	}
 
-	private void handleCommentAfterBody(SimpleNode node,
-			SimpleNode firstBodyNode) {
+	private void handleCommentAfterBody(SimpleNode node, SimpleNode firstBodyNode) {
 		printer.printCommentAfterBody(node, firstBodyNode);
 	}
 
@@ -121,13 +118,11 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 		printer.printCommentBefore(node);
 	}
 
-	private void handleCommentBeforeBody(SimpleNode node,
-			SimpleNode firstBodyNode) {
+	private void handleCommentBeforeBody(SimpleNode node, SimpleNode firstBodyNode) {
 		printer.printCommentBeforeBody(node, firstBodyNode);
 	}
 
-	private SimpleNode handleDecoratorArgs(decoratorsType node)
-			throws Exception {
+	private SimpleNode handleDecoratorArgs(decoratorsType node) throws Exception {
 		if (node == null)
 			return null;
 		SimpleNode lastNode = null;
@@ -140,8 +135,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 
 			if (isFilledList(node.keywords)) {
 				printer.printListSeparator();
-				lastNode = visitWithSeparator(node,
-						reverseNodeArray(node.keywords));
+				lastNode = visitWithSeparator(node, reverseNodeArray(node.keywords));
 			}
 			if (node.starargs != null) {
 				// comma before already handeld in visitWithSeparator
@@ -164,8 +158,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 		return lastNode;
 	}
 
-	private SimpleNode handleFunctionArgs(SimpleNode node,
-			argumentsType arguments) throws Exception {
+	private SimpleNode handleFunctionArgs(SimpleNode node, argumentsType arguments) throws Exception {
 		SimpleNode lastNode = null;
 
 		if (arguments != null) {
@@ -180,8 +173,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 		boolean passedElsif = false;
 		if (node.orelse != null) {
 			for (int i = 0; i < node.orelse.length; i++) {
-				passedElsif = handleIfElseSuite(node, passedElsif,
-						node.orelse[i]);
+				passedElsif = handleIfElseSuite(node, passedElsif, node.orelse[i]);
 
 			}
 			if (passedElsif)
@@ -190,8 +182,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 		}
 	}
 
-	private boolean handleIfElseSuite(If node, boolean passedElsif,
-			stmtType statement) throws Exception {
+	private boolean handleIfElseSuite(If node, boolean passedElsif, stmtType statement) throws Exception {
 		printer.setDisabledIfPrinting(true);
 
 		printer.printNewlineAndIndentation();
@@ -213,8 +204,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 		return passedElsif;
 	}
 
-	private exprType handleKeyValueArgs(SimpleNode parent, exprType[] keys,
-			exprType[] values) throws Exception {
+	private exprType handleKeyValueArgs(SimpleNode parent, exprType[] keys, exprType[] values) throws Exception {
 		exprType lastNode = null;
 		if (keys == null)
 			return lastNode;
@@ -246,8 +236,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 		return lastNode;
 	}
 
-	private SimpleNode handleKwArgs(argumentsType arguments, SimpleNode lastNode)
-			throws Exception {
+	private SimpleNode handleKwArgs(argumentsType arguments, SimpleNode lastNode) throws Exception {
 		if (arguments.kwarg != null) {
 			if (lastNode != null)
 				printer.printListSeparator();
@@ -261,18 +250,15 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 		return lastNode;
 	}
 
-	private SimpleNode handlePositionalAndDefaultArgs(SimpleNode node,
-			argumentsType arguments) throws Exception {
+	private SimpleNode handlePositionalAndDefaultArgs(SimpleNode node, argumentsType arguments) throws Exception {
 		SimpleNode lastNode;
 		lastNode = visitKeyValue(node, arguments.args, arguments.defaults);
-		if (handleCommaOptional(lastNode) && arguments.vararg == null
-				&& arguments.kwarg == null)
+		if (handleCommaOptional(lastNode) && arguments.vararg == null && arguments.kwarg == null)
 			printer.printListSeparator();
 		return lastNode;
 	}
 
-	private void handlePostNode(SimpleNode parent, SimpleNode lastNode,
-			Iterator<SimpleNode> iter, boolean outdent, boolean separator) {
+	private void handlePostNode(SimpleNode parent, SimpleNode lastNode, Iterator<SimpleNode> iter, boolean outdent, boolean separator) {
 		if (separator)
 			handleSeparator(parent, lastNode, iter);
 		handleCommentAfter(lastNode);
@@ -289,8 +275,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 		}
 	}
 
-	private void handlePreNode(SimpleNode parent, SimpleNode lastNode,
-			java.util.List<SimpleNode> nodes) {
+	private void handlePreNode(SimpleNode parent, SimpleNode lastNode, java.util.List<SimpleNode> nodes) {
 		handleCommentBefore(lastNode);
 		if (printer.getNodeHelper().isComprehension(parent)) {
 			printer.printStatementIf(true, true);
@@ -303,8 +288,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 		handleCommentAfter(node);
 	}
 
-	private void handleSeparator(SimpleNode parent, SimpleNode lastNode,
-			Iterator<SimpleNode> iter) {
+	private void handleSeparator(SimpleNode parent, SimpleNode lastNode, Iterator<SimpleNode> iter) {
 		if (iter.hasNext()) {
 			if (printer.getNodeHelper().isBoolOp(parent)) {
 				BoolOp boolParent = (BoolOp) parent;
@@ -338,8 +322,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 		}
 	}
 
-	private SimpleNode handleVarArgs(argumentsType arguments,
-			SimpleNode lastNode) throws Exception {
+	private SimpleNode handleVarArgs(argumentsType arguments, SimpleNode lastNode) throws Exception {
 		if (arguments.vararg != null) {
 			if (lastNode != null)
 				printer.printListSeparator();
@@ -394,13 +377,11 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 		return lastNode;
 	}
 
-	private SimpleNode visit(SimpleNode node, SimpleNode[] body)
-			throws Exception {
+	private SimpleNode visit(SimpleNode node, SimpleNode[] body) throws Exception {
 		return visit(node, body, true, false);
 	}
 
-	private SimpleNode visit(SimpleNode parent, SimpleNode[] list,
-			boolean outdent, boolean separator) throws Exception {
+	private SimpleNode visit(SimpleNode parent, SimpleNode[] list, boolean outdent, boolean separator) throws Exception {
 		if (list == null)
 			return null;
 		SimpleNode lastNode = null;
@@ -603,8 +584,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 		return null;
 	}
 
-	public Object visitExceptHandlerType(excepthandlerType node)
-			throws Exception {
+	public Object visitExceptHandlerType(excepthandlerType node) throws Exception {
 		printer.printStatementExcept(node.type != null);
 		super.visit(node.type);
 		if (node.name != null) {
@@ -804,8 +784,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 		return null;
 	}
 
-	public exprType visitKeyValue(SimpleNode parent, exprType[] keys,
-			exprType[] values) throws Exception {
+	public exprType visitKeyValue(SimpleNode parent, exprType[] keys, exprType[] values) throws Exception {
 		return handleKeyValueArgs(parent, keys, values);
 	}
 
@@ -971,8 +950,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 
 	public Object visitSuiteType(suiteType node) throws Exception {
 		if (node != null) {
-			if (!(printer.getNodeHelper()
-					.isTryFinallyStatement(getPreviousNode()))) {
+			if (!(printer.getNodeHelper().isTryFinallyStatement(getPreviousNode()))) {
 				printer.printNewlineAndIndentation();
 				printer.printStatementElse();
 
@@ -1083,8 +1061,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 		return null;
 	}
 
-	private SimpleNode visitWithSeparator(SimpleNode parent, SimpleNode[] body)
-			throws Exception {
+	private SimpleNode visitWithSeparator(SimpleNode parent, SimpleNode[] body) throws Exception {
 		return visit(parent, body, false, true);
 	}
 

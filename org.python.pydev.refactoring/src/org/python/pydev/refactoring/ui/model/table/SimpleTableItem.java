@@ -14,8 +14,7 @@ public class SimpleTableItem extends TableItem {
 		setText(realName);
 	}
 
-	public SimpleTableItem(Table parent, String originalName, String text,
-			int pos) {
+	public SimpleTableItem(Table parent, String originalName, String text, int pos) {
 		super(parent, SWT.None, pos);
 		this.realName = originalName;
 		setText(text);

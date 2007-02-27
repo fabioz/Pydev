@@ -19,15 +19,13 @@ import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.adapters.SimpleAdapter;
 
-public class GlobalAttributeVisitor extends
-		AbstractContextVisitor<SimpleAdapter> {
+public class GlobalAttributeVisitor extends AbstractContextVisitor<SimpleAdapter> {
 
 	private SortedSet<String> uniqueAttributes;
 
 	private FunctionDef lastFunctionDef;
 
-	public GlobalAttributeVisitor(ModuleAdapter module,
-			AbstractScopeNode<?> parent) {
+	public GlobalAttributeVisitor(ModuleAdapter module, AbstractScopeNode<?> parent) {
 		super(module, parent);
 		uniqueAttributes = new TreeSet<String>();
 	}
@@ -58,16 +56,16 @@ public class GlobalAttributeVisitor extends
 		}
 		return false;
 	}
-	
+
 	@Override
 	public Object visitImport(Import node) throws Exception {
 		return null;
 	}
-	
+
 	@Override
 	public Object visitImportFrom(ImportFrom node) throws Exception {
 		return null;
-	}	
+	}
 
 	@Override
 	public Object visitName(Name node) throws Exception {
@@ -157,8 +155,7 @@ public class GlobalAttributeVisitor extends
 	}
 
 	@Override
-	protected SimpleAdapter createAdapter(AbstractScopeNode<?> parent,
-			SimpleNode node) {
+	protected SimpleAdapter createAdapter(AbstractScopeNode<?> parent, SimpleNode node) {
 		return new SimpleAdapter(moduleAdapter, parent, node);
 	}
 

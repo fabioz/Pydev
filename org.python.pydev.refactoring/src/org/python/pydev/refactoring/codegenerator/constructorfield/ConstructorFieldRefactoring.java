@@ -31,13 +31,10 @@ public class ConstructorFieldRefactoring extends AbstractPythonRefactoring {
 	}
 
 	private void initWizard(String name) throws Throwable {
-		ClassFieldTreeProvider provider = new ClassFieldTreeProvider(req
-				.getScopeClass());
+		ClassFieldTreeProvider provider = new ClassFieldTreeProvider(req.getScopeClass());
 		this.requestProcessor = new ConstructorFieldRequestProcessor();
-		this.changeProcessor = new ConstructorFieldChangeProcessor(this.name,
-				this.req, this.requestProcessor);
-		this.pages.add(new ConstructorFieldPage(name, provider,
-				requestProcessor));
+		this.changeProcessor = new ConstructorFieldChangeProcessor(this.name, this.req, this.requestProcessor);
+		this.pages.add(new ConstructorFieldPage(name, provider, requestProcessor));
 	}
 
 	@Override
@@ -48,8 +45,7 @@ public class ConstructorFieldRefactoring extends AbstractPythonRefactoring {
 	}
 
 	@Override
-	public RefactoringStatus checkInitialConditions(IProgressMonitor pm)
-			throws CoreException, OperationCanceledException {
+	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
 		ClassDefAdapter rootClass = this.req.getScopeClass();
 
 		if (rootClass != null) {

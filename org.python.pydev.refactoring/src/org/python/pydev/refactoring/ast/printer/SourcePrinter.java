@@ -36,8 +36,7 @@ public class SourcePrinter {
 		this(output, new SyntaxHelper(), new CallDepth(), false);
 	}
 
-	public SourcePrinter(PrintWriter output, SyntaxHelper formatHelper,
-			CallDepth callDepth, boolean ignoreComments) {
+	public SourcePrinter(PrintWriter output, SyntaxHelper formatHelper, CallDepth callDepth, boolean ignoreComments) {
 		this.output = output;
 		this.syntaxHelper = formatHelper;
 		this.callDepth = callDepth;
@@ -48,8 +47,7 @@ public class SourcePrinter {
 
 	}
 
-	protected java.util.List<commentType> extractComments(
-			java.util.List<Object> specials) {
+	protected java.util.List<commentType> extractComments(java.util.List<Object> specials) {
 		if (specials == null)
 			return null;
 
@@ -65,9 +63,7 @@ public class SourcePrinter {
 		return comments;
 	}
 
-	protected java.util.List<commentType> extractComments(
-			java.util.List<Object> specials, SimpleNode firstBodyNode,
-			boolean before) {
+	protected java.util.List<commentType> extractComments(java.util.List<Object> specials, SimpleNode firstBodyNode, boolean before) {
 		if (specials == null)
 			return null;
 
@@ -314,8 +310,7 @@ public class SourcePrinter {
 		printStatement("class");
 	}
 
-	protected void printComment(SimpleNode node,
-			java.util.List<commentType> comments) {
+	protected void printComment(SimpleNode node, java.util.List<commentType> comments) {
 
 		if (comments == null)
 			return;
@@ -352,14 +347,12 @@ public class SourcePrinter {
 
 	public void printCommentBeforeBody(SimpleNode node, SimpleNode firstBodyNode) {
 		if (!(isIgnoreComments(node)))
-			printComment(node, extractComments(node.specialsAfter,
-					firstBodyNode, true));
+			printComment(node, extractComments(node.specialsAfter, firstBodyNode, true));
 	}
 
 	public void printCommentAfterBody(SimpleNode node, SimpleNode firstBodyNode) {
 		if (!isIgnoreComments(node))
-			printComment(node, extractComments(node.specialsAfter,
-					firstBodyNode, false));
+			printComment(node, extractComments(node.specialsAfter, firstBodyNode, false));
 	}
 
 	public void printCommentBefore(SimpleNode node) {
@@ -410,8 +403,7 @@ public class SourcePrinter {
 		printStatement("continue", false, false);
 	}
 
-	public void printDestinationOperator(boolean withSpaceBefore,
-			boolean withSpaceAfter) {
+	public void printDestinationOperator(boolean withSpaceBefore, boolean withSpaceAfter) {
 		if (withSpaceBefore)
 			printSpace();
 		print(syntaxHelper.getOperatorDestination());
@@ -480,8 +472,7 @@ public class SourcePrinter {
 		printStatement(statement, false, true);
 	}
 
-	protected void printStatement(String statement, boolean spaceBefore,
-			boolean spaceAfter) {
+	protected void printStatement(String statement, boolean spaceBefore, boolean spaceAfter) {
 		if (spaceBefore)
 			print(syntaxHelper.beforeStatement());
 		print(statement);

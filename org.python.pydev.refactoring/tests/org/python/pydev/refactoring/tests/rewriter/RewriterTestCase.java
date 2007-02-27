@@ -15,7 +15,6 @@ public class RewriterTestCase extends AbstractRewriterTestCase {
 		super(name, ignoreEmptyLines);
 	}
 
-
 	public void runTest() throws Throwable {
 		super.runRewriter();
 		assertEquals(getExpected(), getGenerated());

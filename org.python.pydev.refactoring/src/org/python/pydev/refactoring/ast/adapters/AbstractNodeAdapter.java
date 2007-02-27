@@ -6,8 +6,7 @@ import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.position.IndentVisitor;
 import org.python.pydev.refactoring.ast.visitors.position.LastLineVisitor;
 
-public abstract class AbstractNodeAdapter<T extends SimpleNode> implements
-		IASTNodeAdapter<T> {
+public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTNodeAdapter<T> {
 
 	private ModuleAdapter module;
 
@@ -17,8 +16,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements
 
 	protected NodeHelper nodeHelper;
 
-	public AbstractNodeAdapter(ModuleAdapter module,
-			AbstractScopeNode<?> parent, T node) {
+	public AbstractNodeAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, T node) {
 		this.module = module;
 		this.parent = parent;
 		this.adaptee = node;
@@ -53,8 +51,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements
 	 * @see org.python.pydev.refactoring.ast.adapters.IASTNodeAdapte#getNodeBodyIndent()
 	 */
 	public int getNodeBodyIndent() {
-		IndentVisitor visitor = VisitorFactory.createVisitor(
-				IndentVisitor.class, getASTNode());
+		IndentVisitor visitor = VisitorFactory.createVisitor(IndentVisitor.class, getASTNode());
 		return visitor.getIndent();
 	}
 
@@ -73,8 +70,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements
 	 * @see org.python.pydev.refactoring.ast.adapters.IASTNodeAdapte#getNodeIndent()
 	 */
 	public int getNodeIndent() {
-		IndentVisitor visitor = VisitorFactory.createVisitor(
-				IndentVisitor.class, getASTNode());
+		IndentVisitor visitor = VisitorFactory.createVisitor(IndentVisitor.class, getASTNode());
 		return visitor.getIndent();
 	}
 
@@ -84,8 +80,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements
 	 * @see org.python.pydev.refactoring.ast.adapters.IASTNodeAdapte#getNodeLastLine()
 	 */
 	public int getNodeLastLine() {
-		LastLineVisitor visitor = VisitorFactory.createVisitor(
-				LastLineVisitor.class, getASTNode());
+		LastLineVisitor visitor = VisitorFactory.createVisitor(LastLineVisitor.class, getASTNode());
 		return visitor.getLastLine();
 	}
 
@@ -133,8 +128,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements
 	public boolean equals(Object obj) {
 		if (obj instanceof AbstractNodeAdapter) {
 			AbstractNodeAdapter adapter = (AbstractNodeAdapter) obj;
-			return ((getNodeFirstLine() == adapter.getNodeFirstLine())
-					&& (getNodeIndent() == adapter.getNodeIndent()) && (getModule()
+			return ((getNodeFirstLine() == adapter.getNodeFirstLine()) && (getNodeIndent() == adapter.getNodeIndent()) && (getModule()
 					.equals(adapter.getModule())));
 		}
 		return false;

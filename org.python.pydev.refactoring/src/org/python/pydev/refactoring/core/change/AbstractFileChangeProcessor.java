@@ -11,8 +11,7 @@ import org.python.pydev.refactoring.core.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 
-public abstract class AbstractFileChangeProcessor<T extends IRefactoringRequest>
-		implements IChangeProcessor {
+public abstract class AbstractFileChangeProcessor<T extends IRefactoringRequest> implements IChangeProcessor {
 
 	private TextChange change;
 
@@ -24,13 +23,11 @@ public abstract class AbstractFileChangeProcessor<T extends IRefactoringRequest>
 
 	protected IRequestProcessor<T> requestProcessor;
 
-	public AbstractFileChangeProcessor(String name, RefactoringInfo info,
-			IRequestProcessor<T> requestProcessor) {
+	public AbstractFileChangeProcessor(String name, RefactoringInfo info, IRequestProcessor<T> requestProcessor) {
 		this(name, info.getSourceFile(), requestProcessor);
 	}
 
-	public AbstractFileChangeProcessor(String name, IFile file,
-			IRequestProcessor<T> requestProcessor) {
+	public AbstractFileChangeProcessor(String name, IFile file, IRequestProcessor<T> requestProcessor) {
 		this.name = name;
 		this.file = file;
 		this.requestProcessor = requestProcessor;

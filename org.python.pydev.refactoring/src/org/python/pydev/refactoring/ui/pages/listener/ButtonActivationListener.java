@@ -15,8 +15,7 @@ public class ButtonActivationListener implements Listener {
 
 	private Button editButton;
 
-	public ButtonActivationListener(Table table, Button upButton,
-			Button downButton, Button editButton) {
+	public ButtonActivationListener(Table table, Button upButton, Button downButton, Button editButton) {
 		this.table = table;
 		this.upButton = upButton;
 		this.downButton = downButton;

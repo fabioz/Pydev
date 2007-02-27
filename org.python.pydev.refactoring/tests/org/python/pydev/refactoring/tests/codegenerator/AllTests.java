@@ -10,8 +10,7 @@ import org.python.pydev.refactoring.tests.codegenerator.overridemethods.Override
 public class AllTests {
 
 	public static Test suite() {
-		TestSuite suite = new TestSuite(
-				"Test for org.python.pydev.refactoring.tests.codegenerator");
+		TestSuite suite = new TestSuite("Test for org.python.pydev.refactoring.tests.codegenerator");
 		// $JUnit-BEGIN$
 		suite.addTest(ConstructorFieldTestSuite.suite());
 		suite.addTest(OverrideMethodsTestSuite.suite());

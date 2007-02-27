@@ -34,16 +34,12 @@ public class RefactoringInfo {
 
 	private AbstractScopeNode<?> scopeAdapter;
 
-	public RefactoringInfo(ITextEditor edit, IPythonNature nature)
-			throws Throwable {
-		this(((IFileEditorInput) edit.getEditorInput()).getFile(), edit
-				.getDocumentProvider().getDocument(edit.getEditorInput()),
-				(ITextSelection) edit.getSelectionProvider().getSelection(),
-				nature);
+	public RefactoringInfo(ITextEditor edit, IPythonNature nature) throws Throwable {
+		this(((IFileEditorInput) edit.getEditorInput()).getFile(), edit.getDocumentProvider().getDocument(edit.getEditorInput()),
+				(ITextSelection) edit.getSelectionProvider().getSelection(), nature);
 	}
 
-	public RefactoringInfo(IFile sourceFile, IDocument doc,
-			ITextSelection selection, IPythonNature nature) throws Throwable {
+	public RefactoringInfo(IFile sourceFile, IDocument doc, ITextSelection selection, IPythonNature nature) throws Throwable {
 		this.sourceFile = sourceFile;
 		this.doc = doc;
 		this.nature = nature;
@@ -51,8 +47,7 @@ public class RefactoringInfo {
 		initInfo(selection, userSelection);
 	}
 
-	private void initInfo(ITextSelection selection, ITextSelection userSelection)
-			throws Throwable {
+	private void initInfo(ITextSelection selection, ITextSelection userSelection) throws Throwable {
 		if (this.nature != null) {
 			this.moduleManager = new PythonModuleManager(nature);
 		}
@@ -62,8 +57,7 @@ public class RefactoringInfo {
 			realFile = sourceFile.getRawLocation().toFile();
 		}
 
-		this.moduleAdapter = VisitorFactory.createModuleAdapter(moduleManager,
-				realFile, doc);
+		this.moduleAdapter = VisitorFactory.createModuleAdapter(moduleManager, realFile, doc);
 
 		this.extendedSelection = null;
 		this.userSelection = moduleAdapter.normalizeSelection(selection);
@@ -87,15 +81,11 @@ public class RefactoringInfo {
 
 	public ITextSelection getExtendedSelection() {
 		if (this.extendedSelection == null) {
-			this.extendedSelection = new TextSelection(this.doc, this
-					.getUserSelection().getOffset(), this.userSelection
-					.getLength());
+			this.extendedSelection = new TextSelection(this.doc, this.getUserSelection().getOffset(), this.userSelection.getLength());
 
 			if (getScopeAdapter() != null) {
-				this.extendedSelection = moduleAdapter
-						.normalizeSelection(VisitorFactory
-								.createSelectionExtension(getScopeAdapter(),
-										this.extendedSelection));
+				this.extendedSelection = moduleAdapter.normalizeSelection(VisitorFactory.createSelectionExtension(getScopeAdapter(),
+						this.extendedSelection));
 			}
 
 		}
@@ -112,39 +102,33 @@ public class RefactoringInfo {
 
 	public ModuleAdapter getParsedUserSelection() {
 		ModuleAdapter parsedAdapter = null;
-		String source = normalizeSourceSelection(getScopeAdapter(),
-				this.userSelection);
+		String source = normalizeSourceSelection(getScopeAdapter(), this.userSelection);
 
 		if (this.userSelection != null && source.length() > 0) {
 			try {
-				parsedAdapter = VisitorFactory.createModuleAdapter(
-						moduleManager, null, new Document(source));
+				parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source));
 			} catch (Throwable e) {
 			}
 		}
 		return parsedAdapter;
 	}
 
-	private ModuleAdapter getParsedExtendedSelection(
-			AbstractScopeNode<?> scopeNode) {
+	private ModuleAdapter getParsedExtendedSelection(AbstractScopeNode<?> scopeNode) {
 		ModuleAdapter parsedAdapter = null;
 
-		String source = normalizeSourceSelection(scopeNode, this
-				.getExtendedSelection());
+		String source = normalizeSourceSelection(scopeNode, this.getExtendedSelection());
 
 		if (this.getExtendedSelection() != null && source.length() > 0) {
 
 			try {
-				parsedAdapter = VisitorFactory.createModuleAdapter(
-						moduleManager, null, new Document(source));
+				parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source));
 			} catch (Throwable e) {
 			}
 		}
 		return parsedAdapter;
 	}
 
-	public String normalizeSourceSelection(AbstractScopeNode<?> scopeNode,
-			ITextSelection selection) {
+	public String normalizeSourceSelection(AbstractScopeNode<?> scopeNode, ITextSelection selection) {
 		String selectedText = "";
 
 		if (selection.getText() != null) {
@@ -163,15 +147,13 @@ public class RefactoringInfo {
 
 	}
 
-	private String normalizeBlockIndentation(ITextSelection selection,
-			String selectedText) throws Throwable {
+	private String normalizeBlockIndentation(ITextSelection selection, String selectedText) throws Throwable {
 		String[] lines = selectedText.split("\\n");
 		if (lines.length < 2) {
 			return selectedText;
 		}
 
-		String firstLine = doc.get(doc.getLineOffset(selection.getStartLine()),
-				doc.getLineLength(selection.getStartLine()));
+		String firstLine = doc.get(doc.getLineOffset(selection.getStartLine()), doc.getLineLength(selection.getStartLine()));
 		String indentation = "";
 		int bodyIndent = 0;
 		while (firstLine.startsWith(" ")) {
@@ -214,9 +196,8 @@ public class RefactoringInfo {
 	}
 
 	public boolean isSelectionExtensionRequired() {
-		return !(this.getUserSelection().getOffset() == this
-				.getExtendedSelection().getOffset() && this.getUserSelection()
-				.getLength() == this.getExtendedSelection().getLength());
+		return !(this.getUserSelection().getOffset() == this.getExtendedSelection().getOffset() && this.getUserSelection().getLength() == this
+				.getExtendedSelection().getLength());
 	}
 
 }

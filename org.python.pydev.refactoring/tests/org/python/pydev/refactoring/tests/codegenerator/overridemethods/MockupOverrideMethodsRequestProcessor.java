@@ -9,8 +9,7 @@ import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.codegenerator.overridemethods.request.OverrideMethodsRequest;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 
-public class MockupOverrideMethodsRequestProcessor implements
-		IRequestProcessor<OverrideMethodsRequest> {
+public class MockupOverrideMethodsRequestProcessor implements IRequestProcessor<OverrideMethodsRequest> {
 
 	private ModuleAdapter module;
 
@@ -22,8 +21,7 @@ public class MockupOverrideMethodsRequestProcessor implements
 
 	private int editClass;
 
-	private MockupOverrideMethodsRequestProcessor(ModuleAdapter module,
-			int classSelection, List<Integer> methodSelection,
+	private MockupOverrideMethodsRequestProcessor(ModuleAdapter module, int classSelection, List<Integer> methodSelection,
 			int offsetStrategy, int editClass) {
 		this.module = module;
 		this.methodSelection = methodSelection;
@@ -32,10 +30,8 @@ public class MockupOverrideMethodsRequestProcessor implements
 		this.editClass = editClass;
 	}
 
-	public MockupOverrideMethodsRequestProcessor(ModuleAdapter module,
-			MockupOverrideMethodsConfig config) {
-		this(module, config.getClassSelection(), config.getMethodSelection(),
-				config.getOffsetStrategy(), config.getEditClass());
+	public MockupOverrideMethodsRequestProcessor(ModuleAdapter module, MockupOverrideMethodsConfig config) {
+		this(module, config.getClassSelection(), config.getMethodSelection(), config.getOffsetStrategy(), config.getEditClass());
 	}
 
 	public List<OverrideMethodsRequest> getRefactoringRequests() {
@@ -51,8 +47,7 @@ public class MockupOverrideMethodsRequestProcessor implements
 		List<OverrideMethodsRequest> requests = new ArrayList<OverrideMethodsRequest>();
 
 		for (FunctionDefAdapter method : methods) {
-			OverrideMethodsRequest req = new OverrideMethodsRequest(clazz,
-					this.offsetStrategy, method, false, baseClassName);
+			OverrideMethodsRequest req = new OverrideMethodsRequest(clazz, this.offsetStrategy, method, false, baseClassName);
 			requests.add(req);
 		}
 

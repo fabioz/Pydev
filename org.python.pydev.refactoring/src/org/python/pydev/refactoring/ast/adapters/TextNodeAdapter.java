@@ -15,9 +15,8 @@ public class TextNodeAdapter implements INodeAdapter {
 	public String getParentName() {
 		return "";
 	}
-	
-	protected void setName(String name)
-	{
+
+	protected void setName(String name) {
 		this.name = name;
 	}
 

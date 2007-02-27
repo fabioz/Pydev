@@ -13,8 +13,7 @@ public abstract class AbstractReplaceEdit extends AbstractTextEdit {
 
 	@Override
 	public TextEdit getEdit() {
-		return new ReplaceEdit(getOffset(), getReplaceLength(),
-				getFormatedNode());
+		return new ReplaceEdit(getOffset(), getReplaceLength(), getFormatedNode());
 	}
 
 	protected String getFormatedNode() {

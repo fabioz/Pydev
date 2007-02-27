@@ -20,37 +20,31 @@ public class ScopeVarVisitorTestCase extends AbstractIOTestCase {
 	@Override
 	public void runTest() throws Throwable {
 		StringBuffer buffer = new StringBuffer();
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null,
-				new Document(getSource()));
-		
-		for(FunctionDefAdapter func : module.getFunctions())
-		{
-			
-			ScopeVariablesVisitor visitor = VisitorFactory
-					.createContextVisitor(ScopeVariablesVisitor.class, func.getASTNode(), module, func);
-			
-			printAttributes(buffer, visitor, func.getName());			
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()));
+
+		for (FunctionDefAdapter func : module.getFunctions()) {
+
+			ScopeVariablesVisitor visitor = VisitorFactory.createContextVisitor(ScopeVariablesVisitor.class, func.getASTNode(), module,
+					func);
+
+			printAttributes(buffer, visitor, func.getName());
 		}
-		for(ClassDefAdapter clazz : module.getClasses())
-		{
-			
-			ScopeVariablesVisitor visitor = VisitorFactory
-					.createContextVisitor(ScopeVariablesVisitor.class, clazz.getASTNode(), module, clazz);
-			
-			printAttributes(buffer, visitor, clazz.getName());			
+		for (ClassDefAdapter clazz : module.getClasses()) {
+
+			ScopeVariablesVisitor visitor = VisitorFactory.createContextVisitor(ScopeVariablesVisitor.class, clazz.getASTNode(), module,
+					clazz);
+
+			printAttributes(buffer, visitor, clazz.getName());
 		}
-		
-		
 
 		this.setTestGenerated(buffer.toString().trim());
 
 		assertEquals(getExpected(), getGenerated());
 	}
 
-	private void printAttributes(StringBuffer buffer,
-			ScopeVariablesVisitor scopeVisitor, String scopeName) {
+	private void printAttributes(StringBuffer buffer, ScopeVariablesVisitor scopeVisitor, String scopeName) {
 		Iterator<SimpleAdapter> iter = scopeVisitor.iterator();
-		buffer.append("\n# " +scopeName+" "+ scopeVisitor.getAll().size() + "\n");
+		buffer.append("\n# " + scopeName + " " + scopeVisitor.getAll().size() + "\n");
 		while (iter.hasNext()) {
 			SimpleAdapter adapter = iter.next();
 			buffer.append("## " + adapter.getName() + "\n");

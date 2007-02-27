@@ -13,7 +13,7 @@ public class TreeNodeClassField extends TreeNodeSimple<ClassDefAdapter> {
 	public TreeNodeClassField(ClassDefAdapter adapter) {
 		super(null, adapter);
 	}
-	
+
 	@Override
 	public Object[] getChildren() {
 		List<ITreeNode> children = new ArrayList<ITreeNode>();
@@ -22,7 +22,7 @@ public class TreeNodeClassField extends TreeNodeSimple<ClassDefAdapter> {
 		}
 		return children.toArray();
 	}
-		
+
 	@Override
 	public String getImageName() {
 		return ITreeNode.NODE_CLASS;

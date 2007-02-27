@@ -135,8 +135,7 @@ public class NodeHelper {
 		} else if (isCall(node))
 			return getName(((Call) node).func);
 		else if (isAttribute(node)) {
-			String attributeName = VisitorFactory.createSourceFromAST(node,
-					true);
+			String attributeName = VisitorFactory.createSourceFromAST(node, true);
 			int subscriptOffset = attributeName.indexOf("[");
 			if (subscriptOffset > 0)
 				attributeName = attributeName.substring(0, subscriptOffset - 1);
@@ -222,8 +221,7 @@ public class NodeHelper {
 	}
 
 	public boolean isControlStatement(SimpleNode node) {
-		return isForStatement(node) || isWhileStatement(node)
-				|| isWithStatement(node) || isTryExceptStatement(node)
+		return isForStatement(node) || isWhileStatement(node) || isWithStatement(node) || isTryExceptStatement(node)
 				|| isTryFinallyStatement(node) || isIfStatement(node);
 	}
 
@@ -276,8 +274,7 @@ public class NodeHelper {
 	}
 
 	public boolean isInit(SimpleNode node) {
-		return isFunctionDef(node)
-				&& (getName(node).compareTo(KEYWORD_INIT) == 0);
+		return isFunctionDef(node) && (getName(node).compareTo(KEYWORD_INIT) == 0);
 	}
 
 	public boolean isKeyword(SimpleNode node) {
@@ -321,8 +318,7 @@ public class NodeHelper {
 	}
 
 	public boolean isProperty(Call node) {
-		return getName(node).compareTo(KEYWORD_PROPERTY) == 0
-				&& isValidPropertyCall(node);
+		return getName(node).compareTo(KEYWORD_PROPERTY) == 0 && isValidPropertyCall(node);
 	}
 
 	public boolean isPropertyAssign(Assign node) throws Exception {

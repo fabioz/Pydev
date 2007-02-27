@@ -38,9 +38,8 @@ public class SetterMethodEdit extends AbstractInsertEdit {
 		Assign assign = initSetAssignment();
 		List<stmtType> body = initBody(assign);
 
-		return new FunctionDef(new NameTok(SET
-				+ getCapitalString(attributeName), NameTok.FunctionName), args,
-				body.toArray(new stmtType[0]), null);
+		return new FunctionDef(new NameTok(SET + getCapitalString(attributeName), NameTok.FunctionName), args, body
+				.toArray(new stmtType[0]), null);
 	}
 
 	private List<stmtType> initBody(Assign assign) {
@@ -51,10 +50,8 @@ public class SetterMethodEdit extends AbstractInsertEdit {
 
 	private Assign initSetAssignment() {
 		exprType[] targets = new exprType[1];
-		targets[0] = new Attribute(
-				new Name(NodeHelper.KEYWORD_SELF, Name.Load), new NameTok(
-						nodeHelper.getPrivateAttr(attributeName),
-						NameTok.Attrib), Attribute.Store);
+		targets[0] = new Attribute(new Name(NodeHelper.KEYWORD_SELF, Name.Load), new NameTok(nodeHelper.getPrivateAttr(attributeName),
+				NameTok.Attrib), Attribute.Store);
 
 		Assign assign = new Assign(targets, new Name(VALUE, Name.Load));
 		return assign;

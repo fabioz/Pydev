@@ -1,2 +1,14 @@
 To test a single method, a system property called "filter" should be set before running the tests.
+E.g.: add -Dfilter=testExtractMethodGlobalDeclared.py to the vm arguments
 
+
+Bug related to ParameterReturnDeduce: 
+	The test testExtractMethodGlobalDeclared.py tests both situations below:
+
+	- It is not considering the globals in the file (builtins/others).
+	Basically:
+		private void deduceParameters(List<SimpleAdapter> before, List<SimpleAdapter> selected)
+	should check if a parameter found is actually a global before adding it to the list of parameters
+	
+	- If a local variable has only write access, it does not need to be added to the parameters
+	

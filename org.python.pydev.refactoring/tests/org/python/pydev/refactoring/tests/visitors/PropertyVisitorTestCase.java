@@ -18,33 +18,25 @@ public class PropertyVisitorTestCase extends AbstractIOTestCase {
 	@Override
 	public void runTest() throws Throwable {
 		StringBuffer buffer = new StringBuffer();
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null,
-				new Document(getSource()));
-		ClassDefVisitor classVisitor = VisitorFactory.createContextVisitor(
-				ClassDefVisitor.class, module.getASTNode(), module, module);
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()));
+		ClassDefVisitor classVisitor = VisitorFactory.createContextVisitor(ClassDefVisitor.class, module.getASTNode(), module, module);
 
 		assertTrue(classVisitor.getAll().size() > 0);
-		PropertyVisitor propertyVisitor = VisitorFactory.createContextVisitor(
-				PropertyVisitor.class, classVisitor.getAll().get(0)
-						.getASTNode(), module, classVisitor.getAll().get(0));
+		PropertyVisitor propertyVisitor = VisitorFactory.createContextVisitor(PropertyVisitor.class, classVisitor.getAll().get(0)
+				.getASTNode(), module, classVisitor.getAll().get(0));
 
 		printProperties(buffer, propertyVisitor);
 
 		assertEquals(getExpected(), getGenerated());
 	}
 
-	private void printProperties(StringBuffer buffer,
-			PropertyVisitor propertyVisitor) {
+	private void printProperties(StringBuffer buffer, PropertyVisitor propertyVisitor) {
 		Iterator<PropertyAdapter> iter = propertyVisitor.iterator();
 		buffer.append("# " + propertyVisitor.getAll().size() + "\n");
 		while (iter.hasNext()) {
 			PropertyAdapter propertyAdapter = iter.next();
-			buffer.append("# " + propertyAdapter.getParentName() + " "
-					+ propertyAdapter.getName() + " "
-					+ propertyAdapter.isComplete() + " "
-					+ propertyAdapter.hasGetter() + " "
-					+ propertyAdapter.hasSetter() + " "
-					+ propertyAdapter.hasDelete() + " "
+			buffer.append("# " + propertyAdapter.getParentName() + " " + propertyAdapter.getName() + " " + propertyAdapter.isComplete()
+					+ " " + propertyAdapter.hasGetter() + " " + propertyAdapter.hasSetter() + " " + propertyAdapter.hasDelete() + " "
 					+ propertyAdapter.hasDocString() + "\n");
 		}
 		this.setTestGenerated(buffer.toString().trim());

@@ -22,10 +22,8 @@ public class GeneratePropertiesRequest implements IRefactoringRequest {
 
 	private int accessModifier;
 
-	public GeneratePropertiesRequest(ClassDefAdapter classAdapter,
-			INodeAdapter attributeAdapter, List<PropertyTextAdapter> properties,
-			int offsetMethodStrategy, int offsetPropertyStrategy,
-			int accessModifier) {
+	public GeneratePropertiesRequest(ClassDefAdapter classAdapter, INodeAdapter attributeAdapter, List<PropertyTextAdapter> properties,
+			int offsetMethodStrategy, int offsetPropertyStrategy, int accessModifier) {
 		this.state = new SelectionState();
 		this.classAdapter = classAdapter;
 		this.attributeAdapter = attributeAdapter;

@@ -11,8 +11,7 @@ public class CompositeChangeProcessor implements IChangeProcessor {
 
 	private List<IChangeProcessor> processors;
 
-	public CompositeChangeProcessor(String name,
-			List<IChangeProcessor> processors) {
+	public CompositeChangeProcessor(String name, List<IChangeProcessor> processors) {
 		this.name = name;
 		this.processors = processors;
 	}

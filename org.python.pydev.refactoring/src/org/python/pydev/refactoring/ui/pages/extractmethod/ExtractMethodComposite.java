@@ -78,15 +78,13 @@ public class ExtractMethodComposite extends Composite {
 
 	private Composite argumentsComposite;
 
-	public ExtractMethodComposite(IValidationPage page, Composite parent,
-			boolean hasArguments, AbstractScopeNode<?> scope) {
+	public ExtractMethodComposite(IValidationPage page, Composite parent, boolean hasArguments, AbstractScopeNode<?> scope) {
 		super(parent, SWT.NONE);
 		this.page = page;
 		this.scopeAdapter = scope;
 
-		this.strategyProvider = new OffsetStrategyProvider(scopeAdapter, 
-				IOffsetStrategy.AFTERINIT | IOffsetStrategy.BEGIN
-						| IOffsetStrategy.END);
+		this.strategyProvider = new OffsetStrategyProvider(scopeAdapter, IOffsetStrategy.AFTERINIT | IOffsetStrategy.BEGIN
+				| IOffsetStrategy.END);
 
 		createComposite(hasArguments);
 	}
@@ -162,8 +160,7 @@ public class ExtractMethodComposite extends Composite {
 	}
 
 	private void createArgumentsButton(Composite ArgumentsTableComposite) {
-		Composite argumentsButtonComposite = new Composite(
-				ArgumentsTableComposite, SWT.NONE);
+		Composite argumentsButtonComposite = new Composite(ArgumentsTableComposite, SWT.NONE);
 		GridLayout compositeLayout = new GridLayout();
 		compositeLayout.makeColumnsEqualWidth = true;
 		FormData compositeLData = new FormData(0, 0);
@@ -191,20 +188,16 @@ public class ExtractMethodComposite extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int selectionIndex = argumentsTable.getSelectionIndex();
-				if (argumentsTable.getSelectionCount() == 1
-						&& selectionIndex != argumentsTable.getItemCount()) {
+				if (argumentsTable.getSelectionCount() == 1 && selectionIndex != argumentsTable.getItemCount()) {
 
 					TableItem item = argumentsTable.getSelection()[0];
 					if (item instanceof SimpleTableItem) {
 						SimpleTableItem tableItem = (SimpleTableItem) item;
 
-						new SimpleTableItem(argumentsTable, tableItem
-								.getOriginalName(), tableItem.getText(),
-								selectionIndex + 2);
+						new SimpleTableItem(argumentsTable, tableItem.getOriginalName(), tableItem.getText(), selectionIndex + 2);
 						argumentsTable.remove(selectionIndex);
 						argumentsTable.setSelection(selectionIndex + 1);
-						argumentsTable.notifyListeners(SWT.Selection,
-								new Event());
+						argumentsTable.notifyListeners(SWT.Selection, new Event());
 						page.validate();
 					}
 
@@ -220,20 +213,16 @@ public class ExtractMethodComposite extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int selectionIndex = argumentsTable.getSelectionIndex();
-				if (argumentsTable.getSelectionCount() == 1
-						&& selectionIndex > 0) {
+				if (argumentsTable.getSelectionCount() == 1 && selectionIndex > 0) {
 
 					TableItem item = argumentsTable.getSelection()[0];
 					if (item instanceof SimpleTableItem) {
 						SimpleTableItem tableItem = (SimpleTableItem) item;
 
-						new SimpleTableItem(argumentsTable, tableItem
-								.getOriginalName(), tableItem.getText(),
-								selectionIndex - 1);
+						new SimpleTableItem(argumentsTable, tableItem.getOriginalName(), tableItem.getText(), selectionIndex - 1);
 						argumentsTable.remove(selectionIndex + 1);
 						argumentsTable.setSelection(selectionIndex - 1);
-						argumentsTable.notifyListeners(SWT.Selection,
-								new Event());
+						argumentsTable.notifyListeners(SWT.Selection, new Event());
 						page.validate();
 					}
 
@@ -251,8 +240,7 @@ public class ExtractMethodComposite extends Composite {
 		argumentsComposite.setLayoutData(compositeLData);
 		argumentsComposite.setLayout(compositeLayout);
 
-		argumentsTable = new Table(argumentsComposite, SWT.BORDER
-				| SWT.FULL_SELECTION);
+		argumentsTable = new Table(argumentsComposite, SWT.BORDER | SWT.FULL_SELECTION);
 
 		FormData tableLData = new FormData();
 		tableLData.bottom = new FormAttachment(1000, 1000, 0);
@@ -271,11 +259,9 @@ public class ExtractMethodComposite extends Composite {
 		argumentsComposite.addControlListener(new ControlAdapter() {
 			public void controlResized(ControlEvent e) {
 				Rectangle area = argumentsTable.getClientArea();
-				Point preferredSize = argumentsTable.computeSize(SWT.DEFAULT,
-						SWT.DEFAULT);
+				Point preferredSize = argumentsTable.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 				int width = area.width - 2 * argumentsTable.getBorderWidth();
-				if (preferredSize.y > area.height
-						+ argumentsTable.getHeaderHeight()) {
+				if (preferredSize.y > area.height + argumentsTable.getHeaderHeight()) {
 					Point vBarSize = argumentsTable.getVerticalBar().getSize();
 					width -= vBarSize.x;
 				}
@@ -310,8 +296,7 @@ public class ExtractMethodComposite extends Composite {
 		gridData.horizontalAlignment = GridData.FILL;
 		methodNameComposite.setLayoutData(gridData);
 		methodNameComposite.setLayout(compositeLayout);
-		functionNameEdit = new LabeledEdit(methodNameComposite,
-				UITexts.extractMethodFunctionTitle);
+		functionNameEdit = new LabeledEdit(methodNameComposite, UITexts.extractMethodFunctionTitle);
 	}
 
 	private void createOffsetStrategy(Composite mainComp) {
@@ -368,25 +353,19 @@ public class ExtractMethodComposite extends Composite {
 
 	public void registerListeners(final IValidationPage page) {
 
-		signatureListener = new FunctionSignatureListener(page,
-				getSignaturePreview(), getFunctionNameEdit(),
-				getArgumentsTable());
+		signatureListener = new FunctionSignatureListener(page, getSignaturePreview(), getFunctionNameEdit(), getArgumentsTable());
 
 		functionNameEdit.getEdit().addListener(SWT.Modify, page);
 		functionNameEdit.getEdit().addListener(SWT.Modify, signatureListener);
 
-		ButtonActivationListener buttonActivationListener = new ButtonActivationListener(
-				getArgumentsTable(), getUpButton(), getDownButton(),
-				getEditButton());
+		ButtonActivationListener buttonActivationListener = new ButtonActivationListener(getArgumentsTable(), getUpButton(),
+				getDownButton(), getEditButton());
 
 		if (argumentsTable != null) {
-			cellEditorListener = new TableCellEditorListener(page,
-					argumentsTable);
+			cellEditorListener = new TableCellEditorListener(page, argumentsTable);
 
-			argumentsTable
-					.addListener(SWT.MouseDoubleClick, cellEditorListener);
-			argumentsTable
-					.addListener(SWT.DefaultSelection, cellEditorListener);
+			argumentsTable.addListener(SWT.MouseDoubleClick, cellEditorListener);
+			argumentsTable.addListener(SWT.DefaultSelection, cellEditorListener);
 
 			argumentsTable.addListener(SWT.Selection, buttonActivationListener);
 			argumentsTable.addListener(SWT.Selection, signatureListener);
@@ -396,25 +375,23 @@ public class ExtractMethodComposite extends Composite {
 			registerDownButtonListener();
 		}
 
-		methodInsertionComb
-				.addSelectionChangedListener(new ISelectionChangedListener() {
-					public void selectionChanged(SelectionChangedEvent event) {
-						IStructuredSelection sel = (IStructuredSelection) event
-								.getSelection();
-						if (!sel.isEmpty()) {
-							page.validate();
-						}
-					}
-				});
+		methodInsertionComb.addSelectionChangedListener(new ISelectionChangedListener() {
+			public void selectionChanged(SelectionChangedEvent event) {
+				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
+				if (!sel.isEmpty()) {
+					page.validate();
+				}
+			}
+		});
 
 	}
 
 	public void initTable(List<String> arguments) {
 		for (String argument : arguments) {
 			new SimpleTableItem(getArgumentsTable(), argument);
-		}	
+		}
 	}
-	
+
 	public Composite getArgumentsComposite() {
 		return argumentsComposite;
 	}
@@ -424,12 +401,10 @@ public class ExtractMethodComposite extends Composite {
 	}
 
 	public int getOffsetStrategy() {
-		IStructuredSelection sel = (IStructuredSelection) methodInsertionComb
-				.getSelection();
+		IStructuredSelection sel = (IStructuredSelection) methodInsertionComb.getSelection();
 
 		if (!sel.isEmpty()) {
-			OffsetStrategyModel elem = (OffsetStrategyModel) sel
-					.getFirstElement();
+			OffsetStrategyModel elem = (OffsetStrategyModel) sel.getFirstElement();
 			return elem.getStrategy();
 		}
 		return strategyProvider.get(0).getStrategy();
@@ -437,8 +412,7 @@ public class ExtractMethodComposite extends Composite {
 
 	public boolean validate() {
 		if (argumentsTable != null) {
-			VariableCellValidator cellValidator = new VariableCellValidator(
-					this.page, getArgumentsTable(), scopeAdapter);
+			VariableCellValidator cellValidator = new VariableCellValidator(this.page, getArgumentsTable(), scopeAdapter);
 			cellValidator.validate();
 		}
 		NameValidator nameValidator = new NameValidator(scopeAdapter);

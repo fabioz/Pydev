@@ -6,16 +6,14 @@ import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 
-public class GlobalFunctionDefVisitor extends
-		AbstractContextVisitor<FunctionDefAdapter> {
+public class GlobalFunctionDefVisitor extends AbstractContextVisitor<FunctionDefAdapter> {
 
 	public GlobalFunctionDefVisitor(ModuleAdapter module, AbstractScopeNode<?> parent) {
 		super(module, parent);
 	}
 
 	@Override
-	protected FunctionDefAdapter createAdapter(AbstractScopeNode<?> parent,
-			SimpleNode node) {
+	protected FunctionDefAdapter createAdapter(AbstractScopeNode<?> parent, SimpleNode node) {
 		return new FunctionDefAdapter(moduleAdapter, parent, (FunctionDef) node);
 	}
 

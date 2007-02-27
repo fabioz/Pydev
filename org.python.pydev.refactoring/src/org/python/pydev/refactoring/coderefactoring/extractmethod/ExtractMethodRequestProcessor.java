@@ -13,8 +13,7 @@ import org.python.pydev.refactoring.coderefactoring.extractmethod.edit.Parameter
 import org.python.pydev.refactoring.coderefactoring.extractmethod.request.ExtractMethodRequest;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 
-public class ExtractMethodRequestProcessor implements
-		IRequestProcessor<ExtractMethodRequest> {
+public class ExtractMethodRequestProcessor implements IRequestProcessor<ExtractMethodRequest> {
 
 	private int offsetStrategy;
 
@@ -32,13 +31,11 @@ public class ExtractMethodRequestProcessor implements
 
 	private ITextSelection selection;
 
-	public ExtractMethodRequestProcessor(AbstractScopeNode<?> scopeAdapter,
-			ModuleAdapter parsedSelection, ITextSelection selection) {
+	public ExtractMethodRequestProcessor(AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection, ITextSelection selection) {
 		initProcessor(scopeAdapter, parsedSelection, selection);
 	}
 
-	public void initProcessor(AbstractScopeNode<?> scopeAdapter,
-			ModuleAdapter parsedSelection, ITextSelection selection) {
+	public void initProcessor(AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection, ITextSelection selection) {
 		this.methodName = "pepticMethod";
 		this.scopeAdapter = scopeAdapter;
 		this.selection = selection;
@@ -81,8 +78,7 @@ public class ExtractMethodRequestProcessor implements
 
 	public List<ExtractMethodRequest> getRefactoringRequests() {
 		List<ExtractMethodRequest> requests = new ArrayList<ExtractMethodRequest>();
-		requests.add(new ExtractMethodRequest(this.methodName, this.selection,
-				this.scopeAdapter, this.parsedSelection, parameterOrder,
+		requests.add(new ExtractMethodRequest(this.methodName, this.selection, this.scopeAdapter, this.parsedSelection, parameterOrder,
 				deducer.getReturns(), this.renameMap, this.offsetStrategy));
 		return requests;
 	}

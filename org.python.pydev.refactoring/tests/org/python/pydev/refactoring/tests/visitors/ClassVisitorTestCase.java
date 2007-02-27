@@ -21,17 +21,14 @@ public class ClassVisitorTestCase extends AbstractIOTestCase {
 	@Override
 	public void runTest() throws Throwable {
 		StringBuffer buffer = new StringBuffer();
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(
-				getSource()));
-		ClassDefVisitor visitor = VisitorFactory.createContextVisitor(
-				ClassDefVisitor.class, module.getASTNode(), module, module);
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()));
+		ClassDefVisitor visitor = VisitorFactory.createContextVisitor(ClassDefVisitor.class, module.getASTNode(), module, module);
 		Iterator<ClassDefAdapter> iter = visitor.iterator();
 
 		buffer.append("# " + visitor.getAll().size() + "\n");
 		while (iter.hasNext()) {
 			ClassDefAdapter adapter = iter.next();
-			buffer.append("# " + adapter.getName() + " " + adapter.isNested()
-					+ "\n");
+			buffer.append("# " + adapter.getName() + " " + adapter.isNested() + "\n");
 		}
 		this.setTestGenerated(buffer.toString().trim());
 

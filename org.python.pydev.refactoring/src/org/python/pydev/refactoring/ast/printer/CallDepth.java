@@ -27,9 +27,8 @@ public class CallDepth {
 	public void enableCallDepth() {
 		nestedCallDepth = savedNestedCallDepth;
 	}
-	
-	public boolean isCallDepthEnabled()
-	{
+
+	public boolean isCallDepthEnabled() {
 		return (savedNestedCallDepth == nestedCallDepth);
 	}
 }

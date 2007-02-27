@@ -9,8 +9,7 @@ import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.codegenerator.constructorfield.request.ConstructorFieldRequest;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 
-public class MockupConstructorFieldRequestProcessor implements
-		IRequestProcessor<ConstructorFieldRequest> {
+public class MockupConstructorFieldRequestProcessor implements IRequestProcessor<ConstructorFieldRequest> {
 
 	private ModuleAdapter module;
 
@@ -20,18 +19,16 @@ public class MockupConstructorFieldRequestProcessor implements
 
 	private List<Integer> attributeSelection;
 
-	private MockupConstructorFieldRequestProcessor(ModuleAdapter module, int classSelection,
-			List<Integer> attributeSelection, int offsetStrategy) {
+	private MockupConstructorFieldRequestProcessor(ModuleAdapter module, int classSelection, List<Integer> attributeSelection,
+			int offsetStrategy) {
 		this.module = module;
 		this.attributeSelection = attributeSelection;
 		this.classSelection = classSelection;
 		this.offsetStrategy = offsetStrategy;
 	}
 
-	public MockupConstructorFieldRequestProcessor(ModuleAdapter module,
-			MockupConstructorFieldConfig config) {
-		this(module, config.getClassSelection(),
-				config.getAttributeSelection(), config.getOffsetStrategy());
+	public MockupConstructorFieldRequestProcessor(ModuleAdapter module, MockupConstructorFieldConfig config) {
+		this(module, config.getClassSelection(), config.getAttributeSelection(), config.getOffsetStrategy());
 	}
 
 	public List<ConstructorFieldRequest> getRefactoringRequests() {
@@ -41,8 +38,7 @@ public class MockupConstructorFieldRequestProcessor implements
 		for (int index : attributeSelection) {
 			attributes.add(clazz.getAttributes().get(index));
 		}
-		ConstructorFieldRequest req = new ConstructorFieldRequest(clazz,
-				attributes, this.offsetStrategy);
+		ConstructorFieldRequest req = new ConstructorFieldRequest(clazz, attributes, this.offsetStrategy);
 
 		List<ConstructorFieldRequest> requests = new ArrayList<ConstructorFieldRequest>();
 		requests.add(req);

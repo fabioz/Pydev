@@ -18,8 +18,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> {
 
 	private List<PropertyAdapter> properties;
 
-	public ClassDefAdapter(ModuleAdapter module, AbstractScopeNode<?> parent,
-			ClassDef node) {
+	public ClassDefAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, ClassDef node) {
 		super(module, parent, node);
 		this.attributes = null;
 		this.properties = null;
@@ -39,9 +38,8 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> {
 
 	public List<SimpleAdapter> getAttributes() {
 		if (attributes == null) {
-			LocalAttributeVisitor visitor = VisitorFactory
-					.createContextVisitor(LocalAttributeVisitor.class,
-							getASTNode(), getModule(), this);
+			LocalAttributeVisitor visitor = VisitorFactory.createContextVisitor(LocalAttributeVisitor.class, getASTNode(), getModule(),
+					this);
 			attributes = visitor.getAll();
 		}
 		return attributes;
@@ -49,8 +47,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> {
 
 	public List<PropertyAdapter> getProperties() {
 		if (properties == null) {
-			PropertyVisitor visitor = VisitorFactory.createContextVisitor(
-					PropertyVisitor.class, getASTNode(), getModule(), this);
+			PropertyVisitor visitor = VisitorFactory.createContextVisitor(PropertyVisitor.class, getASTNode(), getModule(), this);
 			properties = visitor.getAll();
 		}
 		return properties;
@@ -85,8 +82,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> {
 
 	public int getNodeBodyIndent() {
 		ClassDef classNode = getASTNode();
-		IndentVisitor visitor = VisitorFactory.createVisitor(
-				IndentVisitor.class, classNode.body[0]);
+		IndentVisitor visitor = VisitorFactory.createVisitor(IndentVisitor.class, classNode.body[0]);
 
 		return visitor.getIndent();
 	}
@@ -105,17 +101,14 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> {
 	}
 
 	public List<SimpleAdapter> getAssignedVariables() {
-		ScopeAssignedVisitor visitor = VisitorFactory.createContextVisitor(
-				ScopeAssignedVisitor.class, getASTNode(), this.getModule(),
-				this);
+		ScopeAssignedVisitor visitor = VisitorFactory
+				.createContextVisitor(ScopeAssignedVisitor.class, getASTNode(), this.getModule(), this);
 		return visitor.getAll();
 	}
-	
+
 	public boolean isNewStyleClass() {
-		for(String base : getBaseClassNames())
-		{
-			if (base.compareTo(OBJECT) == 0)
-			{
+		for (String base : getBaseClassNames()) {
+			if (base.compareTo(OBJECT) == 0) {
 				return true;
 			}
 		}

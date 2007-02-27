@@ -10,8 +10,8 @@ public interface IInputOutputTestCase extends Test {
 	void setSource(String line);
 
 	void setResult(String line);
-	
-	void setConfig(String line);	
+
+	void setConfig(String line);
 
 	String getSource();
 

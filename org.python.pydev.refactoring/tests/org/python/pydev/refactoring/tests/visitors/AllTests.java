@@ -6,8 +6,7 @@ import junit.framework.TestSuite;
 public class AllTests {
 
 	public static Test suite() {
-		TestSuite suite = new TestSuite(
-				"Test for org.python.pydev.refactoring.tests.visitors");
+		TestSuite suite = new TestSuite("Test for org.python.pydev.refactoring.tests.visitors");
 		// $JUnit-BEGIN$
 		suite.addTest(AttributeVisitorTestSuite.suite());
 		suite.addTest(ClassVisitorTestSuite.suite());

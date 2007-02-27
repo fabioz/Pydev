@@ -15,9 +15,8 @@ import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.refactoring.core.FQIdentifier;
 
 /**
- * This visitor will resolve module aliases to real module names and also map
- * alias identifiers to real identifier. For the last mapping list, key consists
- * of "modulename.identifier"
+ * This visitor will resolve module aliases to real module names and also map alias identifiers to real identifier. For the last mapping
+ * list, key consists of "modulename.identifier"
  * 
  */
 public class ImportVisitor extends VisitorBase {
@@ -76,8 +75,7 @@ public class ImportVisitor extends VisitorBase {
 				if (asName != null)
 					aliasName = asName.id;
 
-				aliasToFQIdentifier.add(new FQIdentifier(prefix, realName,
-						aliasName));
+				aliasToFQIdentifier.add(new FQIdentifier(prefix, realName, aliasName));
 
 			}
 		} else {

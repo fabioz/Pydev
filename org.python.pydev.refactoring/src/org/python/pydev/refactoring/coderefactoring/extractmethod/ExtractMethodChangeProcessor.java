@@ -10,28 +10,23 @@ import org.python.pydev.refactoring.core.change.AbstractFileChangeProcessor;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.ui.UITexts;
 
-public class ExtractMethodChangeProcessor extends
-		AbstractFileChangeProcessor<ExtractMethodRequest> {
+public class ExtractMethodChangeProcessor extends AbstractFileChangeProcessor<ExtractMethodRequest> {
 
-	public ExtractMethodChangeProcessor(String name, RefactoringInfo info,
-			IRequestProcessor<ExtractMethodRequest> requestProcessor) {
+	public ExtractMethodChangeProcessor(String name, RefactoringInfo info, IRequestProcessor<ExtractMethodRequest> requestProcessor) {
 		super(name, info, requestProcessor);
 	}
 
 	@Override
 	protected void processEdit() {
 
-		for (ExtractMethodRequest req : requestProcessor
-				.getRefactoringRequests()) {
+		for (ExtractMethodRequest req : requestProcessor.getRefactoringRequests()) {
 			processExtraction(req);
 		}
 	}
 
 	private void processExtraction(ExtractMethodRequest req) {
-		TextEditGroup extractMethod = new TextEditGroup(
-				UITexts.extractMethodChangeName);
-		TextEditGroup substitute = new TextEditGroup(
-				UITexts.extractMethodReplaceWithCall);
+		TextEditGroup extractMethod = new TextEditGroup(UITexts.extractMethodChangeName);
+		TextEditGroup substitute = new TextEditGroup(UITexts.extractMethodReplaceWithCall);
 
 		ExtractMethodEdit extractMethodEdit = new ExtractMethodEdit(req);
 		ExtractCallEdit extractCallEdit = new ExtractCallEdit(req);
@@ -45,8 +40,7 @@ public class ExtractMethodChangeProcessor extends
 		updateGroup(extractMethod, substitute, method, call);
 	}
 
-	private void updateGroup(TextEditGroup extractMethod,
-			TextEditGroup substitute, TextEdit method, TextEdit call) {
+	private void updateGroup(TextEditGroup extractMethod, TextEditGroup substitute, TextEdit method, TextEdit call) {
 		extractMethod.addTextEdit(method);
 		substitute.addTextEdit(call);
 

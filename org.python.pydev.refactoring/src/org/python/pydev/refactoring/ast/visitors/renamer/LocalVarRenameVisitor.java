@@ -69,7 +69,7 @@ public class LocalVarRenameVisitor extends VisitorBase {
 		visit(args.vararg);
 		visit(args.kwarg);
 	}
-	
+
 	@Override
 	public Object visitAttribute(Attribute node) throws Exception {
 		visit(node.value);

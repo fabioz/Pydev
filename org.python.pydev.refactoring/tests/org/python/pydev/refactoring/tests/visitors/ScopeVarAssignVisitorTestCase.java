@@ -18,12 +18,9 @@ public class ScopeVarAssignVisitorTestCase extends AbstractIOTestCase {
 	@Override
 	public void runTest() throws Throwable {
 		StringBuffer buffer = new StringBuffer();
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null,
-				new Document(getSource()));
-		ScopeAssignedVisitor visitor = VisitorFactory
-				.createContextVisitor(ScopeAssignedVisitor.class, module
-						.getASTNode(), module, module);
-		
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()));
+		ScopeAssignedVisitor visitor = VisitorFactory.createContextVisitor(ScopeAssignedVisitor.class, module.getASTNode(), module, module);
+
 		assertTrue(visitor.getAll().size() > 0);
 
 		printAttributes(buffer, visitor);
@@ -32,14 +29,12 @@ public class ScopeVarAssignVisitorTestCase extends AbstractIOTestCase {
 		assertEquals(getExpected(), getGenerated());
 	}
 
-	private void printAttributes(StringBuffer buffer,
-			ScopeAssignedVisitor scopeVisitor) {
+	private void printAttributes(StringBuffer buffer, ScopeAssignedVisitor scopeVisitor) {
 		Iterator<SimpleAdapter> iter = scopeVisitor.iterator();
 		buffer.append("# " + scopeVisitor.getAll().size() + "\n");
 		while (iter.hasNext()) {
 			SimpleAdapter adapter = iter.next();
-			buffer.append("# " + adapter.getParentName() + " "
-					+ adapter.getName() + "\n");
+			buffer.append("# " + adapter.getParentName() + " " + adapter.getName() + "\n");
 		}
 	}
 

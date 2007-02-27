@@ -4,9 +4,8 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 
 /**
- * A node's last body statement isn't always the last line. We have to traverse
- * the statement's AST node in many cases: e.g. a nested class, any control
- * statement, etc.
+ * A node's last body statement isn't always the last line. We have to traverse the statement's AST node in many cases: e.g. a nested class,
+ * any control statement, etc.
  * 
  * @author Ueli Kistler
  * 

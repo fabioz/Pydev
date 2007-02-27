@@ -64,11 +64,9 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
 	}
 
 	private FunctionDef initExtractedMethod(List<stmtType> body, List<exprType> argsList) {
-		argumentsType args = new argumentsType(argsList
-				.toArray(new exprType[0]), null, null, null);
+		argumentsType args = new argumentsType(argsList.toArray(new exprType[0]), null, null, null);
 
-		FunctionDef extractedMethod = new FunctionDef(new NameTok(methodName,
-				NameTok.FunctionName), args, body.toArray(new stmtType[0]),
+		FunctionDef extractedMethod = new FunctionDef(new NameTok(methodName, NameTok.FunctionName), args, body.toArray(new stmtType[0]),
 				null);
 		return extractedMethod;
 	}
@@ -121,8 +119,7 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
 		if (returnList.size() == 1) {
 			returnValue = returnList.get(0);
 		} else if (returnList.size() > 1) {
-			returnValue = new Tuple(returnList.toArray(new exprType[0]),
-					Tuple.Load);
+			returnValue = new Tuple(returnList.toArray(new exprType[0]), Tuple.Load);
 		} else if (body.size() == 1) {
 			// return expression as-is (note: body must be cleared)
 			if (body.get(0) instanceof Expr) {

@@ -22,7 +22,7 @@ public class ConstructorFieldTestCase extends AbstractIOTestCase {
 	@Override
 	public void runTest() throws Throwable {
 		MockupConstructorFieldConfig config = initConfig();
-		
+
 		MockupConstructorFieldRequestProcessor requestProcessor = setupRequestProcessor(config);
 
 		IDocument refactoringDoc = applyConstructorUsingFields(requestProcessor);
@@ -32,8 +32,7 @@ public class ConstructorFieldTestCase extends AbstractIOTestCase {
 	}
 
 	private IDocument applyConstructorUsingFields(MockupConstructorFieldRequestProcessor requestProcessor) throws BadLocationException {
-		ConstructorMethodEdit constructorEdit = new ConstructorMethodEdit(
-				requestProcessor.getRefactoringRequests().get(0));
+		ConstructorMethodEdit constructorEdit = new ConstructorMethodEdit(requestProcessor.getRefactoringRequests().get(0));
 
 		IDocument refactoringDoc = new Document(getSource());
 		constructorEdit.getEdit().apply(refactoringDoc);
@@ -41,13 +40,11 @@ public class ConstructorFieldTestCase extends AbstractIOTestCase {
 	}
 
 	private MockupConstructorFieldRequestProcessor setupRequestProcessor(MockupConstructorFieldConfig config) throws Throwable {
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null,
-				new Document(getSource()));
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()));
 		List<ClassDefAdapter> classes = module.getClasses();
 		assertTrue(classes.size() > 0);
 
-		MockupConstructorFieldRequestProcessor requestProcessor = new MockupConstructorFieldRequestProcessor(
-				module, config);
+		MockupConstructorFieldRequestProcessor requestProcessor = new MockupConstructorFieldRequestProcessor(module, config);
 		return requestProcessor;
 	}
 
@@ -57,8 +54,7 @@ public class ConstructorFieldTestCase extends AbstractIOTestCase {
 		xstream.alias("config", MockupConstructorFieldConfig.class);
 
 		if (getConfig().length() > 0) {
-			config = (MockupConstructorFieldConfig) xstream
-					.fromXML(getConfig());
+			config = (MockupConstructorFieldConfig) xstream.fromXML(getConfig());
 		} else {
 			fail("Could not unserialize configuration");
 		}

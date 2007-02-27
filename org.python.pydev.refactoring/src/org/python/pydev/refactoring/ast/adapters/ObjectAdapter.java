@@ -25,8 +25,7 @@ public class ObjectAdapter extends ClassDefAdapter {
 
 		List<stmtType> body = initMethods();
 
-		ClassDef object = new ClassDef(name, null, body
-				.toArray(new stmtType[0]));
+		ClassDef object = new ClassDef(name, null, body.toArray(new stmtType[0]));
 
 		return object;
 	}

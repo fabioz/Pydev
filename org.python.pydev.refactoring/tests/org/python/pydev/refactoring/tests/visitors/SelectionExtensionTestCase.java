@@ -19,7 +19,7 @@ public class SelectionExtensionTestCase extends AbstractIOTestCase {
 	@Override
 	public void runTest() throws Throwable {
 		MockupSelectionConfig config = initConfig();
-		
+
 		RefactoringInfo info = setupInfo(config);
 		runSelectionExtension(info);
 
@@ -29,13 +29,11 @@ public class SelectionExtensionTestCase extends AbstractIOTestCase {
 	private void runSelectionExtension(RefactoringInfo info) {
 		StringBuilder buffer = new StringBuilder();
 		try {
-			String source = VisitorFactory.createSourceFromAST(info
-					.getParsedExtendedSelection().getASTParent());
+			String source = VisitorFactory.createSourceFromAST(info.getParsedExtendedSelection().getASTParent());
 			buffer.append(source); // normalized source
 		} catch (Throwable e) {
 			buffer.append("# Invalid selection:\n");
-			String[] lines = info.normalizeSourceSelection(
-					info.getScopeAdapter(), info.getExtendedSelection()).split("\\n"); // normalized
+			String[] lines = info.normalizeSourceSelection(info.getScopeAdapter(), info.getExtendedSelection()).split("\\n"); // normalized
 
 			for (String line : lines) {
 				if (line.trim().length() != 0)
@@ -49,13 +47,11 @@ public class SelectionExtensionTestCase extends AbstractIOTestCase {
 	private RefactoringInfo setupInfo(MockupSelectionConfig config) throws Throwable {
 		IDocument doc = new Document(getSource());
 
-		ITextSelection selection = new TextSelection(doc, config.getOffset(),
-				config.getSelectionLength());
+		ITextSelection selection = new TextSelection(doc, config.getOffset(), config.getSelectionLength());
 		RefactoringInfo info = new RefactoringInfo(null, doc, selection, null);
 		selection = info.getExtendedSelection();
 
-		selection = VisitorFactory.createSelectionExtension(info
-				.getScopeAdapter(), selection);
+		selection = VisitorFactory.createSelectionExtension(info.getScopeAdapter(), selection);
 		info = new RefactoringInfo(null, doc, selection, null);
 		return info;
 	}

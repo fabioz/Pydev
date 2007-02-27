@@ -9,11 +9,9 @@ import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 public class NameValidator {
 
 	// match invalid keywords (Python pocket reference)
-	private final String[] keywords = { "and", "assert", "break", "class",
-			"continue", "def", "del", "elif", "else", "except", "exec",
-			"finally", "for", "from", "global", "if", "import", "in", "is",
-			"lambda", "not", "or", "pass", "print", "raise", "return", "try",
-			"while", "yield" };
+	private final String[] keywords = { "and", "assert", "break", "class", "continue", "def", "del", "elif", "else", "except", "exec",
+			"finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "not", "or", "pass", "print", "raise", "return",
+			"try", "while", "yield" };
 
 	private final String nameRegExp = "[a-zA-Z_][a-zA-z0-9]*";
 
@@ -58,8 +56,7 @@ public class NameValidator {
 		if (parentAdapter != null) {
 			for (FunctionDefAdapter function : parentAdapter.getFunctions()) {
 				if (function.getName().compareTo(name) == 0) {
-					throw new Exception("Function name '" + name
-							+ "' is already used");
+					throw new Exception("Function name '" + name + "' is already used");
 				}
 			}
 		}

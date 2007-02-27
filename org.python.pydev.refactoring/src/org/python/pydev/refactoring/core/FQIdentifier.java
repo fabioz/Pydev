@@ -31,13 +31,11 @@ public class FQIdentifier {
 	public String getFQName() {
 		return module + DOT + realName;
 	}
-	
-	public String getProbableModuleName()
-	{
-		int offset = getRealName().indexOf(DOT); 
-		if (offset > 1)
-		{
-			return getModule()+DOT+getRealName().substring(0,offset);
+
+	public String getProbableModuleName() {
+		int offset = getRealName().indexOf(DOT);
+		if (offset > 1) {
+			return getModule() + DOT + getRealName().substring(0, offset);
 		}
 		return getModule();
 	}

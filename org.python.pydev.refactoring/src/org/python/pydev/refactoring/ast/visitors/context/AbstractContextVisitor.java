@@ -29,8 +29,7 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
 
 	protected ModuleAdapter moduleAdapter;
 
-	public AbstractContextVisitor(ModuleAdapter module,
-			AbstractNodeAdapter parent) {
+	public AbstractContextVisitor(ModuleAdapter module, AbstractNodeAdapter parent) {
 		super();
 		assert (module != null);
 		this.moduleAdapter = module;
@@ -67,14 +66,12 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
 		if (nodeHelper.isClassDef(node)) {
 			return new ClassDefAdapter(moduleAdapter, parent, (ClassDef) node);
 		} else if (nodeHelper.isFunctionDef(node)) {
-			return new FunctionDefAdapter(moduleAdapter, parent,
-					(FunctionDef) node);
+			return new FunctionDefAdapter(moduleAdapter, parent, (FunctionDef) node);
 		} else
 			return new SimpleAdapter(moduleAdapter, parent, node);
 	}
 
-	protected abstract T createAdapter(AbstractScopeNode<?> parent,
-			SimpleNode node);
+	protected abstract T createAdapter(AbstractScopeNode<?> parent, SimpleNode node);
 
 	protected AbstractNodeAdapter createContext(SimpleNode node) {
 		if (nodeHelper.isModule(node)) {

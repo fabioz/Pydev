@@ -18,8 +18,7 @@ public class TableCellEditorListener extends Observable implements Listener {
 
 	private IValidationPage wizard;
 
-	public TableCellEditorListener(IValidationPage wizard,
-			Table parametersTable) {
+	public TableCellEditorListener(IValidationPage wizard, Table parametersTable) {
 		this.wizard = wizard;
 		this.table = parametersTable;
 	}
@@ -89,8 +88,7 @@ public class TableCellEditorListener extends Observable implements Listener {
 					tableItem.setText(text.getText());
 					e.doit = true;
 				}
-				if (e.detail == SWT.TRAVERSE_RETURN
-						|| e.detail == SWT.TRAVERSE_ESCAPE) {
+				if (e.detail == SWT.TRAVERSE_RETURN || e.detail == SWT.TRAVERSE_ESCAPE) {
 					text.dispose();
 					if (e.detail == SWT.TRAVERSE_ESCAPE)
 						e.doit = false;

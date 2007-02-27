@@ -25,8 +25,7 @@ public class OffsetStrategyProvider implements IStructuredContentProvider {
 		initStrategies(strategyOption);
 	}
 
-	public OffsetStrategyProvider(AbstractScopeNode<?> scopeAdapter,
-			int strategyOption) {
+	public OffsetStrategyProvider(AbstractScopeNode<?> scopeAdapter, int strategyOption) {
 		strategies = new ArrayList<OffsetStrategyModel>();
 		strategyOption = updateLabel(scopeAdapter, strategyOption);
 		initStrategies(strategyOption);
@@ -38,8 +37,7 @@ public class OffsetStrategyProvider implements IStructuredContentProvider {
 		endLabel = UITexts.offsetStrategyEnd;
 	}
 
-	private int updateLabel(AbstractScopeNode<?> scopeAdapter,
-			int strategyOption) {
+	private int updateLabel(AbstractScopeNode<?> scopeAdapter, int strategyOption) {
 		if (scopeAdapter != null) {
 
 			if (scopeAdapter.getNodeBodyIndent() == 0) {
@@ -48,7 +46,8 @@ public class OffsetStrategyProvider implements IStructuredContentProvider {
 				if ((strategyOption & IOffsetStrategy.AFTERINIT) == IOffsetStrategy.AFTERINIT) {
 					strategyOption &= ~IOffsetStrategy.AFTERINIT;
 				}
-			} else initLabel();
+			} else
+				initLabel();
 		}
 		return strategyOption;
 	}

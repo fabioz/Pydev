@@ -14,11 +14,10 @@ public class VariableCellValidator {
 
 	private AbstractScopeNode<?> scope;
 
-	public VariableCellValidator(IValidationPage page, Table table,
-			AbstractScopeNode<?> scope) {
-		assert(page != null);
-		assert(table != null);
-		assert(scope != null);
+	public VariableCellValidator(IValidationPage page, Table table, AbstractScopeNode<?> scope) {
+		assert (page != null);
+		assert (table != null);
+		assert (scope != null);
 		this.page = page;
 		this.table = table;
 		this.scope = scope;
@@ -31,8 +30,7 @@ public class VariableCellValidator {
 			for (int inner = 0; inner < items.length; inner++) {
 				if (outer != inner) {
 					if (items[outer].getText().equals(items[inner].getText())) {
-						page.setErrorMessage("Variable name "
-								+ items[outer].getText() + " was already used");
+						page.setErrorMessage("Variable name " + items[outer].getText() + " was already used");
 						return false;
 					}
 				}

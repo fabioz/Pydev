@@ -10,8 +10,7 @@ import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
 public class OverrideMethodsTestSuite extends AbstractIOTestSuite {
 
 	public static Test suite() {
-		TESTDIR = "tests" + File.separator + "python" + File.separator
-				+ "codegenerator" + File.separator + "overridemethods";
+		TESTDIR = "tests" + File.separator + "python" + File.separator + "codegenerator" + File.separator + "overridemethods";
 		OverrideMethodsTestSuite testSuite = new OverrideMethodsTestSuite();
 
 		testSuite.createTests();

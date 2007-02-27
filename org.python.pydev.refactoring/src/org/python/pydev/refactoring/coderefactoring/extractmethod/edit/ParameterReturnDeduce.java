@@ -8,6 +8,7 @@ import java.util.Set;
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
+import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.adapters.SimpleAdapter;
 
 public class ParameterReturnDeduce {
@@ -20,8 +21,7 @@ public class ParameterReturnDeduce {
 
 	private ITextSelection selection;
 
-	public ParameterReturnDeduce(AbstractScopeNode<?> scope,
-			ITextSelection selection) {
+	public ParameterReturnDeduce(AbstractScopeNode<?> scope, ITextSelection selection) {
 		this.scopeAdapter = scope;
 		this.selection = selection;
 		this.parameters = new ArrayList<String>();
@@ -32,9 +32,8 @@ public class ParameterReturnDeduce {
 	private void deduce() {
 		List<SimpleAdapter> before = new ArrayList<SimpleAdapter>();
 		List<SimpleAdapter> after = new ArrayList<SimpleAdapter>();
-		List<SimpleAdapter> selected = scopeAdapter.getModule()
-				.getWithinSelection(this.selection,
-						scopeAdapter.getUsedVariables());
+		ModuleAdapter module = scopeAdapter.getModule();
+		List<SimpleAdapter> selected = module.getWithinSelection(this.selection, scopeAdapter.getUsedVariables());
 
 		extractBeforeAfterVariables(selected, before, after);
 
@@ -43,8 +42,10 @@ public class ParameterReturnDeduce {
 
 	}
 
-	private void deduceParameters(List<SimpleAdapter> before,
-			List<SimpleAdapter> selected) {
+	/**
+	 * Needed fix: only add it if it is not a global (unless it shadows a global)
+	 */
+	private void deduceParameters(List<SimpleAdapter> before, List<SimpleAdapter> selected) {
 		for (SimpleAdapter adapter : before) {
 			if (adapter.getASTNode() instanceof Name) {
 				Name variable = (Name) adapter.getASTNode();
@@ -54,12 +55,10 @@ public class ParameterReturnDeduce {
 					}
 				}
 			}
-
 		}
 	}
 
-	private void deduceReturns(List<SimpleAdapter> after,
-			List<SimpleAdapter> selected) {
+	private void deduceReturns(List<SimpleAdapter> after, List<SimpleAdapter> selected) {
 		for (SimpleAdapter adapter : after) {
 			if (adapter.getASTNode() instanceof Name) {
 				Name variable = (Name) adapter.getASTNode();
@@ -70,57 +69,46 @@ public class ParameterReturnDeduce {
 		}
 	}
 
-	private void extractBeforeAfterVariables(
-			List<SimpleAdapter> selectedVariables, List<SimpleAdapter> before,
-			List<SimpleAdapter> after) {
+	private void extractBeforeAfterVariables(List<SimpleAdapter> selectedVariables, List<SimpleAdapter> before, List<SimpleAdapter> after) {
 		List<SimpleAdapter> scopeVariables = scopeAdapter.getUsedVariables();
 
 		if (selectedVariables.size() < 1)
 			return;
 
 		SimpleAdapter firstSelectedVariable = selectedVariables.get(0);
-		SimpleAdapter lastSelectedVariable = selectedVariables
-				.get(selectedVariables.size() - 1);
+		SimpleAdapter lastSelectedVariable = selectedVariables.get(selectedVariables.size() - 1);
 
 		for (SimpleAdapter adapter : scopeVariables) {
-			if (isBeforeSelectedLine(firstSelectedVariable, adapter)
-					|| isBeforeOnSameLine(firstSelectedVariable, adapter)) {
+			if (isBeforeSelectedLine(firstSelectedVariable, adapter) || isBeforeOnSameLine(firstSelectedVariable, adapter)) {
 				before.add(adapter);
-			} else if (isAfterSelectedLine(lastSelectedVariable, adapter)
-					|| isAfterOnSameLine(lastSelectedVariable, adapter)) {
+				
+			} else if (isAfterSelectedLine(lastSelectedVariable, adapter) || isAfterOnSameLine(lastSelectedVariable, adapter)) {
 				after.add(adapter);
 			}
 		}
 	}
 
-	private boolean isAfterOnSameLine(SimpleAdapter lastSelectedVariable,
-			SimpleAdapter adapter) {
-		return adapter.getNodeFirstLine() == lastSelectedVariable
-				.getNodeFirstLine()
-				&& (adapter.getNodeIndent() > lastSelectedVariable
-						.getNodeIndent());
+	private boolean isAfterOnSameLine(SimpleAdapter lastSelectedVariable, SimpleAdapter adapter) {
+		return adapter.getNodeFirstLine() == lastSelectedVariable.getNodeFirstLine()
+				&& (adapter.getNodeIndent() > lastSelectedVariable.getNodeIndent());
 	}
 
-	private boolean isAfterSelectedLine(SimpleAdapter lastSelectedVariable,
-			SimpleAdapter adapter) {
-		return adapter.getNodeFirstLine() > lastSelectedVariable
-				.getNodeFirstLine();
+	private boolean isAfterSelectedLine(SimpleAdapter lastSelectedVariable, SimpleAdapter adapter) {
+		return adapter.getNodeFirstLine() > lastSelectedVariable.getNodeFirstLine();
 	}
 
-	private boolean isBeforeOnSameLine(SimpleAdapter firstSelectedVariable,
-			SimpleAdapter adapter) {
-		return adapter.getNodeFirstLine() == firstSelectedVariable
-				.getNodeFirstLine()
-				&& (adapter.getNodeIndent() < firstSelectedVariable
-						.getNodeIndent());
+	private boolean isBeforeOnSameLine(SimpleAdapter firstSelectedVariable, SimpleAdapter adapter) {
+		return adapter.getNodeFirstLine() == firstSelectedVariable.getNodeFirstLine()
+				&& (adapter.getNodeIndent() < firstSelectedVariable.getNodeIndent());
 	}
 
-	private boolean isBeforeSelectedLine(SimpleAdapter firstSelectedVariable,
-			SimpleAdapter adapter) {
-		return adapter.getNodeFirstLine() < firstSelectedVariable
-				.getNodeFirstLine();
+	private boolean isBeforeSelectedLine(SimpleAdapter firstSelectedVariable, SimpleAdapter adapter) {
+		return adapter.getNodeFirstLine() < firstSelectedVariable.getNodeFirstLine();
 	}
 
+	/**
+	 * Needed fix: to check if it is used, it must be in a load context
+	 */
 	private boolean isUsed(String var, List<SimpleAdapter> scopeVariables) {
 		for (SimpleAdapter adapter : scopeVariables) {
 			if (adapter.getASTNode() instanceof Name) {
@@ -134,7 +122,7 @@ public class ParameterReturnDeduce {
 	}
 
 	private boolean isStored(String var, List<SimpleAdapter> scopeVariables) {
-		boolean isStored = false; 
+		boolean isStored = false;
 		// must traverse all variables, because a
 		// variable may be used in other context!
 		for (SimpleAdapter adapter : scopeVariables) {

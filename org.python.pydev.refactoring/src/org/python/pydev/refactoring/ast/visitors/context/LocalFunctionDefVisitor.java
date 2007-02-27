@@ -6,8 +6,7 @@ import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 
 public class LocalFunctionDefVisitor extends GlobalFunctionDefVisitor {
 
-	public LocalFunctionDefVisitor(ModuleAdapter module,
-			AbstractScopeNode<?> parent) {
+	public LocalFunctionDefVisitor(ModuleAdapter module, AbstractScopeNode<?> parent) {
 		super(module, parent);
 	}
 

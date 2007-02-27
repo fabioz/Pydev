@@ -14,8 +14,7 @@ import org.python.pydev.refactoring.ui.model.constructorfield.TreeNodeClassField
 import org.python.pydev.refactoring.ui.model.constructorfield.TreeNodeField;
 import org.python.pydev.refactoring.ui.model.tree.ITreeNode;
 
-public class ConstructorFieldRequestProcessor implements
-		IRequestProcessor<ConstructorFieldRequest> {
+public class ConstructorFieldRequestProcessor implements IRequestProcessor<ConstructorFieldRequest> {
 
 	private Object[] checked;
 
@@ -64,8 +63,7 @@ public class ConstructorFieldRequestProcessor implements
 		}
 		if (fields.size() > 0) {
 			ClassDefAdapter clazz = (ClassDefAdapter) node.getAdapter();
-			ConstructorFieldRequest request = new ConstructorFieldRequest(
-					clazz, fields, offsetStrategy);
+			ConstructorFieldRequest request = new ConstructorFieldRequest(clazz, fields, offsetStrategy);
 			requests.add(request);
 		}
 	}

@@ -59,16 +59,13 @@ public class GraphVisitor extends VisitorBase {
 		return edge;
 	}
 
-	public DefaultGraphCell createVertex(String name, double x, double y,
-			Color bg, boolean raised) {
+	public DefaultGraphCell createVertex(String name, double x, double y, Color bg, boolean raised) {
 
 		// Create vertex with the given name
 		DefaultGraphCell cell = new DefaultGraphCell(name);
 
-		GraphConstants.setBorder(cell.getAttributes(), BorderFactory
-				.createEtchedBorder());
-		GraphConstants.setBounds(cell.getAttributes(), new Rectangle2D.Double(
-				x, y, 10, 10));
+		GraphConstants.setBorder(cell.getAttributes(), BorderFactory.createEtchedBorder());
+		GraphConstants.setBounds(cell.getAttributes(), new Rectangle2D.Double(x, y, 10, 10));
 		GraphConstants.setResize(cell.getAttributes(), true);
 		GraphConstants.setAutoSize(cell.getAttributes(), true);
 
@@ -80,8 +77,7 @@ public class GraphVisitor extends VisitorBase {
 
 		// Set raised border
 		if (raised)
-			GraphConstants.setBorder(cell.getAttributes(), BorderFactory
-					.createRaisedBevelBorder());
+			GraphConstants.setBorder(cell.getAttributes(), BorderFactory.createRaisedBevelBorder());
 		else
 			// Set black border
 			GraphConstants.setBorderColor(cell.getAttributes(), Color.black);
@@ -140,8 +136,7 @@ public class GraphVisitor extends VisitorBase {
 	@Override
 	public Object visitModule(Module node) throws Exception {
 		// String caption = node.toString();
-		DefaultGraphCell moduleCell = createVertex("Module", indent, depth,
-				nodeColor, false);
+		DefaultGraphCell moduleCell = createVertex("Module", indent, depth, nodeColor, false);
 		cells.add(moduleCell);
 
 		incrementPosition(moduleCell);

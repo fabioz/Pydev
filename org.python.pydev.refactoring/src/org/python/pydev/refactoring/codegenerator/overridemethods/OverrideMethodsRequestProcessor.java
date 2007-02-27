@@ -11,8 +11,7 @@ import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.ui.model.overridemethods.ClassTreeNode;
 import org.python.pydev.refactoring.ui.model.overridemethods.FunctionTreeNode;
 
-public class OverrideMethodsRequestProcessor implements
-		IRequestProcessor<OverrideMethodsRequest> {
+public class OverrideMethodsRequestProcessor implements IRequestProcessor<OverrideMethodsRequest> {
 
 	private Object[] checked;
 
@@ -45,9 +44,8 @@ public class OverrideMethodsRequestProcessor implements
 
 		for (ClassTreeNode clazz : getClasses()) {
 			for (FunctionDefAdapter method : getMethods(clazz)) {
-				requests.add(new OverrideMethodsRequest(origin, insertionPoint,
-						method, generateMethodComments, clazz.getAdapter()
-								.getName()));
+				requests.add(new OverrideMethodsRequest(origin, insertionPoint, method, generateMethodComments, clazz.getAdapter()
+						.getName()));
 			}
 		}
 

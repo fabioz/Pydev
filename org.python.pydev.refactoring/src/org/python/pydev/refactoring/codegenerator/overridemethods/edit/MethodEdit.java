@@ -81,8 +81,7 @@ public class MethodEdit extends AbstractInsertEdit {
 	}
 
 	private Attribute createAttribute() {
-		return new Attribute(new Name(baseClassName, Name.Load), new NameTok(
-				method.getName(), NameTok.Attrib), Attribute.Load);
+		return new Attribute(new Name(baseClassName, Name.Load), new NameTok(method.getName(), NameTok.Attrib), Attribute.Load);
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import java.util.NoSuchElementException;
 
 /**
  * Provided by PyDev project (pydev.sf.net), but its useful to have it in this package
+ * 
  * @param <E>
  */
 public class FastStack<E> extends LinkedList<E> {
@@ -26,11 +27,13 @@ public class FastStack<E> extends LinkedList<E> {
 	 * Pushes an item onto the top of this stack. This has exactly the same effect as: <blockquote>
 	 * 
 	 * <pre>
-	 * addLast(item)</pre>
+	 * addLast(item)
+	 * </pre>
 	 * 
 	 * </blockquote>
 	 * 
-	 * @param item the item to be pushed onto this stack.
+	 * @param item
+	 *            the item to be pushed onto this stack.
 	 * @return the <code>item</code> argument.
 	 */
 	public void push(E item) {
@@ -41,7 +44,8 @@ public class FastStack<E> extends LinkedList<E> {
 	 * Removes the object at the top of this stack and returns that object as the value of this function.
 	 * 
 	 * @return The object at the top of this stack (the last item of the <tt>LinkedList</tt> object).
-	 * @exception EmptyStackException if this stack is empty.
+	 * @exception EmptyStackException
+	 *                if this stack is empty.
 	 */
 	public synchronized E pop() {
 		return removeLast();
@@ -51,7 +55,8 @@ public class FastStack<E> extends LinkedList<E> {
 	 * Looks at the object at the top of this stack without removing it from the stack.
 	 * 
 	 * @return the object at the top of this stack.
-	 * @exception EmptyStackException if this stack is empty.
+	 * @exception EmptyStackException
+	 *                if this stack is empty.
 	 */
 	public synchronized E peek() {
 		try {
@@ -71,13 +76,15 @@ public class FastStack<E> extends LinkedList<E> {
 	}
 
 	/**
-	 * Returns the 1-based position where an object is on this stack. If the object <tt>o</tt> occurs as an item in this stack, this method returns the
-	 * distance from the top of the stack of the occurrence nearest the top of the stack; the topmost item on the stack is considered to be at distance
-	 * <tt>1</tt>. The <tt>equals</tt> method is used to compare <tt>o</tt> to the items in this stack.
+	 * Returns the 1-based position where an object is on this stack. If the object <tt>o</tt> occurs as an item in this stack, this
+	 * method returns the distance from the top of the stack of the occurrence nearest the top of the stack; the topmost item on the stack
+	 * is considered to be at distance <tt>1</tt>. The <tt>equals</tt> method is used to compare <tt>o</tt> to the items in this
+	 * stack.
 	 * 
-	 * @param o the desired object.
-	 * @return the 1-based position from the top of the stack where the object is located; the return value <code>-1</code> indicates that the object is not
-	 *         on the stack.
+	 * @param o
+	 *            the desired object.
+	 * @return the 1-based position from the top of the stack where the object is located; the return value <code>-1</code> indicates that
+	 *         the object is not on the stack.
 	 */
 	public synchronized int search(Object o) {
 		int i = lastIndexOf(o);
@@ -95,11 +102,11 @@ public class FastStack<E> extends LinkedList<E> {
 	public E elementAt(int i) {
 		return this.get(i);
 	}
-	
-	public Iterator<E> topDownIterator(){
+
+	public Iterator<E> topDownIterator() {
 		final ListIterator<E> l = this.listIterator(this.size());
-		return new Iterator<E>(){
-			
+		return new Iterator<E>() {
+
 			public boolean hasNext() {
 				return l.hasPrevious();
 			}
@@ -111,7 +118,7 @@ public class FastStack<E> extends LinkedList<E> {
 			public void remove() {
 				throw new RuntimeException("Not Impl");
 			}
-			
+
 		};
 	}
 

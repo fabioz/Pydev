@@ -101,19 +101,15 @@ public abstract class AbstractRewriterVisitor extends VisitorBase {
 	 */
 	public abstract Object visitAliasType(aliasType node) throws Exception;
 
-	public abstract Object visitArgumentsType(argumentsType node)
-			throws Exception;
+	public abstract Object visitArgumentsType(argumentsType node) throws Exception;
 
-	public abstract Object visitDecoratorsType(decoratorsType node)
-			throws Exception;
+	public abstract Object visitDecoratorsType(decoratorsType node) throws Exception;
 
-	public abstract Object visitExceptHandlerType(excepthandlerType node)
-			throws Exception;
+	public abstract Object visitExceptHandlerType(excepthandlerType node) throws Exception;
 
 	public abstract Object visitKeywordType(keywordType node) throws Exception;
 
-	public abstract Object visitListCompType(listcompType node)
-			throws Exception;
+	public abstract Object visitListCompType(listcompType node) throws Exception;
 
 	protected SimpleNode visitNode(SimpleNode node) throws Exception {
 		if (node == null)

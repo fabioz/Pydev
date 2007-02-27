@@ -15,8 +15,7 @@ public class TableEditButtonListener implements Listener {
 
 	private final Button editButton;
 
-	public TableEditButtonListener(Table table, Button upButton,
-			Button downButton, Button editButton) {
+	public TableEditButtonListener(Table table, Button upButton, Button downButton, Button editButton) {
 		this.table = table;
 		this.upButton = upButton;
 		this.downButton = downButton;
@@ -48,6 +47,6 @@ public class TableEditButtonListener implements Listener {
 	}
 
 	public void handleEvent(Event event) {
-		update();		
+		update();
 	}
 }

@@ -12,11 +12,9 @@ import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.adapters.SimpleAdapter;
 import org.python.pydev.refactoring.ast.visitors.NodeHelper;
 
-public class ScopeVariablesVisitor extends
-		AbstractContextVisitor<SimpleAdapter> {
+public class ScopeVariablesVisitor extends AbstractContextVisitor<SimpleAdapter> {
 
-	public ScopeVariablesVisitor(ModuleAdapter module,
-			AbstractScopeNode<?> parent) {
+	public ScopeVariablesVisitor(ModuleAdapter module, AbstractScopeNode<?> parent) {
 		super(module, parent);
 	}
 
@@ -39,20 +37,19 @@ public class ScopeVariablesVisitor extends
 
 		super.traverse(node);
 	}
-	
+
 	@Override
 	public Object visitImport(Import node) throws Exception {
 		return null;
 	}
-	
+
 	@Override
 	public Object visitImportFrom(ImportFrom node) throws Exception {
 		return null;
 	}
 
 	@Override
-	protected SimpleAdapter createAdapter(AbstractScopeNode<?> parent,
-			SimpleNode node) {
+	protected SimpleAdapter createAdapter(AbstractScopeNode<?> parent, SimpleNode node) {
 		return new SimpleAdapter(this.moduleAdapter, parent, node);
 	}
 
@@ -67,7 +64,7 @@ public class ScopeVariablesVisitor extends
 		visit(node.body);
 		return null;
 	}
-	
+
 	@Override
 	public Object visitModule(Module node) throws Exception {
 		visit(node.body);

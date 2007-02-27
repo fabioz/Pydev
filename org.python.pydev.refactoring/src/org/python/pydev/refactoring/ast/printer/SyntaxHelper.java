@@ -150,7 +150,6 @@ public class SyntaxHelper {
 	public String getAlignment() {
 		return alignHelper.getAlignment();
 	}
-	
 
 	public void indent() {
 		alignHelper.indent();

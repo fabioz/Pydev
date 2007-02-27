@@ -9,11 +9,9 @@ import org.python.pydev.refactoring.core.change.AbstractFileChangeProcessor;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.ui.UITexts;
 
-public class ConstructorFieldChangeProcessor extends
-		AbstractFileChangeProcessor<ConstructorFieldRequest> {
+public class ConstructorFieldChangeProcessor extends AbstractFileChangeProcessor<ConstructorFieldRequest> {
 
-	public ConstructorFieldChangeProcessor(String name, RefactoringInfo info,
-			IRequestProcessor<ConstructorFieldRequest> requestProvider) {
+	public ConstructorFieldChangeProcessor(String name, RefactoringInfo info, IRequestProcessor<ConstructorFieldRequest> requestProvider) {
 		super(name, info, requestProvider);
 	}
 
@@ -23,16 +21,14 @@ public class ConstructorFieldChangeProcessor extends
 		for (ConstructorFieldRequest req : requestProcessor.getRefactoringRequests()) {
 
 			TextEditGroup constructors = new TextEditGroup(UITexts.constructorFieldConstructor);
-			ConstructorMethodEdit constructorEdit = new ConstructorMethodEdit(
-					req);
+			ConstructorMethodEdit constructorEdit = new ConstructorMethodEdit(req);
 
 			TextEdit edit = constructorEdit.getEdit();
-			
+
 			constructors.addTextEdit(edit);
 			addEdit(edit);
 			addGroup(constructors);
 		}
-		
 
 	}
 

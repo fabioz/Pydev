@@ -10,8 +10,7 @@ import org.python.pydev.refactoring.ast.adapters.PropertyTextAdapter;
 import org.python.pydev.refactoring.codegenerator.generateproperties.request.GeneratePropertiesRequest;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 
-public class MockupGeneratePropertiesRequestProcessor implements
-		IRequestProcessor<GeneratePropertiesRequest> {
+public class MockupGeneratePropertiesRequestProcessor implements IRequestProcessor<GeneratePropertiesRequest> {
 
 	private ModuleAdapter module;
 
@@ -27,10 +26,8 @@ public class MockupGeneratePropertiesRequestProcessor implements
 
 	private int accessModifier;
 
-	private MockupGeneratePropertiesRequestProcessor(ModuleAdapter module,
-			int classSelection, List<Integer> attributeSelection,
-			int methodOffsetStrategy, int propertyOffsetStrategy,
-			List<Integer> methodSelection, int accessModifier) {
+	private MockupGeneratePropertiesRequestProcessor(ModuleAdapter module, int classSelection, List<Integer> attributeSelection,
+			int methodOffsetStrategy, int propertyOffsetStrategy, List<Integer> methodSelection, int accessModifier) {
 		this.module = module;
 		this.attributeSelection = attributeSelection;
 		this.classSelection = classSelection;
@@ -40,13 +37,9 @@ public class MockupGeneratePropertiesRequestProcessor implements
 		this.accessModifier = accessModifier;
 	}
 
-	public MockupGeneratePropertiesRequestProcessor(ModuleAdapter module,
-			MockupGeneratePropertiesConfig config) {
-		this(module, config.getClassSelection(),
-				config.getAttributeSelection(), config
-						.getMethodOffsetStrategy(), config
-						.getPropertyOffsetStrategy(), config
-						.getMethodSelection(), config.getAccessModifier());
+	public MockupGeneratePropertiesRequestProcessor(ModuleAdapter module, MockupGeneratePropertiesConfig config) {
+		this(module, config.getClassSelection(), config.getAttributeSelection(), config.getMethodOffsetStrategy(), config
+				.getPropertyOffsetStrategy(), config.getMethodSelection(), config.getAccessModifier());
 	}
 
 	public List<GeneratePropertiesRequest> getRefactoringRequests() {
@@ -65,9 +58,7 @@ public class MockupGeneratePropertiesRequestProcessor implements
 		List<GeneratePropertiesRequest> requests = new ArrayList<GeneratePropertiesRequest>();
 		GeneratePropertiesRequest req;
 		for (INodeAdapter elem : attributes) {
-			req = new GeneratePropertiesRequest(clazz, elem, properties,
-					methodOffsetStrategy, propertyOffsetStrategy,
-					accessModifier);
+			req = new GeneratePropertiesRequest(clazz, elem, properties, methodOffsetStrategy, propertyOffsetStrategy, accessModifier);
 			requests.add(req);
 		}
 

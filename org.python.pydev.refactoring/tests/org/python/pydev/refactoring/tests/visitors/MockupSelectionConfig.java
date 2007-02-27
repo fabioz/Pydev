@@ -8,8 +8,7 @@ public class MockupSelectionConfig {
 
 	private int offsetStrategy;
 
-	public MockupSelectionConfig(int offset, int selectionLength,
-			int offsetStrategy) {
+	public MockupSelectionConfig(int offset, int selectionLength, int offsetStrategy) {
 		super();
 		this.offset = offset;
 		this.selectionLength = selectionLength;

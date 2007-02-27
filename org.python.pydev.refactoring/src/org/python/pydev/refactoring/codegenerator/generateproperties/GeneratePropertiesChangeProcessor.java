@@ -13,28 +13,21 @@ import org.python.pydev.refactoring.core.change.AbstractFileChangeProcessor;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.ui.UITexts;
 
-public class GeneratePropertiesChangeProcessor extends
-		AbstractFileChangeProcessor<GeneratePropertiesRequest> {
+public class GeneratePropertiesChangeProcessor extends AbstractFileChangeProcessor<GeneratePropertiesRequest> {
 
-	public GeneratePropertiesChangeProcessor(String name, RefactoringInfo info,
-			IRequestProcessor<GeneratePropertiesRequest> requestProvider) {
+	public GeneratePropertiesChangeProcessor(String name, RefactoringInfo info, IRequestProcessor<GeneratePropertiesRequest> requestProvider) {
 		super(name, info, requestProvider);
 	}
 
 	@Override
 	protected void processEdit() {
 
-		TextEditGroup getters = new TextEditGroup(
-				UITexts.generatePropertiesGetter);
-		TextEditGroup setters = new TextEditGroup(
-				UITexts.generatePropertiesSetter);
-		TextEditGroup deletes = new TextEditGroup(
-				UITexts.generatePropertiesDelete);
-		TextEditGroup properties = new TextEditGroup(
-				UITexts.generatePropertiesProperty);
+		TextEditGroup getters = new TextEditGroup(UITexts.generatePropertiesGetter);
+		TextEditGroup setters = new TextEditGroup(UITexts.generatePropertiesSetter);
+		TextEditGroup deletes = new TextEditGroup(UITexts.generatePropertiesDelete);
+		TextEditGroup properties = new TextEditGroup(UITexts.generatePropertiesProperty);
 
-		for (GeneratePropertiesRequest req : requestProcessor
-				.getRefactoringRequests()) {
+		for (GeneratePropertiesRequest req : requestProcessor.getRefactoringRequests()) {
 			SelectionState state = req.getSelectionState();
 
 			if (state.isGetter()) {
@@ -63,8 +56,7 @@ public class GeneratePropertiesChangeProcessor extends
 			}
 		}
 
-		for (GeneratePropertiesRequest req : requestProcessor
-				.getRefactoringRequests()) {
+		for (GeneratePropertiesRequest req : requestProcessor.getRefactoringRequests()) {
 			PropertyEdit property = new PropertyEdit(req);
 			TextEdit edit = property.getEdit();
 			addEdit(edit);

@@ -28,8 +28,7 @@ public class FunctionSignatureListener implements Listener {
 
 	private IValidationPage page;
 
-	public FunctionSignatureListener(IValidationPage page, Label signature,
-			LabeledEdit functionNameEdit, Table argumentTable) {
+	public FunctionSignatureListener(IValidationPage page, Label signature, LabeledEdit functionNameEdit, Table argumentTable) {
 		this.page = page;
 		this.signatureLabel = signature;
 		this.functionNameEdit = functionNameEdit;

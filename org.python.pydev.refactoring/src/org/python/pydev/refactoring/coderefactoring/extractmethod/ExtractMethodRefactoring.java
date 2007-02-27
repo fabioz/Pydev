@@ -52,14 +52,10 @@ public class ExtractMethodRefactoring extends AbstractPythonRefactoring {
 			standardModule = this.parsedExtendedSelection;
 		}
 
-		this.requestProcessor = new ExtractMethodRequestProcessor(req
-				.getScopeAdapter(), standardModule, standardSelection);
+		this.requestProcessor = new ExtractMethodRequestProcessor(req.getScopeAdapter(), standardModule, standardSelection);
 
-		if (req.isSelectionExtensionRequired()
-				&& this.parsedExtendedSelection != null
-				&& this.parsedUserSelection != null) {
-			this.pages.add(new ExtractMethodPreviewPage(name, this.req,
-					this.requestProcessor));
+		if (req.isSelectionExtensionRequired() && this.parsedExtendedSelection != null && this.parsedUserSelection != null) {
+			this.pages.add(new ExtractMethodPreviewPage(name, this.req, this.requestProcessor));
 		}
 		this.pages.add(new ExtractMethodPage(name, this.requestProcessor));
 	}
@@ -67,18 +63,15 @@ public class ExtractMethodRefactoring extends AbstractPythonRefactoring {
 	@Override
 	protected List<IChangeProcessor> getChangeProcessors() {
 		List<IChangeProcessor> processors = new ArrayList<IChangeProcessor>();
-		this.changeProcessor = new ExtractMethodChangeProcessor(this.name,
-				this.req, this.requestProcessor);
+		this.changeProcessor = new ExtractMethodChangeProcessor(this.name, this.req, this.requestProcessor);
 		processors.add(changeProcessor);
 		return processors;
 	}
 
 	@Override
-	public RefactoringStatus checkInitialConditions(IProgressMonitor pm)
-			throws CoreException, OperationCanceledException {
+	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
 
-		if (this.requestProcessor.getScopeAdapter() == null
-				|| this.requestProcessor.getScopeAdapter() instanceof ClassDefAdapter) {
+		if (this.requestProcessor.getScopeAdapter() == null || this.requestProcessor.getScopeAdapter() instanceof ClassDefAdapter) {
 			status.addFatalError(UITexts.extractMethodScopeInvalid);
 			return status;
 		}

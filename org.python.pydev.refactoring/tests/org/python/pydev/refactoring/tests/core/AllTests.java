@@ -6,11 +6,10 @@ import junit.framework.TestSuite;
 public class AllTests {
 
 	public static Test suite() {
-		TestSuite suite = new TestSuite(
-				"Test for org.python.pydev.refactoring.tests.core");
-		//$JUnit-BEGIN$
+		TestSuite suite = new TestSuite("Test for org.python.pydev.refactoring.tests.core");
+		// $JUnit-BEGIN$
 		suite.addTestSuite(LexerTestCase.class);
-		//$JUnit-END$
+		// $JUnit-END$
 		return suite;
 	}
 

@@ -28,10 +28,9 @@ public class ExtractMethodRequest implements IRefactoringRequest {
 
 	private ITextSelection selection;
 
-	public ExtractMethodRequest(String methodName, ITextSelection selection, 
-			AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection,
-			List<String> callParameters, List<String> returnVariables,
-			Map<String, String> renamedVariables, int offsetStrategy) {
+	public ExtractMethodRequest(String methodName, ITextSelection selection, AbstractScopeNode<?> scopeAdapter,
+			ModuleAdapter parsedSelection, List<String> callParameters, List<String> returnVariables, Map<String, String> renamedVariables,
+			int offsetStrategy) {
 		this.methodName = methodName;
 		this.selection = selection;
 		this.scopeAdapter = scopeAdapter;
@@ -42,7 +41,7 @@ public class ExtractMethodRequest implements IRefactoringRequest {
 		this.returnVariables = returnVariables;
 		this.renamedVariables = renamedVariables;
 	}
-	
+
 	public ITextSelection getSelection() {
 		return selection;
 	}

@@ -46,16 +46,14 @@ public class PropertyEdit extends AbstractInsertEdit {
 	protected SimpleNode getEditNode() {
 		exprType[] targets = initProperty();
 		List<exprType> args = getPropertyArgs();
-		Call property = new Call(new Name(PROPERTY, Name.Load), args
-				.toArray(new exprType[0]), null, null, null);
+		Call property = new Call(new Name(PROPERTY, Name.Load), args.toArray(new exprType[0]), null, null, null);
 
 		return new Assign(targets, property);
 	}
 
 	private exprType[] initProperty() {
 		exprType[] targets = new exprType[1];
-		String propertyName = nodeHelper.getAccessName(attributeName,
-				accessModifier);
+		String propertyName = nodeHelper.getAccessName(attributeName, accessModifier);
 		targets[0] = new Name(propertyName, Name.Store);
 		return targets;
 	}
@@ -81,8 +79,7 @@ public class PropertyEdit extends AbstractInsertEdit {
 			args.add(noneName());
 		}
 		if (state.isDocstring()) {
-			args.add(new Str(propertyName + "'s Docstring",
-					str_typeType.SingleDouble, false, false));
+			args.add(new Str(propertyName + "'s Docstring", str_typeType.SingleDouble, false, false));
 		} else {
 			args.add(noneName());
 		}

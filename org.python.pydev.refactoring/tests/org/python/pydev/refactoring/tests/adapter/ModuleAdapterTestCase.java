@@ -22,8 +22,7 @@ public class ModuleAdapterTestCase extends AbstractIOTestCase {
 		XStream xstream = new XStream();
 		xstream.alias("config", ModuleAdapterTestConfig.class);
 
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null,
-				new Document(getSource()));
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()));
 		if (getConfig().length() > 0) {
 			config = (ModuleAdapterTestConfig) xstream.fromXML(getConfig());
 		} else {
@@ -38,15 +37,13 @@ public class ModuleAdapterTestCase extends AbstractIOTestCase {
 		}
 		buffer.append("# Imported regular modules (Alias, Realname)");
 		for (String aliasModule : module.getRegularImportedModules().keySet()) {
-			buffer.append("\n# " + aliasModule + " "
-					+ module.getRegularImportedModules().get(aliasModule));
+			buffer.append("\n# " + aliasModule + " " + module.getRegularImportedModules().get(aliasModule));
 		}
 
 		buffer.append("\n");
 		buffer.append("# AliasToIdentifier (Module, Realname, Alias)");
 		for (FQIdentifier identifier : module.getAliasToIdentifier()) {
-			buffer.append("\n# " + identifier.getModule() + " "
-					+ identifier.getRealName() + " " + identifier.getAlias());
+			buffer.append("\n# " + identifier.getModule() + " " + identifier.getRealName() + " " + identifier.getAlias());
 		}
 
 		this.setTestGenerated(buffer.toString().trim());

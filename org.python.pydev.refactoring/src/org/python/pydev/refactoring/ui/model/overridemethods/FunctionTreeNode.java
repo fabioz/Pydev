@@ -7,6 +7,7 @@ import org.python.pydev.refactoring.ui.model.tree.TreeNodeSimple;
 public class FunctionTreeNode extends TreeNodeSimple<FunctionDefAdapter> {
 
 	private static final String CLOSEBRACKET = ")";
+
 	private static final String OPENBRACKET = "(";
 
 	public FunctionTreeNode(ITreeNode parent, FunctionDefAdapter adapter) {
@@ -17,10 +18,10 @@ public class FunctionTreeNode extends TreeNodeSimple<FunctionDefAdapter> {
 	public String getImageName() {
 		return ITreeNode.NODE_METHOD;
 	}
-	
+
 	@Override
 	public String getLabel() {
-		return adapter.getName()+OPENBRACKET+adapter.getSignature()+CLOSEBRACKET;
+		return adapter.getName() + OPENBRACKET + adapter.getSignature() + CLOSEBRACKET;
 	}
 
 }

@@ -58,17 +58,14 @@ public class ConstructorFieldPage extends UserInputWizardPage {
 
 	private ILabelProvider labelProvider;
 
-	public ConstructorFieldPage(String name, ClassFieldTreeProvider provider,
-			ConstructorFieldRequestProcessor requestProcessor2) {
+	public ConstructorFieldPage(String name, ClassFieldTreeProvider provider, ConstructorFieldRequestProcessor requestProcessor2) {
 		super(name);
 		this.setTitle(name);
 		this.classProvider = provider;
 		this.requestProcessor = requestProcessor2;
 		this.labelProvider = new TreeLabelProvider();
 
-		this.strategyProvider = new OffsetStrategyProvider(
-				IOffsetStrategy.AFTERINIT | IOffsetStrategy.BEGIN
-						| IOffsetStrategy.END);
+		this.strategyProvider = new OffsetStrategyProvider(IOffsetStrategy.AFTERINIT | IOffsetStrategy.BEGIN | IOffsetStrategy.END);
 	}
 
 	private Composite createMainComp(Composite parent) {
@@ -114,10 +111,8 @@ public class ConstructorFieldPage extends UserInputWizardPage {
 		selectAll.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				treeViewer.setAllChecked(true);
-				requestProcessor.setCheckedElements(treeViewer
-						.getCheckedElements());
-				ConstructorFieldPage.this.getWizard().getContainer()
-						.updateButtons();
+				requestProcessor.setCheckedElements(treeViewer.getCheckedElements());
+				ConstructorFieldPage.this.getWizard().getContainer().updateButtons();
 			}
 		});
 		deselectAll = new Button(buttonComp, SWT.NONE);
@@ -126,10 +121,8 @@ public class ConstructorFieldPage extends UserInputWizardPage {
 		deselectAll.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				treeViewer.setAllChecked(false);
-				requestProcessor.setCheckedElements(treeViewer
-						.getCheckedElements());
-				ConstructorFieldPage.this.getWizard().getContainer()
-						.updateButtons();
+				requestProcessor.setCheckedElements(treeViewer.getCheckedElements());
+				ConstructorFieldPage.this.getWizard().getContainer().updateButtons();
 			}
 		});
 	}
@@ -160,22 +153,17 @@ public class ConstructorFieldPage extends UserInputWizardPage {
 		methodInsertionLbl = new CLabel(comboComp, SWT.NONE);
 		methodInsertionLbl.setText(UITexts.offsetStrategyInsertionPointMethod);
 		methodInsertionComb = createComboViewer(comboComp);
-		methodInsertionComb
-				.addSelectionChangedListener(new ISelectionChangedListener() {
-					public void selectionChanged(SelectionChangedEvent event) {
-						IStructuredSelection sel = (IStructuredSelection) event
-								.getSelection();
-						if (!sel.isEmpty()) {
-							OffsetStrategyModel elem = (OffsetStrategyModel) sel
-									.getFirstElement();
-							requestProcessor.setMethodDestination(elem
-									.getStrategy());
-						}
-					}
-				});
+		methodInsertionComb.addSelectionChangedListener(new ISelectionChangedListener() {
+			public void selectionChanged(SelectionChangedEvent event) {
+				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
+				if (!sel.isEmpty()) {
+					OffsetStrategyModel elem = (OffsetStrategyModel) sel.getFirstElement();
+					requestProcessor.setMethodDestination(elem.getStrategy());
+				}
+			}
+		});
 
-		requestProcessor.setMethodDestination(strategyProvider.get(0)
-				.getStrategy());
+		requestProcessor.setMethodDestination(strategyProvider.get(0).getStrategy());
 		methodInsertionComb.getCombo().select(0);
 	}
 
@@ -183,10 +171,8 @@ public class ConstructorFieldPage extends UserInputWizardPage {
 		treeViewer = new ContainerCheckedTreeViewer(treeComp);
 		treeViewer.addCheckStateListener(new ICheckStateListener() {
 			public void checkStateChanged(CheckStateChangedEvent event) {
-				requestProcessor.setCheckedElements(treeViewer
-						.getCheckedElements());
-				ConstructorFieldPage.this.getWizard().getContainer()
-						.updateButtons();
+				requestProcessor.setCheckedElements(treeViewer.getCheckedElements());
+				ConstructorFieldPage.this.getWizard().getContainer().updateButtons();
 			}
 		});
 
@@ -194,8 +180,7 @@ public class ConstructorFieldPage extends UserInputWizardPage {
 		treeViewer.setLabelProvider(labelProvider);
 		treeViewer.setAutoExpandLevel(2);
 		treeViewer.setInput("");
-		treeViewer.setSelection(new StructuredSelection(treeViewer
-				.getExpandedElements()[0]));
+		treeViewer.setSelection(new StructuredSelection(treeViewer.getExpandedElements()[0]));
 	}
 
 	public void createControl(Composite composite) {

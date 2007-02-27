@@ -9,8 +9,7 @@ import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 
 public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
 
-	public FunctionArgAdapter(ModuleAdapter module, FunctionDefAdapter parent,
-			argumentsType node) {
+	public FunctionArgAdapter(ModuleAdapter module, FunctionDefAdapter parent, argumentsType node) {
 		super(module, parent, node);
 	}
 
@@ -60,8 +59,7 @@ public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
 	}
 
 	public boolean hasOnlySelf() {
-		return getSelfFilteredArgs().size() == 0 && (!(hasVarArg()))
-				&& (!(hasKwArg()));
+		return getSelfFilteredArgs().size() == 0 && (!(hasVarArg())) && (!(hasKwArg()));
 	}
 
 	public String getSignature() {

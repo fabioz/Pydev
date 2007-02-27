@@ -10,8 +10,7 @@ import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
 public class FunctionDefAdapterTestSuite extends AbstractIOTestSuite {
 
 	public static Test suite() {
-		TESTDIR = "tests" + File.separator + "python" + File.separator
-				+ "adapter" + File.separator + "functiondef";
+		TESTDIR = "tests" + File.separator + "python" + File.separator + "adapter" + File.separator + "functiondef";
 		FunctionDefAdapterTestSuite testSuite = new FunctionDefAdapterTestSuite();
 
 		testSuite.createTests();

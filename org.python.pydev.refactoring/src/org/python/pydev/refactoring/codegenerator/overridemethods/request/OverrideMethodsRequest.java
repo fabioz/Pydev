@@ -17,8 +17,7 @@ public class OverrideMethodsRequest implements IRefactoringRequest {
 
 	private String baseClassName;
 
-	public OverrideMethodsRequest(ClassDefAdapter classAdapter,
-			int offsetStrategy, FunctionDefAdapter method,
+	public OverrideMethodsRequest(ClassDefAdapter classAdapter, int offsetStrategy, FunctionDefAdapter method,
 			boolean generateMethodComments, String baseClassName) {
 		this.baseClassName = baseClassName;
 		this.classAdapter = classAdapter;
@@ -44,7 +43,6 @@ public class OverrideMethodsRequest implements IRefactoringRequest {
 	}
 
 	public String getBaseClassName() {
-		return getOffsetNode().getModule().getBaseContextName(
-				this.classAdapter, baseClassName);
+		return getOffsetNode().getModule().getBaseContextName(this.classAdapter, baseClassName);
 	}
 }

@@ -18,13 +18,11 @@ public class FunctionDefAdapterTestCase extends AbstractIOTestCase {
 	@Override
 	public void runTest() throws Throwable {
 		StringBuffer buffer = new StringBuffer();
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(
-				getSource()));
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()));
 		List<ClassDefAdapter> classes = module.getClasses();
 		assertTrue(classes.size() > 0);
 
-		buffer
-				.append("# ClassName FunctionName hasArg hasVarArg hasKwArg ArgumentsOnly\n");
+		buffer.append("# ClassName FunctionName hasArg hasVarArg hasKwArg ArgumentsOnly\n");
 		for (ClassDefAdapter adapter : module.getClasses()) {
 			printFunction(buffer, adapter);
 		}
@@ -38,10 +36,8 @@ public class FunctionDefAdapterTestCase extends AbstractIOTestCase {
 		buffer.append("# " + adapter.getName() + "\n");
 		for (FunctionDefAdapter function : adapter.getFunctions()) {
 			buffer.append("# ");
-			buffer.append(function.getName() + DOUBLETAB
-					+ function.getArguments().hasArg() + DOUBLETAB
-					+ function.getArguments().hasVarArg() + DOUBLETAB
-					+ function.getArguments().hasKwArg() + DOUBLETAB
+			buffer.append(function.getName() + DOUBLETAB + function.getArguments().hasArg() + DOUBLETAB
+					+ function.getArguments().hasVarArg() + DOUBLETAB + function.getArguments().hasKwArg() + DOUBLETAB
 					+ function.getArguments().getArgOnly());
 			buffer.append("\n");
 		}

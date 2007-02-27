@@ -27,8 +27,7 @@ import org.python.pydev.refactoring.core.PythonModuleManager;
 
 public class VisitorFactory {
 
-	public static String createSourceFromAST(SimpleNode root,
-			boolean ignoreComments) {
+	public static String createSourceFromAST(SimpleNode root, boolean ignoreComments) {
 		RewriterVisitor visitor = null;
 		StringWriter writer = new StringWriter();
 		try {
@@ -46,8 +45,7 @@ public class VisitorFactory {
 		return createSourceFromAST(root, false);
 	}
 
-	public static RewriterVisitor createRewriterVisitor(Writer out,
-			String source) {
+	public static RewriterVisitor createRewriterVisitor(Writer out, String source) {
 		RewriterVisitor visitor = null;
 		try {
 			SimpleNode root = getRootNodeFromString(source);
@@ -60,8 +58,7 @@ public class VisitorFactory {
 		return visitor;
 	}
 
-	public static ITextSelection createSelectionExtension(
-			AbstractScopeNode<?> scope, ITextSelection selection) {
+	public static ITextSelection createSelectionExtension(AbstractScopeNode<?> scope, ITextSelection selection) {
 		SelectionExtenderVisitor visitor = null;
 		try {
 			visitor = new SelectionExtenderVisitor(scope.getModule(), selection);
@@ -72,8 +69,7 @@ public class VisitorFactory {
 		return visitor.getSelection();
 	}
 
-	public static void validateSelection(ModuleAdapter scope)
-			throws SelectionException {
+	public static void validateSelection(ModuleAdapter scope) throws SelectionException {
 		SelectionValidationVisitor visitor = null;
 		try {
 			visitor = new SelectionValidationVisitor();
@@ -85,13 +81,11 @@ public class VisitorFactory {
 		}
 	}
 
-	public static <T extends VisitorIF> T createVisitor(Class<T> visitorClass,
-			String source) throws Throwable {
+	public static <T extends VisitorIF> T createVisitor(Class<T> visitorClass, String source) throws Throwable {
 		return createVisitor(visitorClass, getRootNodeFromString(source));
 	}
 
-	public static <T extends VisitorIF> T createVisitor(Class<T> visitorClass,
-			SimpleNode root) {
+	public static <T extends VisitorIF> T createVisitor(Class<T> visitorClass, SimpleNode root) {
 		T visitor = null;
 		try {
 			visitor = visitorClass.newInstance();
@@ -102,13 +96,11 @@ public class VisitorFactory {
 		return visitor;
 	}
 
-	public static <T extends AbstractContextVisitor> T createContextVisitor(
-			Class<T> visitorClass, SimpleNode root, ModuleAdapter module,
+	public static <T extends AbstractContextVisitor> T createContextVisitor(Class<T> visitorClass, SimpleNode root, ModuleAdapter module,
 			AbstractNodeAdapter parent) {
 		T visitor = null;
 		try {
-			visitor = visitorClass.cast(visitorClass.getConstructors()[0]
-					.newInstance(new Object[] { module, parent }));
+			visitor = visitorClass.cast(visitorClass.getConstructors()[0].newInstance(new Object[] { module, parent }));
 			root.accept(visitor);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
@@ -116,9 +108,7 @@ public class VisitorFactory {
 		return visitor;
 	}
 
-	public static ModuleAdapter createModuleAdapter(
-			PythonModuleManager moduleManager, File file, IDocument doc)
-			throws Throwable {
+	public static ModuleAdapter createModuleAdapter(PythonModuleManager moduleManager, File file, IDocument doc) throws Throwable {
 		return new ModuleAdapter(moduleManager, file, doc, getRootNode(doc));
 	}
 
@@ -126,8 +116,7 @@ public class VisitorFactory {
 		return new SourcePrinter(new PrintWriter(out));
 	}
 
-	private static SimpleNode getRootNodeFromString(String source)
-			throws Throwable {
+	private static SimpleNode getRootNodeFromString(String source) throws Throwable {
 		return getRootNode(getDocumentFromString(source));
 	}
 
@@ -136,9 +125,8 @@ public class VisitorFactory {
 	}
 
 	private static Module getRootNode(IDocument doc) throws Throwable {
-		Tuple<SimpleNode, Throwable> objects = PyParser
-				.reparseDocument(new PyParser.ParserInfo(doc, false,
-						IPythonNature.LATEST_GRAMMAR_VERSION));
+		Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, false,
+				IPythonNature.LATEST_GRAMMAR_VERSION));
 		if (objects.o2 != null)
 			throw objects.o2;
 		return (Module) objects.o1;

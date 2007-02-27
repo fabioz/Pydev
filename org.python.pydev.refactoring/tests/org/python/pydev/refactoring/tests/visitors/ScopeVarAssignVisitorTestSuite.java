@@ -10,8 +10,7 @@ import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
 public class ScopeVarAssignVisitorTestSuite extends AbstractIOTestSuite {
 
 	public static Test suite() {
-		TESTDIR = "tests" + File.separator + "python" + File.separator
-				+ "visitor" + File.separator + "scopevarassign";
+		TESTDIR = "tests" + File.separator + "python" + File.separator + "visitor" + File.separator + "scopevarassign";
 		ScopeVarAssignVisitorTestSuite testSuite = new ScopeVarAssignVisitorTestSuite();
 
 		testSuite.createTests();

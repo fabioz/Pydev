@@ -24,9 +24,8 @@ public class InitOffset extends BeginOffset {
 				if (nodeHelper.isInit(classNode.body[i])) {
 					FunctionDef func = (FunctionDef) classNode.body[i];
 					stmtType lastStmt = func.body[func.body.length - 1];
-					LastLineVisitor visitor = VisitorFactory.createVisitor(
-							LastLineVisitor.class, lastStmt);
-					return visitor.getLastLine()-1;
+					LastLineVisitor visitor = VisitorFactory.createVisitor(LastLineVisitor.class, lastStmt);
+					return visitor.getLastLine() - 1;
 				}
 
 			}

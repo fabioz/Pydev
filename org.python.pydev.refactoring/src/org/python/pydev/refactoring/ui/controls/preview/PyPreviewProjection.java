@@ -18,8 +18,7 @@ public class PyPreviewProjection extends ProjectionViewer {
 
 	private PyPreviewConfiguration editConfiguration;
 
-	public PyPreviewProjection(Composite parent, IVerticalRuler ruler,
-			IOverviewRuler overviewRuler, boolean showsAnnotationOverview,
+	public PyPreviewProjection(Composite parent, IVerticalRuler ruler, IOverviewRuler overviewRuler, boolean showsAnnotationOverview,
 			int styles) {
 		super(parent, ruler, overviewRuler, showsAnnotationOverview, styles);
 	}
@@ -65,8 +64,7 @@ public class PyPreviewProjection extends ProjectionViewer {
 	}
 
 	private void setBackgroundColor(ITextSelection selection, int color) {
-		setBackgroundColor(selection, Display.getCurrent()
-				.getSystemColor(color));
+		setBackgroundColor(selection, Display.getCurrent().getSystemColor(color));
 	}
 
 	public void setBackgroundColor(ITextSelection selection, Color color) {

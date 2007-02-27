@@ -31,14 +31,10 @@ public class OverrideMethodsRefactoring extends AbstractPythonRefactoring {
 	}
 
 	private void initWizard(String name) {
-		ClassMethodsTreeProvider provider = new ClassMethodsTreeProvider(req
-				.getScopeClassAndBases());
-		this.requestProcessor = new OverrideMethodsRequestProcessor(req
-				.getScopeClass());
-		this.changeProcessor = new OverrideMethodsChangeProcessor(this.name,
-				this.req, this.requestProcessor);
-		this.pages
-				.add(new OverrideMethodsPage(name, provider, requestProcessor));
+		ClassMethodsTreeProvider provider = new ClassMethodsTreeProvider(req.getScopeClassAndBases());
+		this.requestProcessor = new OverrideMethodsRequestProcessor(req.getScopeClass());
+		this.changeProcessor = new OverrideMethodsChangeProcessor(this.name, this.req, this.requestProcessor);
+		this.pages.add(new OverrideMethodsPage(name, provider, requestProcessor));
 	}
 
 	@Override
@@ -49,8 +45,7 @@ public class OverrideMethodsRefactoring extends AbstractPythonRefactoring {
 	}
 
 	@Override
-	public RefactoringStatus checkInitialConditions(IProgressMonitor pm)
-			throws CoreException, OperationCanceledException {
+	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
 		ClassDefAdapter rootClass = this.req.getScopeClass();
 
 		if (rootClass == null) {

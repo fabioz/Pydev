@@ -18,18 +18,14 @@ public class TreeAttributeNode extends TreeNodeSimple<INodeAdapter> {
 	@Override
 	public Object[] getChildren() {
 		List<ITreeNode> children = new ArrayList<ITreeNode>();
-		children.add(new TreeNodeSimple<PropertyTextAdapter>(this,
-				new PropertyTextAdapter(PropertyTextAdapter.GETTER,
-						UITexts.generatePropertiesGetter)));
-		children.add(new TreeNodeSimple<PropertyTextAdapter>(this,
-				new PropertyTextAdapter(PropertyTextAdapter.SETTER,
-						UITexts.generatePropertiesSetter)));
-		children.add(new TreeNodeSimple<PropertyTextAdapter>(this,
-				new PropertyTextAdapter(PropertyTextAdapter.DELETE,
-						UITexts.generatePropertiesDelete)));
-		children.add(new TreeNodeSimple<PropertyTextAdapter>(this,
-				new PropertyTextAdapter(PropertyTextAdapter.DOCSTRING,
-						UITexts.generatePropertiesDocString)));
+		children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(PropertyTextAdapter.GETTER,
+				UITexts.generatePropertiesGetter)));
+		children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(PropertyTextAdapter.SETTER,
+				UITexts.generatePropertiesSetter)));
+		children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(PropertyTextAdapter.DELETE,
+				UITexts.generatePropertiesDelete)));
+		children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(PropertyTextAdapter.DOCSTRING,
+				UITexts.generatePropertiesDocString)));
 		return children.toArray();
 	}
 

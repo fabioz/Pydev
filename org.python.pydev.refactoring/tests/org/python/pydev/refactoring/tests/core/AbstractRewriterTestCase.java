@@ -5,7 +5,7 @@ import java.io.StringWriter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 
 public abstract class AbstractRewriterTestCase extends AbstractIOTestCase {
-	
+
 	public AbstractRewriterTestCase(String name) {
 		this(name, false);
 	}

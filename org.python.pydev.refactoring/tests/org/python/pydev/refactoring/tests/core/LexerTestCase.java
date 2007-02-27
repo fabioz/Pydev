@@ -8,8 +8,7 @@ public class LexerTestCase extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		this.scanner = new IOTestCaseLexer(new java.io.FileReader(
-				"tests/python/core/testIOTestCaseLexer.py"));
+		this.scanner = new IOTestCaseLexer(new java.io.FileReader("tests/python/core/testIOTestCaseLexer.py"));
 		this.scanner.scan();
 	}
 

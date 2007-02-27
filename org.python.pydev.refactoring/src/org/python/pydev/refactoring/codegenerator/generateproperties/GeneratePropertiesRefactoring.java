@@ -33,10 +33,8 @@ public class GeneratePropertiesRefactoring extends AbstractPythonRefactoring {
 	private void initWizard(String name) throws Throwable {
 		PropertyTreeProvider provider = new PropertyTreeProvider(req.getClasses());
 		this.requestProcessor = new GeneratePropertiesRequestProcessor();
-		this.changeProcessor = new GeneratePropertiesChangeProcessor(this.name, this.req,
-				this.requestProcessor);
-		this.pages.add(new GeneratePropertiesPage(name, provider,
-				requestProcessor));
+		this.changeProcessor = new GeneratePropertiesChangeProcessor(this.name, this.req, this.requestProcessor);
+		this.pages.add(new GeneratePropertiesPage(name, provider, requestProcessor));
 	}
 
 	@Override
@@ -47,8 +45,7 @@ public class GeneratePropertiesRefactoring extends AbstractPythonRefactoring {
 	}
 
 	@Override
-	public RefactoringStatus checkInitialConditions(IProgressMonitor pm)
-			throws CoreException, OperationCanceledException {
+	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
 		List<ClassDefAdapter> classes = this.req.getClasses();
 
 		if (classes.size() > 0) {

@@ -13,8 +13,7 @@ import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
 public class ClassVisitorTestSuite extends AbstractIOTestSuite {
 
 	public static Test suite() {
-		TESTDIR = "tests" + File.separator + "python" + File.separator
-				+ "visitor" + File.separator + "classvisitor";
+		TESTDIR = "tests" + File.separator + "python" + File.separator + "visitor" + File.separator + "classvisitor";
 		ClassVisitorTestSuite testSuite = new ClassVisitorTestSuite();
 
 		testSuite.createTests();

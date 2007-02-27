@@ -36,9 +36,8 @@ public class DeleteMethodEdit extends AbstractInsertEdit {
 		exprType[] targets = initDeleteTarget();
 		List<stmtType> body = initBody(targets);
 
-		return new FunctionDef(new NameTok(DEL
-				+ getCapitalString(attributeName), NameTok.FunctionName), args,
-				body.toArray(new stmtType[0]), null);
+		return new FunctionDef(new NameTok(DEL + getCapitalString(attributeName), NameTok.FunctionName), args, body
+				.toArray(new stmtType[0]), null);
 	}
 
 	private List<stmtType> initBody(exprType[] targets) {
@@ -49,10 +48,8 @@ public class DeleteMethodEdit extends AbstractInsertEdit {
 
 	private exprType[] initDeleteTarget() {
 		exprType[] targets = new exprType[1];
-		targets[0] = new Attribute(
-				new Name(NodeHelper.KEYWORD_SELF, Name.Load), new NameTok(
-						nodeHelper.getPrivateAttr(attributeName),
-						NameTok.Attrib), Attribute.Del);
+		targets[0] = new Attribute(new Name(NodeHelper.KEYWORD_SELF, Name.Load), new NameTok(nodeHelper.getPrivateAttr(attributeName),
+				NameTok.Attrib), Attribute.Del);
 		return targets;
 	}
 

@@ -8,11 +8,11 @@ import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 public class MockupExtractMethodConfig {
 
 	private int offset;
-	
+
 	private int selectionLength;
 
 	private int offsetStrategy;
-	
+
 	private Map<String, String> renameMap;
 
 	public MockupExtractMethodConfig() {
@@ -34,8 +34,7 @@ public class MockupExtractMethodConfig {
 	}
 
 	public Map<String, String> getRenameMap() {
-		if (renameMap == null)
-		{
+		if (renameMap == null) {
 			this.renameMap = new HashMap<String, String>();
 		}
 		return renameMap;

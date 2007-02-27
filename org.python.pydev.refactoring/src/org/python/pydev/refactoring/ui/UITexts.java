@@ -37,10 +37,10 @@ public class UITexts {
 	public static String offsetStrategyBegin;
 
 	public static String offsetStrategyEnd;
-	
+
 	public static String offsetStrategyBeginModule;
-	
-	public static String offsetStrategyEndModule;		
+
+	public static String offsetStrategyEndModule;
 
 	public static String offsetStrategyInsertionPointMethod;
 
@@ -77,7 +77,7 @@ public class UITexts {
 	public static String extractMethodArgumentName;
 
 	public static String extractMethodArgumentsTitle;
-	
+
 	public static String extractMethodFunctionTitle;
 
 	public static String extractMethodChangeName;
@@ -87,7 +87,7 @@ public class UITexts {
 	public static String extractMethodScopeInvalid;
 
 	public static String imagePath;
-	
+
 	public static String imgClass;
 
 	public static String imgMethod;
@@ -105,7 +105,7 @@ public class UITexts {
 	public static String extractMethodDownButton;
 
 	public static String extractMethodSelectionPreviewLabel;
-	
+
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, UITexts.class);
 	}

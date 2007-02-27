@@ -21,7 +21,7 @@ public class OverrideMethodsTestCase extends AbstractIOTestCase {
 
 	@Override
 	public void runTest() throws Throwable {
-		MockupOverrideMethodsConfig config = initConfig();		
+		MockupOverrideMethodsConfig config = initConfig();
 
 		MockupOverrideMethodsRequestProcessor requestProcessor = setupRequestProcessor(config);
 
@@ -32,8 +32,7 @@ public class OverrideMethodsTestCase extends AbstractIOTestCase {
 	}
 
 	private IDocument applyOverrideMethod(MockupOverrideMethodsRequestProcessor requestProcessor) throws BadLocationException {
-		MethodEdit methodEdit = new MethodEdit(requestProcessor
-				.getRefactoringRequests().get(0));
+		MethodEdit methodEdit = new MethodEdit(requestProcessor.getRefactoringRequests().get(0));
 
 		IDocument refactoringDoc = new Document(getSource());
 		methodEdit.getEdit().apply(refactoringDoc);
@@ -41,13 +40,11 @@ public class OverrideMethodsTestCase extends AbstractIOTestCase {
 	}
 
 	private MockupOverrideMethodsRequestProcessor setupRequestProcessor(MockupOverrideMethodsConfig config) throws Throwable {
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null,
-				new Document(getSource()));
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()));
 		List<ClassDefAdapter> classes = module.getClasses();
 		assertTrue(classes.size() > 0);
 
-		MockupOverrideMethodsRequestProcessor requestProcessor = new MockupOverrideMethodsRequestProcessor(
-				module, config);
+		MockupOverrideMethodsRequestProcessor requestProcessor = new MockupOverrideMethodsRequestProcessor(module, config);
 		return requestProcessor;
 	}
 
@@ -55,7 +52,7 @@ public class OverrideMethodsTestCase extends AbstractIOTestCase {
 		MockupOverrideMethodsConfig config = null;
 		XStream xstream = new XStream();
 		xstream.alias("config", MockupOverrideMethodsConfig.class);
-		
+
 		if (getConfig().length() > 0) {
 			config = (MockupOverrideMethodsConfig) xstream.fromXML(getConfig());
 		} else {

@@ -5,8 +5,7 @@ import junit.framework.TestCase;
 /**
  * @author Dennis Hunziker, Ueli Kistler
  */
-public abstract class AbstractIOTestCase extends TestCase implements
-		IInputOutputTestCase {
+public abstract class AbstractIOTestCase extends TestCase implements IInputOutputTestCase {
 
 	private static final String EMPTY = "";
 

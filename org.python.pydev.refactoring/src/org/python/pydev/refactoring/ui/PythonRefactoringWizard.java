@@ -13,8 +13,7 @@ public class PythonRefactoringWizard extends RefactoringWizard {
 	public PythonRefactoringWizard(AbstractPythonRefactoring refactoring) {
 		super(refactoring, WIZARD_BASED_USER_INTERFACE);
 		this.refactoring = refactoring;
-		ImageDescriptor wizardImg = PepticPlugin.imageDescriptorFromPlugin(
-				PepticPlugin.PLUGIN_ID, UITexts.imagePath + UITexts.imgLogo);
+		ImageDescriptor wizardImg = PepticPlugin.imageDescriptorFromPlugin(PepticPlugin.PLUGIN_ID, UITexts.imagePath + UITexts.imgLogo);
 		this.setDefaultPageImageDescriptor(wizardImg);
 	}
 
@@ -25,7 +24,7 @@ public class PythonRefactoringWizard extends RefactoringWizard {
 			addPage(page);
 		}
 	}
-	
+
 	@Override
 	public IWizardPage getNextPage(IWizardPage page) {
 		return super.getNextPage(page);

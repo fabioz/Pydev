@@ -20,8 +20,7 @@ public abstract class AbstractTextEdit {
 
 	protected NodeHelper nodeHelper;
 
-	private AbstractTextEdit(ModuleAdapter moduleAdapter,
-			IASTNodeAdapter offsetAdapter) {
+	private AbstractTextEdit(ModuleAdapter moduleAdapter, IASTNodeAdapter offsetAdapter) {
 		this.moduleAdapter = moduleAdapter;
 		this.offsetAdapter = offsetAdapter;
 		this.nodeHelper = new NodeHelper();
@@ -44,14 +43,14 @@ public abstract class AbstractTextEdit {
 	private String getIndentedSource(SimpleNode node, String source, int indent) {
 		StringBuilder indented = new StringBuilder();
 		String indentation = getIndentation(indent);
-		indented.append(NL+indentation);
+		indented.append(NL + indentation);
 		source = source.replaceAll(REPLACE_PATTERN(), NL + indentation);
 		source = source.trim();
 		indented.append(source);
 		indented.append(NL);
 		if (nodeHelper.isFunctionDef(node))
 			indented.append(NL);
-		
+
 		return indented.toString();
 	}
 
@@ -67,9 +66,8 @@ public abstract class AbstractTextEdit {
 		}
 		return buf.toString();
 	}
-	
-	protected String getCapitalString(String name)
-	{
+
+	protected String getCapitalString(String name) {
 		StringBuilder sb = new StringBuilder(name);
 		sb.replace(0, 1, name.substring(0, 1).toUpperCase());
 		return sb.toString();

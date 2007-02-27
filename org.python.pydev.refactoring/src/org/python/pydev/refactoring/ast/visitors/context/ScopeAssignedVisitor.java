@@ -34,16 +34,16 @@ public class ScopeAssignedVisitor extends AbstractContextVisitor<SimpleAdapter> 
 		}
 
 	}
-	
+
 	@Override
 	public Object visitImport(Import node) throws Exception {
 		return null;
 	}
-	
+
 	@Override
 	public Object visitImportFrom(ImportFrom node) throws Exception {
 		return null;
-	}	
+	}
 
 	@Override
 	public Object visitName(Name node) throws Exception {
@@ -83,8 +83,7 @@ public class ScopeAssignedVisitor extends AbstractContextVisitor<SimpleAdapter> 
 	}
 
 	@Override
-	protected SimpleAdapter createAdapter(AbstractScopeNode<?> parent,
-			SimpleNode node) {
+	protected SimpleAdapter createAdapter(AbstractScopeNode<?> parent, SimpleNode node) {
 		return new SimpleAdapter(moduleAdapter, parent, node);
 	}
 

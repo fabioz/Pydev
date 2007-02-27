@@ -11,9 +11,9 @@ import junit.framework.TestSuite;
  */
 public abstract class AbstractIOTestSuite extends TestSuite {
 
-	protected static String TESTDIR = "tests" + File.separator + "python"
-			+ File.separator + "rewriter";
+	protected static String TESTDIR = "tests" + File.separator + "python" + File.separator + "rewriter";
 
+	// can be used to choose which test we want to run
 	public static String FILE_FILTER = "^test.+\\.py$";
 
 	protected void createTests() {

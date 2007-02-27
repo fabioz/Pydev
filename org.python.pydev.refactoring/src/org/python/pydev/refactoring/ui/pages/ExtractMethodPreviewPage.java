@@ -15,8 +15,7 @@ import org.python.pydev.refactoring.core.RefactoringInfo;
 import org.python.pydev.refactoring.ui.UITexts;
 import org.python.pydev.refactoring.ui.controls.preview.PyPreview;
 
-public class ExtractMethodPreviewPage extends UserInputWizardPage implements
-		SelectionListener {
+public class ExtractMethodPreviewPage extends UserInputWizardPage implements SelectionListener {
 
 	private PyPreview userPreview;
 
@@ -30,19 +29,18 @@ public class ExtractMethodPreviewPage extends UserInputWizardPage implements
 
 	private Button extendedCheckbox;
 
-	public ExtractMethodPreviewPage(String name, RefactoringInfo info,
-			ExtractMethodRequestProcessor requestProcessor) {
+	public ExtractMethodPreviewPage(String name, RefactoringInfo info, ExtractMethodRequestProcessor requestProcessor) {
 		super(name);
 		this.setTitle(name);
 		this.info = info;
 		this.requestProcessor = requestProcessor;
 	}
 
-	public void createControl(Composite parent) {	
+	public void createControl(Composite parent) {
 		Composite main = new Composite(parent, SWT.NONE);
-		main.setLayout(new GridLayout());	
-		createLabelComp(main);	
-		
+		main.setLayout(new GridLayout());
+		createLabelComp(main);
+
 		GridLayout gridLayout2 = new GridLayout();
 		gridLayout2.numColumns = 2;
 
@@ -53,7 +51,7 @@ public class ExtractMethodPreviewPage extends UserInputWizardPage implements
 		gridData.verticalAlignment = GridData.FILL;
 		Composite previewSelection = new Composite(main, SWT.NONE);
 		previewSelection.setLayoutData(gridData);
-		
+
 		userPreview = createUserPreview(previewSelection);
 		extendedPreview = createExtendedPreview(previewSelection);
 		previewSelection.pack();
@@ -105,8 +103,7 @@ public class ExtractMethodPreviewPage extends UserInputWizardPage implements
 		userCheckbox.setText("User selection");
 		userCheckbox.setSelection(true);
 
-		Composite previewComposite = new Composite(sourceViewComposite,
-				SWT.NONE);
+		Composite previewComposite = new Composite(sourceViewComposite, SWT.NONE);
 
 		FormLayout composite8Layout = new FormLayout();
 		GridData composite8LData = new GridData();
@@ -139,8 +136,7 @@ public class ExtractMethodPreviewPage extends UserInputWizardPage implements
 		extendedCheckbox.setLayoutData(labelLData);
 		extendedCheckbox.setText("Extended selection");
 
-		Composite previewComposite = new Composite(sourceViewComposite,
-				SWT.NONE);
+		Composite previewComposite = new Composite(sourceViewComposite, SWT.NONE);
 
 		FormLayout composite8Layout = new FormLayout();
 		GridData composite8LData = new GridData();
@@ -170,11 +166,9 @@ public class ExtractMethodPreviewPage extends UserInputWizardPage implements
 	public void widgetSelected(SelectionEvent e) {
 		Button button = (Button) e.widget;
 		if (button == ExtractMethodPreviewPage.this.userCheckbox) {
-			ExtractMethodPreviewPage.this.extendedCheckbox.setSelection(!button
-					.getSelection());
+			ExtractMethodPreviewPage.this.extendedCheckbox.setSelection(!button.getSelection());
 		} else {
-			ExtractMethodPreviewPage.this.userCheckbox.setSelection(!button
-					.getSelection());
+			ExtractMethodPreviewPage.this.userCheckbox.setSelection(!button.getSelection());
 		}
 		button.setSelection(true);
 		updateRequestProcessor();
@@ -182,13 +176,11 @@ public class ExtractMethodPreviewPage extends UserInputWizardPage implements
 		page.setupComposite();
 	}
 
-	private void updateRequestProcessor() {	
+	private void updateRequestProcessor() {
 		if (this.userCheckbox.getSelection()) {
-			this.requestProcessor.initProcessor(this.info.getScopeAdapter(),
-					info.getParsedUserSelection(), info.getUserSelection());
+			this.requestProcessor.initProcessor(this.info.getScopeAdapter(), info.getParsedUserSelection(), info.getUserSelection());
 		} else {
-			this.requestProcessor.initProcessor(info.getScopeAdapter(), info
-					.getParsedExtendedSelection(), info.getExtendedSelection());
+			this.requestProcessor.initProcessor(info.getScopeAdapter(), info.getParsedExtendedSelection(), info.getExtendedSelection());
 		}
 	}
 }

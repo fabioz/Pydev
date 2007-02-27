@@ -10,8 +10,7 @@ import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
 public class GeneratePropertiesTestSuite extends AbstractIOTestSuite {
 
 	public static Test suite() {
-		TESTDIR = "tests" + File.separator + "python" + File.separator
-				+ "codegenerator" + File.separator + "generateproperties";
+		TESTDIR = "tests" + File.separator + "python" + File.separator + "codegenerator" + File.separator + "generateproperties";
 		GeneratePropertiesTestSuite testSuite = new GeneratePropertiesTestSuite();
 
 		testSuite.createTests();

@@ -12,8 +12,7 @@ import org.python.pydev.refactoring.ui.model.generateproperties.TreeAttributeNod
 import org.python.pydev.refactoring.ui.model.generateproperties.TreeClassNode;
 import org.python.pydev.refactoring.ui.model.tree.TreeNodeSimple;
 
-public class GeneratePropertiesRequestProcessor implements
-		IRequestProcessor<GeneratePropertiesRequest> {
+public class GeneratePropertiesRequestProcessor implements IRequestProcessor<GeneratePropertiesRequest> {
 
 	private Object[] checked;
 
@@ -80,12 +79,10 @@ public class GeneratePropertiesRequestProcessor implements
 	}
 
 	private GeneratePropertiesRequest extractRequest(TreeAttributeNode attr) {
-		if (attr.getParent() != null
-				&& attr.getParent() instanceof TreeClassNode) {
+		if (attr.getParent() != null && attr.getParent() instanceof TreeClassNode) {
 			TreeClassNode classNode = (TreeClassNode) attr.getParent();
 
-			return new GeneratePropertiesRequest(classNode.getAdapter(), attr
-					.getAdapter(), getProperties(attr), offsetMethodStrategy,
+			return new GeneratePropertiesRequest(classNode.getAdapter(), attr.getAdapter(), getProperties(attr), offsetMethodStrategy,
 					offsetPropertyStrategy, accessModifier);
 		}
 		return null;

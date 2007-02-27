@@ -41,8 +41,7 @@ public class PepticImageCache {
 	}
 
 	public ImageDescriptor getDescriptor(String key) {
-		return PepticPlugin.imageDescriptorFromPlugin(PepticPlugin.PLUGIN_ID,
-				UITexts.imagePath + key);
+		return PepticPlugin.imageDescriptorFromPlugin(PepticPlugin.PLUGIN_ID, UITexts.imagePath + key);
 	}
 
 }

@@ -32,16 +32,13 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 		MockupExtractMethodConfig config = initConfig();
 
 		IDocument doc = new Document(getSource());
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null,
-				doc);
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, doc);
 
-		ITextSelection selection = new TextSelection(doc, config.getOffset(),
-				config.getSelectionLength());
+		ITextSelection selection = new TextSelection(doc, config.getOffset(), config.getSelectionLength());
 
 		RefactoringInfo info = new RefactoringInfo(null, doc, selection, null);
 
-		MockupExtractMethodRequestProcessor requestProcessor = setupRequestProcessor(
-				config, module, info);
+		MockupExtractMethodRequestProcessor requestProcessor = setupRequestProcessor(config, module, info);
 
 		IDocument refactoringDoc = applyExtractMethod(info, requestProcessor);
 
@@ -49,11 +46,9 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 		assertEquals(getExpected(), getGenerated());
 	}
 
-	private IDocument applyExtractMethod(RefactoringInfo info,
-			MockupExtractMethodRequestProcessor requestProcessor)
+	private IDocument applyExtractMethod(RefactoringInfo info, MockupExtractMethodRequestProcessor requestProcessor)
 			throws BadLocationException {
-		ExtractMethodRequest req = requestProcessor.getRefactoringRequests()
-				.get(0);
+		ExtractMethodRequest req = requestProcessor.getRefactoringRequests().get(0);
 
 		ExtractMethodEdit extractMethodEdit = new ExtractMethodEdit(req);
 		ExtractCallEdit extractCallEdit = new ExtractCallEdit(req);
@@ -67,15 +62,12 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 		return refactoringDoc;
 	}
 
-	private MockupExtractMethodRequestProcessor setupRequestProcessor(
-			MockupExtractMethodConfig config, ModuleAdapter module,
+	private MockupExtractMethodRequestProcessor setupRequestProcessor(MockupExtractMethodConfig config, ModuleAdapter module,
 			RefactoringInfo info) {
 		ModuleAdapter parsedSelection = info.getParsedExtendedSelection();
-		
-		AbstractScopeNode<?> scope = module
-				.getScopeAdapter(info.getExtendedSelection());
-		ParameterReturnDeduce deducer = new ParameterReturnDeduce(scope, info
-				.getExtendedSelection());
+
+		AbstractScopeNode<?> scope = module.getScopeAdapter(info.getExtendedSelection());
+		ParameterReturnDeduce deducer = new ParameterReturnDeduce(scope, info.getExtendedSelection());
 
 		SortedMap<String, String> renameMap = new TreeMap<String, String>();
 		for (String variable : deducer.getParameters()) {
@@ -86,9 +78,8 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 			renameMap.put(variable, newName);
 		}
 
-		return new MockupExtractMethodRequestProcessor(scope, info
-				.getExtendedSelection(), parsedSelection, deducer, renameMap,
-				config.getOffsetStrategy());
+		return new MockupExtractMethodRequestProcessor(scope, info.getExtendedSelection(), parsedSelection, deducer, renameMap, config
+				.getOffsetStrategy());
 	}
 
 	private MockupExtractMethodConfig initConfig() {

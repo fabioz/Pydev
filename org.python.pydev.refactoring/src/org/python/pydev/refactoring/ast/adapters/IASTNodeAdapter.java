@@ -21,8 +21,7 @@ public interface IASTNodeAdapter<T extends SimpleNode> extends INodeAdapter {
 	public abstract SimpleNode getParentNode();
 
 	public abstract boolean isModule();
-	
-	public ModuleAdapter getModule();
 
+	public ModuleAdapter getModule();
 
 }

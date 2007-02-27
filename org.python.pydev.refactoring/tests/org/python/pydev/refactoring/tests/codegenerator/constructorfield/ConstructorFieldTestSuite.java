@@ -10,8 +10,7 @@ import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
 public class ConstructorFieldTestSuite extends AbstractIOTestSuite {
 
 	public static Test suite() {
-		TESTDIR = "tests" + File.separator + "python" + File.separator
-				+ "codegenerator" + File.separator + "constructorfield";
+		TESTDIR = "tests" + File.separator + "python" + File.separator + "codegenerator" + File.separator + "constructorfield";
 		ConstructorFieldTestSuite testSuite = new ConstructorFieldTestSuite();
 
 		testSuite.createTests();

@@ -11,8 +11,7 @@ import org.python.pydev.refactoring.coderefactoring.extractmethod.edit.Parameter
 import org.python.pydev.refactoring.coderefactoring.extractmethod.request.ExtractMethodRequest;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 
-public class MockupExtractMethodRequestProcessor implements
-		IRequestProcessor<ExtractMethodRequest> {
+public class MockupExtractMethodRequestProcessor implements IRequestProcessor<ExtractMethodRequest> {
 
 	private AbstractScopeNode<?> scopeAdapter;
 
@@ -26,9 +25,8 @@ public class MockupExtractMethodRequestProcessor implements
 
 	private ITextSelection selection;
 
-	public MockupExtractMethodRequestProcessor(AbstractScopeNode<?> scopeAdapter, ITextSelection selection,
-			ModuleAdapter parsedSelection, ParameterReturnDeduce deducer,
-			Map<String, String> renameMap, int offsetStrategy) {
+	public MockupExtractMethodRequestProcessor(AbstractScopeNode<?> scopeAdapter, ITextSelection selection, ModuleAdapter parsedSelection,
+			ParameterReturnDeduce deducer, Map<String, String> renameMap, int offsetStrategy) {
 
 		this.scopeAdapter = scopeAdapter;
 		this.selection = selection;
@@ -40,10 +38,8 @@ public class MockupExtractMethodRequestProcessor implements
 
 	public List<ExtractMethodRequest> getRefactoringRequests() {
 		List<ExtractMethodRequest> requests = new ArrayList<ExtractMethodRequest>();
-		ExtractMethodRequest req = new ExtractMethodRequest("pepticMethod", this.selection, 
-				this.scopeAdapter, this.parsedSelection, deducer
-						.getParameters(), deducer.getReturns(), this.renameMap,
-				this.offsetStrategy);
+		ExtractMethodRequest req = new ExtractMethodRequest("pepticMethod", this.selection, this.scopeAdapter, this.parsedSelection,
+				deducer.getParameters(), deducer.getReturns(), this.renameMap, this.offsetStrategy);
 		requests.add(req);
 
 		return requests;

@@ -45,8 +45,7 @@ public class ExtractCallEdit extends AbstractReplaceEdit {
 	protected SimpleNode getEditNode() {
 
 		List<exprType> argsList = initCallArguments();
-		Call methodCall = new Call(createCallAttribute(), argsList
-				.toArray(new exprType[0]), null, null, null);
+		Call methodCall = new Call(createCallAttribute(), argsList.toArray(new exprType[0]), null, null, null);
 
 		return initSubstituteCall(methodCall);
 
@@ -75,8 +74,7 @@ public class ExtractCallEdit extends AbstractReplaceEdit {
 
 	private exprType createCallAttribute() {
 		if (this.offsetAdapter instanceof ClassDefAdapter) {
-			return new Attribute(new Name("self", Name.Load), new NameTok(
-					this.methodName, NameTok.Attrib), Attribute.Load);
+			return new Attribute(new Name("self", Name.Load), new NameTok(this.methodName, NameTok.Attrib), Attribute.Load);
 		} else {
 			return new Name(this.methodName, Name.Load);
 		}

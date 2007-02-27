@@ -21,8 +21,7 @@ public class PyPreview {
 		super();
 		this.parent = parent;
 		this.doc = doc;
-		createSourceViewer(parent, SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL
-				| SWT.BORDER);
+		createSourceViewer(parent, SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
 	}
 
 	protected void createSourceViewer(Composite parent, int styles) {

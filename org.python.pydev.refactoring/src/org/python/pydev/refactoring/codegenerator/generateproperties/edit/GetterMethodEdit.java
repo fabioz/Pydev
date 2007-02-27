@@ -36,9 +36,8 @@ public class GetterMethodEdit extends AbstractInsertEdit {
 		Attribute returnAttribute = initReturn();
 		List<stmtType> body = initBody(returnAttribute);
 
-		return new FunctionDef(new NameTok(GET
-				+ getCapitalString(attributeName), NameTok.FunctionName), args,
-				body.toArray(new stmtType[0]), null);
+		return new FunctionDef(new NameTok(GET + getCapitalString(attributeName), NameTok.FunctionName), args, body
+				.toArray(new stmtType[0]), null);
 	}
 
 	private List<stmtType> initBody(Attribute returnAttribute) {
@@ -48,8 +47,7 @@ public class GetterMethodEdit extends AbstractInsertEdit {
 	}
 
 	private Attribute initReturn() {
-		Attribute returnAttribute = new Attribute(new Name(
-				NodeHelper.KEYWORD_SELF, Name.Load), new NameTok(nodeHelper
+		Attribute returnAttribute = new Attribute(new Name(NodeHelper.KEYWORD_SELF, Name.Load), new NameTok(nodeHelper
 				.getPrivateAttr(attributeName), NameTok.Attrib), Attribute.Load);
 		return returnAttribute;
 	}

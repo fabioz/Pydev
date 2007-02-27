@@ -15,8 +15,7 @@ public class ConstructorFieldRequest implements IRefactoringRequest {
 
 	private int offsetStrategy;
 
-	public ConstructorFieldRequest(ClassDefAdapter classAdapter,
-			List<INodeAdapter> attributeAdapters, int offsetStrategy) {
+	public ConstructorFieldRequest(ClassDefAdapter classAdapter, List<INodeAdapter> attributeAdapters, int offsetStrategy) {
 		this.classAdapter = classAdapter;
 		this.attributeAdapters = attributeAdapters;
 		this.offsetStrategy = offsetStrategy;

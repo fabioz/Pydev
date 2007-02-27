@@ -164,8 +164,7 @@ public class GraphView extends JFrame {
 							loadGraph(file.getAbsolutePath());
 						}
 					} catch (Throwable e) {
-						JOptionPane msgbox = new JOptionPane(
-								"Error writing file: " + e.getMessage());
+						JOptionPane msgbox = new JOptionPane("Error writing file: " + e.getMessage());
 						msgbox.setVisible(true);
 					} finally {
 						fc.removeChoosableFileFilter(filter);
@@ -193,8 +192,7 @@ public class GraphView extends JFrame {
 		return graph;
 	}
 
-	private void loadGraph(String fileName) throws FileNotFoundException,
-			IOException, Throwable {
+	private void loadGraph(String fileName) throws FileNotFoundException, IOException, Throwable {
 		ASTGraph ast = new ASTGraph();
 		Tuple<SimpleNode, Throwable> objects = ast.parseFile(fileName);
 
@@ -211,13 +209,11 @@ public class GraphView extends JFrame {
 		}
 		try {
 			ImageWriter writer;
-			writer = new ImageWriter(graph.getImage(null,
-					GraphConstants.DEFAULTINSET), imageName);
+			writer = new ImageWriter(graph.getImage(null, GraphConstants.DEFAULTINSET), imageName);
 
 			SwingUtilities.invokeLater(writer);
 		} catch (Throwable e) {
-			JOptionPane msgbox = new JOptionPane("Error writing file: "
-					+ e.getMessage());
+			JOptionPane msgbox = new JOptionPane("Error writing file: " + e.getMessage());
 			msgbox.setVisible(true);
 		}
 	}
