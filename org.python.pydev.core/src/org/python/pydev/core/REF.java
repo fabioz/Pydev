@@ -428,13 +428,17 @@ public class REF {
         return o1.equals(o2);
     }
 
+    public static IDocument getDocFromFile(java.io.File f) {
+    	return getDocFromFile(f, true);
+    }
+    
     /**
      * @return the document given its 'filesystem' file
      */
-    public static IDocument getDocFromFile(java.io.File f) {
+    public static IDocument getDocFromFile(java.io.File f, boolean loadIfNotInWorkspace) {
         IPath path = Path.fromOSString(getFileAbsolutePath(f));
         IDocument doc = getDocFromPath(path);
-        if (doc == null) {
+        if (doc == null && loadIfNotInWorkspace) {
             return getPythonDocFromFile(f);
         }
         return doc;

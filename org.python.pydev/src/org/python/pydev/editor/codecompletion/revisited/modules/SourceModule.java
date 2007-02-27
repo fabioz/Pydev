@@ -19,6 +19,7 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
@@ -60,7 +61,7 @@ import org.python.pydev.plugin.PydevPlugin;
  *  
  * @author Fabio Zadrozny
  */
-public class SourceModule extends AbstractModule {
+public class SourceModule extends AbstractModule implements ISourceModule {
 
     public static boolean TESTING = false;
     
@@ -768,4 +769,5 @@ public class SourceModule extends AbstractModule {
 	public void setName(String n) {
 		this.name = n;
 	}
+
 }
