@@ -1,0 +1,2 @@
+To test a single method, a system property called "filter" should be set before running the tests.
+
