@@ -9,6 +9,7 @@ import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.context.ClassDefVisitor;
 import org.python.pydev.refactoring.ast.visitors.context.GlobalAttributeVisitor;
 import org.python.pydev.refactoring.ast.visitors.context.LocalAttributeVisitor;
+import org.python.pydev.refactoring.tests.adapter.PythonNatureStub;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
 public class AttributeVisitorTestCase extends AbstractIOTestCase {
@@ -20,7 +21,7 @@ public class AttributeVisitorTestCase extends AbstractIOTestCase {
 	@Override
 	public void runTest() throws Throwable {
 		StringBuffer buffer = new StringBuffer();
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()));
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()), new PythonNatureStub());
 		GlobalAttributeVisitor globalVisitor = VisitorFactory.createContextVisitor(GlobalAttributeVisitor.class, module.getASTNode(),
 				module, module);
 		ClassDefVisitor classVisitor = VisitorFactory.createContextVisitor(ClassDefVisitor.class, module.getASTNode(), module, module);

@@ -13,9 +13,16 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
+import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.ISourceModule;
+import org.python.pydev.core.IToken;
+import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.BeginOffset;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.EndOffset;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
@@ -39,13 +46,29 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
 	private IOffsetStrategy offsetStrategy;
 
-	public ModuleAdapter(PythonModuleManager pm, File file, IDocument doc, Module node) {
+	private ISourceModule sourceModule;
+
+	private IPythonNature nature;
+
+	public ModuleAdapter(PythonModuleManager pm, File file, IDocument doc, Module node, IPythonNature nature) {
 		super(null, null, node);
 		this.moduleManager = pm;
 		this.file = file;
 		this.doc = doc;
 		this.aliasToFQIdentifier = null;
 		this.importedModules = null;
+		this.nature = nature;
+	}
+
+	public ModuleAdapter(PythonModuleManager pm, ISourceModule module, IPythonNature nature) {
+		super(null, null, (Module) (module).getAst());
+		this.sourceModule = module;
+		this.moduleManager = pm;
+		this.file = module.getFile();
+		this.doc = PythonModuleManager.getDocFromFile(this.file);
+		this.aliasToFQIdentifier = null;
+		this.importedModules = null;
+		this.nature = nature;
 	}
 
 	@Override
@@ -74,10 +97,6 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 		return bases;
 	}
 
-	public List<SimpleAdapter> getGlobals() {
-		return getAssignedVariables();
-	}
-
 	public String getBaseContextName(ClassDefAdapter contextClass, String originalName) {
 		originalName = resolveRealToAlias(originalName);
 		for (String baseName : contextClass.getBaseClassNames()) {
@@ -102,10 +121,24 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 		return this.file;
 	}
 
-	private List<String> getGlobarVarNames() {
+	public List<String> getGlobarVarNames() {
 		List<String> globalNames = new ArrayList<String>();
-		for (SimpleAdapter adapter : getGlobals()) {
-			globalNames.add(adapter.getName());
+		if(this.sourceModule != null && nature != null){
+			try {
+				ICodeCompletionASTManager astManager = nature.getAstManager();
+				if(astManager != null){
+					IToken[] tokens = astManager.getCompletionsForModule(this.sourceModule, new CompletionState(0, 0, "", nature, ""));
+					for (IToken token : tokens) {
+						globalNames.add(token.getRepresentation());
+					}
+				}
+			} catch (CompletionRecursionException e) {
+				PydevPlugin.log(e);
+			}
+		}else{
+			for (SimpleAdapter adapter : getAssignedVariables()) {
+				globalNames.add(adapter.getName());
+			}
 		}
 		return globalNames;
 	}

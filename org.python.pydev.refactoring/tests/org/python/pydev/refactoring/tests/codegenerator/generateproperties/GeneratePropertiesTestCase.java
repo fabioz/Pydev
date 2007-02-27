@@ -17,6 +17,7 @@ import org.python.pydev.refactoring.codegenerator.generateproperties.edit.Proper
 import org.python.pydev.refactoring.codegenerator.generateproperties.edit.SetterMethodEdit;
 import org.python.pydev.refactoring.codegenerator.generateproperties.request.GeneratePropertiesRequest;
 import org.python.pydev.refactoring.codegenerator.generateproperties.request.SelectionState;
+import org.python.pydev.refactoring.tests.adapter.PythonNatureStub;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
 import com.thoughtworks.xstream.XStream;
@@ -67,7 +68,7 @@ public class GeneratePropertiesTestCase extends AbstractIOTestCase {
 	}
 
 	private MockupGeneratePropertiesRequestProcessor setupRequestProcessor(MockupGeneratePropertiesConfig config) throws Throwable {
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()));
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()), new PythonNatureStub());
 		List<ClassDefAdapter> classes = module.getClasses();
 		assertTrue(classes.size() > 0);
 

@@ -22,11 +22,14 @@ public class ParameterReturnDeduce {
 
 	private ITextSelection selection;
 
-	public ParameterReturnDeduce(AbstractScopeNode<?> scope, ITextSelection selection) {
+	private ModuleAdapter moduleAdapter;
+
+	public ParameterReturnDeduce(AbstractScopeNode<?> scope, ITextSelection selection, ModuleAdapter moduleAdapter) {
 		this.scopeAdapter = scope;
 		this.selection = selection;
 		this.parameters = new ArrayList<String>();
 		this.returns = new HashSet<String>();
+		this.moduleAdapter = moduleAdapter;
 		deduce();
 	}
 
@@ -47,9 +50,14 @@ public class ParameterReturnDeduce {
 	 * Needed fix: only add it if it is not a global (unless it shadows a global)
 	 */
 	private void deduceParameters(List<SimpleAdapter> before, List<SimpleAdapter> selected) {
+		Set<String> globarVarNames = new HashSet<String>(moduleAdapter.getGlobarVarNames());
+		
 		for (SimpleAdapter adapter : before) {
 			if (adapter.getASTNode() instanceof Name) {
 				Name variable = (Name) adapter.getASTNode();
+				if(globarVarNames.contains(variable.id)){
+					continue;
+				}
 				if (isUsed(variable.id, selected)) {
 					if (!parameters.contains(variable.id)) {
 						parameters.add(variable.id);

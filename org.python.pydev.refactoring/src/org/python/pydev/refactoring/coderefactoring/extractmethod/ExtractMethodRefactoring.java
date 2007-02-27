@@ -29,11 +29,14 @@ public class ExtractMethodRefactoring extends AbstractPythonRefactoring {
 
 	private ModuleAdapter parsedUserSelection;
 
+	private ModuleAdapter module;
+
 	public ExtractMethodRefactoring(String name, RefactoringInfo req) {
 		super(name, req);
 		this.parsedExtendedSelection = null;
 		this.parsedUserSelection = req.getParsedUserSelection();
 		this.parsedExtendedSelection = req.getParsedExtendedSelection();
+		this.module = req.getModule();
 
 		validateSelections();
 
@@ -52,7 +55,7 @@ public class ExtractMethodRefactoring extends AbstractPythonRefactoring {
 			standardModule = this.parsedExtendedSelection;
 		}
 
-		this.requestProcessor = new ExtractMethodRequestProcessor(req.getScopeAdapter(), standardModule, standardSelection);
+		this.requestProcessor = new ExtractMethodRequestProcessor(req.getScopeAdapter(), standardModule, this.getModule(), standardSelection);
 
 		if (req.isSelectionExtensionRequired() && this.parsedExtendedSelection != null && this.parsedUserSelection != null) {
 			this.pages.add(new ExtractMethodPreviewPage(name, this.req, this.requestProcessor));
@@ -108,5 +111,13 @@ public class ExtractMethodRefactoring extends AbstractPythonRefactoring {
 				return;
 			}
 		}
+	}
+
+	public void setModule(ModuleAdapter module) {
+		this.module = module;
+	}
+
+	public ModuleAdapter getModule() {
+		return module;
 	}
 }

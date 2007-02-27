@@ -37,6 +37,7 @@ public abstract class AbstractIOTestSuite extends TestSuite {
 		try {
 			lexer = new IOTestCaseLexer(new FileReader(file));
 			lexer.scan();
+			testCase.setFile(file);
 			testCase.setSource(lexer.getSource());
 			testCase.setResult(lexer.getResult());
 			testCase.setConfig(lexer.getConfig());

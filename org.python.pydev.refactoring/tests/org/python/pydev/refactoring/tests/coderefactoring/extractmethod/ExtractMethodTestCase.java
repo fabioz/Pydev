@@ -9,6 +9,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.text.edits.MultiTextEdit;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
@@ -17,6 +19,7 @@ import org.python.pydev.refactoring.coderefactoring.extractmethod.edit.ExtractMe
 import org.python.pydev.refactoring.coderefactoring.extractmethod.edit.ParameterReturnDeduce;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.request.ExtractMethodRequest;
 import org.python.pydev.refactoring.core.RefactoringInfo;
+import org.python.pydev.refactoring.tests.adapter.PythonNatureStub;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
 import com.thoughtworks.xstream.XStream;
@@ -32,7 +35,10 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 		MockupExtractMethodConfig config = initConfig();
 
 		IDocument doc = new Document(getSource());
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, doc);
+		Module astModule = VisitorFactory.getRootNode(doc);
+		String name = getFile().getName();
+		name = name.substring(0, name.length()-4);
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, new SourceModule(name, getFile(), astModule), new PythonNatureStub());
 
 		ITextSelection selection = new TextSelection(doc, config.getOffset(), config.getSelectionLength());
 
@@ -67,7 +73,7 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 		ModuleAdapter parsedSelection = info.getParsedExtendedSelection();
 
 		AbstractScopeNode<?> scope = module.getScopeAdapter(info.getExtendedSelection());
-		ParameterReturnDeduce deducer = new ParameterReturnDeduce(scope, info.getExtendedSelection());
+		ParameterReturnDeduce deducer = new ParameterReturnDeduce(scope, info.getExtendedSelection(), module);
 
 		SortedMap<String, String> renameMap = new TreeMap<String, String>();
 		for (String variable : deducer.getParameters()) {

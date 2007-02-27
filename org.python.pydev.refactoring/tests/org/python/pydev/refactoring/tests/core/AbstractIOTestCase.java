@@ -1,5 +1,7 @@
 package org.python.pydev.refactoring.tests.core;
 
+import java.io.File;
+
 import junit.framework.TestCase;
 
 /**
@@ -16,6 +18,8 @@ public abstract class AbstractIOTestCase extends TestCase implements IInputOutpu
 	private StringBuffer configLines;
 
 	private String generated;
+	
+	private File file;
 
 	public AbstractIOTestCase(String name) {
 		this(name, false);
@@ -70,5 +74,13 @@ public abstract class AbstractIOTestCase extends TestCase implements IInputOutpu
 
 	public void setTestGenerated(String source) {
 		this.generated = source;
+	}
+
+	public void setFile(File file) {
+		this.file = file;
+	}
+
+	public File getFile() {
+		return file;
 	}
 }

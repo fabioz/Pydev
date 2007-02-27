@@ -57,7 +57,7 @@ public class RefactoringInfo {
 			realFile = sourceFile.getRawLocation().toFile();
 		}
 
-		this.moduleAdapter = VisitorFactory.createModuleAdapter(moduleManager, realFile, doc);
+		this.moduleAdapter = VisitorFactory.createModuleAdapter(moduleManager, realFile, doc, nature);
 
 		this.extendedSelection = null;
 		this.userSelection = moduleAdapter.normalizeSelection(selection);
@@ -106,7 +106,7 @@ public class RefactoringInfo {
 
 		if (this.userSelection != null && source.length() > 0) {
 			try {
-				parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source));
+				parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature);
 			} catch (Throwable e) {
 			}
 		}
@@ -121,7 +121,7 @@ public class RefactoringInfo {
 		if (this.getExtendedSelection() != null && source.length() > 0) {
 
 			try {
-				parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source));
+				parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature);
 			} catch (Throwable e) {
 			}
 		}

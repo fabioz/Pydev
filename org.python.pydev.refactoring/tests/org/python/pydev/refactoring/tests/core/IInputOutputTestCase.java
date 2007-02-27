@@ -1,5 +1,7 @@
 package org.python.pydev.refactoring.tests.core;
 
+import java.io.File;
+
 import junit.framework.Test;
 
 /**
@@ -19,4 +21,7 @@ public interface IInputOutputTestCase extends Test {
 
 	void setTestGenerated(String string);
 
+	void setFile(File file);
+
+	File getFile();
 }

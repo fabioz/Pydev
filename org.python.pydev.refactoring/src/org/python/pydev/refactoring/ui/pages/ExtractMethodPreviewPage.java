@@ -178,9 +178,9 @@ public class ExtractMethodPreviewPage extends UserInputWizardPage implements Sel
 
 	private void updateRequestProcessor() {
 		if (this.userCheckbox.getSelection()) {
-			this.requestProcessor.initProcessor(this.info.getScopeAdapter(), info.getParsedUserSelection(), info.getUserSelection());
+			this.requestProcessor.initProcessor(this.info.getScopeAdapter(), info.getParsedUserSelection(), info.getModule(), info.getUserSelection());
 		} else {
-			this.requestProcessor.initProcessor(info.getScopeAdapter(), info.getParsedExtendedSelection(), info.getExtendedSelection());
+			this.requestProcessor.initProcessor(info.getScopeAdapter(), info.getParsedExtendedSelection(), info.getModule(), info.getExtendedSelection());
 		}
 	}
 }

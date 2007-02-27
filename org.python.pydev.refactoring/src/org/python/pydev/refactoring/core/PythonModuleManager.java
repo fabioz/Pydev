@@ -3,6 +3,7 @@ package org.python.pydev.refactoring.core;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -11,9 +12,11 @@ import java.util.Set;
 import java.util.SortedMap;
 
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.REF;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 
@@ -32,7 +35,10 @@ public class PythonModuleManager {
 
 	private IModulesManager moduleManager;
 
+	private transient IPythonNature nature;
+
 	public PythonModuleManager(IPythonNature nature) {
+		this.nature = nature;
 		this.moduleManager = nature.getAstManager().getModulesManager();
 	}
 
@@ -70,18 +76,34 @@ public class PythonModuleManager {
 			modulesStartingWith = moduleManager.getAllModulesStartingWith(identifier.getModule());
 		return modulesStartingWith;
 	}
-
+	
+	
+	/**
+	 * Creates an adapter for a given file.
+	 */
 	private ModuleAdapter getModuleAdapterFromFile(File file) throws Throwable {
-		if (file != null && file.getName().compareTo(INIT) != 0 && file.exists()) {
-			Document doc = new Document(getFileContent(new FileInputStream(file)));
+		if (file != null && !file.getName().equals(INIT) && file.exists()) {
+			IDocument doc = getDocFromFile(file);
 			if (doc != null && doc.getLength() > 0) {
-				return VisitorFactory.createModuleAdapter(this, file, doc);
+				return VisitorFactory.createModuleAdapter(this, file, doc, nature);
 			}
 		}
 		return null;
 	}
 
-	private String getFileContent(InputStream stream) {
+	public static IDocument getDocFromFile(File file)  {
+		IDocument doc = REF.getDocFromFile(file, false);
+		if(doc == null){
+			try {
+				doc = new Document(getFileContent(new FileInputStream(file)));
+			} catch (FileNotFoundException e) {
+				return null;
+			}
+		}
+		return doc;
+	}
+	
+	private static String getFileContent(InputStream stream) {
 		try {
 			StringBuilder contentBuilder = new StringBuilder();
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
@@ -94,5 +116,15 @@ public class PythonModuleManager {
 		} catch (IOException e) {
 		}
 		return "";
+	}
+
+
+	public void setIModuleManager(IModulesManager moduleManager) {
+		this.moduleManager = moduleManager;
+	}
+
+
+	public IModulesManager getIModuleManager() {
+		return moduleManager;
 	}
 }

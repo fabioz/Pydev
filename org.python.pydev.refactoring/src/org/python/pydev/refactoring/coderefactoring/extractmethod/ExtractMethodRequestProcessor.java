@@ -31,16 +31,16 @@ public class ExtractMethodRequestProcessor implements IRequestProcessor<ExtractM
 
 	private ITextSelection selection;
 
-	public ExtractMethodRequestProcessor(AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection, ITextSelection selection) {
-		initProcessor(scopeAdapter, parsedSelection, selection);
+	public ExtractMethodRequestProcessor(AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection, ModuleAdapter module, ITextSelection selection) {
+		initProcessor(scopeAdapter, parsedSelection, module, selection);
 	}
 
-	public void initProcessor(AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection, ITextSelection selection) {
+	public void initProcessor(AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection, ModuleAdapter module, ITextSelection selection) {
 		this.methodName = "pepticMethod";
 		this.scopeAdapter = scopeAdapter;
 		this.selection = selection;
 		this.parsedSelection = parsedSelection;
-		this.deducer = new ParameterReturnDeduce(this.scopeAdapter, selection);
+		this.deducer = new ParameterReturnDeduce(this.scopeAdapter, selection, module);
 		this.parameterOrder = new ArrayList<String>();
 		parameterOrder.addAll(deducer.getParameters());
 		this.renameMap = new TreeMap<String, String>();
