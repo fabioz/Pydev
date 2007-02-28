@@ -33,6 +33,27 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 <h4>Major highlights:</h4>
 
 <ul>
+<li><strong>Refactoring</strong>: integration of the <a href="http://sifsstud2.hsr.ch/peptic">PEPTIC refactoring engine</a></li>
+<li><strong>Package Explorer</strong>: many fixes (special thanks for Don Taylor for the bug reports)</li>
+<li><strong>Debugger</strong>: a number of small optimizations</li>
+<li><strong>Code-completion</strong>: works in emacs mode</li>
+<li><strong>Code-completion</strong>: added the possibility of auto-completing for all letter chars and '_' (so, it starts completing once you start writing)</li>
+<li><strong>Code-completion</strong>: code-completion for epydoc inside strings</li>
+<li><strong>Code-completion</strong>: assigns after global statement considered added to the global namespace</li>
+<li><strong>Code-completion</strong>: now works when a class is declared in a nested scope</li>
+<li><strong>Code-completion</strong>: if multiple assigns are found to some variable, the completion will be a merge of them</li>
+<li><strong>Code-completion</strong>: functions are analyzed for their return values for code-completion purposes</li>
+<li><strong>Code-completion</strong>: working on multi-line imports</li>
+<li><strong>Code-completion</strong>: can discover instance variables not declared in the class (in the scope where the class was instanced)</li>
+<li><strong>Auto-edit</strong>: adds 'self', 'cls' or no parameter based on the @clasmethod, @staticmethod declaration on previous line</li>
+<li><strong>Auto-edit</strong>: doesn't add 'self' if a method is declared in a method inner scope</li>
+<li><strong>Fix: BRM Refactoring</strong>: wrong column was being passed to the BRM refactoring engine</li>
+<li><strong>Code-folding</strong>: added for comments and strings</li>
+</ul>
+
+<h4>Previous version highlights: 1.2.7</h4>
+
+<ul>
 <li><strong>Debugger</strong>: change value implemented</li>
 <li><strong>Pydev Package Explorer</strong>: Default actions (copy, paste, rename, etc) reimplemented (see <a href="http://pydev.blogspot.com/2006/12/package-explorer-status-for-pydev.html">blog</a> to see what this fixed)</li>
 <li><strong>Block Comments</strong>: The remove block comments (Ctrl+5) will now remove contiguous comments -- if several lines are commented, putting the cursor in any of those lines and pressing Ctrl+5 will remove all those comments</li>

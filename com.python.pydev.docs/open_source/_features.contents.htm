@@ -1,17 +1,22 @@
 <h2>New on: LAST_VERSION_TAG</h2>
 
 <ul>
-<li><strong>Debugger</strong>: change value implemented</li>
-<li><strong>Pydev Package Explorer</strong>: Default actions (copy, paste, rename, etc) reimplemented (see <a href="http://pydev.blogspot.com/2006/12/package-explorer-status-for-pydev.html">blog</a> to see what this fixed)</li>
-<li><strong>Block Comments</strong>: The remove block comments (Ctrl+5) will now remove contiguous comments -- if several lines are commented, putting the cursor in any of those lines and pressing Ctrl+5 will remove all those comments</li>
-<li><strong>Launch</strong>: When creating a new launch, the 'default' option is chosen, so, if the default interpreter changes later, this won't affect existing launch configurations</li>
-<li><strong>Code Completion</strong>: 'cls' does not appear as 1st parameter on code completion anymore</li>
-<li><strong>Code Completion</strong>: completions for cls on classmethods now works correctly</li>
-<li><strong>Keybindings</strong>: Ctrl+Tab and Ctrl+Shift+Tab keybindings removed from convert tabs to space-tabs (and vice-versa) -- they are still available in the source menu</li>
-<li><strong>Fix</strong>: the PYTHONPATH passed to <strong>PyLint</strong> was not containing the project PYTHONPATH</li>
-<li><strong>Fix</strong>: halting condition on code-completion execution</li>
-<li><strong>Fix</strong>: 'create docstrings' assist creates <strong>@param</strong> even if there is a comment in a function definition</li>
-<li><strong>Fix</strong>: block comment for class will recognize better when it is on a class definition line</li>
+<li><strong>Refactoring</strong>: integration of the <a href="http://sifsstud2.hsr.ch/peptic">PEPTIC refactoring engine</a></li>
+<li><strong>Package Explorer</strong>: many fixes (special thanks for Don Taylor for the bug reports)</li>
+<li><strong>Debugger</strong>: a number of small optimizations</li>
+<li><strong>Code-completion</strong>: works in emacs mode</li>
+<li><strong>Code-completion</strong>: added the possibility of auto-completing for all letter chars and '_' (so, it starts completing once you start writing)</li>
+<li><strong>Code-completion</strong>: code-completion for epydoc inside strings</li>
+<li><strong>Code-completion</strong>: assigns after global statement considered added to the global namespace</li>
+<li><strong>Code-completion</strong>: now works when a class is declared in a nested scope</li>
+<li><strong>Code-completion</strong>: if multiple assigns are found to some variable, the completion will be a merge of them</li>
+<li><strong>Code-completion</strong>: functions are analyzed for their return values for code-completion purposes</li>
+<li><strong>Code-completion</strong>: working on multi-line imports</li>
+<li><strong>Code-completion</strong>: can discover instance variables not declared in the class (in the scope where the class was instanced)</li>
+<li><strong>Auto-edit</strong>: adds 'self', 'cls' or no parameter based on the @clasmethod, @staticmethod declaration on previous line</li>
+<li><strong>Auto-edit</strong>: doesn't add 'self' if a method is declared in a method inner scope</li>
+<li><strong>Fix: BRM Refactoring</strong>: wrong column was being passed to the BRM refactoring engine</li>
+<li><strong>Code-folding</strong>: added for comments and strings</li>
 </ul>
 
 <br/>
@@ -69,6 +74,22 @@
 
 <hr/>
 <h2>Features History</h2>
+
+<h2>New on: 1.2.7</h2>
+
+<ul>
+<li><strong>Debugger</strong>: change value implemented</li>
+<li><strong>Pydev Package Explorer</strong>: Default actions (copy, paste, rename, etc) reimplemented (see <a href="http://pydev.blogspot.com/2006/12/package-explorer-status-for-pydev.html">blog</a> to see what this fixed)</li>
+<li><strong>Block Comments</strong>: The remove block comments (Ctrl+5) will now remove contiguous comments -- if several lines are commented, putting the cursor in any of those lines and pressing Ctrl+5 will remove all those comments</li>
+<li><strong>Launch</strong>: When creating a new launch, the 'default' option is chosen, so, if the default interpreter changes later, this won't affect existing launch configurations</li>
+<li><strong>Code Completion</strong>: 'cls' does not appear as 1st parameter on code completion anymore</li>
+<li><strong>Code Completion</strong>: completions for cls on classmethods now works correctly</li>
+<li><strong>Keybindings</strong>: Ctrl+Tab and Ctrl+Shift+Tab keybindings removed from convert tabs to space-tabs (and vice-versa) -- they are still available in the source menu</li>
+<li><strong>Fix</strong>: the PYTHONPATH passed to <strong>PyLint</strong> was not containing the project PYTHONPATH</li>
+<li><strong>Fix</strong>: halting condition on code-completion execution</li>
+<li><strong>Fix</strong>: 'create docstrings' assist creates <strong>@param</strong> even if there is a comment in a function definition</li>
+<li><strong>Fix</strong>: block comment for class will recognize better when it is on a class definition line</li>
+</ul>
 
 
 <h2>New on: 1.2.6</h2>
