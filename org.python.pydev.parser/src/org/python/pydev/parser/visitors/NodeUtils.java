@@ -218,6 +218,16 @@ public class NodeUtils {
      * @param t
      */
     public static String getNodeDocString(SimpleNode node) {
+    	Str s = getNodeDocStringNode(node);
+        if(s != null){
+        	return s.s;
+        }
+        return null;
+    }
+
+
+	public static Str getNodeDocStringNode(SimpleNode node) {
+		Str s = null;
         stmtType body[] = null;
         if(node instanceof FunctionDef){
             FunctionDef def = (FunctionDef) node;
@@ -231,13 +241,12 @@ public class NodeUtils {
             if (body[0] instanceof Expr) {
                 Expr e = (Expr) body[0];
                 if (e.value instanceof Str) {
-                    Str s = (Str) e.value;
-                    return s.s;
+                    s = (Str) e.value;
                 }
             }
         }
-        return null;
-    }
+		return s;
+	}
 
     
     

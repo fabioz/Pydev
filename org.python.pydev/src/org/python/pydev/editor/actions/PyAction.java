@@ -6,11 +6,11 @@
  
 package org.python.pydev.editor.actions;
 
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorActionDelegate;
@@ -32,7 +32,7 @@ import org.python.pydev.plugin.PydevPrefs;
  * 
  * Subclasses should implement run(IAction action) method.
  */
-public abstract class PyAction implements IEditorActionDelegate {
+public abstract class PyAction extends Action implements IEditorActionDelegate {
 
     public static Shell getShell() {
         IWorkbench workbench = PlatformUI.getWorkbench();
@@ -63,11 +63,7 @@ public abstract class PyAction implements IEditorActionDelegate {
 	 * Activate action  (if we are getting text)
 	 */
 	public void selectionChanged(IAction action, ISelection selection) {
-		if (selection instanceof TextSelection) {
-			action.setEnabled(true);
-			return;
-		}
-		action.setEnabled( targetEditor instanceof ITextEditor);
+		action.setEnabled(true);
 	}
 
 	public static String getDelimiter(IDocument doc){

@@ -182,7 +182,9 @@
       </page>
    </extension>
 <!-- Editor menus -->
-   <extension point="org.eclipse.ui.editorActions">
+   <extension point="org.eclipse.ui.editorActions" 
+   		      name="pydevEditorContribution"
+   		      id="org.python.pydev.editorContribution">
       <editorContribution
             targetID="org.python.pydev.editor.PythonEditor"
             id="org.python.pydev.editor.editorContribution">
@@ -194,6 +196,12 @@
             <separator name="addGroup"/>
             <separator name="whitespaceGroup"/>
             <separator name="evaluateGroup"/>
+         </menu>
+         <menu
+               id="org.python.pydev.refactoring.refactoringMenu"
+               label="Refactoring"
+               path="org.python.pydev.editor.actions.sourceMenu">
+            <separator name="brmGroup"/>
          </menu>
          <action
                definitionId="org.python.pydev.editor.actions.firstChar"
@@ -354,21 +362,24 @@
          -->
          <action
                definitionId="org.python.pydev.refactoring.extractlocalvariable"
-               label="Extract Local Variable"
+               label="%pydev.extractlocallabel"
                class="org.python.pydev.editor.actions.refactoring.PyExtractLocalVariable"
-               id="org.python.pydev.refactoring.extractlocalvariable">
+               id="org.python.pydev.refactoring.extractlocalvariable"
+               menubarPath="org.python.pydev.refactoring.refactoringMenu/brmGroup">
          </action>
          <action
                definitionId="org.python.pydev.refactoring.inlinelocalvariable"
-               label="Inline Local Variable"
+               label="%pydev.inlinelocallabel"
                class="org.python.pydev.editor.actions.refactoring.PyInlineLocalVariable"
-               id="org.python.pydev.refactoring.inlinelocalvariable">
+               id="org.python.pydev.refactoring.inlinelocalvariable"
+               menubarPath="org.python.pydev.refactoring.refactoringMenu/brmGroup">
          </action>
          <action
                definitionId="org.python.pydev.refactoring.rename"
-               label="Rename"
+               label="%pydev.renamelabel"
                class="org.python.pydev.editor.actions.refactoring.PyRename"
-               id="org.python.pydev.refactoring.rename">
+               id="org.python.pydev.refactoring.rename"
+               menubarPath="org.python.pydev.refactoring.refactoringMenu/brmGroup">
          </action>
 
       </editorContribution>
@@ -376,7 +387,8 @@
 
 <!-- NOTE: EditorContext part of the targetID was deduced, that is just what Eclipse expects -->
 <!-- Editor popup menus-->
-   <extension point="org.eclipse.ui.popupMenus">
+   <extension point="org.eclipse.ui.popupMenus" 
+              id="org.python.pydev.editor">
       <viewerContribution
             targetID="#PyEditContext"
             id="org.python.pydev.editor">
@@ -384,6 +396,7 @@
                id="org.python.pydev.editor.refactoring"
                label="Refactoring"
                path="Refactoring">
+            <separator name="source"/>
             <separator name="refactorings"/>
          </menu>
          <!--This is for making the refactor action accessible in the editor pop-up -->
@@ -396,19 +409,19 @@
          </action>
          -->
          <action
-               label="Rename"
+               label="%pydev.renamelabel"
                class="org.python.pydev.editor.actions.refactoring.PyRename"
                menubarPath="org.python.pydev.editor.refactoring/refactorings"
                id="org.python.pydev.editor.refactoring.rename">
          </action>
          <action
-               label="Inline Local Variable"
+               label="%pydev.inlinelocallabel"
                class="org.python.pydev.editor.actions.refactoring.PyInlineLocalVariable"
                menubarPath="org.python.pydev.editor.refactoring/refactorings"
                id="org.python.pydev.editor.refactoring.inlinelocalvariable">
          </action>
          <action
-               label="Extract Local Variable"
+               label="%pydev.extractlocallabel"
                class="org.python.pydev.editor.actions.refactoring.PyExtractLocalVariable"
                menubarPath="org.python.pydev.editor.refactoring/refactorings"
                id="org.python.pydev.editor.refactoring.extractlocalvariable">
@@ -601,20 +614,20 @@
       -->
       <!-- Extract Local Variable -->
       <command
-            name="Python Extract Local Variable"
-            description="Extract Local Variable"
+            name="%pydev.extractlocallabel"
+            description="%pydev.extractlocaldescription"
             categoryId="org.python.pydev.ui.category.refactoring"
             id="org.python.pydev.refactoring.extractlocalvariable"/>
       <!-- Inline Local Variable -->
       <command
-            name="Python Inline Local Variable"
-            description="Inline Local Variable"
+            name="%pydev.inlinelocallabel"
+            description="%pydev.inlinelocaldescription"
             categoryId="org.python.pydev.ui.category.refactoring"
             id="org.python.pydev.refactoring.inlinelocalvariable"/>
       <!-- Rename -->
       <command
-            name="Python Rename"
-            description="Rename"
+            name="%pydev.renamelabel"
+            description="%pydev.renamedescription"
             categoryId="org.python.pydev.ui.category.refactoring"
             id="org.python.pydev.refactoring.rename"/>
       <!-- Offline Command -->
@@ -770,13 +783,31 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
+            sequence="M3+M2+T L"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.refactoring.extractlocalvariable"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
             sequence="Shift+Alt+I"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.refactoring.inlinelocalvariable"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
+            sequence="M3+M2+T I"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.refactoring.inlinelocalvariable"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
             sequence="Shift+Alt+R"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.refactoring.rename"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="M3+M2+T R"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.refactoring.rename"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">

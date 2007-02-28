@@ -29,34 +29,6 @@
             name="%peptic.ExtractMethodLabel"/>
    </extension>
    <extension
-         point="org.eclipse.ui.bindings">
-      <key
-            commandId="org.python.pydev.refactoring.ui.actions.GeneratePropertiesCommand"
-            contextId="org.eclipse.ui.globalScope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M3+M2+T P"/>
-      <key
-            commandId="org.python.pydev.refactoring.ui.actions.ConstructorFieldCommand"
-            contextId="org.eclipse.ui.globalScope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M3+M2+T C"/>
-      <key
-            commandId="org.python.pydev.refactoring.ui.actions.OverrideMethodsCommand"
-            contextId="org.eclipse.ui.globalScope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M3+M2+T O"/>
-      <key
-            commandId="org.python.pydev.refactoring.ui.actions.ExtractMethodCommand"
-            contextId="org.eclipse.ui.globalScope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M3+M2+T E"/>
-      <key
-            sequence="Shift+Alt+M"
-            contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.refactoring.ui.actions.ExtractMethodCommand"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
-   </extension>
-   <extension
          id="org.python.pydev.refactoring.editorContribution"
          name="editorContribution"
          point="org.eclipse.ui.editorActions">
@@ -65,7 +37,7 @@
             targetID="org.python.pydev.editor.PythonEditor">
          <menu
                id="org.python.pydev.refactoring.refactoringMenu"
-               label="%peptic.refactoringName"
+               label="Refactoring"
                path="org.python.pydev.editor.actions.sourceMenu">
             <separator name="pepticRefactoringGroup"/>
             <separator name="pepticSourceGroup"/>
@@ -107,9 +79,9 @@
             id="org.python.pydev.refactoring.popupContribution"
             targetID="#PyEditContext">
          <menu
-               id="org.python.pydev.refactoring.refactoringPopupMenu"
-               label="%peptic.refactoringName"
-               path="org.python.pydev.editor.refactoring">
+               id="org.python.pydev.editor.refactoring"
+               label="Refactoring"
+               path="Refactoring">
             <separator name="pepticRefactoringGroup"/>
             <separator name="pepticSourceGroup"/>
          </menu>
@@ -118,25 +90,53 @@
                definitionId="org.python.pydev.refactoring.ui.actions.OverrideMethodsCommand"
                id="org.python.pydev.refactoring.ui.actions.OverrideMethodsAction"
                label="%peptic.OverrideMethodsLabel"
-               menubarPath="org.python.pydev.refactoring.refactoringPopupMenu/pepticSourceGroup"/>
+               menubarPath="org.python.pydev.editor.refactoring/pepticSourceGroup"/>
          <action
                class="org.python.pydev.refactoring.ui.actions.ConstructorFieldAction"
                definitionId="org.python.pydev.refactoring.ui.actions.ConstructorFieldCommand"
                id="org.python.pydev.refactoring.ui.actions.ConstructorFieldAction"
                label="%peptic.GenerateConstructorFieldLabel"
-               menubarPath="org.python.pydev.refactoring.refactoringPopupMenu/pepticSourceGroup"/>
+               menubarPath="org.python.pydev.editor.refactoring/pepticSourceGroup"/>
          <action
                class="org.python.pydev.refactoring.ui.actions.GeneratePropertiesAction"
                definitionId="org.python.pydev.refactoring.ui.actions.GeneratePropertiesCommand"
                id="org.python.pydev.refactoring.ui.actions.RenameAction"
                label="%peptic.GeneratePropertiesLabel"
-               menubarPath="org.python.pydev.refactoring.refactoringPopupMenu/pepticSourceGroup"/>
+               menubarPath="org.python.pydev.editor.refactoring/pepticSourceGroup"/>
          <action
                class="org.python.pydev.refactoring.ui.actions.ExtractMethodAction"
                definitionId="org.python.pydev.refactoring.ui.actions.ExtractMethodCommand"
                id="org.python.pydev.refactoring.ui.actions.ExtractMethodAction"
                label="%peptic.ExtractMethodLabel"
-               menubarPath="org.python.pydev.refactoring.refactoringPopupMenu/pepticRefactoringGroup"/>
+               menubarPath="org.python.pydev.editor.refactoring/pepticRefactoringGroup"/>
       </viewerContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="org.python.pydev.refactoring.ui.actions.GeneratePropertiesCommand"
+            contextId="org.eclipse.ui.globalScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M3+M2+T P"/>
+      <key
+            commandId="org.python.pydev.refactoring.ui.actions.ConstructorFieldCommand"
+            contextId="org.eclipse.ui.globalScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M3+M2+T C"/>
+      <key
+            commandId="org.python.pydev.refactoring.ui.actions.OverrideMethodsCommand"
+            contextId="org.eclipse.ui.globalScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M3+M2+T O"/>
+      <key
+            commandId="org.python.pydev.refactoring.ui.actions.ExtractMethodCommand"
+            contextId="org.eclipse.ui.globalScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M3+M2+T E"/>
+      <key
+            sequence="Shift+Alt+M"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.refactoring.ui.actions.ExtractMethodCommand"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
    </extension>
 </plugin>

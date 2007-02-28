@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
+import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 
@@ -19,6 +20,17 @@ public class FindLastLineVisitor extends VisitorBase{
         check(this.lastNode.specialsAfter);
         return null;
     }
+    
+    @Override
+    public Object visitAttribute(Attribute node) throws Exception {
+    	check(node.specialsBefore);
+    	if (node.attr != null)
+    		node.attr.accept(this);
+        if (node.value != null)
+        	node.value.accept(this);
+        check(node.specialsAfter);
+        return null;
+    }
 
     private void check(List<Object> specials) {
         if(specials==null){
@@ -26,7 +38,7 @@ public class FindLastLineVisitor extends VisitorBase{
         }
         for (Object obj : specials) {
             if(obj instanceof SpecialStr){
-                if(lastSpecialStr == null || lastSpecialStr.beginLine < ((SpecialStr)obj).beginLine){
+                if(lastSpecialStr == null || lastSpecialStr.beginLine <= ((SpecialStr)obj).beginLine){
                     lastSpecialStr = (SpecialStr) obj;
                 }
             }

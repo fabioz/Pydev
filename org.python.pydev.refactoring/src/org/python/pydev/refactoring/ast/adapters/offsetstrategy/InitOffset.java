@@ -1,6 +1,7 @@
 package org.python.pydev.refactoring.ast.adapters.offsetstrategy;
 
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.stmtType;
@@ -16,18 +17,17 @@ public class InitOffset extends BeginOffset {
 
 	@Override
 	protected int getLine() {
-		if (nodeHelper.isClassDef(adapter.getASTNode())) {
+		SimpleNode node = adapter.getASTNode();
+		if (nodeHelper.isClassDef(node)) {
 
-			ClassDef classNode = (ClassDef) adapter.getASTNode();
+			ClassDef classNode = (ClassDef) node;
 			for (int i = 0; i < classNode.body.length; i++) {
-
 				if (nodeHelper.isInit(classNode.body[i])) {
 					FunctionDef func = (FunctionDef) classNode.body[i];
 					stmtType lastStmt = func.body[func.body.length - 1];
 					LastLineVisitor visitor = VisitorFactory.createVisitor(LastLineVisitor.class, lastStmt);
 					return visitor.getLastLine() - 1;
 				}
-
 			}
 		}
 		return super.getLine();

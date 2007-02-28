@@ -1,6 +1,7 @@
 after 1.2.7
 <ul>
-<li><strong>Package Explorer</strong>: many fixes (thanks for the bug reports)</li>
+<li><strong>Refactoring</strong>: integration of the <a href="http://sifsstud2.hsr.ch/peptic">PEPTIC refactoring engine</a></li>
+<li><strong>Package Explorer</strong>: many fixes (special thanks for Don Taylor for the bug reports)</li>
 <li><strong>Debugger</strong>: a number of small optimizations</li>
 <li><strong>Code-completion</strong>: works in emacs mode</li>
 <li><strong>Code-completion</strong>: added the possibility of auto-completing for all letter chars and '_' (so, it starts completing once you start writing)</li>
@@ -21,7 +22,7 @@ after 1.2.7
 Pydev Extensions:
 <ul>
 <li><strong>Simple Completions</strong>: some keywords were removed from the default list (the 2-letter ones because they're barely worth it and those related to 'try', as there's already an assistant that creates 'try' blocks)</li>
-<li><strong>Rename refactoring</strong>: matches in multi-line strings are now correct</li>
+<li><strong>Rename refactoring / Mark Occurrences</strong>: matches in multi-line strings are now correct</li>
 </ul>
 
 after 1.2.6

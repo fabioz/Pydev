@@ -91,8 +91,18 @@ public class PythonModuleManager {
 		return null;
 	}
 
+	/**
+	 * If we're testing, we want to return docs only with \n, otherwise, we want it to be based
+	 * on the actual document from the user
+	 */
+	public static boolean TESTING = false;
+	
 	public static IDocument getDocFromFile(File file)  {
-		IDocument doc = REF.getDocFromFile(file, false);
+		boolean loadIfNotInWorkspace = true;
+		if(TESTING){
+			loadIfNotInWorkspace = false;
+		}
+		IDocument doc = REF.getDocFromFile(file, loadIfNotInWorkspace);
 		if(doc == null){
 			try {
 				doc = new Document(getFileContent(new FileInputStream(file)));

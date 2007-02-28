@@ -2,6 +2,8 @@ package org.python.pydev.refactoring.tests.core;
 
 import java.io.File;
 
+import org.python.pydev.refactoring.core.PythonModuleManager;
+
 import junit.framework.TestCase;
 
 /**
@@ -25,6 +27,16 @@ public abstract class AbstractIOTestCase extends TestCase implements IInputOutpu
 		this(name, false);
 	}
 
+	@Override
+	protected void setUp() throws Exception {
+		PythonModuleManager.TESTING = true;
+	}
+	
+	@Override
+	protected void tearDown() throws Exception {
+		PythonModuleManager.TESTING = false;
+	}
+	
 	public AbstractIOTestCase(String name, boolean ignoreEmptyLines) {
 		super(name);
 		sourceLines = new StringBuffer();
