@@ -52,6 +52,9 @@ public class AssistDocString implements IAssistProps {
         int newOffset = buf.length();
         if (ps.isInFunctionLine()) {
             for (String paramName : params) {
+                if(!PySelection.isIdentifier(paramName)){
+                    continue;
+                }
                 buf.append(inAndIndent + "@param " + paramName + ":");
                 if (DocstringsPrefPage.getTypeTagShouldBeGenerated(paramName)) {
                     buf.append(inAndIndent + "@type " + paramName + ":");

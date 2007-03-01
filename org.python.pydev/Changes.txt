@@ -16,11 +16,13 @@ after 1.2.7
 <li><strong>Auto-edit</strong>: doesn't add 'self' if a method is declared in a method inner scope</li>
 <li><strong>Fix: BRM Refactoring</strong>: wrong column was being passed to the BRM refactoring engine</li>
 <li><strong>Code-folding</strong>: added for comments and strings</li>
+<li><strong>Fix</strong>: sometimes the 'create docstring' assistant was not recognizing method definitons</li>
 </ul>
 
 
 Pydev Extensions:
 <ul>
+<li><strong>Code-analysis</strong>: when a compare statement is found out of a test scope, that's reported as a warning</li>
 <li><strong>Simple Completions</strong>: some keywords were removed from the default list (the 2-letter ones because they're barely worth it and those related to 'try', as there's already an assistant that creates 'try' blocks)</li>
 <li><strong>Rename refactoring / Mark Occurrences</strong>: matches in multi-line strings are now correct</li>
 </ul>

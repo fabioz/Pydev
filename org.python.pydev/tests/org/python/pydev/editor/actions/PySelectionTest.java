@@ -407,7 +407,9 @@ public class PySelectionTest extends TestCase {
     }
     
     public void testGetLineToColon() throws Exception {
-		PySelection selection = new PySelection(new Document("class A:\r\n    pass"), 0);
+        PySelection selection;
+        
+		selection = new PySelection(new Document("class A:\r\n    pass"), 0);
 		assertEquals("class A:", selection.getToColon());
 		
 		selection = new PySelection(new Document("class A:"), 0);

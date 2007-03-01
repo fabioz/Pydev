@@ -47,11 +47,17 @@ public class AssistDocStringTest extends TestCase {
 			public boolean expectedResult;
 		};
 
-		TestEntry testData[] = { new TestEntry("def f():", true),
+		TestEntry testData[] = { 
+		        new TestEntry("	def f(x, y,   z)  :", true),
+		        new TestEntry("def f( x='' ): #comment", true),
+		        new TestEntry("def f( x=\"\" ): #comment", true),
+		        new TestEntry("def f( x=[] ): #comment", true),
+		        new TestEntry("def f( x={a:1} ): #comment", true),
+		        new TestEntry("def f( x=1, *args, **kwargs ): #comment", true),
+		        new TestEntry("def f():", true),
 				new TestEntry("def  f() : ", true),
 				new TestEntry("def f( x ):", true),
 				new TestEntry("def f( x ): #comment", true),
-				new TestEntry("	def f(x, y,   z)  :", true),
 				new TestEntry("class X:", true),
 				new TestEntry("class    X(sfdsf.sdf):", true),
 				new TestEntry("clas    X(sfdsf.sdf):", false),
@@ -93,10 +99,18 @@ public class AssistDocStringTest extends TestCase {
 		expected = "def f( x y ):\r\n" +
 		"    '''\r\n" +
 		"    \r\n" +
-		"    @param x y:\r\n" +
-		"    @type x y:\r\n" +
 		"    '''";
 		check(expected, "def f( x y ):");
+		
+		expected = "def f( (x,y=10) ):\r\n" +
+		"    '''\r\n" +
+		"    \r\n" +
+        "    @param x:\r\n" +
+        "    @type x:\r\n" +
+        "    @param y:\r\n" +
+        "    @type y:\r\n" +
+		"    '''";
+		check(expected, "def f( (x,y=10) ):");
 		
 		
 		expected = "def f( , ):\r\n" +
