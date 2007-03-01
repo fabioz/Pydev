@@ -100,11 +100,15 @@ public class VisitorFactory {
 		return visitor;
 	}
 
+	/**
+	 * Unchecked (because if doing Class.cast, it does not work in java 1.4)
+	 */
+	@SuppressWarnings("unchecked")
 	public static <T extends AbstractContextVisitor> T createContextVisitor(Class<T> visitorClass, SimpleNode root, ModuleAdapter module,
 			AbstractNodeAdapter parent) {
 		T visitor = null;
 		try {
-			visitor = visitorClass.cast(visitorClass.getConstructors()[0].newInstance(new Object[] { module, parent }));
+			visitor = (T) visitorClass.getConstructors()[0].newInstance(new Object[] { module, parent });
 			root.accept(visitor);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
