@@ -4,7 +4,10 @@
       The python development environment.
    </description>
    
+   <feature url="features/org.python.pydev.feature_1.2.8.jar" id="org.python.pydev.feature" version="1.2.8"/>
+   <!-- not released at the sourceforge sites because of problems in sf
    <feature url="features/org.python.pydev.feature_1.2.7.jar" id="org.python.pydev.feature" version="1.2.7"/>
+   -->
    <feature url="features/org.python.pydev.feature_1.2.6.jar" id="org.python.pydev.feature" version="1.2.6"/>
    <feature url="features/org.python.pydev.feature_1.2.5.jar" id="org.python.pydev.feature" version="1.2.5"/>
    <feature url="features/org.python.pydev.feature_1.2.4.jar" id="org.python.pydev.feature" version="1.2.4"/>
