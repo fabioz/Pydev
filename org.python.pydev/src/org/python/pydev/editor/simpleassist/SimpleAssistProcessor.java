@@ -230,7 +230,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
             //just use the extension for the simple if we do have it
             char [] c2 = new char[ALL_ASCII_CHARS.length+defaultAutoActivationCharacters.length];
             System.arraycopy(ALL_ASCII_CHARS, 0, c2, 0, ALL_ASCII_CHARS.length);
-            System.arraycopy(defaultAutoActivationCharacters, 0, c2, c2.length-1, defaultAutoActivationCharacters.length);
+            System.arraycopy(defaultAutoActivationCharacters, 0, c2, ALL_ASCII_CHARS.length, defaultAutoActivationCharacters.length);
 
             autoActivationCharsCache = c2;
         }
