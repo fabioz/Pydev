@@ -17,6 +17,7 @@ public interface IAnalysisPreferences {
     public static final int TYPE_UNUSED_WILD_IMPORT         = 8;
     public static final int TYPE_UNDEFINED_IMPORT_VARIABLE  = 9;
     public static final int TYPE_UNUSED_PARAMETER           = 10;
+    public static final int TYPE_NO_EFFECT_STMT             = 11;
     
     
     public static final String MSG_TO_IGNORE_TYPE_UNUSED_IMPORT              = "@UnusedImport";
@@ -29,6 +30,7 @@ public interface IAnalysisPreferences {
     public static final String MSG_TO_IGNORE_TYPE_NO_SELF                    = "@NoSelf";
     public static final String MSG_TO_IGNORE_TYPE_UNDEFINED_IMPORT_VARIABLE  = "@UndefinedVariable";
     public static final String MSG_TO_IGNORE_TYPE_UNUSED_PARAMETER           = "@UnusedVariable";
+    public static final String MSG_TO_IGNORE_TYPE_NO_EFFECT_STMT             = "@NoEffect";
     
     
     /**

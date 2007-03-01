@@ -84,6 +84,7 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_REIMPORT, "Import redefinition", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNRESOLVED_IMPORT, "Import not found", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_NO_SELF, "'self' not specified in class method", 3,values,p, true));
+        addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_NO_EFFECT_STMT, "Statement has no effect", 3,values,p, true));
 
     }
 

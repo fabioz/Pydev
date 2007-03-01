@@ -128,7 +128,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         }
     }
     
-    private void checkStop(){
+    protected void checkStop(){
         if(monitor.isCanceled()){
             throw new OperationCanceledException();
         }

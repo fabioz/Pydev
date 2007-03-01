@@ -312,6 +312,11 @@ public class Scope implements Iterable<ScopeItems>{
         scope.peek().addIfSubScope();
     }
 
+    public boolean getIsInIfSubScope() {
+        return scope.peek().getIsInIfSubScope();
+    }
+    
+
     public void removeIfSubScope() {
         scope.peek().removeIfSubScope();
     }

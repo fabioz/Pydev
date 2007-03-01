@@ -20,6 +20,7 @@ public abstract class AbstractAnalysisPreferences implements IAnalysisPreference
             typeToIgnoreMessage.put( TYPE_NO_SELF                     , MSG_TO_IGNORE_TYPE_NO_SELF                     );
             typeToIgnoreMessage.put( TYPE_UNUSED_WILD_IMPORT          , MSG_TO_IGNORE_TYPE_UNUSED_WILD_IMPORT          );
             typeToIgnoreMessage.put( TYPE_UNDEFINED_IMPORT_VARIABLE   , MSG_TO_IGNORE_TYPE_UNDEFINED_IMPORT_VARIABLE   );
+            typeToIgnoreMessage.put( TYPE_NO_EFFECT_STMT              , MSG_TO_IGNORE_TYPE_NO_EFFECT_STMT              );
         }
         return typeToIgnoreMessage.get(type);
     }

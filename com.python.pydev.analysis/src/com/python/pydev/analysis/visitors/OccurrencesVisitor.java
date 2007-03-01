@@ -12,13 +12,20 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.AugAssign;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Compare;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.If;
+import org.python.pydev.parser.jython.ast.Print;
 import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.While;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.messages.IMessage;
@@ -54,6 +61,101 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
         this.noSelfChecker = new NoSelfChecker(this, moduleName);
     }
 
+    private int isInTestScope = 0;
+    
+    @Override
+    public Object visitCompare(Compare node) throws Exception {
+        Object ret = super.visitCompare(node);
+        if(isInTestScope == 0){
+            SourceToken token = AbstractVisitor.makeToken(node, moduleName);
+            messagesManager.addMessage(IAnalysisPreferences.TYPE_NO_EFFECT_STMT, token);
+        }
+        return ret;
+    }
+    
+    public void traverse(If node) throws Exception {
+        checkStop();
+        OccurrencesVisitor visitor = this;
+        if (node.test != null){
+            isInTestScope += 1;
+            node.test.accept(visitor);
+            isInTestScope -= 1;
+        }
+        
+        if (node.body != null) {
+            for (int i = 0; i < node.body.length; i++) {
+                if (node.body[i] != null)
+                    node.body[i].accept(visitor);
+            }
+        }
+        if (node.orelse != null) {
+            for (int i = 0; i < node.orelse.length; i++) {
+                if (node.orelse[i] != null)
+                    node.orelse[i].accept(visitor);
+            }
+        }
+    }
+    
+    public void traverse(While node) throws Exception {
+        checkStop();
+        OccurrencesVisitor visitor = this;
+        if (node.test != null){
+            isInTestScope += 1;
+            node.test.accept(visitor);
+            isInTestScope -= 1;
+        }
+        
+        if (node.body != null) {
+            for (int i = 0; i < node.body.length; i++) {
+                if (node.body[i] != null)
+                    node.body[i].accept(visitor);
+            }
+        }
+        if (node.orelse != null)
+            node.orelse.accept(visitor);
+    }
+    
+    @Override
+    public Object visitAssert(Assert node) throws Exception {
+        isInTestScope+=1;
+        Object r = super.visitAssert(node);
+        isInTestScope-=1;
+        return r;
+    }
+    
+    @Override
+    public Object visitPrint(Print node) throws Exception {
+        isInTestScope+=1;
+        Object r = super.visitPrint(node);
+        isInTestScope-=1;
+        return r;
+    }
+    
+    @Override
+    public Object visitAssign(Assign node) throws Exception {
+        isInTestScope+=1;
+        Object r = super.visitAssign(node);
+        isInTestScope-=1;
+        return r;
+    }
+    
+    @Override
+    public Object visitAugAssign(AugAssign node) throws Exception {
+        isInTestScope+=1;
+        Object r = super.visitAugAssign(node);
+        isInTestScope-=1;
+        return r;
+    }
+    
+    public void traverse(SimpleNode node) throws Exception {
+        if(node instanceof If){
+            traverse((If)node);
+        }else if(node instanceof While){
+            traverse((While)node);
+        }else{
+            super.traverse(node);
+        }
+    }
     
     /**
      * @return the generated messages.

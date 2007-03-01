@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
@@ -90,6 +89,10 @@ public class ScopeItems {
 
 	public boolean getIsInSubSubScope() {
 		return ifSubScope != 0 || tryExceptSubScope.size() != 0;
+	}
+	
+	public boolean getIsInIfSubScope() {
+	    return ifSubScope != 0;
 	}
 
     /**

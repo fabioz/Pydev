@@ -27,8 +27,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testUnusedVariable2();
-            analyzer2.testNoUnusedVariable();
+            analyzer2.testNoEffect3();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2272,6 +2271,62 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	
     	printMessages(msgs, 1);
     	assertEquals("Statement apppears to have no effect", msgs[0].getMessage());
+    }
+    
+    public void testNoEffect3() {
+        doc = new Document("" +
+                "a = 5\n" +
+                "if a == 1: \n" + //has effect
+                "    a == 1\n" + //has no effect
+        "");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs, 1);
+        assertEquals("Statement apppears to have no effect", msgs[0].getMessage());
+    }
+    
+    
+    public void testNoEffectOk() {
+        doc = new Document("" +
+                "assert 10 == 5\n" +
+        "");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs, 0);
+    }
+    
+    public void testNoEffectOk2() {
+        doc = new Document("" +
+                "a = 10\n" +
+                "a = a == 5\n" +
+        "");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs, 0);
+    }
+    
+    public void testNoEffectOk3() {
+        doc = new Document("" +
+                "a = 10\n" +
+                "a += a == 5\n" +
+        "");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs, 0);
+    }
+    
+    public void testNoEffectOk4() {
+        doc = new Document("" +
+                "print 10 == 5\n" +
+        "");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs, 0);
     }
     
 }

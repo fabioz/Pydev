@@ -57,6 +57,9 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
 	public static final String NAMES_TO_CONSIDER_GLOBALS = "NAMES_TO_CONSIDER_GLOBALS";
 	public static final String DEFAULT_NAMES_TO_CONSIDER_GLOBALS = "_";
 	
+	public static final String SEVERITY_NO_EFFECT_STMT = "SEVERITY_NO_EFFECT_STMT";
+	public static final int DEFAULT_SEVERITY_NO_EFFECT_STMT = IMarker.SEVERITY_WARNING;
+	
 
     @Override
     public void initializeDefaultPreferences() {
