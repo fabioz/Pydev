@@ -14,6 +14,11 @@ public class MarkOccurrencesPreferencesPage extends FieldEditorPreferencePage im
 	
 	public static final String USE_MARK_OCCURRENCES = "USE_MARK_OCCURRENCES";
     public static final boolean DEFAULT_USE_MARK_OCCURRENCES = true;
+    
+    public static final String USE_MARK_OCCURRENCES_IN_STRINGS = "USE_MARK_OCCURRENCES_IN_STRINGS";
+    public static final boolean DEFAULT_USE_MARK_OCCURRENCES_IN_STRINGS = true;
+    
+    
 	private static PyPreferencesCache cache;
 
 	public MarkOccurrencesPreferencesPage() {
@@ -26,6 +31,7 @@ public class MarkOccurrencesPreferencesPage extends FieldEditorPreferencePage im
         Composite p = getFieldEditorParent();
 
         addField(new BooleanFieldEditor(USE_MARK_OCCURRENCES, "Mark Occurrences?", p));
+        addField(new BooleanFieldEditor(USE_MARK_OCCURRENCES_IN_STRINGS, "Mark Occurrences in strings and comments?", p));
     }
     
     public void init(IWorkbench workbench) {
@@ -36,6 +42,13 @@ public class MarkOccurrencesPreferencesPage extends FieldEditorPreferencePage im
     		cache = new PyPreferencesCache(RefactoringPlugin.getDefault().getPreferenceStore());
     	}
     	return cache.getBoolean(USE_MARK_OCCURRENCES);
+    }
+    
+    public static boolean useMarkOccurrencesInStrings() {
+    	if(cache == null){
+    		cache = new PyPreferencesCache(RefactoringPlugin.getDefault().getPreferenceStore());
+    	}
+    	return cache.getBoolean(USE_MARK_OCCURRENCES_IN_STRINGS);
     }
 }
 

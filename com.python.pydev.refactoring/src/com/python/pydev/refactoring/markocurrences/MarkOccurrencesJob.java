@@ -38,6 +38,7 @@ import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.PydevPlugin;
@@ -235,8 +236,19 @@ public class MarkOccurrencesJob extends Job{
                 IDocument doc = pyEdit.getDocument();
                 ArrayList<Annotation> annotations = new ArrayList<Annotation>();
                 Map<Annotation, Position> toAddAsMap = new HashMap<Annotation, Position>();                
+                boolean markOccurrencesInStrings = MarkOccurrencesPreferencesPage.useMarkOccurrencesInStrings();
+                
                 
                 for (ASTEntry entry : occurrences) {
+                	if(!markOccurrencesInStrings){
+	                	if(entry.node instanceof Name){
+							Name name = (Name) entry.node;
+							if(name.ctx == Name.Artificial){
+								continue;
+							}
+	                	}
+                	}
+                	
                 	SimpleNode node = entry.getNameNode();
                     IRegion lineInformation = doc.getLineInformation(node.beginLine-1);
                     

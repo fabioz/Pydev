@@ -13,5 +13,6 @@ public class RefactoringPreferencesInitializer extends AbstractPreferenceInitial
 	public void initializeDefaultPreferences() {
 		Preferences node = new DefaultScope().getNode(DEFAULT_SCOPE);
         node.putBoolean(MarkOccurrencesPreferencesPage.USE_MARK_OCCURRENCES, MarkOccurrencesPreferencesPage.DEFAULT_USE_MARK_OCCURRENCES);
+        node.putBoolean(MarkOccurrencesPreferencesPage.USE_MARK_OCCURRENCES_IN_STRINGS, MarkOccurrencesPreferencesPage.DEFAULT_USE_MARK_OCCURRENCES_IN_STRINGS);
 	}
 }
