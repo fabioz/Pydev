@@ -17,7 +17,6 @@ import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
-import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
@@ -38,7 +37,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             
             ICodeCompletionASTManager astManager = request.nature.getAstManager();
             
-            Image img = PyCodeCompletionImages.getImageForType(IPyCodeCompletion.TYPE_PACKAGE);
+            Image img = PyCodeCompletionImages.getImageForType(IToken.TYPE_PACKAGE);
             
             IModulesManager projectModulesManager = astManager.getModulesManager();
             Set allModuleNames = projectModulesManager.getAllModuleNames();
