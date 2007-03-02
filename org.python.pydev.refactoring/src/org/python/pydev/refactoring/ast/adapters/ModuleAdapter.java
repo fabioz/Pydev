@@ -377,6 +377,19 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 		return bases;
 	}
 
+    /**
+     * TODO: the current way of getting the base list is 'naive', and can take a lot of time when processing
+     * (and does not handle CompiledModules)
+     * 
+     * This method fills the bases list (out) with asts for the methods that can be overriden.
+     * 
+     * Still, compiled modules will not have an actual ast, but a list of tokens (that should be used
+     * to know what should be overriden), so, this method should actually be changed so that 
+     * it works with tokens (that are resolved when a completion is requested), so, if we request a completion
+     * for each base class, all the tokens from it will be returned, what's missing in this approach is that currently
+     * the tokens returned don't have an associated context, so, after getting them, it may be hard to actually
+     * tell the whole class structure above it (but this can be considered secondary for now).
+     */
 	private void fillBaseList(Set<ClassDefAdapter> bases, List<FQIdentifier> qualifiedBaseName) {
 		if (moduleManager != null) {
 			for (FQIdentifier identifier : qualifiedBaseName) {

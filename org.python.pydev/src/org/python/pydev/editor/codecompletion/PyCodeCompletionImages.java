@@ -1,6 +1,7 @@
 package org.python.pydev.editor.codecompletion;
 
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
@@ -19,33 +20,33 @@ public class PyCodeCompletionImages {
                 return null;
     
             switch (type) {
-            case IPyCodeCompletion.TYPE_IMPORT:
+            case IToken.TYPE_IMPORT:
                 return imageCache.get(UIConstants.COMPLETION_IMPORT_ICON);
     
-            case IPyCodeCompletion.TYPE_CLASS:
+            case IToken.TYPE_CLASS:
                 return imageCache.get(UIConstants.COMPLETION_CLASS_ICON);
     
-            case IPyCodeCompletion.TYPE_FUNCTION:
+            case IToken.TYPE_FUNCTION:
                 return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
     
-            case IPyCodeCompletion.TYPE_ATTR:
+            case IToken.TYPE_ATTR:
                 return imageCache.get(UIConstants.PUBLIC_ATTR_ICON);
     
-            case IPyCodeCompletion.TYPE_BUILTIN:
+            case IToken.TYPE_BUILTIN:
                 return imageCache.get(UIConstants.BUILTINS_ICON);
     
-            case IPyCodeCompletion.TYPE_PARAM:
-            case IPyCodeCompletion.TYPE_LOCAL:
-            case IPyCodeCompletion.TYPE_OBJECT_FOUND_INTERFACE:
+            case IToken.TYPE_PARAM:
+            case IToken.TYPE_LOCAL:
+            case IToken.TYPE_OBJECT_FOUND_INTERFACE:
                 return imageCache.get(UIConstants.COMPLETION_PARAMETERS_ICON);
     
-            case IPyCodeCompletion.TYPE_PACKAGE:
+            case IToken.TYPE_PACKAGE:
                 return imageCache.get(UIConstants.COMPLETION_PACKAGE_ICON);
                 
-            case IPyCodeCompletion.TYPE_RELATIVE_IMPORT:
+            case IToken.TYPE_RELATIVE_IMPORT:
                 return imageCache.get(UIConstants.COMPLETION_RELATIVE_IMPORT_ICON);
                 
-            case IPyCodeCompletion.TYPE_EPYDOC:
+            case IToken.TYPE_EPYDOC:
                 return imageCache.get(UIConstants.COMPLETION_EPYDOC);
     
             default:

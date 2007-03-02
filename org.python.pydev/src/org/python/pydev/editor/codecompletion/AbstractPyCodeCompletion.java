@@ -73,7 +73,7 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
                 int type = element.getType();
                 
                 int priority = IPyCompletionProposal.PRIORITY_DEFAULT;
-                if(type == IPyCodeCompletion.TYPE_PARAM || type == IPyCodeCompletion.TYPE_LOCAL || type == IPyCodeCompletion.TYPE_OBJECT_FOUND_INTERFACE){
+                if(type == IToken.TYPE_PARAM || type == IToken.TYPE_LOCAL || type == IToken.TYPE_OBJECT_FOUND_INTERFACE){
                     priority = IPyCompletionProposal.PRIORITY_LOCALS;
                 }
                 
@@ -110,7 +110,7 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
                 }
 
                 int priority = IPyCompletionProposal.PRIORITY_DEFAULT;
-                if(type == IPyCodeCompletion.TYPE_PARAM){
+                if(type == IToken.TYPE_PARAM){
                     priority = IPyCompletionProposal.PRIORITY_LOCALS;
                 }
                 
@@ -165,7 +165,7 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
             }
             buffer.append(")");
             args = buffer.toString();
-        } else if (element.getType() == IPyCodeCompletion.TYPE_FUNCTION){
+        } else if (element.getType() == IToken.TYPE_FUNCTION){
             args = "()";
         }
         

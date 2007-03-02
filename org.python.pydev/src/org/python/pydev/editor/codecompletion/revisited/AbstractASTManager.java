@@ -32,7 +32,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
-import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -160,7 +159,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         
         if(level == 0){
             //first we get the imports... that complete for the token.
-            getAbsoluteImportTokens(absoluteModule, set, IPyCodeCompletion.TYPE_IMPORT, false);
+            getAbsoluteImportTokens(absoluteModule, set, IToken.TYPE_IMPORT, false);
     
             //Now, if we have an initial module, we have to get the completions
             //for it.
@@ -168,7 +167,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         }
 
         if(relative != null && relative.equals(absoluteModule) == false){
-            getAbsoluteImportTokens(relative, set, IPyCodeCompletion.TYPE_RELATIVE_IMPORT, false);
+            getAbsoluteImportTokens(relative, set, IToken.TYPE_RELATIVE_IMPORT, false);
             if(importInfo.hasImportSubstring){
                 getTokensForModule(relative, nature, relative, set);
             }
@@ -319,7 +318,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             completionsForModule = getCompletionsForModule(module, state, true, true);
 
         } catch (CompletionRecursionException e) {
-            completionsForModule = new IToken[]{ new ConcreteToken(e.getMessage(), e.getMessage(), "","", IPyCodeCompletion.TYPE_UNKNOWN)};
+            completionsForModule = new IToken[]{ new ConcreteToken(e.getMessage(), e.getMessage(), "","", IToken.TYPE_UNKNOWN)};
         }
         
         return completionsForModule;
@@ -434,7 +433,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 		        String modName = module.getName();
 		        if(modName != null && modName.endsWith(".__init__")){
 		        	HashSet<IToken> gotten = new HashSet<IToken>();
-					getAbsoluteImportTokens(FullRepIterable.getParentModule(modName), gotten, IPyCodeCompletion.TYPE_IMPORT, true);
+					getAbsoluteImportTokens(FullRepIterable.getParentModule(modName), gotten, IToken.TYPE_IMPORT, true);
 					for (IToken token : gotten) {
 						if(token.getRepresentation().equals("__init__") == false){
 							initial.add(token);

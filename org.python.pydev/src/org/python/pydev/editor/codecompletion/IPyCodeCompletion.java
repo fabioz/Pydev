@@ -10,66 +10,6 @@ import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 public interface IPyCodeCompletion {
 
     /**
-     * Type for unknown.
-     */
-    public static final int TYPE_UNKNOWN = -1;
-
-    /**
-     * Type for import (used to decide the icon)
-     */
-    public static final int TYPE_IMPORT = 0;
-
-    /**
-     * Type for class (used to decide the icon)
-     */
-    public static final int TYPE_CLASS = 1;
-
-    /**
-     * Type for function (used to decide the icon)
-     */
-    public static final int TYPE_FUNCTION = 2;
-
-    /**
-     * Type for attr (used to decide the icon)
-     */
-    public static final int TYPE_ATTR = 3;
-
-    /**
-     * Type for attr (used to decide the icon)
-     */
-    public static final int TYPE_BUILTIN = 4;
-
-    /**
-     * Type for parameter (used to decide the icon)
-     */
-    public static final int TYPE_PARAM = 5;
-
-    /**
-     * Type for package (used to decide the icon)
-     */
-    public static final int TYPE_PACKAGE = 6;
-
-    /**
-     * Type for relative import
-     */
-    public static final int TYPE_RELATIVE_IMPORT = 7;
-    
-    /**
-     * Type for an epydoc field
-     */
-    public static final int TYPE_EPYDOC = 8;
-    
-    /**
-     * Type for local (used to decide the icon)
-     */
-    public static final int TYPE_LOCAL = 9;
-    
-    /**
-     * Type for local (used to decide the icon)
-     */
-    public static final int TYPE_OBJECT_FOUND_INTERFACE = 10;
-
-    /**
      * Returns a list with the tokens to use for autocompletion.
      * 
      * The list is composed from tuples containing the following:

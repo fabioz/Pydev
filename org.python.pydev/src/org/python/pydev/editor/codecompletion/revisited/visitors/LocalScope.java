@@ -16,7 +16,6 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.structure.FastStack;
-import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -130,7 +129,7 @@ public class LocalScope implements ILocalScope {
                 FunctionDef f = (FunctionDef) element;
                 for (int i = 0; i < f.args.args.length; i++) {
                     String s = NodeUtils.getRepresentationString(f.args.args[i]);
-                    comps.add(new SourceToken(f.args.args[i], s, "", "", "", IPyCodeCompletion.TYPE_PARAM));
+                    comps.add(new SourceToken(f.args.args[i], s, "", "", "", IToken.TYPE_PARAM));
                 }
                 if(onlyArgs){
                     continue;
@@ -144,7 +143,7 @@ public class LocalScope implements ILocalScope {
                             SourceToken tok = (SourceToken) iterator.next();
                             
                             //if it is found here, it is a local type
-                            tok.type = IPyCodeCompletion.TYPE_LOCAL;
+                            tok.type = IToken.TYPE_LOCAL;
                             if(tok.getAst().beginLine <= endLine){
                                 comps.add(tok);
                             }
@@ -187,7 +186,7 @@ public class LocalScope implements ILocalScope {
             String rep = NodeUtils.getFullRepresentationString(entry.node);
             if(rep.startsWith(dottedActTok)){
                 rep = rep.substring(dottedActTok.length());
-                comps.add(new SourceToken(entry.node, FullRepIterable.getFirstPart(rep), "", "", "", IPyCodeCompletion.TYPE_OBJECT_FOUND_INTERFACE));
+                comps.add(new SourceToken(entry.node, FullRepIterable.getFirstPart(rep), "", "", "", IToken.TYPE_OBJECT_FOUND_INTERFACE));
             }
         }
         return new ArrayList<IToken>(comps);

@@ -5,7 +5,7 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.modules;
 
-import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
+import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -61,25 +61,25 @@ public class SourceToken extends AbstractToken{
      */
     public static int getType(SimpleNode ast){
         if (ast instanceof ClassDef){
-            return IPyCodeCompletion.TYPE_CLASS; 
+            return IToken.TYPE_CLASS; 
         
         }else if (ast instanceof FunctionDef){
-            return IPyCodeCompletion.TYPE_FUNCTION; 
+            return IToken.TYPE_FUNCTION; 
         
         }else if (ast instanceof Name){
-            return IPyCodeCompletion.TYPE_ATTR;
+            return IToken.TYPE_ATTR;
             
         }else if (ast instanceof Import || ast instanceof ImportFrom){
-            return IPyCodeCompletion.TYPE_IMPORT; 
+            return IToken.TYPE_IMPORT; 
 
         }else if (ast instanceof keywordType){
-            return IPyCodeCompletion.TYPE_ATTR; 
+            return IToken.TYPE_ATTR; 
         
         }else if (ast instanceof Attribute){
-            return IPyCodeCompletion.TYPE_ATTR; 
+            return IToken.TYPE_ATTR; 
         }
         
-        return  IPyCodeCompletion.TYPE_UNKNOWN;
+        return  IToken.TYPE_UNKNOWN;
     }
 
     

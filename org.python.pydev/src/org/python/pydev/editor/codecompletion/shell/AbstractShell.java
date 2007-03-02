@@ -22,9 +22,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.plugin.PydevPlugin;
@@ -868,7 +868,7 @@ public abstract class AbstractShell {
                 if(tokenizer.hasMoreTokens())
                     args = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
                 
-                String type =""+IPyCodeCompletion.TYPE_UNKNOWN;
+                String type =""+IToken.TYPE_UNKNOWN;
                 if(tokenizer.hasMoreTokens())
                     type = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
       

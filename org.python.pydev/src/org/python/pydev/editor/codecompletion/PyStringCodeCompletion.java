@@ -20,6 +20,7 @@ import org.eclipse.jface.text.templates.TemplateProposal;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocIterator;
@@ -139,7 +140,7 @@ public class PyStringCodeCompletion extends AbstractPyCodeCompletion{
 	        			for (String str : insideParentesisToks.o1) {
 	        				if(str.startsWith(initial)){
 	        					ret.add(new PyLinkedModeCompletionProposal(str, request.documentOffset - request.qlen, request.qlen, str.length(), 
-	                                    PyCodeCompletionImages.getImageForType(IPyCodeCompletion.TYPE_PARAM), null, null, "", 0, PyCompletionProposal.ON_APPLY_DEFAULT, ""));
+	                                    PyCodeCompletionImages.getImageForType(IToken.TYPE_PARAM), null, null, "", 0, PyCompletionProposal.ON_APPLY_DEFAULT, ""));
 	        				}
 						}
 	        			return;
@@ -157,7 +158,7 @@ public class PyStringCodeCompletion extends AbstractPyCodeCompletion{
 	private void fillWithEpydocFields(ITextViewer viewer, CompletionRequest request, ArrayList<ICompletionProposal> ret) {
 		try{
         	Region region = new Region(request.documentOffset - request.qlen, request.qlen);
-        	Image image = PyCodeCompletionImages.getImageForType(IPyCodeCompletion.TYPE_EPYDOC);
+        	Image image = PyCodeCompletionImages.getImageForType(IToken.TYPE_EPYDOC);
         	TemplateContext context = createContext(viewer, region, request.doc);
         	
             char c = request.doc.getChar(request.documentOffset - request.qualifier.length() -1);

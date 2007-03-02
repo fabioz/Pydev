@@ -7,7 +7,6 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IToken;
-import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -154,16 +153,16 @@ public abstract class AbstractToken implements IToken{
         int otherT = comp.getType();
         
         if(thisT != otherT){
-            if (thisT == IPyCodeCompletion.TYPE_PARAM || thisT == IPyCodeCompletion.TYPE_LOCAL || thisT == IPyCodeCompletion.TYPE_OBJECT_FOUND_INTERFACE)
+            if (thisT == IToken.TYPE_PARAM || thisT == IToken.TYPE_LOCAL || thisT == IToken.TYPE_OBJECT_FOUND_INTERFACE)
                 return -1;
 
-            if (otherT == IPyCodeCompletion.TYPE_PARAM || otherT == IPyCodeCompletion.TYPE_LOCAL || otherT == IPyCodeCompletion.TYPE_OBJECT_FOUND_INTERFACE)
+            if (otherT == IToken.TYPE_PARAM || otherT == IToken.TYPE_LOCAL || otherT == IToken.TYPE_OBJECT_FOUND_INTERFACE)
                 return 1;
 
-            if (thisT == IPyCodeCompletion.TYPE_IMPORT)
+            if (thisT == IToken.TYPE_IMPORT)
                 return -1;
 
-            if (otherT == IPyCodeCompletion.TYPE_IMPORT)
+            if (otherT == IToken.TYPE_IMPORT)
                 return 1;
         }
         

@@ -26,7 +26,6 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.FastStack;
-import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ConcreteToken;
@@ -558,7 +557,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             boolean sameRep = token.getRepresentation().equals(rep);
             if(sameRep){
                 if(token instanceof SourceToken){
-                    if(((SourceToken)token).getType() == IPyCodeCompletion.TYPE_OBJECT_FOUND_INTERFACE){
+                    if(((SourceToken)token).getType() == IToken.TYPE_OBJECT_FOUND_INTERFACE){
                         //just having it extracted from the interface from an object does not mean
                         //that it's actual definition was found
                         continue; 

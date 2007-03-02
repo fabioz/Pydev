@@ -18,11 +18,11 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
-import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.model.ItemPointer;
@@ -94,7 +94,9 @@ public class PyGoToDefinition extends PyRefactorAction {
                 	return;
                 }
                 for (ItemPointer pointer : defs) {
-                    set.add(pointer);
+                    if(pointer.file != null){
+                        set.add(pointer);
+                    }
                 }
                 final ItemPointer[] where = set.toArray(new ItemPointer[0]);
     
@@ -116,7 +118,7 @@ public class PyGoToDefinition extends PyRefactorAction {
                                 ElementListSelectionDialog dialog = new ElementListSelectionDialog(shell, new ILabelProvider(){
 
                                     public Image getImage(Object element) {
-                                        return PyCodeCompletionImages.getImageForType(IPyCodeCompletion.TYPE_PACKAGE);
+                                        return PyCodeCompletionImages.getImageForType(IToken.TYPE_PACKAGE);
                                     }
 
                                     public String getText(Object element) {
