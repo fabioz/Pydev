@@ -25,6 +25,7 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Print;
 import org.python.pydev.parser.jython.ast.Raise;
+import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.While;
 
@@ -152,6 +153,14 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
     public Object visitCall(Call node) throws Exception {
     	isInTestScope+=1;
     	Object r = super.visitCall(node);
+    	isInTestScope-=1;
+    	return r;
+    }
+    
+    @Override
+    public Object visitReturn(Return node) throws Exception {
+    	isInTestScope+=1;
+    	Object r = super.visitReturn(node);
     	isInTestScope-=1;
     	return r;
     }
