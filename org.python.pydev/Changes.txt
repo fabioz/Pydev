@@ -1,3 +1,10 @@
+after 1.2.9
+
+Pydev Extensions:
+<ul>
+<li><strong>Code-analysis</strong>: Fixed false positive for statement with no effect</li>
+</ul>
+
 after 1.2.8
 Packaging problem
 
