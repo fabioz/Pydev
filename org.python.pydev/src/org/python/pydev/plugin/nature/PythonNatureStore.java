@@ -598,7 +598,6 @@ class PythonNatureStore implements IResourceChangeListener {
                 }
             };
 
-            storeJob.setRule(project);
             storeJob.schedule();
         }
     }
@@ -649,7 +648,6 @@ class PythonNatureStore implements IResourceChangeListener {
                     }
                 };
 
-                loadJob.setRule(project);
                 loadJob.schedule();
             }
         }
