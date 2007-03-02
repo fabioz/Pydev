@@ -27,7 +27,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testNoEffect3();
+            analyzer2.testNoEffectOk5();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2327,6 +2327,18 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 0);
+    }
+    
+    public void testNoEffectOk5() {
+    	doc = new Document("" +
+    			"def check():\n" +
+    			"    pass\n" +
+    			"check(1 in [1,2])\n" +
+    	"");
+    	analyzer = new OccurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs, 0);
     }
     
 }

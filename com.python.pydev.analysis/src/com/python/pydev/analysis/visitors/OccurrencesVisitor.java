@@ -17,6 +17,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.AugAssign;
+import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Compare;
 import org.python.pydev.parser.jython.ast.Expr;
@@ -145,6 +146,14 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
         Object r = super.visitAugAssign(node);
         isInTestScope-=1;
         return r;
+    }
+    
+    @Override
+    public Object visitCall(Call node) throws Exception {
+    	isInTestScope+=1;
+    	Object r = super.visitCall(node);
+    	isInTestScope-=1;
+    	return r;
     }
     
     public void traverse(SimpleNode node) throws Exception {
