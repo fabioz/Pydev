@@ -19,9 +19,8 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.structure.CompletionRecursionException;
-import org.python.pydev.editor.codecompletion.CompletionRequest;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Str;
@@ -375,16 +374,21 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 			return bases;
 
 		for (String baseName : importedBase) {
-            CompletionRequest compReq = new CompletionRequest(file, nature, doc, baseName, 0, 0, new PyCodeCompletion(), "");
-		    ArrayList ret = new ArrayList();
             ICompletionState state = new CompletionState(0,0,baseName,nature,"");
-            PyCodeCompletion.getSelfOrClsCompletions(compReq, ret, state, true, (SimpleNode) sourceModule.getAst());
-            for (Object object : ret) {
-                if(object instanceof IToken){
-                    IToken token = (IToken) object;
-                    System.out.println("TODO: CREATE CLASS DEF ADAPTER FOR TOKENS..."+token);
-                    //new ClassDefAdapterFromTokens(ret);
+            IToken[] ret = null;
+			try {
+				ret = nature.getAstManager().getCompletionsForToken(file, doc, state);
+			} catch (CompletionRecursionException e) {
+				throw new RuntimeException(e);
+			}
+            for (IToken tok: ret) {
+                System.out.println("TODO: CREATE CLASS DEF ADAPTER FOR TOKENS..."+tok);
+                if(tok instanceof SourceToken){
+					SourceToken token = (SourceToken) tok;
+					System.out.println(token.getAst());
+                	
                 }
+                //new ClassDefAdapterFromTokens(ret);
             }
 		}
 		return bases;

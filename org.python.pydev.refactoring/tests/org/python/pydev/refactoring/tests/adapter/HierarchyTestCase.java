@@ -60,9 +60,9 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
                 file)), nature);
         
         List<IClassDefAdapter> classes = module.getClasses();
-        assertTrue(classes.size() == 1);
+        assertEquals(1, classes.size());
         List<IClassDefAdapter> baseClasses = classes.get(0).getBaseClasses();
-        assertEquals(1, baseClasses.size());
+        assertEquals(2, baseClasses.size());
         assertEquals("list", baseClasses.get(0).getName());
     }
     
