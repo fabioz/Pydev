@@ -3,8 +3,8 @@ package org.python.pydev.refactoring.codegenerator.overridemethods;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.codegenerator.overridemethods.request.OverrideMethodsRequest;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
@@ -19,9 +19,9 @@ public class OverrideMethodsRequestProcessor implements IRequestProcessor<Overri
 
 	private boolean generateMethodComments;
 
-	private ClassDefAdapter origin;
+	private IClassDefAdapter origin;
 
-	public OverrideMethodsRequestProcessor(ClassDefAdapter origin) {
+	public OverrideMethodsRequestProcessor(IClassDefAdapter origin) {
 		checked = new Object[0];
 		insertionPoint = IOffsetStrategy.AFTERINIT;
 		this.origin = origin;

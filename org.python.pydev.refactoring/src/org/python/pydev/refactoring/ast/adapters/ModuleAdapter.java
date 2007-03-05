@@ -14,10 +14,13 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.editor.codecompletion.CompletionRequest;
+import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Module;
@@ -52,6 +55,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
 	public ModuleAdapter(PythonModuleManager pm, File file, IDocument doc, Module node, IPythonNature nature) {
 		super(null, null, node);
+//		Assert.isNotNull(pm); TODO: MAKE THIS ASSERTION TRUE
 		this.moduleManager = pm;
 		this.file = file;
 		this.doc = doc;
@@ -62,6 +66,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
 	public ModuleAdapter(PythonModuleManager pm, ISourceModule module, IPythonNature nature) {
 		super(null, null, (Module) (module).getAst());
+//		Assert.isNotNull(pm); TODO: MAKE THIS ASSERTION TRUE
 		this.sourceModule = module;
 		this.moduleManager = pm;
 		this.file = module.getFile();
@@ -87,8 +92,8 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 		return aliasToFQIdentifier;
 	}
 
-	public List<ClassDefAdapter> getClassHierarchy(ClassDefAdapter scopeClass) {
-		List<ClassDefAdapter> bases = new ArrayList<ClassDefAdapter>();
+	public List<IClassDefAdapter> getClassHierarchy(IClassDefAdapter scopeClass) {
+		List<IClassDefAdapter> bases = new ArrayList<IClassDefAdapter>();
 
 		resolveClassHierarchy(bases, scopeClass);
 		Collections.reverse(bases);
@@ -97,7 +102,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 		return bases;
 	}
 
-	public String getBaseContextName(ClassDefAdapter contextClass, String originalName) {
+	public String getBaseContextName(IClassDefAdapter contextClass, String originalName) {
 		originalName = resolveRealToAlias(originalName);
 		for (String baseName : contextClass.getBaseClassNames()) {
 			if (baseName.endsWith(originalName)) {
@@ -175,20 +180,22 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 		return importedModules;
 	}
 
-	public ClassDefAdapter getScopeClass(ITextSelection selection) {
-		ClassDefAdapter bestClassScope = null;
-		Iterator<ClassDefAdapter> iter = getClasses().iterator();
+	public IClassDefAdapter getScopeClass(ITextSelection selection) {
+        IASTNodeAdapter bestClassScope = null;
+		Iterator<IClassDefAdapter> iter = getClasses().iterator();
 		while (iter.hasNext()) {
-			ClassDefAdapter classScope = iter.next();
-			if (isSelectionInAdapter(selection, classScope))
+            IASTNodeAdapter classScope = (IASTNodeAdapter) iter.next();
+			if (isSelectionInAdapter(selection, classScope)){
 				bestClassScope = classScope;
+            }
 
-			if (classScope.getNodeFirstLine() > selection.getEndLine())
+			if (classScope.getNodeFirstLine() > selection.getEndLine()){
 				break;
+            }
 
 		}
 
-		return bestClassScope;
+		return (IClassDefAdapter) bestClassScope;
 	}
 
 	private void initAliasList() {
@@ -258,9 +265,9 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 		return isAdapterInSelection(selection, new SimpleAdapter(this, this, node));
 	}
 
-	private ClassDefAdapter resolveClassHierarchy(List<ClassDefAdapter> bases, ClassDefAdapter adap) {
+	private IClassDefAdapter resolveClassHierarchy(List<IClassDefAdapter> bases, IClassDefAdapter adap) {
 		if (adap.hasBaseClass() && adap.getModule() != null) {
-			for (ClassDefAdapter elem : adap.getModule().getBaseClasses(adap)) {
+			for (IClassDefAdapter elem : adap.getModule().getBaseClasses(adap)) {
 				if (elem != null) {
 					bases.add(resolveClassHierarchy(bases, elem));
 				}
@@ -270,12 +277,12 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 		return adap;
 	}
 
-	public List<ClassDefAdapter> getBaseClasses(ClassDefAdapter clazz) {
+	public List<IClassDefAdapter> getBaseClasses(IClassDefAdapter clazz) {
 
 		List<String> baseNames = clazz.getBaseClassNames();
-		List<ClassDefAdapter> bases = new ArrayList<ClassDefAdapter>();
+		List<IClassDefAdapter> bases = new ArrayList<IClassDefAdapter>();
 		Set<String> importedBaseNames = new HashSet<String>();
-		for (ClassDefAdapter adapter : getClasses()) {
+		for (IClassDefAdapter adapter : getClasses()) {
 			for (String baseName : baseNames) {
 
 				if (baseName.compareTo(adapter.getName()) == 0) {
@@ -291,8 +298,8 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 		return bases;
 	}
 
-	public ClassDefAdapter resolveClass(String name) {
-		for (ClassDefAdapter classAdapter : getClasses()) {
+	public IClassDefAdapter resolveClass(String name) {
+		for (IClassDefAdapter classAdapter : getClasses()) {
 			if (classAdapter.getName().compareTo(name) == 0) {
 				return classAdapter;
 			} else if (name.contains(".")) {
@@ -304,10 +311,10 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 					return classAdapter;
 				}
 
-				ClassDefAdapter current = classAdapter;
+				IClassDefAdapter current = classAdapter;
 				String fullNestedName = classAdapter.getName();
 				while (nodeHelper.isClassDef(current.getParent().getASTNode())) {
-					current = (ClassDefAdapter) current.getParent();
+					current = (IClassDefAdapter) current.getParent();
 					fullNestedName = current.getName() + "." + fullNestedName;
 				}
 				if (fullNestedName.compareTo(name) == 0)
@@ -368,11 +375,17 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 			return bases;
 
 		for (String baseName : importedBase) {
-
-			List<FQIdentifier> qualifiedBaseName = resolveFullyQualified(baseName);
-
-			fillBaseList(bases, qualifiedBaseName);
-
+            CompletionRequest compReq = new CompletionRequest(file, nature, doc, baseName, 0, 0, new PyCodeCompletion(), "");
+		    ArrayList ret = new ArrayList();
+            ICompletionState state = new CompletionState(0,0,baseName,nature,"");
+            PyCodeCompletion.getSelfOrClsCompletions(compReq, ret, state, true, (SimpleNode) sourceModule.getAst());
+            for (Object object : ret) {
+                if(object instanceof IToken){
+                    IToken token = (IToken) object;
+                    System.out.println("TODO: CREATE CLASS DEF ADAPTER FOR TOKENS..."+token);
+                    //new ClassDefAdapterFromTokens(ret);
+                }
+            }
 		}
 		return bases;
 	}
@@ -390,15 +403,16 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
      * the tokens returned don't have an associated context, so, after getting them, it may be hard to actually
      * tell the whole class structure above it (but this can be considered secondary for now).
      */
-	private void fillBaseList(Set<ClassDefAdapter> bases, List<FQIdentifier> qualifiedBaseName) {
+	private void fillBaseList(Set<IClassDefAdapter> bases, List<FQIdentifier> qualifiedBaseName) {
 		if (moduleManager != null) {
 			for (FQIdentifier identifier : qualifiedBaseName) {
 
 				Set<ModuleAdapter> resolvedModules = moduleManager.resolveModule(file, identifier);
 				for (ModuleAdapter module : resolvedModules) {
-					ClassDefAdapter base = module.resolveClass(identifier.getRealName());
-					if (base != null)
+					IClassDefAdapter base = module.resolveClass(identifier.getRealName());
+					if (base != null){
 						bases.add(base);
+                    }
 				}
 			}
 		}
@@ -426,7 +440,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
 		bestScopeNode = getScopeFunction(selection);
 		if (bestScopeNode == null) {
-			bestScopeNode = getScopeClass(selection);
+			bestScopeNode = (AbstractScopeNode<?>) getScopeClass(selection);
 		}
 
 		if (bestScopeNode == null) {

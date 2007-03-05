@@ -17,7 +17,7 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNo
 
 	private List<FunctionDefAdapter> functions;
 
-	private List<ClassDefAdapter> classes;
+	private List<IClassDefAdapter> classes;
 
 	public AbstractScopeNode(ModuleAdapter module, AbstractScopeNode<?> parent, T node) {
 		super(module, parent, node);
@@ -37,7 +37,7 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNo
 		return functions;
 	}
 
-	public List<ClassDefAdapter> getClasses() {
+	public List<IClassDefAdapter> getClasses() {
 		if (this.classes == null) {
 			ClassDefVisitor visitor = null;
 			visitor = VisitorFactory.createContextVisitor(ClassDefVisitor.class, this.getASTNode(), getModule(), this);

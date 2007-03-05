@@ -2,15 +2,15 @@ package org.python.pydev.refactoring.codegenerator.generateproperties.request;
 
 import java.util.List;
 
-import org.python.pydev.refactoring.ast.adapters.AbstractNodeAdapter;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.PropertyTextAdapter;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
 public class GeneratePropertiesRequest implements IRefactoringRequest {
 
-	private ClassDefAdapter classAdapter;
+	private IClassDefAdapter classAdapter;
 
 	private INodeAdapter attributeAdapter;
 
@@ -22,7 +22,7 @@ public class GeneratePropertiesRequest implements IRefactoringRequest {
 
 	private int accessModifier;
 
-	public GeneratePropertiesRequest(ClassDefAdapter classAdapter, INodeAdapter attributeAdapter, List<PropertyTextAdapter> properties,
+	public GeneratePropertiesRequest(IClassDefAdapter classAdapter, INodeAdapter attributeAdapter, List<PropertyTextAdapter> properties,
 			int offsetMethodStrategy, int offsetPropertyStrategy, int accessModifier) {
 		this.state = new SelectionState();
 		this.classAdapter = classAdapter;
@@ -33,7 +33,7 @@ public class GeneratePropertiesRequest implements IRefactoringRequest {
 		initialize(properties);
 	}
 
-	public ClassDefAdapter getClassAdapter() {
+	public IClassDefAdapter getClassAdapter() {
 		return classAdapter;
 	}
 
@@ -70,8 +70,11 @@ public class GeneratePropertiesRequest implements IRefactoringRequest {
 		return state;
 	}
 
-	public AbstractNodeAdapter getOffsetNode() {
-		return classAdapter;
+	public IASTNodeAdapter getOffsetNode() {
+		if (classAdapter instanceof IASTNodeAdapter){
+		    return (IASTNodeAdapter) classAdapter;
+        }
+        throw new RuntimeException("Not instance of IASTNodeAdapter:"+classAdapter.getClass());
 	}
 
 	public int getMethodOffsetStrategy() {

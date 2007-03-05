@@ -15,9 +15,9 @@ import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.renamer.LocalVarRenameVisitor;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.request.ExtractMethodRequest;
@@ -78,7 +78,7 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
 			while (parentScopeAdapter instanceof FunctionDef) {
 				parentScopeAdapter = scopeAdapter.getParent();
 			}
-			if (parentScopeAdapter instanceof ClassDefAdapter) {
+			if (parentScopeAdapter instanceof IClassDefAdapter) {
 				argsList.add(new Name("self", Name.Load));
 			}
 		}

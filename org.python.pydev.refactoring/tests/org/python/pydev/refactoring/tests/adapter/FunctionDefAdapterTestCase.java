@@ -3,8 +3,8 @@ package org.python.pydev.refactoring.tests.adapter;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
@@ -19,11 +19,11 @@ public class FunctionDefAdapterTestCase extends AbstractIOTestCase {
 	public void runTest() throws Throwable {
 		StringBuffer buffer = new StringBuffer();
 		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()), new PythonNatureStub());
-		List<ClassDefAdapter> classes = module.getClasses();
+		List<IClassDefAdapter> classes = module.getClasses();
 		assertTrue(classes.size() > 0);
 
 		buffer.append("# ClassName FunctionName hasArg hasVarArg hasKwArg ArgumentsOnly\n");
-		for (ClassDefAdapter adapter : module.getClasses()) {
+		for (IClassDefAdapter adapter : module.getClasses()) {
 			printFunction(buffer, adapter);
 		}
 
@@ -31,7 +31,7 @@ public class FunctionDefAdapterTestCase extends AbstractIOTestCase {
 		assertEquals(getExpected(), getGenerated());
 	}
 
-	private void printFunction(StringBuffer buffer, ClassDefAdapter adapter) {
+	private void printFunction(StringBuffer buffer, IClassDefAdapter adapter) {
 		final String DOUBLETAB = " ";
 		buffer.append("# " + adapter.getName() + "\n");
 		for (FunctionDefAdapter function : adapter.getFunctions()) {

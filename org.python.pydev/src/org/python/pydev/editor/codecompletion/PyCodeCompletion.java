@@ -326,6 +326,10 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      */
     public static void getSelfOrClsCompletions(CompletionRequest request, List theList, ICompletionState state, boolean getOnlySupers) {
         SimpleNode s = PyParser.reparseDocument(new PyParser.ParserInfo(request.doc, true, request.nature, state.getLine())).o1;
+        getSelfOrClsCompletions(request, theList, state, getOnlySupers, s);
+    }
+
+    public static void getSelfOrClsCompletions(CompletionRequest request, List theList, ICompletionState state, boolean getOnlySupers, SimpleNode s) {
         if(s != null){
             FindScopeVisitor visitor = new FindScopeVisitor(state.getLine(), 0);
             try {

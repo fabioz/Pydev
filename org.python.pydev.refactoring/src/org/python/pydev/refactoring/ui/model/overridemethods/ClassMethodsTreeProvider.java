@@ -6,14 +6,14 @@ import java.util.List;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ui.model.tree.ITreeNode;
 
 public class ClassMethodsTreeProvider implements ITreeContentProvider {
 
-	private List<ClassDefAdapter> classes;
+	private List<IClassDefAdapter> classes;
 
-	public ClassMethodsTreeProvider(List<ClassDefAdapter> adapters) {
+	public ClassMethodsTreeProvider(List<IClassDefAdapter> adapters) {
 		this.classes = adapters;
 	}
 
@@ -32,7 +32,7 @@ public class ClassMethodsTreeProvider implements ITreeContentProvider {
 
 	public Object[] getElements(Object inputElement) {
 		Collection<ClassTreeNode> elements = new ArrayList<ClassTreeNode>();
-		for (ClassDefAdapter elem : classes) {
+		for (IClassDefAdapter elem : classes) {
 			if (elem.hasFunctionsInitFiltered()) {
 				elements.add(new ClassTreeNode(elem));
 			}

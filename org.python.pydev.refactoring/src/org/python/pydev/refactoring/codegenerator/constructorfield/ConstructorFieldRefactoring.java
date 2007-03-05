@@ -7,7 +7,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.core.AbstractPythonRefactoring;
 import org.python.pydev.refactoring.core.RefactoringInfo;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;
@@ -46,7 +46,7 @@ public class ConstructorFieldRefactoring extends AbstractPythonRefactoring {
 
 	@Override
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-		ClassDefAdapter rootClass = this.req.getScopeClass();
+		IClassDefAdapter rootClass = this.req.getScopeClass();
 
 		if (rootClass != null) {
 			if (rootClass.getAttributes().size() > 0) {

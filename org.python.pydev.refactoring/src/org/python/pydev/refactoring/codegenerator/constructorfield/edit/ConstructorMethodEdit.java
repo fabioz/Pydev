@@ -18,8 +18,8 @@ import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
 import org.python.pydev.refactoring.ast.visitors.NodeHelper;
 import org.python.pydev.refactoring.codegenerator.constructorfield.request.ConstructorFieldRequest;
@@ -35,7 +35,7 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
 
 	private List<INodeAdapter> attributes;
 
-	private ClassDefAdapter classAdapter;
+	private IClassDefAdapter classAdapter;
 
 	public ConstructorMethodEdit(ConstructorFieldRequest req) {
 		super(req);
@@ -49,7 +49,7 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
 	 */
 	@Override
 	protected SimpleNode getEditNode() {
-		List<ClassDefAdapter> bases = classAdapter.getBaseClasses();
+		List<IClassDefAdapter> bases = classAdapter.getBaseClasses();
 
 		List<stmtType> body = new ArrayList<stmtType>();
 
@@ -70,8 +70,8 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
 		}
 	}
 
-	private void constructorCalls(List<ClassDefAdapter> bases, List<stmtType> body) {
-		for (ClassDefAdapter base : bases) {
+	private void constructorCalls(List<IClassDefAdapter> bases, List<stmtType> body) {
+		for (IClassDefAdapter base : bases) {
 			Expr init = extractConstructorInit(base);
 			if (init != null)
 				body.add(init);
@@ -85,7 +85,7 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
 		return initParam;
 	}
 
-	private Expr extractConstructorInit(ClassDefAdapter base) {
+	private Expr extractConstructorInit(IClassDefAdapter base) {
 		FunctionDefAdapter init = base.getFirstInit();
 		if (init != null) {
 			if (!init.getArguments().hasOnlySelf()) {
@@ -117,13 +117,13 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
 		return null;
 	}
 
-	private argumentsType extractArguments(List<ClassDefAdapter> bases) {
+	private argumentsType extractArguments(List<IClassDefAdapter> bases) {
 		NameTokType varArg = null;
 		NameTokType kwArg = null;
 
 		SortedSet<String> argsNames = new TreeSet<String>();
 
-		for (ClassDefAdapter baseClass : bases) {
+		for (IClassDefAdapter baseClass : bases) {
 			FunctionDefAdapter init = baseClass.getFirstInit();
 			if (init != null) {
 				if (!init.getArguments().hasOnlySelf()) {

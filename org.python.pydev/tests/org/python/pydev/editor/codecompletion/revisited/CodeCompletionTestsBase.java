@@ -39,6 +39,14 @@ import org.python.pydev.utils.PrintProgressMonitor;
  */
 public class CodeCompletionTestsBase extends TestCase {
 
+    public CodeCompletionTestsBase() {
+        
+    }
+    
+    public CodeCompletionTestsBase(String name) {
+        super(name);
+    }
+
     public static void main(String[] args) {
         //for single setup / teardown, check http://www.beust.com/weblog/archives/000082.html
         //(may be useful to get rid of the ThreadStreamReader threads)

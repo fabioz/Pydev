@@ -8,7 +8,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionException;
@@ -74,7 +74,7 @@ public class ExtractMethodRefactoring extends AbstractPythonRefactoring {
 	@Override
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
 
-		if (this.requestProcessor.getScopeAdapter() == null || this.requestProcessor.getScopeAdapter() instanceof ClassDefAdapter) {
+		if (this.requestProcessor.getScopeAdapter() == null || this.requestProcessor.getScopeAdapter() instanceof IClassDefAdapter) {
 			status.addFatalError(UITexts.extractMethodScopeInvalid);
 			return status;
 		}

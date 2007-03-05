@@ -3,7 +3,7 @@ package org.python.pydev.refactoring.tests.adapter;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
@@ -18,12 +18,12 @@ public class ClassDefAdapterTestCase extends AbstractIOTestCase {
 	public void runTest() throws Throwable {
 		StringBuffer buffer = new StringBuffer();
 		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()), new PythonNatureStub());
-		List<ClassDefAdapter> classes = module.getClasses();
+		List<IClassDefAdapter> classes = module.getClasses();
 		assertTrue(classes.size() > 0);
 
-		for (ClassDefAdapter adapter : module.getClasses()) {
+		for (IClassDefAdapter adapter : module.getClasses()) {
 			printBaseClass(buffer, adapter);
-			for (ClassDefAdapter base : adapter.getBaseClasses()) {
+			for (IClassDefAdapter base : adapter.getBaseClasses()) {
 				buffer.append("## " + adapter.getName());
 				printBaseDefClass(buffer, base);
 			}
@@ -34,13 +34,13 @@ public class ClassDefAdapterTestCase extends AbstractIOTestCase {
 		assertEquals(getExpected(), getGenerated());
 	}
 
-	private void printBaseDefClass(StringBuffer buffer, ClassDefAdapter base) {
+	private void printBaseDefClass(StringBuffer buffer, IClassDefAdapter base) {
 		buffer.append(" Base: " + base.getName());
 		buffer.append("\n");
 
 	}
 
-	private void printBaseClass(StringBuffer buffer, ClassDefAdapter adapter) {
+	private void printBaseClass(StringBuffer buffer, IClassDefAdapter adapter) {
 		buffer.append("# " + adapter.getName());
 		for (String name : adapter.getBaseClassNames()) {
 			buffer.append(" " + name);

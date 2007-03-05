@@ -35,8 +35,8 @@ public class MockupOverrideMethodsRequestProcessor implements IRequestProcessor<
 	}
 
 	public List<OverrideMethodsRequest> getRefactoringRequests() {
-		ClassDefAdapter clazz = module.getClasses().get(editClass);
-		ClassDefAdapter clazzSelection = module.getClasses().get(classSelection);
+		ClassDefAdapter clazz = (ClassDefAdapter) module.getClasses().get(editClass);
+		ClassDefAdapter clazzSelection = (ClassDefAdapter) module.getClasses().get(classSelection);
 		String baseClassName = module.getClasses().get(classSelection).getName();
 		List<FunctionDefAdapter> methods = new ArrayList<FunctionDefAdapter>();
 

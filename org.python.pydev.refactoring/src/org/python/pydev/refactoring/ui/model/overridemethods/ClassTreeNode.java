@@ -3,14 +3,14 @@ package org.python.pydev.refactoring.ui.model.overridemethods;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ui.model.tree.ITreeNode;
 import org.python.pydev.refactoring.ui.model.tree.TreeNodeSimple;
 
-public class ClassTreeNode extends TreeNodeSimple<ClassDefAdapter> {
+public class ClassTreeNode extends TreeNodeSimple<IClassDefAdapter> {
 
-	public ClassTreeNode(ClassDefAdapter adapter) {
+	public ClassTreeNode(IClassDefAdapter adapter) {
 		super(null, adapter);
 	}
 

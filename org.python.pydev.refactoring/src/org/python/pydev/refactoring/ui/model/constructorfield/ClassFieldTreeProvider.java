@@ -2,14 +2,14 @@ package org.python.pydev.refactoring.ui.model.constructorfield;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ui.model.tree.ITreeNode;
 
 public class ClassFieldTreeProvider implements ITreeContentProvider {
 
-	private ClassDefAdapter rootClass;
+	private IClassDefAdapter rootClass;
 
-	public ClassFieldTreeProvider(ClassDefAdapter rootClass) {
+	public ClassFieldTreeProvider(IClassDefAdapter rootClass) {
 		this.rootClass = rootClass;
 	}
 

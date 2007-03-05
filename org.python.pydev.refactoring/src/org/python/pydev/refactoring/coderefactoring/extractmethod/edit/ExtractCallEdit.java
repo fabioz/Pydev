@@ -10,8 +10,8 @@ import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.exprType;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.request.ExtractMethodRequest;
 import org.python.pydev.refactoring.core.edit.AbstractReplaceEdit;
 
@@ -73,7 +73,7 @@ public class ExtractCallEdit extends AbstractReplaceEdit {
 	}
 
 	private exprType createCallAttribute() {
-		if (this.offsetAdapter instanceof ClassDefAdapter) {
+		if (this.offsetAdapter instanceof IClassDefAdapter) {
 			return new Attribute(new Name("self", Name.Load), new NameTok(this.methodName, NameTok.Attrib), Attribute.Load);
 		} else {
 			return new Name(this.methodName, Name.Load);

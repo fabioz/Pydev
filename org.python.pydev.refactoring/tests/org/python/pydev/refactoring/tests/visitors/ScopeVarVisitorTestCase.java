@@ -5,6 +5,7 @@ import java.util.Iterator;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.adapters.SimpleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
@@ -30,10 +31,9 @@ public class ScopeVarVisitorTestCase extends AbstractIOTestCase {
 
 			printAttributes(buffer, visitor, func.getName());
 		}
-		for (ClassDefAdapter clazz : module.getClasses()) {
-
-			ScopeVariablesVisitor visitor = VisitorFactory.createContextVisitor(ScopeVariablesVisitor.class, clazz.getASTNode(), module,
-					clazz);
+		for (IClassDefAdapter clazz : module.getClasses()) {
+		    ClassDefAdapter c = (ClassDefAdapter) clazz;
+			ScopeVariablesVisitor visitor = VisitorFactory.createContextVisitor(ScopeVariablesVisitor.class, c.getASTNode(), module, c);
 
 			printAttributes(buffer, visitor, clazz.getName());
 		}

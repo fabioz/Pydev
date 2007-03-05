@@ -3,7 +3,7 @@ package org.python.pydev.refactoring.tests.codegenerator.generateproperties;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.adapters.PropertyTextAdapter;
@@ -43,7 +43,7 @@ public class MockupGeneratePropertiesRequestProcessor implements IRequestProcess
 	}
 
 	public List<GeneratePropertiesRequest> getRefactoringRequests() {
-		ClassDefAdapter clazz = module.getClasses().get(classSelection);
+		IClassDefAdapter clazz = module.getClasses().get(classSelection);
 
 		List<INodeAdapter> attributes = new ArrayList<INodeAdapter>();
 		for (int index : attributeSelection) {

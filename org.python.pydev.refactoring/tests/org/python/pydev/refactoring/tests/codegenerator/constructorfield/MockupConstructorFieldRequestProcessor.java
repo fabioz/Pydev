@@ -3,7 +3,7 @@ package org.python.pydev.refactoring.tests.codegenerator.constructorfield;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.codegenerator.constructorfield.request.ConstructorFieldRequest;
@@ -32,7 +32,7 @@ public class MockupConstructorFieldRequestProcessor implements IRequestProcessor
 	}
 
 	public List<ConstructorFieldRequest> getRefactoringRequests() {
-		ClassDefAdapter clazz = module.getClasses().get(classSelection);
+		IClassDefAdapter clazz = module.getClasses().get(classSelection);
 		List<INodeAdapter> attributes = new ArrayList<INodeAdapter>();
 
 		for (int index : attributeSelection) {

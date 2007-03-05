@@ -8,7 +8,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.codegenerator.generateproperties.edit.DeleteMethodEdit;
@@ -69,7 +69,7 @@ public class GeneratePropertiesTestCase extends AbstractIOTestCase {
 
 	private MockupGeneratePropertiesRequestProcessor setupRequestProcessor(MockupGeneratePropertiesConfig config) throws Throwable {
 		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()), new PythonNatureStub());
-		List<ClassDefAdapter> classes = module.getClasses();
+		List<IClassDefAdapter> classes = module.getClasses();
 		assertTrue(classes.size() > 0);
 
 		MockupGeneratePropertiesRequestProcessor requestProcessor = new MockupGeneratePropertiesRequestProcessor(module, config);

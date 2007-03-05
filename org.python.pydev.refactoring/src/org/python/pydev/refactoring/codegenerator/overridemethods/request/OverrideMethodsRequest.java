@@ -1,13 +1,13 @@
 package org.python.pydev.refactoring.codegenerator.overridemethods.request;
 
-import org.python.pydev.refactoring.ast.adapters.AbstractNodeAdapter;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
 public class OverrideMethodsRequest implements IRefactoringRequest {
 
-	private ClassDefAdapter classAdapter;
+	private IClassDefAdapter classAdapter;
 
 	private FunctionDefAdapter method;
 
@@ -17,7 +17,7 @@ public class OverrideMethodsRequest implements IRefactoringRequest {
 
 	private String baseClassName;
 
-	public OverrideMethodsRequest(ClassDefAdapter classAdapter, int offsetStrategy, FunctionDefAdapter method,
+	public OverrideMethodsRequest(IClassDefAdapter classAdapter, int offsetStrategy, FunctionDefAdapter method,
 			boolean generateMethodComments, String baseClassName) {
 		this.baseClassName = baseClassName;
 		this.classAdapter = classAdapter;
@@ -26,7 +26,7 @@ public class OverrideMethodsRequest implements IRefactoringRequest {
 		this.generateMethodComments = generateMethodComments;
 	}
 
-	public AbstractNodeAdapter getOffsetNode() {
+	public IASTNodeAdapter getOffsetNode() {
 		return classAdapter;
 	}
 

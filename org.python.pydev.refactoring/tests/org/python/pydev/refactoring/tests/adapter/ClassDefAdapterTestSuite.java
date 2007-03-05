@@ -14,6 +14,7 @@ public class ClassDefAdapterTestSuite extends AbstractIOTestSuite {
 		ClassDefAdapterTestSuite testSuite = new ClassDefAdapterTestSuite();
 
 		testSuite.createTests();
+        testSuite.addTest(new HierarchyTestCase("testHierarchyWithBuiltins"));
 
 		return testSuite;
 	}

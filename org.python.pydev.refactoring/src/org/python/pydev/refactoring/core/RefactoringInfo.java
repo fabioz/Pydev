@@ -12,7 +12,7 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 
@@ -67,7 +67,7 @@ public class RefactoringInfo {
 		return moduleAdapter;
 	}
 
-	public List<ClassDefAdapter> getClasses() {
+	public List<IClassDefAdapter> getClasses() {
 		return moduleAdapter.getClasses();
 	}
 
@@ -176,7 +176,7 @@ public class RefactoringInfo {
 		return selectedText;
 	}
 
-	public ClassDefAdapter getScopeClass() {
+	public IClassDefAdapter getScopeClass() {
 		return moduleAdapter.getScopeClass(getUserSelection());
 	}
 
@@ -184,7 +184,7 @@ public class RefactoringInfo {
 		return nature;
 	}
 
-	public List<ClassDefAdapter> getScopeClassAndBases() {
+	public List<IClassDefAdapter> getScopeClassAndBases() {
 		return moduleAdapter.getClassHierarchy(getScopeClass());
 	}
 

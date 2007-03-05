@@ -1,0 +1,2 @@
+class MyList(list):
+    pass

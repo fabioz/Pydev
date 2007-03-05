@@ -7,7 +7,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.core.AbstractPythonRefactoring;
 import org.python.pydev.refactoring.core.RefactoringInfo;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;
@@ -46,10 +46,10 @@ public class GeneratePropertiesRefactoring extends AbstractPythonRefactoring {
 
 	@Override
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-		List<ClassDefAdapter> classes = this.req.getClasses();
+		List<IClassDefAdapter> classes = this.req.getClasses();
 
 		if (classes.size() > 0) {
-			for (ClassDefAdapter adapter : classes) {
+			for (IClassDefAdapter adapter : classes) {
 				if (adapter.getAttributes().size() > 0) {
 					return super.checkInitialConditions(pm);
 				}

@@ -2,26 +2,26 @@ package org.python.pydev.refactoring.codegenerator.constructorfield.request;
 
 import java.util.List;
 
-import org.python.pydev.refactoring.ast.adapters.AbstractNodeAdapter;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
 public class ConstructorFieldRequest implements IRefactoringRequest {
 
-	private ClassDefAdapter classAdapter;
+	private IClassDefAdapter classAdapter;
 
 	private List<INodeAdapter> attributeAdapters;
 
 	private int offsetStrategy;
 
-	public ConstructorFieldRequest(ClassDefAdapter classAdapter, List<INodeAdapter> attributeAdapters, int offsetStrategy) {
+	public ConstructorFieldRequest(IClassDefAdapter classAdapter, List<INodeAdapter> attributeAdapters, int offsetStrategy) {
 		this.classAdapter = classAdapter;
 		this.attributeAdapters = attributeAdapters;
 		this.offsetStrategy = offsetStrategy;
 	}
 
-	public AbstractNodeAdapter getOffsetNode() {
+	public IASTNodeAdapter getOffsetNode() {
 		return classAdapter;
 	}
 
@@ -29,7 +29,7 @@ public class ConstructorFieldRequest implements IRefactoringRequest {
 		return attributeAdapters;
 	}
 
-	public ClassDefAdapter getClassAdapter() {
+	public IClassDefAdapter getClassAdapter() {
 		return classAdapter;
 	}
 

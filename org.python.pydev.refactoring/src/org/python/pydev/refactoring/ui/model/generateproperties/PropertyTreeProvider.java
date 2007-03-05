@@ -6,14 +6,14 @@ import java.util.List;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ui.model.tree.ITreeNode;
 
 public class PropertyTreeProvider implements ITreeContentProvider {
 
-	private List<ClassDefAdapter> adapters;
+	private List<IClassDefAdapter> adapters;
 
-	public PropertyTreeProvider(List<ClassDefAdapter> adapters) {
+	public PropertyTreeProvider(List<IClassDefAdapter> adapters) {
 		this.adapters = adapters;
 	}
 
@@ -38,7 +38,7 @@ public class PropertyTreeProvider implements ITreeContentProvider {
 
 	public Object[] getElements(Object inputElement) {
 		Collection<TreeClassNode> elements = new ArrayList<TreeClassNode>();
-		for (ClassDefAdapter elem : adapters) {
+		for (IClassDefAdapter elem : adapters) {
 			if (elem.hasAttributes()) {
 				elements.add(new TreeClassNode(elem));
 			}
