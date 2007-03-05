@@ -408,6 +408,7 @@ public final class TreeBuilder24 implements PythonGrammar24TreeConstants {
                 addSpecialsBefore(decs, funcDef);
             }
             addSpecialsAndClearOriginal(s, funcDef);
+            setParentForFuncOrClass(body, funcDef);
             return funcDef;
         case JJTDEFAULTARG:
             value = (arity == 1) ? null : ((exprType) stack.popNode());
@@ -431,6 +432,7 @@ public final class TreeBuilder24 implements PythonGrammar24TreeConstants {
             nameTok = makeName(NameTok.ClassName);
             ClassDef classDef = new ClassDef(nameTok, bases, body);
             addSpecialsAndClearOriginal(s, classDef);
+            setParentForFuncOrClass(body, classDef);
             return classDef;
         case JJTBEGIN_RETURN_STMT:
             return new Return(null);
@@ -796,6 +798,14 @@ public final class TreeBuilder24 implements PythonGrammar24TreeConstants {
             return null;
         }
     }
+
+	private void setParentForFuncOrClass(stmtType[] body, SimpleNode classDef) {
+		for(stmtType b:body){
+			if(b instanceof ClassDef || b instanceof FunctionDef){
+				b.parent = classDef;
+			}
+		}
+	}
 
     private suiteType popSuiteAndSuiteType() {
         Suite s = (Suite) stack.popNode();

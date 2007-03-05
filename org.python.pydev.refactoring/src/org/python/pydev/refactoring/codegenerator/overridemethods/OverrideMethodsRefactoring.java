@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.core.AbstractPythonRefactoring;
 import org.python.pydev.refactoring.core.RefactoringInfo;
@@ -26,6 +27,7 @@ public class OverrideMethodsRefactoring extends AbstractPythonRefactoring {
 		try {
 			initWizard(name);
 		} catch (Throwable e) {
+			PydevPlugin.log(e);
 			status.addInfo(UITexts.infoFixCode);
 		}
 	}

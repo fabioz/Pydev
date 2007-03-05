@@ -3,9 +3,11 @@ package org.python.pydev.refactoring.ast.adapters;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
@@ -20,8 +22,11 @@ import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.plugin.PydevPlugin;
@@ -94,7 +99,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 	public List<IClassDefAdapter> getClassHierarchy(IClassDefAdapter scopeClass) {
 		List<IClassDefAdapter> bases = new ArrayList<IClassDefAdapter>();
 
-		resolveClassHierarchy(bases, scopeClass);
+		resolveClassHierarchy(bases, scopeClass, new HashSet<String>());
 		Collections.reverse(bases);
 		bases.add(new ObjectAdapter(this, this));
 
@@ -264,11 +269,14 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 		return isAdapterInSelection(selection, new SimpleAdapter(this, this, node));
 	}
 
-	private IClassDefAdapter resolveClassHierarchy(List<IClassDefAdapter> bases, IClassDefAdapter adap) {
+	private IClassDefAdapter resolveClassHierarchy(List<IClassDefAdapter> bases, IClassDefAdapter adap, Set<String> memo) {
 		if (adap.hasBaseClass() && adap.getModule() != null) {
-			for (IClassDefAdapter elem : adap.getModule().getBaseClasses(adap)) {
-				if (elem != null) {
-					bases.add(resolveClassHierarchy(bases, elem));
+			
+			List<IClassDefAdapter> baseClasses = adap.getModule().getBaseClasses(adap);
+			for (IClassDefAdapter elem : baseClasses) {
+				if (elem != null && !memo.contains(elem.getName())) {
+					memo.add(elem.getName());
+					bases.add(resolveClassHierarchy(bases, elem, memo));
 				}
 			}
 		}
@@ -281,7 +289,8 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 		List<String> baseNames = clazz.getBaseClassNames();
 		List<IClassDefAdapter> bases = new ArrayList<IClassDefAdapter>();
 		Set<String> importedBaseNames = new HashSet<String>();
-		for (IClassDefAdapter adapter : getClasses()) {
+		List<IClassDefAdapter> moduleClasses = getClasses();
+		for (IClassDefAdapter adapter : moduleClasses) {
 			for (String baseName : baseNames) {
 
 				if (baseName.compareTo(adapter.getName()) == 0) {
@@ -368,8 +377,18 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
 	}
 
-	private Set<ClassDefAdapter> resolveImportedClass(Set<String> importedBase) {
-		Set<ClassDefAdapter> bases = new HashSet<ClassDefAdapter>();
+    /**
+     * This method fills the bases list (out) with asts for the methods that can be overriden.
+     * 
+     * Still, compiled modules will not have an actual ast, but a list of tokens (that should be used
+     * to know what should be overriden), so, this method should actually be changed so that 
+     * it works with tokens (that are resolved when a completion is requested), so, if we request a completion
+     * for each base class, all the tokens from it will be returned, what's missing in this approach is that currently
+     * the tokens returned don't have an associated context, so, after getting them, it may be hard to actually
+     * tell the whole class structure above it (but this can be considered secondary for now).
+     */	
+	private Set<IClassDefAdapter> resolveImportedClass(Set<String> importedBase) {
+		Set<IClassDefAdapter> bases = new HashSet<IClassDefAdapter>();
 		if (moduleManager == null)
 			return bases;
 
@@ -381,46 +400,43 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 			} catch (CompletionRecursionException e) {
 				throw new RuntimeException(e);
 			}
+			
+			Map<String, List<IToken>> map = new HashMap<String, List<IToken>>();
+			Set<ClassDef> classDefAsts = new HashSet<ClassDef>();
+			
             for (IToken tok: ret) {
-                System.out.println("TODO: CREATE CLASS DEF ADAPTER FOR TOKENS..."+tok);
                 if(tok instanceof SourceToken){
 					SourceToken token = (SourceToken) tok;
-					System.out.println(token.getAst());
-                	
+					SimpleNode ast = token.getAst();
+					if(ast instanceof ClassDef || ast instanceof FunctionDef){
+						if(ast.parent instanceof ClassDef){
+							classDefAsts.add((ClassDef) ast.parent);
+						}
+					}
+					
+                }else if(tok instanceof CompiledToken){
+                	CompiledToken token = (CompiledToken) tok;
+					List<IToken> toks = map.get(token.getParentPackage());
+					if(toks == null){
+						toks = new ArrayList<IToken>();
+						map.put(token.getParentPackage(), toks);
+					}
+					toks.add(token);
+                }else{
+                	throw new RuntimeException("Unexpected token:"+tok.getClass());
                 }
-                //new ClassDefAdapterFromTokens(ret);
+            }
+            
+            for(Map.Entry<String, List<IToken>> entry:map.entrySet()){
+            	bases.add(new ClassDefAdapterFromTokens(entry.getKey(), entry.getValue()));
+            }
+            for(ClassDef classDef:classDefAsts){
+            	bases.add(new ClassDefAdapterFromClassDef(classDef));
             }
 		}
 		return bases;
 	}
 
-    /**
-     * TODO: the current way of getting the base list is 'naive', and can take a lot of time when processing
-     * (and does not handle CompiledModules)
-     * 
-     * This method fills the bases list (out) with asts for the methods that can be overriden.
-     * 
-     * Still, compiled modules will not have an actual ast, but a list of tokens (that should be used
-     * to know what should be overriden), so, this method should actually be changed so that 
-     * it works with tokens (that are resolved when a completion is requested), so, if we request a completion
-     * for each base class, all the tokens from it will be returned, what's missing in this approach is that currently
-     * the tokens returned don't have an associated context, so, after getting them, it may be hard to actually
-     * tell the whole class structure above it (but this can be considered secondary for now).
-     */
-	private void fillBaseList(Set<IClassDefAdapter> bases, List<FQIdentifier> qualifiedBaseName) {
-		if (moduleManager != null) {
-			for (FQIdentifier identifier : qualifiedBaseName) {
-
-				Set<ModuleAdapter> resolvedModules = moduleManager.resolveModule(file, identifier);
-				for (ModuleAdapter module : resolvedModules) {
-					IClassDefAdapter base = module.resolveClass(identifier.getRealName());
-					if (base != null){
-						bases.add(base);
-                    }
-				}
-			}
-		}
-	}
 
 	public void setStrategy(IASTNodeAdapter adapter, int strategy) {
 		switch (strategy) {

@@ -14,7 +14,8 @@ public class SimpleNode implements Node {
     private static final boolean DEBUG = false;
 
     public int beginLine, beginColumn;
-    
+    public SimpleNode parent;
+
     /**
      * each node may have a number of associated comments, altought they are not in the visiting structure by default
      * (it appears separately from that in this attribute, so, when doing a traverse in some node, the comments

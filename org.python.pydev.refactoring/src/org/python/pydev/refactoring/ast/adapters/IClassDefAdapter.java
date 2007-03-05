@@ -16,10 +16,16 @@ public interface IClassDefAdapter extends INodeAdapter, IASTNodeAdapter<ClassDef
 
     public abstract List<PropertyAdapter> getProperties();
 
+    /**
+     * @return a list of functions (disconsidering __init__ functions).
+     */
     public abstract List<FunctionDefAdapter> getFunctionsInitFiltered();
 
     public abstract boolean hasFunctions();
 
+    /**
+     * @return true if there is any function disconsidering __init__ functions.
+     */
     public abstract boolean hasFunctionsInitFiltered();
 
     public abstract boolean isNested();

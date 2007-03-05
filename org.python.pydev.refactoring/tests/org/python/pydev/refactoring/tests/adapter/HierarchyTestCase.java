@@ -1,6 +1,7 @@
 package org.python.pydev.refactoring.tests.adapter;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
@@ -62,8 +63,17 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
         List<IClassDefAdapter> classes = module.getClasses();
         assertEquals(1, classes.size());
         List<IClassDefAdapter> baseClasses = classes.get(0).getBaseClasses();
-        assertEquals(2, baseClasses.size());
-        assertEquals("list", baseClasses.get(0).getName());
+        
+        HashSet<String> actual = new HashSet<String>();
+        for (IClassDefAdapter adapter : baseClasses) {
+			actual.add(adapter.getName());
+		}
+        HashSet<String> expected = new HashSet<String>();
+        expected.add("MyList2");
+        expected.add("__builtin__.list");
+        expected.add("MyListBase");
+        
+		assertEquals(expected, actual);
     }
     
     
