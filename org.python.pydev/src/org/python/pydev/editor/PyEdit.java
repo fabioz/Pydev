@@ -151,7 +151,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     /**
      * Those are the ones that register at runtime (not throught extensions points).
      */
-    private List<IPyEditListener> registeredEditListeners = new ArrayList<IPyEditListener>();
+    private volatile List<IPyEditListener> registeredEditListeners = new ArrayList<IPyEditListener>();
 
     /**
      * This is the scripting engine that is binded to this interpreter.
@@ -164,11 +164,15 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 	private Object lock = new Object();
     
     public void addPyeditListener(IPyEditListener listener){
-        registeredEditListeners.add(listener);
+    	synchronized (registeredEditListeners) {
+    		registeredEditListeners.add(listener);
+		}
     }
     
     public void removePyeditListener(IPyEditListener listener){
-        registeredEditListeners.remove(listener);
+    	synchronized (registeredEditListeners) {
+    		registeredEditListeners.remove(listener);
+    	}
     }
 
     
@@ -204,9 +208,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     	}
         ArrayList<IPyEditListener> listeners = new ArrayList<IPyEditListener>();
         if(editListeners != null){
-            listeners.addAll(editListeners);
+            listeners.addAll(editListeners); //no need to sync because editListeners is read-only
         }
-        listeners.addAll(registeredEditListeners);
+    	synchronized (registeredEditListeners) {
+    		listeners.addAll(registeredEditListeners);
+    	}
         return listeners;
     }
 
