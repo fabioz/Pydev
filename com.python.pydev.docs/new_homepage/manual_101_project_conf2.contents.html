@@ -42,7 +42,9 @@ default configuration (python) to a jython project in this screen.
 </p><br/>
 <p align="center"><IMG src="images/project_type.png" border="1"/></p><br/>
 
-<p>To reference another project, just go to the 'project references' page.
+<p>To reference another project, just go to the 'project references' page. Note that project references are not treated 
+recursively in Pydev, so, if project A references B, which references project C, then project C should be specified
+as a reference for project A and B.
 </p>
 <br/><p align="center"><IMG src="images/project_refs2.png" border="1"/></p><br/>
 
