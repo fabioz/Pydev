@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -64,32 +65,42 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver2
 
         if(AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze() == IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE || force){
             //create the module
-        	
-        	if(!PythonNature.isResourceInPythonpath(fileAdapter)){
-        		try {
-					fileAdapter.deleteMarkers(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
-        		} catch (ResourceException e) {
-        		    //ok, if it is a resource exception, it may have happened because the resource does not exist anymore
-        		    //so, there is no need to log this failure
-        		    if(fileAdapter.exists()){
-        		        Log.log(e);
-        		    }
-				} catch (Exception e) {
-                    Log.log(e);
-				}
-            	return; // we only analyze resources that are in the pythonpath
-            }
-
-            String file = fileAdapter.getRawLocation().toOSString();
-            String moduleName = PythonNature.getModuleNameForResource(fileAdapter);
-            IModule module = AbstractModule.createModule(root, new File(file), moduleName);
-            
-            //visit it
-            AnalysisBuilderVisitor visitor = new AnalysisBuilderVisitor();
-            visitor.memo = new HashMap<String, Object>();
-            visitor.visitingWillStart(new NullProgressMonitor(), false, null);
-            visitor.doVisitChangedResource(fileAdapter, doc, module, true, new NullProgressMonitor()); //also analyze dependencies
-            visitor.visitingEnded(new NullProgressMonitor());
+        	IPythonNature nature = PythonNature.getPythonNature(fileAdapter);
+        	if(nature == null){
+        		return;
+        	}
+        	if(!nature.startRequests()){
+        		return;
+        	}
+        	try{
+	        	if(!nature.isResourceInPythonpath(fileAdapter)){
+	        		try {
+						fileAdapter.deleteMarkers(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
+	        		} catch (ResourceException e) {
+	        		    //ok, if it is a resource exception, it may have happened because the resource does not exist anymore
+	        		    //so, there is no need to log this failure
+	        		    if(fileAdapter.exists()){
+	        		        Log.log(e);
+	        		    }
+					} catch (Exception e) {
+	                    Log.log(e);
+					}
+	            	return; // we only analyze resources that are in the pythonpath
+	            }
+	
+	            String file = fileAdapter.getRawLocation().toOSString();
+	            String moduleName = nature.resolveModule(fileAdapter);
+	            IModule module = AbstractModule.createModule(root, new File(file), moduleName);
+	            
+	            //visit it
+	            AnalysisBuilderVisitor visitor = new AnalysisBuilderVisitor();
+	            visitor.memo = new HashMap<String, Object>();
+	            visitor.visitingWillStart(new NullProgressMonitor(), false, null);
+	            visitor.doVisitChangedResource(nature, fileAdapter, doc, module, true, new NullProgressMonitor()); //also analyze dependencies
+	            visitor.visitingEnded(new NullProgressMonitor());
+        	}finally{
+        		nature.endRequests();
+        	}
         }
 	}
 

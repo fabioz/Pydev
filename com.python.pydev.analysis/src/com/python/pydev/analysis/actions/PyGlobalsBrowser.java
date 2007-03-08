@@ -8,7 +8,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.dialogs.TwoPaneElementSelector;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
@@ -150,6 +149,9 @@ public class PyGlobalsBrowser extends PyAction{
             for(IPythonNature pythonNature:pythonNatures){
                 //try to find in one of the natures...
                 ICodeCompletionASTManager astManager = pythonNature.getAstManager();
+                if(astManager == null){
+                	return;
+                }
                 AnalysisPlugin.getDefinitionFromIInfo(pointers, astManager, pythonNature, entry);
                 if(pointers.size() > 0){
                     new PyOpenAction().run(pointers.get(0));

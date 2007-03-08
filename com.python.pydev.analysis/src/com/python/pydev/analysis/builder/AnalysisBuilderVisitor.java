@@ -37,28 +37,38 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     	//we may need to 'force' the analysis when a module is renamed, because the first message we receive is
     	//a 'delete' and after that an 'add' -- which is later mapped to this method, so, if we don't have info
     	//on the module we should analyze it because it is 'probably' a rename.
-        String moduleName = getModuleName(resource);
-        PythonNature nature = getPythonNature(resource);
-        boolean force = false;
-        if(nature != null && moduleName != null){
-        	AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
-        	if(!info.hasInfoOn(moduleName)){
-        		force = true;
-        	}
+    	PythonNature nature = getPythonNature(resource);
+    	if(nature == null){
+    		return;
+    	}
+    	if(!nature.startRequests()){
+    		return;
+    	}
+    	try{
+	        String moduleName = getModuleName(resource, nature);
+	        boolean force = false;
+	        if(nature != null && moduleName != null){
+	        	AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
+	        	if(!info.hasInfoOn(moduleName)){
+	        		force = true;
+	        	}
+	        }
+	
+	        boolean fullBuild = isFullBuild();
+	        if(fullBuild || force ||
+	           AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze() == IAnalysisPreferences.ANALYZE_ON_SAVE){
+	            
+	            boolean analyzeDependent;
+	            if(fullBuild){
+	                analyzeDependent = false;
+	            }else{
+	                analyzeDependent = true;
+	            }
+	            doVisitChangedResource(nature, resource, document, null, analyzeDependent, monitor);
         }
-
-        boolean fullBuild = isFullBuild();
-        if(fullBuild || force ||
-           AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze() == IAnalysisPreferences.ANALYZE_ON_SAVE){
-            
-            boolean analyzeDependent;
-            if(fullBuild){
-                analyzeDependent = false;
-            }else{
-                analyzeDependent = true;
-            }
-            doVisitChangedResource(resource, document, null, analyzeDependent, monitor);
-        }
+    	}finally{
+    		nature.endRequests();
+    	}
     }
     
 
@@ -66,14 +76,14 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     /**
      * here we have to detect errors / warnings from the code analysis
      */
-    public void doVisitChangedResource(IResource resource, IDocument document, IModule module, boolean analyzeDependent, IProgressMonitor monitor) {
+    public void doVisitChangedResource(IPythonNature nature, IResource resource, IDocument document, IModule module, boolean analyzeDependent, IProgressMonitor monitor) {
         if(module == null){
-            module = getSourceModule(resource, document);
+            module = getSourceModule(resource, document, nature);
         }else{
             //this may happen if we are not in the regular visiting but in some parser changed (the module is passed, so we don't have to recreate it from the doc)
             setModuleInCache(module);
         }
-        String moduleName = getModuleName(resource);
+        String moduleName = getModuleName(resource, nature);
         AnalysisBuilderRunnable runnable = AnalysisBuilderRunnable.createRunnable(document, resource, module, analyzeDependent, monitor, isFullBuild(), moduleName);
         if(isFullBuild()){
         	runnable.run();
@@ -90,8 +100,11 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 
     @Override
     public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
-        String moduleName = getModuleName(resource);
-        PythonNature nature = getPythonNature(resource);
+    	PythonNature nature = getPythonNature(resource);
+    	if(nature == null){
+    		return;
+    	}
+        String moduleName = getModuleName(resource, nature);
         fillDependenciesAndRemoveInfo(moduleName, nature, true, monitor, isFullBuild());
     }
     

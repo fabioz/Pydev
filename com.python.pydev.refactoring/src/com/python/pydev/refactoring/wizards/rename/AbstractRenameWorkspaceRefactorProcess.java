@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
@@ -141,28 +142,35 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
                 IProject project = file.getProject();
                 PythonNature nature = PythonNature.getPythonNature(project);
                 if(nature != null){
-                    ProjectModulesManager modulesManager = (ProjectModulesManager) nature.getAstManager().getModulesManager();
-                    
-                    request.checkCancelled();
-                    String modName = modulesManager.resolveModuleInDirectManager(file, project);
-                    
-                    if(modName != null){
-                        if(!request.moduleName.equals(modName)){
-                            //we've already checked the module from the request...
-                            
-                            request.checkCancelled();
-                            SourceModule module = (SourceModule) nature.getAstManager().getModule(modName, nature, true, false);
-                            
-                            if(module != null){
-                                
-                                request.checkCancelled();
-                                List<ASTEntry> entryOccurrences = getOccurrencesInOtherModule(status, request.initialName, module, nature);
-                                
-                                if(entryOccurrences.size() > 0){
-                                    addOccurrences(entryOccurrences, file, modName);
-                                }
-                            }
+                	if(!nature.startRequests()){
+                		continue;
+                	}
+                	try{
+	                    ProjectModulesManager modulesManager = (ProjectModulesManager) nature.getAstManager().getModulesManager();
+	                    
+	                    request.checkCancelled();
+	                    String modName = modulesManager.resolveModuleInDirectManager(file, project);
+	                    
+	                    if(modName != null){
+	                        if(!request.moduleName.equals(modName)){
+	                            //we've already checked the module from the request...
+	                            
+	                            request.checkCancelled();
+	                            IModule module = nature.getAstManager().getModule(modName, nature, true, false);
+	                            
+	                            if(module instanceof SourceModule){
+	                                
+	                                request.checkCancelled();
+	                                List<ASTEntry> entryOccurrences = getOccurrencesInOtherModule(status, request.initialName, (SourceModule) module, nature);
+	                                
+	                                if(entryOccurrences.size() > 0){
+	                                    addOccurrences(entryOccurrences, file, modName);
+	                                }
+	                            }
+	                        }
                         }
+                    }finally{
+                    	nature.endRequests();
                     }
                 }
             }
