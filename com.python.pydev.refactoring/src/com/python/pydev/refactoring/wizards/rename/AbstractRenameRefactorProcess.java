@@ -41,6 +41,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.analysis.scopeanalysis.AstEntryScopeAnalysisConstants;
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitor;
@@ -368,11 +369,28 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
         docChange.setEdit(rootEdit);
         docChange.setKeepPreviewEdits(true);
 
-        for (Tuple<TextEdit, String> t : getAllRenameEdits(docOccurrences, request.ps.getDoc())) {
-            rootEdit.addChild(t.o1);
-            docChange.addTextEditGroup(new TextEditGroup(t.o2, t.o1));
-        }
-        fChange.add(docChange);
+        List<Tuple<TextEdit, String>> renameEdits = getAllRenameEdits(docOccurrences, request.ps.getDoc());
+        try{
+			for (Tuple<TextEdit, String> t : renameEdits) {
+	            rootEdit.addChild(t.o1);
+	            docChange.addTextEditGroup(new TextEditGroup(t.o2, t.o1));
+	        }
+	        fChange.add(docChange);
+        }catch (RuntimeException e) {
+        	StringBuffer buf = new StringBuffer("Found occurrences:");
+        	for (Tuple<TextEdit, String> t : renameEdits) {
+        		buf.append("Offset: ");
+        		buf.append(t.o1.getOffset());
+        		buf.append("Len: ");
+        		buf.append(t.o1.getLength());
+        		buf.append("Str: ");
+        		buf.append(t.o2);
+        		buf.append("\n");
+        	}
+        	
+        	PydevPlugin.log(buf.toString(), e);
+			throw e;
+		}
     }
     
     

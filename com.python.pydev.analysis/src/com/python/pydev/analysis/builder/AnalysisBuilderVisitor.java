@@ -34,6 +34,10 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     
     @Override
     public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
+    	if(document == null){
+    		return;
+    	}
+    	
     	//we may need to 'force' the analysis when a module is renamed, because the first message we receive is
     	//a 'delete' and after that an 'add' -- which is later mapped to this method, so, if we don't have info
     	//on the module we should analyze it because it is 'probably' a rename.
