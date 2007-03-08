@@ -34,7 +34,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
@@ -90,7 +89,7 @@ class PythonNatureStore implements IResourceChangeListener {
     private volatile Document document = null;
 
     /**
-     * Sets the projaect to be used.
+     * Sets the project to be used.
      * 
      * @param project the project related to this store.
      * 
@@ -175,7 +174,7 @@ class PythonNatureStore implements IResourceChangeListener {
             if (!xmlFile.exists()) {
                 if (document != null) {
                     // Someone removed the project descriptor, store it from the memory model
-                    scheduleStoreJob();
+                    doStore();
                     return true;
                 } else {
                     // The document never existed
@@ -188,7 +187,7 @@ class PythonNatureStore implements IResourceChangeListener {
                     migrateProperty(PythonNature.getPythonProjectVersionQualifiedName());
                     migratePath(PythonPathNature.getProjectSourcePathQualifiedName());
                     migratePath(PythonPathNature.getProjectExternalSourcePathQualifiedName());
-                    scheduleStoreJob();
+                    doStore();
                     return true;
                 }
             } else {
@@ -387,8 +386,8 @@ class PythonNatureStore implements IResourceChangeListener {
      * @param value
      * @throws CoreException
      */
-    public void setPropertyToXml(QualifiedName key, String value, boolean scheduleStore) throws CoreException {
-    	if(scheduleStore){
+    public void setPropertyToXml(QualifiedName key, String value, boolean store) throws CoreException {
+    	if(store){
     		waitForLoad();
     	}
         try {
@@ -400,7 +399,7 @@ class PythonNatureStore implements IResourceChangeListener {
                 } else {
                     setTextContent(value, child);
                 }
-                scheduleStoreJob();
+                doStore();
             } else if (value != null) {
             	synchronized (document) {
 	                // The property is not in the file and we need to set it
@@ -412,8 +411,8 @@ class PythonNatureStore implements IResourceChangeListener {
 	                getRootNodeInXml().appendChild(property);
             	}
 
-                if (scheduleStore) {
-                    scheduleStoreJob();
+                if (store) {
+                    doStore();
                 }
             }
 
@@ -515,12 +514,12 @@ class PythonNatureStore implements IResourceChangeListener {
      * @param paths
      * @throws CoreException
      */
-    private void setPathPropertyToXml(QualifiedName key, String[] paths, boolean scheduleStore) throws CoreException {
+    private void setPathPropertyToXml(QualifiedName key, String[] paths, boolean store) throws CoreException {
         try {
             Node oldChild = findPropertyNodeInXml(PYDEV_NATURE_PATH_PROPERTY, key);
             if (oldChild != null && paths == null) {
                 getRootNodeInXml().removeChild(oldChild);
-                scheduleStoreJob();
+                doStore();
             } else if (paths != null) {
                 // The property is not in the file and we need to set it
                 Node property = document.createElement(PYDEV_NATURE_PATH_PROPERTY);
@@ -533,8 +532,8 @@ class PythonNatureStore implements IResourceChangeListener {
                 } else {
                     getRootNodeInXml().replaceChild(property, oldChild);
                 }
-                if (scheduleStore) {
-                    scheduleStoreJob();
+                if (store) {
+                    doStore();
                 }
             }
 
@@ -569,36 +568,14 @@ class PythonNatureStore implements IResourceChangeListener {
     }
 
     /**
-     * Schedules a job to store the internal Xml representation as a project resource.
+     * Stores the internal Xml representation as a project resource.
      * 
      */
-    private void scheduleStoreJob() {
-        if (ProjectModulesManager.IN_TESTS) {
-            try {
-                doStore(new NullProgressMonitor());
-            } catch (Exception e) {
-                throw new RuntimeException("Error scheduling on project:"+project, e);
-            }
-
-        } else {
-            Job storeJob = new Job("Store Pydev Project Descriptor") {
-
-                @Override
-                protected IStatus run(IProgressMonitor monitor) {
-                    try {
-                        monitor.beginTask("Storing Pydev Project Descriptor", 10);
-                        return doStore(monitor);
-                    } catch (CoreException e) {
-                        return e.getStatus();
-                    } catch (Exception e) {
-                        return new Status(Status.ERROR, "PythonNatureStore.scheduleStoreJob", -1, e.getMessage(), e);
-                    } finally {
-                        monitor.done();
-                    }
-                }
-            };
-
-            storeJob.schedule();
+    private void doStore() {
+        try {
+            doStore(new NullProgressMonitor());
+        } catch (Exception e) {
+            throw new RuntimeException("Error storing pydev project descriptor:"+project, e);
         }
     }
 
@@ -621,34 +598,18 @@ class PythonNatureStore implements IResourceChangeListener {
         IResourceDelta delta = eventDelta.findMember(xmlFile.getFullPath());
         if (delta != null) {
             if (xmlFile.getModificationStamp() != modStamp) {
-                Job loadJob = new Job("Reload Pydev Project Descriptor") {
-
-                    @Override
-                    protected IStatus run(IProgressMonitor monitor) {
-                        try {
-                            monitor.beginTask("Loading Pydev Project Descriptor", 10);
-
-                            synchronized (xmlFile) {
-                                if (loadFromFile()) {
-                                    PythonNature nature = PythonNature.getPythonNature(project);
-                                    if (nature != null) {
-                                        nature.rebuildPath();
-                                    }
-                                }
+                synchronized (xmlFile) {
+                    try {
+                        if (loadFromFile()) {
+                            PythonNature nature = PythonNature.getPythonNature(project);
+                            if (nature != null) {
+                                nature.rebuildPath();
                             }
-
-                            return Status.OK_STATUS;
-                        } catch (CoreException e) {
-                            return e.getStatus();
-                        } catch (Exception e) {
-                            return new Status(Status.ERROR, "PythonNatureStore.loadJob", -1, e.getMessage(), e);
-                        } finally {
-                            monitor.done();
                         }
+                    } catch (CoreException e) {
+                        throw new RuntimeException(e);
                     }
-                };
-
-                loadJob.schedule();
+                }
             }
         }
     }
@@ -663,7 +624,7 @@ class PythonNatureStore implements IResourceChangeListener {
             onStoreJob++;
             synchronized (xmlFile) {
                 if (document == null) {
-                    return new Status(Status.ERROR, "PythonNatureStore.scheduleStoreJob", -2, "document == null", null);
+                    return new Status(Status.ERROR, "PythonNatureStore.doStore", -2, "document == null", new RuntimeException("document == null"));
                 }
 
                 ByteArrayInputStream is = new ByteArrayInputStream(serializeDocument(document));

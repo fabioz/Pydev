@@ -121,66 +121,68 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             Map<String, IToken> alreadyChecked = new HashMap<String, IToken>();
             
             String lowerCaseQual = request.qualifier.toLowerCase();
-            state.pushFindResolveImportMemoryCtx();
-            try{
-                for(ListIterator it=tokensList.listIterator(); it.hasNext();){
-                    Object o = it.next();
-                    if(o instanceof IToken){
-                        it.remove(); // always remove the tokens from the list (they'll be re-added later once they are filtered)
-                        
-                        IToken initialToken = (IToken) o;
-                        
-                        IToken token = initialToken;
-                        String strRep = token.getRepresentation();
-                        IToken prev = alreadyChecked.get(strRep);
-                        
-                        if(prev != null){
-                            if(prev.getArgs().length() != 0){
-                                continue; // we already have a version with args... just keep going
-                            }
-                        }
-                        
-                        if(!strRep.toLowerCase().startsWith(lowerCaseQual)){
-                            //just re-add it if we're going to actually use it (depending on the qualifier)
-                            continue;
-                        }
-                        
-                        while(token.isImportFrom()){
-                            //we'll only add it here if it is an import from (so, set the flag to false for the outer add)
+            if(lowerCaseQual.length() >= PyCodeCompletionPreferencesPage.getArgumentsDeepAnalysisNChars()){
+                //this can take some time on the analysis, so, let's let the user choose on how many chars does he
+                //want to do the analysis...
+                state.pushFindResolveImportMemoryCtx();
+                try{
+                    for(ListIterator it=tokensList.listIterator(); it.hasNext();){
+                        Object o = it.next();
+                        if(o instanceof IToken){
+                            it.remove(); // always remove the tokens from the list (they'll be re-added later once they are filtered)
                             
-                            if(token.getArgs().length() > 0){
-                                //if we already have the args, there's also no reason to do it (that's what we'll do here)
-                                break;
-                            }
-                            ICompletionState s = state.getCopyForResolveImportWithActTok(token.getRepresentation());
-                            s.checkFindResolveImportMemory(token);
+                            IToken initialToken = (IToken) o;
                             
-                            IToken token2 = astManager.resolveImport(s, token);
-                            if(token2 != null && initialToken != token2){
-                                String args = token2.getArgs();
-                                if(args.length() > 0){
-                                    //put it into the map (may override previous if it didn't have args)
-                                    initialToken.setArgs(args);
-                                    initialToken.setDocStr(token2.getDocStr());
+                            IToken token = initialToken;
+                            String strRep = token.getRepresentation();
+                            IToken prev = alreadyChecked.get(strRep);
+                            
+                            if(prev != null){
+                                if(prev.getArgs().length() != 0){
+                                    continue; // we already have a version with args... just keep going
+                                }
+                            }
+                            
+                            if(!strRep.toLowerCase().startsWith(lowerCaseQual)){
+                                //just re-add it if we're going to actually use it (depending on the qualifier)
+                                continue;
+                            }
+                            
+                            while(token.isImportFrom()){
+                                //we'll only add it here if it is an import from (so, set the flag to false for the outer add)
+                                
+                                if(token.getArgs().length() > 0){
+                                    //if we already have the args, there's also no reason to do it (that's what we'll do here)
                                     break;
                                 }
-                                token = token2;
-                            }else{
-                                break;
+                                ICompletionState s = state.getCopyForResolveImportWithActTok(token.getRepresentation());
+                                s.checkFindResolveImportMemory(token);
+                                
+                                IToken token2 = astManager.resolveImport(s, token);
+                                if(token2 != null && initialToken != token2){
+                                    String args = token2.getArgs();
+                                    if(args.length() > 0){
+                                        //put it into the map (may override previous if it didn't have args)
+                                        initialToken.setArgs(args);
+                                        initialToken.setDocStr(token2.getDocStr());
+                                        break;
+                                    }
+                                    token = token2;
+                                }else{
+                                    break;
+                                }
                             }
+                            
+                            alreadyChecked.put(strRep, initialToken);
                         }
-                        
-                        alreadyChecked.put(strRep, initialToken);
                     }
+    
+                }finally{
+                    state.popFindResolveImportMemoryCtx();
                 }
-
-            }finally{
-                state.popFindResolveImportMemoryCtx();
             }
             
-            for(IToken t:alreadyChecked.values()){
-                tokensList.add(t);
-            }
+            tokensList.addAll(alreadyChecked.values());
             changeItokenToCompletionPropostal(viewer, request, ret, tokensList, importsTip, state);
         } catch (CompletionRecursionException e) {
             //PydevPlugin.log(e);

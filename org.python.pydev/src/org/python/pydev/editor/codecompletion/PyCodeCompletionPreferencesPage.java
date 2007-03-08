@@ -12,6 +12,7 @@ import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.docutils.WordUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 
@@ -46,6 +47,9 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 	public static final String DEBUG_CODE_COMPLETION = "DEBUG_CODE_COMPLETION";
 	public static final boolean DEFAULT_DEBUG_CODE_COMPLETION = false;
 	
+	public static final String ARGUMENTS_DEEP_ANALYSIS_N_CHARS = "DEEP_ANALYSIS_N_CHARS";
+	public static final int DEFAULT_ARGUMENTS_DEEP_ANALYSIS_N_CHARS = 1;
+	
     /**
      */
     public PyCodeCompletionPreferencesPage() {
@@ -67,6 +71,19 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 		addField(new IntegerFieldEditor(
 		        AUTOCOMPLETE_DELAY, "Autocompletion delay: ", p));
 
+        
+        
+		String tooltip = WordUtils.wrap("Determines the number of chars in the qualifier request " +
+		        "for which constructs such as 'from xxx import yyy' should be " +
+		        "analyzed to get its actual token and if it maps to a method, its paramaters will be added in the completion.", 80);
+		IntegerFieldEditor deepAnalysisFieldEditor = new IntegerFieldEditor(
+        		        ARGUMENTS_DEEP_ANALYSIS_N_CHARS, "Minimun number of chars in qualifier for\ndeep analysis for parameters in 'from' imports:", p);
+        addField(deepAnalysisFieldEditor);
+        deepAnalysisFieldEditor.getLabelControl(p).setToolTipText(tooltip);
+        deepAnalysisFieldEditor.getTextControl(p).setToolTipText(tooltip);
+        
+        
+        
 		addField(new BooleanFieldEditor(
 		        USE_CODECOMPLETION, "Use code completion?", p));
 
@@ -81,6 +98,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 		
 		addField(new BooleanFieldEditor(
 		        AUTOCOMPLETE_ON_ALL_ASCII_CHARS, "Autocomplete on all letter chars and '_'?", p));
+		
 
 		addField(new BooleanFieldEditor(
                 DEBUG_CODE_COMPLETION, "Debug code completion?.", p));
@@ -133,7 +151,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     }
     
     public static boolean isToDebugCodeCompletion() {
-        if(PydevPlugin.getDefault() == null){
+        if(PydevPlugin.getDefault() == null){//testing
             return false;
         }
         return PydevPrefs.getPreferences().getBoolean(PyCodeCompletionPreferencesPage.DEBUG_CODE_COMPLETION);
@@ -141,6 +159,13 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 
     public static int getAutocompleteDelay() {
         return PydevPrefs.getPreferences().getInt(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_DELAY);
+    }
+    
+    public static int getArgumentsDeepAnalysisNChars() {
+        if(PydevPlugin.getDefault() == null){ //testing
+            return 0;
+        }
+        return PydevPrefs.getPreferences().getInt(PyCodeCompletionPreferencesPage.ARGUMENTS_DEEP_ANALYSIS_N_CHARS);
     }
 
 

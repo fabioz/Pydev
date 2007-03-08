@@ -22,6 +22,7 @@ public class PyCodeCompletionInitializer extends AbstractPreferenceInitializer{
     	node.putInt(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_DELAY, PyCodeCompletionPreferencesPage.DEFAULT_AUTOCOMPLETE_DELAY);
     	node.putBoolean(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_ON_PAR, PyCodeCompletionPreferencesPage.DEFAULT_AUTOCOMPLETE_ON_PAR);
     	node.putBoolean(PyCodeCompletionPreferencesPage.DEBUG_CODE_COMPLETION, PyCodeCompletionPreferencesPage.DEFAULT_DEBUG_CODE_COMPLETION);
+    	node.putInt(PyCodeCompletionPreferencesPage.ARGUMENTS_DEEP_ANALYSIS_N_CHARS, PyCodeCompletionPreferencesPage.DEFAULT_ARGUMENTS_DEEP_ANALYSIS_N_CHARS);
     }
 
 }

@@ -5,6 +5,11 @@ Pydev Extensions:
 <li><strong>Code-analysis</strong>: Fixed false positive for statement with no effect</li>
 </ul>
 
+Pydev
+<ul>
+<li><strong>Code-completion</strong>: Deep analysis for discovering arguments in constructs 'from imports' now can be configured given the number of chars of the qualifier</li>
+</ul>
+
 after 1.2.8
 Packaging problem
 
