@@ -3,6 +3,7 @@ package org.python.pydev.refactoring.tests.adapter;
 import java.io.File;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.ICodeCompletionASTManager;
@@ -107,6 +108,30 @@ public class PythonNatureStub implements IPythonNature{
 	}
 
 	public int getGrammarVersion() {
+		throw new RuntimeException("Not implemented");
+	}
+
+	public void endRequests() {
+		throw new RuntimeException("Not implemented");
+	}
+
+	public boolean isResourceInPythonpath(IResource resource) {
+		throw new RuntimeException("Not implemented");
+	}
+
+	public boolean isResourceInPythonpath(String resource) {
+		throw new RuntimeException("Not implemented");
+	}
+
+	public String resolveModule(String fileAbsolutePath) {
+		throw new RuntimeException("Not implemented");
+	}
+
+	public String resolveModule(IResource resource) {
+		throw new RuntimeException("Not implemented");
+	}
+
+	public boolean startRequests() {
 		throw new RuntimeException("Not implemented");
 	}
 

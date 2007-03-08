@@ -67,7 +67,7 @@ public class AssignAnalysis {
             } catch (CompletionRecursionException e) {
                 //thats ok
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Error when getting assign completions for:"+module.getName(), e);
             } catch (Throwable t) {
                 throw new RuntimeException("A throwable exception has been detected "+t.getClass());
             }
@@ -81,7 +81,11 @@ public class AssignAnalysis {
         FunctionDef functionDef = (FunctionDef) definition.ast;
         for(Return return1: ReturnVisitor.findReturns(functionDef)){
             ICompletionState copy = state.getCopy();
-            copy.setActivationToken (NodeUtils.getFullRepresentationString(return1.value));
+            String act = NodeUtils.getFullRepresentationString(return1.value);
+            if(act == null){
+            	return; //may happen if the return we're seeing is a return without anything
+            }
+			copy.setActivationToken (act);
             copy.setLine(return1.value.beginLine-1);
             copy.setCol(return1.value.beginColumn-1);
             IModule module = definition.module;

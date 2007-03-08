@@ -6,6 +6,7 @@ package org.python.pydev.core;
 import java.io.File;
 
 import org.eclipse.core.resources.IProjectNature;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -89,6 +90,10 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
     IPythonPathNature getPythonPathNature();
     
     String resolveModule(File file);
+    
+    String resolveModule(String fileAbsolutePath);
+    
+    String resolveModule(IResource resource);
 
     ICodeCompletionASTManager getAstManager();
 
@@ -124,4 +129,16 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
 	 * @param mod the builtion module
 	 */
 	void setBuiltinMod(IModule mod);
+
+	/**
+	 * Checks if the given resource is in the pythonpath
+	 */
+	boolean isResourceInPythonpath(IResource resource);
+	boolean isResourceInPythonpath(String resource);
+
+	/**
+	 * @return true if it is ok to use the nature
+	 */
+	boolean startRequests();
+	void endRequests();
 }

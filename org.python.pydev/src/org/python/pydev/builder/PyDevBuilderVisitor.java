@@ -123,10 +123,10 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * @param document the document with the resource contents
      * @return the module that is created by the given resource
      */
-    protected IModule getSourceModule(IResource resource, IDocument document) {
+    protected IModule getSourceModule(IResource resource, IDocument document, IPythonNature nature) {
         IModule module = (IModule) memo.get(MODULE_CACHE);
         if(module == null){
-            module = createSoureModule(resource, document, getModuleName(resource));
+            module = createSoureModule(resource, document, getModuleName(resource, nature));
             setModuleInCache(module);
         }
         return module;
@@ -158,8 +158,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * @return the nature associated to the project where the resource is contained
      */
     protected PythonNature getPythonNature(IResource resource) {
-        IProject project = resource.getProject();
-        PythonNature pythonNature = PythonNature.getPythonNature(project);
+        PythonNature pythonNature = PythonNature.getPythonNature(resource);
         return pythonNature;
     }
 
@@ -167,10 +166,10 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * @param resource must be the resource we are analyzing because it will go to the cache without the resource (only as MODULE_NAME_CACHE)
      * @return the name of the module we are analyzing (given tho resource)
      */
-    public String getModuleName(IResource resource) {
+    public String getModuleName(IResource resource, IPythonNature nature) {
         String moduleName = (String) memo.get(MODULE_NAME_CACHE);
         if(moduleName == null){
-            moduleName = PythonNature.getModuleNameForResource(resource);
+            moduleName = nature.resolveModule(resource);
             if(moduleName != null){
                 setModuleNameInCache(moduleName);
             }else{

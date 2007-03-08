@@ -51,7 +51,7 @@ import org.python.pydev.utils.JobProgressComunicator;
  * 
  *  
  */
-public class PythonNature implements IPythonNature {
+public class PythonNature extends AbstractPythonNature implements IPythonNature {
 
     /**
      * This is the nature ID
@@ -559,56 +559,6 @@ public class PythonNature implements IPythonNature {
     }
 
 
-	private static String getModuleName(String moduleName, PythonNature nature, String file) {
-		ICodeCompletionASTManager astManager = nature.getAstManager();
-		
-		if(astManager != null){
-		    moduleName = astManager.getModulesManager().resolveModule(file);
-		}
-		return moduleName;
-	}
-	
-	/**
-     * @param resource the resource we want to get the name from
-     * @return the name of the module in the environment
-     */
-    public static String getModuleNameForResource(IResource resource) {
-        String moduleName = null;
-        PythonNature nature = getPythonNature(resource.getProject());
-        
-        if(nature != null){
-            String file = PydevPlugin.getIResourceOSString(resource);
-            moduleName = getModuleName(moduleName, nature, file);
-        }
-        return moduleName;
-    }
-    
-    /**
-     * @param resource the resource we want to get the name from
-     * @return the name of the module in the environment
-     */
-    public static String getModuleNameForResource(String absPath, IProject p) {
-    	String moduleName = null;
-    	PythonNature nature = getPythonNature(p);
-    	
-    	if(nature != null){
-    		moduleName = getModuleName(moduleName, nature, absPath);
-    	}
-    	return moduleName;
-    }
-    
-    /**
-     * @param resource the resource we want info on
-     * @return whether the passed resource is in the pythonpath or not (it must be in a source folder for that).
-     */
-    public static boolean isResourceInPythonpath(IResource resource) {
-    	return getModuleNameForResource(resource) != null; 
-    }
-    
-    public static boolean isResourceInPythonpath(String absPath, IProject p) {
-    	return getModuleNameForResource(absPath, p) != null; 
-    }
-    
     /**
      * Resolve the module given the absolute path of the file in the filesystem.
      * 
@@ -625,19 +575,6 @@ public class PythonNature implements IPythonNature {
         
     }
     
-    /**
-     * Resolve the module name for a given file 
-     * @see org.python.pydev.core.IPythonNature#resolveModule(java.io.File)
-     */
-    public String resolveModule(File file) {
-    	String moduleName = null;
-    	
-    	if(astManager != null){
-    		moduleName = astManager.getModulesManager().resolveModule(REF.getFileAbsolutePath(file));
-    	}
-    	return moduleName;
-    }
-
     public static String[] getStrAsStrItems(String str){
         return str.split("\\|");
     }
@@ -721,6 +658,7 @@ public class PythonNature implements IPythonNature {
     protected PythonNatureStore getStore(){
     	return pythonNatureStore;
     }
+
 
 }
 

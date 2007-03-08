@@ -119,53 +119,57 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             pythonPathNature.getProjectSourcePath(); //this is just to update the paths (in case the project name has just changed)
             
             //and the nature...
-            if (nature != null){
-                List<IFile> resourcesToParse = new ArrayList<IFile>();
-    
-                List<PyDevBuilderVisitor> visitors = getVisitors();
-                notifyVisitingWillStart(visitors, monitor, true, nature);
-    
-                monitor.beginTask("Building...", (visitors.size() * 100) + 30);
-    
-                IResource[] members = project.members();
-    
-                if (members != null) {
-                    // get all the python files to get information.
-                    for (int i = 0; i < members.length; i++) {
-                        try {
-                            IResource member = members[i];
-                            if (member == null) {
-                                continue;
-                            }
-    
-                            if (member.getType() == IResource.FILE) {
-                                addToResourcesToParse(resourcesToParse, (IFile)member, nature);
-                                
-                            } else if (member.getType() == IResource.FOLDER) {
-                                //if it is a folder, let's get all python files that are beneath it
-                                //the heuristics to know if we have to analyze them are the same we have
-                                //for a single file
-                                List<IFile> l = PydevPlugin.getAllIFilesBelow((IFolder) member);
-                                
-                                for (Iterator<IFile> iter = l.iterator(); iter.hasNext();) {
-                                    IFile element = iter.next();
-                                    if (element != null) {
-                                        addToResourcesToParse(resourcesToParse, element, nature);
-                                    }
-                                }
-                            } else {
-                            	if (DEBUG){
-                            		System.out.println("Unknown type: "+member.getType());
-                            	}
-                            }
-                        } catch (Exception e) {
-                            // that's ok...
-                        }
-                    }
-                    monitor.worked(30);
-                    buildResources(resourcesToParse, monitor, visitors);
-                }
-                notifyVisitingEnded(visitors, monitor);
+            if (nature != null && nature.startRequests()){
+            	try{
+	                List<IFile> resourcesToParse = new ArrayList<IFile>();
+	    
+	                List<PyDevBuilderVisitor> visitors = getVisitors();
+	                notifyVisitingWillStart(visitors, monitor, true, nature);
+	    
+	                monitor.beginTask("Building...", (visitors.size() * 100) + 30);
+	    
+	                IResource[] members = project.members();
+	    
+	                if (members != null) {
+	                    // get all the python files to get information.
+	                    for (int i = 0; i < members.length; i++) {
+	                        try {
+	                            IResource member = members[i];
+	                            if (member == null) {
+	                                continue;
+	                            }
+	    
+	                            if (member.getType() == IResource.FILE) {
+	                                addToResourcesToParse(resourcesToParse, (IFile)member, nature);
+	                                
+	                            } else if (member.getType() == IResource.FOLDER) {
+	                                //if it is a folder, let's get all python files that are beneath it
+	                                //the heuristics to know if we have to analyze them are the same we have
+	                                //for a single file
+	                                List<IFile> l = PydevPlugin.getAllIFilesBelow((IFolder) member);
+	                                
+	                                for (Iterator<IFile> iter = l.iterator(); iter.hasNext();) {
+	                                    IFile element = iter.next();
+	                                    if (element != null) {
+	                                        addToResourcesToParse(resourcesToParse, element, nature);
+	                                    }
+	                                }
+	                            } else {
+	                            	if (DEBUG){
+	                            		System.out.println("Unknown type: "+member.getType());
+	                            	}
+	                            }
+	                        } catch (Exception e) {
+	                            // that's ok...
+	                        }
+	                    }
+	                    monitor.worked(30);
+	                    buildResources(resourcesToParse, monitor, visitors);
+	                }
+	                notifyVisitingEnded(visitors, monitor);
+            	}finally{
+            		nature.endRequests();
+            	}
             }
         }
         monitor.done();
@@ -229,34 +233,41 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             i += 1;
             total += inc;
             IFile r = iter.next();
-            if(!PythonNature.isResourceInPythonpath(r)){
-            	continue; // we only analyze resources that are in the pythonpath
+            IPythonNature nature = PythonNature.getPythonNature(r);
+            if (nature == null){
+            	continue;
             }
-            String moduleNameForResource = PythonNature.getModuleNameForResource(r);
-            if(moduleNameForResource == null){
-            	PythonNature.getPythonNature(r.getProject());
+            if(!nature.startRequests()){
+            	continue;
             }
-            IDocument doc = REF.getDocFromResource(r);
-            
-            HashMap<String, Object> memo = new HashMap<String, Object>();
-            memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, true); //mark it as full build
-            
-            if(doc != null){ //might be out of synch
-                for (Iterator it = visitors.iterator(); it.hasNext() && monitor.isCanceled() == false;) {
-
-                    PyDevBuilderVisitor visitor = (PyDevBuilderVisitor) it.next();
-                    visitor.memo = memo; //setting the memo must be the first thing.
-    
-                    communicateProgress(monitor, totalResources, i, r, visitor);
-                    
-                    //on a full build, all visits are as some add...
-                    visitor.visitAddedResource(r, doc, monitor);
-                }
-    
-                if (total > 1) {
-                    monitor.worked((int) total);
-                    total -= (int) total;
-                }
+            try{
+	            if(!nature.isResourceInPythonpath(r)){
+	            	continue; // we only analyze resources that are in the pythonpath
+	            }
+	            IDocument doc = REF.getDocFromResource(r);
+	            
+	            HashMap<String, Object> memo = new HashMap<String, Object>();
+	            memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, true); //mark it as full build
+	            
+	            if(doc != null){ //might be out of synch
+	                for (Iterator it = visitors.iterator(); it.hasNext() && monitor.isCanceled() == false;) {
+	
+	                    PyDevBuilderVisitor visitor = (PyDevBuilderVisitor) it.next();
+	                    visitor.memo = memo; //setting the memo must be the first thing.
+	    
+	                    communicateProgress(monitor, totalResources, i, r, visitor);
+	                    
+	                    //on a full build, all visits are as some add...
+	                    visitor.visitAddedResource(r, doc, monitor);
+	                }
+	    
+	                if (total > 1) {
+	                    monitor.worked((int) total);
+	                    total -= (int) total;
+	                }
+	            }
+            }finally{
+            	nature.endRequests();
             }
         }
     }

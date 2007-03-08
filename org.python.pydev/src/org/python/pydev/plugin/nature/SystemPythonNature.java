@@ -13,11 +13,10 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.SystemASTManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-public class SystemPythonNature implements IPythonNature{
+public class SystemPythonNature extends AbstractPythonNature implements IPythonNature{
 
 	private IInterpreterManager manager;
 	private SystemASTManager systemASTManager;
@@ -66,9 +65,9 @@ public class SystemPythonNature implements IPythonNature{
 		throw new RuntimeException("Not Implemented");
 	}
 
-	public String resolveModule(File file) {
+	public String resolveModule(String file) {
 		InterpreterInfo info = (InterpreterInfo) this.manager.getDefaultInterpreterInfo(new NullProgressMonitor());
-		return info.modulesManager.resolveModule(REF.getFileAbsolutePath(file));
+		return info.modulesManager.resolveModule(file);
 	}
 
 	public ICodeCompletionASTManager getAstManager() {

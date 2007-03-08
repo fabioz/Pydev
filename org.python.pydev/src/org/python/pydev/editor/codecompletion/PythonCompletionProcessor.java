@@ -20,6 +20,7 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
@@ -157,41 +158,48 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             //list for storing the proposals
             ArrayList<ICompletionProposal> pythonAndTemplateProposals = new ArrayList<ICompletionProposal>();
             
-            CompletionRequest request = new CompletionRequest(edit.getEditorFile(), 
-                    edit.getPythonNature(), doc, documentOffset, codeCompletion);
-            
-
-            
-            //SECOND: getting code completions and deciding if templates should be shown too.
-            //Get code completion proposals
-            if(PyCodeCompletionPreferencesPage.useCodeCompletion()){
-                if(whatToShow == SHOW_ALL){
-                    try {
-                        pythonAndTemplateProposals.addAll(getPythonProposals(viewer, documentOffset, doc, request));
-                    } catch (Throwable e) {
-                        setError(e);
-                    }
-                }
-
+            IPythonNature nature = edit.getPythonNature();
+            if(!nature.startRequests()){
+            	return new ICompletionProposal[0];
             }
-            
-            
-            String[] strs = PySelection.getActivationTokenAndQual(doc, documentOffset, false); 
-
-            String activationToken = strs[0];
-            String qualifier = strs[1];
-
-            
-            //THIRD: Get template proposals (if asked for)
-            if(request.showTemplates && (activationToken == null || activationToken.trim().length() == 0)){
-                List templateProposals = getTemplateProposals(viewer, documentOffset, activationToken, qualifier);
-                pythonAndTemplateProposals.addAll(templateProposals);
+            try{
+				CompletionRequest request = new CompletionRequest(edit.getEditorFile(), 
+	                    nature, doc, documentOffset, codeCompletion);
+	            
+	
+	            
+	            //SECOND: getting code completions and deciding if templates should be shown too.
+	            //Get code completion proposals
+	            if(PyCodeCompletionPreferencesPage.useCodeCompletion()){
+	                if(whatToShow == SHOW_ALL){
+	                    try {
+	                        pythonAndTemplateProposals.addAll(getPythonProposals(viewer, documentOffset, doc, request));
+	                    } catch (Throwable e) {
+	                        setError(e);
+	                    }
+	                }
+	
+	            }
+	            
+	            
+	            String[] strs = PySelection.getActivationTokenAndQual(doc, documentOffset, false); 
+	
+	            String activationToken = strs[0];
+	            String qualifier = strs[1];
+	
+	            
+	            //THIRD: Get template proposals (if asked for)
+	            if(request.showTemplates && (activationToken == null || activationToken.trim().length() == 0)){
+	                List templateProposals = getTemplateProposals(viewer, documentOffset, activationToken, qualifier);
+	                pythonAndTemplateProposals.addAll(templateProposals);
+	            }
+	
+	            
+	            //to show the valid ones, we'll get the qualifier from the initial request
+	            proposals = PyCodeCompletionUtils.onlyValidSorted(pythonAndTemplateProposals, request.qualifier, request.isInCalltip);
+            }finally{
+            	nature.endRequests();
             }
-
-            
-            //to show the valid ones, we'll get the qualifier from the initial request
-            proposals = PyCodeCompletionUtils.onlyValidSorted(pythonAndTemplateProposals, request.qualifier, request.isInCalltip);
-            
         } catch (RuntimeException e) {
             proposals = new ICompletionProposal[0];
             setError(e);

@@ -99,5 +99,10 @@ public interface IModulesManager {
 
     public abstract SortedMap<ModulesKey,ModulesKey> getAllModulesStartingWith(String moduleToGetTokensFrom);
     public abstract SortedMap<ModulesKey,ModulesKey> getAllDirectModulesStartingWith(String moduleToGetTokensFrom);
-
+    
+    /**
+     * @return true if it was started without problems
+     */
+    public boolean startCompletionCache();
+    public void endCompletionCache();
 }

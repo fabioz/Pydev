@@ -10,6 +10,7 @@ import java.util.List;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -40,34 +41,45 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
     	if(monitor.isCanceled()){
     		return; //it's already cancelled
     	}
-        if(!PythonNature.isResourceInPythonpath(resource)){
-        	return; // we only analyze resources that are in the pythonpath
-        }
-        HashMap<String, Object> memo = new HashMap<String, Object>();
-        memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false); //mark it as a delta build
-        
-        for (PyDevBuilderVisitor visitor : visitors) {
-            // some visitors cannot visit too many elements because they do a lot of processing
-            if (visitor.maxResourcesToVisit() == PyDevBuilderVisitor.MAX_TO_VISIT_INFINITE || visitor.maxResourcesToVisit() >= totalResources) {
-                visitor.memo = memo; //setting the memo must be the first thing.
-                try {
-                    //communicate progress for each visitor
-                    PyDevBuilder.communicateProgress(monitor, totalResources, currentResourcesVisited, resource, visitor);
-                    REF.invoke(visitor, name, resource, document, monitor);
-                    
-                    //ok, standard visiting ended... now, we have to check if we should visit the other
-                    //resources if it was an __init__.py file that changed
-                    if(isAddOrChange && visitor.shouldVisitInitDependency() && isInitFile(resource)){
-                        IResource[] initDependents = getInitDependents(resource);
-                        
-                        for (int i = 0; i < initDependents.length; i++) {
-                            REF.invoke(visitor, name, initDependents[i], REF.getDocFromResource(initDependents[i]), monitor);
-                        }
-                    }
-                } catch (Exception e) {
-                    Log.log(e);
-                }
+    	IPythonNature nature = PythonNature.getPythonNature(resource);
+    	if(nature == null){
+    		return;
+    	}
+    	if(!nature.startRequests()){
+    		return;
+    	}
+    	try{
+	        if(!nature.isResourceInPythonpath(resource)){
+	        	return; // we only analyze resources that are in the pythonpath
+	        }
+	        HashMap<String, Object> memo = new HashMap<String, Object>();
+	        memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false); //mark it as a delta build
+	        
+	        for (PyDevBuilderVisitor visitor : visitors) {
+	            // some visitors cannot visit too many elements because they do a lot of processing
+	            if (visitor.maxResourcesToVisit() == PyDevBuilderVisitor.MAX_TO_VISIT_INFINITE || visitor.maxResourcesToVisit() >= totalResources) {
+	                visitor.memo = memo; //setting the memo must be the first thing.
+	                try {
+	                    //communicate progress for each visitor
+	                    PyDevBuilder.communicateProgress(monitor, totalResources, currentResourcesVisited, resource, visitor);
+	                    REF.invoke(visitor, name, resource, document, monitor);
+	                    
+	                    //ok, standard visiting ended... now, we have to check if we should visit the other
+	                    //resources if it was an __init__.py file that changed
+	                    if(isAddOrChange && visitor.shouldVisitInitDependency() && isInitFile(resource)){
+	                        IResource[] initDependents = getInitDependents(resource);
+	                        
+	                        for (int i = 0; i < initDependents.length; i++) {
+	                            REF.invoke(visitor, name, initDependents[i], REF.getDocFromResource(initDependents[i]), monitor);
+	                        }
+	                    }
+	                } catch (Exception e) {
+	                    Log.log(e);
+	                }
+	            }
             }
+        }finally{
+        	nature.endRequests();
         }
         
     }

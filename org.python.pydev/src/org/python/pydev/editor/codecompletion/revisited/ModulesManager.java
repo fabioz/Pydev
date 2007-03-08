@@ -102,6 +102,54 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
 	public ModulesManager(){
 	}
 	
+
+	protected static class CompletionCache{
+		public ModulesManager[] referencedManagers;
+		public ModulesManager[] referredManagers;
+		public ModulesManager[] getManagers(boolean referenced) {
+    		if(referenced){
+				return this.referencedManagers;
+    		}else{
+				return this.referredManagers;
+    		}
+		}
+		public void setManagers(ModulesManager[] ret, boolean referenced) {
+			if(referenced){
+				this.referencedManagers = ret;
+			}else{
+				this.referredManagers = ret;
+			}
+		}
+	}
+	
+	/**
+	 * A stack for keeping the completion cache
+	 */
+	protected volatile CompletionCache completionCache = null;
+	private volatile int completionCacheI=0;
+	
+	
+	/**
+	 * This method starts a new cache for this manager, so that needed info is kept while the request is happening
+	 * (so, some info may not need to be re-asked over and over for requests) 
+	 */
+	public synchronized boolean startCompletionCache(){
+		if(completionCache == null){
+			completionCache = new CompletionCache();
+		}
+		completionCacheI += 1;
+		return true;
+	}
+	
+	public synchronized void endCompletionCache(){
+		completionCacheI -= 1;
+		if(completionCacheI == 0){
+			completionCache = null;
+		}else if(completionCacheI < 0){
+			throw new RuntimeException("Completion cache negative (request unsynched)");
+		}
+	}
+	
     /**
      * Modules that we have in memory. This is persisted when saved.
      * 

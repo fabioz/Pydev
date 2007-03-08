@@ -8,6 +8,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 import java.io.File;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -349,6 +350,12 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
      * @return the Managers that this project references or the ones that reference this project (depends on 'referenced') 
      */
     private ModulesManager[] getManagers(boolean checkSystemManager, boolean referenced) {
+    	if(this.completionCache != null){
+    		ModulesManager[] ret = this.completionCache.getManagers(referenced);
+    		if(ret != null){
+    			return ret;
+    		}
+    	}
         ArrayList<ModulesManager> list = new ArrayList<ModulesManager>();
         SystemModulesManager systemModulesManager = getSystemModulesManager(null);
         if(systemModulesManager == null){
@@ -358,20 +365,19 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         
         try {
             if(project != null){
-                IProject[] projects;
-                if(referenced){
-                    projects = project.getReferencedProjects();
-                }else{
-                    projects = project.getReferencingProjects();
-                    
-                }
-                fillWithModulesManagers(list, projects);
+            	HashSet<IProject> projs = new HashSet<IProject>();
+            	getProjectsRecursively(project, referenced, projs);
+                addModuleManagers(list, projs);
             }
             //the system is the last one we add.
             if(checkSystemManager && systemModulesManager != null){
                 list.add(systemModulesManager);
             }
-            return (ModulesManager[]) list.toArray(new ModulesManager[list.size()]);
+            ModulesManager[] ret = (ModulesManager[]) list.toArray(new ModulesManager[list.size()]);
+            if(this.completionCache != null){
+            	this.completionCache.setManagers(ret, referenced);
+            }
+            return ret;
         } catch (CoreException e) {
             //PydevPlugin.log(e); not logged anymore (this may happen if the project was closed and a thread was still running this)
             if(checkSystemManager && systemModulesManager != null){
@@ -381,23 +387,44 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
             }
         }
     }
+
+
+	private void getProjectsRecursively(IProject project, boolean referenced, HashSet<IProject> memo) throws CoreException {
+		IProject[] projects;
+		if(referenced){
+		    projects = project.getReferencedProjects();
+		}else{
+		    projects = project.getReferencingProjects();
+		}
+		HashSet<IProject> newFound = new HashSet<IProject>();
+		for (IProject p : projects) {
+			if(!memo.contains(p)){
+				memo.add(p);
+				newFound.add(p);
+			}
+		}
+		
+		for (IProject p : newFound) {
+			getProjectsRecursively(p, referenced, memo);
+		}
+	}
     
 
     /**
      * @param list the list that will be filled with the managers
      * @param projects the projects that should have the managers added
      */
-    private void fillWithModulesManagers(ArrayList<ModulesManager> list, IProject[] projects) {
-        for (int i = 0; i < projects.length; i++) {
-            PythonNature nature = PythonNature.getPythonNature(projects[i]);
-            if(nature!=null){
-                ICodeCompletionASTManager otherProjectAstManager = nature.getAstManager();
-                if(otherProjectAstManager != null){
-                    IModulesManager projectModulesManager = otherProjectAstManager.getModulesManager();
-                    if(projectModulesManager != null){
-                        list.add((ModulesManager) projectModulesManager);
-                    }
-                }
+    private void addModuleManagers(ArrayList<ModulesManager> list, Collection<IProject> projects) {
+    	for(IProject project:projects){
+	        PythonNature nature = PythonNature.getPythonNature(project);
+	        if(nature!=null){
+	            ICodeCompletionASTManager otherProjectAstManager = nature.getAstManager();
+	            if(otherProjectAstManager != null){
+	                IModulesManager projectModulesManager = otherProjectAstManager.getModulesManager();
+	                if(projectModulesManager != null){
+	                    list.add((ModulesManager) projectModulesManager);
+	                }
+	            }
             }
         }
     }
