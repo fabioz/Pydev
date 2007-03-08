@@ -8,6 +8,7 @@ Pydev Extensions:
 Pydev
 <ul>
 <li><strong>Code-completion</strong>: Deep analysis for discovering arguments in constructs 'from imports' now can be configured given the number of chars of the qualifier</li>
+<li><strong>Refactoring for override methods</strong>: changed so that it uses the pydev code-completion engine for getting the hierarchy and methods</li>
 </ul>
 
 after 1.2.8
