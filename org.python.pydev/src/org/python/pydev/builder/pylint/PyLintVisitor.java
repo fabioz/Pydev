@@ -323,7 +323,9 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
     }
     
     public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
-        
+        if(document == null){
+        	return;
+        }
         if(PyLintPrefPage.usePyLint() == false){
             try {
                 resource.deleteMarkers(PYLINT_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);

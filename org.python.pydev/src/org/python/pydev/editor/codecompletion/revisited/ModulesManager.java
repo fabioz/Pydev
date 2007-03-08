@@ -125,8 +125,8 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
 	/**
 	 * A stack for keeping the completion cache
 	 */
-	protected volatile CompletionCache completionCache = null;
-	private volatile int completionCacheI=0;
+	protected transient volatile CompletionCache completionCache = null;
+	private transient volatile int completionCacheI=0;
 	
 	
 	/**

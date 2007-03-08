@@ -34,6 +34,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
+import org.eclipse.core.internal.resources.ResourceException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -518,6 +519,9 @@ public class REF {
 					}
                 }
                 return doc;
+            }catch(ResourceException e){
+            	//it may stop existing from the initial exists check to the getContents call
+            	return null;
             } catch (Exception e) {
                 Log.log(e);
             }

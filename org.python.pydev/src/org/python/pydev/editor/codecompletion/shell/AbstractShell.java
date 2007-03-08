@@ -801,7 +801,9 @@ public abstract class AbstractShell {
             return getInvalidCompletion();
             
         } catch (Exception e) {
-            PydevPlugin.log(IStatus.ERROR, "ERROR getting completions.", e);
+        	if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+        		PydevPlugin.log(IStatus.ERROR, "ERROR getting completions.", e);
+        	}
             
             restartShell();
             return getInvalidCompletion();

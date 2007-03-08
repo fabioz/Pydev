@@ -57,8 +57,10 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * so that we gather enough information about what's happening and the possible reasons
      * for some bug (at this moment this is being specifically added because of a halting bug
      * for pydev in linux: https://sourceforge.net/tracker/index.php?func=detail&aid=1509582&group_id=85796&atid=577329)
+     * 
+     * It is kept updated from the Preferences Page
      */
-    public static boolean DEBUG_CODE_COMPLETION = PyCodeCompletionPreferencesPage.isToDebugCodeCompletion();
+    public static volatile boolean DEBUG_CODE_COMPLETION = PyCodeCompletionPreferencesPage.isToDebugCodeCompletion();
     
     /* (non-Javadoc)
      * @see org.python.pydev.editor.codecompletion.IPyCodeCompletion#getCodeCompletionProposals(org.eclipse.jface.text.ITextViewer, org.python.pydev.editor.codecompletion.CompletionRequest)
