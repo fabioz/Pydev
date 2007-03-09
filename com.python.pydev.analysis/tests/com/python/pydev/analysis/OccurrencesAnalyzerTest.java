@@ -27,7 +27,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testNoEffectOk6();
+            analyzer2.testWrongLine();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -209,6 +209,21 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	
     	printMessages(msgs,0);
     	
+    }
+    
+    public void testWrongLine(){
+    	doc = new Document(
+    			"ExportMethodTransient(True,\n" +
+    			"                      0,\n" +
+    			"                      1).DoExport()\n"+
+    			"\n"
+    	);
+    	analyzer = new OccurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc("foo", null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs,1);
+    	assertEquals(1, msgs[0].getStartLine(doc));
+    	assertEquals(1, msgs[0].getEndLine(doc));
     }
     
 

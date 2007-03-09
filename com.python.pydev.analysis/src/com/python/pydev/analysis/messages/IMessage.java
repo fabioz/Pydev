@@ -36,13 +36,13 @@ public interface IMessage {
     int getType();
 
     /**
-     * @return the starting line of the error
+     * @return the starting line of the error (starting at 1)
      */
     int getStartLine(IDocument doc);
     
     /**
      * @param doc 
-     * @return the starting col of the error
+     * @return the starting col of the error (starting at 1)
      */
     int getStartCol(IDocument doc);
 
