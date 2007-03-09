@@ -9,7 +9,7 @@ import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_UNUSED_IMPORT;
 import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_UNUSED_VARIABLE;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashSet;
 
 import org.eclipse.core.resources.IMarker;
@@ -650,7 +650,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         checkNoError();
     }
     
-    public void testRelImport() throws FileNotFoundException{
+    public void testRelImport() throws IOException{
         
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"relative/__init__.py");
@@ -661,7 +661,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         printMessages(msgs, 0);
     }
     
-    public void testImportNotFound8() throws FileNotFoundException{
+    public void testImportNotFound8() throws IOException{
         
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"testenc/encimport.py");
@@ -671,7 +671,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         printMessages(msgs, 0);
     }
     
-    public void testUnusedWildRelativeImport() throws FileNotFoundException{
+    public void testUnusedWildRelativeImport() throws IOException{
         
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"testOtherImports/f1.py");
@@ -729,7 +729,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals(2, set.size()); //that's because we actually only have those 2 messages (but one appears 2 times)
     }
     
-    public void testRelativeNotUndefined() throws FileNotFoundException{
+    public void testRelativeNotUndefined() throws IOException{
         
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/relative/testrelative.py");
@@ -739,7 +739,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         printMessages(msgs, 0);
     }
     
-    public void testRelativeNotUndefined2() throws FileNotFoundException{
+    public void testRelativeNotUndefined2() throws IOException{
         
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"relative/mod2.py");
