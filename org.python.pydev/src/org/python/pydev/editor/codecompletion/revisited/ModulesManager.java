@@ -6,7 +6,6 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -602,11 +601,16 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
             boolean found = false;
 
             if (!found && e.f != null) {
-                try {
-                    n = AbstractModule.createModule(name, e.f, nature, -1);
-                } catch (FileNotFoundException exc) {
-                    doRemoveSingleModule(new ModulesKey(name, e.f));
-                    n = null;
+            	if(!e.f.exists()){
+            		doRemoveSingleModule(new ModulesKey(name, e.f));
+            		n = null;
+            	}else{
+	                try {
+	                    n = AbstractModule.createModule(name, e.f, nature, -1);
+	                } catch (IOException exc) {
+	                    doRemoveSingleModule(new ModulesKey(name, e.f));
+	                    n = null;
+	                }
                 }
 
             }else{ //ok, it does not have a file associated, so, we treat it as a builtin (this can happen in java jars)

@@ -102,7 +102,12 @@ public class PythonModuleManager {
 		if(TESTING){
 			loadIfNotInWorkspace = false;
 		}
-		IDocument doc = REF.getDocFromFile(file, loadIfNotInWorkspace);
+		IDocument doc = null;
+		try {
+			doc = REF.getDocFromFile(file, loadIfNotInWorkspace);
+		} catch (IOException e1) {
+			//ignore (will remain null)
+		}
 		if(doc == null){
 			try {
 				doc = new Document(getFileContent(new FileInputStream(file)));

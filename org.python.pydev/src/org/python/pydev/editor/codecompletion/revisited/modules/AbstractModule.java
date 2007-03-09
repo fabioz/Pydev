@@ -6,7 +6,7 @@
 package org.python.pydev.editor.codecompletion.revisited.modules;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
@@ -176,9 +176,9 @@ public abstract class AbstractModule implements IModule {
      * 
      * @param f
      * @return
-     * @throws FileNotFoundException
+     * @throws IOException 
      */
-    public static AbstractModule createModule(String name, File f, IPythonNature nature, int currLine) throws FileNotFoundException {
+    public static AbstractModule createModule(String name, File f, IPythonNature nature, int currLine) throws IOException {
         String path = REF.getFileAbsolutePath(f);
         if(PythonPathHelper.isValidFileMod(path)){
 	        if(PythonPathHelper.isValidSourceFile(path)){

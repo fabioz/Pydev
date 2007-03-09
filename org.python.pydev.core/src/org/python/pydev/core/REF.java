@@ -45,7 +45,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.util.Assert;
 import org.python.pydev.core.log.Log;
 
 
@@ -429,14 +428,15 @@ public class REF {
         return o1.equals(o2);
     }
 
-    public static IDocument getDocFromFile(java.io.File f) {
+    public static IDocument getDocFromFile(java.io.File f) throws IOException {
     	return getDocFromFile(f, true);
     }
     
     /**
      * @return the document given its 'filesystem' file
+     * @throws IOException 
      */
-    public static IDocument getDocFromFile(java.io.File f, boolean loadIfNotInWorkspace) {
+    public static IDocument getDocFromFile(java.io.File f, boolean loadIfNotInWorkspace) throws IOException {
         IPath path = Path.fromOSString(getFileAbsolutePath(f));
         IDocument doc = getDocFromPath(path);
         if (doc == null && loadIfNotInWorkspace) {
@@ -447,29 +447,23 @@ public class REF {
 
     /**
      * @return the document given its 'filesystem' file (checks for the declared python encoding in the file)
+     * @throws IOException 
      */
-    private static IDocument getPythonDocFromFile(java.io.File f) {
+    private static IDocument getPythonDocFromFile(java.io.File f) throws IOException {
     	IDocument docFromPath = getDocFromPath(Path.fromOSString(getFileAbsolutePath(f)));
     	if(docFromPath != null){
     		return docFromPath;
     	}
     	
+        FileInputStream stream = new FileInputStream(f);
+        String fileContents = "";
         try {
-            Assert.isTrue(f.exists(), "The file: "+f+" does not exist.");
-            Assert.isTrue(f.isFile(), "The file: "+f+" is not recognized as a file.");
-            
-            FileInputStream stream = new FileInputStream(f);
-            String fileContents = "";
-            try {
-                String encoding = getPythonFileEncoding(f);
-                fileContents = getFileContents(stream, encoding, null);
-            } finally {
-                try { stream.close(); } catch (Exception e) {Log.log(e);}
-            }
-            return new Document(fileContents);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            String encoding = getPythonFileEncoding(f);
+            fileContents = getFileContents(stream, encoding, null);
+        } finally {
+            try { stream.close(); } catch (Exception e) {Log.log(e);}
         }
+        return new Document(fileContents);
     }
 
     /**
