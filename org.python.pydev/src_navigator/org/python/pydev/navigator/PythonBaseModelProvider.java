@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -790,41 +789,5 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
         };
     }
 
-    @SuppressWarnings("unchecked")
-    protected boolean convertToPythonElements(Set currentChildren) {
-        LinkedHashSet convertedChildren = new LinkedHashSet();
-        for (Iterator childrenItr = currentChildren.iterator(); childrenItr.hasNext();) {
-            Object child = childrenItr.next();
-            if(child instanceof IResource && !(child instanceof IWrappedResource)){
-                childrenItr.remove();
-                IResource res = (IResource) child;
-                
-                Object resourceInPythonModel = getResourceInPythonModel(res, true);
-                if(resourceInPythonModel != null){
-                    convertedChildren.add(resourceInPythonModel);
-                    
-                }else{
-                    Object pythonParent = getResourceInPythonModel(res.getParent(), true);
-                    if(pythonParent instanceof IWrappedResource){
-                        IWrappedResource parent = (IWrappedResource) pythonParent;
-                        if(res instanceof IFolder){
-                            convertedChildren.add(new PythonFolder(parent, (IFolder) res, parent.getSourceFolder()));
-                        }else if(res instanceof IFile){
-                            convertedChildren.add(new PythonFile(parent, (IFile) res, parent.getSourceFolder()));
-                        }else if (child instanceof IResource){
-                            convertedChildren.add(new PythonResource(parent, (IResource) child, parent.getSourceFolder()));
-                        }
-                    }
-                }
-                
-            }
-        }
-        if (!convertedChildren.isEmpty()) {
-            currentChildren.addAll(convertedChildren);
-            return true;
-        }
-        return false;        
-        
-    }
 
 }
