@@ -392,26 +392,21 @@ public class NodeUtils {
     public static int getColDefinition(SimpleNode ast2, boolean always1ForImports) {
         if(ast2 instanceof Attribute){
             //if it is an attribute, we always have to move backward to the first defined token (Attribute.value)
-            
-            
             exprType value = ((Attribute)ast2).value;
-            
-            
-            //call and subscript are special cases, because they are not gotten directly (we have to go to the first
-            //part of it (which in turn may be an attribute)
-            if(value instanceof Call){
-                Call c = (Call) value;
-                return getColDefinition(c.func);
-                
-            } else if(value instanceof Subscript){
-                Subscript s = (Subscript) value;
-                return getColDefinition(s.value);
-                
-            } else {
-                return getColDefinition(value);
-            }
+            return getColDefinition(value);
         }
-        if(always1ForImports){
+        
+        //call and subscript are special cases, because they are not gotten directly (we have to go to the first
+        //part of it (which in turn may be an attribute)
+        else if(ast2 instanceof Call){
+            Call c = (Call) ast2;
+            return getColDefinition(c.func);
+            
+        } else if(ast2 instanceof Subscript){
+            Subscript s = (Subscript) ast2;
+            return getColDefinition(s.value);
+            
+        } else if(always1ForImports){
             if(ast2 instanceof Import || ast2 instanceof ImportFrom){
                 return 1;
             }

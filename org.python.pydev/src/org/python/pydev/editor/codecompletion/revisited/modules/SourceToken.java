@@ -91,7 +91,29 @@ public class SourceToken extends AbstractToken{
      * @return line starting at 1
      */
     public int getLineDefinition() {
-        return NodeUtils.getLineDefinition(ast);
+        return NodeUtils.getLineDefinition(getRepresentationNode());
+    }
+
+    private SimpleNode getRepresentationNode() {
+        if(ast instanceof Attribute){
+            Attribute attr = (Attribute) ast;
+            while(attr != null){
+                String r = NodeUtils.getRepresentationString(attr);
+                if(r.equals(rep)){
+                    return attr;
+                }
+                if(attr.value instanceof Attribute){
+                    attr = (Attribute) attr.value;
+                }else{
+                    r = NodeUtils.getRepresentationString(attr.value);
+                    if(r.equals(rep)){
+                        return attr.value;
+                    }
+                    break;
+                }
+            }
+        }
+        return ast;
     }
     
     /**
@@ -106,13 +128,13 @@ public class SourceToken extends AbstractToken{
     public int getLineEnd(boolean getOnlyToFirstDot){
     	if(getOnlyToFirstDot){
     		if(colLineEndToFirstDot == null){
-    			colLineEndToFirstDot = NodeUtils.getColLineEnd(getAst(), getOnlyToFirstDot);
+    			colLineEndToFirstDot = NodeUtils.getColLineEnd(getRepresentationNode(), getOnlyToFirstDot);
     		}
     		return colLineEndToFirstDot[0];
     		
     	}else{
     		if(colLineEndComplete == null){
-    			colLineEndComplete = NodeUtils.getColLineEnd(getAst(), getOnlyToFirstDot);
+    			colLineEndComplete = NodeUtils.getColLineEnd(getRepresentationNode(), getOnlyToFirstDot);
     		}
     		return colLineEndComplete[0];
     	}
@@ -121,13 +143,13 @@ public class SourceToken extends AbstractToken{
     public int getColEnd(boolean getOnlyToFirstDot){
     	if(getOnlyToFirstDot){
     		if(colLineEndToFirstDot == null){
-    			colLineEndToFirstDot = NodeUtils.getColLineEnd(getAst(), getOnlyToFirstDot);
+    			colLineEndToFirstDot = NodeUtils.getColLineEnd(getRepresentationNode(), getOnlyToFirstDot);
     		}
     		return colLineEndToFirstDot[1];
     		
     	}else{
     		if(colLineEndComplete == null){
-    			colLineEndComplete = NodeUtils.getColLineEnd(getAst(), getOnlyToFirstDot);
+    			colLineEndComplete = NodeUtils.getColLineEnd(getRepresentationNode(), getOnlyToFirstDot);
     		}
     		return colLineEndComplete[1];
     	}
@@ -156,7 +178,6 @@ public class SourceToken extends AbstractToken{
     }
 
     public boolean isImport() {
-        SimpleNode ast = getAst();
         if(ast instanceof Import || ast instanceof ImportFrom){
             return true;
         }
@@ -165,11 +186,11 @@ public class SourceToken extends AbstractToken{
     }
     
     public boolean isImportFrom() {
-    	return getAst() instanceof ImportFrom;
+    	return ast instanceof ImportFrom;
     }
 
     public boolean isWildImport() {
-    	return AbstractVisitor.isWildImport(getAst());
+    	return AbstractVisitor.isWildImport(ast);
     }
     /**
      * This representation may not be accurate depending on which tokens we are dealing with. 
