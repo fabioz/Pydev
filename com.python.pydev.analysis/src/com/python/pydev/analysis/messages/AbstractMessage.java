@@ -127,9 +127,26 @@ public abstract class AbstractMessage implements IMessage{
     	if(startCol >= 0){
     		return startCol;
     	}
-    	startCol = getStartCol(generator, doc, getShortMessage().toString());
+    	startCol = getStartCol(generator, doc, getShortMessageStr());
     	return startCol;
     	
+    }
+
+
+    private String getShortMessageStr() {
+        Object msg = getShortMessage();
+        String str;
+        if(msg instanceof Object[]){
+            Object[] msgs = (Object[]) msg;
+            StringBuffer buffer = new StringBuffer();
+            for (Object o : msgs) {
+                buffer.append(o.toString());
+            }
+            str = buffer.toString();
+        }else{
+            str = msg.toString();
+        }
+        return str;
     }
     
     public static int getStartCol(IToken generator, IDocument doc) {
@@ -250,7 +267,7 @@ public abstract class AbstractMessage implements IMessage{
     	if(endCol >= 0){
     		return endCol;
     	}
-    	endCol = getEndCol(generator, doc, getShortMessage().toString(), getOnlyToFirstDot);
+    	endCol = getEndCol(generator, doc, getShortMessageStr(), getOnlyToFirstDot);
     	return endCol;
     	
     }

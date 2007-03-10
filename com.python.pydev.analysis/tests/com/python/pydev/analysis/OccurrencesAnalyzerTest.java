@@ -224,6 +224,8 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	printMessages(msgs,1);
     	assertEquals(1, msgs[0].getStartLine(doc));
     	assertEquals(1, msgs[0].getEndLine(doc));
+    	assertEquals(1, msgs[0].getStartCol(doc));
+    	assertEquals(22, msgs[0].getEndCol(doc));
     }
     
 
