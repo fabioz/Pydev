@@ -142,7 +142,7 @@ class Test(unittest.TestCase):
         return msg
         
     def sendKillMsg(self, socket):
-        socket.send(pycompletionserver.MSG_KILL_SERVER)
+        socket.send(jycompletionserver.MSG_KILL_SERVER)
         
     
 

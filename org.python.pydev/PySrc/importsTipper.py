@@ -34,7 +34,7 @@ def GetFile(mod):
     except:
         if hasattr(mod,'__file__'):
             f = mod.__file__
-            if string.lower(f[-4:]) in ['.pyc', '.pyo']:
+            if f.lower(f[-4:]) in ['.pyc', '.pyo']:
                 filename = f[:-4] + '.py'
                 if os.path.exists(filename):
                     f = filename
@@ -115,7 +115,7 @@ def DoFind(f, mod):
             lnum = lnum - 1
         return f, lnum, 0
 
-    raise RuntimeError('Do not know about: '+data+' '+str(mod))
+    raise RuntimeError('Do not know about: '+f+' '+str(mod))
         
     
     

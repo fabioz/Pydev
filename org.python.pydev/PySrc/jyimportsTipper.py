@@ -1,13 +1,13 @@
 import StringIO
 import traceback
-from java.lang import StringBuffer
-from java.lang import String
-import java.lang
+from java.lang import StringBuffer #@UnresolvedImport
+from java.lang import String #@UnresolvedImport
+import java.lang #@UnresolvedImport
 import sys
 
-from org.python.core import PyReflectedFunction
+from org.python.core import PyReflectedFunction #@UnresolvedImport
 
-from org.python import core
+from org.python import core #@UnresolvedImport
 
 #completion types.
 TYPE_UNKNOWN = -1

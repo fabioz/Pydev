@@ -14,6 +14,7 @@ all internal are separated by |
 import sys
 import os
 True, False = 1,0 
+import time
 
 if sys.platform == "cygwin":
     sys.path.append(os.path.join(sys.path[0],'ThirdParty'))
@@ -24,7 +25,7 @@ if sys.platform == "cygwin":
 
         retval = ctypes.create_string_buffer(MAX_PATH)
         path = fullyNormalizePath(path)
-        ctypes.cdll.cygwin1.cygwin_conv_to_win32_path(path, retval)
+        ctypes.cdll.cygwin1.cygwin_conv_to_win32_path(path, retval) #@UndefinedVariable
         return retval.value
 else:
     def nativePath(path):
@@ -39,7 +40,7 @@ def fullyNormalizePath(path):
 if __name__ == '__main__':
     try:
         #just give some time to get the reading threads attached (just in case)
-        sleep(0.5)
+        time.sleep(0.1)
     except:
         pass
     
@@ -85,7 +86,7 @@ if __name__ == '__main__':
         sys.stdout.flush()
         sys.stderr.flush()
         #and give some time to let it read things (just in case)
-        sleep(0.5)
+        time.sleep(0.1)
     except:
         pass
     

@@ -15,12 +15,12 @@ from jyimportsTipper import ismethod
 from jyimportsTipper import isclass
 from jyimportsTipper import dirObj
 import jyimportsTipper
-from java.lang.reflect import Method
-from java.lang import System
-from java.lang import String
-from java.lang.System import arraycopy
-from java.lang.System import out
-import java.lang.String
+from java.lang.reflect import Method #@UnresolvedImport
+from java.lang import System #@UnresolvedImport
+from java.lang import String #@UnresolvedImport
+from java.lang.System import arraycopy #@UnresolvedImport
+from java.lang.System import out #@UnresolvedImport
+import java.lang.String #@UnresolvedImport
 
 __DBG = 0
 def dbg(s):
@@ -53,7 +53,7 @@ class TestMod(unittest.TestCase):
         f, tip = jyimportsTipper.GenerateTip('java.util.HashMap')
         assert f.endswith('rt.jar')
 
-    def testImports1a(self):
+    def testImports1c(self):
         f, tip = jyimportsTipper.GenerateTip('java.lang.Class')
         assert f.endswith('rt.jar')
         
@@ -88,7 +88,7 @@ class TestMod(unittest.TestCase):
         self.assertIn('RuntimeError'   , tip)
         self.assertIn('RuntimeWarning' , tip)
 
-    def testImports(self):
+    def testImports5(self):
         f, tip = jyimportsTipper.GenerateTip('java.lang')
         assert f.endswith('rt.jar')
         tup = self.assertIn('String' , tip)
@@ -126,7 +126,7 @@ class TestMod(unittest.TestCase):
         self.assertIn('get'          , tip)
 
 
-import org.python.core.PyDictionary
+import org.python.core.PyDictionary #@UnresolvedImport
 class TestCompl(unittest.TestCase):
 
     def setUp(self):
