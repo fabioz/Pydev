@@ -28,15 +28,15 @@ public class PyRenameAnyLocalProcess extends AbstractRenameRefactorProcess{
             
         List<ASTEntry> oc = new ArrayList<ASTEntry>();
         SimpleNode root = request.getAST();
-        oc.addAll(ScopeAnalysis.getCommentOcurrences(request.initialName, root));
-        oc.addAll(ScopeAnalysis.getStringOcurrences(request.initialName, root));
+        oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
+        oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
 
 		if (!attributeSearch){
             List<ASTEntry> occurrencesWithScopeAnalyzer = getOccurrencesWithScopeAnalyzer(request);
             oc.addAll(occurrencesWithScopeAnalyzer);
             
             if(occurrencesWithScopeAnalyzer.size() == 0){
-            	oc.addAll(ScopeAnalysis.getLocalOcurrences(request.initialName, root, false));
+            	oc.addAll(ScopeAnalysis.getLocalOccurrences(request.initialName, root, false));
             }
             
         }else{

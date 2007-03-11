@@ -89,7 +89,7 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
                 
             }
 		}
-        ret.addAll(ScopeAnalysis.getCommentOcurrences(request.initialName, root));
+        ret.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
     	return ret;
 	}
 
@@ -98,8 +98,8 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
         //this is the actual function definition, so, let's take a look at its arguments... 
         
         FunctionDef node = (FunctionDef) entry.parent.node;
-        List<ASTEntry> found = ScopeAnalysis.getLocalOcurrences(request.initialName, node);
-        ret.addAll(ScopeAnalysis.getStringOcurrences(request.initialName, node));
+        List<ASTEntry> found = ScopeAnalysis.getLocalOccurrences(request.initialName, node);
+        ret.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, node));
         ret.addAll(found);
     }
 
@@ -123,7 +123,7 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
     	if(call == null){
     		return;
     	}
-        List<ASTEntry> found = ScopeAnalysis.getLocalOcurrences(request.initialName, call);
+        List<ASTEntry> found = ScopeAnalysis.getLocalOccurrences(request.initialName, call);
         for (ASTEntry entry2 : found) {
             if(entry2.node instanceof NameTok){
                 NameTok name2 = (NameTok) entry2.node;

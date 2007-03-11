@@ -8,18 +8,18 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 /**
  * Tests tokens gotten from imports to see if they really exist there
  */
-public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase { 
+public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase { 
 
     public static void main(String[] args) {
         try {
-        	ImportsOcurrencesAnalyzerTest analyzer2 = new ImportsOcurrencesAnalyzerTest();
+        	ImportsOccurrencesAnalyzerTest analyzer2 = new ImportsOccurrencesAnalyzerTest();
             analyzer2.setUp();
             analyzer2.testFromNotExistent();
             analyzer2.tearDown();
             System.out.println("finished");
             
             
-            junit.textui.TestRunner.run(ImportsOcurrencesAnalyzerTest.class);
+            junit.textui.TestRunner.run(ImportsOccurrencesAnalyzerTest.class);
             System.out.println("finished all");
         } catch (Throwable e) {
             e.printStackTrace();

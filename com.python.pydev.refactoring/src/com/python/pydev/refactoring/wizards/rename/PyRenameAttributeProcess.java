@@ -31,12 +31,12 @@ public class PyRenameAttributeProcess extends AbstractRenameWorkspaceRefactorPro
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         SimpleNode ast = request.getAST();
 		
-        List<ASTEntry> attributeOcurrences = new ArrayList<ASTEntry>(); 
-        attributeOcurrences.addAll(ScopeAnalysis.getAttributeOcurrences(this.target, ast));
-		attributeOcurrences.addAll(ScopeAnalysis.getAttributeReferences(this.target, ast));
-        attributeOcurrences.addAll(ScopeAnalysis.getCommentOcurrences(request.initialName, ast));
-        attributeOcurrences.addAll(ScopeAnalysis.getStringOcurrences(request.initialName, ast));
-		addOccurrences(request, attributeOcurrences);
+        List<ASTEntry> attributeOccurrences = new ArrayList<ASTEntry>(); 
+        attributeOccurrences.addAll(ScopeAnalysis.getAttributeOccurrences(this.target, ast));
+		attributeOccurrences.addAll(ScopeAnalysis.getAttributeReferences(this.target, ast));
+        attributeOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, ast));
+        attributeOccurrences.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, ast));
+		addOccurrences(request, attributeOccurrences);
     }
 
 

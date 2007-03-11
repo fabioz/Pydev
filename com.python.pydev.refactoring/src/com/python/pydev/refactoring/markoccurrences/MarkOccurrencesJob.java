@@ -1,7 +1,7 @@
 /*
  * Created on Apr 29, 2006
  */
-package com.python.pydev.refactoring.markocurrences;
+package com.python.pydev.refactoring.markoccurrences;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 
 
 /**
- * This is a 'low-priority' thread. It acts as a singleton. Requests to mark the ocurrences
+ * This is a 'low-priority' thread. It acts as a singleton. Requests to mark the occurrences
  * will be forwarded to it, so, it should sleep for a while and then check for a request.
  * 
  * If the request actually happened, it will go on to process it, otherwise it will sleep some more.
@@ -226,7 +226,7 @@ public class MarkOccurrencesJob extends Job{
     private synchronized boolean addAnnotations(final PyEdit pyEdit, IAnnotationModel annotationModel, final RefactoringRequest req, PyRenameEntryPoint processor) throws BadLocationException {
         //add the annotations
         synchronized (getLockObject(annotationModel)) {
-            List<ASTEntry> occurrences = processor.getOcurrences();
+            List<ASTEntry> occurrences = processor.getOccurrences();
             if(occurrences != null){
             	Map<String, Object> cache = pyEdit.cache;
             	if(cache == null){

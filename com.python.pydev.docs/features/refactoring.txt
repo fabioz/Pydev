@@ -1,6 +1,6 @@
 Refactoring notes:
 
-To do a rename, if there is only one 'global' definition of the class, all the ocurrences may be 'safely' renamed, whereas
+To do a rename, if there is only one 'global' definition of the class, all the occurrences may be 'safely' renamed, whereas
 when there is more than one 'global' definition of some thing, it may need more analysis to determine which can and which can't be renamed.
 
 -----------------------------------------------

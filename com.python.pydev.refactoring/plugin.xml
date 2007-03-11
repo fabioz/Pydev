@@ -10,7 +10,7 @@
    </extension>
    -->
    <extension point="org.python.pydev.pydev_pyedit_listener">
-  		<pyedit_listener_participant class="com.python.pydev.refactoring.markocurrences.MarkOccurrencesDispatcher"/>
+  		<pyedit_listener_participant class="com.python.pydev.refactoring.markoccurrences.MarkOccurrencesDispatcher"/>
    </extension>
    
 <!-- Initialize our preferences -->

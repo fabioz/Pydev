@@ -28,10 +28,10 @@ public interface IRefactorRenameProcess {
     public abstract void fillRefactoringChangeObject(RefactoringRequest request, CheckConditionsContext context, RefactoringStatus status, CompositeChange fChange);
 
     /**
-     * @return a list of entries with the ocurrences that will be affected in the refactoring or null if it
+     * @return a list of entries with the occurrences that will be affected in the refactoring or null if it
      * does not have this kind of association.
      */
-    public List<ASTEntry> getOcurrences();
+    public List<ASTEntry> getOccurrences();
 
     /**
      * @return a map with the files that will be affected in the refactoring pointing

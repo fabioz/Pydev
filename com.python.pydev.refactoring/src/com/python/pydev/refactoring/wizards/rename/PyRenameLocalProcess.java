@@ -23,10 +23,10 @@ public class PyRenameLocalProcess extends AbstractRenameRefactorProcess{
 
 
     protected void findReferencesToRenameOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
-        List<ASTEntry> ret = ScopeAnalysis.getLocalOcurrences(request.initialName, definition.module, definition.scope);
+        List<ASTEntry> ret = ScopeAnalysis.getLocalOccurrences(request.initialName, definition.module, definition.scope);
         SimpleNode ast = ((SourceModule)definition.module).getAst();
-        ret.addAll(ScopeAnalysis.getCommentOcurrences(request.initialName, ast));
-        ret.addAll(ScopeAnalysis.getStringOcurrences(request.initialName, ast));
+        ret.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, ast));
+        ret.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, ast));
         addOccurrences(request, ret);
     }
 
@@ -34,9 +34,9 @@ public class PyRenameLocalProcess extends AbstractRenameRefactorProcess{
         if(!definition.module.getName().equals(request.moduleName)){
             SimpleNode ast = request.getAST();
             //it was found in another module, but we want to keep things local
-            List<ASTEntry> ret = ScopeAnalysis.getLocalOcurrences(request.initialName, ast);
-            ret.addAll(ScopeAnalysis.getCommentOcurrences(request.initialName, ast));
-            ret.addAll(ScopeAnalysis.getStringOcurrences(request.initialName, ast));
+            List<ASTEntry> ret = ScopeAnalysis.getLocalOccurrences(request.initialName, ast);
+            ret.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, ast));
+            ret.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, ast));
             
         	addOccurrences(request, ret);
         }else{

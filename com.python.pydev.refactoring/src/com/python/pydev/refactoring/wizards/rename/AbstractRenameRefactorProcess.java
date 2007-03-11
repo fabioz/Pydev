@@ -107,7 +107,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
     }
 
     /**
-     * Adds the ocurrences found to some module.
+     * Adds the occurrences found to some module.
      * 
      * @param oc the occurrences found
      * @param file the file where the occurrences were found
@@ -127,18 +127,18 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * Gets the occurrences in a document and converts it to a TextEdit as required
      * by the Eclipse language toolkit.
      * 
-     * @param ocurrences the occurrences found
+     * @param occurrences the occurrences found
      * @param doc the doc where the occurrences were found
      * @return a list of tuples with the TextEdit and the description for that edit.
      */
-    protected List<Tuple<TextEdit, String>> getAllRenameEdits(List<ASTEntry> ocurrences, IDocument doc) {
+    protected List<Tuple<TextEdit, String>> getAllRenameEdits(List<ASTEntry> occurrences, IDocument doc) {
     	Set<Integer> s = new HashSet<Integer>();
     	
         List<Tuple<TextEdit, String>> ret = new ArrayList<Tuple<TextEdit, String>>();
-        //ocurrences = sortOccurrences(ocurrences);
+        //occurrences = sortOccurrences(occurrences);
         
         
-        for(ASTEntry entry : ocurrences){
+        for(ASTEntry entry : occurrences){
             StringBuffer entryBuf = new StringBuffer();
             
             Integer loc = (Integer)entry.getAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, 0);
@@ -192,10 +192,10 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
     /**
      * This method is used to sort the occurrences given the place where they were found
      */
-    public static List<ASTEntry> sortOccurrences(List<ASTEntry> ocurrences) {
-        ocurrences = new ArrayList<ASTEntry>(ocurrences);
+    public static List<ASTEntry> sortOccurrences(List<ASTEntry> occurrences) {
+        occurrences = new ArrayList<ASTEntry>(occurrences);
 
-        Collections.sort(ocurrences, new Comparator<ASTEntry>(){
+        Collections.sort(occurrences, new Comparator<ASTEntry>(){
 
             public int compare(ASTEntry o1, ASTEntry o2) {
                 int o1Found = (Integer) o1.getAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, 0);  
@@ -209,7 +209,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
                     return 1;
                 }
             }});
-        return ocurrences;
+        return occurrences;
     }
 
     /**
@@ -411,9 +411,9 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
     /**
      * Implemented from the super interface. Should return the occurrences from the current document
      *  
-     * @see com.python.pydev.refactoring.wizards.IRefactorRenameProcess#getOcurrences()
+     * @see com.python.pydev.refactoring.wizards.IRefactorRenameProcess#getOccurrences()
      */
-    public List<ASTEntry> getOcurrences() {
+    public List<ASTEntry> getOccurrences() {
         return docOccurrences;
     }
 

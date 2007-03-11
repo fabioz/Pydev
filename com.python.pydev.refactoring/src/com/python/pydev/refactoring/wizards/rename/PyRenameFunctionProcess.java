@@ -65,7 +65,7 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
      * 
      * @return a list with the entries with the references (and definition) to the function searched.
      */
-    private List<ASTEntry> getLocalOcurrences(String occurencesFor, SimpleNode simpleNode, RefactoringStatus status) {
+    private List<ASTEntry> getLocalOccurrences(String occurencesFor, SimpleNode simpleNode, RefactoringStatus status) {
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
         
         //get the entry for the function itself
@@ -109,15 +109,15 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
 		        
 	        }else if(parentNode instanceof FunctionDef){
 		    	//get the references inside of the parent (this will include the function itself)
-	    		ret.addAll(ScopeAnalysis.getLocalOcurrences(occurencesFor, parentNode));
+	    		ret.addAll(ScopeAnalysis.getLocalOccurrences(occurencesFor, parentNode));
 	    	}
 	        
         } else {
-        	ret.addAll(ScopeAnalysis.getLocalOcurrences(occurencesFor, simpleNode));
+        	ret.addAll(ScopeAnalysis.getLocalOccurrences(occurencesFor, simpleNode));
         }
         
-        ret.addAll(ScopeAnalysis.getCommentOcurrences(occurencesFor, simpleNode));
-        ret.addAll(ScopeAnalysis.getStringOcurrences(occurencesFor, simpleNode));
+        ret.addAll(ScopeAnalysis.getCommentOccurrences(occurencesFor, simpleNode));
+        ret.addAll(ScopeAnalysis.getStringOccurrences(occurencesFor, simpleNode));
         
         //get the references to Names that access that method in the same scope
         return ret;
@@ -166,16 +166,16 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
      * Will return the occurrences if we're in the same module for the method definition
      */
 	protected List<ASTEntry> getEntryOccurrencesInSameModule(RefactoringStatus status, String initialName, SimpleNode root) {
-		return getLocalOcurrences(initialName, root, status);
+		return getLocalOccurrences(initialName, root, status);
 	}
 
 	/**
 	 * Will return the occurrences if we're NOT in the same module as the method definition
 	 */
 	protected List<ASTEntry> getEntryOccurrencesInOtherModule(String initialName, SimpleNode root) {
-		List<ASTEntry> ret = ScopeAnalysis.getLocalOcurrences(initialName, root, false);
-        ret.addAll(ScopeAnalysis.getCommentOcurrences(initialName, root));
-        ret.addAll(ScopeAnalysis.getStringOcurrences (initialName, root));
+		List<ASTEntry> ret = ScopeAnalysis.getLocalOccurrences(initialName, root, false);
+        ret.addAll(ScopeAnalysis.getCommentOccurrences(initialName, root));
+        ret.addAll(ScopeAnalysis.getStringOccurrences (initialName, root));
         return ret;
 	}
 
@@ -192,7 +192,7 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
         if(!definition.module.getName().equals(module.getName())){
             return getEntryOccurrencesInOtherModule(initialName, root);
         }else{
-            return getLocalOcurrences(initialName, root, status);
+            return getLocalOccurrences(initialName, root, status);
         }
     }
 

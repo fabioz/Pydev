@@ -60,8 +60,8 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
 		List<ASTEntry> oc = getOccurrencesWithScopeAnalyzer(request);
 		SimpleNode root = request.getAST();
-        oc.addAll(ScopeAnalysis.getCommentOcurrences(request.initialName, root));
-        oc.addAll(ScopeAnalysis.getStringOcurrences(request.initialName, root));
+        oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
+        oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
 
 		addOccurrences(request, oc);
     }
@@ -159,8 +159,8 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
             SimpleNode root = module.getAst();
 			root.accept(visitor);
             entryOccurrences = visitor.getEntryOccurrences();
-            entryOccurrences.addAll(ScopeAnalysis.getCommentOcurrences(request.initialName, root));
-            entryOccurrences.addAll(ScopeAnalysis.getStringOcurrences(request.initialName, root));
+            entryOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
+            entryOccurrences.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
 
         } catch (Exception e) {
             Log.log(e);

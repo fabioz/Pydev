@@ -73,7 +73,7 @@ public class ScopeAnalysisCommentsTest extends TestCase{
         str.beginColumn=0;
         c.add(str);
         
-        List<ASTEntry> names = ScopeAnalysis.getStringOcurrences("foo", str);
+        List<ASTEntry> names = ScopeAnalysis.getStringOccurrences("foo", str);
         assertEquals(2, names.size());
         
         assertEquals(6, names.get(0).node.beginLine);
@@ -90,7 +90,7 @@ public class ScopeAnalysisCommentsTest extends TestCase{
         str.beginColumn=0;
         c.add(str);
         
-        List<ASTEntry> names = ScopeAnalysis.getStringOcurrences("foo", str);
+        List<ASTEntry> names = ScopeAnalysis.getStringOccurrences("foo", str);
         assertEquals(2, names.size());
         
         assertEquals(6, names.get(0).node.beginLine);

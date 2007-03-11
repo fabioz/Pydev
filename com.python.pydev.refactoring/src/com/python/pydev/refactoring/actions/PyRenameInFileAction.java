@@ -38,7 +38,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
-import com.python.pydev.refactoring.markocurrences.MarkOccurrencesJob;
+import com.python.pydev.refactoring.markoccurrences.MarkOccurrencesJob;
 import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 
 /**
@@ -151,7 +151,7 @@ public class PyRenameInFileAction extends Action{
         //process it to get what we need
 		processor.checkInitialConditions(monitor);
         processor.checkFinalConditions(monitor, null);
-		List<ASTEntry> occurrences = processor.getOcurrences();
+		List<ASTEntry> occurrences = processor.getOccurrences();
 		
 		if(monitor.isCanceled()){
 			return false;

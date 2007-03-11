@@ -16,7 +16,7 @@ import org.eclipse.ui.texteditor.TextEditorAction;
  * - org.eclipse.jdt.internal.ui.javaeditor.ToggleMarkOccurrencesAction
  * - org.eclipse.jdt.internal.ui.javaeditor.JavaEditor #markOccurrencesOfType, #updateOccurrenceAnnotations
  * 
- * This class only makes the 'toggle' for the ocurrences.
+ * This class only makes the 'toggle' for the occurrences.
  * 
  * @author Fabio
  */

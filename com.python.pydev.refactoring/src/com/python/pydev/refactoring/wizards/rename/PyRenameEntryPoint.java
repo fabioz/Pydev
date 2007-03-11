@@ -285,13 +285,13 @@ public class PyRenameEntryPoint extends RenameProcessor {
      * @return the list of occurrences that are found in the current document.
      *         Does not get the occurrences if they are in other files
      */
-    public List<ASTEntry> getOcurrences() {
+    public List<ASTEntry> getOccurrences() {
         if (process == null || process.size() == 0) {
             return null;
         }
         List<ASTEntry> occurrences = new ArrayList<ASTEntry>();
         for (IRefactorRenameProcess p : process) {
-            List<ASTEntry> o = p.getOcurrences();
+            List<ASTEntry> o = p.getOccurrences();
             if (o != null) {
                 occurrences.addAll(o);
             }

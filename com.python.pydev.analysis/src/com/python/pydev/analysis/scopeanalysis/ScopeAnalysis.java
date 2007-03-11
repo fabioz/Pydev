@@ -53,7 +53,7 @@ public class ScopeAnalysis {
 	 * @param scope the scope we're in
 	 * @return a list of entries with the occurrences
 	 */
-    public static List<ASTEntry> getLocalOcurrences(String occurencesFor, IModule module, ILocalScope scope) {
+    public static List<ASTEntry> getLocalOccurrences(String occurencesFor, IModule module, ILocalScope scope) {
     	SimpleNode simpleNode=null;
     	
     	if(scope.getScopeStack().size() > 0){
@@ -68,7 +68,7 @@ public class ScopeAnalysis {
     		return new ArrayList<ASTEntry>();
     	}
     	
-        return ScopeAnalysis.getLocalOcurrences(occurencesFor, simpleNode);
+        return ScopeAnalysis.getLocalOccurrences(occurencesFor, simpleNode);
     }
 
 
@@ -77,8 +77,8 @@ public class ScopeAnalysis {
      * @param simpleNode we will want the occurences below this node
      * @return a list of entries with the occurrences
      */
-	public static List<ASTEntry> getLocalOcurrences(String occurencesFor, SimpleNode simpleNode) {
-		return ScopeAnalysis.getLocalOcurrences(occurencesFor, simpleNode, true);
+	public static List<ASTEntry> getLocalOccurrences(String occurencesFor, SimpleNode simpleNode) {
+		return ScopeAnalysis.getLocalOccurrences(occurencesFor, simpleNode, true);
 	}
 
     
@@ -86,7 +86,7 @@ public class ScopeAnalysis {
     /**
      * @return a list of ast entries that are found inside strings.
      */
-    public static List<ASTEntry> getStringOcurrences(final String occurencesFor, SimpleNode simpleNode) {
+    public static List<ASTEntry> getStringOccurrences(final String occurencesFor, SimpleNode simpleNode) {
         final List<ASTEntry> ret = new ArrayList<ASTEntry>();
         
         SequencialASTIteratorVisitor visitor = new SequencialASTIteratorVisitor(){
@@ -115,7 +115,7 @@ public class ScopeAnalysis {
     /**
      * @return a list of ast entries that are found inside comments.
      */
-	public static List<ASTEntry> getCommentOcurrences(final String occurencesFor, SimpleNode simpleNode) {
+	public static List<ASTEntry> getCommentOccurrences(final String occurencesFor, SimpleNode simpleNode) {
 	    final List<ASTEntry> ret = new ArrayList<ASTEntry>();
 
         SequencialASTIteratorVisitor visitor = new SequencialASTIteratorVisitor(){
@@ -166,7 +166,7 @@ public class ScopeAnalysis {
 	 * @return a list of occurrences with the matches we're looking for.
 	 * Does only return the first name in attributes if onlyFirstAttribPart is true (otherwise will check all attribute parts)
 	 */
-	public static List<ASTEntry> getLocalOcurrences(final String occurencesFor, SimpleNode simpleNode, final boolean onlyFirstAttribPart) {
+	public static List<ASTEntry> getLocalOccurrences(final String occurencesFor, SimpleNode simpleNode, final boolean onlyFirstAttribPart) {
 	    List<ASTEntry> ret = new ArrayList<ASTEntry>();
 	    
 	    SequencialASTIteratorVisitor visitor = new SequencialASTIteratorVisitor(){
@@ -255,7 +255,7 @@ public class ScopeAnalysis {
      * actually have 2 attributes returned, one for self.aa and another for aa.m1, in which case
      * we will return the one correspondent to self.aa)
      */
-    public static List<ASTEntry> getAttributeOcurrences(String occurencesFor, SimpleNode simpleNode){
+    public static List<ASTEntry> getAttributeOccurrences(String occurencesFor, SimpleNode simpleNode){
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
 
         SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(simpleNode);

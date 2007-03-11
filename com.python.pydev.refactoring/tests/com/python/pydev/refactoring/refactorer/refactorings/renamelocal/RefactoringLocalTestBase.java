@@ -149,9 +149,9 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
 
     /**
      * Always checks for the 'default' test, which is:
-     * - get the document and change all the ocurrences of %s to 'aa'
+     * - get the document and change all the occurrences of %s to 'aa'
      * - apply the refactor process
-     * - check if all the %s ocurrences are now 'bb'
+     * - check if all the %s occurrences are now 'bb'
      */
     protected void checkRename(String strDoc, int line, int col) throws CoreException {
         checkRename(strDoc, line, col, "aa", false);

@@ -69,8 +69,8 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
         SimpleNode root = request.getAST();
         List<ASTEntry> oc = new ArrayList<ASTEntry>();
         
-        oc.addAll(ScopeAnalysis.getCommentOcurrences(request.initialName, root));
-        oc.addAll(ScopeAnalysis.getStringOcurrences(request.initialName, root));
+        oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
+        oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
         int currLine = request.ps.getCursorLine();
         int currCol = request.ps.getCursorColumn();
         int tokenLen = request.initialName.length();
@@ -110,7 +110,7 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
             oc.addAll(this.getOccurrencesWithScopeAnalyzer(request));
         }else{
             //it is defined in some other module (or as a comment... so, we won't have an exact match in the position)
-            oc.addAll(ScopeAnalysis.getLocalOcurrences(request.initialName, root));
+            oc.addAll(ScopeAnalysis.getLocalOccurrences(request.initialName, root));
         }
         
         List<ASTEntry> attributeReferences = ScopeAnalysis.getAttributeReferences(request.initialName, root);
@@ -156,11 +156,11 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
     protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName, SourceModule module) {
         SimpleNode root = module.getAst();
         
-        List<ASTEntry> entryOccurrences = ScopeAnalysis.getLocalOcurrences(initialName, root);
+        List<ASTEntry> entryOccurrences = ScopeAnalysis.getLocalOccurrences(initialName, root);
         entryOccurrences.addAll(ScopeAnalysis.getAttributeReferences(initialName, root));
         
-        entryOccurrences.addAll(ScopeAnalysis.getCommentOcurrences(request.initialName, root));
-        entryOccurrences.addAll(ScopeAnalysis.getStringOcurrences(request.initialName, root));
+        entryOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
+        entryOccurrences.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
         return entryOccurrences;
     }
     

@@ -1,7 +1,7 @@
 /*
  * Created on Apr 29, 2006
  */
-package com.python.pydev.refactoring.markocurrences;
+package com.python.pydev.refactoring.markoccurrences;
 
 import java.lang.ref.WeakReference;
 import java.util.ListResourceBundle;
@@ -15,7 +15,7 @@ import org.python.pydev.editor.IPyEditListener2;
 import org.python.pydev.editor.PyEdit;
 
 /**
- * This class dispatches the request (and gives it info if it should keep going with it) for marking ocurrences.
+ * This class dispatches the request (and gives it info if it should keep going with it) for marking occurrences.
  * 
  * Note: We should only let it make it if the editor has the focus (otherwise we will just be wasting cicles).
  * 

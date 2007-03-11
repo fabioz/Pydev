@@ -248,7 +248,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
 
             checkStatus(processor.checkFinalConditions(nullProgressMonitor, null, false), expectError);
             occurrencesToReturn = processor.getOccurrencesInOtherFiles();
-            occurrencesToReturn.put(new Tuple<String, IFile>(CURRENT_MODULE_IN_REFERENCES, null), processor.getOcurrences());
+            occurrencesToReturn.put(new Tuple<String, IFile>(CURRENT_MODULE_IN_REFERENCES, null), processor.getOccurrences());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

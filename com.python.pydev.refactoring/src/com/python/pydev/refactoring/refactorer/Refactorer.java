@@ -1,16 +1,22 @@
 package com.python.pydev.refactoring.refactorer;
 
 import java.util.List;
+import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.ltk.core.refactoring.participants.RenameRefactoring;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.refactoring.IPyRefactoring2;
@@ -133,8 +139,24 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
     public HierarchyNodeModel findClassHierarchy(RefactoringRequest request) {
         return new RefactorerFinds(this).findClassHierarchy(request);
     }
-    
-    
+
+    public Map<Tuple<String, IFile>, List<ASTEntry>> findAllOccurrences(RefactoringRequest req) throws OperationCanceledException, CoreException{
+        PyRenameEntryPoint processor = new PyRenameEntryPoint(req);
+        //to see if a new request was not created in the meantime (in which case this one will be cancelled)
+        req.checkCancelled();
+        
+        processor.checkInitialConditions(req.getMonitor());
+        req.checkCancelled();
+        
+        processor.checkFinalConditions(req.getMonitor(), null);
+        req.checkCancelled();
+        
+        Map<Tuple<String, IFile>, List<ASTEntry>> occurrencesInOtherFiles = processor.getOccurrencesInOtherFiles();
+        
+        List<ASTEntry> occurrences = processor.getOccurrences();
+        occurrencesInOtherFiles.put(new Tuple<String, IFile>(req.moduleName, req.pyEdit.getIFile()), occurrences);
+        return null;
+    }
     
 
 
