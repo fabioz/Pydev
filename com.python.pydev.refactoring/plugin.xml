@@ -31,4 +31,47 @@
    <extension point="org.python.pydev.pydev_pyedit_listener">
   		<pyedit_listener_participant class="com.python.pydev.refactoring.actions.ActionCreatorPyEditListener"/>
    </extension>
+   
+   
+<!-- command: find references -->
+   <extension point="org.eclipse.ui.commands">
+      <command
+            description="Find all references"
+            id="com.python.pydev.refactoring.actions.PyFindAllOccurrences"
+            name="Find all references">
+      </command>
+   </extension>
+   <extension
+         id="org.python.pydev.refactoring.editorContribution"
+         name="editorContribution"
+         point="org.eclipse.ui.editorActions">
+      <editorContribution
+            id="org.python.pydev.refactoring.editorContribution"
+            targetID="org.python.pydev.editor.PythonEditor">
+         <action
+               class="com.python.pydev.refactoring.actions.PyFindAllOccurrences"
+               definitionId="com.python.pydev.refactoring.actions.PyFindAllOccurrences"
+               id="com.python.pydev.refactoring.actions.PyFindAllOccurrences"
+               label="Find all occurrences"/>
+      </editorContribution>
+   </extension>
+   <extension point="org.eclipse.ui.bindings">
+      <key
+            sequence="Ctrl+Shift+G"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="com.python.pydev.refactoring.actions.PyFindAllOccurrences"	
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+   </extension>
+   <extension
+         id="com.python.pydev.refactoring.search.FindOccurrencesSearchResultPage"
+         point="org.eclipse.search.searchResultViewPages">
+      <viewPage
+            class="com.python.pydev.refactoring.search.FindOccurrencesSearchResultPage"
+            id="com.python.pydev.refactoring.search.FindOccurrencesSearchResultPage"
+            label="Python Search Result"
+            searchResultClass="com.python.pydev.refactoring.search.FindOccurrencesSearchResult"/>
+   </extension>
+
+
 </plugin>

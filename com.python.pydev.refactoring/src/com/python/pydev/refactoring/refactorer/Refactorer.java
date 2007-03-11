@@ -6,6 +6,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.RenameRefactoring;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
 import org.python.pydev.core.IPythonNature;
@@ -145,17 +146,23 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
         //to see if a new request was not created in the meantime (in which case this one will be cancelled)
         req.checkCancelled();
         
-        processor.checkInitialConditions(req.getMonitor());
+        RefactoringStatus status = processor.checkInitialConditions(req.getMonitor());
+        if(status.getSeverity() == RefactoringStatus.FATAL){
+            return null;
+        }
         req.checkCancelled();
         
-        processor.checkFinalConditions(req.getMonitor(), null);
+        status = processor.checkFinalConditions(req.getMonitor(), null, false);
+        if(status.getSeverity() == RefactoringStatus.FATAL){
+            return null;
+        }
         req.checkCancelled();
         
         Map<Tuple<String, IFile>, List<ASTEntry>> occurrencesInOtherFiles = processor.getOccurrencesInOtherFiles();
         
         List<ASTEntry> occurrences = processor.getOccurrences();
         occurrencesInOtherFiles.put(new Tuple<String, IFile>(req.moduleName, req.pyEdit.getIFile()), occurrences);
-        return null;
+        return occurrencesInOtherFiles;
     }
     
 

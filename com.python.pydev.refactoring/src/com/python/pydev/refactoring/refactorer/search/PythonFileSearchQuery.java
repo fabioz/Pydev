@@ -18,7 +18,7 @@ import org.python.pydev.core.docutils.StringUtils;
 /**
  * Based on the org.eclipse.search.internal.ui.text.FileSearchQuery
  */
-public class PythonFileSearchQuery implements ISearchQuery {
+public class PythonFileSearchQuery extends AbstractPythonSearchQuery implements ISearchQuery {
 	
 	private final static class TextSearchResultCollector extends TextSearchRequestor {
 		
@@ -73,21 +73,15 @@ public class PythonFileSearchQuery implements ISearchQuery {
 	}
 	
 	private final FileTextSearchScope fScope;
-	private final String fSearchText;
-	
 	private PythonFileSearchResult fResult;
 	
 	public PythonFileSearchQuery(String searchText, FileTextSearchScope scope) {
-		fSearchText= searchText;
+		super(searchText);
 		fScope= scope;
 	}
 	
 	public FileTextSearchScope getSearchScope() {
 		return fScope;
-	}
-	
-	public boolean canRunInBackground() {
-		return true;
 	}
 
 	public IStatus run(final IProgressMonitor monitor) {
@@ -97,57 +91,43 @@ public class PythonFileSearchQuery implements ISearchQuery {
 		boolean searchInBinaries= !isScopeAllFileTypes();
 		
 		TextSearchResultCollector collector= new TextSearchResultCollector(textResult, false, searchInBinaries);
-		return new PythonTextSearchVisitor(collector, fSearchText).search(fScope, monitor);
-	}
-	
-	private boolean isScopeAllFileTypes() {
-		String[] fileNamePatterns= fScope.getFileNamePatterns();
-		for (int i= 0; i < fileNamePatterns.length; i++) {
-			if ("*".equals(fileNamePatterns[i])) { //$NON-NLS-1$
-				return true;
-			}
-		}
-		return false;
-	}
-	
-
-	public String getLabel() {
-		return "Python File Search"; 
-	}
-	
-	public String getSearchString() {
-		return fSearchText;
-	}
-	
-	public String getResultLabel(int nMatches) {
-		String searchString= getSearchString();
-		if (searchString.length() > 0) {
-			// text search
-			if (isScopeAllFileTypes()) {
-				// search all file extensions
-				if (nMatches == 1) {
-					return StringUtils.format("%s - 1 match in %s", searchString, fScope.getDescription() );
-				}
-				return StringUtils.format("%s - {1} matches in %s", searchString, new Integer(nMatches), fScope.getDescription() ); 
-			}
-			// search selected file extensions
-			if (nMatches == 1) {
-				return StringUtils.format("%s - 1 match in %s (%s)", searchString, fScope.getDescription(), fScope.getFilterDescription() );
-			}
-			return StringUtils.format("%s - {1} matches in %s (%s)", searchString, new Integer(nMatches), fScope.getDescription(), fScope.getFilterDescription() );
-		}
-		// file search
-		if (nMatches == 1) {
-			return StringUtils.format("1 file name matching %s in %s", fScope.getFilterDescription(), fScope.getDescription() ); 
-		}
-		return StringUtils.format("%s file names matching %s in %s", fScope.getFilterDescription(), new Integer(nMatches), fScope.getDescription() ); 
+		return new PythonTextSearchVisitor(collector, getSearchString()).search(fScope, monitor);
 	}
 
 	
+    public String getResultLabel(int nMatches) {
+        String searchString= getSearchString();
+        if (searchString.length() > 0) {
+            // text search
+            if (isScopeAllFileTypes()) {
+                // search all file extensions
+                if (nMatches == 1) {
+                    return StringUtils.format("%s - 1 match in %s", searchString, getDescription() );
+                }
+                return StringUtils.format("%s - {1} matches in %s", searchString, new Integer(nMatches), getDescription() ); 
+            }
+            // search selected file extensions
+            if (nMatches == 1) {
+                return StringUtils.format("%s - 1 match in %s (%s)", searchString, getDescription(), getFilterDescription() );
+            }
+            return StringUtils.format("%s - {1} matches in %s (%s)", searchString, new Integer(nMatches), getDescription(), getFilterDescription() );
+        }
+        // file search
+        if (nMatches == 1) {
+            return StringUtils.format("1 file name matching %s in %s", getFilterDescription(), getDescription() ); 
+        }
+        return StringUtils.format("%s file names matching %s in %s", getFilterDescription(), new Integer(nMatches), getDescription() ); 
+    }
 
-	public boolean canRerun() {
-		return true;
-	}
+    
+    protected String getFilterDescription() {
+        return fScope.getFilterDescription();
+    }
+    
+    protected String getDescription() {
+        return fScope.getDescription();
+    }
+
 
 	public ISearchResult getSearchResult() {
 		if (fResult == null) {

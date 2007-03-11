@@ -160,33 +160,38 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
             entryBuf.append(")");
             
             
-            int beginLine;
-            int beginCol;
-            SimpleNode node = entry.node;
-            if(node instanceof ClassDef){
-                ClassDef def = (ClassDef) node;
-                node = def.name;
-            }
-            if(node instanceof FunctionDef){
-            	FunctionDef def = (FunctionDef) node;
-            	node = def.name;
-            }
-            if(node instanceof Attribute){
-                exprType value = ((Attribute)node).value;
-                if(value instanceof Call){
-                    Call c = (Call) value;
-                    node = c.func;
-                }
-            }
-            beginLine = node.beginLine;
-            beginCol = node.beginColumn;
-            int offset = PySelection.getAbsoluteCursorOffset(doc, beginLine-1, beginCol-1);
+            int offset = getOffset(doc, entry);
             if(!s.contains(offset)){
 	            s.add(offset);
 	            ret.add(new Tuple<TextEdit, String>(createRenameEdit(offset), entryBuf.toString()));
             }
         }
         return ret;
+    }
+
+    public static int getOffset(IDocument doc, ASTEntry entry) {
+        int beginLine;
+        int beginCol;
+        SimpleNode node = entry.node;
+        if(node instanceof ClassDef){
+            ClassDef def = (ClassDef) node;
+            node = def.name;
+        }
+        if(node instanceof FunctionDef){
+        	FunctionDef def = (FunctionDef) node;
+        	node = def.name;
+        }
+        if(node instanceof Attribute){
+            exprType value = ((Attribute)node).value;
+            if(value instanceof Call){
+                Call c = (Call) value;
+                node = c.func;
+            }
+        }
+        beginLine = node.beginLine;
+        beginCol = node.beginColumn;
+        int offset = PySelection.getAbsoluteCursorOffset(doc, beginLine-1, beginCol-1);
+        return offset;
     }
 
     /**
