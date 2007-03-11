@@ -3,6 +3,7 @@ after 1.2.9
 Pydev Extensions:
 <ul>
 <li><strong>Code-analysis</strong>: Fixed false positive for statement with no effect</li>
+<li><strong>Find References</strong>: Ctrl+Shift+G to find the references to a token in the editor</li>
 </ul>
 
 Pydev
