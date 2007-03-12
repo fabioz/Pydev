@@ -34,8 +34,11 @@ public class PyRenameAttributeProcess extends AbstractRenameWorkspaceRefactorPro
         List<ASTEntry> attributeOccurrences = new ArrayList<ASTEntry>(); 
         attributeOccurrences.addAll(ScopeAnalysis.getAttributeOccurrences(this.target, ast));
 		attributeOccurrences.addAll(ScopeAnalysis.getAttributeReferences(this.target, ast));
-        attributeOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, ast));
-        attributeOccurrences.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, ast));
+		if(attributeOccurrences.size() > 0){
+			//only add comments and strings if there's at least some other occurrence
+	        attributeOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, ast));
+	        attributeOccurrences.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, ast));
+		}
 		addOccurrences(request, attributeOccurrences);
     }
 

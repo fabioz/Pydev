@@ -89,7 +89,10 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
                 
             }
 		}
-        ret.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
+		if(ret.size() > 0){
+			//only add comments and strings if there's at least some other occurrence
+			ret.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
+		}
     	return ret;
 	}
 

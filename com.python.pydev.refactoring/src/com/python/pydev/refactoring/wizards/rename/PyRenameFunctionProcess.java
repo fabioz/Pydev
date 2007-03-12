@@ -116,9 +116,11 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
         	ret.addAll(ScopeAnalysis.getLocalOccurrences(occurencesFor, simpleNode));
         }
         
-        ret.addAll(ScopeAnalysis.getCommentOccurrences(occurencesFor, simpleNode));
-        ret.addAll(ScopeAnalysis.getStringOccurrences(occurencesFor, simpleNode));
-        
+		if(ret.size() > 0){
+			//only add comments and strings if there's at least some other occurrence
+	        ret.addAll(ScopeAnalysis.getCommentOccurrences(occurencesFor, simpleNode));
+	        ret.addAll(ScopeAnalysis.getStringOccurrences(occurencesFor, simpleNode));
+		}        
         //get the references to Names that access that method in the same scope
         return ret;
     }
@@ -174,8 +176,11 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
 	 */
 	protected List<ASTEntry> getEntryOccurrencesInOtherModule(String initialName, SimpleNode root) {
 		List<ASTEntry> ret = ScopeAnalysis.getLocalOccurrences(initialName, root, false);
-        ret.addAll(ScopeAnalysis.getCommentOccurrences(initialName, root));
-        ret.addAll(ScopeAnalysis.getStringOccurrences (initialName, root));
+		if(ret.size() > 0){
+			//only add comments and strings if there's at least some other occurrence
+	        ret.addAll(ScopeAnalysis.getCommentOccurrences(initialName, root));
+	        ret.addAll(ScopeAnalysis.getStringOccurrences (initialName, root));
+		}
         return ret;
 	}
 

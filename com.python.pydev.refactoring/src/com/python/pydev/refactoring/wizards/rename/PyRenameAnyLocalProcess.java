@@ -28,8 +28,6 @@ public class PyRenameAnyLocalProcess extends AbstractRenameRefactorProcess{
             
         List<ASTEntry> oc = new ArrayList<ASTEntry>();
         SimpleNode root = request.getAST();
-        oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
-        oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
 
 		if (!attributeSearch){
             List<ASTEntry> occurrencesWithScopeAnalyzer = getOccurrencesWithScopeAnalyzer(request);
@@ -43,6 +41,11 @@ public class PyRenameAnyLocalProcess extends AbstractRenameRefactorProcess{
             //attribute search
             oc.addAll(ScopeAnalysis.getAttributeReferences(request.initialName, root));
         }
+		if(oc.size() > 0){
+			//only add comments and strings if there's at least some other occurrence
+			oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
+			oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
+		}
 		addOccurrences(request, oc); 
     }
     
