@@ -1,6 +1,7 @@
 package com.python.pydev.refactoring.actions;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.NewSearchUI;
@@ -32,7 +33,7 @@ public class PyFindAllOccurrences extends PyRefactorAction{
     @Override
     protected String perform(IAction action, String name, IProgressMonitor monitor) throws Exception {
         IPyRefactoring2 r = (IPyRefactoring2) getPyRefactoring();
-        RefactoringRequest req = getRefactoringRequest(monitor);
+        RefactoringRequest req = getRefactoringRequest(new NullProgressMonitor()); //as we're doing it in the backgroup
         req.fillInitialNameAndOffset();
         if(req.initialName != null && req.initialName.trim().length() > 0){
             NewSearchUI.runQueryInBackground(newQuery(r, req));

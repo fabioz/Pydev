@@ -44,6 +44,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
 
     public IStatus run(IProgressMonitor monitor) throws OperationCanceledException {
         try {
+        	req.pushMonitor(monitor);
             Map<Tuple<String, IFile>, List<ASTEntry>> occurrences;
             occurrences = pyRefactoring.findAllOccurrences(req);
             if(occurrences == null){
@@ -61,6 +62,8 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
             }
         } catch (CoreException e) {
             PydevPlugin.log(e);
+        }finally{
+        	req.popMonitor();
         }
         return Status.OK_STATUS;
     }
