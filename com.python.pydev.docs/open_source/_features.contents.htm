@@ -1,24 +1,13 @@
 <h2>New on: LAST_VERSION_TAG</h2>
 
 <ul>
-<li><strong>Refactoring</strong>: integration of the <a href="http://sifsstud2.hsr.ch/peptic">PEPTIC refactoring engine</a></li>
-<li><strong>Package Explorer</strong>: many fixes (special thanks for Don Taylor for the bug reports)</li>
-<li><strong>Debugger</strong>: a number of small optimizations</li>
-<li><strong>Code-completion</strong>: works in emacs mode</li>
-<li><strong>Code-completion</strong>: added the possibility of auto-completing for all letter chars and '_' (so, it starts completing once you start writing)</li>
-<li><strong>Code-completion</strong>: code-completion for epydoc inside strings</li>
-<li><strong>Code-completion</strong>: assigns after global statement considered added to the global namespace</li>
-<li><strong>Code-completion</strong>: now works when a class is declared in a nested scope</li>
-<li><strong>Code-completion</strong>: if multiple assigns are found to some variable, the completion will be a merge of them</li>
-<li><strong>Code-completion</strong>: functions are analyzed for their return values for code-completion purposes</li>
-<li><strong>Code-completion</strong>: working on multi-line imports</li>
-<li><strong>Code-completion</strong>: can discover instance variables not declared in the class (in the scope where the class was instanced)</li>
-<li><strong>Auto-edit</strong>: adds 'self', 'cls' or no parameter based on the @clasmethod, @staticmethod declaration on previous line</li>
-<li><strong>Auto-edit</strong>: doesn't add 'self' if a method is declared in a method inner scope</li>
-<li><strong>Fix: BRM Refactoring</strong>: wrong column was being passed to the BRM refactoring engine</li>
-<li><strong>Code-folding</strong>: added for comments and strings</li>
-<li><strong>Fix</strong>: sometimes the 'create docstring' assistant was not recognizing method definitons</li>
+<li><strong>Code-completion</strong>: Deep analysis for discovering arguments in constructs 'from imports' now can be configured given the number of chars of the qualifier</li>
+<li><strong>Refactoring for override methods</strong>: changed so that it uses the pydev code-completion engine for getting the hierarchy and methods</li>
+<li><strong>Fix: Python Nature Restore</strong>: begin rule does not match outer scope rule fixed</li>
+<li><strong>Fix: Package Explorer</strong>: if show-in is in a deep structure, it will show it is the 1st try and not only in the 2nd</li>
+<li><strong>Fix: Package Explorer</strong>: some intercepts removed elements incorrectly, and ended up messing the navigator and search (which has 'null' elements because of that)</li>
 </ul>
+
 
 <br/>
 <hr/>
@@ -75,6 +64,34 @@
 
 <hr/>
 <h2>Features History</h2>
+
+<h2>New on: 1.2.9</h2>
+
+<ul>
+<li>Repackaging fix</li>
+</ul>
+
+<h2>New on: 1.2.8</h2>
+
+<ul>
+<li><strong>Refactoring</strong>: integration of the <a href="http://sifsstud2.hsr.ch/peptic">PEPTIC refactoring engine</a></li>
+<li><strong>Package Explorer</strong>: many fixes (special thanks for Don Taylor for the bug reports)</li>
+<li><strong>Debugger</strong>: a number of small optimizations</li>
+<li><strong>Code-completion</strong>: works in emacs mode</li>
+<li><strong>Code-completion</strong>: added the possibility of auto-completing for all letter chars and '_' (so, it starts completing once you start writing)</li>
+<li><strong>Code-completion</strong>: code-completion for epydoc inside strings</li>
+<li><strong>Code-completion</strong>: assigns after global statement considered added to the global namespace</li>
+<li><strong>Code-completion</strong>: now works when a class is declared in a nested scope</li>
+<li><strong>Code-completion</strong>: if multiple assigns are found to some variable, the completion will be a merge of them</li>
+<li><strong>Code-completion</strong>: functions are analyzed for their return values for code-completion purposes</li>
+<li><strong>Code-completion</strong>: working on multi-line imports</li>
+<li><strong>Code-completion</strong>: can discover instance variables not declared in the class (in the scope where the class was instanced)</li>
+<li><strong>Auto-edit</strong>: adds 'self', 'cls' or no parameter based on the @clasmethod, @staticmethod declaration on previous line</li>
+<li><strong>Auto-edit</strong>: doesn't add 'self' if a method is declared in a method inner scope</li>
+<li><strong>Fix: BRM Refactoring</strong>: wrong column was being passed to the BRM refactoring engine</li>
+<li><strong>Code-folding</strong>: added for comments and strings</li>
+<li><strong>Fix</strong>: sometimes the 'create docstring' assistant was not recognizing method definitons</li>
+</ul>
 
 <h2>New on: 1.2.7</h2>
 
