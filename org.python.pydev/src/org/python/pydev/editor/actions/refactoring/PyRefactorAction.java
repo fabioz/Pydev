@@ -284,7 +284,7 @@ public abstract class PyRefactorAction extends PyAction {
         if(!pyRefactoring.useDefaultRefactoringActionCycle()){
             //this way, we don't provide anything to sync, ask the input, etc... that's all up to the 
             //pyrefactoring instance in the perform action
-            new UIJob("Performing: "+action.getClass().getName()){
+            UIJob job = new UIJob("Performing: "+this.getClass().getName()){
 
                 @Override
                 public IStatus runInUIThread(final IProgressMonitor monitor) {
@@ -297,7 +297,9 @@ public abstract class PyRefactorAction extends PyAction {
                     return Status.OK_STATUS;
                 }
                 
-            }.schedule();
+            };
+            job.setSystem(true);
+            job.schedule();
             return;
         }
 
