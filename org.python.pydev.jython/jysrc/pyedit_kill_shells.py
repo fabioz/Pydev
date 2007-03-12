@@ -11,6 +11,8 @@ assert cmd is not None
 
 #interface: PyEdit object: this is the actual editor that we will act upon
 assert editor is not None
+import traceback
+import StringIO
 
 if cmd == 'onCreateActions':
     from org.eclipse.jface.action import Action #@UnresolvedImport
@@ -18,6 +20,7 @@ if cmd == 'onCreateActions':
     from org.eclipse.jface.dialogs import MessageDialog #@UnresolvedImport
     from org.python.pydev.plugin import PydevPlugin #@UnresolvedImport
     from org.eclipse.core.runtime import NullProgressMonitor #@UnresolvedImport
+    from org.python.pydev.ui import NotConfiguredInterpreterException #@UnresolvedImport
     
     class ListCommand(Action):
         def run(self):
@@ -30,12 +33,18 @@ if cmd == 'onCreateActions':
                 managers = [PydevPlugin.getPythonInterpreterManager(), PydevPlugin.getJythonInterpreterManager()]
                 
                 for manager in managers:
-                    info = manager.getInterpreterInfo(manager.getDefaultInterpreter(), NullProgressMonitor())
-                    info.modulesManager.clearCache()
+                    try:
+                        info = manager.getInterpreterInfo(manager.getDefaultInterpreter(), NullProgressMonitor())
+                        info.modulesManager.clearCache()
+                        manager.clearCaches()
+                    except NotConfiguredInterpreterException:
+                        pass #that's ok -- it's not configured
             except:
-                import traceback;traceback.print_exc()
-                
-            MessageDialog.openInformation(editor.getSite().getShell(), "Ok", "Ok, killed all the running shells.\n(They will be recreated on request)");
+                s = StringIO.StringIO()
+                traceback.print_exc(file=s)
+                MessageDialog.openInformation(editor.getSite().getShell(), "Error killing the shells", s.getvalue());
+            else:    
+                MessageDialog.openInformation(editor.getSite().getShell(), "Ok", "Ok, killed all the running shells.\n(They will be recreated on request)");
             
     editor.addOfflineActionListener("kill", ListCommand(), 'Kill all the running shells.', True) 
                     

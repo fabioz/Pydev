@@ -687,6 +687,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 	}
 
 	/**
+	 * TODO: WHEN CLEARING CACHE, CLEAR THE BUILTIN REF TOO
 	 * @return the module that represents the builtins
 	 */
 	protected IModule getBuiltinMod(IPythonNature nature) {

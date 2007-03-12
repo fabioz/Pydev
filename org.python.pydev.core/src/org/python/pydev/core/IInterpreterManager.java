@@ -143,5 +143,17 @@ public interface IInterpreterManager {
      * @return whether the interpreter has information on this manager.
      */
     public boolean hasInfoOnInterpreter(String interpreter);
+
+    
+    //caches for the builtin tokens and module
+	public void setBuiltinCompletions(IToken[] comps);
+
+	public IToken[] getBuiltinCompletions();
+
+	public IModule getBuiltinMod();
+
+	public void setBuiltinMod(IModule mod);
+
+	public void clearCaches();
     
 }

@@ -98,16 +98,6 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      */
     private PythonNatureStore pythonNatureStore = new PythonNatureStore();
     
-    /**
-     * This is used to keep the builtin completions
-     */
-    private IToken[] builtinCompletions;
-    
-    /**
-     * This is used to keep the builtin module
-     */
-    private IModule builtinMod;
-
     
     /**
      * constant that stores the name of the python version we are using for the project with this nature
@@ -596,8 +586,6 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     
     // ------------------------------------------------------------------------------------------ LOCAL CACHES
     public void clearCaches() {
-        this.builtinCompletions = null; //when the interpreter is changed, we have to reset it
-        this.builtinMod = null;
         this.isJython = null;
         this.versionPropertyCache = null;
     }
@@ -605,19 +593,19 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     Boolean isJython = null; //cache
     
 	public void setBuiltinCompletions(IToken[] comps) {
-		this.builtinCompletions = comps;
+		this.getRelatedInterpreterManager().setBuiltinCompletions(comps);
 	}
 
 	public IToken[] getBuiltinCompletions() {
-		return builtinCompletions;
+		return this.getRelatedInterpreterManager().getBuiltinCompletions();
 	}
 
 	public IModule getBuiltinMod() {
-		return builtinMod;
+		return this.getRelatedInterpreterManager().getBuiltinMod();
 	}
 
 	public void setBuiltinMod(IModule mod) {
-		this.builtinMod = mod;
+		this.getRelatedInterpreterManager().setBuiltinMod(mod);
 	}
 
     public static List<IPythonNature> getPythonNaturesRelatedTo(int relatedTo) {

@@ -349,7 +349,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
      *                   false if we should get the referencing projects
      * @return the Managers that this project references or the ones that reference this project (depends on 'referenced') 
      */
-    private ModulesManager[] getManagers(boolean checkSystemManager, boolean referenced) {
+    private synchronized ModulesManager[] getManagers(boolean checkSystemManager, boolean referenced) {
     	if(this.completionCache != null){
     		ModulesManager[] ret = this.completionCache.getManagers(referenced);
     		if(ret != null){

@@ -23,7 +23,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
@@ -44,6 +46,35 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     private Map<String, InterpreterInfo> exeToInfo = new HashMap<String, InterpreterInfo>();
     private Preferences prefs;
     private String[] interpretersFromPersistedString;
+    
+
+    //caches that are filled at runtime -------------------------------------------------------------------------------
+    /**
+     * This is used to keep the builtin completions
+     */
+    protected transient IToken[] builtinCompletions;
+    
+    /**
+     * This is used to keep the builtin module
+     */
+    protected transient IModule builtinMod;
+
+	public void setBuiltinCompletions(IToken[] comps) {
+		this.builtinCompletions = comps;
+	}
+
+	public IToken[] getBuiltinCompletions() {
+		return builtinCompletions;
+	}
+
+	public IModule getBuiltinMod() {
+		return builtinMod;
+	}
+
+	public void setBuiltinMod(IModule mod) {
+		this.builtinMod = mod;
+	}
+
 
     /**
      * Constructor
@@ -64,7 +95,9 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         });
     }
 
-    protected void clearCaches() {
+    public void clearCaches() {
+    	builtinMod = null;
+    	builtinCompletions = null;
         interpretersFromPersistedString = null;
     }
 

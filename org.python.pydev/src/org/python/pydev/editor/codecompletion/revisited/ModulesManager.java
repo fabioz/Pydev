@@ -102,6 +102,11 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
 	}
 	
 
+	/**
+	 * This class is a cache to help in getting the managers that are referenced or referred.
+	 * 
+	 * It will not actually make any computations (the managers must be set from the outside)
+	 */
 	protected static class CompletionCache{
 		public ModulesManager[] referencedManagers;
 		public ModulesManager[] referredManagers;

@@ -5,7 +5,9 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IToken;
 
 public class StubInterpreterManager implements IInterpreterManager {
 	private boolean isPython;
@@ -88,5 +90,25 @@ public class StubInterpreterManager implements IInterpreterManager {
     public boolean hasInfoOnInterpreter(String interpreter) {
         return false;
     }
+
+	public void clearCaches() {
+		throw new RuntimeException("Not implemented");
+	}
+
+	public IToken[] getBuiltinCompletions() {
+		throw new RuntimeException("Not implemented");
+	}
+
+	public IModule getBuiltinMod() {
+		throw new RuntimeException("Not implemented");
+	}
+
+	public void setBuiltinCompletions(IToken[] comps) {
+		throw new RuntimeException("Not implemented");
+	}
+
+	public void setBuiltinMod(IModule mod) {
+		throw new RuntimeException("Not implemented");
+	}
 
 }
