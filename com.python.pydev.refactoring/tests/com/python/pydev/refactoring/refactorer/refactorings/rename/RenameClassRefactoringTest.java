@@ -16,6 +16,8 @@ import com.python.pydev.refactoring.wizards.rename.PyRenameClassProcess;
  * Class that should test the renaming of classes within a number of modules in
  * the workspace.
  * 
+ * TODO: fix faling test because it should not get 'onlystringrefs' 
+ * 
  * @author Fabio
  */
 public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
