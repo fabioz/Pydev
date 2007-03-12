@@ -10,8 +10,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.search.internal.ui.text.FileMatch;
 import org.eclipse.search.ui.ISearchResult;
-import org.eclipse.search.ui.text.Match;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
@@ -56,7 +56,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
                 for(ASTEntry entry:o.getValue()){
                     int offset = AbstractRenameRefactorProcess.getOffset(doc, entry);
                     //System.out.println("Adding match:"+file);
-                    findOccurrencesSearchResult.addMatch(new Match(file, offset, length));
+                    findOccurrencesSearchResult.addMatch(new FileMatch(file, offset, length));
                 }
             }
         } catch (CoreException e) {

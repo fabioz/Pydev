@@ -1,16 +1,15 @@
 package com.python.pydev.refactoring.refactorer.search;
 
+import org.eclipse.search.internal.ui.text.FileSearchQuery;
 import org.eclipse.search.ui.ISearchQuery;
 
-public abstract class AbstractPythonSearchQuery implements ISearchQuery{
-
-    protected String fSearchText;
+public abstract class AbstractPythonSearchQuery extends FileSearchQuery implements ISearchQuery{
 
     public AbstractPythonSearchQuery(String searchText) {
-        fSearchText= searchText;
+    	super(searchText, false, true, null);
     }
     public boolean canRerun() {
-        return true;
+        return false;
     }
 
     public boolean canRunInBackground() {
@@ -21,10 +20,6 @@ public abstract class AbstractPythonSearchQuery implements ISearchQuery{
         return "Python Search"; 
     }
 
-    public String getSearchString() {
-        return fSearchText;
-    }
-    
 
     protected boolean isScopeAllFileTypes() {
         return false;
