@@ -66,6 +66,10 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * @see org.python.pydev.editor.codecompletion.IPyCodeCompletion#getCodeCompletionProposals(org.eclipse.jface.text.ITextViewer, org.python.pydev.editor.codecompletion.CompletionRequest)
      */
     public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException {
+    	if(request.getPySelection().getCursorLineContents().trim().startsWith("#")){
+    		//this may happen if the context is still not correctly computed in python
+    		return new PyStringCodeCompletion().getCodeCompletionProposals(viewer, request);
+    	}
         if(DEBUG_CODE_COMPLETION){
             Log.toLogFile(this,"Starting getCodeCompletionProposals");
             Log.addLogLevel();

@@ -1,3 +1,10 @@
+after 1.3.0
+
+Pydev
+<ul>
+<li><strong>Code-completion</strong>: comment completion is now the same as string completion</li>
+</ul>
+
 after 1.2.9
 
 Pydev Extensions:

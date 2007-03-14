@@ -255,6 +255,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
         pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_STRING2);
         pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_STRING1);
         pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_STRING2);
+        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_COMMENT);
         pyContentAssistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
         pyContentAssistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
         pyContentAssistant.enableAutoActivation(true); //always true, but the chars depend on whether it is activated or not in the preferences
