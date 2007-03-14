@@ -54,15 +54,12 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
          */
         private static final int MAX_NUMBER_OF_MODULES = 400;
 
-        private Object mutex;
-        
         /**
          * The access to the cache is synchronized
          */
 		private LRUCache<Tuple<ModulesKey, ModulesManager>, AbstractModule> internalCache;
 
         private ModulesManagerCache() {
-            mutex = this;
             internalCache = new LRUCache<Tuple<ModulesKey, ModulesManager>, AbstractModule>(MAX_NUMBER_OF_MODULES);
 		}
         
@@ -70,7 +67,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
 		 * Overriden so that if we do not find the key, we have the chance to create it.
 		 */
 		public AbstractModule getObj(ModulesKey key, ModulesManager modulesManager) {
-            synchronized (mutex) {
+            synchronized (modulesManager.modulesKeys) {
     			Tuple<ModulesKey, ModulesManager> keyTuple = new Tuple<ModulesKey, ModulesManager>(key, modulesManager);
                 
                 AbstractModule obj = internalCache.getObj(keyTuple);
@@ -84,14 +81,14 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
 		}
 
         public void remove(ModulesKey key, ModulesManager modulesManager) {
-            synchronized (mutex) {
+            synchronized (modulesManager.modulesKeys) {
                 Tuple<ModulesKey, ModulesManager> keyTuple = new Tuple<ModulesKey, ModulesManager>(key, modulesManager);
                 internalCache.remove(keyTuple);
             }
         }
 
         public void add(ModulesKey key, AbstractModule n, ModulesManager modulesManager) {
-            synchronized (mutex) {
+            synchronized (modulesManager.modulesKeys) {
                 Tuple<ModulesKey, ModulesManager> keyTuple = new Tuple<ModulesKey, ModulesManager>(key, modulesManager);
                 internalCache.add(keyTuple, n);
             }
@@ -208,9 +205,11 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * Custom serialization is needed.
      */
     private void writeObject(ObjectOutputStream aStream) throws IOException {
-        aStream.defaultWriteObject();
-        //write only the keys
-        aStream.writeObject(new HashSet<ModulesKey>(modulesKeys.keySet()));
+    	synchronized (modulesKeys) {
+	        aStream.defaultWriteObject();
+	        //write only the keys
+	        aStream.writeObject(new HashSet<ModulesKey>(modulesKeys.keySet()));
+    	}
     }
 
     /**
@@ -357,14 +356,16 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
 
             
         }else if (f != null){ //ok, remove the module that has a key with this file, as it can no longer be resolved
-            Set<ModulesKey> toRemove = new HashSet<ModulesKey>();
-            for (Iterator iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
-                ModulesKey key = (ModulesKey) iter.next();
-                if(key.file != null && key.file.equals(f)){
-                    toRemove.add(key);
-                }
-            }
-            removeThem(toRemove);
+        	synchronized (modulesKeys) {
+	            Set<ModulesKey> toRemove = new HashSet<ModulesKey>();
+	            for (Iterator iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
+	                ModulesKey key = (ModulesKey) iter.next();
+	                if(key.file != null && key.file.equals(f)){
+	                    toRemove.add(key);
+	                }
+	            }
+	            removeThem(toRemove);
+        	}
         }
     }
 
@@ -399,14 +400,17 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         }
         
         List<ModulesKey> toRem = new ArrayList<ModulesKey>();
-        for (Iterator iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
-            ModulesKey key = (ModulesKey) iter.next();
-            if (key.file != null && key.file.equals(file)) {
-                toRem.add(key);
-            }
-        }
-
-        removeThem(toRem);
+    	synchronized (modulesKeys) {
+	
+	        for (Iterator iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
+	            ModulesKey key = (ModulesKey) iter.next();
+	            if (key.file != null && key.file.equals(file)) {
+	                toRem.add(key);
+	            }
+	        }
+	
+	        removeThem(toRem);
+    	}
     }
 
     /**
@@ -421,14 +425,17 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         String absolutePath = REF.getFileAbsolutePath(file);
         List<ModulesKey> toRem = new ArrayList<ModulesKey>();
         
-        for (Iterator iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
-            ModulesKey key = (ModulesKey) iter.next();
-            if (key.file != null && REF.getFileAbsolutePath(key.file).startsWith(absolutePath)) {
-                toRem.add(key);
-            }
-        }
+    	synchronized (modulesKeys) {
 
-        removeThem(toRem);
+	        for (Iterator iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
+	            ModulesKey key = (ModulesKey) iter.next();
+	            if (key.file != null && REF.getFileAbsolutePath(key.file).startsWith(absolutePath)) {
+	                toRem.add(key);
+	            }
+	        }
+	
+	        removeThem(toRem);
+    	}
     }
 
 
@@ -451,8 +458,10 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * @param key this is the key that should be removed
      */
     protected void doRemoveSingleModule(ModulesKey key) {
-        this.modulesKeys.remove(key);
-        ModulesManager.cache.remove(key, this);
+    	synchronized (modulesKeys) {
+	        this.modulesKeys.remove(key);
+	        ModulesManager.cache.remove(key, this);
+    	}
     }
 
     /**
@@ -463,8 +472,10 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * @param n 
      */
     public void doAddSingleModule(final ModulesKey key, AbstractModule n) {
-    	this.modulesKeys.put(key, key);
-        ModulesManager.cache.add(key, n, this);
+    	synchronized (modulesKeys) {
+	    	this.modulesKeys.put(key, key);
+	        ModulesManager.cache.add(key, n, this);
+    	}
     }
 
     /**
@@ -472,9 +483,11 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      */
     public Set<String> getAllModuleNames() {
         Set<String> s = new HashSet<String>();
-        for (ModulesKey key : this.modulesKeys.keySet()) {
-            s.add(key.name);
-        }
+    	synchronized (modulesKeys) {
+	        for (ModulesKey key : this.modulesKeys.keySet()) {
+	            s.add(key.name);
+	        }
+    	}
         return s;
     }
 
@@ -484,9 +497,11 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     	}
     	ModulesKey startingWith = new ModulesKey(strStartingWith, null);
     	ModulesKey endingWith = new ModulesKey(startingWith+"z", null);
-    	//we don't want it to be backed up by the same set (because it may be changed, so, we may get
-    	//a java.util.ConcurrentModificationException on places that use it)
-    	return new TreeMap<ModulesKey, ModulesKey>(modulesKeys.subMap(startingWith, endingWith));
+    	synchronized (modulesKeys) {
+	    	//we don't want it to be backed up by the same set (because it may be changed, so, we may get
+	    	//a java.util.ConcurrentModificationException on places that use it)
+	    	return new TreeMap<ModulesKey, ModulesKey>(modulesKeys.subMap(startingWith, endingWith));
+    	}
     }
     
     public SortedMap<ModulesKey,ModulesKey> getAllModulesStartingWith(String strStartingWith) {
@@ -494,7 +509,9 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     }
     
     public ModulesKey[] getOnlyDirectModules() {
-    	return (ModulesKey[]) this.modulesKeys.keySet().toArray(new ModulesKey[0]);
+    	synchronized (modulesKeys) {
+    		return (ModulesKey[]) this.modulesKeys.keySet().toArray(new ModulesKey[0]);
+    	}
     }
 
     /**
