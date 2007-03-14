@@ -451,6 +451,21 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
         assertContains(6, 18, tokenOccurrences);
     }
     
+    
+    public void testIt28() throws Exception {
+    	doc = new Document(
+    			"def m1():\n" +
+    			"    Foo()\n" +
+    			"class Foo(object):\n" +
+    			"    pass\n" +
+    			"\n" 
+    	);
+    	List<IToken> tokenOccurrences = getTokenOccurrences(2, 7);
+    	assertEquals(2, tokenOccurrences.size());
+    	assertContains(1, 4, tokenOccurrences);
+    	assertContains(2, 6, tokenOccurrences);
+    }
+    
     /**
      * Check if we have some occurrence at the line/col specified
      */
