@@ -59,7 +59,7 @@ public class PythonRunnerConfig {
 	public IPath resource;
 	public IPath interpreter;
 	public String interpreterLocation;
-	public String[] arguments;
+	private String arguments;
 	public File workingDirectory;
 	public String pythonpathUsed;
 	// debugging
@@ -126,13 +126,8 @@ public class PythonRunnerConfig {
      * @throws CoreException if unable to retrieve the associated launch
      * configuration attribute, or if unable to resolve any variables
      */
-    public static String[] getArguments(ILaunchConfiguration configuration) throws CoreException {
-        String args = configuration.getAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, (String) null);
-        if (args != null) {
-            String expanded = getStringVariableManager().performStringSubstitution(args);
-            return parseStringIntoList(expanded);
-        }
-        return null;
+    public static String getArguments(ILaunchConfiguration configuration) throws CoreException {
+        return configuration.getAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, (String) null);
     }
     /**
      * Parses the argument text into an array of individual
@@ -515,8 +510,15 @@ public class PythonRunnerConfig {
             //wnen it is interactive, we don't have the resource
     		cmdArgs.add(resource.toOSString());
         }
-        for (int i=0; arguments != null && i<arguments.length; i++){
-            cmdArgs.add(arguments[i]);
+        
+        String runArguments[] = null;
+        if (arguments != null) {
+            String expanded = getStringVariableManager().performStringSubstitution(arguments);
+            runArguments = parseStringIntoList(expanded);
+        }
+
+        for (int i=0; runArguments != null && i<runArguments.length; i++){
+            cmdArgs.add(runArguments[i]);
         }
         
 		String[] retVal = new String[cmdArgs.size()];
