@@ -8,6 +8,12 @@ Pydev
 <li><strong>Fix: halting problem</strong>:when creating a new project from the pydev wizard it was halting in some platforms</li>
 </ul>
 
+Pydev Extensions:
+
+<ul>
+<li><strong>Fix: Find Occurrences</strong>: will not 'overlap' occurrences anymore</li>
+</ul>
+
 after 1.2.9
 
 Pydev Extensions:
