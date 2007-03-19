@@ -1098,7 +1098,7 @@
 	           <adapt type="org.eclipse.core.resources.IProject">
 	              <test
 	                    property="org.eclipse.core.resources.projectNature"
-	                    value="org.eclipse.jdt.core.javanature"/>
+	                    value="org.python.pydev.pythonNature"/>
 	           </adapt>
 	        </or>
 	     </enablement>
@@ -1111,13 +1111,14 @@
 	           <adapt type="org.eclipse.core.resources.IProject">
 	              <test
 	                    property="org.eclipse.core.resources.projectNature"
-	                    value="org.eclipse.jdt.core.javanature"/>
+	                    value="org.python.pydev.pythonNature"/>
 	           </adapt>
 	        </or>
 	     </enablement>
 	  </commonWizard>
 	  
-      <commonFilter activeByDefault="true" id="org.python.pydev.navigator.filters.hideNonPydevProjects" description="%HideNonPydevProjects.description" name="Hide non-Pydev Projects">
+      <commonFilter activeByDefault="true" id="org.python.pydev.navigator.filters.hideNonPydevProjects" description="%HideNonPydevProjects.description" 
+	     name="Pydev: Hide non-Pydev Projects">
          <filterExpression>
              <and>
                 <not>
@@ -1139,23 +1140,40 @@
          </filterExpression>
       </commonFilter>
       
-  	  <commonFilter activeByDefault="true" name="Hide .pyc files" description="Hides *.pyc files" id="org.python.pydev.navigator.filters.hidePycFiles"> 
-	      <filterExpression><and><adapt type="org.eclipse.core.resources.IFile"/><test property="org.eclipse.core.resources.name" value="*.pyc"/></and></filterExpression>		        
+  	  <commonFilter activeByDefault="true" 
+	  	  name="Pydev: Hide .pyc files" 
+	  	  description="Pydev: Hides *.pyc files" 
+	  	  id="org.python.pydev.navigator.filters.hidePycFiles"
+	  	  class="org.python.pydev.navigator.filters.PycFilter"> 
 	  </commonFilter>		 
 	  
-  	  <commonFilter activeByDefault="true" name="Hide .pyo files" description="Hides *.pyo files" id="org.python.pydev.navigator.filters.hidePyoFiles"> 
-	      <filterExpression> <and> <adapt type="org.eclipse.core.resources.IFile"/>  <test property="org.eclipse.core.resources.name" value="*.pyo"/> </and> </filterExpression>		        
+  	  <commonFilter activeByDefault="true" 
+	  	  name="Pydev: Hide .pyo files" 
+	  	  description="Pydev: Hides *.pyo files" 
+	  	  id="org.python.pydev.navigator.filters.hidePyoFiles" 
+	  	  class="org.python.pydev.navigator.filters.PyoFilter"> 
 	  </commonFilter>		 
 	  
 	  <!-- the ones below are copied from org.eclipse.ui.navigator.resources, with changes from 'instanceof' to 'adapt type'-->
-      <commonFilter name=".* resources" description="Hide .*resources" activeByDefault="true" id="org.python.pydev.navigator.filters.startsWithDot" >
-         <filterExpression>	<and> <adapt type="org.eclipse.core.resources.IResource"/> <test property="org.eclipse.core.resources.name" value=".*"/> </and> </filterExpression>
+      <commonFilter activeByDefault="true" 
+	      name="Pydev: Hide .* resources" 
+	      description="Pydev: Hide .*resources"  
+	      id="org.python.pydev.navigator.filters.startsWithDot"
+	  	  class="org.python.pydev.navigator.filters.DotStartFilter"> 
       </commonFilter>
-      <commonFilter name=".class resources" description="Hide .class resources" activeByDefault="true" id="org.python.pydev.navigator.filters.endsWithClass" >
-         <filterExpression>	<and> <adapt type="org.eclipse.core.resources.IFile"/> <test property="org.eclipse.core.resources.name" value="*.class"/>	</and> </filterExpression>
+      
+      <commonFilter activeByDefault="true" 
+	      name="Pydev: .class resources" 
+	      description="Pydev: Hide .class resources" 
+	      id="org.python.pydev.navigator.filters.endsWithClass"
+	  	  class="org.python.pydev.navigator.filters.ClassFilter"> 
       </commonFilter> 
-      <commonFilter name="Hide closed projects" description="Hide closed projects" activeByDefault="false" id="org.python.pydev.navigator.filters.closedProject">
-         <filterExpression>	<and><adapt type="org.eclipse.core.resources.IProject"/>	<test property="org.eclipse.core.resources.open" value="false"/> </and> </filterExpression>
+      
+      <commonFilter activeByDefault="false" 
+	      name="Pydev: Hide closed projects" 
+	      description="Pydev: Hide closed projects" 
+	      id="org.python.pydev.navigator.filters.closedProject"
+	  	  class="org.python.pydev.navigator.filters.ClosedProjectsFilter"> 
       </commonFilter>
       	  
     </extension>
@@ -1205,32 +1223,5 @@
 				<instanceof value="org.eclipse.ui.IFileEditorInput"/>
 			</editorInputEnablement>
 		</linkHelper>
-	</extension>
- <extension point="org.eclipse.core.expressions.propertyTesters">
-    <propertyTester
-          class="org.python.pydev.navigator.properties.PyPropertyTester"
-          id="org.python.pydev.pythonWrappedResourceTester"
-          namespace="org.eclipse.core.resources"
-          properties="name"
-          type="org.python.pydev.navigator.PythonFile"/>
-    <propertyTester
-          class="org.python.pydev.navigator.properties.PyPropertyTester"
-          id="org.python.pydev.pythonWrappedResourceTester"
-          namespace="org.eclipse.core.resources"
-          properties="name"
-          type="org.python.pydev.navigator.PythonFolder"/>
-    <propertyTester
-          class="org.python.pydev.navigator.properties.PyPropertyTester"
-          id="org.python.pydev.pythonWrappedResourceTester"
-          namespace="org.eclipse.core.resources"
-          properties="name"
-          type="org.python.pydev.navigator.PythonSourceFolder"/>
-    <propertyTester
-          class="org.python.pydev.navigator.properties.PyPropertyTester"
-          id="org.python.pydev.pythonWrappedResourceTester"
-          namespace="org.eclipse.core.resources"
-          properties="name"
-          type="org.python.pydev.navigator.PythonNode"/>
- </extension>
-    
+	</extension>    
  </plugin>
