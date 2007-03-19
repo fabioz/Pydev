@@ -1169,6 +1169,13 @@
 	  	  class="org.python.pydev.navigator.filters.ClassFilter"> 
       </commonFilter> 
       
+      <commonFilter activeByDefault="true" 
+	      name="Pydev: Import Nodes" 
+	      description="Pydev: Hide import nodes" 
+	      id="org.python.pydev.navigator.filters.Imports"
+	  	  class="org.python.pydev.navigator.filters.ImportsFilter"> 
+      </commonFilter> 
+      
       <commonFilter activeByDefault="false" 
 	      name="Pydev: Hide closed projects" 
 	      description="Pydev: Hide closed projects" 

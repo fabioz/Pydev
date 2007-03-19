@@ -3,6 +3,9 @@ after 1.3.0
 Pydev
 <ul>
 <li><strong>Code-completion</strong>: comment completion is now the same as string completion</li>
+<li><strong>Filters</strong>: added a way to filter import nodes</li>
+<li><strong>Project Explorer (WTP) integration</strong>: now will work with elements from other plugins (such as java projects)</li>
+<li><strong>Fix: halting problem</strong>:when creating a new project from the pydev wizard it was halting in some platforms</li>
 </ul>
 
 after 1.2.9
