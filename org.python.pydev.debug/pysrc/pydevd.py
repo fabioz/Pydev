@@ -469,7 +469,7 @@ class PyDB:
     
             filename, base = GetFilenameAndBase(frame)
     
-            if base in DONT_TRACE: #we don't want to debug threading or anything related to pydevd
+            if DONT_TRACE.has_key(base): #we don't want to debug threading or anything related to pydevd
                 return None
     
             t = threading.currentThread()

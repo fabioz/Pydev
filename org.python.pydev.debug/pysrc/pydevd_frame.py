@@ -26,7 +26,7 @@ class PyDBFrame:
         self.mainDebugger.doWaitSuspend(*args, **kwargs)
         
     def trace_dispatch(self, frame, event, arg):
-        if event not in ACCEPTED_EVENTS:
+        if not ACCEPTED_EVENTS.has_key(event):
             return None
         
         additionalInfo = self.additionalInfo
