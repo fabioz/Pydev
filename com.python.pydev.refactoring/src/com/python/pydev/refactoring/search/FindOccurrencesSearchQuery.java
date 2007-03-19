@@ -1,5 +1,6 @@
 package com.python.pydev.refactoring.search;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -51,13 +52,22 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
                 return null;
             }
             int length = req.initialName.length();
+            
+            
+            HashSet<Integer> foundOffsets = new HashSet<Integer>();
             for (Map.Entry<Tuple<String, IFile>, List<ASTEntry>> o : occurrences.entrySet()) {
+            	
+            	foundOffsets.clear();
                 IFile file = o.getKey().o2;
                 IDocument doc = REF.getDocFromResource(file);
+                
                 for(ASTEntry entry:o.getValue()){
                     int offset = AbstractRenameRefactorProcess.getOffset(doc, entry);
-                    //System.out.println("Adding match:"+file);
-                    findOccurrencesSearchResult.addMatch(new FileMatch(file, offset, length));
+                    if(!foundOffsets.contains(offset)){
+                    	foundOffsets.add(offset);
+	                    //System.out.println("Adding match:"+file);
+	                    findOccurrencesSearchResult.addMatch(new FileMatch(file, offset, length));
+                    }
                 }
             }
         } catch (CoreException e) {
