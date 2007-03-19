@@ -210,7 +210,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 	                    IProject project = projects[i];
 	                    try {
 	                        if (project.isOpen() && project.hasNature(PythonNature.PYTHON_NATURE_ID)) {
-	                            PythonNature.addNature(project, monitor);
+	                            PythonNature.addNature(project, monitor, null, null);
 	                        }
 	                    } catch (Exception e) {
 	                        PydevPlugin.log(e);

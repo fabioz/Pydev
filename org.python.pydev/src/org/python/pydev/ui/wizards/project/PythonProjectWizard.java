@@ -28,7 +28,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.dialogs.WizardNewProjectReferencePage;
-import org.python.pydev.core.IPythonNature;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.NotConfiguredInterpreterException;
@@ -123,18 +122,18 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
             }
 
             projectHandle.open(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1000));
-            IPythonNature nature = PythonNature.addNature(projectHandle, null);
-            nature.setVersion(projectType);
 
+            String projectPythonpath = null;
             //also, after creating the project, create a default source folder and add it to the pythonpath.
             if(projectPage.shouldCreatSourceFolder()){
                 IFolder folder = projectHandle.getFolder("src");
                 folder.create(true, true, monitor);
             
-                nature.getPythonPathNature().setProjectSourcePath(folder.getFullPath().toString());
+                projectPythonpath = folder.getFullPath().toString();
             }
+            
             //we should rebuild the path even if there's no source-folder (this way we will re-create the astmanager)
-            nature.rebuildPath();
+            PythonNature.addNature(projectHandle, null, projectType, projectPythonpath);
         } finally {
             monitor.done();
         }

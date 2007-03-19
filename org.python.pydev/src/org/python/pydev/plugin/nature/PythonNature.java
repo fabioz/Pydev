@@ -96,7 +96,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     /**
      * Used to actually store settings for the pythonpath
      */
-    private PythonNatureStore pythonNatureStore = new PythonNatureStore();
+    private IPythonNatureStore pythonNatureStore = new PythonNatureStore();
     
     
     /**
@@ -150,7 +150,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 			IFile file = (IFile)((FileEditorInput)element).getAdapter(IFile.class);
 			if (file != null){
 				try {
-	                return PythonNature.addNature(file.getProject(), null);
+	                return PythonNature.addNature(file.getProject(), null, null, null);
 	            } catch (CoreException e) {
 	                PydevPlugin.log(e);
 	            }
@@ -163,7 +163,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * Utility routine to add PythonNature to the project
      * @return 
      */
-    public static synchronized IPythonNature addNature(IProject project, IProgressMonitor monitor) throws CoreException {
+    public static synchronized IPythonNature addNature(IProject project, IProgressMonitor monitor, String version, String projectPythonpath) throws CoreException {
         if (project == null || !project.isOpen()) {
             return null;
         }
@@ -204,7 +204,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         if (n instanceof PythonNature) {
             PythonNature nature = (PythonNature) n;
             //call initialize always - let it do the control.
-            nature.init();
+            nature.init(version, projectPythonpath);
             return nature;
         }
         return null;
@@ -228,8 +228,25 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * Initializes the python nature if it still has not been for this session.
      * 
      * Actions includes restoring the dump from the code completion cache
+     * @param projectPythonpath this is the project python path to be used (may be null)  -- if not null, this nature is being created
+     * @param version this is the version (project type) to be used (may be null) -- if not null, this nature is being created
      */
-    private void init() {
+    private void init(String version, String projectPythonpath) {
+        if(version != null || projectPythonpath != null){
+            this.getStore().startInit();
+            try {
+                if(projectPythonpath != null){
+                    this.getPythonPathNature().setProjectSourcePath(projectPythonpath);
+                }
+                if(version != null){
+                    this.setVersion(version);
+                }
+            } catch (CoreException e) {
+                PydevPlugin.log(e);
+            }finally{
+                this.getStore().endInit();
+            }
+        }
         final PythonNature nature = this;
         if (initializationStarted == false) {
             initializationStarted = true;
@@ -336,52 +353,61 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 	}
 
 
+    private volatile Job rebuildJob;
+    
     /**
      * This method is called whenever the pythonpath for the project with this nature is changed. 
      */
-    private void rebuildPath(final String defaultSelectedInterpreter, final String paths) {
+    private synchronized void rebuildPath(final String defaultSelectedInterpreter, final String paths) {
+        if(rebuildJob != null){
+            return;//already in rebuild
+        }
         final PythonNature nature = this;
-        Job myJob = new Job("Pydev code completion: rebuilding modules") {
+        rebuildJob = new Job("Pydev code completion: rebuilding modules") {
 
             @SuppressWarnings("unchecked")
             protected IStatus run(IProgressMonitor monitorArg) {
 
-                JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Rebuilding modules", IProgressMonitor.UNKNOWN, this);
-            	try {
-            		ICodeCompletionASTManager tempAstManager = astManager;
-                    if (tempAstManager == null) {
-                    	tempAstManager = new ASTManager();
-                    }
-                    synchronized(tempAstManager){
-                    	astManager = tempAstManager;
-                    	tempAstManager.setProject(getProject(), false); //it is a new manager, so, remove all deltas
-	
-	                    //begins task automatically
-                    	tempAstManager.changePythonPath(paths, project, jobProgressComunicator, defaultSelectedInterpreter);
-	                    saveAstManager();
-	
-	                    List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
-	                    for (IInterpreterObserver observer : participants) {
-	                        try {
-	                            observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator, defaultSelectedInterpreter);
-	                        } catch (Exception e) {
-	                        	//let's keep it safe
-	                            PydevPlugin.log(e);
-	                        }
-	                    }
-                    }
-                } catch (Throwable e) {
-                    PydevPlugin.log(e);
-                }
+                try {
+                    JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Rebuilding modules", IProgressMonitor.UNKNOWN, this);
+                    try {
+                    	ICodeCompletionASTManager tempAstManager = astManager;
+                        if (tempAstManager == null) {
+                        	tempAstManager = new ASTManager();
+                        }
+                        synchronized(tempAstManager){
+                        	astManager = tempAstManager;
+                        	tempAstManager.setProject(getProject(), false); //it is a new manager, so, remove all deltas
 
-                initializationFinished = true;
-                PythonNatureListenersManager.notifyPythonPathRebuilt(project, nature.pythonPathNature.getCompleteProjectPythonPath(null)); //default
-                //end task
-                jobProgressComunicator.done();
+                            //begins task automatically
+                        	tempAstManager.changePythonPath(paths, project, jobProgressComunicator, defaultSelectedInterpreter);
+                            saveAstManager();
+
+                            List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+                            for (IInterpreterObserver observer : participants) {
+                                try {
+                                    observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator, defaultSelectedInterpreter);
+                                } catch (Exception e) {
+                                	//let's keep it safe
+                                    PydevPlugin.log(e);
+                                }
+                            }
+                        }
+                    } catch (Throwable e) {
+                        PydevPlugin.log(e);
+                    }
+
+                    initializationFinished = true;
+                    PythonNatureListenersManager.notifyPythonPathRebuilt(project, nature.pythonPathNature.getCompleteProjectPythonPath(null)); //default
+                    //end task
+                    jobProgressComunicator.done();
+                } finally {
+                    rebuildJob = null;
+                }
                 return Status.OK_STATUS;
             }
         };
-        myJob.schedule();
+        rebuildJob.schedule();
         
     }
     
@@ -643,7 +669,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         }
     }
     
-    protected PythonNatureStore getStore(){
+    protected IPythonNatureStore getStore(){
     	return pythonNatureStore;
     }
 
