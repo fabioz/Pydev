@@ -6,6 +6,7 @@ Pydev
 <li><strong>Filters</strong>: added a way to filter import nodes</li>
 <li><strong>Project Explorer (WTP) integration</strong>: now will work with elements from other plugins (such as java projects)</li>
 <li><strong>Fix: halting problem</strong>:when creating a new project from the pydev wizard it was halting in some platforms</li>
+<li><strong>Fix: putting ${string_prompt} in run config</strong>: is now only evaluated on the actual run</li>
 </ul>
 
 Pydev Extensions:
