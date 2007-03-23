@@ -69,7 +69,8 @@ public class PythonNode implements Comparable, IWrappedResource {
     }
 
     public Object getAdapter(Class adapter) {
-        return pythonFile.getAdapter(adapter);
+        //return pythonFile.getAdapter(adapter);
+        return null;
     }
 
 }

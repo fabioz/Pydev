@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+<extension point="org.eclipse.ui.navigator.viewer">
+</extension>
+
+    <extension point="org.eclipse.ui.viewActions"> 
+	  <viewContribution 
+		id="org.python.pydev.navigator.actions.mylar" 
+   		targetID="org.python.pydev.navigator.view">
+    	<action
+           class="org.eclipse.mylar.internal.ide.ui.actions.FocusProjectExplorerAction"
+           enablesFor="*"
+           icon="icons/elcl16/interest-filtering.gif"
+           id="org.python.pydev.navigator.actions.mylar.FilterResourceNavigatorAction"
+           label="Focus on Active Task"
+           menubarPath="additions"
+           style="toggle"
+           toolbarPath="additions"
+           tooltip="Focus on Active Task"> 
+  		</action> 
+      </viewContribution> 
+   </extension>
+   
+	<extension
+	       point="org.eclipse.mylar.context.core.bridges">
+	    <structureBridge
+           class="org.python.pydev.mylar.structurebridge.PydevStructureBridge"
+           name="Pydev Structure Bridge"
+           parentContentType="*"/>
+    </extension>
+  
+  
+   <extension point = "org.eclipse.ui.popupMenus">
+     <objectContribution
+        id="org.eclipse.mylar.ui.interest"
+        objectClass="org.python.pydev.navigator.IWrappedResource">
+     	<action  
+  		  	label="Make Less Interesting" 
+	  		tooltip="Mark selected element as uninteresting"
+	  		menubarPath="additions" 
+	  		id="org.eclipse.mylar.ui.actions.InterestDecrementAction" 
+	  		class="org.eclipse.mylar.internal.context.ui.actions.InterestDecrementAction"
+	  		icon="icons/elcl16/interest-decrease.gif"
+	  		enablesFor="*"/>
+	    <action  
+  		  	label="Mark as Landmark" 
+	  		tooltip="Make selected element a landmark"
+	  		menubarPath="additions" 
+	  		id="org.eclipse.mylar.ui.actions.InterestIncrementAction" 
+	  		class="org.eclipse.mylar.internal.context.ui.actions.InterestIncrementAction"
+	  		icon="icons/elcl16/interest-increase.gif"
+	  		enablesFor="*"/>
+	 </objectContribution>
+   </extension>
+</plugin>

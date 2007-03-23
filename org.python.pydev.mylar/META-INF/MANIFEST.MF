@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Pydev Mylar Integration Plug-in
+Bundle-SymbolicName: org.python.pydev.mylar; singleton:=true
+Bundle-Version: 0.9.7.1
+Bundle-Activator: org.python.pydev.mylar.Activator
+Bundle-Vendor: Fabio Zadrozny
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui.ide,
+ org.eclipse.core.runtime,
+ org.eclipse.ui,
+ org.eclipse.core.resources,
+ org.eclipse.ui.navigator,
+ org.eclipse.core.runtime,
+ org.eclipse.ui.views,
+ org.eclipse.mylar,
+ org.eclipse.mylar.context.core,
+ org.eclipse.mylar.context.ui,
+ org.eclipse.mylar.ide,
+ org.eclipse.mylar.resources,
+ org.python.pydev
+Eclipse-LazyStart: true
