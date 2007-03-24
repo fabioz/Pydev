@@ -51,7 +51,7 @@ public class PyTextHover implements ITextHover{
                             }
                         }
                     } catch (CoreException e) {
-                        PydevPlugin.log(e);
+                        //ignore marker does not exist anymore
                     }
                 }
 

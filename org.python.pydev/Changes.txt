@@ -4,6 +4,8 @@ Pydev
 <ul>
 <li><strong><a href="http://www.eclipse.org/mylar/">Mylar</a> is now integrated in the pydev package explorer (separate feature: org.python.pydev.mylar.feature)</li>
 <li><strong>Code-completion</strong>: comment completion is now the same as string completion</li>
+<li><strong>Debug</strong>: Brekpoints can be set in external files</li>
+<li><strong>Debug</strong>: Brekpoint annotations now show in external files</li>
 <li><strong>Package Explorer Filters</strong>: added a way to filter import nodes</li>
 <li><strong>Fix: Package Explorer Actions</strong>: Open action does not expand children when opening python file</li>
 <li><strong>Fix: Project Explorer (WTP) integration</strong>: now will work with elements from other plugins (such as java projects)</li>

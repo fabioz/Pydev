@@ -5,14 +5,11 @@
  */
 package org.python.pydev.debug.ui.actions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -25,7 +22,6 @@ import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.IVerticalRulerInfo;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.IUpdate;
@@ -48,7 +44,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
 
 public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
 
-    private List fMarkers;
+    private List<IMarker> fMarkers;
 
     private String fAddLabel;
 
@@ -62,26 +58,6 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
         fRemoveLabel = "Remove Breakpoint";
     }
 
-    /**
-     * Checks whether a position includes the ruler's line of activity.
-     * 
-     * @param position the position to be checked
-     * @param document the document the position refers to
-     * @return <code>true</code> if the line is included by the given position
-     */
-    protected boolean includesRulerLine(Position position, IDocument document) {
-        if (position != null) {
-            try {
-                int markerLine = document.getLineOfOffset(position.getOffset());
-                int line = getInfo().getLineOfLastMouseButtonActivity();
-                if (line == markerLine) {
-                    return true;
-                }
-            } catch (BadLocationException x) {
-            }
-        }
-        return false;
-    }
 
     /**
      * @see IUpdate#update()
@@ -90,7 +66,7 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
         fMarkers = getMarkersFromCurrentFile();
         setText(fMarkers.isEmpty() ? fAddLabel : fRemoveLabel);
     }
-
+    
     /**
      * @see Action#run()
      */
@@ -101,51 +77,8 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
             removeMarkers(fMarkers);
         }
     }
-
-    /**
-     * @return the markers that correspond to the markers from the current editor.
-     */
     protected List<IMarker> getMarkersFromCurrentFile() {
-
-        List<IMarker> breakpoints = new ArrayList<IMarker>();
-
-        IResource resource = getResource();
-        IDocument document = getDocument();
-
-        try {
-            List<IMarker> markers = new ArrayList<IMarker>();
-            boolean isExternalFile = false;
-            
-            markers.addAll(Arrays.asList(resource.findMarkers(PyBreakpoint.PY_BREAK_MARKER, true, IResource.DEPTH_INFINITE)));
-            markers.addAll(Arrays.asList(resource.findMarkers(PyBreakpoint.PY_CONDITIONAL_BREAK_MARKER, true, IResource.DEPTH_INFINITE)));
-            
-            if (!(resource instanceof IFile)) {
-                //it was created from an external file
-                isExternalFile = true;
-            } 
-
-            IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
-            for (IMarker marker : markers) {
-                IBreakpoint breakpoint = breakpointManager.getBreakpoint(marker);
-                if (breakpoint != null && breakpointManager.isRegistered(breakpoint)) {
-                    Position pos = getMarkerPosition(document, marker);
-                    
-                    if(!isExternalFile){
-                        if (includesRulerLine(pos, document)) {
-                            breakpoints.add(marker);
-                        }
-                    }else{
-                        
-                        if(isInSameExternalEditor(marker)){
-                            breakpoints.add(marker);
-                        }
-                    }
-                }
-            }
-        } catch (CoreException x) {
-            PydevDebugPlugin.log(IStatus.ERROR, "Unexpected getMarkers error", x);
-        }
-        return breakpoints;
+        return getMarkersFromEditorResource(getResourceForDebugMarkers(), getDocument(), getPydevFileEditorInput(), getInfo(), true);
     }
 
     
@@ -164,7 +97,7 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
 
             // just to validate it
             document.getLineInformation(lineNumber - 1);
-            final IResource resource = getResource();
+            final IResource resource = getResourceForDebugMarkers();
 
             // The map containing the marker attributes
             final Map<String, Object> map = new HashMap<String, Object>();
