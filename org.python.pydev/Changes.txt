@@ -2,9 +2,11 @@ after 1.3.0
 
 Pydev
 <ul>
+<li><strong><a href="http://www.eclipse.org/mylar/">Mylar</a> is now integrated in the pydev package explorer (separate feature: org.python.pydev.mylar.feature)</li>
 <li><strong>Code-completion</strong>: comment completion is now the same as string completion</li>
-<li><strong>Filters</strong>: added a way to filter import nodes</li>
-<li><strong>Project Explorer (WTP) integration</strong>: now will work with elements from other plugins (such as java projects)</li>
+<li><strong>Package Explorer Filters</strong>: added a way to filter import nodes</li>
+<li><strong>Fix: Package Explorer Actions</strong>: Open action does not expand children when opening python file</li>
+<li><strong>Fix: Project Explorer (WTP) integration</strong>: now will work with elements from other plugins (such as java projects)</li>
 <li><strong>Fix: halting problem</strong>:when creating a new project from the pydev wizard it was halting in some platforms</li>
 <li><strong>Fix: putting ${string_prompt} in run config</strong>: is now only evaluated on the actual run</li>
 </ul>
