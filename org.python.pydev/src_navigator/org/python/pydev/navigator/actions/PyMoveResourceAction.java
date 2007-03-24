@@ -29,6 +29,10 @@ public class PyMoveResourceAction extends MoveResourceAction{
      * @see org.eclipse.jface.action.Action#isEnabled()
      */
     public boolean isEnabled() {
+        return true;
+    }
+
+    private boolean fillSelection() {
         selected = new ArrayList<IResource>();
 
         ISelection selection = provider.getSelection();
@@ -64,7 +68,7 @@ public class PyMoveResourceAction extends MoveResourceAction{
      * (non-Javadoc) Method declared on IAction.
      */
     public void run() {
-        if(!isEnabled()){ //will also update the list of resources (main change from the DeleteResourceAction)
+        if(!fillSelection()){ //will also update the list of resources (main change from the DeleteResourceAction)
             return;
         }
         super.run();
