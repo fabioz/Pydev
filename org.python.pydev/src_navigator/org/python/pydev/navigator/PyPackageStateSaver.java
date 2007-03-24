@@ -150,14 +150,16 @@ public class PyPackageStateSaver {
      * Saves some selection in the memento object.
      */
     private void save(TreePath treePath, String type) {
-        Object object = treePath.getLastSegment();
-        if(object instanceof IAdaptable){
-            IAdaptable adaptable = (IAdaptable) object;
-            IResource resource = (IResource) adaptable.getAdapter(IResource.class);
-            if(resource != null){
-                IPath path = resource.getLocation();
-                if(path != null){
-                    memento.createChild(type, path.toPortableString());
+        if(treePath != null){
+            Object object = treePath.getLastSegment();
+            if(object instanceof IAdaptable){
+                IAdaptable adaptable = (IAdaptable) object;
+                IResource resource = (IResource) adaptable.getAdapter(IResource.class);
+                if(resource != null){
+                    IPath path = resource.getLocation();
+                    if(path != null){
+                        memento.createChild(type, path.toPortableString());
+                    }
                 }
             }
         }
