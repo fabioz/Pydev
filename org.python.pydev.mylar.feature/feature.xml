@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.python.pydev.mylar.feature"
+      label="Feature Feature"
+      version="0.1"
+      provider-name="Fabio Zadrozny">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <requires>
+      <import plugin="org.python.pydev" version="1.3.1" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.ui.navigator"/>
+      <import plugin="org.eclipse.ui.views"/>
+      <import plugin="org.eclipse.mylar"/>
+      <import plugin="org.eclipse.mylar.context.core"/>
+      <import plugin="org.eclipse.mylar.context.ui"/>
+      <import plugin="org.eclipse.mylar.ide"/>
+      <import plugin="org.eclipse.mylar.resources"/>
+   </requires>
+
+   <plugin
+         id="org.python.pydev.mylar"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
