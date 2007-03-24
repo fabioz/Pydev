@@ -4,18 +4,19 @@
  */
 package org.python.pydev.navigator.ui;
 
-import java.lang.reflect.Field;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Item;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IMemento;
@@ -29,56 +30,65 @@ import org.eclipse.ui.navigator.INavigatorPipelineService;
 import org.eclipse.ui.navigator.PipelinedShapeModification;
 import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
-import org.python.pydev.core.REF;
 import org.python.pydev.navigator.PythonFile;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class PydevPackageExplorer extends CommonNavigator implements IShowInTarget {
-	
-	//START: extension for handling select correctly (so that we're able to clear the cached selection correctly
-	//because the superclass doesn't handle this very well)
+
+    /**
+     * This viewer is the one used instead of the common viewer -- should only be used to fix failures in the base class.
+     */
 	public static class PydevCommonViewer extends CommonViewer {
 		public PydevCommonViewer(String id, Composite parent, int style) {
 			super(id, parent, style);
 		}
-
-		public void clearCachedSelection() {
-			try {
-				//clear the cache (yeap... this is as ugly as it gets)
-				Field attr = REF.getAttrFromClass(CommonViewer.class, "cachedSelection");
-				attr.setAccessible(true);
-				attr.set(this, null);
-			} catch (Exception e) {
-				PydevPlugin.log(e);
-			}
-		}
+        /**
+         * Returns the tree path for the given item.
+         * 
+         * It's overriden because when using mylar, the paths may be expanded but not shown, so segment is null
+         * -- that's why we return null if a given segment is null (instead of the assert that it contains in the superclass) 
+         * @since 3.2
+         */
+        @Override
+        protected TreePath getTreePathFromItem(Item item) {
+            LinkedList<Object> segments = new LinkedList<Object>();
+            while(item!=null) {
+                Object segment = item.getData();
+                if(segment == null){
+                    return null;
+                }
+                segments.addFirst(segment);
+                item = getParentItem(item);
+            }
+            return new TreePath(segments.toArray());
+        }
 	}
 
+    /**
+     * This is the memento to be used.
+     */
 	private IMemento memento;
 
+    /**
+     * Overriden to keep the memento to be used later (it's private in the superclass).
+     */
 	public void init(IViewSite aSite, IMemento aMemento) throws PartInitException {
 		super.init(aSite, aMemento);
 		memento = aMemento;
 	}
 
+    /**
+     * Overriden to create our viewer and not the superclass CommonViewer.
+     * 
+     * (unfortunatelly, the superclass does a little more than creating it, so, we have to do those operations here 
+     * too -- that's why we have to keep the memento object in the init method).
+     */
 	protected CommonViewer createCommonViewer(Composite aParent) {
+        //super.createCommonViewer(aParent); -- don't even call the super class
 		CommonViewer aViewer = new PydevCommonViewer(getViewSite().getId(), aParent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		initListeners(aViewer);
 		aViewer.getNavigatorContentService().restoreState(memento);
 		return aViewer;
 	}
-	
-	protected void handleDoubleClick(DoubleClickEvent anEvent) {
-		//TODO: the handling of a double click is not actually well synchronized with the action bars
-		//sometimes we can change the selection, and then do an 'enter' and the enter (that will call this
-		//method) will come before the change -- and as the action bars are not correctly set, this will 
-		//end up expanding the element if the GlobalActionHandler for open is not set -- if the previous selection
-		//was a folder
-		super.handleDoubleClick(anEvent);
-	}
-	//END: extension for handling select correctly
-	
-	
 	
 	
 	/**
@@ -112,6 +122,11 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
 		return elementOfInput != null && tryToReveal(elementOfInput);
 	}
 	
+    /**
+     * This is the method that actually tries to reveal some item in the tree.
+     * 
+     * It will go through the pipeline to see if the actual object to reveal has been replaced in the replace pipeline.
+     */
 	public boolean tryToReveal(Object element) {
 		INavigatorPipelineService pipelineService = this.getNavigatorContentService().getPipelineService();
 		if(element instanceof IAdaptable){
@@ -127,28 +142,43 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
 			}
 		}
 		
+        
+        //null is checked in the revealAndVerify function
 		if (revealAndVerify(element)) {
 			return true;
 		}
 
-		if (element != null) {
-			if (revealAndVerify(element)) {
-				return true;
-			}
-
-			if (element instanceof IAdaptable) {
-				IAdaptable adaptable = (IAdaptable) element;
-				IResource resource = (IResource) adaptable.getAdapter(IResource.class);
-				if (resource != null) {
-					if (revealAndVerify(resource)){
-						return true;
-					}
+        //if it is a wrapped resource that we couldn't show, try to reveal as a resource...
+		if (element instanceof IAdaptable && !(element instanceof IResource)) {
+			IAdaptable adaptable = (IAdaptable) element;
+			IResource resource = (IResource) adaptable.getAdapter(IResource.class);
+			if (resource != null) {
+				if (revealAndVerify(resource)){
+					return true;
 				}
 			}
 		}
 		return false;
 	}
     
+    /**
+     * Tries to reveal some selection
+     * @return if it revealed the selection correctly (and false otherwise)
+     */
+    private boolean revealAndVerify(Object element) {
+        if (element == null){
+            return false;
+        }
+        
+        selectReveal(new StructuredSelection(element));
+        return !getSite().getSelectionProvider().getSelection().isEmpty();
+    }
+
+    
+    /**
+     * Overriden to show a selection without expanding PythonFiles (only its parent)
+     */
+    @Override
     public void selectReveal(ISelection selection) {
         CommonViewer commonViewer = getCommonViewer();
         if (commonViewer != null) {
@@ -163,6 +193,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
                     }
                 }
                 
+                //basically the same as in the superclass, but with those changed elements.
                 Object[] expandedElements = commonViewer.getExpandedElements();
                 Object[] newExpandedElements = new Object[newSelection.length + expandedElements.length];
                 System.arraycopy(expandedElements, 0, newExpandedElements, 0, expandedElements.length);
@@ -174,13 +205,5 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
     }
 
 
-	private boolean revealAndVerify(Object element) {
-		if (element == null){
-			return false;
-		}
-		
-		selectReveal(new StructuredSelection(element));
-		return !getSite().getSelectionProvider().getSelection().isEmpty();
-	}
 
 }

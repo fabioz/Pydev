@@ -18,11 +18,9 @@ import org.eclipse.ui.navigator.ICommonActionExtensionSite;
 import org.eclipse.ui.navigator.ICommonMenuConstants;
 import org.eclipse.ui.navigator.ICommonViewerSite;
 import org.eclipse.ui.navigator.ICommonViewerWorkbenchSite;
-import org.python.pydev.navigator.ui.PydevPackageExplorer.PydevCommonViewer;
 
 public class PythonActionProvider extends CommonActionProvider{
     
-    private OpenPythonNodeAction openNodeAction;
     private PyOpenPythonFileAction openResourceAction;
     private PyDeleteResourceAction deleteResourceAction;
     private PyCopyResourceAction copyResourceAction;
@@ -41,7 +39,6 @@ public class PythonActionProvider extends CommonActionProvider{
             ISharedImages images = PlatformUI.getWorkbench().getSharedImages();
             clipboard = new Clipboard(shell.getDisplay());
             selectionProvider = site.getSelectionProvider();
-			openNodeAction = new OpenPythonNodeAction(site.getPage(), selectionProvider);
             openResourceAction = new PyOpenPythonFileAction(site.getPage(), selectionProvider);
             
             deleteResourceAction = new PyDeleteResourceAction(shell, selectionProvider);
@@ -66,20 +63,9 @@ public class PythonActionProvider extends CommonActionProvider{
      * @see org.eclipse.ui.actions.ActionGroup#fillActionBars(org.eclipse.ui.IActionBars)
      */
     public void fillActionBars(IActionBars actionBars) { 
-    	if(selectionProvider instanceof PydevCommonViewer){
-			PydevCommonViewer viewer = (PydevCommonViewer) selectionProvider;
-			viewer.clearCachedSelection();
-    	}
-    	
-        /* Set up the property open action when enabled. */
-        if(openNodeAction.isEnabled()){
-            actionBars.setGlobalActionHandler(ICommonActionConstants.OPEN, openNodeAction);
-            
-        }else if(openResourceAction.isEnabled()){
-        	//it's one or the other...
+        if(openResourceAction.isEnabled()){
             actionBars.setGlobalActionHandler(ICommonActionConstants.OPEN, openResourceAction);
         }
-        
         if(copyResourceAction.isEnabled()){
             actionBars.setGlobalActionHandler(ActionFactory.COPY.getId(), copyResourceAction);
         }
@@ -98,18 +84,9 @@ public class PythonActionProvider extends CommonActionProvider{
      * @see org.eclipse.ui.actions.ActionGroup#fillContextMenu(org.eclipse.jface.action.IMenuManager)
      */
     public void fillContextMenu(IMenuManager menu) {
-    	if(selectionProvider instanceof PydevCommonViewer){
-			PydevCommonViewer viewer = (PydevCommonViewer) selectionProvider;
-			viewer.clearCachedSelection();
-    	}
-
-        if(openNodeAction.isEnabled()){
-            menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openNodeAction);        
+        if(openResourceAction.isEnabled()){
+            menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openResourceAction);        
         }
-//TODO: check the best open approach
-//        if(openResourceAction.isEnabled()){
-//            menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openResourceAction);        
-//        }
         if(copyResourceAction.isEnabled()){
             menu.appendToGroup(ICommonMenuConstants.GROUP_EDIT, copyResourceAction);        
         }
