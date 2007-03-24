@@ -5,20 +5,20 @@
  */
 package org.python.pydev.debug.model;
 
+import java.io.File;
 import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IWatchExpression;
 import org.eclipse.debug.ui.IDebugModelPresentation;
 import org.eclipse.debug.ui.IValueDetailListener;
-import org.eclipse.jface.util.ListenerList;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorInput;
@@ -33,10 +33,13 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 
 	static public String PY_DEBUG_MODEL_ID = "org.python.pydev.debug";
 
-	protected ListenerList fListeners = new ListenerList();
+	protected ListenerList fListeners = new ListenerList(ListenerList.IDENTITY);
 
 	protected boolean displayVariableTypeNames = false; // variables display attribute
 
+    /**
+     * @return the image for some debug element
+     */
 	public Image getImage(Object element) {
 		if (element instanceof PyBreakpoint) {
 			try {
@@ -72,24 +75,35 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 		return null;
 	}
 
+    /**
+     * @return the text for some debug element
+     */
 	public String getText(Object element) {
 		if (element instanceof PyBreakpoint) {
-			IMarker marker = ((PyBreakpoint) element).getMarker();
+			PyBreakpoint pyBreakpoint = (PyBreakpoint) element;
+            IMarker marker = ((PyBreakpoint) element).getMarker();
 			try {
 				Map attrs = marker.getAttributes();
-				IResource resource = marker.getResource();
-				String file = resource.getFullPath().lastSegment();
+                
+                //get the filename
+				String ioFile = pyBreakpoint.getFile();
+				String fileName = "unknown";
+                if(ioFile != null){
+                    File file = new File(ioFile);
+                    fileName = file.getName();
+                }
+                
+                
+                //get the line number
 				Object lineNumber = attrs.get(IMarker.LINE_NUMBER);
 				String functionName = (String) attrs.get(PyBreakpoint.FUNCTION_NAME_PROP);
-				if (file == null){
-					file = "unknown";
-				}
 				
 				if (lineNumber == null){
 					lineNumber = "unknown";
 				}
 				
-				String location = file + ":" + lineNumber.toString();
+                //get the location
+				String location = fileName + ":" + lineNumber.toString();
 				if (functionName == null){
 					return location;
 				}else{
@@ -150,9 +164,11 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 	public IEditorInput getEditorInput(Object element) {
 		if (element instanceof PyBreakpoint) {
 			String file = ((PyBreakpoint) element).getFile();
-			IPath path = new Path(file);
-			IEditorPart part = PydevPlugin.doOpenEditor(path, false);
-			return part.getEditorInput();
+            if(file != null){
+    			IPath path = new Path(file);
+    			IEditorPart part = PydevPlugin.doOpenEditor(path, false);
+    			return part.getEditorInput();
+            }
 		}
 		return null;
 	}

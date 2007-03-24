@@ -5,6 +5,7 @@
  */
 package org.python.pydev.debug.model;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -19,6 +20,10 @@ import org.eclipse.debug.core.model.LineBreakpoint;
  * 
  */
 public class PyBreakpoint extends LineBreakpoint {
+    /**
+     * Marker attribute storing the path id of some external file
+     */
+    public static final String PY_BREAK_EXTERNAL_PATH_ID = "org.python.pydev.debug.PYDEV_EXTERNAL_PATH_ID";
 
 	static public final String PY_BREAK_MARKER = "org.python.pydev.debug.pyStopBreakpointMarker";
 	
@@ -47,8 +52,18 @@ public class PyBreakpoint extends LineBreakpoint {
 	}
 	
 	public String getFile() {
-		IResource r = getMarker().getResource();
-		return r.getLocation().toOSString();
+		IMarker marker = getMarker();
+        IResource r = marker.getResource();
+        if(r instanceof IFile){
+            return r.getLocation().toOSString();
+        }else{
+            //it's an external file...
+            try {
+                return (String) marker.getAttribute(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID);
+            } catch (CoreException e) {
+                throw new RuntimeException(e);
+            }
+        }
 	}
 	
 	public Object getLine() {

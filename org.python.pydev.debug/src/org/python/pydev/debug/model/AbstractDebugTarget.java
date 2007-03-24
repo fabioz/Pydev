@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IMarkerDelta;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -427,41 +427,42 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
         debugger.postCommand(new VersionCommand(debugger));
 
         // now, register all the breakpoints in all projects
-        IProject projects[] = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-        for (IProject project : projects) {
-        	if(!project.isOpen()){
-        		continue;
-        	}
-            
-            try {
-                IMarker[] markers = project.findMarkers(PyBreakpoint.PY_BREAK_MARKER, true, IResource.DEPTH_INFINITE);
-                IMarker[] condMarkers = project.findMarkers(PyBreakpoint.PY_CONDITIONAL_BREAK_MARKER, true, IResource.DEPTH_INFINITE);
-                IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
-                
-                for (IMarker marker : markers) {
-                    PyBreakpoint brk = (PyBreakpoint) breakpointManager.getBreakpoint(marker);
-                    
-                    if (brk.isEnabled()) {
-                        SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, brk.getFile(), brk.getLine(), brk.getCondition());
-                        debugger.postCommand(cmd);
-                    }
-                }
-                
-                for (IMarker marker: condMarkers) {
-                	PyBreakpoint brk = (PyBreakpoint) breakpointManager.getBreakpoint(marker);
-                	if (brk.isEnabled()) {
-                		SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, brk.getFile(), brk.getLine(), brk.getCondition());
-                		debugger.postCommand(cmd);
-                	}
-                }
-            } catch (Throwable t) {
-                PydevDebugPlugin.errorDialog("Error setting breakpoints", t);
-            }
-        }
+        addBreakpointsFor(ResourcesPlugin.getWorkspace().getRoot());
 
         // Send the run command, and we are off
         RunCommand run = new RunCommand(debugger);
         debugger.postCommand(run);
+    }
+
+    /**
+     * Adds the breakpoints associated with a container.
+     * @param container the container we're interested in (usually workspace root)
+     */
+    private void addBreakpointsFor(IContainer container) {
+        try {
+            IMarker[] markers = container.findMarkers(PyBreakpoint.PY_BREAK_MARKER, true, IResource.DEPTH_INFINITE);
+            IMarker[] condMarkers = container.findMarkers(PyBreakpoint.PY_CONDITIONAL_BREAK_MARKER, true, IResource.DEPTH_INFINITE);
+            IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
+            
+            for (IMarker marker : markers) {
+                PyBreakpoint brk = (PyBreakpoint) breakpointManager.getBreakpoint(marker);
+                
+                if (brk.isEnabled()) {
+                    SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, brk.getFile(), brk.getLine(), brk.getCondition());
+                    debugger.postCommand(cmd);
+                }
+            }
+            
+            for (IMarker marker: condMarkers) {
+            	PyBreakpoint brk = (PyBreakpoint) breakpointManager.getBreakpoint(marker);
+            	if (brk.isEnabled()) {
+            		SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, brk.getFile(), brk.getLine(), brk.getCondition());
+            		debugger.postCommand(cmd);
+            	}
+            }
+        } catch (Throwable t) {
+            PydevDebugPlugin.errorDialog("Error setting breakpoints", t);
+        }
     }
     
     /**

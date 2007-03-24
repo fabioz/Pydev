@@ -154,5 +154,9 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
     public int hashCode() {
         return fFile.hashCode();
     }
+    
+    public File getFile() {
+        return fFile;
+    }
 }
 

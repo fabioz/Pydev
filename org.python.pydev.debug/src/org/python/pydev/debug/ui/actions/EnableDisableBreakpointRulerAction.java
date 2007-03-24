@@ -11,22 +11,20 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 
+/**
+ * Action to enable/disable a breakpoint in the ruler.
+ * 
+ * @author Fabio
+ */
 public class EnableDisableBreakpointRulerAction extends AbstractBreakpointRulerAction {
 
-	private String fAddLabel;
+    public EnableDisableBreakpointRulerAction(ITextEditor editor, IVerticalRulerInfo rulerInfo) {
+        fInfo = rulerInfo;
+        fTextEditor = editor;
+    }
 
-	private String fRemoveLabel;
-	
-	public EnableDisableBreakpointRulerAction(ITextEditor editor, IVerticalRulerInfo rulerInfo) {
-		fInfo = rulerInfo;
-		fTextEditor = editor;
-
-		fAddLabel= "Add Breakpoint"; 
-		fRemoveLabel= "Remove Breakpoint";
-	}
-
-	public void update() {
-		setBreakpoint(determineBreakpoint());
+    public void update() {
+        setBreakpoint(determineBreakpoint());
         if (getBreakpoint() == null) {
             setEnabled(false);
             return;
@@ -36,29 +34,30 @@ public class EnableDisableBreakpointRulerAction extends AbstractBreakpointRulerA
             boolean enabled = getBreakpoint().isEnabled();
             setText(enabled ? "&Disable Breakpoint" : "&Enable Breakpoint");
         } catch (CoreException ce) {
-        	PydevDebugPlugin.log(IStatus.ERROR,ce.getLocalizedMessage(),ce);
+            PydevDebugPlugin.log(IStatus.ERROR, ce.getLocalizedMessage(), ce);
         }
-	}
+    }
 
-	@Override
-	public void run() {
-		
-		if (getBreakpoint() != null) {
+    @Override
+    public void run() {
+
+        if (getBreakpoint() != null) {
             new Job("Enabling / Disabling Breakpoint") { //$NON-NLS-1$
                 protected IStatus run(IProgressMonitor monitor) {
                     try {
                         getBreakpoint().setEnabled(!getBreakpoint().isEnabled());
                         return Status.OK_STATUS;
                     } catch (final CoreException e) {
-                        Display.getDefault().asyncExec(new Runnable(){
+                        Display.getDefault().asyncExec(new Runnable() {
                             public void run() {
-                                ErrorDialog.openError(getTextEditor().getEditorSite().getShell(), "Enabling/disabling breakpoints", "Exceptions occurred enabling disabling the breakpoint", e.getStatus()); 
+                                ErrorDialog.openError(getTextEditor().getEditorSite().getShell(), "Enabling/disabling breakpoints",
+                                        "Exceptions occurred enabling disabling the breakpoint", e.getStatus());
                             }
-                        });                        
+                        });
                     }
                     return Status.CANCEL_STATUS;
                 }
             }.schedule();
         }
-	}
+    }
 }
