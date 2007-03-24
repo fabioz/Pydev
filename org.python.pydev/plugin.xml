@@ -885,6 +885,11 @@
     </extension>
    <extension-point id="pydev_builder" name="Pydev Builder" schema="schema/pydev_builder.exsd"/>
 <!-- extensions -->
+<!-- extensions -->
+<!-- extensions -->
+<!-- extensions -->
+<!-- extensions -->
+<!-- extensions -->
    <extension-point id="pydev_completion" name="Pydev completion" schema="schema/pydev_completion.exsd"/>
    <extension-point id="pydev_modules_observer" name="Pydev modules observer" schema="schema/pydev_modules_observer.exsd"/>
    <extension-point id="pydev_interpreter_observer" name="Pydev Interpreter Observer" schema="schema/pydev_interpreter_observer.exsd"/>
