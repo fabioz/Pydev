@@ -342,7 +342,7 @@ def GenerateImportsTipForModule( mod ):
 
         try:
             obj = getattr(mod, d)
-        except AttributeError:
+        except (AttributeError, java.lang.NoClassDefFoundError):
             #jython has a bug in its custom classloader that prevents some things from working correctly, so, let's see if
             #we can fix that... (maybe fixing it in jython itself would be a better idea, as this is clearly a bug)
             #for that we need a custom classloader... we have references from it in the below places:

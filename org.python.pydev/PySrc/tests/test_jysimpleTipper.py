@@ -9,7 +9,10 @@ import sys
 sys.argv[0] = os.path.dirname(sys.argv[0]) 
 #twice the dirname to get the previous level from this file.
 sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
-sys.path.insert(1, r"C:\bin\eclipse\320\plugins\org.junit_3.8.1\junit.jar" ) #some late loading jar tests
+
+#this does not work (they must be in the system pythonpath)
+#sys.path.insert(1, r"D:\bin\eclipse321\plugins\org.junit_3.8.1\junit.jar" ) #some late loading jar tests
+#sys.path.insert(1, r"D:\bin\eclipse321\plugins\org.apache.ant_1.6.5\lib\ant.jar" ) #some late loading jar tests
 
 from jyimportsTipper import ismethod
 from jyimportsTipper import isclass
@@ -74,6 +77,12 @@ class TestMod(unittest.TestCase):
         f, tip = jyimportsTipper.GenerateTip('junit.framework')
         assert f.endswith('junit.jar')
         ret = self.assertIn('TestCase', tip)
+        self.assertEquals('', ret[2])
+        
+    def testImports2a(self):
+        f, tip = jyimportsTipper.GenerateTip('org.apache.tools.ant')
+        assert f.endswith('ant.jar')
+        ret = self.assertIn('Task', tip)
         self.assertEquals('', ret[2])
         
     def testImports3(self):
