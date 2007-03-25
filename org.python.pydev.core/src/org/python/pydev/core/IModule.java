@@ -52,14 +52,24 @@ public interface IModule {
      */
     public abstract boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods) throws CompletionRecursionException;
 
+    public static final int NOT_FOUND                = 0;
+    public static final int FOUND_TOKEN              = 1;
+    public static final int FOUND_BECAUSE_OF_GETATTR = 2;
+    
     /**
      * @param ifHasGetAttributeConsiderInTokens if this true, consider that the token is in the tokens if a __getattribute__
      * is found.
      * 
-     * @return whether the passed token is part of the global tokens of this module (including imported tokens).
+     * @return whether the passed token is part of the global tokens of this module (including imported tokens) and the 
+     * actual reason why it was considered there (as indicated by the constants).
+     * 
+     * @see #NOT_FOUND               
+     * @see #FOUND_TOKEN             
+     * @see #FOUND_BECAUSE_OF_GETATTR
+     * 
      * @throws CompletionRecursionException 
      */
-    public boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, boolean ifHasGetAttributeConsiderInTokens) throws CompletionRecursionException;
+    public int isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, boolean ifHasGetAttributeConsiderInTokens) throws CompletionRecursionException;
     
     /**
      * This function can be called to find possible definitions of a token (state activation token), based on its name, line and

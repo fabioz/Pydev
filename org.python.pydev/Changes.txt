@@ -20,6 +20,7 @@ Pydev Extensions:
 <li><strong>Fix: Find Occurrences</strong>: will not 'overlap' occurrences anymore</li>
 <li><strong>Fix: Code-Completion</strong>: auto-import completions will not be brought for completions in the current module</li>
 <li><strong>Fix: Code-Completion</strong>: auto-import inserted as last import in imports list, so that it does not break __future__ imports order</li>
+<li><strong>Fix: Code-Analysis</strong>: deep attribute access after finding __getattr__ does not give error in imports anymore</li>
 </ul>
 
 after 1.2.9

@@ -96,14 +96,14 @@ public abstract class AbstractModule implements IModule {
      * @see org.python.pydev.core.IModule#isInGlobalTokens(java.lang.String, org.python.pydev.plugin.nature.PythonNature, boolean)
      */
     public boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods) throws CompletionRecursionException{
-        return isInGlobalTokens(tok, nature, true, false);
+        return isInGlobalTokens(tok, nature, true, false) != IModule.NOT_FOUND;
     }
     
-    public boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, boolean ifHasGetAttributeConsiderInTokens) throws CompletionRecursionException{
+    public int isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, boolean ifHasGetAttributeConsiderInTokens) throws CompletionRecursionException{
         //it's just worth checking it if it is not dotted...
         if(tok.indexOf(".") == -1){
         	if(isInDirectGlobalTokens(tok, nature)){
-        		return true;
+        		return IModule.FOUND_TOKEN;
         	}
         }
         
@@ -122,15 +122,15 @@ public abstract class AbstractModule implements IModule {
                     (rep.equals("__getattribute__") || rep.equals("__getattr__")) && 
                     //but not defined in the builtins (it must be overriden)
                    token.getParentPackage().startsWith("__builtin__") == false){
-                return true;
+                return IModule.FOUND_BECAUSE_OF_GETATTR;
             }
             
             if(rep.equals(head)){
-                return true;
+                return IModule.FOUND_TOKEN;
             }
         }
         //if not found until now, it is not defined
-        return false;
+        return IModule.NOT_FOUND;
     }
     
     
