@@ -15,6 +15,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
@@ -479,7 +480,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals("", strs[0]);
         assertEquals("", strs[1]);
         
-        String importsTipperStr = PyCodeCompletionUtils.getImportsTipperStr(new Document("from coilib.decorators import "), 30).importsTipperStr;
+        String importsTipperStr = ImportsSelection.getImportsTipperStr(new Document("from coilib.decorators import "), 30).importsTipperStr;
         assertEquals("coilib.decorators" , importsTipperStr);
         
         strs = PySelection.getActivationTokenAndQual(new Document("foo.bar.xxx   "), 9, true); 

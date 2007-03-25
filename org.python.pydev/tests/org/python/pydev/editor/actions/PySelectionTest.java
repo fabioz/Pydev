@@ -31,7 +31,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testIsInDecl();
+            test.testImportLine7();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
@@ -99,7 +99,7 @@ public class PySelectionTest extends TestCase {
         "''' this should be ignored\n"+
         "from xxx import yyy       \n"+
         "import www'''             \n"+
-        "#we want the import to appear in this line\n"+
+        "#we want the import to appear after this line\n"+
         "Class C:                  \n"+
         "    pass                  \n"+
         "import kkk                \n"+
@@ -107,7 +107,7 @@ public class PySelectionTest extends TestCase {
         "\n";
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
-        assertEquals(4, selection.getLineAvailableForImport());
+        assertEquals(5, selection.getLineAvailableForImport());
     }
 
     public void testImportLine2() {
@@ -165,6 +165,36 @@ public class PySelectionTest extends TestCase {
     	Document document = new Document(strDoc);
     	PySelection selection = new PySelection(document);
     	assertEquals(2, selection.getLineAvailableForImport());
+    }
+    
+    public void testImportLine6() {
+        String strDoc = "" +
+        "\n"+
+        "\n" +
+        "from __future__ import xxx\n"+
+        "from a import xxx\n"+
+        "from __future__ import xxx\n" +
+        "#we want it to appear in this line\n";
+        //must be after the last from __future__ import statement
+        Document document = new Document(strDoc);
+        PySelection selection = new PySelection(document);
+        assertEquals(5, selection.getLineAvailableForImport());
+    }
+    
+    public void testImportLine7() {
+        String strDoc = "" +
+        "'''comment block\n"+
+        "from false_import import *\n" +
+        "finish comment'''\n" +
+        "\n" +
+        "from __future__ import xxx\n"+
+        "from a import xxx\n"+
+        "from __future__ import xxx\n" +
+        "#we want it to appear in this line\n";
+        //must be after the last from __future__ import statement
+        Document document = new Document(strDoc);
+        PySelection selection = new PySelection(document);
+        assertEquals(7, selection.getLineAvailableForImport());
     }
     
     

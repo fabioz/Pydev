@@ -8,6 +8,7 @@ package org.python.pydev.editor.codecompletion;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.docutils.ImportsSelection;
 
 /**
  * @author Fabio Zadrozny
@@ -23,7 +24,7 @@ public class PyCodeCompletionTest extends TestCase {
     public void doTest(String s, String expected){
         Document doc = new Document(s);
         int length = s.length();
-        String tipperStr = PyCodeCompletionUtils.getImportsTipperStr(doc, length).importsTipperStr;
+        String tipperStr = ImportsSelection.getImportsTipperStr(doc, length).importsTipperStr;
         assertEquals(expected, tipperStr);
         
     }

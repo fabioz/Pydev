@@ -10,6 +10,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
+import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 
 public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
@@ -22,7 +23,7 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
         IDocument doc = request.doc;
         int documentOffset = request.documentOffset;
         
-        return PyCodeCompletionUtils.getImportsTipperStr(doc, documentOffset);
+        return ImportsSelection.getImportsTipperStr(doc, documentOffset);
     }
 
     

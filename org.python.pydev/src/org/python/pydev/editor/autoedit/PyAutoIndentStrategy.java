@@ -15,10 +15,10 @@ import org.python.copiedfromeclipsesrc.PythonPairMatcher;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.DocUtils;
+import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
 
 /**
  * Class which implements the following behaviors:
@@ -476,7 +476,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 	                String completeLine = ps.getLineWithoutCommentsOrLiterals();
 	                String lineToCursor = ps.getLineContentsToCursor().trim();
 	                if(completeLine.indexOf("import") == -1){
-	                    String importsTipperStr = PyCodeCompletionUtils.getImportsTipperStr(lineToCursor, false).importsTipperStr;
+	                    String importsTipperStr = ImportsSelection.getImportsTipperStr(lineToCursor, false).importsTipperStr;
 	                    if(importsTipperStr.length() > 0){
 	                        command.text = " import ";
 	                    }

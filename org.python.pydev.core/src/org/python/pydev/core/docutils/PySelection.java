@@ -25,6 +25,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
+import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.RunInUiThread;
 
@@ -203,33 +204,49 @@ public class PySelection {
                 
                 //let's see if the multiline comment found is in the beggining of the document
                 int lineOfOffset = getLineOfOffset(firstGlobalLiteral[1]);
-                return lineOfOffset + 1;
+                return getFirstNonCommentLineOrAfterCurrentImports(lineOfOffset + 1);
             }else{
 
-                return getFirstNonCommentLine();
+                return getFirstNonCommentLineOrAfterCurrentImports();
             }
         } else {
             
             //ok, no multiline comment, let's get the first line that is not a comment
-            return getFirstNonCommentLine();
+            return getFirstNonCommentLineOrAfterCurrentImports();
         }
     }
 
 
+    private int getFirstNonCommentLineOrAfterCurrentImports() {
+        return getFirstNonCommentLineOrAfterCurrentImports(0);
+    }
+    
     /**
      * @return the first line found that is not a comment.
      */
-    private int getFirstNonCommentLine() {
-        int lineToMoveImport = 0;
+    private int getFirstNonCommentLineOrAfterCurrentImports(int startingAtLine) {
+        int firstNonCommentLine = -1;
+        int afterFirstImports = -1;
+        
         int lines = getDoc().getNumberOfLines();
-        for (int line = 0; line < lines; line++) {
+        for (int line = startingAtLine; line < lines; line++) {
             String str = getLine(line);
-            if (! str.startsWith("#")) {
-                lineToMoveImport = line;
-                break;
+            if (str.startsWith("#")) {
+                continue;
+            }else{
+                if(firstNonCommentLine == -1){
+                    firstNonCommentLine = line;
+                }
+                ImportInfo importInfo = ImportsSelection.getImportsTipperStr(str, false);
+                if(importInfo != null && importInfo.importsTipperStr != null && importInfo.importsTipperStr.trim().length() > 0){
+                    afterFirstImports = line+1;
+                }else if(str.trim().length() > 0){
+                    //found some non-empty, non-import, non-comment line (break it here)
+                    break;
+                }
             }
         }
-        return lineToMoveImport;
+        return afterFirstImports > firstNonCommentLine?afterFirstImports:firstNonCommentLine;
     }
     
     
