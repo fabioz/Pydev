@@ -19,6 +19,7 @@ Pydev Extensions:
 <li><strong>Interactive Console</strong>: jython process can receive vmargs (configured in the preferences page)</li>
 <li><strong>Fix: Find Occurrences</strong>: will not 'overlap' occurrences anymore</li>
 <li><strong>Fix: Code-Completion</strong>: auto-import completions will not be brought for completions in the current module</li>
+<li><strong>Fix: Code-Completion</strong>: auto-import inserted as last import in imports list, so that it does not break __future__ imports order</li>
 </ul>
 
 after 1.2.9
