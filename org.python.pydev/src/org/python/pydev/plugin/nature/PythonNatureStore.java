@@ -56,6 +56,42 @@ import org.w3c.dom.ProcessingInstruction;
 
 class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
+    /**
+     * This is the class that does the store job.
+     * 
+     * @author Fabio
+     */
+    private final class PythonNatureStoreJob extends Job {
+        private final ByteArrayInputStream is;
+
+        private PythonNatureStoreJob(String name, ByteArrayInputStream is) {
+            super(name);
+            this.is = is;
+        }
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            synchronized(xmlFile){
+                try{
+                    onIgnoreRefresh++;
+                    if (!xmlFile.exists()) {
+                        xmlFile.create(is, true, monitor);
+                        modStamp = xmlFile.getModificationStamp();
+                    } else {
+                        xmlFile.setContents(is, true, false, monitor);
+                        modStamp = xmlFile.getModificationStamp();
+                    }
+                    xmlFile.refreshLocal(IResource.DEPTH_ZERO, monitor);
+                }catch(Exception e){
+                    PydevPlugin.log(e);
+                }finally{
+                    onIgnoreRefresh--;
+                }
+            }
+            return Status.OK_STATUS;
+        }
+    }
+
     private final static String STORE_FILE_NAME = ".pydevproject";
 
     private final static String PYDEV_PROJECT_DESCRIPTION = "pydev_project";
@@ -772,31 +808,13 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     
                 final ByteArrayInputStream is = new ByteArrayInputStream(serializeDocument(document));
     
-                new Job("Save .pydevproject"){
-
-                    @Override
-                    protected IStatus run(IProgressMonitor monitor) {
-                        synchronized(xmlFile){
-                            try{
-                                onIgnoreRefresh++;
-                                if (!xmlFile.exists()) {
-                                    xmlFile.create(is, true, monitor);
-                                    modStamp = xmlFile.getModificationStamp();
-                                } else {
-                                    xmlFile.setContents(is, true, false, monitor);
-                                    modStamp = xmlFile.getModificationStamp();
-                                }
-                                xmlFile.refreshLocal(IResource.DEPTH_ZERO, monitor);
-                            }catch(Exception e){
-                                PydevPlugin.log(e);
-                            }finally{
-                                onIgnoreRefresh--;
-                            }
-                        }
-                        return Status.OK_STATUS;
-                    }
-                    
-                }.schedule();
+                PythonNatureStoreJob job = new PythonNatureStoreJob("Save .pydevproject", is);
+                
+                if (ProjectModulesManager.IN_TESTS){
+                    job.run(new NullProgressMonitor());
+                }else{
+                    job.schedule();
+                }
                 traceFunc("END doStore");
                 return Status.OK_STATUS;
             } finally {

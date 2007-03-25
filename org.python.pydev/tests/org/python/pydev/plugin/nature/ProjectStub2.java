@@ -31,8 +31,10 @@ import org.python.pydev.core.IPythonNature;
 public class ProjectStub2 implements IProject {
 
     public FileStub2 fileStub;
+    private String name;
     
-    public ProjectStub2() {
+    public ProjectStub2(String name) {
+        this.name = name;
     }
 
     public IFile getFile(String name) {
@@ -262,7 +264,7 @@ public class ProjectStub2 implements IProject {
     }
 
     public String getName() {
-        throw new RuntimeException("not impl");
+        return this.name;
     }
 
     public IContainer getParent() {

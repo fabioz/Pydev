@@ -61,7 +61,7 @@ public class PythonNatureStoreTest extends TestCase {
 
     public void testLoad() throws Exception {
         IPythonNatureStore store = new PythonNatureStore();
-        ProjectStub2 projectStub2 = new ProjectStub2();
+        ProjectStub2 projectStub2 = new ProjectStub2("test");
         
         //when setting the project, a side-effect must be that we create the xml file if it still does not exist
         store.setProject(projectStub2);
