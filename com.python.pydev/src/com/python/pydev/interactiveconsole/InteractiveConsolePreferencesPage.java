@@ -5,6 +5,7 @@ package com.python.pydev.interactiveconsole;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -24,6 +25,9 @@ public class InteractiveConsolePreferencesPage extends FieldEditorPreferencePage
 
     public static final String EVAL_ON_NEW_LINE = "EVAL_ON_NEW_LINE";
     public static final boolean DEFAULT_EVAL_ON_NEW_LINE = false;
+    
+    public static final String INTERACTIVE_CONSOLE_VM_ARGS = "INTERACTIVE_CONSOLE_VM_ARGS";
+    public static final String DEFAULT_INTERACTIVE_CONSOLE_VM_ARGS = "-Xmx64m";
     
     public static final String INITIAL_INTERPRETER_CMDS = "INITIAL_INTERPRETER_CMDS";
     public static final String DEFAULT_INITIAL_INTERPRETER_CMDS = ""+
@@ -88,6 +92,7 @@ public class InteractiveConsolePreferencesPage extends FieldEditorPreferencePage
         addField(new BooleanFieldEditor(SHOW_CONSOLE_INPUT, "Show the input given to the console?", p));
         addField(new BooleanFieldEditor(EVAL_ON_NEW_LINE, "Evaluate on console on each new line (or only on request)?", p));
         addField(new MultiStringFieldEditor(INITIAL_INTERPRETER_CMDS, "Initial\ninterpreter\ncommands:\n", p));
+        addField(new StringFieldEditor(INTERACTIVE_CONSOLE_VM_ARGS, "Vm Args for jython\n(used only on external\nprocess option):", p));
     }
 
     public void init(IWorkbench workbench) {
@@ -112,6 +117,13 @@ public class InteractiveConsolePreferencesPage extends FieldEditorPreferencePage
      */
     public static String getInitialInterpreterCmds() {
         return PydevPlugin.getDefault().getPreferenceStore().getString(INITIAL_INTERPRETER_CMDS);
+    }
+    
+    /**
+     * The vm args to pass to the interpreter
+     */
+    public static String getInteractiveConsoleVmArgs() {
+        return PydevPlugin.getDefault().getPreferenceStore().getString(INTERACTIVE_CONSOLE_VM_ARGS);
     }
 
 }

@@ -112,10 +112,15 @@ public class IProcessFactory {
             return new JythonInternalProcess(edit);
             
         }else{
-        
             ILaunchConfiguration configuration = 
-                AbstractLaunchShortcut.createDefaultLaunchConfiguration(resource, type, 
-                    AbstractLaunchShortcut.getDefaultLocation(resource), manager, project.getName());
+                AbstractLaunchShortcut.createDefaultLaunchConfiguration(
+                        resource, 
+                        type, 
+                        AbstractLaunchShortcut.getDefaultLocation(resource), 
+                        manager, 
+                        project.getName(), 
+                        InteractiveConsolePreferencesPage.getInteractiveConsoleVmArgs()
+                        );
             
             ILaunch launch = configuration.launch("interactive", new NullProgressMonitor());
             IProcess[] processes = launch.getProcesses();
