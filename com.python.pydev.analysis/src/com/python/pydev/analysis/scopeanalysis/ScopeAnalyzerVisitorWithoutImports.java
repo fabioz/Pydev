@@ -184,12 +184,13 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
     protected void onNotDefinedFoundLater(Found foundInProbablyNotDefined, Found laterFound) {
         super.onNotDefinedFoundLater(foundInProbablyNotDefined, laterFound);
         if(hitAsUndefined == foundInProbablyNotDefined){
-            //we have a 'late' match
+            //we have a 'late' match as a foundInProbablyNotDefined, so, remove the hit as undefined
             hitAsUndefined = null;
-            Tuple3<Found, Integer, ASTEntry> tup = new Tuple3<Found, Integer, ASTEntry>(laterFound, -1, peekParent());
-            laterFound.addGeneratorsFromFound(foundInProbablyNotDefined);
-            addFoundOccurrence(tup);
         }
+        //and add those generators -- task: Scope Analysis should be able to get all the class references
+        Tuple3<Found, Integer, ASTEntry> tup = new Tuple3<Found, Integer, ASTEntry>(laterFound, -1, peekParent());
+        laterFound.addGeneratorsFromFound(foundInProbablyNotDefined);
+        addFoundOccurrence(tup);
     }
 
     
