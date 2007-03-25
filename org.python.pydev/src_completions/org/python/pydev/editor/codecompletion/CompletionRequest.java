@@ -168,4 +168,19 @@ public class CompletionRequest implements ICompletionRequest {
         }
         return this.ps;
     }
+
+    /**
+     * Cache for the module name
+     */
+    private String initialModule;
+    
+    /**
+     * @return the module name where the completion request took place (may be null if there is no editor file associated)
+     */
+    public String resolveModule() {
+        if(initialModule == null && editorFile != null){
+            initialModule = nature.resolveModule(editorFile);
+        }
+        return initialModule;
+    }
 }
