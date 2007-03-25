@@ -16,6 +16,7 @@ Pydev
 Pydev Extensions:
 
 <ul>
+<li><strong>Interactive Console</strong>: jython process can receive vmargs (configured in the preferences page)</li>
 <li><strong>Fix: Find Occurrences</strong>: will not 'overlap' occurrences anymore</li>
 </ul>
 
