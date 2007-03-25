@@ -32,13 +32,9 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
         
     	String qual = request.qualifier;
     	if(qual.length() >= 3){ //at least n characters required...
-	        
 	        String lowerQual = qual.toLowerCase();
 	        
-	        String initialModule = null;
-	        if (request.editorFile != null){
-	        	request.nature.resolveModule(request.editorFile);
-	        }
+	        String initialModule = request.resolveModule();
         
             List<IInfo> tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, request.nature, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
             

@@ -36,6 +36,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         if(request.qualifier.length() >= 2){ //at least n characters required...
             
             ICodeCompletionASTManager astManager = request.nature.getAstManager();
+            String initialModule = request.resolveModule();
             
             Image img = PyCodeCompletionImages.getImageForType(IToken.TYPE_PACKAGE);
             
@@ -48,6 +49,9 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             
             for (Iterator iter = allModuleNames.iterator(); iter.hasNext();) {
                 String name = (String) iter.next();
+                if(name.equals(initialModule)){
+                    continue;
+                }
                 
                 FullRepIterable iterable = new FullRepIterable(name);
                 for (String string : iterable) {
