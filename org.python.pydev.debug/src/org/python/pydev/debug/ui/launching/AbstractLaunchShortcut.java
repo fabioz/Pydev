@@ -158,13 +158,19 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
         String projName = resource.getProject().getName();
         return createDefaultLaunchConfiguration(resource, getLaunchConfigurationType(), getDefaultLocation(resource), pythonInterpreterManager, projName);
     }
+    
+    public static ILaunchConfiguration createDefaultLaunchConfiguration(IResource resource, String launchConfigurationType, 
+            String location, IInterpreterManager pythonInterpreterManager, String projName) {
+        return createDefaultLaunchConfiguration(resource, launchConfigurationType, location, pythonInterpreterManager, projName, null);
+    }
+    
 	/**
 	 * COPIED/MODIFIED from AntLaunchShortcut
 	 * @param location 
 	 * @param pythonInterpreterManager 
 	 */
 	public static ILaunchConfiguration createDefaultLaunchConfiguration(IResource resource, String launchConfigurationType, 
-            String location, IInterpreterManager pythonInterpreterManager, String projName) {
+            String location, IInterpreterManager pythonInterpreterManager, String projName, String vmargs) {
         
         
 		ILaunchManager manager = org.eclipse.debug.core.DebugPlugin.getDefault().getLaunchManager();
@@ -198,6 +204,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 			workingCopy.setAttribute(Constants.ATTR_LOCATION,location);
 			workingCopy.setAttribute(Constants.ATTR_WORKING_DIRECTORY,baseDirectory);
 			workingCopy.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS,arguments);
+			workingCopy.setAttribute(Constants.ATTR_VM_ARGUMENTS, vmargs);
 
 			// Common Tab Arguments
 			CommonTab tab = new CommonTab();

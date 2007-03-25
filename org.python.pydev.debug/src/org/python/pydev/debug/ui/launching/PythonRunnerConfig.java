@@ -543,7 +543,7 @@ public class PythonRunnerConfig {
 	
     private String[] getVMArguments(ILaunchConfiguration configuration) throws CoreException {
     	String args = configuration.getAttribute(Constants.ATTR_VM_ARGUMENTS, (String) null);
-        if (args != null) {
+        if (args != null && args.trim().length() > 0) {
             String expanded = getStringVariableManager().performStringSubstitution(args);
             return parseStringIntoList(expanded);
        }
