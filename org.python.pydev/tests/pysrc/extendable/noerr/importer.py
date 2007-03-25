@@ -15,3 +15,8 @@ class WithGetAttr(object):
         return attr
     
 getWithAttr = WithGetAttr()
+
+class ChildWithGetAttr(WithGetAttr):
+	pass
+
+childGetWithAttr = ChildWithGetAttr()
