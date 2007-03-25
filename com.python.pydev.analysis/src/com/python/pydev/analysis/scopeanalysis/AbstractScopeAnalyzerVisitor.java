@@ -832,12 +832,17 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                     }
                     
                     for(String repToCheck : new FullRepIterable(tokToCheck)){
-                        if (!m.isInGlobalTokens(repToCheck, nature, true, true)) {
+                        int inGlobalTokens = m.isInGlobalTokens(repToCheck, nature, true, true);
+                        
+                        if (inGlobalTokens == IModule.NOT_FOUND) {
                             if(!isDefinitionUnknown(m, repToCheck)){
                                 IToken foundTok = findNameTok(token, repToCheck);
                                 onAddUndefinedVarInImportMessage(foundTok, foundAs);
                             }
                             break;//no need to keep checking once one is not defined
+                            
+                        }else if(inGlobalTokens == IModule.FOUND_BECAUSE_OF_GETATTR){
+                            break;
                         }
                     }
                 }else if(foundAs.isImport() && !foundAs.importInfo.wasResolved){
