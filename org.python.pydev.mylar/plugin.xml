@@ -55,11 +55,11 @@
 	 </objectContribution>
    </extension>
    
-   <!-- added patch for this extension point in mylar bug tracker: https://bugs.eclipse.org/bugs/show_bug.cgi?id=178931 -->
+   <!-- added patch for this extension point in mylar bug tracker: https://bugs.eclipse.org/bugs/show_bug.cgi?id=178931 
    <extension point="org.eclipse.mylar.resources.mylar_resources_to_ignore">
    		<resource_to_ignore pattern="*.pyc"/>
    		<resource_to_ignore pattern="*.pyo"/>
    </extension>
-   
+   -->
 
 </plugin>
