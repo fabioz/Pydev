@@ -228,7 +228,7 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
                 if(!f.isUsed()){
                     // we don't get unused at the global scope or class definition scope unless it's an import
                     if(scopeType == Scope.SCOPE_TYPE_METHOD || f.isImport()){ //only within methods do we put things as unused 
-                        messagesManager.addUnusedMessage(f);
+                        messagesManager.addUnusedMessage(node, f);
                     }
                 }
             }
@@ -280,8 +280,8 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
 	}
 
     @Override
-    public void onAddUnusedMessage(Found found) {
-        messagesManager.addUnusedMessage(found);
+    public void onAddUnusedMessage(SimpleNode node, Found found) {
+        messagesManager.addUnusedMessage(node, found);
     }
 
     @Override

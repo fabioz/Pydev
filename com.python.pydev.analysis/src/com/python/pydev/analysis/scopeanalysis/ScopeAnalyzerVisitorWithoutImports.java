@@ -127,7 +127,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
     }
     
     @Override
-    public void onAddUnusedMessage(Found found) {
+    public void onAddUnusedMessage(SimpleNode node, Found found) {
     }
 
     @Override

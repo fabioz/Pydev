@@ -956,7 +956,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
 
     protected abstract void onAddUndefinedVarInImportMessage(IToken foundTok, Found foundAs);
 
-    public abstract void onAddUnusedMessage(Found found);
+    public abstract void onAddUnusedMessage(SimpleNode node, Found found);
 
     public abstract void onAddReimportMessage(Found newFound);
 

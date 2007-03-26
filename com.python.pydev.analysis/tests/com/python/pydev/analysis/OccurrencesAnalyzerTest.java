@@ -27,7 +27,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testWrongLine();
+            analyzer2.testUnusedParameter3();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -862,7 +862,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document(
             "class Class1:         \n" +
             "    def met1(self, a):\n" +
-            "        pass"
+            "        print 'foo'"
                 );
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
@@ -1071,7 +1071,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document(
                 "def outer(show=True):        \n"+  
                 "    def inner(show=show):    \n"+       
-                "        pass                 \n"+
+                "        print 'foo'          \n"+
                 ""      
         );
         analyzer = new OccurrencesAnalyzer();
@@ -1086,7 +1086,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document(
                 "def outer(show):        \n"+  
                 "    def inner(show):    \n"+       
-                "        pass            \n"+
+                "        print 'foo'     \n"+
                 ""      
         );
         analyzer = new OccurrencesAnalyzer();
@@ -1352,7 +1352,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document(
                 "\n" +
                 "def m1(*args): \n"+
-                "    pass         " 
+                "    print 'foo'  " 
         );
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
@@ -1379,7 +1379,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document(
                 "def m3():             \n" +
                 "    def m1(**kwargs): \n"+
-                "        pass            " 
+                "        print 'foo'     " 
         );
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
@@ -1396,9 +1396,9 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         //2 messages with token with same name
         doc = new Document(
             "def m1(  aeee  ): \n"+  
-            "    pass               \n"+
+            "    print 'foo'   \n"+
             "def m2(  afff  ): \n"+   
-            "    pass "             );                   
+            "    print 'foo'     ");                   
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
@@ -2134,9 +2134,19 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	assertEquals("Undefined variable: data", msgs[0].getMessage());
     }
     
-    public void testUnusedParameter() {
+    public void testNotUnusedParameter() {
         doc = new Document(
                 "def a(x):pass"
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs, 0);
+    }
+    
+    public void testUnusedParameter() {
+        doc = new Document(
+                "def a(x):print 'foo'"
         );
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
@@ -2147,7 +2157,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     
     public void testUnusedParameter2() {
         doc = new Document(
-                "def a(*x):pass"
+                "def a(*x):print 'foo'"
         );
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
@@ -2158,7 +2168,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     
     public void testUnusedParameter3() {
         doc = new Document(
-                "def a(**x):pass"
+                "def a(**x):print 'foo'"
         );
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);

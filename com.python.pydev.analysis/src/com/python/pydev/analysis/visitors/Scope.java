@@ -207,7 +207,7 @@ public class Scope implements Iterable<ScopeItems>{
                         
                         //we don't get unused at the global scope or class definition scope unless it's an import
                         if(found.getSingle().scopeFound.getScopeType() == Scope.SCOPE_TYPE_METHOD || found.isImport()){ 
-                            visitor.onAddUnusedMessage(found);
+                            visitor.onAddUnusedMessage(null, found);
                         }
                     }
                     

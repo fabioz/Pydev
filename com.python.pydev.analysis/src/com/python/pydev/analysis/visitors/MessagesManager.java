@@ -17,10 +17,15 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.Pass;
+import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
@@ -206,53 +211,82 @@ public class MessagesManager {
 
     /**
      * adds a message for something that was not used
+     * 
+     * @param node the node representing the scope being closed when adding the
+     *             unused message
      */
-    public void addUnusedMessage(Found f) {
-        for (GenAndTok g : f){
-            if(g.generator instanceof SourceToken){
-                SimpleNode ast = ((SourceToken)g.generator).getAst();
-                
-                //it can be an unused import
-                if(ast instanceof Import || ast instanceof ImportFrom){
-                    if(AbstractVisitor.isWildImport(ast)){
+    public void addUnusedMessage(SimpleNode node, Found f) {
+        for (GenAndTok g : f) {
+            if (g.generator instanceof SourceToken) {
+                SimpleNode ast = ((SourceToken) g.generator).getAst();
+
+                // it can be an unused import
+                if (ast instanceof Import || ast instanceof ImportFrom) {
+                    if (AbstractVisitor.isWildImport(ast)) {
                         addMessage(IAnalysisPreferences.TYPE_UNUSED_WILD_IMPORT, g.generator, g.tok);
-                    }else{
+                    } else {
                         addMessage(IAnalysisPreferences.TYPE_UNUSED_IMPORT, g.generator, g.tok);
                     }
-                    continue; //finish it...
+                    continue; // finish it...
                 }
             }
-            
-            //or unused variable
-            //we have to check if this is a name we should ignore
-            if(startsWithNamesToIgnore(g)){
+
+            // or unused variable
+            // we have to check if this is a name we should ignore
+            if (startsWithNamesToIgnore(g)) {
                 int type = IAnalysisPreferences.TYPE_UNUSED_VARIABLE;
-                
-                if(g.tok instanceof SourceToken){
+
+                if (g.tok instanceof SourceToken) {
                     SourceToken t = (SourceToken) g.tok;
                     SimpleNode ast = t.getAst();
-                    if(ast instanceof NameTok){
+                    if (ast instanceof NameTok) {
                         NameTok n = (NameTok) ast;
-                        if(n.ctx == NameTok.KwArg || n.ctx == NameTok.VarArg || n.ctx == NameTok.KeywordName){
-                            type = IAnalysisPreferences.TYPE_UNUSED_PARAMETER; 
+                        if (n.ctx == NameTok.KwArg || n.ctx == NameTok.VarArg || n.ctx == NameTok.KeywordName) {
+                            type = IAnalysisPreferences.TYPE_UNUSED_PARAMETER;
                         }
-                    }else if(ast instanceof Name){
+                    } else if (ast instanceof Name) {
                         Name n = (Name) ast;
-                        if(n.ctx == Name.Param){
-                            type = IAnalysisPreferences.TYPE_UNUSED_PARAMETER; 
+                        if (n.ctx == Name.Param) {
+                            type = IAnalysisPreferences.TYPE_UNUSED_PARAMETER;
                         }
                     }
                 }
-                addMessage(type, g.generator, g.tok);
+                boolean addMessage = true;
+                if (type == IAnalysisPreferences.TYPE_UNUSED_PARAMETER) {
+                    // just add unused parameters in methods that have some content (not only 'pass' and 'strings')
+
+                    if (node instanceof FunctionDef) {
+                        addMessage = false;
+                        FunctionDef def = (FunctionDef) node;
+                        for (stmtType b : def.body) {
+                            if (b instanceof Pass) {
+                                continue;
+                            }
+                            if (b instanceof Expr) {
+                                Expr expr = (Expr) b;
+                                if (expr.value instanceof Str) {
+                                    continue;
+                                }
+                            }
+                            addMessage = true;
+                            break;
+                        }
+                    }
+                }//END if (type == IAnalysisPreferences.TYPE_UNUSED_PARAMETER)
+                
+                
+                if (addMessage) {
+                    addMessage(type, g.generator, g.tok);
+                }
             }
         }
     }
 
     
     /**
-     * a cache, so that we don't get the names to ignore over and over
-     * this is ok, because every time we start an analysis session, this object is re-created, and the options
-     * will not change all the time
+     * a cache, so that we don't get the names to ignore over and over this is
+     * ok, because every time we start an analysis session, this object is
+     * re-created, and the options will not change all the time
      */
     private Set<String> namesToIgnoreCache = null;
 
