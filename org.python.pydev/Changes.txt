@@ -21,6 +21,7 @@ Pydev Extensions:
 <li><strong>Code-Completion</strong>: auto-import completions will not be brought for tokens in the current module</li>
 <li><strong>Code-Completion</strong>: auto-import inserted as last import in imports list, so that it does not break __future__ imports</li>
 <li><strong>Code-Completion</strong>: auto-import will not bring completions for imports that already exist in the module</li>
+<li><strong>Code-Analysis</strong>: Only adds 'unused parameters' in methods that have some 'valid' statement (not only 'pass' and strings)</li>
 <li><strong>Fix: Find Occurrences</strong>: will not 'overlap' occurrences anymore</li>
 <li><strong>Fix: Code-Analysis</strong>: deep attribute access after finding __getattr__ does not signal unresolved import errors anymore</li>
 </ul>
