@@ -5,8 +5,10 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -43,6 +45,7 @@ public class CompletionState implements ICompletionState {
     public boolean isInCalltip=false;
     
     public int lookingForInstance=LOOKING_FOR_INSTANCE_UNDEFINED;
+    private List<IToken> tokenImportedModules;
 
     public ICompletionState getCopy(){
         return new CompletionStateWrapper(this);
@@ -313,6 +316,17 @@ public class CompletionState implements ICompletionState {
 
     public void setIsInCalltip(boolean isInCalltip) {
         this.isInCalltip = isInCalltip;
+    }
+
+    public void setTokenImportedModules(List<IToken> tokenImportedModules) {
+        if(tokenImportedModules != null){
+            if(this.tokenImportedModules == null){
+                this.tokenImportedModules = new ArrayList<IToken>(tokenImportedModules); //keep a copy of it
+            }
+        }
+    }
+    public List<IToken> getTokenImportedModules() {
+        return this.tokenImportedModules;
     }
 
 

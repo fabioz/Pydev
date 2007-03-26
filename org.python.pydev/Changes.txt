@@ -6,11 +6,11 @@ Pydev
 <li><strong>Code-completion</strong>: comment completion is now the same as string completion</li>
 <li><strong>Debug</strong>: Brekpoints can be set in external files</li>
 <li><strong>Debug</strong>: Brekpoint annotations now show in external files</li>
-<li><strong>Package Explorer Filters</strong>: added a way to filter import nodes</li>
+<li><strong>Package Explorer Filters</strong>: filter import nodes</li>
 <li><strong>Fix: Package Explorer Actions</strong>: Open action does not expand children when opening python file</li>
-<li><strong>Fix: Project Explorer (WTP) integration</strong>: now will work with elements from other plugins (such as java projects)</li>
+<li><strong>Fix: Project Explorer (WTP) integration</strong>: works with elements from other plugins (such as java projects)</li>
 <li><strong>Fix: halting problem</strong>:when creating a new project from the pydev wizard it was halting in some platforms</li>
-<li><strong>Fix: putting ${string_prompt} in run config</strong>: is now only evaluated on the actual run</li>
+<li><strong>Fix: ${string_prompt} in run config</strong>: now only evaluated on the actual run</li>
 <li><strong>Fix: Code-Completion</strong>: jython shell was not handling java.lang.NoClassDefFoundError correctly</li>
 </ul>
 
@@ -18,10 +18,11 @@ Pydev Extensions:
 
 <ul>
 <li><strong>Interactive Console</strong>: jython process can receive vmargs (configured in the preferences page)</li>
+<li><strong>Code-Completion</strong>: auto-import completions will not be brought for tokens in the current module</li>
+<li><strong>Code-Completion</strong>: auto-import inserted as last import in imports list, so that it does not break __future__ imports</li>
+<li><strong>Code-Completion</strong>: auto-import will not bring completions for imports that already exist in the module</li>
 <li><strong>Fix: Find Occurrences</strong>: will not 'overlap' occurrences anymore</li>
-<li><strong>Fix: Code-Completion</strong>: auto-import completions will not be brought for completions in the current module</li>
-<li><strong>Fix: Code-Completion</strong>: auto-import inserted as last import in imports list, so that it does not break __future__ imports order</li>
-<li><strong>Fix: Code-Analysis</strong>: deep attribute access after finding __getattr__ does not give error in imports anymore</li>
+<li><strong>Fix: Code-Analysis</strong>: deep attribute access after finding __getattr__ does not signal unresolved import errors anymore</li>
 </ul>
 
 after 1.2.9

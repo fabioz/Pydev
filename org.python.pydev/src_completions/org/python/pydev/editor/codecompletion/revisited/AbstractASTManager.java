@@ -422,7 +422,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
             //get the tokens (global, imported and wild imported)
             IToken[] globalTokens = module.getGlobalTokens();
-            importedModules.addAll(Arrays.asList(module.getTokenImportedModules()));
+            List<IToken> tokenImportedModules = Arrays.asList(module.getTokenImportedModules());
+            importedModules.addAll(tokenImportedModules);
+            state.setTokenImportedModules(importedModules);
             IToken[] wildImportedModules = module.getWildImportedModules();
             
             

@@ -213,4 +213,20 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     public boolean isAutoInsertable() {
         return onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO || onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS;
     }
+
+    public String getInternalDisplayStringRepresentation() {
+        return getDisplayString();
+    }
+    
+    public static final int BEHAVIOR_OVERRIDES = 0;
+    public static final int BEHAVIOR_COEXISTS = 1;
+    public static final int BEHAVIOR_IS_OVERRIDEN = 2;
+
+    /**
+     * @param curr
+     * @return the behavior when faced with a given proposal (that has the same internal representation)
+     */
+    public int getOverrideBehavior(ICompletionProposal curr) {
+        return BEHAVIOR_OVERRIDES;
+    }
 }

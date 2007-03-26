@@ -3,6 +3,8 @@
  */
 package org.python.pydev.core;
 
+import java.util.List;
+
 import org.python.pydev.core.structure.CompletionRecursionException;
 
 
@@ -93,5 +95,17 @@ public interface ICompletionState {
 
     void popFindResolveImportMemoryCtx();
 
+    /**
+     * This method will save the list with the tokens for the imported modules.
+     * 
+     * The attribute that stores it will not be copied when a copy is gotten.
+     * If already set, this function should not override a previous value.
+     */
+    void setTokenImportedModules(List<IToken> tokenImportedModules);
+
+    /**
+     * May be null
+     */
+    public List<IToken> getTokenImportedModules();
 
 }

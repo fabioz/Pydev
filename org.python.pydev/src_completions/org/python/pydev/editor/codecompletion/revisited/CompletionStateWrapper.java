@@ -1,5 +1,7 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
+import java.util.List;
+
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
@@ -141,6 +143,12 @@ public class CompletionStateWrapper implements ICompletionState {
     
     public void pushFindResolveImportMemoryCtx() {
         wrapped.pushFindResolveImportMemoryCtx();
+    }
+    public List<IToken> getTokenImportedModules() {
+        return wrapped.getTokenImportedModules();
+    }
+    public void setTokenImportedModules(List<IToken> tokenImportedModules) {
+        wrapped.setTokenImportedModules(tokenImportedModules);
     }
 
 }
