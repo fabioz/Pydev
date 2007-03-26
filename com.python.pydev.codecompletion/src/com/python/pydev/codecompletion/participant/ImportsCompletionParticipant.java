@@ -5,7 +5,9 @@ package com.python.pydev.codecompletion.participant;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jface.text.contentassist.IContextInformation;
@@ -27,7 +29,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
 
     private static final Collection EMPTY_COLLECTION = new ArrayList();
 
-    private Collection getThem(CompletionRequest request, boolean addAutoImport) {
+    private Collection getThem(CompletionRequest request, ICompletionState state, boolean addAutoImport) {
         ArrayList<CtxInsensitiveImportComplProposal> list = new ArrayList<CtxInsensitiveImportComplProposal>();
         if(request.isInCalltip){
             return list;
@@ -46,6 +48,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             String lowerQual = request.qualifier.toLowerCase();
 
             StringBuffer realImportRep=new StringBuffer();
+            HashSet<String> importedNames = getImportedNames(state);
             
             for (Iterator iter = allModuleNames.iterator(); iter.hasNext();) {
                 String name = (String) iter.next();
@@ -60,6 +63,11 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                     
                     String[] strings = FullRepIterable.headAndTail(string);
                     String importRep = strings[1];
+                    String lowerImportRep = importRep.toLowerCase();
+                    if(!lowerImportRep.startsWith(lowerQual) || importedNames.contains(importRep)){
+                        continue;
+                    }
+
                     StringBuffer displayString = new StringBuffer(importRep);
                     
                     String packageName = strings[0];
@@ -87,7 +95,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                             displayString.toString(), 
                             (IContextInformation)null, 
                             "", 
-                            importRep.toLowerCase().equals(lowerQual)? IPyCompletionProposal.PRIORITY_LOCALS_2 : IPyCompletionProposal.PRIORITY_PACKAGES,
+                            lowerImportRep.equals(lowerQual)? IPyCompletionProposal.PRIORITY_LOCALS_2 : IPyCompletionProposal.PRIORITY_PACKAGES,
                             realImportRep.toString());
 
                     list.add(proposal);
@@ -97,8 +105,19 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         return list;
     }
 
+    private HashSet<String> getImportedNames(ICompletionState state) {
+        List<IToken> tokenImportedModules = state.getTokenImportedModules();
+        HashSet<String> importedNames = new HashSet<String>();
+        if(tokenImportedModules != null){
+            for (IToken token : tokenImportedModules) {
+                importedNames.add(token.getRepresentation());
+            }
+        }
+        return importedNames;
+    }
+
     public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state) {
-        return getThem(request, true);
+        return getThem(request, state, true);
     }
     
     public Collection getArgsCompletion(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal) {
@@ -106,6 +125,6 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
     }
 
     public Collection getStringGlobalCompletions(CompletionRequest request, ICompletionState state) {
-        return getThem(request, false);
+        return getThem(request, state, false);
     }
 }

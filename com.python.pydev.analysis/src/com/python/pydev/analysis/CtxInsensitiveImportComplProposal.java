@@ -7,6 +7,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -65,4 +66,21 @@ public class CtxInsensitiveImportComplProposal extends PyCompletionProposalExten
         return new Point(fReplacementOffset+fReplacementString.length()+importLen, 0 );
     }
     
+    public String getInternalDisplayStringRepresentation() {
+        return fReplacementString;
+    }
+
+
+    @Override
+    public int getOverrideBehavior(ICompletionProposal curr) {
+        if(curr instanceof CtxInsensitiveImportComplProposal){
+            if(curr.getDisplayString().equals(getDisplayString())){
+                return BEHAVIOR_IS_OVERRIDEN;
+            }else{
+                return BEHAVIOR_COEXISTS;
+            }
+        }else{
+            return BEHAVIOR_IS_OVERRIDEN;
+        }
+    }
 }

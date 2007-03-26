@@ -18,6 +18,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
@@ -43,6 +44,8 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
         super.setUp();
     }
 
+    protected ArrayList<IToken> imports;
+    
     public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl, PythonNature nature) throws CoreException, BadLocationException{
         if(useOriginalRequestCompl){
             return super.requestCompl(file, strDoc, documentOffset, returned, retCompl, nature);
@@ -55,6 +58,7 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
         CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion);
 
         ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature);
+        state.setTokenImportedModules(imports);
         List props = new ArrayList(participant.getGlobalCompletions(request, state));
         ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValidSorted(props, request.qualifier, request.isInCalltip);
         

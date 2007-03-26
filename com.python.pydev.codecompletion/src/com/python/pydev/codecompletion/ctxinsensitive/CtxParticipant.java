@@ -5,6 +5,7 @@ package com.python.pydev.codecompletion.ctxinsensitive;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.jface.text.contentassist.IContextInformation;
@@ -24,11 +25,13 @@ import com.python.pydev.analysis.additionalinfo.IInfo;
 
 public class CtxParticipant implements IPyDevCompletionParticipant{
 
-    private Collection getThem(CompletionRequest request, boolean addAutoImport) {
+    private Collection getThem(CompletionRequest request, ICompletionState state, boolean addAutoImport) {
         ArrayList<CtxInsensitiveImportComplProposal> completions = new ArrayList<CtxInsensitiveImportComplProposal>();
     	if(request.isInCalltip){
     	    return completions;
     	}
+        
+        HashSet<String> importedNames = getImportedNames(state);
         
     	String qual = request.qualifier;
     	if(qual.length() >= 3){ //at least n characters required...
@@ -55,6 +58,11 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
                 }
                 
                 String rep = info.getName();
+                String lowerRep = rep.toLowerCase();
+                if(!lowerRep.startsWith(lowerQual) || importedNames.contains(rep)){
+                    continue;
+                }
+                
                 if(addAutoImport){
                     realImportRep.delete(0, realImportRep.length()); //clear the buffer
                     realImportRep.append("from ");
@@ -80,7 +88,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
                         displayString.toString(), 
                         (IContextInformation)null, 
                         "", 
-                        rep.toLowerCase().equals(lowerQual)? IPyCompletionProposal.PRIORITY_LOCALS_1 : IPyCompletionProposal.PRIORITY_GLOBALS,
+                        lowerRep.equals(lowerQual)? IPyCompletionProposal.PRIORITY_LOCALS_1 : IPyCompletionProposal.PRIORITY_GLOBALS,
                         realImportRep.toString());
                 
                 completions.add(proposal);
@@ -89,9 +97,20 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
         }        
         return completions;
     }
+
+    private HashSet<String> getImportedNames(ICompletionState state) {
+        List<IToken> tokenImportedModules = state.getTokenImportedModules();
+        HashSet<String> importedNames = new HashSet<String>();
+        if(tokenImportedModules != null){
+            for (IToken token : tokenImportedModules) {
+                importedNames.add(token.getRepresentation());
+            }
+        }
+        return importedNames;
+    }
     
     public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state) {
-        return getThem(request, true);
+        return getThem(request, state, true);
     }
 
     public Collection getArgsCompletion(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal) {
@@ -109,7 +128,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
     }
 
     public Collection getStringGlobalCompletions(CompletionRequest request, ICompletionState state) {
-        return getThem(request, false);
+        return getThem(request, state, false);
     }
 
 
