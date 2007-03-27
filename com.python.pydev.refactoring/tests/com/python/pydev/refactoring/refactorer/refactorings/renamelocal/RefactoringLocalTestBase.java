@@ -96,6 +96,10 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
         checkRename(strDoc, line, col, initialName, expectError, false);
     }
     
+    /**
+     * @param line 0-based
+     * @param col 0-based
+     */
     protected void checkRename(String strDoc, int line, int col, String initialName, boolean expectError, boolean onlyOnLocalScope) throws CoreException {
         checkRename(strDoc, line, col, initialName, expectError, onlyOnLocalScope, "bb");
     }

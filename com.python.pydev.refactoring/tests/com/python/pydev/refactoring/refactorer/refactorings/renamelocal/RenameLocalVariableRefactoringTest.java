@@ -609,5 +609,21 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     }
     
     
+    public void testRenameParam2() throws Exception {
+    	String str = "" +
+    	"class DefaultProcessFactory(object):\n"+
+    	"    \n"+
+    	"    def _DoCreateIt(self, %s):\n"+
+    	"        pass\n"+
+    	"        \n"+
+    	"    def CreateIt(self, a):\n"+
+    	"        for root_info in a.GetRootInfos():\n"+
+    	"            self._DoCreateIt(root_info)\n"+
+    	"";
+    	
+    	checkRename(str, 2, 27, "root_info", false, true);
+    }
+    
+    
 
 }
