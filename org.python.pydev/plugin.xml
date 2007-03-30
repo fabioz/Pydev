@@ -1122,7 +1122,7 @@
 	     </enablement>
 	  </commonWizard>
 	  
-      <commonFilter activeByDefault="true" id="org.python.pydev.navigator.filters.hideNonPydevProjects" description="%HideNonPydevProjects.description" 
+      <commonFilter activeByDefault="false" id="org.python.pydev.navigator.filters.hideNonPydevProjects" description="%HideNonPydevProjects.description" 
 	     name="Pydev: Hide non-Pydev Projects">
          <filterExpression>
              <and>
