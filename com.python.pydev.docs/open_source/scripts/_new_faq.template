@@ -154,10 +154,22 @@ Note: versions before 0.9.8.6 did have a lock condition problem that happened in
 
 
 --------------------------------------------------------------------------------------------------------------Title
+Why raw_input() / input() does not work correctly in pydev?
+--------------------------------------------------------------------------------------------------------------Answer
+The eclipse console is not an exact copy of a shell... one of the changes is that when you press <ENTER> in a shell, it may
+give you a <strong>\r, \n</strong> or <strong>\r\n</strong> as an end-line char, depending on your platform. 
+Python does not expect this -- from the docs it says that it will remove the last <strong>\n</strong> (checked in version 2.4), 
+but, in some platforms that will leave a <strong>\r</strong> there.
+
+This means that the <strong>raw_input()</strong> should usually be used as <strong>raw_input().replace('\r', '')</strong>, 
+and <strong>input()</strong> should be changed for: <strong>eval(raw_input().replace('\r', ''))</strong>.
+
+
+--------------------------------------------------------------------------------------------------------------Title
 Variables view doesn't show letters in GNU/Linux (while debugging)
 --------------------------------------------------------------------------------------------------------------Answer
 
-Aparrently, this bug is related only to GNOME (and no fix is provided for it).<br/><br/>
+Aparently, this bug is related only to GNOME (and no fix is provided for it).<br/><br/>
 
 The good news is there is a work around. In gnome font prefs, set your DPI to less that 76. it works on the fly. <br/><br/>
 
