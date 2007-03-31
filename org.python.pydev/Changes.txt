@@ -5,6 +5,13 @@ Pydev
 <li><strong>Fix:</strong> The filter for showing only pydev projects is not active by default anymore</li>
 </ul>
 
+Pydev Extensions:
+
+<ul>
+<li><strong>Fix:</strong> The vmargs in the interactive console are now only really passed to the jython process</li>
+</ul>
+
+
 after 1.3.0
 
 Pydev
