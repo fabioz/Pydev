@@ -84,6 +84,7 @@ public class IProcessFactory {
     public IProcess createIProcess(IProject project, IResource resource, IInterpreterManager manager, PyEdit edit) throws CoreException, UserCanceledException {
         String type = null;
     
+        String interactiveConsoleVmArgs = null;
         if(manager.isPython()){
             type = "org.python.pydev.debug.regularLaunchConfigurationType";
         }else if (manager.isJython()){
@@ -100,6 +101,7 @@ public class IProcessFactory {
                 throw new UserCanceledException("User cancelled action.");
             }
             if(dialog.isExternalJythonProcess()){
+                interactiveConsoleVmArgs = InteractiveConsolePreferencesPage.getInteractiveConsoleVmArgs();
                 type = "org.python.pydev.debug.jythonLaunchConfigurationType";
             }else{
                 type = "internalJython";
@@ -119,7 +121,7 @@ public class IProcessFactory {
                         AbstractLaunchShortcut.getDefaultLocation(resource), 
                         manager, 
                         project.getName(), 
-                        InteractiveConsolePreferencesPage.getInteractiveConsoleVmArgs()
+                        interactiveConsoleVmArgs
                         );
             
             ILaunch launch = configuration.launch("interactive", new NullProgressMonitor());
