@@ -10,9 +10,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
-import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.editor.autoedit.IIndentPrefs;
 
 /**
  * @author Fabio Zadrozny
@@ -27,26 +26,20 @@ import org.python.pydev.plugin.PydevPrefs;
  */
 public class PyBackspace extends PyAction {
 
-    /**
-     * Makes a backspace happen...
-     * 
-     * We can:
-     * - go to the indentation from some uncommented previous line (if
-     *   we only have whitespaces in the current line).
-     *  - erase all whitespace characters until we find some character.
-     *  - erase a single character.
-     */
-    public void run(IAction action) {
-    	OfflineActionTarget adapter = (OfflineActionTarget) getPyEdit().getAdapter(OfflineActionTarget.class);
-    	if(adapter != null){
-    		if(adapter.isInstalled()){
-    			adapter.removeLastCharSearchAndUpdateStatus();
-    			return;
-    		}
-    	}
-        // Select from text editor
-        PySelection ps = new PySelection(getTextEditor());
+    private IIndentPrefs prefs;
+    
+    public void setIndentPrefs(IIndentPrefs prefs) {
+        this.prefs = prefs;
+    }
 
+    public IIndentPrefs getIndentPrefs() {
+        if (this.prefs == null) {
+            this.prefs = new DefaultIndentPrefs(); //create the default if this is still not done.
+        }
+        return this.prefs;
+    }
+    
+    public void perform(PySelection ps) {
         // Perform the action
         try {
             ITextSelection textSelection = ps.getTextSelection();
@@ -65,7 +58,7 @@ public class PyBackspace extends PyAction {
             //System.out.println("lastCharPosition: "+lastCharPosition);
             //System.out.println("lastCharRegion.getOffset(): "
             // +lastCharRegion.getOffset());
-            //			IRegion cursorRegion =
+            //          IRegion cursorRegion =
             // ps.doc.getLineInformationOfOffset(cursorOffset);
 
             if (cursorOffset == lastCharRegion.getOffset()) {
@@ -112,7 +105,28 @@ public class PyBackspace extends PyAction {
         } catch (Exception e) {
             beep(e);
         }
+    }
 
+    
+    /**
+     * Makes a backspace happen...
+     * 
+     * We can:
+     * - go to the indentation from some uncommented previous line (if
+     *   we only have whitespaces in the current line).
+     *  - erase all whitespace characters until we find some character.
+     *  - erase a single character.
+     */
+    public void run(IAction action) {
+    	OfflineActionTarget adapter = (OfflineActionTarget) getPyEdit().getAdapter(OfflineActionTarget.class);
+    	if(adapter != null){
+    		if(adapter.isInstalled()){
+    			adapter.removeLastCharSearchAndUpdateStatus();
+    			return;
+    		}
+    	}
+        PySelection ps = new PySelection(getTextEditor());
+        perform(ps);
     }
 
     /**
@@ -247,7 +261,7 @@ public class PyBackspace extends PyAction {
         ITextSelection textSelection = ps.getTextSelection();
         int cursorOffset = textSelection.getOffset();
 
-        String indentationString = getIndentationString();
+        String indentationString = prefs.getIndentationString();
         int length = indentationString.length();
         int offset = cursorOffset - length;
 
@@ -264,48 +278,7 @@ public class PyBackspace extends PyAction {
         ps.getDoc().replace(offset, length, "");
     }
 
-    //CODE BELOW GOTTEN FROM PyAutoIndentStrategy.java.
-    //TODO: Software enginner this (Ctrl-C / Ctrl-V is not a good strategy)
-    String identString = null;
 
-    //	should tab be converted to spaces?
-    boolean useSpaces = PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS);
 
-    int tabWidth = DefaultIndentPrefs.getStaticTabWidth();
-    
-    Boolean forceTabs;
-    
-    private String createSpaceString(int width) {
-        StringBuffer b = new StringBuffer(width);
-        while (tabWidth-- > 0)
-            b.append(' ');
-        return b.toString();
-    }
 
-    /**
-     * 
-     * @return indentation string (from cache)
-     */
-    private String getIndentationString() {
-        PyEdit pyEdit = getPyEdit();
-        
-        if (identString == null || 
-                forceTabs == null|| 
-                tabWidth != DefaultIndentPrefs.getStaticTabWidth() ||
-                useSpaces != PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS) ||
-                forceTabs != pyEdit.getIndentPrefs().getForceTabs()) {
-            
-            tabWidth = DefaultIndentPrefs.getStaticTabWidth();
-            useSpaces = PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS);
-            forceTabs = pyEdit.getIndentPrefs().getForceTabs();
-            
-            if (useSpaces && !forceTabs){
-                identString = createSpaceString(tabWidth);
-            }else{
-                identString = "\t";
-            }
-        }
-        return identString;
-    }
-    //END TODO.
 }

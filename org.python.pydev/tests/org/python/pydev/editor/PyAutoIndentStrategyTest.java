@@ -1568,7 +1568,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         
     }
 
-    private final class TestIndentPrefs extends AbstractIndentPrefs {
+    public static final class TestIndentPrefs extends AbstractIndentPrefs {
         
         private boolean useSpaces;
         private int tabWidth;
