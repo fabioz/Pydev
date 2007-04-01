@@ -402,6 +402,13 @@ public class PySelectionTest extends TestCase {
     	assertEquals(true, PySelection.isInside(4, doc.getLineInformation(1)));
     }
     
+    public void testGetLineContentsToCursor() throws BadLocationException{
+        Document doc = new Document("    ");
+        PySelection selection = new PySelection(doc);
+        assertEquals("", selection.getLineContentsToCursor());
+        
+    }
+    
     public void testGetCurrLineWithoutCommsOrLiterals() throws Exception {
         Document doc = new Document("a#foo\nxxx");
         PySelection selection = new PySelection(doc, 1);

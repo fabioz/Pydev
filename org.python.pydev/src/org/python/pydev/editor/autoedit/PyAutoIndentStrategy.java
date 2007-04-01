@@ -59,7 +59,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 
             String lineWithoutComments = selection.getLineContentsToCursor(true, true);
 
-            Tuple<Integer, Boolean> tup = determineSmartIndent(document, offset, selection);
+            Tuple<Integer, Boolean> tup = determineSmartIndent(offset, selection, prefs);
             int smartIndent = tup.o1;
             boolean isInsidePar = tup.o2;
             
@@ -745,9 +745,9 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 	 * @return indent, or -1 if smart indent could not be determined (fall back to default)
      * and a boolean indicating if we're inside a parenthesis
 	 */
-    private Tuple<Integer,Boolean> determineSmartIndent(IDocument document, int offset, PySelection ps)
+    public static Tuple<Integer,Boolean> determineSmartIndent(int offset, PySelection ps, IIndentPrefs prefs)
             throws BadLocationException {
-    	
+        IDocument document = ps.getDoc();
         PythonPairMatcher matcher = new PythonPairMatcher(DocUtils.BRACKETS);
         int openingPeerOffset = matcher.searchForAnyOpeningPeer(offset, document);
         if(openingPeerOffset == -1){

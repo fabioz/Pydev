@@ -7,11 +7,14 @@ package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.IIndentPrefs;
+import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 
 /**
  * @author Fabio Zadrozny
@@ -80,12 +83,12 @@ public class PyBackspace extends PyAction {
                 //  | a (delete to previous indentation - considers cursor
                 // position)
                 //so, we have to treat it carefully
-                eraseToPreviousIndentation(ps, false);
+                eraseToPreviousIndentation(ps, false, lastCharRegion);
             } else if (lastCharRegion.getOffset() == lastCharPosition + 1) {
                 //System.out.println("Only whitespaces in the line.");
                 //in this situation, this line only has whitespaces,
                 //so, we have to erase depending on the previous indentation.
-                eraseToPreviousIndentation(ps, true);
+                eraseToPreviousIndentation(ps, true, lastCharRegion);
             } else {
 
                 if (cursorOffset - lastCharPosition == 1) {
@@ -132,67 +135,37 @@ public class PyBackspace extends PyAction {
     /**
      * @param ps
      * @param hasOnlyWhitespaces
+     * @param lastCharRegion 
      * @throws BadLocationException
      */
-    private void eraseToPreviousIndentation(PySelection ps, boolean hasOnlyWhitespaces)
+    private void eraseToPreviousIndentation(PySelection ps, boolean hasOnlyWhitespaces, IRegion lastCharRegion)
             throws BadLocationException {
-        ITextSelection textSelection = ps.getTextSelection();
-        int indentation = getPreviousIndentation(ps, textSelection.getStartLine());
-        if (indentation == -1) {
-            //System.out.println("erasing single char");
-            eraseSingleChar(ps);
+        String lineContentsToCursor = ps.getLineContentsToCursor();
+        if (hasOnlyWhitespaces) {
+            //System.out.println("only whitespaces");
+            eraseToIndentation(ps, lineContentsToCursor);
         } else {
-            if (hasOnlyWhitespaces) {
-                //System.out.println("only whitespaces");
-                eraseToIndentation(ps, indentation);
-            } else {
-                //System.out.println("not only whitespaces");
-                //this situation is:
-                //    |a (delete to previous indentation - considers cursor position)
-                //
-            	//or
-            	//
-                //    as | as (delete single char)
-            	//
-                //so, we have to treat it carefully
-                //TODO: use the conditions above and not just erase a single
-                // char.
+            //System.out.println("not only whitespaces");
+            //this situation is:
+            //    |a (delete to previous indentation - considers cursor position)
+            //
+        	//or
+        	//
+            //    as | as (delete single char)
+        	//
+            //so, we have to treat it carefully
+            //TODO: use the conditions above and not just erase a single
+            // char.
 
-            	if(PySelection.containsOnlyWhitespaces(ps.getLineContentsToCursor())){
-            		eraseToIndentation(ps, indentation);
-            		
-            	}else{
-            		eraseSingleChar(ps);
-            	}
-            }
+            if(PySelection.containsOnlyWhitespaces(lineContentsToCursor)){
+        		eraseToIndentation(ps, lineContentsToCursor);
+        		
+        	}else{
+        		eraseSingleChar(ps);
+        	}
         }
     }
 
-    /**
-     * 
-     * @param ps
-     * @param textSelection
-     * @return offset of the indentation on the previous non-commented line or
-     *         -1 if we are not able to get it (if this happens, we delete 1
-     *         char).
-     * @throws BadLocationException
-     */
-    private static int getPreviousIndentation(PySelection ps, int currentLine) throws BadLocationException {
-        if (currentLine == 0) {
-            //we are in the first line, so, we have no basis to get
-            // indentation.
-            return -1;
-        } else {
-            for (int i = currentLine - 1; i >= 0; i++) {
-                int currentLineOffset = ps.getDoc().getLineOffset(i);
-                if (ps.getDoc().getChar(currentLineOffset + 1) != '#') {
-                    int currentLineFirstCharPos = PySelection.getFirstCharRelativePosition(ps.getDoc(), currentLineOffset);
-                    return currentLineFirstCharPos;
-                }
-            }
-        }
-        return -1;
-    }
 
     /**
      * 
@@ -257,25 +230,73 @@ public class PyBackspace extends PyAction {
      * @param indentation this is in number of characters.
      * @throws BadLocationException
      */
-    private void eraseToIndentation(PySelection ps, int indentation) throws BadLocationException {
-        ITextSelection textSelection = ps.getTextSelection();
-        int cursorOffset = textSelection.getOffset();
-
-        String indentationString = prefs.getIndentationString();
-        int length = indentationString.length();
-        int offset = cursorOffset - length;
-
-        IRegion region = ps.getDoc().getLineInformationOfOffset(cursorOffset);
-        int dif = region.getOffset() - offset;
-        //System.out.println("dif = "+dif);
-        if (dif > 0) {
-            offset += dif;
-            length -= dif;
+    private void eraseToIndentation(PySelection ps, String lineContentsToCursor) throws BadLocationException {
+        final int cursorOffset = ps.getAbsoluteCursorOffset();
+        final int cursorLine = ps.getCursorLine();
+        final int lineContentsToCursorLen = lineContentsToCursor.length();
+        
+        if(lineContentsToCursorLen > 0){
+            char c = lineContentsToCursor.charAt(lineContentsToCursorLen-1);
+            if(c == '\t'){
+                eraseSingleChar(ps);
+                return;
+            }
         }
-        //we have to be careful not to erase more than the current line.
-        //System.out.println("Replacing offset: "+(offset) +" lenght: "+
-        // (length));
-        ps.getDoc().replace(offset, length, "");
+        
+        String indentationString = getIndentPrefs().getIndentationString();
+        
+        int replaceLength;
+        int replaceOffset;
+        
+        final int indentationLength = indentationString.length();
+        final int modLen = lineContentsToCursorLen % indentationLength;
+        
+        if(modLen == 0){
+            replaceOffset = cursorOffset - indentationLength;
+            replaceLength = indentationLength;
+        }else{
+            replaceOffset = cursorOffset-modLen;
+            replaceLength = modLen;
+        }
+        
+        
+        IDocument doc = ps.getDoc();
+        if(cursorLine > 0){
+            IRegion prevLineInfo = doc.getLineInformation(cursorLine-1);
+            int prevLineEndOffset = prevLineInfo.getOffset()+prevLineInfo.getLength();
+            Tuple<Integer, Boolean> tup = PyAutoIndentStrategy.determineSmartIndent(prevLineEndOffset, ps, prefs);
+            Integer previousContextSmartIndent = tup.o1;
+            if(previousContextSmartIndent > 0 && lineContentsToCursorLen > previousContextSmartIndent){
+                int initialLineOffset = cursorOffset-lineContentsToCursorLen;
+                if(replaceOffset < initialLineOffset+previousContextSmartIndent){
+                    int newReplaceOffset = initialLineOffset+previousContextSmartIndent+1;
+                    if(newReplaceOffset != cursorOffset){
+                        replaceOffset = newReplaceOffset;
+                        replaceLength = cursorOffset-replaceOffset;
+                    }
+                }
+            }
+        }
+        
+        //now, check what we're actually removing here... we can only remove chars if they are the
+        //same, so, if we have a replace for '\t ', we should only remove the ' ', and not the '\t'
+        if(replaceLength > 1){
+            String strToReplace = doc.get(replaceOffset, replaceLength);
+            char prev = 0;
+            for (int i = strToReplace.length()-1; i >= 0; i--) {
+                char c = strToReplace.charAt(i);
+                if(prev != 0){
+                    if(c != prev){
+                        replaceOffset += (i+1);
+                        replaceLength -= (i+1);
+                        break;
+                    }
+                }
+                prev = c;
+            }
+        }
+        
+        doc.replace(replaceOffset, replaceLength, "");
     }
 
 

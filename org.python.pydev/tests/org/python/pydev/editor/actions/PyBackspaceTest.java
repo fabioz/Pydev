@@ -8,6 +8,17 @@ import junit.framework.TestCase;
 
 public class PyBackspaceTest extends TestCase {
     
+    public static void main(String[] args) {
+        PyBackspaceTest test = new PyBackspaceTest();
+        try {
+            test.setUp();
+            test.testBackspace16c();
+            test.tearDown();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     private PyBackspace backspace;
 
     @Override
@@ -32,7 +43,25 @@ public class PyBackspaceTest extends TestCase {
         assertEquals("a = 10", doc.get());
     }
     
+    public void testBackspace2a() throws Exception {
+        this.backspace.setIndentPrefs(new TestIndentPrefs(false, 4));
+        Document doc = new Document("a = 10\t\t");        
+        PySelection ps = new PySelection(doc, 0, doc.getLength(), 0);
+        
+        backspace.perform(ps);
+        assertEquals("a = 10", doc.get());
+    }
+    
     public void testBackspace3() throws Exception {
+        Document doc = new Document("a =  10");        
+        PySelection ps = new PySelection(doc, 0, 5, 0);
+        
+        backspace.perform(ps);
+        assertEquals("a = 10", doc.get());
+    }
+    
+    public void testBackspace3a() throws Exception {
+        this.backspace.setIndentPrefs(new TestIndentPrefs(false, 4));
         Document doc = new Document("a =  10");        
         PySelection ps = new PySelection(doc, 0, 5, 0);
         
@@ -97,5 +126,171 @@ public class PyBackspaceTest extends TestCase {
         
         backspace.perform(ps);
         assertEquals("a = 10\n", doc.get());
+    }
+    
+    public void testBackspace10a() throws Exception {
+        this.backspace.setIndentPrefs(new TestIndentPrefs(false, 4));
+        Document doc = new Document(
+                "a = 10\n" +
+                "\t"
+        );        
+        PySelection ps = new PySelection(doc, 0, doc.getLength(), 0);
+        
+        backspace.perform(ps);
+        assertEquals("a = 10\n", doc.get());
+    }
+    
+    public void testBackspace11() throws Exception {
+        Document doc = new Document(
+                "a = 10\n" +
+                "\t"
+        );        
+        PySelection ps = new PySelection(doc, 0, doc.getLength(), 0);
+        
+        backspace.perform(ps);
+        assertEquals("a = 10\n", doc.get());
+    }
+    
+    public void testBackspace12() throws Exception {
+        Document doc = new Document(
+                "a = 10\n" +
+                "      "
+        );        
+        PySelection ps = new PySelection(doc, 0, doc.getLength(), 0);
+        
+        backspace.perform(ps);
+        assertEquals("a = 10\n    ", doc.get());
+    }
+    
+    public void testBackspace13() throws Exception {
+        Document doc = new Document(
+                "      a = 10"
+        );        
+        PySelection ps = new PySelection(doc, 0, 6, 0);
+        
+        backspace.perform(ps);
+        assertEquals("    a = 10", doc.get());
+    }
+    
+    public void testBackspace14() throws Exception {
+        Document doc = new Document(
+                "      a = 10  #comment"
+        );        
+        PySelection ps = new PySelection(doc, 0, 14, 0);
+        
+        backspace.perform(ps);
+        assertEquals("      a = 10 #comment", doc.get());
+    }
+    
+    public void testBackspace15() throws Exception {
+        Document doc = new Document(
+                "        "
+        );        
+        PySelection ps = new PySelection(doc, 0, 4, 0);
+        
+        backspace.perform(ps);
+        assertEquals("    ", doc.get());
+    }
+    
+    public void testBackspace16() throws Exception {
+        Document doc = new Document(
+                "          "
+        );        
+        PySelection ps = new PySelection(doc, 0, doc.getLength(), 0);
+        
+        backspace.perform(ps);
+        assertEquals("        ", doc.get());
+    }
+    
+    public void testBackspace16a() throws Exception {
+        Document doc = new Document(
+                "\t\t"
+        );        
+        PySelection ps = new PySelection(doc, 0, doc.getLength(), 0);
+        
+        backspace.perform(ps);
+        assertEquals("\t", doc.get());
+    }
+    
+    public void testBackspace16b() throws Exception {
+        this.backspace.setIndentPrefs(new TestIndentPrefs(false, 4));
+        Document doc = new Document(
+                "\t\t"
+        );        
+        PySelection ps = new PySelection(doc, 0, doc.getLength(), 0);
+        
+        backspace.perform(ps);
+        assertEquals("\t", doc.get());
+    }
+    
+    public void testBackspace16c() throws Exception {
+        this.backspace.setIndentPrefs(new TestIndentPrefs(true, 4));
+        Document doc = new Document(
+                "\t\t "
+        );        
+        PySelection ps = new PySelection(doc, 0, doc.getLength(), 0);
+        
+        backspace.perform(ps);
+        assertEquals("\t\t", doc.get());
+    }
+    
+    public void testBackspace16d() throws Exception {
+        this.backspace.setIndentPrefs(new TestIndentPrefs(true, 4));
+        Document doc = new Document(
+                "\t\t  "
+        );        
+        PySelection ps = new PySelection(doc, 0, doc.getLength(), 0);
+        
+        backspace.perform(ps);
+        assertEquals("\t\t", doc.get());
+    }
+    
+    public void testBackspace17() throws Exception {
+        Document doc = new Document(
+                "ab(\n     "
+        );        
+        PySelection ps = new PySelection(doc, 0, 9, 0);
+        
+        backspace.perform(ps);
+        assertEquals("ab(\n    ", doc.get());
+    }
+    
+    public void testBackspace18() throws Exception {
+        Document doc = new Document(
+                "ab(\n    "
+        );        
+        PySelection ps = new PySelection(doc, 0, 8, 0);
+        
+        backspace.perform(ps);
+        assertEquals(
+                "ab(\n"+
+                "   "
+                , doc.get());
+    }
+    
+    public void testBackspace19() throws Exception {
+        Document doc = new Document(
+                "a(\n    "
+        );        
+        PySelection ps = new PySelection(doc, 0, doc.getLength(), 0);
+        
+        backspace.perform(ps);
+        assertEquals(
+                "a(\n"+
+                "  "
+                , doc.get());
+    }
+    
+    public void testBackspace20() throws Exception {
+        Document doc = new Document(
+                "a(\n  "
+        );        
+        PySelection ps = new PySelection(doc, 0, doc.getLength(), 0);
+        
+        backspace.perform(ps);
+        assertEquals(
+                "a(\n"+
+                ""
+                , doc.get());
     }
 }
