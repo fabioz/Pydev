@@ -11,6 +11,7 @@ import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.parser.PyParserManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.utils.LabelFieldEditor;
@@ -24,10 +25,10 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
     public static final String USE_PYDEV_BUILDERS = "USE_PYDEV_BUILDERS";
     
     public static final boolean DEFAULT_USE_PYDEV_ONLY_ON_DOC_SAVE = false;
-    public static final String USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE = "USE_PYDEV_ONLY_ON_DOC_SAVE";
+    public static final String USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE = PyParserManager.USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE;
     
     public static final int DEFAULT_PYDEV_ELAPSE_BEFORE_ANALYSIS = 3000;
-    public static final String PYDEV_ELAPSE_BEFORE_ANALYSIS = "PYDEV_ELAPSE_BEFORE_ANALYSIS";
+    public static final String PYDEV_ELAPSE_BEFORE_ANALYSIS = PyParserManager.PYDEV_ELAPSE_BEFORE_ANALYSIS;
 
     /**
      * @param style
@@ -58,8 +59,8 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
         
         addField(new LabelFieldEditor("LabelFieldEditor", s, p));
         addField(new BooleanFieldEditor(USE_PYDEV_BUILDERS, "Use builders?", p));
-        addField(new BooleanFieldEditor(USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE, "Build only on save?", p));
-        addField(new IntegerFieldEditor(PYDEV_ELAPSE_BEFORE_ANALYSIS, "Time to elapse before analyzing changed file (millis)", p));
+        addField(new BooleanFieldEditor(PyParserManager.USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE, "Build only on save?", p));
+        addField(new IntegerFieldEditor(PyParserManager.PYDEV_ELAPSE_BEFORE_ANALYSIS, "Time to elapse before analyzing changed file (millis)", p));
     }
 
     /**
@@ -73,11 +74,11 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
     }
     
     public static boolean useAnalysisOnlyOnDocSave() {
-        return PydevPrefs.getPreferences().getBoolean(USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE);
+        return PyParserManager.getPyParserManager(PydevPrefs.getPreferences()).useAnalysisOnlyOnDocSave();
     }
     
     public static int getElapseMillisBeforeAnalysis() {
-        return PydevPrefs.getPreferences().getInt(PYDEV_ELAPSE_BEFORE_ANALYSIS);
+        return PyParserManager.getPyParserManager(PydevPrefs.getPreferences()).getElapseMillisBeforeAnalysis();
     }
 
 }

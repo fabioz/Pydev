@@ -19,7 +19,7 @@ import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.python.copiedfromeclipsesrc.PythonPairMatcher;
-import org.python.pydev.parser.IParserObserver;
+import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.plugin.PydevPrefs;
 
 /**

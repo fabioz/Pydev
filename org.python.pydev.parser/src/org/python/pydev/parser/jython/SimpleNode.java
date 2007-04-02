@@ -6,10 +6,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.parser.jython.ast.VisitorIF;
 import org.python.pydev.parser.jython.ast.commentType;
 
-public class SimpleNode implements Node {
+public class SimpleNode implements Node, ISimpleNode{
     
     private static final boolean DEBUG = false;
 

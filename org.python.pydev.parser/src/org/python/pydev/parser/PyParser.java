@@ -32,6 +32,9 @@ import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.parser.IParserObserver;
+import org.python.pydev.core.parser.IParserObserver2;
+import org.python.pydev.core.parser.IPyParser;
 import org.python.pydev.parser.grammar24.PythonGrammar24;
 import org.python.pydev.parser.grammar25.PythonGrammar25;
 import org.python.pydev.parser.jython.CharStream;
@@ -54,12 +57,12 @@ import org.python.pydev.parser.jython.ast.commentType;
  * register as parseListeners.
  */
 
-public class PyParser {
+public class PyParser implements IPyParser {
 
     /**
      * just for tests, when we don't have any editor
      */
-    public static boolean ACCEPT_NULL_EDITOR = false;
+    public static boolean ACCEPT_NULL_INPUT_EDITOR = false;
     
     /**
      * Defines whether we should use the fast stream or not
@@ -74,12 +77,7 @@ public class PyParser {
     /**
      * this is the document we should parse 
      */
-    private IDocument document;
-
-    /**
-     * this is the editor associated
-     */
-    private IPyEdit editorView;
+    private volatile IDocument document;
 
     /**
      * ast for the last succesful parsing
@@ -105,7 +103,7 @@ public class PyParser {
      * this is the object that will keep parser schedules for us (and will call us for doing parsing when requested)
      */
     private ParserScheduler scheduler;
-
+    
     /**
      * indicates we should do analysis only on doc save
      */
@@ -122,9 +120,9 @@ public class PyParser {
     private IGrammarVersionProvider grammarVersionProvider;
 
     /**
-     * should only be called for testing. does not register as a thread
+     * Should only be called for testing. Does not register as a thread.
      */
-    public PyParser(IGrammarVersionProvider grammarVersionProvider) {
+    PyParser(IGrammarVersionProvider grammarVersionProvider) {
         if(grammarVersionProvider == null){
             grammarVersionProvider = new IGrammarVersionProvider(){
                 public int getGrammarVersion() {
@@ -139,7 +137,9 @@ public class PyParser {
         documentListener = new IDocumentListener() {
 
             public void documentChanged(DocumentEvent event) {
-                if (event == null || event.getText() == null || event.getText().indexOf("\n") == -1) {
+                String text = event.getText();
+                
+                if (event == null || text == null || text.indexOf("\n") == -1 || text.indexOf("\r") == -1) {
                     // carriage return in changed text means parse now, anything
                     // else means parse later
                     if(!useAnalysisOnlyOnDocSave){
@@ -165,7 +165,6 @@ public class PyParser {
      */
     public PyParser(IPyEdit editorView) {
         this(editorView.getPythonNature());
-        this.editorView = editorView;
     }
 
 
@@ -191,28 +190,38 @@ public class PyParser {
         parseNow(true);
     }
     
+    public void scheduleReparse(){
+        parseNow(true);
+    }
+    
     public void parseNow(boolean force, Object ... argsToReparse){
         scheduler.parseNow(force, argsToReparse);
     }
 
-    public void setDocument(IDocument document) {
-    	setDocument(document, true);
+    /**
+     * This is the input from the editor that we're using in the parse
+     */
+    private IEditorInput input;
+    
+    public void setDocument(IDocument document, IEditorInput input) {
+    	setDocument(document, true, input);
     }
     
-    public void setDocument(IDocument document, boolean addToScheduler) {
+    public synchronized void setDocument(IDocument doc, boolean addToScheduler, IEditorInput input) {
+        this.input = input;
         // Cleans up old listeners
         if (this.document != null) {
-            document.removeDocumentListener(documentListener);
+            this.document.removeDocumentListener(documentListener);
         }
 
         // Set up new listener
-        this.document = document;
-        if (document == null) {
+        this.document = doc;
+        if (doc == null) {
             System.err.println("No document in PyParser::setDocument?");
             return;
         }
 
-        document.addDocumentListener(documentListener);
+        doc.addDocumentListener(documentListener);
         
         if(addToScheduler){
 	        // Reparse document on the initial set (force it)
@@ -313,21 +322,18 @@ public class PyParser {
         IFile original = null;
         IAdaptable adaptable = null;
         
-        if(editorView != null){
-            IEditorInput input = editorView.getEditorInput();
-            if (input == null){
-                return null;
-            }
+        if (input == null){
+            return obj;
+        }
+        
+        original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
+        if(original != null){
+            adaptable = original;
             
-            original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
-            if(original != null){
-                adaptable = original;
-                
-            }else{
-                //probabl an external file, may have some location provider mechanism
-                //it may be org.eclipse.ui.internal.editors.text.JavaFileEditorInput
-                adaptable = input;
-            }
+        }else{
+            //probably an external file, may have some location provider mechanism
+            //it may be org.eclipse.ui.internal.editors.text.JavaFileEditorInput
+            adaptable = input;
         }
         
         //delete the markers
@@ -349,8 +355,8 @@ public class PyParser {
         	
         }else if(adaptable == null){
         	//ok, we have nothing... maybe we are in tests...
-        	if (!PyParser.ACCEPT_NULL_EDITOR){
-        		throw new RuntimeException("Null editor received in parser!");
+        	if (!PyParser.ACCEPT_NULL_INPUT_EDITOR){
+        		throw new RuntimeException("Null input editor received in parser!");
         	}
         }
         //end delete the markers
@@ -602,7 +608,7 @@ public class PyParser {
         return null;
     }
 
-    public void reset(boolean useAnalysisOnlyOnDocSave, int elapseMillisBeforeAnalysis) {
+    public void resetTimeoutPreferences(boolean useAnalysisOnlyOnDocSave, int elapseMillisBeforeAnalysis) {
         this.useAnalysisOnlyOnDocSave = useAnalysisOnlyOnDocSave;
         this.elapseMillisBeforeAnalysis = elapseMillisBeforeAnalysis;
     }
@@ -610,6 +616,11 @@ public class PyParser {
     public int getIdleTimeRequested() {
         return this.elapseMillisBeforeAnalysis;
     }
+
+    public List<IParserObserver> getObservers() {
+        return new ArrayList<IParserObserver>(this.parserListeners);
+    }
+
 
     
 }

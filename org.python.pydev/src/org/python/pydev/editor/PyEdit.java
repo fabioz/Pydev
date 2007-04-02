@@ -36,10 +36,7 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorActionBarContributor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.IFileEditorInput;
-import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.editors.text.ILocationProvider;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.internal.util.SWTResourceUtil;
 import org.eclipse.ui.part.EditorActionBarContributor;
@@ -53,7 +50,6 @@ import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.python.copiedfromeclipsesrc.PydevFileEditorInput;
-import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
@@ -61,6 +57,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PyPartitionScanner;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
 import org.python.pydev.editor.actions.PyAction;
@@ -75,6 +72,7 @@ import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.editor.scripting.PyEditScripting;
 import org.python.pydev.outline.PyOutlinePage;
 import org.python.pydev.parser.PyParser;
+import org.python.pydev.parser.PyParserManager;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
@@ -118,9 +116,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 
     /** color cache */
     private ColorCache colorCache;
-
-    /** lexical parser that continuously reparses the document on a thread */
-    private PyParser parser;
 
     // Listener waits for tab/spaces preferences that affect sourceViewer
     private Preferences.IPropertyChangeListener prefListener;
@@ -231,6 +226,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * The suggestion is that the cache key is always preceded by the class name that will use it.
      */
     public Map<String,Object> cache = new HashMap<String, Object>();
+    
+    public Map<String,Object> getCache(){
+        return cache;
+    }
+
 
     /**
      * Indicates whether the init was already finished
@@ -346,9 +346,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 	        // check the document partitioner (sanity check / fix)
 	        PyPartitionScanner.checkPartitionScanner(document);
 	
-	        checkAndCreateParserIfNeeded();
-	
-	
 	        // Also adds Python nature to the project.
 	    	// The reason this is done here is because I want to assign python
 	    	// nature automatically to any project that has active python files.
@@ -409,10 +406,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 	                    colorCache.reloadNamedColor(property); //all reference this cache
 	                    editConfiguration.updateSyntaxColorAndStyle(); //the style needs no reloading
 	                    getSourceViewer().invalidateTextPresentation();
-	                    
-	                } else if(property.equals(PyDevBuilderPrefPage.USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE) || property.equals(PyDevBuilderPrefPage.PYDEV_ELAPSE_BEFORE_ANALYSIS)){
-	                    parser.reset(PyDevBuilderPrefPage.useAnalysisOnlyOnDocSave(), PyDevBuilderPrefPage.getElapseMillisBeforeAnalysis());
-	                }
+	                } 
 	            }
 	        };
 	        resetForceTabs();
@@ -426,9 +420,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 					pyEditScripting = new PyEditScripting();
 					addPyeditListener(pyEditScripting);
 					
-					//set the parser for the document
-					parser.setDocument(document);
-					notifier.notifyOnSetDocument(document);
 					initFinished = true;
 					synchronized(getLock()){
 						getLock().notifyAll();
@@ -444,21 +435,13 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 			PydevPlugin.log(e);
 		}
     }
-
-    /**
-     * Checks if the parser exists. If it doesn't, creates it.
-     */
-    private void checkAndCreateParserIfNeeded() {
-        if(parser == null){
-            parser = new PyParser(this);
-            parser.addParseListener(this);
-        }
-    }
+    
     
 
     /**
      * When we have the editor input re-set, we have to change the parser and the partition scanner to
-     * the new document. (this happens in 2 cases: 
+     * the new document. This happens in 3 cases:
+     * - when the editor has been created 
      * - when the editor is reused in the search window
      * - when we create a file, and make a save as, to change its name
      * 
@@ -476,15 +459,36 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 	        //see if we have to change the encoding of the file on load
 	        fixEncoding(input, document);
 	
-	        checkAndCreateParserIfNeeded();
+            PyParserManager.getPyParserManager(PydevPrefs.getPreferences()).attachParserTo(this);
 	        if(document != null){
-	            parser.setDocument(document);
 	            PyPartitionScanner.checkPartitionScanner(document);
 	        }
 	        notifier.notifyOnSetDocument(document);
         }catch (Throwable e) {
 			PydevPlugin.log(e);
 		}
+    }
+    
+    public boolean hasSameInput(IPyEdit edit) {
+        IEditorInput thisInput = this.getEditorInput();
+        IEditorInput otherInput = edit.getEditorInput();
+        if(thisInput == null || otherInput == null){
+            return false;
+        }
+        
+        if(thisInput == otherInput || thisInput.equals(otherInput)){
+            return true;
+        }
+        
+        IResource r1 = (IResource) thisInput.getAdapter(IResource.class);
+        IResource r2 = (IResource) otherInput.getAdapter(IResource.class);
+        if(r1 == null || r2 == null){
+            return false;
+        }
+        if(r1.equals(r2)){
+            return true;
+        }
+        return false;
     }
     
     /**
@@ -512,7 +516,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     protected void performSave(boolean overwrite, IProgressMonitor progressMonitor) {
         fixEncoding(getEditorInput(), getDocument());
         super.performSave(overwrite, progressMonitor);
-        parser.notifySaved();
+        PyParserManager.getPyParserManager(null).notifySaved(this);
         notifier.notifyOnSave();
     }
 
@@ -612,7 +616,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 	    	notifier.notifyOnDispose();
 	
 	        PydevPrefs.getPreferences().removePropertyChangeListener(prefListener);
-	        parser.dispose();
+            PyParserManager.getPyParserManager(null).notifyEditorDisposed(this);
+            
 	        colorCache.dispose();
 	        pyEditScripting = null;
 	        cache.clear();
@@ -686,8 +691,12 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         setKeyBindingScopes(new String[] { "org.python.pydev.ui.editor.scope" }); //$NON-NLS-1$
     }
 
+    /**
+     * Used to: request a reparse / add listener / remove listener
+     * @return the parser that is being used in this editor.
+     */
     public PyParser getParser() {
-        return parser;
+        return (PyParser) PyParserManager.getPyParserManager(null).getParser(this);
     }
 
 
@@ -802,44 +811,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * 
      * Removes all the error markers
      */
-    public void parserChanged(SimpleNode root, IAdaptable file, IDocument doc) {
-        // Remove all the error markers
-        IEditorInput input = getEditorInput();
-        IPath filePath = null;
-        
-        if(file != null){
-            IResource fileAdapter = (IResource) file.getAdapter(IResource.class);
-            if(fileAdapter != null){
-                filePath = fileAdapter.getLocation();
-                
-            }else{
-                //all this is just to get the file path
-                if (input instanceof IFileEditorInput) {
-                    IFile file1 = ((IFileEditorInput) input).getFile();
-                    filePath = file1.getLocation();
-                    
-                } else if (input instanceof IStorageEditorInput)
-                    try {
-                        filePath = ((IStorageEditorInput) input).getStorage().getFullPath();
-                        filePath = filePath.makeAbsolute();
-                    } catch (CoreException e2) {
-                        PydevPlugin.log(IStatus.ERROR, "unexpected error getting path", e2);
-                    }
-                    
-                else if (input instanceof ILocationProvider) {
-                    filePath = ((ILocationProvider) input).getPath(input);
-                    filePath = filePath.makeAbsolute();
-                    
-                } else {
-                    PydevPlugin.log(IStatus.ERROR, "unexpected type of editor input " + input.getClass().toString(), null);
-                }
-            }
-        }
-
+    public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc) {
         int lastLine = doc.getNumberOfLines();
         try {
             doc.getLineInformation(lastLine - 1);
-            ast = root;
+            ast = (SimpleNode) root;
             fireModelChanged(ast);
         } catch (BadLocationException e1) {
             PydevPlugin.log(IStatus.WARNING, "Unexpected error getting document length. No model!", e1);

@@ -3,11 +3,10 @@
  * Created: Jul 25, 2003
  * License: Common Public License v1.0
  */
-package org.python.pydev.parser;
+package org.python.pydev.core.parser;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.parser.jython.SimpleNode;
 
 /**
  * PyParser broadcasts events to IParserListeners 
@@ -26,7 +25,7 @@ public interface IParserObserver {
      * org.eclipse.ui.internal.editors.text.JavaFileEditorInput
      * 
 	 */
-	void parserChanged(SimpleNode root, IAdaptable file, IDocument doc);
+	void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc);
 	
 	/**
 	 * if parse generates an error, you'll get this event

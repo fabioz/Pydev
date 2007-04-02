@@ -36,7 +36,7 @@ public class ParserScheduler {
     /**
      * 5 seconds
      */
-    protected static final long TIME_TO_PARSE_LATER = 5000;
+    public static long TIME_TO_PARSE_LATER = 5000;
     
     /**
      * initially we're waiting

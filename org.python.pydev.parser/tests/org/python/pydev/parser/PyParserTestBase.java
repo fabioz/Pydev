@@ -35,7 +35,7 @@ public class PyParserTestBase extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        PyParser.ACCEPT_NULL_EDITOR = true;
+        PyParser.ACCEPT_NULL_INPUT_EDITOR = true;
         PyParser.ENABLE_TRACING = true;
         PyParser.TRY_REPARSE = false;
         ParseException.verboseExceptions = true;
@@ -45,7 +45,7 @@ public class PyParserTestBase extends TestCase {
     }
 
     protected void tearDown() throws Exception {
-        PyParser.ACCEPT_NULL_EDITOR = false;
+        PyParser.ACCEPT_NULL_INPUT_EDITOR = false;
         PyParser.ENABLE_TRACING = false;
         PyParser.TRY_REPARSE = true;
         ParseException.verboseExceptions = false;
@@ -66,7 +66,7 @@ public class PyParserTestBase extends TestCase {
 	    return parseLegalDoc(doc, additionalErrInfo, parser);
     }
 	protected ParseException parseILegalDoc(IDocument doc) {
-	    parser.setDocument(doc, false);
+	    parser.setDocument(doc, false, null);
         Tuple<SimpleNode, Throwable> objects = parser.reparseDocument();
 	    Object err = objects.o2;
 	    if(err == null){
@@ -83,7 +83,7 @@ public class PyParserTestBase extends TestCase {
 	 * @param parser the parser to be used to do the parsing.
 	 */
 	protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, PyParser parser) {
-	    parser.setDocument(doc, false);
+	    parser.setDocument(doc, false, null);
         Tuple<SimpleNode, Throwable> objects = parser.reparseDocument();
 	    Object err = objects.o2;
 	    if(err != null){
