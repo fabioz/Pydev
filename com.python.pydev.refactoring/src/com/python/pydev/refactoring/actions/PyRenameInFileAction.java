@@ -30,11 +30,11 @@ import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.parser.IParserObserver;
+import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
-import org.python.pydev.parser.IParserObserver;
-import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
@@ -51,7 +51,7 @@ public class PyRenameInFileAction extends Action{
 	 */
 	private class RenameInFileParserObserver implements IParserObserver {
 		
-		public void parserChanged(SimpleNode root, IAdaptable file, IDocument doc) {
+		public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc) {
 			pyEdit.getParser().removeParseListener(this); //we'll only listen for this single parse
 			
 			try {

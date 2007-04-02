@@ -16,9 +16,10 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.parser.IParserObserver;
+import org.python.pydev.core.parser.IParserObserver2;
+import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.parser.IParserObserver;
-import org.python.pydev.parser.IParserObserver2;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -31,7 +32,8 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver2
 
 	public static final String ANALYSIS_PARSER_OBSERVER_FORCE = "AnalysisParserObserver:force";
 
-	public void parserChanged(SimpleNode root, IAdaptable resource, IDocument doc, Object... argsToReparse) {
+	public void parserChanged(ISimpleNode iroot, IAdaptable resource, IDocument doc, Object... argsToReparse) {
+        SimpleNode root = (SimpleNode) iroot;
 		//don't analyze it if we're still not 'all set'
 		if(!PydevPlugin.isPythonInterpreterInitialized() || !PydevPlugin.isJythonInterpreterInitialized()){
 			return;
@@ -104,7 +106,7 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver2
         }
 	}
 
-    public void parserChanged(SimpleNode root, IAdaptable resource, IDocument doc) {
+    public void parserChanged(ISimpleNode root, IAdaptable resource, IDocument doc) {
     }
 
     public void parserError(Throwable error, IAdaptable file, IDocument doc) {
