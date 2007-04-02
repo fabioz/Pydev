@@ -166,6 +166,29 @@ and <strong>input()</strong> should be changed for: <strong>eval(raw_input().rep
 
 
 --------------------------------------------------------------------------------------------------------------Title
+My todo-tasks are not showing, is there something wrong?
+--------------------------------------------------------------------------------------------------------------Answer
+Check the <a href="tasks.html">tasks</a> page for info on tasks.
+
+
+--------------------------------------------------------------------------------------------------------------Title
+Some keybindings Ctrl+[0-9] don't work under Ubuntu. What can I do about it?
+--------------------------------------------------------------------------------------------------------------Answer
+That's a known bug in Eclipse. You can see more details on and vote for it if you want it fixed at:
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=179628">https://bugs.eclipse.org/bugs/show_bug.cgi?id=179628</a>
+<br/>
+<br/>
+And details at the pydev bugtracker:
+<a href="https://sourceforge.net/tracker/index.php?func=detail&aid=1595998&group_id=85796&atid=577329">https://sourceforge.net/tracker/index.php?func=detail&aid=1595998&group_id=85796&atid=577329</a>
+<br/><br/>
+Basically, Ctrl+[0-9] does not work if a Ctrl+Shift+[0-9] is also set.
+<br/><br/>
+The proposed workaround until this is fixed is using Ctrl+/ and Ctrl+\ for comment/uncomment -- which are set 
+by default, and changing Ctrl+Shift+4 to Ctrl+6 -- or removing it altogether if you don't use it.
+
+
+
+--------------------------------------------------------------------------------------------------------------Title
 Variables view doesn't show letters in GNU/Linux (while debugging)
 --------------------------------------------------------------------------------------------------------------Answer
 
