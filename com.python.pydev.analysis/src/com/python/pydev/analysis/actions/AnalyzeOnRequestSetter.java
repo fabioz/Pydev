@@ -22,7 +22,7 @@ public class AnalyzeOnRequestSetter implements IPyEditListener{
 		}
 		public  void run(){
 			//just send a reparse
-			edit.getParser().parseNow(true, new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
+			edit.getParser().forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
 		}
 	}
 	

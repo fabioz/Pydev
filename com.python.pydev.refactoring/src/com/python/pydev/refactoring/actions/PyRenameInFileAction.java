@@ -35,6 +35,7 @@ import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
@@ -105,8 +106,9 @@ public class PyRenameInFileAction extends Action{
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
 				IParserObserver observer = new RenameInFileParserObserver();
-				pyEdit.getParser().addParseListener(observer); //it will analyze when the next parse is finished
-				pyEdit.getParser().parseNow(true);
+				PyParser parser = pyEdit.getParser();
+				parser.addParseListener(observer); //it will analyze when the next parse is finished
+				parser.forceReparse();
 			return Status.OK_STATUS;
 		}
 	}
