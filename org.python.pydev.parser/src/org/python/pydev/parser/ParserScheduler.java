@@ -34,11 +34,6 @@ public class ParserScheduler {
     public static final int STATE_DOING_PARSE = 3;
     
     /**
-     * 5 seconds
-     */
-    public static long TIME_TO_PARSE_LATER = 5000;
-    
-    /**
      * initially we're waiting
      */
     int state = STATE_WAITING;
@@ -125,7 +120,7 @@ public class ParserScheduler {
                 @Override
                 public void run() {
                     try {
-                        sleep(TIME_TO_PARSE_LATER);
+                        sleep(PyParserManager.getPyParserManager(null).getElapseMillisBeforeAnalysis());
                     } catch (Exception e) {
                         //that's ok
                     }
@@ -151,9 +146,5 @@ public class ParserScheduler {
         parser.reparseDocument(argsToReparse);
     }
 
-
-    public int getIdleTimeRequested() {
-        return parser.getIdleTimeRequested();
-    }
 
 }

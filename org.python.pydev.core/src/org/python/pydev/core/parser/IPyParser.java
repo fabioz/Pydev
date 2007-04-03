@@ -34,7 +34,7 @@ public interface IPyParser {
     /**
      * Sets the parameters on the heuristics for doing reparses
      */
-    void resetTimeoutPreferences(boolean useAnalysisOnlyOnDocSave, int elapseMillisBeforeAnalysis);
+    void resetTimeoutPreferences(boolean useAnalysisOnlyOnDocSave);
 
     /**
      * Sets the document and the input to be used.
@@ -48,5 +48,5 @@ public interface IPyParser {
     /**
      * Schedules a reparse in the parser.
      */
-    void scheduleReparse();
+    void forceReparse(Object ... argsToReparse);
 }

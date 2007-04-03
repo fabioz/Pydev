@@ -92,7 +92,6 @@ public class PyParserEditorIntegrationTest extends TestCase {
     
     @Override
     protected void setUp() throws Exception {
-        ParserScheduler.TIME_TO_PARSE_LATER = 0;
         PyParserManager.setPyParserManager(null);
     }
     

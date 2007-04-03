@@ -23,7 +23,10 @@ public class ParsingThread extends Thread {
 
     public void run() {
         try {
-            makeOkAndSleepUntilIdleTimeElapses();
+        	if(force == false){
+        		makeOkAndSleepUntilIdleTimeElapses();
+        	}
+        	
             while(!okToGo && force == false){
                 makeOkAndSleepUntilIdleTimeElapses();
             }
@@ -48,15 +51,9 @@ public class ParsingThread extends Thread {
     private void makeOkAndSleepUntilIdleTimeElapses() {
         try {
             okToGo = true;
-            sleep(getIdleTimeRequested()); //one sec
+            sleep(PyParserManager.getPyParserManager(null).getElapseMillisBeforeAnalysis()); 
         } catch (Exception e) {
         }
     }
 
-    /**
-     * @return the idle time to make a parse... this should probably be on the interface
-     */
-    private int getIdleTimeRequested() {
-        return parser.getIdleTimeRequested();
-    }
 }

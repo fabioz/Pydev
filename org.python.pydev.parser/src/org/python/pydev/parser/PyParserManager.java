@@ -42,13 +42,15 @@ public class PyParserManager {
     public static final String PYDEV_ELAPSE_BEFORE_ANALYSIS = "PYDEV_ELAPSE_BEFORE_ANALYSIS";
     
     private Preferences prefs;
+    private int millisBeforeAnalysis;
+    private boolean useOnlyOnSave;
     
     public int getElapseMillisBeforeAnalysis() {
-        return prefs.getInt(PYDEV_ELAPSE_BEFORE_ANALYSIS);
+        return millisBeforeAnalysis;
     }
     
     public boolean useAnalysisOnlyOnDocSave() {
-        return prefs.getBoolean(USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE);
+        return useOnlyOnSave;
     }
 
     
@@ -76,18 +78,26 @@ public class PyParserManager {
         Assert.isNotNull(prefs); //in this constructor the prefs may never be null!
         
         this.prefs = prefs;
+        this.millisBeforeAnalysis = prefs.getInt(PYDEV_ELAPSE_BEFORE_ANALYSIS);
+        this.useOnlyOnSave = prefs.getBoolean(USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE);
+        
         //singleton: private constructor
         IPropertyChangeListener prefListener = new Preferences.IPropertyChangeListener() {
             
             public void propertyChange(PropertyChangeEvent event) {
                 String property = event.getProperty();
                 if(property.equals(USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE) || property.equals(PYDEV_ELAPSE_BEFORE_ANALYSIS)){
+                	//reset the caches
+                	millisBeforeAnalysis = PyParserManager.this.prefs.getInt(PYDEV_ELAPSE_BEFORE_ANALYSIS);
+                	useOnlyOnSave = PyParserManager.this.prefs.getBoolean(USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE);
+                	
+                	
+                	//and set the needed parsers
                     boolean useAnalysisOnlyOnDocSave = useAnalysisOnlyOnDocSave();
-                    int elapseMillisBeforeAnalysis = getElapseMillisBeforeAnalysis();
                     
                     synchronized(lock){
                         for(IPyParser parser:parsers.keySet()){
-                            parser.resetTimeoutPreferences(useAnalysisOnlyOnDocSave, elapseMillisBeforeAnalysis);
+                            parser.resetTimeoutPreferences(useAnalysisOnlyOnDocSave);
                         }
                     }
                 }
@@ -137,7 +147,7 @@ public class PyParserManager {
                         
                         makeParserAssociations(edit, p);
                         
-                        p.scheduleReparse();
+                        p.forceReparse();
                         return;
                     }
                 }
@@ -150,8 +160,7 @@ public class PyParserManager {
             IPyParser pyParser = new PyParser(edit);
             
             boolean useAnalysisOnlyOnDocSave = useAnalysisOnlyOnDocSave();
-            int elapseMillisBeforeAnalysis = getElapseMillisBeforeAnalysis();
-            pyParser.resetTimeoutPreferences(useAnalysisOnlyOnDocSave, elapseMillisBeforeAnalysis);
+            pyParser.resetTimeoutPreferences(useAnalysisOnlyOnDocSave);
             
             makeParserAssociations(edit, pyParser);
             pyParser.setDocument(edit.getDocument(), edit.getEditorInput());

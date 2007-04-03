@@ -139,7 +139,18 @@ public class PyParser implements IPyParser {
             public void documentChanged(DocumentEvent event) {
                 String text = event.getText();
                 
-                if (event == null || text == null || text.indexOf("\n") == -1 || text.indexOf("\r") == -1) {
+                boolean parseNow = true;
+                if (event == null || text == null ) {
+                	parseNow = false;
+                }
+                if(parseNow){
+                	if(text.indexOf("\n") == -1 && text.indexOf("\r") == -1){
+                		parseNow = false;
+                		
+                	}
+                }
+                		
+                if(!parseNow){
                     // carriage return in changed text means parse now, anything
                     // else means parse later
                     if(!useAnalysisOnlyOnDocSave){
@@ -187,16 +198,13 @@ public class PyParser implements IPyParser {
 
     public void notifySaved() {
         //force parse on save
-        parseNow(true);
+        forceReparse();
     }
     
-    public void scheduleReparse(){
-        parseNow(true);
+    public void forceReparse(Object ... argsToReparse){
+    	scheduler.parseNow(true, argsToReparse);
     }
     
-    public void parseNow(boolean force, Object ... argsToReparse){
-        scheduler.parseNow(force, argsToReparse);
-    }
 
     /**
      * This is the input from the editor that we're using in the parse
@@ -608,13 +616,8 @@ public class PyParser implements IPyParser {
         return null;
     }
 
-    public void resetTimeoutPreferences(boolean useAnalysisOnlyOnDocSave, int elapseMillisBeforeAnalysis) {
+    public void resetTimeoutPreferences(boolean useAnalysisOnlyOnDocSave) {
         this.useAnalysisOnlyOnDocSave = useAnalysisOnlyOnDocSave;
-        this.elapseMillisBeforeAnalysis = elapseMillisBeforeAnalysis;
-    }
-
-    public int getIdleTimeRequested() {
-        return this.elapseMillisBeforeAnalysis;
     }
 
     public List<IParserObserver> getObservers() {
