@@ -28,7 +28,7 @@ public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
             DEBUG_REFERENCES = true;
             RenameClassRefactoringTest test = new RenameClassRefactoringTest();
             test.setUp();
-            test.testRename1();
+            test.testRename3();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameClassRefactoringTest.class);
@@ -84,6 +84,16 @@ public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
         assertEquals(1, references.size());
         List<ASTEntry> entries = references.get(CURRENT_MODULE_IN_REFERENCES);
         assertEquals(2, entries.size());
+    }
+    
+    
+    public void testRename3() throws Exception {
+    	Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass2.defuser", 2, 8);
+    	assertTrue(references.containsKey("reflib.renameclass2.defuser") == false); //the current module does not have a separated key here
+    	assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
+    	assertTrue(references.containsKey("reflib.renameclass2.sub1.__init__"));
+    	assertTrue(references.containsKey("reflib.renameclass2.sub1.defmod"));
+    	assertTrue(references.containsKey("reflib.renameclass2.defuser2"));
     }
     
 

@@ -30,6 +30,7 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
+import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
 import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
 import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
 
@@ -118,7 +119,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
 
     public static final String IDENTIFIER = "org.python.pydev.pyRename";
 
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = false || PyFindAllOccurrences.DEBUG_FIND_REFERENCES;
 
     @Override
     public String getIdentifier() {
@@ -172,7 +173,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
             IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
             request.communicateWork("Finding definition");
             ItemPointer[] pointers = pyRefactoring.findDefinition(request);
-
+            
             process = new ArrayList<IRefactorRenameProcess>();
 
             if (pointers.length == 0) {
@@ -186,7 +187,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
                         status.addFatalError("The definition found is not valid. " + pointer);
                     }
                     if (DEBUG) {
-                        System.out.println("Found:" + pointer.definition);
+                        System.out.println("Found definition:" + pointer.definition);
                     }
 
                     IRefactorRenameProcess p = RefactorProcessFactory.getProcess(pointer.definition);

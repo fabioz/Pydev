@@ -15,6 +15,8 @@ import com.python.pydev.refactoring.search.FindOccurrencesSearchQuery;
 
 public class PyFindAllOccurrences extends PyRefactorAction{
     
+	public static final boolean DEBUG_FIND_REFERENCES = false;
+	
     IPyRefactoring pyRefactoring;
     
     @Override

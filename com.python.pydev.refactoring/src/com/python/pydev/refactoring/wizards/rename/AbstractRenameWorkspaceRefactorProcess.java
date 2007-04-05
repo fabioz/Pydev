@@ -15,9 +15,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -25,7 +25,9 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.nature.PythonNature;
 
+import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
+import com.python.pydev.refactoring.refactorer.RefactorerFindDefinition;
 
 /**
  * This class provides helper methods for finding things in the workspace. 
@@ -37,7 +39,8 @@ import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstant
  */
 public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRenameRefactorProcess{
 
-    public static final boolean DEBUG_FILTERED_MODULES = false;
+    public static final boolean DEBUG_FILTERED_MODULES = false || PyFindAllOccurrences.DEBUG_FIND_REFERENCES;
+	private RefactorerFindDefinition refactorerFindDefinition = new RefactorerFindDefinition();
     
     /**
      * May be used by subclasses
@@ -67,20 +70,25 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
                 int line = entry.node.beginLine;
                 int col = entry.node.beginColumn;
                 try {
-                    Definition[] definitions = module.findDefinition(new CompletionState(line-1, col-1, initialName, nature, ""), line, col, nature, null);
-                    for (Definition localDefinition : definitions) {
-                        //if within one module any of the definitions pointed to some class in some other module,
-                        //that means that the tokens in this module actually point to some other class 
-                        //(with the same name), and we can't actually rename them.
-                        String foundModName = localDefinition.module.getName();
-                        if(foundModName != null && !foundModName.equals(this.definition.module.getName())){
-                            if(DEBUG_FILTERED_MODULES){
-                                System.out.println("The entries found on module:"+module.getName()+" had the definition found on module:"+
-                                        foundModName+" and were removed from the elements to be renamed.");
-                                
-                            }
-                            return new ArrayList<ASTEntry>();
-                        }
+                	ArrayList<IDefinition> definitions = new ArrayList<IDefinition>();
+					refactorerFindDefinition.findActualDefinition(request, module, initialName, definitions, line, col, nature);
+					//Definition[] definitions = module.findDefinition(new CompletionState(line-1, col-1, initialName, nature, ""), line, col, nature, null);
+                    for (IDefinition def : definitions) {
+                    	if(def instanceof Definition){
+	                        Definition localDefinition = (Definition) def;
+							//if within one module any of the definitions pointed to some class in some other module,
+	                        //that means that the tokens in this module actually point to some other class 
+	                        //(with the same name), and we can't actually rename them.
+	                        String foundModName = localDefinition.module.getName();
+	                        if(foundModName != null && !foundModName.equals(this.definition.module.getName())){
+	                            if(DEBUG_FILTERED_MODULES){
+	                                System.out.println("The entries found on module:"+module.getName()+" had the definition found on module:"+
+	                                        foundModName+" and were removed from the elements to be renamed.");
+	                                
+	                            }
+	                            return new ArrayList<ASTEntry>();
+	                        }
+                    	}
                     }
                 } catch (Exception e) {
                     throw new RuntimeException(e);

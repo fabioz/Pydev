@@ -21,6 +21,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.refactoring.IPyRefactoring2;
+import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
 import com.python.pydev.refactoring.wizards.rename.AbstractRenameRefactorProcess;
 
@@ -65,7 +66,9 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
                     int offset = AbstractRenameRefactorProcess.getOffset(doc, entry);
                     if(!foundOffsets.contains(offset)){
                     	foundOffsets.add(offset);
-	                    //System.out.println("Adding match:"+file);
+                    	if(PyFindAllOccurrences.DEBUG_FIND_REFERENCES){
+                    		System.out.println("Adding match:"+file);
+                    	}
 	                    findOccurrencesSearchResult.addMatch(new FileMatch(file, offset, length));
                     }
                 }

@@ -136,25 +136,17 @@ public class RefactorerFindDefinition {
             
             
             String tok = tokenAndQual[0] + tokenAndQual[1];
-            List<FindInfo> lFindInfo = new ArrayList<FindInfo>();
             try {
                 //2. check findDefinition (SourceModule)
                 ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
                 
-                IDefinition[] definitions = mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, request.nature), request.getBeginLine(), request.getBeginCol()+1, request.nature, lFindInfo);
-                request.communicateWork("Found:"+definitions.length+ " definitions");
-                for (IDefinition definition : definitions) {
-                    boolean doAdd = true;
-                    if(definition instanceof Definition){
-                        Definition d = (Definition) definition;
-                        doAdd = !findActualTokenFromImportFromDefinition(request, tok, lFindInfo, selected, d);
-                    }
-                    request.checkCancelled();
-                    if(doAdd){
-                        selected.add(definition);
-                    }
-                }
+                int beginLine = request.getBeginLine();
+				int beginCol = request.getBeginCol()+1;
+				IPythonNature pythonNature = request.nature;
+
+				findActualDefinition(request, mod, tok, selected, beginLine, beginCol, pythonNature);
                 AnalysisPlugin.getAsPointers(pointers, selected.toArray(new Definition[0]));
+                
             } catch (OperationCanceledException e) {
                 throw e;
             } catch (Exception e) {
@@ -189,6 +181,36 @@ public class RefactorerFindDefinition {
             request.popMonitor();
         }
     }
+
+    /**
+     * This method will try to find the actual definition given all the needed parameters (but it will not try to find
+     * matches in the whole workspace if it's not able to find an exact match in the context)
+     * 
+     * @param request: used only to communicateWork and checkCancelled
+     * @param mod this is the module where we should find the definition
+     * @param tok the token we're looking for (complete with dots)
+     * @param selected OUT: this is where the definitions should be added
+     * @param beginLine starts at 1
+     * @param beginCol starts at 1
+     * @param pythonNature the nature that we should use to find the definition
+     * @throws Exception
+     */
+	public void findActualDefinition(RefactoringRequest request, IModule mod, String tok, ArrayList<IDefinition> selected, int beginLine, int beginCol, IPythonNature pythonNature) throws Exception {
+		List<FindInfo> lFindInfo = new ArrayList<FindInfo>();
+		IDefinition[] definitions = mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, pythonNature, beginLine-1, beginCol-1), beginLine, beginCol, pythonNature, lFindInfo);
+		request.communicateWork("Found:"+definitions.length+ " definitions");
+		for (IDefinition definition : definitions) {
+		    boolean doAdd = true;
+		    if(definition instanceof Definition){
+		        Definition d = (Definition) definition;
+		        doAdd = !findActualTokenFromImportFromDefinition(pythonNature, tok, lFindInfo, selected, d);
+		    }
+		    request.checkCancelled();
+		    if(doAdd){
+		        selected.add(definition);
+		    }
+		}
+	}
     
     /** 
      * Given some definition, find its actual token (if that's possible)
@@ -202,7 +224,7 @@ public class RefactorerFindDefinition {
      * @return true if we found a new definition (and false otherwise)
      * @throws Exception
      */
-    private boolean findActualTokenFromImportFromDefinition(RefactoringRequest request, String tok, List<FindInfo> lFindInfo, ArrayList<IDefinition> selected, Definition d) throws Exception {
+    private boolean findActualTokenFromImportFromDefinition(IPythonNature nature, String tok, List<FindInfo> lFindInfo, ArrayList<IDefinition> selected, Definition d) throws Exception {
         boolean didFindNewDef = false;
         
         Set<Tuple3<String, Integer, Integer>> whereWePassed = new HashSet<Tuple3<String, Integer, Integer>>();
@@ -216,7 +238,7 @@ public class RefactorerFindDefinition {
             }
             whereWePassed.add(t1);
             
-            Definition[] found = (Definition[]) d.module.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, request.nature), d.line, d.col, request.nature, lFindInfo);
+            Definition[] found = (Definition[]) d.module.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, nature), d.line, d.col, nature, lFindInfo);
             if(found != null && found.length == 1){
                 Tuple3<String,Integer,Integer> tupFromDefinition = getTupFromDefinition(found[0]);
                 if(tupFromDefinition == null){

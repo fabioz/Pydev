@@ -1,0 +1,2 @@
+class Definition(object):
+    pass
