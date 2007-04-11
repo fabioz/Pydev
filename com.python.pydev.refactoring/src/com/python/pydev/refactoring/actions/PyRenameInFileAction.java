@@ -19,7 +19,6 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.link.LinkedModeModel;
 import org.eclipse.jface.text.link.LinkedModeUI;
@@ -71,16 +70,17 @@ public class PyRenameInFileAction extends Action{
 				
 				LinkedModeModel model= new LinkedModeModel();
 				model.addGroup(group);
-				model.forceInstall();
-				final LinkedModeUI ui= new EditorLinkedModeUI(model, viewer);
-				Tuple<String,Integer> currToken = ps.getCurrToken();
-				ui.setExitPosition(viewer, currToken.o2 + currToken.o1.length(), 0, Integer.MAX_VALUE);
-				Runnable r = new Runnable(){
-					public void run() {
-						ui.enter();
-					}
-				};
-				RunInUiThread.async(r);
+				if(model.tryInstall() && model.getTabStopSequence().size() > 0){
+					final LinkedModeUI ui= new EditorLinkedModeUI(model, viewer);
+					Tuple<String,Integer> currToken = ps.getCurrToken();
+					ui.setExitPosition(viewer, currToken.o2 + currToken.o1.length(), 0, Integer.MAX_VALUE);
+					Runnable r = new Runnable(){
+						public void run() {
+							ui.enter();
+						}
+					};
+					RunInUiThread.async(r);
+				}
 			} catch (BadLocationException e) {
 				Log.log(e);
 			} catch (Exception e) {
@@ -160,18 +160,23 @@ public class PyRenameInFileAction extends Action{
 		}
 
 		//used so that we don't add duplicates
-		Set<Position> found = new HashSet<Position>();
+		Set<Tuple<Integer,Integer>> found = new HashSet<Tuple<Integer,Integer>>();
 		
 		if(occurrences != null){
 			int i = 0;
 			for (ASTEntry entry : occurrences) {
-				i++;
                 try {
 					IRegion lineInformation = document.getLineInformation(entry.node.beginLine - 1);
 					int colDef = NodeUtils.getClassOrFuncColDefinition(entry.node) -1;
-                    ProposalPosition proposalPosition = new ProposalPosition(document, lineInformation.getOffset() + colDef, req.initialName.length(), i , new ICompletionProposal[0]);
-                    if(found.contains(proposalPosition) == false){
-                    	found.add(proposalPosition);
+					
+                    int offset = lineInformation.getOffset() + colDef;
+					int len = req.initialName.length();
+					Tuple<Integer, Integer> foundAt = new Tuple<Integer, Integer>(offset, len);
+					
+                    if(!found.contains(foundAt)){
+                    	i++;
+                    	ProposalPosition proposalPosition = new ProposalPosition(document, offset, len, i , new ICompletionProposal[0]);
+                    	found.add(foundAt);
                     	group.addPosition(proposalPosition);
                     }
 				} catch (Exception e) {
