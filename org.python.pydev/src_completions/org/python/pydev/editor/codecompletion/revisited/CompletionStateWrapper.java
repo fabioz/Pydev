@@ -150,5 +150,14 @@ public class CompletionStateWrapper implements ICompletionState {
     public void setTokenImportedModules(List<IToken> tokenImportedModules) {
         wrapped.setTokenImportedModules(tokenImportedModules);
     }
+    
+    @Override
+    public String toString() {
+    	StringBuffer buf = new StringBuffer();
+    	buf.append("CompletionStateWrapper[ ");
+    	buf.append(this.activationToken);
+    	buf.append(" ]");
+    	return buf.toString();
+    }
 
 }

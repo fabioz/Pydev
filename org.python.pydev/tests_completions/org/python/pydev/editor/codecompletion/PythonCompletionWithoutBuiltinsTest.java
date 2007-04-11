@@ -13,12 +13,15 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
@@ -35,7 +38,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testDecorateObject();
+	      test.testSameName();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -55,6 +58,13 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         CompiledModule.COMPILED_MODULES_ENABLED = false;
         this.restorePythonPath(false);
         codeCompletion = new PyCodeCompletion();
+        PyCodeCompletion.onCompletionRecursionException = new ICallback<Object, CompletionRecursionException>(){
+
+			public Object call(CompletionRecursionException e) {
+				throw new RuntimeException("Recursion error:"+Log.getExceptionStr(e));
+			}
+        	
+        };
     }
 
     /*
@@ -63,6 +73,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     protected void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         super.tearDown();
+        PyCodeCompletion.onCompletionRecursionException = null;
     }
 
 
@@ -904,6 +915,14 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             "foo.";
         
         requestCompl(s, new String[] {"one", "two", "bar()"});
+    }
+    
+    public void testRecursion1() throws Exception {
+    	String s = 
+    		"from testrec5.messages import foonotexistent\n" +
+    		"foonotexistent.";
+    	
+    	requestCompl(s, new String[] {});
     }
     
 }

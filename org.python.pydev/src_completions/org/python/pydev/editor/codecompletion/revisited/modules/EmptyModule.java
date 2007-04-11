@@ -82,4 +82,13 @@ public class EmptyModule extends AbstractModule implements Serializable {
         throw new RuntimeException("Not intended to be called");
     }
 
+	@Override
+	public boolean isInDirectGlobalTokens(String tok) {
+		throw new RuntimeException("Not intended to be called");
+	}
+
+	public boolean isInDirectImportTokens(String tok) {
+		throw new RuntimeException("Not implemented");
+	}
+
 }

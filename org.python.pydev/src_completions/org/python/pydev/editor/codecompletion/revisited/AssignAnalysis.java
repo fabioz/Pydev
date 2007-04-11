@@ -112,7 +112,7 @@ public class AssignAnalysis {
         IModule module;
         if(definition.ast instanceof ClassDef){
             state.setLookingFor(ICompletionState.LOOKING_FOR_UNBOUND_VARIABLE);
-            ret.addAll(s.getClassToks(state, manager, definition.ast));
+            ret.addAll(((SourceModule)definition.module).getClassToks(state, manager, definition.ast));
             
             
         }else{
@@ -125,7 +125,7 @@ public class AssignAnalysis {
                         if(token instanceof SourceToken){
                             SourceToken srcToken = (SourceToken) token;
                             if(srcToken.getAst() instanceof ClassDef){
-                                List<IToken> classToks = s.getClassToks(state, manager, srcToken.getAst());
+                                List<IToken> classToks = ((SourceModule)assignDefinition.module).getClassToks(state, manager, srcToken.getAst());
                                 if(classToks.size() > 0){
                                     lookForAssign = false;
                                     ret.addAll(classToks);

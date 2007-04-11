@@ -8,6 +8,8 @@ package org.python.pydev.editor.codecompletion.revisited.modules;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -78,6 +80,9 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * This is the time when the file was last modified.
      */
     private long lastModified;
+    
+    private volatile HashMap<String, SourceToken> globalTokens;
+    private volatile HashMap<String, SourceToken> aliasTokens;
 
     /**
      * @return a reference to all the modules that are imported from this one in the global context as a from xxx import *
@@ -132,17 +137,99 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         return "";
     }
 
+
+    /**
+     * Checks if it is in the global tokens that were created in this module
+     * @param tok the token we are looking for
+     * @param nature the nature
+     * @return true if it was found and false otherwise
+     */
+    public boolean isInDirectGlobalTokens(String tok){
+    	if(globalTokens == null){
+    		getGlobalTokens();
+    	}
+    	
+    	boolean ret = false;
+    	if(globalTokens != null){
+        	synchronized (globalTokens) {
+        		ret = globalTokens.containsKey(tok);
+        	}
+    	}
+    	
+    	if(ret == false){
+    		ret = isInDirectImportTokens(tok);
+    	}
+    	return ret;
+    }
+    
+	public boolean isInDirectImportTokens(String tok) {
+		if(aliasTokens != null){
+			getTokenImportedModules();
+		}
+		
+		boolean ret = false;
+		if(aliasTokens != null){
+			synchronized (aliasTokens) {
+				ret = aliasTokens.containsKey(tok);
+			}
+		}
+		return ret; 
+	}
+
+    
+    
     /**
      * @param which
      * @return a list of IToken
      */
-    private IToken[] getTokens(int which, ICompletionState state) {
+    private synchronized IToken[] getTokens(int which, ICompletionState state) {
+    	//cache
+    	if(which == GlobalModelVisitor.GLOBAL_TOKENS){
+	    	if(globalTokens != null){
+	    		Collection<SourceToken> values = globalTokens.values();
+				return values.toArray(new SourceToken[values.size()]);
+	    	}
+    	}
+    	else if(which == GlobalModelVisitor.ALIAS_MODULES){
+    		if(aliasTokens != null){
+    			Collection<SourceToken> values = aliasTokens.values();
+    			return values.toArray(new SourceToken[values.size()]);
+    		}
+    	}
+    	//end cache
+    	
+    	
+    	SourceToken[] ret = null;
         try {
-            return GlobalModelVisitor.getTokens(ast, which, name, state);
+            ret = GlobalModelVisitor.getTokens(ast, which, name, state);
+            
+            
+            //cache
+            if(which == GlobalModelVisitor.GLOBAL_TOKENS){
+            	globalTokens = new HashMap<String, SourceToken>();
+            	synchronized (globalTokens) {
+            		for (SourceToken token : ret) {
+            			globalTokens.put(token.getRepresentation(), token);
+            		}
+				}
+            }
+            else if(which == GlobalModelVisitor.ALIAS_MODULES){
+            	aliasTokens = new HashMap<String, SourceToken>();
+            	synchronized (aliasTokens) {
+            		for (SourceToken token : ret) {
+            			aliasTokens.put(token.getRepresentation(), token);
+            		}
+            	}
+            }
+            //end cache
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new IToken[0];
+        if(ret == null){
+        	ret = new SourceToken[0]; 
+        }
+        return ret;
     }
 
     /**
@@ -164,7 +251,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @see org.python.pydev.core.IModule#getGlobalTokens(org.python.pydev.core.ICompletionState, org.python.pydev.core.ICodeCompletionASTManager)
      */
     public IToken[] getGlobalTokens(ICompletionState initialState, ICodeCompletionASTManager manager) {
-        IToken[] t = getTokens(GlobalModelVisitor.GLOBAL_TOKENS, initialState);
+        IToken[] t = getTokens(GlobalModelVisitor.GLOBAL_TOKENS, null);
         
         if(t instanceof SourceToken[]){
 	        SourceToken[] tokens = (SourceToken[]) t;
@@ -203,7 +290,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                         value = NodeUtils.getRepresentationString(assign.value);
                                         definitions = findDefinition(initialState.getCopyWithActTok(value), d.line, d.col, manager.getNature(), new ArrayList<FindInfo>());
                                     }else if(d.ast instanceof ClassDef){
-                                        IToken[] toks = (IToken[]) getClassToks(initialState, manager, d.ast).toArray(new IToken[0]);
+                                        IToken[] toks = (IToken[]) ((SourceModule)d.module).getClassToks(initialState, manager, d.ast).toArray(new IToken[0]);
                                         if(iActTok == actToks.length-1){
                                             return toks;
                                         }

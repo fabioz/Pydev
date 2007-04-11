@@ -68,20 +68,9 @@ public abstract class AbstractModule implements IModule {
     /**
      * Checks if it is in the global tokens that were created in this module
      * @param tok the token we are looking for
-     * @param nature the nature
      * @return true if it was found and false otherwise
      */
-    protected boolean isInDirectGlobalTokens(String tok, IPythonNature nature){
-    	IToken[] tokens = getGlobalTokens();
-    	
-    	for (int i = 0; i < tokens.length; i++) {
-    		if(tokens[i].getRepresentation().equals(tok)){
-    			return true;
-    		}
-    	}
-    	return false;
-    	
-    }
+    public abstract boolean isInDirectGlobalTokens(String tok);
 
     /** 
      * @throws CompletionRecursionException 
@@ -102,7 +91,7 @@ public abstract class AbstractModule implements IModule {
     public int isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, boolean ifHasGetAttributeConsiderInTokens) throws CompletionRecursionException{
         //it's just worth checking it if it is not dotted...
         if(tok.indexOf(".") == -1){
-        	if(isInDirectGlobalTokens(tok, nature)){
+        	if(isInDirectGlobalTokens(tok)){
         		return IModule.FOUND_TOKEN;
         	}
         }

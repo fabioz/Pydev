@@ -18,6 +18,7 @@ import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.actions.PyAction;
 
 /**
@@ -475,7 +476,11 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             		PySelection ps = new PySelection(document, command.offset);
 	                String completeLine = ps.getLineWithoutCommentsOrLiterals();
 	                String lineToCursor = ps.getLineContentsToCursor().trim();
-	                if(completeLine.indexOf("import") == -1){
+	                if( completeLine.indexOf(" import ") == -1 && 
+                		StringUtils.leftTrim(completeLine).startsWith("from ")&& 
+	                   !completeLine.startsWith("import ")&& 
+	                   !completeLine.endsWith(" import")){
+	                	
 	                    String importsTipperStr = ImportsSelection.getImportsTipperStr(lineToCursor, false).importsTipperStr;
 	                    if(importsTipperStr.length() > 0){
 	                        command.text = " import ";

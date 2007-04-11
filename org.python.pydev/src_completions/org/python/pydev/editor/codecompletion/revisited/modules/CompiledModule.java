@@ -8,9 +8,11 @@ package org.python.pydev.editor.codecompletion.revisited.modules;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -39,12 +41,12 @@ public class CompiledModule extends AbstractModule{
 
     public static boolean TRACE_COMPILED_MODULES = false; 
     
-    private HashMap<String, IToken[]> cache = new HashMap<String, IToken[]>();
+    private Map<String, Map<String, IToken> > cache = new HashMap<String, Map<String, IToken>>();
     
     /**
      * These are the tokens the compiled module has.
      */
-    private CompiledToken[] tokens = null;
+    private Map<String, CompiledToken> tokens = null;
     
     private File file;
     
@@ -88,12 +90,12 @@ public class CompiledModule extends AbstractModule{
 	        		}
 					setTokens(name, manager);
 				} catch (Exception e2) {
-					tokens = new CompiledToken[0];
+					tokens = new HashMap<String, CompiledToken>();
 					e2.printStackTrace();
 					PydevPlugin.log(e2);
 				}
 	        }
-            if(tokens != null && tokens.length > 0){
+            if(tokens != null && tokens.size() > 0){
                 List<IModulesObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_MODULES_OBSERVER);
                 for (IModulesObserver observer : participants) {
                     observer.notifyCompiledModuleCreated(this, manager);
@@ -101,7 +103,7 @@ public class CompiledModule extends AbstractModule{
             }
         }else{
             //not used if not enabled.
-            tokens = new CompiledToken[0];
+            tokens = new HashMap<String, CompiledToken>();
         }
 
     }
@@ -167,7 +169,10 @@ public class CompiledModule extends AbstractModule{
 		        array.add(new CompiledToken("__file__","","",name,IToken.TYPE_BUILTIN));
 		    }
 		    
-		    tokens = array.toArray(new CompiledToken[0]);
+		    this.tokens = new HashMap<String, CompiledToken>();
+		    for (IToken token : array) {
+		    	this.tokens.put(token.getRepresentation(), (CompiledToken) token);
+			} 
 		}
 	}
     
@@ -191,7 +196,12 @@ public class CompiledModule extends AbstractModule{
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getGlobalTokens()
      */
     public IToken[] getGlobalTokens() {
-        return tokens;
+    	if(tokens == null){
+    		return new IToken[0];
+    	}
+    	
+        Collection<CompiledToken> values = tokens.values();
+		return values.toArray(new IToken[values.size()]);
     }
 
     /**
@@ -205,9 +215,10 @@ public class CompiledModule extends AbstractModule{
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
     public IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
-        Object v = cache.get(state.getActivationToken());
+    	Map<String, IToken> v = cache.get(state.getActivationToken());
         if(v != null){
-            return (IToken[]) v;
+        	Collection<IToken> values = v.values();
+            return values.toArray(new IToken[values.size()]);
         }
         
         IToken[] toks = new IToken[0];
@@ -230,7 +241,11 @@ public class CompiledModule extends AbstractModule{
 		                
 		            }
 		            toks = (CompiledToken[]) array.toArray(new CompiledToken[0]);
-		            cache.put(state.getActivationToken(), toks);
+		            HashMap<String, IToken> map = new HashMap<String, IToken>();
+		            for (IToken token : toks) {
+		            	map.put(token.getRepresentation(), token);
+					}
+					cache.put(state.getActivationToken(), map);
 	            }
 	        } catch (Exception e) {
 	        	System.err.println("Error while getting info for module:"+this.name);
@@ -242,12 +257,20 @@ public class CompiledModule extends AbstractModule{
     }
     
     @Override
+    public boolean isInDirectGlobalTokens(String tok) {
+    	if(this.tokens != null){
+    		return this.tokens.containsKey(tok);
+    	}
+    	return false;
+    }
+    
+    @Override
     public boolean isInGlobalTokens(String tok, IPythonNature nature) {
         //we have to override because there is no way to check if it is in some import from some other place if it has dots on the tok...
         
         
         if(tok.indexOf('.') == -1){
-            return super.isInDirectGlobalTokens(tok, nature);
+            return isInDirectGlobalTokens(tok);
         }else{
             ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature);
             String[] headAndTail = FullRepIterable.headAndTail(tok);

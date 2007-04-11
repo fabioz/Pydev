@@ -4,7 +4,9 @@ Pydev
 <ul>
 <li><strong>Pydev Editor:</strong> If multiple editors are open for the same file, a parser is shared among them</li>
 <li><strong>Pydev Editor:</strong> Backspace is now indentation-aware</li>
-<li><strong>Code-completion:</strong> Fixed an issue when using mxDateTime (some builtins were not brought correctly)</li>
+<li><strong>Pydev Editor:</strong> sometimes the 'import' string was added when it shouldn't</li>
+<li><strong>Fix: Code-completion:</strong> case where a package shadows a .pyd is now controlled (this happened with mxDateTime.pyd)</li>
+<li><strong>Fix: Code-completion:</strong> recursion condition was wrongly detected</li>
 <li><strong>Fix:</strong> The filter for showing only pydev projects is not active by default anymore</li>
 </ul>
 

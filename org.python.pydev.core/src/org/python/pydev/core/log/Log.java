@@ -3,6 +3,9 @@
  */
 package org.python.pydev.core.log;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -76,6 +79,20 @@ public class Log {
             }
         }
     }
+    
+    public static void toLogFile(Exception e) {
+		String msg = getExceptionStr(e);
+		toLogFile(msg);
+    }
+
+	public static String getExceptionStr(Exception e) {
+		final ByteArrayOutputStream str = new ByteArrayOutputStream();
+		final PrintStream prnt = new PrintStream(str);
+		e.printStackTrace(prnt);
+		prnt.flush();
+		String msg = new String(str.toByteArray());
+		return msg;
+	}
 
     public synchronized static void addLogLevel() {
         synchronized(lock){

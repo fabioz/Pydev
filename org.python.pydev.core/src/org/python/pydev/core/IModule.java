@@ -42,6 +42,8 @@ public interface IModule {
      * @return
      */
     public abstract IToken[] getLocalTokens(int line, int col);
+    
+	public abstract boolean isInDirectGlobalTokens(String tok);
 
     public abstract boolean isInGlobalTokens(String tok, IPythonNature nature) throws CompletionRecursionException;
 

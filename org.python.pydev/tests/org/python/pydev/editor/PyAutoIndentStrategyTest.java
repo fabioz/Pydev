@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testNoAutoSelf2();
+            s.testAutoImportStr();
             s.tearDown();
     		junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -1564,6 +1564,30 @@ public class PyAutoIndentStrategyTest extends TestCase {
         docCmd = new DocCmd(doc.length(), 0, " ");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         expected = " ";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "from importer";
+        docCmd = new DocCmd(doc.length(), 0, " ");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = " import ";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "from importer";
+        docCmd = new DocCmd(doc.length()-2, 0, " ");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = " ";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "from myimporter";
+        docCmd = new DocCmd(doc.length(), 0, " ");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = " import ";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "from myimport";
+        docCmd = new DocCmd(doc.length(), 0, " ");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = " import ";
         assertEquals(expected, docCmd.text);
         
         doc = "from xxx #import yyy";

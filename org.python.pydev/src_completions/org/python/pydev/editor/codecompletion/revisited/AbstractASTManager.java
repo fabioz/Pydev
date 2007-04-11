@@ -825,7 +825,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         
         IModule mod = o.o1;
         String tok = o.o2;
-
+        
         if(tok.length() == 0){
             //the activation token corresponds to an imported module. We have to get its global tokens and return them.
             ICompletionState copy = state.getCopy();
@@ -839,6 +839,16 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             copy.setLine(-1);
             copy.raiseNFindTokensOnImportedModsCalled(mod, tok);
             
+            String parentPackage = o.o3.getParentPackage();
+            if(parentPackage.trim().length() > 0 && 
+            	parentPackage.equals(current.getName()) && 
+            	state.getActivationToken().equals(tok) && 
+            	!parentPackage.endsWith("__init__")){
+            	if(current.isInDirectGlobalTokens(tok)){
+            		return null;
+            	}
+            }
+
             return getCompletionsForModule(mod, copy);
         }
         return null;

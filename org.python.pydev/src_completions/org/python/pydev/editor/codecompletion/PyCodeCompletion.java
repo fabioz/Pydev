@@ -21,6 +21,7 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ILocalScope;
@@ -61,6 +62,11 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * It is kept updated from the Preferences Page
      */
     public static volatile boolean DEBUG_CODE_COMPLETION = PyCodeCompletionPreferencesPage.isToDebugCodeCompletion();
+    
+    /**
+     * Called when a recursion exception is detected.
+     */
+    public static ICallback<Object, CompletionRecursionException> onCompletionRecursionException;
     
     /* (non-Javadoc)
      * @see org.python.pydev.editor.codecompletion.IPyCodeCompletion#getCodeCompletionProposals(org.eclipse.jface.text.ITextViewer, org.python.pydev.editor.codecompletion.CompletionRequest)
@@ -199,6 +205,12 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             tokensList.addAll(alreadyChecked.values());
             changeItokenToCompletionPropostal(viewer, request, ret, tokensList, importsTip, state);
         } catch (CompletionRecursionException e) {
+        	if(onCompletionRecursionException != null){
+        		onCompletionRecursionException.call(e);
+        	}
+        	if(DEBUG_CODE_COMPLETION){
+        		Log.toLogFile(e);
+        	}
             //PydevPlugin.log(e);
             //ret.add(new CompletionProposal("",request.documentOffset,0,0,null,e.getMessage(), null,null));
         }

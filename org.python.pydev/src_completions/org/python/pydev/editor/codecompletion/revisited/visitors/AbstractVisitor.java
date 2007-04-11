@@ -221,7 +221,7 @@ public abstract class AbstractVisitor extends VisitorBase{
      * @return
      * @throws Exception
      */
-    public static IToken[] getTokens(SimpleNode ast, int which, String moduleName, ICompletionState state) {
+    public static SourceToken[] getTokens(SimpleNode ast, int which, String moduleName, ICompletionState state) {
         AbstractVisitor modelVisitor;
         if(which == INNER_DEFS){
             modelVisitor = new InnerModelVisitor(moduleName, state);
