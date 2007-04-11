@@ -625,5 +625,18 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     }
     
     
+    public void testRenameParam3() throws Exception {
+    	String str = "" +
+    	"class Foo:\n"+
+    	"    def ListFiles(%s):\n"+
+    	"        pass\n"+
+    	"    def testCases(self):\n"+
+    	"        self.ListFiles\n"+
+    	"";
+    	
+    	checkRename(str, 1, 19, "self", false, true);
+    }
+    
+    
 
 }
