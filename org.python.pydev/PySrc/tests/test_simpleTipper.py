@@ -9,6 +9,8 @@ sys.argv[0] = os.path.dirname(sys.argv[0])
 #twice the dirname to get the previous level from this file.
 sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
 
+HAS_WX = False
+
 import unittest
 import importsTipper
 import inspect
@@ -32,35 +34,44 @@ class Test(unittest.TestCase):
         except RuntimeError, e:
             if not 'Unable to import module' in str(e):
                 raise
+
+    def testImports4(self):
+        try:
+            tip = importsTipper.GenerateTip('mx.DateTime.mxDateTime.mxDateTime')
+            self.assertIn('now', tip)
+        except RuntimeError, e:
+            if not 'Unable to import module' in str(e):
+                raise
         
     def testImports(self):
         '''
         You can print the results to check...
         '''
-        tip = importsTipper.GenerateTip('wxPython.wx')
-        self.assertIn('wxApp'        , tip)
-        
-        tip = importsTipper.GenerateTip('wxPython.wx.wxApp')
-        
-        try:
-            tip = importsTipper.GenerateTip('qt')
-            self.assertIn('QWidget'        , tip)
-            self.assertIn('QDialog'        , tip)
+        if HAS_WX:
+            tip = importsTipper.GenerateTip('wxPython.wx')
+            self.assertIn('wxApp'        , tip)
             
-            tip = importsTipper.GenerateTip('qt.QWidget')
-            self.assertIn('rect'           , tip)
-            self.assertIn('rect'           , tip)
-            self.assertIn('AltButton'      , tip)
-    
-            tip = importsTipper.GenerateTip('qt.QWidget.AltButton')
-            self.assertIn('__xor__'      , tip)
-    
-            tip = importsTipper.GenerateTip('qt.QWidget.AltButton.__xor__')
-            self.assertIn('__class__'      , tip)
-        except RuntimeError, e:
-            if not 'Unable to import module' in str(e):
-                raise
+            tip = importsTipper.GenerateTip('wxPython.wx.wxApp')
+            
+            try:
+                tip = importsTipper.GenerateTip('qt')
+                self.assertIn('QWidget'        , tip)
+                self.assertIn('QDialog'        , tip)
+                
+                tip = importsTipper.GenerateTip('qt.QWidget')
+                self.assertIn('rect'           , tip)
+                self.assertIn('rect'           , tip)
+                self.assertIn('AltButton'      , tip)
         
+                tip = importsTipper.GenerateTip('qt.QWidget.AltButton')
+                self.assertIn('__xor__'      , tip)
+        
+                tip = importsTipper.GenerateTip('qt.QWidget.AltButton.__xor__')
+                self.assertIn('__class__'      , tip)
+            except RuntimeError, e:
+                if not 'Unable to import module' in str(e):
+                    raise
+            
         tip = importsTipper.GenerateTip('__builtin__')
 #        for t in tip[1]:
 #            print t
@@ -118,6 +129,6 @@ def suite():
     unittest.TextTestRunner(verbosity=2).run(s)
 
 if __name__ == '__main__':
-    suite()
-#    unittest.main()
+#    suite()
+    unittest.main()
     

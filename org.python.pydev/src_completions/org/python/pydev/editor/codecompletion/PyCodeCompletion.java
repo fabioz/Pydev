@@ -173,6 +173,14 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                         initialToken.setDocStr(token2.getDocStr());
                                         break;
                                     }
+                                    if(token2 == null || 
+                                    	   (token2.equals(token) && 
+                                    		token2.getArgs().equals(token.getArgs()) && 
+                                    		token2.getParentPackage().equals(token.getParentPackage()))){
+                                    	
+                                    	token2.equals(token);
+                                    	break;
+                                    }
                                     token = token2;
                                 }else{
                                     break;

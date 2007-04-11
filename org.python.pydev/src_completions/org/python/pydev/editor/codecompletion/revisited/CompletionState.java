@@ -208,9 +208,9 @@ public class CompletionState implements ICompletionState {
         while(it.hasNext()){
             Memo<IToken> memo = it.next();
             if(memo.isInRecursion(null, token)){
-                if(it.hasNext()){
+//                if(it.hasNext()){
                     throw new CompletionRecursionException("Possible recursion found -- probably programming error --  (token: "+token+") - stopping analysis.");
-                }
+//                }
             }
         }
     }

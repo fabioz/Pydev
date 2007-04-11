@@ -1560,6 +1560,12 @@ public class PyAutoIndentStrategyTest extends TestCase {
         expected = " ";
         assertEquals(expected, docCmd.text);
         
+        doc = "from_xxx";
+        docCmd = new DocCmd(doc.length(), 0, " ");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = " ";
+        assertEquals(expected, docCmd.text);
+        
         doc = "from xxx #import yyy";
         docCmd = new DocCmd(8, 0, " ");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);

@@ -79,6 +79,8 @@ public class CodeCompletionTestsBase extends TestCase {
      */
 	public static Class restoredSystem;
 	public Preferences preferences;
+
+	protected boolean ADD_MX_TO_FORCED_BUILTINS = true;
     
     /**
      * Whether we want to debug problems in this class.
@@ -245,7 +247,9 @@ public class CodeCompletionTestsBase extends TestCase {
             //get default and restore the pythonpath
             InterpreterInfo info = getDefaultInterpreterInfo();
             info.restoreCompiledLibs(getProgressMonitor());
-            info.forcedLibs.add("mx");
+            if(ADD_MX_TO_FORCED_BUILTINS){
+            	info.forcedLibs.add("mx");
+            }
             info.restorePythonpath(path, getProgressMonitor()); //here
 
             //postconditions

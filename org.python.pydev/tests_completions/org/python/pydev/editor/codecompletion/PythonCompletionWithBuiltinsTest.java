@@ -26,7 +26,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testRecursion();
+            builtins.testPreferForcedBuiltin();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -44,9 +44,13 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
      */
     protected void setUp() throws Exception {
         super.setUp();
+        
+        ADD_MX_TO_FORCED_BUILTINS = false;
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
-        this.restorePythonPath(TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES+"|"+TestDependent.PYTHON_WXPYTHON_PACKAGES, false);
+        this.restorePythonPath(TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES+"|"+
+        		TestDependent.PYTHON_WXPYTHON_PACKAGES+"|"+TestDependent.PYTHON_MX_PACKAGES, false);
+        
         codeCompletion = new PyCodeCompletion();
 
         //we don't want to start it more than once

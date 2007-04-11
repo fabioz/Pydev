@@ -54,8 +54,17 @@ def Find( name ):
         
     components = name.split('.')
 
+    old_comp = None
     for comp in components[1:]:
-        mod = getattr(mod, comp)
+        try:
+            #this happens in the following case:
+            #we have mx.DateTime.mxDateTime.mxDateTime.pyd
+            #but after importing it, mx.DateTime.mxDateTime does shadows access to mxDateTime.pyd
+            mod = getattr(mod, comp)
+        except AttributeError:
+            if old_comp != comp:
+                raise
+        
         if inspect.ismodule(mod):
             f = GetFile(mod)
         else:
@@ -63,6 +72,8 @@ def Find( name ):
                 foundAs += '.'
             foundAs += comp
             
+        old_comp = comp
+        
     return f, mod, parent, foundAs
 
 def Search( data ):
