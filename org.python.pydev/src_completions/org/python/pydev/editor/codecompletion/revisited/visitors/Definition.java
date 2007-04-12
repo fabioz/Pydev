@@ -18,12 +18,12 @@ import org.python.pydev.parser.jython.SimpleNode;
 public class Definition implements IDefinition {
 
     /**
-     * Line of the definition.
+     * Line of the definition. Starts at 1
      */
     public int line;
     
     /**
-     * Column of the definition.
+     * Column of the definition. Starts at 1
      */
     public int col;
 

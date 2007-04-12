@@ -10,12 +10,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Global;
@@ -69,7 +72,13 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
 	private int col;
     
     private boolean foundAsDefinition = false;
+    
     private Definition definitionFound;
+
+    /**
+     * Call is stored for the context for a keyword parameter
+     */
+	private Stack<Call> call = new Stack<Call>();
     
     /**
      * Constructor
@@ -191,6 +200,43 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     		definitionFound = new Definition(line, name.beginColumn, rep, name, scope, module);
     		definitions.add(definitionFound);
     	}
+    }
+    
+    @Override
+    public Object visitCall(Call node) throws Exception {
+    	this.call.push(node);
+    	Object r = super.visitCall(node);
+    	this.call.pop();
+		return r;
+    }
+    
+    
+    @Override
+    public Object visitNameTok(NameTok node) throws Exception {
+    	if(node.ctx == NameTok.KeywordName){
+    		if(this.line == node.beginLine){
+    			String rep = NodeUtils.getRepresentationString(node);
+
+    			if(PySelection.isInside(col, node.beginColumn, rep.length())){
+    	    		foundAsDefinition = true;
+    	    		// if it is found as a definition it is an 'exact' match, so, erase all the others.
+    	    		ILocalScope scope = new LocalScope(this.defsStack);
+    	    		for (Iterator<Definition> it = definitions.iterator(); it.hasNext();) {
+    	    			Definition d = it.next();
+    	    			if(!d.scope.equals(scope)){
+    	    				it.remove();
+    	    			}
+    	    		}
+    	    		
+    	    		definitions.clear();
+    	    		
+					definitionFound = new KeywordParameterDefinition(line, node.beginColumn, rep, node, scope, module, this.call.peek());
+    	    		definitions.add(definitionFound);
+    	    		throw new StopVisitingException();
+    			}
+    		}
+    	}
+    	return null;
     }
 
     /**

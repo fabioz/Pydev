@@ -15,6 +15,7 @@ Pydev Extensions:
 <ul>
 <li><strong>Fix:</strong> The vmargs in the interactive console are now only really passed to the jython process</li>
 <li><strong>Fix:</strong> Rename refactoring was not getting some references that mapped to imports initially (and not directly to classes or functions)</li>
+<li><strong>Fix:</strong> Mark Occurrences marks correctly the keyword parameters in referencing calls</li>
 </ul>
 
 

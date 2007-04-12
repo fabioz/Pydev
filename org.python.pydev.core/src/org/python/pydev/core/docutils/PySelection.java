@@ -1535,6 +1535,16 @@ public class PySelection {
         }
         return false;
 	}
+	
+	/**
+	 * @return if the col is inside the initial col/len
+	 */
+	public static boolean isInside(int col, int initialCol, int len) {
+		if(col >= initialCol && col <= (initialCol + len)){
+			return true;
+		}
+		return false;
+	}
 
 	/**
 	 * @return if the region passed is composed of a single line

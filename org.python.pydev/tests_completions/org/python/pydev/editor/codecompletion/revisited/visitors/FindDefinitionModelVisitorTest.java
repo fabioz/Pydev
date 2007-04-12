@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.FindInfo;
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
@@ -23,7 +24,7 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
         try{
             FindDefinitionModelVisitorTest test = new FindDefinitionModelVisitorTest();
             test.setUp();
-            test.testFind();
+            test.testFind3();
             test.tearDown();
             junit.textui.TestRunner.run(FindDefinitionModelVisitorTest.class);
         }catch(Exception e){
@@ -71,6 +72,34 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
 		assertNotSame(module, defs[0].module);
 		assertEquals("testAssist.assist", defs[0].module.getName());
 		
+    }
+    
+    /**
+     * @throws Exception
+     * 
+     */
+    public void testFind3() throws Exception {
+    	String d = ""+
+    	"class Foo:\n" +
+    	"    def m1(self, bar):\n" +
+    	"        pass\n" +
+    	"    def m2(self):\n" +
+    	"        bar = 10\n" +
+    	"        self.m1(bar = bar)\n" + //the definition for first bar is in m1(self, bar) 
+    	"";
+    	
+    	Document doc = new Document(d);
+    	IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 2);
+    	ICompletionState emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("bar", nature);
+		ArrayList<FindInfo> arrayList = new ArrayList<FindInfo>();
+		Definition[] defs = (Definition[]) module.findDefinition(emptyCompletionState, 6, 17, nature, arrayList);
+    	
+    	assertEquals(1, defs.length);
+    	assertEquals(6, defs[0].line);
+    	assertEquals(17, defs[0].col);
+    	assertSame(module, defs[0].module);
+    	
+    	
     }
 
     /**

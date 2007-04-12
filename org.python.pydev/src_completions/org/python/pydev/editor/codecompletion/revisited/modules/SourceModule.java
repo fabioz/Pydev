@@ -37,6 +37,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.FindDefinitionM
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.GlobalModelVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.LocalScope;
+import org.python.pydev.editor.codecompletion.revisited.visitors.StopVisitingException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -300,7 +301,11 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                         ClassDef classDef = (ClassDef) d.scope.getClassDef();
                                         if(classDef != null){
                                         	FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(actToks[actToks.length-1], d.line, d.col, d.module);
-	                                        classDef.accept(visitor);
+	                                        try {
+												classDef.accept(visitor);
+											} catch (StopVisitingException e) {
+												//expected exception
+											}
 	                                        if(visitor.definitions.size() == 0){
 	                                        	return new IToken[0];
 	                                        }
@@ -449,7 +454,11 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         //this visitor checks for assigns for the token
         FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(rep, line, col, this);
         if (ast != null){
-            ast.accept(visitor);
+        	try{
+        		ast.accept(visitor);
+			} catch (StopVisitingException e) {
+				//expected exception
+			}
         }
         
         if(visitor.definitions.size() > 0){
