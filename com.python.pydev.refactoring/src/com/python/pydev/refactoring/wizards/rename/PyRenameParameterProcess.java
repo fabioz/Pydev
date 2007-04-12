@@ -5,13 +5,19 @@ import java.util.List;
 
 import org.eclipse.jface.util.Assert;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.editor.codecompletion.revisited.visitors.KeywordParameterDefinition;
+import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -37,15 +43,68 @@ import com.python.pydev.refactoring.wizards.rename.visitors.FindCallVisitor;
 public class PyRenameParameterProcess extends PyRenameFunctionProcess{
 
 	private String functionName;
+	
+	/**
+	 * Used if we're in a call and cannot find the definition for the method of that call when we've a KeywordParameterDefinition.
+	 * If that's not the case, it's null.
+	 */
+	private ASTEntry singleEntry;
 
+	public PyRenameParameterProcess(KeywordParameterDefinition definition, IPythonNature nature) throws UnableToFindFuncDefException {
+		Assert.isNotNull(definition.scope, "The scope for a rename parameter must always be provided.");
+		
+		String tok = NodeUtils.getFullRepresentationString(definition.call);
+		int line = definition.call.beginLine;
+		int col = definition.call.beginColumn;
+		
+		IDefinition[] definitions;
+		try {
+			definitions = definition.module.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, nature, line-1, col-1), line, col, nature, null);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		if(definitions != null && definitions.length > 0){
+			init((Definition) definitions[0]);
+		}else{
+			singleEntry = new ASTEntry(null);
+			singleEntry.node = definition.ast;
+		}
+	}
+	
+	@Override
+	protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
+		if(singleEntry == null){
+			super.findReferencesToRenameOnLocalScope(request, status);
+		}else{
+			docOccurrences.add(singleEntry);
+		}
+	}
+	
+	@Override
+	protected void findReferencesToRenameOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
+		if(singleEntry == null){
+			super.findReferencesToRenameOnWorkspace(request, status);
+		}else{
+			docOccurrences.add(singleEntry);
+		}
+	}
+	
     public PyRenameParameterProcess(Definition definition) {
-		super(); 
 		//empty, because we'll actually supply a different definition for the superclass (the method 
 		//definition, and not the parameter, which we receive here).
 		
+		init(definition);
+	}
+
+	private void init(Definition definition) {
 		Assert.isNotNull(definition.scope, "The scope for a rename parameter must always be provided.");
 		
-		FunctionDef node = (FunctionDef) definition.scope.getScopeStack().peek();
+		FunctionDef node;
+		if(definition.ast instanceof FunctionDef){
+			node = (FunctionDef) definition.ast;
+		}else{
+			node = (FunctionDef) definition.scope.getScopeStack().peek();
+		}
 		super.definition = new Definition(node.beginLine, node.beginColumn, ((NameTok)node.name).id, node, definition.scope, definition.module);
 		this.functionName = ((NameTok)node.name).id;
 	}
