@@ -11,7 +11,6 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.refactoring.wizards.rename.PyRenameAnyLocalProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameAttributeProcess;
@@ -21,7 +20,6 @@ import com.python.pydev.refactoring.wizards.rename.PyRenameImportProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameLocalProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameParameterProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameSelfAttributeProcess;
-import com.python.pydev.refactoring.wizards.rename.UnableToFindFuncDefException;
 
 public class RefactorProcessFactory {
 

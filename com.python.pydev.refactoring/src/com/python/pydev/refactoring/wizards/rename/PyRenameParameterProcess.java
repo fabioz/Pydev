@@ -50,7 +50,7 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
 	 */
 	private ASTEntry singleEntry;
 
-	public PyRenameParameterProcess(KeywordParameterDefinition definition, IPythonNature nature) throws UnableToFindFuncDefException {
+	public PyRenameParameterProcess(KeywordParameterDefinition definition, IPythonNature nature){
 		Assert.isNotNull(definition.scope, "The scope for a rename parameter must always be provided.");
 		
 		String tok = NodeUtils.getFullRepresentationString(definition.call);
