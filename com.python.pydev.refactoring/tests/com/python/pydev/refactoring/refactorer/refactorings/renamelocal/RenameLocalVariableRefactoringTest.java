@@ -13,7 +13,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         	DEBUG = true;
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameParameter3();
+            test.testRenameParam5();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -635,6 +635,33 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     	"";
     	
     	checkRename(str, 1, 19, "self", false, true);
+    }
+    
+    
+    
+    public void testRenameParam4() throws Exception {
+    	String str = "" +
+    	"class Foo:\n"+
+    	"    def ListFiles(self, %s):\n"+
+    	"        pass\n"+
+    	"    def testCases(self):\n"+
+    	"        self.ListFiles(%s=10)\n"+
+    	"";
+    	
+    	checkRename(str, 1, 25, "xxx", false, true);
+    }
+    
+    
+    public void testRenameParam5() throws Exception {
+    	String str = "" +
+    	"class Foo:\n"+
+    	"    def ListFiles(self, %s):\n"+
+    	"        pass\n"+
+    	"    def testCases(self):\n"+
+    	"        self.ListFiles(bar)\n"+
+    	"";
+    	
+    	checkRename(str, 1, 25, "xxx", false, true);
     }
     
     

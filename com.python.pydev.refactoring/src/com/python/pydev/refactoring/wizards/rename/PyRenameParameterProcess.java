@@ -78,7 +78,10 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
 					continue;
 				}
     		}
-            if(entry.parent != null && entry.parent.node instanceof FunctionDef){
+            if(entry.parent != null && entry.parent.node instanceof FunctionDef && 
+            		entry.node instanceof NameTok && ((NameTok)entry.node).ctx == NameTok.FunctionName){
+            	//process a function definition (get the parameters with the given name and
+            	//references inside that function)
                 processFunctionDef(ret, entry);
                 
             }else if(entry.node instanceof Name){

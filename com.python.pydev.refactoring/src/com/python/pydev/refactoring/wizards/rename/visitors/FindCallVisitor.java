@@ -62,7 +62,9 @@ public class FindCallVisitor extends Visitor{
     @Override
     public Object visitNameTok(NameTok node) throws Exception {
         if(node == nameTok){
-            call = lastCall.peek();
+        	if(lastCall.size() > 0){
+        		call = lastCall.peek();
+        	}
             return null;
         }
         return super.visitNameTok(node);
