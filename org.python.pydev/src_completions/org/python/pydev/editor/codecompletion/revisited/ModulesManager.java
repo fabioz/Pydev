@@ -545,16 +545,24 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         	return null;
         }
         
+        //for temporary access (so that we don't generate many instances of it)
+        ModulesKey keyForCacheAccess = new ModulesKey(null, null);
+        
         boolean foundStartingWithBuiltin = false;
         for (int i = 0; i < builtins.length; i++) {
             String forcedBuiltin = builtins[i];
             if (name.startsWith(forcedBuiltin)) {
                 if(name.length() > forcedBuiltin.length() && name.charAt(forcedBuiltin.length()) == '.'){
                 	foundStartingWithBuiltin = true;
-                	n = cache.getObj(new ModulesKey(name, null), this);
+                	
+                	keyForCacheAccess.name = name;
+                	n = cache.getObj(keyForCacheAccess, this);
+                	
                 	if(n == null && dontSearchInit == false){
-                		n = cache.getObj(new ModulesKey(name+".__init__", null), this);
+                		keyForCacheAccess.name = new StringBuffer(name).append(".__init__").toString();
+                		n = cache.getObj(keyForCacheAccess, this);
                 	}
+                	
                 	if(n instanceof EmptyModule || n instanceof SourceModule){ //it is actually found as a source module, so, we have to 'coerce' it to a compiled module
                 		n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
                 		doAddSingleModule(new ModulesKey(n.getName(), null), n);
@@ -563,7 +571,10 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                 }
                 
                 if(name.equals(forcedBuiltin)){
-                    n = cache.getObj(new ModulesKey(name, null), this);
+                	
+                	keyForCacheAccess.name = name;
+                    n = cache.getObj(keyForCacheAccess, this);
+                    
                     if(n == null || n instanceof EmptyModule || n instanceof SourceModule){ //still not created or not defined as compiled module (as it should be)
                         n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
                         doAddSingleModule(new ModulesKey(n.getName(), null), n);
@@ -591,15 +602,16 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         if(n == null){
             if(!dontSearchInit){
                 if(n == null){
-                    n = cache.getObj(new ModulesKey(name + ".__init__", null), this);
+                	keyForCacheAccess.name = new StringBuffer(name).append(".__init__").toString();
+                    n = cache.getObj(keyForCacheAccess, this);
                     if(n != null){
                         name += ".__init__";
                     }
                 }
             }
             if (n == null) {
-            	ModulesKey key = new ModulesKey(name, null);
-            	n = cache.getObj(key, this);
+            	keyForCacheAccess.name = name;
+            	n = cache.getObj(keyForCacheAccess, this);
             }
         }
 
@@ -624,13 +636,17 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
 
             if (!found && e.f != null) {
             	if(!e.f.exists()){
-            		doRemoveSingleModule(new ModulesKey(name, e.f));
+            		keyForCacheAccess.name = name;
+            		keyForCacheAccess.file = e.f;
+            		doRemoveSingleModule(keyForCacheAccess);
             		n = null;
             	}else{
 	                try {
 	                    n = AbstractModule.createModule(name, e.f, nature, -1);
 	                } catch (IOException exc) {
-	                    doRemoveSingleModule(new ModulesKey(name, e.f));
+	                	keyForCacheAccess.name = name;
+	                	keyForCacheAccess.file = e.f;
+	                    doRemoveSingleModule(keyForCacheAccess);
 	                    n = null;
 	                }
                 }
