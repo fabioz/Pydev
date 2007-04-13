@@ -16,15 +16,15 @@ public class FuncInfo extends AbstractInfo{
      */
     public String[] params;
     
-    public static FuncInfo fromFunctionDef(FunctionDef def, String moduleDeclared, String path, ObjectsPool pool) {
+    public static FuncInfo fromFunctionDef(FunctionDef def, String moduleDeclared, String path, ObjectsPool<String> pool) {
         FuncInfo info = fromFunctionDef(def, moduleDeclared, pool);
         info.path = path;
         return info;
     }
 
-    public static FuncInfo fromFunctionDef(FunctionDef def, String moduleDeclared, ObjectsPool pool) {
+    public static FuncInfo fromFunctionDef(FunctionDef def, String moduleDeclared, ObjectsPool<String> pool) {
         FuncInfo info = new FuncInfo();
-        info.name = (String) pool.getFromPool(((NameTok)def.name).id);
+        info.name = pool.getFromPool(((NameTok)def.name).id);
         info.moduleDeclared = moduleDeclared;
         return info;
     }

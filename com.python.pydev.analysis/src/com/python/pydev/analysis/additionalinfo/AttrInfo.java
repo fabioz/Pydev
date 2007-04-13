@@ -17,9 +17,9 @@ public class AttrInfo extends AbstractInfo{
      * - we lack all the info to determine if this is a valid assign (we have to see if it is a global
      * or a class or an instance attr).
      */
-    public static AttrInfo fromAssign(String def, String moduleDeclared, String path, ObjectsPool pool) {
+    public static AttrInfo fromAssign(String def, String moduleDeclared, String path, ObjectsPool<String> pool) {
         AttrInfo info = new AttrInfo();
-        info.name = (String) pool.getFromPool(def);
+        info.name = pool.getFromPool(def);
         info.moduleDeclared = moduleDeclared;
         info.path = path;
         return info;
