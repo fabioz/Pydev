@@ -31,17 +31,29 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 <h3>New Release: LAST_VERSION_TAG</h3>
 
 <h4>Major highlights:</h4>
+
 <ul>
-<li><strong><a href="http://www.eclipse.org/mylar/">Mylar</a> integration</strong>: the pydev package explorer now supports <a href="http://www.eclipse.org/mylar/">mylar</a> (packaged as a separate feature: <strong>org.python.pydev.mylar.feature)</strong></li>
-<li><strong>Code-completion</strong>: comment completion is now the same as string completion</li>
-<li><strong>Debug</strong>: Breakpoints can be set in external files</li>
-<li><strong>Debug</strong>: Breakpoint annotations now show in external files</li>
-<li><strong>Package Explorer</strong>: filter for import nodes created</li>
-<li><strong>Fix: Package Explorer Actions</strong>: Open action does not expand children when opening python file</li>
-<li><strong>Fix: Project Explorer (WTP) integration</strong>: does not conflict with elements from other plugins anymore (such as java projects)</li>
-<li><strong>Fix: halt in new project wizard</strong>: when creating a new project from the pydev wizard it was halting in some platforms</li>
-<li><strong>Fix: ${string_prompt} in run config</strong>: now only evaluated on the actual run</li>
-<li><strong>Fix: Code-Completion</strong>: jython shell was not handling java.lang.NoClassDefFoundError correctly</li>
+<li><strong>Pydev Editor:</strong> If multiple editors are open for the same file, a parser is shared among them (which greatly improves the performance in this case)</li>
+<li><strong>Pydev Editor:</strong> Backspace is now indentation-aware (so, it'll try to dedent to legal levels)</li>
+<li><strong>Pydev Editor:</strong> sometimes the 'import' string was added when it shouldn't</li>
+<li><strong>Fix: Code-completion:</strong> case where a package shadows a .pyd is now controlled (this happened with mxDateTime.pyd)</li>
+<li><strong>Fix: Code-completion:</strong> recursion condition was wrongly detected</li>
+<li><strong>Fix: Code-completion:</strong> halting condition was found and removed</li>
+<li><strong>Fix: Project Config:</strong> if a closed project was referenced, no project was gathered for any operation (e.g.: code-completion)</li>
+<li><strong>Fix:</strong> The filter for showing only pydev projects is not active by default anymore</li>
+</ul>
+
+
+
+<h4>Previous: 1.3.1</h4>
+<ul>
+<li><strong>Pydev Editor:</strong> If multiple editors are open for the same file, a parser is shared among them (which greatly improves the performance in this case)</li>
+<li><strong>Pydev Editor:</strong> Backspace is now indentation-aware (so, it'll try to dedent to legal levels)</li>
+<li><strong>Pydev Editor:</strong> sometimes the 'import' string was added when it shouldn't</li>
+<li><strong>Fix: Code-completion:</strong> case where a package shadows a .pyd is now controlled (this happened with mxDateTime.pyd)</li>
+<li><strong>Fix: Code-completion:</strong> recursion condition was wrongly detected</li>
+<li><strong>Fix: Code-completion:</strong> a halting condition was found and removed</li>
+<li><strong>Fix:</strong> The filter for showing only pydev projects is not active by default anymore</li>
 </ul>
 
 
@@ -54,31 +66,6 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 <li><strong>Fix: Package Explorer</strong>: if show-in is in a deep structure, it will show it is the 1st try and not only in the 2nd</li>
 <li><strong>Fix: Package Explorer</strong>: some intercepts removed elements incorrectly, and ended up messing the navigator and search (which has 'null' elements because of that)</li>
 </ul>
-
-
-<h4>Previous: 1.2.8</h4>
-
-<ul>
-<li><strong>Refactoring</strong>: integration of the <a href="http://sifsstud2.hsr.ch/peptic">PEPTIC refactoring engine</a></li>
-<li><strong>Package Explorer</strong>: many fixes (special thanks for Don Taylor for the bug reports)</li>
-<li><strong>Debugger</strong>: a number of small optimizations</li>
-<li><strong>Code-completion</strong>: works in emacs mode</li>
-<li><strong>Code-completion</strong>: added the possibility of auto-completing for all letter chars and '_' (so, it starts completing once you start writing)</li>
-<li><strong>Code-completion</strong>: code-completion for epydoc inside strings</li>
-<li><strong>Code-completion</strong>: assigns after global statement considered added to the global namespace</li>
-<li><strong>Code-completion</strong>: now works when a class is declared in a nested scope</li>
-<li><strong>Code-completion</strong>: if multiple assigns are found to some variable, the completion will be a merge of them</li>
-<li><strong>Code-completion</strong>: functions are analyzed for their return values for code-completion purposes</li>
-<li><strong>Code-completion</strong>: working on multi-line imports</li>
-<li><strong>Code-completion</strong>: can discover instance variables not declared in the class (in the scope where the class was instanced)</li>
-<li><strong>Auto-edit</strong>: adds 'self', 'cls' or no parameter based on the @clasmethod, @staticmethod declaration on previous line</li>
-<li><strong>Auto-edit</strong>: doesn't add 'self' if a method is declared in a method inner scope</li>
-<li><strong>Fix: BRM Refactoring</strong>: wrong column was being passed to the BRM refactoring engine</li>
-<li><strong>Code-folding</strong>: added for comments and strings</li>
-<li><strong>Fix</strong>: sometimes the 'create docstring' assistant was not recognizing method definitons</li>
-</ul>
-
-
 
 
 <br/>

@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.search.core.text.TextSearchMatchAccess;
 import org.eclipse.search.core.text.TextSearchRequestor;
+import org.python.pydev.core.docutils.StringUtils;
 
 public class TokenMatchingTest extends TestCase {
 
@@ -49,8 +50,8 @@ public class TokenMatchingTest extends TestCase {
 
 	private void compare(Integer[] is, ArrayList<Integer> offsets) {
 		for(int i=0;i<is.length;i++){
-			if(is[i]!=offsets.get(i)){
-				fail(Arrays.deepToString(is)+" differs from "+offsets);
+			if(!is[i].equals(offsets.get(i))){
+				fail(StringUtils.format("%s != %s (%s)", is[i], offsets.get(i), Arrays.deepToString(is)+" differs from "+offsets));
 			}
 		}
 	}
