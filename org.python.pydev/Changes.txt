@@ -2,11 +2,13 @@ after 1.3.1
 
 Pydev
 <ul>
-<li><strong>Pydev Editor:</strong> If multiple editors are open for the same file, a parser is shared among them</li>
-<li><strong>Pydev Editor:</strong> Backspace is now indentation-aware</li>
+<li><strong>Pydev Editor:</strong> If multiple editors are open for the same file, a parser is shared among them (which greatly improves the performance in this case)</li>
+<li><strong>Pydev Editor:</strong> Backspace is now indentation-aware (so, it'll try to dedent to legal levels)</li>
 <li><strong>Pydev Editor:</strong> sometimes the 'import' string was added when it shouldn't</li>
 <li><strong>Fix: Code-completion:</strong> case where a package shadows a .pyd is now controlled (this happened with mxDateTime.pyd)</li>
 <li><strong>Fix: Code-completion:</strong> recursion condition was wrongly detected</li>
+<li><strong>Fix: Code-completion:</strong> halting condition was found and removed</li>
+<li><strong>Fix: Project Config:</strong> if a closed project was referenced, no project was gathered for any operation (e.g.: code-completion)</li>
 <li><strong>Fix:</strong> The filter for showing only pydev projects is not active by default anymore</li>
 </ul>
 

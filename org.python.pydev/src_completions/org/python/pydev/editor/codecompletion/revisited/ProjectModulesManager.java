@@ -363,44 +363,44 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         	return new ModulesManager[]{};
         }
         
-        try {
-            if(project != null){
-            	HashSet<IProject> projs = new HashSet<IProject>();
-            	getProjectsRecursively(project, referenced, projs);
-                addModuleManagers(list, projs);
-            }
-            //the system is the last one we add.
-            if(checkSystemManager && systemModulesManager != null){
-                list.add(systemModulesManager);
-            }
-            ModulesManager[] ret = (ModulesManager[]) list.toArray(new ModulesManager[list.size()]);
-            if(this.completionCache != null){
-            	this.completionCache.setManagers(ret, referenced);
-            }
-            return ret;
-        } catch (CoreException e) {
-            //PydevPlugin.log(e); not logged anymore (this may happen if the project was closed and a thread was still running this)
-            if(checkSystemManager && systemModulesManager != null){
-                return new ModulesManager[]{systemModulesManager};
-            }else{
-                return new ModulesManager[]{};
-            }
+        if(project != null){
+        	HashSet<IProject> projs = new HashSet<IProject>();
+        	getProjectsRecursively(project, referenced, projs);
+            addModuleManagers(list, projs);
         }
+        //the system is the last one we add.
+        if(checkSystemManager && systemModulesManager != null){
+            list.add(systemModulesManager);
+        }
+        ModulesManager[] ret = (ModulesManager[]) list.toArray(new ModulesManager[list.size()]);
+        if(this.completionCache != null){
+        	this.completionCache.setManagers(ret, referenced);
+        }
+        return ret;
     }
 
 
-	private void getProjectsRecursively(IProject project, boolean referenced, HashSet<IProject> memo) throws CoreException {
-		IProject[] projects;
-		if(referenced){
-		    projects = project.getReferencedProjects();
-		}else{
-		    projects = project.getReferencingProjects();
+	private void getProjectsRecursively(IProject project, boolean referenced, HashSet<IProject> memo) {
+		IProject[] projects = null;
+		try {
+			if(referenced){
+				projects = project.getReferencedProjects();
+			}else{
+			    projects = project.getReferencingProjects();
+			}
+		} catch (CoreException e) {
+			//ignore (it's closed)
 		}
+		
+		
 		HashSet<IProject> newFound = new HashSet<IProject>();
-		for (IProject p : projects) {
-			if(!memo.contains(p)){
-				memo.add(p);
-				newFound.add(p);
+		
+		if(projects != null){
+			for (IProject p : projects) {
+				if(!memo.contains(p)){
+					memo.add(p);
+					newFound.add(p);
+				}
 			}
 		}
 		
