@@ -10,6 +10,7 @@ import java.util.Set;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FullRepIterable;
@@ -20,6 +21,7 @@ import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
+import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
@@ -28,6 +30,7 @@ import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
+import com.python.pydev.analysis.builder.AnalysisParserObserver;
 import com.python.pydev.analysis.builder.AnalysisRunner;
 
 public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticipant{
@@ -132,7 +135,20 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                     "",
                     IPyCompletionProposal.PRIORITY_LOCALS,
                     string.o1
-                    ));
+                    ){
+            	@Override
+            	public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
+            		super.apply(viewer, trigger, stateMask, offset);
+            		//and after aplying it, let's request a reanalysis
+            		if(viewer instanceof PySourceViewer){
+            			PySourceViewer sourceViewer = (PySourceViewer) viewer;
+						PyEdit edit = sourceViewer.getEdit();
+						if(edit != null){
+							edit.getParser().forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
+						}
+            		}
+            	}
+            });
         }
     }
 
