@@ -1,3 +1,12 @@
+after 1.3.2
+
+Pydev Extensions:
+
+<ul>
+<li><strong>Quick-fix:</strong> When an import is added from the auto-import quick-fix, an code-analysis is requested right after it.</li>
+</ul>
+
+
 after 1.3.1
 
 Pydev

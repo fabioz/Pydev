@@ -43,7 +43,7 @@ public abstract class PyEditProjection extends TextEditor implements IParserObse
      */
     protected ISourceViewer createSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
         IOverviewRuler overviewRuler = getOverviewRuler();
-        PySourceViewer viewer = new PySourceViewer(parent, ruler, overviewRuler, isOverviewRulerVisible(), styles);
+        PySourceViewer viewer = new PySourceViewer(parent, ruler, overviewRuler, isOverviewRulerVisible(), styles, this);
         
         //ensure decoration support has been created and configured.
         getSourceViewerDecorationSupport(viewer);

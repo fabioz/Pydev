@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.codefolding;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -17,13 +18,17 @@ import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
+import org.python.pydev.editor.PyEdit;
 
 
 public class PySourceViewer extends ProjectionViewer {
 
 
-    public PySourceViewer(Composite parent, IVerticalRuler ruler, IOverviewRuler overviewRuler, boolean showsAnnotationOverview, int styles) {
+    private WeakReference<PyEdit> projection;
+
+	public PySourceViewer(Composite parent, IVerticalRuler ruler, IOverviewRuler overviewRuler, boolean showsAnnotationOverview, int styles, PyEditProjection projection) {
         super(parent, ruler, overviewRuler, showsAnnotationOverview, styles);
+        this.projection = new WeakReference<PyEdit>((PyEdit) projection);
     }
     
     private boolean isInToggleCompletionStyle;
@@ -34,6 +39,10 @@ public class PySourceViewer extends ProjectionViewer {
     
     public boolean getIsInToggleCompletionStyle(){
         return this.isInToggleCompletionStyle;
+    }
+    
+    public PyEdit getEdit(){
+    	return projection.get();
     }
     
     
