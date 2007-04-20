@@ -1,5 +1,10 @@
 after 1.3.2
 
+Pydev:
+<ul>
+<li><strong>Performance:</strong> Optimizations in the code-completion structure.</li>
+</ul>
+
 Pydev Extensions:
 
 <ul>
