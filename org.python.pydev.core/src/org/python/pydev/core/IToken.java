@@ -167,4 +167,6 @@ public interface IToken extends Serializable, Comparable{
      * @return
      */
     public int[] getLineColEnd();
+
+    public boolean isString();
 }

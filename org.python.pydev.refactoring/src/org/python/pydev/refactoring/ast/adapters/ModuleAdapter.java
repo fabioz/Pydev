@@ -136,7 +136,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 			try {
 				ICodeCompletionASTManager astManager = nature.getAstManager();
 				if(astManager != null){
-					IToken[] tokens = astManager.getCompletionsForModule(this.sourceModule, new CompletionState(0, 0, "", nature, ""));
+					IToken[] tokens = astManager.getCompletionsForModule(this.sourceModule, new CompletionState(-1, -1, "", nature, ""));
 					for (IToken token : tokens) {
 						globalNames.add(token.getRepresentation());
 					}
@@ -393,7 +393,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 			return bases;
 
 		for (String baseName : importedBase) {
-            ICompletionState state = new CompletionState(0,0,baseName,nature,"");
+            ICompletionState state = new CompletionState(-1,-1,baseName,nature,"");
             IToken[] ret = null;
 			try {
 				ret = nature.getAstManager().getCompletionsForToken(file, doc, state);

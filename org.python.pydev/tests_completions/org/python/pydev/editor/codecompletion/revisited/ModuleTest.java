@@ -5,6 +5,9 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
@@ -52,10 +55,14 @@ public class ModuleTest extends TestCase {
      */
     private void compareReps(IToken[] globalTokens, String string) {
         String[] strings = string.split(" ");
-        assertEquals(strings.length , globalTokens.length);
-        for (int i = 0; i < globalTokens.length; i++) {
-            assertEquals(strings[i], globalTokens[i].getRepresentation());
+        HashSet<String> s1 = new HashSet<String>();
+        s1.addAll(Arrays.asList(strings));
+        
+        HashSet<String> s2 = new HashSet<String>();
+        for(IToken t:globalTokens){
+            s2.add(t.getRepresentation());
         }
+        assertEquals(s1, s2);
     }
 
 

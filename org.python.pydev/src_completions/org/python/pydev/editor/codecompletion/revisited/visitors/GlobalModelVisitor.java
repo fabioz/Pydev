@@ -43,7 +43,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
 
     public Object visitClassDef(ClassDef node) throws Exception {
         //when visiting the global namespace, we don't go into any inner scope.
-        if (this.visitWhat == GLOBAL_TOKENS) {
+        if ((this.visitWhat & GLOBAL_TOKENS) != 0) {
             addToken(node);
         } 
         return null;
@@ -51,7 +51,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
 
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         //when visiting the global namespace, we don't go into any inner scope.
-        if (this.visitWhat == GLOBAL_TOKENS) {
+        if ((this.visitWhat & GLOBAL_TOKENS) != 0) {
             addToken(node);
         }
         return null;
@@ -74,7 +74,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
      */
     public Object visitName(Name node) throws Exception {
         //when visiting the global namespace, we don't go into any inner scope.
-        if (this.visitWhat == GLOBAL_TOKENS) {
+        if ((this.visitWhat & GLOBAL_TOKENS) != 0) {
             if (node.ctx == Name.Store) {
                 addToken(node);
             }
@@ -87,9 +87,11 @@ public class GlobalModelVisitor extends AbstractVisitor {
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitImportFrom(org.python.pydev.parser.jython.ast.ImportFrom)
      */
     public Object visitImportFrom(ImportFrom node) throws Exception {
-        if (this.visitWhat == WILD_MODULES) {
+        if ((this.visitWhat & WILD_MODULES) != 0) {
             makeWildImportToken(node, this.tokens, moduleName);
-        } else if (this.visitWhat == ALIAS_MODULES) {
+        } 
+        
+        if ((this.visitWhat & ALIAS_MODULES) != 0) {
             makeImportToken(node, this.tokens, moduleName, true);
         }
         return null;
@@ -102,7 +104,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitImport(org.python.pydev.parser.jython.ast.Import)
      */
     public Object visitImport(Import node) throws Exception {
-        if (this.visitWhat == ALIAS_MODULES) {
+        if ((this.visitWhat & ALIAS_MODULES) != 0) {
             makeImportToken(node, this.tokens, moduleName, true);
         }
         return null;
@@ -113,7 +115,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitStr(org.python.pydev.parser.jython.ast.Str)
      */
     public Object visitStr(Str node) throws Exception {
-        if(this.visitWhat == MODULE_DOCSTRING){
+        if((this.visitWhat & MODULE_DOCSTRING) != 0){
             this.tokens.add(new SourceToken(node, node.s, "", "", moduleName));
         }
         return null;

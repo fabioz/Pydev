@@ -33,7 +33,9 @@ import org.python.pydev.parser.jython.SimpleNode;
  */
 public abstract class AbstractModule implements IModule {
 
-	/**
+	private static final IToken[] EMPTY_TOKEN_ARRAY = new IToken[0];
+    
+    /**
 	 * May be changed for tests
 	 */
     public static String MODULE_NAME_WHEN_FILE_IS_UNDEFINED = "";
@@ -59,10 +61,10 @@ public abstract class AbstractModule implements IModule {
     public abstract IToken[] getGlobalTokens();
     
     /** 
-     * @see org.python.pydev.core.IModule#getLocalTokens(int, int)
+     * @see org.python.pydev.core.IModule#getLocalTokens(int, int, ILocalScope)
      */
-    public IToken[] getLocalTokens(int line, int col){
-        return new IToken[0];
+    public IToken[] getLocalTokens(int line, int col, ILocalScope scope){
+        return EMPTY_TOKEN_ARRAY;
     }
 
     /**

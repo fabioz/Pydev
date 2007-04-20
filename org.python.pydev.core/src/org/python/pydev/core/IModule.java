@@ -37,11 +37,12 @@ public interface IModule {
 
     /**
      * This function returns the local completions 
-     * @param line
-     * @param col
+     * @param line starts at 0
+     * @param col starts at 0
+     * @param localScope the local scope that was previously gotten (if null, it will be created)
      * @return
      */
-    public abstract IToken[] getLocalTokens(int line, int col);
+    public abstract IToken[] getLocalTokens(int line, int col, ILocalScope localScope);
     
 	public abstract boolean isInDirectGlobalTokens(String tok);
 
@@ -109,8 +110,8 @@ public interface IModule {
     /**
      * @return the local scope in the module for a given line and column
      * May return null if no scope is found
-     * @param line: starts at 1
-     * @param col: starts at 1
+     * @param line: starts at 0
+     * @param col: starts at 0
      */
     public abstract ILocalScope getLocalScope(int line, int col);
 

@@ -393,14 +393,18 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             Log.toLogFile(this, "getCompletionsForModule");
         }
         ArrayList<IToken> importedModules = new ArrayList<IToken>();
+        
         ILocalScope localScope = null;
+        int line = state.getLine();
+        int col = state.getCol();
+        
         if(state.getLocalImportsGotten() == false){
             //in the first analyzed module, we have to get the local imports too. 
             state.setLocalImportsGotten (true);
-            if(module != null){
-                localScope = module.getLocalScope(state.getLine()+1, state.getCol()+1);
+            if(module != null && line >= 0){
+                localScope = module.getLocalScope(line, col);
                 if(localScope != null){
-                    importedModules.addAll(localScope.getLocalImportedModules(state.getLine()+1, state.getCol()+1, module.getName()));
+                    importedModules.addAll(localScope.getLocalImportedModules(line+1, col+1, module.getName()));
                 }
             }
         }
@@ -449,8 +453,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 		        List<IToken> completions = getGlobalCompletions(globalTokens, importedModules.toArray(EMPTY_ITOKEN_ARRAY), wildImportedModules, state, module);
 		        
 		        //now find the locals for the module
-		        if (state.getLine() >= 0){
-		            IToken[] localTokens = module.getLocalTokens(state.getLine(), state.getCol());
+		        if (line >= 0){
+		            IToken[] localTokens = module.getLocalTokens(line, col, localScope);
 		            for (int i = 0; i < localTokens.length; i++) {
                         completions.add(localTokens[i]); 
                     }

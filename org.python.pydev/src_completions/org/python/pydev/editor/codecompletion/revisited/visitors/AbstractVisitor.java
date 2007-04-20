@@ -29,15 +29,21 @@ import org.python.pydev.parser.visitors.NodeUtils;
  */
 public abstract class AbstractVisitor extends VisitorBase{
 
+    /**
+     * The constants below may be combined for a single request
+     */
     public static final int GLOBAL_TOKENS = 1;
 
     public static final int WILD_MODULES = 2;
     
-    public static final int ALIAS_MODULES = 3;
+    public static final int ALIAS_MODULES = 4;
     
-    public static final int MODULE_DOCSTRING = 4;
+    public static final int MODULE_DOCSTRING = 8;
     
-    public static final int INNER_DEFS = 5;
+    /**
+     * This constant cannot be combined with any of the others
+     */
+    public static final int INNER_DEFS = 16;
 
     protected List<IToken> tokens = new ArrayList<IToken>();
     
@@ -190,6 +196,14 @@ public abstract class AbstractVisitor extends VisitorBase{
         }
         return false;
     }
+    
+    public static boolean isString(SimpleNode ast) {
+        if(ast instanceof Str){
+            return true;
+        }
+        return false;
+    }
+
 
     /**
      * @param node the node to analyze
@@ -221,7 +235,7 @@ public abstract class AbstractVisitor extends VisitorBase{
      * @return
      * @throws Exception
      */
-    public static SourceToken[] getTokens(SimpleNode ast, int which, String moduleName, ICompletionState state) {
+    public static List<IToken> getTokens(SimpleNode ast, int which, String moduleName, ICompletionState state) {
         AbstractVisitor modelVisitor;
         if(which == INNER_DEFS){
             modelVisitor = new InnerModelVisitor(moduleName, state);
@@ -235,9 +249,9 @@ public abstract class AbstractVisitor extends VisitorBase{
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            return (SourceToken[]) modelVisitor.tokens.toArray(new SourceToken[0]);
+            return modelVisitor.tokens;
         }else{
-            return new SourceToken[0];
+            return new ArrayList<IToken>();
         }
     }
 
@@ -264,6 +278,8 @@ public abstract class AbstractVisitor extends VisitorBase{
     	}
         return null;
     }
+
+
 
 
     

@@ -25,8 +25,8 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
  */
 public class CompletionState implements ICompletionState {
     public String activationToken; 
-    public int line;
-    public int col;
+    public int line = -1;
+    public int col = -1;
     public IPythonNature nature;
     public String qualifier;
     

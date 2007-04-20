@@ -293,7 +293,11 @@ public abstract class AbstractToken implements IToken{
     }
     
     public boolean isWildImport() {
-    	return false;
+        return false;
+    }
+    
+    public boolean isString() {
+        return false;
     }
 
     /**

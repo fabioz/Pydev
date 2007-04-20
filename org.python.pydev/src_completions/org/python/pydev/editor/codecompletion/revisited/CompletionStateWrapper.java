@@ -20,8 +20,8 @@ public class CompletionStateWrapper implements ICompletionState {
     
     //things that are not delegated ------------------------------------------------------------------------------------
     private String activationToken;
-    private int col;
-    private int line;
+    private int col = -1;
+    private int line = -1;
     
     public String getActivationToken() {
         return activationToken;

@@ -65,6 +65,10 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class SourceModule extends AbstractModule implements ISourceModule {
 
+    private static final IToken[] EMPTY_ITOKEN_ARRAY = new IToken[0];
+
+    private static final boolean DEBUG_INTERNAL_GLOBALS_CACHE = false;
+
     public static boolean TESTING = false;
     
     /**
@@ -82,8 +86,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      */
     private long lastModified;
     
-    private volatile HashMap<String, SourceToken> globalTokens;
-    private volatile HashMap<String, SourceToken> aliasTokens;
+    private HashMap<Integer, HashMap<String, SourceToken>> tokensCache = new HashMap<Integer, HashMap<String,SourceToken>>();
 
     /**
      * @return a reference to all the modules that are imported from this one in the global context as a from xxx import *
@@ -146,14 +149,15 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @return true if it was found and false otherwise
      */
     public boolean isInDirectGlobalTokens(String tok){
-    	if(globalTokens == null){
+        HashMap<String, SourceToken> tokens = tokensCache.get(GlobalModelVisitor.GLOBAL_TOKENS);
+    	if(tokens == null){
     		getGlobalTokens();
     	}
     	
     	boolean ret = false;
-    	if(globalTokens != null){
-        	synchronized (globalTokens) {
-        		ret = globalTokens.containsKey(tok);
+    	if(tokens != null){
+        	synchronized (tokens) {
+        		ret = tokens.containsKey(tok);
         	}
     	}
     	
@@ -164,14 +168,15 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     }
     
 	public boolean isInDirectImportTokens(String tok) {
-		if(aliasTokens != null){
+		HashMap<String, SourceToken> tokens = tokensCache.get(GlobalModelVisitor.ALIAS_MODULES);
+        if(tokens != null){
 			getTokenImportedModules();
 		}
 		
 		boolean ret = false;
-		if(aliasTokens != null){
-			synchronized (aliasTokens) {
-				ret = aliasTokens.containsKey(tok);
+		if(tokens != null){
+			synchronized (tokens) {
+				ret = tokens.containsKey(tok);
 			}
 		}
 		return ret; 
@@ -184,53 +189,66 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @return a list of IToken
      */
     private synchronized IToken[] getTokens(int which, ICompletionState state) {
+        if((which & GlobalModelVisitor.INNER_DEFS) != 0){
+            throw new RuntimeException("Cannot do this one with caches");
+        }
     	//cache
-    	if(which == GlobalModelVisitor.GLOBAL_TOKENS){
-	    	if(globalTokens != null){
-	    		Collection<SourceToken> values = globalTokens.values();
-				return values.toArray(new SourceToken[values.size()]);
-	    	}
-    	}
-    	else if(which == GlobalModelVisitor.ALIAS_MODULES){
-    		if(aliasTokens != null){
-    			Collection<SourceToken> values = aliasTokens.values();
-    			return values.toArray(new SourceToken[values.size()]);
-    		}
-    	}
+        HashMap<String, SourceToken> tokens = tokensCache.get(which);
+        //only use cache if we're not debugging
+        if(tokens != null){
+            Collection<SourceToken> values = tokens.values();
+            return values.toArray(new SourceToken[values.size()]);
+        }
     	//end cache
     	
     	
-    	SourceToken[] ret = null;
         try {
-            ret = GlobalModelVisitor.getTokens(ast, which, name, state);
+            tokensCache.put(GlobalModelVisitor.ALIAS_MODULES, new HashMap<String, SourceToken>());
+            tokensCache.put(GlobalModelVisitor.GLOBAL_TOKENS, new HashMap<String, SourceToken>());
+            tokensCache.put(GlobalModelVisitor.WILD_MODULES, new HashMap<String, SourceToken>());
+            tokensCache.put(GlobalModelVisitor.MODULE_DOCSTRING, new HashMap<String, SourceToken>());
+
+            int all = GlobalModelVisitor.ALIAS_MODULES | GlobalModelVisitor.GLOBAL_TOKENS | 
+                      GlobalModelVisitor.WILD_MODULES | GlobalModelVisitor.MODULE_DOCSTRING;
+            
+            //we request all and put it into the cache (partitioned), because that's faster than making multiple runs through it
+            List<IToken> ret = GlobalModelVisitor.getTokens(ast, all, name, state);
             
             
+            if(DEBUG_INTERNAL_GLOBALS_CACHE){
+                System.out.println("\n\nLooking for:"+which);
+            }
             //cache
-            if(which == GlobalModelVisitor.GLOBAL_TOKENS){
-            	globalTokens = new HashMap<String, SourceToken>();
-            	synchronized (globalTokens) {
-            		for (SourceToken token : ret) {
-            			globalTokens.put(token.getRepresentation(), token);
-            		}
-				}
-            }
-            else if(which == GlobalModelVisitor.ALIAS_MODULES){
-            	aliasTokens = new HashMap<String, SourceToken>();
-            	synchronized (aliasTokens) {
-            		for (SourceToken token : ret) {
-            			aliasTokens.put(token.getRepresentation(), token);
-            		}
-            	}
-            }
+    		for (IToken token : ret) {
+                int choice;
+        		if(token.isWildImport()){
+        		    choice = GlobalModelVisitor.WILD_MODULES;
+                }else if(token.isImportFrom() || token.isImport()){
+                    choice = GlobalModelVisitor.ALIAS_MODULES;
+                }else if(token.isString()){
+                    choice = GlobalModelVisitor.MODULE_DOCSTRING;
+                }else{
+                    choice = GlobalModelVisitor.GLOBAL_TOKENS;
+                }
+                if(DEBUG_INTERNAL_GLOBALS_CACHE){
+            		System.out.println("Adding choice:"+choice+" name:"+token.getRepresentation());
+                    if(choice != which){
+                        System.out.println("Looking for:"+which+"found:"+choice);
+                        System.out.println("here");
+                    }
+                }
+                tokensCache.get(choice).put(token.getRepresentation(), (SourceToken) token);
+    		}
             //end cache
             
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if(ret == null){
-        	ret = new SourceToken[0]; 
-        }
-        return ret;
+        
+        //now, let's get it from the cache... (which should be filled by now)
+        tokens = tokensCache.get(which);
+        Collection<SourceToken> values = tokens.values();
+        return values.toArray(new SourceToken[values.size()]);
     }
 
     /**
@@ -254,109 +272,104 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     public IToken[] getGlobalTokens(ICompletionState initialState, ICodeCompletionASTManager manager) {
         IToken[] t = getTokens(GlobalModelVisitor.GLOBAL_TOKENS, null);
         
-        if(t instanceof SourceToken[]){
-	        SourceToken[] tokens = (SourceToken[]) t;
-	        String activationToken = initialState.getActivationToken();
-	        for (int i = 0; i < tokens.length; i++) {
-                SourceToken token = tokens[i];
-                String rep = token.getRepresentation();
+        String activationToken = initialState.getActivationToken();
+        for (int i = 0; i < t.length; i++) {
+            SourceToken token = (SourceToken) t[i];
+            String rep = token.getRepresentation();
+            
+            SimpleNode ast = token.getAst();
+            
+            if(activationToken.length() > rep.length() && activationToken.startsWith(rep)){
+                //we need this thing to work correctly for nested modules...
+                //some tests are available at: PythonCompletionTestWithoutBuiltins.testDeepNestedXXX
                 
-                SimpleNode ast = token.getAst();
-                
-                if(activationToken.length() > rep.length() && activationToken.startsWith(rep)){
-                    //we need this thing to work correctly for nested modules...
-                    //some tests are available at: PythonCompletionTestWithoutBuiltins.testDeepNestedXXX
-                    
-                    int iActTok = 0;
-                    String[] actToks = FullRepIterable.dotSplit(activationToken);
-                    if(actToks[iActTok].equals(rep)){
-                        //System.out.println("Now we have to find act..."+activationToken+"(which is a definition of:"+rep+")");
-                        try {
-                            Definition[] definitions;
-                            String value = activationToken;
-                            String initialValue=null;
-                            while(true){
-                                if(value.equals(initialValue)){
+                int iActTok = 0;
+                String[] actToks = FullRepIterable.dotSplit(activationToken);
+                if(actToks[iActTok].equals(rep)){
+                    //System.out.println("Now we have to find act..."+activationToken+"(which is a definition of:"+rep+")");
+                    try {
+                        Definition[] definitions;
+                        String value = activationToken;
+                        String initialValue=null;
+                        while(true){
+                            if(value.equals(initialValue)){
+                                break;
+                            }
+                            initialValue = value;
+                            if(iActTok > actToks.length){
+                                break; //unable to find it
+                            }
+                            definitions = findDefinition(initialState.getCopyWithActTok(value), token.getLineDefinition(), token.getColDefinition()+1, manager.getNature(), new ArrayList<FindInfo>());
+                            if(definitions.length == 1){
+                                Definition d = definitions[0];
+                                if(d.ast instanceof Assign){
+                                    Assign assign = (Assign) d.ast;
+                                    value = NodeUtils.getRepresentationString(assign.value);
+                                    definitions = findDefinition(initialState.getCopyWithActTok(value), d.line, d.col, manager.getNature(), new ArrayList<FindInfo>());
+                                }else if(d.ast instanceof ClassDef){
+                                    IToken[] toks = (IToken[]) ((SourceModule)d.module).getClassToks(initialState, manager, d.ast).toArray(EMPTY_ITOKEN_ARRAY);
+                                    if(iActTok == actToks.length-1){
+                                        return toks;
+                                    }
+                                    value = d.value;
+                                    
+                                }else if (d.ast instanceof Name){
+                                    ClassDef classDef = (ClassDef) d.scope.getClassDef();
+                                    if(classDef != null){
+                                    	FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(actToks[actToks.length-1], d.line, d.col, d.module);
+                                        try {
+											classDef.accept(visitor);
+										} catch (StopVisitingException e) {
+											//expected exception
+										}
+                                        if(visitor.definitions.size() == 0){
+                                        	return EMPTY_ITOKEN_ARRAY;
+                                        }
+                                        d = visitor.definitions.get(0);
+                                        value = d.value;
+                                        if(d instanceof AssignDefinition){
+                                            return getValueCompletions(initialState, manager, value, d.module);
+                                        }
+                                    }else{
+                                    	if(d.module instanceof SourceModule){
+                                    		SourceModule m = (SourceModule) d.module;
+                                    		String joined = FullRepIterable.joinFirstParts(actToks);
+                                            Definition[] definitions2 = m.findDefinition(initialState.getCopyWithActTok(joined), d.line, d.col, manager.getNature(), null);
+                                    		if(definitions2.length == 0){
+                                    			return EMPTY_ITOKEN_ARRAY;
+                                    		}
+                                    		d = definitions2[0];
+                                    		value = d.value+"."+actToks[actToks.length-1];
+                                    		if(d instanceof AssignDefinition){
+                                    			return ((SourceModule)d.module).getValueCompletions(initialState, manager, value, d.module);
+                                    		}
+                                    	}
+                                    }
+                                    
+                                }else if ((d.ast == null && d.module != null) || d.ast instanceof ImportFrom){
+                                    return getValueCompletions(initialState, manager, value, d.module);
+                                    
+                                }else{
                                     break;
                                 }
-                                initialValue = value;
-                                if(iActTok > actToks.length){
-                                    break; //unable to find it
-                                }
-                                definitions = findDefinition(initialState.getCopyWithActTok(value), token.getLineDefinition(), token.getColDefinition()+1, manager.getNature(), new ArrayList<FindInfo>());
-                                if(definitions.length == 1){
-                                    Definition d = definitions[0];
-                                    if(d.ast instanceof Assign){
-                                        Assign assign = (Assign) d.ast;
-                                        value = NodeUtils.getRepresentationString(assign.value);
-                                        definitions = findDefinition(initialState.getCopyWithActTok(value), d.line, d.col, manager.getNature(), new ArrayList<FindInfo>());
-                                    }else if(d.ast instanceof ClassDef){
-                                        IToken[] toks = (IToken[]) ((SourceModule)d.module).getClassToks(initialState, manager, d.ast).toArray(new IToken[0]);
-                                        if(iActTok == actToks.length-1){
-                                            return toks;
-                                        }
-                                        value = d.value;
-                                        
-                                    }else if (d.ast instanceof Name){
-                                        ClassDef classDef = (ClassDef) d.scope.getClassDef();
-                                        if(classDef != null){
-                                        	FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(actToks[actToks.length-1], d.line, d.col, d.module);
-	                                        try {
-												classDef.accept(visitor);
-											} catch (StopVisitingException e) {
-												//expected exception
-											}
-	                                        if(visitor.definitions.size() == 0){
-	                                        	return new IToken[0];
-	                                        }
-	                                        d = visitor.definitions.get(0);
-	                                        value = d.value;
-	                                        if(d instanceof AssignDefinition){
-	                                            return getValueCompletions(initialState, manager, value, d.module);
-	                                        }
-                                        }else{
-                                        	if(d.module instanceof SourceModule){
-                                        		SourceModule m = (SourceModule) d.module;
-                                        		String joined = FullRepIterable.joinFirstParts(actToks);
-                                                Definition[] definitions2 = m.findDefinition(initialState.getCopyWithActTok(joined), d.line, d.col, manager.getNature(), null);
-                                        		if(definitions2.length == 0){
-                                        			return new IToken[0];
-                                        		}
-                                        		d = definitions2[0];
-                                        		value = d.value+"."+actToks[actToks.length-1];
-                                        		if(d instanceof AssignDefinition){
-                                        			return ((SourceModule)d.module).getValueCompletions(initialState, manager, value, d.module);
-                                        		}
-                                        	}
-                                        }
-                                        
-                                    }else if ((d.ast == null && d.module != null) || d.ast instanceof ImportFrom){
-                                        return getValueCompletions(initialState, manager, value, d.module);
-                                        
-                                    }else{
-                                        break;
-                                    }
-                                }else{
-                                    return getValueCompletions(initialState, manager, value, this);
-                                }
-                                iActTok++;
+                            }else{
+                                return getValueCompletions(initialState, manager, value, this);
                             }
-                        } catch (CompletionRecursionException e) {
-                        } catch (Exception e) {
-                            PydevPlugin.log(e);
+                            iActTok++;
                         }
+                    } catch (CompletionRecursionException e) {
+                    } catch (Exception e) {
+                        PydevPlugin.log(e);
                     }
-                } else if(rep.equals(activationToken)){
-                    if(ast instanceof ClassDef){
-                        initialState.setLookingFor(ICompletionState.LOOKING_FOR_UNBOUND_VARIABLE);
-                    }
-                    return (IToken[]) getClassToks(initialState, manager, ast).toArray(new IToken[0]);
-	            }
-	        }
-        }else{
-            System.err.println("Expecting SourceToken, got: "+t.getClass().getName());
+                }
+            } else if(rep.equals(activationToken)){
+                if(ast instanceof ClassDef){
+                    initialState.setLookingFor(ICompletionState.LOOKING_FOR_UNBOUND_VARIABLE);
+                }
+                return (IToken[]) getClassToks(initialState, manager, ast).toArray(EMPTY_ITOKEN_ARRAY);
+            }
         }
-        return new IToken[0];
+        return EMPTY_ITOKEN_ARRAY;
     }
 
     /**
@@ -381,7 +394,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @return
      */
     public List<IToken> getClassToks(ICompletionState initialState, ICodeCompletionASTManager manager, SimpleNode ast) {
-        List<IToken> modToks = new ArrayList<IToken>(Arrays.asList(GlobalModelVisitor.getTokens(ast, GlobalModelVisitor.INNER_DEFS, name, initialState)));//name = moduleName
+        List<IToken> modToks = GlobalModelVisitor.getTokens(ast, GlobalModelVisitor.INNER_DEFS, name, initialState);//name = moduleName
         
         try {
             //COMPLETION: get the completions for the whole hierarchy if this is a class!!
@@ -759,23 +772,30 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     	return new Tuple<Integer, Integer>(line,col);
     }
     
-    public IToken[] getLocalTokens(int line, int col){
+    /**
+     * @param line: at 0
+     * @param col: at 0
+     */
+    public IToken[] getLocalTokens(int line, int col, ILocalScope scope){
         try {
-	        FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
-	        if (ast != null){
-                ast.accept(scopeVisitor);
-	        }
+            if(scope == null){
+    	        FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
+    	        if (ast != null){
+                    ast.accept(scopeVisitor);
+    	        }
+                scope = scopeVisitor.scope;
+            }
 	        
-	        return scopeVisitor.scope.getLocalTokens(line, col, false);
+	        return scope.getLocalTokens(line, col, false);
         } catch (Exception e) {
             e.printStackTrace();
-            return new IToken[0];
+            return EMPTY_ITOKEN_ARRAY;
         }
     }
 
     /**
-     * @param line: at 1
-     * @param col: at 1
+     * @param line: at 0
+     * @param col: at 0
      */
     public ILocalScope getLocalScope(int line, int col) {
         try {

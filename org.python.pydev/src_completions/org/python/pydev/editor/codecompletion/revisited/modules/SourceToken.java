@@ -192,6 +192,11 @@ public class SourceToken extends AbstractToken{
     public boolean isWildImport() {
     	return AbstractVisitor.isWildImport(ast);
     }
+    
+    public boolean isString() {
+        return AbstractVisitor.isString(ast);
+    }
+    
     /**
      * This representation may not be accurate depending on which tokens we are dealing with. 
      */
