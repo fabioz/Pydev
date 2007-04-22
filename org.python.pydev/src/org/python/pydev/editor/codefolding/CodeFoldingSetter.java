@@ -101,12 +101,15 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
                     collapsed.add(element);
                 }
 
-                addMarks(getMarks(editor.getDocument(), root2), model, collapsed);
-
-                //remove the annotations that have not been reinserted.
-                for (Iterator it = collapsed.iterator(); it.hasNext();) {
-                    PyProjectionAnnotation element = (PyProjectionAnnotation) it.next();
-                    model.removeAnnotation(element);
+                IDocument doc = editor.getDocument();
+                if(doc != null){ //this can happen if we change the input of the editor very quickly.
+                    addMarks(getMarks(doc, root2), model, collapsed);
+    
+                    //remove the annotations that have not been reinserted.
+                    for (Iterator it = collapsed.iterator(); it.hasNext();) {
+                        PyProjectionAnnotation element = (PyProjectionAnnotation) it.next();
+                        model.removeAnnotation(element);
+                    }
                 }
             }
         } catch (Exception e) {
