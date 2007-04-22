@@ -2,7 +2,7 @@
 <feature
       id="org.python.pydev.mylar.feature"
       label="Feature Feature"
-      version="0.1"
+      version="0.2"
       provider-name="Fabio Zadrozny">
 
    <description url="http://www.example.com/description">
@@ -25,7 +25,7 @@
       <import plugin="org.eclipse.core.resources"/>
       <import plugin="org.eclipse.ui.navigator"/>
       <import plugin="org.eclipse.ui.views"/>
-      <import plugin="org.eclipse.mylar"/>
+      <import plugin="org.eclipse.mylar" version="2.0.0.v20070403-1300" match="greaterOrEqual"/>
       <import plugin="org.eclipse.mylar.context.core"/>
       <import plugin="org.eclipse.mylar.context.ui"/>
       <import plugin="org.eclipse.mylar.ide"/>
@@ -36,7 +36,7 @@
          id="org.python.pydev.mylar"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="0.2.0"
          unpack="false"/>
 
 </feature>
