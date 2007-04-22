@@ -137,13 +137,6 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
         }
     }
 
-    /**
-     * @param element
-     * @return
-     */
-    private boolean isImportNode(ASTEntry element) {
-        return element.node instanceof Import || element.node instanceof ImportFrom;
-    }
 
     /**
      * @param node

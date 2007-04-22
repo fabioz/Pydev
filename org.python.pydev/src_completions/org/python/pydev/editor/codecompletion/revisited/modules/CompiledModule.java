@@ -121,7 +121,7 @@ public class CompiledModule extends AbstractModule{
             }
 
             String f = fPath;
-            if(f.endsWith(".pyc")){
+            if(f.toLowerCase().endsWith(".pyc")){
                 f = f.substring(0, f.length()-1); //remove the c from pyc
                 File f2 = new File(f);
                 if(f2.exists()){
