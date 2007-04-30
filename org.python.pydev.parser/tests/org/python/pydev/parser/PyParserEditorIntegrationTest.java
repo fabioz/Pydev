@@ -151,16 +151,21 @@ public class PyParserEditorIntegrationTest extends TestCase {
         IDocument doc2 = new Document();
         pyEdit2.setDocument(doc2);
         pyParserManager.notifyEditorDisposed(pyEdit1);
-        assertNull(pyParserManager.getParser(pyEdit1));
-        doc2.replace(0, 0, "\r\ntest");
+        
         waitABit();
         assertEquals(3, pyEdit1.parserChanged); 
         assertEquals(2, pyEdit2.parserChanged);
         
+        assertNull(pyParserManager.getParser(pyEdit1));
+        doc2.replace(0, 0, "\r\ntest");
+        waitABit();
+        assertEquals(3, pyEdit1.parserChanged); 
+        assertEquals(3, pyEdit2.parserChanged);
+        
         doc.replace(0, 0, "\r\ntest"); //no one's listening this one anymore
         waitABit();
         assertEquals(3, pyEdit1.parserChanged); 
-        assertEquals(2, pyEdit2.parserChanged);
+        assertEquals(3, pyEdit2.parserChanged);
         
         pyParserManager.notifyEditorDisposed(pyEdit2);
         assertNull(pyParserManager.getParser(pyEdit2));
@@ -168,7 +173,7 @@ public class PyParserEditorIntegrationTest extends TestCase {
         doc.replace(0, 0, "\r\ntest"); //no one's listening this one anymore
         waitABit();
         assertEquals(3, pyEdit1.parserChanged); 
-        assertEquals(2, pyEdit2.parserChanged);
+        assertEquals(3, pyEdit2.parserChanged);
         assertEquals(0, pyParserManager.getParsers().size());
         
     }

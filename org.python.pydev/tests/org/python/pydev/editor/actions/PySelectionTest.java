@@ -32,7 +32,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testImportLine7();
+            test.testImportLine9();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
@@ -196,6 +196,30 @@ public class PySelectionTest extends TestCase {
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
         assertEquals(7, selection.getLineAvailableForImport());
+    }
+    
+    public void testImportLine8() {
+        String strDoc = "" +
+        "from a import ( #foo\n"+
+        "a,\n"+
+        "b, #bar\n"+
+        "c)\n"+
+        "#we want it to appear in this line\n";
+        Document document = new Document(strDoc);
+        PySelection selection = new PySelection(document);
+        assertEquals(4, selection.getLineAvailableForImport());
+    }
+    
+    public void testImportLine9() {
+        String strDoc = "" +
+        "from a import \\\n"+
+        "a,\\\n"+
+        "b,\\\n"+
+        "c\n"+
+        "#we want it to appear in this line\n";
+        Document document = new Document(strDoc);
+        PySelection selection = new PySelection(document);
+        assertEquals(4, selection.getLineAvailableForImport());
     }
     
     

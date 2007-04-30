@@ -988,7 +988,8 @@
 </extension> 
 
 
-<!-- Declare the viewer configuration, and the default content/action bindings -->
+<!-- Declare the viewer configuration, and the default content/action bindings 
+Declaring it in the project explorer has 'strange' collateral effects...
 <extension point="org.eclipse.ui.navigator.viewer">
     <viewerContentBinding viewerId="org.eclipse.ui.navigator.ProjectExplorer">
         <includes>
@@ -998,6 +999,8 @@
         </includes>
     </viewerContentBinding>
 </extension>
+-->
+
 <extension point="org.eclipse.ui.navigator.viewer">
     <viewer viewerId="org.python.pydev.navigator.view">
     	<!-- allowsPlatformContributions="true" allows it to show the cvs stuff 

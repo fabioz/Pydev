@@ -3,6 +3,8 @@ after 1.3.2
 Pydev:
 <ul>
 <li><strong>Performance:</strong> Optimizations in the code-completion structure.</li>
+<li><strong>Quick-Fix:</strong> Move import to global scope would not be correct if the last line was a multi-line import.</li>
+<li><strong>Fix Search:</strong> null fixes: see mind-map (add to blog) for more details.</li>
 </ul>
 
 Pydev Extensions:

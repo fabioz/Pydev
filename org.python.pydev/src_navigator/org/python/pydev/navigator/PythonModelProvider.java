@@ -40,7 +40,8 @@ import org.python.pydev.plugin.nature.PythonNature;
  */
 public class PythonModelProvider extends PythonBaseModelProvider implements IPipelinedTreeContentProvider {
 
-	
+    private static final boolean DEBUG = false;
+    
     /**
      * This method basically replaces all the elements for other resource elements
      * or for wrapped elements.
@@ -88,6 +89,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         return addModification;
     }
     
+
     public boolean interceptRefresh(PipelinedViewerUpdate refreshSynchronization) {
         return convertToPythonElementsUpdateOrRefresh(refreshSynchronization.getRefreshTargets());
     }
@@ -118,7 +120,20 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
     public void saveState(IMemento memento) {
     	new PyPackageStateSaver(this, viewer, memento).saveState();
     }
-    
+
+    /**
+     * Helper for debugging the things we have in a modification
+     */
+    private void debug(String desc, PipelinedShapeModification modification) {
+        System.out.println("\nDesc:"+desc);
+        Object parent = modification.getParent();
+        System.out.println("Parent:"+parent);
+        System.out.println("Children:");
+        for(Object o:modification.getChildren()){
+            System.out.println(o);
+        }
+    }
+
     /**
      * Converts the shape modification to use Python elements.
      * 
@@ -126,6 +141,9 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
      * @param isAdd: boolean indicating whether this convertion is happening in an add operation 
      */
     private void convertToPythonElementsAddOrRemove(PipelinedShapeModification modification, boolean isAdd) {
+        if(DEBUG){
+            debug("Before", modification); 
+        }
         Object parent = modification.getParent();
         if (parent instanceof IContainer) {
         	IContainer parentContainer = (IContainer) parent;
@@ -194,6 +212,9 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             wrapChildren(null, null, modification.getChildren(), isAdd);
         }
         
+        if(DEBUG){
+            debug("After", modification);
+        }
     }
     
     /**

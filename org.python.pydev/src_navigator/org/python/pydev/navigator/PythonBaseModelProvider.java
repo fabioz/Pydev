@@ -87,7 +87,10 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
      * Notification received when the pythonpath has been changed or rebuilt.
      */
     public void notifyPythonPathRebuilt(IProject project, List<String> projectPythonpath) {
-        projectToSourceFolders.remove(project);
+        Map<IProject, Set<PythonSourceFolder>> p = projectToSourceFolders;
+        if(p != null){
+            p.remove(project);
+        }
         Runnable refreshRunnable = getRefreshRunnable(project);
         final Collection<Runnable> runnables = new ArrayList<Runnable>();
         runnables.add(refreshRunnable);
@@ -151,12 +154,17 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
      * @return a set with the PythonSourceFolder that exist in the project that contains it
      */
     protected Set<PythonSourceFolder> getProjectSourceFolders(IResource object) {
-        Set<PythonSourceFolder> sourceFolder = projectToSourceFolders.get(object.getProject());
-        if(sourceFolder == null){
-            sourceFolder = new HashSet<PythonSourceFolder>();
-            projectToSourceFolders.put(object.getProject(), sourceFolder);
+        Map<IProject, Set<PythonSourceFolder>> p = projectToSourceFolders;
+        //may be already disposed
+        if(p != null){
+            Set<PythonSourceFolder> sourceFolder = p.get(object.getProject());
+            if(sourceFolder == null){
+                sourceFolder = new HashSet<PythonSourceFolder>();
+                p.put(object.getProject(), sourceFolder);
+            }
+            return sourceFolder;
         }
-        return sourceFolder;
+        return new HashSet<PythonSourceFolder>();
     }
     
     /**
@@ -743,7 +751,11 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
                                     IResource rem = (IResource) object;
                                     Object remInPythonModel = getResourceInPythonModel(rem, true);
                                     if(remInPythonModel instanceof PythonSourceFolder){
-                                        projectToSourceFolders.get(resource.getProject()).remove(remInPythonModel);
+                                        Map<IProject, Set<PythonSourceFolder>> p = projectToSourceFolders;
+                                        if(p != null){
+                                            p.get(resource.getProject()).remove(remInPythonModel);
+                                        }
+                                            
                                     }
                                 }
                             }

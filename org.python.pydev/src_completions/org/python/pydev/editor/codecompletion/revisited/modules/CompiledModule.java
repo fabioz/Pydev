@@ -27,6 +27,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
@@ -39,14 +40,21 @@ public class CompiledModule extends AbstractModule{
     
     public static boolean COMPILED_MODULES_ENABLED = true; 
 
-    public static boolean TRACE_COMPILED_MODULES = false; 
+    public static final boolean TRACE_COMPILED_MODULES = false; 
     
     private Map<String, Map<String, IToken> > cache = new HashMap<String, Map<String, IToken>>();
+    
+    private static final Definition[] EMPTY_DEFINITION = new Definition[0];
     
     /**
      * These are the tokens the compiled module has.
      */
     private Map<String, CompiledToken> tokens = null;
+    
+    /**
+     * A map with the definitions that have already been found for this compiled module.
+     */
+    private LRUCache<String, Definition[]> definitionsFoundCache = new LRUCache<String, Definition[]>(30);
     
     private File file;
     
@@ -293,27 +301,52 @@ public class CompiledModule extends AbstractModule{
      */
     public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature, List<FindInfo> findInfo) throws Exception {
         String token = state.getActivationToken();
+        
+        if(TRACE_COMPILED_MODULES){
+            System.out.println("CompiledModule.findDefinition:"+token);
+        }
+//        Definition[] found = this.definitionsFoundCache.getObj(token);
+//        if(found != null){
+//            if(TRACE_COMPILED_MODULES){
+//                System.out.println("CompiledModule.findDefinition: found in cache.");
+//            }
+//            return found;
+//        }
+        
+        
         AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
         synchronized(shell){
             Tuple<String[],int[]> def = shell.getLineCol(this.name, token, nature.getAstManager().getModulesManager().getCompletePythonPath(null)); //default
             if(def == null){
-                return new Definition[0];
+                if(TRACE_COMPILED_MODULES){
+                    System.out.println("CompiledModule.findDefinition:"+token+" = empty");
+                }
+                this.definitionsFoundCache.add(token, EMPTY_DEFINITION);
+                return EMPTY_DEFINITION;
             }
             String fPath = def.o1[0];
             if(fPath.equals("None")){
-                return new Definition[0];
+                if(TRACE_COMPILED_MODULES){
+                    System.out.println("CompiledModule.findDefinition:"+token+" = empty");
+                }
+                this.definitionsFoundCache.add(token, EMPTY_DEFINITION);
+                return EMPTY_DEFINITION;
             }
             File f = new File(fPath);
             String foundModName = nature.resolveModule(f);
             String foundAs = def.o1[1];
             
             IModule mod = nature.getAstManager().getModule(foundModName, nature, true);
+            if(TRACE_COMPILED_MODULES){
+                System.out.println("CompiledModule.findDefinition: found at:"+mod.getName());
+            }
             int foundLine = def.o2[0];
             if(foundLine == 0 && foundAs.length() > 0 && mod != null){
                 IModule sourceMod = AbstractModule.createModuleFromDoc(mod.getName(), f, new Document(REF.getFileContents(f)), nature, 0);
                 if(sourceMod instanceof SourceModule){
                     Definition[] definitions = (Definition[]) sourceMod.findDefinition(state.getCopyWithActTok(foundAs), -1, -1, nature, findInfo);
                     if(definitions.length > 0){
+                        this.definitionsFoundCache.add(token, definitions);
                         return definitions;
                     }
                 }
@@ -325,7 +358,12 @@ public class CompiledModule extends AbstractModule{
             if(foundCol < 0){
             	foundCol = 0;
             }
-			return new Definition[]{new Definition(foundLine+1, foundCol+1, token, null, null, mod)};
+            if(TRACE_COMPILED_MODULES){
+                System.out.println("CompiledModule.findDefinition: found compiled at:"+mod.getName());
+            }
+			Definition[] definitions = new Definition[]{new Definition(foundLine+1, foundCol+1, token, null, null, mod)};
+			this.definitionsFoundCache.add(token, definitions);
+            return definitions;
         }
     }
 

@@ -228,17 +228,38 @@ public class PySelection {
         int firstNonCommentLine = -1;
         int afterFirstImports = -1;
         
-        int lines = getDoc().getNumberOfLines();
+        IDocument document = getDoc();
+        int lines = document.getNumberOfLines();
         for (int line = startingAtLine; line < lines; line++) {
             String str = getLine(line);
             if (str.startsWith("#")) {
                 continue;
             }else{
+                int i;
+                if((i = str.indexOf('#')) != -1){
+                    str = str.substring(0, i);
+                }
+                
                 if(firstNonCommentLine == -1){
                     firstNonCommentLine = line;
                 }
                 ImportInfo importInfo = ImportsSelection.getImportsTipperStr(str, false);
                 if(importInfo != null && importInfo.importsTipperStr != null && importInfo.importsTipperStr.trim().length() > 0){
+                    if((i = str.indexOf('(')) != -1){
+                        StringBuffer buf = new StringBuffer();
+                        //start of a multi-line import
+                        int j = ParsingUtils.eatPar(document, line+i, buf);
+                        try {
+                            line = document.getLineOfOffset(j);
+                        } catch (BadLocationException e) {
+                            Log.log(e);
+                        }
+                    }else if(str.endsWith("\\")){
+                        while(str.endsWith("\\") && line < lines){
+                            line++;
+                            str = getLine(line);
+                        }
+                    }
                     afterFirstImports = line+1;
                 }else if(str.trim().length() > 0){
                     //found some non-empty, non-import, non-comment line (break it here)

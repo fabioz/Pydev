@@ -137,7 +137,6 @@ public class ParsingUtils implements IPythonPartitions{
     
     public static int eatPar(Object cs, int i, StringBuffer buf, char par) {
         char c = ' ';
-        StringBuffer locBuf = new StringBuffer();
         
         int j = i+1;
         while(j < len(cs) && (c = charAt(cs,j)) != ')'){
@@ -145,17 +144,17 @@ public class ParsingUtils implements IPythonPartitions{
             j++;
             
             if(c == '\'' || c == '"'){ //ignore comments or multiline comments...
-                j = ParsingUtils.eatLiterals( cs, locBuf, j-1)+1;
+                j = ParsingUtils.eatLiterals( cs, new StringBuffer(), j-1)+1;
                 
             }else if(c == '#'){
-                j = ParsingUtils.eatComments(cs, locBuf, j-1)+1;
+                j = ParsingUtils.eatComments(cs, new StringBuffer(), j-1)+1;
                 
             }else if( c == par){ //open another par.
-                j = eatPar(cs, j-1, locBuf, par)+1;
+                j = eatPar(cs, j-1, new StringBuffer(), par)+1;
             
             }else{
 
-                locBuf.append(c);
+                buf.append(c);
             }
         }
         return j;
