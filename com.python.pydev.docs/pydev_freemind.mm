@@ -5,7 +5,7 @@
 <cloud COLOR="#99ffff"/>
 <font NAME="SansSerif" SIZE="20"/>
 <hook NAME="accessories/plugins/AutomaticLayout.properties"/>
-<node COLOR="#0033ff" CREATED="1139594080375" ID="_" MODIFIED="1140001041531" POSITION="right" TEXT="New Project Wizard">
+<node COLOR="#0033ff" CREATED="1139594080375" FOLDED="true" ID="_" MODIFIED="1140001041531" POSITION="right" TEXT="New Project Wizard">
 <edge WIDTH="thin"/>
 <font NAME="SansSerif" SIZE="18"/>
 <node COLOR="#00b439" CREATED="1139594135046" ID="Freemind_Link_1097477604" MODIFIED="1140001041546" TEXT="Select external projects to add to pythonpath">
@@ -50,15 +50,18 @@
 <node COLOR="#990000" CREATED="1150661235406" ID="Freemind_Link_266065152" MODIFIED="1151160186578" TEXT="When trying to run with &apos;old&apos; interpreter, let the user know about it.">
 <font NAME="SansSerif" SIZE="14"/>
 </node>
-</node>
-<node COLOR="#00b439" CREATED="1162397397296" ID="Freemind_Link_296581732" MODIFIED="1162397408828" TEXT="high-priority">
-<font NAME="SansSerif" SIZE="16"/>
-<node COLOR="#990000" CREATED="1162397425828" ID="Freemind_Link_1950177921" MODIFIED="1162397453859" TEXT="Making an F3 on &apos;import operation&apos; &#xa;gives a NullPointerException">
-<font NAME="SansSerif" SIZE="14"/>
-</node>
 <node COLOR="#990000" CREATED="1165273710019" ID="Freemind_Link_703745039" MODIFIED="1165273737964" TEXT="Pydev package explorer:&#xa;If project is closed/reopened, an error occurs.">
 <font NAME="SansSerif" SIZE="14"/>
 </node>
+<node COLOR="#990000" CREATED="1162397425828" ID="Freemind_Link_1950177921" MODIFIED="1162397453859" TEXT="Making an F3 on &apos;import operation&apos; &#xa;gives a NullPointerException">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1177851650375" ID="Freemind_Link_446783173" MODIFIED="1177863070344" TEXT="&#xa;from simbr20.function.table_model import (PermeabilityTableModel,&#xa;from simbr20.bsmio import ValidateError&#xa;                                          PermeabilityLogTableModel,&#xa;                                          ThermalConductivityTableModel,&#xa;                                          ThermalCapacityTableModel)&#xa;">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+</node>
+<node COLOR="#00b439" CREATED="1162397397296" ID="Freemind_Link_296581732" MODIFIED="1162397408828" TEXT="high-priority">
+<font NAME="SansSerif" SIZE="16"/>
 </node>
 <node COLOR="#00b439" CREATED="1162397413781" FOLDED="true" ID="Freemind_Link_1064002379" MODIFIED="1162397417515" TEXT="low-priority">
 <font NAME="SansSerif" SIZE="16"/>
@@ -67,8 +70,27 @@
 <font NAME="SansSerif" SIZE="14"/>
 </node>
 </node>
+<node COLOR="#00b439" CREATED="1177851531812" ID="Freemind_Link_909990793" MODIFIED="1177851540891" TEXT="Update errors">
+<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1177855693781" FOLDED="true" ID="Freemind_Link_1724569658" MODIFIED="1177855761750" TEXT="Strange collateral effects">
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1177851545984" ID="Freemind_Link_1293843120" MODIFIED="1177855763656" TEXT="Create structure with &apos;Foo&apos;&#xa;&#xa;make search for &apos;Foo&apos;&#xa;&#x9;&#xa;Make copy/paste within that search structure&#xa;&#xa;Check behaviour of PythonModelProvider.java&#xa;&#xa;java.lang.IllegalArgumentException: Argument cannot be null&#xa;&#x9;at org.eclipse.swt.SWT.error(SWT.java:3358)&#xa;&#x9;at org.eclipse.swt.SWT.error(SWT.java:3297)&#xa;&#x9;at org.eclipse.swt.SWT.error(SWT.java:3268)&#xa;&#x9;at org.eclipse.swt.widgets.Widget.error(Widget.java:435)&#xa;&#x9;at org.eclipse.swt.widgets.TreeItem.setText(TreeItem.java:1542)&#xa;&#x9;at org.eclipse.swt.widgets.TreeItem.setText(TreeItem.java:1577)&#xa;&#x9;at org.eclipse.jface.viewers.TreeViewer.doUpdateItem(TreeViewer.java:270)&#xa;&#x9;at org.eclipse.jface.viewers.AbstractTreeViewer$UpdateItemSafeRunnable.run(AbstractTreeViewer.java:95)&#xa;&#x9;at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:37)&#xa;&#x9;at org.eclipse.core.runtime.Platform.run(Platform.java:843)&#xa;&#x9;at org.eclipse.ui.internal.JFaceUtil$1.run(JFaceUtil.java:44)&#xa;&#x9;at org.eclipse.jface.util.SafeRunnable.run(SafeRunnable.java:149)&#xa;&#x9;at org.eclipse.jface.viewers.AbstractTreeViewer.doUpdateItem(AbstractTreeViewer.java:849)&#xa;&#x9;at org.eclipse.jface.viewers.StructuredViewer$UpdateItemSafeRunnable.run(StructuredViewer.java:465)&#xa;&#x9;at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:37)&#xa;&#x9;at org.eclipse.core.runtime.Platform.run(Platform.java:843)&#xa;&#x9;at org.eclipse.ui.internal.JFaceUtil$1.run(JFaceUtil.java:44)&#xa;&#x9;at org.eclipse.jface.util.SafeRunnable.run(SafeRunnable.java:149)&#xa;&#x9;at org.eclipse.jface.viewers.StructuredViewer.updateItem(StructuredViewer.java:1955)&#xa;&#x9;at org.eclipse.jface.viewers.StructuredViewer.internalUpdate(StructuredViewer.java:1938)&#xa;&#x9;at org.eclipse.jface.viewers.StructuredViewer.update(StructuredViewer.java:1886)&#xa;&#x9;at org.eclipse.jface.viewers.StructuredViewer.update(StructuredViewer.java:1840)&#xa;&#x9;at org.eclipse.jface.viewers.StructuredViewer.handleLabelProviderChanged(StructuredViewer.java:1108)&#xa;&#x9;at org.eclipse.jface.viewers.ContentViewer$1.labelProviderChanged(ContentViewer.java:74)&#xa;&#x9;at org.eclipse.ui.internal.decorators.DecoratorManager$1.run(DecoratorManager.java:239)&#xa;&#x9;at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:37)&#xa;&#x9;at org.eclipse.core.runtime.Platform.run(Platform.java:843)&#xa;&#x9;at org.eclipse.ui.internal.decorators.DecoratorManager.fireListener(DecoratorManager.java:237)&#xa;&#x9;at org.eclipse.ui.internal.decorators.DecorationScheduler$3.runInUIThread(DecorationScheduler.java:490)&#xa;&#x9;at org.eclipse.ui.progress.UIJob$1.run(UIJob.java:94)&#xa;&#x9;at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:35)&#xa;&#x9;at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:123)&#xa;">
+<font NAME="SansSerif" SIZE="12"/>
 </node>
-<node COLOR="#0033ff" CREATED="1139594227703" ID="Freemind_Link_1643430887" MODIFIED="1142643906171" POSITION="right" TEXT="Code Completion">
+<node COLOR="#111111" CREATED="1177855775047" ID="Freemind_Link_1235060071" MODIFIED="1177856264672" TEXT="Strange effects:&#xa;&#xa;When adding the intercept hooks to the Project explorer, the file search seems to end up using the elements from the model added, and&#xa;this leaves to strange effects, such as having null items in the tree.&#xa;&#xa;This is only observed in updates/refreshes from the search view, and not in the inital search.&#xa;&#xa;The effect is that when doing a file search for a string, and then making a copy/paste in that tree, which will add other contents to the&#xa;search result, will end up with an exception, because it will try to get a PythonFolder/PythonFile instead of a Folder/Resource, and in&#xa;the org.eclipse.search.internal.ui.text.FileLabelProvider.getText, the element is not an instance of IResource (but can actually adapt to it),&#xa;and as it is not an IResource, it will return null for its text.&#xa;&#xa;A simple workaround could be trying to adapt to IResource if it is not an IResource instance at the FileLabelProvider, or don&apos;t use the &#xa;intercept structure when the search happens.&#xa;&#xa;Also note that all works until the Project Explorer is shown (so, even if the intercept structure is in place, it will not use the intercept&#xa;structure if the Project Explorer is not activated (even if the Pydev Package Explorer -- which also uses the intercept structure -- is&#xa;also shown)."/>
+</node>
+</node>
+<node COLOR="#00b439" CREATED="1177852799375" FOLDED="true" ID="Freemind_Link_1643711225" MODIFIED="1177852802906" TEXT="resolved">
+<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1177851626938" ID="Freemind_Link_1443716136" MODIFIED="1177852811359" TEXT="java.lang.NullPointerException:&#xa;at org.python.pydev.navigator.PythonBaseModelProvider.getProjectSourceFolders(PythonBaseModelProvider.java:154)&#xa;at org.python.pydev.navigator.PythonBaseModelProvider.getResourceInPythonModel (PythonBaseModelProvider.java:119)&#xa;at org.python.pydev.navigator.PythonBaseModelProvider.getResourceInPythonModel(PythonBaseModelProvider.java:108)&#xa;at org.python.pydev.navigator.PythonModelProvider.convertToPythonElementsUpdateOrRefresh (PythonModelProvider.java:376)&#xa;at org.python.pydev.navigator.PythonModelProvider.interceptUpdate(PythonModelProvider.java:101)&#xa;at org.eclipse.ui.internal.navigator.NavigatorPipelineService.pipelineInterceptUpdate(NavigatorPipelineService.java :298)&#xa;at org.eclipse.ui.internal.navigator.NavigatorPipelineService.interceptUpdate(NavigatorPipelineService.java:280)&#xa;at org.eclipse.ui.navigator.CommonViewer.update(CommonViewer.java:421)&#xa;at org.eclipse.jface.viewers.StructuredViewer.update (StructuredViewer.java:1840)&#xa;at org.eclipse.jface.viewers.StructuredViewer.handleLabelProviderChanged(StructuredViewer.java:1108)&#xa;at org.eclipse.ui.navigator.CommonViewer.handleLabelProviderChanged(CommonViewer.java :177)&#xa;at org.eclipse.jface.viewers.ContentViewer$1.labelProviderChanged(ContentViewer.java:74)&#xa;at org.eclipse.ui.internal.decorators.DecoratorManager$1.run(DecoratorManager.java:239)&#xa;at org.eclipse.core.runtime.SafeRunner.run (SafeRunner.java:37)&#xa;at org.eclipse.core.runtime.Platform.run(Platform.java:843)&#xa;at org.eclipse.ui.internal.decorators.DecoratorManager.fireListener(DecoratorManager.java:237)&#xa;at org.eclipse.ui.internal.decorators.DecorationScheduler$3.runInUIThread (DecorationScheduler.java:490)&#xa;at org.eclipse.ui.progress.UIJob$1.run(UIJob.java:94)&#xa;at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:35)&#xa;at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java :123)&#xa;at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:3325)&#xa;at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:2971)&#xa;at org.eclipse.ui.internal.Workbench.runEventLoop(Workbench.java:1914)&#xa;at org.eclipse.ui.internal.Workbench.runUI(Workbench.java:1878)&#xa;at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:419)&#xa;at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:149)&#xa;at org.eclipse.ui.internal.ide.IDEApplication.run(IDEApplication.java:95)&#xa;at org.eclipse.core.internal.runtime.PlatformActivator$1.run(PlatformActivator.java:78)&#xa;at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication (EclipseAppLauncher.java:92)&#xa;at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:68)&#xa;at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:400)&#xa;&#xa;at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:177) ">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+</node>
+<node COLOR="#00b439" CREATED="1177862804969" ID="Freemind_Link_478858164" MODIFIED="1177862815578" TEXT="outline should show syntax errors">
+<font NAME="SansSerif" SIZE="16"/>
+</node>
+</node>
+<node COLOR="#0033ff" CREATED="1139594227703" FOLDED="true" ID="Freemind_Link_1643430887" MODIFIED="1142643906171" POSITION="right" TEXT="Code Completion">
 <font NAME="SansSerif" SIZE="18"/>
 <node COLOR="#00b439" CREATED="1139594344859" ID="Freemind_Link_378572787" MODIFIED="1140001041734" TEXT="filter method if there is some assert isinstance(xxx,Class)">
 <font NAME="SansSerif" SIZE="16"/>
@@ -80,7 +102,7 @@
 <font NAME="SansSerif" SIZE="16"/>
 </node>
 </node>
-<node COLOR="#0033ff" CREATED="1139594461453" ID="Freemind_Link_521048315" MODIFIED="1140001041734" POSITION="left" TEXT="Extensions">
+<node COLOR="#0033ff" CREATED="1139594461453" FOLDED="true" ID="Freemind_Link_521048315" MODIFIED="1140001041734" POSITION="left" TEXT="Extensions">
 <font NAME="SansSerif" SIZE="18"/>
 <icon BUILTIN="full-2"/>
 <node COLOR="#00b439" CREATED="1140000887734" HGAP="29" ID="Freemind_Link_617691308" MODIFIED="1140001041734" TEXT="Find references" VSHIFT="-3">
@@ -226,11 +248,13 @@
 <font NAME="SansSerif" SIZE="14"/>
 <icon BUILTIN="button_ok"/>
 </node>
-<node COLOR="#990000" CREATED="1162397378062" ID="Freemind_Link_1486386825" MODIFIED="1162397386593" TEXT="Create a filter for .pyc files">
+<node COLOR="#990000" CREATED="1162397378062" ID="Freemind_Link_1486386825" MODIFIED="1177869699125" TEXT="Create a filter for .pyc files">
 <font NAME="SansSerif" SIZE="14"/>
+<icon BUILTIN="button_ok"/>
 </node>
-<node COLOR="#990000" CREATED="1162425231905" ID="Freemind_Link_472779941" MODIFIED="1162425240531" TEXT="Have a working set">
+<node COLOR="#990000" CREATED="1162425231905" ID="Freemind_Link_472779941" MODIFIED="1177869704141" TEXT="Have a working set">
 <font NAME="SansSerif" SIZE="14"/>
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 </node>
@@ -243,7 +267,7 @@
 <font NAME="SansSerif" SIZE="16"/>
 </node>
 </node>
-<node COLOR="#0033ff" CREATED="1163117573303" ID="Freemind_Link_1096200764" MODIFIED="1163117585162" POSITION="right" TEXT="TODO for releases">
+<node COLOR="#0033ff" CREATED="1163117573303" FOLDED="true" ID="Freemind_Link_1096200764" MODIFIED="1163117585162" POSITION="right" TEXT="TODO for releases">
 <font NAME="SansSerif" SIZE="18"/>
 <node COLOR="#00b439" CREATED="1163117587444" ID="Freemind_Link_727671719" MODIFIED="1163117600959" TEXT="release 1.2.6">
 <font NAME="SansSerif" SIZE="16"/>
@@ -259,6 +283,12 @@
 <node COLOR="#990000" CREATED="1163117660381" ID="Freemind_Link_1637750053" MODIFIED="1163117664959" TEXT="high-priority bugs">
 <font NAME="SansSerif" SIZE="14"/>
 </node>
+</node>
+</node>
+<node COLOR="#0033ff" CREATED="1177851596156" ID="Freemind_Link_1901152873" MODIFIED="1177851602609" POSITION="left" TEXT="optimizing">
+<font NAME="SansSerif" SIZE="18"/>
+<node COLOR="#00b439" CREATED="1177851604156" ID="Freemind_Link_1100850209" MODIFIED="1177851608844" TEXT="You mean at:&#xa;&#xa;case 1:&#xa;import re&#xa;result = re.search(&apos;foo&apos;)&#xa;result.|&lt;-- request code-completion here&#xa;&#xa;&#xa;&#xa;or&#xa;&#xa;case 2:&#xa;import re&#xa;result = re.|&lt;-- request here&#xa;&#xa;&#xa;Case 2 has already been optimized (in the cvs, so, should be much faster for&#xa;the next release). Case 1 takes 6 seconds in my computer, so, I&apos;ll take a look&#xa;on how to optimize it too...&#xa;&#xa;Cheers,&#xa;&#xa;Fabio">
+<font NAME="SansSerif" SIZE="16"/>
 </node>
 </node>
 </node>
