@@ -5,6 +5,9 @@ Pydev:
 <li><strong>Performance:</strong> Optimizations in the code-completion structure.</li>
 <li><strong>Quick-Fix:</strong> Move import to global scope would not be correct if the last line was a multi-line import.</li>
 <li><strong>Fix Search:</strong> null fixes: see mind-map (add to blog) for more details.</li>
+<li><strong>Outline:</strong> Syntax errors will show in the outline.</li>
+<li><strong>Outline:</strong> Selection on import nodes is now correct.</li>
+<li><strong>Find Previous Problem:</strong> action created (<strong>Ctrl+Shift+.</strong>).</li>
 </ul>
 
 Pydev Extensions:

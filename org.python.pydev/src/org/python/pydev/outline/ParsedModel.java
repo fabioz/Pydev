@@ -4,12 +4,16 @@ import java.util.ArrayList;
 
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Display;
+import org.python.pydev.editor.ErrorDescription;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.parser.visitors.scope.OutlineCreatorVisitor;
 
@@ -37,17 +41,40 @@ public class ParsedModel implements IOutlineModel {
         // Tell parser that we want to know about all the changes
         // make sure that the changes are propagated on the main thread
         modelListener = new IModelListener() {
+            
             public void modelChanged(final SimpleNode ast) {
                 Display.getDefault().asyncExec( new Runnable() {
                     public void run() {
-                        OutlineCreatorVisitor visitor = OutlineCreatorVisitor.create(ast);
-                        setRoot(new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0])));
+                        synchronized(this){
+                            OutlineCreatorVisitor visitor = OutlineCreatorVisitor.create(ast);
+                            setRoot(new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0]), ParsedModel.this.editor.getErrorDescription()));
+                        }
                     }
                 });             
             }
+
+            public void errorChanged(final ErrorDescription errorDesc) {
+                Display.getDefault().asyncExec( new Runnable() {
+                    public void run() {
+                        synchronized(this){
+                            ParsedItem currRoot = getRoot();
+                            
+                            ParsedItem newRoot;
+                            if(currRoot != null){
+                                newRoot = new ParsedItem(currRoot.astChildrenEntries, errorDesc);
+                            }else{
+                                newRoot = new ParsedItem(new ASTEntryWithChildren[0], errorDesc);
+                            }
+                            setRoot(newRoot);
+                        }
+                    }
+                });
+            }
+            
         };
+        
         OutlineCreatorVisitor visitor = OutlineCreatorVisitor.create(editor.getAST());
-        root = new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0]));
+        root = new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0]), editor.getErrorDescription());
         editor.addModelListener(modelListener);
     }
 
@@ -55,14 +82,13 @@ public class ParsedModel implements IOutlineModel {
         editor.removeModelListener(modelListener);
     }
     
-    public Object getRoot() {
+    public ParsedItem getRoot() {
         return root;
     }
 
     // patchRootHelper makes oldItem just like the newItem
     //   the differnce between the two is 
-    private void patchRootHelper(ParsedItem oldItem, ParsedItem newItem, 
-            ArrayList<ParsedItem> itemsToRefresh, ArrayList<ParsedItem> itemsToUpdate) {
+    private void patchRootHelper(ParsedItem oldItem, ParsedItem newItem, ArrayList<ParsedItem> itemsToRefresh, ArrayList<ParsedItem> itemsToUpdate) {
         
         ParsedItem[] newChildren = newItem.getChildren();
         ParsedItem[] oldChildren = oldItem.getChildren();
@@ -73,6 +99,7 @@ public class ParsedModel implements IOutlineModel {
             oldItem.astThis = newItem.astThis;
             oldItem.name = null;
             oldItem.children = null; // forces reinitialization
+            oldItem.errorDesc = newItem.errorDesc;
             itemsToRefresh.add(oldItem);
             
         }else {
@@ -90,6 +117,7 @@ public class ParsedModel implements IOutlineModel {
             }
             
             oldItem.astThis = newItem.astThis;
+            oldItem.errorDesc = newItem.errorDesc;
             oldItem.name = null;
         }
     }
@@ -118,7 +146,7 @@ public class ParsedModel implements IOutlineModel {
     
     /*
      */
-    public SimpleNode getSelectionPosition(StructuredSelection sel) {
+    public SimpleNode[] getSelectionPosition(StructuredSelection sel) {
         if(sel.size() == 1) { // only sync the editing view if it is a single-selection
             Object firstElement = sel.getFirstElement();
             ASTEntryWithChildren p = ((ParsedItem)firstElement).astThis;
@@ -134,8 +162,43 @@ public class ParsedModel implements IOutlineModel {
             }else if(node instanceof FunctionDef){
                 FunctionDef def = (FunctionDef) node;
                 node = def.name;
+                
+            }else if(node instanceof Import){
+                ArrayList<SimpleNode> ret = new ArrayList<SimpleNode>();
+                Import importToken = (Import) node;
+                for (int i=0; i<importToken.names.length;i++) {
+                    aliasType aliasType = importToken.names[i];
+                    
+                    //as ...
+                    if(aliasType.asname != null){
+                        ret.add(aliasType.asname);
+                    }
+                    
+                    ret.add(aliasType.name);
+                }
+                return ret.toArray(new SimpleNode[0]);
+                
+            }else if(node instanceof ImportFrom){
+                ArrayList<SimpleNode> ret = new ArrayList<SimpleNode>();
+                ImportFrom importToken = (ImportFrom) node;
+                boolean found = false;
+                for (int i=0; i<importToken.names.length;i++) {
+                    found = true;
+                    aliasType aliasType = importToken.names[i];
+
+                    //as ...
+                    if(aliasType.asname != null){
+                        ret.add(aliasType.asname);
+                    }
+
+                    ret.add(aliasType.name);
+                }
+                if(!found){
+                    ret.add(importToken.module);
+                }
+                return ret.toArray(new SimpleNode[0]);
             }
-            return node;
+            return new SimpleNode[]{node};
         }
         return null;
     }

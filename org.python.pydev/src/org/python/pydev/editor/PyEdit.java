@@ -129,7 +129,12 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     /**
      * AST that created python model
      */
-    SimpleNode ast;
+    private volatile SimpleNode ast;
+    
+    /**
+     * The last parsing error description we got.
+     */
+    private volatile ErrorDescription errorDescription;
 
     /** Hyperlinking listener */
     Hyperlink fMouseListener;
@@ -674,7 +679,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 	        
 	        // ----------------------------------------------------------------------------------------
 	        // Offline action
-	        action= new OfflineAction(resources, "Pyedit.ScriptEngine.", this); 
+	        action = new OfflineAction(resources, "Pyedit.ScriptEngine.", this); 
 	        action.setActionDefinitionId("org.python.pydev.editor.actions.scriptEngine");
 	        action.setId("org.python.pydev.editor.actions.scriptEngine");
 	        setAction("PydevScriptEngine", action);
@@ -754,6 +759,40 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         sourceViewer.revealRange(offset, length);
     }
 
+    public void revealModelNodes(SimpleNode[] nodes) {
+        if (nodes == null){
+            return; // nothing to see here
+        }
+        
+        IDocument document = getDocumentProvider().getDocument(getEditorInput());
+        if(document == null){
+            return;
+        }
+        
+        try {
+            int startOffset=-1, endOffset=-1;
+            PySelection selection = new PySelection(this);
+            
+            for(SimpleNode node:nodes){
+                int nodeStartoffset = selection.getLineOffset(node.beginLine-1) + node.beginColumn-1;
+                int[] colLineEnd = NodeUtils.getColLineEnd(node);
+                
+                int nodeEndOffset = selection.getLineOffset(colLineEnd[0]-1) + colLineEnd[1]-1;
+                
+                if(startOffset == -1 || nodeStartoffset < startOffset){
+                    startOffset = nodeStartoffset;
+                }
+                if(endOffset == -1 || nodeEndOffset > endOffset){
+                    endOffset = nodeEndOffset;
+                }
+            }
+            
+            setSelection(startOffset, endOffset - startOffset);
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+        }
+    }
+
     public void revealModelNode(SimpleNode node) {
         if (node == null){
             return; // nothing to see here
@@ -812,6 +851,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * Removes all the error markers
      */
     public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc) {
+        this.errorDescription = null; //the order is: parserChanged and only then parserError
         int lastLine = doc.getNumberOfLines();
         try {
             doc.getLineInformation(lastLine - 1);
@@ -829,6 +869,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * generates an error marker on the document
      */
     public void parserError(Throwable error, IAdaptable original, IDocument doc) {
+        int errorStart = -1;
+        int errorEnd = -1;
+        int errorLine = -1;
+        String message = null;
+        
         try {
             if(original == null){
                 return;
@@ -838,10 +883,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
                 return;
             }
 
-            int errorStart;
-            int errorEnd;
-            int errorLine;
-            String message;
             if (error instanceof ParseException) {
                 ParseException.verboseExceptions = true;
                 ParseException parseErr = (ParseException) error;
@@ -884,6 +925,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
                 message = message.replaceAll("\\n", " ");
             }
             Map<String, Object> map = new HashMap<String, Object>();
+            
             map.put(IMarker.MESSAGE, message);
             map.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
             map.put(IMarker.LINE_NUMBER, new Integer(errorLine));
@@ -898,8 +940,16 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         } catch (BadLocationException e2) {
             // Whatever, could not create a marker. Swallow this one
         	//PydevPlugin.log(e2);
+        }finally{
+            try {
+                errorDescription = new ErrorDescription(message, errorLine, errorStart, errorEnd);
+                fireParseErrorChanged(errorDescription);
+            } catch (Exception e) {
+                PydevPlugin.log(e);
+            }
         }
     }
+
 
     public void enableBrowserLikeLinks() {
         if (fMouseListener == null) {
@@ -934,14 +984,37 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 
     /**
      * stock listener implementation event is fired whenever we get a new root
-     * 
-     * @param root2
      */
     protected void fireModelChanged(SimpleNode root) {
     	//create a copy, to avoid concurrent modifications
         for (IModelListener listener : new ArrayList<IModelListener>(modelListeners)) {
         	listener.modelChanged(root);
 		}
+    }
+    
+
+    /**
+     * @return the last ast generated in this editor (even if we had some other error after that)
+     */
+    public SimpleNode getAST() {
+        return ast;
+    }
+    
+    /**
+     * @return the last error description found (may be null)
+     */
+    public ErrorDescription getErrorDescription(){
+        return errorDescription;
+    }
+
+
+    /**
+     * stock listener implementation event is fired whenever the errors change in the editor
+     */
+    private void fireParseErrorChanged(ErrorDescription errorDesc) {
+        for (IModelListener listener : new ArrayList<IModelListener>(modelListeners)) {
+            listener.errorChanged(errorDesc);
+        }
     }
 
     /**
@@ -979,60 +1052,32 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 		}
     }
 
-    /**
-     * @return
-     */
-    public SimpleNode getAST() {
-        return ast;
-    }
-
-    Map<String, ActionInfo> onOfflineActionListeners = new HashMap<String, ActionInfo>();
+    
+    //------------------------------------------------------------------- START: actions that are activated after Ctrl+2
+    OfflineActionsManager offlineActionsManager = new OfflineActionsManager();
+    
     public Collection<ActionInfo> getOfflineActionDescriptions(){
-        return onOfflineActionListeners.values();
+        return offlineActionsManager.getOfflineActionDescriptions();
     }
     public void addOfflineActionListener(String key, IAction action) {
-        onOfflineActionListeners.put(key, new ActionInfo(action, "not described", key, true));
+        offlineActionsManager.addOfflineActionListener(key, action);
     }
     public void addOfflineActionListener(String key, IAction action, String description, boolean needsEnter) {
-    	onOfflineActionListeners.put(key, new ActionInfo(action, description, key, needsEnter));
+        offlineActionsManager.addOfflineActionListener(key, action, description, needsEnter);
 	}
     public boolean activatesAutomaticallyOn(String key){
-        ActionInfo info = onOfflineActionListeners.get(key);
-        if(info != null){
-            if(!info.needsEnter){
-                return true;
-            }
-        }
-        return false;
+        return offlineActionsManager.activatesAutomaticallyOn(key);
     }
     /**
      * @return if an action was binded and was successfully executed
      */
 	public boolean onOfflineAction(String requestedStr, OfflineActionTarget target) {
-		ActionInfo actionInfo = onOfflineActionListeners.get(requestedStr);
-        if(actionInfo == null){
-            target.statusError("No action was found binded to:"+requestedStr);
-            return false;
-            
-        }
-            
-        IAction action = actionInfo.action;
-		if(action == null){
-		    target.statusError("No action was found binded to:"+requestedStr);
-		    return false;
-        }
-        
-		try {
-			action.run();
-		} catch (Throwable e) {
-		    target.statusError("Exception raised when executing action:"+requestedStr+" - "+e.getMessage());
-			PydevPlugin.log(e);
-			return false;
-		}
-		return true;
+	    return offlineActionsManager.onOfflineAction(requestedStr, target);
 	}
     
-    
+    /**
+     * Used in the script pyedit_list_bindings.py
+     */
 	public Font getFont(FontData descriptor) {
         Font font = (Font) SWTResourceUtil.getFontTable().get(descriptor);
         if (font == null) {
@@ -1041,6 +1086,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         }
         return font;
     }
+	//--------------------------------------------------------------------- END: actions that are activated after Ctrl+2
+
 
 
 }

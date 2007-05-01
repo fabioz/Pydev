@@ -30,7 +30,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
@@ -44,58 +43,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
  */
 public abstract class ModulesManager implements IModulesManager, Serializable {
 
-    /**
-     * This is a 'global' cache implementation, that can have at most n objects in
-     * the memory at any time.
-     */
-	private static final class ModulesManagerCache  {
-        /**
-         * Defines the maximun amount of modules that can be in the memory at any time (for all the managers)
-         */
-        private static final int MAX_NUMBER_OF_MODULES = 400;
-
-        /**
-         * The access to the cache is synchronized
-         */
-		private LRUCache<Tuple<ModulesKey, ModulesManager>, AbstractModule> internalCache;
-
-        private ModulesManagerCache() {
-            internalCache = new LRUCache<Tuple<ModulesKey, ModulesManager>, AbstractModule>(MAX_NUMBER_OF_MODULES);
-		}
-        
-		/**
-		 * Overriden so that if we do not find the key, we have the chance to create it.
-		 */
-		public AbstractModule getObj(ModulesKey key, ModulesManager modulesManager) {
-            synchronized (modulesManager.modulesKeys) {
-    			Tuple<ModulesKey, ModulesManager> keyTuple = new Tuple<ModulesKey, ModulesManager>(key, modulesManager);
-                
-                AbstractModule obj = internalCache.getObj(keyTuple);
-    			if(obj == null && modulesManager.modulesKeys.containsKey(key)){
-    				key = modulesManager.modulesKeys.get(key); //get the 'real' key
-    				obj = AbstractModule.createEmptyModule(key.name, key.file);
-                    internalCache.add(keyTuple, obj);
-    			}
-    			return obj;
-            }
-		}
-
-        public void remove(ModulesKey key, ModulesManager modulesManager) {
-            synchronized (modulesManager.modulesKeys) {
-                Tuple<ModulesKey, ModulesManager> keyTuple = new Tuple<ModulesKey, ModulesManager>(key, modulesManager);
-                internalCache.remove(keyTuple);
-            }
-        }
-
-        public void add(ModulesKey key, AbstractModule n, ModulesManager modulesManager) {
-            synchronized (modulesManager.modulesKeys) {
-                Tuple<ModulesKey, ModulesManager> keyTuple = new Tuple<ModulesKey, ModulesManager>(key, modulesManager);
-                internalCache.add(keyTuple, n);
-            }
-        }
-	}
-
-	public ModulesManager(){
+    public ModulesManager(){
 	}
 	
 
@@ -179,8 +127,24 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      */
     protected PythonPathHelper pythonPathHelper = new PythonPathHelper();
 
+    /**
+     * The version for deserialization
+     */
     private static final long serialVersionUID = 2L;
+    
+    /**
+     * This is a cache with the name of a builtin pointing to itself (so, it works basically as a set), it's used
+     * so that when we find a builtin that does not have a __file__ token we do not try to recreate it again later.
+     */
+    private LRUCache<String, String> builtinsNotConsidered; 
 
+    private LRUCache<String, String> getBuiltinsNotConsidered(){
+        if(builtinsNotConsidered == null){
+            builtinsNotConsidered = new LRUCache<String, String>(500);
+        }
+        return builtinsNotConsidered;
+    }
+    
     /**
      * Custom deserialization is needed.
      */
@@ -537,8 +501,8 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         //check for supported builtins these don't have files associated.
         //they are the first to be passed because the user can force a module to be builtin, because there
         //is some information that is only useful when you have builtins, such as os and wxPython (those can
-        //be source modules, but they are so hacked that it is almost impossible to get useful information
-        //from them).
+        //be source modules, but they have so much runtime info that it is almost impossible to get useful information
+        //from statically analyzing them).
         String[] builtins = getBuiltins();
         if(builtins == null){
         	//still on startup
@@ -587,13 +551,24 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
             }
         }
         if(foundStartingWithBuiltin){
+            LRUCache<String,String> notConsidered = getBuiltinsNotConsidered();
+            if(notConsidered.getObj(name) != null){
+                return null;
+            }
+            
             //ok, just add it if it is some module that actually exists
             n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
             IToken[] globalTokens = n.getGlobalTokens();
+            //if it does not contain the __file__, this means that it's not actually a module
+            //(but may be a token from a compiled module, so, clients wanting it must get the module
+            //first and only then go on to this token).
+            //done: a cache with those tokens should be kept, so that we don't actually have to create
+            //the module to see its return values (because that's slow)
             if(globalTokens.length > 0 && contains(globalTokens, "__file__")){
                 doAddSingleModule(new ModulesKey(name, null), n);
                 return n;
             }else{
+                notConsidered.add(name, name);
                 return null;
             }
         }

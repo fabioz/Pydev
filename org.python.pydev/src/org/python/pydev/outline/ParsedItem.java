@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.bundle.ImageCache;
+import org.python.pydev.editor.ErrorDescription;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -31,23 +32,42 @@ public class ParsedItem implements Comparable{
     public ASTEntryWithChildren astThis; //may be null if root
     public ASTEntryWithChildren[] astChildrenEntries;
     public String name;
+    public ErrorDescription errorDesc;
 
+    /**
+     * Constructor for a child with valid ast.
+     */
     public ParsedItem(ParsedItem parent, ASTEntryWithChildren root, ASTEntryWithChildren[] astChildren) {
-        this(astChildren);
+        this(astChildren, null);
         this.parent = parent;
         this.astThis = root;
-        
-    }
-    public ParsedItem(ASTEntryWithChildren[] astChildren) {
-        this.astChildrenEntries = astChildren;
     }
 
+    /**
+     * Constructor for a child with error.
+     */
+    public ParsedItem(ParsedItem parent, ErrorDescription errorDesc) {
+        this.parent = parent;
+        this.setErrorDescription(errorDesc);
+    }
+    
+    /**
+     * Constructor for the root.
+     */
+    public ParsedItem(ASTEntryWithChildren[] astChildren, ErrorDescription errorDesc) {
+        this.astChildrenEntries = astChildren;
+        this.setErrorDescription(errorDesc);
+    }
+
+    public void setErrorDescription(ErrorDescription errorDesc) {
+        this.errorDesc = errorDesc;
+    }
 
     // returns images based upon element type
     public Image getImage() {
         ImageCache imageCache = PydevPlugin.getImageCache();
         if(astThis == null){
-            return imageCache.get("ERROR");
+            return imageCache.get(UIConstants.ERROR);
         }
         
         SimpleNode token = astThis.node;
@@ -74,7 +94,7 @@ public class ParsedItem implements Comparable{
             return imageCache.get(UIConstants.PUBLIC_ATTR_ICON);
         }
         else {
-            return imageCache.get("ERROR");
+            return imageCache.get(UIConstants.ERROR);
         }
     }
     
@@ -83,10 +103,16 @@ public class ParsedItem implements Comparable{
             return children;
         }
         if(astChildrenEntries == null){
-            return new ParsedItem[0];
+            astChildrenEntries = new ASTEntryWithChildren[0];
         }
         
         ArrayList<ParsedItem> items = new ArrayList<ParsedItem>();
+        
+        //only the root can have an error as a child (from there on, the errors don't contain inner errors)
+        if(this.parent == null && errorDesc != null && errorDesc.message != null){
+            items.add(new ParsedItem(this, errorDesc));
+        }
+        
         for(ASTEntryWithChildren c : astChildrenEntries){
             items.add(new ParsedItem(this, c, c.getChildren()));
         }
@@ -99,6 +125,10 @@ public class ParsedItem implements Comparable{
     }
 
     public String toString() {
+        if(errorDesc != null && errorDesc.message != null){
+            return errorDesc.message;
+        }
+        
         if(name != null){
             return name;
         }
@@ -174,13 +204,16 @@ public class ParsedItem implements Comparable{
      * two items, first we compare class ranking, then titles
      */
     public int getClassRanking() {
-        int rank = 0;
+        int rank;
+        
         if (astThis.node instanceof ImportFrom) {
             rank = 0;
         } else if (astThis.node instanceof Import) {
             rank = 1;
         } else if (astThis.node instanceof commentType) {
             rank = -1;
+        } else if (errorDesc != null && errorDesc.message != null) {
+            rank = -2;
         } else{
             rank = 10;
         }

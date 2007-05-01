@@ -19,12 +19,12 @@ public interface IOutlineModel {
 	 * @return topmost object in the tree model
 	 * this object will be referenced in ContentProvider::getElements
 	 */
-	Object getRoot();
+	ParsedItem getRoot();
 	
 	/**
 	 * this will be called in response to selection event
 	 * @param sel new selection
 	 * @return Point that contains line/column, or item to be selected
 	 */
-	SimpleNode getSelectionPosition(StructuredSelection sel);
+	SimpleNode[] getSelectionPosition(StructuredSelection sel);
 }

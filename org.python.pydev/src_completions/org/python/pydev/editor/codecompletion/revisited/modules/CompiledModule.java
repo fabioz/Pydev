@@ -305,13 +305,13 @@ public class CompiledModule extends AbstractModule{
         if(TRACE_COMPILED_MODULES){
             System.out.println("CompiledModule.findDefinition:"+token);
         }
-//        Definition[] found = this.definitionsFoundCache.getObj(token);
-//        if(found != null){
-//            if(TRACE_COMPILED_MODULES){
-//                System.out.println("CompiledModule.findDefinition: found in cache.");
-//            }
-//            return found;
-//        }
+        Definition[] found = this.definitionsFoundCache.getObj(token);
+        if(found != null){
+            if(TRACE_COMPILED_MODULES){
+                System.out.println("CompiledModule.findDefinition: found in cache.");
+            }
+            return found;
+        }
         
         
         AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);

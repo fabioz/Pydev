@@ -336,7 +336,7 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
                                     SourceModule sourceModule = (SourceModule) module;
    
                                     OutlineCreatorVisitor visitor = OutlineCreatorVisitor.create(sourceModule.getAst());
-                                    ParsedItem root = new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0]));
+                                    ParsedItem root = new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0]), null);
                                     childrenToReturn = getChildrenFromParsedItem(wrappedResourceParent, root, file);
                                 }
                             }

@@ -92,21 +92,6 @@ public class PyOutlinePage extends ContentOutlinePage  {
 		super.dispose();
 	}
 
-	/*
-	 * Raw partition creates an outline that shows document's partitions
-	 * created by PyPartitionScanner: strings/commments
-	 * 
-	 * here we implement all the event handlers for the viewer (selection, document updates)
-	 */
-	public void createRawPartitionOutline() { // public to suppress the warnings, otherwise not currently used
-		final TreeViewer tree = getTreeViewer();
-		IDocumentProvider provider = editorView.getDocumentProvider();
-		document = provider.getDocument(editorView.getEditorInput());
-		model = new RawPartitionModel(this, document);
-		tree.setContentProvider(new RawPartitionContentProvider());
-		tree.setLabelProvider(new RawPartitionLabelProvider(document));
-		tree.setInput(model.getRoot());		
-	}
 
 	/**
 	 * Parsed partition creates an outline that shows imports/classes/methods
@@ -382,8 +367,16 @@ public class PyOutlinePage extends ContentOutlinePage  {
     		selectionListener = new ISelectionChangedListener() {
     			public void selectionChanged(SelectionChangedEvent event) {
     				StructuredSelection sel = (StructuredSelection)tree.getSelection();
-    				SimpleNode node = model.getSelectionPosition(sel);
-    				editorView.revealModelNode(node);
+                    if(sel.size() == 1) { // only sync the editing view if it is a single-selection
+                        ParsedItem firstElement = (ParsedItem) sel.getFirstElement();
+                        if(firstElement.errorDesc != null && firstElement.errorDesc.message != null){
+                            int len = firstElement.errorDesc.errorEnd-firstElement.errorDesc.errorStart;
+                            editorView.setSelection(firstElement.errorDesc.errorStart, len);
+                            return;
+                        }
+                    }
+    				SimpleNode[] node = model.getSelectionPosition(sel);
+    				editorView.revealModelNodes(node);
     			}
     		};
     		tree.addSelectionChangedListener(selectionListener);	

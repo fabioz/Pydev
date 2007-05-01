@@ -21,6 +21,7 @@ import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.eclipse.ui.IPropertyListener;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocIterator;
+import org.python.pydev.editor.ErrorDescription;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -271,6 +272,10 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
         }else{
             ret.add(foldingEntry);
         }
+    }
+
+    public void errorChanged(ErrorDescription errorDesc) {
+        //ignore the errors (we're just interested in the ast in this class)
     }
 
 }
