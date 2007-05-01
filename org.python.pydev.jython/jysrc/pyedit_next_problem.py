@@ -50,6 +50,7 @@ if cmd == 'onCreateActions':
     from org.eclipse.swt.widgets import Display #@UnresolvedImport
     
     FIND_NEXT_PROBLEM_ACTION_ID = "org.python.pydev.core.script.pyedit_find_next_problem"
+    FIND_PREVIOUS_PROBLEM_ACTION_ID = "org.python.pydev.core.script.pyedit_find_previous_problem"
     
     def cmpMarkers(a,b):
         '''Helper function to compare markers through its location (starting character)
@@ -57,9 +58,9 @@ if cmd == 'onCreateActions':
         
         return cmp(a.getAttribute(IMarker.CHAR_START), b.getAttribute(IMarker.CHAR_START))
         
-    class FindNextProblemAction(Action):
-        '''This class defines an Action that goes to the next problem
-        '''
+    class FindProblemAction(Action):
+    
+        REVERSE = False
         
         def getStartAndEnd(self, marker):
             '''Helper to get the char start and end of the marker
@@ -84,12 +85,21 @@ if cmd == 'onCreateActions':
             markers = [m for m in markers] #we have to make the array a list so that we can easily sort it
             markers.sort(cmpMarkers)
     
+            if self.REVERSE:
+                markers = markers[::-1]
+                
             #find the next marker to reveal
             for marker in markers:
                 charStart, charEnd = self.getStartAndEnd(marker)
-                if charStart is not None and charStart > absoluteCursorOffset:
-                    editor.selectAndReveal(charStart, charEnd - charStart)
-                    return
+                if charStart is not None:
+                    if not self.REVERSE:
+                        reveal = charStart > absoluteCursorOffset
+                    else:
+                        reveal = charStart < absoluteCursorOffset
+                        
+                    if reveal:
+                        editor.selectAndReveal(charStart, charEnd - charStart)
+                        return
                 
             #ok, if it got here, it didn't find any that was greater (so, we have to 'wrap' around)
             #and go to the first one found
@@ -98,6 +108,16 @@ if cmd == 'onCreateActions':
                 if charStart is not None: #same thing, but return on first not None
                     editor.selectAndReveal(charStart, charEnd - charStart)
                     return
+                
+    class FindPreviousProblemAction(FindProblemAction):
+        '''This class defines an Action that goes to the previous problem
+        '''
+        REVERSE = True
+    
+    class FindNextProblemAction(FindProblemAction):
+        '''This class defines an Action that goes to the next problem
+        '''
+        
 
     def bindInInterface():
         #bind the action to some internal definition
@@ -113,6 +133,15 @@ if cmd == 'onCreateActions':
             #may happen because we're starting it in a thread, so, it may be closed before
             #we've the change to bind it
             editor.setAction(FIND_NEXT_PROBLEM_ACTION_ID, act) 
+        except:
+            pass
+        
+        #---------------------------------------------------------------------------------------------- previous problem
+        act2 = FindPreviousProblemAction()
+        act2.setActionDefinitionId(FIND_PREVIOUS_PROBLEM_ACTION_ID)
+        act2.setId(FIND_PREVIOUS_PROBLEM_ACTION_ID)
+        try:
+            editor.setAction(FIND_PREVIOUS_PROBLEM_ACTION_ID, act2) 
         except:
             pass
     

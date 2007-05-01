@@ -23,6 +23,12 @@
             categoryId="org.python.pydev.ui.category.source"
             name="Go to the next problem">
       </command>
+      <command
+            description="Go to the previous problem."
+            id="org.python.pydev.core.script.pyedit_find_previous_problem"
+            categoryId="org.python.pydev.ui.category.source"
+            name="Go to the previous problem">
+      </command>
    </extension>
    <extension point="org.eclipse.ui.bindings">
 <!-- binding: go to next problem-->
@@ -30,6 +36,12 @@
             sequence="Ctrl+."
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.core.script.pyedit_find_next_problem"	
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="Ctrl+Shift+."
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.core.script.pyedit_find_previous_problem"	
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
    </extension>
