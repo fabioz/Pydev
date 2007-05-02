@@ -31,11 +31,11 @@ import org.python.pydev.refactoring.core.PythonModuleManager;
 
 public class VisitorFactory {
 
-	public static String createSourceFromAST(SimpleNode root, boolean ignoreComments) {
+	public static String createSourceFromAST(SimpleNode root, boolean ignoreComments, String newLineDelim) {
 		RewriterVisitor visitor = null;
 		StringWriter writer = new StringWriter();
 		try {
-			visitor = new RewriterVisitor(createPrinter(writer));
+			visitor = new RewriterVisitor(createPrinter(writer, newLineDelim));
 			visitor.setIgnoreComments(ignoreComments);
 			visitor.visit(root);
 		} catch (Exception e) {
@@ -45,15 +45,15 @@ public class VisitorFactory {
 		return writer.getBuffer().toString();
 	}
 
-	public static String createSourceFromAST(SimpleNode root) {
-		return createSourceFromAST(root, false);
+	public static String createSourceFromAST(SimpleNode root, String newLineDelim) {
+		return createSourceFromAST(root, false, newLineDelim);
 	}
 
-	public static RewriterVisitor createRewriterVisitor(Writer out, String source) {
+	public static RewriterVisitor createRewriterVisitor(Writer out, String source, String newLineDelim) {
 		RewriterVisitor visitor = null;
 		try {
 			SimpleNode root = getRootNodeFromString(source);
-			visitor = new RewriterVisitor(createPrinter(out));
+			visitor = new RewriterVisitor(createPrinter(out, newLineDelim));
 			root.accept(visitor);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
@@ -140,8 +140,8 @@ public class VisitorFactory {
 	}
 
 
-	private static SourcePrinter createPrinter(Writer out) {
-		return new SourcePrinter(new PrintWriter(out));
+	private static SourcePrinter createPrinter(Writer out, String newLineDelim) {
+		return new SourcePrinter(new PrintWriter(out), newLineDelim);
 	}
 
 	private static SimpleNode getRootNodeFromString(String source) throws Throwable {
