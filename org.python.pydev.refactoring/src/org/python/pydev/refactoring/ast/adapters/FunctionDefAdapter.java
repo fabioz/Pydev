@@ -14,9 +14,9 @@ public class FunctionDefAdapter extends AbstractScopeNode<FunctionDef> {
 
 	private List<FunctionDefAdapter> functions;
 
-	public FunctionDefAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, FunctionDef node) {
-		super(module, parent, node);
-		this.arguments = new FunctionArgAdapter(getModule(), this, getASTNode().args);
+	public FunctionDefAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, FunctionDef node, String endLineDelim) {
+		super(module, parent, node, endLineDelim);
+		this.arguments = new FunctionArgAdapter(getModule(), this, getASTNode().args, endLineDelim);
 		this.functions = null;
 	}
 

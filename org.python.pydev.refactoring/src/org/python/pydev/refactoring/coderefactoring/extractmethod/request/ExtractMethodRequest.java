@@ -28,9 +28,11 @@ public class ExtractMethodRequest implements IRefactoringRequest {
 
 	private ITextSelection selection;
 
+    private String endLineDelim;
+
 	public ExtractMethodRequest(String methodName, ITextSelection selection, AbstractScopeNode<?> scopeAdapter,
 			ModuleAdapter parsedSelection, List<String> callParameters, List<String> returnVariables, Map<String, String> renamedVariables,
-			int offsetStrategy) {
+			int offsetStrategy, String endLineDelim) {
 		this.methodName = methodName;
 		this.selection = selection;
 		this.scopeAdapter = scopeAdapter;
@@ -40,6 +42,7 @@ public class ExtractMethodRequest implements IRefactoringRequest {
 		this.parameters = callParameters;
 		this.returnVariables = returnVariables;
 		this.renamedVariables = renamedVariables;
+        this.endLineDelim = endLineDelim;
 	}
 
 	public ITextSelection getSelection() {
@@ -81,5 +84,9 @@ public class ExtractMethodRequest implements IRefactoringRequest {
 	public ModuleAdapter getParsedSelection() {
 		return parsedSelection;
 	}
+
+    public String getNewLineDelim() {
+        return endLineDelim;
+    }
 
 }

@@ -17,13 +17,16 @@ public class OverrideMethodsRequest implements IRefactoringRequest {
 
 	private String baseClassName;
 
+    private String endLineDelim;
+
 	public OverrideMethodsRequest(IClassDefAdapter classAdapter, int offsetStrategy, FunctionDefAdapter method,
-			boolean generateMethodComments, String baseClassName) {
+			boolean generateMethodComments, String baseClassName, String endLineDelim) {
 		this.baseClassName = baseClassName;
 		this.classAdapter = classAdapter;
 		this.offsetStrategy = offsetStrategy;
 		this.method = method;
 		this.generateMethodComments = generateMethodComments;
+        this.endLineDelim = endLineDelim;
 	}
 
 	public IASTNodeAdapter getOffsetNode() {
@@ -45,4 +48,8 @@ public class OverrideMethodsRequest implements IRefactoringRequest {
 	public String getBaseClassName() {
 		return getOffsetNode().getModule().getBaseContextName(this.classAdapter, baseClassName);
 	}
+
+    public String getNewLineDelim() {
+        return endLineDelim;
+    }
 }

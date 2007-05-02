@@ -6,4 +6,6 @@ public interface IRefactoringRequest {
 
 	public abstract IASTNodeAdapter getOffsetNode();
 
+    public abstract String getNewLineDelim();
+
 }

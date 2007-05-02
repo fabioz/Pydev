@@ -18,9 +18,9 @@ public class LocalVarRenameVisitor extends VisitorBase {
 
 	private NodeHelper nodeHelper;
 
-	public LocalVarRenameVisitor() {
+	public LocalVarRenameVisitor(String endLineDelim) {
 		this.renameMap = new HashMap<String, String>();
-		this.nodeHelper = new NodeHelper();
+		this.nodeHelper = new NodeHelper(endLineDelim);
 	}
 
 	public void visit(SimpleNode node) throws Exception {

@@ -22,14 +22,17 @@ public class GeneratePropertiesRequest implements IRefactoringRequest {
 
 	private int accessModifier;
 
+    private String endLineDelim;
+
 	public GeneratePropertiesRequest(IClassDefAdapter classAdapter, INodeAdapter attributeAdapter, List<PropertyTextAdapter> properties,
-			int offsetMethodStrategy, int offsetPropertyStrategy, int accessModifier) {
+			int offsetMethodStrategy, int offsetPropertyStrategy, int accessModifier, String endLineDelim) {
 		this.state = new SelectionState();
 		this.classAdapter = classAdapter;
 		this.attributeAdapter = attributeAdapter;
 		this.offsetMethodStrategy = offsetMethodStrategy;
 		this.offsetPropertyStrategy = offsetPropertyStrategy;
 		this.accessModifier = accessModifier;
+        this.endLineDelim = endLineDelim;
 		initialize(properties);
 	}
 
@@ -88,4 +91,8 @@ public class GeneratePropertiesRequest implements IRefactoringRequest {
 	public int getAccessModifier() {
 		return accessModifier;
 	}
+
+    public String getNewLineDelim() {
+        return this.endLineDelim;
+    }
 }

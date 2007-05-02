@@ -32,7 +32,7 @@ public class GeneratePropertiesRefactoring extends AbstractPythonRefactoring {
 
 	private void initWizard(String name) throws Throwable {
 		PropertyTreeProvider provider = new PropertyTreeProvider(req.getClasses());
-		this.requestProcessor = new GeneratePropertiesRequestProcessor();
+		this.requestProcessor = new GeneratePropertiesRequestProcessor(this.req.getNewLineDelim());
 		this.changeProcessor = new GeneratePropertiesChangeProcessor(this.name, this.req, this.requestProcessor);
 		this.pages.add(new GeneratePropertiesPage(name, provider, requestProcessor));
 	}

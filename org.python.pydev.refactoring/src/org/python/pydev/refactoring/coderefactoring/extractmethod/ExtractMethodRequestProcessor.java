@@ -31,6 +31,8 @@ public class ExtractMethodRequestProcessor implements IRequestProcessor<ExtractM
 
 	private ITextSelection selection;
 
+    private String endLineDelim;
+
 	public ExtractMethodRequestProcessor(AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection, ModuleAdapter module, ITextSelection selection) {
 		initProcessor(scopeAdapter, parsedSelection, module, selection);
 	}
@@ -45,6 +47,7 @@ public class ExtractMethodRequestProcessor implements IRequestProcessor<ExtractM
 		parameterOrder.addAll(deducer.getParameters());
 		this.renameMap = new TreeMap<String, String>();
 		initRenamedMap();
+        this.endLineDelim = module.getEndLineDelimiter();
 
 		offsetStrategy = IOffsetStrategy.AFTERINIT;
 	}
@@ -79,7 +82,7 @@ public class ExtractMethodRequestProcessor implements IRequestProcessor<ExtractM
 	public List<ExtractMethodRequest> getRefactoringRequests() {
 		List<ExtractMethodRequest> requests = new ArrayList<ExtractMethodRequest>();
 		requests.add(new ExtractMethodRequest(this.methodName, this.selection, this.scopeAdapter, this.parsedSelection, parameterOrder,
-				deducer.getReturns(), this.renameMap, this.offsetStrategy));
+				deducer.getReturns(), this.renameMap, this.offsetStrategy, this.endLineDelim));
 		return requests;
 	}
 

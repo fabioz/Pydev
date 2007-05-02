@@ -34,7 +34,7 @@ public class OverrideMethodsRefactoring extends AbstractPythonRefactoring {
 
 	private void initWizard(String name) {
 		ClassMethodsTreeProvider provider = new ClassMethodsTreeProvider(req.getScopeClassAndBases());
-		this.requestProcessor = new OverrideMethodsRequestProcessor(req.getScopeClass());
+		this.requestProcessor = new OverrideMethodsRequestProcessor(req.getScopeClass(), this.req.getNewLineDelim());
 		this.changeProcessor = new OverrideMethodsChangeProcessor(this.name, this.req, this.requestProcessor);
 		this.pages.add(new OverrideMethodsPage(name, provider, requestProcessor));
 	}

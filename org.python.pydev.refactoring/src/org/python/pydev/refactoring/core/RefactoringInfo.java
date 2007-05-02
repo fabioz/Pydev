@@ -8,6 +8,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
+import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.IPythonNature;
@@ -154,6 +155,8 @@ public class RefactoringInfo {
 		}
 
 		String firstLine = doc.get(doc.getLineOffset(selection.getStartLine()), doc.getLineLength(selection.getStartLine()));
+        String lineDelimiter = TextUtilities.getDefaultLineDelimiter(doc);
+        
 		String indentation = "";
 		int bodyIndent = 0;
 		while (firstLine.startsWith(" ")) {
@@ -165,9 +168,9 @@ public class RefactoringInfo {
 			StringBuffer selectedCode = new StringBuffer();
 			for (String line : lines) {
 				if (line.startsWith(indentation)) {
-					selectedCode.append(line.substring(bodyIndent) + "\n");
+					selectedCode.append(line.substring(bodyIndent) + lineDelimiter);
 				} else {
-					selectedCode.append(line + "\n");
+					selectedCode.append(line + lineDelimiter);
 				}
 
 			}
@@ -199,5 +202,9 @@ public class RefactoringInfo {
 		return !(this.getUserSelection().getOffset() == this.getExtendedSelection().getOffset() && this.getUserSelection().getLength() == this
 				.getExtendedSelection().getLength());
 	}
+
+    public String getNewLineDelim() {
+        return TextUtilities.getDefaultLineDelimiter(this.doc);
+    }
 
 }

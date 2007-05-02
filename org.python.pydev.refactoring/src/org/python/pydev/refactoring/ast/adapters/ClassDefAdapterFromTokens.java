@@ -14,11 +14,13 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter{
 
     private List<IToken> tokens;
 	private String parentName;
+    private String endLineDelim;
 
 
-	public ClassDefAdapterFromTokens(String parentName, List<IToken> tokens) {
+	public ClassDefAdapterFromTokens(String parentName, List<IToken> tokens, String endLineDelim) {
 		this.parentName = parentName;
 		this.tokens = tokens;
+        this.endLineDelim = endLineDelim;
 	}
 
 
@@ -56,7 +58,7 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter{
 		ArrayList<FunctionDefAdapter> ret = new ArrayList<FunctionDefAdapter>();
 		for(IToken tok:this.tokens){
 			if(tok.getType() == IToken.TYPE_FUNCTION || tok.getType() == IToken.TYPE_BUILTIN || tok.getType() == IToken.TYPE_UNKNOWN){
-				ret.add(new FunctionDefAdapter(null, null, new FunctionDef(new NameTok(tok.getRepresentation(), NameTok.FunctionName), null, null, null)));
+				ret.add(new FunctionDefAdapter(null, null, new FunctionDef(new NameTok(tok.getRepresentation(), NameTok.FunctionName), null, null, null), endLineDelim));
 			}
 		}
 		return ret;

@@ -32,8 +32,11 @@ public class SourcePrinter {
 
 	private final CallDepth callDepth;
 
-	public SourcePrinter(PrintWriter output) {
-		this(output, new SyntaxHelper(), new CallDepth(), false);
+    private String newLineDelim;
+
+	public SourcePrinter(PrintWriter output, String newLineDelim) {
+		this(output, new SyntaxHelper(newLineDelim), new CallDepth(), false);
+        this.newLineDelim = newLineDelim;
 	}
 
 	public SourcePrinter(PrintWriter output, SyntaxHelper formatHelper, CallDepth callDepth, boolean ignoreComments) {
@@ -43,7 +46,7 @@ public class SourcePrinter {
 		this.ignoreComments = ignoreComments;
 
 		this.disabledIfPrinting = false;
-		this.nodeHelper = new NodeHelper();
+		this.nodeHelper = new NodeHelper(newLineDelim);
 
 	}
 

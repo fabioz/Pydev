@@ -50,7 +50,7 @@ public class ScopeVariablesVisitor extends AbstractContextVisitor<SimpleAdapter>
 
 	@Override
 	protected SimpleAdapter createAdapter(AbstractScopeNode<?> parent, SimpleNode node) {
-		return new SimpleAdapter(this.moduleAdapter, parent, node);
+		return new SimpleAdapter(this.moduleAdapter, parent, node, moduleAdapter.getEndLineDelimiter());
 	}
 
 	@Override

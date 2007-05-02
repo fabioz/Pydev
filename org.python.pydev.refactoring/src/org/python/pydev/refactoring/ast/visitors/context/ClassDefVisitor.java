@@ -16,7 +16,7 @@ public class ClassDefVisitor extends AbstractContextVisitor<IClassDefAdapter> {
 
 	@Override
 	protected IClassDefAdapter createAdapter(AbstractScopeNode<?> parent, SimpleNode node) {
-		return new ClassDefAdapter(moduleAdapter, parent, (ClassDef) node);
+		return new ClassDefAdapter(moduleAdapter, parent, (ClassDef) node, moduleAdapter.getEndLineDelimiter());
 	}
 
 	@Override

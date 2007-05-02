@@ -32,7 +32,7 @@ public class ConstructorFieldRefactoring extends AbstractPythonRefactoring {
 
 	private void initWizard(String name) throws Throwable {
 		ClassFieldTreeProvider provider = new ClassFieldTreeProvider(req.getScopeClass());
-		this.requestProcessor = new ConstructorFieldRequestProcessor();
+		this.requestProcessor = new ConstructorFieldRequestProcessor(this.req.getNewLineDelim());
 		this.changeProcessor = new ConstructorFieldChangeProcessor(this.name, this.req, this.requestProcessor);
 		this.pages.add(new ConstructorFieldPage(name, provider, requestProcessor));
 	}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.jface.util.Assert;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -31,10 +32,11 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
 
 	public AbstractContextVisitor(ModuleAdapter module, AbstractNodeAdapter parent) {
 		super();
-		assert (module != null);
+		Assert.isTrue(module != null);
+        
 		this.moduleAdapter = module;
 
-		nodeHelper = new NodeHelper();
+		nodeHelper = new NodeHelper(module.getEndLineDelimiter());
 
 		stack = new FastStack<SimpleNode>();
 		parents = new FastStack<AbstractScopeNode<?>>();
@@ -64,11 +66,11 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
 		AbstractScopeNode<?> parent = parents.peek();
 
 		if (nodeHelper.isClassDef(node)) {
-			return new ClassDefAdapter(moduleAdapter, parent, (ClassDef) node);
+			return new ClassDefAdapter(moduleAdapter, parent, (ClassDef) node, moduleAdapter.getEndLineDelimiter());
 		} else if (nodeHelper.isFunctionDef(node)) {
-			return new FunctionDefAdapter(moduleAdapter, parent, (FunctionDef) node);
+			return new FunctionDefAdapter(moduleAdapter, parent, (FunctionDef) node, moduleAdapter.getEndLineDelimiter());
 		} else
-			return new SimpleAdapter(moduleAdapter, parent, node);
+			return new SimpleAdapter(moduleAdapter, parent, node, moduleAdapter.getEndLineDelimiter());
 	}
 
 	protected abstract T createAdapter(AbstractScopeNode<?> parent, SimpleNode node);

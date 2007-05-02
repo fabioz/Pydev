@@ -3,6 +3,7 @@ package org.python.pydev.refactoring.ast.adapters.offsetstrategy;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.TextUtilities;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.ast.visitors.NodeHelper;
 
@@ -17,7 +18,7 @@ public abstract class AbstractOffsetStrategy implements IOffsetStrategy {
 	public AbstractOffsetStrategy(IASTNodeAdapter adapter, IDocument doc) {
 		this.adapter = adapter;
 		this.doc = doc;
-		this.nodeHelper = new NodeHelper();
+		this.nodeHelper = new NodeHelper(TextUtilities.getDefaultLineDelimiter(doc));
 	}
 
 	protected IRegion getRegion() throws BadLocationException {

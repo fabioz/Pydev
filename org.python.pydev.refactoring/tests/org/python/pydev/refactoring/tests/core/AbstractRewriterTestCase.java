@@ -16,7 +16,7 @@ public abstract class AbstractRewriterTestCase extends AbstractIOTestCase {
 
 	protected void runRewriter() throws Throwable {
 		StringWriter out = new StringWriter();
-		VisitorFactory.createRewriterVisitor(out, getSource());
+		VisitorFactory.createRewriterVisitor(out, getSource(), "\n");
 		setTestGenerated(out.getBuffer().toString());
 	}
 

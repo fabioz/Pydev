@@ -29,7 +29,7 @@ public class SelectionExtensionTestCase extends AbstractIOTestCase {
 	private void runSelectionExtension(RefactoringInfo info) {
 		StringBuilder buffer = new StringBuilder();
 		try {
-			String source = VisitorFactory.createSourceFromAST(info.getParsedExtendedSelection().getASTParent());
+			String source = VisitorFactory.createSourceFromAST(info.getParsedExtendedSelection().getASTParent(), "\n");
 			buffer.append(source); // normalized source
 		} catch (Throwable e) {
 			buffer.append("# Invalid selection:\n");

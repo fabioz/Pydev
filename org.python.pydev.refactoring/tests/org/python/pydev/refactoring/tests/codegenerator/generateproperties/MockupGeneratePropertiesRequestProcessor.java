@@ -58,7 +58,7 @@ public class MockupGeneratePropertiesRequestProcessor implements IRequestProcess
 		List<GeneratePropertiesRequest> requests = new ArrayList<GeneratePropertiesRequest>();
 		GeneratePropertiesRequest req;
 		for (INodeAdapter elem : attributes) {
-			req = new GeneratePropertiesRequest(clazz, elem, properties, methodOffsetStrategy, propertyOffsetStrategy, accessModifier);
+			req = new GeneratePropertiesRequest(clazz, elem, properties, methodOffsetStrategy, propertyOffsetStrategy, accessModifier, "\n");
 			requests.add(req);
 		}
 

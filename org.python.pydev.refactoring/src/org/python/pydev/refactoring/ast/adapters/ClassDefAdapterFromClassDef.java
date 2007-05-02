@@ -12,9 +12,11 @@ import org.python.pydev.parser.jython.ast.stmtType;
 public class ClassDefAdapterFromClassDef implements IClassDefAdapter {
 
 	private ClassDef classDef;
+    private String endLineDelim;
 
-	public ClassDefAdapterFromClassDef(ClassDef classDef) {
+	public ClassDefAdapterFromClassDef(ClassDef classDef, String endLineDelim) {
 		this.classDef = classDef;
+        this.endLineDelim = endLineDelim;
 	}
 
 	public List<SimpleAdapter> getAssignedVariables() {
@@ -45,7 +47,7 @@ public class ClassDefAdapterFromClassDef implements IClassDefAdapter {
 		ArrayList<FunctionDefAdapter> ret = new ArrayList<FunctionDefAdapter>();
 		for(stmtType b:this.classDef.body){
 			if(b instanceof FunctionDef){
-				ret.add(new FunctionDefAdapter(null, null, (FunctionDef)b));
+				ret.add(new FunctionDefAdapter(null, null, (FunctionDef)b, endLineDelim));
 			}
 		}
 		return ret;

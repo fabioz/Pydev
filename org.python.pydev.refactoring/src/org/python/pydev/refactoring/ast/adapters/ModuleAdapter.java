@@ -15,6 +15,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
+import org.eclipse.jface.text.TextUtilities;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IPythonNature;
@@ -56,9 +57,14 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 	private ISourceModule sourceModule;
 
 	private IPythonNature nature;
+    
+    public String getEndLineDelimiter(){
+        return TextUtilities.getDefaultLineDelimiter(doc);
+    }
+
 
 	public ModuleAdapter(PythonModuleManager pm, File file, IDocument doc, Module node, IPythonNature nature) {
-		super(null, null, node);
+		super(null, null, node, TextUtilities.getDefaultLineDelimiter(doc));
 //		Assert.isNotNull(pm); TODO: MAKE THIS ASSERTION TRUE
 		this.moduleManager = pm;
 		this.file = file;
@@ -69,12 +75,13 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 	}
 
 	public ModuleAdapter(PythonModuleManager pm, ISourceModule module, IPythonNature nature) {
-		super(null, null, (Module) (module).getAst());
+        super();
 //		Assert.isNotNull(pm); TODO: MAKE THIS ASSERTION TRUE
+        this.file = module.getFile();
+        this.doc = PythonModuleManager.getDocFromFile(this.file);
+        init(null, null, (Module) (module).getAst(), TextUtilities.getDefaultLineDelimiter(this.doc));
 		this.sourceModule = module;
 		this.moduleManager = pm;
-		this.file = module.getFile();
-		this.doc = PythonModuleManager.getDocFromFile(this.file);
 		this.aliasToFQIdentifier = null;
 		this.importedModules = null;
 		this.nature = nature;
@@ -101,7 +108,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
 		resolveClassHierarchy(bases, scopeClass, new HashSet<String>());
 		Collections.reverse(bases);
-		bases.add(new ObjectAdapter(this, this));
+		bases.add(new ObjectAdapter(this, this, getEndLineDelimiter()));
 
 		return bases;
 	}
@@ -258,7 +265,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 	}
 
 	public int getStartOffset(SimpleNode node) throws BadLocationException {
-		return getStartOffset(new SimpleAdapter(this, this, node));
+		return getStartOffset(new SimpleAdapter(this, this, node, getEndLineDelimiter()));
 	}
 
 	public int getStartOffset(IASTNodeAdapter adapter) throws BadLocationException {
@@ -266,7 +273,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 	}
 
 	public boolean isNodeInSelection(ITextSelection selection, SimpleNode node) {
-		return isAdapterInSelection(selection, new SimpleAdapter(this, this, node));
+		return isAdapterInSelection(selection, new SimpleAdapter(this, this, node, getEndLineDelimiter()));
 	}
 
 	private IClassDefAdapter resolveClassHierarchy(List<IClassDefAdapter> bases, IClassDefAdapter adap, Set<String> memo) {
@@ -428,10 +435,10 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
             }
             
             for(Map.Entry<String, List<IToken>> entry:map.entrySet()){
-            	bases.add(new ClassDefAdapterFromTokens(entry.getKey(), entry.getValue()));
+            	bases.add(new ClassDefAdapterFromTokens(entry.getKey(), entry.getValue(), getEndLineDelimiter()));
             }
             for(ClassDef classDef:classDefAsts){
-            	bases.add(new ClassDefAdapterFromClassDef(classDef));
+            	bases.add(new ClassDefAdapterFromClassDef(classDef, getEndLineDelimiter()));
             }
 		}
 		return bases;
@@ -530,15 +537,14 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
 	public ITextSelection normalizeSelection(ITextSelection userSelection) {
 
-		while (userSelection.getText() != null
-				&& (userSelection.getText().startsWith(" ") || userSelection.getText().startsWith("\n") || userSelection.getText()
-						.startsWith("\r"))) {
+		String txt = userSelection.getText();
+        while (txt != null && (txt.startsWith(" ") || txt.startsWith("\n") || txt.startsWith("\r"))) {
 			userSelection = new TextSelection(this.doc, userSelection.getOffset() + 1, userSelection.getLength() - 1);
+			txt = userSelection.getText();
 		}
-		while (userSelection.getText() != null
-				&& (userSelection.getText().endsWith(" ") || userSelection.getText().endsWith("\n") || userSelection.getText().endsWith(
-						"\r"))) {
+		while (txt != null && (txt.endsWith(" ") || txt.endsWith("\n") || txt.endsWith("\r"))) {
 			userSelection = new TextSelection(this.doc, userSelection.getOffset(), userSelection.getLength() - 1);
+			txt = userSelection.getText();
 		}
 
 		return userSelection;
@@ -546,7 +552,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
 	public ITextSelection extendSelectionToEnd(ITextSelection selection, SimpleNode node) {
 		if (this.doc != null) {
-			SimpleAdapter adapter = new SimpleAdapter(this, this, node);
+			SimpleAdapter adapter = new SimpleAdapter(this, this, node, getEndLineDelimiter());
 			int lastLine = adapter.getNodeLastLine() - 1;
 			try {
 				int adapterEndOffset = doc.getLineOffset(lastLine);
@@ -564,7 +570,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
 	public ITextSelection extendSelection(ITextSelection selection, SimpleNode node) {
 		if (this.doc != null && (node instanceof Str)) {
-			SimpleAdapter adapter = new SimpleAdapter(this, this, node);
+			SimpleAdapter adapter = new SimpleAdapter(this, this, node, getEndLineDelimiter());
 			try {
 				int startOffset = getStartOffset(adapter);
 				if (startOffset > selection.getOffset()) {

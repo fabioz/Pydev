@@ -38,7 +38,7 @@ public class MockupConstructorFieldRequestProcessor implements IRequestProcessor
 		for (int index : attributeSelection) {
 			attributes.add(clazz.getAttributes().get(index));
 		}
-		ConstructorFieldRequest req = new ConstructorFieldRequest(clazz, attributes, this.offsetStrategy);
+		ConstructorFieldRequest req = new ConstructorFieldRequest(clazz, attributes, this.offsetStrategy, "\n");
 
 		List<ConstructorFieldRequest> requests = new ArrayList<ConstructorFieldRequest>();
 		requests.add(req);

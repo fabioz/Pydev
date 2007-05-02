@@ -20,9 +20,12 @@ public class ConstructorFieldRequestProcessor implements IRequestProcessor<Const
 
 	private int offsetStrategy;
 
-	public ConstructorFieldRequestProcessor() {
+    private String endLineDelim;
+
+	public ConstructorFieldRequestProcessor(String endLineDelim) {
 		checked = new Object[0];
 		offsetStrategy = IOffsetStrategy.AFTERINIT;
+        this.endLineDelim = endLineDelim;
 	}
 
 	public void setCheckedElements(Object[] checked) {
@@ -63,7 +66,7 @@ public class ConstructorFieldRequestProcessor implements IRequestProcessor<Const
 		}
 		if (fields.size() > 0) {
 			ClassDefAdapter clazz = (ClassDefAdapter) node.getAdapter();
-			ConstructorFieldRequest request = new ConstructorFieldRequest(clazz, fields, offsetStrategy);
+			ConstructorFieldRequest request = new ConstructorFieldRequest(clazz, fields, offsetStrategy, endLineDelim);
 			requests.add(request);
 		}
 	}

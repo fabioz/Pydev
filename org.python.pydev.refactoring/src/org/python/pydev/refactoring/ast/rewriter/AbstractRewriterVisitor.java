@@ -29,16 +29,16 @@ public abstract class AbstractRewriterVisitor extends VisitorBase {
 	// Tracking last node
 	private SimpleNode previousNode;
 
-	public AbstractRewriterVisitor(OutputStream out) {
-		this(new SourcePrinter(new PrintWriter(out, true)));
+	public AbstractRewriterVisitor(OutputStream out, String newLineDelim) {
+		this(new SourcePrinter(new PrintWriter(out, true), newLineDelim));
 	}
 
 	public AbstractRewriterVisitor(SourcePrinter printer) {
 		this.printer = printer;
 	}
 
-	public AbstractRewriterVisitor(Writer out) {
-		this(new SourcePrinter(new PrintWriter(out)));
+	public AbstractRewriterVisitor(Writer out, String newLineDelim) {
+		this(new SourcePrinter(new PrintWriter(out), newLineDelim));
 	}
 
 	protected void enterCall() {

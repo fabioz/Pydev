@@ -17,7 +17,7 @@ public abstract class AbstractReplaceEdit extends AbstractTextEdit {
 	}
 
 	protected String getFormatedNode() {
-		String source = VisitorFactory.createSourceFromAST(getEditNode());
+		String source = VisitorFactory.createSourceFromAST(getEditNode(), newLineDelim);
 		return source.trim();
 	}
 

@@ -22,7 +22,10 @@ public class GeneratePropertiesRequestProcessor implements IRequestProcessor<Gen
 
 	private int accessModifier;
 
-	public GeneratePropertiesRequestProcessor() {
+    private String endLineDelim;
+
+	public GeneratePropertiesRequestProcessor(String endLineDelim) {
+        this.endLineDelim = endLineDelim;
 		checked = new Object[0];
 		offsetMethodStrategy = IOffsetStrategy.AFTERINIT;
 		offsetPropertyStrategy = IOffsetStrategy.END;
@@ -83,7 +86,7 @@ public class GeneratePropertiesRequestProcessor implements IRequestProcessor<Gen
 			TreeClassNode classNode = (TreeClassNode) attr.getParent();
 
 			return new GeneratePropertiesRequest(classNode.getAdapter(), attr.getAdapter(), getProperties(attr), offsetMethodStrategy,
-					offsetPropertyStrategy, accessModifier);
+					offsetPropertyStrategy, accessModifier, endLineDelim);
 		}
 		return null;
 	}

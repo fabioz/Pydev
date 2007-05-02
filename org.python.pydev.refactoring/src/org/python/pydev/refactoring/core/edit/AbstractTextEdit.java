@@ -12,22 +12,23 @@ public abstract class AbstractTextEdit {
 
 	private final String WHITESPACE = " ";
 
-	protected final char NL = '\n';
-
 	protected ModuleAdapter moduleAdapter;
 
 	protected IASTNodeAdapter offsetAdapter;
 
 	protected NodeHelper nodeHelper;
 
-	private AbstractTextEdit(ModuleAdapter moduleAdapter, IASTNodeAdapter offsetAdapter) {
+    protected String newLineDelim;
+
+	private AbstractTextEdit(ModuleAdapter moduleAdapter, IASTNodeAdapter offsetAdapter, String newLineDelim) {
 		this.moduleAdapter = moduleAdapter;
 		this.offsetAdapter = offsetAdapter;
-		this.nodeHelper = new NodeHelper();
+		this.nodeHelper = new NodeHelper(newLineDelim);
+        this.newLineDelim = newLineDelim;
 	}
 
 	public AbstractTextEdit(IRefactoringRequest req) {
-		this(req.getOffsetNode().getModule(), req.getOffsetNode());
+		this(req.getOffsetNode().getModule(), req.getOffsetNode(), req.getNewLineDelim());
 	}
 
 	protected abstract SimpleNode getEditNode();
@@ -36,20 +37,20 @@ public abstract class AbstractTextEdit {
 
 	protected String getFormatedNode() {
 		SimpleNode node = getEditNode();
-		String source = VisitorFactory.createSourceFromAST(node);
+		String source = VisitorFactory.createSourceFromAST(node, newLineDelim);
 		return getIndentedSource(node, source, getIndent());
 	}
 
 	private String getIndentedSource(SimpleNode node, String source, int indent) {
 		StringBuilder indented = new StringBuilder();
 		String indentation = getIndentation(indent);
-		indented.append(NL + indentation);
-		source = source.replaceAll(REPLACE_PATTERN(), NL + indentation);
+		indented.append(newLineDelim + indentation);
+		source = source.replaceAll(REPLACE_PATTERN(), newLineDelim + indentation);
 		source = source.trim();
 		indented.append(source);
-		indented.append(NL);
+		indented.append(newLineDelim);
 		if (nodeHelper.isFunctionDef(node))
-			indented.append(NL);
+			indented.append(newLineDelim);
 
 		return indented.toString();
 	}

@@ -19,12 +19,11 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNo
 
 	private List<IClassDefAdapter> classes;
 
-	public AbstractScopeNode(ModuleAdapter module, AbstractScopeNode<?> parent, T node) {
-		super(module, parent, node);
-		this.usedVariables = null;
-		this.assignedVariables = null;
-		this.classes = null;
-		this.functions = null;
+	protected AbstractScopeNode() {
+        
+    }
+	public AbstractScopeNode(ModuleAdapter module, AbstractScopeNode<?> parent, T node, String endLineDelim) {
+		super(module, parent, node, endLineDelim);
 	}
 
 	public List<FunctionDefAdapter> getFunctions() {

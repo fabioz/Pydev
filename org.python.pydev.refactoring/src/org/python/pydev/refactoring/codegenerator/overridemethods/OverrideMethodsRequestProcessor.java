@@ -21,10 +21,13 @@ public class OverrideMethodsRequestProcessor implements IRequestProcessor<Overri
 
 	private IClassDefAdapter origin;
 
-	public OverrideMethodsRequestProcessor(IClassDefAdapter origin) {
+    private String endLineDelim;
+
+	public OverrideMethodsRequestProcessor(IClassDefAdapter origin, String endLineDelim) {
 		checked = new Object[0];
 		insertionPoint = IOffsetStrategy.AFTERINIT;
 		this.origin = origin;
+        this.endLineDelim = endLineDelim;
 	}
 
 	public void setCheckedElements(Object[] checked) {
@@ -44,8 +47,8 @@ public class OverrideMethodsRequestProcessor implements IRequestProcessor<Overri
 
 		for (ClassTreeNode clazz : getClasses()) {
 			for (FunctionDefAdapter method : getMethods(clazz)) {
-				requests.add(new OverrideMethodsRequest(origin, insertionPoint, method, generateMethodComments, clazz.getAdapter()
-						.getName()));
+				requests.add(new OverrideMethodsRequest(origin, insertionPoint, method, generateMethodComments, 
+                        clazz.getAdapter().getName(), endLineDelim));
 			}
 		}
 

@@ -34,6 +34,12 @@ import org.python.pydev.parser.jython.ast.keywordType;
 
 public class NodeHelper {
 
+    private String endLineDelimiter;
+
+    public NodeHelper(String endLineDelimiter){
+        this.endLineDelimiter = endLineDelimiter;
+    }
+    
 	private static final String KEYWORD_FDEL = "fdel";
 
 	private static final String KEYWORD_FSET = "fset";
@@ -135,7 +141,7 @@ public class NodeHelper {
 		} else if (isCall(node))
 			return getName(((Call) node).func);
 		else if (isAttribute(node)) {
-			String attributeName = VisitorFactory.createSourceFromAST(node, true);
+			String attributeName = VisitorFactory.createSourceFromAST(node, true, endLineDelimiter);
 			int subscriptOffset = attributeName.indexOf("[");
 			if (subscriptOffset > 0)
 				attributeName = attributeName.substring(0, subscriptOffset - 1);

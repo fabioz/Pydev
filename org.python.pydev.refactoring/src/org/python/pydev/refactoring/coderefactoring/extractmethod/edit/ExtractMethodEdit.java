@@ -55,7 +55,6 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
 	protected SimpleNode getEditNode() {
 		List<stmtType> body = initExtractedBody();
 		List<exprType> argsList = initExtractedMethodArguments();
-
 		addReturnValue(body);
 		FunctionDef extractedMethod = initExtractedMethod(body, argsList);
 		applyRenamedVariables(extractedMethod);
@@ -100,7 +99,7 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
 	private void applyRenamedVariables(FunctionDef extractedMethod) {
 
 		if (renamedVariables.size() > 0) {
-			LocalVarRenameVisitor renameVisitor = new LocalVarRenameVisitor();
+			LocalVarRenameVisitor renameVisitor = new LocalVarRenameVisitor(this.newLineDelim);
 			renameVisitor.setRenameMap(renamedVariables);
 			try {
 				extractedMethod.accept(renameVisitor);

@@ -29,8 +29,6 @@ import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
  */
 public class PythonModuleManager {
 
-	private static final String NL = "\n";
-
 	private static final String INIT = "__init__.py";
 
 	private IModulesManager moduleManager;
@@ -119,13 +117,16 @@ public class PythonModuleManager {
 	}
 	
 	private static String getFileContent(InputStream stream) {
+        if(!TESTING){
+            throw new RuntimeException("Should only call this method in tests.");
+        }
 		try {
 			StringBuilder contentBuilder = new StringBuilder();
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
 
 			String line;
 			while ((line = bufferedReader.readLine()) != null) {
-				contentBuilder.append(line).append(NL);
+				contentBuilder.append(line).append('\n');
 			}
 			return contentBuilder.toString();
 		} catch (IOException e) {

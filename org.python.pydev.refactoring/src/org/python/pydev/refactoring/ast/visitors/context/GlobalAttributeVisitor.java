@@ -156,7 +156,7 @@ public class GlobalAttributeVisitor extends AbstractContextVisitor<SimpleAdapter
 
 	@Override
 	protected SimpleAdapter createAdapter(AbstractScopeNode<?> parent, SimpleNode node) {
-		return new SimpleAdapter(moduleAdapter, parent, node);
+		return new SimpleAdapter(moduleAdapter, parent, node, moduleAdapter.getEndLineDelimiter());
 	}
 
 }

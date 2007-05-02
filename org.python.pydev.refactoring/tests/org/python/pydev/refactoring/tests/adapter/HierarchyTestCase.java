@@ -57,8 +57,8 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
 
     public void testHierarchyWithBuiltins() throws Throwable {
         
-        ModuleAdapter module = VisitorFactory.createModuleAdapter(new PythonModuleManager(nature), file, new Document(REF.getFileContents(
-                file)), nature);
+        ModuleAdapter module = VisitorFactory.createModuleAdapter(new PythonModuleManager(nature), file, 
+                new Document(REF.getFileContents(file)), nature);
         
         List<IClassDefAdapter> classes = module.getClasses();
         assertEquals(1, classes.size());

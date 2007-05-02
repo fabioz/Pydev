@@ -47,7 +47,7 @@ public class MockupOverrideMethodsRequestProcessor implements IRequestProcessor<
 		List<OverrideMethodsRequest> requests = new ArrayList<OverrideMethodsRequest>();
 
 		for (FunctionDefAdapter method : methods) {
-			OverrideMethodsRequest req = new OverrideMethodsRequest(clazz, this.offsetStrategy, method, false, baseClassName);
+			OverrideMethodsRequest req = new OverrideMethodsRequest(clazz, this.offsetStrategy, method, false, baseClassName, "\n");
 			requests.add(req);
 		}
 

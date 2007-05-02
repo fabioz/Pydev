@@ -39,7 +39,7 @@ public class MockupExtractMethodRequestProcessor implements IRequestProcessor<Ex
 	public List<ExtractMethodRequest> getRefactoringRequests() {
 		List<ExtractMethodRequest> requests = new ArrayList<ExtractMethodRequest>();
 		ExtractMethodRequest req = new ExtractMethodRequest("pepticMethod", this.selection, this.scopeAdapter, this.parsedSelection,
-				deducer.getParameters(), deducer.getReturns(), this.renameMap, this.offsetStrategy);
+				deducer.getParameters(), deducer.getReturns(), this.renameMap, this.offsetStrategy, "\n");
 		requests.add(req);
 
 		return requests;

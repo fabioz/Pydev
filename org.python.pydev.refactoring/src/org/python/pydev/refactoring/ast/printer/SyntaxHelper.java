@@ -1,5 +1,6 @@
 package org.python.pydev.refactoring.ast.printer;
 
+
 public class SyntaxHelper {
 	private static final String AT_SYMBOL = "@";
 
@@ -22,8 +23,6 @@ public class SyntaxHelper {
 	private static final String LIST_CLOSE = "]";
 
 	private static final String LIST_OPEN = "[";
-
-	private static final char NEWLINE = '\n';
 
 	private static final String NUM_COMP = "j";
 
@@ -91,7 +90,10 @@ public class SyntaxHelper {
 
 	private AlignHelper alignHelper;
 
-	public SyntaxHelper() {
+    private String defaultLineDelimiter;
+
+	public SyntaxHelper(String newLineDelim) {
+        defaultLineDelimiter = newLineDelim;
 		alignHelper = new AlignHelper();
 	}
 
@@ -187,8 +189,8 @@ public class SyntaxHelper {
 		return COMMA + oneSpace;
 	}
 
-	public char getNewLine() {
-		return NEWLINE;
+	public String getNewLine() {
+		return defaultLineDelimiter;
 	}
 
 	public String getNumComp() {

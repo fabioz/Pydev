@@ -9,8 +9,8 @@ import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 
 public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
 
-	public FunctionArgAdapter(ModuleAdapter module, FunctionDefAdapter parent, argumentsType node) {
-		super(module, parent, node);
+	public FunctionArgAdapter(ModuleAdapter module, FunctionDefAdapter parent, argumentsType node, String endLineDelim) {
+		super(module, parent, node, endLineDelim);
 	}
 
 	public boolean hasKwArg() {
@@ -63,6 +63,6 @@ public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
 	}
 
 	public String getSignature() {
-		return VisitorFactory.createSourceFromAST(this.getASTNode(), true);
+		return VisitorFactory.createSourceFromAST(this.getASTNode(), true, getModule().getEndLineDelimiter());
 	}
 }

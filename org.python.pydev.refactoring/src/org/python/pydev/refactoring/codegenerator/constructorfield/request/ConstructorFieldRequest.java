@@ -15,10 +15,13 @@ public class ConstructorFieldRequest implements IRefactoringRequest {
 
 	private int offsetStrategy;
 
-	public ConstructorFieldRequest(IClassDefAdapter classAdapter, List<INodeAdapter> attributeAdapters, int offsetStrategy) {
+    private String newLineDelim;
+
+	public ConstructorFieldRequest(IClassDefAdapter classAdapter, List<INodeAdapter> attributeAdapters, int offsetStrategy, String newLineDelim) {
 		this.classAdapter = classAdapter;
 		this.attributeAdapters = attributeAdapters;
 		this.offsetStrategy = offsetStrategy;
+        this.newLineDelim = newLineDelim;
 	}
 
 	public IASTNodeAdapter getOffsetNode() {
@@ -36,5 +39,9 @@ public class ConstructorFieldRequest implements IRefactoringRequest {
 	public int getOffsetStrategy() {
 		return offsetStrategy;
 	}
+
+    public String getNewLineDelim() {
+        return newLineDelim;
+    }
 
 }

@@ -14,8 +14,8 @@ import org.python.pydev.parser.jython.ast.stmtType;
 
 public class ObjectAdapter extends ClassDefAdapter {
 
-	public ObjectAdapter(ModuleAdapter module, AbstractScopeNode<?> parent) {
-		super(module, parent, null);
+	public ObjectAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, String endLineDelim) {
+		super(module, parent, null, endLineDelim);
 	}
 
 	@Override
