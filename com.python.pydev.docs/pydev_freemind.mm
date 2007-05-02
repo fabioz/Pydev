@@ -74,6 +74,9 @@
 <node COLOR="#990000" CREATED="1177940497125" ID="Freemind_Link_870796357" MODIFIED="1177951161266" TEXT="make ctrl+shift+. go backwards">
 <font NAME="SansSerif" SIZE="14"/>
 </node>
+<node COLOR="#990000" CREATED="1177940979953" ID="Freemind_Link_810487310" MODIFIED="1178050198516" TEXT="Extract method is putting only \n">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
 </node>
 <node COLOR="#00b439" CREATED="1162397397296" ID="Freemind_Link_296581732" MODIFIED="1162397408828" TEXT="high-priority">
 <font NAME="SansSerif" SIZE="16"/>
@@ -94,9 +97,6 @@
 </node>
 <node COLOR="#111111" CREATED="1177855775047" ID="Freemind_Link_1235060071" MODIFIED="1177856264672" TEXT="Strange effects:&#xa;&#xa;When adding the intercept hooks to the Project explorer, the file search seems to end up using the elements from the model added, and&#xa;this leaves to strange effects, such as having null items in the tree.&#xa;&#xa;This is only observed in updates/refreshes from the search view, and not in the inital search.&#xa;&#xa;The effect is that when doing a file search for a string, and then making a copy/paste in that tree, which will add other contents to the&#xa;search result, will end up with an exception, because it will try to get a PythonFolder/PythonFile instead of a Folder/Resource, and in&#xa;the org.eclipse.search.internal.ui.text.FileLabelProvider.getText, the element is not an instance of IResource (but can actually adapt to it),&#xa;and as it is not an IResource, it will return null for its text.&#xa;&#xa;A simple workaround could be trying to adapt to IResource if it is not an IResource instance at the FileLabelProvider, or don&apos;t use the &#xa;intercept structure when the search happens.&#xa;&#xa;Also note that all works until the Project Explorer is shown (so, even if the intercept structure is in place, it will not use the intercept&#xa;structure if the Project Explorer is not activated (even if the Pydev Package Explorer -- which also uses the intercept structure -- is&#xa;also shown)."/>
 </node>
-</node>
-<node COLOR="#00b439" CREATED="1177940979953" ID="Freemind_Link_810487310" MODIFIED="1177940991969" TEXT="Extract method is putting only \n">
-<font NAME="SansSerif" SIZE="16"/>
 </node>
 </node>
 <node COLOR="#0033ff" CREATED="1139594227703" ID="Freemind_Link_1643430887" MODIFIED="1142643906171" POSITION="right" TEXT="Code Completion">
@@ -273,8 +273,20 @@
 <node COLOR="#00b439" CREATED="1163117617397" ID="Freemind_Link_378112726" MODIFIED="1177938604141" TEXT="the license pop-up should only pop if the editor is open">
 <font NAME="SansSerif" SIZE="16"/>
 </node>
+<node COLOR="#00b439" CREATED="1178050283594" ID="Freemind_Link_631525344" MODIFIED="1178050322484" TEXT="The rename refactoring should show the references that are ignored">
+<font NAME="SansSerif" SIZE="16"/>
 </node>
-<node COLOR="#0033ff" CREATED="1139937919875" FOLDED="true" ID="Freemind_Link_342607119" MODIFIED="1140001041875" POSITION="left" TEXT="other improvements">
+<node COLOR="#00b439" CREATED="1178050330281" ID="Freemind_Link_369273584" MODIFIED="1178050345984" TEXT="rename refactoring should use better caches">
+<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1178050364344" ID="Freemind_Link_1383646395" MODIFIED="1178050379891" TEXT="the caches should have a double-check for its timestep/contents">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1178059318109" ID="Freemind_Link_661988467" MODIFIED="1178059620578" TEXT="The project modules manager is growing with references to many modules, even with modules that don&apos;t belong to him.&#xa;&#xa;This happens because in getModule, the &#x9;doAddSingleModule is used in any module, not only the modules that it has direct acess to.&#xa;&#xa;ctrl+2+ --d  was created so that this analysis can be done in runtime&#xa;&#xa;The ones starting with builtins should only be checked in the system modules manager">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+</node>
+</node>
+<node COLOR="#0033ff" CREATED="1139937919875" FOLDED="true" ID="Freemind_Link_342607119" MODIFIED="1178050241234" POSITION="left" TEXT="other improvements">
 <font NAME="SansSerif" SIZE="18"/>
 <node COLOR="#00b439" CREATED="1140106715906" ID="Freemind_Link_1375402745" MODIFIED="1140106864265" TEXT="Make script to handle all the buld proccess:&#xa;- Creating build: OK&#xa;- Creating e-mail message:&#xa;- Uploading files to sourceforge (partial: only html)&#xa;- Uploading files to fabioz.com&#xa;- Updating site.xml&#xa;- Printing what else needs to be done in sf">
 <font NAME="SansSerif" SIZE="16"/>

@@ -16,6 +16,11 @@
 	   <super type="org.eclipse.core.resources.problemmarker"/>
 	   <persistent value="true"/>
 	</extension>
+	
+<!-- Adds ctrl+2+ - - d -->
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+  		<pyedit_listener_participant class="com.python.pydev.analysis.additionalinfo.AdditionalInfoIntegrityChecker"/>
+   </extension>
 
    <extension point="org.python.pydev.pydev_builder">
    		<!--Also does the ctx insensitive builder part (which was removed)-->
