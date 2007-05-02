@@ -49,6 +49,8 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
      */
     public static boolean IN_TESTS = false;
     
+    public final static boolean DEBUG = false;
+    
     //these attributes must be set whenever this class is restored.
     private transient IProject project;
     private transient IPythonNature nature;

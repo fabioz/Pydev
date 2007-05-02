@@ -105,4 +105,6 @@ public interface IModulesManager {
      */
     public boolean startCompletionCache();
     public void endCompletionCache();
+
+    public abstract Object /*PythonPathHelper*/ getPythonPathHelper();
 }

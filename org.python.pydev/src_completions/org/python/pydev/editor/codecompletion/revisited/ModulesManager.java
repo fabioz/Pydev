@@ -126,6 +126,10 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * Helper for using the pythonpath. Also persisted.
      */
     protected PythonPathHelper pythonPathHelper = new PythonPathHelper();
+    
+    public PythonPathHelper getPythonPathHelper(){
+        return pythonPathHelper;
+    }
 
     /**
      * The version for deserialization
