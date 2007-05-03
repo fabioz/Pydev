@@ -976,22 +976,24 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         
         //check if the import actually represents some token in an __init__ file
         String originalWithoutRep = importedModule.getOriginalWithoutRep();
-        if(!originalWithoutRep.endsWith("__init__")){
-        	originalWithoutRep = originalWithoutRep + ".__init__";
-        }
-		modTok = findModuleFromPath(originalWithoutRep, state.getNature(), true, null);
-        mod = modTok.o1;
-        if(modTok.o2.endsWith("__init__") == false && checkValidity(currentModuleName, mod)){
-        	if(mod.isInGlobalTokens(importedModule.getRepresentation(), state.getNature(), false)){
-        		//then this is the token we're looking for (otherwise, it might be a module).
-        		Tuple<IModule, String> ret =  fixTok(modTok, tok, activationToken);
-        		if(ret.o2.length() == 0){
-        			ret.o2 = importedModule.getRepresentation();
-        		}else{
-        			ret.o2 = importedModule.getRepresentation()+"."+ret.o2;
-        		}
-        		return ret;
-        	}
+        if(originalWithoutRep.length() > 0){
+            if(!originalWithoutRep.endsWith("__init__")){
+            	originalWithoutRep = originalWithoutRep + ".__init__";
+            }
+    		modTok = findModuleFromPath(originalWithoutRep, state.getNature(), true, null);
+            mod = modTok.o1;
+            if(modTok.o2.endsWith("__init__") == false && checkValidity(currentModuleName, mod)){
+            	if(mod.isInGlobalTokens(importedModule.getRepresentation(), state.getNature(), false)){
+            		//then this is the token we're looking for (otherwise, it might be a module).
+            		Tuple<IModule, String> ret =  fixTok(modTok, tok, activationToken);
+            		if(ret.o2.length() == 0){
+            			ret.o2 = importedModule.getRepresentation();
+            		}else{
+            			ret.o2 = importedModule.getRepresentation()+"."+ret.o2;
+            		}
+            		return ret;
+            	}
+            }
         }
         
 
@@ -1103,7 +1105,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         while(mod == null && (index = mRep.lastIndexOf('.')) != -1){
             tok = mRep.substring(index+1) + "."+tok;
             mRep = mRep.substring(0,index);
-            mod = getModule(mRep, nature, dontSearchInit, lookingForRelative);
+            if(mRep.length() > 0){
+                mod = getModule(mRep, nature, dontSearchInit, lookingForRelative);
+            }
         }
         if (tok.endsWith(".")){
             tok = tok.substring(0, tok.length()-1); //remove last point if found.

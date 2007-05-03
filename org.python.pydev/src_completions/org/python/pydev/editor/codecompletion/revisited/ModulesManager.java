@@ -11,7 +11,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -23,14 +22,12 @@ import java.util.TreeMap;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
-import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
@@ -42,6 +39,8 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
  * @author Fabio Zadrozny
  */
 public abstract class ModulesManager implements IModulesManager, Serializable {
+    
+    private final static boolean DEBUG_BUILD = false;
 
     public ModulesManager(){
 	}
@@ -110,7 +109,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * It is sorted so that we can get things in a 'subtree' faster
      */
 	protected transient SortedMap<ModulesKey, ModulesKey> modulesKeys = new TreeMap<ModulesKey, ModulesKey>();
-	private static transient ModulesManagerCache cache = createCache();
+	protected static transient ModulesManagerCache cache = createCache();
     
 	private static ModulesManagerCache createCache(){
 		return new ModulesManagerCache();
@@ -135,19 +134,6 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * The version for deserialization
      */
     private static final long serialVersionUID = 2L;
-    
-    /**
-     * This is a cache with the name of a builtin pointing to itself (so, it works basically as a set), it's used
-     * so that when we find a builtin that does not have a __file__ token we do not try to recreate it again later.
-     */
-    private LRUCache<String, String> builtinsNotConsidered; 
-
-    private LRUCache<String, String> getBuiltinsNotConsidered(){
-        if(builtinsNotConsidered == null){
-            builtinsNotConsidered = new LRUCache<String, String>(500);
-        }
-        return builtinsNotConsidered;
-    }
     
     /**
      * Custom deserialization is needed.
@@ -295,129 +281,20 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
 			keys.put(k, k);
         }
 
-        //create the builtin modules
-        String[] builtins = getBuiltins(defaultSelectedInterpreter);
-        if(builtins != null){
-	        for (int i = 0; i < builtins.length; i++) {
-	            String name = builtins[i];
-	            final ModulesKey k = new ModulesKey(name, null);
-				keys.put(k, k);
-	        }
-        }
-
+        onChangePythonpath(defaultSelectedInterpreter, keys);
+        
         //assign to instance variable
         this.setModules(keys);
 
     }
 
-
     /**
-     * @see org.python.pydev.core.ICodeCompletionASTManager#rebuildModule(java.io.File, org.eclipse.jface.text.IDocument,
-     *      org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
+     * Subclasses may do more things after the defaults were added to the cache (e.g.: the system modules manager may
+     * add builtins)
      */
-    public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, IPythonNature nature) {
-        final String m = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(f));
-        if (m != null) {
-            //behaviour changed, now, only set it as an empty module (it will be parsed on demand)
-            final ModulesKey key = new ModulesKey(m, f);
-            doAddSingleModule(key, new EmptyModule(key.name, key.file));
-
-            
-        }else if (f != null){ //ok, remove the module that has a key with this file, as it can no longer be resolved
-        	synchronized (modulesKeys) {
-	            Set<ModulesKey> toRemove = new HashSet<ModulesKey>();
-	            for (Iterator iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
-	                ModulesKey key = (ModulesKey) iter.next();
-	                if(key.file != null && key.file.equals(f)){
-	                    toRemove.add(key);
-	                }
-	            }
-	            removeThem(toRemove);
-        	}
-        }
+    protected void onChangePythonpath(String defaultSelectedInterpreter, SortedMap<ModulesKey, ModulesKey> keys) {
     }
 
-
-    /**
-     * @see org.python.pydev.core.ICodeCompletionASTManager#removeModule(java.io.File, org.eclipse.core.resources.IProject,
-     *      org.eclipse.core.runtime.IProgressMonitor)
-     */
-    public void removeModule(File file, IProject project, IProgressMonitor monitor) {
-        if(file == null){
-            return;
-        }
-        
-        if (file.isDirectory()) {
-            removeModulesBelow(file, project, monitor);
-
-        } else {
-            if(file.getName().startsWith("__init__.")){
-                removeModulesBelow(file.getParentFile(), project, monitor);
-            }else{
-                removeModulesWithFile(file);
-            }
-        }
-    }
-
-    /**
-     * @param file
-     */
-    private void removeModulesWithFile(File file) {
-        if(file == null){
-            return;
-        }
-        
-        List<ModulesKey> toRem = new ArrayList<ModulesKey>();
-    	synchronized (modulesKeys) {
-	
-	        for (Iterator iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
-	            ModulesKey key = (ModulesKey) iter.next();
-	            if (key.file != null && key.file.equals(file)) {
-	                toRem.add(key);
-	            }
-	        }
-	
-	        removeThem(toRem);
-    	}
-    }
-
-    /**
-     * removes all the modules that have the module starting with the name of the module from
-     * the specified file.
-     */
-    private void removeModulesBelow(File file, IProject project, IProgressMonitor monitor) {
-        if(file == null){
-            return;
-        }
-        
-        String absolutePath = REF.getFileAbsolutePath(file);
-        List<ModulesKey> toRem = new ArrayList<ModulesKey>();
-        
-    	synchronized (modulesKeys) {
-
-	        for (Iterator iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
-	            ModulesKey key = (ModulesKey) iter.next();
-	            if (key.file != null && REF.getFileAbsolutePath(key.file).startsWith(absolutePath)) {
-	                toRem.add(key);
-	            }
-	        }
-	
-	        removeThem(toRem);
-    	}
-    }
-
-
-    /**
-     * This method that actually removes some keys from the modules. 
-     * 
-     * @param toRem the modules to be removed
-     */
-    protected void removeThem(Collection<ModulesKey> toRem) {
-        //really remove them here.
-        for (Iterator<ModulesKey> iter = toRem.iterator(); iter.hasNext();) {
-            doRemoveSingleModule(iter.next());
-        }
-    }
 
     /**
      * This is the only method that should remove a module.
@@ -427,6 +304,9 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      */
     protected void doRemoveSingleModule(ModulesKey key) {
     	synchronized (modulesKeys) {
+    	    if(DEBUG_BUILD){
+    	        System.out.println("Removing module:"+key+" - "+this.getClass());
+    	    }
 	        this.modulesKeys.remove(key);
 	        ModulesManager.cache.remove(key, this);
     	}
@@ -440,6 +320,9 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * @param n 
      */
     public void doAddSingleModule(final ModulesKey key, AbstractModule n) {
+        if(DEBUG_BUILD){
+            System.out.println("Adding module:"+key+" - "+this.getClass());
+        }
     	synchronized (modulesKeys) {
 	    	this.modulesKeys.put(key, key);
 	        ModulesManager.cache.add(key, n, this);
@@ -488,7 +371,13 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     public int getSize() {
         return this.modulesKeys.size();
     }
+    
 
+
+    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
+        return getModule(true, name, nature, dontSearchInit);
+    }
+    
     /**
      * This method returns the module that corresponds to the path passed as a parameter.
      * 
@@ -499,99 +388,22 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * NOTE: isLookingForRelative description was: when looking for relative imports, we don't check for __init__
      * @return the module represented by this name
      */
-    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
+    public IModule getModule(boolean acceptCompiledModule, String name, IPythonNature nature, boolean dontSearchInit) {
         AbstractModule n = null;
-        
-        //check for supported builtins these don't have files associated.
-        //they are the first to be passed because the user can force a module to be builtin, because there
-        //is some information that is only useful when you have builtins, such as os and wxPython (those can
-        //be source modules, but they have so much runtime info that it is almost impossible to get useful information
-        //from statically analyzing them).
-        String[] builtins = getBuiltins();
-        if(builtins == null){
-        	//still on startup
-        	return null;
-        }
-        
-        //for temporary access (so that we don't generate many instances of it)
         ModulesKey keyForCacheAccess = new ModulesKey(null, null);
         
-        boolean foundStartingWithBuiltin = false;
-        for (int i = 0; i < builtins.length; i++) {
-            String forcedBuiltin = builtins[i];
-            if (name.startsWith(forcedBuiltin)) {
-                if(name.length() > forcedBuiltin.length() && name.charAt(forcedBuiltin.length()) == '.'){
-                	foundStartingWithBuiltin = true;
-                	
-                	keyForCacheAccess.name = name;
-                	n = cache.getObj(keyForCacheAccess, this);
-                	
-                	if(n == null && dontSearchInit == false){
-                		keyForCacheAccess.name = new StringBuffer(name).append(".__init__").toString();
-                		n = cache.getObj(keyForCacheAccess, this);
-                	}
-                	
-                	if(n instanceof EmptyModule || n instanceof SourceModule){ //it is actually found as a source module, so, we have to 'coerce' it to a compiled module
-                		n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
-                		doAddSingleModule(new ModulesKey(n.getName(), null), n);
-                		return n;
-                	}
-                }
-                
-                if(name.equals(forcedBuiltin)){
-                	
-                	keyForCacheAccess.name = name;
-                    n = cache.getObj(keyForCacheAccess, this);
-                    
-                    if(n == null || n instanceof EmptyModule || n instanceof SourceModule){ //still not created or not defined as compiled module (as it should be)
-                        n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
-                        doAddSingleModule(new ModulesKey(n.getName(), null), n);
-                        return n;
-                    }
-                }
-                if(n instanceof CompiledModule){
-                	return n;
+        if(!dontSearchInit){
+            if(n == null){
+            	keyForCacheAccess.name = new StringBuffer(name).append(".__init__").toString();
+                n = cache.getObj(keyForCacheAccess, this);
+                if(n != null){
+                    name += ".__init__";
                 }
             }
         }
-        if(foundStartingWithBuiltin){
-            LRUCache<String,String> notConsidered = getBuiltinsNotConsidered();
-            if(notConsidered.getObj(name) != null){
-                return null;
-            }
-            
-            //ok, just add it if it is some module that actually exists
-            n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
-            IToken[] globalTokens = n.getGlobalTokens();
-            //if it does not contain the __file__, this means that it's not actually a module
-            //(but may be a token from a compiled module, so, clients wanting it must get the module
-            //first and only then go on to this token).
-            //done: a cache with those tokens should be kept, so that we don't actually have to create
-            //the module to see its return values (because that's slow)
-            if(globalTokens.length > 0 && contains(globalTokens, "__file__")){
-                doAddSingleModule(new ModulesKey(name, null), n);
-                return n;
-            }else{
-                notConsidered.add(name, name);
-                return null;
-            }
-        }
-
-
-        if(n == null){
-            if(!dontSearchInit){
-                if(n == null){
-                	keyForCacheAccess.name = new StringBuffer(name).append(".__init__").toString();
-                    n = cache.getObj(keyForCacheAccess, this);
-                    if(n != null){
-                        name += ".__init__";
-                    }
-                }
-            }
-            if (n == null) {
-            	keyForCacheAccess.name = name;
-            	n = cache.getObj(keyForCacheAccess, this);
-            }
+        if (n == null) {
+        	keyForCacheAccess.name = name;
+        	n = cache.getObj(keyForCacheAccess, this);
         }
 
         if (n instanceof SourceModule) {
@@ -631,7 +443,11 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                 }
 
             }else{ //ok, it does not have a file associated, so, we treat it as a builtin (this can happen in java jars)
-                n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
+                if(acceptCompiledModule){
+                    n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
+                }else{
+                    return null;
+                }
             }
             
             if (n != null) {
@@ -645,8 +461,14 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
             throw new RuntimeException("Should not be an empty module anymore!");
         }
         return n;
-
     }
+    
+    protected AbstractModule getBuiltinModule(String name, IPythonNature nature, boolean dontSearchInit) {
+        //default implementation returns null (only the SystemModulesManager will actually return something here)
+        return null;
+    }
+
+    
     
     /**
      * Passes through all the compiled modules in memory and clears its tokens (so that
@@ -656,18 +478,6 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         ModulesManager.cache.internalCache.clear();
     }
 
-
-    /**
-     * @return true if there is a token that has rep as its representation.
-     */
-    private boolean contains(IToken[] tokens, String rep) {
-        for (IToken token : tokens) {
-            if(token.getRepresentation().equals(rep)){
-                return true;
-            }
-        }
-        return false;
-    }
 
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#isInPythonPath(org.eclipse.core.resources.IResource, org.eclipse.core.resources.IProject)

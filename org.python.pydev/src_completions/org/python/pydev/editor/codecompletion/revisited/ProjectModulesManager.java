@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -26,7 +27,6 @@ import org.python.pydev.core.IDeltaProcessor;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
-import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
@@ -40,7 +40,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 /**
  * @author Fabio Zadrozny
  */
-public class ProjectModulesManager extends ModulesManager implements IDeltaProcessor<ModulesKey>, IProjectModulesManager{
+public class ProjectModulesManager extends ProjectModulesManagerBuild implements IDeltaProcessor<ModulesKey>{
 
     private static final long serialVersionUID = 1L;
 
@@ -49,7 +49,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
      */
     public static boolean IN_TESTS = false;
     
-    public final static boolean DEBUG = false;
+    private static final boolean DEBUG_MODULES = false;
     
     //these attributes must be set whenever this class is restored.
     private transient IProject project;
@@ -83,7 +83,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         }
     }
     
-    
+
     // ------------------------ delta processing
     
 
@@ -195,11 +195,6 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
      */
     public Set<String> getAllModuleNames() {
         Set<String> s = new HashSet<String>();
-        for (Object object : this.modulesKeys.keySet()) {
-            ModulesKey m = (ModulesKey) object;
-            s.add(m.name);
-        }
-
         ModulesManager[] managersInvolved = this.getManagersInvolved(true);
         for (int i = 0; i < managersInvolved.length; i++) {
             for (Object object : managersInvolved[i].modulesKeys.keySet()) {
@@ -215,7 +210,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
      */
     @Override
     public SortedMap<ModulesKey, ModulesKey> getAllModulesStartingWith(String strStartingWith) {
-    	SortedMap<ModulesKey, ModulesKey> ret = getAllDirectModulesStartingWith(strStartingWith);
+    	SortedMap<ModulesKey, ModulesKey> ret = new TreeMap<ModulesKey, ModulesKey>();
     	ModulesManager[] managersInvolved = this.getManagersInvolved(true);
     	for (int i = 0; i < managersInvolved.length; i++) {
     		ret.putAll(managersInvolved[i].getAllDirectModulesStartingWith(strStartingWith));
@@ -235,17 +230,28 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
      * When looking for relative, we do not check dependencies
      */
     public IModule getRelativeModule(String name, IPythonNature nature) {
-    	return super.getModule(name, nature, true);
+    	return super.getModule(false, name, nature, true); //cannot be a compiled module
     }
     
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#getModule(java.lang.String, org.python.pydev.plugin.nature.PythonNature, boolean, boolean)
      */
     public IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit) {
+        IModule module = null;
+        
         ModulesManager[] managersInvolved = this.getManagersInvolved(true); //only get the system manager here (to avoid recursion)
 
         for (ModulesManager m : managersInvolved) {
-            IModule module;
+            module = m.getBuiltinModule(name, nature, dontSearchInit);
+            if(module != null){
+                if(DEBUG_MODULES){
+                    System.out.println("Trying to get:"+name+" - "+" returned builtin:"+module+" - "+m.getClass());
+                }
+                return module;
+            }
+        }
+        
+        for (ModulesManager m : managersInvolved) {
             if (m instanceof ProjectModulesManager) {
                 ProjectModulesManager pM = (ProjectModulesManager) m;
                 module = pM.getModuleInDirectManager(name, nature, dontSearchInit);
@@ -254,10 +260,16 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
                 module = m.getModule(name, nature, dontSearchInit); //we already have the system manager here...
             }
             if(module != null){
+                if(DEBUG_MODULES){
+                    System.out.println("Trying to get:"+name+" - "+" returned:"+module+" - "+m.getClass());
+                }
                 return module;
             }
         }
-        return super.getModule(name, nature, dontSearchInit);
+        if(DEBUG_MODULES){
+            System.out.println("Trying to get:"+name+" - "+" returned:null - "+this.getClass());
+        }
+        return null;
     }
     
     public IModule getModuleInDirectManager(String name, IPythonNature nature, boolean dontSearchInit) {
@@ -296,7 +308,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
                 return mod;
             }
         }
-        return super.resolveModule(full);
+        return null;
     }
 
     public String resolveModuleInDirectManager(String full) {
@@ -320,7 +332,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
      * @see org.python.pydev.core.IProjectModulesManager#getSize()
      */
     public int getSize() {
-        int size = this.modulesKeys.size();
+        int size = 0;
         ModulesManager[] managersInvolved = this.getManagersInvolved(true);
         for (int i = 0; i < managersInvolved.length; i++) {
             size += managersInvolved[i].modulesKeys.size();
@@ -350,6 +362,8 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
      * @param referenced true if we should get the referenced projects 
      *                   false if we should get the referencing projects
      * @return the Managers that this project references or the ones that reference this project (depends on 'referenced') 
+     * 
+     * Change in 1.3.3: adds itself to the list of returned managers
      */
     private synchronized ModulesManager[] getManagers(boolean checkSystemManager, boolean referenced) {
     	if(this.completionCache != null){
@@ -370,6 +384,9 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         	getProjectsRecursively(project, referenced, projs);
             addModuleManagers(list, projs);
         }
+        //add itself
+        list.add(this);
+        
         //the system is the last one we add.
         if(checkSystemManager && systemModulesManager != null){
             list.add(systemModulesManager);
@@ -452,7 +469,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
      * @see org.python.pydev.core.IProjectModulesManager#getCompletePythonPath()
      */
     public List<String> getCompletePythonPath(String interpreter){
-        List<String> l = this.pythonPathHelper.getPythonpath();
+        List<String> l = new ArrayList<String>();
         ModulesManager[] managersInvolved = getManagersInvolved(true);
         for (ModulesManager m:managersInvolved) {
             if(m instanceof SystemModulesManager){

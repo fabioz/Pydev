@@ -19,17 +19,18 @@ public class ModulesManagerTest extends CodeCompletionTestsBase{
     }
 
     public void testIt() throws Exception {
+        //change: returns itself too
         ProjectModulesManager modulesManager = (ProjectModulesManager) nature2.getAstManager().getModulesManager();
-        assertEquals(1, modulesManager.getManagersInvolved(false).length);
-        assertEquals(2, modulesManager.getManagersInvolved(true).length);
-        assertEquals(0, modulesManager.getRefencingManagersInvolved(false).length);
-        assertEquals(1, modulesManager.getRefencingManagersInvolved(true).length);
+        assertEquals(1+1, modulesManager.getManagersInvolved(false).length);
+        assertEquals(2+1, modulesManager.getManagersInvolved(true).length);
+        assertEquals(0+1, modulesManager.getRefencingManagersInvolved(false).length);
+        assertEquals(1+1, modulesManager.getRefencingManagersInvolved(true).length);
 
         ProjectModulesManager modulesManager2 = (ProjectModulesManager) nature.getAstManager().getModulesManager();
-        assertEquals(0, modulesManager2.getManagersInvolved(false).length);
-        assertEquals(1, modulesManager2.getManagersInvolved(true).length);
-        assertEquals(1, modulesManager2.getRefencingManagersInvolved(false).length);
-        assertEquals(2, modulesManager2.getRefencingManagersInvolved(true).length);
+        assertEquals(0+1, modulesManager2.getManagersInvolved(false).length);
+        assertEquals(1+1, modulesManager2.getManagersInvolved(true).length);
+        assertEquals(1+1, modulesManager2.getRefencingManagersInvolved(false).length);
+        assertEquals(2+1, modulesManager2.getRefencingManagersInvolved(true).length);
         
     }
 }
