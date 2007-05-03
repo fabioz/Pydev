@@ -25,7 +25,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	try {
 			ScopeAnalyzerVisitorTest test = new ScopeAnalyzerVisitorTest();
 			test.setUp();
-			test.testIt29();
+			test.testIt8();
 			test.tearDown();
 			junit.textui.TestRunner.run(ScopeAnalyzerVisitorTest.class);
 		} catch (Exception e) {
@@ -520,6 +520,14 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     
 	private void checkTestResults(int line, int col, String lookFor, boolean checkPositions) throws Exception {
 		List<IToken> tokenOccurrences = getTokenOccurrences(line, col);
+        if(tokenOccurrences.size() != 2){
+            System.out.println("Found occurrences:");
+            for (IToken token : tokenOccurrences) {
+                System.out.println(token);
+                System.out.println("line:"+(AbstractMessage.getStartLine(token, doc)-1));
+                System.out.println("col:"+(AbstractMessage.getStartCol(token, doc)-1));
+            }
+        }
     	assertEquals(2, tokenOccurrences.size());
     	
     	IToken tok0 = tokenOccurrences.get(0);
