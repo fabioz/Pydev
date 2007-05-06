@@ -24,6 +24,7 @@ public class UIConstants {
     public static final String COMMENT_BLACK = "icons/python_comment_black.png";
 
 // Actions
+    public static final String SYNC_WITH_EDITOR = "icons/sync_ed.gif";
 	public static final String ALPHA_SORT = "icons/alphab_sort_co.gif";
 	public static final String COLLAPSE_ALL = "icons/collapseall.gif";
 	public static final String EXPAND_ALL = "icons/expand.gif";

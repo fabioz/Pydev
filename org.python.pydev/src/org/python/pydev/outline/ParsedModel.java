@@ -86,6 +86,7 @@ public class ParsedModel implements IOutlineModel {
         return root;
     }
 
+
     // patchRootHelper makes oldItem just like the newItem
     //   the differnce between the two is 
     private void patchRootHelper(ParsedItem oldItem, ParsedItem newItem, ArrayList<ParsedItem> itemsToRefresh, ArrayList<ParsedItem> itemsToUpdate) {
@@ -121,7 +122,8 @@ public class ParsedModel implements IOutlineModel {
             oldItem.name = null;
         }
     }
-    /*
+    
+    /**
      * Replaces current root
      */
     public void setRoot(ParsedItem newRoot) {
@@ -144,8 +146,6 @@ public class ParsedModel implements IOutlineModel {
         }
     }
     
-    /*
-     */
     public SimpleNode[] getSelectionPosition(StructuredSelection sel) {
         if(sel.size() == 1) { // only sync the editing view if it is a single-selection
             Object firstElement = sel.getFirstElement();
@@ -202,4 +202,5 @@ public class ParsedModel implements IOutlineModel {
         }
         return null;
     }
+
 }

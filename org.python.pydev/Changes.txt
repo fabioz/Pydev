@@ -7,9 +7,12 @@ Pydev:
 <li><strong>Fix Search:</strong> null fixes: see mind-map (add to blog) for more details.</li>
 <li><strong>Outline:</strong> Syntax errors will show in the outline.</li>
 <li><strong>Outline:</strong> Selection on import nodes is now correct.</li>
+<li><strong>Outline:</strong> Link with editor created.</li>
+<li><strong>Outline:</strong> Show in outline added to the pydev perspective.</li>
 <li><strong>Find Previous Problem:</strong> action created (<strong>Ctrl+Shift+.</strong>).</li>
 <li><strong>Extract method refactoring:</strong> end line delimiters are gotten according to the document (if was previously fixed to \n).</li>
 <li><strong>Extension-points:</strong> Documentation added for some of the extension points available.</li>
+<li><strong>Perspective:</strong> The pydev package explorer has been set as the preferred browser in the pydev perspective.</li>
 </ul>
 
 Pydev Extensions:
