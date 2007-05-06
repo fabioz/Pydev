@@ -19,7 +19,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.editors,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.search
-Eclipse-AutoStart: true
+Eclipse-LazyStart: true
 Bundle-ClassPath: analysis.jar, retroweaver-rt.jar
 Export-Package: com.python.pydev.analysis,
  com.python.pydev.analysis.actions,

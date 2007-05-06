@@ -25,7 +25,7 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.jython,
  org.eclipse.search,
  org.eclipse.ui.ide
-Eclipse-AutoStart: true
+Eclipse-LazyStart: true
 Bundle-ClassPath: pydev.jar,
  retroweaver-rt.jar,
  mail.jar,
