@@ -125,24 +125,28 @@ public class OutlineLinkWithEditorAction extends Action implements IPyEditListen
      * Convert the text selection to a model node in the outline (parsed item tree path).
      */
     private StructuredSelection getSelectionPosition(ParsedItem r, ITextSelection t) {
-        ArrayList<ParsedItem> sel = new ArrayList<ParsedItem>();
-
-        if (r != null) {
-            do {
-                ParsedItem item = findSel(r, t.getStartLine() + 1);
-                if (item != null) {
-                    sel.add(item);
-                }
-                r = item;
-            } while (r != null);
-        }
-        TreePath treePath = null;
-        if (sel != null) {
-            treePath = new TreePath(sel.toArray());
-        }
-        if (treePath != null) {
-            return new TreeSelection(treePath);
-        }
+        try {
+            ArrayList<ParsedItem> sel = new ArrayList<ParsedItem>();
+    
+            if (r != null) {
+                do {
+                    ParsedItem item = findSel(r, t.getStartLine() + 1);
+                    if (item != null) {
+                        sel.add(item);
+                    }
+                    r = item;
+                } while (r != null);
+            }
+            TreePath treePath = null;
+            if (sel != null && sel.size() > 0) {
+                treePath = new TreePath(sel.toArray());
+            }
+            if (treePath != null) {
+                return new TreeSelection(treePath);
+            }
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+        }            
         return null;
     }
 
