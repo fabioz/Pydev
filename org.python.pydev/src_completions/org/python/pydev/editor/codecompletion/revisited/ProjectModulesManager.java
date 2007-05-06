@@ -256,9 +256,14 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
                 ProjectModulesManager pM = (ProjectModulesManager) m;
                 module = pM.getModuleInDirectManager(name, nature, dontSearchInit);
 
+            }else if (m instanceof SystemModulesManager) {
+                SystemModulesManager systemModulesManager = (SystemModulesManager) m;
+                module = systemModulesManager.getModuleWithoutBuiltins(name, nature, dontSearchInit); 
+                
             }else{
-                module = m.getModule(name, nature, dontSearchInit); //we already have the system manager here...
+                throw new RuntimeException("Unexpected: "+m);
             }
+            
             if(module != null){
                 if(DEBUG_MODULES){
                     System.out.println("Trying to get:"+name+" - "+" returned:"+module+" - "+m.getClass());

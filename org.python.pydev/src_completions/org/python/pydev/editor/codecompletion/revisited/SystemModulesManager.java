@@ -80,7 +80,7 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
 	}
 
 	public IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit) {
-		return super.getModule(name, nature, dontSearchInit);
+		return getModule(name, nature, dontSearchInit);
 	}
 
 
@@ -239,5 +239,8 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
         return super.getModule(name, nature, dontSearchInit);
     }
 
+    public IModule getModuleWithoutBuiltins(String name, IPythonNature nature, boolean dontSearchInit) {
+        return super.getModule(name, nature, dontSearchInit);
+    }
 
 }
