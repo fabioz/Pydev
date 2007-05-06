@@ -9,6 +9,7 @@ Pydev:
 <li><strong>Outline:</strong> Selection on import nodes is now correct.</li>
 <li><strong>Find Previous Problem:</strong> action created (<strong>Ctrl+Shift+.</strong>).</li>
 <li><strong>Extract method refactoring:</strong> end line delimiters are gotten according to the document (if was previously fixed to \n).</li>
+<li><strong>Extension-points:</strong> Documentation added for some of the extension points available.</li>
 </ul>
 
 Pydev Extensions:

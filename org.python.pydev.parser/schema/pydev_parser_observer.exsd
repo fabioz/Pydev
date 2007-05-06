@@ -6,7 +6,7 @@
          <meta.schema plugin="org.python.pydev.parser" id="pydev_parser_observer" name="org.python.pydev.parser.pydev_parser_observer"/>
       </appInfo>
       <documentation>
-         [Enter description of this extension point.]
+         This extension point is used for clients wanting to know when a parse tree is generated (or some error arises when trying to create it). The outline is based on it (the PyEdit listens to it and repasses to its IModelListeners -- and one of those is the ParsedModel for the PyOutlinePage).
       </documentation>
    </annotation>
 
@@ -15,7 +15,7 @@
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  class implementing org.python.pydev.core.parser.IParserObserver or org.python.pydev.core.parser.IParserObserver2
                </documentation>
             </annotation>
          </attribute>
@@ -27,7 +27,7 @@
          <meta.section type="since"/>
       </appInfo>
       <documentation>
-         [Enter the first release in which this extension point appears.]
+         
       </documentation>
    </annotation>
 
@@ -36,7 +36,14 @@
          <meta.section type="examples"/>
       </appInfo>
       <documentation>
-         [Enter extension point usage example here.]
+         &lt;br&gt;
+&amp;lt;extension point=&quot;org.python.pydev.parser.pydev_parser_observer&quot;&amp;gt;&lt;br&gt;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;lt;parser_observer class=&quot;my.observer.ObserverClass&quot;/&amp;gt;&lt;br&gt;
+&amp;lt;/extension&amp;gt;&lt;br&gt;
+&lt;br&gt;
+and my.observer.ObserverClass must implement org.python.pydev.core.parser.IParserObserver or org.python.pydev.core.parser.IParserObserver2. &lt;br&gt;
+&lt;br&gt;
+The IParserObserver2 was added to pass additional parameters to the parse, so that when this parameter some specific analysis could be done.&lt;br&gt;
       </documentation>
    </annotation>
 
@@ -45,7 +52,7 @@
          <meta.section type="apiInfo"/>
       </appInfo>
       <documentation>
-         [Enter API information here.]
+         See org.python.pydev.core.parser.IParserObserver and org.python.pydev.core.parser.IParserObserver2 for details.
       </documentation>
    </annotation>
 
@@ -54,7 +61,7 @@
          <meta.section type="implementation"/>
       </appInfo>
       <documentation>
-         [Enter information about supplied implementation of this extension point.]
+         
       </documentation>
    </annotation>
 

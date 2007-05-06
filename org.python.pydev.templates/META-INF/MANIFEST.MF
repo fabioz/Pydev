@@ -9,5 +9,5 @@ Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.python.pydev
-Eclipse-AutoStart: true
+Eclipse-LazyStart: true
 Bundle-ClassPath: retroweaver-rt.jar

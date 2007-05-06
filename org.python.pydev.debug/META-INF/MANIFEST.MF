@@ -29,7 +29,7 @@ Require-Bundle: org.junit,
  org.eclipse.jdt.core,
  org.eclipse.jdt.launching,
  org.eclipse.core.expressions
-Eclipse-AutoStart: true
+Eclipse-LazyStart: true
 Export-Package: org.python.pydev.debug.codecoverage,
  org.python.pydev.debug.core,
  org.python.pydev.debug.model,

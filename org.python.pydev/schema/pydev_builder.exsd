@@ -6,7 +6,7 @@
          <meta.schema plugin="org.python.pydev" id="pydev_builder" name="org.python.pydev.pydev_builder"/>
       </appInfo>
       <documentation>
-         [Enter description of this extension point.]
+         This extension point defines a class that should be called whenever a python file under the pythonpath is added, changed or removed.
       </documentation>
    </annotation>
 
@@ -17,7 +17,7 @@
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  must subclass org.python.pydev.builder.PyDevBuilderVisitor
                </documentation>
                <appInfo>
                   <meta.attribute translatable="true"/>
@@ -32,7 +32,7 @@
          <meta.section type="since"/>
       </appInfo>
       <documentation>
-         [Enter the first release in which this extension point appears.]
+         
       </documentation>
    </annotation>
 
@@ -41,7 +41,12 @@
          <meta.section type="examples"/>
       </appInfo>
       <documentation>
-         [Enter extension point usage example here.]
+         &lt;br&gt;
+&amp;lt;extension point=&quot;org.python.pydev.pydev_builder&quot;&amp;gt;&lt;br&gt;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;lt;builder_participant class=&quot;my.pydev.Builder&quot;/&amp;gt;&lt;br&gt;
+&amp;lt;/extension&amp;gt;&lt;br&gt;
+&lt;br&gt;
+and my.pydev.Builder must subclass org.python.pydev.builder.PyDevBuilderVisitor&lt;br&gt;
       </documentation>
    </annotation>
 
@@ -50,7 +55,23 @@
          <meta.section type="apiInfo"/>
       </appInfo>
       <documentation>
-         [Enter API information here.]
+         The implementing class will be called whenever some python file is added, changed or removed from a file that is under the pythonpath for a project (python files outside the project pythonpath will not have this extension point called).&lt;br&gt;
+&lt;br&gt;
+For each of those actions, the following visitXXX method will be called in the visitor:&lt;br&gt;
+visitChangedResource&lt;br&gt;
+visitAddedResource (the default implementation calls visitChangedResource)&lt;br&gt;
+visitRemovedResource&lt;br&gt;
+&lt;br&gt;    
+The class may be instanced and called for many changes at once, and the methods:&lt;br&gt;
+visitingWillStart&lt;br&gt;
+visitingEnded&lt;br&gt;
+are called before any of those methods is called.&lt;br&gt;
+&lt;br&gt;
+If it should only be called for a number of resources (such as pylint, because it will spawn processes as a result of
+that), maxResourcesToVisit may be reimplemented to say the maximun amount of deltas so that this builder is activated.&lt;br&gt;
+&lt;br&gt;
+If an __init__.py file is removed or added, and the files beneath the parent folder should also be visited in this case, shouldVisitInitDependency can be reimplemented (because all the files beneath that folder may not be 
+in the pythonpath anymore, or all may be added at the same time).&lt;br&gt;
       </documentation>
    </annotation>
 
@@ -59,7 +80,7 @@
          <meta.section type="implementation"/>
       </appInfo>
       <documentation>
-         [Enter information about supplied implementation of this extension point.]
+         
       </documentation>
    </annotation>
 

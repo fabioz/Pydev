@@ -15,7 +15,7 @@ Require-Bundle: org.junit,
  org.eclipse.jface.text,
  org.python.pydev.core,
  org.eclipse.ui.editors
-Eclipse-AutoStart: true
+Eclipse-LazyStart: true
 Export-Package: org.python.pydev.parser,
  org.python.pydev.parser.jython,
  org.python.pydev.parser.jython.ast,

@@ -5,4 +5,4 @@ Bundle-SymbolicName: org.python.pydev.help; singleton:=true
 Bundle-Version: 0.9.7.1
 Bundle-Vendor: Fabio Zadrozny / Aleks Totic
 Bundle-Localization: plugin
-Eclipse-AutoStart: true
+Eclipse-LazyStart: true

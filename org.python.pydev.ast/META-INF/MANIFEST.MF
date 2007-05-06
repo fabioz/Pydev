@@ -9,7 +9,7 @@ Bundle-Activator: org.python.pydev.ast.AstPlugin
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime
-Eclipse-AutoStart: true
+Eclipse-LazyStart: true
 Export-Package: org.python.pydev.ast,
  org.python.pydev.ast.management
 Bundle-Vendor: Fabio Zadrozny / Aleks Totic
