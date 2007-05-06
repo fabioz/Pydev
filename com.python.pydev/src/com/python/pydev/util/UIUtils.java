@@ -2,6 +2,7 @@ package com.python.pydev.util;
 
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
@@ -19,21 +20,25 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 public class UIUtils {
 
     public static void execLoop(JComponent editor, Frame parent, boolean modal) {
-        execLoop(editor, parent, modal, 640, 480);
+        execLoop(editor, parent, modal, 800, 600);
     }
     
     public static void execLoop(JComponent editor, Frame parent, boolean modal, int w, int h) {
         JDialog dialog = new JDialog(parent, modal);
-//        if(editor instanceof IPanelWithWindow){
-//            ((IPanelWithWindow) editor).setWindow(dialog);
-//        }
-        dialog.getContentPane().setLayout(new BorderLayout());
-        dialog.getContentPane().add(editor, BorderLayout.CENTER);
+        
+        Container contentPane = dialog.getContentPane();
+        contentPane.setLayout(new BorderLayout());
+        
+        JScrollPane scrollPane = new JScrollPane(editor);
+        contentPane.add(scrollPane, BorderLayout.CENTER);
+        
+        
         dialog.setSize(w, h);
         centerWindow(dialog);
         dialog.setVisible(true);
