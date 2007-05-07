@@ -69,7 +69,7 @@ public class OutlineHideCommentsAction extends Action {
                 public boolean select(Viewer viewer, Object parentElement, Object element) {
                     if (element instanceof ParsedItem) {
                         ParsedItem item = (ParsedItem) element;
-                        if (!(item.astThis.node instanceof commentType)) {
+                        if (item == null || item.astThis == null || !(item.astThis.node instanceof commentType)) {
                             return true;
                         }
 

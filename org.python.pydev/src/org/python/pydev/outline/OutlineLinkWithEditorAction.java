@@ -33,8 +33,6 @@ public class OutlineLinkWithEditorAction extends Action implements IPyEditListen
 
     private WeakReference<PyOutlinePage> page;
 
-    public boolean synchingWithEditor = false;
-
     private WeakReference<PyEdit> pyEdit;
 
     public OutlineLinkWithEditorAction(PyOutlinePage page, ImageCache imageCache) {
@@ -50,15 +48,26 @@ public class OutlineLinkWithEditorAction extends Action implements IPyEditListen
         } catch (MalformedURLException e) {
             PydevPlugin.log("Missing Icon", e);
         }
-        page.editorView.addPyeditListener(this);
         pyEdit = new WeakReference<PyEdit>(page.editorView);
+        relink();
     }
+    
+	public void unlink() {
+		PyEdit edit = pyEdit.get();
+		if(edit != null){
+			edit.removePyeditListener(this);
+		}
+	}
+	
+	public void relink() {
+		PyEdit edit = pyEdit.get();
+		if(edit != null){
+			edit.addPyeditListener(this);
+		}
+	}
 
     public void dispose() {
-        PyEdit edit = pyEdit.get();
-        if(edit != null){
-            edit.removePyeditListener(this);
-        }
+        unlink();
     }
 
     public void run() {
@@ -111,12 +120,12 @@ public class OutlineLinkWithEditorAction extends Action implements IPyEditListen
             StructuredSelection sel = getSelectionPosition(outlineModel.getRoot(), t);
             if (sel != null) {
                 // we don't want to hear our own selections
-                synchingWithEditor = true;
-                try {
-                    p.getTreeViewer().setSelection(sel);
-                } finally {
-                    synchingWithEditor = false;
-                }
+            	p.unlinkAll();
+            	try{
+            		p.setSelection(sel);
+            	}finally{
+            		p.relinkAll();
+            	}
             }
         }
     }
@@ -170,6 +179,7 @@ public class OutlineLinkWithEditorAction extends Action implements IPyEditListen
         }
         return prev;
     }
+
 
 
 }

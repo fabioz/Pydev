@@ -60,7 +60,7 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
 	
 	// listeners to rawPartition
 	ISelectionChangedListener selectionListener;
-
+	
     private OutlineLinkWithEditorAction linkWithEditor;
 
 	public PyOutlinePage(PyEdit editorView) {
@@ -75,7 +75,7 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
 			model = null;
 		}
 		if (selectionListener != null) {
-			getTreeViewer().removeSelectionChangedListener(selectionListener);
+			removeSelectionChangedListener(selectionListener);
 		}
 		if (imageCache != null) {
 			imageCache.dispose();
@@ -121,6 +121,7 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
 	 */
 	public void refreshItems(Object[] items) {
 		try {
+			unlinkAll();
             TreeViewer viewer = getTreeViewer();
             if (viewer != null) {
                 Tree treeWidget = viewer.getTree();
@@ -155,6 +156,8 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
         } catch (SWTException e) {
             //things may be disposed...
             PydevPlugin.log(e);
+        }finally{
+        	relinkAll();
         }
 	}
 	
@@ -162,12 +165,17 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
 	 * called when a single item changes
 	 */
 	public void updateItems(Object[] items) {
-        if(isDisposed()){
-        	return;
-        }
-		TreeViewer tree = getTreeViewer();
-		if (tree != null){
-			tree.update(items, null);
+        try {
+        	unlinkAll();
+			if(isDisposed()){
+				return;
+			}
+			TreeViewer tree = getTreeViewer();
+			if (tree != null){
+				tree.update(items, null);
+			}
+		} finally {
+			relinkAll();
 		}
 	}
 
@@ -233,27 +241,31 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
 		try{
     		createParsedOutline();
     		// selecting an item in the outline scrolls the document
-    		final TreeViewer tree = getTreeViewer();
     		selectionListener = new ISelectionChangedListener() {
-    			public void selectionChanged(SelectionChangedEvent event) {
-                    if(linkWithEditor == null || linkWithEditor.synchingWithEditor){
+
+				public void selectionChanged(SelectionChangedEvent event) {
+                    if(linkWithEditor == null){
                         return;
                     }
-                    
-    				StructuredSelection sel = (StructuredSelection)tree.getSelection();
-                    if(sel.size() == 1) { // only sync the editing view if it is a single-selection
-                        ParsedItem firstElement = (ParsedItem) sel.getFirstElement();
-                        if(firstElement.errorDesc != null && firstElement.errorDesc.message != null){
-                            int len = firstElement.errorDesc.errorEnd-firstElement.errorDesc.errorStart;
-                            editorView.setSelection(firstElement.errorDesc.errorStart, len);
-                            return;
-                        }
+                    try{
+                    	unlinkAll();
+	    				StructuredSelection sel = (StructuredSelection)event.getSelection();
+	                    if(sel.size() == 1) { // only sync the editing view if it is a single-selection
+	                        ParsedItem firstElement = (ParsedItem) sel.getFirstElement();
+	                        if(firstElement.errorDesc != null && firstElement.errorDesc.message != null){
+	                            int len = firstElement.errorDesc.errorEnd-firstElement.errorDesc.errorStart;
+	                            editorView.setSelection(firstElement.errorDesc.errorStart, len);
+	                            return;
+	                        }
+	                    }
+	    				SimpleNode[] node = model.getSelectionPosition(sel);
+	    				editorView.revealModelNodes(node);
+                    }finally{
+                    	relinkAll();
                     }
-    				SimpleNode[] node = model.getSelectionPosition(sel);
-    				editorView.revealModelNodes(node);
     			}
     		};
-    		tree.addSelectionChangedListener(selectionListener);	
+    		addSelectionChangedListener(selectionListener);	
             createActions();
         }catch(Throwable e){
             PydevPlugin.log(e);
@@ -271,6 +283,25 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
         }
         return null;
     }
+
+    @Override
+    public void selectionChanged(SelectionChangedEvent event) {
+    	super.selectionChanged(event);
+    }
+    
+	void unlinkAll() {
+		removeSelectionChangedListener(selectionListener);
+		if(linkWithEditor != null){
+			linkWithEditor.unlink();
+		}
+	}
+
+	void relinkAll() {
+		addSelectionChangedListener(selectionListener);
+		if(linkWithEditor != null){
+			linkWithEditor.relink();
+		}
+	}
 
 
 }
