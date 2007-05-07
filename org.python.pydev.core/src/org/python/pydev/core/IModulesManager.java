@@ -1,5 +1,6 @@
 package org.python.pydev.core;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
@@ -107,4 +108,17 @@ public interface IModulesManager {
     public void endCompletionCache();
 
     public abstract Object /*PythonPathHelper*/ getPythonPathHelper();
+
+    /**
+     * This method removes some module from this modules manager.
+     * 
+     * @param key the key that represents the module to be removed from this modules manager.
+     */
+    public abstract void removeModules(Collection<ModulesKey> toRem);
+
+    /**
+     * 
+     * @param key
+     */
+    public abstract void addModule(ModulesKey key);
 }

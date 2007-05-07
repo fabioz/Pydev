@@ -2,7 +2,6 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -19,18 +18,6 @@ import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
 
 public abstract class ProjectModulesManagerBuild extends ModulesManager implements IProjectModulesManager{
     
-    /**
-     * This method that actually removes some keys from the modules. 
-     * 
-     * @param toRem the modules to be removed
-     */
-    protected void removeThem(Collection<ModulesKey> toRem) {
-        //really remove them here.
-        for (Iterator<ModulesKey> iter = toRem.iterator(); iter.hasNext();) {
-            doRemoveSingleModule(iter.next());
-        }
-    }
-
 
     /**
      * @see org.python.pydev.core.ICodeCompletionASTManager#removeModule(java.io.File, org.eclipse.core.resources.IProject,
@@ -52,6 +39,7 @@ public abstract class ProjectModulesManagerBuild extends ModulesManager implemen
             }
         }
     }
+    
 
     /**
      * @param file

@@ -11,6 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -311,7 +312,28 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
 	        ModulesManager.cache.remove(key, this);
     	}
     }
+    
 
+    /**
+     * This method that actually removes some keys from the modules. 
+     * 
+     * @param toRem the modules to be removed
+     */
+    protected void removeThem(Collection<ModulesKey> toRem) {
+        //really remove them here.
+        for (Iterator<ModulesKey> iter = toRem.iterator(); iter.hasNext();) {
+            doRemoveSingleModule(iter.next());
+        }
+    }
+
+    public void removeModules(Collection<ModulesKey> toRem) {
+        removeThem(toRem);
+    }
+
+    public void addModule(final ModulesKey key) {
+        doAddSingleModule(key, new EmptyModule(key.name, key.file));
+    }
+    
     /**
      * This is the only method that should add / update a module.
      * No other method should add it directly (unless it is loading or rebuilding it).
