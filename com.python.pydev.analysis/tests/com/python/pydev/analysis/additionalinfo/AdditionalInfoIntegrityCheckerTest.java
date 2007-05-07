@@ -14,13 +14,14 @@ import com.python.pydev.analysis.additionalinfo.AdditionalInfoIntegrityChecker.I
 
 /**
  * TODO: Still doesn't check:
- * 1. if a module was changed (and the cache is old)
- * 2. additional info
+ * 1. additional info -- where we also have to check if a module was changed (and the cache is old)
  * 
  * @author Fabio
  *
  */
 public class AdditionalInfoIntegrityCheckerTest extends AdditionalInfoTestsBase {
+    
+    private static final String MOD_NAME = "extendable.initially_not_existant";
     
     private IProgressMonitor monitor = new NullProgressMonitor();
     
@@ -58,8 +59,8 @@ public class AdditionalInfoIntegrityCheckerTest extends AdditionalInfoTestsBase 
             IntegrityInfo info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor);
             assertFalse(info.allOk);
             assertEquals(1, info.modulesNotInMemory.size());
-            assertEquals(info.modulesNotInMemory.get(0), new ModulesKey("extendable.initially_not_existant", file));
-            
+            assertEquals(info.modulesNotInMemory.get(0), new ModulesKey(MOD_NAME, file));
+
             fixAndCheckAllOk(info);
         }finally{
             file.delete();
@@ -68,9 +69,10 @@ public class AdditionalInfoIntegrityCheckerTest extends AdditionalInfoTestsBase 
         IntegrityInfo info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor);
         assertFalse(info.allOk);
         assertEquals(1, info.modulesNotInDisk.size());
-        assertEquals(info.modulesNotInDisk.get(0), new ModulesKey("extendable.initially_not_existant", null));
+        assertEquals(info.modulesNotInDisk.get(0), new ModulesKey(MOD_NAME, null));
 
         fixAndCheckAllOk(info);
+        
     }
 
     private void fixAndCheckAllOk(IntegrityInfo info) {
