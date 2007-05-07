@@ -1,13 +1,13 @@
 package com.python.pydev.analysis.additionalinfo;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListResourceBundle;
 import java.util.TreeSet;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.Action;
@@ -31,19 +31,24 @@ import com.python.pydev.util.UIUtils;
  */
 public class AdditionalInfoIntegrityChecker implements IPyEditListener{
 
-    private static class Info{
-        boolean allOk=true;
+    public static class IntegrityInfo{
+        public boolean allOk=true;
+        public StringBuffer desc = new StringBuffer();
+        public List<ModulesKey> modulesNotInDisk = new ArrayList<ModulesKey>();
+        public IModulesManager modulesManager;
+        public IPythonNature nature;
+        public List<ModulesKey> modulesNotInMemory = new ArrayList<ModulesKey>();
     }
     
-    public static StringBuffer checkIntegrity(IProject project, IProgressMonitor monitor){
-        Info info = new Info();
+    public static IntegrityInfo checkIntegrity(IPythonNature nature, IProgressMonitor monitor){
+        IntegrityInfo info = new IntegrityInfo();
         
-        PythonNature nature = PythonNature.getPythonNature(project);
-        IModulesManager modulesManager = nature.getAstManager().getModulesManager();
-        PythonPathHelper pythonPathHelper = (PythonPathHelper) modulesManager.getPythonPathHelper();
+        info.nature = nature;
+        info.modulesManager = nature.getAstManager().getModulesManager();
+        PythonPathHelper pythonPathHelper = (PythonPathHelper) info.modulesManager.getPythonPathHelper();
         List<String> pythonpath = pythonPathHelper.getPythonpath();
-        StringBuffer buffer = new StringBuffer();
-        buffer.append(StringUtils.format("Checking the integrity of the project: %s\n\n", project.getName()));
+        StringBuffer buffer = info.desc;
+        buffer.append(StringUtils.format("Checking the integrity of the project: %s\n\n", nature.getProject().getName()));
         buffer.append("Pythonpath:\n");
         for (String string : pythonpath) {
             buffer.append(string);
@@ -60,7 +65,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
                     String modName = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(moduleFile), true);
                     if(modName != null){
                         existingModuleNames.add(new ModulesKey(modName, file));
-                        buffer.append(StringUtils.format("Found module: %s\n", modName));
+                        buffer.append(StringUtils.format("Found module: %s - %s\n", modName, moduleFile));
                     }else{
                         info.allOk = false;
                         buffer.append(StringUtils.format("Unable to resolve module: %s (gotten null module name)", moduleFile));
@@ -72,20 +77,22 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
             }
         }
         
-        check(existingModuleNames, modulesManager, buffer, info);
-        return buffer;
+        check(existingModuleNames, info);
+        return info;
     }
 
     /**
      * @param existingModuleNames the modules that exist in the disk (an actual file is found and checked for the module it resolves to)
      */
-    private static void check(HashSet<ModulesKey> existingModuleNames, IModulesManager modulesManager, StringBuffer buffer, Info info) {
-        ModulesKey[] onlyDirectModules = modulesManager.getOnlyDirectModules();
+    private static void check(HashSet<ModulesKey> existingModuleNames, IntegrityInfo info) {
+        StringBuffer buffer = info.desc;
+        ModulesKey[] onlyDirectModules = info.modulesManager.getOnlyDirectModules();
         TreeSet<ModulesKey> inModulesManager = new TreeSet<ModulesKey>(Arrays.asList(onlyDirectModules));
         
         for (ModulesKey key : inModulesManager) {
             if(!existingModuleNames.contains(key)){
                 info.allOk = false;
+                info.modulesNotInDisk .add(key);
                 buffer.append(StringUtils.format("ModulesKey %s exists in memory but not in the disk.\n", key));
             }
         }
@@ -93,6 +100,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
         for (ModulesKey key : existingModuleNames) {
             if(!inModulesManager.contains(key)){
                 info.allOk = false;
+                info.modulesNotInMemory.add(key);
                 buffer.append(StringUtils.format("ModulesKey %s exists in the disk but not in memory.\n", key));
             }
         }
@@ -109,7 +117,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
                 List<IPythonNature> allPythonNatures = PythonNature.getAllPythonNatures();
                 StringBuffer buf = new StringBuffer();
                 for (IPythonNature nature : allPythonNatures) {
-                    buf.append(checkIntegrity(nature.getProject(), new NullProgressMonitor()));
+                    buf.append(checkIntegrity(nature, new NullProgressMonitor()));
                 }
                 UIUtils.showString(buf.toString());
             }
@@ -126,6 +134,13 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
 
     public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
         
+    }
+
+    public static void fix(IntegrityInfo info) {
+        info.modulesManager.removeModules(info.modulesNotInDisk);
+        for(ModulesKey key:info.modulesNotInMemory){
+            info.modulesManager.addModule(key);
+        }
     }
 
 }
