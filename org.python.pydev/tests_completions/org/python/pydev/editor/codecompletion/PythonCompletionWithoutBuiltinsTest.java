@@ -38,7 +38,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testSameName();
+	      test.testShadeClassDeclaration();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -915,6 +915,21 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             "foo.";
         
         requestCompl(s, new String[] {"one", "two", "bar()"});
+    }
+    
+    public void testShadeClassDeclaration() throws Exception {
+        String s = 
+            "class Foo:\n" +
+            "    def m1(self):\n" +
+            "        pass\n" +
+            "    \n" +
+            "Foo = Foo()\n" +
+            "Foo.";
+        
+        //don't let the name override the definition -- as only the name will remain, we won't be able to find the original
+        //one, so, it will find it as an unbound call -- this may be fixed later, but as it's a corner case, let's leave
+        //it like that for now.
+        requestCompl(s, new String[] {"m1()"});
     }
     
     public void testRecursion1() throws Exception {

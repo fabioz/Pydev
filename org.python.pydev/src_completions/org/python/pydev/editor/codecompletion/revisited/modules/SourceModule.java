@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeMap;
 
 import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
@@ -86,7 +87,10 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      */
     private long lastModified;
     
-    private HashMap<Integer, HashMap<String, SourceToken>> tokensCache = new HashMap<Integer, HashMap<String,SourceToken>>();
+    /**
+     * The object may be a SourceToken or a List<SourceToken>
+     */
+    private HashMap<Integer, TreeMap<String, Object>> tokensCache = new HashMap<Integer, TreeMap<String,Object>>();
 
     /**
      * @return a reference to all the modules that are imported from this one in the global context as a from xxx import *
@@ -149,7 +153,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @return true if it was found and false otherwise
      */
     public boolean isInDirectGlobalTokens(String tok){
-        HashMap<String, SourceToken> tokens = tokensCache.get(GlobalModelVisitor.GLOBAL_TOKENS);
+        TreeMap<String, Object> tokens = tokensCache.get(GlobalModelVisitor.GLOBAL_TOKENS);
     	if(tokens == null){
     		getGlobalTokens();
     	}
@@ -168,7 +172,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     }
     
 	public boolean isInDirectImportTokens(String tok) {
-		HashMap<String, SourceToken> tokens = tokensCache.get(GlobalModelVisitor.ALIAS_MODULES);
+        TreeMap<String, Object> tokens = tokensCache.get(GlobalModelVisitor.ALIAS_MODULES);
         if(tokens != null){
 			getTokenImportedModules();
 		}
@@ -183,30 +187,32 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 	}
 
     
+	private IToken[] getTokens(int which, ICompletionState state) {
+        return getTokens(which, state, null);
+    }
     
     /**
-     * @param which
+     * @param lookOnlyForNameStartingWith: if not null, well only get from the cache tokens starting with the given representation
      * @return a list of IToken
      */
-    private synchronized IToken[] getTokens(int which, ICompletionState state) {
+    private synchronized IToken[] getTokens(int which, ICompletionState state, String lookOnlyForNameStartingWith) {
         if((which & GlobalModelVisitor.INNER_DEFS) != 0){
             throw new RuntimeException("Cannot do this one with caches");
         }
     	//cache
-        HashMap<String, SourceToken> tokens = tokensCache.get(which);
-        //only use cache if we're not debugging
+        TreeMap<String, Object> tokens = tokensCache.get(which);
+        
         if(tokens != null){
-            Collection<SourceToken> values = tokens.values();
-            return values.toArray(new SourceToken[values.size()]);
+            return createArrayFromCacheValues(tokens, lookOnlyForNameStartingWith);
         }
     	//end cache
     	
     	
         try {
-            tokensCache.put(GlobalModelVisitor.ALIAS_MODULES, new HashMap<String, SourceToken>());
-            tokensCache.put(GlobalModelVisitor.GLOBAL_TOKENS, new HashMap<String, SourceToken>());
-            tokensCache.put(GlobalModelVisitor.WILD_MODULES, new HashMap<String, SourceToken>());
-            tokensCache.put(GlobalModelVisitor.MODULE_DOCSTRING, new HashMap<String, SourceToken>());
+            tokensCache.put(GlobalModelVisitor.ALIAS_MODULES, new TreeMap<String, Object>());
+            tokensCache.put(GlobalModelVisitor.GLOBAL_TOKENS, new TreeMap<String, Object>());
+            tokensCache.put(GlobalModelVisitor.WILD_MODULES, new TreeMap<String, Object>());
+            tokensCache.put(GlobalModelVisitor.MODULE_DOCSTRING, new TreeMap<String, Object>());
 
             int all = GlobalModelVisitor.ALIAS_MODULES | GlobalModelVisitor.GLOBAL_TOKENS | 
                       GlobalModelVisitor.WILD_MODULES | GlobalModelVisitor.MODULE_DOCSTRING;
@@ -230,14 +236,35 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                 }else{
                     choice = GlobalModelVisitor.GLOBAL_TOKENS;
                 }
+                String rep = token.getRepresentation();
                 if(DEBUG_INTERNAL_GLOBALS_CACHE){
-            		System.out.println("Adding choice:"+choice+" name:"+token.getRepresentation());
+            		System.out.println("Adding choice:"+choice+" name:"+rep);
                     if(choice != which){
                         System.out.println("Looking for:"+which+"found:"+choice);
                         System.out.println("here");
                     }
                 }
-                tokensCache.get(choice).put(token.getRepresentation(), (SourceToken) token);
+                TreeMap<String, Object> treeMap = tokensCache.get(choice);
+                SourceToken newSourceToken = (SourceToken) token;
+                Object current = treeMap.get(rep);
+                if(current == null){ 
+                    treeMap.put(rep, newSourceToken);
+                }else{
+                    //the new references (later in the module) are always added to the head of the position...
+                    if(current instanceof List){
+                        ((List)current).add(0, newSourceToken);
+                        
+                    }else if(current instanceof SourceToken){
+                        ArrayList<SourceToken> lst = new ArrayList<SourceToken>();
+                        lst.add(newSourceToken);
+                        lst.add((SourceToken) current);
+                        treeMap.put(rep, lst);
+                        
+                    }else{
+                        throw new RuntimeException("Unexpected class in cache:"+current);
+                        
+                    }
+                }
     		}
             //end cache
             
@@ -247,8 +274,30 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         
         //now, let's get it from the cache... (which should be filled by now)
         tokens = tokensCache.get(which);
-        Collection<SourceToken> values = tokens.values();
-        return values.toArray(new SourceToken[values.size()]);
+        return createArrayFromCacheValues(tokens, lookOnlyForNameStartingWith);
+    }
+
+    private IToken[] createArrayFromCacheValues(TreeMap<String, Object> tokens, String lookOnlyForNameStartingWith) {
+        List<SourceToken> ret = new ArrayList<SourceToken>();
+        
+        Collection<Object> lookIn;
+        if(lookOnlyForNameStartingWith == null){
+            lookIn = tokens.values();
+        }else{
+            lookIn = tokens.subMap(lookOnlyForNameStartingWith, lookOnlyForNameStartingWith+"z").values();
+        }
+        
+        
+        for(Object o:lookIn){
+            if(o instanceof SourceToken){
+                ret.add((SourceToken) o);
+            }else if(o instanceof List){
+                ret.addAll((List)o);
+            }else{
+                throw new RuntimeException("Unexpected class in cache:"+o);
+            }
+        }
+        return ret.toArray(new SourceToken[ret.size()]);
     }
 
     /**
@@ -270,21 +319,27 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @see org.python.pydev.core.IModule#getGlobalTokens(org.python.pydev.core.ICompletionState, org.python.pydev.core.ICodeCompletionASTManager)
      */
     public IToken[] getGlobalTokens(ICompletionState initialState, ICodeCompletionASTManager manager) {
-        IToken[] t = getTokens(GlobalModelVisitor.GLOBAL_TOKENS, null);
-        
         String activationToken = initialState.getActivationToken();
+        int activationTokenLen = activationToken.length();
+        String[] actToks = FullRepIterable.dotSplit(activationToken);
+        
+        String goFor = null;
+        if(actToks.length > 0){
+            goFor = actToks[0];
+        }
+        IToken[] t = getTokens(GlobalModelVisitor.GLOBAL_TOKENS, null, goFor);
+        
         for (int i = 0; i < t.length; i++) {
             SourceToken token = (SourceToken) t[i];
             String rep = token.getRepresentation();
             
             SimpleNode ast = token.getAst();
             
-            if(activationToken.length() > rep.length() && activationToken.startsWith(rep)){
+            if(activationTokenLen > rep.length() && activationToken.startsWith(rep)){
                 //we need this thing to work correctly for nested modules...
                 //some tests are available at: PythonCompletionTestWithoutBuiltins.testDeepNestedXXX
                 
                 int iActTok = 0;
-                String[] actToks = FullRepIterable.dotSplit(activationToken);
                 if(actToks[iActTok].equals(rep)){
                     //System.out.println("Now we have to find act..."+activationToken+"(which is a definition of:"+rep+")");
                     try {
@@ -366,7 +421,15 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                 if(ast instanceof ClassDef){
                     initialState.setLookingFor(ICompletionState.LOOKING_FOR_UNBOUND_VARIABLE);
                 }
-                return (IToken[]) getClassToks(initialState, manager, ast).toArray(EMPTY_ITOKEN_ARRAY);
+                List<IToken> classToks = getClassToks(initialState, manager, ast);
+                if(classToks.size() == 0){
+                    if(initialState.isLookingFor() == ICompletionState.LOOKING_FOR_ASSIGN){
+                        continue;
+                    }
+                    //otherwise, return it empty anyway...
+                    return EMPTY_ITOKEN_ARRAY;
+                }
+                return (IToken[]) classToks.toArray(EMPTY_ITOKEN_ARRAY);
             }
         }
         return EMPTY_ITOKEN_ARRAY;
