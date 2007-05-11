@@ -24,9 +24,6 @@ class PyDBFrame:
         
     def doWaitSuspend(self, *args, **kwargs):
         self.mainDebugger.doWaitSuspend(*args, **kwargs)
-        
-    def trace_step(self, frame, event, arg):
-        pass
     
     def trace_dispatch(self, frame, event, arg):
         if not ACCEPTED_EVENTS.has_key(event):
