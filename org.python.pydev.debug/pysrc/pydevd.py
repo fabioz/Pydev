@@ -66,8 +66,6 @@ class PyDBAdditionalThreadInfo:
         self.pydev_step_stop = None
         self.pydev_step_cmd = None
         self.pydev_notify_kill = False
-        self.pydev_stop_on_return_count_1 = False
-        self.pydev_return_call_count = 0
 
 #---------------------------------------------------------------------------------------- THIS IS THE DEBUGGER
 
@@ -327,22 +325,28 @@ class PyDB:
                     #command to add some breakpoint.
                     # text is file\tline. Add to breakpoints dictionary
                     file, line, condition = text.split( '\t', 2 )
+                    if condition.startswith('**FUNC**'):
+                        func_name, condition = condition.split('\t', 1)
+                        func_name = func_name[8:]
+                    else:
+                        func_name = ''
+                    
                     file = NormFile( file )
                     
                     line = int( line )
                     
                     if pydevd_trace_breakpoints > 0:
-                        print 'Added breakpoint:%s - line:%s' % (file, line)
+                        print 'Added breakpoint:%s - line:%s - func_name:%s' % (file, line, func_name)
                         
                     if self.breakpoints.has_key( file ):
                         breakDict = self.breakpoints[file]
                     else:
                         breakDict = {}
     
-                    if len(condition) <= 0 or condition == None or "None" == condition:
-                        breakDict[line] = (True, None)
+                    if len(condition) <= 0 or condition == None or condition == "None":
+                        breakDict[line] = (True, None, func_name)
                     else:
-                        breakDict[line] = (True, condition)
+                        breakDict[line] = (True, condition, func_name)
                     
                         
                     self.breakpoints[file] = breakDict
@@ -434,11 +438,11 @@ class PyDB:
                 info.pydev_step_stop = frame.f_back
             else:
                 info.pydev_step_stop = frame
+            SetTraceForParents(frame, GetGlobalDebugger().trace_dispatch)
                 
         elif info.pydev_step_cmd == CMD_STEP_RETURN:
-            info.pydev_stop_on_return_count_1 = True
-            info.pydev_return_call_count = 0
             info.pydev_step_stop = frame.f_back
+            SetTraceForParents(frame, GetGlobalDebugger().trace_dispatch)
  
         cmd = self.cmdFactory.makeThreadRunMessage(id(thread), info.pydev_step_cmd)
         self.writer.addCommand(cmd)

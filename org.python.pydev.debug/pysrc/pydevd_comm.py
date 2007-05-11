@@ -227,7 +227,8 @@ class WriterThread(PyDBDaemonThread):
                 time.sleep(self.timeout)                
         except Exception, e:
             globalDbg.finishDebuggingSession = True
-            traceback.print_exc()
+            if pydevd_trace >= 0:
+                traceback.print_exc()
     
     
 

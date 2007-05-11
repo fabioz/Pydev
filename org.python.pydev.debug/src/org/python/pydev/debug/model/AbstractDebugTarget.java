@@ -161,7 +161,7 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 		try {
 			if (breakpoint instanceof PyBreakpoint && ((PyBreakpoint)breakpoint).isEnabled()) {
 				PyBreakpoint b = (PyBreakpoint)breakpoint;
-				SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, b.getFile(), b.getLine(), b.getCondition());
+				SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, b.getFile(), b.getLine(), b.getCondition(), b.getFunctionName());
 				debugger.postCommand(cmd);
 			}
 		} catch (CoreException e) {
@@ -448,7 +448,7 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
                 PyBreakpoint brk = (PyBreakpoint) breakpointManager.getBreakpoint(marker);
                 
                 if (brk.isEnabled()) {
-                    SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, brk.getFile(), brk.getLine(), brk.getCondition());
+                    SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, brk.getFile(), brk.getLine(), brk.getCondition(), brk.getFunctionName());
                     debugger.postCommand(cmd);
                 }
             }
@@ -456,7 +456,7 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
             for (IMarker marker: condMarkers) {
             	PyBreakpoint brk = (PyBreakpoint) breakpointManager.getBreakpoint(marker);
             	if (brk.isEnabled()) {
-            		SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, brk.getFile(), brk.getLine(), brk.getCondition());
+            		SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, brk.getFile(), brk.getLine(), brk.getCondition(), brk.getFunctionName());
             		debugger.postCommand(cmd);
             	}
             }

@@ -113,4 +113,12 @@ public class PyBreakpoint extends LineBreakpoint {
 		}
 		return m;
 	}
+
+    public String getFunctionName() {
+        try {
+            return (String) getMarker().getAttribute(FUNCTION_NAME_PROP);
+        } catch (CoreException e) {
+            return "";
+        }
+    }
 }
