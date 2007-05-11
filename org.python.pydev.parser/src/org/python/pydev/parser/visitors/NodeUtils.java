@@ -667,7 +667,7 @@ public class NodeUtils {
 
 
     /**
-     * @param lineNumber the line we want to get the context from
+     * @param lineNumber the line we want to get the context from (starts at 0)
      * @param ast the ast that corresponds to our context
      * @return the full name for the context where we are (in the format Class.method.xxx.xxx)
      */

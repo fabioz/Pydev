@@ -96,7 +96,7 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
                 
                 //get the line number
 				Object lineNumber = attrs.get(IMarker.LINE_NUMBER);
-				String functionName = (String) attrs.get(PyBreakpoint.FUNCTION_NAME_PROP);
+				String functionName = pyBreakpoint.getFunctionName();
 				
 				if (lineNumber == null){
 					lineNumber = "unknown";

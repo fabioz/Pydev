@@ -5,6 +5,8 @@
  */
 package org.python.pydev.debug.model;
 
+import java.io.File;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -14,6 +16,16 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.model.LineBreakpoint;
+import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.REF;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * Represents python breakpoint.
@@ -29,8 +41,6 @@ public class PyBreakpoint extends LineBreakpoint {
 	
 	static public final String PY_CONDITIONAL_BREAK_MARKER = "org.python.pydev.debug.pyConditionalStopBreakpointMarker";
 	
-	static public final String FUNCTION_NAME_PROP = "pydev.function_name";
-
 	/**
 	 * Breakpoint attribute storing a breakpoint's conditional expression
 	 * (value <code>"org.eclipse.jdt.debug.core.condition"</code>). This attribute is stored as a
@@ -65,6 +75,35 @@ public class PyBreakpoint extends LineBreakpoint {
             }
         }
 	}
+	
+	private IDocument getDocument(){
+		IMarker marker = getMarker();
+		IResource r = marker.getResource();
+		if(r instanceof IFile){
+			return REF.getDocFromResource(r);
+		}else{
+			//it's an external file...
+			try {
+				return REF.getDocFromFile(new File((String) marker.getAttribute(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID)));
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+	
+	private IPythonNature getPythonNature() {
+		IMarker marker = getMarker();
+		IPythonNature nature = PythonNature.getPythonNature(marker.getResource());
+		if(nature == null){
+			try {
+				nature = PydevPlugin.getInfoForFile(new File((String) marker.getAttribute(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID))).o1;
+			} catch (CoreException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return nature;
+	}
+
 	
 	public Object getLine() {
 		try {
@@ -113,12 +152,72 @@ public class PyBreakpoint extends LineBreakpoint {
 		}
 		return m;
 	}
+	
+	private String functionName;
+	private long timestep;
 
+	/**
+	 * @return the function name for this breakpoint.
+	 * 
+	 * A return of "None" signals that we couldn't discover the function name (so, we should try to match things in the whole
+	 * file, and not only in the given context, as we don't know which context it is)
+	 */
     public String getFunctionName() {
+    	String fileStr = getFile();
+    	File file = new File(fileStr);
+    	if(file == null || !file.exists()){
+    		return "None";
+    	}
+    	
+    	if(file.lastModified() == timestep){
+    		return functionName;
+    	}
+    	
+    	timestep = file.lastModified();
+    	
         try {
-            return (String) getMarker().getAttribute(FUNCTION_NAME_PROP);
+        	IPythonNature nature = getPythonNature();
+        	if(nature != null){
+				String modName = nature.resolveModule(fileStr);
+        		SourceModule sourceModule = null;
+        		if(modName != null){
+        			//when all is set up, this is the most likely path we're going to use
+        			//so, we shouldn't have delays when the module is changed, as it's already
+        			//ok for use.
+        			IModule module = nature.getAstManager().getModule(modName, nature, true);
+        			if(module instanceof SourceModule){
+        				sourceModule = (SourceModule) module;
+        			}
+        		}
+        		
+        		if(sourceModule == null){
+        			//the text for the breakpoint requires the function name, and it may be requested before
+        			//the ast manager is actually restored (so, modName is None, and we have little alternative
+        			//but making a parse to get the function name)
+		        	IDocument doc = getDocument();
+					sourceModule = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, -1);
+        		}
+        		
+        		int lineToUse = getLineNumber() - 1;
+        		
+        		if(sourceModule == null || sourceModule.getAst() == null || lineToUse < 0){
+        			functionName = "None";
+        			return functionName;
+        		}
+        		
+	        	SimpleNode ast = sourceModule.getAst();
+	        	
+				functionName = NodeUtils.getContextName(lineToUse, ast);
+	        	if(functionName == null){
+	        		functionName = "";
+	        	}
+        	}
+        	return functionName;
+        	
         } catch (CoreException e) {
-            return "";
+        	functionName = "None";
+        	return functionName;
         }
     }
+
 }

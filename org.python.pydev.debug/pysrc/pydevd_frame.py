@@ -34,14 +34,14 @@ class PyDBFrame:
         
         #print 'dispatch', self.base, frame.f_lineno, event, frame.f_code.co_name, frame
 
-        probably_skips = False
+        probably_skip_context = False
         # Let's check to see if we are in a function that has a breakpoint. If we don't have a breakpoint, 
         # we will return nothing for the next trace
         #also, after we hit a breakpoint and go to some other debugging state, we have to force the set trace anyway,
         #so, that's why the additional checks are there.
         if not breakpoint:
             #print 'skipping', self.base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
-            probably_skips = True
+            probably_skip_context = True
 
         else:
             #checks the breakpoint to see if there is a context match in some function
@@ -53,14 +53,17 @@ class PyDBFrame:
                 
             for b, condition, func_name in breakpoint.values():
                 #will match either global or some function
+                if func_name == 'None':
+                    break
+                
                 if func_name == curr_func_name:
                     break
                 
-            else:
+            else: # if we had some break, it won't get here (so, that's a context that we probably want to skip -- see conditions below)
                 #print 'skipping', curr_func_name, self.base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
-                probably_skips = True
+                probably_skip_context = True
 
-        if probably_skips:
+        if probably_skip_context:
             if additionalInfo.pydev_state == STATE_RUN and additionalInfo.pydev_step_stop is None and additionalInfo.pydev_step_cmd is None:
                 return None
             
@@ -68,7 +71,7 @@ class PyDBFrame:
                 return None
                 
         #We just hit a breakpoint or we are already in step mode. Either way, let's trace this frame
-        #print 'probably_skips', probably_skips, additionalInfo.pydev_step_cmd == CMD_STEP_OVER, additionalInfo.pydev_step_stop != frame
+        #print 'probably_skip_context', probably_skip_context, additionalInfo.pydev_step_cmd == CMD_STEP_OVER, additionalInfo.pydev_step_stop != frame
         #print 'NOT skipped', self.base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
         frame.f_trace = self.trace_dispatch
 

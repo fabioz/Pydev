@@ -30,9 +30,6 @@ import org.python.pydev.core.REF;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyBreakpoint;
 import org.python.pydev.debug.model.PyDebugModelPresentation;
-import org.python.pydev.editor.PyEdit;
-import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
  * Setting/removing breakpoints in the ruler
@@ -105,22 +102,10 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
             // if not null, we're dealing with an external file.
             final PydevFileEditorInput pydevFileEditorInput = getPydevFileEditorInput();
 
-            // the location of the breakpoint
-            String functionName = null;
-            if (fTextEditor instanceof PyEdit) {
-                SimpleNode ast = ((PyEdit) fTextEditor).getAST();
-                if (ast != null) {
-                    functionName = NodeUtils.getContextName(lineNumber - 1, ast);
-                }
-            }
-
             map.put(IMarker.MESSAGE, "what's the message");
             map.put(IMarker.LINE_NUMBER, new Integer(lineNumber));
             map.put(IBreakpoint.ENABLED, new Boolean(true));
             map.put(IBreakpoint.ID, PyDebugModelPresentation.PY_DEBUG_MODEL_ID);
-            if (functionName != null) {
-                map.put(PyBreakpoint.FUNCTION_NAME_PROP, functionName);
-            }
             if (pydevFileEditorInput != null) {
                 map.put(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID, REF.getFileAbsolutePath(pydevFileEditorInput.getFile()));
             }
