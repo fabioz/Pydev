@@ -472,6 +472,7 @@ class PyDB:
                     sys.exit(0)
     
             filename, base = GetFilenameAndBase(frame)
+            #print 'trace_dispatch', base, frame.f_lineno, event, frame.f_code.co_name
     
             if DONT_TRACE.has_key(base): #we don't want to debug threading or anything related to pydevd
                 return None

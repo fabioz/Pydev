@@ -32,7 +32,7 @@ class PyDBFrame:
         additionalInfo = self.additionalInfo
         breakpoint = self.breakpoints.get(self.filename, None)
         
-        #print 'dispatch', self.base, frame.f_lineno, event, frame.f_code.co_name, frame
+        #print 'frame: trace_dispatch', self.base, frame.f_lineno, event, frame.f_code.co_name
 
         probably_skip_context = False
         # Let's check to see if we are in a function that has a breakpoint. If we don't have a breakpoint, 
