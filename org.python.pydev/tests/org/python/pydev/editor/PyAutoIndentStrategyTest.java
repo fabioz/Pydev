@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testAutoImportStr();
+            s.testParens2();
             s.tearDown();
     		junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -1334,11 +1334,23 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	String str = "isShown() #suite()'" +
     	"";
     	final Document doc = new Document(str);
-    	DocCmd docCmd = new DocCmd(doc.getLength()-") #suite()'".length(), 0, ")");
+    	int offset = doc.getLength()-") #suite()'".length();
+		DocCmd docCmd = new DocCmd(offset, 0, ")");
     	strategy.customizeDocumentCommand(doc, docCmd);
     	assertEquals("", docCmd.text); 
-    	assertEquals(9, docCmd.caretOffset);
+    	assertEquals(offset+1, docCmd.caretOffset);
     	
+    }
+    
+    public void testParens3() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "assert_('\\' in txt) a()";
+    	final Document doc = new Document(str);
+    	int offset = doc.getLength()-")".length();
+		DocCmd docCmd = new DocCmd(offset, 0, ")");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("", docCmd.text); 
+    	assertEquals(offset+1, docCmd.caretOffset);
     }
 
     
