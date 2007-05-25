@@ -206,15 +206,15 @@ public class ParsedItem implements Comparable{
     public int getClassRanking() {
         int rank;
         
-        if (astThis.node instanceof ImportFrom) {
+        if (astThis == null || (errorDesc != null && errorDesc.message != null)) {
+            rank = -2;
+        } else if (astThis.node instanceof ImportFrom) {
             rank = 0;
         } else if (astThis.node instanceof Import) {
             rank = 1;
         } else if (astThis.node instanceof commentType) {
             rank = -1;
-        } else if (errorDesc != null && errorDesc.message != null) {
-            rank = -2;
-        } else{
+        } else {
             rank = 10;
         }
         return rank;
