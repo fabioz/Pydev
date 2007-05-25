@@ -48,7 +48,7 @@ class PyDBFrame:
             curr_func_name = frame.f_code.co_name
             
             #global context is set with an empty name
-            if curr_func_name == '?':
+            if curr_func_name in ('?', '<module>'):
                 curr_func_name = ''
                 
             for b, condition, func_name in breakpoint.values():

@@ -1,3 +1,13 @@
+after 1.3.3
+Pydev:
+<ul>
+<li><strong>Debugger:</strong> Breakpoints where not working correctly on external files opened with 'File > Open File...'.</li>
+<li><strong>Debugger:</strong> Python 2.5 now accepts breakpoints in the module level.</li>
+<li><strong>Debugger:</strong> Unicode variables shown in the variables view.</li>
+</ul>
+
+
+
 after 1.3.2
 
 Pydev:

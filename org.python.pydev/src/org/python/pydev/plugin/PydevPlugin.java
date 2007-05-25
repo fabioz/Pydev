@@ -106,7 +106,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         return getPythonInterpreterManager(false);
     }
     public static IInterpreterManager getPythonInterpreterManager(boolean haltOnStub) {
-    	while(pythonInterpreterManager instanceof StubInterpreterManager){ //this happens during initialization
+    	while(haltOnStub && pythonInterpreterManager instanceof StubInterpreterManager){ //this happens during initialization
     		try {
     			Thread.sleep(100);
     		} catch (Exception e) {
@@ -127,7 +127,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     	return getJythonInterpreterManager(false);
     }
     public static IInterpreterManager getJythonInterpreterManager(boolean haltOnStub) {
-    	while(jythonInterpreterManager instanceof StubInterpreterManager){ //this happens during initialization
+    	while(haltOnStub && jythonInterpreterManager instanceof StubInterpreterManager){ //this happens during initialization
 			try {
 				Thread.sleep(100);
 			} catch (Exception e) {
@@ -928,8 +928,11 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      */
     public static Tuple<SystemPythonNature, String> getInfoForFile(File file){
         String modName = null;
-        IInterpreterManager pythonInterpreterManager = getPythonInterpreterManager();
-        IInterpreterManager jythonInterpreterManager = getJythonInterpreterManager();
+        IInterpreterManager pythonInterpreterManager = getPythonInterpreterManager(false);
+        IInterpreterManager jythonInterpreterManager = getJythonInterpreterManager(false);
+        if(pythonInterpreterManager == null || jythonInterpreterManager == null){
+            return null;
+        }
     
         SystemPythonNature systemPythonNature = new SystemPythonNature(pythonInterpreterManager);
         SystemPythonNature pySystemPythonNature = systemPythonNature;

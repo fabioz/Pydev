@@ -67,6 +67,9 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
 
 	public String resolveModule(String file) {
 		InterpreterInfo info = (InterpreterInfo) this.manager.getDefaultInterpreterInfo(new NullProgressMonitor());
+        if(info == null){
+            return null;
+        }
 		return info.modulesManager.resolveModule(file);
 	}
 
@@ -118,7 +121,11 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
 
     public int getGrammarVersion() {
         IInterpreterInfo info = manager.getDefaultInterpreterInfo(new NullProgressMonitor());
-        return info.getGrammarVersion();
+        if(info != null){
+            return info.getGrammarVersion();
+        }else{
+            return IPythonNature.LATEST_GRAMMAR_VERSION;
+        }
     }
 
 }

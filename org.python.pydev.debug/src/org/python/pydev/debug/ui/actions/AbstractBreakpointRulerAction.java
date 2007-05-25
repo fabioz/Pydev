@@ -1,5 +1,6 @@
 package org.python.pydev.debug.ui.actions;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,6 +11,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
@@ -20,6 +22,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.IVerticalRulerInfo;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.IUpdate;
@@ -150,11 +153,19 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
 	 */
 	public static PydevFileEditorInput getPydevFileEditorInput(ITextEditor editor) {
 	    IEditorInput input = editor.getEditorInput();
-	    final PydevFileEditorInput pydevFileEditorInput;
+	    PydevFileEditorInput pydevFileEditorInput = null;
+        
 	    if (input instanceof PydevFileEditorInput) {
 	        pydevFileEditorInput = (PydevFileEditorInput) input;
 	    } else {
-	        pydevFileEditorInput = null;
+            if(input instanceof IPathEditorInput){
+                IPathEditorInput pathEditorInput = (IPathEditorInput) input;
+                IPath path = pathEditorInput.getPath();
+                File file = path.toFile();
+                if(file != null && file.exists()){
+                    pydevFileEditorInput = new PydevFileEditorInput(file);
+                }
+            }
 	    }
 	    return pydevFileEditorInput;
 	}
@@ -288,9 +299,8 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
                     
                     if(!isExternalFile){
                         if(!onlyIncludeLastLineActivity){
-                            throw new RuntimeException("For a workspace file we can currently only get from the last line activity.");
-                        }
-                        if (includesRulerLine(pos, document, info)) {
+                            breakpoints.add(marker);
+                        }else if (includesRulerLine(pos, document, info)) {
                             breakpoints.add(marker);
                         }
                     }else{

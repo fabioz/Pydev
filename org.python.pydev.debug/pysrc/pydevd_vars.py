@@ -132,6 +132,10 @@ def varToXML(v, name):
             value = value[0:200]
             value += '...'
 
+        #fix to work with unicode values
+        if isinstance(value, unicode):
+            value = value.encode('utf-8')
+            
         xmlValue = ' value="%s"' % (makeValidXmlValue(urllib.quote(value, '/>_= \t')))
     else:
         xmlValue = ''

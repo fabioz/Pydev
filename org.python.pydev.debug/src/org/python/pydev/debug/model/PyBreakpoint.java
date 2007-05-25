@@ -20,12 +20,14 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.nature.SystemPythonNature;
 
 /**
  * Represents python breakpoint.
@@ -96,7 +98,10 @@ public class PyBreakpoint extends LineBreakpoint {
 		IPythonNature nature = PythonNature.getPythonNature(marker.getResource());
 		if(nature == null){
 			try {
-				nature = PydevPlugin.getInfoForFile(new File((String) marker.getAttribute(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID))).o1;
+				Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(new File((String) marker.getAttribute(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID)));
+                if(infoForFile != null){
+                    nature = infoForFile.o1;
+                }
 			} catch (CoreException e) {
 				throw new RuntimeException(e);
 			}
@@ -164,7 +169,7 @@ public class PyBreakpoint extends LineBreakpoint {
 	 */
     public String getFunctionName() {
     	String fileStr = getFile();
-    	File file = new File(fileStr);
+        File file = fileStr != null ? new File(fileStr) : null;
     	if(file == null || !file.exists()){
     		return "None";
     	}
