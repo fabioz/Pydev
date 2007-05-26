@@ -18,6 +18,8 @@ def NormFile(filename):
 TEST_FILE = NormFile('_debugger_case1.py')
 PYDEVD_FILE = NormFile('../pydevd.py')
 
+SHOW_WRITES_AND_READS = False
+
 args = [
 'python',
 PYDEVD_FILE, 
@@ -49,7 +51,8 @@ class ReaderThread(threading.Thread):
         try:
             while True:
                 self.lastReceived = self.sock.recv(1024)
-                print 'Test Reader Thread Received %s' % self.lastReceived.strip()
+                if SHOW_WRITES_AND_READS:
+                    print 'Test Reader Thread Received %s' % self.lastReceived.strip()
         except:
             pass #ok, finished it
     
@@ -64,7 +67,8 @@ class WriterThread(threading.Thread):
         s.bind(('', port))
         s.listen(1)
         newSock, addr = s.accept()
-        print 'Test Writer Thread Received', newSock, addr
+        if SHOW_WRITES_AND_READS:
+            print 'Test Writer Thread Received', newSock, addr
         readerThread = self.readerThread = ReaderThread(newSock)
         readerThread.start()
         self.newSock = newSock
@@ -72,7 +76,7 @@ class WriterThread(threading.Thread):
         self.Write("501\t1\t1.0")
         
         #add breakpoint
-        self.Write("111\t3\t%s\t39\t**FUNC**SetUp\tNone" % (TEST_FILE,))
+        self.Write("111\t3\t%s\t6\t**FUNC**SetUp\tNone" % (TEST_FILE,))
         
         #run
         self.Write("101\t5\t")
@@ -101,7 +105,8 @@ class WriterThread(threading.Thread):
         
     def Write(self, s):
         last = self.readerThread.lastReceived
-        print 'Test Writer Thread Written %s' % (s,)
+        if SHOW_WRITES_AND_READS:
+            print 'Test Writer Thread Written %s' % (s,)
         self.newSock.send(s+'\n')
         while last == self.readerThread.lastReceived:
             time.sleep(0.2)

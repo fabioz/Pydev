@@ -1,6 +1,13 @@
 import sys
 import weakref
 
+def SetUp():
+    observable = Observable()
+    observer = Observer()
+    observable.AddObserver(observer)
+    return observable
+
+
 class Observable(object):
     def __init__(self):
         self.observers = []
@@ -34,11 +41,6 @@ class Observable(object):
 class Observer(object):
     pass
 
-def SetUp():
-    observable = Observable()
-    observer = Observer()
-    observable.AddObserver(observer)
-    return observable
     
 def main():
     observable = SetUp()
