@@ -100,11 +100,14 @@ public class REF {
      * @return the contents of the fil as a string
      */
     public static String getFileContents(File file) {
+        FileInputStream stream = null;
         try {
-            FileInputStream stream = new FileInputStream(file);
+            stream = new FileInputStream(file);
             return getFileContents(stream, null, null);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }finally{
+            try { if(stream != null) stream.close(); } catch (Exception e) {Log.log(e);}
         }
     }
 
@@ -115,31 +118,36 @@ public class REF {
      */
     private static String getFileContents(InputStream contentStream, String encoding, IProgressMonitor monitor) throws IOException {
         Reader in= null;
-        final int DEFAULT_FILE_SIZE= 15 * 1024;
-
-        if (encoding == null){
-            in= new BufferedReader(new InputStreamReader(contentStream), DEFAULT_FILE_SIZE);
-        }else{
-            try {
-                in = new BufferedReader(new InputStreamReader(contentStream, encoding), DEFAULT_FILE_SIZE);
-            } catch (UnsupportedEncodingException e) {
-                Log.log(e);
-                //keep going without the encoding
+        try{
+            final int DEFAULT_FILE_SIZE= 15 * 1024;
+    
+            if (encoding == null){
                 in= new BufferedReader(new InputStreamReader(contentStream), DEFAULT_FILE_SIZE);
+            }else{
+                try {
+                    in = new BufferedReader(new InputStreamReader(contentStream, encoding), DEFAULT_FILE_SIZE);
+                } catch (UnsupportedEncodingException e) {
+                    Log.log(e);
+                    //keep going without the encoding
+                    in= new BufferedReader(new InputStreamReader(contentStream), DEFAULT_FILE_SIZE);
+                }
             }
+            
+            StringBuffer buffer= new StringBuffer(DEFAULT_FILE_SIZE);
+            char[] readBuffer= new char[2048];
+            int n= in.read(readBuffer);
+            while (n > 0) {
+                if (monitor != null && monitor.isCanceled())
+                    return null;
+    
+                buffer.append(readBuffer, 0, n);
+                n= in.read(readBuffer);
+            }
+            return buffer.toString();
+            
+        }finally{
+            try { if(in != null) in.close(); } catch (Exception e) {Log.log(e);}
         }
-        
-        StringBuffer buffer= new StringBuffer(DEFAULT_FILE_SIZE);
-        char[] readBuffer= new char[2048];
-        int n= in.read(readBuffer);
-        while (n > 0) {
-            if (monitor != null && monitor.isCanceled())
-                return null;
-
-            buffer.append(readBuffer, 0, n);
-            n= in.read(readBuffer);
-        }
-        return buffer.toString();
     }
     /**
      * @param o the object we want as a string
@@ -461,7 +469,7 @@ public class REF {
             String encoding = getPythonFileEncoding(f);
             fileContents = getFileContents(stream, encoding, null);
         } finally {
-            try { stream.close(); } catch (Exception e) {Log.log(e);}
+            try { if(stream != null) stream.close(); } catch (Exception e) {Log.log(e);}
         }
         return new Document(fileContents);
     }
