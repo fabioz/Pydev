@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -16,6 +17,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.source.Annotation;
+import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -73,8 +75,13 @@ public class PydevPlugin extends AbstractUIPlugin {
         return result;
         
     }
+    
+    private boolean checkedValidOnce = false;
 	public boolean checkValid() {
-        checkValidStr();
+        if(!checkedValidOnce){
+            checkValidStr();
+            checkedValidOnce = true;
+        }
 	    return validated;
 	}
 
@@ -122,6 +129,11 @@ public class PydevPlugin extends AbstractUIPlugin {
     }
 	
 	private String loadLicense() {
+        if(loadFromPluginLocation()){
+            return null;
+        }
+        
+        
     	Bundle bundle = Platform.getBundle("com.python.pydev");
     	IPath path = Platform.getStateLocation( bundle );		
     	path = path.addTrailingSeparator();
@@ -150,7 +162,49 @@ public class PydevPlugin extends AbstractUIPlugin {
         return null;
 	}
 
+    private boolean loadFromPluginLocation() {
+        try{
+            Location configurationLocation = Platform.getInstallLocation();
+            URL url = configurationLocation.getURL();
+            String path = url.getPath();
+            File file = new File(path);
+            if(!file.exists()){
+                return false;
+            }
+            
+            file = new File(file, "features");
+            if(!file.exists()){
+                return false;
+            }
+            
+            file = new File(file, "com.python.pydev");
+            if(!file.exists()){
+                return false;
+            }
+            
+            File fileLicense = new File(file, "pydev_ext");
+            File fileEmail = new File(file, "pydev_ext_email");
+            
+            if(fileLicense != null && fileEmail != null && fileLicense.exists() && fileEmail.exists()){
+                String encLicense = REF.getFileContents(fileLicense).replaceAll("\n", "").replaceAll("\r", "").replaceAll(" ", "");
+                String enteredEmail = REF.getFileContents(fileEmail).trim();
+                
+                if( isLicenseValid(encLicense, enteredEmail, true) ) {
+                    validated = true;
+                    return true;
+                }
+            }
+            return false;
+        }catch(Exception e){
+            return false;
+        }
+    }
+
     private boolean isLicenseValid(String encLicense) {
+        return isLicenseValid(encLicense, getPreferenceStore().getString(PydevExtensionInitializer.USER_EMAIL), false);
+    }
+    
+    private boolean isLicenseValid(String encLicense, String enteredEmail, boolean hideDetails) {
         //already decrypted
         getPreferenceStore().setValue(PydevExtensionInitializer.USER_NAME, "");
         getPreferenceStore().setValue(PydevExtensionInitializer.LIC_TIME, "");
@@ -166,10 +220,10 @@ public class PydevPlugin extends AbstractUIPlugin {
             String licenseType = (String) properties.remove("licenseType");
             String devs = (String) properties.remove("devs");
             
-            if(eMail == null || name == null || time == null || licenseType == null || devs == null){
+            if(eMail == null || name == null || time == null || licenseType == null || devs == null || enteredEmail == null){
                 throw new RuntimeException("The license is not correct, please re-paste it. If this error persists, please request a new license.");
             }
-            if(!getPreferenceStore().getString(PydevExtensionInitializer.USER_EMAIL).equals(eMail)){
+            if(!enteredEmail.equalsIgnoreCase(eMail)){
                 throw new RuntimeException("The e-mail specified is different from the e-mail this license was generated for.");
             }
             
@@ -185,6 +239,10 @@ public class PydevPlugin extends AbstractUIPlugin {
             getPreferenceStore().setValue(PydevExtensionInitializer.LIC_TIME, time);
             getPreferenceStore().setValue(PydevExtensionInitializer.LIC_TYPE, licenseType);
             getPreferenceStore().setValue(PydevExtensionInitializer.LIC_DEVS, devs);
+            if(hideDetails){
+                getPreferenceStore().setValue(PydevExtensionInitializer.USER_EMAIL, "Install validated for: "+name);
+                getPreferenceStore().setValue(PydevExtensionInitializer.LICENSE, "Install validated for: "+name);
+            }
             
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());

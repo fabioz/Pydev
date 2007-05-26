@@ -46,14 +46,11 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
 		
 		private void doValidate() {
 		    updateLicInfo();
-			String userEmail = getFieldValue(PydevExtensionInitializer.USER_EMAIL);
 			String license = getFieldValue(PydevExtensionInitializer.LICENSE).replaceAll("\n", "").replaceAll("\r", "").replaceAll(" ", "");
-			if( !fieldsValid( userEmail, license ) )
-				return;
 			
 			PydevPlugin.getDefault().saveLicense( license.trim() );
 			setErrorMessage(null);
-			String txt = "Pydev extension";
+			String txt = "Pydev extensions";
 			String msg = "License validated";
 
 			String validStr = PydevPlugin.getDefault().checkValidStr();
@@ -67,19 +64,8 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
 			message.open();
             updateLicInfo();
 
-		}
-
-		private boolean fieldsValid(String userEmail, String license) {
-			if( userEmail == null || userEmail.trim()=="" ) {
-				setErrorMessage( "User e-mail is missing" );
-				return false;
-				
-			} else if( license == null || license.trim()=="" ) {
-				setErrorMessage( "License number is missing" );
-				return false;
-				
-			}
-			return true;
+            eMailFieldEditor.setStringValue(getFieldValue(PydevExtensionInitializer.USER_EMAIL));
+            licenseFieldEditor.setStringValue(getFieldValue(PydevExtensionInitializer.LICENSE));
 		}
 		
 		public void widgetDefaultSelected(SelectionEvent e) {
@@ -89,6 +75,8 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
     private Label labelUser;
     private Label labelExp;
     private Label labelType;
+    private StringFieldEditor eMailFieldEditor;
+    private MultiStringFieldEditor licenseFieldEditor;
 
 	
 	//--------------------------------------------------------------------------------------------------------
@@ -99,7 +87,7 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
     }    
 
 	
-	@Override
+    @Override
     protected void createFieldEditors() {
 	    GridData data = null;
         Label label = null;
@@ -134,8 +122,10 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
         data.grabExcessHorizontalSpace = true;
         label.setLayoutData(data);
         
-        addField(new StringFieldEditor(PydevExtensionInitializer.USER_EMAIL, "User e-mail:", composite));
-    	addField(new MultiStringFieldEditor(PydevExtensionInitializer.LICENSE, "License:", composite));
+        eMailFieldEditor = new StringFieldEditor(PydevExtensionInitializer.USER_EMAIL, "User e-mail:", composite);
+        licenseFieldEditor = new MultiStringFieldEditor(PydevExtensionInitializer.LICENSE, "License:", composite);
+        addField(eMailFieldEditor);
+        addField(licenseFieldEditor);
     	
     	Button btValidate = new Button(composite, SWT.PUSH);
     	btValidate.setText("Validate");
