@@ -66,6 +66,9 @@ class PyDBAdditionalThreadInfo:
         self.pydev_step_stop = None
         self.pydev_step_cmd = None
         self.pydev_notify_kill = False
+        
+    def __str__(self):
+        return 'State:%s Stop:%s Cmd: %s Kill:%s' % (self.pydev_state, self.pydev_step_stop, self.pydev_step_cmd, self.pydev_notify_kill)
 
 #---------------------------------------------------------------------------------------- THIS IS THE DEBUGGER
 
