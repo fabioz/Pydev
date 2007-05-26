@@ -35,7 +35,7 @@ public class PyOpenPythonFileAction extends Action {
     private ISelectionProvider provider;
 
     public PyOpenPythonFileAction(IWorkbenchPage page, ISelectionProvider selectionProvider) {
-        this.setText("Open python");
+        this.setText("Open With Pydev");
         this.provider = selectionProvider;
     }
 
@@ -62,9 +62,7 @@ public class PyOpenPythonFileAction extends Action {
         fillSelections();
 
         if (filesSelected.size() > 0) {
-            for (IFile f : filesSelected) {
-                new PyOpenAction().run(new ItemPointer(f));
-            }
+            openFiles(filesSelected);
 
         } else if (nodesSelected.size() > 0) {
             PythonNode node = nodesSelected.iterator().next();
@@ -83,6 +81,12 @@ public class PyOpenPythonFileAction extends Action {
             } else {
                 PydevPlugin.log("Expecting the provider to be a TreeViewer -- it is:" + this.provider.getClass());
             }
+        }
+    }
+
+    protected void openFiles(List<IFile> filesSelected) {
+        for (IFile f : filesSelected) {
+            new PyOpenAction().run(new ItemPointer(f));
         }
     }
 

@@ -21,7 +21,8 @@ import org.eclipse.ui.navigator.ICommonViewerWorkbenchSite;
 
 public class PythonActionProvider extends CommonActionProvider{
     
-    private PyOpenPythonFileAction openResourceAction;
+    private PyOpenPythonFileAction openPythonAction;
+    private PyOpenResourceAction openResourceAction;
     private PyDeleteResourceAction deleteResourceAction;
     private PyCopyResourceAction copyResourceAction;
     private Clipboard clipboard;
@@ -39,7 +40,8 @@ public class PythonActionProvider extends CommonActionProvider{
             ISharedImages images = PlatformUI.getWorkbench().getSharedImages();
             clipboard = new Clipboard(shell.getDisplay());
             selectionProvider = site.getSelectionProvider();
-            openResourceAction = new PyOpenPythonFileAction(site.getPage(), selectionProvider);
+            openPythonAction = new PyOpenPythonFileAction(site.getPage(), selectionProvider);
+            openResourceAction = new PyOpenResourceAction(site.getPage(), selectionProvider);
             
             deleteResourceAction = new PyDeleteResourceAction(shell, selectionProvider);
             copyResourceAction = new PyCopyResourceAction(shell, selectionProvider, clipboard);
@@ -84,8 +86,8 @@ public class PythonActionProvider extends CommonActionProvider{
      * @see org.eclipse.ui.actions.ActionGroup#fillContextMenu(org.eclipse.jface.action.IMenuManager)
      */
     public void fillContextMenu(IMenuManager menu) {
-        if(openResourceAction.isEnabled()){
-            menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openResourceAction);        
+        if(openPythonAction.isEnabled()){
+            menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openPythonAction);        
         }
         if(copyResourceAction.isEnabled()){
             menu.appendToGroup(ICommonMenuConstants.GROUP_EDIT, copyResourceAction);        

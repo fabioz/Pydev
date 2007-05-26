@@ -5,6 +5,7 @@ Pydev:
 <li><strong>Debugger:</strong> Python 2.5 now accepts breakpoints in the module level.</li>
 <li><strong>Debugger:</strong> Unicode variables shown in the variables view.</li>
 <li><strong>Editor:</strong> Coding try..except / try..finally auto-dedents.</li>
+<li><strong>Pydev Package Explorer:</strong> Opens with correct editor now (it was forcing the pydev editor before).</li>
 </ul>
 
 

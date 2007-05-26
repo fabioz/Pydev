@@ -30,6 +30,7 @@ import org.eclipse.ui.navigator.INavigatorPipelineService;
 import org.eclipse.ui.navigator.PipelinedShapeModification;
 import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
+import org.python.pydev.navigator.IWrappedResource;
 import org.python.pydev.navigator.PythonFile;
 
 public class PydevPackageExplorer extends CommonNavigator implements IShowInTarget {
@@ -128,19 +129,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
      * It will go through the pipeline to see if the actual object to reveal has been replaced in the replace pipeline.
      */
 	public boolean tryToReveal(Object element) {
-		INavigatorPipelineService pipelineService = this.getNavigatorContentService().getPipelineService();
-		if(element instanceof IAdaptable){
-			IAdaptable adaptable = (IAdaptable) element;
-			IFile file = (IFile) adaptable.getAdapter(IFile.class);
-			if(file != null){
-				HashSet<Object> files = new ContributorTrackingSet((NavigatorContentService) this.getNavigatorContentService());
-				files.add(file);
-				pipelineService.interceptAdd(new PipelinedShapeModification(file.getParent(), files));
-				if(files.size() > 0){
-					element = files.iterator().next();
-				}
-			}
-		}
+		element = getPythonModelElement(element);
 		
         
         //null is checked in the revealAndVerify function
@@ -160,6 +149,26 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
 		}
 		return false;
 	}
+
+    private Object getPythonModelElement(Object element) {
+        if(element instanceof IWrappedResource){
+            return element;
+        }
+        INavigatorPipelineService pipelineService = this.getNavigatorContentService().getPipelineService();
+		if(element instanceof IAdaptable){
+			IAdaptable adaptable = (IAdaptable) element;
+			IFile file = (IFile) adaptable.getAdapter(IFile.class);
+			if(file != null){
+				HashSet<Object> files = new ContributorTrackingSet((NavigatorContentService) this.getNavigatorContentService());
+				files.add(file);
+				pipelineService.interceptAdd(new PipelinedShapeModification(file.getParent(), files));
+				if(files.size() > 0){
+					element = files.iterator().next();
+				}
+			}
+		}
+        return element;
+    }
     
     /**
      * Tries to reveal some selection
@@ -186,7 +195,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
                 //we don't want to expand PythonFiles
                 Object[] newSelection = ((IStructuredSelection)selection).toArray();
                 for (int i = 0; i < newSelection.length; i++) {
-                    Object object = newSelection[i];
+                    Object object = getPythonModelElement(newSelection[i]);
                     if(object instanceof PythonFile){
                         PythonFile file = (PythonFile) object;
                         newSelection[i] = file.getParentElement();
