@@ -189,9 +189,17 @@ def findFrame(thread_id, frame_id):
     for frame in iterFrames(curFrame):
         if lookingFor == id(frame):
             frameFound = frame
+            del frame
             break
         
-    if frameFound == None: 
+        del frame
+    
+    #for some reason unknown to me, python was holding a reference to the frame
+    #if we didn't explicitly add those deletes (even after ending this context)
+    #so, those dels are here for a reason (but still doesn't seem to fix everything)
+    del curFrame
+        
+    if frameFound is None: 
         msgFrames = ''
         i = 0
         for frame in iterFrames(sys._getframe()):
