@@ -40,7 +40,6 @@ class PyDBFrame:
         #also, after we hit a breakpoint and go to some other debugging state, we have to force the set trace anyway,
         #so, that's why the additional checks are there.
         if not breakpoint:
-            #print 'skipping', self.base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
             probably_skip_context = True
 
         else:
@@ -60,18 +59,18 @@ class PyDBFrame:
                     break
                 
             else: # if we had some break, it won't get here (so, that's a context that we probably want to skip -- see conditions below)
-                #print 'skipping', curr_func_name, self.base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
                 probably_skip_context = True
 
         if probably_skip_context:
             if additionalInfo.pydev_state == STATE_RUN and additionalInfo.pydev_step_stop is None and additionalInfo.pydev_step_cmd is None:
+                #print 'skipping', self.base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
                 return None
             
             if additionalInfo.pydev_step_cmd in (CMD_STEP_OVER, CMD_STEP_RETURN) and additionalInfo.pydev_step_stop != frame:
+                #print 'skipping', self.base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
                 return None
                 
         #We just hit a breakpoint or we are already in step mode. Either way, let's trace this frame
-        #print 'probably_skip_context', probably_skip_context, additionalInfo.pydev_step_cmd == CMD_STEP_OVER, additionalInfo.pydev_step_stop != frame
         #print 'NOT skipped', self.base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
         frame.f_trace = self.trace_dispatch
 
