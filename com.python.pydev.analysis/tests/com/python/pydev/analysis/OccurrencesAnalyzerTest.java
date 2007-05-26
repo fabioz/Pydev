@@ -27,7 +27,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testUnusedParameter3();
+            analyzer2.testBuiltinsWithoutImport();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -109,6 +109,16 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"\n"
     	);
     	checkNoError();
+    }
+    
+    public void testBuiltinsWithoutImport(){
+        //to use __builtin__, it has to be imported, but
+        //__builtins__ is always directly there
+        doc = new Document(
+            "print __builtins__\n"+
+            "\n"
+        );
+        checkNoError();
     }
 
     

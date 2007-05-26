@@ -191,7 +191,7 @@ public class AnalysisBuilderRunnable implements Runnable{
             r = resource.get();
             if(r != null){
                 synchronized(r){
-                    runner.addMarkers(resource.get(), document, messages, existing);
+                    runner.addMarkers(r, document, messages, existing);
                     
                     for (IMarker marker : existing) {
                         try {
