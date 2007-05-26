@@ -184,7 +184,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant{
         public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
             try {
                 IDocument doc = viewer.getDocument();
-                if(fReplacementString.equals("else:")){
+                if(fReplacementString.equals("else:") || fReplacementString.equals("except:") || fReplacementString.equals("finally:")){
                     //make the replacement for the 'else'
                     int dif = offset - fReplacementOffset;
                     String replacementString = fReplacementString.substring(0, fReplacementString.length()-1);
@@ -193,7 +193,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant{
                     //and now check the ':'
                     PyAutoIndentStrategy strategy = new PyAutoIndentStrategy();
                     DocCmd cmd = new DocCmd(offset+replacementString.length()-dif, 0, ":"); 
-                    Tuple<String, Integer> dedented = strategy.autoDedentElse(doc, cmd);
+                    Tuple<String, Integer> dedented = strategy.autoDedentAfterColon(doc, cmd);
                     doc.replace(cmd.offset, 0, ":");
                     if(dedented != null){
                         changeInCursorPos = -dedented.o2;
