@@ -4,13 +4,7 @@ Pydev:
 <li><strong>Debugger:</strong> Breakpoints where not working correctly on external files opened with 'File > Open File...'.</li>
 <li><strong>Debugger:</strong> Python 2.5 now accepts breakpoints in the module level.</li>
 <li><strong>Debugger:</strong> Unicode variables shown in the variables view.</li>
-</ul>
-
-Pydev Extensions:
-
-<ul>
-TODO: lics should be added to specific place
-TODO: lic validation should be case insensitive
+<li><strong>Editor:</strong> Coding try..except / try..finally auto-dedents.</li>
 </ul>
 
 

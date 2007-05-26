@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testParens2();
+            s.testTryExceptDedent();
             s.tearDown();
     		junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -1392,6 +1392,48 @@ public class PyAutoIndentStrategyTest extends TestCase {
                 "    if somethingElse:" +
                 "        print a\n" +
                 "    else",
+                doc.get());
+        
+    }
+    
+    public void testTryExceptDedent() {
+        //first part of test - simple case
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));
+        String strDoc = "try:\n" +
+        "    print a\n" +
+        "    except";
+        int initialOffset = strDoc.length();
+        DocCmd docCmd = new DocCmd(initialOffset, 0, ":");
+        Document doc = new Document(strDoc);
+        strategy.customizeDocumentCommand(doc, docCmd);
+        String expected = ":";
+        assertEquals(docCmd.offset, initialOffset-4);
+        assertEquals(expected, docCmd.text);
+        assertEquals(
+                "try:\n" +
+                "    print a\n" +
+                "except",
+                doc.get());
+        
+        //second part of test - should also dedent
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));
+        strDoc = 
+            "try:\n" +
+            "    if somethingElse:" +
+            "        print a\n" +
+            "    except";
+        initialOffset = strDoc.length();
+        docCmd = new DocCmd(initialOffset, 0, ":");
+        doc = new Document(strDoc);
+        strategy.customizeDocumentCommand(doc, docCmd);
+        expected = ":";
+        assertEquals(expected, docCmd.text);
+        assertEquals(docCmd.offset, initialOffset-4);
+        assertEquals(
+                "try:\n" +
+                "    if somethingElse:" +
+                "        print a\n" +
+                "except",
                 doc.get());
         
     }

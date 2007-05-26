@@ -907,20 +907,32 @@ public class PySelection {
 
     }
 
+    public static final String[] TOKENS_BEFORE_ELSE = new String[]{
+        "if ", "if(", "for ", "for(", "except:", "except(", "while ", "while(", "elif ", "elif:"
+    };
+    
+    public static final String[] TOKENS_BEFORE_EXCEPT = new String[]{
+        "try:"
+    };
 
+    public static final String[] TOKENS_BEFORE_FINALLY = new String[]{
+        "try:", "except:", "except("
+    };
+    
     /**
      * This function goes backward in the document searching for an 'if' and returns the line that has it.
      * 
      * May return null if it was not found.
      */
-    public String getPreviousLineThatAcceptsElse() {
+    public String getPreviousLineThatStartsWithToken(String[] tokens) {
         DocIterator iterator = new DocIterator(false, this);
         while(iterator.hasNext()){
             String line = (String) iterator.next();
             String trimmed = line.trim();
-            if(trimmed.startsWith("if ") || trimmed.startsWith("if(") || trimmed.startsWith("for ")  || trimmed.startsWith("for(") 
-                    || trimmed.startsWith("except")|| trimmed.startsWith("except(") ){
-                return line;
+            for(String prefix:tokens){
+                if(trimmed.startsWith(prefix)){
+                    return line;
+                }
             }
         }
         return null;

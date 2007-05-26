@@ -462,9 +462,9 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                 }
 
                 /*
-                 * Now, let's also check if we are in an 'else:' that must be dedented in the doc
+                 * Now, let's also check if we are in an 'else:' or 'except:' or 'finally:' that must be dedented in the doc
                  */
-                autoDedentElse(document, command);
+                autoDedentAfterColon(document, command);
             }
 
             /*
@@ -537,13 +537,13 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
      * @return the new indent and the number of chars it has been dedented (so, that has to be considered as a shift to the left
      * on subsequent things).
      */
-    public Tuple<String, Integer> autoDedentElse(IDocument document, DocumentCommand command, String tok) throws BadLocationException {
+    public Tuple<String, Integer> autoDedentAfterColon(IDocument document, DocumentCommand command, String tok, String[] tokens) throws BadLocationException {
         if(getIndentPrefs().getAutoDedentElse()){
             PySelection ps = new PySelection(document, command.offset);
             String lineContents = ps.getCursorLineContents();
             if(lineContents.trim().equals(tok)){
                 
-                String previousIfLine = ps.getPreviousLineThatAcceptsElse();
+                String previousIfLine = ps.getPreviousLineThatStartsWithToken(tokens);
                 if(previousIfLine != null){
                     String ifIndent = PySelection.getIndentationFromLine(previousIfLine);
                     String lineIndent = PySelection.getIndentationFromLine(lineContents);
@@ -561,8 +561,18 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         return null;
     }
     
-    public Tuple<String, Integer> autoDedentElse(IDocument document, DocumentCommand command) throws BadLocationException {
-    	return autoDedentElse(document, command, "else");
+    public Tuple<String, Integer> autoDedentAfterColon(IDocument document, DocumentCommand command) throws BadLocationException {
+        Tuple<String, Integer> ret = null;
+        if((ret = autoDedentAfterColon(document, command, "else", PySelection.TOKENS_BEFORE_ELSE)) != null){
+            return ret;
+        }
+        if((ret = autoDedentAfterColon(document, command, "except", PySelection.TOKENS_BEFORE_EXCEPT)) != null){
+            return ret;
+        }
+        if((ret = autoDedentAfterColon(document, command, "finally", PySelection.TOKENS_BEFORE_FINALLY)) != null){
+            return ret;
+        }
+        return null;
     }
 
     /**
@@ -571,7 +581,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
      * on subsequent things).
      */
     public Tuple<String, Integer> autoDedentElif(IDocument document, DocumentCommand command) throws BadLocationException {
-    	return autoDedentElse(document, command, "elif");
+    	return autoDedentAfterColon(document, command, "elif", PySelection.TOKENS_BEFORE_ELSE);
     }
     
 

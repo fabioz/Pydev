@@ -364,14 +364,14 @@ public class PySelectionTest extends TestCase {
             "    print foo";
         doc = new Document(s);
         ps = new PySelection(doc, doc.getLength());
-        assertEquals("if False:", ps.getPreviousLineThatAcceptsElse());
+        assertEquals("if False:", ps.getPreviousLineThatStartsWithToken(PySelection.TOKENS_BEFORE_ELSE));
 
         s = 
-        "while False:\n" +
+        "bar False:\n" +
         "    print foo";
         doc = new Document(s);
         ps = new PySelection(doc, doc.getLength());
-        assertEquals(null, ps.getPreviousLineThatAcceptsElse());
+        assertEquals(null, ps.getPreviousLineThatStartsWithToken(PySelection.TOKENS_BEFORE_ELSE));
         
     }
     
