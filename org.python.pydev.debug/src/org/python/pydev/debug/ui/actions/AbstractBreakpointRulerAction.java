@@ -23,6 +23,7 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.IVerticalRulerInfo;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPathEditorInput;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.IUpdate;
@@ -155,10 +156,16 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
 	    IEditorInput input = editor.getEditorInput();
 	    PydevFileEditorInput pydevFileEditorInput = null;
         
+	    //only return not null if it's an external file (FileEditorInput marks a workspace file) 
+        if(input instanceof FileEditorInput){
+            return null;
+        }
+        
 	    if (input instanceof PydevFileEditorInput) {
 	        pydevFileEditorInput = (PydevFileEditorInput) input;
+            
 	    } else {
-            if(input instanceof IPathEditorInput){
+            if(input instanceof IPathEditorInput && !(input instanceof FileEditorInput)){
                 IPathEditorInput pathEditorInput = (IPathEditorInput) input;
                 IPath path = pathEditorInput.getPath();
                 File file = path.toFile();
