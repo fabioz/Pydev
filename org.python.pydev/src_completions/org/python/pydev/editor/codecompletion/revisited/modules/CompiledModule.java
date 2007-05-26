@@ -175,6 +175,7 @@ public class CompiledModule extends AbstractModule{
 		    //be added...
 		    if(array.size() > 0 && name.equals("__builtin__")){
 		        array.add(new CompiledToken("__file__","","",name,IToken.TYPE_BUILTIN));
+		        array.add(new CompiledToken("__builtins__","","",name,IToken.TYPE_BUILTIN));
 		    }
 		    
 		    this.tokens = new HashMap<String, CompiledToken>();

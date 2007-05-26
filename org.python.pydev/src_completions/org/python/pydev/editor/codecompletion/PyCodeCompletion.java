@@ -121,7 +121,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 request.isInCalltip = false; //if found after (, but in an import, it is not a calltip!
                 importsTip = doImportCompletion(request, astManager, tokensList, importsTipper);
 
-            } else if (trimmed.equals("") == false && request.activationToken.indexOf('.') != -1) {
+            } else if (trimmed.length() > 0 && request.activationToken.indexOf('.') != -1) {
                 //code completion for a token
                 doTokenCompletion(request, astManager, tokensList, trimmed, state);
 

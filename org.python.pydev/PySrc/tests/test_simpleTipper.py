@@ -43,6 +43,10 @@ class Test(unittest.TestCase):
             if not 'Unable to import module' in str(e):
                 raise
         
+    def testImports2(self):
+        tips = importsTipper.GenerateTip('__builtin__.RuntimeError')
+        self.assertIn('__doc__', tips)
+        
     def testImports(self):
         '''
         You can print the results to check...
@@ -125,7 +129,7 @@ class Test(unittest.TestCase):
         
 def suite():
     s = unittest.TestSuite()
-    s.addTest(Test("testImports"))
+    s.addTest(Test("testImports2"))
     unittest.TextTestRunner(verbosity=2).run(s)
 
 if __name__ == '__main__':

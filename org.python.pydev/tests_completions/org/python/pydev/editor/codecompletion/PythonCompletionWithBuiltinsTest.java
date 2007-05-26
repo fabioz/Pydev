@@ -26,7 +26,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testPreferForcedBuiltin();
+            builtins.testBuiltinsInNamespace2();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -135,6 +135,16 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     }
 
     
+    
+    public void testBuiltinsInNamespace() throws BadLocationException, IOException, Exception{
+        String s = "__builtins__.";
+        requestCompl(s, s.length(), -1, new String[]{"RuntimeError"});
+    }
+    
+    public void testBuiltinsInNamespace2() throws BadLocationException, IOException, Exception{
+        String s = "__builtins__.RuntimeError.";
+        requestCompl(s, s.length(), -1, new String[]{"__doc__", "__getitem__()", "__init__()", "__module__", "__str__()"});
+    }
     
     public void testPreferForcedBuiltin() throws BadLocationException, IOException, Exception{
         if(TestDependent.HAS_MX_DATETIME){

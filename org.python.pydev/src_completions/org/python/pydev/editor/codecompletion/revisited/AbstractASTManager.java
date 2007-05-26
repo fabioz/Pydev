@@ -359,12 +359,25 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     protected IToken[] getBuiltinsCompletions(ICompletionState state){
         ICompletionState state2 = state.getCopy();
 
+        String act = state.getActivationToken();
+        
         //check for the builtin types.
-        state2.setActivationToken (NodeUtils.getBuiltinType(state.getActivationToken()));
+        state2.setActivationToken (NodeUtils.getBuiltinType(act));
 
         if(state2.getActivationToken() != null){
             IModule m = getBuiltinMod(state.getNature());
             return m.getGlobalTokens(state2, this);
+        }
+        
+        if(act.equals("__builtins__") || act.startsWith("__builtins__.")){
+            act = act.substring(12);
+            if(act.startsWith(".")){
+                act = act.substring(1);
+            }
+            IModule m = getBuiltinMod(state.getNature());
+            ICompletionState state3 = state.getCopy();
+            state3.setActivationToken(act);
+            return m.getGlobalTokens(state3, this);
         }
         return null;
     }
