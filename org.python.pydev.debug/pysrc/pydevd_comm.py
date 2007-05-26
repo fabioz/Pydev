@@ -106,7 +106,7 @@ VERSION_STRING = "1.0"
 
 pydevd_trace = -1
 pydevd_trace_breakpoints = -1
-
+RECORD_SOCKET_READS = False
 
 
 def pydevd_log(level, s):
@@ -128,14 +128,22 @@ def getTraceback():
     traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], file = s)
     return s.getvalue()
 
+NORM_FILENAME_CONTAINER = {}
+
 def NormFile(filename):
     try:
-        rPath = os.path.realpath #@UndefinedVariable
-    except:
-        # jython does not support os.path.realpath
-        # realpath is a no-op on systems without islink support
-        rPath = os.path.abspath    
-    return os.path.normcase(rPath(filename))
+        return NORM_FILENAME_CONTAINER[filename]
+    except KeyError:
+        try:
+            rPath = os.path.realpath #@UndefinedVariable
+        except:
+            # jython does not support os.path.realpath
+            # realpath is a no-op on systems without islink support
+            rPath = os.path.abspath   
+        r = os.path.normcase(rPath(filename))
+        #cache it for fast access later
+        NORM_FILENAME_CONTAINER[filename] = r
+        return r
 
 globalDbg = None
 def GetGlobalDebugger():
@@ -179,6 +187,9 @@ class ReaderThread(PyDBDaemonThread):
         try:
             while not self.killReceived:
                 buffer += self.sock.recv(1024)
+                if RECORD_SOCKET_READS:
+                    print 'received >>%s<<' % (buffer,)
+                    
                 if len(buffer) == 0:
                     globalDbg.finishDebuggingSession = True
                     break
@@ -522,6 +533,7 @@ class InternalGetFrame(InternalThreadCommand):
                 xml = "<xml>"            
                 frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
                 xml += pydevd_vars.frameVarsToXML(frame)
+                del frame
                 xml += "</xml>"
                 cmd = dbg.cmdFactory.makeGetFrameMessage(self.sequence, xml)
                 dbg.writer.addCommand(cmd)
