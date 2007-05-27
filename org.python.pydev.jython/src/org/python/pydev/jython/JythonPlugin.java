@@ -312,7 +312,7 @@ public class JythonPlugin extends AbstractUIPlugin {
 	/**
 	 * List all the 'target' scripts available beneath some folder.
 	 */
-	private static File[] getFilesBeneathFolder(final String startingWith, File jySrc) {
+	public static File[] getFilesBeneathFolder(final String startingWith, File jySrc) {
 		File[] files = jySrc.listFiles(new FileFilter(){
 
 			public boolean accept(File pathname) {
