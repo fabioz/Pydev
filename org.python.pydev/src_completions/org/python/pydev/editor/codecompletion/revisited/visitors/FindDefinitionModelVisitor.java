@@ -91,6 +91,8 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
         this.line = line;
         this.col = col;
         this.moduleName = module.getName();
+        //we may have a global declared in the global scope
+        globalDeclarationsStack.push(new HashSet<String>());
     }
     
     @Override
