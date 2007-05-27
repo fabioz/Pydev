@@ -19,8 +19,16 @@ import unittest
 import tempfile
 import re
 
+#this is an early test because it requires the sys.path changed
+orig_syspath = sys.path
+a_file = runfiles.__file__
+runfiles.PydevTestRunner(test_dir = [a_file])
+file_dir = os.path.dirname(a_file)
+assert file_dir in sys.path
+sys.path = orig_syspath[:]
 
-
+#remove it so that we leave it ok for other tests
+sys.path.remove(desired_runfiles_path)
 
 class RunfilesTest(unittest.TestCase):
     def _setup_scenario(self, path, t_filter):
@@ -84,13 +92,6 @@ class RunfilesTest(unittest.TestCase):
         self.assertEquals( 1, tempdir in sys.path )
         sys.path = orig_syspath[:]
     
-    def test___adjust_python_path_works_for_a_file(self):
-        orig_syspath = sys.path
-        a_file = runfiles.__file__
-        runfiles.PydevTestRunner(test_dir = [a_file])
-        file_dir = os.path.dirname(a_file)
-        self.assertEquals( 1, file_dir in sys.path )
-        sys.path = orig_syspath[:]
     
     def test___adjust_python_path_breaks_for_unkown_type(self):
         self.assertRaises( RuntimeError, runfiles.PydevTestRunner, ["./LIKE_THE_NINJA_YOU_WONT_FIND_ME.txt"])

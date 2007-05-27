@@ -3,6 +3,7 @@
     (so, this works as the client, which spaws the debugger as a separate process and communicates
     to it as if it was run from the outside)
 '''
+import unittest 
 port = 13333
 
 import os
@@ -20,18 +21,6 @@ PYDEVD_FILE = NormFile('../pydevd.py')
 
 SHOW_WRITES_AND_READS = False
 
-args = [
-'python',
-PYDEVD_FILE, 
-'--type', 
-'python', 
-'--client', 
-'localhost', 
-'--port', 
-str(port), 
-'--file', 
-TEST_FILE]
-
 
 import subprocess
 import sys
@@ -39,6 +28,9 @@ import socket
 import threading
 import time
 
+#=======================================================================================================================
+# ReaderThread
+#=======================================================================================================================
 class ReaderThread(threading.Thread):
     
     def __init__(self, sock):
@@ -56,6 +48,9 @@ class ReaderThread(threading.Thread):
         except:
             pass #ok, finished it
     
+#=======================================================================================================================
+# WriterThread
+#=======================================================================================================================
 class WriterThread(threading.Thread):
     
     def __init__(self):
@@ -111,7 +106,37 @@ class WriterThread(threading.Thread):
         while last == self.readerThread.lastReceived:
             time.sleep(0.2)
         
-WriterThread().start()
+#=======================================================================================================================
+# Test
+#=======================================================================================================================
+class Test(unittest.TestCase):
+    
+    def testIt(self):
+        WriterThread().start()
+        
+        
+        args = [
+            'python',
+            PYDEVD_FILE, 
+            '--type', 
+            'python', 
+            '--client', 
+            'localhost', 
+            '--port', 
+            str(port), 
+            '--file', 
+            TEST_FILE
+        ]
+        
+        process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        result_str = process.stdout.read()
+        process.stdout.close()
+        if 'TEST SUCEEDED:' not in result_str:
+            self.fail(result_str)
 
-process = subprocess.Popen(args)
-process.wait()
+#=======================================================================================================================
+# Main        
+#=======================================================================================================================
+if __name__ == '__main__':
+    unittest.TextTestRunner().run(unittest.makeSuite(Test))
+
