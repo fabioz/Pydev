@@ -25,6 +25,7 @@ import org.eclipse.osgi.service.environment.Constants;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -303,6 +304,11 @@ public abstract class SimpleRunner {
             monitor.setTaskName("Making pythonpath environment..."+executionString);
             String[] envp = getEnvironment(project, null); //should get the environment for the default interpreter and the given project
             monitor.setTaskName("Making exec..."+executionString);
+            if(workingDir != null){
+                if(!workingDir.isDirectory()){
+                    throw new RuntimeException(StringUtils.format("Working dir must be an existing directory (received: %s)", workingDir));
+                }
+            }
             process = Runtime.getRuntime().exec(executionString, envp, workingDir);
         } catch (Exception e) {
             throw new RuntimeException(e);
