@@ -5,6 +5,7 @@ Pydev:
 <li><strong>Debugger:</strong> Python 2.5 now accepts breakpoints in the module level.</li>
 <li><strong>Debugger:</strong> Unicode variables shown in the variables view.</li>
 <li><strong>Editor:</strong> Coding try..except / try..finally auto-dedents.</li>
+<li><strong>Code Completion:</strong> __builtins__ considered a valid completion</li>
 <li><strong>Pydev Package Explorer:</strong> Opens with correct editor now (it was forcing the pydev editor before).</li>
 </ul>
 
@@ -12,6 +13,7 @@ Pydev Extensions:
 
 <ul>
 <li><strong>Mark Occurrences:</strong> If 'global' was used in the global scope, an exception was raised.</li>
+<li><strong>Code Analysis:</strong> __builtins__ considered in global namespace</li>
 </ul>
 
 after 1.3.2
