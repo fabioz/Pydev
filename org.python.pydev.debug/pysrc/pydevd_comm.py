@@ -128,8 +128,14 @@ def getTraceback():
     traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], file = s)
     return s.getvalue()
 
-NORM_FILENAME_CONTAINER = {}
 
+
+NORM_FILENAME_CONTAINER = {}
+NORM_FILENAME_AND_BASE_CONTAINER = {}
+
+def NormFileFromFrame(frame):
+    return NormFile(frame.f_code.co_filename)
+    
 def NormFile(filename):
     try:
         return NORM_FILENAME_CONTAINER[filename]
@@ -144,6 +150,18 @@ def NormFile(filename):
         #cache it for fast access later
         NORM_FILENAME_CONTAINER[filename] = r
         return r
+    
+
+def GetFilenameAndBase(frame):
+    f = frame.f_code.co_filename
+    try:
+        return NORM_FILENAME_AND_BASE_CONTAINER[f]
+    except KeyError:
+        filename = NormFile(f)
+        base = os.path.basename(filename)
+        NORM_FILENAME_AND_BASE_CONTAINER[f] = filename, base
+        return filename, base
+
 
 globalDbg = None
 def GetGlobalDebugger():

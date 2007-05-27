@@ -1,3 +1,4 @@
+import threading
 import traceback
 from pydevd_comm import * #@UnusedWildImport
 from pydevd_constants import STATE_RUN, STATE_SUSPEND
@@ -26,23 +27,16 @@ bufferStdErrToServer = False
 
 PyDBUseLocks = True
 
-NORM_FILENAME = {}
-
-def GetFilenameAndBase(frame):
-    f = frame.f_code.co_filename
-    try:
-        return NORM_FILENAME[f]
-    except KeyError:
-        filename = NormFile(f)
-        base = os.path.basename(filename)
-        NORM_FILENAME[f] = filename, base
-        return filename, base
      
+#=======================================================================================================================
+# PyDBCommandThread
+#=======================================================================================================================
 class PyDBCommandThread(PyDBDaemonThread):
     
     def __init__(self, pyDb):
         PyDBDaemonThread.__init__(self)
         self.pyDb = pyDb
+        self.setName('pydevd.CommandThread')
 
     def run(self):
         time.sleep(5) #this one will only start later on (because otherwise we may not have any non-daemon threads
@@ -60,6 +54,9 @@ class PyDBCommandThread(PyDBDaemonThread):
             #pydevd_log(0, 'Finishing debug communication...(3)')
             
 
+#=======================================================================================================================
+# PyDBAdditionalThreadInfo
+#=======================================================================================================================
 class PyDBAdditionalThreadInfo:
     def __init__(self):
         self.pydev_state = STATE_RUN 
@@ -67,11 +64,22 @@ class PyDBAdditionalThreadInfo:
         self.pydev_step_cmd = None
         self.pydev_notify_kill = False
         
+        #That's where the last frame entered is kept. That's needed so that we're able to 
+        #trace contexts that were previously untraced and are currently active. So, the bad thing
+        #is that the frame may be kept alive longer than it would if we go up on the frame stack,
+        #and is only disposed when some other frame is removed.
+        #A better way would be if we could get the topmost frame for each thread, but that's currently
+        #not possible.
+        self.pydev_last_frame = None
+        
     def __str__(self):
         return 'State:%s Stop:%s Cmd: %s Kill:%s' % (self.pydev_state, self.pydev_step_stop, self.pydev_step_cmd, self.pydev_notify_kill)
 
-#---------------------------------------------------------------------------------------- THIS IS THE DEBUGGER
 
+
+#=======================================================================================================================
+# PyDB
+#=======================================================================================================================
 class PyDB:
     """ Main debugging class 
     Lots of stuff going on here:
@@ -238,54 +246,54 @@ class PyDB:
         finally:
             self.release()
       
-    def processNetCommand(self, id, seq, text):
+    def processNetCommand(self, cmd_id, seq, text):
         '''Processes a command received from the Java side
         
-        @param id: the id of the command
+        @param cmd_id: the id of the command
         @param seq: the sequence of the command
         @param text: the text received in the command
         '''
-        
+
         self.acquire()
         try:
             try:
                 cmd = None
-                if id == CMD_RUN:
+                if cmd_id == CMD_RUN:
                     self.readyToRun = True
                     
-                elif id == CMD_VERSION: 
+                elif cmd_id == CMD_VERSION: 
                     # response is version number
                     cmd = self.cmdFactory.makeVersionMessage(seq)
                     
-                elif id == CMD_LIST_THREADS: 
+                elif cmd_id == CMD_LIST_THREADS: 
                     # response is a list of threads
                     cmd = self.cmdFactory.makeListThreadsMessage(seq)
                     
-                elif id == CMD_THREAD_KILL:
+                elif cmd_id == CMD_THREAD_KILL:
                     int_cmd = InternalTerminateThread(text)
                     self.postInternalCommand(int_cmd, text)
                     
-                elif id == CMD_THREAD_SUSPEND:
+                elif cmd_id == CMD_THREAD_SUSPEND:
                     t = pydevd_findThreadById(text)
                     if t: 
                         self.setSuspend(t, CMD_THREAD_SUSPEND)
     
-                elif id  == CMD_THREAD_RUN:
+                elif cmd_id  == CMD_THREAD_RUN:
                     t = pydevd_findThreadById(text)
                     if t: 
                         t.additionalInfo.pydev_step_cmd = None
                         t.additionalInfo.pydev_step_stop = None
                         t.additionalInfo.pydev_state = STATE_RUN
                         
-                elif id == CMD_STEP_INTO or id == CMD_STEP_OVER or id == CMD_STEP_RETURN:
+                elif cmd_id == CMD_STEP_INTO or cmd_id == CMD_STEP_OVER or cmd_id == CMD_STEP_RETURN:
                     #we received some command to make a single step
                     t = pydevd_findThreadById(text)
                     if t:
-                        t.additionalInfo.pydev_step_cmd = id
+                        t.additionalInfo.pydev_step_cmd = cmd_id
                         t.additionalInfo.pydev_state = STATE_RUN
                         
                         
-                elif id == CMD_CHANGE_VARIABLE:
+                elif cmd_id == CMD_CHANGE_VARIABLE:
                     #the text is: thread\tstackframe\tFRAME|GLOBAL\tattribute_to_change\tvalue_to_change
                     try:
                         thread_id, frame_id, scope, attr_and_value = text.split('\t', 3)
@@ -300,7 +308,7 @@ class PyDB:
                     except:
                         traceback.print_exc()
                     
-                elif id == CMD_GET_VARIABLE:
+                elif cmd_id == CMD_GET_VARIABLE:
                     #we received some command to get a variable
                     #the text is: thread\tstackframe\tFRAME|GLOBAL\tattributes*
                     try:
@@ -318,14 +326,14 @@ class PyDB:
                     except:
                         traceback.print_exc()
                         
-                elif id == CMD_GET_FRAME:
+                elif cmd_id == CMD_GET_FRAME:
                     thread_id, frame_id, scope = text.split('\t', 2)
                     thread_id = long(thread_id)
                     
                     int_cmd = InternalGetFrame(seq, thread_id, frame_id)
                     self.postInternalCommand(int_cmd, thread_id)
                         
-                elif id == CMD_SET_BREAK:
+                elif cmd_id == CMD_SET_BREAK:
                     #command to add some breakpoint.
                     # text is file\tline. Add to breakpoints dictionary
                     file, line, condition = text.split( '\t', 2 )
@@ -355,7 +363,24 @@ class PyDB:
                         
                     self.breakpoints[file] = breakDict
                     
-                elif id == CMD_REMOVE_BREAK:
+                    #and enable the tracing for existing threads (because there may be frames being executed that
+                    #are currently untraced).
+                    threads = threading.enumerate()
+                    for t in threads:
+                        if not t.getName().startswith('pydevd.'):
+                            #TODO: optimize so that we only actually add that tracing if it's in
+                            #the new breakpoint context.
+                            additionalInfo = None
+                            try:
+                                additionalInfo = t.additionalInfo
+                            except AttributeError:
+                                pass #that's ok, no info currently set
+                                
+                            if additionalInfo is not None and additionalInfo.pydev_last_frame is not None:
+                                additionalInfo.pydev_last_frame.f_trace = self.trace_dispatch
+                                SetTraceForParents(additionalInfo.pydev_last_frame, self.trace_dispatch)
+                    
+                elif cmd_id == CMD_REMOVE_BREAK:
                     #command to remove some breakpoint
                     #text is file\tline. Remove from breakpoints dictionary
                     file, line = text.split('\t', 1)
@@ -376,18 +401,18 @@ class PyDB:
                             #Sometimes, when adding a breakpoint, it adds a remove command before (don't really know why)
                             #print >> sys.stderr, "breakpoint not found", file, str(line)
                             
-                elif id == CMD_EVALUATE_EXPRESSION or id == CMD_EXEC_EXPRESSION:
+                elif cmd_id == CMD_EVALUATE_EXPRESSION or cmd_id == CMD_EXEC_EXPRESSION:
                     #command to evaluate the given expression
                     #text is: thread\tstackframe\tLOCAL\texpression
                     thread_id, frame_id, scope, expression = text.split('\t', 3)
                     thread_id = long(thread_id)
-                    int_cmd = InternalEvaluateExpression(seq, thread_id, frame_id, expression, id == CMD_EXEC_EXPRESSION)
+                    int_cmd = InternalEvaluateExpression(seq, thread_id, frame_id, expression, cmd_id == CMD_EXEC_EXPRESSION)
                     self.postInternalCommand(int_cmd, thread_id)
                         
                         
                 else:
                     #I have no idea what this is all about
-                    cmd = self.cmdFactory.makeErrorMessage(seq, "unexpected command " + str(id))
+                    cmd = self.cmdFactory.makeErrorMessage(seq, "unexpected command " + str(cmd_id))
                     
                 if cmd is not None: 
                     self.writer.addCommand(cmd)
@@ -396,7 +421,7 @@ class PyDB:
             except Exception, e:
                 traceback.print_exc(e)
                 traceback.print_exc()
-                cmd = self.cmdFactory.makeErrorMessage(seq, "Unexpected exception in processNetCommand: %s\nInitial params: %s" % (str(e), (id, seq, text)))
+                cmd = self.cmdFactory.makeErrorMessage(seq, "Unexpected exception in processNetCommand: %s\nInitial params: %s" % (str(e), (cmd_id, seq, text)))
                 self.writer.addCommand(cmd)
         finally:
             self.release()
@@ -428,11 +453,6 @@ class PyDB:
         cmd = self.cmdFactory.makeThreadSuspendMessage(id(thread), frame, thread.stop_reason)
         self.writer.addCommand(cmd)
         
-        #when we hit a breakpoint, we have to set the tracing in the parent contexts, because
-        #it may be that those are not watched, so, if the user hits a break and adds a breakpoint in
-        #one of those contexts, it will be missed
-        SetTraceForParents(frame, GetGlobalDebugger().trace_dispatch)
-        
         info = thread.additionalInfo
         while info.pydev_state == STATE_SUSPEND and not self.finishDebuggingSession:            
             self.processInternalCommands()
@@ -444,11 +464,13 @@ class PyDB:
             
         elif info.pydev_step_cmd == CMD_STEP_OVER:
             if event is 'return': # if we are returning from the function, stop in parent
+                frame.f_back.f_trace = GetGlobalDebugger().trace_dispatch
                 info.pydev_step_stop = frame.f_back
             else:
                 info.pydev_step_stop = frame
                 
         elif info.pydev_step_cmd == CMD_STEP_RETURN:
+            frame.f_back.f_trace = GetGlobalDebugger().trace_dispatch
             info.pydev_step_stop = frame.f_back
  
         del frame
@@ -496,6 +518,10 @@ class PyDB:
             except AttributeError:
                 additionalInfo = PyDBAdditionalThreadInfo()
                 t.additionalInfo = additionalInfo
+            
+            #always keep a reference to the topmost frame so that we're able to start tracing it (if it was untraced)
+            #that's needed when a breakpoint is added in a current frame for a currently untraced context.
+            additionalInfo.pydev_last_frame = frame
             
             #each new frame...
             dbFrame = pydevd_frame.PyDBFrame(self, filename, base, additionalInfo, t)
@@ -703,7 +729,7 @@ if __name__ == '__main__':
  
     setupType()
 
-    global type
+#    global type
     type = setup['type']
 
     debugger = PyDB()

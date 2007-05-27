@@ -126,7 +126,13 @@ class AbstractWriterThread(threading.Thread):
         self.Write("501\t%s\t1.0" % self.NextSeq())
         
     def WriteAddBreakpoint(self, line, func):
-        self.Write("111\t%s\t%s\t%s\t**FUNC**%s\tNone" % (self.NextSeq(), self.TEST_FILE, line, func))
+        if func is not None:
+            self.Write("111\t%s\t%s\t%s\t**FUNC**%s\tNone" % (self.NextSeq(), self.TEST_FILE, line, func))
+        else:
+            self.Write("111\t%s\t%s\t%s\tNone" % (self.NextSeq(), self.TEST_FILE, line))
+            
+    def WriteRemoveBreakpoint(self, line):
+        self.Write("112\t%s\t%s\t%s" % (self.NextSeq(), self.TEST_FILE, line))
 
     def WriteGetFrame(self, threadId, frameId):
         self.Write("114\t%s\t%s\t%s\tFRAME" % (self.NextSeq(), threadId, frameId))
@@ -140,6 +146,36 @@ class AbstractWriterThread(threading.Thread):
     def WriteKillThread(self, threadId):
         self.Write("104\t%s\t%s" % (self.NextSeq(), threadId,))
         
+#=======================================================================================================================
+# WriterThreadCase3
+#=======================================================================================================================
+class WriterThreadCase3(AbstractWriterThread):
+    
+    TEST_FILE = NormFile('_debugger_case3.py')
+        
+    def run(self):
+        self.StartSocket()
+        self.WriteMakeInitialRun()
+        time.sleep(1)
+        self.WriteAddBreakpoint(4, None) 
+        
+        threadId, frameId = self.WaitForBreakpointHit()
+        
+        self.WriteGetFrame(threadId, frameId)
+        
+        self.WriteRunThread(threadId)
+        
+        threadId, frameId = self.WaitForBreakpointHit()
+        
+        self.WriteGetFrame(threadId, frameId)
+        
+        self.WriteRemoveBreakpoint(4)
+        
+        self.WriteRunThread(threadId)
+        
+        assert 15 == self._sequence, 'Expected 15. Had: %s'  % self._sequence
+        
+
 #=======================================================================================================================
 # WriterThreadCase2
 #=======================================================================================================================
@@ -251,6 +287,9 @@ class Test(unittest.TestCase):
         
     def testCase2(self):
         self.CheckCase(WriterThreadCase2)
+        
+    def testCase3(self):
+        self.CheckCase(WriterThreadCase3)
         
         
 
