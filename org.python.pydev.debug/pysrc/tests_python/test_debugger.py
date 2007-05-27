@@ -16,7 +16,6 @@ def NormFile(filename):
         rPath = os.path.abspath   
     return os.path.normcase(rPath(filename))
 
-TEST_FILE = NormFile('_debugger_case1.py')
 PYDEVD_FILE = NormFile('../pydevd.py')
 
 SHOW_WRITES_AND_READS = False
@@ -48,55 +47,15 @@ class ReaderThread(threading.Thread):
         except:
             pass #ok, finished it
     
+    
 #=======================================================================================================================
-# WriterThread
+# AbstractWriterThread
 #=======================================================================================================================
-class WriterThread(threading.Thread):
+class AbstractWriterThread(threading.Thread):
     
     def __init__(self):
         threading.Thread.__init__(self)
         self.setDaemon(True)
-    
-    def run(self):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind(('', port))
-        s.listen(1)
-        newSock, addr = s.accept()
-        if SHOW_WRITES_AND_READS:
-            print 'Test Writer Thread Received', newSock, addr
-        readerThread = self.readerThread = ReaderThread(newSock)
-        readerThread.start()
-        self.newSock = newSock
-
-        self.Write("501\t1\t1.0")
-        
-        #add breakpoint
-        self.Write("111\t3\t%s\t6\t**FUNC**SetUp\tNone" % (TEST_FILE,))
-        
-        #run
-        self.Write("101\t5\t")
-        
-        #wait for hit breakpoint
-        while not 'stop_reason="111"' in readerThread.lastReceived:
-            time.sleep(1)
-            
-        #we have something like <xml><thread id="12152656" stop_reason="111"><frame id="12453120" ...
-        splitted = readerThread.lastReceived.split('"')
-        threadId = splitted[1]
-        frameId = splitted[5]
-        
-        #get frame
-        self.Write("114\t7\t%s\t%s\tFRAME" % (threadId, frameId))
-
-        #step over
-        self.Write("108\t9\t%s" % (threadId,))
-        
-        #get frame
-        self.Write("114\t11\t%s\t%s\tFRAME" % (threadId, frameId))
-        
-        #run
-        self.Write("106\t13\t%s" % (threadId,))
-        
         
     def Write(self, s):
         last = self.readerThread.lastReceived
@@ -105,15 +64,108 @@ class WriterThread(threading.Thread):
         self.newSock.send(s+'\n')
         while last == self.readerThread.lastReceived:
             time.sleep(0.2)
+            
+    
+    def StartSocket(self):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind(('', port))
+        s.listen(1)
+        newSock, addr = s.accept()
+        if SHOW_WRITES_AND_READS:
+            print 'Test Writer Thread Received', newSock, addr
+            
+        readerThread = self.readerThread = ReaderThread(newSock)
+        readerThread.start()
+        self.newSock = newSock
+        
+        self._sequence = -1
+        #initial command is always the version
+        self.WriteVersion()
+    
+    def NextSeq(self):
+        self._sequence += 2
+        return self._sequence
+            
+    def WaitForBreakpointHit(self):
+        i = 100
+        #wait for hit breakpoint
+        while not 'stop_reason="111"' in self.readerThread.lastReceived:
+            i -= 1
+            time.sleep(1)
+            if i <= 0:
+                raise AssertionError('After %s seconds, a break was not hit.' % i)
+            
+        #we have something like <xml><thread id="12152656" stop_reason="111"><frame id="12453120" ...
+        splitted = self.readerThread.lastReceived.split('"')
+        threadId = splitted[1]
+        frameId = splitted[5]
+        return threadId, frameId
+        
+
+    def WriteMakeInitialRun(self):
+        self.Write("101\t5\t")
+        
+    def WriteVersion(self):
+        self.Write("501\t%s\t1.0" % self.NextSeq())
+        
+    def WriteAddBreakpoint(self, line, func):
+        self.Write("111\t%s\t%s\t%s\t**FUNC**%s\tNone" % (self.NextSeq(), self.TEST_FILE, line, func))
+
+    def WriteGetFrame(self, threadId, frameId):
+        self.Write("114\t%s\t%s\t%s\tFRAME" % (self.NextSeq(), threadId, frameId))
+        
+    def WriteStepOver(self, threadId):
+        self.Write("108\t%s\t%s" % (self.NextSeq(), threadId,))
+        
+    def WriteRunThread(self, threadId):
+        self.Write("106\t%s\t%s" % (self.NextSeq(), threadId,))
+        
+#=======================================================================================================================
+# WriterThreadCase2
+#=======================================================================================================================
+class WriterThreadCase2(AbstractWriterThread):
+    
+    TEST_FILE = NormFile('_debugger_case2.py')
+        
+    def run(self):
+        self.StartSocket()
+        self.WriteAddBreakpoint(3, 'Call4')
+        self.WriteMakeInitialRun()
+        self.WaitForBreakpointHit()
+        
+#=======================================================================================================================
+# WriterThreadCase1
+#=======================================================================================================================
+class WriterThreadCase1(AbstractWriterThread):
+    
+    TEST_FILE = NormFile('_debugger_case1.py')
+        
+    def run(self):
+        self.StartSocket()
+        self.WriteAddBreakpoint(6, 'SetUp')
+        self.WriteMakeInitialRun()
+        
+        threadId, frameId = self.WaitForBreakpointHit()
+        
+        self.WriteGetFrame(threadId, frameId)
+
+        self.WriteStepOver(threadId)
+        
+        self.WriteGetFrame(threadId, frameId)
+        
+        self.WriteRunThread(threadId)
+        
+        self.assertEquals(13, self._sequence)
+        
         
 #=======================================================================================================================
 # Test
 #=======================================================================================================================
 class Test(unittest.TestCase):
     
-    def testIt(self):
-        WriterThread().start()
-        
+    def CheckCase(self, writerThreadClass):
+        writerThread = writerThreadClass()
+        writerThread.start()
         
         args = [
             'python',
@@ -125,7 +177,7 @@ class Test(unittest.TestCase):
             '--port', 
             str(port), 
             '--file', 
-            TEST_FILE
+            writerThread.TEST_FILE
         ]
         
         process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -133,6 +185,14 @@ class Test(unittest.TestCase):
         process.stdout.close()
         if 'TEST SUCEEDED:' not in result_str:
             self.fail(result_str)
+            
+    def testCase1(self):
+        self.CheckCase(WriterThreadCase1)
+        
+#    def testCase2(self):
+#        self.CheckCase(WriterThreadCase2)
+        
+        
 
 #=======================================================================================================================
 # Main        
