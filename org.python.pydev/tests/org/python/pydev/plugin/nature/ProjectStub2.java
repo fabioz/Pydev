@@ -440,4 +440,8 @@ public class ProjectStub2 implements IProject {
         return false;
     }
 
+    public int findMaxProblemSeverity(String type, boolean includeSubtypes, int depth) throws CoreException {
+        throw new RuntimeException("Not implemented");
+    }
+
 }

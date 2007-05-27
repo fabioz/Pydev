@@ -466,4 +466,8 @@ public class FolderStub implements IFolder{
         
     }
 
+    public int findMaxProblemSeverity(String type, boolean includeSubtypes, int depth) throws CoreException {
+        throw new RuntimeException("Not implemented");
+    }
+
 }

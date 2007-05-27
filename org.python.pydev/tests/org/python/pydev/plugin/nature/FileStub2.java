@@ -355,5 +355,9 @@ public class FileStub2 implements IFile {
         return false;
     }
 
+    public int findMaxProblemSeverity(String type, boolean includeSubtypes, int depth) throws CoreException {
+        throw new RuntimeException("Not implemented");
+    }
+
 
 }

@@ -406,5 +406,9 @@ public class FileResourceStub implements IFile {
         throw new RuntimeException("Not impl");
     }
 
+    public int findMaxProblemSeverity(String type, boolean includeSubtypes, int depth) throws CoreException {
+        throw new RuntimeException("Not implemented");
+    }
+
 
 }
