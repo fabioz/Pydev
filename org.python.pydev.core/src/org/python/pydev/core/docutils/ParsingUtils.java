@@ -178,8 +178,9 @@ public class ParsingUtils implements IPythonPartitions{
     			if(c == '\\'){ //escaped quote, ignore the next char even if it is a ' or "
     				ignoreNext = true;
     			}
+            }else{
+                ignoreNext = false;
             }
-			ignoreNext = false;
             
 			i++;
         }

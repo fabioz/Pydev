@@ -17,16 +17,16 @@ public class PyFormatStdTest extends TestCase {
     private FormatStd std;
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(PyFormatStdTest.class);
-        
-//        try {
-//	        PyFormatStdTest n = new PyFormatStdTest();
-//            n.setUp();
-//            n.testFormatInnerParams2();
-//            n.tearDown();
-//        } catch (Throwable e) {
-//            e.printStackTrace();
-//        }
+        try {
+	        PyFormatStdTest n = new PyFormatStdTest();
+            n.setUp();
+            n.testFormatEscapedQuotes();
+            n.tearDown();
+            
+            junit.textui.TestRunner.run(PyFormatStdTest.class);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
         
     }
 
