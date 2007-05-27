@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testTryExceptDedent();
+            s.testParens3();
             s.tearDown();
     		junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -1344,7 +1344,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
     
     public void testParens3() {
     	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
-    	String str = "assert_('\\' in txt) a()";
+    	String str = "assert_('\\\\' in txt) a()";
     	final Document doc = new Document(str);
     	int offset = doc.getLength()-")".length();
 		DocCmd docCmd = new DocCmd(offset, 0, ")");

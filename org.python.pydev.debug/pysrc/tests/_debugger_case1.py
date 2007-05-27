@@ -26,6 +26,7 @@ class Observable(object):
             if o is not None:
                 print 'still observing', o
                 import gc
+                print 'number of referrers:', len(gc.get_referrers(o))
                 frame = gc.get_referrers(o)[0]
                 frame_referrers = gc.get_referrers(frame)
                 print 'frame referrer', frame_referrers

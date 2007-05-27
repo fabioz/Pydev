@@ -143,7 +143,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     
     public void testBuiltinsInNamespace2() throws BadLocationException, IOException, Exception{
         String s = "__builtins__.RuntimeError.";
-        requestCompl(s, s.length(), -1, new String[]{"__doc__", "__getitem__()", "__init__()", "__module__", "__str__()"});
+        requestCompl(s, s.length(), -1, new String[]{"__doc__", "__getitem__()", "__init__()", "__str__()"});
     }
     
     public void testPreferForcedBuiltin() throws BadLocationException, IOException, Exception{

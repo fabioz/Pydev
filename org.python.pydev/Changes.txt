@@ -8,7 +8,11 @@ Pydev:
 <li><strong>Pydev Package Explorer:</strong> Opens with correct editor now (it was forcing the pydev editor before).</li>
 </ul>
 
+Pydev Extensions:
 
+<ul>
+<li><strong>Mark Occurrences:</strong> If 'global' was used in the global scope, an exception was raised.</li>
+</ul>
 
 after 1.3.2
 
