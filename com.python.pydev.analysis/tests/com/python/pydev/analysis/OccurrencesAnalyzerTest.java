@@ -27,7 +27,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testBuiltinsWithoutImport();
+            analyzer2.testGlobal3();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -100,6 +100,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals("TestCase", msgs[0].getAdditionalInfo().get(0));
         assertEquals("testcase", msgs[0].getAdditionalInfo().get(1));
     }
+    
     
     public void testMetaclass(){
     	doc = new Document(
@@ -1623,6 +1624,14 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals(0, msgs.length);
     }
     
+    public void testGlobal3(){
+        doc = new Document(
+            "global type\n"+
+            "type = 10\n"
+        );
+        checkNoError();
+    }
+
     public void testAttributeImportAccess() {
         //all ok...
         doc = new Document(
