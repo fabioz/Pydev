@@ -75,8 +75,12 @@ class AbstractWriterThread(threading.Thread):
         if SHOW_WRITES_AND_READS:
             print 'Test Writer Thread Written %s' % (s,)
         self.sock.send(s+'\n')
-        while last == self.readerThread.lastReceived:
-            time.sleep(0.2)
+        time.sleep(0.2)
+        
+        i = 0
+        while last == self.readerThread.lastReceived and i < 10:
+            i += 1
+            time.sleep(0.1)
         
     
     def StartSocket(self):
@@ -85,7 +89,7 @@ class AbstractWriterThread(threading.Thread):
         s.listen(1)
         newSock, addr = s.accept()
         if SHOW_WRITES_AND_READS:
-            print 'Test Writer Thread Received', newSock, addr
+            print 'Test Writer Thread Socket:', newSock, addr
             
         readerThread = self.readerThread = ReaderThread(newSock)
         readerThread.start()
@@ -106,7 +110,7 @@ class AbstractWriterThread(threading.Thread):
             i += 1
             time.sleep(1)
             if i >= 10:
-                raise AssertionError('After %s seconds, a break was not hit (the debugged process may still be alive)' % i)
+                raise AssertionError('After %s seconds, a break was not hit.' % i)
             
         #we have something like <xml><thread id="12152656" stop_reason="111"><frame id="12453120" ...
         splitted = self.readerThread.lastReceived.split('"')
@@ -152,11 +156,17 @@ class WriterThreadCase2(AbstractWriterThread):
         
         self.WriteGetFrame(threadId, frameId)
         
-#        self.WriteAddBreakpoint(14, 'Call2')
+        self.WriteAddBreakpoint(14, 'Call2')
         
         self.WriteRunThread(threadId)
         
-#        threadId, frameId = self.WaitForBreakpointHit()
+        threadId, frameId = self.WaitForBreakpointHit()
+        
+        self.WriteGetFrame(threadId, frameId)
+        
+        self.WriteRunThread(threadId)
+        
+        assert 15 == self._sequence, 'Expected 15. Had: %s'  % self._sequence
         
 #=======================================================================================================================
 # WriterThreadCase1

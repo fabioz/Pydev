@@ -428,6 +428,11 @@ class PyDB:
         cmd = self.cmdFactory.makeThreadSuspendMessage(id(thread), frame, thread.stop_reason)
         self.writer.addCommand(cmd)
         
+        #when we hit a breakpoint, we have to set the tracing in the parent contexts, because
+        #it may be that those are not watched, so, if the user hits a break and adds a breakpoint in
+        #one of those contexts, it will be missed
+        SetTraceForParents(frame, GetGlobalDebugger().trace_dispatch)
+        
         info = thread.additionalInfo
         while info.pydev_state == STATE_SUSPEND and not self.finishDebuggingSession:            
             self.processInternalCommands()
@@ -440,13 +445,11 @@ class PyDB:
         elif info.pydev_step_cmd == CMD_STEP_OVER:
             if event is 'return': # if we are returning from the function, stop in parent
                 info.pydev_step_stop = frame.f_back
-                frame.f_back.f_trace = GetGlobalDebugger().trace_dispatch
             else:
                 info.pydev_step_stop = frame
                 
         elif info.pydev_step_cmd == CMD_STEP_RETURN:
             info.pydev_step_stop = frame.f_back
-            frame.f_back.f_trace = GetGlobalDebugger().trace_dispatch
  
         del frame
         cmd = self.cmdFactory.makeThreadRunMessage(id(thread), info.pydev_step_cmd)

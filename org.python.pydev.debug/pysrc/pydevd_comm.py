@@ -20,7 +20,7 @@ each command has a format:
     101      RUN                  JAVA      -                             -
     102      LIST_THREADS         JAVA                                    RETURN with XML listing of all threads
     103      THREAD_CREATE        PYDB      -                             XML with thread information
-    104      THREAD_KILL          JAVA      id                            kills the thread
+    104      THREAD_KILL          JAVA      id (or * to exit)             kills the thread
                                   PYDB      id                            nofies JAVA that thread was killed
     105      THREAD_SUSPEND       JAVA      XML of the stack,             suspends the thread
                                             reason for suspension
