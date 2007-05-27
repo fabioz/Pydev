@@ -274,6 +274,7 @@ class PyDB:
                     t = pydevd_findThreadById(text)
                     if t: 
                         t.additionalInfo.pydev_step_cmd = None
+                        t.additionalInfo.pydev_step_stop = None
                         t.additionalInfo.pydev_state = STATE_RUN
                         
                 elif id == CMD_STEP_INTO or id == CMD_STEP_OVER or id == CMD_STEP_RETURN:
@@ -388,7 +389,7 @@ class PyDB:
                     #I have no idea what this is all about
                     cmd = self.cmdFactory.makeErrorMessage(seq, "unexpected command " + str(id))
                     
-                if cmd: 
+                if cmd is not None: 
                     self.writer.addCommand(cmd)
                     del cmd
                     
@@ -439,14 +440,15 @@ class PyDB:
         elif info.pydev_step_cmd == CMD_STEP_OVER:
             if event is 'return': # if we are returning from the function, stop in parent
                 info.pydev_step_stop = frame.f_back
+                frame.f_back.f_trace = GetGlobalDebugger().trace_dispatch
             else:
                 info.pydev_step_stop = frame
-            SetTraceForParents(frame, GetGlobalDebugger().trace_dispatch)
                 
         elif info.pydev_step_cmd == CMD_STEP_RETURN:
             info.pydev_step_stop = frame.f_back
-            SetTraceForParents(frame, GetGlobalDebugger().trace_dispatch)
+            frame.f_back.f_trace = GetGlobalDebugger().trace_dispatch
  
+        del frame
         cmd = self.cmdFactory.makeThreadRunMessage(id(thread), info.pydev_step_cmd)
         self.writer.addCommand(cmd)
     
@@ -611,6 +613,7 @@ def SetTraceForParents(frame, dispatch_func):
     while frame:
         frame.f_trace = dispatch_func
         frame = frame.f_back
+    del frame
 
 def settrace(host='localhost', stdoutToServer = False, stderrToServer = False, port=5678, suspend=True):
     '''
