@@ -19,6 +19,7 @@ def NormFile(filename):
 PYDEVD_FILE = NormFile('../pydevd.py')
 
 SHOW_WRITES_AND_READS = False
+SHOW_RESULT_STR = False
 
 
 import subprocess
@@ -65,6 +66,7 @@ class AbstractWriterThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.setDaemon(True)
+        self.finishedOk = False
         
     def DoKill(self):
         self.readerThread.DoKill()
@@ -103,6 +105,21 @@ class AbstractWriterThread(threading.Thread):
         self._sequence += 2
         return self._sequence
             
+        
+    def WaitForNewThread(self):
+        i = 0
+        #wait for hit breakpoint
+        while not '<xml><thread name="' in self.readerThread.lastReceived or '<xml><thread name="pydevd.' in self.readerThread.lastReceived:
+            i += 1
+            time.sleep(1)
+            if i >= 15:
+                raise AssertionError('After %s seconds, a thread was not created.' % i)
+        
+        #we have something like <xml><thread name="MainThread" id="12103472" /></xml>
+        splitted = self.readerThread.lastReceived.split('"')
+        threadId = splitted[3]
+        return threadId
+        
     def WaitForBreakpointHit(self):
         i = 0
         #wait for hit breakpoint
@@ -117,7 +134,7 @@ class AbstractWriterThread(threading.Thread):
         threadId = splitted[1]
         frameId = splitted[5]
         return threadId, frameId
-        
+    
 
     def WriteMakeInitialRun(self):
         self.Write("101\t%s\t" % self.NextSeq())
@@ -133,12 +150,15 @@ class AbstractWriterThread(threading.Thread):
             
     def WriteRemoveBreakpoint(self, line):
         self.Write("112\t%s\t%s\t%s" % (self.NextSeq(), self.TEST_FILE, line))
-
+        
     def WriteGetFrame(self, threadId, frameId):
         self.Write("114\t%s\t%s\t%s\tFRAME" % (self.NextSeq(), threadId, frameId))
         
     def WriteStepOver(self, threadId):
         self.Write("108\t%s\t%s" % (self.NextSeq(), threadId,))
+
+    def WriteSuspendThread(self, threadId):
+        self.Write("105\t%s\t%s" % (self.NextSeq(), threadId,))
         
     def WriteRunThread(self, threadId):
         self.Write("106\t%s\t%s" % (self.NextSeq(), threadId,))
@@ -146,6 +166,29 @@ class AbstractWriterThread(threading.Thread):
     def WriteKillThread(self, threadId):
         self.Write("104\t%s\t%s" % (self.NextSeq(), threadId,))
         
+
+#=======================================================================================================================
+# WriterThreadCase4
+#=======================================================================================================================
+class WriterThreadCase4(AbstractWriterThread):
+    
+    TEST_FILE = NormFile('_debugger_case4.py')
+        
+    def run(self):
+        self.StartSocket()
+        self.WriteMakeInitialRun()
+        
+        threadId = self.WaitForNewThread()
+        
+        self.WriteSuspendThread(threadId)
+
+        time.sleep(4) #wait for time enough for the test to finish if it wasn't suspended
+        
+        self.WriteRunThread(threadId)
+        
+        self.finishedOk = True
+
+
 #=======================================================================================================================
 # WriterThreadCase3
 #=======================================================================================================================
@@ -175,6 +218,7 @@ class WriterThreadCase3(AbstractWriterThread):
         
         assert 15 == self._sequence, 'Expected 15. Had: %s'  % self._sequence
         
+        self.finishedOk = True
 
 #=======================================================================================================================
 # WriterThreadCase2
@@ -204,6 +248,8 @@ class WriterThreadCase2(AbstractWriterThread):
         
         assert 15 == self._sequence, 'Expected 15. Had: %s'  % self._sequence
         
+        self.finishedOk = True
+        
 #=======================================================================================================================
 # WriterThreadCase1
 #=======================================================================================================================
@@ -228,6 +274,7 @@ class WriterThreadCase1(AbstractWriterThread):
         
         assert 13 == self._sequence, 'Expected 13. Had: %s'  % self._sequence
         
+        self.finishedOk = True
         
 #=======================================================================================================================
 # Test
@@ -241,6 +288,7 @@ class Test(unittest.TestCase):
         args = [
             'python',
             PYDEVD_FILE, 
+            '--RECORD_SOCKET_READS',
             '--type', 
             'python', 
             '--client', 
@@ -248,7 +296,7 @@ class Test(unittest.TestCase):
             '--port', 
             str(port), 
             '--file', 
-            writerThread.TEST_FILE
+            writerThread.TEST_FILE,
         ]
         
         process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -276,11 +324,19 @@ class Test(unittest.TestCase):
         else:
             writerThread.DoKill()
             
+        if SHOW_RESULT_STR:
+            print processReadThread.resultStr
+            
         if processReadThread.resultStr is None:
             self.fail("The other process may still be running -- and didn't give any output")
             
         if 'TEST SUCEEDED' not in processReadThread.resultStr:
             self.fail(processReadThread.resultStr)
+            
+        if not writerThread.finishedOk:
+            self.fail("The thread that was doing the tests didn't finish succesfully. Output: %s" % processReadThread.resultStr)
+            
+
             
     def testCase1(self):
         self.CheckCase(WriterThreadCase1)
@@ -290,6 +346,9 @@ class Test(unittest.TestCase):
         
     def testCase3(self):
         self.CheckCase(WriterThreadCase3)
+        
+    def testCase4(self):
+        self.CheckCase(WriterThreadCase4)
         
         
 

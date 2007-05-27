@@ -276,6 +276,16 @@ class PyDB:
                 elif cmd_id == CMD_THREAD_SUSPEND:
                     t = pydevd_findThreadById(text)
                     if t: 
+                        additionalInfo = None
+                        try:
+                            additionalInfo = t.additionalInfo
+                        except AttributeError:
+                            pass #that's ok, no info currently set
+                            
+                        if additionalInfo is not None and additionalInfo.pydev_last_frame is not None:
+                            additionalInfo.pydev_last_frame.f_trace = self.trace_dispatch
+                            SetTraceForParents(additionalInfo.pydev_last_frame, self.trace_dispatch)
+                            
                         self.setSuspend(t, CMD_THREAD_SUSPEND)
     
                 elif cmd_id  == CMD_THREAD_RUN:
@@ -618,6 +628,9 @@ def processCommandLine(argv):
             del argv[i]            
             retVal['file'] = argv[i];
             i = len(argv) # pop out, file is our last argument
+        elif (argv[i] == '--RECORD_SOCKET_READS'):
+            del argv[i]            
+            retVal['RECORD_SOCKET_READS'] = True
         else:
             raise ValueError, "unexpected option " + argv[i]
     return retVal
@@ -629,8 +642,12 @@ def usage(doExit=0):
         sys.exit(0)
 
 
-def setupType():
+def setupType(str=None):
     global type
+    if str is not None:
+        type = str
+        return
+    
     try:
         import java.lang
         type = 'jython'
@@ -724,13 +741,13 @@ if __name__ == '__main__':
     except ValueError, e:
         print e
         usage(1)
+        
     pydevd_log(2, "Executing file " + setup['file'])
     pydevd_log(2, "arguments:" + str(sys.argv))
  
-    setupType()
-
-#    global type
-    type = setup['type']
+    setupType(setup['type'])
+    
+    DebugInfoHolder.RECORD_SOCKET_READS = setup.get('RECORD_SOCKET_READS', False)
 
     debugger = PyDB()
     debugger.connect(setup['client'], setup['port'])

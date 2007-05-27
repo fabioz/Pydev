@@ -106,7 +106,9 @@ VERSION_STRING = "1.0"
 
 pydevd_trace = -1
 pydevd_trace_breakpoints = -1
-RECORD_SOCKET_READS = False
+
+class DebugInfoHolder:
+    RECORD_SOCKET_READS = True
 
 
 def pydevd_log(level, s):
@@ -205,7 +207,7 @@ class ReaderThread(PyDBDaemonThread):
         try:
             while not self.killReceived:
                 buffer += self.sock.recv(1024)
-                if RECORD_SOCKET_READS:
+                if DebugInfoHolder.RECORD_SOCKET_READS:
                     print 'received >>%s<<' % (buffer,)
                     
                 if len(buffer) == 0:
