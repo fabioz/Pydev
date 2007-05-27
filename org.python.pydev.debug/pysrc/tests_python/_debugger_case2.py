@@ -20,3 +20,4 @@ def Call1():
 
 if __name__ == '__main__':
     Call1()
+    print 'TEST SUCEEDED!'

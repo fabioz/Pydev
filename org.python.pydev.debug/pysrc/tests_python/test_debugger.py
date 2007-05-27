@@ -40,13 +40,22 @@ class ReaderThread(threading.Thread):
         
     def run(self):
         try:
+            buf = ''
             while True:
-                self.lastReceived = self.sock.recv(1024)
+                l = self.sock.recv(1024)
+                buf += l
+                
+                if '\n' in buf:
+                    self.lastReceived = buf
+                    buf = ''
+                    
                 if SHOW_WRITES_AND_READS:
                     print 'Test Reader Thread Received %s' % self.lastReceived.strip()
         except:
             pass #ok, finished it
     
+    def DoKill(self):
+        self.sock.close()
     
 #=======================================================================================================================
 # AbstractWriterThread
@@ -57,14 +66,18 @@ class AbstractWriterThread(threading.Thread):
         threading.Thread.__init__(self)
         self.setDaemon(True)
         
+    def DoKill(self):
+        self.readerThread.DoKill()
+        self.sock.close()
+        
     def Write(self, s):
         last = self.readerThread.lastReceived
         if SHOW_WRITES_AND_READS:
             print 'Test Writer Thread Written %s' % (s,)
-        self.newSock.send(s+'\n')
+        self.sock.send(s+'\n')
         while last == self.readerThread.lastReceived:
             time.sleep(0.2)
-            
+        
     
     def StartSocket(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -76,7 +89,7 @@ class AbstractWriterThread(threading.Thread):
             
         readerThread = self.readerThread = ReaderThread(newSock)
         readerThread.start()
-        self.newSock = newSock
+        self.sock = newSock
         
         self._sequence = -1
         #initial command is always the version
@@ -87,13 +100,13 @@ class AbstractWriterThread(threading.Thread):
         return self._sequence
             
     def WaitForBreakpointHit(self):
-        i = 100
+        i = 0
         #wait for hit breakpoint
         while not 'stop_reason="111"' in self.readerThread.lastReceived:
-            i -= 1
+            i += 1
             time.sleep(1)
-            if i <= 0:
-                raise AssertionError('After %s seconds, a break was not hit.' % i)
+            if i >= 10:
+                raise AssertionError('After %s seconds, a break was not hit (the debugged process may still be alive)' % i)
             
         #we have something like <xml><thread id="12152656" stop_reason="111"><frame id="12453120" ...
         splitted = self.readerThread.lastReceived.split('"')
@@ -103,7 +116,7 @@ class AbstractWriterThread(threading.Thread):
         
 
     def WriteMakeInitialRun(self):
-        self.Write("101\t5\t")
+        self.Write("101\t%s\t" % self.NextSeq())
         
     def WriteVersion(self):
         self.Write("501\t%s\t1.0" % self.NextSeq())
@@ -120,6 +133,9 @@ class AbstractWriterThread(threading.Thread):
     def WriteRunThread(self, threadId):
         self.Write("106\t%s\t%s" % (self.NextSeq(), threadId,))
         
+    def WriteKillThread(self, threadId):
+        self.Write("104\t%s\t%s" % (self.NextSeq(), threadId,))
+        
 #=======================================================================================================================
 # WriterThreadCase2
 #=======================================================================================================================
@@ -129,9 +145,18 @@ class WriterThreadCase2(AbstractWriterThread):
         
     def run(self):
         self.StartSocket()
-        self.WriteAddBreakpoint(3, 'Call4')
+        self.WriteAddBreakpoint(3, 'Call4') #seq = 3
         self.WriteMakeInitialRun()
-        self.WaitForBreakpointHit()
+        
+        threadId, frameId = self.WaitForBreakpointHit()
+        
+        self.WriteGetFrame(threadId, frameId)
+        
+#        self.WriteAddBreakpoint(14, 'Call2')
+        
+        self.WriteRunThread(threadId)
+        
+#        threadId, frameId = self.WaitForBreakpointHit()
         
 #=======================================================================================================================
 # WriterThreadCase1
@@ -155,7 +180,7 @@ class WriterThreadCase1(AbstractWriterThread):
         
         self.WriteRunThread(threadId)
         
-        self.assertEquals(13, self._sequence)
+        assert 13 == self._sequence, 'Expected 13. Had: %s'  % self._sequence
         
         
 #=======================================================================================================================
@@ -181,16 +206,41 @@ class Test(unittest.TestCase):
         ]
         
         process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        result_str = process.stdout.read()
-        process.stdout.close()
-        if 'TEST SUCEEDED:' not in result_str:
-            self.fail(result_str)
+        class ProcessReadThread(threading.Thread):
+            def run(self):
+                self.resultStr = None
+                self.resultStr = process.stdout.read()
+                process.stdout.close()
+                
+            def DoKill(self):
+                process.stdout.close()
+                
+        processReadThread = ProcessReadThread()
+        processReadThread.setDaemon(True)
+        processReadThread.start()
+        
+        while writerThread.isAlive():
+            time.sleep(.2)
+        
+        for i in range(10):
+            if processReadThread.resultStr is None:
+                time.sleep(.5)
+            else:
+                break
+        else:
+            writerThread.DoKill()
+            
+        if processReadThread.resultStr is None:
+            self.fail("The other process may still be running -- and didn't give any output")
+            
+        if 'TEST SUCEEDED' not in processReadThread.resultStr:
+            self.fail(processReadThread.resultStr)
             
     def testCase1(self):
         self.CheckCase(WriterThreadCase1)
         
-#    def testCase2(self):
-#        self.CheckCase(WriterThreadCase2)
+    def testCase2(self):
+        self.CheckCase(WriterThreadCase2)
         
         
 
