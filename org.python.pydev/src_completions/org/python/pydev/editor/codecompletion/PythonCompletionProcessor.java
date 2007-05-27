@@ -159,7 +159,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             ArrayList<ICompletionProposal> pythonAndTemplateProposals = new ArrayList<ICompletionProposal>();
             
             IPythonNature nature = edit.getPythonNature();
-            if(!nature.startRequests()){
+            if(nature == null || !nature.startRequests()){
             	return new ICompletionProposal[0];
             }
             try{
