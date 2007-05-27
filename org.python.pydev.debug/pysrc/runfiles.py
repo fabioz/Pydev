@@ -153,7 +153,13 @@ class PydevTestRunner:
             elif isinstance(test_obj, unittest.TestCase):
                 test_cases = []
                 for tc in test_objs:
-                    if self.__match(self.test_filter, tc._TestCase__testMethodName):
+                    try:
+                        testMethodName = tc._TestCase__testMethodName
+                    except AttributeError:
+                        #changed in python 2.5
+                        testMethodName = tc._testMethodName
+                        
+                    if self.__match(self.test_filter, testMethodName):
                         test_cases.append( tc )
                 return test_cases
         return test_suite
