@@ -202,7 +202,7 @@ public class PySelection {
             
             if(startingMultilineComment < 4){
                 
-                //let's see if the multiline comment found is in the beggining of the document
+                //let's see if the multiline comment found is in the beginning of the document
                 int lineOfOffset = getLineOfOffset(firstGlobalLiteral[1]);
                 return getFirstNonCommentLineOrAfterCurrentImports(lineOfOffset + 1);
             }else{
@@ -247,8 +247,14 @@ public class PySelection {
                 if(importInfo != null && importInfo.importsTipperStr != null && importInfo.importsTipperStr.trim().length() > 0){
                     if((i = str.indexOf('(')) != -1){
                         StringBuffer buf = new StringBuffer();
-                        //start of a multi-line import
-                        int j = ParsingUtils.eatPar(document, line+i, buf);
+                        //start of a multiline import
+                        int lineOffset = -1;
+                        try {
+							lineOffset = document.getLineOffset(line);
+						} catch (BadLocationException e1) {
+							throw new RuntimeException(e1);
+						}
+                        int j = ParsingUtils.eatPar(document, lineOffset+i, buf);
                         try {
                             line = document.getLineOfOffset(j);
                         } catch (BadLocationException e) {

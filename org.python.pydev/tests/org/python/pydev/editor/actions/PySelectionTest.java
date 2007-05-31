@@ -32,7 +32,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testImportLine9();
+            test.testImportLine10();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
@@ -220,6 +220,20 @@ public class PySelectionTest extends TestCase {
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
         assertEquals(4, selection.getLineAvailableForImport());
+    }
+    
+    public void testImportLine10() {
+    	String strDoc = "" +
+    	"from coilib40 import unittest\n"+
+    	"from plugins10.plugins.editorsstack import (\n"+
+    	"    EditorsStackDock )\n"+
+    	"#we want it to appear in this line\n"+
+    	"def m1():\n"+
+    	"    testca\n"+
+    	"\n";
+    	Document document = new Document(strDoc);
+    	PySelection selection = new PySelection(document);
+    	assertEquals(3, selection.getLineAvailableForImport());
     }
     
     
