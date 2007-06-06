@@ -30,14 +30,6 @@ public class InteractiveConsolePreferencesPage extends FieldEditorPreferencePage
     public static final String DEFAULT_INTERACTIVE_CONSOLE_VM_ARGS = "-Xmx64m";
     
     public static final String INITIAL_INTERPRETER_CMDS = "INITIAL_INTERPRETER_CMDS";
-    public static final String DEFAULT_INITIAL_INTERPRETER_CMDS = ""+
-    "import sys; sys.ps1=''; sys.ps2=''\r\n"+
-    "print >> sys.stderr, 'PYTHONPATH:'\r\n"+
-    "for p in sys.path:\r\n"+
-    "    print >> sys.stderr,  p\r\n" +
-    "\r\n" +                                                //to finish the for scope
-    "print >> sys.stderr, 'Ok, all set up... Enjoy'\r\n"+
-    "";
     
     public InteractiveConsolePreferencesPage() {
         super(GRID);
