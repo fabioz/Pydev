@@ -34,10 +34,13 @@ import org.apache.commons.codec.binary.Base64;
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
+import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.internal.resources.ResourceException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -479,16 +482,40 @@ public class REF {
      * Or the document that represents the file
      */
     public static IDocument getDocFromPath(IPath path) {
-        ITextFileBufferManager textFileBufferManager = FileBuffers.getTextFileBufferManager();
-        
-        if(textFileBufferManager != null){//we don't have it in tests
-            ITextFileBuffer textFileBuffer = textFileBufferManager.getTextFileBuffer(path);
-
-            if(textFileBuffer != null){ //we don't have it when it is not properly refreshed
-                return textFileBuffer.getDocument();
+        //TODO: make this better for 3.3/ 3.2 (and check if behaviour is correct now)
+        try{
+            try{
+                
+                //eclipse 3.3 has a different interface
+                ITextFileBufferManager textFileBufferManager = ITextFileBufferManager.DEFAULT;
+                if(textFileBufferManager != null){//we don't have it in tests
+                    ITextFileBuffer textFileBuffer = textFileBufferManager.getTextFileBuffer(path, LocationKind.LOCATION);
+                    
+                    if(textFileBuffer != null){ //we don't have it when it is not properly refreshed
+                        return textFileBuffer.getDocument();
+                    }
+                }
+                
+            }catch(LinkageError e){//NoSuchMethod/NoClassDef exception
+                ITextFileBufferManager textFileBufferManager = FileBuffers.getTextFileBufferManager();
+                
+                if(textFileBufferManager != null){//we don't have it in tests
+                    ITextFileBuffer textFileBuffer = textFileBufferManager.getTextFileBuffer(path);
+                    
+                    if(textFileBuffer != null){ //we don't have it when it is not properly refreshed
+                        return textFileBuffer.getDocument();
+                    }
+                }
             }
+            return null;
+            
+            
+        }catch(Throwable e){
+            //private static final IWorkspaceRoot WORKSPACE_ROOT= ResourcesPlugin.getWorkspace().getRoot();
+            //throws an error and we don't even have access to the FileBuffers class in tests
+            Log.log("Unable to get doc from text file buffer");
+            return null; 
         }
-        return null;
     }
 
     /**
