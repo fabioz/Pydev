@@ -250,6 +250,7 @@ public class PydevExtensionNotifier extends Thread{
 
     public PydevExtensionNotifier() {
         setName("Looping");
+        setDaemon(true);
 	}
 	
 	@Override
