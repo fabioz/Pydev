@@ -41,12 +41,11 @@
             categoryId="org.python.pydev.ui.category.run"
             name="Run As Jython">
       </command>
-	  <command id="org.python.pydev.debug.command.Display" name="Display">
+	  <command id="org.python.pydev.debug.command.Display" name="Display Command">
       </command>
-	  <!--
-	  <command id="org.python.pydev.debug.command.Display2" name="Display2">
-      </command> -->
 </extension>
+
+
 <!--- run keybindings:bindings -->
 <extension point="org.eclipse.ui.bindings">
       <key
@@ -67,14 +66,9 @@
 	  		contextId="org.python.pydev.ui.editor.scope" 
 	  		schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" 
 	  		/>
-      <!--
-	  <key sequence="M1+M2+S" 
-	  		commandId="org.python.pydev.debug.command.Display2" 
-	  		contextId="org.eclipse.ui.contexts.dialogAndWindow" 
-	  		schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-	  		/> -->
       
 </extension>
+
 
 <!--- launcher -->
 <extension point="org.eclipse.debug.core.launchConfigurationTypes">
@@ -286,6 +280,8 @@
 	</shortcut>
 </extension>
 
+
+
 <!--- CONTRIBUTED VIEWS -->
 <extension point="org.eclipse.ui.views">
    <category
@@ -324,6 +320,14 @@
 		id="org.python.pydev.debug.ui.PythonConsoleLineTracker">
 	</consoleLineTracker>
 </extension>
+
+
+
+
+
+
+
+
    
 <!-- DEBUGGING -->
 <!-- breakpoint ruler action -->
@@ -451,11 +455,16 @@
          name="common"
          objectClass="org.python.pydev.debug.model.PyBreakpoint"/>
 </extension>
+
+
+<!-- TODO: check bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=186890 to see why this may have to be removed in Eclipse 3.3 -->
 <extension point="org.eclipse.ui.handlers">
 	<handler class="org.python.pydev.debug.ui.actions.EvalExpressionAction" commandId="org.python.pydev.debug.command.Display">
 	</handler>
 </extension>
-	
+
+
+
 <extension point="org.eclipse.ui.preferencePages">
       <page
             name="Debug"
