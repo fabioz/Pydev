@@ -3,11 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Templates Plug-in
 Bundle-SymbolicName: org.python.pydev.templates; singleton:=true
 Bundle-Version: 0.9.7.1
-Bundle-Activator: org.python.pydev.templates.TemplatesPlugin
 Bundle-Vendor: Fabio Zadrozny
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.python.pydev
 Eclipse-LazyStart: true
-Bundle-ClassPath: retroweaver-rt.jar
