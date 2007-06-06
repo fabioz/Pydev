@@ -6,28 +6,26 @@ package org.python.pydev.core.docutils;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class StringUtils {
 
-    public static String format(String str, Object ... args){
+    public static String format(String str, Object... args) {
         StringBuffer buffer = new StringBuffer();
         int j = 0;
-        
+
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
-            if(c == '%' && i+1 < str.length()){
-                char nextC = str.charAt(i+1);
-                if (nextC == 's'){
+            if (c == '%' && i + 1 < str.length()) {
+                char nextC = str.charAt(i + 1);
+                if (nextC == 's') {
                     buffer.append(args[j]);
                     j++;
                     i++;
-                }
-                else if (nextC == '%'){
+                } else if (nextC == '%') {
                     buffer.append('%');
                     j++;
                     i++;
                 }
-            }else{
+            } else {
                 buffer.append(c);
             }
         }
@@ -36,12 +34,12 @@ public class StringUtils {
 
     public static int countPercS(String str) {
         int j = 0;
-        
+
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
-            if(c == '%' && i+1 < str.length()){
-                char nextC = str.charAt(i+1);
-                if (nextC == 's'){
+            if (c == '%' && i + 1 < str.length()) {
+                char nextC = str.charAt(i + 1);
+                if (nextC == 's') {
                     j++;
                     i++;
                 }
@@ -53,7 +51,7 @@ public class StringUtils {
     public static String rightTrim(String input) {
         int len = input.length();
         int st = 0;
-        int off = 0;      
+        int off = 0;
         char[] val = input.toCharArray();
 
         while ((st < len) && (val[off + len - 1] <= ' ')) {
@@ -61,84 +59,108 @@ public class StringUtils {
         }
         return input.substring(0, len);
     }
-    
+
     public static String leftTrim(String input) {
-    	int len = input.length();
-    	int off = 0;
-    	char[] val = input.toCharArray();
-    	
-    	while ( (off < len) && (val[off] <= ' ')) {
-    		off++;
-    	}
-    	return input.substring(off, len);
+        int len = input.length();
+        int off = 0;
+        char[] val = input.toCharArray();
+
+        while ((off < len) && (val[off] <= ' ')) {
+            off++;
+        }
+        return input.substring(off, len);
     }
 
     /**
      * Changes all backward slashes (\) for forward slashes (/)
+     * 
      * @return the replaced string
      */
-	public static String replaceAllSlashes(String string) {
-		int len = string.length();
-		char c = 0;
-		
-		for (int i = 0; i < len; i++) {
-			c = string.charAt(i);
-			
-			if(c == '\\'){ //only do some processing if there is a backward slash
-				char[] ds = string.toCharArray();
-				ds[i] = '/';
-				for(int j = i; j < len; j++){
-					if(ds[j] == '\\'){
-						ds[j] = '/';
-					}
-				}
-				return new String(ds);
-			}
-			
-		}
-		return string;
-	}
+    public static String replaceAllSlashes(String string) {
+        int len = string.length();
+        char c = 0;
+
+        for (int i = 0; i < len; i++) {
+            c = string.charAt(i);
+
+            if (c == '\\') { // only do some processing if there is a
+                                // backward slash
+                char[] ds = string.toCharArray();
+                ds[i] = '/';
+                for (int j = i; j < len; j++) {
+                    if (ds[j] == '\\') {
+                        ds[j] = '/';
+                    }
+                }
+                return new String(ds);
+            }
+
+        }
+        return string;
+    }
 
     public static List<String> splitInLines(String string) {
         ArrayList<String> ret = new ArrayList<String>();
         int len = string.length();
-        
+
         char c;
         StringBuffer buf = new StringBuffer();
-        
+
         for (int i = 0; i < len; i++) {
             c = string.charAt(i);
-            
+
             buf.append(c);
-            
-            if(c == '\r'){ 
-                if(i < len -1 && string.charAt(i+1) == '\n'){
+
+            if (c == '\r') {
+                if (i < len - 1 && string.charAt(i + 1) == '\n') {
                     i++;
                     buf.append('\n');
                 }
                 ret.add(buf.toString());
                 buf = new StringBuffer();
             }
-            if(c == '\n'){ 
+            if (c == '\n') {
                 ret.add(buf.toString());
                 buf = new StringBuffer();
-                
+
             }
         }
-        if(buf.length() != 0){
+        if (buf.length() != 0) {
             ret.add(buf.toString());
         }
         return ret;
-        
+
     }
 
     public static boolean isSingleWord(String string) {
-        for(char c: string.toCharArray()){
-            if(!Character.isJavaIdentifierStart(c)){
+        for (char c : string.toCharArray()) {
+            if (!Character.isJavaIdentifierStart(c)) {
                 return false;
             }
         }
         return true;
+    }
+
+    public static String replaceAll(String string, String replace, String with) {
+        StringBuffer ret = new StringBuffer();
+        int len = string.length();
+        int replaceLen = replace.length();
+        
+        for (int i = 0; i < len; i++) {
+            if(i+replaceLen > len){
+                ret.append(string.charAt(i));
+                continue;
+            }
+            String s = string.substring(i, i+replaceLen);
+            if(s.equals(replace)){
+                ret.append(with);
+                i = i+replaceLen-1;
+            }else{
+                ret.append(s.charAt(0));
+            }
+        }
+
+        return ret.toString();
     }
 
 }
