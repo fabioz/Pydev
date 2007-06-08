@@ -95,6 +95,7 @@ public class CodeCompletionTestsBase extends TestCase {
         PydevPlugin.setBundleInfo(new BundleInfoStub());
         preferences = new Preferences();
         ProjectModulesManager.IN_TESTS = true;
+        REF.IN_TESTS = true;
     }
     
     /*
@@ -104,6 +105,7 @@ public class CodeCompletionTestsBase extends TestCase {
         super.tearDown();
         PydevPlugin.setBundleInfo(null);
         ProjectModulesManager.IN_TESTS = false;
+        REF.IN_TESTS = false;
     }
     
     /**

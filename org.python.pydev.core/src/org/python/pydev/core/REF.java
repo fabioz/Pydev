@@ -39,8 +39,6 @@ import org.eclipse.core.internal.resources.ResourceException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -415,6 +413,8 @@ public class REF {
         '!', '@', '#', '$', '%', '^', '&', '*', 
         '(', ')', '[', ']', '{', '}', '=', '+',
         '.', ' ', '`', '~', '\'', '"', ',', ';'};
+    
+    public static boolean IN_TESTS = false;
 
     public static String getValidProjectName(IProject project) {
         String name = project.getName();
@@ -513,7 +513,9 @@ public class REF {
         }catch(Throwable e){
             //private static final IWorkspaceRoot WORKSPACE_ROOT= ResourcesPlugin.getWorkspace().getRoot();
             //throws an error and we don't even have access to the FileBuffers class in tests
-            Log.log("Unable to get doc from text file buffer");
+            if(!IN_TESTS ){
+                Log.log("Unable to get doc from text file buffer");
+            }
             return null; 
         }
     }

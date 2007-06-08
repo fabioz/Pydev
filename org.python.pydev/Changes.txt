@@ -2,6 +2,7 @@ after 1.3.4
 Pydev Extensions:
 <ul>
 <li><strong>Auto-Import:</strong> Import was not added to the correct line if a multi-line import was found that had '('.</li>
+<li><strong>Code Analysis:</strong> Having a list comprehension with a subscript was not being treated correctly.</li>
 </ul>
 
 Pydev:
