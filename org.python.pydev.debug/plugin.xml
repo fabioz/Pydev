@@ -176,7 +176,7 @@
 		icon="icons/python.gif"
 		modes="run, debug"
 		class="org.python.pydev.debug.ui.launching.LaunchShortcut"
-		id="org.python.pydev.debug.ui.launchShortcut">
+		id="org.python.pydev.debug.ui.launchShortcut.python">
 		<perspective id="org.eclipse.debug.ui.DebugPerspective"/>
 		<!--this adds it to run-as (taken from \eclipse\plugins\org.eclipse.jdt.junit_3.0.1) -->
         <contextualLaunch>
@@ -198,7 +198,7 @@
 		icon="icons/jython.gif"
 		modes="run, debug"
 		class="org.python.pydev.debug.ui.launching.JythonLaunchShortcut"
-		id="org.python.pydev.debug.ui.jythonLaunchShortcut">
+		id="org.python.pydev.debug.ui.launchShortcut.jython">
 		<!--this adds it to run-as (taken from \eclipse\plugins\org.eclipse.jdt.junit_3.0.1) -->
         <contextualLaunch>
            <enablement>
@@ -219,7 +219,7 @@
 		icon="icons/python_coverage.gif"
 		modes="run"
 		class="org.python.pydev.debug.ui.launching.CoverageLaunchShortcut"
-		id="org.python.pydev.debug.ui.launchShortcut">
+		id="org.python.pydev.debug.ui.launchShortcut.python.coverage">
 		<!--this adds it to run-as (taken from \eclipse\plugins\org.eclipse.jdt.junit_3.0.1) -->
         <contextualLaunch>
            <enablement>
@@ -241,7 +241,7 @@
 		icon="icons/python_unit.gif"
 		modes="run, debug"
 		class="org.python.pydev.debug.ui.launching.UnitTestLaunchShortcut"
-		id="org.python.pydev.debug.ui.launchShortcut">
+		id="org.python.pydev.debug.ui.launchShortcut.python.unittest">
         <contextualLaunch>
            <enablement>
               <with variable="selection">
@@ -262,7 +262,7 @@
 		icon="icons/jython_unit.gif"
 		modes="run, debug"
 		class="org.python.pydev.debug.ui.launching.JythonUnitTestLaunchShortcut"
-		id="org.python.pydev.debug.ui.launchShortcut">
+		id="org.python.pydev.debug.ui.launchShortcut.jython.unittest">
         <contextualLaunch>
            <enablement>
               <with variable="selection">
@@ -457,7 +457,6 @@
 </extension>
 
 
-<!-- TODO: check bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=186890 to see why this may have to be removed in Eclipse 3.3 -->
 <extension point="org.eclipse.ui.handlers">
 	<handler class="org.python.pydev.debug.ui.actions.EvalExpressionAction" commandId="org.python.pydev.debug.command.Display">
 	</handler>

@@ -2,6 +2,7 @@ package org.python.pydev.debug.ui.actions;
 
 import java.util.Set;
 
+import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
@@ -42,7 +43,7 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
  * 
  * @author "<a href=mailto:grisha@alum.mit.edu>Gregory Golberg</A>"
  */
-public class EvalExpressionAction implements IHandler, IEditorActionDelegate {
+public class EvalExpressionAction extends AbstractHandler implements IHandler, IEditorActionDelegate {
 
     public static final String ACTION_DEFINITION_ID = "org.python.pydev.debug.command.Display"; //$NON-NLS-1$
 
@@ -121,13 +122,6 @@ public class EvalExpressionAction implements IHandler, IEditorActionDelegate {
         });
     }
 
-    public void addHandlerListener(IHandlerListener handlerListener) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void dispose() {
-        throw new UnsupportedOperationException();
-    }
 
     public Object execute(ExecutionEvent event) throws ExecutionException {
         try {
@@ -142,18 +136,6 @@ public class EvalExpressionAction implements IHandler, IEditorActionDelegate {
             DebugPlugin.log(cce);
         }
         return null;
-    }
-
-    public boolean isEnabled() {
-        return true;
-    }
-
-    public boolean isHandled() {
-        return true;
-    }
-
-    public void removeHandlerListener(IHandlerListener handlerListener) {
-        throw new UnsupportedOperationException();
     }
 
     /**

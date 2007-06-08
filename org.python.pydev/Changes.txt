@@ -4,6 +4,10 @@ Pydev Extensions:
 <li><strong>Auto-Import:</strong> Import was not added to the correct line if a multi-line import was found that had '('.</li>
 </ul>
 
+Pydev:
+<ul>
+<li><strong>Eclipse 3.3 Integration:</strong> Does not keep eclipse from a correct shutdown anymore.</li>
+</ul>
 
 
 after 1.3.3
