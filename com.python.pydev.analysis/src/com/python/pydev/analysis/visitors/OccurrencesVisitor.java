@@ -23,6 +23,7 @@ import org.python.pydev.parser.jython.ast.Compare;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
+import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Print;
 import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.Return;
@@ -170,6 +171,8 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
             traverse((If)node);
         }else if(node instanceof While){
             traverse((While)node);
+        }else if(node instanceof ListComp){
+            this.visitListComp((ListComp) node);
         }else{
             super.traverse(node);
         }

@@ -27,7 +27,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testGlobal3();
+            analyzer2.testListComp();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -101,6 +101,11 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals("testcase", msgs[0].getAdditionalInfo().get(1));
     }
     
+    
+    public void testListComp() throws Exception {
+        doc = new Document("print [a for a in range(3)][0].split()");
+        checkNoError();
+    }
     
     public void testMetaclass(){
     	doc = new Document(
