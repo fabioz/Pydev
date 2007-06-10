@@ -91,7 +91,11 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 	//=============================================================================================
 	
 	protected void fileNotFound() {
-		reportError("Unable to launch the file, not found??", null);	
+		String msg = "Unable to launch the file. " +
+				    "Possible reasons may include:\n" +
+				    "    - the file being launched is not under a project in the workspace;\n" +
+				    "    - the file was deleted.";
+        reportError(msg, null);	
 	}
 	
 	protected boolean verifyMode(String mode) {
