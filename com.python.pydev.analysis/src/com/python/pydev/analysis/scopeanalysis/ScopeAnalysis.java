@@ -57,7 +57,7 @@ public class ScopeAnalysis {
     	SimpleNode simpleNode=null;
     	
     	if(scope.getScopeStack().size() > 0){
-    		simpleNode = (SimpleNode) scope.getScopeStack().get(scope.getScopeStack().size()-1);
+    		simpleNode = (SimpleNode) scope.getScopeStack().peek();
     		
     	}else if (module instanceof SourceModule){
     		SourceModule m = (SourceModule) module;

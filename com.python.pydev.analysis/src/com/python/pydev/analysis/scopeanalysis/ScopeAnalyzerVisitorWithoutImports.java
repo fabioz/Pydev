@@ -239,7 +239,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
         if(parents.size() == 0){
             parents.push(new ASTEntry(null, node));
         }else{
-            parents.add(new ASTEntry(parents.peek(), node));
+            parents.push(new ASTEntry(parents.peek(), node));
         }
     }
 

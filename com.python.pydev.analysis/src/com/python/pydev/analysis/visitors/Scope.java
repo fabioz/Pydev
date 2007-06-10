@@ -349,7 +349,7 @@ public class Scope implements Iterable<ScopeItems>{
     }
 
     public ScopeItems getGlobalScope() {
-        return scope.get(0);
+        return scope.getFirst();
     }
 
 	public Iterator<ScopeItems> iterator() {
