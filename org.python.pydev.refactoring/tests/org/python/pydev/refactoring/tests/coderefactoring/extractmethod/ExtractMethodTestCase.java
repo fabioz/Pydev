@@ -9,6 +9,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.text.edits.MultiTextEdit;
+import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
@@ -32,6 +33,7 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 
 	@Override
 	public void runTest() throws Throwable {
+	    REF.IN_TESTS = true;
 		MockupExtractMethodConfig config = initConfig();
 
 		IDocument doc = new Document(getSource());
@@ -50,6 +52,7 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 
 		this.setTestGenerated(refactoringDoc.get());
 		assertEquals(getExpected(), getGenerated());
+		REF.IN_TESTS = false;
 	}
 
 	private IDocument applyExtractMethod(RefactoringInfo info, MockupExtractMethodRequestProcessor requestProcessor)
