@@ -614,9 +614,9 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 							Tuple<Integer, Integer> def = getLineColForDefinition(ast2);
 							FastStack<SimpleNode> stack = new FastStack<SimpleNode>();
                             if(module instanceof SourceModule){
-                                stack.add(((SourceModule)module).getAst());
+                                stack.push(((SourceModule)module).getAst());
                             }
-							stack.add(classDef);
+							stack.push(classDef);
 							ILocalScope scope = new LocalScope(stack);
 							return new Definition[]{new Definition(def.o1, def.o2, token.getRepresentation(), ast2, scope, module)};
                             

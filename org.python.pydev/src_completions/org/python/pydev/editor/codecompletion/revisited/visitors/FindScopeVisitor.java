@@ -73,7 +73,7 @@ public class FindScopeVisitor extends AbstractVisitor {
 	            //scope is locked at this time.
 	            found = true;
 	            int original = scope.getIfMainLine();
-	            scope = new LocalScope((FastStack<SimpleNode>) this.stackScope.clone());
+	            scope = new LocalScope((FastStack<SimpleNode>) this.stackScope.createCopy());
 	            scope.setIfMainLine(original);
 	        }
         }else{

@@ -167,7 +167,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             	while(true){
                     
             		//add the current to the found
-            		found.add(parentContainer);
+            		found.push(parentContainer);
             		parentContainer = parentContainer.getParent();
             		if(parentContainer == null){
             			break;

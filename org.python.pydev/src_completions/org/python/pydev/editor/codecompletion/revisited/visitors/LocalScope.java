@@ -41,7 +41,7 @@ public class LocalScope implements ILocalScope {
         this.scope.addAll(scope);
     }
     
-    public FastStack getScopeStack(){
+    public FastStack<SimpleNode> getScopeStack(){
         return scope;
     }
     
