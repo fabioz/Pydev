@@ -289,8 +289,6 @@ class Test(unittest.TestCase):
             'python',
             PYDEVD_FILE, 
             '--RECORD_SOCKET_READS',
-            '--type', 
-            'python', 
             '--client', 
             'localhost', 
             '--port', 
@@ -356,5 +354,8 @@ class Test(unittest.TestCase):
 # Main        
 #=======================================================================================================================
 if __name__ == '__main__':
-    unittest.TextTestRunner().run(unittest.makeSuite(Test))
+    suite = unittest.makeSuite(Test)
+#    suite = unittest.TestSuite()
+#    suite.addTest(Test('testCase1'))
+    unittest.TextTestRunner().run(suite)
 

@@ -56,12 +56,7 @@ try:
 except:
     import StringIO #@Reimport
 
-try:
-    __setFalse = False
-except:
-    False = 0
-    True = 1
-
+from pydevd_constants import *
 
 import os.path
 import time
@@ -73,6 +68,8 @@ from socket import AF_INET, SOCK_STREAM, error #@UnresolvedImport
 import urllib
 import string
 import pydevd_vars
+import pydevd_vm_type
+
 
 
 CMD_RUN = 101
@@ -231,7 +228,7 @@ class WriterThread(PyDBDaemonThread):
         self.sock = sock
         self.setName("pydevd.Writer")
         self.cmdQueue = PydevQueue.Queue()
-        if type=='python':
+        if pydevd_vm_type.GetVmType() == 'python':
             self.timeout = 0
         else:
             self.timeout = 0.1

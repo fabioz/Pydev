@@ -4,6 +4,8 @@ from pydevd_comm import * #@UnusedWildImport
 from pydevd_constants import STATE_RUN, STATE_SUSPEND
 import pydevd_io
 import pydevd_frame
+import pydevd_additional_thread_info
+import pydevd_vm_type
 
 DONT_TRACE = {
               #commonly used things from the stdlib that we don't want to trace
@@ -53,27 +55,6 @@ class PyDBCommandThread(PyDBDaemonThread):
             #only got this error in interpreter shutdown
             #pydevd_log(0, 'Finishing debug communication...(3)')
             
-
-#=======================================================================================================================
-# PyDBAdditionalThreadInfo
-#=======================================================================================================================
-class PyDBAdditionalThreadInfo:
-    def __init__(self):
-        self.pydev_state = STATE_RUN 
-        self.pydev_step_stop = None
-        self.pydev_step_cmd = None
-        self.pydev_notify_kill = False
-        
-        #That's where the last frame entered is kept. That's needed so that we're able to 
-        #trace contexts that were previously untraced and are currently active. So, the bad thing
-        #is that the frame may be kept alive longer than it would if we go up on the frame stack,
-        #and is only disposed when some other frame is removed.
-        #A better way would be if we could get the topmost frame for each thread, but that's currently
-        #not possible.
-        self.pydev_last_frame = None
-        
-    def __str__(self):
-        return 'State:%s Stop:%s Cmd: %s Kill:%s' % (self.pydev_state, self.pydev_step_stop, self.pydev_step_cmd, self.pydev_notify_kill)
 
 
 
@@ -282,9 +263,11 @@ class PyDB:
                         except AttributeError:
                             pass #that's ok, no info currently set
                             
-                        if additionalInfo is not None and additionalInfo.pydev_last_frame is not None:
-                            additionalInfo.pydev_last_frame.f_trace = self.trace_dispatch
-                            SetTraceForParents(additionalInfo.pydev_last_frame, self.trace_dispatch)
+                        if additionalInfo is not None:
+                            for frame in additionalInfo.IterFrames():
+                                frame.f_trace = self.trace_dispatch
+                                SetTraceForParents(frame, self.trace_dispatch)
+                                del frame
                             
                         self.setSuspend(t, CMD_THREAD_SUSPEND)
     
@@ -386,9 +369,11 @@ class PyDB:
                             except AttributeError:
                                 pass #that's ok, no info currently set
                                 
-                            if additionalInfo is not None and additionalInfo.pydev_last_frame is not None:
-                                additionalInfo.pydev_last_frame.f_trace = self.trace_dispatch
-                                SetTraceForParents(additionalInfo.pydev_last_frame, self.trace_dispatch)
+                            if additionalInfo is not None:
+                                for frame in additionalInfo.IterFrames():
+                                    frame.f_trace = self.trace_dispatch
+                                    SetTraceForParents(frame, self.trace_dispatch)
+                                    del frame
                     
                 elif cmd_id == CMD_REMOVE_BREAK:
                     #command to remove some breakpoint
@@ -473,7 +458,7 @@ class PyDB:
             info.pydev_step_stop = None
             
         elif info.pydev_step_cmd == CMD_STEP_OVER:
-            if event is 'return': # if we are returning from the function, stop in parent
+            if event == 'return': # if we are returning from the function, stop in parent
                 frame.f_back.f_trace = GetGlobalDebugger().trace_dispatch
                 info.pydev_step_stop = frame.f_back
             else:
@@ -517,7 +502,13 @@ class PyDB:
             if DONT_TRACE.has_key(base): #we don't want to debug threading or anything related to pydevd
                 return None
     
-            t = threading.currentThread()
+            try:
+                #this shouldn't give an exception, but it could happen... (python bug
+                #see http://sourceforge.net/tracker/index.php?func=detail&aid=1733757&group_id=5470&atid=105470 for details)
+                t = threading.currentThread()
+            except:
+                return self.trace_dispatch
+            
             # if thread is not alive, cancel trace_dispatch processing
             if not t.isAlive():
                 self.processThreadNotAlive(id(t))
@@ -526,15 +517,14 @@ class PyDB:
             try:
                 additionalInfo = t.additionalInfo
             except AttributeError:
-                additionalInfo = PyDBAdditionalThreadInfo()
+                additionalInfo = pydevd_additional_thread_info.PyDBAdditionalThreadInfo()
                 t.additionalInfo = additionalInfo
             
             #always keep a reference to the topmost frame so that we're able to start tracing it (if it was untraced)
             #that's needed when a breakpoint is added in a current frame for a currently untraced context.
-            additionalInfo.pydev_last_frame = frame
             
             #each new frame...
-            dbFrame = pydevd_frame.PyDBFrame(self, filename, base, additionalInfo, t)
+            dbFrame = additionalInfo.CreateDbFrame(self, filename, base, additionalInfo, t, frame)
             return dbFrame.trace_dispatch(frame, event, arg)
         except:
             traceback.print_exc()
@@ -601,7 +591,6 @@ def processCommandLine(argv):
     """ parses the arguments.
         removes our arguments from the command line """
     retVal = {}
-    retVal['type'] = ''
     retVal['client'] = ''
     retVal['server'] = False
     retVal['port'] = 0
@@ -613,9 +602,9 @@ def processCommandLine(argv):
             del argv[i]
             retVal['port'] = int(argv[i])
             del argv[i]
-        elif (argv[i] == '--type'):
+        elif (argv[i] == '--vm_type'):
             del argv[i]
-            retVal['type'] = argv[i]
+            retVal['vm_type'] = argv[i]
             del argv[i]
         elif (argv[i] == '--client'):
             del argv[i]
@@ -642,17 +631,6 @@ def usage(doExit=0):
         sys.exit(0)
 
 
-def setupType(str=None):
-    global type
-    if str is not None:
-        type = str
-        return
-    
-    try:
-        import java.lang
-        type = 'jython'
-    except:
-        type = 'python'
 
 def SetTraceForParents(frame, dispatch_func):
     frame = frame.f_back
@@ -681,7 +659,7 @@ def settrace(host='localhost', stdoutToServer = False, stderrToServer = False, p
         bufferStdOutToServer = stdoutToServer
         bufferStdErrToServer = stderrToServer
         
-        setupType()
+        pydevd_vm_type.SetupType()
         
         debugger = PyDB()
         debugger.connect(host, port)
@@ -705,7 +683,7 @@ def settrace(host='localhost', stdoutToServer = False, stderrToServer = False, p
         try:
             additionalInfo = t.additionalInfo
         except AttributeError:
-            additionalInfo = PyDBAdditionalThreadInfo()
+            additionalInfo = pydevd_additional_thread_info.PyDBAdditionalThreadInfo()
             t.additionalInfo = additionalInfo
   
         if suspend:
@@ -726,7 +704,7 @@ def settrace(host='localhost', stdoutToServer = False, stderrToServer = False, p
         try:
             additionalInfo = t.additionalInfo
         except AttributeError:
-            additionalInfo = PyDBAdditionalThreadInfo()
+            additionalInfo = pydevd_additional_thread_info.PyDBAdditionalThreadInfo()
             t.additionalInfo = additionalInfo
             
         sys.settrace(debugger.trace_dispatch)
@@ -745,7 +723,7 @@ if __name__ == '__main__':
     pydevd_log(2, "Executing file " + setup['file'])
     pydevd_log(2, "arguments:" + str(sys.argv))
  
-    setupType(setup['type'])
+    pydevd_vm_type.SetupType(setup.get('vm_type', None))
     
     DebugInfoHolder.RECORD_SOCKET_READS = setup.get('RECORD_SOCKET_READS', False)
 

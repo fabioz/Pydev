@@ -432,7 +432,7 @@ public class PythonRunnerConfig {
             	cmdArgs.add("org.python.util.jython");
 
             	cmdArgs.add(getDebugScript());
-                cmdArgs.add("--type");
+                cmdArgs.add("--vm_type");
                 cmdArgs.add("jython");
                 cmdArgs.add("--client");
                 cmdArgs.add("localhost");
@@ -473,7 +473,7 @@ public class PythonRunnerConfig {
             
     		if (isDebug) {
     			cmdArgs.add(getDebugScript());
-                cmdArgs.add("--type");
+                cmdArgs.add("--vm_type");
                 cmdArgs.add("python");
     			cmdArgs.add("--client");
     			cmdArgs.add("localhost");

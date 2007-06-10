@@ -133,8 +133,11 @@ def varToXML(v, name):
             value += '...'
 
         #fix to work with unicode values
-        if isinstance(value, unicode):
-            value = value.encode('utf-8')
+        try:
+            if isinstance(value, unicode):
+                value = value.encode('utf-8')
+        except TypeError: #in java, unicode is a function
+            pass
             
         xmlValue = ' value="%s"' % (makeValidXmlValue(urllib.quote(value, '/>_= \t')))
     else:
