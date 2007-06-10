@@ -2,109 +2,245 @@ package org.python.pydev.core.structure;
 
 import java.util.EmptyStackException;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
-public class FastStack<E> extends LinkedList<E> {
-	/**
-	 * Creates an empty Stack.
-	 */
-	public FastStack() {
-	}
+/**
+ * Note: not thread-safe!
+ * 
+ * Note: Doesn't release items not used for garbage collection until a new item
+ * is added at that place
+ * 
+ * @author Fabio
+ * 
+ * @param <E>
+ */
+public class FastStack<E> implements Iterable<E> {
 
-	/**
-	 * Pushes an item onto the top of this stack. This has exactly the same effect as: <blockquote>
-	 * 
-	 * <pre>
-	 * addLast(item)</pre>
-	 * 
-	 * </blockquote>
-	 * 
-	 * @param item the item to be pushed onto this stack.
-	 * @return the <code>item</code> argument.
-	 */
-	public E push(E item) {
-		addLast(item);
-		return item;
-	}
+    private E[] elementData;
 
-	/**
-	 * Removes the object at the top of this stack and returns that object as the value of this function.
-	 * 
-	 * @return The object at the top of this stack (the last item of the <tt>LinkedList</tt> object).
-	 * @exception EmptyStackException if this stack is empty.
-	 */
-	public synchronized E pop() {
-		return removeLast();
-	}
+    private int size; // = 0
 
-	/**
-	 * Looks at the object at the top of this stack without removing it from the stack.
-	 * 
-	 * @return the object at the top of this stack.
-	 * @exception EmptyStackException if this stack is empty.
-	 */
-	public synchronized E peek() {
-		try {
-			return getLast();
-		} catch (NoSuchElementException e) {
-			throw new EmptyStackException();
-		}
-	}
+    public FastStack() {
+        this(73); //after some runs in pydev, this was a good number...
+    }
 
-	/**
-	 * Tests if this stack is empty.
-	 * 
-	 * @return <code>true</code> if and only if this stack contains no items; <code>false</code> otherwise.
-	 */
-	public boolean empty() {
-		return size() == 0;
-	}
+    /**
+     * Creates an empty Stack.
+     */
+    @SuppressWarnings("unchecked")
+    public FastStack(int initialCapacity) {
+        this.elementData = (E[]) new Object[initialCapacity];
+    }
 
-	/**
-	 * Returns the 1-based position where an object is on this stack. If the object <tt>o</tt> occurs as an item in this stack, this method returns the
-	 * distance from the top of the stack of the occurrence nearest the top of the stack; the topmost item on the stack is considered to be at distance
-	 * <tt>1</tt>. The <tt>equals</tt> method is used to compare <tt>o</tt> to the items in this stack.
-	 * 
-	 * @param o the desired object.
-	 * @return the 1-based position from the top of the stack where the object is located; the return value <code>-1</code> indicates that the object is not
-	 *         on the stack.
-	 */
-	public synchronized int search(Object o) {
-		int i = lastIndexOf(o);
+    /**
+     * Pushes an item onto the top of this stack.
+     * 
+     * @param item
+     *            the item to be pushed onto this stack.
+     * @return the <code>item</code> argument.
+     */
+    public E push(E item) {
+        if (elementData.length < size + 1) {
+            ensureCapacity(size + 1);
+        }
+        this.elementData[size] = item;
+        size++;
+        return item;
+    }
 
-		if (i >= 0) {
-			return size() - i;
-		}
-		return -1;
-	}
+    /**
+     * Removes the object at the top of this stack and returns that object as
+     * the value of this function.
+     * 
+     * @return The object at the top of this stack
+     * @exception EmptyStackException
+     *                if this stack is empty.
+     */
+    public synchronized E pop() {
+        if (size == 0) {
+            throw new EmptyStackException();
+        }
+        size--;
+        E item = this.elementData[size];
+        return item;
+    }
 
-	public void removeAllElements() {
-		this.clear();
-	}
+    /**
+     * Looks at the object at the top of this stack without removing it from the
+     * stack.
+     * 
+     * @return the object at the top of this stack.
+     * @exception EmptyStackException
+     *                if this stack is empty.
+     */
+    public synchronized E peek() {
+        if (size == 0) {
+            throw new EmptyStackException();
+        }
+        return this.elementData[size - 1];
+    }
 
-	public E elementAt(int i) {
-		return this.get(i);
-	}
-	
-	public Iterator<E> topDownIterator(){
-		final ListIterator<E> l = this.listIterator(this.size());
-		return new Iterator<E>(){
-			
-			public boolean hasNext() {
-				return l.hasPrevious();
-			}
+    /**
+     * Tests if this stack is empty.
+     * 
+     * @return <code>true</code> if and only if this stack contains no items;
+     *         <code>false</code> otherwise.
+     */
+    public boolean empty() {
+        return size == 0;
+    }
 
-			public E next() {
-				return l.previous();
-			}
+    public Iterator<E> topDownIterator() {
+        final ListIterator<E> l = new ListItr(this.size);
+        return new Iterator<E>() {
 
-			public void remove() {
-				throw new RuntimeException("Not Impl");
-			}
-			
-		};
-	}
+            public boolean hasNext() {
+                return l.hasPrevious();
+            }
+
+            public E next() {
+                return l.previous();
+            }
+
+            public void remove() {
+                throw new RuntimeException("Not Impl");
+            }
+
+        };
+    }
+
+    public int size() {
+        return size;
+    }
+
+    public ListIterator<E> iterator() {
+        return new ListItr(0);
+    }
+    
+    public E get(int i) {
+        if(i >= size){
+            throw new ArrayIndexOutOfBoundsException();
+        }
+        return elementData[i];
+    }
+
+    public void addAll(FastStack<? extends E> items) {
+        ensureCapacity(size + items.size);
+        System.arraycopy(items.elementData, 0, this.elementData, size, items.size);
+        size = size + items.size;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void ensureCapacity(int minCapacity) {
+        int oldCapacity = elementData.length;
+        if (minCapacity > oldCapacity) {
+            Object oldData[] = elementData;
+            int newCapacity = (oldCapacity * 3) / 2 + 1;
+            if (newCapacity < minCapacity) {
+                newCapacity = minCapacity;
+            }
+            elementData = (E[]) new Object[newCapacity];
+            System.arraycopy(oldData, 0, elementData, 0, size);
+        }
+    }
+
+    public E getFirst() {
+        return this.elementData[0];
+    }
+
+    public FastStack<E> createCopy() {
+        FastStack<E> ret = new FastStack<E>(size+15);
+        System.arraycopy(this.elementData, 0, ret.elementData, 0, size);
+        ret.size = size;
+        return ret;
+    }
+
+    public void clear() {
+        size = 0;
+    }
+
+    public void removeAllElements() {
+        size = 0;
+    }
+
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+    private class ListItr implements ListIterator<E> {
+
+        /**
+         * Index of element to be returned by subsequent call to next.
+         */
+        int cursor = 0;
+
+        /**
+         * Index of element returned by most recent call to next or previous.
+         * Reset to -1 if this element is deleted by a call to remove.
+         */
+        int lastRet = -1;
+
+        public boolean hasNext() {
+            return cursor != size();
+        }
+
+        public E next() {
+            try {
+                E next = get(cursor);
+                lastRet = cursor++;
+                return next;
+            } catch (IndexOutOfBoundsException e) {
+                throw new NoSuchElementException();
+            }
+        }
+
+        public void remove() {
+            throw new RuntimeException("Not implemented");
+        }
+
+        public void add(E o) {
+            throw new RuntimeException("Not implemented");
+        }
+
+        ListItr(int index) {
+            cursor = index;
+        }
+
+        public boolean hasPrevious() {
+            return cursor != 0;
+        }
+
+        public E previous() {
+            try {
+                int i = cursor - 1;
+                E previous = get(i);
+                lastRet = cursor = i;
+                return previous;
+            } catch (IndexOutOfBoundsException e) {
+                throw new NoSuchElementException();
+            }
+        }
+
+        public int nextIndex() {
+            return cursor;
+        }
+
+        public int previousIndex() {
+            return cursor - 1;
+        }
+
+        public void set(E o) {
+            throw new RuntimeException("Not implemented");
+        }
+    }
+
+    public int hashCode() {
+        throw new RuntimeException("Not hashable");
+    }
+
+    public boolean equals(Object o) {
+        throw new RuntimeException("Not comparable");
+    }
 
 }
