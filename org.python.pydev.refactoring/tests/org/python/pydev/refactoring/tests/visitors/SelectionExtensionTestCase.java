@@ -4,6 +4,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
+import org.python.pydev.refactoring.ast.rewriter.RewriterVisitor;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.core.RefactoringInfo;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
@@ -29,7 +30,7 @@ public class SelectionExtensionTestCase extends AbstractIOTestCase {
 	private void runSelectionExtension(RefactoringInfo info) {
 		StringBuilder buffer = new StringBuilder();
 		try {
-			String source = VisitorFactory.createSourceFromAST(info.getParsedExtendedSelection().getASTParent(), "\n");
+			String source = RewriterVisitor.createSourceFromAST(info.getParsedExtendedSelection().getASTParent(), "\n");
 			buffer.append(source); // normalized source
 		} catch (Throwable e) {
 			buffer.append("# Invalid selection:\n");

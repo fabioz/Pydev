@@ -31,6 +31,7 @@ import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
+import org.python.pydev.refactoring.ast.rewriter.RewriterVisitor;
 
 public class NodeHelper {
 
@@ -141,7 +142,7 @@ public class NodeHelper {
 		} else if (isCall(node))
 			return getName(((Call) node).func);
 		else if (isAttribute(node)) {
-			String attributeName = VisitorFactory.createSourceFromAST(node, true, endLineDelimiter);
+			String attributeName = RewriterVisitor.createSourceFromAST(node, true, endLineDelimiter);
 			int subscriptOffset = attributeName.indexOf("[");
 			if (subscriptOffset > 0)
 				attributeName = attributeName.substring(0, subscriptOffset - 1);

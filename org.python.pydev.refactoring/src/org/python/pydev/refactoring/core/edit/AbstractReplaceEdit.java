@@ -2,7 +2,7 @@ package org.python.pydev.refactoring.core.edit;
 
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
-import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
+import org.python.pydev.refactoring.ast.rewriter.RewriterVisitor;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
 public abstract class AbstractReplaceEdit extends AbstractTextEdit {
@@ -17,7 +17,7 @@ public abstract class AbstractReplaceEdit extends AbstractTextEdit {
 	}
 
 	protected String getFormatedNode() {
-		String source = VisitorFactory.createSourceFromAST(getEditNode(), newLineDelim);
+		String source = RewriterVisitor.createSourceFromAST(getEditNode(), newLineDelim);
 		return source.trim();
 	}
 

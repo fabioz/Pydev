@@ -1,8 +1,6 @@
 package org.python.pydev.refactoring.tests.core;
 
-import java.io.StringWriter;
-
-import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
+import org.python.pydev.refactoring.ast.rewriter.RewriterVisitor;
 
 public abstract class AbstractRewriterTestCase extends AbstractIOTestCase {
 
@@ -15,9 +13,7 @@ public abstract class AbstractRewriterTestCase extends AbstractIOTestCase {
 	}
 
 	protected void runRewriter() throws Throwable {
-		StringWriter out = new StringWriter();
-		VisitorFactory.createRewriterVisitor(out, getSource(), "\n");
-		setTestGenerated(out.getBuffer().toString());
+		setTestGenerated(RewriterVisitor.reparsed(getSource(), "\n"));
 	}
 
 }

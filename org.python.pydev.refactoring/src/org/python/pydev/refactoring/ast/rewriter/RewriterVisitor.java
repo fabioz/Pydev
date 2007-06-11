@@ -1,5 +1,7 @@
 package org.python.pydev.refactoring.ast.rewriter;
 
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -68,7 +70,11 @@ import org.python.pydev.parser.jython.ast.listcompType;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
+import org.python.pydev.parser.prettyprinter.PrettyPrinter;
+import org.python.pydev.parser.prettyprinter.PrettyPrinterPrefs;
+import org.python.pydev.parser.prettyprinter.WriterEraser;
 import org.python.pydev.refactoring.ast.printer.SourcePrinter;
+import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 
 /**
  * GoF Visitor Pattern for AST traversal (see AbstractRewriterVisitor for implemented Jython Visitor class). It will traverse an Abstract
@@ -78,8 +84,86 @@ import org.python.pydev.refactoring.ast.printer.SourcePrinter;
  * 
  */
 public class RewriterVisitor extends AbstractRewriterVisitor {
+    
+    //------------------------------------------------------------------------------------------------- public interface
 
-	public RewriterVisitor(SourcePrinter printer) {
+    //REWRITER INTERFACE FOR CURRENT VERSION ---------------------------------------------------------------------------
+    public static String reparsed(String source, String string) {
+        StringWriter out = new StringWriter();
+        createRewriterVisitor(out, source, "\n");
+        return out.getBuffer().toString();
+    }
+
+    public static String createSourceFromAST(SimpleNode root, boolean ignoreComments, String newLineDelim) {
+        RewriterVisitor visitor = null;
+        StringWriter writer = new StringWriter();
+        try {
+            visitor = new RewriterVisitor(VisitorFactory.createPrinter(writer, newLineDelim));
+            visitor.setIgnoreComments(ignoreComments);
+            visitor.visit(root);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        visitor.flush();
+        return writer.getBuffer().toString();
+    }
+
+    public static String createSourceFromAST(SimpleNode root, String newLineDelim) {
+        return createSourceFromAST(root, false, newLineDelim);
+    }
+
+    private static RewriterVisitor createRewriterVisitor(Writer out, String source, String newLineDelim) {
+        RewriterVisitor visitor = null;
+        try {
+            SimpleNode root = VisitorFactory.getRootNodeFromString(source);
+            visitor = new RewriterVisitor(VisitorFactory.createPrinter(out, newLineDelim));
+            root.accept(visitor);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+        visitor.flush();
+        return visitor;
+    }
+    
+    //END REWRITER INTERFACE FOR CURRENT VERSION -----------------------------------------------------------------------
+
+
+//    public static String reparsed(String source, String delimiter) {
+//        try {
+//            SimpleNode root = VisitorFactory.getRootNodeFromString(source);
+//            return createSourceFromAST(root, delimiter);
+//        } catch (Throwable e) {
+//            throw new RuntimeException(e);
+//        }
+//        
+//    }
+//    
+//    public static String createSourceFromAST(SimpleNode root, String newLineDelim) {
+//        return createSourceFromAST(root, false, newLineDelim);
+//    }
+//
+//
+//    public static String createSourceFromAST(SimpleNode root, boolean ignoreComments, String newLineDelim) {
+//        final WriterEraser stringWriter = new WriterEraser();
+//        PrettyPrinterPrefs prettyPrinterPrefs = new PrettyPrinterPrefs(newLineDelim);
+//        prettyPrinterPrefs.setSpacesAfterComma(1);
+//        prettyPrinterPrefs.setSpacesBeforeComment(1);
+//        PrettyPrinter printer = new PrettyPrinter(prettyPrinterPrefs, stringWriter);
+//        try {
+//            root.accept(printer);
+//            return stringWriter.getBuffer().toString();
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//        
+//    }
+
+
+    
+    //--------------------------------------------------------------------------------------------- end public interface
+
+
+	private RewriterVisitor(SourcePrinter printer) {
 		super(printer);
 	}
 
@@ -715,6 +799,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 	}
 
 	public Object visitIf(If node) throws Exception {
+
 		printer.printStatementIf(false, true);
 
 		printer.openParentheses(node);
@@ -732,7 +817,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 			handleCommentAfterBody(node, visit(node, node.body));
 
 		handleIfElse(node);
-
+		
 		return null;
 	}
 
@@ -1072,5 +1157,9 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 		handleCommentAfter(node.value);
 		return null;
 	}
+
+
+
+
 
 }

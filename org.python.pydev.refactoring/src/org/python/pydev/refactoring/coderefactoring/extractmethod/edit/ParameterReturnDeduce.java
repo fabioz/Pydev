@@ -155,11 +155,7 @@ public class ParameterReturnDeduce {
 	}
 
 	public List<String> getReturns() {
-		List<String> methodReturns = new ArrayList<String>();
-		methodReturns.addAll(this.returns);
-
-		return methodReturns;
-
+	    return new ArrayList<String>(this.returns);
 	}
 
 }

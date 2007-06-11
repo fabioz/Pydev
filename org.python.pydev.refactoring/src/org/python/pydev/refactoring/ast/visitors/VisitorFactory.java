@@ -2,7 +2,6 @@ package org.python.pydev.refactoring.ast.visitors;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.io.Writer;
 
 import org.eclipse.jface.text.Document;
@@ -22,7 +21,6 @@ import org.python.pydev.refactoring.ast.adapters.AbstractNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.printer.SourcePrinter;
-import org.python.pydev.refactoring.ast.rewriter.RewriterVisitor;
 import org.python.pydev.refactoring.ast.visitors.context.AbstractContextVisitor;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionException;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionExtenderVisitor;
@@ -30,37 +28,6 @@ import org.python.pydev.refactoring.ast.visitors.selection.SelectionValidationVi
 import org.python.pydev.refactoring.core.PythonModuleManager;
 
 public class VisitorFactory {
-
-	public static String createSourceFromAST(SimpleNode root, boolean ignoreComments, String newLineDelim) {
-		RewriterVisitor visitor = null;
-		StringWriter writer = new StringWriter();
-		try {
-			visitor = new RewriterVisitor(createPrinter(writer, newLineDelim));
-			visitor.setIgnoreComments(ignoreComments);
-			visitor.visit(root);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		visitor.flush();
-		return writer.getBuffer().toString();
-	}
-
-	public static String createSourceFromAST(SimpleNode root, String newLineDelim) {
-		return createSourceFromAST(root, false, newLineDelim);
-	}
-
-	public static RewriterVisitor createRewriterVisitor(Writer out, String source, String newLineDelim) {
-		RewriterVisitor visitor = null;
-		try {
-			SimpleNode root = getRootNodeFromString(source);
-			visitor = new RewriterVisitor(createPrinter(out, newLineDelim));
-			root.accept(visitor);
-		} catch (Throwable e) {
-			throw new RuntimeException(e);
-		}
-		visitor.flush();
-		return visitor;
-	}
 
 	public static ITextSelection createSelectionExtension(AbstractScopeNode<?> scope, ITextSelection selection) {
 		SelectionExtenderVisitor visitor = null;
@@ -140,11 +107,11 @@ public class VisitorFactory {
 	}
 
 
-	private static SourcePrinter createPrinter(Writer out, String newLineDelim) {
+	public static SourcePrinter createPrinter(Writer out, String newLineDelim) {
 		return new SourcePrinter(new PrintWriter(out), newLineDelim);
 	}
 
-	private static SimpleNode getRootNodeFromString(String source) throws Throwable {
+	public static SimpleNode getRootNodeFromString(String source) throws Throwable {
 		return getRootNode(getDocumentFromString(source));
 	}
 

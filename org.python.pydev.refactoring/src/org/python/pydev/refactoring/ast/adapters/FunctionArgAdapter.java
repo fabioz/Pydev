@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.exprType;
-import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
+import org.python.pydev.refactoring.ast.rewriter.RewriterVisitor;
 
 public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
 
@@ -63,6 +63,6 @@ public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
 	}
 
 	public String getSignature() {
-		return VisitorFactory.createSourceFromAST(this.getASTNode(), true, getModule().getEndLineDelimiter());
+		return RewriterVisitor.createSourceFromAST(this.getASTNode(), true, getModule().getEndLineDelimiter());
 	}
 }
