@@ -43,4 +43,9 @@ public interface IPyEdit extends IParserObserver{
     boolean hasSameInput(IPyEdit edit);
 
     IDocument getDocument();
+    
+    /**
+     * Set status message
+     */
+    void setStatusLineErrorMessage(String msg);
 }

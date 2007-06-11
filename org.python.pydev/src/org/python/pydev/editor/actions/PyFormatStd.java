@@ -11,9 +11,12 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.parser.prettyprinter.Formatter;
+import org.python.pydev.parser.prettyprinter.IFormatter;
 import org.python.pydev.plugin.PyCodeFormatterPage;
 
 /**
@@ -57,11 +60,15 @@ public class PyFormatStd extends PyAction implements IFormatter{
 		}		
     }
 
-    public void formatSelection(IDocument doc, int startLine, int endLineIndex, PyEdit edit, PySelection ps){
+    public void formatSelection(IDocument doc, int startLine, int endLineIndex, IPyEdit edit, PySelection ps){
+//        Formatter formatter = new Formatter();
+//        formatter.formatSelection(doc, startLine, endLineIndex, edit, ps);
         performFormatSelection(doc, startLine, endLineIndex);
     }
     
-    public void formatAll(IDocument doc, PyEdit edit) {
+    public void formatAll(IDocument doc, IPyEdit edit) {
+//        Formatter formatter = new Formatter();
+//        formatter.formatAll(doc, edit);
         performFormatAll(doc);
     }
     
