@@ -65,14 +65,19 @@ public class SimpleNode implements Node, ISimpleNode{
                 if(special instanceof commentType){
                     getSpecialsAfter().add(special);
                 }else{
-                    int addAt = countAfter(special);
+                    int addAt = countAfter(special, false);
                     getSpecialsAfter().add(addAt, special);
                 }
             }else{
                 if(special instanceof commentType){
-                    getSpecialsBefore().add(special);
+                    commentType s = (commentType) special;
+                    if(s.beginLine < this.beginLine){
+                        getSpecialsBefore().add(countBefore(special, true), special);
+                    }else{
+                        getSpecialsBefore().add(special);
+                    }
                 }else{
-                    int addAt = countBefore(special);
+                    int addAt = countBefore(special, false);
                     getSpecialsBefore().add(addAt, special);
                 }
             }
@@ -110,22 +115,22 @@ public class SimpleNode implements Node, ISimpleNode{
         return doCount(l);
     }
     
-    private int countAfter(Object special) {
+    private int countAfter(Object special, boolean beforeRegularStrings) {
         int[] lineCol = getLineCol(special);
         if(lineCol == null){
             return countStrings();
         }
         
-        return getIndex(lineCol, specialsAfter);
+        return getIndex(lineCol, specialsAfter, beforeRegularStrings);
     }
     
-    private int countBefore(Object special) {
+    private int countBefore(Object special, boolean beforeRegularStrings) {
         int[] lineCol = getLineCol(special);
         if(lineCol == null){
             return countStringsBefore();
         }
         
-        return getIndex(lineCol, specialsBefore);
+        return getIndex(lineCol, specialsBefore, beforeRegularStrings);
     }
 
     /**
@@ -133,7 +138,7 @@ public class SimpleNode implements Node, ISimpleNode{
      * @param l
      * @return
      */
-    private int getIndex(int[] lineCol, List l) {
+    private int getIndex(int[] lineCol, List l, boolean beforeRegularStrings) {
         if(l == null){
             return 0;
         }
@@ -142,6 +147,9 @@ public class SimpleNode implements Node, ISimpleNode{
             int[] existing = getLineCol(o);
             if(existing == null){
                 //do nothing... (will be after it)
+                if(beforeRegularStrings){
+                    return i;
+                }
                 
             }else if(existing[0] > lineCol[0]){
                 return i;

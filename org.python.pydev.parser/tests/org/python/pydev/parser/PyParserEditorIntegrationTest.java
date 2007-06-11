@@ -73,6 +73,10 @@ public class PyParserEditorIntegrationTest extends TestCase {
         public void setInput(PydevFileEditorInputStub input) {
             this.pydevFileEditorInputStub = input;
         }
+
+        public void setStatusLineErrorMessage(String msg) {
+            throw new RuntimeException("Not implemented");
+        }
     }
 
     
