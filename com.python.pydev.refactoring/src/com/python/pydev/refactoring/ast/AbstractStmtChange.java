@@ -9,11 +9,11 @@ import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.prettyprinter.PrettyPrinter;
+import org.python.pydev.parser.prettyprinter.PrettyPrinterPrefs;
+import org.python.pydev.parser.prettyprinter.WriterEraser;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-import com.python.pydev.refactoring.visitors.PrettyPrinter;
-import com.python.pydev.refactoring.visitors.PrettyPrinterPrefs;
-import com.python.pydev.refactoring.visitors.WriterEraser;
 
 public abstract class AbstractStmtChange implements IChanges {
 	

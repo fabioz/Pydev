@@ -16,10 +16,10 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.prettyprinter.PrettyPrinter;
+import org.python.pydev.parser.prettyprinter.PrettyPrinterPrefs;
+import org.python.pydev.parser.prettyprinter.WriterEraser;
 
-import com.python.pydev.refactoring.visitors.PrettyPrinter;
-import com.python.pydev.refactoring.visitors.PrettyPrinterPrefs;
-import com.python.pydev.refactoring.visitors.WriterEraser;
 
 /**
  * This change adds a statement to the ast
