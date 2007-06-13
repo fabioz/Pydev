@@ -136,4 +136,31 @@ public class WriteState implements IWriterEraser {
     public int getLastWrite(){
         return lastWrite;
     }
+
+    public void writeLinesAfterMethod() {
+        for(int i=0;i<prefs.getLinesAfterMethod();i++){
+            try {
+                writeNewLine();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+    
+    public void writeLinesAfterClass() {
+        for(int i=0;i<prefs.getLinesAfterClass();i++){
+            try {
+                writeNewLine();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public void writeSpacesBeforeComment() {
+        if(lastState == LAST_STATE_WRITE){
+            write(prefs.getSpacesBeforeComment());
+        }
+    }
+
 }

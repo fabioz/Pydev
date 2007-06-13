@@ -102,7 +102,7 @@ public class AuxSpecials {
                     	}
                     }
                 }else{
-                    state.write(prefs.getSpacesBeforeComment());
+                    state.writeSpacesBeforeComment();
                 }
 				state.write(c.id);
                 state.writeNewLine();
@@ -176,7 +176,7 @@ public class AuxSpecials {
     public void moveComments(SimpleNode from, SimpleNode to, boolean moveBefore, boolean moveAfter, boolean onlyInDifferentLine) {
         if(moveBefore){
             if(from.specialsBefore != null){
-                for (Iterator iter = from.specialsBefore.iterator(); iter.hasNext();) {
+                for (Iterator<Object> iter = from.specialsBefore.iterator(); iter.hasNext();) {
                     Object o = iter.next();
                     if(o instanceof commentType){
                         to.addSpecial(o, false);
@@ -188,7 +188,7 @@ public class AuxSpecials {
         
         if(moveAfter){
             if(from.specialsAfter != null){
-                for (Iterator iter = from.specialsAfter.iterator(); iter.hasNext();) {
+                for (Iterator<Object> iter = from.specialsAfter.iterator(); iter.hasNext();) {
                     Object o = iter.next();
                     if(o instanceof commentType){
                         commentType c = (commentType) o;

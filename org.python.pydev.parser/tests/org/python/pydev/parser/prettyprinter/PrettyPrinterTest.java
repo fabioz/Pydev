@@ -21,7 +21,7 @@ public class PrettyPrinterTest extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testMultipleBool();
+            test.testFuncComment();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -65,6 +65,62 @@ public class PrettyPrinterTest extends PyParserTestBase{
         Module m = (Module) node;
         SimpleNode f = (SimpleNode) m.body[0];
         assertEquals(1, f.beginLine);
+    }
+    
+    public void testComments() throws Exception {
+        String str = "" +
+                "class MyMeta(type):\n" +
+                "    def __str__(cls):\n" +
+                "        return \"Beautiful class '%s'\" % cls.__name__\n" +
+                "class MyClass:\n" +
+                "    __metaclass__ = MyMeta\n" +
+        		"print type(foox)\n" +
+        		"# after print type\n" +
+        		"class A(object):# on-line\n" +
+        		"    # foo test\n" +
+        		"    def met(self):\n" +
+        		"        print 'A'\n" +
+        		"";
+        checkPrettyPrintEqual(str);
+        
+    }
+    
+    public void testComment5() throws Exception {
+        String str = "" +
+        		"class CoolApproach(object):\n" +
+        		"    # this tests also a tuple \"special case\"\n" +
+        		"    def foodeco(**arg5):\n" +
+        		"        pass\n" +
+        		"";
+        checkPrettyPrintEqual(str);
+        
+    }
+    
+    public void testDecoration() throws Exception {
+        String str = "" +
+        		"class Foo:\n" +
+        		"    @foodeco(('arg_3',),2,a=2,b=3)\n" +
+        		"    def __init__(self,arg_1,(arg_2,arg_3),arg_4,arg_5):\n" +
+        		"        pass\n" +
+        		"";
+        checkPrettyPrintEqual(str);
+    }
+    
+    public void testComments6() throws Exception {
+        String str = "" +
+        		"class FooApproach(CoolApproach):\n" +
+        		"    def __init__(self,arg_1,(arg_2,arg_3),*arg_4,**arg_5):\n" +
+        		"        # .. at this point all parameters except for 'arg_3' have been\n" +
+        		"        # copied to object attributes\n" +
+        		"        pass\n" +
+                "";
+        checkPrettyPrintEqual(str);
+        
+    }
+    
+    public void testComprehension() throws Exception {
+        String str = "compre4list = [zahl ** 2 for zahl in (1,4,6) if zahl % 2 == 1 if zahl % 3 == 2]# on-line\n";
+        checkPrettyPrintEqual(str);
     }
     
     public void test25If() throws Exception {

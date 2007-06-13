@@ -5,6 +5,8 @@ package org.python.pydev.parser.prettyprinter;
 
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
@@ -56,6 +58,7 @@ import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
@@ -288,8 +291,10 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         exprType[] keys = node.keys;
         exprType[] values = node.values;
         for (int i = 0; i < values.length; i++) {
+            prefs.enableSpacesAfterColon();
             keys[i].accept(this);
             values[i].accept(this);
+            prefs.disableSpacesAfterColon();
         }
         auxComment.writeSpecialsAfter(node);
         dedent();
@@ -300,7 +305,9 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     public Object visitLambda(Lambda node) throws Exception {
         genericBefore(node, false);
         state.pushInStmt(node);
+        prefs.enableSpacesAfterColon();
         makeArgs(node.args.args, node.args);
+        prefs.disableSpacesAfterColon();
         node.body.accept(this);
         state.popInStmt();
         genericAfter(node, false, false);
@@ -319,12 +326,32 @@ public class PrettyPrinter extends PrettyPrinterUtils{
 
     @Override
     public Object visitListComp(ListComp node) throws Exception {
-    	return visitGeneric(node, "visitListComp", false);
+        beforeNode(node);
+        node.elt.accept(this);
+        for(comprehensionType c:node.generators){
+            c.accept(this);
+        }
+        afterNode(node);
+    	return null;
+    }
+
+    private SimpleNode[] reverseNodeArray(SimpleNode[] expressions) {
+        java.util.List<SimpleNode> ifs = Arrays.asList(expressions);
+        Collections.reverse(ifs);
+        SimpleNode[] ifsInOrder = ifs.toArray(new SimpleNode[0]);
+        return ifsInOrder;
     }
 
     @Override
     public Object visitComprehension(Comprehension node) throws Exception {
-        return visitGeneric(node, "visitComprehension", false);
+        beforeNode(node);
+        node.target.accept(this);
+        node.iter.accept(this);
+        for(SimpleNode s:reverseNodeArray(node.ifs)){
+            s.accept(this);
+        }
+        afterNode(node);
+        return null;
     }
     
     @Override
@@ -496,7 +523,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
 
     @Override
     public Object visitPrint(Print node) throws Exception {
-        return visitGeneric(node, "visitPrint");
+        return visitGeneric(node, "visitPrint", true, null, false, false);
     }
 
     @Override
@@ -636,6 +663,38 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         }   
         auxComment.writeSpecialsAfter(node, false);
         fixNewStatementCondition();
+        state.writeLinesAfterClass();
+        return null;
+    }
+
+    public void visitNode(SimpleNode node) throws Exception{
+        if(node != null){
+            beforeNode(node);
+            node.accept(this);
+            afterNode(node);
+        }
+    }
+    
+    public Object visitDecoratorsType(decoratorsType node) throws Exception {
+        beforeNode(node);
+        visitNode(node.func);
+        if (node.args != null) {
+            for (int i = node.args.length-1; i >= 0; i--) {
+                if (node.args[i] != null)
+                    node.args[i].accept(this);
+            }
+        }
+        if (node.keywords != null) {
+            for (int i = node.keywords.length-1; i >= 0; i--) {
+                if (node.keywords[i] != null)
+                    visitNode(node.keywords[i]);
+            }
+        }
+        if (node.starargs != null)
+            node.starargs.accept(this);
+        if (node.kwargs != null)
+            node.kwargs.accept(this);
+        afterNode(node);
         return null;
     }
 
@@ -647,7 +706,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             fixNewStatementCondition();
             state.write("@");
             state.pushInStmt(node);
-            dec.accept(this);
+            visitDecoratorsType(dec);
             state.popInStmt();
             auxComment.writeSpecialsAfter(dec);
         }
@@ -655,10 +714,10 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         auxComment.writeSpecialsBefore(node);
         state.write("def ");
         
-        node.name.accept(this);
-        auxComment.writeStringsAfter(node);
         state.indent();
         int lastWrite = state.getLastWrite();
+        node.name.accept(this);
+        auxComment.writeStringsAfter(node);
         
         {
         	//arguments
@@ -677,6 +736,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             dedent();
         }
         auxComment.writeCommentsAfter(node);
+        state.writeLinesAfterMethod();
         return null;
     }
 
@@ -768,7 +828,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
 
     @Override
     public Object visitName(Name node) throws Exception {
-        return visitGeneric(node, "visitName", false, node.id);
+        return visitGeneric(node, "visitName", false, node.id, false, false);
     }
 
     @Override
@@ -796,7 +856,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     public Object visitNameTok(NameTok node) throws Exception {
         auxComment.writeSpecialsBefore(node);
         state.write(node.id);
-        auxComment.writeSpecialsAfter(node);
+        auxComment.writeSpecialsAfter(node, false);
         return null;
     }
 
