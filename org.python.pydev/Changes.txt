@@ -10,6 +10,9 @@ Pydev Extensions:
 Pydev:
 <ul>
 <li><strong>Eclipse 3.3 Integration:</strong> Does not keep eclipse from a correct shutdown anymore.</li>
+Fixed a part of the problem:
+- the docstrings are now wrapped to the size of the window
+- the column of whitespaces that's common for all the docstring is now removed
 </ul>
 
 
