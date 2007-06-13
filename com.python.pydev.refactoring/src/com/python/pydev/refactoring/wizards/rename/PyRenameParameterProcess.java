@@ -3,7 +3,7 @@ package com.python.pydev.refactoring.wizards.rename;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jface.util.Assert;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IPythonNature;
@@ -38,109 +38,108 @@ import com.python.pydev.refactoring.wizards.rename.visitors.FindCallVisitor;
  * (otherwise, we'd have a standard rename any local here)
  * 
  * @author fabioz
- *
  */
 public class PyRenameParameterProcess extends PyRenameFunctionProcess{
 
-	private String functionName;
-	
-	/**
-	 * Used if we're in a call and cannot find the definition for the method of that call when we've a KeywordParameterDefinition.
-	 * If that's not the case, it's null.
-	 */
-	private ASTEntry singleEntry;
+    private String functionName;
+    
+    /**
+     * Used if we're in a call and cannot find the definition for the method of that call when we've a KeywordParameterDefinition.
+     * If that's not the case, it's null.
+     */
+    private ASTEntry singleEntry;
 
-	public PyRenameParameterProcess(KeywordParameterDefinition definition, IPythonNature nature){
-		Assert.isNotNull(definition.scope, "The scope for a rename parameter must always be provided.");
-		
-		String tok = NodeUtils.getFullRepresentationString(definition.call);
-		int line = definition.call.beginLine;
-		int col = definition.call.beginColumn;
-		
-		IDefinition[] definitions;
-		try {
-			definitions = definition.module.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, nature, line-1, col-1), line, col, nature, null);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		if(definitions != null && definitions.length > 0){
-			init((Definition) definitions[0]);
-		}else{
-			singleEntry = new ASTEntry(null);
-			singleEntry.node = definition.ast;
-		}
-	}
-	
-	@Override
-	protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
-		if(singleEntry == null){
-			super.findReferencesToRenameOnLocalScope(request, status);
-		}else{
-			docOccurrences.add(singleEntry);
-		}
-	}
-	
-	@Override
-	protected void findReferencesToRenameOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
-		if(singleEntry == null){
-			super.findReferencesToRenameOnWorkspace(request, status);
-		}else{
-			docOccurrences.add(singleEntry);
-		}
-	}
-	
+    public PyRenameParameterProcess(KeywordParameterDefinition definition, IPythonNature nature){
+        Assert.isNotNull(definition.scope, "The scope for a rename parameter must always be provided.");
+        
+        String tok = NodeUtils.getFullRepresentationString(definition.call);
+        int line = definition.call.beginLine;
+        int col = definition.call.beginColumn;
+        
+        IDefinition[] definitions;
+        try {
+            definitions = definition.module.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, nature, line-1, col-1), line, col, nature, null);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        if(definitions != null && definitions.length > 0){
+            init((Definition) definitions[0]);
+        }else{
+            singleEntry = new ASTEntry(null);
+            singleEntry.node = definition.ast;
+        }
+    }
+    
+    @Override
+    protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
+        if(singleEntry == null){
+            super.findReferencesToRenameOnLocalScope(request, status);
+        }else{
+            docOccurrences.add(singleEntry);
+        }
+    }
+    
+    @Override
+    protected void findReferencesToRenameOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
+        if(singleEntry == null){
+            super.findReferencesToRenameOnWorkspace(request, status);
+        }else{
+            docOccurrences.add(singleEntry);
+        }
+    }
+    
     public PyRenameParameterProcess(Definition definition) {
-		//empty, because we'll actually supply a different definition for the superclass (the method 
-		//definition, and not the parameter, which we receive here).
-		
-		init(definition);
-	}
+        //empty, because we'll actually supply a different definition for the superclass (the method 
+        //definition, and not the parameter, which we receive here).
+        
+        init(definition);
+    }
 
-	private void init(Definition definition) {
-		Assert.isNotNull(definition.scope, "The scope for a rename parameter must always be provided.");
-		
-		FunctionDef node;
-		if(definition.ast instanceof FunctionDef){
-			node = (FunctionDef) definition.ast;
-		}else{
-			node = (FunctionDef) definition.scope.getScopeStack().peek();
-		}
-		super.definition = new Definition(node.beginLine, node.beginColumn, ((NameTok)node.name).id, node, definition.scope, definition.module);
-		this.functionName = ((NameTok)node.name).id;
-	}
-	
-	
-	/**
-	 * These are the methods that we need to override to change the function occurrences for parameter occurrences
-	 */
-	protected List<ASTEntry> getEntryOccurrencesInSameModule(RefactoringStatus status, String initialName, SimpleNode root) {
-		List<ASTEntry> occurrences = super.getEntryOccurrencesInSameModule(status, this.functionName, root);
-		return getParameterOccurences(occurrences, root);
-	}
-	
+    private void init(Definition definition) {
+        Assert.isNotNull(definition.scope, "The scope for a rename parameter must always be provided.");
+        
+        FunctionDef node;
+        if(definition.ast instanceof FunctionDef){
+            node = (FunctionDef) definition.ast;
+        }else{
+            node = (FunctionDef) definition.scope.getScopeStack().peek();
+        }
+        super.definition = new Definition(node.beginLine, node.beginColumn, ((NameTok)node.name).id, node, definition.scope, definition.module);
+        this.functionName = ((NameTok)node.name).id;
+    }
+    
+    
+    /**
+     * These are the methods that we need to override to change the function occurrences for parameter occurrences
+     */
+    protected List<ASTEntry> getEntryOccurrencesInSameModule(RefactoringStatus status, String initialName, SimpleNode root) {
+        List<ASTEntry> occurrences = super.getEntryOccurrencesInSameModule(status, this.functionName, root);
+        return getParameterOccurences(occurrences, root);
+    }
+    
     protected List<ASTEntry> getOccurrencesInOtherModule(RefactoringStatus status, String initialName, SourceModule module, PythonNature nature) {
         List<ASTEntry> occurrences = super.getOccurrencesInOtherModule(status, this.functionName, module, nature);
         return getParameterOccurences(occurrences, module.getAst());
         
     }
-	
+    
     /**
      * This method changes function occurrences for parameter occurrences
      */
     private List<ASTEntry> getParameterOccurences(List<ASTEntry> occurrences, SimpleNode root) {
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
-    	for (ASTEntry entry : occurrences) {
+        for (ASTEntry entry : occurrences) {
             
-    		if(entry.node instanceof Name){
-				Name name = (Name) entry.node;
-				if(name.ctx == Name.Artificial){
-					continue;
-				}
-    		}
+            if(entry.node instanceof Name){
+                Name name = (Name) entry.node;
+                if(name.ctx == Name.Artificial){
+                    continue;
+                }
+            }
             if(entry.parent != null && entry.parent.node instanceof FunctionDef && 
-            		entry.node instanceof NameTok && ((NameTok)entry.node).ctx == NameTok.FunctionName){
-            	//process a function definition (get the parameters with the given name and
-            	//references inside that function)
+                    entry.node instanceof NameTok && ((NameTok)entry.node).ctx == NameTok.FunctionName){
+                //process a function definition (get the parameters with the given name and
+                //references inside that function)
                 processFunctionDef(ret, entry);
                 
             }else if(entry.node instanceof Name){
@@ -150,13 +149,13 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
                 processFoundNameTok(root, ret, (NameTok) entry.node);
                 
             }
-		}
-		if(ret.size() > 0){
-			//only add comments and strings if there's at least some other occurrence
-			ret.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
-		}
-    	return ret;
-	}
+        }
+        if(ret.size() > 0){
+            //only add comments and strings if there's at least some other occurrence
+            ret.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
+        }
+        return ret;
+    }
 
 
     private void processFunctionDef(List<ASTEntry> ret, ASTEntry entry) {
@@ -185,9 +184,9 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
 
 
     private void processCall(List<ASTEntry> ret, Call call) {
-    	if(call == null){
-    		return;
-    	}
+        if(call == null){
+            return;
+        }
         List<ASTEntry> found = ScopeAnalysis.getLocalOccurrences(request.initialName, call);
         for (ASTEntry entry2 : found) {
             if(entry2.node instanceof NameTok){
