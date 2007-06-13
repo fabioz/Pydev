@@ -7,7 +7,7 @@ package org.python.pydev.editor.codecompletion;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jface.text.Assert;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -249,14 +249,17 @@ public class PyContextInformationValidator implements IContextInformationValidat
         
         int start= commas[fCurrentParameter] + 1;
         int end= commas[fCurrentParameter + 1];
-        if (start > 0)
+        if (start > 0){
             presentation.addStyleRange(new StyleRange(0, start, null, null, SWT.NORMAL));
+        }
 
-        if (end > start)
+        if (end > start){
             presentation.addStyleRange(new StyleRange(start, end - start, null, null, SWT.BOLD));
+        }
 
-        if (end < s.length())
+        if (end < s.length()){
             presentation.addStyleRange(new StyleRange(end, s.length() - end, null, null, SWT.NORMAL));
+        }
 
         return true;
     }
@@ -264,7 +267,7 @@ public class PyContextInformationValidator implements IContextInformationValidat
     private int[] computeCommaPositions(String code) {
         final int length= code.length();
         int pos= 0;
-        List positions= new ArrayList();
+        List<Integer> positions= new ArrayList<Integer>();
         positions.add(new Integer(-1));
         while (pos < length && pos != -1) {
             char ch= code.charAt(pos);
@@ -281,8 +284,9 @@ public class PyContextInformationValidator implements IContextInformationValidat
         positions.add(new Integer(length));
         
         int[] fields= new int[positions.size()];
-        for (int i= 0; i < fields.length; i++)
+        for (int i= 0; i < fields.length; i++){
             fields[i]= ((Integer) positions.get(i)).intValue();
+        }
         return fields;
     }
 
