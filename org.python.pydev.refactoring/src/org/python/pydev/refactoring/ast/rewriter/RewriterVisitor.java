@@ -362,7 +362,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 	private void handlePreNode(SimpleNode parent, SimpleNode lastNode, java.util.List<SimpleNode> nodes) {
 		handleCommentBefore(lastNode);
 		if (printer.getNodeHelper().isComprehension(parent)) {
-			printer.printStatementIf(true, true);
+			printer.printStatementIf(lastNode, true, true);
 		}
 	}
 
@@ -800,7 +800,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 
 	public Object visitIf(If node) throws Exception {
 
-		printer.printStatementIf(false, true);
+		printer.printStatementIf(node, false, true);
 
 		printer.openParentheses(node);
 		super.visit(node.test);
@@ -824,7 +824,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 	public Object visitIfExp(IfExp node) throws Exception {
 		super.visit(node.body);
 
-		printer.printStatementIf(true, true);
+		printer.printStatementIf(node, true, true);
 		printer.openParentheses(node.test);
 		super.visit(node.test);
 		printer.closeParentheses(node.test);

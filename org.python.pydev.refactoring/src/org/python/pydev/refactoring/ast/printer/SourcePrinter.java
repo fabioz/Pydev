@@ -543,11 +543,25 @@ public class SourcePrinter {
 		printStatement("global");
 	}
 
-	public void printStatementIf(boolean spaceBefore, boolean spaceAfter) {
-		if (!isDisabledIfPrinting())
+	public void printStatementIf(SimpleNode node, boolean spaceBefore, boolean spaceAfter) {
+		if (!isDisabledIfPrinting()){
 			printStatement("if", spaceBefore, spaceAfter);
-		else
+		}else{
+			
+			if(node != null){
+    	        for(Object o:node.specialsBefore){
+    	            if(o instanceof SpecialStr){
+    	                SpecialStr specialStr = (SpecialStr) o;
+    	                if(specialStr.str.trim().equals("if")){
+    	                    printStatement("if", spaceBefore, spaceAfter);
+    	                    return;
+    	                }
+    	            }
+    	        }
+			}
+			
 			setDisabledIfPrinting(false);
+		}
 	}
 
 	public void printStatementImport() {
