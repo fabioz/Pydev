@@ -53,4 +53,10 @@ public class StringUtilsTest extends TestCase {
         "";
         assertEquals(expected, StringUtils.replaceAll(initial, "\r\n", "\r"));
     }
+    
+    public void testRemoveWhitespaceColumnsToLeft() throws Exception {
+        assertEquals("foo", StringUtils.removeWhitespaceColumnsToLeft("   foo"));
+        assertEquals("foo\n", StringUtils.removeWhitespaceColumnsToLeft("   foo\n"));
+        assertEquals("foo\n   foo\n", StringUtils.removeWhitespaceColumnsToLeft(" foo\n    foo\n"));
+    }
 }

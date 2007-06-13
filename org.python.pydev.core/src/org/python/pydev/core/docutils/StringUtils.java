@@ -163,4 +163,28 @@ public class StringUtils {
         return ret.toString();
     }
 
+    public static String removeWhitespaceColumnsToLeft(String hoverInfo) {
+        StringBuffer buf = new StringBuffer();
+        int firstCharPosition = Integer.MAX_VALUE;
+        
+        List<String> splitted = splitInLines(hoverInfo);
+        for(String line:splitted){
+            if(line.trim().length() > 0){
+                int found = PySelection.getFirstCharPosition(line);
+                firstCharPosition = Math.min(found, firstCharPosition);
+            }
+        }
+        
+        if(firstCharPosition != Integer.MAX_VALUE){
+            for(String line:splitted){
+                if(line.length() > firstCharPosition){
+                    buf.append(line.substring(firstCharPosition));
+                }
+            }
+            return buf.toString();
+        }else{
+            return hoverInfo;//return initial
+        }
+    }
+
 }
