@@ -7,14 +7,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.jface.text.contentassist.ContentAssistEvent;
 import org.eclipse.jface.text.contentassist.ICompletionListener;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
+import org.eclipse.jface.text.contentassist.IContextInformationPresenter;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -35,6 +38,30 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class SimpleAssistProcessor implements IContentAssistProcessor {
     
+    private class ContextInformationDelegator implements IContextInformationValidator, IContextInformationPresenter {
+        private final IContextInformationValidator defaultContextInformationValidator;
+
+        private ContextInformationDelegator(IContextInformationValidator defaultContextInformationValidator) {
+            Assert.isTrue(defaultContextInformationValidator instanceof IContextInformationPresenter);
+            this.defaultContextInformationValidator = defaultContextInformationValidator;
+        }
+
+        public void install(IContextInformation info, ITextViewer viewer, int offset) {
+            defaultContextInformationValidator.install(info, viewer, offset);
+        }
+
+        public boolean isContextInformationValid(int offset) {
+            if(showDefault()){
+                return defaultContextInformationValidator.isContextInformationValid(offset);
+            }
+            return true;
+        }
+
+        public boolean updatePresentation(int offset, TextPresentation presentation) {
+            return ((IContextInformationPresenter)defaultContextInformationValidator).updatePresentation(offset, presentation);
+        }
+    }
+
     public static final char[] ALL_ASCII_CHARS = new char[]{
             'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
             'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
@@ -259,20 +286,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      */
     public IContextInformationValidator getContextInformationValidator() {
         final IContextInformationValidator defaultContextInformationValidator = defaultPythonProcessor.getContextInformationValidator();
-        return new IContextInformationValidator(){
-
-            public void install(IContextInformation info, ITextViewer viewer, int offset) {
-                defaultContextInformationValidator.install(info, viewer, offset);
-            }
-
-            public boolean isContextInformationValid(int offset) {
-                if(showDefault()){
-                    return defaultContextInformationValidator.isContextInformationValid(offset);
-                }
-                return true;
-            }
-            
-        };
+        return new ContextInformationDelegator(defaultContextInformationValidator);
     }
 
 }
