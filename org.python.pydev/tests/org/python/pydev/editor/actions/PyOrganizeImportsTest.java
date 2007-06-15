@@ -18,7 +18,7 @@ public class PyOrganizeImportsTest extends TestCase {
         try {
             PyOrganizeImportsTest test = new PyOrganizeImportsTest();
             test.setUp();
-            test.testPerform5();
+            test.testPerform6();
             test.tearDown();
             junit.textui.TestRunner.run(PyOrganizeImportsTest.class);
         } catch (Throwable e) {
@@ -174,6 +174,20 @@ String result = ""+header+
         "import sys\n"+
         "import time\n";
         assertEquals(result, doc.get());
+        
+    }
+    
+    public void testPerform6() {
+        
+        
+        String d = ""+
+        "import sys #comment1\n"+
+        "import sys2 #comment2\n";
+        
+        Document doc = new Document(d);
+        PyOrganizeImports.performArrangeImports(doc, "\n");
+        
+        assertEquals(d, doc.get());
         
     }
 

@@ -13,6 +13,8 @@ Pydev:
 Fixed a part of the problem:
 - the docstrings are now wrapped to the size of the window
 - the column of whitespaces that's common for all the docstring is now removed
+<li><strong>Extract method refactoring:</strong> was not adding 'if' statement correctly.</li>
+<li><strong>Organize imports:</strong> (Ctrl+Shift+O): comments are not erased when organizing imports anymore.</li>
 </ul>
 
 

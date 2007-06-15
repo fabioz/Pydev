@@ -15,9 +15,14 @@ public class PyDocIterator implements Iterator<String> {
     private int literalEnd;
     private boolean changeLiteralsForSpaces;
     private int lastReturned = -1;
+    private boolean addComments;
 	
     public PyDocIterator(IDocument doc, boolean addNewLinesToRet) {
         this(doc, addNewLinesToRet, false, false);
+    }
+    
+    public PyDocIterator(IDocument doc, boolean addNewLinesToRet, boolean returnNewLinesOnLiterals, boolean changeLiteralsForSpaces) {
+        this(doc, addNewLinesToRet, returnNewLinesOnLiterals, changeLiteralsForSpaces, false);
     }
     
     /**
@@ -26,11 +31,12 @@ public class PyDocIterator implements Iterator<String> {
      * @param returnNewLinesOnLiterals whether we should return the new lines found in the literals (not the char, but the line itself)
      * @param changeLiteralsForSpaces whether we should replace the literals with spaces (so that we don't loose offset information)
      */
-	public PyDocIterator(IDocument doc, boolean addNewLinesToRet, boolean returnNewLinesOnLiterals, boolean changeLiteralsForSpaces) {
+	public PyDocIterator(IDocument doc, boolean addNewLinesToRet, boolean returnNewLinesOnLiterals, boolean changeLiteralsForSpaces, boolean addComments) {
 		this(doc);
 		this.addNewLinesToRet = addNewLinesToRet;
         this.returnNewLinesOnLiterals = returnNewLinesOnLiterals;
         this.changeLiteralsForSpaces = changeLiteralsForSpaces;
+        this.addComments = addComments;
 	}
 	
 	public PyDocIterator(IDocument doc) {
@@ -118,6 +124,9 @@ public class PyDocIterator implements Iterator<String> {
 	
 					while (offset < doc.getLength() && ch != '\n' && ch != '\r') {
 						ch = doc.getChar(offset);
+						if(addComments && ch != '\n' && ch != '\r'){
+						    buf.append(ch);
+						}
 						offset++;
 					}
 					

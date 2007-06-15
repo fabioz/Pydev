@@ -95,7 +95,7 @@ public class PyOrganizeImports extends PyAction{
 		ArrayList list = new ArrayList();
 		
 		int firstImport = -1;
-		PyDocIterator it = new PyDocIterator(doc, false);
+		PyDocIterator it = new PyDocIterator(doc, false, false, false, true);
 		while(it.hasNext()){
 			String str = it.next();
 		    
