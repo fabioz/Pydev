@@ -15,10 +15,15 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.editor.ErrorDescription;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.parser.PyParser;
+import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.NotConfiguredInterpreterException;
@@ -161,7 +166,15 @@ public class InterpreterObserver implements IInterpreterObserver {
                             if (node != null) {
                                 info.addAstInfo(node, key.name, nature, false);
                             }else{
-                                throw new RuntimeException("Unable to generate ast.");
+                                String str = "Unable to generate ast -- using %s.\nError:%s";
+                                ErrorDescription errorDesc = null;
+                                if(obj.o2 != null){
+                                    errorDesc = PyEdit.createErrorDesc(obj.o2, parserInfo.document);
+                                }
+                                throw new RuntimeException(StringUtils.format(str, 
+                                        PyParser.getGrammarVersionStr(grammarVersion),
+                                        (errorDesc!=null && errorDesc.message!=null)?
+                                                errorDesc.message:"unable to determine"));
                             }
 
                         } catch (Exception e) {
