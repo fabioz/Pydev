@@ -49,27 +49,22 @@ each command has a format:
     * JAVA - remote debugger, the java end
     * PYDB - pydevd, the python end
 '''
-import traceback
+from pydevd_constants import * #@UnusedWildImport
 
-try:
-    import cStringIO as StringIO #may not alway be available
-except:
-    import StringIO #@Reimport
-
-from pydevd_constants import *
-
-import os.path
 import time
 import sys
 import threading
 import Queue as PydevQueue
 from socket import socket
-from socket import AF_INET, SOCK_STREAM, error #@UnresolvedImport
+from socket import AF_INET, SOCK_STREAM
 import urllib
-import string
 import pydevd_vars
+import pydevd_tracing
 import pydevd_vm_type
+import pydevd_file_utils
+import traceback
 
+from pydevd_tracing import GetExceptionTracebackStr
 
 
 CMD_RUN = 101
@@ -121,47 +116,6 @@ def pydevd_log(level, s):
         except:
             pass
 
-def getTraceback():
-    exc_info = sys.exc_info()
-    s = StringIO.StringIO()
-    traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], file = s)
-    return s.getvalue()
-
-
-
-NORM_FILENAME_CONTAINER = {}
-NORM_FILENAME_AND_BASE_CONTAINER = {}
-
-def NormFileFromFrame(frame):
-    return NormFile(frame.f_code.co_filename)
-    
-def NormFile(filename):
-    try:
-        return NORM_FILENAME_CONTAINER[filename]
-    except KeyError:
-        try:
-            rPath = os.path.realpath #@UndefinedVariable
-        except:
-            # jython does not support os.path.realpath
-            # realpath is a no-op on systems without islink support
-            rPath = os.path.abspath   
-        r = os.path.normcase(rPath(filename))
-        #cache it for fast access later
-        NORM_FILENAME_CONTAINER[filename] = r
-        return r
-    
-
-def GetFilenameAndBase(frame):
-    f = frame.f_code.co_filename
-    try:
-        return NORM_FILENAME_AND_BASE_CONTAINER[f]
-    except KeyError:
-        filename = NormFile(f)
-        base = os.path.basename(filename)
-        NORM_FILENAME_AND_BASE_CONTAINER[f] = filename, base
-        return filename, base
-
-
 globalDbg = None
 def GetGlobalDebugger():
     return globalDbg
@@ -199,7 +153,7 @@ class ReaderThread(PyDBDaemonThread):
         self.setName("pydevd.Reader")
      
     def run(self):
-        sys.settrace(None) # no debugging on this thread
+        pydevd_tracing.SetTrace(None) # no debugging on this thread
         buffer = ""
         try:
             while not self.killReceived:
@@ -239,7 +193,7 @@ class WriterThread(PyDBDaemonThread):
         
     def run(self):
         """ just loop and write responses """
-        sys.settrace(None) # no debugging on this thread
+        pydevd_tracing.SetTrace(None) # no debugging on this thread
         try:
             while not self.killReceived:
                 try:
@@ -251,9 +205,9 @@ class WriterThread(PyDBDaemonThread):
                     return
                 out = cmd.getOutgoing()
                 pydevd_log(1, "sending cmd " + out)
-                bytesSent = self.sock.send(out) #TODO: this does not guarantee that all message are sent (and jython does not have a send all)
+                self.sock.send(out) #TODO: this does not guarantee that all message are sent (and jython does not have a send all)
                 time.sleep(self.timeout)                
-        except Exception, e:
+        except Exception:
             globalDbg.finishDebuggingSession = True
             if pydevd_trace >= 0:
                 traceback.print_exc()
@@ -268,7 +222,7 @@ def startServer(port):
     s = socket(AF_INET, SOCK_STREAM)
     s.bind(('', port))
     s.listen(1)
-    newSock, addr = s.accept()
+    newSock, _addr = s.accept()
     return newSock
 
 def startClient(host, port):
@@ -352,7 +306,7 @@ class NetCommandFactory:
             cmdText += "</xml>"
             return NetCommand(CMD_RETURN, seq, cmdText)
         except:
-            return self.makeErrorMessage(seq, getTraceback())
+            return self.makeErrorMessage(seq, GetExceptionTracebackStr())
 
     def makeIoMessage(self, v, ctx, dbg=None):
         '''
@@ -371,19 +325,19 @@ class NetCommandFactory:
             if dbg:
                 dbg.writer.addCommand(net)
         except:
-            return self.makeErrorMessage(0, getTraceback())
+            return self.makeErrorMessage(0, GetExceptionTracebackStr())
     
     def makeVersionMessage(self, seq):
         try:
             return NetCommand(CMD_VERSION, seq, VERSION_STRING)
         except:
-            return self.makeErrorMessage(seq, getTraceback())
+            return self.makeErrorMessage(seq, GetExceptionTracebackStr())
     
     def makeThreadKilledMessage(self, id):
         try:
             return NetCommand(CMD_THREAD_KILL, 0, str(id))
         except:
-            return self.makeErrorMessage(0, getTraceback())
+            return self.makeErrorMessage(0, GetExceptionTracebackStr())
     
     def makeThreadSuspendMessage(self, thread_id, frame, stop_reason):
         
@@ -407,7 +361,7 @@ class NetCommandFactory:
                 myName = curFrame.f_code.co_name #method name (if in method) or ? if global
                 #print "name is ", myName
                 
-                myFile = NormFile( curFrame.f_code.co_filename )                
+                myFile = pydevd_file_utils.NormFile( curFrame.f_code.co_filename )                
                 #print "file is ", myFile
                 #myFile = inspect.getsourcefile(curFrame) or inspect.getfile(frame)
                 
@@ -428,32 +382,32 @@ class NetCommandFactory:
             cmdText = ''.join(cmdTextList)
             return NetCommand(CMD_THREAD_SUSPEND, 0, cmdText)
         except:
-            return self.makeErrorMessage(0, getTraceback())
+            return self.makeErrorMessage(0, GetExceptionTracebackStr())
 
     def makeThreadRunMessage(self, id, reason):
         try:
             return NetCommand(CMD_THREAD_RUN, 0, str(id) + "\t" + str(reason))
         except:
-            return self.makeErrorMessage(0, getTraceback())
+            return self.makeErrorMessage(0, GetExceptionTracebackStr())
 
     def makeGetVariableMessage(self, seq, payload):
         try:
             return NetCommand(CMD_GET_VARIABLE, seq, payload)
-        except Exception, e:
-            return self.makeErrorMessage(seq, getTraceback())
+        except Exception:
+            return self.makeErrorMessage(seq, GetExceptionTracebackStr())
 
     def makeGetFrameMessage(self, seq, payload):
         try:
             return NetCommand(CMD_GET_FRAME, seq, payload)
-        except Exception, e:
-            return self.makeErrorMessage(seq, getTraceback())
+        except Exception:
+            return self.makeErrorMessage(seq, GetExceptionTracebackStr())
 
             
     def makeEvaluateExpressionMessage(self, seq, payload):
         try:
             return NetCommand(CMD_EVALUATE_EXPRESSION, seq, payload)
-        except Exception, e:
-            return self.makeErrorMessage(seq, getTraceback())
+        except Exception:
+            return self.makeErrorMessage(seq, GetExceptionTracebackStr())
 
 INTERNAL_TERMINATE_THREAD = 1
 INTERNAL_SUSPEND_THREAD = 2
@@ -485,7 +439,7 @@ class InternalTerminateThread(InternalThreadCommand):
         dbg.writer.addCommand(cmd)
         time.sleep(0.1)
         try:
-            import java.lang.System
+            import java.lang.System #@UnresolvedImport
             java.lang.System.exit(0)
         except:
             sys.exit(0)
@@ -513,7 +467,7 @@ class InternalGetVariable(InternalThreadCommand):
             cmd = dbg.cmdFactory.makeGetVariableMessage(self.sequence, xml)
             dbg.writer.addCommand(cmd)
         except Exception:
-            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving variables " + getTraceback())
+            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving variables " + GetExceptionTracebackStr())
             dbg.writer.addCommand(cmd)
 
 
@@ -532,7 +486,7 @@ class InternalChangeVariable(InternalThreadCommand):
         try:
             pydevd_vars.changeAttrExpression( self.thread_id, self.frame_id, self.attr, self.expression )
         except Exception:
-            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error changing variable attr:%s expression:%s traceback:%s" % (self.attr, self.expression, getTraceback()))
+            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error changing variable attr:%s expression:%s traceback:%s" % (self.attr, self.expression, GetExceptionTracebackStr()))
             dbg.writer.addCommand(cmd)
 
 
@@ -585,7 +539,7 @@ class InternalEvaluateExpression(InternalThreadCommand):
             cmd = dbg.cmdFactory.makeEvaluateExpressionMessage(self.sequence, xml)
             dbg.writer.addCommand(cmd)
         except:
-            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error evaluating expression " + getTraceback())
+            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error evaluating expression " + GetExceptionTracebackStr())
             dbg.writer.addCommand(cmd)
 
 

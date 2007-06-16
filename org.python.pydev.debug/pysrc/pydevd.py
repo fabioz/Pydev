@@ -1,11 +1,52 @@
-import threading
-import traceback
-from pydevd_comm import * #@UnusedWildImport
-from pydevd_constants import STATE_RUN, STATE_SUSPEND
+from pydevd_constants import * #@UnusedWildImport
+
+from pydevd_comm import  CMD_CHANGE_VARIABLE,\
+                         CMD_EVALUATE_EXPRESSION,\
+                         CMD_EXEC_EXPRESSION,\
+                         CMD_GET_FRAME,\
+                         CMD_GET_VARIABLE,\
+                         CMD_LIST_THREADS,\
+                         CMD_REMOVE_BREAK,\
+                         CMD_RUN,\
+                         CMD_SET_BREAK,\
+                         CMD_STEP_INTO,\
+                         CMD_STEP_OVER,\
+                         CMD_STEP_RETURN,\
+                         CMD_THREAD_CREATE,\
+                         CMD_THREAD_KILL,\
+                         CMD_THREAD_RUN,\
+                         CMD_THREAD_SUSPEND,\
+                         CMD_VERSION,\
+                         DebugInfoHolder,\
+                         GetGlobalDebugger,\
+                         InternalChangeVariable,\
+                         InternalEvaluateExpression,\
+                         InternalGetFrame,\
+                         InternalGetVariable,\
+                         InternalTerminateThread,\
+                         NetCommand,\
+                         NetCommandFactory,\
+                         PyDBDaemonThread,\
+                         PydevQueue,\
+                         ReaderThread,\
+                         SetGlobalDebugger,\
+                         WriterThread,\
+                         pydevd_findThreadById,\
+                         pydevd_log,\
+                         pydevd_trace_breakpoints,\
+                         startClient,\
+                         startServer
+
+import os
+import pydevd_file_utils
+import sys
+import threading 
+import traceback 
+import pydevd_vm_type 
+import pydevd_tracing 
 import pydevd_io
-import pydevd_frame
 import pydevd_additional_thread_info
-import pydevd_vm_type
+import time
 
 DONT_TRACE = {
               #commonly used things from the stdlib that we don't want to trace
@@ -14,12 +55,16 @@ DONT_TRACE = {
               'socket.py':1, 
               
               #things from pydev that we don't want to trace
+              'pydevd_additional_thread_info.py':1,
               'pydevd_comm.py':1,
               'pydevd_constants.py':1,
+              'pydevd_file_utils.py':1,
               'pydevd_frame.py':1, 
               'pydevd_io.py':1 ,
               'pydevd_resolver.py':1 ,
+              'pydevd_tracing.py':1 ,
               'pydevd_vars.py':1,
+              'pydevd_vm_type.py':1,
               'pydevd.py':1 ,
               }
 
@@ -42,7 +87,7 @@ class PyDBCommandThread(PyDBDaemonThread):
 
     def run(self):
         time.sleep(5) #this one will only start later on (because otherwise we may not have any non-daemon threads
-        sys.settrace(None) # no debugging on this thread
+        pydevd_tracing.SetTrace(None) # no debugging on this thread
         try:
             while not self.killReceived:
                 try:
@@ -83,6 +128,7 @@ class PyDB:
 
     def __init__(self):
         SetGlobalDebugger(self)
+        pydevd_tracing.ReplaceSysSetTraceFunc()
         self.reader = None
         self.writer = None
         self.quitting = None
@@ -178,10 +224,10 @@ class PyDB:
         self.acquire()
         try:
             if bufferStdOutToServer:
-                self.checkOutput(sys.stdoutBuf,1)
+                self.checkOutput(sys.stdoutBuf,1) #@UndefinedVariable
                     
             if bufferStdErrToServer:
-                self.checkOutput(sys.stderrBuf,2)
+                self.checkOutput(sys.stderrBuf,2) #@UndefinedVariable
 
             currThreadId = id(threading.currentThread())
             threads = threading.enumerate()
@@ -336,7 +382,7 @@ class PyDB:
                     else:
                         func_name = ''
                     
-                    file = NormFile( file )
+                    file = pydevd_file_utils.NormFile( file )
                     
                     line = int( line )
                     
@@ -379,7 +425,7 @@ class PyDB:
                     #command to remove some breakpoint
                     #text is file\tline. Remove from breakpoints dictionary
                     file, line = text.split('\t', 1)
-                    file = NormFile(file)
+                    file = pydevd_file_utils.NormFile(file)
                     line = int(line)
                     
                     if self.breakpoints.has_key(file):
@@ -439,7 +485,7 @@ class PyDB:
         thread.additionalInfo.pydev_state = STATE_SUSPEND
         thread.stop_reason = stop_reason
 
-    def doWaitSuspend(self, thread, frame, event, arg):
+    def doWaitSuspend(self, thread, frame, event, arg): #@UnusedVariable
         """ busy waits until the thread state changes to RUN 
         it expects thread's state as attributes of the thread.
         Upon running, processes any outstanding Stepping commands.
@@ -491,12 +537,12 @@ class PyDB:
                         t.doKill()
                 time.sleep(0.2) #give them some time to release their locks...
                 try:
-                    import java.lang.System
+                    import java.lang.System #@UnresolvedImport
                     java.lang.System.exit(0)
                 except:
                     sys.exit(0)
     
-            filename, base = GetFilenameAndBase(frame)
+            filename, base = pydevd_file_utils.GetFilenameAndBase(frame)
             #print 'trace_dispatch', base, frame.f_lineno, event, frame.f_code.co_name
     
             if DONT_TRACE.has_key(base): #we don't want to debug threading or anything related to pydevd
@@ -507,6 +553,7 @@ class PyDB:
                 #see http://sourceforge.net/tracker/index.php?func=detail&aid=1733757&group_id=5470&atid=105470 for details)
                 t = threading.currentThread()
             except:
+                frame.f_trace = self.trace_dispatch
                 return self.trace_dispatch
             
             # if thread is not alive, cancel trace_dispatch processing
@@ -573,7 +620,7 @@ class PyDB:
         net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.writer" id="-1"/></xml>')
         self.writer.addCommand(net)
 
-        sys.settrace(self.trace_dispatch) 
+        pydevd_tracing.SetTrace(self.trace_dispatch) 
         try:                     
             threading.settrace(self.trace_dispatch) # for all future threads           
         except:
@@ -671,11 +718,11 @@ def settrace(host='localhost', stdoutToServer = False, stderrToServer = False, p
         
         if bufferStdOutToServer:
             sys.stdoutBuf = pydevd_io.IOBuf()
-            sys.stdout = pydevd_io.IORedirector(sys.stdout, sys.stdoutBuf)
+            sys.stdout = pydevd_io.IORedirector(sys.stdout, sys.stdoutBuf) #@UndefinedVariable
             
         if bufferStdErrToServer:
             sys.stderrBuf = pydevd_io.IOBuf()
-            sys.stderr = pydevd_io.IORedirector(sys.stderr, sys.stderrBuf)
+            sys.stderr = pydevd_io.IORedirector(sys.stderr, sys.stderrBuf) #@UndefinedVariable
             
         SetTraceForParents(sys._getframe(), debugger.trace_dispatch)
         

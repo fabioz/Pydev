@@ -48,7 +48,6 @@ public class PyParserTestBase extends TestCase {
         PyParser.ACCEPT_NULL_INPUT_EDITOR = false;
         PyParser.ENABLE_TRACING = false;
         PyParser.TRY_REPARSE = true;
-        ParseException.verboseExceptions = false;
         super.tearDown();
     }
 

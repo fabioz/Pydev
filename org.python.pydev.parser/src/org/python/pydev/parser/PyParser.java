@@ -14,9 +14,9 @@ import org.eclipse.core.internal.resources.ResourceException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
@@ -110,14 +110,22 @@ public class PyParser implements IPyParser {
     private boolean useAnalysisOnlyOnDocSave;
 
     /**
-     * indicates the time we should elapse before doing analysis
-     */
-    private int elapseMillisBeforeAnalysis;
-    
-    /**
      * This is the version of the grammar that should be used for this parser
      */
     private IGrammarVersionProvider grammarVersionProvider;
+
+    
+    public static String getGrammarVersionStr(int grammarVersion){
+        if(grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4){
+            return "grammar: Python 2.4";
+            
+        }else if(grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5){
+            return "grammar: Python 2.5";
+            
+        }else{
+            return "grammar: unrecognized";
+        }
+    }
 
     /**
      * Should only be called for testing. Does not register as a thread.
@@ -587,9 +595,9 @@ public class PyParser implements IPyParser {
      * @param line
      * @return
      */
-    private static boolean lineIn(List linesChanged, int line) {
-        for (Iterator iter = linesChanged.iterator(); iter.hasNext();) {
-            Integer i = (Integer) iter.next();
+    private static boolean lineIn(List<Integer> linesChanged, int line) {
+        for (Iterator<Integer> iter = linesChanged.iterator(); iter.hasNext();) {
+            Integer i = iter.next();
             if (i.intValue() == line){
                 return true;
             }

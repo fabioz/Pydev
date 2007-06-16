@@ -9,6 +9,7 @@ package org.python.pydev.editor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.jface.bindings.keys.ParseException;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IAutoEditStrategy;
@@ -26,8 +27,8 @@ import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
@@ -50,9 +51,9 @@ import org.python.pydev.ui.ColorCache;
  * <p>
  * Implements a simple partitioner that does syntax highlighting.
  * 
- *  
+ * Changed to a subclass of TextSourceViewerConfiguration as of pydev 1.3.5 
  */
-public class PyEditConfiguration extends SourceViewerConfiguration {
+public class PyEditConfiguration extends TextSourceViewerConfiguration {
 
     private ColorCache colorCache;
 
@@ -70,7 +71,8 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 
     public PyContentAssistant pyContentAssistant = new PyContentAssistant();
 
-    public PyEditConfiguration(ColorCache colorManager, PyEdit edit) {
+    public PyEditConfiguration(ColorCache colorManager, PyEdit edit, IPreferenceStore preferenceStore) {
+        super(preferenceStore);
         colorCache = colorManager;
         this.setEdit(edit); 
     }
@@ -246,6 +248,8 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
         
         PythonStringCompletionProcessor stringProcessor = new PythonStringCompletionProcessor(edit, pyContentAssistant);
 
+        pyContentAssistant.setRestoreCompletionProposalSize(getSettings("pydev_completion_proposal_size")); 
+
         // No code completion in comments
         pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_STRING1);
         pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_STRING2);
@@ -318,6 +322,22 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
             }
         };
     }
+
+    /**
+     * Returns the settings for the given section.
+     *
+     * @param sectionName the section name
+     * @return the settings
+     * @since pydev 1.3.5
+     */
+    private IDialogSettings getSettings(String sectionName) {
+        IDialogSettings settings= PydevPlugin.getDefault().getDialogSettings().getSection(sectionName);
+        if (settings == null)
+            settings= PydevPlugin.getDefault().getDialogSettings().addNewSection(sectionName);
+
+        return settings;
+    }
+
 
     /**
      * @param edit The edit to set.

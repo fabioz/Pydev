@@ -12,6 +12,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
@@ -24,7 +25,6 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -108,6 +108,10 @@ import org.python.pydev.ui.NotConfiguredInterpreterException;
  */
 public class PyEdit extends PyEditProjection implements IPyEdit {
 
+    static{
+        ParseException.verboseExceptions = true;
+    }
+    
     public static final String PY_EDIT_CONTEXT = "#PyEditContext";
 
     static public String EDITOR_ID = "org.python.pydev.editor.PythonEditor";
@@ -263,7 +267,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 	        modelListeners = new ArrayList<IModelListener>();
 	        colorCache = new ColorCache(PydevPlugin.getChainedPrefStore());
 	        
-	        editConfiguration = new PyEditConfiguration(colorCache, this);
+	        editConfiguration = new PyEditConfiguration(colorCache, this, PydevPlugin.getDefault().getPreferenceStore());
 	        setSourceViewerConfiguration(editConfiguration);
 	        indentStrategy = editConfiguration.getPyAutoIndentStrategy();
 	        setRangeIndicator(new DefaultRangeIndicator()); // enables standard
@@ -869,10 +873,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * generates an error marker on the document
      */
     public void parserError(Throwable error, IAdaptable original, IDocument doc) {
-        int errorStart = -1;
-        int errorEnd = -1;
-        int errorLine = -1;
-        String message = null;
+        ErrorDescription errDesc = null;
         
         try {
             if(original == null){
@@ -883,54 +884,15 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
                 return;
             }
 
-            if (error instanceof ParseException) {
-                ParseException.verboseExceptions = true;
-                ParseException parseErr = (ParseException) error;
-                
-                // Figure out where the error is in the document, and create a
-                // marker for it
-                if(parseErr.currentToken == null){
-                	IRegion endLine = doc.getLineInformationOfOffset(doc.getLength());
-                	errorStart = endLine.getOffset();
-                	errorEnd = endLine.getOffset() + endLine.getLength();
-
-                }else{
-                	Token errorToken = parseErr.currentToken.next != null ? parseErr.currentToken.next : parseErr.currentToken;
-	                IRegion startLine = doc.getLineInformation(errorToken.beginLine - 1);
-	                IRegion endLine;
-	                if (errorToken.endLine == 0){
-	                    endLine = startLine;
-	                }else{
-	                    endLine = doc.getLineInformation(errorToken.endLine - 1);
-	                }
-	                errorStart = startLine.getOffset() + errorToken.beginColumn - 1;
-	                errorEnd = endLine.getOffset() + errorToken.endColumn;
-                }
-                message = parseErr.getMessage();
-
-            } else {
-                TokenMgrError tokenErr = (TokenMgrError) error;
-                IRegion startLine = doc.getLineInformation(tokenErr.errorLine - 1);
-                errorStart = startLine.getOffset();
-                errorEnd = startLine.getOffset() + tokenErr.errorColumn;
-                message = tokenErr.getMessage();
-            }
-            errorLine = doc.getLineOfOffset(errorStart); 
-
-            // map.put(IMarker.LOCATION, "Whassup?"); this is the location field
-            // in task manager
-            if (message != null) { // prettyprint
-                message = message.replaceAll("\\r\\n", " ");
-                message = message.replaceAll("\\r", " ");
-                message = message.replaceAll("\\n", " ");
-            }
+            errDesc = createErrorDesc(error, doc);
+            
             Map<String, Object> map = new HashMap<String, Object>();
             
-            map.put(IMarker.MESSAGE, message);
+            map.put(IMarker.MESSAGE, errDesc.message);
             map.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
-            map.put(IMarker.LINE_NUMBER, new Integer(errorLine));
-            map.put(IMarker.CHAR_START, new Integer(errorStart));
-            map.put(IMarker.CHAR_END, new Integer(errorEnd));
+            map.put(IMarker.LINE_NUMBER, new Integer(errDesc.errorLine));
+            map.put(IMarker.CHAR_START, new Integer(errDesc.errorStart));
+            map.put(IMarker.CHAR_END, new Integer(errDesc.errorEnd));
             map.put(IMarker.TRANSIENT, Boolean.valueOf(true));
             MarkerUtilities.createMarker(fileAdapter, map, IMarker.PROBLEM);
 
@@ -942,12 +904,63 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         	//PydevPlugin.log(e2);
         }finally{
             try {
-                errorDescription = new ErrorDescription(message, errorLine, errorStart, errorEnd);
+                errorDescription = errDesc;
                 fireParseErrorChanged(errorDescription);
             } catch (Exception e) {
                 PydevPlugin.log(e);
             }
         }
+    }
+
+    public static ErrorDescription createErrorDesc(Throwable error, IDocument doc) throws BadLocationException {
+        int errorStart = -1;
+        int errorEnd = -1;
+        int errorLine = -1;
+        String message = null;
+        if (error instanceof ParseException) {
+            ParseException parseErr = (ParseException) error;
+            
+            // Figure out where the error is in the document, and create a
+            // marker for it
+            if(parseErr.currentToken == null){
+            	IRegion endLine = doc.getLineInformationOfOffset(doc.getLength());
+            	errorStart = endLine.getOffset();
+            	errorEnd = endLine.getOffset() + endLine.getLength();
+
+            }else{
+            	Token errorToken = parseErr.currentToken.next != null ? parseErr.currentToken.next : parseErr.currentToken;
+                IRegion startLine = doc.getLineInformation(errorToken.beginLine - 1);
+                IRegion endLine;
+                if (errorToken.endLine == 0){
+                    endLine = startLine;
+                }else{
+                    endLine = doc.getLineInformation(errorToken.endLine - 1);
+                }
+                errorStart = startLine.getOffset() + errorToken.beginColumn - 1;
+                errorEnd = endLine.getOffset() + errorToken.endColumn;
+            }
+            message = parseErr.getMessage();
+
+        } else {
+            TokenMgrError tokenErr = (TokenMgrError) error;
+            IRegion startLine = doc.getLineInformation(tokenErr.errorLine - 1);
+            errorStart = startLine.getOffset();
+            errorEnd = startLine.getOffset() + tokenErr.errorColumn;
+            message = tokenErr.getMessage();
+        }
+        errorLine = doc.getLineOfOffset(errorStart); 
+
+        // map.put(IMarker.LOCATION, "Whassup?"); this is the location field
+        // in task manager
+        if (message != null) { // prettyprint
+            message = message.replaceAll("\\r\\n", " ");
+            message = message.replaceAll("\\r", " ");
+            message = message.replaceAll("\\n", " ");
+        }
+        
+        
+        ErrorDescription errDesc = new ErrorDescription(message, errorLine, errorStart, errorEnd);
+        return errDesc;
     }
 
 
