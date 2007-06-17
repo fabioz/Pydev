@@ -14,6 +14,7 @@ import com.python.pydev.analysis.AnalysisPreferencesStub;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
+import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
 
 public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase {
 
@@ -33,7 +34,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
         try {
             UndefinedVariableFixParticipantTest test = new UndefinedVariableFixParticipantTest();
             test.setUp();
-            test.testFix4();
+            test.testFix7();
             test.tearDown();
             
             System.out.println("finished");
@@ -182,6 +183,57 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
         //but applies without it
         assertEquals("from relative.rel1 import DTest", compl.realImportRep);
         
+    }
+    
+    public void testFix7() throws Exception {
+        AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = true;
+        try {
+            start = 6;
+            end = 11;
+            type = IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE;
+            
+            marker = createMarkerStub(start, end, type);
+            
+            s = "print Priv3"; 
+            ps = new PySelection(new Document(s));
+            line = s;
+            offset = s.length();
+            
+            props = new ArrayList<ICompletionProposal>();
+            participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
+            printProps(1, props);
+            //appears with _
+            assertContains("Import Priv3 (relative.rel1._priv1._priv2._priv3)", props);
+            CtxInsensitiveImportComplProposal compl = (CtxInsensitiveImportComplProposal) props.get(0);
+            
+            //but applies without it
+            assertEquals("from relative.rel1 import Priv3", compl.realImportRep);
+        } finally {
+            AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = false;
+        }
+    }
+    
+    public void testFix8() throws Exception {
+        start = 6;
+        end = 14;
+        type = IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE;
+        
+        marker = createMarkerStub(start, end, type);
+        
+        s = "print NotPriv3"; 
+        ps = new PySelection(new Document(s));
+        line = s;
+        offset = s.length();
+        
+        props = new ArrayList<ICompletionProposal>();
+        participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
+        printProps(1, props);
+        //appears with _
+        assertContains("Import NotPriv3 (relative.rel1._priv1._priv2.notpriv3)", props);
+        CtxInsensitiveImportComplProposal compl = (CtxInsensitiveImportComplProposal) props.get(0);
+        
+        //but applies without it
+        assertEquals("from relative.rel1._priv1._priv2.notpriv3 import NotPriv3", compl.realImportRep);
     }
     
     private void assertContains(String expected, List<ICompletionProposal> props) {

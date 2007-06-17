@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.TestDependent;
@@ -20,7 +21,9 @@ import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 
+import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
+import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
 import com.python.pydev.codecompletion.ctxinsensitive.CtxParticipant;
 
 public class CompletionParticipantTest extends AdditionalInfoTestsBase {
@@ -42,7 +45,32 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
     public void testImportCompletion() throws CoreException, BadLocationException {
     	participant = new ImportsCompletionParticipant();
-        requestCompl("unittest", new String[]{"unittest", "unittest - testlib"}); //the unittest module and testlib.unittest
+    	
+    	//check simple
+    	ICompletionProposal[] proposals = requestCompl("unittest", new String[]{"unittest", "unittest - testlib"}); //the unittest module and testlib.unittest
+    	
+        Document document = new Document("unittest");
+        ((CtxInsensitiveImportComplProposal)proposals[0]).apply(document, ' ', 0, 8);
+        assertEquals("import unittest\r\nunittest", document.get());
+            
+        document = new Document("unittest");
+        ((CtxInsensitiveImportComplProposal)proposals[1]).apply(document, ' ', 0, 8);
+        assertEquals("from testlib import unittest\r\nunittest", document.get());
+
+        
+        //for imports, the behavior never changes
+        AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = true;
+        try {
+            proposals = requestCompl("_priv3", new String[]{"_priv3 - relative.rel1._priv1._priv2"}); 
+            document = new Document("_priv3");
+            ((CtxInsensitiveImportComplProposal)proposals[0]).apply(document, ' ', 0, 6);
+            assertEquals("from relative.rel1._priv1._priv2 import _priv3\r\n_priv3", document.get());
+        } finally {
+            AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = false;
+        }
+        
+        
+        //check on actual file
         requestCompl(new File(TestDependent.TEST_PYSRC_LOC+"/testlib/unittest/guitestcase.py"),"guite", -1, 0, new String[]{});
         
         Import importTok = new Import(new aliasType[]{new aliasType(new NameTok("unittest", NameTok.ImportModule), null)});
@@ -61,6 +89,19 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
     	assertNotContains("xml - xmlrpclib", proposals);
         
     	requestCompl(new File(TestDependent.TEST_PYSRC_LOC+"/testlib/unittest/guitestcase.py"),"guite", -1, 0, new String[]{});
+    	
+    	
+        //the behavior changes for tokens on modules
+        AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = true;
+        try {
+            proposals = requestCompl("Priv3", new String[]{"Priv3 - relative.rel1._priv1._priv2._priv3"}); 
+            Document document = new Document("Priv3");
+            ((CtxInsensitiveImportComplProposal)proposals[0]).apply(document, ' ', 0, 5);
+            assertEquals("from relative.rel1 import Priv3\r\nPriv3", document.get());
+        } finally {
+            AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = false;
+        }
+
     }
     
     

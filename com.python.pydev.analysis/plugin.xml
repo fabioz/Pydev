@@ -8,6 +8,14 @@
             id="org.python.pydev.prefs.extensions.analysis"
             name="Code Analysis"/>
    </extension>
+   
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.python.pydev.analysis.ui.AutoImportsPreferencesPage"
+            category="org.python.pydev.prefs.extensions"
+            id="org.python.pydev.prefs.extensions.autoimports"
+            name="Auto Imports"/>
+   </extension>
 
 	<extension
        id="pydev_analysis_problemmarker"

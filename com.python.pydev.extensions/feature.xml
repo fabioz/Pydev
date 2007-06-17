@@ -15,7 +15,7 @@
    </copyright>
 
    <license url="http://www.fabioz.com/pydev/terms.html">
-This License Agreement is a legal contract between you (either as an individual or as an entity) and Fabio Zadrozny for the Pydev Extensions Software (&quot;Software&quot;).
+      This License Agreement is a legal contract between you (either as an individual or as an entity) and Fabio Zadrozny for the Pydev Extensions Software (&quot;Software&quot;).
 
 You should carefully read the following terms and conditions before using the Software. Installation or use of the Software indicates your acceptance of this License Agreement.
 
@@ -92,9 +92,8 @@ COPYRIGHT 2006 FABIO ZADROZNY
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.eclipse.jface.text"/>
       <import plugin="org.python.pydev" version="0.9.7.1" match="perfect"/>
-      <import plugin="org.python.pydev.core"  version="0.9.7.1" match="perfect"/>
-      <import plugin="org.junit"/>
-      <import plugin="org.python.pydev.ast"  version="0.9.7.1" match="perfect"/>
+      <import plugin="org.python.pydev.core" version="0.9.7.1" match="perfect"/>
+      <import plugin="org.python.pydev.ast" version="0.9.7.1" match="perfect"/>
       <import plugin="org.python.pydev.parser" version="0.9.7.1" match="perfect"/>
       <import plugin="org.eclipse.core.resources"/>
       <import feature="org.python.pydev.feature" version="0.9.7.1" match="perfect"/>

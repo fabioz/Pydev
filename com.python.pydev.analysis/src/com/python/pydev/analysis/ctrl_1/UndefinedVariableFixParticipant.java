@@ -32,6 +32,7 @@ import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo
 import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.analysis.builder.AnalysisParserObserver;
 import com.python.pydev.analysis.builder.AnalysisRunner;
+import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
 
 public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticipant{
 
@@ -73,7 +74,6 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         //1. check if it is some module
         for (String completeName : allModules) {
             FullRepIterable iterable = new FullRepIterable(completeName);
-            String realImportRep = null;
 
             for (String mod : iterable) {
                 
@@ -82,25 +82,26 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                     if(fullRep.length() == mod.length() //it does not only start with, but it is equal to it.
                        || (fullRep.length() > mod.length() && fullRep.charAt(mod.length()) == '.')
                        ){ 
-                    
-                        String displayString = "Import "+mod;
-                        realImportRep = "import "+mod;
-                        mods.add(new Tuple<String,String>(realImportRep, displayString));
+                        mods.add(new Tuple<String,String>(new StringBuffer("import ").append(mod).toString(), 
+                                new StringBuffer("Import ").append(mod).toString()));
                     }
                 }
                 
                 String[] strings = FullRepIterable.headAndTail(mod);
                 String packageName = strings[0];
-                realImportRep = "import "+strings[1];
                 String importRep = strings[1];
                 
                 if(importRep.equals(markerContents)){
-                    String displayString = "Import "+importRep;
                     if(packageName.length() > 0){
-                        realImportRep = "from "+packageName+" "+realImportRep;
-                        displayString += " ("+ packageName+")";
+                        String realImportRep = new StringBuffer("from ").append(packageName).append(" ").append("import ").append(strings[1]).toString();
+                        String displayString = new StringBuffer("Import ").append(importRep).append(" (").append(packageName).append(")").toString();
+                        mods.add(new Tuple<String,String>(realImportRep.toString(), displayString));
+                        
+                    }else{
+                        String displayString = new StringBuffer("Import ").append(importRep).toString();
+                        String realImportRep = new StringBuffer("import ").append(strings[1]).toString();
+                        mods.add(new Tuple<String,String>(realImportRep, displayString));
                     }
-                    mods.add(new Tuple<String,String>(realImportRep, displayString));
                 }
             }
         }
@@ -118,8 +119,12 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                 if(declPackageWithoutInit.endsWith(".__init__")){
                     declPackageWithoutInit = declPackageWithoutInit.substring(0, declPackageWithoutInit.length()-9);
                 }
-                mods.add(new Tuple<String,String>("from "+declPackageWithoutInit+" import "+name,
-                        "Import "+name+" ("+declPackage+")"));
+                
+                declPackageWithoutInit = AutoImportsPreferencesPage.removeImportsStartingWithUnderIfNeeded(declPackageWithoutInit);
+                String importDeclaration = new StringBuffer("from ").append(declPackageWithoutInit).append(" import ").append(name).toString();
+                String displayImport = new StringBuffer("Import ").append(name).append(" (").append(declPackage).append(")").toString();
+                
+                mods.add(new Tuple<String,String>(importDeclaration, displayImport));
             }
         }
         

@@ -24,6 +24,7 @@ import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
+import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
 
 public class ImportsCompletionParticipant implements IPyDevCompletionParticipant{
 
@@ -117,7 +118,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
     }
 
     public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state) {
-        return getThem(request, state, true);
+        return getThem(request, state, AutoImportsPreferencesPage.doAutoImport());
     }
     
     public Collection getArgsCompletion(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal) {

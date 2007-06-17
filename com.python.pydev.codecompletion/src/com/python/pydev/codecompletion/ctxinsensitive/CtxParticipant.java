@@ -22,6 +22,7 @@ import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
+import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
 
 public class CtxParticipant implements IPyDevCompletionParticipant{
 
@@ -39,7 +40,8 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
 	        
 	        String initialModule = request.resolveModule();
         
-            List<IInfo> tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, request.nature, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+            List<IInfo> tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, request.nature, 
+                    AbstractAdditionalInterpreterInfo.TOP_LEVEL);
             
             StringBuffer realImportRep = new StringBuffer();
             StringBuffer displayString = new StringBuffer();
@@ -66,7 +68,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
                 if(addAutoImport){
                     realImportRep.delete(0, realImportRep.length()); //clear the buffer
                     realImportRep.append("from ");
-                    realImportRep.append(declaringModuleName);
+                    realImportRep.append(AutoImportsPreferencesPage.removeImportsStartingWithUnderIfNeeded(declaringModuleName));
                     realImportRep.append(" import ");
                     realImportRep.append(rep);
                 }
@@ -110,7 +112,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
     }
     
     public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state) {
-        return getThem(request, state, true);
+        return getThem(request, state, AutoImportsPreferencesPage.doAutoImport());
     }
 
     public Collection getArgsCompletion(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal) {

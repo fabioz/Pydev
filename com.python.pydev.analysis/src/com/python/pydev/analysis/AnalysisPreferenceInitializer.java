@@ -55,11 +55,17 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
 	public static final boolean DEFAULT_DO_CODE_ANALYSIS = true;
 	
 	public static final String NAMES_TO_CONSIDER_GLOBALS = "NAMES_TO_CONSIDER_GLOBALS";
-	public static final String DEFAULT_NAMES_TO_CONSIDER_GLOBALS = "_";
+	public static final String DEFAULT_NAMES_TO_CONSIDER_GLOBALS = "_,tr";
 	
 	public static final String SEVERITY_NO_EFFECT_STMT = "SEVERITY_NO_EFFECT_STMT";
 	public static final int DEFAULT_SEVERITY_NO_EFFECT_STMT = IMarker.SEVERITY_WARNING;
 	
+    public static final String DO_AUTO_IMPORT = "DO_AUTO_IMPORT";
+    public static final boolean DEFAULT_DO_AUT_IMPORT = true;
+	
+    public static final String DO_IGNORE_IMPORTS_STARTING_WITH_UNDER = "DO_IGNORE_FIELDS_WITH_UNDER";
+    public static final boolean DEFAULT_DO_IGNORE_FIELDS_WITH_UNDER = false;
+    
 
     @Override
     public void initializeDefaultPreferences() {
@@ -75,6 +81,8 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
         node.put   (NAMES_TO_CONSIDER_GLOBALS, DEFAULT_NAMES_TO_CONSIDER_GLOBALS);
         node.putInt(WHEN_ANALYZE, DEFAULT_WHEN_ANALYZE);
         node.putBoolean(DO_CODE_ANALYSIS, DEFAULT_DO_CODE_ANALYSIS);
+        node.putBoolean(DO_AUTO_IMPORT, DEFAULT_DO_AUT_IMPORT);
+        node.putBoolean(DO_IGNORE_IMPORTS_STARTING_WITH_UNDER, DEFAULT_DO_IGNORE_FIELDS_WITH_UNDER);
     }
 
 

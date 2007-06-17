@@ -5,7 +5,7 @@ Bundle-SymbolicName: com.python.pydev.runalltests2
 Bundle-Version: 1.0.0
 Bundle-Activator: com.python.pydev.runalltests2.Activator
 Bundle-Vendor: PYTHON
-Require-Bundle: org.junit,
+Require-Bundle: org.junit;resolution:=optional,
  org.eclipse.ui,
  org.eclipse.core.runtime,
  org.python.pydev,

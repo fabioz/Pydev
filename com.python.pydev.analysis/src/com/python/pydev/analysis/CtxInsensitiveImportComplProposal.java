@@ -16,10 +16,15 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.PyCompletionProposalExtension2;
 import org.python.pydev.plugin.PydevPlugin;
 
+/**
+ * This is the proposal that should be used to do a completion that can have a related import. 
+ * 
+ * @author Fabio
+ */
 public class CtxInsensitiveImportComplProposal extends PyCompletionProposalExtension2{
     
     /**
-     * If emptyl, act as a regular completion
+     * If empty, act as a regular completion
      */
     public String realImportRep;
 
@@ -30,8 +35,12 @@ public class CtxInsensitiveImportComplProposal extends PyCompletionProposalExten
     }
     
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
+        IDocument document = viewer.getDocument();
+        apply(document, trigger, stateMask, offset);
+    }
+    
+    public void apply(IDocument document, char trigger, int stateMask, int offset) {
         try {
-            IDocument document = viewer.getDocument();
             PySelection selection = new PySelection(document);
             int lineToAddImport;
             if (realImportRep.length() > 0){
