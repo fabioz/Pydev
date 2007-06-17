@@ -21,6 +21,7 @@ import java.util.StringTokenizer;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
@@ -187,7 +188,7 @@ public abstract class AbstractShell {
     }
 
 
-    public synchronized static AbstractShell getServerShell(IPythonNature nature, int id) throws IOException, Exception {
+    public synchronized static AbstractShell getServerShell(IPythonNature nature, int id) throws IOException, JDTNotAvailableException, CoreException {
         return getServerShell(nature.getRelatedId(), id);
     }
     
@@ -203,7 +204,7 @@ public abstract class AbstractShell {
      * @throws CoreException
      * @throws IOException
      */
-    public synchronized static AbstractShell getServerShell(int relatedId, int id) throws IOException, Exception {
+    public synchronized static AbstractShell getServerShell(int relatedId, int id) throws IOException, JDTNotAvailableException, CoreException {
     	AbstractShell pythonShell = null;
     	synchronized(shells){
     	    if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
@@ -306,7 +307,7 @@ public abstract class AbstractShell {
      * @throws IOException
      * @throws CoreException
      */
-    public synchronized void startIt() throws IOException, Exception {
+    public synchronized void startIt() throws IOException, JDTNotAvailableException, CoreException {
     	synchronized(this){
     		this.startIt(AbstractShell.DEFAULT_SLEEP_BETWEEN_ATTEMPTS);
     	}
@@ -319,9 +320,11 @@ public abstract class AbstractShell {
      * 
      * @param milisSleep: time to wait after creating the process.
      * @throws IOException is some error happens creating the sockets - the process is terminated.
+     * @throws JDTNotAvailableException 
+     * @throws CoreException 
      * @throws CoreException
      */
-    protected synchronized void startIt(int milisSleep) throws IOException, Exception {
+    protected synchronized void startIt(int milisSleep) throws IOException, JDTNotAvailableException, CoreException {
     	if(inStart || isConnected){
     		//it is already in the process of starting, so, if we are in another thread, just forget about it.
     		return;
@@ -434,7 +437,7 @@ public abstract class AbstractShell {
 					String msg = "Error connecting to python process (" + execMsg + ") " +
                     isAlive + " the output of the process is: " + output;
                     
-                    Exception exception = new Exception(msg);
+                    RuntimeException exception = new RuntimeException(msg);
                     dbg(msg, 1);
                     PydevPlugin.log(exception);
 					throw exception;
@@ -498,8 +501,9 @@ public abstract class AbstractShell {
      * @return the command line that was used to create the process 
      * 
      * @throws IOException
+     * @throws JDTNotAvailableException 
      */
-    protected abstract String createServerProcess(int pWrite, int pRead) throws IOException;
+    protected abstract String createServerProcess(int pWrite, int pRead) throws IOException, JDTNotAvailableException;
 
     protected synchronized void communicateWork(String desc, IProgressMonitor monitor) {
         if(monitor != null){

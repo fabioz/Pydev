@@ -9,6 +9,7 @@ import java.io.IOException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.Tuple;
@@ -85,7 +86,7 @@ public class SimpleJythonRunner extends SimpleRunner{
      * @return
      * @throws IOException
      */
-    public static String makeExecutableCommandStr(String script) throws IOException {
+    public static String makeExecutableCommandStr(String script) throws IOException, JDTNotAvailableException {
         IInterpreterManager interpreterManager = PydevPlugin.getJythonInterpreterManager();
         String javaLoc = JavaVmLocationFinder.findDefaultJavaExecutable().getCanonicalPath();
         

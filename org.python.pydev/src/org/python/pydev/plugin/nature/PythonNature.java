@@ -38,6 +38,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
@@ -52,6 +53,70 @@ import org.python.pydev.utils.JobProgressComunicator;
  *  
  */
 public class PythonNature extends AbstractPythonNature implements IPythonNature {
+
+    /**
+     * This is the job that is used to rebuild the python nature modules.
+     * 
+     * @author Fabio
+     */
+    protected class RebuildPythonNatureModules extends Job {
+        private String paths;
+
+        private String defaultSelectedInterpreter;
+
+        private PythonNature nature;
+
+        protected RebuildPythonNatureModules(String name, String paths, String defaultSelectedInterpreter, PythonNature nature) {
+            super(name);
+            this.paths = paths;
+            this.defaultSelectedInterpreter = defaultSelectedInterpreter;
+            this.nature = nature;
+        }
+
+        @SuppressWarnings("unchecked")
+        protected IStatus run(IProgressMonitor monitorArg) {
+
+            try {
+                JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Rebuilding modules", IProgressMonitor.UNKNOWN, this);
+                try {
+                	ICodeCompletionASTManager tempAstManager = astManager;
+                    if (tempAstManager == null) {
+                    	tempAstManager = new ASTManager();
+                    }
+                    synchronized(tempAstManager){
+                    	astManager = tempAstManager;
+                    	tempAstManager.setProject(getProject(), false); //it is a new manager, so, remove all deltas
+
+                        //begins task automatically
+                    	tempAstManager.changePythonPath(paths, project, jobProgressComunicator, defaultSelectedInterpreter);
+                        saveAstManager();
+
+                        List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+                        for (IInterpreterObserver observer : participants) {
+                            try {
+                                observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator, defaultSelectedInterpreter);
+                            } catch (Exception e) {
+                            	//let's keep it safe
+                                PydevPlugin.log(e);
+                            }
+                        }
+                    }
+                } catch (Throwable e) {
+                    PydevPlugin.log(e);
+                }
+
+                initializationFinished = true;
+                PythonNatureListenersManager.notifyPythonPathRebuilt(project, nature.pythonPathNature.getCompleteProjectPythonPath(null)); //default
+                //end task
+                jobProgressComunicator.done();
+            }catch (Exception e) {
+                Log.log(e);
+            } finally {
+                rebuildJob = null;
+            }
+            return Status.OK_STATUS;
+        }
+    }
 
     /**
      * This is the nature ID
@@ -363,52 +428,8 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             return;//already in rebuild
         }
         final PythonNature nature = this;
-        rebuildJob = new Job("Pydev code completion: rebuilding modules") {
-
-            @SuppressWarnings("unchecked")
-            protected IStatus run(IProgressMonitor monitorArg) {
-
-                try {
-                    JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Rebuilding modules", IProgressMonitor.UNKNOWN, this);
-                    try {
-                    	ICodeCompletionASTManager tempAstManager = astManager;
-                        if (tempAstManager == null) {
-                        	tempAstManager = new ASTManager();
-                        }
-                        synchronized(tempAstManager){
-                        	astManager = tempAstManager;
-                        	tempAstManager.setProject(getProject(), false); //it is a new manager, so, remove all deltas
-
-                            //begins task automatically
-                        	tempAstManager.changePythonPath(paths, project, jobProgressComunicator, defaultSelectedInterpreter);
-                            saveAstManager();
-
-                            List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
-                            for (IInterpreterObserver observer : participants) {
-                                try {
-                                    observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator, defaultSelectedInterpreter);
-                                } catch (Exception e) {
-                                	//let's keep it safe
-                                    PydevPlugin.log(e);
-                                }
-                            }
-                        }
-                    } catch (Throwable e) {
-                        PydevPlugin.log(e);
-                    }
-
-                    initializationFinished = true;
-                    PythonNatureListenersManager.notifyPythonPathRebuilt(project, nature.pythonPathNature.getCompleteProjectPythonPath(null)); //default
-                    //end task
-                    jobProgressComunicator.done();
-                } finally {
-                    rebuildJob = null;
-                }
-                return Status.OK_STATUS;
-            }
-        };
+        rebuildJob = new RebuildPythonNatureModules("Pydev code completion: rebuilding modules", paths, defaultSelectedInterpreter, nature);
         rebuildJob.schedule();
-        
     }
     
     /**

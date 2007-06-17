@@ -21,6 +21,7 @@ import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
@@ -187,8 +188,9 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * 
      * @return the interpreter info for the executable
      * @throws CoreException 
+     * @throws JDTNotAvailableException 
      */
-    public abstract Tuple<InterpreterInfo,String> createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException;
+    public abstract Tuple<InterpreterInfo,String> createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException;
 
     /**
      * Creates the interpreter info from the output. Checks for errors.

@@ -12,6 +12,10 @@
       <category name="Optional"/>
    </feature>
    
+   <feature url="features/org.python.pydev.feature_1.3.5.jar" id="org.python.pydev.feature" version="1.3.5">
+      <category name="Pydev"/>
+   </feature>
+   
    <feature url="features/org.python.pydev.feature_1.3.4.jar" id="org.python.pydev.feature" version="1.3.4">
       <category name="Pydev"/>
    </feature>

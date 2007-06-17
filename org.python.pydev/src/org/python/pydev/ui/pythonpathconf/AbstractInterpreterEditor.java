@@ -39,6 +39,7 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
+import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.PythonListEditor;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.plugin.PydevPlugin;
@@ -595,6 +596,12 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                         ErrorDialog.openError(this.getShell(), "Error getting info on interpreter", 
                                 javaNotConfiguredException.getMessage(), 
                                 PydevPlugin.makeStatus(IStatus.ERROR, "Java vm not configured.\n", javaNotConfiguredException));
+                        
+					}else if(operation.e instanceof JDTNotAvailableException){
+					    JDTNotAvailableException noJdtException = (JDTNotAvailableException) operation.e;
+                        ErrorDialog.openError(this.getShell(), "Error getting info on interpreter", 
+                                noJdtException.getMessage(), 
+					            PydevPlugin.makeStatus(IStatus.ERROR, "JDT not available.\n", noJdtException));
 					    
 					}else{
                         String errorMsg = "Some error happened while getting info on the interpreter.\n\n" +

@@ -7,10 +7,13 @@ package org.python.pydev.editor.codecompletion;
 
 import org.eclipse.jface.bindings.TriggerSequence;
 import org.eclipse.jface.bindings.keys.KeySequence;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.keys.IBindingService;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
+import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.docutils.StringUtils;
 
 /**
@@ -28,7 +31,18 @@ public class PyContentAssistant extends ContentAssistant{
     @Override
     public String showPossibleCompletions() {
         lastAutoActivated = false;
-        return super.showPossibleCompletions();
+        try {
+            return super.showPossibleCompletions();
+        } catch (RuntimeException e) {
+            Throwable e1 = e;
+            while(e1.getCause() != null){
+                e1 = e1.getCause();
+            }
+            if(e1 instanceof JDTNotAvailableException){
+                return e1.getMessage();
+            }
+            throw e;
+        }
     }
     
     public boolean getLastCompletionAutoActivated(){

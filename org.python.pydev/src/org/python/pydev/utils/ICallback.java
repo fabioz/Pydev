@@ -10,5 +10,5 @@ package org.python.pydev.utils;
  */
 public interface ICallback {
 
-    public Object call(Object args);
+    public Object call(Object args) throws Exception;
 }

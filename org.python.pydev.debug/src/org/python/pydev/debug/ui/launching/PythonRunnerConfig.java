@@ -25,6 +25,7 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
+import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -397,8 +398,9 @@ public class PythonRunnerConfig {
 	 * Create a command line for launching.
 	 * @return command line ready to be exec'd
 	 * @throws CoreException 
+	 * @throws JDTNotAvailableException 
 	 */
-	public String[] getCommandLine() throws CoreException {
+	public String[] getCommandLine() throws CoreException, JDTNotAvailableException {
 		List<String> cmdArgs = new ArrayList<String>();
         
         if(isJython()){
@@ -550,7 +552,7 @@ public class PythonRunnerConfig {
        return null;
 	}
 
-	public String getCommandLineAsString() {
+	public String getCommandLineAsString() throws JDTNotAvailableException {
 		String[] args;
         try {
             args = getCommandLine();

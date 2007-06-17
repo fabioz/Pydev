@@ -6,6 +6,7 @@ package org.python.pydev.editor.codecompletion.revisited.jython;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
+import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
@@ -69,7 +70,7 @@ public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub{
     }
 
     @Override
-    public Tuple<InterpreterInfo,String> createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
+    public Tuple<InterpreterInfo,String> createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException {
         return JythonInterpreterManager.doCreateInterpreterInfo(executable, monitor);
     }
 

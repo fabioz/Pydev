@@ -21,6 +21,7 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
+import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.core.Constants;
@@ -28,6 +29,7 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.debug.model.remote.RemoteDebugger;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.SimpleRunner;
 
@@ -87,24 +89,36 @@ public class PythonRunner {
             return;
         }
         
-        
-		if (config.isDebug) {
-		    runDebug(config, launch, monitor);
-            
-		}else if (config.isUnittest()) { 
-			runUnitTest(config, launch, monitor);
-            
-		}else { //default - just configured by command line (the others need special attention)
-	        doIt(config, monitor, config.envp, config.getCommandLine(), config.workingDirectory, launch);
-		}
+        try{
+    		if (config.isDebug) {
+    		    runDebug(config, launch, monitor);
+                
+    		}else if (config.isUnittest()) { 
+    			runUnitTest(config, launch, monitor);
+                
+    		}else { //default - just configured by command line (the others need special attention)
+    	        doIt(config, monitor, config.envp, config.getCommandLine(), config.workingDirectory, launch);
+    		}
+        }catch (final JDTNotAvailableException e) {
+            PydevPlugin.log(e);
+            final Display display = Display.getDefault();
+            display.syncExec(new Runnable(){
+
+                public void run() {
+                    MessageDialog.openError(display.getActiveShell(), "Unable to run the selected configuration.", e.getMessage());
+                }
+                
+            });
+        }
 	}
 
 	/**
 	 * Launches the config in the debug mode.
 	 * 
 	 * Loosely modeled upon Ant launcher.
+	 * @throws JDTNotAvailableException 
 	 */
-	private static void runDebug(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
+	private static void runDebug(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException, JDTNotAvailableException {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
@@ -188,15 +202,16 @@ public class PythonRunner {
         return process;
     }
 
-    private static void runUnitTest(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException{
+    private static void runUnitTest(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException{
     	doIt(config, monitor, config.envp, config.getCommandLine(), config.workingDirectory, launch);
     }
 
     /**
 	 * The debug plugin needs to be notified about our process.
 	 * It'll then display the appropriate UI.
+     * @throws JDTNotAvailableException 
 	 */
-	private static IProcess registerWithDebugPlugin(PythonRunnerConfig config, ILaunch launch, Process p) {
+	private static IProcess registerWithDebugPlugin(PythonRunnerConfig config, ILaunch launch, Process p) throws JDTNotAvailableException {
 		HashMap processAttributes = new HashMap();
 		processAttributes.put(IProcess.ATTR_CMDLINE, config.getCommandLineAsString());
 		return registerWithDebugPlugin(config.resource.lastSegment(), launch,p, processAttributes);

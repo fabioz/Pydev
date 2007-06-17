@@ -54,10 +54,9 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
      * @see org.eclipse.jface.preference.PreferencePage#performApply()
      */
     protected void performApply() {
-        restoreModules();
-        changed = false;
-        setEditorUnchanged();
-        super.performApply();
+        //we must apply before restoring the modules (because it will need the info we're saving)
+        changed = true; //force it to make the changes 
+        super.performApply(); //calls performOk()
     }
     
 
@@ -67,8 +66,7 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
      * @see org.eclipse.jface.preference.PreferencePage#performDefaults()
      */
     protected void performDefaults() {
-        changed = true;
-        super.performDefaults();
+        //don't do anything on defaults...
     }
     
     /**
@@ -87,10 +85,15 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
      * @see org.eclipse.jface.preference.IPreferencePage#performOk()
      */
     public boolean performOk() {
+        //IMPORTANT: we must call the perform before restoring the modules because this
+        //info is going to be used when restoring them.
+        boolean ret = super.performOk();
         if(hasChanged()){
             restoreModules();
         }
-        return super.performOk();
+        changed = false;
+        setEditorUnchanged();
+        return ret;
     }
 
     /**

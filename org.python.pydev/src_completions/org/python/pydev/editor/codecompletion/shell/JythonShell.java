@@ -6,6 +6,7 @@ package org.python.pydev.editor.codecompletion.shell;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
+import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
@@ -19,7 +20,7 @@ public class JythonShell extends AbstractShell{
     
 
     @Override
-    protected synchronized String createServerProcess(int pWrite, int pRead) throws IOException {
+    protected synchronized String createServerProcess(int pWrite, int pRead) throws IOException, JDTNotAvailableException {
         String args = pWrite+" "+pRead;
         String script = REF.getFileAbsolutePath(serverFile);
         String executableStr = SimpleJythonRunner.makeExecutableCommandStr(script);

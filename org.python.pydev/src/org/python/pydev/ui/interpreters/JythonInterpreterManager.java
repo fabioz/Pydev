@@ -12,6 +12,7 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
+import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
@@ -40,7 +41,7 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
     }
 
     @Override
-    public Tuple<InterpreterInfo,String>createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
+    public Tuple<InterpreterInfo,String>createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException {
         return doCreateInterpreterInfo(executable, monitor);
     }
 
@@ -53,7 +54,7 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
      * 
      * @throws CoreException
      */
-    public static Tuple<InterpreterInfo,String> doCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
+    public static Tuple<InterpreterInfo,String> doCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException {
         boolean isJythonExecutable = InterpreterInfo.isJythonExecutable(executable);
         
         if(!isJythonExecutable){

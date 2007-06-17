@@ -13,6 +13,7 @@ import java.util.List;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.LibraryLocation;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.utils.ICallback;
 
 /**
@@ -65,17 +66,37 @@ public class JavaVmLocationFinder {
     
     /**
      * @return the default java executable configured in the jdt plugin
+     * @throws Exception 
      */
-    public static File findDefaultJavaExecutable(){
-        return (File) callbackJavaExecutable.call(null);
+    public static File findDefaultJavaExecutable() throws JDTNotAvailableException{
+        try {
+            return (File) callbackJavaExecutable.call(null);
+        } catch (Exception e) {
+            if(e instanceof JDTNotAvailableException){
+                JDTNotAvailableException jdtException = (JDTNotAvailableException) e;
+                throw jdtException;
+            }else{
+                throw new RuntimeException(e);
+            }
+        }
     }
     
     
     /**
      * @return the default java jars (rt.jar ... )
      */
-    public static List<File> findDefaultJavaJars(){
-        return (List<File>) callbackJavaJars.call(null);
+    @SuppressWarnings("unchecked")
+    public static List<File> findDefaultJavaJars() throws JDTNotAvailableException{
+        try {
+            return (List<File>) callbackJavaJars.call(null);
+        } catch (Exception e) {
+            if(e instanceof JDTNotAvailableException){
+                JDTNotAvailableException jdtException = (JDTNotAvailableException) e;
+                throw jdtException;
+            }else{
+                throw new RuntimeException(e);
+            }
+        }
     }
     
     
@@ -85,28 +106,52 @@ public class JavaVmLocationFinder {
      */
     public static ICallback callbackJavaExecutable = new ICallback(){
         
-        public Object call(Object args) {
-            IVMInstall defaultVMInstall = JavaRuntime.getDefaultVMInstall();
-            File installLocation = defaultVMInstall.getInstallLocation();
-            return findJavaExecutable(installLocation);
+        public Object call(Object args) throws Exception {
+            try{
+                IVMInstall defaultVMInstall = JavaRuntime.getDefaultVMInstall();
+                File installLocation = defaultVMInstall.getInstallLocation();
+                return findJavaExecutable(installLocation);
+            }catch(Throwable e){
+                handleException(e);
+                return null; //should not get here
+            }
         }
+
         
     };
+    
+    static void handleException(Throwable e) throws JDTNotAvailableException {
+        if(e instanceof LinkageError || e instanceof ClassNotFoundException){
+            throw new JDTNotAvailableException();
+        }
+        if(e instanceof RuntimeException){
+            RuntimeException runtimeException = (RuntimeException) e;
+            throw runtimeException;
+        }
+        PydevPlugin.log(e);
+        throw new RuntimeException(e);
+    }
     
     /**
      * might be changed for tests (if not in the eclipse env)
      */
     public static ICallback callbackJavaJars = new ICallback(){
 
-        public Object call(Object args) {
-            IVMInstall defaultVMInstall = JavaRuntime.getDefaultVMInstall();
-            LibraryLocation[] libraryLocations = JavaRuntime.getLibraryLocations(defaultVMInstall);
-            
-            ArrayList<File> jars = new ArrayList<File>();
-            for (LibraryLocation location : libraryLocations) {
-                jars.add(location.getSystemLibraryPath().toFile());
+        public Object call(Object args) throws Exception {
+            try{
+                IVMInstall defaultVMInstall = JavaRuntime.getDefaultVMInstall();
+                LibraryLocation[] libraryLocations = JavaRuntime.getLibraryLocations(defaultVMInstall);
+                
+                ArrayList<File> jars = new ArrayList<File>();
+                for (LibraryLocation location : libraryLocations) {
+                    jars.add(location.getSystemLibraryPath().toFile());
+                }
+                return jars;
+            }catch(Throwable e){
+                JavaVmLocationFinder.handleException(e);
+                return null; //should not get here
             }
-            return jars;
+
         }
         
     };

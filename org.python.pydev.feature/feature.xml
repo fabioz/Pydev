@@ -40,9 +40,6 @@ Aleks and Fabio
       <import plugin="org.eclipse.ui.views"/>
       <import plugin="org.eclipse.debug.core" version="3.2.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.variables"/>
-      <import plugin="org.eclipse.jdt.launching"/>
-      <import plugin="org.eclipse.jdt"/>
-      <import plugin="org.eclipse.jdt.core"/>
       <import plugin="org.eclipse.search"/>
       <import plugin="org.eclipse.debug.ui"/>
       <import plugin="org.eclipse.ltk.core.refactoring"/>
