@@ -87,8 +87,8 @@ public class FileNode {
     /**
      * 
      */
-    public Iterator notExecutedIterator() {
-        List l = new ArrayList();
+    public Iterator<Object> notExecutedIterator() {
+        List<Object> l = new ArrayList<Object>();
         
         String[] toks = notExecuted.replaceAll(" ", "").split(",");
         for (int i = 0; i < toks.length; i++) {

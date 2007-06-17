@@ -18,7 +18,7 @@ def SetupType(str=None):
         return
     
     try:
-        import java.lang
+        import java.lang #@UnresolvedImport @UnusedImport
         PydevdVmType.vm_type = 'jython'
     except:
         PydevdVmType.vm_type = 'python'

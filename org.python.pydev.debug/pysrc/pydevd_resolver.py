@@ -1,7 +1,4 @@
 import StringIO
-from types import *
-import urllib
-import sys
 import traceback
 
 try:
@@ -11,7 +8,7 @@ except:
     True = 1
 
 class InspectStub:    
-    def isbuiltin(self, args):       
+    def isbuiltin(self, _args):       
         return False
     def isroutine(self, object):       
         return False
@@ -22,7 +19,7 @@ except:
     inspect = InspectStub()
 
 try:
-    import java.lang
+    import java.lang #@UnresolvedImport
 except:
     pass
 
@@ -135,7 +132,6 @@ class Resolver:
                     
                     #filter functions?
                     if filterFunction:
-                        isinst = False
                         if inspect.isroutine(attr) or isinstance(attr, MethodWrapperType): 
                             continue
                 except:
@@ -191,7 +187,7 @@ class InstanceResolver(Resolver):
 
 
 class JyArrayResolver(Resolver):
-    def resolve(self, var, attribute):
+    def resolve(self, var, _attribute):
         return var
     
     def getDictionary(self,obj):

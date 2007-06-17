@@ -52,7 +52,7 @@ public class PyCoverage {
                 throw new RuntimeException("We can only get information on a dir.");
             }
 
-            List pyFilesBelow[] = new List[] { new ArrayList(), new ArrayList() };
+            List pyFilesBelow[] = new List[] { new ArrayList<Object>(), new ArrayList<Object>() };
 
             if (file.exists()) {
                 pyFilesBelow = PydevPlugin.getPyFilesBelow(file, monitor, true, false);
@@ -64,8 +64,8 @@ public class PyCoverage {
 
             //add the folders to the cache
             boolean added = false;
-            for (Iterator it = pyFilesBelow[1].iterator(); it.hasNext();) {
-                File f = (File) it.next();
+            for (Iterator<File> it = pyFilesBelow[1].iterator(); it.hasNext();) {
+                File f = it.next();
                 if (!added) {
                     cache.addFolder(f);
                     added = true;
@@ -115,7 +115,7 @@ public class PyCoverage {
 
                 String files = "";
 
-                for (Iterator iter = pyFilesBelow[0].iterator(); iter.hasNext();) {
+                for (Iterator<Object> iter = pyFilesBelow[0].iterator(); iter.hasNext();) {
                     String fStr = iter.next().toString();
                     files += fStr + "|";
                 }

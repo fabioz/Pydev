@@ -69,6 +69,16 @@ public class JavaVmLocationFinder {
     public static File findDefaultJavaExecutable(){
         return (File) callbackJavaExecutable.call(null);
     }
+    
+    
+    /**
+     * @return the default java jars (rt.jar ... )
+     */
+    public static List<File> findDefaultJavaJars(){
+        return (List<File>) callbackJavaJars.call(null);
+    }
+    
+    
 
     /**
      * might be changed for tests (if not in the eclipse env)
@@ -82,16 +92,6 @@ public class JavaVmLocationFinder {
         }
         
     };
-    
-    
-    
-    
-    /**
-     * @return the default java jars (rt.jar ... )
-     */
-    public static List<File> findDefaultJavaJars(){
-        return (List<File>) callbackJavaJars.call(null);
-    }
     
     /**
      * might be changed for tests (if not in the eclipse env)

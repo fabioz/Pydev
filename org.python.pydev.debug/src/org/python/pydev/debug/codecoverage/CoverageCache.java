@@ -25,8 +25,8 @@ import java.util.Map;
  */
 public class CoverageCache {
 
-    public Map folders = new HashMap();
-    public Map files = new HashMap();
+    public Map<Object, Object> folders = new HashMap<Object, Object>();
+    public Map<Object, Object> files = new HashMap<Object, Object>();
     
     /**
      * 
@@ -68,11 +68,11 @@ public class CoverageCache {
      * @param obj
      * @return
      */
-    private Object getIt(Object obj, Map m) {
+    private Object getIt(Object obj, Map<Object, Object> m) {
         Object object = m.get(obj);
         if (object == null){
-            for (Iterator iter = m.keySet().iterator(); iter.hasNext();) {
-                Object element = (Object) iter.next();
+            for (Iterator<Object> iter = m.keySet().iterator(); iter.hasNext();) {
+                Object element = iter.next();
                 if(element.equals(obj)){
                     return m.get(element);
                 }
@@ -129,21 +129,21 @@ public class CoverageCache {
         files.put(node, fileNode);
     }
 
-    public List getFiles(Object node) throws NodeNotFoudException{
+    public List<Object> getFiles(Object node) throws NodeNotFoudException{
         FolderNode folderNode = (FolderNode) getFolder(node);
         if (folderNode == null){
             Object fileNode = getFile(node);
             if (fileNode == null){
                 throw new NodeNotFoudException("The node has not been found: "+node.toString());
             }
-            ArrayList list = new ArrayList();
+            ArrayList<Object> list = new ArrayList<Object>();
             list.add(fileNode);
             return list;
         }
         
         
         //we have a folder node.
-        ArrayList list = new ArrayList();
+        ArrayList<Object> list = new ArrayList<Object>();
         recursivelyFillList(folderNode, list);
         return list;
     }
@@ -152,14 +152,14 @@ public class CoverageCache {
      * @param folderNode
      * @param list
      */
-    private void recursivelyFillList(FolderNode folderNode, ArrayList list) {
+    private void recursivelyFillList(FolderNode folderNode, ArrayList<Object> list) {
         //add its files
-        for (Iterator it = folderNode.files.values().iterator(); it.hasNext();) {
+        for (Iterator<Object> it = folderNode.files.values().iterator(); it.hasNext();) {
             list.add(it.next());
         }
         
         //get its sub folders
-        for (Iterator it = folderNode.subFolders.values().iterator(); it.hasNext();) {
+        for (Iterator<Object> it = folderNode.subFolders.values().iterator(); it.hasNext();) {
             recursivelyFillList((FolderNode) it.next(), list);
         }
     }
@@ -184,7 +184,7 @@ public class CoverageCache {
 
         StringBuffer buffer = new StringBuffer();
         try {
-            List list = getFiles(node);  //array of FileNode
+            List<Object> list = getFiles(node);  //array of FileNode
             
             //40 chars for name.
             buffer.append("Name                                    Stmts     Exec     Cover  Missing\n");
@@ -193,7 +193,7 @@ public class CoverageCache {
             int totalExecuted = 0;
             int totalStmts = 0;
             
-            for (Iterator it = list.iterator(); it.hasNext();) {
+            for (Iterator<Object> it = list.iterator(); it.hasNext();) {
                 Object element = it.next();
                 buffer.append(element.toString()+"\n");
                 if(element instanceof FileNode){ //it may have been an error node...

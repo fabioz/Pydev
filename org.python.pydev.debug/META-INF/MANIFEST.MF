@@ -25,9 +25,6 @@ Require-Bundle: org.junit;resolution:=optional,
  org.python.pydev.ast,
  org.python.pydev.parser,
  org.python.pydev,
- org.eclipse.jdt,
- org.eclipse.jdt.core,
- org.eclipse.jdt.launching,
  org.eclipse.core.expressions
 Eclipse-LazyStart: true
 Export-Package: org.python.pydev.debug.codecoverage,

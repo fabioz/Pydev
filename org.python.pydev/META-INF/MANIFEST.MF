@@ -8,8 +8,7 @@ Bundle-ClassPath: pydev.jar,
 Bundle-Activator: org.python.pydev.plugin.PydevPlugin
 Bundle-Vendor: Fabio Zadrozny / Aleks Totic
 Bundle-Localization: plugin
-Require-Bundle: org.junit;resolution:=optional,
- org.eclipse.ui,
+Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.ide,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
@@ -19,12 +18,10 @@ Require-Bundle: org.junit;resolution:=optional,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.debug.core,
  org.eclipse.core.variables,
+ org.eclipse.jdt.launching,
  org.python.pydev.ast,
  org.python.pydev.parser,
  org.python.pydev.core,
- org.eclipse.jdt.launching,
- org.eclipse.jdt,
- org.eclipse.jdt.core,
  org.eclipse.search,
  org.eclipse.debug.ui,
  org.eclipse.ui.console,
@@ -34,7 +31,8 @@ Require-Bundle: org.junit;resolution:=optional,
  org.eclipse.ui.navigator,
  org.eclipse.ui.navigator.resources,
  org.eclipse.core.filesystem,
- org.eclipse.core.expressions
+ org.eclipse.core.expressions,
+ org.junit;resolution:=optional
 Eclipse-LazyStart: true
 Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.builder,

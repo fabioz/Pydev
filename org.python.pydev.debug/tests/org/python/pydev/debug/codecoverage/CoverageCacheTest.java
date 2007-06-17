@@ -58,17 +58,17 @@ public class CoverageCacheTest extends TestCase {
         cache.addFile(file4, folder3, 26,10, "6-10");
         cache.addFile(file5, folder4, 28,10, "6-10");
         
-        List folder1files = cache.getFiles(folder1);
+        List<Object> folder1files = cache.getFiles(folder1);
         assertEquals(5, folder1files.size());
 
-        List folder2files = cache.getFiles(folder2);
+        List<Object> folder2files = cache.getFiles(folder2);
         assertEquals(0, folder2files.size());
 
-        List folder3files = cache.getFiles(folder3);
+        List<Object> folder3files = cache.getFiles(folder3);
         assertEquals(3, folder3files.size());
 
         
-        List folder4files = cache.getFiles(folder4);
+        List<Object> folder4files = cache.getFiles(folder4);
         assertEquals(1, folder4files.size());
         assertEquals(folder4files, cache.getFiles(file5));
 

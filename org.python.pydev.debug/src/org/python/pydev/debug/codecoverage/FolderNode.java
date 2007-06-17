@@ -12,7 +12,7 @@ import java.util.Map;
  * @author Fabio Zadrozny
  */
 public class FolderNode {
-    public Map subFolders = new HashMap();
-    public Map files = new HashMap();
+    public Map<Object, Object> subFolders = new HashMap<Object, Object>();
+    public Map<Object, Object> files = new HashMap<Object, Object>();
     public Object node;
 }
