@@ -2,6 +2,8 @@ after 1.3.4
 Pydev Extensions:
 <ul>
 <li><strong>Auto-Import:</strong> Import was not added to the correct line if a multi-line import was found that had '('.</li>
+<li><strong>Auto-Import:</strong> Added option to disable the introduction of auto-imports.</li>
+<li><strong>Auto-Import:</strong> Added option to remove modules that start with '_'.</li>
 <li><strong>Code Analysis:</strong> Having a list comprehension with a subscript was not being treated correctly.</li>
 <li><strong>Debugger:</strong> Working with jython.</li>
 <li><strong>Debugger:</strong> Working with wxPython.</li>

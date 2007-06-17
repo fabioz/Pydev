@@ -16,6 +16,19 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class SimpleJythonRunner extends SimpleRunner{
+    
+    /**
+     * Error risen when java is not available to the jython environment
+     * 
+     * @author Fabio
+     */
+    public static class JavaNotConfiguredException extends RuntimeException{
+
+        public JavaNotConfiguredException(String string) {
+            super(string);
+        }
+        
+    }
 
     public Tuple<String,String> runAndGetOutputWithJar(String script, String jythonJar, String args, File workingDir, IProject project, IProgressMonitor monitor) {
         //"C:\Program Files\Java\jdk1.5.0_04\bin\java.exe" "-Dpython.home=C:\bin\jython21" 
@@ -23,7 +36,16 @@ public class SimpleJythonRunner extends SimpleRunner{
         //used just for getting info without any classpath nor pythonpath
         
         try {
-            String javaLoc = JavaVmLocationFinder.findDefaultJavaExecutable().getCanonicalPath();
+            File javaExecutable = JavaVmLocationFinder.findDefaultJavaExecutable();
+            if(javaExecutable == null){
+                throw new JavaNotConfiguredException(
+                        "Error: the java environment must be configured before jython.\n\n" +
+                		"Please make sure that the java executable to be\n" +
+                		"used is correctly configured in the preferences at:\n\n" +
+                		"Java > Installed JREs.");
+            }
+            
+            String javaLoc = javaExecutable.getCanonicalPath();
 
             String[] s = new String[]{
                 javaLoc,
@@ -35,6 +57,8 @@ public class SimpleJythonRunner extends SimpleRunner{
             String executionString = getCommandLineAsString(s);
 
             return runAndGetOutput(executionString, workingDir, project, monitor);
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -48,6 +72,8 @@ public class SimpleJythonRunner extends SimpleRunner{
             String executionString = makeExecutableCommandStr(script);
             
             return runAndGetOutput(executionString, workingDir, project);
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

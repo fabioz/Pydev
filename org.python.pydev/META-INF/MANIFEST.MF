@@ -8,7 +8,7 @@ Bundle-ClassPath: pydev.jar,
 Bundle-Activator: org.python.pydev.plugin.PydevPlugin
 Bundle-Vendor: Fabio Zadrozny / Aleks Totic
 Bundle-Localization: plugin
-Require-Bundle: org.junit,
+Require-Bundle: org.junit;resolution:=optional,
  org.eclipse.ui,
  org.eclipse.ui.ide,
  org.eclipse.core.runtime,

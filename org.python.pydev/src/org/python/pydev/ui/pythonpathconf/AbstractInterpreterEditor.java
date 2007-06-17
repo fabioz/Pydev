@@ -42,6 +42,7 @@ import org.eclipse.swt.widgets.Widget;
 import org.python.copiedfromeclipsesrc.PythonListEditor;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.ui.UIConstants;
 
 /**
@@ -587,18 +588,27 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 				if (operation.e != null) {
 					logger.println("- Some error happened while getting info on the interpreter:");
 					operation.e.printStackTrace(logger);
-                    
-                    String errorMsg = "Some error happened while getting info on the interpreter.\n\n" +
-                                "Common reasons include:\n\n" +
-                                "- Specifying an invalid interpreter" +
-                                "(usually a link to the actual interpreter on Mac or Linux)\n" +
-                                "- Having spaces in your Eclipse installation path.";
-                    //show the user a message (so that it does not fail silently)...
-                    ErrorDialog.openError(this.getShell(), "Error getting info on interpreter", 
-                            errorMsg, 
-                            PydevPlugin.makeStatus(IStatus.ERROR, "Check your error log for more details.\n\n" +
-                                "More info can also be found at the bug report: http://sourceforge.net/tracker/index.php?func=detail&aid=1523582&group_id=85796&atid=577329", 
-                            operation.e));
+
+					if(operation.e instanceof SimpleJythonRunner.JavaNotConfiguredException){
+                        SimpleJythonRunner.JavaNotConfiguredException javaNotConfiguredException = (SimpleJythonRunner.JavaNotConfiguredException) operation.e;
+                        
+                        ErrorDialog.openError(this.getShell(), "Error getting info on interpreter", 
+                                javaNotConfiguredException.getMessage(), 
+                                PydevPlugin.makeStatus(IStatus.ERROR, "Java vm not configured.\n", javaNotConfiguredException));
+					    
+					}else{
+                        String errorMsg = "Some error happened while getting info on the interpreter.\n\n" +
+                                    "Common reasons include:\n\n" +
+                                    "- Specifying an invalid interpreter" +
+                                    "(usually a link to the actual interpreter on Mac or Linux)\n" +
+                                    "- Having spaces in your Eclipse installation path.";
+                        //show the user a message (so that it does not fail silently)...
+                        ErrorDialog.openError(this.getShell(), "Error getting info on interpreter", 
+                                errorMsg, 
+                                PydevPlugin.makeStatus(IStatus.ERROR, "Check your error log for more details.\n\n" +
+                                    "More info can also be found at the bug report: http://sourceforge.net/tracker/index.php?func=detail&aid=1523582&group_id=85796&atid=577329", 
+                                operation.e));
+					}
                     
 					throw operation.e;
 				}

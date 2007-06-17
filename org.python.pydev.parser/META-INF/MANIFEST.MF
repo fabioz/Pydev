@@ -7,7 +7,7 @@ Bundle-ClassPath: parser.jar,
  retroweaver-rt.jar
 Bundle-Activator: org.python.pydev.parser.ParserPlugin
 Bundle-Localization: plugin
-Require-Bundle: org.junit,
+Require-Bundle: org.junit;resolution:=optional,
  org.eclipse.ui,
  org.eclipse.ui.ide,
  org.eclipse.core.runtime,

@@ -222,6 +222,9 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                     }
 	                info = tup.o1;
 	                
+	    		} catch (RuntimeException e) {
+	    		    PydevPlugin.log(e);
+	    		    throw e;
 	    	    } catch (Exception e) {
 	    	        PydevPlugin.log(e);
 	    	        throw new RuntimeException(e);

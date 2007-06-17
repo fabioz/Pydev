@@ -96,7 +96,7 @@ public class StubInterpreterManager implements IInterpreterManager {
 	}
 
 	public IToken[] getBuiltinCompletions() {
-		throw new RuntimeException("Not implemented");
+		return new IToken[0];
 	}
 
 	public IModule getBuiltinMod() {
@@ -104,11 +104,9 @@ public class StubInterpreterManager implements IInterpreterManager {
 	}
 
 	public void setBuiltinCompletions(IToken[] comps) {
-		throw new RuntimeException("Not implemented");
 	}
 
 	public void setBuiltinMod(IModule mod) {
-		throw new RuntimeException("Not implemented");
 	}
 
 }
