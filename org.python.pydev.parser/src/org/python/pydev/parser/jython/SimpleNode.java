@@ -14,11 +14,20 @@ public class SimpleNode implements Node, ISimpleNode{
     
     private static final boolean DEBUG = false;
 
-    public int beginLine, beginColumn;
+    /**
+     * Begins at 1
+     */
+    public int beginLine;
+    
+    /**
+     * Begins at 1
+     */
+    public int beginColumn;
+    
     public SimpleNode parent;
 
     /**
-     * each node may have a number of associated comments, altought they are not in the visiting structure by default
+     * each node may have a number of associated comments, although they are not in the visiting structure by default
      * (it appears separately from that in this attribute, so, when doing a traverse in some node, the comments
      * will NOT be added in the visitor by default, as in the grammar it is not associated).
      * 

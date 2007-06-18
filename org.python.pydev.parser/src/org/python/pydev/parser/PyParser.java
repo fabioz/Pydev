@@ -24,6 +24,7 @@ import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
@@ -424,6 +425,102 @@ public class PyParser implements IPyParser {
         }
     }
     
+    
+    /**
+     * Removes comments at the end of the document
+     * @param doc this is the document from where the comments must be removed
+     * @return a tuple with: StringBuffer with the comments that have been removed,
+     * beginLine for the comments beginColumn for the comments
+     * (both starting at 1)
+     */
+    public static List<commentType> removeEndingComments(IDocument doc){
+        StringBuffer comments = new StringBuffer();
+        int lines = doc.getNumberOfLines();
+        String delimiter = PySelection.getDelimiter(doc);
+        
+        for (int i = lines-1; i >= 0; i--) {
+            String line = PySelection.getLine(doc, i);
+            String trimmed = line.trim();
+            if(trimmed.length() > 0 && trimmed.charAt(0) != '#'){
+                return makeListOfComments(comments, line.length()+2, i+1);
+            }
+            comments.insert(0,line);
+            comments.insert(0,delimiter);
+            try {
+                if(line.length() > 0){
+                    PySelection.deleteLine(doc, i);
+                }
+            } catch (Exception e) {
+                //ignore
+            }
+        }
+        
+        return makeListOfComments(comments,0,0);
+    }
+
+    private static List<commentType> makeListOfComments(StringBuffer comments, int beginCol, int beginLine) {
+        ArrayList<commentType> ret = new ArrayList<commentType>();
+        int len = comments.length();
+
+        char c;
+        StringBuffer buf = null;
+
+        int col=0;
+        int line=0;
+        int startCol=-1;
+        for (int i = 0; i < len; i++) {
+            c = comments.charAt(i);
+
+            if(buf == null && c == '#'){
+                buf = new StringBuffer();
+                startCol = col;
+            }
+            
+
+            if (c == '\r') {
+                if (i < len - 1 && comments.charAt(i + 1) == '\n') {
+                    i++;
+                }
+                addCommentLine(ret, buf, beginCol, beginLine, startCol, line);
+                buf = null;
+                col = 0;
+                line++;
+                startCol = -1;
+            }
+            if (c == '\n') {
+                addCommentLine(ret, buf, beginCol, beginLine, startCol, line);
+                buf = null;
+                col = 0;
+                line++;
+                startCol = -1;
+            }
+            
+            if(buf != null){
+                buf.append(c);
+            }
+            col++;
+        }
+        
+        if (buf != null && buf.length() != 0) {
+            addCommentLine(ret, buf, beginCol, beginLine, startCol, line);
+        }
+        return ret;
+    }
+
+    private static void addCommentLine(ArrayList<commentType> ret, StringBuffer buf, int beginCol, int beginLine, int col, int line) {
+        if(buf != null){
+            commentType comment = new commentType(buf.toString());
+            comment.beginLine = beginLine+line;
+            if(line == 0){
+                comment.beginColumn = beginCol+col;
+            }else{
+                comment.beginColumn = col;
+            }
+            ret.add(comment);
+        }
+    }
+    
+    
     /**
      * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
      *         if we are able to recover from a reparse, we have both, the root and the error.
@@ -436,10 +533,7 @@ public class PyParser implements IPyParser {
         }
 
         IDocument newDoc = new Document(startDoc);
-        Tuple3<StringBuffer, Integer, Integer> tup3 = PySelection.removeEndingComments(newDoc);
-        commentType endingComments = new commentType(tup3.o1.toString());
-        endingComments.beginLine = tup3.o2;
-        endingComments.beginColumn = tup3.o3;
+        List<commentType> comments = removeEndingComments(newDoc);
         try {
             //make sure it ends with a new line
             newDoc.replace(newDoc.getLength(), 0, "\n");
@@ -481,7 +575,9 @@ public class PyParser implements IPyParser {
             SimpleNode newRoot = grammar.file_input(); // parses the file
             if(newRoot != null){
                 Module m = (Module) newRoot;
-                m.addSpecial(endingComments, true);
+                for (commentType comment : comments) {
+                    m.addSpecial(comment, true);
+                }
             }
             return new Tuple<SimpleNode, Throwable>(newRoot,null);
 		

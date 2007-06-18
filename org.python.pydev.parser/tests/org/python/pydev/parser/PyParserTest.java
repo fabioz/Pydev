@@ -10,12 +10,15 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.Tuple3;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
@@ -25,7 +28,7 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testYield2();
+            test.testRemoveEndingComments3();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
@@ -39,6 +42,68 @@ public class PyParserTest extends PyParserTestBase{
     	super.setUp();
     	PyParser.USE_FAST_STREAM = true;
     }
+    
+    
+
+    public void testRemoveEndingComments() throws Exception {
+        String s = 
+                "class Foo:pass\n" +
+                "#comm1\n" +
+                "#comm2\n" +
+                "print 'no comm'\n" +
+                "#comm3\n" +
+                "#comm4";
+        Document doc = new Document(s);
+        
+        List<commentType> comments = PyParser.removeEndingComments(doc);
+        assertEquals("#comm3", comments.get(0).id);
+        assertEquals(1, comments.get(0).beginColumn);
+        assertEquals(5, comments.get(0).beginLine);
+        
+        assertEquals("#comm4", comments.get(1).id);
+        assertEquals(1, comments.get(1).beginColumn);
+        assertEquals(6, comments.get(1).beginLine);
+        
+        assertEquals("class Foo:pass\n" +
+                "#comm1\n" +
+                "#comm2\n" +
+                "print 'no comm'\n", doc.get());
+    }
+    
+    public void testRemoveEndingComments2() throws Exception {
+        String s = 
+            "class C: \n" +
+            "    pass\n" +
+            "#end\n" +
+            "";
+        Document doc = new Document(s);
+        List<commentType> comments = PyParser.removeEndingComments(doc);
+        assertEquals(1, comments.get(0).beginColumn);
+        assertEquals(3, comments.get(0).beginLine);
+        assertEquals("#end" , comments.get(0).id);
+        assertEquals("class C: \n" +
+                "    pass\n" 
+                , doc.get());
+    }
+    
+    public void testRemoveEndingComments3() throws Exception {
+        String s = 
+            "##end\n" +
+            "##end\n" +
+            "";
+        Document doc = new Document(s);
+        List<commentType> comments = PyParser.removeEndingComments(doc);
+        
+        assertEquals(1, comments.get(0).beginColumn);
+        assertEquals(1, comments.get(0).beginLine);
+        assertEquals("##end" , comments.get(0).id);
+        
+        assertEquals(2, comments.get(1).beginLine);
+        assertEquals(1, comments.get(1).beginColumn);
+        assertEquals("##end" , comments.get(1).id);
+        assertEquals("", doc.get());
+    }
+    
     
     public void testCorrectArgs() {
         String s = "" +
