@@ -55,7 +55,7 @@ public class PyAddSingleBlockComment extends AbstractBlockCommentAction {
                     char c = colsAndChar.o2;
                     
                     StringBuffer buffer = makeBufferToIndent(line, cols);            
-                    buffer.append('#');
+                    buffer.append("# ");
                     buffer.append(line.trim());
                     buffer.append(' ');
                     while(buffer.length() < cols){
@@ -82,12 +82,13 @@ public class PyAddSingleBlockComment extends AbstractBlockCommentAction {
     }
 
     private boolean getAlignRight() {
-        try{
-            return PydevPlugin.getDefault().getPluginPreferences().getBoolean(CommentBlocksPreferences.SINGLE_BLOCK_COMMENT_ALIGN_RIGHT);
-        }catch(NullPointerException e){
-            //ignore... we're in the tests env
+        PydevPlugin plugin = PydevPlugin.getDefault();
+        if(plugin != null){
+            return plugin.getPluginPreferences().getBoolean(CommentBlocksPreferences.SINGLE_BLOCK_COMMENT_ALIGN_RIGHT);
+            
+        }else{ //tests env
+            return this.alignRight;
         }
-        return this.alignRight;
     }
 
     @Override

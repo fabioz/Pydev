@@ -496,16 +496,21 @@ public class REF {
                     }
                 }
                 
-            }catch(LinkageError e){//NoSuchMethod/NoClassDef exception
-                ITextFileBufferManager textFileBufferManager = FileBuffers.getTextFileBufferManager();
-                
-                if(textFileBufferManager != null){//we don't have it in tests
-                    ITextFileBuffer textFileBuffer = textFileBufferManager.getTextFileBuffer(path);
+            }catch(Throwable e){//NoSuchMethod/NoClassDef exception
+                if(e instanceof ClassNotFoundException || e instanceof LinkageError){
+                    ITextFileBufferManager textFileBufferManager = FileBuffers.getTextFileBufferManager();
                     
-                    if(textFileBuffer != null){ //we don't have it when it is not properly refreshed
-                        return textFileBuffer.getDocument();
+                    if(textFileBufferManager != null){//we don't have it in tests
+                        ITextFileBuffer textFileBuffer = textFileBufferManager.getTextFileBuffer(path);
+                        
+                        if(textFileBuffer != null){ //we don't have it when it is not properly refreshed
+                            return textFileBuffer.getDocument();
+                        }
                     }
+                }else{
+                    throw e;
                 }
+                
             }
             return null;
             

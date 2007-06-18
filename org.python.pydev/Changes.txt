@@ -21,6 +21,8 @@ Pydev:
 <li><strong>Extract method refactoring:</strong> was not adding 'if' statement correctly.</li>
 <li><strong>Organize imports:</strong> (Ctrl+Shift+O): comments are not erased when organizing imports anymore.</li>
 <li><strong>Interpreter Config:</strong> solved a concurrency issue (could issue an exception on some cases).</li>
+<li><strong>Jython integration:</strong> the executable for java can now work with a j9 vm.</li>
+<li><strong>Jython integration:</strong> those that don't use jython can now use eclipse without JDT (but it's still required for jython development).</li>
 </ul>
 
 
