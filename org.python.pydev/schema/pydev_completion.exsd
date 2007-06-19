@@ -6,9 +6,41 @@
          <meta.schema plugin="org.python.pydev" id="pydev_completion" name="org.python.pydev.pydev_completion"/>
       </appInfo>
       <documentation>
-         [Enter description of this extension point.]
+         This extension point defines a class that should be called for completions whenever it is requested.
       </documentation>
    </annotation>
+
+   <element name="extension">
+      <complexType>
+         <sequence>
+            <element ref="completion_participant" minOccurs="0" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  a fully qualified identifier of the target extension point
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  an optional identifier of the extension instance
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  an optional name of the extension instance
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
 
    <element name="completion_participant">
       <complexType>
@@ -45,7 +77,11 @@
          <meta.section type="apiInfo"/>
       </appInfo>
       <documentation>
-         [Enter API information here.]
+         This extension point defines a class that should be called for completions whenever it is requested.
+
+The class defined must implement org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant.
+
+
       </documentation>
    </annotation>
 
