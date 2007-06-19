@@ -22,7 +22,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
  */
 public abstract class EasyAstIteratorBase  extends VisitorBase{
 
-    private List<ASTEntry> nodes = new ArrayList<ASTEntry>();
+    protected List<ASTEntry> nodes = new ArrayList<ASTEntry>();
 
     protected final FastStack<SimpleNode> stack = new FastStack<SimpleNode>();
     protected final FastStack<ASTEntry> parents = new FastStack<ASTEntry>();

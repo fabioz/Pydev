@@ -50,6 +50,9 @@ import org.python.pydev.ui.UIConstants;
  * org.eclipse.ui.extenaltools.internal.ant.editor.outline
  * see PlantyEditor, and PlantyContentOutlinePage
  * 
+ * 
+ * @note: tests for the outline page are not directly for the outline page, but for its model, 
+ * based on ParsedItems.
  **/
 public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, IAdaptable{
 

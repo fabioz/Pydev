@@ -15,6 +15,7 @@ import org.python.pydev.parser.jython.ast.commentType;
 
 public class OutlineCreatorVisitor extends EasyASTIteratorWithChildrenVisitor{
 
+
     public static OutlineCreatorVisitor create(SimpleNode ast) {
         OutlineCreatorVisitor visitor = new OutlineCreatorVisitor();
         if(ast == null){
@@ -76,7 +77,8 @@ public class OutlineCreatorVisitor extends EasyASTIteratorWithChildrenVisitor{
         return null;
 
     }
-    
+
+
     @Override
     protected void doAddNode(ASTEntry entry) {
         SimpleNode node = entry.node;
@@ -85,6 +87,40 @@ public class OutlineCreatorVisitor extends EasyASTIteratorWithChildrenVisitor{
             commentType type = (commentType) node;
             if(type.beginColumn == 1){
                 entry.parent = null; //top-level
+            }else{
+                
+                //try to match it to some other indentation already set.
+                ASTEntryWithChildren lastAdded = null;
+                if(nodes != null && nodes.size() > 0){
+                    lastAdded = (ASTEntryWithChildren) nodes.get(nodes.size()-1);
+                }
+                
+                while(lastAdded != null){
+                    if(lastAdded.node == null){
+                        break;
+                    }
+                    
+                    //if it is equal to the indentation of this node, it's parent is the same, if it is higher
+                    //it is a child or a child's child...
+                    if(lastAdded.node.beginColumn == node.beginColumn){
+                        entry.parent = lastAdded.parent;
+                        break;
+                        
+                    }else if(node.beginColumn > lastAdded.node.beginColumn ){
+                        //it's higher, so, check the last children of lastAdded for a possible parent...
+                        entry.parent = lastAdded;
+                        List<ASTEntryWithChildren> children = lastAdded.children;
+                        if(children != null && children.size() > 0){
+                            lastAdded = children.get(children.size()-1);
+                        }else{
+                            break;
+                        }
+                        
+                    }else{
+                        //it's less, so, the parent is already set...
+                        break;
+                    }
+                }
             }
         }
         
@@ -98,7 +134,9 @@ public class OutlineCreatorVisitor extends EasyASTIteratorWithChildrenVisitor{
         for (Object object : specials) {
             if(object instanceof commentType){
                 commentType type = (commentType) object;
-                if(type.id.trim().startsWith("#---")){
+                String trimmed = type.id.trim();
+                
+                if(trimmed.startsWith("#---") || trimmed.endsWith("---")){
                     atomic(type);
                 }
             }

@@ -25,7 +25,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
-public class ParsedItem implements Comparable{
+public class ParsedItem implements Comparable<Object>{
 
     private ParsedItem parent;
     public ParsedItem[] children;
@@ -229,7 +229,11 @@ public class ParsedItem implements Comparable{
         int rank = item.getClassRanking();
         
         if (myRank == rank) {
-            return toString().compareTo(item.toString());
+            if(rank == -1){
+                return astThis.node.beginLine < item.astThis.node.beginLine? -1 : 1;
+            }else{
+                return toString().compareTo(item.toString());
+            }
             
         }else {
             return (myRank < rank ? -1 : 1);
