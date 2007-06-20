@@ -21,9 +21,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.parser.PyParser;
-import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.NotConfiguredInterpreterException;
@@ -126,7 +124,7 @@ public class InterpreterObserver implements IInterpreterObserver {
     private AbstractAdditionalInterpreterInfo restoreInfoForModuleManager(IProgressMonitor monitor, IModulesManager m, String additionalFeedback, 
             AbstractAdditionalInterpreterInfo info, PythonNature nature, int grammarVersion) {
         
-        long startsAt = System.currentTimeMillis();
+//        long startsAt = System.currentTimeMillis();
         ModulesKey[] allModules = m.getOnlyDirectModules();
         int i = 0;
         for (ModulesKey key : allModules) {
@@ -186,8 +184,8 @@ public class InterpreterObserver implements IInterpreterObserver {
                 }
             }
         }
-        double delta = System.currentTimeMillis()-startsAt;
-        delta = delta/1000; // in secs
+//        double delta = System.currentTimeMillis()-startsAt;
+//        delta = delta/1000; // in secs
 //        System.out.println("Time to restore additional info in secs: "+delta);
 //        System.out.println("Time to restore additional info in mins: "+delta/60.0);
         return info;

@@ -21,7 +21,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences{
     /**
      * lock
      */
-    public static Object lock = new Object();
+    public static final Object lock = new Object();
     
     /**
      * @return get the preferences for analysis based on the preferences
@@ -40,7 +40,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences{
      * IAnalysisPreferences
      * AnalysisPreferencesPage
      */
-    public static Object [][] completeSeverityMap = new Object[][]{
+    final static Object [][] completeSeverityMap = new Object[][]{
         {IAnalysisPreferences.TYPE_UNUSED_IMPORT              , AnalysisPreferenceInitializer.SEVERITY_UNUSED_IMPORT              , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNUSED_IMPORT                },
         {IAnalysisPreferences.TYPE_UNUSED_VARIABLE            , AnalysisPreferenceInitializer.SEVERITY_UNUSED_VARIABLE            , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNUSED_VARIABLE              },
         {IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE         , AnalysisPreferenceInitializer.SEVERITY_UNDEFINED_VARIABLE         , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNDEFINED_VARIABLE           },

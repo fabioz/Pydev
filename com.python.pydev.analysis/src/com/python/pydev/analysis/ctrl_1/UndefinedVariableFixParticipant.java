@@ -95,7 +95,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                     if(packageName.length() > 0){
                         String realImportRep = new StringBuffer("from ").append(packageName).append(" ").append("import ").append(strings[1]).toString();
                         String displayString = new StringBuffer("Import ").append(importRep).append(" (").append(packageName).append(")").toString();
-                        mods.add(new Tuple<String,String>(realImportRep.toString(), displayString));
+                        mods.add(new Tuple<String,String>(realImportRep, displayString));
                         
                     }else{
                         String displayString = new StringBuffer("Import ").append(importRep).toString();

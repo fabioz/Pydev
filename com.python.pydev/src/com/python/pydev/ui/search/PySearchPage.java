@@ -550,7 +550,10 @@ public class PySearchPage extends DialogPage implements ISearchPage, IReplacePag
 		BufferedReader reader= new BufferedReader(new StringReader(text));
 		int lengthOfFirstLine= 0;
 		try {
-			lengthOfFirstLine= reader.readLine().length();
+			String firstLine = reader.readLine();
+			if(firstLine != null){
+			    lengthOfFirstLine= firstLine.length();
+			}
 		} catch (IOException ex) {
 			return ""; //$NON-NLS-1$
 		}

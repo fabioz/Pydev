@@ -42,7 +42,7 @@ import com.python.pydev.analysis.visitors.ScopeItems;
  */
 public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVisitor{
     
-    public static String FOUND_ADDITIONAL_INFO_IN_AST_ENTRY = "FOUND_ADDITIONAL_INFO_IN_AST_ENTRY";
+    public final static String FOUND_ADDITIONAL_INFO_IN_AST_ENTRY = "FOUND_ADDITIONAL_INFO_IN_AST_ENTRY";
     protected String completeNameToFind="";
     protected String nameToFind="";
     

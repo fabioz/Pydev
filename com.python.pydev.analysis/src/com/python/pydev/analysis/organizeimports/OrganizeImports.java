@@ -9,7 +9,6 @@ import java.util.List;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
@@ -124,7 +123,7 @@ public class OrganizeImports implements IOrganizeImports{
         }
         
         Integer attribute = marker.getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE, -1 );
-        IDocument doc = ps.getDoc();
+//        IDocument doc = ps.getDoc();
         if (attribute != null && attribute.equals(IAnalysisPreferences.TYPE_UNUSED_IMPORT)){
             Integer start = (Integer) marker.getAttribute(IMarker.CHAR_START);
             Integer end = (Integer) marker.getAttribute(IMarker.CHAR_END);

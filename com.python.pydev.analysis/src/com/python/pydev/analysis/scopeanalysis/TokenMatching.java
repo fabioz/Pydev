@@ -149,7 +149,7 @@ public class TokenMatching {
 			}
 			
 		} finally {
-			fMatchAccess.initialize(null, 0, 0, new String()); // clear references
+			fMatchAccess.initialize(null, 0, 0, ""); // clear references
 		}
 		return foundMatch;
 	}

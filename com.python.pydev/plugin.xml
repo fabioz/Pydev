@@ -11,7 +11,7 @@
    </extension>
 
    <extension point="org.python.pydev.pydev_quick_outline">
-   		<quick_outline class="com.python.pydev.actions.PyShowOutline"/>
+   		<quick_outline_participant class="com.python.pydev.actions.PyShowOutline"/>
    </extension>
    
 <!-- Have an instance observing all the PyEdit editors -->

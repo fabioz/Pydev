@@ -32,7 +32,7 @@ public class IProcessFactory {
     /**
      * Helper to choose which kind of jython run will it be.
      */
-    protected final class ChooseJythonProcessTypeDialog extends Dialog {
+    protected final static class ChooseJythonProcessTypeDialog extends Dialog {
         private Button checkbox1;
         private Button checkbox2;
         private boolean isExt;

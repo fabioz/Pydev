@@ -91,7 +91,7 @@ public class EvaluateActionSetter implements IPyEditListener{
             boolean ret = notNull && !consoleEnv.isTerminated();
             if(notNull && ret == false){
                 //it exists but is already terminated (so, let's remove it from the cache)
-                consoleEnv = fConsoleEnv.remove(edit);
+                fConsoleEnv.remove(edit);
             }
             return ret;
             

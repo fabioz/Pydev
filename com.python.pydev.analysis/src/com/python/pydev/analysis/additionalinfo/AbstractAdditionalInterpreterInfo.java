@@ -213,7 +213,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
         return lInfo;
     }
 
-    protected static ObjectsPool<String> pool = new ObjectsPool<String>();
+    protected final static ObjectsPool<String> pool = new ObjectsPool<String>();
     
     /**
      * adds a method to the definition

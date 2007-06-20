@@ -206,7 +206,7 @@ public class NoSelfChecker {
                             //ok, finally... it is a staticmethod after all...
                             maybeNoSelfDefinedItems.peek().remove(rep);
                             
-                        }else if(funcCall.equals("classmethod")){
+                        }else if(funcCall != null && funcCall.equals("classmethod")){
                             //ok, finally... it is a classmethod after all...
                             tup.o1.expected = "cls";
                         }

@@ -264,7 +264,7 @@ public class PydevExtensionNotifier extends Thread{
                     firstTime = false;
                     sleep( FIRST_TIME * 1000); //whenever we start the plugin, the first xxx minutes are 'free'
                 }else{
-                    sleep( seconds * 1000);
+                    sleep( seconds * 1000L);
                 }
                 
                 boolean validated = PydevPlugin.getDefault().isValidated();

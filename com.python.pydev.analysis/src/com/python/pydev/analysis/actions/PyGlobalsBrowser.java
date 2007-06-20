@@ -35,9 +35,8 @@ public class PyGlobalsBrowser extends PyAction{
         String selectedText = ps.getSelectedText();
 
         if(pythonNature != null){
-            List<AbstractAdditionalInterpreterInfo> additionalInfo = new ArrayList<AbstractAdditionalInterpreterInfo>();
             Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>> tup = AdditionalProjectInterpreterInfo.getAdditionalInfoAndNature(pythonNature, true, true);
-			additionalInfo = tup.o1;
+            List<AbstractAdditionalInterpreterInfo> additionalInfo = tup.o1;
             doSelect(tup.o2, additionalInfo, selectedText);
             
         }else{

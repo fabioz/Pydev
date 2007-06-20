@@ -126,7 +126,6 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
 	// reuse editors stuff
 	private IReusableEditor fEditor;
 	private FileSearchPage fPage;
-	private ContentAssistHandler fReplaceContentAssistHandler;
 	private Label fStatusLabel;
 
 	private boolean fSaved= false;
