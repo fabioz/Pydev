@@ -49,8 +49,6 @@ REM
 REM ** CUSTOMIZE ** Enter your rsync command(s) here
 
 REM Copying open source stuff
-REM Copying open source homepage
-rsync --exclude "*.db" -r /cygdrive/e/fabioz_projects/com.python.pydev.docs/open_source/final/ shell.sourceforge.net:/home/groups/p/py/pydev/htdocs/
 
 REM Copying open source features
 rsync --exclude "com*" -r /cygdrive/e/fabioz_projects/org.python.pydev.site/features/ shell.sourceforge.net:/home/groups/p/py/pydev/htdocs/updates/features/

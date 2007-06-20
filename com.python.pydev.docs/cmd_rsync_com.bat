@@ -48,10 +48,7 @@ REM
 
 REM ** CUSTOMIZE ** Enter your rsync command(s) here
 
-REM Copying open source stuff
-REM Copying open source homepage
-
-rsync --exclude "*.db" -r /cygdrive/e/fabioz_projects/com.python.pydev.docs/new_homepage/final/ \\ironman\users\fabioz\www\pydev\
+REM Copying com stuff
 
 rsync --exclude "*-src-*" -r /cygdrive/e/fabioz_projects/org.python.pydev.site/zips/ \\ironman\users\fabioz\www\pydev\zips\
 
