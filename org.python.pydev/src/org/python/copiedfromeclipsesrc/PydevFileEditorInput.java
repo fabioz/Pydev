@@ -25,7 +25,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
      *
      * @since 3.1
      */
-    private class WorkbenchAdapter implements IWorkbenchAdapter {
+    private static class WorkbenchAdapter implements IWorkbenchAdapter {
         /*
          * @see org.eclipse.ui.model.IWorkbenchAdapter#getChildren(java.lang.Object)
          */

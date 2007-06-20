@@ -1,6 +1,7 @@
 after 1.3.5
 TODO: in outline, the '---' should appear given an option to show that or trim it
 TODO: in outline, the '---' should appear to the left or right as an option
+TODO: hierarchy view: show with f4 / close / open view / f4 (will not work)
 
 
 after 1.3.4

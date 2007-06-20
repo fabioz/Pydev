@@ -2,7 +2,7 @@ package org.python.copiedfromeclipsesrc;
 
 import java.io.IOException;
 
-import org.eclipse.jface.text.Assert;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -20,8 +20,6 @@ public class PythonCodeReader {
 	/** The EOF character */
 	public static final int EOF= -1;
 	
-	private boolean fSkipComments= false;
-	private boolean fSkipStrings= false;
 	private boolean fForward= false;
 	
 	private IDocument fDocument;
@@ -47,8 +45,6 @@ public class PythonCodeReader {
 
         fDocument= document;
 		fOffset= offset;
-		fSkipComments= skipComments;
-		fSkipStrings= skipStrings;
 		
 		fForward= true;
 		fEnd= Math.min(fDocument.getLength(), fOffset + length);		
@@ -61,8 +57,6 @@ public class PythonCodeReader {
 		
         fDocument= document;
 		fOffset= offset;
-		fSkipComments= skipComments;
-		fSkipStrings= skipStrings;
 		
 		fForward= false;
 	}

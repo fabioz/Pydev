@@ -142,10 +142,10 @@ public class PydevMarkerUtils {
 	                
 	                HashMap<String, Object> map = new HashMap<String, Object>();
 	                map.put(IMarker.MESSAGE, message);
-	                map.put(IMarker.LINE_NUMBER, new Integer(lineStart));
-	                map.put(IMarker.CHAR_START, new Integer(startAbsolute));
-	                map.put(IMarker.CHAR_END, new Integer(endAbsolute));
-	                map.put(IMarker.SEVERITY, new Integer(severity));
+	                map.put(IMarker.LINE_NUMBER, lineStart);
+	                map.put(IMarker.CHAR_START, startAbsolute);
+	                map.put(IMarker.CHAR_END, endAbsolute);
+	                map.put(IMarker.SEVERITY, severity);
 	                
 	                //add the additional info
 	                if(additionalInfo != null){
@@ -168,7 +168,7 @@ public class PydevMarkerUtils {
 					
 	        		final Object mS = marker.getAttribute(IMarker.SEVERITY);
 					if(mS == null || ((Integer)mS) != severity){
-	        			marker.setAttribute(IMarker.SEVERITY, new Integer(severity));
+	        			marker.setAttribute(IMarker.SEVERITY, severity);
 	        		}
 					
 				} catch (Exception e) {
@@ -208,8 +208,8 @@ public class PydevMarkerUtils {
     public static IMarker createMarker(IResource resource, IDocument doc, String message, int lineNumber, String markerType, int severity, boolean userEditable, boolean istransient, List<IMarker> existingMarkers) throws BadLocationException {
     	synchronized (resource) {
 	    	HashMap<String, Object> map = new HashMap<String, Object>();
-	    	map.put(IMarker.USER_EDITABLE, new Boolean(userEditable));
-	    	map.put(IMarker.TRANSIENT, new Boolean(istransient));
+	    	map.put(IMarker.USER_EDITABLE, userEditable);
+	    	map.put(IMarker.TRANSIENT, istransient);
 	        return createMarker(resource, doc, message, lineNumber, 0, lineNumber, 0, markerType, severity, map, existingMarkers);
     	}
     }

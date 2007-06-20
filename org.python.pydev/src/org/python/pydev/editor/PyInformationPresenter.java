@@ -104,7 +104,7 @@ public class PyInformationPresenter implements DefaultInformationControl.IInform
         try {
 
             StringBuffer buffer= new StringBuffer();
-            int maxNumberOfLines= Math.round(maxHeight / gc.getFontMetrics().getHeight());
+            int maxNumberOfLines= Math.round((float)maxHeight / (float)gc.getFontMetrics().getHeight());
 
             fCounter= 0;
             PyLineBreakReader reader= new PyLineBreakReader(createReader(hoverInfo, presentation), gc, maxWidth);

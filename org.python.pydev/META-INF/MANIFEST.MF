@@ -36,7 +36,6 @@ Require-Bundle: org.eclipse.ui,
 Eclipse-LazyStart: true
 Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.builder,
- org.python.pydev.builder.pychecker,
  org.python.pydev.builder.pycremover,
  org.python.pydev.builder.pylint,
  org.python.pydev.builder.todo,

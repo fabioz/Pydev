@@ -18,7 +18,7 @@ import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
  */
 public class PyConvertSpaceToTab extends PyAction {
     /* Selection element */
-    private static PySelection ps;
+    private PySelection ps;
 
     /**
      * Grabs the selection information and performs the action.
@@ -29,7 +29,7 @@ public class PyConvertSpaceToTab extends PyAction {
             ps = new PySelection(getTextEditor());
             ps.selectAll(false);
             // Perform the action
-            perform();
+            perform(ps);
 
             // Put cursor at the first area of the selection
             getTextEditor().selectAndReveal(ps.getLineOffset(), 0);
@@ -37,16 +37,6 @@ public class PyConvertSpaceToTab extends PyAction {
             beep(e);
         }
     }
-
-    /**
-     * Performs the action with the class' PySelection.
-     * 
-     * @return boolean The success or failure of the action
-     */
-    public static boolean perform() {
-        return perform(ps);
-    }
-
     /**
      * Performs the action with a given PySelection
      * 

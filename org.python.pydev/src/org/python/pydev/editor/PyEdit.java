@@ -114,9 +114,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     
     public static final String PY_EDIT_CONTEXT = "#PyEditContext";
 
-    static public String EDITOR_ID = "org.python.pydev.editor.PythonEditor";
+    static public final String EDITOR_ID = "org.python.pydev.editor.PythonEditor";
 
-    static public String ACTION_OPEN = "OpenEditor";
+    static public final String ACTION_OPEN = "OpenEditor";
 
     /** color cache */
     private ColorCache colorCache;
@@ -203,7 +203,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     	while (initFinished == false){
     		synchronized(getLock()){
     			try {
-    				getLock().wait();
+    			    if(initFinished == false){
+    			        getLock().wait();
+    			    }
 				} catch (Exception e) {
 					//ignore
 					e.printStackTrace();
@@ -889,11 +891,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
             Map<String, Object> map = new HashMap<String, Object>();
             
             map.put(IMarker.MESSAGE, errDesc.message);
-            map.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
-            map.put(IMarker.LINE_NUMBER, new Integer(errDesc.errorLine));
-            map.put(IMarker.CHAR_START, new Integer(errDesc.errorStart));
-            map.put(IMarker.CHAR_END, new Integer(errDesc.errorEnd));
-            map.put(IMarker.TRANSIENT, Boolean.valueOf(true));
+            map.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+            map.put(IMarker.LINE_NUMBER, errDesc.errorLine);
+            map.put(IMarker.CHAR_START, errDesc.errorStart);
+            map.put(IMarker.CHAR_END, errDesc.errorEnd);
+            map.put(IMarker.TRANSIENT, true);
             MarkerUtilities.createMarker(fileAdapter, map, IMarker.PROBLEM);
 
         } catch (CoreException e1) {
@@ -941,12 +943,15 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
             }
             message = parseErr.getMessage();
 
-        } else {
+        } else if(error instanceof TokenMgrError){
             TokenMgrError tokenErr = (TokenMgrError) error;
             IRegion startLine = doc.getLineInformation(tokenErr.errorLine - 1);
             errorStart = startLine.getOffset();
             errorEnd = startLine.getOffset() + tokenErr.errorColumn;
             message = tokenErr.getMessage();
+        } else{
+            PydevPlugin.log("Error, expecting ParseException or TokenMgrError. Received: "+error);
+            return new ErrorDescription(null, 0, 0, 0);
         }
         errorLine = doc.getLineOfOffset(errorStart); 
 
@@ -959,8 +964,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         }
         
         
-        ErrorDescription errDesc = new ErrorDescription(message, errorLine, errorStart, errorEnd);
-        return errDesc;
+        return new ErrorDescription(message, errorLine, errorStart, errorEnd);
     }
 
 

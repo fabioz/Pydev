@@ -53,7 +53,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
      */
     public static final String PYLINT_PROBLEM_MARKER = "org.python.pydev.pylintproblemmarker";
 
-    public static List pyLintThreads = new ArrayList();
+    public static final List<PyLintThread> pyLintThreads = new ArrayList<PyLintThread>();
     
     private static MessageConsole fConsole;
     
@@ -68,7 +68,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         IDocument document; 
         IPath location;
 
-        List markers = new ArrayList();
+        List<Object[]> markers = new ArrayList<Object[]>();
         
         public PyLintThread(IResource resource, IDocument document, IPath location){
             setName("PyLint thread");
@@ -116,8 +116,8 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 	                            PydevPlugin.log(e3);
 	                        }
 	
-	                        for (Iterator iter = markers.iterator(); iter.hasNext();) {
-	                            Object[] el = (Object[]) iter.next();
+	                        for (Iterator<Object[]> iter = markers.iterator(); iter.hasNext();) {
+	                            Object[] el = iter.next();
 	                            
 	                            String tok   = (String) el[0];
 	                            String type  = (String) el[1];
@@ -175,7 +175,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
          * @param line
          */
         private void addToMarkers(String tok, String type, int priority, String id, int line) {
-            markers.add(new Object[]{tok, type, new Integer(priority), id, new Integer(line)} );
+            markers.add(new Object[]{tok, type, priority, id, line} );
         }
         
         /**

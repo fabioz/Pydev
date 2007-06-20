@@ -114,7 +114,7 @@ public class PyOrganizeImports extends PyAction{
                         str += endLineDelim+str1;
                     }
                 }
-		        list.add( new Object[]{new Integer(iToAdd), str} );
+		        list.add( new Object[]{iToAdd, str} );
 		        
 		        if(firstImport == -1){
 		            firstImport = iToAdd;

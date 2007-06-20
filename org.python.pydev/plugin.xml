@@ -157,13 +157,6 @@
             class="org.python.pydev.editor.templates.PyTemplatePreferencesPage"
             category="org.python.pydev.prefs.PyCodeCompletionPage"
             id="org.python.pydev.prefs.template"/>
-<!--
-      <page
-            class="org.python.pydev.builder.pychecker.PyCheckerPrefPage"
-            category="org.python.pydev.prefs"
-            name="Pychecker"
-            id="org.python.pydev.prefs.pychecker"/>
--->
       <page
             class="org.python.pydev.builder.pylint.PyLintPrefPage"
             category="org.python.pydev.prefs"
