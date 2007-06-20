@@ -12,8 +12,24 @@ It works with <a class="a_link" href="http://www.eclipse.org/">Eclipse</a> and t
 <hr/>
 
 <h3>Release Changes</h3>
+
 	<ul>
-		<li><h4>Release 1.3.4 <IMG src="images/new.png" border="0" /></h4></li>
+		<li><h4>Release 1.3.5 <IMG src="images/new.png" border="0" /></h4></li>
+        <ul>
+            <li><strong>Auto-Import:</strong> </li>
+            <ul>
+                <li>Import is now set in correct line even with multi-line imports.</li>
+                <li>Added option to disable the introduction of auto-imports.</li>
+                <li>Added option to remove modules that start with '_' from the imports (so, tokens would have to be found in __init__.py files).</li>
+            </ul>
+            <li><strong>Code Analysis:</strong> Having a list comprehension with a subscript was not being treated correctly.</li>
+            <li><strong>Debugger:</strong> Working with jython.</li>
+            <li><strong>Debugger:</strong> Working with wxPython.</li>
+        </ul>
+	</ul>
+
+	<ul>
+		<li><h4>Release 1.3.4</h4></li>
 		<ul>
 			<li><strong>Mark Occurrences:</strong> 'global' used in the global scope is correctly treated.</li>
 			<li><strong>Code Analysis:</strong> __builtins__ considered in global namespace</li>
@@ -24,14 +40,6 @@ It works with <a class="a_link" href="http://www.eclipse.org/">Eclipse</a> and t
 		<ul>
 			<li><strong>Quick-fix:</strong> When an import is added from the auto-import quick-fix, a code-analysis is requested right after it.</li>
 			<li>Minor bugs fixed.</li>
-		</ul>
-	</ul>
-	<ul>
-		<li><h4>Release 1.3.2</h4></li>
-		<ul>
-			<li><strong>Fix:</strong> The vmargs in the interactive console are now only really passed to the jython process</li>
-			<li><strong>Fix:</strong> Rename refactoring was not getting some references that mapped to imports initially (and not directly to classes or functions)</li>
-			<li><strong>Fix:</strong> Mark Occurrences marks correctly the keyword parameters in referencing calls</li>
 		</ul>
 	</ul>
 
@@ -80,6 +88,13 @@ It works with <a class="a_link" href="http://www.eclipse.org/">Eclipse</a> and t
 <h3>Previous Release Changes</h3>
 	<ul>
 				
+        <li><h4>Release 1.3.2</h4></li>
+        <ul>
+            <li><strong>Fix:</strong> The vmargs in the interactive console are now only really passed to the jython process</li>
+            <li><strong>Fix:</strong> Rename refactoring was not getting some references that mapped to imports initially (and not directly to classes or functions)</li>
+            <li><strong>Fix:</strong> Mark Occurrences marks correctly the keyword parameters in referencing calls</li>
+        </ul>
+        
 		<li><h4>Release 1.3.1</h4></li>
 		<ul>
 			<li><strong>Interactive Console</strong>: jython process can receive vmargs (configured in the preferences page)</li>

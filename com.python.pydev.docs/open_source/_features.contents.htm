@@ -1,13 +1,26 @@
 <h2>New on: LAST_VERSION_TAG</h2>
 
 <ul>
-<li><strong>Debugger:</strong> Breakpoints working correctly on external files opened with 'File > Open File...'.</li>
-<li><strong>Debugger:</strong> Python 2.5 accepts breakpoints in the module level.</li>
-<li><strong>Debugger:</strong> Unicode variables can be shown in the variables view.</li>
-<li><strong>Editor:</strong> Coding try..except / try..finally auto-dedents.</li>
-<li><strong>Code Completion:</strong> __builtins__ considered a valid completion</li>
-<li><strong>Pydev Package Explorer:</strong> Opens files with correct editor (the pydev editor was forced).</li>
+<li><strong>Eclipse 3.3 Integration:</strong> Does not keep eclipse from a correct shutdown anymore.</li>
+<li><strong>Docstrings and code completion pop-up:</strong> </li>
+<ul>
+    <li>The docstrings are now wrapped to the size of the pop-up window.</li>
+    <li>The initial columns with whitespaces that are common for all the docstring is now removed.</li>
+    <li>The previous size of the pop-up window in completions is now restored.</li>
 </ul>
+<li><strong>Extract method refactoring:</strong> was not adding 'if' statement correctly on a specific case.</li>
+<li><strong>Organize imports:</strong> (Ctrl+Shift+O): comments are not erased in import lines when using it anymore.</li>
+<li><strong>Interpreter Config:</strong> solved a concurrency issue (which could issue an exception when configuring the interpreter).</li>
+<li><strong>Jython integration:</strong> can now work with a j9 vm.</li>
+<li><strong>Jython integration:</strong> those that don't use jython can now use eclipse without JDT (but it's still required for jython development).</li>
+<li><strong>Outline:</strong> </li>
+<ul>
+    <li>The comments are now set in the correct level (below module, class or method).</li>
+    <li>Comments are sorted by their position even when alphabetic sorting is in place.</li>
+    <li>Comments are added to the outline if they start or <strong>end</strong> with '---'.</li>
+</ul>
+</ul>
+
 
 
 <br/>
@@ -67,6 +80,18 @@
 
 <hr/>
 <h2>Features History</h2>
+
+<h2>New on: 1.3.4</h2>
+
+<ul>
+<li><strong>Debugger:</strong> Breakpoints working correctly on external files opened with 'File > Open File...'.</li>
+<li><strong>Debugger:</strong> Python 2.5 accepts breakpoints in the module level.</li>
+<li><strong>Debugger:</strong> Unicode variables can be shown in the variables view.</li>
+<li><strong>Editor:</strong> Coding try..except / try..finally auto-dedents.</li>
+<li><strong>Code Completion:</strong> __builtins__ considered a valid completion</li>
+<li><strong>Pydev Package Explorer:</strong> Opens files with correct editor (the pydev editor was forced).</li>
+</ul>
+
 
 <h2>New on: 1.3.3</h2>
 
