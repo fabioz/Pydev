@@ -7,9 +7,12 @@ TODO: hierarchy view: show with f4 / close / open view / f4 (will not work)
 after 1.3.4
 Pydev Extensions:
 <ul>
-<li><strong>Auto-Import:</strong> Import was not added to the correct line if a multi-line import was found that had '('.</li>
-<li><strong>Auto-Import:</strong> Added option to disable the introduction of auto-imports.</li>
-<li><strong>Auto-Import:</strong> Added option to remove modules that start with '_'.</li>
+<li><strong>Auto-Import:</strong> </li>
+<ul>
+	<li>Import is now set in correct line even with multi-line imports.</li>
+	<li>Added option to disable the introduction of auto-imports.</li>
+	<li>Added option to remove modules that start with '_' from the imports (so, tokens would have to be found in __init__.py files).</li>
+</ul>
 <li><strong>Code Analysis:</strong> Having a list comprehension with a subscript was not being treated correctly.</li>
 <li><strong>Debugger:</strong> Working with jython.</li>
 <li><strong>Debugger:</strong> Working with wxPython.</li>
@@ -18,20 +21,23 @@ Pydev Extensions:
 Pydev:
 <ul>
 <li><strong>Eclipse 3.3 Integration:</strong> Does not keep eclipse from a correct shutdown anymore.</li>
-<li><strong>Docstrings truncated in pop-up</strong> </li>
+<li><strong>Docstrings and code completion pop-up:</strong> </li>
 <ul>
-	<li>The docstrings are now wrapped to the size of the pop-up window</li>
-	<li>The initial columns with whitespaces that are common for all the docstring is now removed</li>
-	<li>The previous size of the pop-up window in completions is now restored</li>
+	<li>The docstrings are now wrapped to the size of the pop-up window.</li>
+	<li>The initial columns with whitespaces that are common for all the docstring is now removed.</li>
+	<li>The previous size of the pop-up window in completions is now restored.</li>
 </ul>
-<li><strong>Extract method refactoring:</strong> was not adding 'if' statement correctly.</li>
-<li><strong>Organize imports:</strong> (Ctrl+Shift+O): comments are not erased when organizing imports anymore.</li>
-<li><strong>Interpreter Config:</strong> solved a concurrency issue (could issue an exception on some cases).</li>
-<li><strong>Jython integration:</strong> the executable for java can now work with a j9 vm.</li>
+<li><strong>Extract method refactoring:</strong> was not adding 'if' statement correctly on a specific case.</li>
+<li><strong>Organize imports:</strong> (Ctrl+Shift+O): comments are not erased in import lines when using it anymore.</li>
+<li><strong>Interpreter Config:</strong> solved a concurrency issue (which could issue an exception when configuring the interpreter).</li>
+<li><strong>Jython integration:</strong> can now work with a j9 vm.</li>
 <li><strong>Jython integration:</strong> those that don't use jython can now use eclipse without JDT (but it's still required for jython development).</li>
-<li><strong>Outline:</strong> the comments are set in the correct level (below module, class or method)</li>
-<li><strong>Outline:</strong> comments are sorted by their position even when alphabetic sorting is in place</li>
-<li><strong>Outline:</strong> comments are added to the outline if they start or <strong>end</strong> with '---'.</li>
+<li><strong>Outline:</strong> </li>
+<ul>
+	<li>The comments are now set in the correct level (below module, class or method).</li>
+	<li>Comments are sorted by their position even when alphabetic sorting is in place.</li>
+	<li>Comments are added to the outline if they start or <strong>end</strong> with '---'.</li>
+</ul>
 </ul>
 
 
