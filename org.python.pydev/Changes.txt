@@ -3,6 +3,7 @@ TODO: in outline, the '---' should appear given an option to show that or trim i
 TODO: in outline, the '---' should appear to the left or right as an option
 TODO: hierarchy view: show with f4 / close / open view / f4 (will not work)
 TODO: DEBUGGER BUG: if a class is defined within a method, things later in that method are not able to get the correct name for the breakpoint scope.
+TODO: Ctrl+4 for blocks in methods
 
 
 after 1.3.4
