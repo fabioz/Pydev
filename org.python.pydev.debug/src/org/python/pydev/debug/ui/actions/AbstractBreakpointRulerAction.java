@@ -323,7 +323,7 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
                 }
             }
         } catch (CoreException x) {
-            PydevDebugPlugin.log(IStatus.ERROR, "Unexpected getMarkers error", x);
+            PydevDebugPlugin.log(IStatus.ERROR, "Unexpected getMarkers error (recovered properly)", x);
         }
         return breakpoints;
     }
