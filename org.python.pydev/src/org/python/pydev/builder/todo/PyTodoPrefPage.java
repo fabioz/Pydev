@@ -46,10 +46,10 @@ public class PyTodoPrefPage extends FieldEditorPreferencePage implements IWorkbe
         
     }
 
-    public static List getTodoTags(){
+    public static List<String> getTodoTags(){
         String string = PydevPrefs.getPreferences().getString(PY_TODO_TAGS);
         String[] strings = string.split(" ");
-        ArrayList list = new ArrayList();
+        ArrayList<String> list = new ArrayList<String>();
         for (int i = 0; i < strings.length; i++) {
             if(strings[i].length() > 0){
                 list.add(strings[i]);

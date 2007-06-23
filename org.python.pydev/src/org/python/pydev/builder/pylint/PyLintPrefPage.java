@@ -7,12 +7,14 @@ package org.python.pydev.builder.pylint;
 
 import java.io.File;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.FileFieldEditor;
 import org.eclipse.jface.preference.IntegerFieldEditor;
+import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -36,38 +38,67 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 	public static final String USE_PYLINT = "USE_PYLINT";
 
 	public static final boolean DEFAULT_USE_PYLINT = false;
+	
+	public static final int SEVERITY_IGNORE = -1;
+	
+	public static final int COLS = 4;
+	
+	
+	public static final String[][] LABEL_AND_VALUE = new String[][]{
+            {"Error"  , String.valueOf(IMarker.SEVERITY_ERROR)},
+            {"Warning", String.valueOf(IMarker.SEVERITY_WARNING)},
+            {"Info" , String.valueOf(IMarker.SEVERITY_INFO)},
+            {"Ignore" , String.valueOf(SEVERITY_IGNORE)},
+    };
 
-	public static final String USE_ERRORS = "USE_ERRORS";
 
-	public static final boolean DEFAULT_USE_ERRORS = true;
+	
+	// errors
+	public static final String SEVERITY_ERRORS = "SEVERITY_ERRORS";
+	
+	public static final int DEFAULT_SEVERITY_ERRORS = IMarker.SEVERITY_ERROR;
 
-	public static final String USE_WARNINGS = "USE_WARNINGS";
+	
+	//warnings
+	public static final String SEVERITY_WARNINGS = "SEVERITY_WARNINGS";
+	
+	public static final int DEFAULT_SEVERITY_WARNINGS = IMarker.SEVERITY_WARNING;
 
-	public static final boolean DEFAULT_USE_WARNINGS = false;
 
-	public static final String USE_FATAL = "USE_FATAL";
+	//fatal
+	public static final String SEVERITY_FATAL = "SEVERITY_FATAL";
+	
+	public static final int DEFAULT_SEVERITY_FATAL = IMarker.SEVERITY_ERROR;
 
-	public static final boolean DEFAULT_USE_FATAL = true;
+	
+	//coding std
+	public static final String SEVERITY_CODING_STANDARD = "SEVERITY_CODING_STANDARD";
+	
+	public static final int DEFAULT_SEVERITY_CODING_STANDARD = SEVERITY_IGNORE;
 
-	public static final String USE_CODING_STANDARD = "USE_CODING_STANDARD";
+	
+	//refactor
+	public static final String SEVERITY_REFACTOR = "SEVERITY_REFACTOR";
+	
+	public static final int DEFAULT_SEVERITY_REFACTOR = SEVERITY_IGNORE;
 
-	public static final boolean DEFAULT_USE_CODING_STANDARD = false;
-
-	public static final String USE_REFACTOR = "USE_REFACTOR";
-
-	public static final boolean DEFAULT_USE_REFACTOR = false;
-
+	
+	//console
 	public static final String USE_CONSOLE = "USE_CONSOLE";
 
 	public static final boolean DEFAULT_USE_CONSOLE = true;
 
+	
+	//args
 	public static final String PYLINT_ARGS = "PYLINT_ARGS";
 
+	public static final String DEFAULT_PYLINT_ARGS = "";
+	
+	//delta
 	public static final String MAX_PYLINT_DELTA = "MAX_PYLINT_DELTA";
 
 	public static final int DEFAULT_MAX_PYLINT_DELTA = 4;
 
-	public static final String DEFAULT_PYLINT_ARGS = "";
 
 	public PyLintPrefPage() {
 		super(FLAT);
@@ -89,11 +120,15 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 		FileFieldEditor fileField = new FileFieldEditor(PYLINT_FILE_LOCATION, "Location of pylint (lint.py):", true, p);
 		addField(fileField);
 
-		addField(new BooleanFieldEditor(USE_FATAL, "Communicate FATAL?", p));
-		addField(new BooleanFieldEditor(USE_ERRORS, "Communicate ERRORS?", p));
-		addField(new BooleanFieldEditor(USE_WARNINGS, "Communicate WARNINGS?", p));
-		addField(new BooleanFieldEditor(USE_CODING_STANDARD, "Communicate CONVENTIONS?", p));
-		addField(new BooleanFieldEditor(USE_REFACTOR, "Communicate REFACTOR?", p));
+		addField(new RadioGroupFieldEditor(SEVERITY_FATAL, "FATAL Severity", COLS, LABEL_AND_VALUE, p, true));
+		
+		addField(new RadioGroupFieldEditor(SEVERITY_ERRORS, "ERRORS Severity", COLS, LABEL_AND_VALUE, p, true));
+		
+		addField(new RadioGroupFieldEditor(SEVERITY_WARNINGS, "WARNINGS Severity", COLS, LABEL_AND_VALUE, p, true));
+		
+		addField(new RadioGroupFieldEditor(SEVERITY_CODING_STANDARD, "CONVENTIONS Severity", COLS, LABEL_AND_VALUE, p, true));
+		
+		addField(new RadioGroupFieldEditor(SEVERITY_REFACTOR, "REFACTOR Severity", COLS, LABEL_AND_VALUE, p, true));
 
 		CustomizableFieldEditor stringFieldEditor = new CustomizableFieldEditor(PYLINT_ARGS, "Arguments to pass to pylint (customize its output).\n"
 				+ "The  --include-ids=y is always included and does not appear here..", p);
@@ -183,25 +218,27 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 	}
 
 	public static boolean useErrors() {
-		return PydevPrefs.getPreferences().getBoolean(USE_ERRORS);
+	    return eSeverity() != SEVERITY_IGNORE;
 	}
 
 	public static boolean useWarnings() {
-		return PydevPrefs.getPreferences().getBoolean(USE_WARNINGS);
+	    return wSeverity() != SEVERITY_IGNORE;
 	}
 
 	public static boolean useFatal() {
-		return PydevPrefs.getPreferences().getBoolean(USE_FATAL);
+		return fSeverity() != SEVERITY_IGNORE;
 	}
 
 	public static boolean useCodingStandard() {
-		return PydevPrefs.getPreferences().getBoolean(USE_CODING_STANDARD);
+	    return cSeverity() != SEVERITY_IGNORE;
 	}
 
 	public static boolean useRefactorTips() {
-		return PydevPrefs.getPreferences().getBoolean(USE_REFACTOR);
+		return rSeverity() != SEVERITY_IGNORE;
 	}
 
+	
+	
 	public static boolean useConsole() {
 		return PydevPrefs.getPreferences().getBoolean(USE_CONSOLE);
 	}
@@ -212,6 +249,28 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
 	public static int getMaxPyLintDelta() {
 		return PydevPrefs.getPreferences().getInt(MAX_PYLINT_DELTA);
+	}
+
+	
+	
+	public static int wSeverity() {
+		return PydevPrefs.getPreferences().getInt(SEVERITY_WARNINGS);
+	}
+
+	public static int eSeverity() {
+		return PydevPrefs.getPreferences().getInt(SEVERITY_ERRORS);
+	}
+
+	public static int fSeverity() {
+		return PydevPrefs.getPreferences().getInt(SEVERITY_FATAL);
+	}
+
+	public static int cSeverity() {
+		return PydevPrefs.getPreferences().getInt(SEVERITY_CODING_STANDARD);
+	}
+
+	public static int rSeverity() {
+		return PydevPrefs.getPreferences().getInt(SEVERITY_REFACTOR);
 	}
 
 }

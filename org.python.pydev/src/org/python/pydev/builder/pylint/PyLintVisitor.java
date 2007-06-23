@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -222,6 +221,13 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             boolean useC = PyLintPrefPage.useCodingStandard();
             boolean useR = PyLintPrefPage.useRefactorTips();
             
+            //Set up local values for severity
+            int wSeverity = PyLintPrefPage.wSeverity();
+            int eSeverity = PyLintPrefPage.eSeverity();
+            int fSeverity = PyLintPrefPage.fSeverity();
+            int cSeverity = PyLintPrefPage.cSeverity();
+            int rSeverity = PyLintPrefPage.rSeverity();
+            
             //System.out.println(output);
             if(output.indexOf("Traceback (most recent call last):") != -1){
                 PydevPlugin.log(new RuntimeException("PyLint ERROR: \n"+output));
@@ -246,23 +252,28 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                         
 	                    if(tok.startsWith("C")&& useC){
 	                        type = PYLINT_PROBLEM_MARKER;
-	                        priority = IMarker.SEVERITY_WARNING;
+	                        //priority = IMarker.SEVERITY_WARNING;
+	                        priority = cSeverity;
 	                    }
 	                    else if(tok.startsWith("R")  && useR ){
 	                        type = PYLINT_PROBLEM_MARKER;
-	                        priority = IMarker.SEVERITY_WARNING;
+	                        //priority = IMarker.SEVERITY_WARNING;
+	                        priority = rSeverity;
 	                    }
 	                    else if(tok.startsWith("W")  && useW ){
 	                        type = PYLINT_PROBLEM_MARKER;
-	                        priority = IMarker.SEVERITY_WARNING;
+	                        //priority = IMarker.SEVERITY_WARNING;
+	                        priority = wSeverity;
 	                    }
 	                    else if(tok.startsWith("E") && useE ){
 	                        type = PYLINT_PROBLEM_MARKER;
-	                        priority = IMarker.SEVERITY_ERROR;
+	                        //priority = IMarker.SEVERITY_ERROR;
+	                        priority = eSeverity;
 	                    }
 	                    else if(tok.startsWith("F") && useF ){
 	                        type = PYLINT_PROBLEM_MARKER;
-	                        priority = IMarker.SEVERITY_ERROR;
+	                        //priority = IMarker.SEVERITY_ERROR;
+	                        priority = fSeverity;
 	                    }else{
 	                        continue;
 	                    }
