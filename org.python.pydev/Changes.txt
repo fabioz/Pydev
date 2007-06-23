@@ -4,7 +4,7 @@ TODO: hierarchy view: show with f4 / close / open view / f4 (will not work)
 TODO: DEBUGGER BUG: if a class is defined within a method, things later in that method are not able to get the correct name for the breakpoint scope.
 TODO: Ctrl+4 for blocks in methods
 TODO: Debugger: enable users to configure the mappings for remote debugging in a 'nice' way.
-
+Patch: Carl Robinson: PyLint severities can now be specified.
 
 after 1.3.4
 Pydev Extensions:
