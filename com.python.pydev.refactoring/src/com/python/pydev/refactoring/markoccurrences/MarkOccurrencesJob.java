@@ -192,7 +192,7 @@ public class MarkOccurrencesJob extends Job{
         
         final RefactoringRequest req = getRefactoringRequest(pyEdit, pyRefactorAction);
         
-        if(req == null){
+        if(req == null || !req.nature.getRelatedInterpreterManager().isConfigured()){ //we check if it's configured because it may still be a stub...
         	return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(null,null,false);
         }
         
