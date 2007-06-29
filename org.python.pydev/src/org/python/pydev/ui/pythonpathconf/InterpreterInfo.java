@@ -118,6 +118,7 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
     public InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced) {
         this(version, exe, libs0, dlls);
         forcedLibs.addAll(forced);
+        modulesManager.setBuiltins(forcedLibs);
     }
 
     /**
