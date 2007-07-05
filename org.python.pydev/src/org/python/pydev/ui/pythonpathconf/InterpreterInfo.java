@@ -7,7 +7,6 @@ package org.python.pydev.ui.pythonpathconf;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -37,14 +36,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
 
-public class InterpreterInfo implements Serializable, IInterpreterInfo{
-    
-    /**
-     * check note on http://java.sun.com/j2se/1.5.0/docs/guide/serialization/spec/version.html#6678
-     * 
-     * changed to 10L with the release 1.0
-     */
-    private static final long serialVersionUID = 10L;
+public class InterpreterInfo implements IInterpreterInfo{
     
     /**
      * For jython, this is the jython.jar
@@ -74,10 +66,14 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
      * 
      * check sys.builtin_module_names and others that should
      * be forced to use code completion as builtins, such os, math, etc.
-     * 
-     * for jython, this should 
      */
-    public Set<String> forcedLibs = new TreeSet<String>(); 
+    private Set<String> forcedLibs = new TreeSet<String>(); 
+    
+    /**
+     * This is the cache for the builtins (that's the same thing as the forcedLibs, but in a different format,
+     * so, whenever the forcedLibs change, this should be changed too). 
+     */
+    private String[] builtinsCache;
     
     /**
      * module management for the system is always binded to an interpreter (binded in this class)
@@ -85,8 +81,11 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
      * The modules manager is no longer persisted. It is restored from a separate file, because we do
      * not want to keep it in the 'configuration', as a giant Base64 string.
      */
-    public SystemModulesManager modulesManager = new SystemModulesManager(forcedLibs);
+    private SystemModulesManager modulesManager;
     
+    /**
+     * This callback is only used in tests, to configure the paths that should be chosen after the interpreter is selected.
+     */
     public static ICallback<Boolean, Tuple<List<String>, List<String>>> configurePathsCallback = null;
 
     /**
@@ -94,6 +93,24 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
      * for python in the format '2.5' or '2.4'.
      */
     private String version;
+
+
+    /**
+     * Sets the modules manager that should be used in this interpreter info.
+     * 
+     * @param modulesManager the modules manager that is contained within this info.
+     * 
+     * @note: the side-effect of this method is that it sets in the modules manager that this is the
+     * info that it should use.
+     */
+    public void setModulesManager(SystemModulesManager modulesManager) {
+        modulesManager.setInfo(this);
+        this.modulesManager = modulesManager;
+    }
+
+    public SystemModulesManager getModulesManager() {
+        return modulesManager;
+    }
 
     /**
      * @return the pythonpath to be used (only the folders)
@@ -107,6 +124,7 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
     public InterpreterInfo(String version, String exe, Collection<String> libs0){
         this.executableOrJar = exe;
         this.version = version;
+        setModulesManager(new SystemModulesManager());
         libs.addAll(libs0);
     }
     
@@ -118,7 +136,7 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
     public InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced) {
         this(version, exe, libs0, dlls);
         forcedLibs.addAll(forced);
-        modulesManager.setBuiltins(forcedLibs);
+        this.builtinsCache = null; //force cache recreation
     }
 
     /**
@@ -142,7 +160,7 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
             return false;
         }
         
-        if(info.forcedLibs.equals(this.forcedLibs) == false){
+        if (info.forcedLibs.equals(this.forcedLibs) == false){
             return false;
         }
         
@@ -336,13 +354,13 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
         buffer.append(version);
         buffer.append("Executable:");
         buffer.append(executableOrJar);
-        for (Iterator iter = libs.iterator(); iter.hasNext();) {
+        for (Iterator<String> iter = libs.iterator(); iter.hasNext();) {
             buffer.append("|");
             buffer.append(iter.next().toString());
         }
         buffer.append("@");
         if(dllLibs.size() > 0){
-	        for (Iterator iter = dllLibs.iterator(); iter.hasNext();) {
+	        for (Iterator<String> iter = dllLibs.iterator(); iter.hasNext();) {
 	            buffer.append("|");
 	            buffer.append(iter.next().toString());
 	        }
@@ -350,7 +368,7 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
         
         buffer.append("$");
         if(forcedLibs.size() > 0){
-	        for (Iterator iter = forcedLibs.iterator(); iter.hasNext();) {
+	        for (Iterator<String> iter = forcedLibs.iterator(); iter.hasNext();) {
 	            buffer.append("|");
 	            buffer.append(iter.next().toString());
 	        }
@@ -376,16 +394,16 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
 	    };
 
 	    List<File> dlls = new ArrayList<File>();
-	    for (Iterator iter = libs.iterator(); iter.hasNext();) {
-            String folder = iter.next().toString();
+	    for (Iterator<String> iter = libs.iterator(); iter.hasNext();) {
+            String folder = iter.next();
             
             List<File>[] below = PydevPlugin.getPyFilesBelow(new File(folder), filter, monitor, false);
             dlls.addAll(below[0]);
         }
 	    
 	    dllLibs.clear();
-	    for (Iterator iter = dlls.iterator(); iter.hasNext();) {
-            File f = (File) iter.next();
+	    for (Iterator<File> iter = dlls.iterator(); iter.hasNext();) {
+            File f = iter.next();
             
             this.dllLibs.add(REF.getFileAbsolutePath(f));
         }
@@ -407,7 +425,7 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
             forcedLibs.add("wxPython");
             forcedLibs.add("wx");
         }
-        
+        this.builtinsCache = null; //force cache recreation
     }
 
     /**
@@ -416,8 +434,7 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
      */
     public void restorePythonpath(String path, IProgressMonitor monitor) {
         //no managers involved here...
-        modulesManager.setBuiltins(forcedLibs);
-        modulesManager.changePythonPath(path, null, monitor, null);
+        getModulesManager().changePythonPath(path, null, monitor, null);
     }
     
     /**
@@ -426,7 +443,7 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
      */
     public void restorePythonpath(IProgressMonitor monitor) {
         StringBuffer buffer = new StringBuffer();
-        for (Iterator iter = libs.iterator(); iter.hasNext();) {
+        for (Iterator<String> iter = libs.iterator(); iter.hasNext();) {
             String folder = (String) iter.next();
             buffer.append(folder);
             buffer.append("|");
@@ -482,5 +499,30 @@ public class InterpreterInfo implements Serializable, IInterpreterInfo{
         }
         return grammarVersion;
     }
+    
+    
+
+    //START: Things related to the builtins (forcedLibs) ---------------------------------------------------------------
+    public String[] getBuiltins() {
+        if(this.builtinsCache == null){
+            this.builtinsCache = forcedLibs.toArray(new String[0]);
+        }
+        return this.builtinsCache;
+    }
+
+    public void addForcedLib(String forcedLib) {
+        this.forcedLibs.add(forcedLib);
+        this.builtinsCache = null;
+    }
+
+    public void removeForcedLib(String forcedLib) {
+        this.forcedLibs.remove(forcedLib);
+        this.builtinsCache = null;
+    }
+
+    public Iterator<String> forcedLibsIterator() {
+        return forcedLibs.iterator();
+    }
+    //END: Things related to the builtins (forcedLibs) -----------------------------------------------------------------
     
 }

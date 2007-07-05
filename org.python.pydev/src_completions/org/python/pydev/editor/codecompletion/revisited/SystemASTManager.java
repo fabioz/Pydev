@@ -18,7 +18,7 @@ public class SystemASTManager extends AbstractASTManager{
 	public SystemASTManager(IInterpreterManager manager, IPythonNature nature) {
 		this.manager = manager;
 		InterpreterInfo info = (InterpreterInfo) this.manager.getDefaultInterpreterInfo(new NullProgressMonitor());
-        this.modulesManager = info.modulesManager;
+        this.modulesManager = info.getModulesManager();
 		setNature(nature);
 	}
 

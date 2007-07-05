@@ -431,7 +431,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 	        
 	        int retCode = d.open();
 	        if (retCode == InputDialog.OK) {
-		        info.forcedLibs.add(d.getValue());
+		        info.addForcedLib(d.getValue());
                 changed = true;
 	        }
 
@@ -448,7 +448,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             String builtin = listBuiltins.getSelection()[0];
             
 	        InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(executable, new NullProgressMonitor());
-	        info.forcedLibs.remove(builtin);
+	        info.removeForcedLib(builtin);
 	        changed = true;
         }
         updateTree();
@@ -510,9 +510,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
 	    	InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(executable, new NullProgressMonitor());
 	    	
-	    	for (Iterator iter = info.libs.iterator(); iter.hasNext();) {
+	    	for (Iterator<String> iter = info.libs.iterator(); iter.hasNext();) {
 	            TreeItem subItem = new TreeItem(item, SWT.NONE);
-	            subItem.setText((String) iter.next());
+	            subItem.setText(iter.next());
 	            subItem.setImage(imageSystemLib);
 	        }
 	    	item.setExpanded(true);
@@ -522,16 +522,16 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 	    	item.setText("Compiled libs found in PYTHONPATH (dlls)");
 	    	item.setImage(imageSystemLibRoot);
 
-	    	for (Iterator iter = info.dllLibs.iterator(); iter.hasNext();) {
+	    	for (Iterator<String> iter = info.dllLibs.iterator(); iter.hasNext();) {
 	            TreeItem subItem = new TreeItem(item, SWT.NONE);
-	            subItem.setText((String) iter.next());
+	            subItem.setText(iter.next());
 	            subItem.setImage(imageSystemLib);
 	        }
 	    	item.setExpanded(false);
 	    	
 	    	
 	    	//set the forced builtins
-	    	for (Iterator iter = info.forcedLibs.iterator(); iter.hasNext();) {
+	    	for (Iterator<String> iter = info.forcedLibsIterator(); iter.hasNext();) {
 	    	    listBuiltins.add((String) iter.next());
             }
         }

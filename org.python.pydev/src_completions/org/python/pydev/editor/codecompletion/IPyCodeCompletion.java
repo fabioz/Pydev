@@ -24,8 +24,7 @@ public interface IPyCodeCompletion {
      * (This is where we do the "REAL" work).
      * @throws BadLocationException
      */
-    @SuppressWarnings("unchecked")
-    public abstract List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException,
+    public abstract List<Object> getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException,
             BadLocationException;
 
     /**

@@ -321,11 +321,13 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 	                //and at last, restore the system info
 		            for (final InterpreterInfo info: list) {
 		                try {
-	                        info.modulesManager = (SystemModulesManager) PydevPlugin.readFromPlatformFile(info.getExeAsFileSystemValidPath());
+	                        SystemModulesManager systemModulesManager = (SystemModulesManager) PydevPlugin.readFromPlatformFile(info.getExeAsFileSystemValidPath());
+                            info.setModulesManager(systemModulesManager);
 	                    } catch (Exception e) {
 	                        PydevPlugin.logInfo(e);
 	                    	
-	                    	//if it does not work
+	                    	//if it does not work it (probably) means that the internal storage format changed among versions,
+	                        //so, we have to recreate that info.
 	                    	final Display def = Display.getDefault();
 	                    	def.syncExec(new Runnable(){
 	
@@ -339,7 +341,9 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 											public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 												monitor.beginTask("Updating the interpreter info (internal storage format changed).", 100);
 												//ok, maybe its file-format changed... let's re-create it then.
-												doRestore(info, monitor);
+												info.restorePythonpath(monitor);
+                                                //after restoring it, let's save it.
+                                                PydevPlugin.writeToPlatformFile(info.getModulesManager(), info.getExeAsFileSystemValidPath());
 												monitor.done();
 											}}
 										);
@@ -375,7 +379,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         for (String exe : executables) {
             InterpreterInfo info = this.exeToInfo.get(exe);
             if(info!=null){
-                PydevPlugin.writeToPlatformFile(info.modulesManager, info.getExeAsFileSystemValidPath());
+                PydevPlugin.writeToPlatformFile(info.getModulesManager(), info.getExeAsFileSystemValidPath());
                 buf.append(info.toString());
                 buf.append("&&&&&");
             }
@@ -452,13 +456,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     	}        
     }
 
-	private void doRestore(final InterpreterInfo info, IProgressMonitor monitor) {
-		info.restorePythonpath(monitor);
-		//after restoring it, let's save it.
-		PydevPlugin.writeToPlatformFile(info.modulesManager, info.getExeAsFileSystemValidPath());
-	}
-    
-    public boolean isConfigured() {
+	public boolean isConfigured() {
         try {
             String defaultInterpreter = getDefaultInterpreter();
             if(defaultInterpreter == null){

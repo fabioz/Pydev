@@ -70,7 +70,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         if(info == null){
             return null;
         }
-		return info.modulesManager.resolveModule(file);
+		return info.getModulesManager().resolveModule(file);
 	}
 
 	public ICodeCompletionASTManager getAstManager() {

@@ -187,7 +187,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         if(info == null){
         	return null; //may happen during initialization
         }
-        return info.modulesManager;
+        return info.getModulesManager();
     }
     
     /** 

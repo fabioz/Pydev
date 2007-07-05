@@ -5,7 +5,6 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.SortedMap;
 
@@ -22,33 +21,35 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
  * @author Fabio Zadrozny
  */
 public class SystemModulesManager extends ModulesManager implements ISystemModulesManager{
 
-    private static final long serialVersionUID = 2L;
-    private String[] builtins;
+    private static final long serialVersionUID = 3L;
     /**
      * The system modules manager may have a nature if we create a SystemASTManager
      */
     private transient IPythonNature nature;
+    
+    /**
+     * This is the place where we store the info related to this manager
+     */
+    private transient InterpreterInfo info;
 
     /**
-     * @param forcedLibs
+     * This method sets the info that contains this modules manager.
+     * 
+     * @param interpreterInfo the interpreter info that contains this object.
      */
-    public SystemModulesManager(Collection<String> forcedLibs) {
-        regenerateForcedBuilltins(forcedLibs);
+    public void setInfo(InterpreterInfo interpreterInfo) {
+        this.info = interpreterInfo;
     }
 
-    /** 
-     * @see org.python.pydev.core.ISystemModulesManager#regenerateForcedBuilltins(java.util.Collection)
-     */
-    public void regenerateForcedBuilltins(Collection<String> forcedLibs){
-        this.builtins = (String[]) forcedLibs.toArray(new String[0]);
-    }
     
+
     public String[] getBuiltins(String defaultSelectedInterpreter) {
     	return getBuiltins();
     }
@@ -57,15 +58,9 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
      * @see org.python.pydev.core.ISystemModulesManager#getBuiltins()
      */
     public String[] getBuiltins() {
-        return this.builtins;
+        return this.info.getBuiltins();
     }
 
-    /** 
-     * @see org.python.pydev.core.ISystemModulesManager#setBuiltins(java.util.Collection)
-     */
-    public void setBuiltins(Collection<String> forcedLibs) {
-        regenerateForcedBuilltins(forcedLibs);
-    }
 
 	public void setPythonNature(IPythonNature nature) {
 		this.nature = nature;
@@ -242,5 +237,8 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
     public IModule getModuleWithoutBuiltins(String name, IPythonNature nature, boolean dontSearchInit) {
         return super.getModule(name, nature, dontSearchInit);
     }
+
+
+
 
 }

@@ -250,7 +250,7 @@ public class CodeCompletionTestsBase extends TestCase {
             InterpreterInfo info = getDefaultInterpreterInfo();
             info.restoreCompiledLibs(getProgressMonitor());
             if(ADD_MX_TO_FORCED_BUILTINS){
-            	info.forcedLibs.add("mx");
+            	info.addForcedLib("mx");
             }
             info.restorePythonpath(path, getProgressMonitor()); //here
 
@@ -295,7 +295,7 @@ public class CodeCompletionTestsBase extends TestCase {
         nature = null; //has to be restored for the project, as we just restored the system pythonpath
         
         //ok, the system manager must be there
-        assertTrue(info.modulesManager.getSize() > 0);
+        assertTrue(info.getModulesManager().getSize() > 0);
 
         //and it must be registered as the pydev interpreter manager
         IInterpreterManager iMan2 = getInterpreterManager();
@@ -303,8 +303,8 @@ public class CodeCompletionTestsBase extends TestCase {
         assertTrue(info2 == info);
         
         //does it have the loaded modules?
-        assertTrue(info2.modulesManager.getSize() > 0);
-        assertTrue(info2.modulesManager.getBuiltins().length > 0);
+        assertTrue(info2.getModulesManager().getSize() > 0);
+        assertTrue(info2.getModulesManager().getBuiltins().length > 0);
         
     }
 
@@ -362,15 +362,15 @@ public class CodeCompletionTestsBase extends TestCase {
     protected void checkSize() {
         IInterpreterManager iMan = getInterpreterManager();
         InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(getProgressMonitor());
-        assertTrue(info.modulesManager.getSize() > 0);
+        assertTrue(info.getModulesManager().getSize() > 0);
         
         int size = ((ASTManager)nature.getAstManager()).getSize();
-        assertTrue("Interpreter size:"+info.modulesManager.getSize()+" should be smaller than project size:"+size+" " +
-        		"(because it contains system+project info)" , info.modulesManager.getSize() < size );
+        assertTrue("Interpreter size:"+info.getModulesManager().getSize()+" should be smaller than project size:"+size+" " +
+        		"(because it contains system+project info)" , info.getModulesManager().getSize() < size );
         
         size = ((ASTManager)nature2.getAstManager()).getSize();
-        assertTrue("Interpreter size:"+info.modulesManager.getSize()+" should be smaller than project size:"+size+" " +
-        		"(because it contains system+project info)" , info.modulesManager.getSize() < size );
+        assertTrue("Interpreter size:"+info.getModulesManager().getSize()+" should be smaller than project size:"+size+" " +
+        		"(because it contains system+project info)" , info.getModulesManager().getSize() < size );
     }
    
 
@@ -428,7 +428,7 @@ public class CodeCompletionTestsBase extends TestCase {
         IDocument doc = new Document(strDoc);
         CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion);
 
-        List props = codeCompletion.getCodeCompletionProposals(null, request);
+        List<Object> props = codeCompletion.getCodeCompletionProposals(null, request);
         ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValidSorted(props, request.qualifier, request.isInCalltip);
         
         

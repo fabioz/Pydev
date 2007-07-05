@@ -23,6 +23,7 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PyPackageStateSaver {
 	
+    private static final boolean DEBUG = false;
 	
     private PythonModelProvider provider;
 	private Viewer viewer;
@@ -42,24 +43,33 @@ public class PyPackageStateSaver {
             
             TreeViewer treeViewer = (TreeViewer) viewer;
             
+            ArrayList<Object> expandedElements = new ArrayList<Object>();
             IMemento[] expanded = memento.getChildren("expanded");
             IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
             for (IMemento m : expanded) {
                 Object resource = getResourceFromPath(root, m);
                 if(resource != null){
-                    treeViewer.expandToLevel(resource, 0);
+                    expandedElements.add(resource);
+                    if(DEBUG){
+                        System.out.println("Expanding:"+resource);
+                    }
                 }
             }
+            treeViewer.setExpandedElements(expandedElements.toArray());
+            
+            
             ArrayList<TreePath> paths = new ArrayList<TreePath>();
             IMemento[] selected = memento.getChildren("selected");
             for (IMemento m : selected) {
                 Object resource = getResourceFromPath(root, m);
                 
                 if(resource != null){
-                	treeViewer.expandToLevel(resource, 0);
+                	treeViewer.expandToLevel(resource, 1);
+                	if(DEBUG){
+                	    System.out.println("Selecting:"+resource);
+                	}
                     paths.add(new TreePath(getCompletPath(resource).toArray()));
                 }
-                
             }
             
             treeViewer.setSelection(new TreeSelection(paths.toArray(new TreePath[0])), true);

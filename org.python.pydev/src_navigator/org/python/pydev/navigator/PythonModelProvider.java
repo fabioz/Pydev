@@ -236,7 +236,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         
         Object currentParent = project;
         PythonSourceFolder pythonSourceFolder = null;
-        for(Iterator it = found.topDownIterator();it.hasNext();){
+        for(Iterator<Object> it = found.topDownIterator();it.hasNext();){
             Object child = it.next();
             if(child instanceof IFolder){
                 if(pythonSourceFolder == null){

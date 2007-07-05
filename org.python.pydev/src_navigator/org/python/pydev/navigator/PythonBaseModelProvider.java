@@ -592,10 +592,10 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
      * 
      * @param runnables
      */
-    private void runUpdates(Collection runnables) {
-        Iterator runnableIterator = runnables.iterator();
+    private void runUpdates(Collection<Runnable> runnables) {
+        Iterator<Runnable> runnableIterator = runnables.iterator();
         while (runnableIterator.hasNext()) {
-            ((Runnable) runnableIterator.next()).run();
+            runnableIterator.next().run();
         }
     }
 
