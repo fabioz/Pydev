@@ -168,11 +168,11 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     protected void checkSize() {
         IInterpreterManager iMan = getInterpreterManager();
         InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(getProgressMonitor());
-        assertTrue(info.modulesManager.getSize() > 0);
+        assertTrue(info.getModulesManager().getSize() > 0);
         
         int size = ((ASTManager)natureRefactoring.getAstManager()).getSize();
-        assertTrue("Interpreter size:"+info.modulesManager.getSize()+" should be smaller than project size:"+size+" " +
-                "(because it contains system+project info)" , info.modulesManager.getSize() < size );
+        assertTrue("Interpreter size:"+info.getModulesManager().getSize()+" should be smaller than project size:"+size+" " +
+                "(because it contains system+project info)" , info.getModulesManager().getSize() < size );
         
     }
 

@@ -55,7 +55,7 @@ public class InterpreterObserver implements IInterpreterObserver {
                     currInfo.clearAllInfo();
                 }
                 InterpreterInfo defaultInterpreterInfo = (InterpreterInfo) manager.getInterpreterInfo(defaultSelectedInterpreter, monitor);
-                SystemModulesManager m = defaultInterpreterInfo.modulesManager;
+                SystemModulesManager m = defaultInterpreterInfo.getModulesManager();
                 AbstractAdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, "(system: " + manager.getManagerRelatedName() + ")",
                         new AdditionalSystemInterpreterInfo(manager), null, grammarVersion);
 
