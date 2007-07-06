@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.python.pydev.mylar.feature"
-      label="Pydev Mylar Integration"
-      version="0.2.0"
+      id="org.python.pydev.mylyn.feature"
+      label="Pydev Mylyn Integration"
+      version="0.3.0"
       provider-name="Fabio Zadrozny">
 
    <description>
-      Integration of Mylar with Pydev.
+      Integration of Mylyn with Pydev.
    </description>
 
    <copyright>
@@ -18,25 +18,25 @@
    </license>
 
    <requires>
-      <import plugin="org.python.pydev" version="1.3.1" match="greaterOrEqual"/>
+      <import plugin="org.python.pydev" version="1.3.7" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.resources"/>
       <import plugin="org.eclipse.ui.navigator"/>
       <import plugin="org.eclipse.ui.views"/>
-      <import plugin="org.eclipse.mylar" version="2.0.0.v20070403-1300" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.mylar.context.core"/>
-      <import plugin="org.eclipse.mylar.context.ui"/>
-      <import plugin="org.eclipse.mylar.ide"/>
-      <import plugin="org.eclipse.mylar.resources"/>
+      <import plugin="org.eclipse.mylyn" version="2.0.0.v20070627-1400" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.mylyn.context.core"/>
+      <import plugin="org.eclipse.mylyn.context.ui"/>
+      <import plugin="org.eclipse.mylyn.ide.ui"/>
+      <import plugin="org.eclipse.mylyn.resources.ui"/>
    </requires>
 
    <plugin
-         id="org.python.pydev.mylar"
+         id="org.python.pydev.mylyn"
          download-size="0"
          install-size="0"
-         version="0.2.0"
+         version="0.3.0"
          unpack="false"/>
 
 </feature>

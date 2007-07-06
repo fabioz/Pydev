@@ -7,59 +7,21 @@
 
     <extension point="org.eclipse.ui.viewActions"> 
 	  <viewContribution 
-		id="org.python.pydev.navigator.actions.mylar" 
+		id="org.python.pydev.navigator.actions.mylyn" 
    		targetID="org.python.pydev.navigator.view">
     	<action
-           class="org.eclipse.mylar.internal.ide.ui.actions.FocusProjectExplorerAction"
+           class="org.eclipse.mylyn.internal.ide.ui.actions.FocusProjectExplorerAction"
            enablesFor="*"
            icon="icons/elcl16/interest-filtering.gif"
-           id="org.python.pydev.navigator.actions.mylar.FilterResourceNavigatorAction"
+           id="org.python.pydev.navigator.actions.mylyn.FilterResourceNavigatorAction"
            label="Focus on Active Task"
            menubarPath="additions"
            style="toggle"
            toolbarPath="additions"
-           tooltip="Focus on Active Task"> 
+           tooltip="Focus on Active Task (Alt+Click to reveal filtered elements)"> 
   		</action> 
-      </viewContribution> 
+      </viewContribution>
+       
    </extension>
-   
-  <!--
-	<extension
-	       point="org.eclipse.mylar.context.core.bridges">
-	    <structureBridge
-           class="org.python.pydev.mylar.structurebridge.PydevStructureBridge"
-           name="Pydev Structure Bridge"
-           parentContentType="*"/>
-    </extension>
-  
-   <extension point = "org.eclipse.ui.popupMenus">
-     <objectContribution
-        id="org.eclipse.mylar.ui.interest"
-        objectClass="org.python.pydev.navigator.IWrappedResource">
-     	<action  
-  		  	label="Make Less Interesting" 
-	  		tooltip="Mark selected element as uninteresting"
-	  		menubarPath="additions" 
-	  		id="org.eclipse.mylar.ui.actions.InterestDecrementAction" 
-	  		class="org.eclipse.mylar.internal.context.ui.actions.InterestDecrementAction"
-	  		icon="icons/elcl16/interest-decrease.gif"
-	  		enablesFor="*"/>
-	    <action  
-  		  	label="Mark as Landmark" 
-	  		tooltip="Make selected element a landmark"
-	  		menubarPath="additions" 
-	  		id="org.eclipse.mylar.ui.actions.InterestIncrementAction" 
-	  		class="org.eclipse.mylar.internal.context.ui.actions.InterestIncrementAction"
-	  		icon="icons/elcl16/interest-increase.gif"
-	  		enablesFor="*"/>
-	 </objectContribution>
-   </extension>
-   
-    added patch for this extension point in mylar bug tracker: https://bugs.eclipse.org/bugs/show_bug.cgi?id=178931 
-   <extension point="org.eclipse.mylar.resources.mylar_resources_to_ignore">
-   		<resource_to_ignore pattern="*.pyc"/>
-   		<resource_to_ignore pattern="*.pyo"/>
-   </extension>
-   -->
 
 </plugin>

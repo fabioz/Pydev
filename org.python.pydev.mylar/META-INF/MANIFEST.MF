@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Pydev Mylar Integration Plug-in
-Bundle-SymbolicName: org.python.pydev.mylar; singleton:=true
-Bundle-Version: 0.2
-Bundle-Activator: org.python.pydev.mylar.Activator
+Bundle-Name: Pydev Mylyn Integration Plug-in
+Bundle-SymbolicName: org.python.pydev.mylyn;singleton:=true
+Bundle-Version: 0.3
+Bundle-Activator: org.python.pydev.mylyn.Activator
 Bundle-Vendor: Fabio Zadrozny
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui.ide,
@@ -13,11 +13,11 @@ Require-Bundle: org.eclipse.ui.ide,
  org.eclipse.ui.navigator,
  org.eclipse.core.runtime,
  org.eclipse.ui.views,
- org.eclipse.mylar,
- org.eclipse.mylar.context.core,
- org.eclipse.mylar.context.ui,
- org.eclipse.mylar.ide,
- org.eclipse.mylar.resources,
+ org.eclipse.mylyn,
+ org.eclipse.mylyn.context.core,
+ org.eclipse.mylyn.context.ui,
+ org.eclipse.mylyn.ide.ui,
+ org.eclipse.mylyn.resources.ui,
  org.python.pydev
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

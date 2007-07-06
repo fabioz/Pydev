@@ -33,6 +33,10 @@ import org.eclipse.ui.part.ShowInContext;
 import org.python.pydev.navigator.IWrappedResource;
 import org.python.pydev.navigator.PythonFile;
 
+/**
+ * This class is the package explorer for pydev. It uses the CNF (Common Navigator Framework) to show
+ * the resources as python elements.
+ */
 public class PydevPackageExplorer extends CommonNavigator implements IShowInTarget {
 
     /**
@@ -70,7 +74,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
 	private IMemento memento;
 
     /**
-     * Overriden to keep the memento to be used later (it's private in the superclass).
+     * Overridden to keep the memento to be used later (it's private in the superclass).
      */
 	public void init(IViewSite aSite, IMemento aMemento) throws PartInitException {
 		super.init(aSite, aMemento);
@@ -78,19 +82,29 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
 	}
 
     /**
-     * Overriden to create our viewer and not the superclass CommonViewer.
+     * Overridden to create our viewer and not the superclass CommonViewer.
      * 
-     * (unfortunatelly, the superclass does a little more than creating it, so, we have to do those operations here 
+     * (Unfortunately, the superclass does a little more than creating it, so, we have to do those operations here 
      * too -- that's why we have to keep the memento object in the init method).
      */
+	@Override
 	protected CommonViewer createCommonViewer(Composite aParent) {
         //super.createCommonViewer(aParent); -- don't even call the super class
 		CommonViewer aViewer = new PydevCommonViewer(getViewSite().getId(), aParent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		initListeners(aViewer);
-		aViewer.getNavigatorContentService().restoreState(memento);
+		//we do that only after the part is completely created (because otherwise the state is reverted later)
+		//aViewer.getNavigatorContentService().restoreState(memento);
 		return aViewer;
 	}
-	
+
+	/**
+	 * Overridden because if the state is not restored as the last thing, it is reverted back to the previous state.
+	 */
+	@Override
+	public void createPartControl(Composite aParent) {
+	    super.createPartControl(aParent);
+	    getCommonViewer().getNavigatorContentService().restoreState(memento);
+	}
 	
 	/**
 	 * Returns the element contained in the EditorInput
@@ -150,6 +164,10 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
 		return false;
 	}
 
+	/**
+	 * @param element the element that should be gotten as an element from the pydev model
+	 * @return a pydev element or the same element passed as a parameter.
+	 */
     private Object getPythonModelElement(Object element) {
         if(element instanceof IWrappedResource){
             return element;
