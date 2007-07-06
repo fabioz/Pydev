@@ -2,6 +2,7 @@ package org.python.pydev.navigator;
 
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,9 +27,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.content.IContentTypeMatcher;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.python.pydev.core.IPythonNature;
 
-public class ProjectStub implements IProject{
+public class ProjectStub implements IProject, IWorkbenchAdapter{
 
     private File projectRoot;
 
@@ -558,7 +561,10 @@ public class ProjectStub implements IProject{
     }
 
     public Object getAdapter(Class adapter) {
-        throw new RuntimeException("Not impl");
+    	if (adapter == IWorkbenchAdapter.class){
+    		return this;
+    	}
+    	throw new RuntimeException("Not impl");
         
     }
 
@@ -575,6 +581,49 @@ public class ProjectStub implements IProject{
     public int findMaxProblemSeverity(String type, boolean includeSubtypes, int depth) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
+
+    
+    private HashMap<Object, Object[]> stubsCache = new HashMap<Object, Object[]>();
+    
+    //workbench adapter
+	public Object[] getChildren(Object o) {
+		Object[] found = stubsCache.get(o);
+		if(found != null){
+			return found;
+		}
+		
+		File folder = null; 
+		if(o instanceof ProjectStub){
+			ProjectStub projectStub = (ProjectStub) o;
+			folder = projectStub.projectRoot;
+		}else{
+			throw new RuntimeException("Shouldn't happen");
+		}
+		ArrayList<IResource> ret = new ArrayList<IResource>();
+		for(File file:folder.listFiles()){
+			if(file.getName().toLowerCase().equals("cvs")){
+				continue;
+			}
+			if(file.isDirectory()){
+				ret.add(new FolderStub(this, file));
+			}else{
+				ret.add(new FileStub(this, file));
+			}
+		}
+		return ret.toArray();
+	}
+
+	public ImageDescriptor getImageDescriptor(Object object) {
+		throw new RuntimeException("Not implemented");
+	}
+
+	public String getLabel(Object o) {
+		throw new RuntimeException("Not implemented");
+	}
+
+	public Object getParent(Object o) {
+		throw new RuntimeException("Not implemented");
+	}
 
 
 }

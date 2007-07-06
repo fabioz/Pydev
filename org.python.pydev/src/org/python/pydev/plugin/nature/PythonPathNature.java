@@ -61,7 +61,13 @@ public class PythonPathNature implements IPythonPathNature {
     }
     
 
-    public List getCompleteProjectPythonPath(String interpreter) {
+    /**
+     * Returns a list of paths with the complete pythonpath for this nature.
+     * 
+     * This includes the pythonpath for the project, all the referenced projects and the
+     * system.
+     */
+    public List<String> getCompleteProjectPythonPath(String interpreter) {
         IModulesManager projectModulesManager = getProjectModulesManager();
         if(projectModulesManager == null){
             return null;

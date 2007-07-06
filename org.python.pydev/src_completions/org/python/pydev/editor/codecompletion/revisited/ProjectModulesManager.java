@@ -177,6 +177,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
      */
     public SystemModulesManager getSystemModulesManager(String defaultSelectedInterpreter){
     	if(nature == null){
+    		PydevPlugin.log("Nature still not set");
     		return null; //still not set (initialization)
     	}
         IInterpreterManager iMan = PydevPlugin.getInterpreterManager(nature);
@@ -185,6 +186,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         }
         InterpreterInfo info = (InterpreterInfo) iMan.getInterpreterInfo(defaultSelectedInterpreter, new NullProgressMonitor());
         if(info == null){
+        	PydevPlugin.log("Info still not set");
         	return null; //may happen during initialization
         }
         return info.getModulesManager();
@@ -381,6 +383,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         SystemModulesManager systemModulesManager = getSystemModulesManager(null);
         if(systemModulesManager == null){
         	//may happen in initialization
+        	PydevPlugin.log("System modules manager still not available (still initializing).");
         	return new ModulesManager[]{};
         }
         

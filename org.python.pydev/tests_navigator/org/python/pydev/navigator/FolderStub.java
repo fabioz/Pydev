@@ -44,9 +44,32 @@ public class FolderStub implements IFolder{
         return "FolderStub:"+this.folder;
     }
 
+    @Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((folder == null) ? 0 : folder.hashCode());
+		return result;
+	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		final FolderStub other = (FolderStub) obj;
+		if (folder == null) {
+			if (other.folder != null)
+				return false;
+		} else if (!folder.equals(other.folder))
+			return false;
+		return true;
+	}
 
-    public void create(boolean force, boolean local, IProgressMonitor monitor) throws CoreException {
+	public void create(boolean force, boolean local, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not impl");
         
     }

@@ -43,19 +43,20 @@ public class PyPackageStateSaver {
             
             TreeViewer treeViewer = (TreeViewer) viewer;
             
-            ArrayList<Object> expandedElements = new ArrayList<Object>();
             IMemento[] expanded = memento.getChildren("expanded");
             IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
             for (IMemento m : expanded) {
                 Object resource = getResourceFromPath(root, m);
                 if(resource != null){
-                    expandedElements.add(resource);
                     if(DEBUG){
                         System.out.println("Expanding:"+resource);
                     }
+                    //it has to be done level by level because the children may be created
+                    //for each expand (so, we 1st must expand the source folder in order to
+                    //get the correct folders beneath it).
+                    treeViewer.expandToLevel(resource, 1);
                 }
             }
-            treeViewer.setExpandedElements(expandedElements.toArray());
             
             
             ArrayList<TreePath> paths = new ArrayList<TreePath>();

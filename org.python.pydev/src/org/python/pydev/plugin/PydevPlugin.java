@@ -193,17 +193,19 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         preferences.addPropertyChangeListener(this);
         
         //set them temporarily
-        setPythonInterpreterManager(new StubInterpreterManager(true));
-        setJythonInterpreterManager(new StubInterpreterManager(false));
+        //setPythonInterpreterManager(new StubInterpreterManager(true));
+        //setJythonInterpreterManager(new StubInterpreterManager(false));
         
+        //changed: the interpreter manager is always set in the initialization (initialization 
+        //has some problems if that's not done).
+        setPythonInterpreterManager(new PythonInterpreterManager(preferences));
+        setJythonInterpreterManager(new JythonInterpreterManager(preferences));
 
         //restore the nature for all python projects
         new Job("PyDev: Restoring projects python nature"){
 
             protected IStatus run(IProgressMonitor monitor) {
             	try{
-	            	setPythonInterpreterManager(new PythonInterpreterManager(preferences));
-	            	setJythonInterpreterManager(new JythonInterpreterManager(preferences));
 	            	
 	                IProject[] projects = getWorkspace().getRoot().getProjects();
 	                for (int i = 0; i < projects.length; i++) {

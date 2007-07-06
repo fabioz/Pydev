@@ -26,6 +26,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -83,14 +84,36 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
         PythonNatureListenersManager.addPythonNatureListener(this);
     }
     
+    public static final boolean DEBUG = false;
+    
     /**
      * Notification received when the pythonpath has been changed or rebuilt.
      */
     public void notifyPythonPathRebuilt(IProject project, List<String> projectPythonpath) {
+    	if(DEBUG){
+    		System.out.println("\n\nRebuilding pythonpath: "+project+" - "+projectPythonpath);
+    	}
+    	HashSet<Path> projectPythonpathSet = new HashSet<Path>();
+    	for (String string : projectPythonpath) {
+    		projectPythonpathSet.add(new Path(string));
+		}
+
         Map<IProject, Set<PythonSourceFolder>> p = projectToSourceFolders;
         if(p != null){
-            p.remove(project);
+        	Set<PythonSourceFolder> existingSourceFolders = p.get(project);
+        	
+        	//iterate in a copy
+        	for (PythonSourceFolder pythonSourceFolder : new HashSet<PythonSourceFolder>(existingSourceFolders)) {
+				IPath fullPath = pythonSourceFolder.folder.getLocation();
+				if(!projectPythonpathSet.contains(fullPath)){
+					existingSourceFolders.remove(pythonSourceFolder);//it's not a valid source folder anymore...
+					if(DEBUG){
+						System.out.println("Removing:"+pythonSourceFolder+" - "+fullPath);
+					}
+				}
+			}
         }
+        
         Runnable refreshRunnable = getRefreshRunnable(project);
         final Collection<Runnable> runnables = new ArrayList<Runnable>();
         runnables.add(refreshRunnable);
@@ -556,6 +579,10 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
      * @param runnables
      */
     private void processRunnables(final Collection<Runnable> runnables) {
+    	if(viewer == null){
+    		return;
+    	}
+    	
         Control ctrl = viewer.getControl();
         if (ctrl == null || ctrl.isDisposed()) {
             return;
@@ -595,7 +622,8 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
     private void runUpdates(Collection<Runnable> runnables) {
         Iterator<Runnable> runnableIterator = runnables.iterator();
         while (runnableIterator.hasNext()) {
-            runnableIterator.next().run();
+            Runnable runnable = runnableIterator.next();
+			runnable.run();
         }
     }
 
