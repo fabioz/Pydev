@@ -8,7 +8,10 @@ import java.util.HashSet;
 import java.util.LinkedList;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -32,6 +35,7 @@ import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
 import org.python.pydev.navigator.IWrappedResource;
 import org.python.pydev.navigator.PythonFile;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This class is the package explorer for pydev. It uses the CNF (Common Navigator Framework) to show
@@ -92,8 +96,25 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
         //super.createCommonViewer(aParent); -- don't even call the super class
 		CommonViewer aViewer = new PydevCommonViewer(getViewSite().getId(), aParent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		initListeners(aViewer);
-		//we do that only after the part is completely created (because otherwise the state is reverted later)
+		
+		//commented: we do that only after the part is completely created (because otherwise the state is reverted later)
 		//aViewer.getNavigatorContentService().restoreState(memento);
+		
+		try {
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			IProject[] projects = root.getProjects();
+			if(projects != null && projects.length > 0){
+				//just to initialize it...
+				//see bug https://sourceforge.net/tracker/index.php?func=detail&aid=1747611&group_id=85796&atid=577329 
+				//for details (it's trying to load the extensions while trying to access them, so, this is to initialize
+				//them early).
+				//this can probably be removed once that's fixed.
+				//TODO: Check once eclipse 3.3.1 is released.
+				((NavigatorContentService)aViewer.getNavigatorContentService()).findContentExtensionsByTriggerPoint(projects[0]);
+			}
+		} catch (RuntimeException e) {
+			PydevPlugin.log(e);
+		}
 		return aViewer;
 	}
 
