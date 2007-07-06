@@ -1,11 +1,14 @@
-after 1.3.6
 TODO: in outline, the '---' should appear given an option to show that or trim it
 TODO: hierarchy view: show with f4 / close / open view / f4 (will not work)
 TODO: DEBUGGER BUG: if a class is defined within a method, things later in that method are not able to get the correct name for the breakpoint scope.
 TODO: Ctrl+4 for blocks in methods
 TODO: Debugger: enable users to configure the mappings for remote debugging in a 'nice' way.
 TODO: See why Ctrl+1 is bringing more than 1 completion for the same token on some cases.
-TODO: In 3.3, the pydev package explorer seems to expand its items (but they are later collapsed again).
+
+after 1.3.6
+Bug Fix: Builtins were still not correctly used after specifying interpreter (so, the builtins would not be available in completions/code-analysis).
+Mylyn integration created
+
 
 
 after 1.3.5
