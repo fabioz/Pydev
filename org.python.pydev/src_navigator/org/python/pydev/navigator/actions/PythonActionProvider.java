@@ -86,7 +86,7 @@ public class PythonActionProvider extends CommonActionProvider{
      * @see org.eclipse.ui.actions.ActionGroup#fillContextMenu(org.eclipse.jface.action.IMenuManager)
      */
     public void fillContextMenu(IMenuManager menu) {
-        if(openPythonAction.isEnabled()){
+        if(openPythonAction.isEnabledForSelectionWithoutContainers()){
             menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openPythonAction);        
         }
         if(copyResourceAction.isEnabled()){

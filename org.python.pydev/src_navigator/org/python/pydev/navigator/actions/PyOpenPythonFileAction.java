@@ -24,6 +24,11 @@ import org.python.pydev.outline.ParsedItem;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 
+/**
+ * This action will try to open a given file or node in the pydev editor (if a file or node is selected).
+ * 
+ * If a container is selected, it will expand or collapse it.
+ */
 public class PyOpenPythonFileAction extends Action {
 
     private List<IFile> filesSelected;
@@ -35,6 +40,10 @@ public class PyOpenPythonFileAction extends Action {
     private ISelectionProvider provider;
 
     public PyOpenPythonFileAction(IWorkbenchPage page, ISelectionProvider selectionProvider) {
+        filesSelected = new ArrayList<IFile>();
+        nodesSelected = new ArrayList<PythonNode>();
+        containersSelected = new ArrayList<Object>();
+        
         this.setText("Open With Pydev");
         this.provider = selectionProvider;
     }
@@ -53,12 +62,8 @@ public class PyOpenPythonFileAction extends Action {
      * 
      * @see org.eclipse.jface.action.Action#run()
      */
-    public void run() {
+    public synchronized void run() {
         // clear them
-        filesSelected = new ArrayList<IFile>();
-        nodesSelected = new ArrayList<PythonNode>();
-        containersSelected = new ArrayList<Object>();
-
         fillSelections();
 
         if (filesSelected.size() > 0) {
@@ -67,8 +72,7 @@ public class PyOpenPythonFileAction extends Action {
         } else if (nodesSelected.size() > 0) {
             PythonNode node = nodesSelected.iterator().next();
             ParsedItem actualObject = node.getActualObject();
-            new PyOpenAction().run(new ItemPointer(node.getPythonFile().getActualObject(), NodeUtils
-                    .getNameTokFromNode(actualObject.astThis.node)));
+            new PyOpenAction().run(new ItemPointer(node.getPythonFile().getActualObject(), NodeUtils.getNameTokFromNode(actualObject.astThis.node)));
 
         } else if (containersSelected.size() > 0) {
             if (this.provider instanceof TreeViewer) {
@@ -84,13 +88,27 @@ public class PyOpenPythonFileAction extends Action {
         }
     }
 
+    /**
+     * Opens the given files with the Pydev editor. 
+     * 
+     * @param filesSelected the files to be opened with the pydev editor.
+     */
     protected void openFiles(List<IFile> filesSelected) {
         for (IFile f : filesSelected) {
             new PyOpenAction().run(new ItemPointer(f));
         }
     }
 
-    private void fillSelections() {
+    /**
+     * This method will get the given selection and fill the related attributes to match the selection correctly
+     * (files, nodes and containers).
+     */
+    @SuppressWarnings("unchecked")
+    private synchronized void fillSelections() {
+        filesSelected.clear();
+        nodesSelected.clear();
+        containersSelected.clear();
+
         ISelection selection = provider.getSelection();
         if (!selection.isEmpty()) {
             IStructuredSelection sSelection = (IStructuredSelection) selection;
@@ -116,6 +134,17 @@ public class PyOpenPythonFileAction extends Action {
                 }
             }
         }
+    }
+
+    /**
+     * @return whether the current selection enables this action (not considering selected containers).
+     */
+    public boolean isEnabledForSelectionWithoutContainers() {
+        fillSelections();
+        if(filesSelected.size() > 0 || nodesSelected.size() > 0){
+            return true;
+        }
+        return false;
     }
 
 }
