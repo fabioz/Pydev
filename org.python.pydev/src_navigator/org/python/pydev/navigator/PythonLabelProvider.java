@@ -8,6 +8,9 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
+import org.python.pydev.navigator.elements.IWrappedResource;
+import org.python.pydev.navigator.elements.PythonNode;
+import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 

@@ -33,8 +33,8 @@ import org.eclipse.ui.navigator.INavigatorPipelineService;
 import org.eclipse.ui.navigator.PipelinedShapeModification;
 import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
-import org.python.pydev.navigator.IWrappedResource;
-import org.python.pydev.navigator.PythonFile;
+import org.python.pydev.navigator.elements.IWrappedResource;
+import org.python.pydev.navigator.elements.PythonFile;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**

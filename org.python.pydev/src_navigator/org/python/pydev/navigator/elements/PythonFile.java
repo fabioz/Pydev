@@ -1,4 +1,4 @@
-package org.python.pydev.navigator;
+package org.python.pydev.navigator.elements;
 
 import java.io.InputStream;
 

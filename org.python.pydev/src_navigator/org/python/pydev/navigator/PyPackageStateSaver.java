@@ -16,6 +16,7 @@ import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.IMemento;
+import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**

@@ -23,6 +23,11 @@ import org.eclipse.ui.navigator.IPipelinedTreeContentProvider;
 import org.eclipse.ui.navigator.PipelinedShapeModification;
 import org.eclipse.ui.navigator.PipelinedViewerUpdate;
 import org.python.pydev.core.structure.FastStack;
+import org.python.pydev.navigator.elements.IWrappedResource;
+import org.python.pydev.navigator.elements.PythonFile;
+import org.python.pydev.navigator.elements.PythonFolder;
+import org.python.pydev.navigator.elements.PythonResource;
+import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 

@@ -29,7 +29,7 @@ import org.eclipse.ui.internal.navigator.resources.plugin.WorkbenchNavigatorPlug
 import org.eclipse.ui.navigator.CommonDropAdapter;
 import org.eclipse.ui.navigator.resources.ResourceDropAdapterAssistant;
 import org.eclipse.ui.part.ResourceTransfer;
-import org.python.pydev.navigator.IWrappedResource;
+import org.python.pydev.navigator.elements.IWrappedResource;
 
 /**
  * Copied becaus the original did not really adapt to resources (it tries to do if !xxx instanceof IResource in many places)

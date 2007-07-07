@@ -2,8 +2,8 @@ package org.python.pydev.navigator.properties;
 
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.resources.IResource;
-import org.python.pydev.navigator.IWrappedResource;
-import org.python.pydev.navigator.PythonNode;
+import org.python.pydev.navigator.elements.IWrappedResource;
+import org.python.pydev.navigator.elements.PythonNode;
 
 public class PyPropertyTester extends PropertyTester{
 

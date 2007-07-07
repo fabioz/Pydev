@@ -2,7 +2,7 @@
  * Created on Oct 8, 2006
  * @author Fabio
  */
-package org.python.pydev.navigator;
+package org.python.pydev.navigator.elements;
 
 import org.python.pydev.outline.ParsedItem;
 

@@ -1048,7 +1048,7 @@ Declaring it in the project explorer has 'strange' collateral effects...
                 <instanceof value="org.eclipse.core.resources.IStorage"/>
                 <instanceof value="org.eclipse.core.resources.IFile"/>
                 <instanceof value="org.eclipse.core.resources.IResource"/>
-                <instanceof value="org.python.pydev.navigator.IWrappedResource"/>
+                <instanceof value="org.python.pydev.navigator.elements.IWrappedResource"/>
                 <instanceof value="org.eclipse.ui.IWorkingSet"/>
             </or>
          </triggerPoints>
@@ -1060,12 +1060,12 @@ Declaring it in the project explorer has 'strange' collateral effects...
                 <instanceof value="org.eclipse.core.resources.IStorage"/>
                 <instanceof value="org.eclipse.core.resources.IFile" />
                 <instanceof value="org.eclipse.core.resources.IResource"/>
-                <instanceof value="org.python.pydev.navigator.IWrappedResource"/>
+                <instanceof value="org.python.pydev.navigator.elements.IWrappedResource"/>
             </or>
          </possibleChildren>
          <commonSorter
-               class="org.python.pydev.navigator.PythonModelSorter"
-               id="org.python.pydev.navigator.pythonmodelsorter"/>
+               class="org.python.pydev.navigator.sorter.PythonModelSorter"
+               id="org.python.pydev.navigator.sorter.pythonmodelsorter"/>
          <actionProvider
                class="org.python.pydev.navigator.actions.PythonActionProvider"
                id="org.python.pydev.navigator.actions.pythonActionProvider"
@@ -1135,7 +1135,7 @@ Declaring it in the project explorer has 'strange' collateral effects...
                 </not><not><instanceof value="org.eclipse.core.resources.IStorage"/>
                 </not><not><instanceof value="org.eclipse.core.resources.IFile"/>
                 </not><not><instanceof value="org.eclipse.core.resources.IResource"/>
-                </not><not><instanceof value="org.python.pydev.navigator.IWrappedResource"/>
+                </not><not><instanceof value="org.python.pydev.navigator.elements.IWrappedResource"/>
                 </not><not><instanceof value="org.eclipse.ui.IWorkingSet"/>
                 </not>
             </and>
@@ -1210,7 +1210,7 @@ Declaring it in the project explorer has 'strange' collateral effects...
 	the methods).
     -->
     <extension point="org.eclipse.core.runtime.adapters">
-         <factory class="org.python.pydev.navigator.ModelAdapter" adaptableType="org.python.pydev.navigator.IWrappedResource">
+         <factory class="org.python.pydev.navigator.ModelAdapter" adaptableType="org.python.pydev.navigator.elements.IWrappedResource">
 			<adapter type="org.eclipse.core.resources.IResource"/>
 			<adapter type="org.eclipse.core.resources.IFolder"/>
 			<adapter type="org.eclipse.core.resources.IContainer"/>

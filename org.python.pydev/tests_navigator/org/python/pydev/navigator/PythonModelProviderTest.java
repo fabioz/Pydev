@@ -9,6 +9,8 @@ import junit.framework.TestCase;
 import org.eclipse.ui.navigator.PipelinedShapeModification;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.navigator.elements.IWrappedResource;
+import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.nature.PythonNature;
 
 public class PythonModelProviderTest extends TestCase {

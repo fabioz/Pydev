@@ -19,7 +19,7 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.IWorkbenchPage;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.navigator.PythonNode;
+import org.python.pydev.navigator.elements.PythonNode;
 import org.python.pydev.outline.ParsedItem;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;

@@ -13,7 +13,7 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.navigator.ILinkHelper;
 import org.eclipse.ui.part.FileEditorInput;
-import org.python.pydev.navigator.IWrappedResource;
+import org.python.pydev.navigator.elements.IWrappedResource;
 
 public class PythonLinkHelper implements ILinkHelper {
 

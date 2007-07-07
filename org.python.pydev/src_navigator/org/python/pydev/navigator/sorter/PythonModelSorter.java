@@ -2,11 +2,13 @@
  * Created on Oct 8, 2006
  * @author Fabio
  */
-package org.python.pydev.navigator;
+package org.python.pydev.navigator.sorter;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
+import org.python.pydev.navigator.elements.IWrappedResource;
+import org.python.pydev.navigator.elements.PythonNode;
 
 public class PythonModelSorter extends ViewerSorter{
 

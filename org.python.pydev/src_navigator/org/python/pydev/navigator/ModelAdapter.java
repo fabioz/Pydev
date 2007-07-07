@@ -7,7 +7,14 @@ import org.eclipse.core.resources.mapping.ResourceMapping;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IAdapterFactory;
 import org.eclipse.ui.IContributorResourceAdapter;
+import org.python.pydev.navigator.elements.IWrappedResource;
 
+/**
+ * This adapter factory is needed for the pydev package explorer (no, it's not enough that the objects themselves are
+ * adaptable, there must be a factory to make that visible to it).
+ * 
+ * @author Fabio
+ */
 public class ModelAdapter implements IAdapterFactory{
 
     public Object getAdapter(Object adaptableObject, Class adapterType) {
