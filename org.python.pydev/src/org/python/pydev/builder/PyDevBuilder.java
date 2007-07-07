@@ -118,10 +118,11 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             
             //and the nature...
             if (nature != null && nature.startRequests()){
-                IPythonPathNature pythonPathNature = nature.getPythonPathNature();
-                pythonPathNature.getProjectSourcePath(); //this is just to update the paths (in case the project name has just changed)
                 
             	try{
+            	    IPythonPathNature pythonPathNature = nature.getPythonPathNature();
+            	    pythonPathNature.getProjectSourcePath(); //this is just to update the paths (in case the project name has just changed)
+            	    
 	                List<IFile> resourcesToParse = new ArrayList<IFile>();
 	    
 	                List<PyDevBuilderVisitor> visitors = getVisitors();

@@ -1,9 +1,12 @@
 package org.python.pydev.plugin.nature;
 
 import java.io.File;
+import java.util.EmptyStackException;
+import java.util.Stack;
 
 import org.eclipse.core.resources.IResource;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
@@ -34,16 +37,43 @@ public abstract class AbstractPythonNature implements IPythonNature{
     	return resolveModule(REF.getFileAbsolutePath(file));
     }
     
-	public boolean startRequests() {
+
+    /**
+     * This is a stack holding the modules manager for which the requests were done
+     */
+    private Stack<IModulesManager> modulesManagerStack = new Stack<IModulesManager>();
+    
+    /**
+     * Start a request for an ast manager (start caching things)
+     */
+    public synchronized boolean startRequests() {
 		ICodeCompletionASTManager astManager = this.getAstManager();
 		if(astManager == null){
 			return false;
 		}
-		return astManager.getModulesManager().startCompletionCache();
+		IModulesManager modulesManager = astManager.getModulesManager();
+		if(modulesManager == null){
+		    return false;
+		}
+		synchronized (modulesManagerStack) {
+		    modulesManagerStack.push(modulesManager);
+		    return modulesManager.startCompletionCache();
+        }
 	}
 	
-	public void endRequests() {
-		this.getAstManager().getModulesManager().endCompletionCache();
+    /**
+     * End a request for an ast manager (end caching things)
+     */
+	public synchronized void endRequests() {
+	    synchronized (modulesManagerStack) {
+    	    try {
+                IModulesManager modulesManager = modulesManagerStack.pop();
+                modulesManager.endCompletionCache();
+            } catch (EmptyStackException e) {
+                PydevPlugin.log(e);
+            }
+	    }
 	}
+	    
 
 }
