@@ -34,7 +34,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
         try {
             UndefinedVariableFixParticipantTest test = new UndefinedVariableFixParticipantTest();
             test.setUp();
-            test.testFix7();
+            test.testFix();
             test.tearDown();
             
             System.out.println("finished");
