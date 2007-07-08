@@ -148,6 +148,9 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
      * create some resource if it still does not exist)
      */
     protected Object getResourceInPythonModel(IResource object, boolean removeFoundResource, boolean returnNullIfNotFound) {
+        if(DEBUG){
+            System.out.println("Getting resource in python model:"+object);
+        }
         Set<PythonSourceFolder> sourceFolders = getProjectSourceFolders(object);
         Object f = null;
         PythonSourceFolder sourceFolder = null;

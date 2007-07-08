@@ -23,7 +23,7 @@ public class PythonModelProviderTest extends TestCase {
             test.testIt2();
             test.tearDown();
             
-//            junit.textui.TestRunner.run(PythonModelProviderTest.class);
+            junit.textui.TestRunner.run(PythonModelProviderTest.class);
         } catch (Exception e) {
             e.printStackTrace();
         }

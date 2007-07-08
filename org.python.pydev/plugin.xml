@@ -982,8 +982,8 @@
 </extension> 
 
 
-<!-- Declare the viewer configuration, and the default content/action bindings 
-Declaring it in the project explorer has 'strange' collateral effects...
+<!-- Declare the python content in the project explorer
+-->
 <extension point="org.eclipse.ui.navigator.viewer">
     <viewerContentBinding viewerId="org.eclipse.ui.navigator.ProjectExplorer">
         <includes>
@@ -993,7 +993,6 @@ Declaring it in the project explorer has 'strange' collateral effects...
         </includes>
     </viewerContentBinding>
 </extension>
--->
 
 <extension point="org.eclipse.ui.navigator.viewer">
     <viewer viewerId="org.python.pydev.navigator.view">
@@ -1204,10 +1203,8 @@ Declaring it in the project explorer has 'strange' collateral effects...
         </viewerActionBinding>
     </extension>
 
-	<!-- has been removed because it has actually no contribution, as it is not possible to adapt
-	to IResources for simple actions such as delete/move/rename... so, instead of that the wrapper
-	classes themselves work as IResources and actually implement the interface (and just delegate
-	the methods).
+	<!-- the adapter factory must be registered (otherwise the CNF cannot 'get it' - even if the objects themselves are
+	adaptable).
     -->
     <extension point="org.eclipse.core.runtime.adapters">
          <factory class="org.python.pydev.navigator.ModelAdapter" adaptableType="org.python.pydev.navigator.elements.IWrappedResource">

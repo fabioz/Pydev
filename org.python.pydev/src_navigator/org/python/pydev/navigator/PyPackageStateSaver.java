@@ -13,10 +13,11 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.widgets.Item;
 import org.eclipse.ui.IMemento;
 import org.python.pydev.navigator.elements.IWrappedResource;
+import org.python.pydev.navigator.ui.PydevPackageExplorer.PydevCommonViewer;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -38,11 +39,14 @@ public class PyPackageStateSaver {
 
 	public void restoreState() {
         try{
-            if(!(viewer instanceof TreeViewer)){
+            if(!(viewer instanceof PydevCommonViewer)){
+                //we have to check that because we can be asked to restore things in the ProjectExplorer too, and not
+                //only in the pydev package explorer -- and in this case, the method: getTreePathFromItem(Item item) is
+                //not be overridden and can cause the method to fail.
                 return;
             }
             
-            TreeViewer treeViewer = (TreeViewer) viewer;
+            PydevCommonViewer treeViewer = (PydevCommonViewer) viewer;
             
             IMemento[] expanded = memento.getChildren("expanded");
             IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
@@ -135,11 +139,14 @@ public class PyPackageStateSaver {
      */
     public void saveState() {
         try{
-            if(!(viewer instanceof TreeViewer)){
+            if(!(viewer instanceof PydevCommonViewer)){
+                //we have to check that because we can be asked to restore things in the ProjectExplorer too, and not
+                //only in the pydev package explorer -- and in this case, the method: getTreePathFromItem(Item item) is
+                //not be overridden and can cause the method to fail.
                 return;
             }
             
-            TreeViewer treeViewer = (TreeViewer) viewer;
+            PydevCommonViewer treeViewer = (PydevCommonViewer) viewer;
             TreePath[] expandedTreePaths = treeViewer.getExpandedTreePaths();
             for (TreePath path : expandedTreePaths) {
                 save(path, "expanded");

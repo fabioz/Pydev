@@ -4,7 +4,13 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.ui.IContributorResourceAdapter;
 
-
+/**
+ * This class represents a resource that is wrapped for the python model.
+ * 
+ * @author Fabio
+ *
+ * @param <X>
+ */
 public class WrappedResource<X extends IResource> implements IWrappedResource, IContributorResourceAdapter, IAdaptable{
 
 	protected IWrappedResource parentElement;
@@ -48,7 +54,16 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
             IWrappedResource w = (IWrappedResource) other;
             return this.actualObject.equals(w.getActualObject());
         }
-        return actualObject.equals(other);
+        return false;
+        
+//now returns always false because it could generate null things in the search page... the reason is that when the
+//decorator manager had an update and passed in the search page, it thought that a file/folder was the python file/folder,
+//and then, later when it tried to update it with that info, it ended up removing the element because it didn't know how
+//to handle it.
+//
+// -- and this was also not a correct equals, because other.equals(this) would not return true as this was returning
+// (basically we can't compare apples to oranges)
+//        return actualObject.equals(other);
     }
 
     @Override
@@ -56,6 +71,7 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
         return this.getActualObject().hashCode();
     }
     
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if(adapter == IContributorResourceAdapter.class){
             return this;

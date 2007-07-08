@@ -55,6 +55,9 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
      */
     @SuppressWarnings("unchecked")
     public void getPipelinedChildren(Object parent, Set currentElements) {
+        if(DEBUG){
+            System.out.println("getPipelinedChildren");
+        }
         Object[] children = getChildren(parent);
         currentElements.clear();
         currentElements.addAll(Arrays.asList(children));
@@ -68,6 +71,9 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
      */
     @SuppressWarnings("unchecked")
     public void getPipelinedElements(Object input, Set currentElements) {
+        if(DEBUG){
+            System.out.println("getPipelinedElements");
+        }
         Object[] children = getElements(input);
         currentElements.clear();
         currentElements.addAll(Arrays.asList(children));
@@ -80,6 +86,9 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
      * @see org.eclipse.ui.navigator.IPipelinedTreeContentProvider#getPipelinedParent(java.lang.Object, java.lang.Object)
      */
     public Object getPipelinedParent(Object object, Object aSuggestedParent) {
+        if(DEBUG){
+            System.out.println("getPipelinedParent");
+        }
         return getParent(object);
     }
 
@@ -90,22 +99,62 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
      * @see org.eclipse.ui.navigator.IPipelinedTreeContentProvider#interceptAdd(org.eclipse.ui.navigator.PipelinedShapeModification)
      */
     public PipelinedShapeModification interceptAdd(PipelinedShapeModification addModification) {
+        if(DEBUG){
+            System.out.println("interceptAdd");
+        }
         convertToPythonElementsAddOrRemove(addModification, true);
         return addModification;
     }
     
 
     public boolean interceptRefresh(PipelinedViewerUpdate refreshSynchronization) {
+        if(DEBUG){
+            System.out.println("interceptRefresh");
+        }
         return convertToPythonElementsUpdateOrRefresh(refreshSynchronization.getRefreshTargets());
     }
 
     public PipelinedShapeModification interceptRemove(PipelinedShapeModification removeModification) {
+        if(DEBUG){
+            System.out.println("interceptRemove");
+        }
         convertToPythonElementsAddOrRemove(removeModification, false);
         return removeModification;
     }
 
     public boolean interceptUpdate(PipelinedViewerUpdate updateSynchronization) {
-        return convertToPythonElementsUpdateOrRefresh(updateSynchronization.getRefreshTargets());
+        if(DEBUG){
+            debug("Before interceptUpdate", updateSynchronization);
+        }
+        boolean ret = convertToPythonElementsUpdateOrRefresh(updateSynchronization.getRefreshTargets());
+        if(DEBUG){
+            debug("After interceptUpdate", updateSynchronization);
+        }
+        return ret;
+    }
+
+    /**
+     * Helper for debugging the things we have in an update
+     */
+    private void debug(String desc, PipelinedViewerUpdate updateSynchronization) {
+        System.out.println("\nDesc:"+desc);
+        System.out.println("Refresh targets:");
+        for(Object o:updateSynchronization.getRefreshTargets()){
+            System.out.println(o);
+        }
+    }
+    
+    /**
+     * Helper for debugging the things we have in a modification
+     */
+    private void debug(String desc, PipelinedShapeModification modification) {
+        System.out.println("\nDesc:"+desc);
+        Object parent = modification.getParent();
+        System.out.println("Parent:"+parent);
+        System.out.println("Children:");
+        for(Object o:modification.getChildren()){
+            System.out.println(o);
+        }
     }
 
     public void init(ICommonContentExtensionSite aConfig) {
@@ -124,19 +173,6 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
      */
     public void saveState(IMemento memento) {
     	new PyPackageStateSaver(this, viewer, memento).saveState();
-    }
-
-    /**
-     * Helper for debugging the things we have in a modification
-     */
-    private void debug(String desc, PipelinedShapeModification modification) {
-        System.out.println("\nDesc:"+desc);
-        Object parent = modification.getParent();
-        System.out.println("Parent:"+parent);
-        System.out.println("Children:");
-        for(Object o:modification.getChildren()){
-            System.out.println(o);
-        }
     }
 
     /**
@@ -322,6 +358,14 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         return false;
     }
 
+    /**
+     * This method tries to wrap a given resource as a wrapped resource (if possible)
+     * 
+     * @param parent the parent of the wrapped resource
+     * @param pythonSourceFolder the source folder that contains this resource
+     * @param child the object that should be wrapped
+     * @return the object as an object from the python model
+     */
     @SuppressWarnings("unchecked")
     protected IWrappedResource doWrap(Object parent, PythonSourceFolder pythonSourceFolder, Object child) {
         if (child instanceof IProject){
@@ -366,6 +410,12 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         return null;
     }
 
+    
+    /**
+     * This method checks if the given folder can be wrapped as a source-folder, and if that's possible, creates and returns
+     * it
+     * @return a created source folder or null if it couldn't be created.
+     */
     private PythonSourceFolder tryWrapSourceFolder(Object parent, IFolder folder, Set<String> sourcePathSet) {
         IPath fullPath = folder.getFullPath();
         if(sourcePathSet.contains(fullPath.toString())){
