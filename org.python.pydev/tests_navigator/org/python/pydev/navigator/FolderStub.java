@@ -284,8 +284,7 @@ public class FolderStub implements IFolder{
     }
 
     public IPath getLocation() {
-        throw new RuntimeException("Not impl");
-        
+        return Path.fromOSString(REF.getFileAbsolutePath(this.folder));
     }
 
     public URI getLocationURI() {
