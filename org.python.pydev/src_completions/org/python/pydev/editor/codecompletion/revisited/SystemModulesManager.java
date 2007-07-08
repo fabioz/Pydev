@@ -28,7 +28,11 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
  */
 public class SystemModulesManager extends ModulesManager implements ISystemModulesManager{
 
-    private static final long serialVersionUID = 3L;
+    /**
+     * Version changed from 1.3.6 to 1.3.7 to force it to be reconstructed (because it was not being correctly saved).
+     */
+    private static final long serialVersionUID = 4L;
+    
     /**
      * The system modules manager may have a nature if we create a SystemASTManager
      */

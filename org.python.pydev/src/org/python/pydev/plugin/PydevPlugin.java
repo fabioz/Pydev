@@ -106,13 +106,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         return getPythonInterpreterManager(false);
     }
     public static IInterpreterManager getPythonInterpreterManager(boolean haltOnStub) {
-    	while(haltOnStub && pythonInterpreterManager instanceof StubInterpreterManager){ //this happens during initialization
-    		try {
-    			Thread.sleep(100);
-    		} catch (Exception e) {
-    			//e.printStackTrace();
-    		}
-    	}
     	return pythonInterpreterManager;
     }
 
@@ -127,13 +120,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     	return getJythonInterpreterManager(false);
     }
     public static IInterpreterManager getJythonInterpreterManager(boolean haltOnStub) {
-    	while(haltOnStub && jythonInterpreterManager instanceof StubInterpreterManager){ //this happens during initialization
-			try {
-				Thread.sleep(100);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-    	}
         return jythonInterpreterManager;
     }
     // ----------------- END SINGLETON THINGS --------------------------
@@ -229,18 +215,10 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
     
     public static boolean isPythonInterpreterInitialized() {
-    	IInterpreterManager pythonInterpreterManager2 = getPythonInterpreterManager();
-    	if(pythonInterpreterManager2 instanceof StubInterpreterManager){
-    		return false;
-    	}
     	return true;
 	}
     
     public static boolean isJythonInterpreterInitialized() {
-    	IInterpreterManager jythonInterpreterManager2 = getJythonInterpreterManager();
-    	if(jythonInterpreterManager2 instanceof StubInterpreterManager){
-    		return false;
-    	}
     	return true;
     }
     
@@ -1035,7 +1013,10 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         return fullPath;
     }
     
-    public static void writeToPlatformFile(Object obj, String fileName) {
+    /**
+     * Writes to the workspace a given object (in the given filename)
+     */
+    public static void writeToWorkspaceMetadata(Object obj, String fileName) {
         Bundle bundle = Platform.getBundle("org.python.pydev");
         IPath path = Platform.getStateLocation( bundle );       
         path = path.addTrailingSeparator();
@@ -1050,7 +1031,10 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         }               
     }
 
-    public static Object readFromPlatformFile(String fileName) {
+    /**
+     * Loads from the workspace metadata a given object (given the filename)
+     */
+    public static Object readFromWorkspaceMetadata(String fileName) {
         Bundle bundle = Platform.getBundle("org.python.pydev");
         IPath path = Platform.getStateLocation( bundle );       
         path = path.addTrailingSeparator();

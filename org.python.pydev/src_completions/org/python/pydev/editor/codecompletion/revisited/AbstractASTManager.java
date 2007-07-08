@@ -530,13 +530,52 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 	                }
                 }
 
-                if(lookForArgumentCompletion){
+                if(lookForArgumentCompletion && localScope != null){
+                    
+                    //now, if we have to look for arguments and search things in the local scope, let's also
+                    //check for assert (isinstance...) in this scope with the given variable.
+                    {
+                        List<String> lookForClass = localScope.getPossibleClassesForActivationToken(state.getActivationToken());
+                        if(lookForClass.size() > 0){
+                            HashSet<IToken> hashSet = new HashSet<IToken>();
+                            
+                            //if found here, it's an instanced variable (force it and restore if we didn't find it here...)
+                            ICompletionState stateCopy = state.getCopy();
+                            int prevLookingFor = stateCopy.getLookingFor();
+                            //force looking for instance
+                            stateCopy.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE, true);
+                            
+                            for(String classFound: lookForClass){
+                                stateCopy.setLocalImportsGotten(false);
+                                stateCopy.setActivationToken(classFound);
+                                
+                                //same thing as the initial request, but with the class we could find...
+                                tokens = getCompletionsForModule(module, stateCopy, searchSameLevelMods, lookForArgumentCompletion);
+                                if(tokens != null){
+                                    for(IToken tok:tokens){
+                                        hashSet.add(tok);
+                                    }
+                                }
+                            }
+                            if(hashSet.size() > 0){
+                                return hashSet.toArray(EMPTY_ITOKEN_ARRAY);
+                            }
+                            
+                            //force looking for what was set before...
+                            stateCopy.setLookingFor(prevLookingFor, true);
+                        }
+                    }
+                    
+                    
+                    //ok, didn't find in assert isinstance... keep going
+                    //if there was no assert for the class, get from extensions / local scope interface
                     tokens = getArgsCompletion(state, localScope);
                     if(tokens != null && tokens.length > 0){
                         return tokens;
                     }
                 }
                 
+                //nothing worked so far, so, let's look for an assignment...
                 return getAssignAnalysis().getAssignCompletions(this, module, state).toArray(EMPTY_ITOKEN_ARRAY);
             }
 
@@ -560,21 +599,19 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      */
     @SuppressWarnings("unchecked")
     private IToken[] getArgsCompletion(ICompletionState state, ILocalScope localScope) {
-        if (localScope != null){
-            IToken[] args = localScope.getLocalTokens(-1,-1,true); //only to get the args
-            String activationToken = state.getActivationToken();
-            String firstPart = FullRepIterable.getFirstPart(activationToken);
-            for (IToken token : args) {
-                if(token.getRepresentation().equals(firstPart)){
-                    Collection<IToken> interfaceForLocal = localScope.getInterfaceForLocal(state.getActivationToken());
-                    Collection argsCompletionFromParticipants = getArgsCompletionFromParticipants(state, localScope, interfaceForLocal);
-                    for (IToken t : interfaceForLocal) {
-                        if(!t.getRepresentation().equals(state.getQualifier())){
-                            argsCompletionFromParticipants.add(t);
-                        }
+        IToken[] args = localScope.getLocalTokens(-1,-1,true); //only to get the args
+        String activationToken = state.getActivationToken();
+        String firstPart = FullRepIterable.getFirstPart(activationToken);
+        for (IToken token : args) {
+            if(token.getRepresentation().equals(firstPart)){
+                Collection<IToken> interfaceForLocal = localScope.getInterfaceForLocal(state.getActivationToken());
+                Collection argsCompletionFromParticipants = getArgsCompletionFromParticipants(state, localScope, interfaceForLocal);
+                for (IToken t : interfaceForLocal) {
+                    if(!t.getRepresentation().equals(state.getQualifier())){
+                        argsCompletionFromParticipants.add(t);
                     }
-                    return (IToken[]) argsCompletionFromParticipants.toArray(EMPTY_ITOKEN_ARRAY);
                 }
+                return (IToken[]) argsCompletionFromParticipants.toArray(EMPTY_ITOKEN_ARRAY);
             }
         }
         return null;

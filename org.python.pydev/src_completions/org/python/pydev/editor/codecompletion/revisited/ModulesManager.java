@@ -42,6 +42,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 public abstract class ModulesManager implements IModulesManager, Serializable {
     
     private final static boolean DEBUG_BUILD = false;
+    private final static boolean DEBUG_IO = false;
 
     public ModulesManager(){
 	}
@@ -144,7 +145,12 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     	
         files = new HashSet<File>();
         aStream.defaultReadObject();
-        Set set = (Set) aStream.readObject();
+        Set<ModulesKey> set = (Set<ModulesKey>) aStream.readObject();
+        if(DEBUG_IO){
+            for (ModulesKey key : set) {
+                System.out.println("Read:"+key);
+            }
+        }
         for (Iterator iter = set.iterator(); iter.hasNext();) {
             ModulesKey key = (ModulesKey) iter.next();
             //restore with empty modules.
@@ -163,7 +169,13 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     	synchronized (modulesKeys) {
 	        aStream.defaultWriteObject();
 	        //write only the keys
-	        aStream.writeObject(new HashSet<ModulesKey>(modulesKeys.keySet()));
+	        HashSet<ModulesKey> set = new HashSet<ModulesKey>(modulesKeys.keySet());
+	        if(DEBUG_IO){
+	            for (ModulesKey key : set) {
+	                System.out.println("Write:"+key);
+	            }
+	        }
+            aStream.writeObject(set);
     	}
     }
 

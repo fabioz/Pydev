@@ -44,6 +44,7 @@ public interface ILocalScope {
      * @return the scope stack with simple nodes
      * @note SimpleNode is not declared because we only have it in the parser (and not in the local scope)
      */
+    @SuppressWarnings("unchecked")
     public FastStack /*<SimpleNode>*/ getScopeStack();
 
     /**
@@ -60,6 +61,7 @@ public interface ILocalScope {
     /**
      * @return Iterator for the nodes in the scope (starting with the last to the first -- or from the inner to the outer)
      */
+    @SuppressWarnings("unchecked")
     public Iterator /*<SimpleNode>*/ iterator();
 
     /**
@@ -74,4 +76,13 @@ public interface ILocalScope {
     public void setIfMainLine(int original);
 
     public void setScopeEndLine(int beginLine);
+
+    /**
+     * @param activationToken the activation token we're looking for.
+     * 
+     * @return a list of Strings with the new activation token that we should look for instead of the old activation token
+     * if we're able to find an assert isinstance(xxx, SomeClass) -- which in this case would return SomeClass.
+     * Or null if it's not able to find such a statement.
+     */
+    public List<String> getPossibleClassesForActivationToken(String activationToken);
 }

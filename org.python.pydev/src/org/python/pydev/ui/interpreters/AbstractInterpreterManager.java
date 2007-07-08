@@ -321,10 +321,10 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 	                //and at last, restore the system info
 		            for (final InterpreterInfo info: list) {
 		                try {
-	                        SystemModulesManager systemModulesManager = (SystemModulesManager) PydevPlugin.readFromPlatformFile(info.getExeAsFileSystemValidPath());
+	                        SystemModulesManager systemModulesManager = (SystemModulesManager) PydevPlugin.readFromWorkspaceMetadata(info.getExeAsFileSystemValidPath());
                             info.setModulesManager(systemModulesManager);
 	                    } catch (Exception e) {
-	                        PydevPlugin.logInfo(e);
+	                        //PydevPlugin.logInfo(e); -- don't log it, that should be 'standard' (something changed in the way we store it).
 	                    	
 	                    	//if it does not work it (probably) means that the internal storage format changed among versions,
 	                        //so, we have to recreate that info.
@@ -337,13 +337,13 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 			                        dialog.setBlockOnOpen(false);
 			                        try {
 										dialog.run(false, false, new IRunnableWithProgress(){
-	
+
 											public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 												monitor.beginTask("Updating the interpreter info (internal storage format changed).", 100);
 												//ok, maybe its file-format changed... let's re-create it then.
 												info.restorePythonpath(monitor);
                                                 //after restoring it, let's save it.
-                                                PydevPlugin.writeToPlatformFile(info.getModulesManager(), info.getExeAsFileSystemValidPath());
+                                                PydevPlugin.writeToWorkspaceMetadata(info.getModulesManager(), info.getExeAsFileSystemValidPath());
 												monitor.done();
 											}}
 										);
@@ -379,7 +379,6 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         for (String exe : executables) {
             InterpreterInfo info = this.exeToInfo.get(exe);
             if(info!=null){
-                PydevPlugin.writeToPlatformFile(info.getModulesManager(), info.getExeAsFileSystemValidPath());
                 buf.append(info.toString());
                 buf.append("&&&&&");
             }
@@ -400,6 +399,17 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     	persistedString = s;
     	prefs.setValue(getPreferenceName(), s);
     }
+    
+    /**
+     * This method persists all the modules managers that are within this interpreter manager
+     * (so, all the SystemModulesManagers will be saved -- and can be later restored).
+     */
+    public void saveInterpretersInfoModulesManager() {
+        for(InterpreterInfo info : this.exeToInfo.values()){
+            PydevPlugin.writeToWorkspaceMetadata(info.getModulesManager(), info.getExeAsFileSystemValidPath());
+        }
+    }
+
 
     /**
      * @return whether this interpreter manager can be used to get info on the specified nature

@@ -423,7 +423,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                 }
                 List<IToken> classToks = getClassToks(initialState, manager, ast);
                 if(classToks.size() == 0){
-                    if(initialState.isLookingFor() == ICompletionState.LOOKING_FOR_ASSIGN){
+                    if(initialState.getLookingFor() == ICompletionState.LOOKING_FOR_ASSIGN){
                         continue;
                     }
                     //otherwise, return it empty anyway...

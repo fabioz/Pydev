@@ -18,9 +18,13 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
@@ -78,12 +82,13 @@ public class LocalScope implements ILocalScope {
      * @return if the scope passed as a parameter starts with the same scope we have here. It should not be
      * called if the size of the scope we're checking is bigger than the size of 'this' scope. 
      */
+    @SuppressWarnings("unchecked")
     private boolean checkIfScopesMatch(ILocalScope s) {
-        Iterator otIt = s.getScopeStack().iterator();
+        Iterator<SimpleNode> otIt = s.getScopeStack().iterator();
         
-        for (Iterator iter = this.scope.iterator(); iter.hasNext();) {
-            SimpleNode element = (SimpleNode) iter.next();
-            SimpleNode otElement = (SimpleNode) otIt.next();
+        for (Iterator<SimpleNode> iter = this.scope.iterator(); iter.hasNext();) {
+            SimpleNode element = iter.next();
+            SimpleNode otElement = otIt.next();
             
             if(element.beginColumn != otElement.beginColumn)
                 return false;
@@ -122,8 +127,8 @@ public class LocalScope implements ILocalScope {
     public IToken[] getLocalTokens(int endLine, int col, boolean onlyArgs){
         Set<SourceToken> comps = new HashSet<SourceToken>();
         
-        for (Iterator iter = this.scope.iterator(); iter.hasNext();) {
-            SimpleNode element = (SimpleNode) iter.next();
+        for (Iterator<SimpleNode> iter = this.scope.iterator(); iter.hasNext();) {
+            SimpleNode element = iter.next();
             
             if (element instanceof FunctionDef) {
                 FunctionDef f = (FunctionDef) element;
@@ -138,8 +143,8 @@ public class LocalScope implements ILocalScope {
                     for (int i = 0; i < f.body.length; i++) {
 		                GlobalModelVisitor visitor = new GlobalModelVisitor(GlobalModelVisitor.GLOBAL_TOKENS, "");
                         f.body[i].accept(visitor);
-                        List t = visitor.tokens;
-                        for (Iterator iterator = t.iterator(); iterator.hasNext();) {
+                        List<IToken> t = visitor.tokens;
+                        for (Iterator<IToken> iterator = t.iterator(); iterator.hasNext();) {
                             SourceToken tok = (SourceToken) iterator.next();
                             
                             //if it is found here, it is a local type
@@ -173,7 +178,10 @@ public class LocalScope implements ILocalScope {
         Set<SourceToken> comps = new HashSet<SourceToken>();
 
         Iterator<SimpleNode> it = this.scope.topDownIterator();
-        if(it.hasNext());
+        if(!it.hasNext()){
+            return new ArrayList<IToken>();
+        }
+        
         SimpleNode element = it.next();
         
         String dottedActTok = activationToken+'.';
@@ -198,8 +206,8 @@ public class LocalScope implements ILocalScope {
      */
     public List<IToken> getLocalImportedModules(int line, int col, String moduleName) {
         ArrayList<IToken> importedModules = new ArrayList<IToken>();
-        for (Iterator iter = this.scope.iterator(); iter.hasNext();) {
-            SimpleNode element = (SimpleNode) iter.next();
+        for (Iterator<SimpleNode> iter = this.scope.iterator(); iter.hasNext();) {
+            SimpleNode element = iter.next();
             
             if (element instanceof FunctionDef) {
                 FunctionDef f = (FunctionDef) element;
@@ -235,6 +243,7 @@ public class LocalScope implements ILocalScope {
 		return false;
 	}
 
+    @SuppressWarnings("unchecked")
     public Iterator iterator() {
         return scope.topDownIterator();
     }
@@ -253,6 +262,57 @@ public class LocalScope implements ILocalScope {
 
     public void setScopeEndLine(int beginLine) {
         this.scopeEndLine = beginLine;
+    }
+
+    /**
+     * @see {@link ILocalScope#getPossibleClassesForActivationToken(String)}
+     */
+    public List<String> getPossibleClassesForActivationToken(String actTok) {
+        ArrayList<String> ret = new ArrayList<String>();
+
+        Iterator<SimpleNode> it = this.scope.topDownIterator();
+        if(!it.hasNext()){
+            return ret;
+        }
+        SimpleNode element = it.next();
+        
+        //ok, that's the scope we have to analyze
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(element);
+        Iterator<ASTEntry> iterator = visitor.getIterator(Assert.class);
+        
+        while(iterator.hasNext()){
+            ASTEntry entry = iterator.next();
+            Assert ass = (Assert) entry.node;
+            if(ass.test instanceof Call){
+                Call call = (Call) ass.test;
+                String rep = NodeUtils.getFullRepresentationString(call.func);
+                if(rep != null && rep.equals("isinstance")){
+                    if(call.args != null && call.args.length == 2){
+                        rep = NodeUtils.getFullRepresentationString(call.args[0]);
+                        if(rep != null && rep.equals(actTok)){
+                            exprType type = call.args[1];
+                            
+                            if(type instanceof Tuple){
+                                Tuple tuple = (Tuple) type;
+                                for(exprType expr : tuple.elts){
+                                    String string = NodeUtils.getFullRepresentationString(expr);
+                                    if(string != null){
+                                        ret.add(string);
+                                    }
+                                }
+                            }else{
+                                String string = NodeUtils.getFullRepresentationString(type);
+                                if(string != null){
+                                    ret.add(string);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+            }
+        }
+        return ret;
     }
 
 

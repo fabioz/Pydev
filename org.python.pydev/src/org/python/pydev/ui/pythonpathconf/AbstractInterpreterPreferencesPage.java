@@ -87,13 +87,19 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
     public boolean performOk() {
         //IMPORTANT: we must call the perform before restoring the modules because this
         //info is going to be used when restoring them.
-        boolean ret = super.performOk();
+        super.performOk();
+        
         if(hasChanged()){
             restoreModules();
         }
+        
+        //When we call performOk, the editor is going to store its values, but after actually restoring the modules, we
+        //need to serialize the SystemModulesManager to be used when reloading the PydevPlugin
+        this.getInterpreterManager().saveInterpretersInfoModulesManager();
+        
         changed = false;
         setEditorUnchanged();
-        return ret;
+        return true;
     }
 
     /**

@@ -294,13 +294,17 @@ public class CompletionState implements ICompletionState {
     }
 
     public void setLookingFor(int b) {
-        //the 1st is the one that counts
-        if(this.lookingForInstance == ICompletionState.LOOKING_FOR_INSTANCE_UNDEFINED){
+        this.setLookingFor(b, false);
+    }
+    
+    public void setLookingFor(int b, boolean force) {
+        //the 1st is the one that counts (or it can be forced)
+        if(this.lookingForInstance == ICompletionState.LOOKING_FOR_INSTANCE_UNDEFINED || force){
             this.lookingForInstance = b;
         }
     }
 
-    public int isLookingFor() {
+    public int getLookingFor() {
         return this.lookingForInstance;
     }
 

@@ -79,13 +79,18 @@ public interface ICompletionState {
      * Identifies if we should be looking for an instance (in which case, self should not
      * be added to the parameters -- otherwise, it should)
      */
-    void setLookingFor(int b);
+    void setLookingFor(int lookingFor);
+    
+    /**
+     * Used so that we can force it...
+     */
+    void setLookingFor(int lookingFor, boolean force);
 
     ICompletionState getCopyWithActTok(String value);
 
     String getQualifier();
 
-    int isLookingFor();
+    int getLookingFor();
 
     void setIsInCalltip(boolean isInCalltip);
 
@@ -107,5 +112,6 @@ public interface ICompletionState {
      * May be null
      */
     public List<IToken> getTokenImportedModules();
+
 
 }

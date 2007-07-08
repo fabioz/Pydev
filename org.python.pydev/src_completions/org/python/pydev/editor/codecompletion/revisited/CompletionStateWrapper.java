@@ -16,19 +16,31 @@ public class CompletionStateWrapper implements ICompletionState {
     public CompletionStateWrapper(CompletionState state) {
         this.wrapped = state;
         this.activationToken = state.activationToken;
+        this.localImportsGotten = state.getLocalImportsGotten();
     }
     
     //things that are not delegated ------------------------------------------------------------------------------------
     private String activationToken;
     private int col = -1;
     private int line = -1;
+    private boolean localImportsGotten;
     
     public String getActivationToken() {
         return activationToken;
     }
+    
     public void setActivationToken(String string) {
         activationToken = string;
     }
+    
+    public boolean getLocalImportsGotten() {
+        return localImportsGotten;
+    }
+    
+    public void setLocalImportsGotten(boolean b) {
+        localImportsGotten = b;
+    }
+    
     public int getCol() {
         return col;
     }
@@ -42,6 +54,8 @@ public class CompletionStateWrapper implements ICompletionState {
         line = i;
     }
 
+
+    
 
     
     //delegated --------------------------------------------------------------------------------------------------------
@@ -99,10 +113,6 @@ public class CompletionStateWrapper implements ICompletionState {
     }
 
 
-    public boolean getLocalImportsGotten() {
-        return wrapped.getLocalImportsGotten();
-    }
-
     public IPythonNature getNature() {
         return wrapped.getNature();
     }
@@ -111,8 +121,8 @@ public class CompletionStateWrapper implements ICompletionState {
         return wrapped.getQualifier();
     }
 
-    public int isLookingFor() {
-        return wrapped.isLookingFor();
+    public int getLookingFor() {
+        return wrapped.getLookingFor();
     }
 
     public void raiseNFindTokensOnImportedModsCalled(IModule mod, String tok) throws CompletionRecursionException {
@@ -128,13 +138,12 @@ public class CompletionStateWrapper implements ICompletionState {
         wrapped.setIsInCalltip(isInCalltip);
     }
 
-
-    public void setLocalImportsGotten(boolean b) {
-        wrapped.setLocalImportsGotten(b);
-    }
-
     public void setLookingFor(int b) {
         wrapped.setLookingFor(b);
+    }
+    
+    public void setLookingFor(int b, boolean force) {
+        wrapped.setLookingFor(b, force);
     }
     
     public void popFindResolveImportMemoryCtx() {

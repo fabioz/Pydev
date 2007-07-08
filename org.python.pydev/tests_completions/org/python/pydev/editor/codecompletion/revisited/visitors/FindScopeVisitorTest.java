@@ -4,21 +4,50 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
+import java.util.List;
+
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 
 public class FindScopeVisitorTest extends PyParserTestBase {
-
-    protected void setUp() throws Exception {
-        super.setUp();
+    
+    public static void main(String[] args) {
+        try{
+            FindScopeVisitorTest test = new FindScopeVisitorTest();
+            test.setUp();
+            test.testFindAssertInLocalScope2();
+            test.tearDown();
+            junit.textui.TestRunner.run(FindScopeVisitorTest.class);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    /**
+     * This method tries to find a local scope given some code, the current line and col
+     * 
+     * @param s the code
+     * @param line starts at 1
+     * @param col starts at 1
+     * @return the local scope found
+     */
+    private ILocalScope findLocalScope(String s, int line, int col) {
+        SimpleNode ast = parseLegalDocStr(s);
+        FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
+        if (ast != null){
+            try {
+                ast.accept(scopeVisitor);
+            } catch (Exception e) {
+                PydevPlugin.log(e);
+            }
+        }
+        ILocalScope localScope = scopeVisitor.scope;
+        return localScope;
     }
-
-    public void testIt() throws Exception {
+    
+    public void testFindLocalScope() throws Exception {
         String s = "" +
                 "#file mod3.py \n" + //line = 1 (in ast)
                 "class SomeA(object):\n" +
@@ -33,16 +62,35 @@ public class FindScopeVisitorTest extends PyParserTestBase {
                 "    \n" +
                 "\n" +
                 "";
-        SimpleNode ast = parseLegalDocStr(s);
-        FindScopeVisitor scopeVisitor = new FindScopeVisitor(8, 3);
-        if (ast != null){
-            try {
-                ast.accept(scopeVisitor);
-            } catch (Exception e) {
-                PydevPlugin.log(e);
-            }
-        }
-        assertTrue(scopeVisitor.scope.getClassDef() != null);
+        ILocalScope localScope = findLocalScope(s, 8, 3);
+        assertTrue(localScope.getClassDef() != null);
+    }
 
+    
+ 
+    public void testFindAssertInLocalScope() throws Exception {
+        String s = 
+                "def m1(a):\n" +
+        		"    assert isinstance(a, str)\n" +
+        		"    ";
+        
+        ILocalScope localScope = findLocalScope(s, 2, 1);
+        List<String> found = localScope.getPossibleClassesForActivationToken("a");
+        assertEquals(1, found.size());
+        assertEquals("str", found.get(0));
+    }
+    
+    
+    public void testFindAssertInLocalScope2() throws Exception {
+        String s = 
+            "def m1(a):\n" +
+            "    assert isinstance(a, (list, tuple))\n" +
+            "    ";
+        
+        ILocalScope localScope = findLocalScope(s, 2, 1);
+        List<String> found = localScope.getPossibleClassesForActivationToken("a");
+        assertEquals(2, found.size());
+        assertEquals("list", found.get(0));
+        assertEquals("tuple", found.get(1));
     }
 }

@@ -49,7 +49,7 @@ public class HeuristicFindAttrs extends AbstractVisitor {
         this.methodCall = methodCall;
         this.moduleName = moduleName;
         if(state != null){
-            if(state.isLookingFor() == ICompletionState.LOOKING_FOR_CLASSMETHOD_VARIABLE){
+            if(state.getLookingFor() == ICompletionState.LOOKING_FOR_CLASSMETHOD_VARIABLE){
                 this.discoverSelfAttrs = false;
             }
         }

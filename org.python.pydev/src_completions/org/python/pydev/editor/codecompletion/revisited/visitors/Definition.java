@@ -5,7 +5,7 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
-import org.eclipse.jface.util.Assert;
+import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
@@ -56,7 +56,7 @@ public class Definition implements IDefinition {
     /**
      * Determines whether this definition was found as a local.
      */
-    private boolean foundAsLocal;
+    public boolean foundAsLocal;
 
     /**
 	 * The line and col are defined starting at 1 (and not 0)

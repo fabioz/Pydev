@@ -748,4 +748,5 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     public boolean hasChanged() {
         return changed;
     }
+
 }

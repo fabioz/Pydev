@@ -38,7 +38,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testShadeClassDeclaration();
+	      test.testAssertDeterminesClass4();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -94,14 +94,68 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 	    requestCompl("from testlib.unittest.testcase.TestCase import  assertBM", new String[]{"assertBMPsNotEqual","assertBMPsEqual"});
     }
     
-	public void testMultilineImportCompletion() throws CoreException, BadLocationException{
+	public void testAssertDeterminesClass() throws CoreException, BadLocationException{
 	    String s = 
-            "from testlib import (\n" +
-            "                     ";
+            "def m1(a):\n" +
+            "    import calendar\n" +
+            "    assert isinstance(a, calendar.Calendar)\n" +
+            "    a.";
         
-        requestCompl(s, new String[]{"__init__", "unittest"});
+        requestCompl(s, s.length(), -1, new String[]{"getfirstweekday()"});
         
     }
+	
+	public void testAssertDeterminesClass2() throws CoreException, BadLocationException{
+	    String s = 
+	        "def m1(a):\n" +
+	        "    import calendar\n" +
+	        "    assert isinstance(a.bar, calendar.Calendar)\n" +
+	        "    a.bar.";
+	    
+	    requestCompl(s, s.length(), -1, new String[]{"getfirstweekday()"});
+	    
+	}
+	
+	public void testAssertDeterminesClass3() throws CoreException, BadLocationException{
+	    String s = 
+	        "class InterfM1:\n" +
+	        "    def m1(self):\n" +
+	        "        pass\n" +
+	        "\n" +
+	        "" +
+	        "def m1(a):\n" +
+	        "    assert isinstance(a, InterfM1)\n" +
+	        "    a.";
+	    
+	    requestCompl(s, s.length(), -1, new String[]{"m1()"});
+	    
+	}
+	
+	public void testAssertDeterminesClass4() throws CoreException, BadLocationException{
+	    String s = 
+	        "class InterfM1:\n" +
+	        "    def m1(self):\n" +
+	        "        pass\n" +
+	        "\n" +
+	        "class InterfM2:\n" +
+	        "    def m2(self):\n" +
+	        "        pass\n" +
+	        "\n" +
+	        "" +
+	        "def m1(a):\n" +
+	        "    assert isinstance(a, (InterfM1, InterfM2))\n" +
+	        "    a.";
+	    
+	    requestCompl(s, s.length(), -1, new String[]{"m1()", "m2()"});
+	    
+	}
+	
+	public void testMultilineImportCompletion() throws CoreException, BadLocationException{
+	    String s = "from testlib import (\n";
+	    
+	    requestCompl(s, new String[]{"__init__", "unittest"});
+	    
+	}
 
     /**
      * @return

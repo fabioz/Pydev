@@ -155,5 +155,10 @@ public interface IInterpreterManager {
 	public void setBuiltinMod(IModule mod);
 
 	public void clearCaches();
+
+	/**
+	 * Saves the system modules managers info so that it can be restored later (it's restored when the plugin is started).
+	 */
+    public void saveInterpretersInfoModulesManager();
     
 }
