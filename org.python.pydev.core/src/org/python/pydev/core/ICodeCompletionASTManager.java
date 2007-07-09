@@ -6,6 +6,7 @@
 package org.python.pydev.core;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
@@ -220,6 +221,21 @@ public interface ICodeCompletionASTManager {
      * @return a list of IToken
      */
     public abstract List getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, ICompletionState state, IModule current);
+    
+    /**
+     * Fills the HashSet passed with completions for the class passed considering the current local scope. 
+     * 
+     * @param module this is the module we're in
+     * @param state the state of the completions 
+     * @param searchSameLevelMods whether we should search imports in the same level (local imports) 
+     * @param lookForArgumentCompletion whether we should look for a calltip completion
+     * @param lookForClass a list of classes that we should look in the local scope to discover tokens
+     * @param hashSet the set that will be filled with the tokens
+     * @throws CompletionRecursionException
+     */
+    public void getCompletionsForClassInLocalScope(IModule module, ICompletionState state, boolean searchSameLevelMods,
+            boolean lookForArgumentCompletion, List<String> lookForClass, HashSet<IToken> hashSet) throws CompletionRecursionException;
+
 
 
     /**
@@ -243,4 +259,5 @@ public interface ICodeCompletionASTManager {
      */
     public IToken resolveImport(ICompletionState state, IToken imported) throws CompletionRecursionException;
 
+    
 }
