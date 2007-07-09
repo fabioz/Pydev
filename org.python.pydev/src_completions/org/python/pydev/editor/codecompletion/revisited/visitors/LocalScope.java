@@ -7,9 +7,11 @@ package org.python.pydev.editor.codecompletion.revisited.visitors;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.python.pydev.core.FullRepIterable;
@@ -23,6 +25,7 @@ import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -265,6 +268,26 @@ public class LocalScope implements ILocalScope {
     }
 
     /**
+     * Constant containing the calls that are checked for implementations.
+     * 
+     * Couldn't find anything similar for pyprotocols.
+     * 
+     * Zope has a different heuristic which is also checked:
+     * assert Interface.implementedBy(foo)
+     * 
+     * maps the method name to check -> index of the class in the call (or negative if class is the caller)
+     * 
+     * TODO: This should be made public to the user...
+     */
+    public static final Map<String, Integer> ISINSTANCE_POSSIBILITIES = new HashMap<String, Integer>();
+    static{
+        ISINSTANCE_POSSIBILITIES.put("isinstance".toLowerCase(), 2);
+        ISINSTANCE_POSSIBILITIES.put("IsImplementation".toLowerCase(), 2);
+        ISINSTANCE_POSSIBILITIES.put("IsInterfaceDeclared".toLowerCase(), 2);
+        ISINSTANCE_POSSIBILITIES.put("implementedBy".toLowerCase(), -1);
+    }
+    
+    /**
      * @see {@link ILocalScope#getPossibleClassesForActivationToken(String)}
      */
     public List<String> getPossibleClassesForActivationToken(String actTok) {
@@ -286,25 +309,32 @@ public class LocalScope implements ILocalScope {
             if(ass.test instanceof Call){
                 Call call = (Call) ass.test;
                 String rep = NodeUtils.getFullRepresentationString(call.func);
-                if(rep != null && rep.equals("isinstance")){
-                    if(call.args != null && call.args.length == 2){
-                        rep = NodeUtils.getFullRepresentationString(call.args[0]);
-                        if(rep != null && rep.equals(actTok)){
-                            exprType type = call.args[1];
-                            
-                            if(type instanceof Tuple){
-                                Tuple tuple = (Tuple) type;
-                                for(exprType expr : tuple.elts){
-                                    String string = NodeUtils.getFullRepresentationString(expr);
-                                    if(string != null){
-                                        ret.add(string);
+                if(rep == null){
+                    continue;
+                }
+                Integer classIndex = ISINSTANCE_POSSIBILITIES.get(FullRepIterable.getLastPart(rep).toLowerCase());
+                if(classIndex != null){
+                    if(call.args != null && (call.args.length >= Math.max(classIndex, 1))){
+                        //in all cases, the instance is the 1st parameter.
+                        String foundActTok = NodeUtils.getFullRepresentationString(call.args[0]);
+                        
+                        if(foundActTok != null && foundActTok.equals(actTok)){
+                            if(classIndex > 0){
+                                exprType type = call.args[classIndex-1];
+                                
+                                if(type instanceof Tuple){
+                                    //case: isinstance(obj, (Class1,Class2))
+                                    Tuple tuple = (Tuple) type;
+                                    for(exprType expr : tuple.elts){
+                                        addRepresentationIfPossible(ret, expr);
                                     }
+                                } else{
+                                    //case: isinstance(obj, Class)
+                                    addRepresentationIfPossible(ret, type);
                                 }
                             }else{
-                                String string = NodeUtils.getFullRepresentationString(type);
-                                if(string != null){
-                                    ret.add(string);
-                                }
+                                //zope case Interface.implementedBy(obj) -> Interface added
+                                ret.add(FullRepIterable.getWithoutLastPart(rep));
                             }
                         }
                     }
@@ -313,6 +343,20 @@ public class LocalScope implements ILocalScope {
             }
         }
         return ret;
+    }
+
+    
+    /**
+     * @param ret the list where the representation should be added
+     * @param expr the Name or Attribute that determines the class that should be added
+     */
+    private void addRepresentationIfPossible(ArrayList<String> ret, exprType expr) {
+        if(expr instanceof Name || expr instanceof Attribute){
+            String string = NodeUtils.getFullRepresentationString(expr);
+            if(string != null){
+                ret.add(string);
+            }
+        }
     }
 
 

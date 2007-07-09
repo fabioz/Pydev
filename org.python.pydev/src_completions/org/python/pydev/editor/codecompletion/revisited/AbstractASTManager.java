@@ -539,30 +539,12 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                         if(lookForClass.size() > 0){
                             HashSet<IToken> hashSet = new HashSet<IToken>();
                             
-                            //if found here, it's an instanced variable (force it and restore if we didn't find it here...)
-                            ICompletionState stateCopy = state.getCopy();
-                            int prevLookingFor = stateCopy.getLookingFor();
-                            //force looking for instance
-                            stateCopy.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE, true);
+                            getCompletionsForClassInLocalScope(module, state, searchSameLevelMods, 
+                                    lookForArgumentCompletion, lookForClass, hashSet);
                             
-                            for(String classFound: lookForClass){
-                                stateCopy.setLocalImportsGotten(false);
-                                stateCopy.setActivationToken(classFound);
-                                
-                                //same thing as the initial request, but with the class we could find...
-                                tokens = getCompletionsForModule(module, stateCopy, searchSameLevelMods, lookForArgumentCompletion);
-                                if(tokens != null){
-                                    for(IToken tok:tokens){
-                                        hashSet.add(tok);
-                                    }
-                                }
-                            }
                             if(hashSet.size() > 0){
                                 return hashSet.toArray(EMPTY_ITOKEN_ARRAY);
                             }
-                            
-                            //force looking for what was set before...
-                            stateCopy.setLookingFor(prevLookingFor, true);
                         }
                     }
                     
@@ -585,6 +567,36 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         }
         
         return EMPTY_ITOKEN_ARRAY;
+    }
+
+    /**
+     * @see ICodeCompletionASTManager#getCompletionsForClassInLocalScope(IModule, ICompletionState, boolean, boolean, List, HashSet)
+     */
+    public void getCompletionsForClassInLocalScope(IModule module, ICompletionState state, boolean searchSameLevelMods,
+            boolean lookForArgumentCompletion, List<String> lookForClass, HashSet<IToken> hashSet) throws CompletionRecursionException {
+        IToken[] tokens;
+        //if found here, it's an instanced variable (force it and restore if we didn't find it here...)
+        ICompletionState stateCopy = state.getCopy();
+        int prevLookingFor = stateCopy.getLookingFor();
+        //force looking for instance
+        stateCopy.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE, true);
+        
+        for(String classFound: lookForClass){
+            stateCopy.setLocalImportsGotten(false);
+            stateCopy.setActivationToken(classFound);
+            
+            //same thing as the initial request, but with the class we could find...
+            tokens = getCompletionsForModule(module, stateCopy, searchSameLevelMods, lookForArgumentCompletion);
+            if(tokens != null){
+                for(IToken tok:tokens){
+                    hashSet.add(tok);
+                }
+            }
+        }
+        if(hashSet.size() == 0){
+            //force looking for what was set before...
+            stateCopy.setLookingFor(prevLookingFor, true);
+        }
     }
 
 

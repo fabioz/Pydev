@@ -9,10 +9,31 @@ TODO: Don't show assignments/imports after if __name__ == '__main__': in outline
 
 
 after 1.3.6
-Bug Fix: Builtins were still not correctly used after specifying interpreter (so, the builtins would not be available in completions/code-analysis).
-Mylyn integration created
-Option 'Open With Pydev' does not appear for containers anymore.
-assert isinstance() can be used to determine type of local variable.
+<ul>
+<strong>Bug Fix</strong>: Builtins were not correctly used after specifying interpreter (so, the builtins and other system libraries would not be available in completions/code-analysis).
+<strong>Mylyn integration</strong>.
+<strong>Open With Pydev</strong>: does not appear for containers anymore.
+<li><strong>Code-completion:</strong> </li>
+<ul>
+	The folowing cases are now considered in code-completion to discover the type of a variable:
+	<ul>
+		<li><strong>Type/Interface checking:</strong> (note that 'assert' is required)</li>
+		<li>assert isinstance(obj, Interface) -- default from python</li>
+		<li>assert Interface.implementedBy(obj) -- zope</li>
+		<li>assert IsImplementation(obj, Interface) -- custom request</li>
+		<li>assert IsInterfaceDeclared(obj, Interface) -- custom request</li>
+	</ul>
+
+	<ul>
+		<li><strong>Factory methods</strong></li>
+		<li>a = adapt(obj, Interface) -- pyprotocols</li>
+		<li>a = obj.GetAdapter(Interface) -- custom request</li>
+		<li>a = obj.get_adapter(Interface) -- custom request</li>
+		<li>a = GetSingleton(Interface) -- custom request</li>
+		<li>a = GetImplementation(Interface) -- custom request</li>
+	</ul>
+
+</ul>
 
 after 1.3.5
 Bug Fix: Builtins were not correctly used after specifying interpreter (so, the builtins would not be available in completions/code-analysis).

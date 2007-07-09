@@ -3,9 +3,13 @@ package org.python.pydev.editor.codecompletion.revisited;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.python.pydev.core.FindInfo;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
@@ -15,6 +19,8 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Return;
@@ -100,6 +106,20 @@ public class AssignAnalysis {
     }
 
 
+    /**
+     * The user should be able to configure that, but let's leave it hard-coded until the next release...
+     * 
+     * Names of methods that will return instance of the passed class -> index of class parameter.
+     */
+    public final static Map<String, Integer> CALLS_FOR_ASSIGN_WITH_RESULTING_CLASS = new HashMap<String,Integer>();
+    static{
+        //method factory that receives parameter with class -> class parameter index
+        CALLS_FOR_ASSIGN_WITH_RESULTING_CLASS.put("adapt".toLowerCase(), 2);
+        CALLS_FOR_ASSIGN_WITH_RESULTING_CLASS.put("GetSingleton".toLowerCase(), 1);
+        CALLS_FOR_ASSIGN_WITH_RESULTING_CLASS.put("GetImplementation".toLowerCase(), 1);
+        CALLS_FOR_ASSIGN_WITH_RESULTING_CLASS.put("GetAdapter".toLowerCase(), 1);
+        CALLS_FOR_ASSIGN_WITH_RESULTING_CLASS.put("get_adapter".toLowerCase(), 1);
+    }
 
     /**
      * This method will look into the right side of an assign and its definition and will try to gather the tokens for
@@ -108,7 +128,8 @@ public class AssignAnalysis {
      * @param ret the place where the completions should be added
      * @param assignDefinition may be null if it was not actually found as an assign
      */
-    private void addNonFunctionDefCompletionsFromAssign(ICodeCompletionASTManager manager, ICompletionState state, ArrayList<IToken> ret, SourceModule s, Definition definition, AssignDefinition assignDefinition) throws CompletionRecursionException {
+    private void addNonFunctionDefCompletionsFromAssign(ICodeCompletionASTManager manager, ICompletionState state, 
+            ArrayList<IToken> ret, SourceModule sourceModule, Definition definition, AssignDefinition assignDefinition) throws CompletionRecursionException {
         IModule module;
         if(definition.ast instanceof ClassDef){
             state.setLookingFor(ICompletionState.LOOKING_FOR_UNBOUND_VARIABLE);
@@ -117,25 +138,59 @@ public class AssignAnalysis {
             
         }else{
             boolean lookForAssign = true;
-            if(assignDefinition != null && assignDefinition.foundAsGlobal){
-                //it may be declared as a global with a class defined in the local scope
-                IToken[] allLocalTokens = assignDefinition.scope.getAllLocalTokens();
-                for (IToken token : allLocalTokens) {
-                    if(token.getRepresentation().equals(assignDefinition.value)){
-                        if(token instanceof SourceToken){
-                            SourceToken srcToken = (SourceToken) token;
-                            if(srcToken.getAst() instanceof ClassDef){
-                                List<IToken> classToks = ((SourceModule)assignDefinition.module).getClassToks(state, manager, srcToken.getAst());
-                                if(classToks.size() > 0){
-                                    lookForAssign = false;
-                                    ret.addAll(classToks);
-                                    break;
+            
+            //ok, see what we can do about adaptation here... 
+            //pyprotocols does adapt(xxx, Interface), so, knowing the type of the interface can get us to nice results...
+            //the user can usually have other factory methods that do that too. E.g.: GetSingleton(Class) may return an
+            //expected class and so on, so, this should be configured somehow
+            if(assignDefinition != null){
+
+                Assign assign = (Assign) assignDefinition.ast;
+                if(assign.value instanceof Call){
+                    Call call = (Call) assign.value;
+                    String lastPart = FullRepIterable.getLastPart(assignDefinition.value);
+                    Integer parameterIndex = CALLS_FOR_ASSIGN_WITH_RESULTING_CLASS.get(lastPart.toLowerCase());
+                    if(parameterIndex != null && call.args.length >= parameterIndex){
+                        String rep = NodeUtils.getFullRepresentationString(call.args[parameterIndex-1]);
+                        
+                        HashSet<IToken> hashSet = new HashSet<IToken>();
+                        List<String> lookForClass = new ArrayList<String>();
+                        lookForClass.add(rep);
+                        
+                        manager.getCompletionsForClassInLocalScope(sourceModule, state, true, 
+                                false, lookForClass, hashSet);
+                        if(hashSet.size() > 0){
+                            lookForAssign = false;
+                            ret.addAll(hashSet);
+                        }
+                    }
+                }
+                
+                
+                
+                if(lookForAssign && assignDefinition.foundAsGlobal){
+                    //it may be declared as a global with a class defined in the local scope
+                    IToken[] allLocalTokens = assignDefinition.scope.getAllLocalTokens();
+                    for (IToken token : allLocalTokens) {
+                        if(token.getRepresentation().equals(assignDefinition.value)){
+                            if(token instanceof SourceToken){
+                                SourceToken srcToken = (SourceToken) token;
+                                if(srcToken.getAst() instanceof ClassDef){
+                                    List<IToken> classToks = ((SourceModule)assignDefinition.module).getClassToks(state, manager, srcToken.getAst());
+                                    if(classToks.size() > 0){
+                                        lookForAssign = false;
+                                        ret.addAll(classToks);
+                                        break;
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+            
+            
+            
             
             if(lookForAssign){
                 //we might want to extend that later to check the return of some function...

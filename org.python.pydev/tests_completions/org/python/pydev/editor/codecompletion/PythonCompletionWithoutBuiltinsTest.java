@@ -14,6 +14,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ICallback;
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.ImportsSelection;
@@ -38,7 +39,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testAssertDeterminesClass4();
+	      test.testAssertDeterminesClass6();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -93,7 +94,36 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 	    requestCompl("from testlib.unittest.testcase.TestCase import  assertImagesNotE", new String[]{"assertImagesNotEqual"});
 	    requestCompl("from testlib.unittest.testcase.TestCase import  assertBM", new String[]{"assertBMPsNotEqual","assertBMPsEqual"});
     }
+	
+	/**
+	 * This test checks the code-completion for adaptation and factory methods, provided that the 
+	 * class expected is passed as one of the parameters.
+	 * 
+	 * This is done in AssignAnalysis
+	 */
+	public void testProtocolsAdaptation() throws CoreException, BadLocationException{
+	    String s = 
+	        "import protocols\n" +
+	        "class InterfM1(protocols.Interface):\n" +
+	        "    def m1(self):\n" +
+	        "        pass\n" +
+	        " \n" +
+	        "class Bar(object):\n" +
+	        "    protocols.advise(instancesProvide=[InterfM1])\n" +
+	        "if __name__ == '__main__':\n" +
+	        "    a = protocols.adapt(Bar(), InterfM1)\n" +
+	        "    a.";
+	    
+	    requestCompl(s, s.length(), -1, new String[]{"m1()"});
+	}
     
+	/**
+	 * Check if some assert for an instance is enough to get the type of some variable. This should
+	 * be configurable so that the user can do something as assert IsInterfaceDeclared(obj, Class) or 
+	 * AssertImplements(obj, Class), with the assert or not, providing some way for the user to configure that.
+	 * 
+	 * This is done in ILocalScope#getPossibleClassesForActivationToken
+	 */
 	public void testAssertDeterminesClass() throws CoreException, BadLocationException{
 	    String s = 
             "def m1(a):\n" +
@@ -147,6 +177,35 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 	        "    a.";
 	    
 	    requestCompl(s, s.length(), -1, new String[]{"m1()", "m2()"});
+	    
+	}
+	
+	public void testAssertDeterminesClass5() throws CoreException, BadLocationException{
+	    String s = 
+	        "class InterfM1:\n" +
+	        "    def m1(self):\n" +
+	        "        pass\n" +
+	        "\n" +
+	        "" +
+	        "def m1(a):\n" +
+	        "    assert InterfM1.implementedBy(a)\n" +
+	        "    a.";
+	    
+	    requestCompl(s, s.length(), -1, new String[]{"m1()"});
+	    
+	}
+	public void testAssertDeterminesClass6() throws CoreException, BadLocationException{
+	    String s = 
+	        "class InterfM1:\n" +
+	        "    def m1(self):\n" +
+	        "        pass\n" +
+	        "\n" +
+	        "" +
+	        "def m1(a):\n" +
+	        "    assert InterfM1.implementedBy()\n" + //should give no error
+	        "    a.";
+	    
+	    requestCompl(s, s.length(), -1, new String[]{});
 	    
 	}
 	
