@@ -39,7 +39,7 @@ public class PyPackageStateSaver {
 
 	public void restoreState() {
         try{
-            if(!(viewer instanceof PydevCommonViewer)){
+            if(!(viewer instanceof PydevCommonViewer) || memento == null){
                 //we have to check that because we can be asked to restore things in the ProjectExplorer too, and not
                 //only in the pydev package explorer -- and in this case, the method: getTreePathFromItem(Item item) is
                 //not be overridden and can cause the method to fail.

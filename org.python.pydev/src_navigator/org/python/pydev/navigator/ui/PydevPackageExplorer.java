@@ -36,6 +36,7 @@ import org.eclipse.ui.part.ShowInContext;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.PythonFile;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * This class is the package explorer for pydev. It uses the CNF (Common Navigator Framework) to show
@@ -111,8 +112,13 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
 				//this can probably be removed once that's fixed.
 				//TODO: Check once eclipse 3.3.1 is released.
 				((NavigatorContentService)aViewer.getNavigatorContentService()).findContentExtensionsByTriggerPoint(projects[0]);
+				for (IProject project : projects) {
+                    if(PythonNature.getPythonNature(project) != null){
+                        ((NavigatorContentService)aViewer.getNavigatorContentService()).findContentExtensionsByTriggerPoint(project);
+                    }
+                }
 			}
-		} catch (RuntimeException e) {
+		} catch (Exception e) {
 			PydevPlugin.log(e);
 		}
 		return aViewer;
