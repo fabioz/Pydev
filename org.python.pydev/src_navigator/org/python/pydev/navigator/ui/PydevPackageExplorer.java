@@ -4,14 +4,12 @@
  */
 package org.python.pydev.navigator.ui;
 
+import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.LinkedList;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -36,7 +34,6 @@ import org.eclipse.ui.part.ShowInContext;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.PythonFile;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * This class is the package explorer for pydev. It uses the CNF (Common Navigator Framework) to show
@@ -48,9 +45,16 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
      * This viewer is the one used instead of the common viewer -- should only be used to fix failures in the base class.
      */
 	public static class PydevCommonViewer extends CommonViewer {
+		
+		/**
+		 * This is used so that we only restore the memento in the 'right' place
+		 */
+		public boolean availableToRestoreMemento = false;
+		
 		public PydevCommonViewer(String id, Composite parent, int style) {
 			super(id, parent, style);
 		}
+		
         /**
          * Returns the tree path for the given item.
          * 
@@ -101,26 +105,6 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
 		//commented: we do that only after the part is completely created (because otherwise the state is reverted later)
 		//aViewer.getNavigatorContentService().restoreState(memento);
 		
-		try {
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			IProject[] projects = root.getProjects();
-			if(projects != null && projects.length > 0){
-				//just to initialize it...
-				//see bug https://sourceforge.net/tracker/index.php?func=detail&aid=1747611&group_id=85796&atid=577329 
-				//for details (it's trying to load the extensions while trying to access them, so, this is to initialize
-				//them early).
-				//this can probably be removed once that's fixed.
-				//TODO: Check once eclipse 3.3.1 is released.
-				((NavigatorContentService)aViewer.getNavigatorContentService()).findContentExtensionsByTriggerPoint(projects[0]);
-				for (IProject project : projects) {
-                    if(PythonNature.getPythonNature(project) != null){
-                        ((NavigatorContentService)aViewer.getNavigatorContentService()).findContentExtensionsByTriggerPoint(project);
-                    }
-                }
-			}
-		} catch (Exception e) {
-			PydevPlugin.log(e);
-		}
 		return aViewer;
 	}
 
@@ -130,7 +114,17 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
 	@Override
 	public void createPartControl(Composite aParent) {
 	    super.createPartControl(aParent);
-	    getCommonViewer().getNavigatorContentService().restoreState(memento);
+	    PydevCommonViewer viewer = (PydevCommonViewer) getCommonViewer();
+	    viewer.availableToRestoreMemento = true;
+	    for(int i=0;i<2;i++){
+			try {
+				viewer.getNavigatorContentService().restoreState(memento);
+			} catch (Exception e1) {
+				if(i==1){
+					PydevPlugin.log("Unable to restore the state of the Pydev Package Explorer.", e1);
+				}
+			}
+		}
 	}
 	
 	/**

@@ -14,7 +14,6 @@ import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.swt.widgets.Item;
 import org.eclipse.ui.IMemento;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.ui.PydevPackageExplorer.PydevCommonViewer;
@@ -25,7 +24,7 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PyPackageStateSaver {
 	
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 	
     private PythonModelProvider provider;
 	private Viewer viewer;
@@ -47,6 +46,17 @@ public class PyPackageStateSaver {
             }
             
             PydevCommonViewer treeViewer = (PydevCommonViewer) viewer;
+            
+            //we have to restore it only at the 'right' time... see https://bugs.eclipse.org/bugs/show_bug.cgi?id=195184 for more details
+            if(!treeViewer.availableToRestoreMemento){
+            	if(DEBUG){
+            		System.out.println("Not available for restore");
+            	}
+            	return;
+            }
+            if(DEBUG){
+            	System.out.println("Restoring");
+            }
             
             IMemento[] expanded = memento.getChildren("expanded");
             IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
