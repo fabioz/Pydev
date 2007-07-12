@@ -24,7 +24,7 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PyPackageStateSaver {
 	
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 	
     private PythonModelProvider provider;
 	private Viewer viewer;
@@ -42,6 +42,9 @@ public class PyPackageStateSaver {
                 //we have to check that because we can be asked to restore things in the ProjectExplorer too, and not
                 //only in the pydev package explorer -- and in this case, the method: getTreePathFromItem(Item item) is
                 //not be overridden and can cause the method to fail.
+                if(DEBUG){
+                    System.out.println("Memento == null:"+memento == null);
+                }
                 return;
             }
             
@@ -149,6 +152,7 @@ public class PyPackageStateSaver {
      */
     public void saveState() {
         try{
+
             if(!(viewer instanceof PydevCommonViewer)){
                 //we have to check that because we can be asked to restore things in the ProjectExplorer too, and not
                 //only in the pydev package explorer -- and in this case, the method: getTreePathFromItem(Item item) is
@@ -156,9 +160,16 @@ public class PyPackageStateSaver {
                 return;
             }
             
+            if(DEBUG){
+                System.out.println("saveState");
+            }
+            
             PydevCommonViewer treeViewer = (PydevCommonViewer) viewer;
             TreePath[] expandedTreePaths = treeViewer.getExpandedTreePaths();
             for (TreePath path : expandedTreePaths) {
+                if(DEBUG){
+                    System.out.println("saveState expanded:"+path);
+                }
                 save(path, "expanded");
             }
             
@@ -167,6 +178,9 @@ public class PyPackageStateSaver {
                 ITreeSelection treeSelection = (ITreeSelection) selection;
                 TreePath[] paths = treeSelection.getPaths();
                 for (TreePath path : paths) {
+                    if(DEBUG){
+                        System.out.println("saveState selected:"+path);
+                    }
                     save(path, "selected");
                 }
             }

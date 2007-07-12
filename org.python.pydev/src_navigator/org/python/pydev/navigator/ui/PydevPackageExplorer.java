@@ -4,7 +4,6 @@
  */
 package org.python.pydev.navigator.ui;
 
-import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.LinkedList;
 
@@ -116,11 +115,13 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
 	    super.createPartControl(aParent);
 	    PydevCommonViewer viewer = (PydevCommonViewer) getCommonViewer();
 	    viewer.availableToRestoreMemento = true;
-	    for(int i=0;i<2;i++){
+	    for(int i=0;i<3;i++){
 			try {
+			    //I don't know why the 1st time we restore it it doesn't work... so, we have to do it twice 
+			    //(and the other 1 is because we may have an exception in the 1st step).
 				viewer.getNavigatorContentService().restoreState(memento);
 			} catch (Exception e1) {
-				if(i==1){
+				if(i>1){
 					PydevPlugin.log("Unable to restore the state of the Pydev Package Explorer.", e1);
 				}
 			}
