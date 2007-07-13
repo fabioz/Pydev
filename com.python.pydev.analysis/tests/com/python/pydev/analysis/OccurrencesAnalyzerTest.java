@@ -27,7 +27,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testListComp();
+            analyzer2.testConsiderUnusedImportWithinTryExcept();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -336,6 +336,22 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	checkNoError();
     	
     }
+    
+    
+    public void testConsiderUnusedImportWithinTryExcept() throws Exception {
+        
+        doc = new Document(
+                "try:\n" +
+                "    import cStringIO as foo\n" +
+                "except ImportError:\n" +
+                "    import StringIO as foo\n" +
+                "print foo\n" +
+                ""
+        );
+        checkNoError();
+        
+    }
+    
     public void testUnusedImports2(){
         
         doc = new Document(

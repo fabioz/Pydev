@@ -14,8 +14,6 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.ast.TryExcept;
-import org.python.pydev.parser.jython.ast.excepthandlerType;
-import org.python.pydev.parser.visitors.NodeUtils;
 
 import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
@@ -103,24 +101,10 @@ public class Scope implements Iterable<ScopeItems>{
      * - imports such as import os.path (one token is created for os and one for os.path) 
      */
     public void addImportTokens(List<IToken> list, IToken generator) {
-    	FastStack<TryExcept> tryExceptNodes = scope.peek().getCurrTryExceptNodes();
-    	boolean reportUndefinedImports = true;
-    	for (TryExcept except : tryExceptNodes) {
-			if(!reportUndefinedImports){
-				break;
-			}
-			for(excepthandlerType handler : except.handlers){
-				if(handler.type != null){
-					String rep = NodeUtils.getRepresentationString(handler.type);
-					if(rep != null && rep.equals("ImportError")){
-						reportUndefinedImports = false;
-						break;
-					}
-				}
-			}
-		}
+    	ScopeItems.TryExceptInfo withinExceptNode = scope.peek().getTryExceptImportError();
     	
-    	
+    	//only report undefined imports if we're not inside a try..except ImportError.
+    	boolean reportUndefinedImports = withinExceptNode == null;
     	
     	boolean requireTokensToBeImports = false;
     	ImportInfo importInfo = null;
@@ -142,6 +126,9 @@ public class Scope implements Iterable<ScopeItems>{
             IToken o = iter.next();
             //System.out.println("adding: "+o.getRepresentation());
             Found found = addToken(generator, m, o, o.getRepresentation());
+            if(withinExceptNode != null){
+                withinExceptNode.addFoundImportToTryExcept(found); //may mark previous as used...
+            }
 
             //the token that we find here is either an import (in the case of some from xxx import yyy or import aa.bb)
             //or a Name, ClassDef, MethodDef, etc. (in the case of wild imports)
@@ -152,10 +139,11 @@ public class Scope implements Iterable<ScopeItems>{
             	importInfo = importChecker.visitImportToken(o, reportUndefinedImports);
             }
             //can be either the one resolved in the wild import or in this token (if it is not a wild import)
-        	found.importInfo= importInfo;
+        	found.importInfo = importInfo;
         	visitor.onImportInfoSetOnFound(found);
         }
     }
+
     
     public Found addToken(IToken generator, IToken o) {
         return addToken(generator, o, o.getRepresentation());
@@ -228,7 +216,10 @@ public class Scope implements Iterable<ScopeItems>{
 
         Found newFound = new Found(o,(SourceToken) generator, m.getScopeId(), m);
         if(isReimport){
-            visitor.onAddReimportMessage(newFound);
+            if(m.getTryExceptImportError() == null){
+                //we don't want to add reimport messages if we're within a try..except
+                visitor.onAddReimportMessage(newFound);
+            }
         }
         m.put(rep, newFound);
         return newFound;

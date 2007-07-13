@@ -13,8 +13,63 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.ast.TryExcept;
+import org.python.pydev.parser.jython.ast.excepthandlerType;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 public class ScopeItems {
+
+    /**
+     * This is the class that is used to wrap the try..except node (so that we can add additional info to it).
+     */
+    public static class TryExceptInfo{
+        public TryExcept except;
+        private Map<String,List<Found>> importsMapInTryExcept = new HashMap<String, List<Found>>();
+        
+        public TryExceptInfo(TryExcept except){
+            this.except = except;
+        }
+        
+        /**
+         * When we add a new import found within a try..except ImportError, we mark the previous import
+         * with the same name as used (as this one will redefine it in an expected way).
+         */
+        public void addFoundImportToTryExcept(Found found) {
+            if(!found.isImport()){
+                return;
+            }
+            String rep = found.getSingle().generator.getRepresentation();
+            List<Found> importsListInTryExcept = importsMapInTryExcept.get(rep);
+            if(importsListInTryExcept == null){
+                importsListInTryExcept = new ArrayList<Found>();
+                importsMapInTryExcept.put(rep, importsListInTryExcept);
+                
+            }else if(importsListInTryExcept.size() > 0){
+                importsListInTryExcept.get(importsListInTryExcept.size()-1).setUsed(true);
+            }
+            
+            importsListInTryExcept.add(found);
+        }
+    }
+    
+    /**
+     * @return the TryExcept from a try..except ImportError if we are currently within such a scope
+     * (otherwise will return null;.
+     */
+    public ScopeItems.TryExceptInfo getTryExceptImportError() {
+        for (ScopeItems.TryExceptInfo except : getCurrTryExceptNodes()) {
+            for(excepthandlerType handler : except.except.handlers){
+                if(handler.type != null){
+                    String rep = NodeUtils.getRepresentationString(handler.type);
+                    if(rep != null && rep.equals("ImportError")){
+                        return except;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    
     private Map<String,List<Found>> m = new HashMap<String,List<Found>>();
     
     /**
@@ -23,7 +78,7 @@ public class ScopeItems {
     public Map<String, Tuple<IToken, Found>> namesToIgnore = new HashMap<String, Tuple<IToken, Found>>();
     
     public int ifSubScope = 0;
-    public FastStack<TryExcept> tryExceptSubScope = new FastStack<TryExcept>();
+    public FastStack<TryExceptInfo> tryExceptSubScope = new FastStack<TryExceptInfo>();
     private int scopeId;
     private int scopeType;
 
@@ -76,14 +131,14 @@ public class ScopeItems {
     }
 
     public void addTryExceptSubScope(TryExcept node) {
-    	tryExceptSubScope.push(node);
+    	tryExceptSubScope.push(new TryExceptInfo(node));
     }
     
     public void removeTryExceptSubScope() {
     	tryExceptSubScope.pop();
     }
     
-	public FastStack<TryExcept> getCurrTryExceptNodes() {
+	public FastStack<TryExceptInfo> getCurrTryExceptNodes() {
 		return tryExceptSubScope;
 	}
 
