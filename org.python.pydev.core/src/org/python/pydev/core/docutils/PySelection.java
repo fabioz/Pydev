@@ -404,6 +404,10 @@ public class PySelection {
         }
     }
 
+    public int getLineOfOffset() {
+        return getLineOfOffset(this.getAbsoluteCursorOffset());
+    }
+
     /**
      * @param offset the offset we want to get the line
      * @return the line of the passed offset
@@ -1680,6 +1684,7 @@ public class PySelection {
         }
         return 0;
     }
+
 
 
 

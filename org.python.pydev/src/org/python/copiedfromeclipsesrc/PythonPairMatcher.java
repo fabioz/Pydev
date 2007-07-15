@@ -54,6 +54,10 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
 
     protected PythonCodeReader fReader = new PythonCodeReader();
 
+    public PythonPairMatcher() {
+        this(DocUtils.BRACKETS);
+    }
+    
     /**
      * Constructor which accepts an array of array of characters you want to interpreted as pairs.
      * 

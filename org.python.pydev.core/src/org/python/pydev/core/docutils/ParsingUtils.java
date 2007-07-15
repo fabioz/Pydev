@@ -138,8 +138,10 @@ public class ParsingUtils implements IPythonPartitions{
     public static int eatPar(Object cs, int i, StringBuffer buf, char par) {
         char c = ' ';
         
+        char closingPar = DocUtils.getPeer(par);
+        
         int j = i+1;
-        while(j < len(cs) && (c = charAt(cs,j)) != ')'){
+        while(j < len(cs) && (c = charAt(cs,j)) != closingPar){
             
             j++;
             
@@ -341,7 +343,7 @@ public class ParsingUtils implements IPythonPartitions{
         }
 	}
     
-	public static Iterator getNoLiteralsOrCommentsIterator(IDocument doc) {
+	public static Iterator<String> getNoLiteralsOrCommentsIterator(IDocument doc) {
 		return new PyDocIterator(doc);
 	}
 

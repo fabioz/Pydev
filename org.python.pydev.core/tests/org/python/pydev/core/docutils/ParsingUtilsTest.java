@@ -5,9 +5,9 @@ package org.python.pydev.core.docutils;
 
 import java.util.Iterator;
 
-import org.eclipse.jface.text.Document;
-
 import junit.framework.TestCase;
+
+import org.eclipse.jface.text.Document;
 
 public class ParsingUtilsTest extends TestCase {
 
@@ -15,7 +15,7 @@ public class ParsingUtilsTest extends TestCase {
     	try {
 			ParsingUtilsTest test = new ParsingUtilsTest();
 			test.setUp();
-			test.testMakeParseable();
+//			test.testIterator8();
 			test.tearDown();
 			junit.textui.TestRunner.run(ParsingUtilsTest.class);
 		} catch (Throwable e) {
@@ -217,6 +217,7 @@ public class ParsingUtilsTest extends TestCase {
     	assertEquals(3, it.getLastReturnedLine());
     	assertEquals(false,it.hasNext());
     }
+    
     
     
 

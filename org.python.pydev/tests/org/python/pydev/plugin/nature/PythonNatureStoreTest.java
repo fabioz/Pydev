@@ -69,7 +69,7 @@ public class PythonNatureStoreTest extends TestCase {
         //check the contents
         assertEquals(true, projectStub2.fileStub.created);
         String strContents = projectStub2.fileStub.getStrContents();
-        assertEquals(contents1, strContents);
+        assertEquals(contents1, strContents.replaceFirst(" standalone=\"no\"", "")); //depending on the java version, standalone="no" may be generated
             
         //in ProjectStub2, the initial setting is /test (see the getPersistentProperty)
         assertEquals("/test", store.getPathProperty(PythonPathNature.getProjectSourcePathQualifiedName()));
@@ -77,7 +77,7 @@ public class PythonNatureStoreTest extends TestCase {
         assertEquals("/test/foo|/bar/kkk", store.getPathProperty(PythonPathNature.getProjectSourcePathQualifiedName()));
         
         strContents = projectStub2.fileStub.getStrContents();
-        assertEquals(contents2, strContents);
+        assertEquals(contents2, strContents.replaceFirst(" standalone=\"no\"", "")); //depending on the java version, standalone="no" may be generated
         assertEquals("", store.getPathProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName()));
     }
 }

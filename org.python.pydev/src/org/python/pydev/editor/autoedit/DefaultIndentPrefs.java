@@ -20,6 +20,15 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
     private int tabWidth;
     
 	private static PyPreferencesCache cache;
+
+    private static IIndentPrefs indentPrefs;
+    
+    public synchronized static IIndentPrefs get() {
+        if(indentPrefs == null){
+            indentPrefs = new DefaultIndentPrefs();
+        }
+        return indentPrefs;
+    }
 	
 	private PyPreferencesCache getCache(){
     	if(cache == null){
@@ -28,7 +37,10 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
     	return cache;
 	}
 	
-	public DefaultIndentPrefs(){
+	/**
+	 * Singleton.
+	 */
+	private DefaultIndentPrefs(){
 		PyPreferencesCache c = getCache();
 		useSpaces = c.getBoolean(PydevPrefs.SUBSTITUTE_TABS);
 		tabWidth = c.getInt(PydevPrefs.TAB_WIDTH, 4);
@@ -118,5 +130,6 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
     public boolean getAutoDedentElse() {
         return getCache().getBoolean(PydevPrefs.AUTO_DEDENT_ELSE);
     }
+
 
 }

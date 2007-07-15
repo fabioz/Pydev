@@ -11,7 +11,7 @@ import org.python.pydev.core.docutils.PySelection;
 
 /**
  * The reader works well as long as we are not inside a string at the current offset (this is not enforced here, so,
- * use at your own risk.
+ * use at your own risk).
  * 
  * @author Fabio Zadrozny
  */

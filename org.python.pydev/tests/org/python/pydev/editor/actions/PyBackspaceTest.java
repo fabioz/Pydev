@@ -1,10 +1,10 @@
 package org.python.pydev.editor.actions;
 
+import junit.framework.TestCase;
+
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.PyAutoIndentStrategyTest.TestIndentPrefs;
-
-import junit.framework.TestCase;
+import org.python.pydev.editor.TestIndentPrefs;
 
 public class PyBackspaceTest extends TestCase {
     

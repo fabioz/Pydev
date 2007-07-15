@@ -42,7 +42,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 
     public IIndentPrefs getIndentPrefs() {
         if (this.prefs == null) {
-            this.prefs = new DefaultIndentPrefs(); //create the default if this is still not done.
+            this.prefs = DefaultIndentPrefs.get(); //get the default if this is still not done.
         }
         return this.prefs;
     }
