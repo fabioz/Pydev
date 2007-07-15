@@ -6,10 +6,12 @@ package com.python.pydev.refactoring.refactorer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.IModule;
@@ -56,7 +58,7 @@ public class RefactorerFinds {
         }
     }
     
-    private void findParents(IPythonNature nature, Definition d, HierarchyNodeModel initialModel, HashSet<HierarchyNodeModel> allFound, RefactoringRequest request) throws Exception {
+    private void findParents(IPythonNature nature, Definition d, HierarchyNodeModel initialModel, HashMap<HierarchyNodeModel, HierarchyNodeModel> allFound, RefactoringRequest request) throws Exception {
         HashSet<HierarchyNodeModel> foundOnRound = new HashSet<HierarchyNodeModel>();
         foundOnRound.add(initialModel);
 
@@ -75,11 +77,13 @@ public class RefactorerFinds {
                 for (Definition definition : definitions) {
                     HierarchyNodeModel model2 = createHierarhyNodeFromClassDef(definition);
                     if(model2 != null){
-                        if(allFound.contains(model2) == false){
-                            allFound.add(model2);
+                        if(allFound.containsKey(model2) == false){
+                            allFound.put(model2, model2);
                             toFindOnRound.parents.add(model2);
                             foundOnRound.add(model2);
                         }else{
+                            model2 = allFound.get(model2);
+                            Assert.isNotNull(model2);
                             toFindOnRound.parents.add(model2);
                         }
                     }
@@ -92,7 +96,7 @@ public class RefactorerFinds {
         }
     }
     
-    private void findChildren(RefactoringRequest request, HierarchyNodeModel initialModel, HashSet<HierarchyNodeModel> allFound) {
+    private void findChildren(RefactoringRequest request, HierarchyNodeModel initialModel, HashMap<HierarchyNodeModel, HierarchyNodeModel> allFound) {
         //and now the children...
         List<AbstractAdditionalDependencyInfo> infoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProjectAndReferencing(request.nature.getProject());
         for (AbstractAdditionalDependencyInfo info : infoForProject) {
@@ -122,7 +126,7 @@ public class RefactorerFinds {
         }
     }
     
-    private void findChildrenOnModules(RefactoringRequest request, HashSet<HierarchyNodeModel> allFound, HashSet<HierarchyNodeModel> foundOnRound, HierarchyNodeModel toFindOnRound, HashSet<SourceModule> modulesToAnalyze) {
+    private void findChildrenOnModules(RefactoringRequest request, HashMap<HierarchyNodeModel, HierarchyNodeModel> allFound, HashSet<HierarchyNodeModel> foundOnRound, HierarchyNodeModel toFindOnRound, HashSet<SourceModule> modulesToAnalyze) {
         for (SourceModule module : modulesToAnalyze) {
             SourceModule m = (SourceModule) module;
             request.communicateWork("Analyzing:"+m.getName());
@@ -135,15 +139,15 @@ public class RefactorerFinds {
                 ClassDef def = (ClassDef) entry.node;
                 List<String> parentNames = NodeUtils.getParentNames(def, true);
                 if (parentNames.contains(toFindOnRound.name)) {
-                    final HierarchyNodeModel newNode = new HierarchyNodeModel(module, def);
-                    if(newNode != null){
-                        if(allFound.contains(newNode) == false){
-                            toFindOnRound.children.add(newNode);
-                            allFound.add(newNode);
-                            foundOnRound.add(newNode);
-                        }else{
-                            toFindOnRound.children.add(newNode);
-                        }
+                    HierarchyNodeModel newNode = new HierarchyNodeModel(module, def);
+                    if(allFound.containsKey(newNode) == false){
+                        toFindOnRound.children.add(newNode);
+                        allFound.put(newNode, newNode);
+                        foundOnRound.add(newNode);
+                    }else{
+                        newNode = allFound.get(newNode);
+                        Assert.isNotNull(newNode);
+                        toFindOnRound.children.add(newNode);
                     }
                 }
             }
@@ -197,8 +201,8 @@ public class RefactorerFinds {
                 if(model == null){
                     return null;
                 }
-                HashSet<HierarchyNodeModel> allFound = new HashSet<HierarchyNodeModel>();
-                allFound.add(model);
+                HashMap<HierarchyNodeModel,HierarchyNodeModel> allFound = new HashMap<HierarchyNodeModel,HierarchyNodeModel>();
+                allFound.put(model, model);
                 
                 request.communicateWork("Finding superclasses");
                 findParents(request.nature, d, model, allFound, request);

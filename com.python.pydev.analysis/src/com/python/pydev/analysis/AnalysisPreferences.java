@@ -52,6 +52,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences{
         {IAnalysisPreferences.TYPE_UNDEFINED_IMPORT_VARIABLE  , AnalysisPreferenceInitializer.SEVERITY_UNDEFINED_IMPORT_VARIABLE  , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNDEFINED_IMPORT_VARIABLE    },
         {IAnalysisPreferences.TYPE_UNUSED_PARAMETER           , AnalysisPreferenceInitializer.SEVERITY_UNUSED_PARAMETER           , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNUSED_PARAMETER             },
         {IAnalysisPreferences.TYPE_NO_EFFECT_STMT             , AnalysisPreferenceInitializer.SEVERITY_NO_EFFECT_STMT             , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_NO_EFFECT_STMT               },
+        {IAnalysisPreferences.TYPE_INDENTATION_PROBLEM        , AnalysisPreferenceInitializer.SEVERITY_INDENTATION_PROBLEM        , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_INDENTATION_PROBLEM          },
     };
     
 

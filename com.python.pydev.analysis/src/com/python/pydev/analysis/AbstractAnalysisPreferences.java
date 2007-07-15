@@ -21,6 +21,7 @@ public abstract class AbstractAnalysisPreferences implements IAnalysisPreference
             typeToIgnoreMessage.put( TYPE_UNUSED_WILD_IMPORT          , MSG_TO_IGNORE_TYPE_UNUSED_WILD_IMPORT          );
             typeToIgnoreMessage.put( TYPE_UNDEFINED_IMPORT_VARIABLE   , MSG_TO_IGNORE_TYPE_UNDEFINED_IMPORT_VARIABLE   );
             typeToIgnoreMessage.put( TYPE_NO_EFFECT_STMT              , MSG_TO_IGNORE_TYPE_NO_EFFECT_STMT              );
+            typeToIgnoreMessage.put( TYPE_INDENTATION_PROBLEM         , MSG_TO_IGNORE_TYPE_INDENTATION_PROBLEM         );
         }
         return typeToIgnoreMessage.get(type);
     }

@@ -13,6 +13,17 @@ public class Message extends AbstractMessage {
 
     private Object message;
 
+    /**
+     * @param startLine starts at 1
+     * @param endLine starts at 1
+     * @param startCol starts at 1
+     * @param endCol starts at 1
+     */
+    public Message(int type, Object message, int startLine, int endLine, int startCol, int endCol, IAnalysisPreferences prefs) {
+        super(type, startLine, endLine, startCol, endCol, prefs);
+        this.message = message;
+    }
+    
     public Message(int type, Object message, IToken generator, IAnalysisPreferences prefs) {
         super(type, generator, prefs);
         this.message = message;

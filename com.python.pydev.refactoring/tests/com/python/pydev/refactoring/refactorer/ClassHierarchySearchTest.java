@@ -24,7 +24,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         try {
             ClassHierarchySearchTest test = new ClassHierarchySearchTest();
             test.setUp();
-            test.testFindHierarchy8();
+            test.testFindHierarchy5();
             test.tearDown();
             
             junit.textui.TestRunner.run(ClassHierarchySearchTest.class);
@@ -243,7 +243,10 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
 
 
     private HierarchyNodeModel assertIsIn(String name, String modName, List<HierarchyNodeModel> parents) {
+        StringBuffer available = new StringBuffer();
+        
         for (HierarchyNodeModel model : parents) {
+            available.append(model.name+" - "+model.moduleName);
             if(model.name.equals(name)){
             	if(modName == null){
             		return model;
@@ -252,7 +255,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
             	}
             }
         }
-        fail("Unable to find node with name:"+name+" mod:"+modName);
+        fail("Unable to find node with name:"+name+" mod:"+modName+ "\nAvailable:"+available);
         return null;
     }
 }

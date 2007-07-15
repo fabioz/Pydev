@@ -17,6 +17,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.editor.TestIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -106,7 +107,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
      */
     protected void checkNoError() {
         analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        msgs = analyze();
         
         printMessages(msgs,0);
     }
@@ -117,10 +118,15 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
      */
     protected IMessage[] checkError(int numberOfErrors) {
         analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        msgs = analyze();
         
         printMessages(msgs,numberOfErrors);
         return msgs;
+    }
+
+    private IMessage[] analyze() {
+        return analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), 
+                prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
     }
     
 

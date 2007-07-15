@@ -1,0 +1,176 @@
+package com.python.pydev.analysis.tabnanny;
+
+import java.util.Iterator;
+
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.ParsingUtils;
+
+
+/**
+ * Class to help iterating through the document's indentation strings.
+ * 
+ * It will yield Strings with whitespaces/tabs.
+ * 
+ * the indentations within literals, [, (, {, after \ are not considered 
+ * (only the ones actually considered indentations are yielded through).
+ */
+public class TabNannyDocIterator implements Iterator<Tuple<String, Integer>>{
+    
+    private int offset;
+    private IDocument doc;
+    private Tuple<String, Integer> nextString;
+    private int docLen;
+    private boolean firstPass = true;
+    
+    public TabNannyDocIterator(IDocument doc){
+        this.doc = doc;
+        docLen = doc.getLength();
+        buildNext();
+    }
+
+    public boolean hasNext() {
+        return nextString != null;
+    }
+
+    public Tuple<String, Integer> next() {
+        if(!hasNext()){
+            throw new RuntimeException("Cannot iterate anymore.");
+        }
+        
+        Tuple<String, Integer> ret = nextString;
+        buildNext();
+        return ret;
+    }
+    
+    public void buildNext() {
+        try {
+            //System.out.println("buildNext");
+            char c;
+
+            while(true){
+                //keep in this loop until we finish the document or until we're able to find some indent string...
+                if(offset >= docLen){
+                    nextString = null;
+                    return;
+                }
+                c = doc.getChar(offset);
+                
+                
+                if (firstPass){
+                    //that could happen if we have comments in the 1st line...
+                    if((c == ' ' || c == '\t')){
+                        break;
+                    }else{
+                        firstPass = false;
+                    }
+                    
+                }
+                
+                if (c == '#'){ 
+                    //comment (doesn't consider the escape char)
+                    offset = ParsingUtils.eatComments(doc, new StringBuffer(), offset);
+                    
+                } else if (c == '{' || c == '[' || c == '(') {
+                    //starting some call, dict, list, tuple... we're at the same indentation until it is finished
+                    offset = ParsingUtils.eatPar(doc, offset, new StringBuffer(), c);
+    
+                    
+                } else if (c == '\r'){
+                    //line end (time for a break to see if we have some indentation just after it...)
+                    if(!continueAfterIncreaseOffset()){return;}
+                    c = doc.getChar(offset);
+                    if(c == '\n'){
+                        if(!continueAfterIncreaseOffset()){return;}
+                    }
+                    break;
+                    
+                    
+                } else if (c == '\n'){
+                    //line end (time for a break to see if we have some indentation just after it...)
+                    if(!continueAfterIncreaseOffset()){return;}
+                    break;
+                    
+                } else if (c == '\\') {
+                    //escape char found... if it's the last in the line, we don't have a break (we're still in the same line)
+                    boolean lastLineChar = false;
+                    
+                    if(!continueAfterIncreaseOffset()){return;}
+                    
+                    c = doc.getChar(offset);
+                    if(c == '\r'){
+                        if(!continueAfterIncreaseOffset()){return;}
+                        c = doc.getChar(offset);
+                        lastLineChar = true;
+                    }
+                    
+                    if(c == '\n'){
+                        if(!continueAfterIncreaseOffset()){return;}
+                        lastLineChar = true;
+                    }
+                    if(!lastLineChar){
+                        break;
+                    }
+                    
+                } else if (c == '\'') {
+                    //literal found... skip to the end of the literal
+                    offset = ParsingUtils.getLiteralEnd(doc, offset, c) + 1;
+                    
+                } else {
+                    // ok, a char is found... go to the end of the line and gather
+                    // the spaces to return
+                    if(!continueAfterIncreaseOffset()){return;}
+                }
+
+            }
+            
+            if(offset < docLen){
+                c = doc.getChar(offset);
+            }else{
+                nextString = null;
+                return;
+            }
+            
+            //ok, if we got here, we're in a position to get the indentation string as spaces and tabs...
+            StringBuffer buf = new StringBuffer();
+            int startingOffset = offset;
+            while (c == ' ' || c == '\t') {
+                buf.append(c);
+                offset++;
+                if(offset >= docLen){
+                    break;
+                }
+                c = doc.getChar(offset);
+            }
+            nextString = new Tuple<String, Integer>(buf.toString(), startingOffset);
+            
+            //now, if we didn't have any indentation, try to make another build
+            if(nextString.o1.length() == 0){
+                buildNext();
+            }
+            
+            
+        } catch (BadLocationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Increase the offset and see whether we should continue iterating in the document after that...
+     * @return true if we should continue iterating and false otherwise.
+     */
+    private boolean continueAfterIncreaseOffset() {
+        offset++;
+        boolean ret = true;
+        if(offset >= docLen){
+            nextString = null;
+            ret = false;
+        }
+        return ret;
+    }
+    
+    public void remove() {
+        throw new RuntimeException("Not implemented");
+    }
+}

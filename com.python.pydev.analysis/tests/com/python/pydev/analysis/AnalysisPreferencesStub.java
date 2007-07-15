@@ -20,6 +20,7 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
     public int severityForUndefinedImportVariable;
     public int severityForUnusedParameter;
     public int severityForNoEffectStmt;
+    public int severityForIndentationProblem;
     
     public AnalysisPreferencesStub(){
         severityForUnusedImport = IMarker.SEVERITY_WARNING;
@@ -33,6 +34,7 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
         severityForUndefinedImportVariable = IMarker.SEVERITY_WARNING;
         severityForUnusedParameter = IMarker.SEVERITY_WARNING;
         severityForNoEffectStmt = IMarker.SEVERITY_WARNING;
+        severityForIndentationProblem = IMarker.SEVERITY_WARNING;
     }
     
     public int getSeverityForType(int type) {
@@ -68,6 +70,9 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
         }
         if (type == TYPE_NO_EFFECT_STMT){
             return severityForNoEffectStmt;
+        }
+        if (type == TYPE_INDENTATION_PROBLEM){
+            return severityForIndentationProblem;
         }
         throw new RuntimeException("unable to get severity for type "+type);
     }

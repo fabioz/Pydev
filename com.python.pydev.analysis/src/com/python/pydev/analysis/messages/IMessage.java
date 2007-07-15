@@ -30,6 +30,7 @@ public interface IMessage {
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_UNUSED_WILD_IMPORT
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_USED_WILD_IMPORT
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_NO_EFFECT_STMT
+     * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_INDENTATION_PROBLEM
      * 
      * @return this message type
      */
@@ -47,12 +48,12 @@ public interface IMessage {
     int getStartCol(IDocument doc);
 
     /**
-     * @return the ending line of the error. may be -1 if we are unable to find the end of the token
+     * @return the ending line of the error. may be -1 if we are unable to find the end of the token (starting at 1)
      */
     int getEndLine(IDocument doc);
 
     /**
-     * @return the ending col of the error. may be -1 if we are unable to find the end of the token
+     * @return the ending col of the error. may be -1 if we are unable to find the end of the token (starting at 1)
      */
     int getEndCol(IDocument doc);
     

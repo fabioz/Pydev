@@ -333,7 +333,7 @@ public class MessagesManager {
     /**
      * @return the generated messages.
      */
-    public IMessage[] getMessages() {
+    public List<IMessage> getMessages() {
         
         List<IMessage> result = new ArrayList<IMessage>();
         
@@ -384,7 +384,7 @@ public class MessagesManager {
             addToResult(result, message);
         }
         
-        return (IMessage[]) result.toArray(new IMessage[0]);
+        return result;
     }
 
     /**

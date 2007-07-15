@@ -37,10 +37,30 @@ public abstract class AbstractMessage implements IMessage{
 
     private List<String> additionalInfo;
 
+    /**
+     * @param generator needed to get the lines/cols for the message (an alternate constructor is given if 
+     * it's already known).
+     */
     public AbstractMessage(int type, IToken generator, IAnalysisPreferences prefs) {
         this.severity = prefs.getSeverityForType(type);
         this.type = type;
         this.generator = generator;
+    }
+    
+    
+    /**
+     * @param startLine starts at 1
+     * @param endLine starts at 1
+     * @param startCol starts at 1
+     * @param endCol starts at 1
+     */
+    public AbstractMessage(int type, int startLine, int endLine, int startCol, int endCol, IAnalysisPreferences prefs) {
+        this.severity = prefs.getSeverityForType(type);
+        this.type = type;
+        this.startLine = startLine;
+        this.startCol = startCol;
+        this.endLine = endLine;
+        this.endCol = endCol;
     }
     
     
@@ -58,6 +78,7 @@ public abstract class AbstractMessage implements IMessage{
             messages.put(IAnalysisPreferences.TYPE_NO_SELF, "Method '%s' should have %s as first parameter");
             messages.put(IAnalysisPreferences.TYPE_UNDEFINED_IMPORT_VARIABLE, "Undefined variable from import: %s");
             messages.put(IAnalysisPreferences.TYPE_NO_EFFECT_STMT, "Statement apppears to have no effect");
+            messages.put(IAnalysisPreferences.TYPE_INDENTATION_PROBLEM, "%s");
         }
         return messages.get(getType());
 
@@ -71,12 +92,12 @@ public abstract class AbstractMessage implements IMessage{
         return type;
     }
 
-    int line = -1;
+    int startLine = -1;
     public int getStartLine(IDocument doc) {
-    	if(line < 0){
-    		line = getStartLine(generator, doc);
+    	if(startLine < 0){
+    		startLine = getStartLine(generator, doc);
     	}
-    	return line;
+    	return startLine;
     }
 
     /**
@@ -353,7 +374,7 @@ public abstract class AbstractMessage implements IMessage{
     	
         String typeStr = getTypeStr();
         if(typeStr == null){
-            throw new AssertionError("Unable to get message for type: "+getSeverity());
+            throw new AssertionError("Unable to get message for type: "+getType());
         }
         Object shortMessage = getShortMessage();
         if(shortMessage == null){

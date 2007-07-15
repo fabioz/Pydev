@@ -4,9 +4,13 @@
  */
 package com.python.pydev.analysis;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.editor.TestIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+
+import com.python.pydev.analysis.messages.IMessage;
 
 public class OccurrencesAnalyzerListCompTest extends AnalysisTestsBase { 
 
@@ -59,10 +63,17 @@ public class OccurrencesAnalyzerListCompTest extends AnalysisTestsBase {
                 "print dict((index) for index, daysRep in (enumeratedDays for day in daysRep))\n"
         );
         analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        msgs = analyzeDoc();
         
         printMessages(msgs, 1); 
         assertEquals("Undefined variable: daysRep", msgs[0].getMessage());
+    }
+
+
+
+    private IMessage[] analyzeDoc() {
+        return analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc,
+                new NullProgressMonitor(), new TestIndentPrefs(true, 4));
     }
     
     public void testListComprehension3a() {
@@ -71,7 +82,7 @@ public class OccurrencesAnalyzerListCompTest extends AnalysisTestsBase {
                 "print dict((day, index) for index, daysRep in (foo for day in enumeratedDays))\n"
         );
         analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        msgs = analyzeDoc();
         
         assertEquals(2, msgs.length); 
         assertContainsMsg("Undefined variable: foo", msgs);
@@ -84,7 +95,7 @@ public class OccurrencesAnalyzerListCompTest extends AnalysisTestsBase {
                 "print dict((day, index) for index, daysRep in (day for day in enumeratedDays))\n"
         );//the day from the "(day for day in enumeratedDays)" should not be kept in the scope
         analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        msgs = analyzeDoc();
         
         printMessages(msgs, 1); 
         assertEquals("Undefined variable: day", msgs[0].getMessage());
@@ -97,7 +108,7 @@ public class OccurrencesAnalyzerListCompTest extends AnalysisTestsBase {
                 "print dict((day, index) for index, daysRep in enumeratedDays for day in bla)\n"
         );
         analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        msgs = analyzeDoc();
         
         printMessages(msgs, 1);
         assertEquals("Undefined variable: bla", msgs[0].getMessage());

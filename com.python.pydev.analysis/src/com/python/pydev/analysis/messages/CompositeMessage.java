@@ -6,6 +6,8 @@ package com.python.pydev.analysis.messages;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.python.pydev.core.IToken;
 
@@ -30,9 +32,14 @@ public class CompositeMessage extends AbstractMessage{
     public String getShortMessage() {
         StringBuffer buffer = new StringBuffer();
         
+        Set<String> messages = new TreeSet<String>();
         for (Iterator<IMessage> iter = msgs.iterator(); iter.hasNext();) {
             IMessage msg = iter.next();
-            buffer.append(msg.getShortMessage());
+            messages.add(msg.getShortMessage().toString());
+        }
+        
+        for (Iterator<String> iter = messages.iterator(); iter.hasNext();) {
+            buffer.append(iter.next());
             if(iter.hasNext()){
                 buffer.append(", ");
             }

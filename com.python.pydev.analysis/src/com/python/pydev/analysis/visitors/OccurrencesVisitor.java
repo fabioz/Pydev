@@ -3,6 +3,7 @@
  */
 package com.python.pydev.analysis.visitors;
 
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -181,7 +182,7 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
     /**
      * @return the generated messages.
      */
-    public IMessage[] getMessages() {
+    public List<IMessage> getMessages() {
         endScope(null); //have to end the scope that started when we created the class.
         
         return messagesManager.getMessages();

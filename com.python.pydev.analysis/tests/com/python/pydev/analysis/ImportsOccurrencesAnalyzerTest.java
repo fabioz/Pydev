@@ -1,9 +1,13 @@
 package com.python.pydev.analysis;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.editor.TestIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+
+import com.python.pydev.analysis.messages.IMessage;
 
 /**
  * Tests tokens gotten from imports to see if they really exist there
@@ -34,7 +38,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     				"print glcanvas"
     		);
     		analyzer = new OccurrencesAnalyzer();
-    		msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    		msgs = analyzeDoc();
     		
     		printMessages(msgs,0);
     		
@@ -48,7 +52,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
 			"\n"
     	);
     	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	msgs = analyzeDoc();
     	
     	printMessages(msgs,1);
     	assertEquals("Undefined variable from import: unexistant", msgs[0].getMessage());
@@ -63,7 +67,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"\n"
     	);
     	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	msgs = analyzeDoc();
     	
     	printMessages(msgs,1);
     	assertEquals("Undefined variable from import: unexistant", msgs[0].getMessage());
@@ -78,7 +82,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"\n"
     	);
     	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	msgs = analyzeDoc();
     	
     	printMessages(msgs,1);
     	assertEquals("Undefined variable from import: unexistant", msgs[0].getMessage());
@@ -93,7 +97,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"\n"
     	);
     	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	msgs = analyzeDoc();
     	
     	printMessages(msgs,0);
     }
@@ -106,7 +110,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"\n"
     	);
     	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	msgs = analyzeDoc();
     	
     	printMessages(msgs,0);
     }
@@ -120,7 +124,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
 	    			"\n"
 	    	);
 	    	analyzer = new OccurrencesAnalyzer();
-	    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+	    	msgs = analyzeDoc();
 	    	
 	    	printMessages(msgs,0);
     	}		
@@ -135,7 +139,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
 				"\n"
 		);
 		analyzer = new OccurrencesAnalyzer();
-		msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+		msgs = analyzeDoc();
 		
 		printMessages(msgs,1); //unused imports
     }
@@ -150,7 +154,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
 			"\n"
     	);
     	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	msgs = analyzeDoc();
     	
     	printMessages(msgs,0); 
     }
@@ -163,7 +167,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"\n"
     	);
     	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	msgs = analyzeDoc();
     	
     	printMessages(msgs,0); 
     }
@@ -176,7 +180,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"\n"
     	);
     	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	msgs = analyzeDoc();
     	
     	printMessages(msgs,0); 
     }
@@ -189,7 +193,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
 			"\n"
     	);
     	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	msgs = analyzeDoc();
     	
     	printMessages(msgs,0); 
     }
@@ -202,7 +206,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"\n"
     	);
     	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	msgs = analyzeDoc();
     	
     	printMessages(msgs,1); 
     }
@@ -215,7 +219,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"\n"
     	);
     	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	msgs = analyzeDoc();
     	
     	printMessages(msgs,0); 
     }
@@ -228,7 +232,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"\n"
     	);
     	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	msgs = analyzeDoc();
     	
     	printMessages(msgs,0); 
     }
@@ -242,7 +246,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"\n"
     	);
     	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	msgs = analyzeDoc();
     	
     	printMessages(msgs,0); 
     }
@@ -256,7 +260,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"\n"
     	);
     	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	msgs = analyzeDoc();
     	
     	printMessages(msgs,0); 
     }
@@ -268,11 +272,16 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
                 "\n"
         );
         analyzer = new OccurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        msgs = analyzeDoc();
         
         printMessages(msgs, 2); 
         assertContainsMsg("Unused import: foo", msgs);
         assertContainsMsg("Unresolved import: foo", msgs);
+    }
+
+    private IMessage[] analyzeDoc() {
+        return analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc, 
+                new NullProgressMonitor(), new TestIndentPrefs(true, 4));
     }
     
     public void testQt() throws Exception {
@@ -284,7 +293,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
 	    			"\n"
 	    	);
 	    	analyzer = new OccurrencesAnalyzer();
-	    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+	    	msgs = analyzeDoc();
 	    	
 	    	printMessages(msgs,0);
     	}
