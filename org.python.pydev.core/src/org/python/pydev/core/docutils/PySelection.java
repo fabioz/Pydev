@@ -407,14 +407,18 @@ public class PySelection {
     public int getLineOfOffset() {
         return getLineOfOffset(this.getAbsoluteCursorOffset());
     }
+    
+    public int getLineOfOffset(int offset) {
+        return getLineOfOffset(getDoc(), offset);
+    }
 
     /**
      * @param offset the offset we want to get the line
      * @return the line of the passed offset
      */
-    public int getLineOfOffset(int offset) {
+    public static int getLineOfOffset(IDocument doc, int offset) {
         try {
-            return getDoc().getLineOfOffset(offset);
+            return doc.getLineOfOffset(offset);
         } catch (BadLocationException e) {
             return 0;
         }

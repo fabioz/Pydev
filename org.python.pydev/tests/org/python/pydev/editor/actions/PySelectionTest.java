@@ -33,7 +33,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testImportLine10();
+            test.testImportLine();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
