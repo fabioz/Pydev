@@ -1,12 +1,3 @@
-TODO: in outline, the '---' should appear given an option to show that or trim it
-TODO: hierarchy view: show with f4 / close / open view / f4 (will not work)
-TODO: DEBUGGER BUG: if a class is defined within a method, things later in that method are not able to get the correct name for the breakpoint scope (cannot reproduce?)
-TODO: Ctrl+4 for blocks in methods
-TODO: Debugger: enable users to configure the mappings for remote debugging in a 'nice' way.
-TODO: See why Ctrl+1 is bringing more than 1 completion for the same token on some cases.
-TODO: Make 'add pydev nature' to project
-TODO: Don't show assignments/imports after if __name__ == '__main__': in outline
-TODO: The filter for the name of tests to ignore when running pyunit should be asked at run-time (with user-option to not show it).
 
 after 1.3.7
 
