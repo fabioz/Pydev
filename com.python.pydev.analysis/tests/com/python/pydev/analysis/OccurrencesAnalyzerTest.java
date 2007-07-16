@@ -115,7 +115,12 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testIconsistendIndent() throws Exception {
         doc = new Document(
                 "def a():\n" +
-                "     print 'a'\n"); //5 spaces (user config == 4)
+                "     print 'a'\n" + //5 spaces (user config == 4)
+                "\n" +
+                "def b():\n" +
+                "    print 'b'\n" + //ok
+                "    print 'c'\n" + //ok
+                ""); 
         checkError(1);
     }
     
@@ -2181,10 +2186,9 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
         
-        printMessages(msgs, 2);
+        printMessages(msgs, 1);
         IMessage msg = assertContainsMsg("Undefined variable: a", msgs);
         assertEquals(8, msg.getStartCol(doc));
-        assertContainsMsg("Mixed Indentation: Tab found", msgs);
     }
     
     public void testUnusedVar() {

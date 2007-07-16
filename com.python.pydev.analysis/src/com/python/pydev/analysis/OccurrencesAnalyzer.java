@@ -41,7 +41,6 @@ public class OccurrencesAnalyzer implements Analyzer {
             IProgressMonitor monitor, IIndentPrefs indentPrefs) {
         
         OccurrencesVisitor visitor = new OccurrencesVisitor(nature, module.getName(), module, prefs, document, monitor);
-        TabNanny tabNanny = new TabNanny(document, prefs, module.getName(), indentPrefs);
         try {
             SimpleNode ast = module.getAst();
             if(ast != null){
@@ -54,7 +53,11 @@ public class OccurrencesAnalyzer implements Analyzer {
         }
         
         List<IMessage> messages = visitor.getMessages();
-        messages.addAll(tabNanny.analyzeDoc());
+        try{
+            messages.addAll(TabNanny.analyzeDoc(document, prefs, module.getName(), indentPrefs));
+        }catch(Exception e){
+            PydevPlugin.log(e); //just to be safe... (shouldn't happen).
+        }
         return messages.toArray(new IMessage[messages.size()]);
     }
 
