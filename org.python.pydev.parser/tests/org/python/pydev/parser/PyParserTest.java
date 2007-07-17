@@ -6,10 +6,12 @@ package org.python.pydev.parser;
 import java.io.File;
 import java.util.List;
 
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -28,7 +30,7 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testRemoveEndingComments3();
+            test.testTryReparse();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
@@ -104,6 +106,18 @@ public class PyParserTest extends PyParserTestBase{
         assertEquals("", doc.get());
     }
     
+    public void testTryReparse() throws BadLocationException{
+        Document doc = new Document("");
+        for(int i=0; i< 5; i++){
+            doc.replace(0, 0, "this is a totally and completely not parseable doc\n");
+        }
+        
+        PyParser.ParserInfo parserInfo = new PyParser.ParserInfo(doc, true, IPythonNature.LATEST_GRAMMAR_VERSION);
+        parserInfo.tryReparse = true;
+        Tuple<SimpleNode,Throwable> reparseDocument = PyParser.reparseDocument(parserInfo);
+        assertTrue(reparseDocument.o1 == null);
+        assertTrue(reparseDocument.o2 != null);
+    }
     
     public void testCorrectArgs() {
         String s = "" +

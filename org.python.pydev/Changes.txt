@@ -1,10 +1,19 @@
 
 after 1.3.7
 
-Extensions: Code-analysis detects mixing of spaces/tabs
-Extensions: Code-analysis Reimport not flagged when inside of try..except ImportError
+Extensions
+<ul>
+<li><strong>Code-analysis</strong>: detects mixing of spaces and tabs.</li>
+<li><strong>Code-analysis</strong>: Reimport not flagged when inside of try..except ImportError.</li>
+</ul>
 
-Pydev: Fixed problems related to the pydev package explorer that appeared when using java 1.6
+Pydev
+<ul>
+<li>Fixed problems related to the pydev package explorer that appeared when using java 1.6</li>
+<li>Other minor bug-fixes</li>
+</ul>
+
+
 
 after 1.3.6
 <ul>

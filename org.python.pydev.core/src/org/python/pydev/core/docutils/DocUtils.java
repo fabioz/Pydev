@@ -118,6 +118,7 @@ public class DocUtils {
         } catch (BadLocationException e1) {
             //that's ok...
             //e1.printStackTrace();
+            //System.out.println(lineOfOffset);
             return null;
         }
         return newDoc;

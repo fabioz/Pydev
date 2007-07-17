@@ -7,8 +7,10 @@ package org.python.pydev.parser;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.internal.resources.ResourceException;
 import org.eclipse.core.resources.IFile;
@@ -24,12 +26,10 @@ import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -402,13 +402,41 @@ public class PyParser implements IPyParser {
     public static class ParserInfo{
         public IDocument document;
         public boolean stillTryToChangeCurrentLine=true; 
+        
+        /**
+         * The currently selected line
+         */
         public int currentLine=-1;
+        
+        /**
+         * The initial document to be parsed
+         */
         public String initial = null;
-        public List<Integer> linesChanged = new ArrayList<Integer>();
+        
+        /**
+         * A set with the lines that were changed when trying to make the document parseable
+         */
+        public Set<Integer> linesChanged = new HashSet<Integer>();
+        
+        /**
+         * The 1st parse error we receive when doing the parsing of a document.
+         */
         public ParseException parseErr;
+        
+        /**
+         * Marks whether we should use an heuristic to try to make reparses (if false, it will bail out in the 1st error).
+         */
         public boolean tryReparse = TRY_REPARSE;
+        
+        /**
+         * This is the version of the grammar to be used 
+         * @see IPythonNature.GRAMMAR_XXX constants
+         */
         public int grammarVersion;
         
+        /**
+         * @param grammarVersion: see IPythonNature.GRAMMAR_XXX constants
+         */
         public ParserInfo(IDocument document, boolean changedCurrentLine, int grammarVersion){
             this.document = document;
             this.stillTryToChangeCurrentLine = changedCurrentLine;
@@ -582,50 +610,55 @@ public class PyParser implements IPyParser {
             return new Tuple<SimpleNode, Throwable>(newRoot,null);
 		
 
-        } catch (ParseException parseErr) {
-            SimpleNode newRoot = null;
-
-            if(info.parseErr == null){
-                info.parseErr = parseErr;
-            }
+        } catch (Throwable e) {
+            //ok, some error happened when trying the parse... let's go and clear the local info before doing
+            //another parse.
+            startDoc = null;
+            newDoc = null;
+            comments = null;
+            in = null;
+            host = null;
+            grammar = null;
             
-            if(info.tryReparse){
-                if (info.stillTryToChangeCurrentLine){
-                    newRoot = tryReparseAgain(info, info.parseErr);
-                } else {
-                    info.currentLine = -1;
-                    info.document = new Document(info.initial);
-                    newRoot = tryReparseAgain(info, info.parseErr);
+            if(e instanceof ParseException){
+                ParseException parseErr = (ParseException) e;
+                SimpleNode newRoot = null;
+                
+                if(info.parseErr == null){
+                    info.parseErr = parseErr;
                 }
-            }
-            return new Tuple<SimpleNode, Throwable>(newRoot, parseErr);
-            
-        
-        } catch (TokenMgrError tokenErr) {
-            SimpleNode newRoot = null;
-            
-            if(info.tryReparse){
-                if (info.stillTryToChangeCurrentLine){
-                    newRoot = tryReparseAgain(info, tokenErr);
+                
+                if(info.tryReparse){
+                    if (info.stillTryToChangeCurrentLine){
+                        newRoot = tryReparseAgain(info, info.parseErr);
+                    } else {
+                        info.currentLine = -1;
+                        info.document = new Document(info.initial);
+                        newRoot = tryReparseAgain(info, info.parseErr);
+                    }
                 }
+                return new Tuple<SimpleNode, Throwable>(newRoot, parseErr);
+                
+            }else if(e instanceof TokenMgrError){
+                TokenMgrError tokenErr = (TokenMgrError) e;
+                SimpleNode newRoot = null;
+                
+                if(info.tryReparse){
+                    if (info.stillTryToChangeCurrentLine){
+                        newRoot = tryReparseAgain(info, tokenErr);
+                    }
+                }
+                
+                return new Tuple<SimpleNode, Throwable>(newRoot, tokenErr);
+                
+            }else if(e.getClass().getName().indexOf("LookaheadSuccess") != -1){
+                //don't log this kind of error...
+            }else{
+                Log.log(e);
             }
-            
-            return new Tuple<SimpleNode, Throwable>(newRoot, tokenErr);
-
-        } catch (Exception e) {
-            Log.log(e);
             return new Tuple<SimpleNode, Throwable>(null, null);
         
-        } catch (Throwable e) {
-			//PythonGrammar$LookaheadSuccess error: this happens sometimes when the file is
-			//not parseable
-			if(e.getClass().getName().indexOf("LookaheadSuccess") != -1){
-				//don't log this kind of error...
-			}else{
-				Log.log(e);
-			}
-			return new Tuple<SimpleNode, Throwable>(null, null);
-        }
+        } 
     }
 
     /**
@@ -650,7 +683,7 @@ public class PyParser implements IPyParser {
      * Any new errors are ignored, and the error passed as a parameter is fired
      * anyway, so, the utility of this function is trying to make a real model
      * without any problems, so that we can update the outline and ModelUtils
-     * with a good aproximation of the code.
+     * with a good approximation of the code.
      * 
      * @param tokenErr
      */
@@ -664,22 +697,37 @@ public class PyParser implements IPyParser {
             if(tokenErr.currentToken != null){
                 line = tokenErr.currentToken.beginLine-2;
             
-    	        boolean okToGo = false;
-    	        
-    	        while(! okToGo){
-    		        if(! lineIn(info.linesChanged, line)){
-    		            info.linesChanged.add(new Integer(line));
-    		            okToGo = true;
-    		            
-    		        } else if(info.linesChanged.size() < 10){
-    		            line += 1;
-    		            
-    		        } else{
-    		            return null;
-    		        }
-                }
 	        }else{
-             return null;   
+	            return null;   
+            }
+        }
+        
+        if(line < 0){
+            line = 0;
+        }
+        
+        boolean okToGo = false;
+        
+        while(! okToGo){
+            if(! lineIn(info.linesChanged, line)){
+                info.linesChanged.add(new Integer(line));
+                okToGo = true;
+                
+            } else if(info.linesChanged.size() == 1){
+                line += 1;
+                
+            } else if(info.linesChanged.size() == 2 && line > 1){
+                line -= 1;
+                
+            } else if(info.linesChanged.size() == 3 && line > 2){
+                line -= 2;
+                
+            } else if(info.linesChanged.size() < 5){
+                line += 1;
+                
+            } else{
+                //it can go up to 5 reparses before bailing out and returning null.
+                return null;
             }
         }
 
@@ -687,16 +735,13 @@ public class PyParser implements IPyParser {
     }
 
     /**
-     * @param linesChanged
-     * @param line
-     * @return
+     * @param linesChanged the lines that were already changed in the document
+     * @param line the line which we want to check if it was already changed or not
+     * @return true if the line passed was already changed and false otherwise.
      */
-    private static boolean lineIn(List<Integer> linesChanged, int line) {
-        for (Iterator<Integer> iter = linesChanged.iterator(); iter.hasNext();) {
-            Integer i = iter.next();
-            if (i.intValue() == line){
-                return true;
-            }
+    private static boolean lineIn(Set<Integer> linesChanged, int line) {
+        if(linesChanged.contains(line)){
+            return true;
         }
         return false;
     }
@@ -711,7 +756,9 @@ public class PyParser implements IPyParser {
     private static SimpleNode tryReparseChangingLine(ParserInfo info, int line) {
         String docToParse = DocUtils.getDocToParseFromLine(info.document, line);
         if(docToParse != null){
-
+            //System.out.println("\n\n\n\n\nSTART Parsing -------------------------");
+            //System.out.println(docToParse);
+            //System.out.println("END Parsing -------------------------");
             Document doc = new Document(docToParse);
             info.document = doc;
             info.stillTryToChangeCurrentLine = false;
