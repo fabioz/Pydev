@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IToken;
@@ -352,9 +353,14 @@ public class MessagesManager {
                 IMessage message = l.get(0);
                 
                 //messages are grouped by type, and the severity is set by type, so, this is ok...
-                //if(message.getSeverity() == IAnalysisPreferences.SEVERITY_IGNORE){
-                //    continue;
-                //}
+                if(message.getSeverity() == IMarker.SEVERITY_INFO){
+                    if(doIgnoreMessageIfJustInformational(message.getType())){
+                        //ok, let's ignore it for real (and don't add it) as those are not likely to be
+                        //used anyways for other actions)
+                        continue;
+                        
+                    }
+                }
                 //we add even ignore messages because they might be used later in actions dependent on code analysis
 
                 if(l.size() == 1){
@@ -372,19 +378,29 @@ public class MessagesManager {
                     addToResult(result, compositeMessage);
                 }
             }
-            
         }
         
         for(IMessage message : independentMessages){
-            //if(message.getSeverity() == IAnalysisPreferences.SEVERITY_IGNORE){
-            //    continue;
-            //}
-            // we add even ignore messages because they might be used later in actions dependent on code analysis
+            if(message.getSeverity() == IMarker.SEVERITY_INFO){
+                if(doIgnoreMessageIfJustInformational(message.getType())){
+                    //ok, let's ignore it for real (and don't add it) as those are not likely to be
+                    //used anyways for other actions)
+                    continue;
+                    
+                }
+                //otherwise keep on and add it (needed for some actions)
+            }
             
             addToResult(result, message);
         }
         
         return result;
+    }
+
+    private boolean doIgnoreMessageIfJustInformational(int type) {
+        return type == IAnalysisPreferences.TYPE_UNUSED_PARAMETER || 
+           type == IAnalysisPreferences.TYPE_INDENTATION_PROBLEM ||
+           type == IAnalysisPreferences.TYPE_NO_EFFECT_STMT;
     }
 
     /**

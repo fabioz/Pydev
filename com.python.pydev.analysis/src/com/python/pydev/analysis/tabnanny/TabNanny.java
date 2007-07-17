@@ -3,6 +3,7 @@ package com.python.pydev.analysis.tabnanny;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -30,6 +31,11 @@ public class TabNanny{
      */
     public static List<IMessage> analyzeDoc(IDocument doc, IAnalysisPreferences analysisPrefs, String moduleName, IIndentPrefs indentPrefs) {
         ArrayList<IMessage> ret = new ArrayList<IMessage>();
+        
+        //don't even try to gather indentation errors if they should be ignored.
+        if(analysisPrefs.getSeverityForType(IAnalysisPreferences.TYPE_INDENTATION_PROBLEM) == IMarker.SEVERITY_INFO){
+            return ret;
+        }
         
         List<Tuple<String, Integer>> foundTabs = new ArrayList<Tuple<String,Integer>>();
         List<Tuple<String, Integer>> foundSpaces = new ArrayList<Tuple<String,Integer>>();
