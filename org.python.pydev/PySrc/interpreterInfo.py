@@ -15,6 +15,7 @@ import sys
 import os
 True, False = 1,0 
 import time
+import string #to be compatible with older versions
 
 if sys.platform == "cygwin":
     sys.path.append(os.path.join(sys.path[0],'ThirdParty'))
@@ -48,8 +49,18 @@ if __name__ == '__main__':
         executable = nativePath(sys.executable)
     except:
         executable = sys.executable
+    
+    try:
+        s = 'Version%s.%s' % (sys.version_info[0], sys.version_info[1])
+    except AttributeError:
+        #older versions of python don't have version_info
+        import string
+        s = string.split(sys.version, ' ')[0]
+        s = string.split(s, '.')
+        major = s[0]
+        minor = s[1]
+        s = 'Version%s.%s' % (major, minor)
         
-    s = 'Version%s.%s' % (sys.version_info[0], sys.version_info[1])
     print s
             
     print 'EXECUTABLE:%s|' % executable
@@ -64,7 +75,7 @@ if __name__ == '__main__':
     result = []
     for p in sys.path:
         p = nativePath(p)
-        if p.startswith(prefix):
+        if string.find(p, prefix) == 0: #was startswith
             result.append((p,True))
         else:
             result.append((p, False))

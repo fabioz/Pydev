@@ -10,7 +10,8 @@ try:
     IS_JYTHON = True
     SERVER_NAME = 'jycompletionserver'
     from java.lang import Thread
-    import jyimportsTipper as importsTipper
+    import jyimportsTipper #as importsTipper #changed to be backward compatible with 1.5
+    importsTipper = jyimportsTipper
 
 except ImportError:
     
@@ -25,13 +26,22 @@ except ImportError:
     IS_JYTHON = False
     SERVER_NAME = 'pycompletionserver'
     from threading import Thread
-    import refactoring
     import importsTipper
+    try:
+        import refactoring
+    except:
+        class RefactoringWrapper:
+            def HandleRefactorMessage(*args, **kwargs):
+                return ''
+        refactoring = RefactoringWrapper()
 
 
 import sys
 #initial sys.path
-_sys_path = [p for p in sys.path]
+_sys_path = []
+for p in sys.path:
+    #changed to be compatible with 1.5
+    _sys_path.append(p)
 
 #initial sys.modules
 _sys_modules = {}
@@ -204,7 +214,7 @@ class T( Thread ):
         token = ''
         for c in data:
             if c != ')':
-                token += c
+                token = token+c
             else:
                 break;
         
@@ -245,7 +255,7 @@ class T( Thread ):
                     received = conn.recv( BUFFER_SIZE )
                     if len(received) == 0:
                         sys.exit(0) #ok, connection ended
-                    data += received
+                    data = data+received
     
                 try:
                     try:

@@ -709,25 +709,20 @@ public class PyParser implements IPyParser {
         boolean okToGo = false;
         
         while(! okToGo){
-            if(! lineIn(info.linesChanged, line)){
+            
+            if(!lineIn(info.linesChanged, line)){
                 info.linesChanged.add(new Integer(line));
                 okToGo = true;
-                
-            } else if(info.linesChanged.size() == 1){
-                line += 1;
-                
-            } else if(info.linesChanged.size() == 2 && line > 1){
-                line -= 1;
-                
-            } else if(info.linesChanged.size() == 3 && line > 2){
-                line -= 2;
-                
-            } else if(info.linesChanged.size() < 5){
-                line += 1;
-                
-            } else{
-                //it can go up to 5 reparses before bailing out and returning null.
-                return null;
+            } 
+            
+            if(!okToGo){
+                if(info.linesChanged.size() < 5){
+                    line += 1;
+                    
+                } else{
+                    //it can go up to 5 reparses before bailing out and returning null.
+                    return null;
+                }
             }
         }
 
