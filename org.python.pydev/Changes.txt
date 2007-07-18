@@ -9,7 +9,7 @@ Extensions
 
 Pydev
 <ul>
-<li>Fixed problems related to the pydev package explorer that appeared when using java 1.6</li>
+<li>Fixed problems related to the pydev package explorer that appeared when using <strong>java 1.6</strong> (ConcurrentModificationException)</li>
 <li>Other minor bug-fixes</li>
 </ul>
 
