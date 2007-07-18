@@ -183,13 +183,21 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
      * is in this same editor.
      */
     protected static boolean isInSameExternalEditor(IMarker marker, PydevFileEditorInput pydevFileEditorInput) throws CoreException {
+    	if(marker == null || pydevFileEditorInput == null){
+    		return false;
+    	}
+    	
         String attribute = (String) marker.getAttribute(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID);
         if(attribute != null){
-            if(attribute.equals(REF.getFileAbsolutePath(pydevFileEditorInput.getFile()))){
+            File file = pydevFileEditorInput.getFile();
+            if(file == null){
+            	return false;
+            }
+			if(attribute.equals(REF.getFileAbsolutePath(file))){
                 return true;
             }
         }
-        return false;
+    	return false;
     }
 
 
@@ -300,6 +308,9 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
 
             IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
             for (IMarker marker : markers) {
+            	if(marker == null){
+            		continue;
+            	}
                 IBreakpoint breakpoint = breakpointManager.getBreakpoint(marker);
                 if (breakpoint != null && breakpointManager.isRegistered(breakpoint)) {
                     Position pos = getMarkerPosition(document, marker);
