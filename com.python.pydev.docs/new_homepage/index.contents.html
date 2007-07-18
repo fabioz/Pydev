@@ -14,7 +14,15 @@ It works with <a class="a_link" href="http://www.eclipse.org/">Eclipse</a> and t
 <h3>Release Changes</h3>
 
 	<ul>
-		<li><h4>Release 1.3.7 <IMG src="images/new.png" border="0" /></h4></li>
+		<li><h4>Release 1.3.8 <IMG src="images/new.png" border="0" /></h4></li>
+        <ul>
+			<li><strong>Code-analysis</strong>: Detects mixing of spaces and tabs.</li>
+			<li><strong>Code-analysis</strong>: Reimport not flagged when inside of try..except ImportError.</li>
+        </ul>
+	</ul>
+	
+	<ul>
+		<li><h4>Release 1.3.7</h4></li>
         <ul>
 			<li><strong>Support for Eclipse 3.3</strong></li>
             <li>Bug-Fixes!</li>
@@ -28,36 +36,9 @@ It works with <a class="a_link" href="http://www.eclipse.org/">Eclipse</a> and t
         </ul>
 	</ul>
 	
-	<ul>
-		<li><h4>Release 1.3.5</h4></li>
-        <ul>
-            <li><strong>Auto-Import:</strong> </li>
-            <ul>
-                <li>Import is now set in correct line even with multi-line imports.</li>
-                <li>Added option to disable the introduction of auto-imports.</li>
-                <li>Added option to remove modules that start with '_' from the imports (so, tokens would have to be found in __init__.py files).</li>
-            </ul>
-            <li><strong>Code Analysis:</strong> Having a list comprehension with a subscript was not being treated correctly.</li>
-            <li><strong>Debugger:</strong> Working with jython.</li>
-            <li><strong>Debugger:</strong> Working with wxPython.</li>
-        </ul>
-	</ul>
+	Check the <a href="history.html">Releases History</a> for info on previous versions.
 
-	<ul>
-		<li><h4>Release 1.3.4</h4></li>
-		<ul>
-			<li><strong>Mark Occurrences:</strong> 'global' used in the global scope is correctly treated.</li>
-			<li><strong>Code Analysis:</strong> __builtins__ considered in global namespace</li>
-		</ul>
-	</ul>
-	<ul>
-		<li><h4>Release 1.3.3</h4></li>
-		<ul>
-			<li><strong>Quick-fix:</strong> When an import is added from the auto-import quick-fix, a code-analysis is requested right after it.</li>
-			<li>Minor bugs fixed.</li>
-		</ul>
-	</ul>
-
+<br/>
 <br/>
 <br/>
 <hr/>
@@ -84,7 +65,7 @@ It works with <a class="a_link" href="http://www.eclipse.org/">Eclipse</a> and t
 
 	<ul>
 		<br/>
-		<li>Two <strong>screencasts</strong> demonstrating pydev and pydev extensions have been created. They are hosted at <a href="http://showmedo.com/videos/series?name=PyDevEclipseList">ShowMeDo.com</a>.</li>
+		<li><strong>Screencasts</strong> demonstrating pydev and pydev extensions may be found at <a href="http://showmedo.com/videos/series?name=PyDevEclipseList">ShowMeDo.com</a>.</li>
 		<br/>
 		<li><strong>NOTE</strong>: Pydev <strong>1.2.0</strong> and onward only <strong>support Eclipse 3.2</strong>, so, if you're using <strong>Eclipse 3.1</strong>, 
 		please keep to <strong>version 1.1.0</strong>. 
@@ -93,69 +74,24 @@ It works with <a class="a_link" href="http://www.eclipse.org/">Eclipse</a> and t
 		<br/>
 		<li>This is not the complete list of features. Check the <a class="a_link" href="manual_adv_features.html">Features Matrix</a> for that.
 		</li>
-		<br/>
 	</ul>
 	
 <br/>
 <br/>
 <hr/>
 
-<h3>Previous Release Changes</h3>
-	<ul>
-				
-        <li><h4>Release 1.3.2</h4></li>
-        <ul>
-            <li><strong>Fix:</strong> The vmargs in the interactive console are now only really passed to the jython process</li>
-            <li><strong>Fix:</strong> Rename refactoring was not getting some references that mapped to imports initially (and not directly to classes or functions)</li>
-            <li><strong>Fix:</strong> Mark Occurrences marks correctly the keyword parameters in referencing calls</li>
-        </ul>
-        
-		<li><h4>Release 1.3.1</h4></li>
-		<ul>
-			<li><strong>Interactive Console</strong>: jython process can receive vmargs (configured in the preferences page)</li>
-			<li><strong>Code-Completion</strong>: auto-import completions will not be brought for tokens in the current module</li>
-			<li><strong>Code-Completion</strong>: auto-import inserted as last import in imports list (so, __future__ imports will remain in the 1st position)</li>
-			<li><strong>Code-Analysis</strong>: Only adds unused parameters in methods that have some statement that is not a 'pass' or string</li>
-			<li><strong>Fix: Find Occurrences</strong>: will not 'overlap' occurrences anymore</li>
-			<li><strong>Fix: Code-Analysis</strong>: deep attribute access after finding __getattr__ does not signal unresolved import errors anymore</li>
-		</ul>
-	
-		
-		
-		<li><h4>Release 1.3.0</h4></li>
-		<ul>
-		<li><strong>Find References</strong>: Ctrl+Shift+G can be used to find the references to the selected token in the editor</li>
-		<li><strong>Fix: Code-analysis</strong>: Fixed false positive for statement with no effect</li>
-		</ul>
-
-		<li><h4>Release 1.2.8</h4></li>
-		<ul>
-			<li><strong>Code-analysis</strong>: when a compare statement is found out of a test scope, that's reported as a warning</li>
-			<li><strong>Mark Occurrences</strong>: new option to choose whether strings and comments should be highlighted</li>
-			<li><strong>Simple Completions</strong>: some keywords were removed from the default list (the 2-letter ones because they're barely worth it and those related to 'try', as there's already an assistant that creates 'try' blocks)</li>
-			<li><strong>Rename refactoring / Mark Occurrences</strong>: matches in multi-line strings are now correct</li>
-		</ul>
-		<li><h4>Release 1.2.7</h4></li>
-		<ul>
-			<li>Mark occurrences and rename now will also get the tokens in comments and strings</li>
-			<li>Rename refactoring bugfixes (but still not final)</li>
-			<li>The remote debugger port can now be specified</li>
-		</ul>
-	</ul>
-
-	
-
-<br/>
-<br/>
-<hr/>
 
 
 
+
+
+<h3>Evaluating Pydev Extensions</h3>
 
 <p><strong>You can <a class="a_link" href="download.html">download</a> the plugin and evaluate it with full functionalities 
 for 30 days without requiring a license. </strong>
 The only difference between the licensed and the unlicensed version is that you'll get a message first at 30 mins and then after each 2 hours
 saying that it is an unlicensed version (you have to license it to remove that message).</p>
+<br/>
 <br/>
 </contents_area>
 

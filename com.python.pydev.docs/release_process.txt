@@ -1,10 +1,10 @@
-OK Remove old install from org.python.pydev.site
+Remove old install from org.python.pydev.site
 
-OK Update the home page and run its script
+Update the home page and run its script
 
-OK Run the build script
+Run the build script
 
-OK Change site.xml in org.python.pydev.site
+Change site.xml in org.python.pydev.site
 
 Add the zips to the right places in org.python.pydev.site
 

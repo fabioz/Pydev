@@ -103,6 +103,7 @@ def main():
     template('../template1.html     ', 'buy_renew'                 , 'Renew'                           )
     template('../template1.html     ', 'manual'                    , 'Manual'                          )
     template('../template1.html     ', 'about'                     , 'About'                           )
+    template('../template1.html     ', 'history'                   , 'Releases'                        )
     
     templateForAll(manual101, ('', 'manual','Root'), ('', 'manual_adv_features'   ,'Features'))
     
