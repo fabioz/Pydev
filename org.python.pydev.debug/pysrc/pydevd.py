@@ -85,8 +85,10 @@ class PyDBCommandThread(PyDBDaemonThread):
         self.pyDb = pyDb
         self.setName('pydevd.CommandThread')
 
-    def run(self):
+    def OnRun(self):
         time.sleep(5) #this one will only start later on (because otherwise we may not have any non-daemon threads
+        # If running under jython...
+            
         pydevd_tracing.SetTrace(None) # no debugging on this thread
         try:
             while not self.killReceived:

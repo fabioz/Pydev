@@ -134,6 +134,18 @@ class PyDBDaemonThread(threading.Thread):
         self.setDaemon(True)
         self.killReceived = False
 
+    def run(self):
+        if sys.platform.startswith("java"):
+            import org.python.core as PyCore #@UnresolvedImport
+            ss = PyCore.PySystemState()
+            # Note: Py.setSystemState() affects only the current thread.
+            PyCore.Py.setSystemState(ss)
+            
+        self.OnRun()
+        
+    def OnRun(self):
+        raise NotImplementedError('Should be reimplemented by: %s' % self.__class__)
+
     def doKill(self):
         #that was not working very well because jython gave some socket errors
         self.killReceived = True
@@ -152,7 +164,7 @@ class ReaderThread(PyDBDaemonThread):
         self.sock = sock
         self.setName("pydevd.Reader")
      
-    def run(self):
+    def OnRun(self):
         pydevd_tracing.SetTrace(None) # no debugging on this thread
         buffer = ""
         try:
@@ -191,8 +203,9 @@ class WriterThread(PyDBDaemonThread):
         """ cmd is NetCommand """
         self.cmdQueue.put(cmd)
         
-    def run(self):
+    def OnRun(self):
         """ just loop and write responses """
+            
         pydevd_tracing.SetTrace(None) # no debugging on this thread
         try:
             while not self.killReceived:
