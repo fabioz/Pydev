@@ -177,6 +177,27 @@ String result = ""+header+
         
     }
     
+    public void testPerform7() {
+    	
+    	
+    	String d = ""+
+    	"import sys\n"+
+    	"from os import pipe,\\\n"+
+    	"path\n"+
+    	"import time\n";
+    	
+    	Document doc = new Document(d);
+    	PyOrganizeImports.performArrangeImports(doc, "\n");
+    	
+    	String result = ""+
+    	"from os import pipe,\\\n"+
+    	"path\n"+
+    	"import sys\n"+
+    	"import time\n";
+    	assertEquals(result, doc.get());
+    	
+    }
+    
     public void testPerform6() {
         
         
