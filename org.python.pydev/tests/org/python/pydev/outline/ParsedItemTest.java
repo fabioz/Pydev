@@ -38,4 +38,25 @@ public class ParsedItemTest extends PyParserTestBase {
         assertEquals(1, functionEntry.children.size()); 
         
     }
+    
+    public void testParsedItemCreation2() throws Exception {
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
+        String str = "" +
+        "class Foo(object):\n" +
+        "    pass\n" +
+        "if __name__ == '__main__':\n" +
+        "    var = 10\n" +
+        "\n" +
+        "";
+        
+        SimpleNode node = parseLegalDocStr(str);
+        
+        OutlineCreatorVisitor visitor = OutlineCreatorVisitor.create(node);
+        ParsedItem item = new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0]), null);
+        
+        //module level: only Foo
+        assertEquals(1, item.astChildrenEntries.length);
+        assertNull(item.astChildrenEntries[0].children); //no children
+        
+    }
 }

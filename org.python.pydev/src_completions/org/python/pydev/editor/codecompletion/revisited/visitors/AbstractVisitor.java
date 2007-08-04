@@ -13,11 +13,8 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.Compare;
-import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
-import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.VisitorBase;
@@ -253,30 +250,6 @@ public abstract class AbstractVisitor extends VisitorBase{
         }else{
             return new ArrayList<IToken>();
         }
-    }
-
-    /**
-     * @param node
-     */
-    public static Str isIfMAinNode(If node) {
-        if (node.test instanceof Compare) {
-    		Compare compareNode = (Compare)node.test;
-    		// handcrafted structure walking
-    		if (compareNode.left instanceof Name 
-    			&& ((Name)compareNode.left).id.equals("__name__")
-    			&& compareNode.ops != null
-    			&& compareNode.ops.length == 1 
-    			&& compareNode.ops[0] == Compare.Eq){
-                
-    		    if ( compareNode.comparators != null
-        			&& compareNode.comparators.length == 1
-        			&& compareNode.comparators[0] instanceof Str 
-        			&& ((Str)compareNode.comparators[0]).s.equals("__main__")){
-        			return (Str)compareNode.comparators[0];
-                }
-    		}
-    	}
-        return null;
     }
 
 

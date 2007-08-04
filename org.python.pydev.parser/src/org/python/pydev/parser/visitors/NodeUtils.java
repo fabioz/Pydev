@@ -16,9 +16,11 @@ import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Compare;
 import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.ListComp;
@@ -730,6 +732,32 @@ public class NodeUtils {
         buffer.append(node.s);
         buffer.append(s);
         return buffer.toString();
+    }
+
+
+    /**
+     * @param node the if node that we want to check.
+     * @return null if the passed node is not 
+     */
+    public static boolean isIfMAinNode(If node) {
+        if (node.test instanceof Compare) {
+    		Compare compareNode = (Compare)node.test;
+    		// handcrafted structure walking
+    		if (compareNode.left instanceof Name 
+    			&& ((Name)compareNode.left).id.equals("__name__")
+    			&& compareNode.ops != null
+    			&& compareNode.ops.length == 1 
+    			&& compareNode.ops[0] == Compare.Eq){
+                
+    		    if ( compareNode.comparators != null
+        			&& compareNode.comparators.length == 1
+        			&& compareNode.comparators[0] instanceof Str 
+        			&& ((Str)compareNode.comparators[0]).s.equals("__main__")){
+        			return true;
+                }
+    		}
+    	}
+        return false;
     }
 
 }

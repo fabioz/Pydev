@@ -9,9 +9,11 @@ import java.util.List;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 public class OutlineCreatorVisitor extends EasyASTIteratorWithChildrenVisitor{
 
@@ -76,6 +78,15 @@ public class OutlineCreatorVisitor extends EasyASTIteratorWithChildrenVisitor{
         
         return null;
 
+    }
+    
+    @Override
+    public Object visitIf(If node) throws Exception {
+        if(NodeUtils.isIfMAinNode(node)){
+            return null;
+        }else{
+            return super.visitIf(node);
+        }
     }
 
 

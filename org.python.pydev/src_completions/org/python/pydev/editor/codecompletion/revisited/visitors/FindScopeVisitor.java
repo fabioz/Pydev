@@ -13,6 +13,7 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -103,8 +104,8 @@ public class FindScopeVisitor extends AbstractVisitor {
      * Checks if we found an 'if' main node
      */
 	protected void checkIfMainNode(If node) {
-		Str mainNode = isIfMAinNode(node);
-        if(mainNode != null){
+		boolean isIfMainNode = NodeUtils.isIfMAinNode(node);
+        if(isIfMainNode){
             scope.setIfMainLine(node.beginLine);
         }
 	}
