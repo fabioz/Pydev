@@ -13,21 +13,21 @@ public class PyAddBlockCommentTest extends TestCase {
         Document doc = null;
         
         doc = new Document("cc");
-        new PyAddBlockComment(10, true, true).perform(new PySelection(doc, 0,0,0));
+        new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0,0,0));
         assertEquals("" +
                 "#---------\r\n" +
                 "# cc\r\n" +
                 "#---------", doc.get());
         
         doc = new Document("\tcc");
-        new PyAddBlockComment(10, true, true).perform(new PySelection(doc, 0,0,0));
+        new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0,0,0));
         assertEquals("" +
                 "#---------\r\n" +
                 "#\tcc\r\n" +
                 "#---------", doc.get());
         
         doc = new Document("class Foo(object):");
-        new PyAddBlockComment(10, true, true).perform(new PySelection(doc, 0,0,0));
+        new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0,0,0));
         assertEquals("" +
                 "#---------\r\n" +
                 "# Foo\r\n" +
@@ -36,16 +36,24 @@ public class PyAddBlockCommentTest extends TestCase {
         
         
         doc = new Document("class Information( UserDict.UserDict, IInformation ):");
-        new PyAddBlockComment(10, true, true).perform(new PySelection(doc, 0,0,0));
+        new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0,0,0));
         assertEquals("" +
         		"#---------\r\n" +
         		"# Information\r\n" +
         		"#---------\r\n" +
         		"class Information( UserDict.UserDict, IInformation ):", doc.get());
         
+        doc = new Document("def Information( (UserDict, IInformation) ):");
+        new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0,0,0));
+        assertEquals("" +
+                "#---------\r\n" +
+                "# Information\r\n" +
+                "#---------\r\n" +
+                "def Information( (UserDict, IInformation) ):", doc.get());
+        
         //without class behavior
         doc = new Document("class Foo(object):");
-        new PyAddBlockComment(10, true, false).perform(new PySelection(doc, 0,0,0));
+        new PyAddBlockComment(10, true, false, true).perform(new PySelection(doc, 0,0,0));
         assertEquals("" +
                 "#---------\r\n" +
                 "# class Foo(object):\r\n" +
@@ -54,7 +62,7 @@ public class PyAddBlockCommentTest extends TestCase {
         
         //aligned class
         doc = new Document("    class Foo(object):");
-        new PyAddBlockComment(10, true, true).perform(new PySelection(doc, 0,0,0));
+        new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0,0,0));
         assertEquals("" +
                 "    #-----\r\n" +
                 "    # Foo\r\n" +

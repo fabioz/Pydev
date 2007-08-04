@@ -9,7 +9,6 @@ package org.python.pydev.editor.actions;
 import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -26,6 +25,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
 
 
     private boolean defaultClassNameBehaviour;
+    private boolean defaultFunctionNameBehaviour;
 
     public PyAddBlockComment(){
         //default
@@ -34,9 +34,10 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
     /**
      * For tests: assigns the default values
      */
-    PyAddBlockComment(int defaultCols, boolean alignLeft, boolean classNameBehaviour){
+    PyAddBlockComment(int defaultCols, boolean alignLeft, boolean classNameBehaviour, boolean functionNameBehaviour){
         super(defaultCols, alignLeft);
         this.defaultClassNameBehaviour = classNameBehaviour;
+        this.defaultFunctionNameBehaviour = functionNameBehaviour;
     }
 
     @Override
@@ -51,6 +52,16 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
             return prefs.getBoolean(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_SHOW_ONLY_CLASS_NAME);
         }catch(NullPointerException e){ //tests
             return defaultClassNameBehaviour;
+        }
+    }
+    
+    
+    protected boolean getUseFunctionNameBehaviour(){
+        try{
+            Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
+            return prefs.getBoolean(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_SHOW_ONLY_FUNCTION_NAME);
+        }catch(NullPointerException e){ //tests
+            return defaultFunctionNameBehaviour;
         }
     }
     
@@ -82,11 +93,30 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
                 }
             }
             
+            boolean functionBehaviour = false;
+            if(startLineIndex == endLineIndex && getUseFunctionNameBehaviour()){
+                if(ps.isInFunctionLine()){
+                    //just get the class name
+                    functionBehaviour = true;
+                }
+            }
+            
             // Start of block
 
-            if(classBehaviour){
+            if(classBehaviour || functionBehaviour){
                 String line = ps.getLine(startLineIndex);
-                int classIndex = line.indexOf("class ");
+                
+                int classIndex;
+                int tokLen;
+                
+                if (classBehaviour){
+                    classIndex = line.indexOf("class ");
+                    tokLen = 6;
+                }else{
+                    classIndex = line.indexOf("def ");
+                    tokLen = 4;
+                }
+                
                 fullCommentLine = getFullCommentLine(classIndex);
                 String spacesBefore;
                 if(classIndex > 0){
@@ -97,7 +127,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
                 
                 strbuf.append(spacesBefore+"#" + fullCommentLine + endLineDelim);
                 String initialLine = line;
-                line = line.substring(classIndex+6);
+                line = line.substring(classIndex+tokLen);
                 StringBuffer className = new StringBuffer();
                 for(int i=0;i<line.length();i++){
                     char cN = line.charAt(i);

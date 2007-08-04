@@ -181,9 +181,29 @@ public class PyOrganizeImports extends PyAction{
     @SuppressWarnings("unchecked")
 	public static void performSimpleSort(IDocument doc, String endLineDelim, int startLine, int endLine) {
         try {
-	        ArrayList list = new ArrayList();
+	        ArrayList<String> list = new ArrayList<String>();
+	        
+	        StringBuffer lastLine = null;
 	        for (int i = startLine; i <= endLine; i++) {
-			    list.add( PySelection.getLine(doc, i) );
+	            
+	            String line = PySelection.getLine(doc, i);
+                
+	            if(lastLine != null){
+	                int len = lastLine.length();
+                    if(len > 0 && lastLine.charAt(len-1) == '\\'){
+                        lastLine.append(endLineDelim);
+                        lastLine.append(line);
+                    }else{
+                        list.add(lastLine.toString());
+                        lastLine = new StringBuffer(line);
+                    }
+	            }else{
+	                lastLine = new StringBuffer(line);
+	            }
+	        }
+	        
+	        if(lastLine != null){
+	            list.add(lastLine.toString());
 	        }
 	        
 	        Collections.sort(list);

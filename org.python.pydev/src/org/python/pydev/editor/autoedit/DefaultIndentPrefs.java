@@ -38,9 +38,9 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
 	}
 	
 	/**
-	 * Singleton.
+	 * Not singleton (each pyedit may force to use tabs or not).
 	 */
-	private DefaultIndentPrefs(){
+	DefaultIndentPrefs(){
 		PyPreferencesCache c = getCache();
 		useSpaces = c.getBoolean(PydevPrefs.SUBSTITUTE_TABS);
 		tabWidth = c.getInt(PydevPrefs.TAB_WIDTH, 4);

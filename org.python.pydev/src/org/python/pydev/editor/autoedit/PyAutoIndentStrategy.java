@@ -42,7 +42,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 
     public IIndentPrefs getIndentPrefs() {
         if (this.prefs == null) {
-            this.prefs = DefaultIndentPrefs.get(); //get the default if this is still not done.
+            this.prefs = new DefaultIndentPrefs(); //create a new one (because each pyedit may force the tabs differently).
         }
         return this.prefs;
     }
@@ -476,10 +476,13 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             		PySelection ps = new PySelection(document, command.offset);
 	                String completeLine = ps.getLineWithoutCommentsOrLiterals();
 	                String lineToCursor = ps.getLineContentsToCursor().trim();
+	                String lineContentsFromCursor = ps.getLineContentsFromCursor();
+	                
 	                if( completeLine.indexOf(" import ") == -1 && 
                 		StringUtils.leftTrim(completeLine).startsWith("from ")&& 
 	                   !completeLine.startsWith("import ")&& 
-	                   !completeLine.endsWith(" import")){
+	                   !completeLine.endsWith(" import") &&
+	                   !lineContentsFromCursor.startsWith("import")){
 	                	
 	                    String importsTipperStr = ImportsSelection.getImportsTipperStr(lineToCursor, false).importsTipperStr;
 	                    if(importsTipperStr.length() > 0){

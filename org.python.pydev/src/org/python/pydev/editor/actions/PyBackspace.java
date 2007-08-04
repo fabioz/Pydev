@@ -12,7 +12,6 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.IIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 
@@ -37,7 +36,7 @@ public class PyBackspace extends PyAction {
 
     public IIndentPrefs getIndentPrefs() {
         if (this.prefs == null) {
-            this.prefs = DefaultIndentPrefs.get(); //create the default if this is still not done.
+            this.prefs = getPyEdit().getIndentPrefs();
         }
         return this.prefs;
     }

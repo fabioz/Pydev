@@ -23,6 +23,7 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -64,7 +65,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     /**
      * This makes the templates completion
      */
-    private PyTemplateCompletion templatesCompletion = new PyTemplateCompletion();
+    private PyTemplateCompletionProcessor templatesCompletion = new PyTemplateCompletionProcessor();
 
     /**
      * This makes python code completion
@@ -233,6 +234,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * @throws CoreException
      * @throws BadLocationException
      */
+    @SuppressWarnings("unchecked")
     private List getPythonProposals(ITextViewer viewer, int documentOffset, IDocument doc, CompletionRequest request) throws CoreException, BadLocationException {
         //if non empty string, we're in imports section.
         String importsTipperStr = request.codeCompletion.getImportsTipperStr(request).importsTipperStr;
@@ -250,6 +252,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     /**
      * Returns the template proposals as a list.
      */
+    @SuppressWarnings("unchecked")
     private List getTemplateProposals(ITextViewer viewer, int documentOffset, String activationToken, java.lang.String qualifier) {
         List<ICompletionProposal> propList = new ArrayList<ICompletionProposal>();
         this.templatesCompletion.addTemplateProposals(viewer, documentOffset, propList);

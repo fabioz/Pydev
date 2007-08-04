@@ -25,7 +25,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testParens3();
+            s.testAutoImportStr2();
             s.tearDown();
     		junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -1569,6 +1569,16 @@ public class PyAutoIndentStrategyTest extends TestCase {
     			doc.get());
     	
     }
+    
+    public void testAutoImportStr2() {
+        strategy.setIndentPrefs(new TestIndentPrefs(false, 4, true));
+        String doc = "from ooooimport";
+        DocCmd docCmd = new DocCmd(doc.length()-"import".length(), 0, " ");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = " ";
+        assertEquals(expected, docCmd.text);
+    }
+    
     public void testAutoImportStr() {
         strategy.setIndentPrefs(new TestIndentPrefs(false, 4, true));
         String doc = "from xxx";

@@ -3,26 +3,20 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.codecompletion;
+package org.python.pydev.editor.codecompletion.templates;
 
 import java.util.List;
 
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.jface.text.templates.DocumentTemplateContext;
 import org.eclipse.jface.text.templates.Template;
-import org.eclipse.jface.text.templates.TemplateBuffer;
 import org.eclipse.jface.text.templates.TemplateCompletionProcessor;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateContextType;
-import org.eclipse.jface.text.templates.TemplateException;
-import org.eclipse.jface.text.templates.TemplateTranslator;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
@@ -30,7 +24,8 @@ import org.python.pydev.ui.UIConstants;
 /**
  * @author Fabio Zadrozny
  */
-public class PyTemplateCompletion extends TemplateCompletionProcessor{
+public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor{
+    
     /*
      * (non-Javadoc)
      * 
@@ -67,7 +62,7 @@ public class PyTemplateCompletion extends TemplateCompletionProcessor{
      * @param propList
      *  
      */
-    protected void addTemplateProposals(ITextViewer viewer, int documentOffset,
+    public void addTemplateProposals(ITextViewer viewer, int documentOffset,
             List<ICompletionProposal> propList) {
         
         String str = extractPrefix(viewer, documentOffset);
@@ -105,32 +100,7 @@ public class PyTemplateCompletion extends TemplateCompletionProcessor{
             
             final String indentTo = indent;
             
-            return new DocumentTemplateContext(contextType, document, region.getOffset(), region.getLength()){
-                @Override
-                public TemplateBuffer evaluate(Template template) throws BadLocationException, TemplateException {
-                    if (!canEvaluate(template))
-                        return null;
-
-                    String pattern = template.getPattern();
-                    List<String> splitted = StringUtils.splitInLines(pattern);
-                    if(splitted.size() > 1 && indentTo != null && indentTo.length() > 0){
-                        StringBuffer buffer = new StringBuffer(splitted.get(0));
-                        for (int i=1; i<splitted.size();i++) { //we don't want to get the first line
-                            buffer.append(indentTo);
-                            buffer.append(splitted.get(i));
-                        }
-                        //just to change the pattern...
-                        template = new Template(template.getName(), template.getDescription(), template.getContextTypeId(), buffer.toString(), template.isAutoInsertable());
-                    }
-                    
-                    TemplateTranslator translator= new TemplateTranslator();
-                    TemplateBuffer templateBuffer= translator.translate(template);
-
-                    getContextType().resolve(templateBuffer, this);
-
-                    return templateBuffer;
-                }
-            };
+            return new PyDocumentTemplateContext(contextType, document, region.getOffset(), region.getLength(), indentTo, viewer);
         }
         return null;
     }

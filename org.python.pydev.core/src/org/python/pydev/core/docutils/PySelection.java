@@ -1378,7 +1378,7 @@ public class PySelection {
         int i = 0;
     	boolean breaked = false;
     	while (i < src.length()) {
-    	    if (   Character.isWhitespace(src.charAt(i)) == false && src.charAt(i) != '\t'  ) {
+    	    if (Character.isWhitespace(src.charAt(i)) == false && src.charAt(i) != '\t') {
     	        i++;
     		    breaked = true;
     			break;
@@ -1612,11 +1612,7 @@ public class PySelection {
 	}
 	
 	public boolean isInFunctionLine() {
-		String line = getLine();
-        if(line.startsWith("def ") || line.indexOf(" def ") != -1 || line.indexOf("\tdef ") != -1){
-            return true;
-        }
-        return false;
+        return FunctionPattern.matcher(getToColon().trim()).matches();
 	}
 	
 	public static boolean isIdentifier(String str) {
@@ -1626,12 +1622,11 @@ public class PySelection {
 	public boolean isInClassLine() {
 		return ClassPattern.matcher(getToColon().trim()).matches();
 	}
-//
-//	//(\\s|\\w|\\.|\\,|\\=|\\*)
-//	//(\\s|\\w)
-//	
-//	//spaces* 'def' space+ identifier space* ( (space|char|.|,|=|*|(|)|'|")* ):
-//    private static final Pattern FunctionPattern = Pattern.compile("\\s*def\\s+\\w*\\s*\\(.*\\)\\s*:");
+
+
+	
+	//spaces* 'def' space+ identifier space* ( (space|char|.|,|=|*|(|)|'|")* ):
+    private static final Pattern FunctionPattern = Pattern.compile("\\s*def\\s+\\w*.*");
 
     //spaces* 'class' space+ identifier space* (? (.|char|space |,)* )?
     private static final Pattern ClassPattern = Pattern.compile("\\s*class\\s+\\w*\\s*\\(?(\\s|\\w|\\.|\\,)*\\)?\\s*:");

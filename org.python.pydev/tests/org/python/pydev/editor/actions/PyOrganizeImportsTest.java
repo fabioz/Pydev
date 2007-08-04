@@ -18,7 +18,7 @@ public class PyOrganizeImportsTest extends TestCase {
         try {
             PyOrganizeImportsTest test = new PyOrganizeImportsTest();
             test.setUp();
-            test.testPerform6();
+            test.testPerformSort2();
             test.tearDown();
             junit.textui.TestRunner.run(PyOrganizeImportsTest.class);
         } catch (Throwable e) {
@@ -232,4 +232,28 @@ String result = ""+header+
 
 		assertEquals(result, doc.get());
     }
+    
+    
+    public void testPerformSort2(){
+        //should take into account that lines ending with \ may not be sorted
+        String s = ""+
+        "line4\\\n"+
+        "line1\n"+
+        "line3\n"+ //end the selection
+        "line2\n";
+        
+        
+        String result = ""+
+        "line2\n"+
+        "line3\n"+
+        "line4\\\n"+
+        "line1\n";
+        
+        Document doc = new Document(s);
+        PyOrganizeImports.performSimpleSort(doc, "\n",0,3);
+        
+        assertEquals(result, doc.get());
+    }
+    
+    
 }
