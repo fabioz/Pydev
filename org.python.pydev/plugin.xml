@@ -1118,27 +1118,11 @@
 	     </enablement>
 	  </commonWizard>
 	  
-      <commonFilter activeByDefault="false" id="org.python.pydev.navigator.filters.hideNonPydevProjects" description="%HideNonPydevProjects.description" 
-	     name="Pydev: Hide non-Pydev Projects">
-         <filterExpression>
-             <and>
-                <not>
-                   <adapt type="org.eclipse.core.resources.IProject">
-                      <test
-                            property="org.eclipse.core.resources.projectNature"
-                            value="org.python.pydev.pythonNature"/>
-                   </adapt>
-                </not>
-                
-                <not><instanceof value="org.eclipse.core.resources.IFolder"/>
-                </not><not><instanceof value="org.eclipse.core.resources.IStorage"/>
-                </not><not><instanceof value="org.eclipse.core.resources.IFile"/>
-                </not><not><instanceof value="org.eclipse.core.resources.IResource"/>
-                </not><not><instanceof value="org.python.pydev.navigator.elements.IWrappedResource"/>
-                </not><not><instanceof value="org.eclipse.ui.IWorkingSet"/>
-                </not>
-            </and>
-         </filterExpression>
+      <commonFilter activeByDefault="false" 
+	     name="Pydev: Hide non-Pydev Projects"
+      	 description="%HideNonPydevProjects.description" 
+      	 id="org.python.pydev.navigator.filters.hideNonPydevProjects" 
+      	 class="org.python.pydev.navigator.filters.PydevProjectsFilter">
       </commonFilter>
       
   	  <commonFilter activeByDefault="true" 

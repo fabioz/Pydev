@@ -1,7 +1,6 @@
 - in outline, the '---' should appear given an option to show that or trim it
 - hierarchy view: show with f4 / close / open view / f4 (will not work)
 - DEBUGGER BUG: if a class is defined within a method, things later in that method are not able to get the correct name for the breakpoint scope (cannot reproduce?)
-- Ctrl+4 for blocks in methods
 - Debugger: enable users to configure the mappings for remote debugging in a 'nice' way.
 - See why Ctrl+1 is bringing more than 1 completion for the same token on some cases.
 - Make 'add pydev nature' to project

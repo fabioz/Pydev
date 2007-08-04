@@ -6,6 +6,7 @@ Pydev
 <li>Auto-add import string will not be added when adding a space in the case: from xxximport (just after from xxx)</li>
 <li>Templates created with tabs (or spaces indent) are now converted to the indent being used in the editor.</li>
 <li>Jython debugger: fix regarding a halt on jython 2.2rc2.</li>
+<li>Hide non-pydev projects filter working.</li>
 </ul>
 
 after 1.3.7

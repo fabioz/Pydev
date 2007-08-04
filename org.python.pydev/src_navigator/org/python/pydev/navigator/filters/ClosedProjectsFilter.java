@@ -13,8 +13,8 @@ public class ClosedProjectsFilter extends ViewerFilter{
 			IAdaptable adaptable = (IAdaptable) element;
 			Object adapted = adaptable.getAdapter(IProject.class);
 			if(adapted instanceof IProject){
-				IProject resource = (IProject) adapted;
-				if(resource.isOpen()){
+				IProject project = (IProject) adapted;
+				if(project.isOpen()){
 					return true;
 				}else{
 					return false;
