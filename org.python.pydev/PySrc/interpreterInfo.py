@@ -15,7 +15,6 @@ import sys
 import os
 True, False = 1,0 
 import time
-import string #to be compatible with older versions
 
 if sys.platform == "cygwin":
     sys.path.append(os.path.join(sys.path[0],'ThirdParty'))
@@ -75,10 +74,19 @@ if __name__ == '__main__':
     result = []
     for p in sys.path:
         p = nativePath(p)
-        if string.find(p, prefix) == 0: #was startswith
-            result.append((p,True))
-        else:
-            result.append((p, False))
+        
+        try:
+            import string #to be compatible with older versions
+            if string.find(p, prefix) == 0: #was startswith
+                result.append((p, True))
+            else:
+                result.append((p, False))
+        except ImportError:
+            #jython may not have it (depending on how are things configured)
+            if p.startswith(prefix): #was startswith
+                result.append((p, True))
+            else:
+                result.append((p, False))
             
     for p,b in result:
         if b:
