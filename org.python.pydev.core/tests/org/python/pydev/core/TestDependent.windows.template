@@ -13,7 +13,16 @@ public class TestDependent {
     public static final String PYTHON_SITE_PACKAGES="C:/Shared/i686.win32/python-2.4.3/Lib/site-packages/";
     public static final String PYTHON_WXPYTHON_PACKAGES="C:/Shared/i686.win32/python-2.4.3/Lib/site-packages/wx-2.6-msw-ansi/";
     public static final String PYTHON_NUMARRAY_PACKAGES="C:/Shared/i686.win32/python-2.4.3/Lib/site-packages/numarray/";
+    public static final String PYTHON_MX_PACKAGES="C:/Shared/i686.win32/mx-2.0.6/Lib/site-packages/";
     
+	public static String GetCompletePythonLib(boolean addSitePackages) {
+		if(!addSitePackages){
+			return PYTHON_LIB;
+		}else{
+			return PYTHON_LIB+"|"+PYTHON_SITE_PACKAGES;
+		}
+	}
+
     
     //NOTE: this should set to the tests pysrc location, so that it can be added to the pythonpath.
     public static final String TEST_PYDEV_BASE_LOC = "X:/";
@@ -24,6 +33,7 @@ public class TestDependent {
     public static final String TEST_PYDEV_PARSER_PLUGIN_LOC = TEST_PYDEV_BASE_LOC+"org.python.pydev.parser/";
     public static final String TEST_PYDEV_DEBUG_PLUGIN_LOC = TEST_PYDEV_BASE_LOC+"org.python.pydev.debug/";
     public static final String TEST_PYDEV_REFACTORING_PLUGIN_LOC = TEST_PYDEV_BASE_LOC+"org.python.pydev.refactoring/";
+    public static final String TEST_PYSRC_NAVIGATOR_LOC = TEST_PYDEV_BASE_LOC+"org.python.pydev/tests_navigator/pysrc/";
 
     //java info 
     public static final String JAVA_LOCATION="C:/bin/jdk1_5_0_09/bin/java.exe";
@@ -38,7 +48,7 @@ public class TestDependent {
     public static final boolean HAS_GLU_INSTALLED = false;
     public static final boolean HAS_SWT_ON_PATH = false;
     public static final boolean HAS_NUMARRAY_INSTALLED = false;
-	public static final boolean HAS_MX_DATETIME = false;
+	public static final boolean HAS_MX_DATETIME = true;
 	
 	public static boolean HAS_CYGWIN = false;
 	public static String CYGWIN_PYTHON_EXE="E:/install/Utils.Cygwin/bin/python2.4.exe";
