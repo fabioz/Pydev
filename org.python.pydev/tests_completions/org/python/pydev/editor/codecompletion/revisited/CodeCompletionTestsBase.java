@@ -326,7 +326,7 @@ public class CodeCompletionTestsBase extends TestCase {
      * same as the restorePythonPath function but also includes the site packages in the distribution
      */
     public void restorePythonPathWithSitePackages(boolean force){
-        restoreSystemPythonPath(force, TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES);
+        restoreSystemPythonPath(force, TestDependent.GetCompletePythonLib(true));
         restoreProjectPythonPath(force, TestDependent.TEST_PYSRC_LOC);
         restoreProjectPythonPath2(force, TestDependent.TEST_PYSRC_LOC2);
         checkSize();
@@ -342,7 +342,7 @@ public class CodeCompletionTestsBase extends TestCase {
         if(DEBUG_TESTS_BASE){
             System.out.println("-------------- Restoring system pythonpath");
         }
-        restoreSystemPythonPath(force, TestDependent.PYTHON_LIB);
+        restoreSystemPythonPath(force, TestDependent.GetCompletePythonLib(false));
         if(DEBUG_TESTS_BASE){
             System.out.println("-------------- Restoring project pythonpath");
         }

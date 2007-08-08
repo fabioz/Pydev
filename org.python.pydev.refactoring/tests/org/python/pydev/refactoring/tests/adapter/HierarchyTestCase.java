@@ -35,7 +35,7 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
         super.setUp();
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
-        this.restorePythonPath(TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES+"|"+file.getParent(), false);
+        this.restorePythonPath(TestDependent.GetCompletePythonLib(true)+"|"+file.getParent(), false);
         codeCompletion = new PyCodeCompletion();
 
         //we don't want to start it more than once

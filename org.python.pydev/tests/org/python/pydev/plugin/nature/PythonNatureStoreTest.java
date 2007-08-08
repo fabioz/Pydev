@@ -4,6 +4,7 @@
  */
 package org.python.pydev.plugin.nature;
 
+import org.python.pydev.editor.actions.PySelectionTest;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.BundleInfoStub;
@@ -69,7 +70,7 @@ public class PythonNatureStoreTest extends TestCase {
         //check the contents
         assertEquals(true, projectStub2.fileStub.created);
         String strContents = projectStub2.fileStub.getStrContents();
-        assertEquals(contents1, strContents.replaceFirst(" standalone=\"no\"", "")); //depending on the java version, standalone="no" may be generated
+        PySelectionTest.checkStrEquals(contents1, strContents.replaceFirst(" standalone=\"no\"", "")); //depending on the java version, standalone="no" may be generated
             
         //in ProjectStub2, the initial setting is /test (see the getPersistentProperty)
         assertEquals("/test", store.getPathProperty(PythonPathNature.getProjectSourcePathQualifiedName()));
@@ -77,7 +78,7 @@ public class PythonNatureStoreTest extends TestCase {
         assertEquals("/test/foo|/bar/kkk", store.getPathProperty(PythonPathNature.getProjectSourcePathQualifiedName()));
         
         strContents = projectStub2.fileStub.getStrContents();
-        assertEquals(contents2, strContents.replaceFirst(" standalone=\"no\"", "")); //depending on the java version, standalone="no" may be generated
+        PySelectionTest.checkStrEquals(contents2, strContents.replaceFirst(" standalone=\"no\"", "")); //depending on the java version, standalone="no" may be generated
         assertEquals("", store.getPathProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName()));
     }
 }

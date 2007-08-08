@@ -139,7 +139,7 @@ public abstract class SimpleRunner {
         try {
             return Platform.getOS().equals(Constants.OS_WIN32);
         } catch (NullPointerException e) {
-            String env = System.getenv("os");
+        	String env = System.getProperty("os.name");
             if(env.toLowerCase().indexOf("win") != -1){
                 return true;
             }

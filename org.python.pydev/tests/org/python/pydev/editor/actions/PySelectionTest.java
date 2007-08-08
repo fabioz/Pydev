@@ -73,7 +73,7 @@ public class PySelectionTest extends TestCase {
     	
     	ps = new PySelection(new Document("line1"), new TextSelection(doc, 0,0));
     	ps.addLine("foo", 0);
-    	assertEquals("line1\r\nfoo\r\n", ps.getDoc().get());
+    	assertEquals("line1\nfoo\n", ps.getDoc().get().replace("\r\n", "\n"));
 	}
     /**
      * @throws BadLocationException
@@ -535,4 +535,8 @@ public class PySelectionTest extends TestCase {
         assertEquals(PySelection.DECLARATION_METHOD, new PySelection(new Document("def A(foo):\r\n    pass"), 5).isInDeclarationLine());
         assertEquals(0, new PySelection(new Document("def A(foo):\r\n    pass"), 6).isInDeclarationLine());
     }
+
+	public static void checkStrEquals(String string, String string2) {
+		assertEquals(string.replace("\r\n", "\n"), string2.replace("\r\n", "\n"));
+	}
 }

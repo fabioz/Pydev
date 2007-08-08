@@ -26,7 +26,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testBuiltinsInNamespace2();
+            builtins.testDeepNested8();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -48,7 +48,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         ADD_MX_TO_FORCED_BUILTINS = false;
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
-        this.restorePythonPath(TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES+"|"+
+        this.restorePythonPath(TestDependent.GetCompletePythonLib(true)+"|"+
         		TestDependent.PYTHON_WXPYTHON_PACKAGES+"|"+TestDependent.PYTHON_MX_PACKAGES, false);
         
         codeCompletion = new PyCodeCompletion();

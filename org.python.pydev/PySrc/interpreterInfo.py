@@ -68,7 +68,7 @@ if __name__ == '__main__':
     #(still need to check if it works in linux)
     #(previously, we were getting the executable dir, but that is not always correct...)
     prefix = nativePath(sys.prefix)
-    print 'prefix is', prefix
+    #print 'prefix is', prefix
     
 
     result = []

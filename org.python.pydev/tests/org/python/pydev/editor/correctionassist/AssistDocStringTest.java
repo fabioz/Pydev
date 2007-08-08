@@ -150,7 +150,7 @@ public class AssistDocStringTest extends TestCase {
         assertEquals(proposals, props.size());
         if(props.size() > 0){
 	        props.get(0).apply(doc);
-			assertEquals(expected, doc.get());
+			assertEquals(expected.replace("\r\n", "\n"), doc.get().replace("\r\n", "\n"));
         }
 	}
     

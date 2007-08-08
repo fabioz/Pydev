@@ -70,16 +70,15 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
     
     public void testResolvePath(){
         PythonPathHelper helper = new PythonPathHelper();
-        String path = TestDependent.PYTHON_INSTALL+"Lib| "+TestDependent.PYTHON_INSTALL+"Lib/site-packages|"+
-		                TestDependent.TEST_PYSRC_LOC;
+        String path = TestDependent.GetCompletePythonLib(true)+"|"+TestDependent.TEST_PYSRC_LOC;
 		helper.setPythonPath(path);
         
-        assertEquals("unittest",helper.resolveModule(TestDependent.PYTHON_INSTALL+"Lib/unittest.py"));
-        assertEquals("compiler.ast",helper.resolveModule(TestDependent.PYTHON_INSTALL+"Lib/compiler/ast.py"));
+        assertEquals("unittest",helper.resolveModule(TestDependent.PYTHON_LIB+"unittest.py"));
+        assertEquals("compiler.ast",helper.resolveModule(TestDependent.PYTHON_LIB+"compiler/ast.py"));
         
-        assertEquals("email",helper.resolveModule(TestDependent.PYTHON_INSTALL+"Lib/email"));
-        assertSame(null ,helper.resolveModule(TestDependent.PYTHON_INSTALL+"Lib/curses/invalid", true));
-        assertSame(null ,helper.resolveModule(TestDependent.PYTHON_INSTALL+"Lib/invalid", true));
+        assertEquals("email",helper.resolveModule(TestDependent.PYTHON_LIB+"email"));
+        assertSame(null ,helper.resolveModule(TestDependent.PYTHON_LIB+"curses/invalid", true));
+        assertSame(null ,helper.resolveModule(TestDependent.PYTHON_LIB+"invalid", true));
         
         assertEquals("testlib",helper.resolveModule(TestDependent.TEST_PYSRC_LOC+"testlib"));
         assertEquals("testlib.__init__",helper.resolveModule(TestDependent.TEST_PYSRC_LOC+"testlib/__init__.py"));
