@@ -15,6 +15,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.editor.actions.PySelectionTest;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.ast.Import;
@@ -29,7 +30,17 @@ import com.python.pydev.codecompletion.ctxinsensitive.CtxParticipant;
 public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(CompletionParticipantTest.class);
+    	CompletionParticipantTest test = new CompletionParticipantTest();
+    	try {
+			test.setUp();
+			test.testImportCompletion();
+			test.tearDown();
+			
+			junit.textui.TestRunner.run(CompletionParticipantTest.class);
+		} catch (Throwable e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
 
@@ -51,11 +62,11 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
     	
         Document document = new Document("unittest");
         ((CtxInsensitiveImportComplProposal)proposals[0]).apply(document, ' ', 0, 8);
-        assertEquals("import unittest\r\nunittest", document.get());
+        PySelectionTest.checkStrEquals("import unittest\r\nunittest", document.get());
             
         document = new Document("unittest");
         ((CtxInsensitiveImportComplProposal)proposals[1]).apply(document, ' ', 0, 8);
-        assertEquals("from testlib import unittest\r\nunittest", document.get());
+        PySelectionTest.checkStrEquals("from testlib import unittest\r\nunittest", document.get());
 
         
         //for imports, the behavior never changes
@@ -64,7 +75,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
             proposals = requestCompl("_priv3", new String[]{"_priv3 - relative.rel1._priv1._priv2"}); 
             document = new Document("_priv3");
             ((CtxInsensitiveImportComplProposal)proposals[0]).apply(document, ' ', 0, 6);
-            assertEquals("from relative.rel1._priv1._priv2 import _priv3\r\n_priv3", document.get());
+            PySelectionTest.checkStrEquals("from relative.rel1._priv1._priv2 import _priv3\r\n_priv3", document.get());
         } finally {
             AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = false;
         }
@@ -97,7 +108,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
             proposals = requestCompl("Priv3", new String[]{"Priv3 - relative.rel1._priv1._priv2._priv3"}); 
             Document document = new Document("Priv3");
             ((CtxInsensitiveImportComplProposal)proposals[0]).apply(document, ' ', 0, 5);
-            assertEquals("from relative.rel1 import Priv3\r\nPriv3", document.get());
+            PySelectionTest.checkStrEquals("from relative.rel1 import Priv3\r\nPriv3", document.get());
         } finally {
             AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = false;
         }

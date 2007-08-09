@@ -10,6 +10,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.runners.SimpleRunner;
 
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 
@@ -404,9 +405,19 @@ public class SearchTest extends AdditionalInfoTestsBase {
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
         
         assertEquals(1, pointers.length);
-        assertEquals(new File(TestDependent.PYTHON_LIB+"ntpath.py"), pointers[0].file);
+        File linuxFile = new File(TestDependent.PYTHON_LIB+"posixpath.py");
+        File windowsFile = new File(TestDependent.PYTHON_LIB+"ntpath.py");
+        
+		File expectedFile;
+		if(SimpleRunner.isWindowsPlatform()){
+			expectedFile = windowsFile;
+			assertTrue("Expecting to find it at line 438, 439 or 440, found it at:"+pointers[0].start.line, 440 == pointers[0].start.line || 439 == pointers[0].start.line|| 438 == pointers[0].start.line); //depends on python version
+		}else{
+			expectedFile = linuxFile;
+			assertTrue("Expecting to find it at line 372, found it at:"+pointers[0].start.line, 372 == pointers[0].start.line); //depends on python version (linux)
+		}
+		assertEquals(expectedFile, pointers[0].file);
         //found the module
-        assertTrue("Expecting to find it at line 438, 439 or 440, found it at:"+pointers[0].start.line, 440 == pointers[0].start.line || 439 == pointers[0].start.line|| 438 == pointers[0].start.line); //depends on python version
         assertEquals(0, pointers[0].start.column);
     }
     
