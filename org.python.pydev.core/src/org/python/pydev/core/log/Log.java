@@ -71,7 +71,13 @@ public class Log {
     private synchronized static void toLogFile(String buffer) {
         synchronized(lock){
             try{
-                IPath stateLocation = CorePlugin.getDefault().getStateLocation().append("PydevLog.log");
+                CorePlugin default1 = CorePlugin.getDefault();
+                if(default1 == null){
+                	//in tests
+                	System.out.println(buffer);
+                	return;
+                }
+				IPath stateLocation = default1.getStateLocation().append("PydevLog.log");
                 String file = stateLocation.toOSString();
                 REF.appendStrToFile(buffer+"\r\n", file);
             }catch(Throwable e){

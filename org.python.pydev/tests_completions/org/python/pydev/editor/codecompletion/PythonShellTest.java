@@ -6,7 +6,6 @@
 package org.python.pydev.editor.codecompletion;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -26,10 +25,10 @@ public class PythonShellTest extends CodeCompletionTestsBase{
 
     public static void main(String[] args) {
         try {
-//            PythonShellTest test = new PythonShellTest();
-//            test.setUp();
-//            test.testGlu();
-//            test.tearDown();
+            PythonShellTest test = new PythonShellTest();
+            test.setUp();
+            test.testGetGlobalCompletions();
+            test.tearDown();
             junit.textui.TestRunner.run(PythonShellTest.class);
         } catch (Exception e) {
             e.printStackTrace();
@@ -64,19 +63,19 @@ public class PythonShellTest extends CodeCompletionTestsBase{
     }
 
     public void testGetGlobalCompletions() throws IOException, CoreException {
-        List list = shell.getImportCompletions("math", new ArrayList()).o2;
+    	List<String[]> list = shell.getImportCompletions("math", getPythonpath()).o2;
 
         Object[] element = null;
         element = (Object[]) list.get(0);
         assertEquals("__doc__", element[0]);
-        assertEquals(29+1, list.size()); //29+__dict__
+        assertTrue(list.size() >= 29); 
 
         
     }
 
 
     public void testErrorOnCompletions() throws IOException, CoreException {
-        List list = shell.getImportCompletions("dfjslkfjds\n\n", getPythonpath()).o2;
+    	List<String[]> list = shell.getImportCompletions("dfjslkfjds\n\n", getPythonpath()).o2;
         assertEquals(0, list.size());
         //don't show completion errors!
     }
@@ -84,23 +83,22 @@ public class PythonShellTest extends CodeCompletionTestsBase{
     /**
      * @return
      */
-    private List getPythonpath() {
+    private List<String> getPythonpath() {
         return nature.getAstManager().getModulesManager().getCompletePythonPath(null); //default
     }
     
 
     public void testGlu() throws IOException, CoreException {
         if(TestDependent.HAS_GLU_INSTALLED){
-            List list = shell.getImportCompletions("OpenGL.GLUT", getPythonpath()).o2;
+            List<String[]> list = shell.getImportCompletions("OpenGL.GLUT", getPythonpath()).o2;
             
             assertTrue(list.size() > 10);
             assertIsIn(list, "glutInitDisplayMode");
         }
     }
 
-    private void assertIsIn(List list, String expected) {
-        for (Object object : list) {
-            Object o[] = (Object[]) object;
+    private void assertIsIn(List<String []> list, String expected) {
+        for (String[] o : list) {
             if(o[0].equals(expected)){
                 return;
             }

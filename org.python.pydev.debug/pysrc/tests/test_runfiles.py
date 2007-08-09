@@ -113,7 +113,7 @@ class RunfilesTest(unittest.TestCase):
 
     def test___unixify(self):
         unixify = self.MyTestRunner._PydevTestRunner__unixify
-        self.assertEquals( "c:/temp/junk/asdf.py", unixify("c:\\temp\\junk\\asdf.py") )
+        self.assertEquals( "c:/temp/junk/asdf.py", unixify("c:SEPtempSEPjunkSEPasdf.py".replace('SEP', os.sep)) )
 
     def test___importify(self):
         importify = self.MyTestRunner._PydevTestRunner__importify

@@ -14,7 +14,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ICallback;
-import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.ImportsSelection;
