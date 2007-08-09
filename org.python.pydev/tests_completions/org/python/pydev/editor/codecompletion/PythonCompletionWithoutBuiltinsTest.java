@@ -39,7 +39,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testAssertDeterminesClass6();
+	      test.testAssertDeterminesClass();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -127,22 +127,22 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 	public void testAssertDeterminesClass() throws CoreException, BadLocationException{
 	    String s = 
             "def m1(a):\n" +
-            "    import calendar\n" +
-            "    assert isinstance(a, calendar.Calendar)\n" +
+            "    import xmllib\n" +
+            "    assert isinstance(a, xmllib.XMLParser)\n" +
             "    a.";
         
-        requestCompl(s, s.length(), -1, new String[]{"getfirstweekday()"});
+        requestCompl(s, s.length(), -1, new String[]{"handle_data(data)"});
         
     }
 	
 	public void testAssertDeterminesClass2() throws CoreException, BadLocationException{
 	    String s = 
 	        "def m1(a):\n" +
-	        "    import calendar\n" +
-	        "    assert isinstance(a.bar, calendar.Calendar)\n" +
+	        "    import xmllib\n" +
+	        "    assert isinstance(a.bar, xmllib.XMLParser)\n" +
 	        "    a.bar.";
 	    
-	    requestCompl(s, s.length(), -1, new String[]{"getfirstweekday()"});
+	    requestCompl(s, s.length(), -1, new String[]{"handle_data(data)"});
 	    
 	}
 	
