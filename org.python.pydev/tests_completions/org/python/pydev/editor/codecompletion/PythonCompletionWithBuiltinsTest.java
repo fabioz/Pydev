@@ -196,7 +196,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         String s;
         s = "" +
         "from extendable.nested2 import hub\n"+
-        "hub.C1.f.altsep.";
+        "hub.C1.f.sep."; //changed: was altsep (may be None in linux).
         requestCompl(s, s.length(), -1, new String[] { "upper()"});
     }
     
