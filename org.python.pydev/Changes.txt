@@ -11,6 +11,12 @@ Pydev
 <li>Fixed problem when configuring jython</li>
 </ul>
 
+Extensions
+<ul>
+<li><strong>Code-analysis</strong>: detects bad indentation (wrong number of indent chars).</li>
+<li><strong>Code-analysis</strong>: Class may be marked with '@DynamicAttrs' so that the code-analysis doesn't give undefined variable errors.
+See <a href="manual_adv_code_analysis.html">Code Analysis</a> for more details.</li>
+</ul>
 
 after 1.3.7
 

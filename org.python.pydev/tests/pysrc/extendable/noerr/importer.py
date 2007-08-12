@@ -20,3 +20,11 @@ class ChildWithGetAttr(WithGetAttr):
 	pass
 
 childGetWithAttr = ChildWithGetAttr()
+
+class Struct:
+    '''@DynamicAttrs
+    '''
+    def __init__(self, **entries): 
+        self.__dict__.update(entries)
+    
+globals_struct = Struct(answer=42, linelen = 80, font='courier')
