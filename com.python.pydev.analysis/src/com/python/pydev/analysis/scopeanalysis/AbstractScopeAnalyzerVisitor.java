@@ -51,6 +51,7 @@ import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.analysis.visitors.Found;
@@ -831,6 +832,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                         }
                     }
                     
+                    String prev = null;
                     for(String repToCheck : new FullRepIterable(tokToCheck)){
                         int inGlobalTokens = m.isInGlobalTokens(repToCheck, nature, true, true);
                         
@@ -844,6 +846,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                         }else if(inGlobalTokens == IModule.FOUND_BECAUSE_OF_GETATTR){
                             break;
                         }
+                        prev = repToCheck;
                     }
                 }else if(foundAs.isImport() && !foundAs.importInfo.wasResolved){
                     //import was not resolved
@@ -894,6 +897,17 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                         Definition definition = (Definition) definitions2[0];
                         if(definition.ast instanceof FunctionDef){
                             return true;
+                            
+                        }else if(definition.ast instanceof ClassDef){
+                            ClassDef def = (ClassDef) definition.ast;
+                            String docString = NodeUtils.getNodeDocString(def);
+                            if(docString != null){
+                                if(docString.indexOf("@DynamicAttrs") != -1){
+                                    //class that has things dynamically defined.
+                                    return true;
+                                }
+                            }
+                            
                         }
                     }
                 }

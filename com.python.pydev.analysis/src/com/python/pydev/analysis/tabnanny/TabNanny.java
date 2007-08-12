@@ -77,23 +77,67 @@ public class TabNanny{
         }
         
         List<Tuple<String, Integer>> errorsAre;
+        List<Tuple<String, Integer>> validsAre;
         String errorMsg; 
+        char errorChar;
+        
         if(markTabsAsError){
+            validsAre = foundSpaces;
             errorsAre = foundTabs;
             errorMsg = "Mixed Indentation: Tab found"; 
-        }else{
-            errorsAre = foundSpaces;
-            errorMsg = "Mixed Indentation: Spaces found"; 
-        }
-        
-        char errorChar;
-        if(markTabsAsError){
             errorChar = '\t';
             
-        }else{
-            errorChar = ' ';
+            createBadIndentForSpacesMessages(doc, analysisPrefs, indentPrefs, ret, validsAre);
             
+        }else{
+            validsAre = foundTabs;
+            errorsAre = foundSpaces;
+            errorMsg = "Mixed Indentation: Spaces found"; 
+            errorChar = ' ';
         }
+
+        createMixedErrorMessages(doc, analysisPrefs, ret, errorsAre, errorMsg, errorChar);
+        return ret;
+    }
+
+    /**
+     * Creates the errors that are related to a bad indentation (number of space chars is not ok).
+     */
+    private static void createBadIndentForSpacesMessages(IDocument doc, IAnalysisPreferences analysisPrefs, IIndentPrefs indentPrefs,
+            ArrayList<IMessage> ret, List<Tuple<String, Integer>> validsAre) {
+        
+        int tabWidth = indentPrefs.getTabWidth();
+        //if we're analyzing the spaces, let's mark invalid indents (tabs are not searched for those because
+        //a tab always marks a full indent).
+        for(Tuple<String, Integer> indentation:validsAre){
+            
+            String indentStr = indentation.o1;
+            if(indentStr.indexOf("\t") != -1){
+                continue; //the ones that appear in tabs and spaces should not be analyzed here (they'll have their own error messages).
+            }
+            
+            int lenFound = indentStr.length();
+            int extraChars = lenFound%tabWidth;
+            if(extraChars != 0){
+                
+                Integer offset = indentation.o2;
+                int startLine = PySelection.getLineOfOffset(doc, offset)+1;
+                int startCol = 1;
+                int endCol = startCol+lenFound;
+
+                ret.add(new Message(IAnalysisPreferences.TYPE_INDENTATION_PROBLEM, 
+                        new StringBuffer("Bad Indentation (").append(lenFound).append(" spaces)").toString(), 
+                        startLine, startLine, startCol, endCol, analysisPrefs));
+                    
+            }
+        }
+    }
+
+    /**
+     * Creates the errors that are related to the mixed indentation.
+     */
+    private static void createMixedErrorMessages(IDocument doc, IAnalysisPreferences analysisPrefs, ArrayList<IMessage> ret,
+            List<Tuple<String, Integer>> errorsAre, String errorMsg, char errorChar) {
         
         for(Tuple<String, Integer> indentation:errorsAre){
             Integer offset = indentation.o2;
@@ -127,7 +171,6 @@ public class TabNanny{
             }
             
         }
-        return ret;
     }
     
 }

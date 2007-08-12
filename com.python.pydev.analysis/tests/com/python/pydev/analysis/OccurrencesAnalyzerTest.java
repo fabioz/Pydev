@@ -29,7 +29,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testUndefinedWithTab();
+            analyzer2.testIconsistendIndent();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -973,10 +973,10 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document(
                 "def m1():          \n"+  
                 "    result = 10    \n"+       
-                "                   \n"+      
+                "    \n"+      
                 "    if False:      \n"+       
                 "        result = 20\n"+        
-                "                   \n"     
+                "        \n"     
         );
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -988,10 +988,10 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document(
                 "def m1():              \n"+  
                 "    dummyResult = 10   \n"+       
-                "                       \n"+      
+                "    \n"+      
                 "    if False:          \n"+       
                 "        dummy2 = 20    \n"+        
-                "                       \n"     
+                "        \n"     
         );
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1025,10 +1025,10 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document(
             "def m1():          \n"+  
             "    result = 10    \n"+       
-            "                   \n"+      
+            "    \n"+      
             "    if False:      \n"+       
             "        result = 20\n"+        
-            "                   \n"+     
+            "    \n"+     
             "    print result   \n"      
         );
         analyzer = new OccurrencesAnalyzer();
@@ -1043,10 +1043,10 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document(
             "def m1():             \n"+  
             "    result = 10       \n"+       
-            "                      \n"+
+            "    \n"+
             "    while result > 0: \n"+
             "        result = 0    \n"+      
-            "                      \n"+     
+            "        \n"+     
             ""      
         );
         analyzer = new OccurrencesAnalyzer();
@@ -1337,7 +1337,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"def ok():          \n"+
     			"    def call():    \n"+
     			"        call2()    \n"+
-    			"                   \n"+
+    			"    \n"+
     			"    def call2():   \n"+
     			"        pass\n"+
     			""   
@@ -1350,7 +1350,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	doc = new Document(
 			"def m1():                      \n"+
 			"    print (str(undef)).lower() \n"+
-			"                               \n"+
+			"    \n"+
 			""   
     	);
     	analyzer = new OccurrencesAnalyzer();
@@ -1366,7 +1366,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"def m1():                      \n"+
     			"    undef = 10                 \n"+
     			"    print (str(undef)).lower() \n"+
-    			"                               \n"+
+    			"    \n"+
     			""   
     	);
     	checkNoError();
@@ -1742,7 +1742,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
             "        db = 10                                    \n" +
             "        comp = db.select(1)                        \n" +
             "        aa.bbb.cccc[comp.id].hasSimulate = True    \n" +
-            "                                                   \n" +
+            "        \n" +
             ""  
         );
         analyzer = new OccurrencesAnalyzer();
@@ -1840,7 +1840,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document(
             "def m1():     \n" +
             "    print m2()\n" +
-            "              \n" +
+            "    \n" +
             "def m2():     \n" +
             "    pass      \n" 
         );
@@ -1872,7 +1872,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document(
                 "def m1():     \n" +
                 "    print m2()\n" +
-                "              \n" 
+                "    \n" 
         );
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1885,7 +1885,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
             "def m1():     \n" +
             "    print c   \n" +
             "    c = 10    \n" +
-            "              \n" 
+            "    \n" 
         );
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();

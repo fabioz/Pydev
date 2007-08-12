@@ -141,4 +141,18 @@ public class TabNannyIteratorTest extends TestCase {
         assertEquals("\t",it.next().o1);
         assertTrue(!it.hasNext()); 
     }
+    
+    public void testIterator12() throws Exception {
+        Document doc = new Document("" +
+                "{\n" +
+                "\t\n" + //don't return this one -- inside of {}
+                "}\n" +
+                "pass\n" +
+                "    pass" +
+                ""
+        );
+        TabNannyDocIterator it = new TabNannyDocIterator(doc);
+        assertEquals("    ",it.next().o1);
+        assertTrue(!it.hasNext()); 
+    }
 }

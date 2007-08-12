@@ -16,7 +16,7 @@ public class TabNannyTest extends TestCase {
         try {
             TabNannyTest analyzer2 = new TabNannyTest();
             analyzer2.setUp();
-            analyzer2.testTabErrors2();
+            analyzer2.testInconsistentIndent();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -71,7 +71,6 @@ public class TabNannyTest extends TestCase {
                 "        pass\n" +
                 "\tpass\n" +
                 "    \n" +
-                "  \n" +
                 "    \n" +
                 "    \n" +
                 "\n" +
@@ -80,12 +79,32 @@ public class TabNannyTest extends TestCase {
         
         List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4));
         IMessage m = messages.get(0);
+        assertEquals(1, messages.size());
         assertEquals("Mixed Indentation: Tab found", m.getMessage());
         assertEquals(3, m.getStartLine(null));
         assertEquals(3, m.getEndLine(null));
         assertEquals(1, m.getStartCol(null));
         assertEquals(2, m.getEndCol(null));
                 
+    }
+    
+    public void testInconsistentIndent() throws Exception {
+        Document doc = new Document("" +
+                "def m(b):\n" +
+                "    pass\n" +
+                "   \n" +
+                "\n" +
+                ""
+        );
+        
+        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4));
+        IMessage m = messages.get(0);
+        assertEquals("Bad Indentation (3 spaces)", m.getMessage());
+        assertEquals(3, m.getStartLine(null));
+        assertEquals(3, m.getEndLine(null));
+        assertEquals(1, m.getStartCol(null));
+        assertEquals(4, m.getEndCol(null));
+        
         assertEquals(1, messages.size());
     }
     

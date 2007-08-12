@@ -38,6 +38,12 @@
 		<li>
 			No 'self' token declared in a class method
 		</li>
+		<li>
+			Mixing indentation with tabs and spaces 
+		</li>
+		<li>
+			Bad indentation (incorrect number of spaces when indenting).
+		</li>
 	</ul>
 	<p>
 		<strong>Advantages</strong> of the <strong>Pydev Extensions Code Analysis</strong>
@@ -77,7 +83,7 @@
 	<hr/>
 	<h3>Seeing the output</h3>
 	<p>
-		The output is shown as error markers in the editor itself (you may hoover over it to see the description).
+		The output is shown as error markers in the editor itself (you may hover over it to see the description).
 	</p><br/>
 	<p align="center"><IMG src="images/codeanalysis/code_analysis1.png" border="1"/></p><br/>
 	<p>
@@ -99,6 +105,33 @@
 		<strong>IMPORTANT 3:</strong> When you change the interpreter or change your pythonpath, your files are not automatically 
 		analyzed. If you want them analyzed after that, you have to manually do a 'clear' on the projects you want analyzed (in the menu: <strong>project > clean...</strong>).
 	</p><br/>
+	
+<hr/>
+	<h3>Passing info to code-analysis</h3>
+	<p>
+		Currently code-analysis does lots of analysis so that invalid signs are not raised, but some signs are nearly impossible to detect
+		when doing static analysis, so, in some cases some flags may be added to the code to give more info to the code-analysis and make
+		it behave better.<br/>
+		<br/>
+
+	Currently, the supported flags are:<br/><br/>
+<p>
+  <strong>Flag: @DynamicAttrs</strong><br/>
+  <strong>Location:</strong> Should be added anywhere within a class docstring<br/>
+  <strong>Description:</strong> Used to indicate that a class has dynamic attributes (so, code analysis won't complain about undefined variables when accessing any attribute from that class.<br/>
+  <strong>Example:</strong> 
+  <p>
+class Struct:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;'''Attributes passed in constructor.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>@DynamicAttrs</strong><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;'''<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;def __init__(self, **entries):<br/> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__dict__.update(entries)<br/>
+  </p>
+
+</p>
+
+ 	</p><br/>
 	
 </contents_area>
 
