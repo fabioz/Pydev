@@ -67,33 +67,94 @@
             id="org.python.pydev.ui.projectNatureImage">
       </image>
    </extension>
-<!-- Python project properties -->
-   <extension
-         point="org.eclipse.ui.propertyPages">
-      <page
-            objectClass="org.eclipse.core.resources.IProject"
-            name="PyDev - PYTHONPATH"
+   
+   
+   
+<!-- Pydev project properties -->
+   <extension point="org.eclipse.ui.propertyPages">
+      <page name="PyDev - PYTHONPATH"
             class="org.python.pydev.ui.PyProjectProperties"
             id="org.python.pydev.ui.pyProjectProperties">
-         <filter
-               name="projectNature"
-               value="org.python.pydev.pythonNature">
-         </filter>
+         <filter name="projectNature"
+               value="org.python.pydev.pythonNature"/>
+         <enabledWhen>
+            <adapt type="org.eclipse.core.resources.IProject"/>
+         </enabledWhen>
       </page>
    </extension>
-   <extension
-         point="org.eclipse.ui.propertyPages">
-      <page
-            objectClass="org.eclipse.core.resources.IProject"
-            name="PyDev - project type"
+   <extension point="org.eclipse.ui.propertyPages">
+         
+      <page name="PyDev - project type"
             class="org.python.pydev.ui.PyProjectPythonDetails"
             id="org.python.pydev.ui.pyProjectPythonDetails">
-         <filter
-               name="projectNature"
-               value="org.python.pydev.pythonNature">
-         </filter>
+         <filter name="projectNature" value="org.python.pydev.pythonNature"/>
+         <enabledWhen>
+            <adapt type="org.eclipse.core.resources.IProject"/>
+         </enabledWhen>
       </page>
    </extension>
+   
+   
+<!-- Pydev nature/project related actions -->
+   <extension point="org.eclipse.ui.popupMenus">
+   
+      <!-- remove .pyc -->
+      <objectContribution
+            adaptable="true"
+            id="org.python.pydev.ui.actions.container.pyDeletePycAndClassFiles"
+            objectClass="org.eclipse.core.resources.IContainer">
+         <menu id="org.python.pydev.ui.actions.menu" label="Pydev"/>
+         <action
+               class="org.python.pydev.ui.actions.container.PyDeletePycAndClassFiles"
+               enablesFor="+"
+               id="org.python.pydev.ui.actions.container.pyDeletePycAndClassFiles"
+               label="Remove *.pyc and *$py.class Files"
+               menubarPath="org.python.pydev.ui.actions.menu/pydev"
+               tooltip="Removes all the .pyc and $.py.class files.">
+         </action>
+      </objectContribution>
+      
+      
+      <!-- remove nature -->
+      <objectContribution
+            adaptable="true"
+            id="org.python.pydev.ui.actions.project.PyRemoveNature"
+            objectClass="org.eclipse.core.resources.IProject">
+         <menu id="org.python.pydev.ui.actions.menu" label="Pydev"/>
+         <action
+               class="org.python.pydev.ui.actions.project.PyRemoveNature"
+               enablesFor="1"
+               icon="icons/remove_nature.png"
+               id="org.python.pydev.ui.actions.project.pyRemoveNature"
+               label="Remove Pydev Project Config"
+               menubarPath="org.python.pydev.ui.actions.menu/pydev"
+               tooltip="Remove the Pydev project configuration">
+         </action>
+         <visibility><objectState name="projectNature" value="org.python.pydev.pythonNature"/></visibility>
+      </objectContribution>
+      
+      
+      <!-- add nature -->
+      <objectContribution
+            adaptable="true"
+            id="org.python.pydev.ui.actions.project.PyAddNature"
+            objectClass="org.eclipse.core.resources.IProject">
+         <menu id="org.python.pydev.ui.actions.menu" label="Pydev"/>
+         <action
+               class="org.python.pydev.ui.actions.project.PyAddNature"
+               enablesFor="1"
+               icon="icons/python_nature.png"
+               id="org.python.pydev.ui.actions.project.pyAddNature"
+               label="Set as Pydev Project"
+               menubarPath="org.python.pydev.ui.actions.menu/pydev"
+               tooltip="Set project as a Pydev project">
+         </action>
+         <visibility><not><objectState name="projectNature" value="org.python.pydev.pythonNature"/></not></visibility>
+      </objectContribution>
+      
+      
+   </extension>
+   
 <!-- Preference page -->
    <extension point="org.eclipse.ui.preferencePages">
       <page

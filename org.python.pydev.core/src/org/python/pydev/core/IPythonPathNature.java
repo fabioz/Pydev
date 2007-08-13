@@ -28,7 +28,7 @@ public interface IPythonPathNature {
      *                     (if it is null, the default interpreter is used)
      * @return the pythonpath (source and externals) for the project as a list of strings
      */
-    public List getCompleteProjectPythonPath(String interpreter);
+    public List<String> getCompleteProjectPythonPath(String interpreter);
 
     /**
      * @return the pythonpath (source and externals) as a string (paths separated by | )

@@ -99,6 +99,7 @@ public class PythonSourceFolder implements IWrappedResource, IAdaptable, IContri
         return (IResource) getActualObject();
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if(adapter == IContributorResourceAdapter.class){
             return this;

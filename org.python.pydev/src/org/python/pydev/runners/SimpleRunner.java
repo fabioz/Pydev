@@ -80,7 +80,7 @@ public abstract class SimpleRunner {
      * @return an array with the env variables for the system with the format xx=yy  
      */
     public String[] getDefaultSystemEnvAsArray() throws CoreException {
-        Map defaultSystemEnv = getDefaultSystemEnv();
+        Map<String,String> defaultSystemEnv = getDefaultSystemEnv();
         if(defaultSystemEnv != null){
             return getMapEnvAsArray(defaultSystemEnv);
         }
@@ -90,7 +90,7 @@ public abstract class SimpleRunner {
     /**
      * @return a map with the env variables for the system  
      */
-    public Map getDefaultSystemEnv() throws CoreException {
+    public Map<String,String> getDefaultSystemEnv() throws CoreException {
         DebugPlugin defaultPlugin = DebugPlugin.getDefault();
         return getDefaultSystemEnv(defaultPlugin);
     }
@@ -202,7 +202,7 @@ public abstract class SimpleRunner {
      * @return a string that can be used as the PYTHONPATH env variable
      */
     public static String makePythonPathEnvString(IProject project, String interpreter) {
-        List paths;
+        List<String> paths;
         if(project == null){
             return ""; //no pythonpath can be gotten (set to empty, so that the default is gotten)
         }
@@ -245,12 +245,12 @@ public abstract class SimpleRunner {
      * @param env a map that will have its values formatted to xx=yy, so that it can be passed in an exec
      * @return an array with the formatted map
      */
-    private String[] getMapEnvAsArray(Map env) {
+    private String[] getMapEnvAsArray(Map<String,String> env) {
         List<String> strings= new ArrayList<String>(env.size());
-    	for(Iterator iter= env.entrySet().iterator(); iter.hasNext(); ) {
-    		Map.Entry entry = (Map.Entry) iter.next();
-    		StringBuffer buffer= new StringBuffer((String) entry.getKey());
-    		buffer.append('=').append((String) entry.getValue());
+    	for(Iterator<Map.Entry<String, String>> iter= env.entrySet().iterator(); iter.hasNext(); ) {
+    		Map.Entry<String, String> entry = iter.next();
+    		StringBuffer buffer= new StringBuffer(entry.getKey());
+    		buffer.append('=').append(entry.getValue());
     		strings.add(buffer.toString());
     	}
     	

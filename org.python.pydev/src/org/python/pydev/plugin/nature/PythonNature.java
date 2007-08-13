@@ -9,6 +9,7 @@ package org.python.pydev.plugin.nature;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.resources.ICommand;
@@ -222,6 +223,57 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 			}
 		}
         return null;
+    }
+    
+    /**
+     * Utility routine to remove a PythonNature from a project.
+     */
+    public static synchronized void removeNature(IProject project, IProgressMonitor monitor) throws CoreException {
+        if(monitor == null){
+            monitor = new NullProgressMonitor();
+        }
+        
+        PythonNature nature = PythonNature.getPythonNature(project);
+        if (nature == null) {
+            return;
+        }
+        
+        try {
+            //we have to set the nature store to stop listening changes to .pydevproject
+            nature.pythonNatureStore.setProject(null);
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+        }
+        
+        try {
+            //we have to remove the project from the pythonpath nature too...
+            nature.pythonPathNature.setProject(null);
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+        }
+        
+        //notify listeners that the pythonpath nature is now empty for this project
+        try {
+            PythonNatureListenersManager.notifyPythonPathRebuilt(project, new ArrayList<String>()); 
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+        }
+        
+        try {
+            //actually remove the pydev configurations
+            IResource member = project.findMember(".pydevproject");
+            member.delete(true, null);
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+        }
+
+        //and finally... remove the nature
+        
+        IProjectDescription description = project.getDescription();
+        List<String> natures = new ArrayList<String>(Arrays.asList(description.getNatureIds()));
+        natures.remove(PYTHON_NATURE_ID);
+        description.setNatureIds((String[]) natures.toArray(new String[natures.size()]));
+        project.setDescription(description, monitor);
     }
 
     /**

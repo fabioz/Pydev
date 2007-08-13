@@ -58,6 +58,9 @@ public class PythonPathNature implements IPythonPathNature {
 
     public void setProject(IProject project){
         this.project = project;
+        if(project == null){
+            this.projectSourcePathSet = null;//empty
+        }
     }
     
 
@@ -98,6 +101,10 @@ public class PythonPathNature implements IPythonPathNature {
      * @return the project pythonpath with complete paths in the filesystem.
      */
     public String getOnlyProjectPythonPathStr() throws CoreException {
+        if(project == null){
+            return "";
+        }
+        
         String source = getProjectSourcePath();
         String external = getProjectExternalSourcePath();
         
@@ -174,6 +181,9 @@ public class PythonPathNature implements IPythonPathNature {
     private Set<String> projectSourcePathSet;
     
     public Set<String> getProjectSourcePathSet() throws CoreException {
+        if(project == null){
+            return new HashSet<String>();
+        }
         if(projectSourcePathSet == null){
             String projectSourcePath = getProjectSourcePath();
             String[] paths = projectSourcePath.split("\\|");
@@ -183,6 +193,9 @@ public class PythonPathNature implements IPythonPathNature {
     }
     
     public String getProjectSourcePath() throws CoreException {
+        if(project == null){
+            return "";
+        }
         synchronized(project){
             boolean restore = false;
             PythonNature nature = PythonNature.getPythonNature(project);
@@ -228,6 +241,9 @@ public class PythonPathNature implements IPythonPathNature {
     }
 
     public String getProjectExternalSourcePath() throws CoreException {
+        if(project == null){
+            return "";
+        }
         synchronized(project){
             //no need to validate because those are always 'file-system' related
             PythonNature nature = PythonNature.getPythonNature(project);

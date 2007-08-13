@@ -158,9 +158,11 @@ public class PyProjectPythonDetails extends PropertyPage{
     }
 
     private boolean doIt() {
-        if (getProject()!= null) {
+        IProject project = getProject();
+        
+        if (project!= null) {
             final String newVersion = radioController.getSelected();
-            PythonNature pythonNature = PythonNature.getPythonNature(getProject());
+            PythonNature pythonNature = PythonNature.getPythonNature(project);
             
             final IInterpreterManager interpreterManager;
             if(newVersion.equals(IPythonNature.JYTHON_VERSION_2_1)){

@@ -27,6 +27,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -150,24 +151,37 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      * @see org.python.pydev.plugin.nature.IPythonNatureStore#setProject(org.eclipse.core.resources.IProject)
      */
     public synchronized void setProject(IProject project) {
-        traceFunc("setProject - "+project.getName());
         synchronized (this) {
-        	try{
-    	        this.project = project;
-    	        this.xmlFile = project.getFile(STORE_FILE_NAME);
-    	        try {
-    	            loadFromFile();
-    	        } catch (CoreException e) {
-    	            throw new RuntimeException("Error loading project: "+project, e);
-    	        }
-    	        if (!ProjectModulesManager.IN_TESTS) {
-    	            project.getWorkspace().addResourceChangeListener(this);
-    	        }
-            }finally{
-            	loaded = true;
+            if(project == null){
+                if(this.project == null){
+                    return; // already de-configured
+                }
+                //removing configurations...
+                traceFunc("setProject: null");
+                ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
+                this.project = null;
+                this.xmlFile = null;
+                this.document = null;
+                
+            }else{
+                traceFunc("setProject - "+project.getName());
+            	try{
+        	        this.project = project;
+        	        this.xmlFile = project.getFile(STORE_FILE_NAME);
+        	        try {
+        	            loadFromFile();
+        	        } catch (CoreException e) {
+        	            throw new RuntimeException("Error loading project: "+project, e);
+        	        }
+        	        if (!ProjectModulesManager.IN_TESTS) {
+        	            project.getWorkspace().addResourceChangeListener(this);
+        	        }
+                }finally{
+                	loaded = true;
+                }
+                traceFunc("END setProject - "+project.getName());
             }
         }
-        traceFunc("END setProject - "+project.getName());
     }
 
     /**
@@ -187,6 +201,9 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      * @see org.python.pydev.plugin.nature.IPythonNatureStore#getPathProperty(org.eclipse.core.runtime.QualifiedName)
      */
     public synchronized String getPathProperty(QualifiedName key) throws CoreException {
+        if(this.project == null){
+            return "";
+        }
         traceFunc("getPathProperty - "+key);
         synchronized (this) {
         	checkLoad("getPathProperty");
@@ -216,6 +233,10 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      * @throws CoreException
      */
     private synchronized boolean loadFromFile() throws CoreException {
+        if(this.project == null){
+            return false; //deconfigured...
+        }
+        
         traceFunc("loadFromFile");
         boolean ret;
         synchronized (this) {
@@ -469,6 +490,10 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      * @see org.python.pydev.plugin.nature.IPythonNatureStore#getPropertyFromXml(org.eclipse.core.runtime.QualifiedName)
      */
     public synchronized String getPropertyFromXml(QualifiedName key){
+        if(this.project == null){
+            return "";
+        }
+
         traceFunc("getPropertyFromXml - "+key);
         synchronized (this) {
         	checkLoad("getPropertyFromXml");
@@ -729,6 +754,9 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     }
 
     public void resourceChanged(IResourceChangeEvent event) {
+        if(project == null){
+            return;
+        }
         traceFunc("resourceChanged -- "+project.getName());
         if(inInit){
             traceFunc("END resourceChanged (inInit)");
@@ -786,6 +814,10 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      * This is the function that actually stores the contents of the xml into the file with the configurations.
      */
     private synchronized IStatus doStore(IProgressMonitor monitor) throws IOException, TransformerException, CoreException {
+        if(this.project == null){
+            return Status.OK_STATUS;
+        }
+
         traceFunc("doStore");
         if(inInit){
             traceFunc("END doStore (inInit)");
