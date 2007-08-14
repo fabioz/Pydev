@@ -3,7 +3,7 @@ after 1.3.8
 Pydev
 <ul>
 <li>Ctrl+Shift+O: When used with a selection will make a sort, but will still consider lines ending with \ (without selection organizes imports)</li>
-<li>Auto-add import string will not be added when adding a space in the case: from xxximport (just after from xxx)</li>
+<li>Auto-add "import" string will not be added when adding a space in the case: from xxximport (just after from xxx)</li>
 <li>Templates created with tabs (or spaces indent) are now converted to the indent being used in the editor</li>
 <li>Patch from XX: debbugger working with jython 2.2rc2</li>
 <li>Hide non-pydev projects filter working</li>
