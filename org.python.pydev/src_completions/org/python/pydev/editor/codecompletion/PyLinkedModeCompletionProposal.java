@@ -11,6 +11,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.contentassist.ICompletionProposalExtension;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.link.LinkedModeModel;
 import org.eclipse.jface.text.link.LinkedModeUI;
@@ -23,9 +24,19 @@ import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.plugin.PydevPlugin;
 
-public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtension2{
+public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtension2 implements ICompletionProposalExtension{
+    
 
     private int firstParameterLen = 0;
+    
+    /**
+     * The number of positions that we should add to the original position.
+     * 
+     * Used so that when we enter '.', we add an additional position (because '.' will be added when applying the completion) 
+     * or so that we can go back one position when the toggle mode (ctrl) is on and a completion with parameters is applied (and they
+     * are removed)
+     */
+    private int nPositionsAdded = 0;
     
     public PyLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction, String args) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority, onApplyAction, args);
@@ -38,14 +49,14 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
         if(onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO){
             return null;
         }
-        if(onApplyAction == ON_APPLY_DEFAULT ){
-            return new Point(fReplacementOffset + fCursorPosition, firstParameterLen); //the difference is the firstParameterLen here (instead of 0)
-        }
         if(onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS ){
             if(fArgs.length() > 0){
                 return new Point(fReplacementOffset + fCursorPosition-1, firstParameterLen); //the difference is the firstParameterLen here (instead of 0)
             }
             return null;
+        }
+        if(onApplyAction == ON_APPLY_DEFAULT ){
+            return new Point(fReplacementOffset + fCursorPosition + nPositionsAdded, firstParameterLen); //the difference is the firstParameterLen here (instead of 0)
         }
         throw new RuntimeException("Unexpected apply mode:"+onApplyAction);
     }
@@ -82,7 +93,7 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
             try {
                 int dif = offset - fReplacementOffset;
                 String strToAdd = fReplacementString.substring(dif);
-                boolean doReturn = applyOnDoc(offset, eat, doc, dif);
+                boolean doReturn = applyOnDoc(offset, eat, doc, dif, trigger);
                 
                 if(doReturn){
                     return;
@@ -92,7 +103,7 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
                 int iPar = strToAdd.indexOf('(');
                 if(iPar != -1 && strToAdd.charAt(strToAdd.length()-1) == ')'){
                     String newStr = strToAdd.substring(iPar+1, strToAdd.length()-1);
-                    goToLinkedModeFromArgs(viewer, offset, doc, offset + strToAdd.length(), iPar, newStr);
+                    goToLinkedModeFromArgs(viewer, offset, doc, offset + strToAdd.length()+nPositionsAdded, iPar, newStr);
                 }
             } catch (BadLocationException e) {
                 PydevPlugin.log(e);
@@ -115,22 +126,43 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
      * @return whether we should return (and not keep on with the linking mode)
      * @throws BadLocationException
      */
-    public boolean applyOnDoc(int offset, boolean eat, IDocument doc, int dif) throws BadLocationException {
+    public boolean applyOnDoc(int offset, boolean eat, IDocument doc, int dif, char trigger) throws BadLocationException {
         boolean doReturn = false;
         
+        String rep = fReplacementString;
+        int iPar = rep.indexOf('(');
+        
         if(eat){
-            String rep = fReplacementString;
-            int i = rep.indexOf('(');
-            if(fLastIsPar && i != -1){
-                rep = rep.substring(0, i);
+            
+            //behavior change: when we have a parenthesis and we're in toggle (eat) mode, let's not add the 
+            //parenthesis anymore.
+            if(/*fLastIsPar &&*/ iPar != -1){
+                rep = rep.substring(0, iPar);
                 doc.replace(offset-dif, dif+this.fLen, rep);
                 //if the last was a parenthesis, there's nothing to link, so, let's return
+                if(!fLastIsPar){
+                    nPositionsAdded = -1;
+                }
                 doReturn = true;
             }else{
                 doc.replace(offset-dif, dif+this.fLen, rep);
             }
         }else{
-            doc.replace(offset-dif, dif, fReplacementString);
+            if(trigger == '.'){
+                if(iPar != -1){
+                    //if we had a completion with parameters, we should just remove everything that would appear after
+                    //the parenthesis -- and we don't need to raise nTriggerCharsAdded because the cursor position would
+                    //already be after the '(. -- which in this case we'll substitute for a '.'
+                    rep = rep.substring(0, iPar);
+                }else{
+                    nPositionsAdded = 1;
+                }
+                rep = rep+trigger;
+                
+                //linking should not happen when applying '.'
+                doReturn = true;
+            }
+            doc.replace(offset-dif, dif, rep);
         }
         return doReturn;
     }
@@ -195,6 +227,37 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
             RunInUiThread.async(r);
 
         }
+    }
+    
+    
+    
+    //ICompletionProposalExtension
+
+    protected final static char[] VAR_TRIGGER= new char[] { '.' };
+    
+    /**
+     * We want to apply it on \n or on '.'
+     * 
+     * When . is entered, the user will finish (and apply) the current completion
+     * and request a new one with '.'
+     */
+    public char[] getTriggerCharacters(){
+        if(onApplyAction == ON_APPLY_DEFAULT){
+            return VAR_TRIGGER;
+        }
+        return null;
+    }
+    
+    public void apply(IDocument document, char trigger, int offset) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public int getContextInformationPosition() {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public boolean isValidFor(IDocument document, int offset) {
+        return validate(document, offset, null);
     }
     
     

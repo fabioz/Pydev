@@ -728,22 +728,6 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals("__init__(self, a, b)", p.getDisplayString());
     }
     
-    public void testApply() throws Exception {
-        String s0 = "from extendable.nested2 import mod2, mod3\n"+    
-                   "mod%s";    
-        String s = StringUtils.format(s0, "2");
-        
-        int offset = s.length()-1;
-        ICompletionProposal[] proposals = requestCompl(s, offset, -1, new String[] {});
-        assertEquals(1, proposals.length); 
-        PyLinkedModeCompletionProposal p = (PyLinkedModeCompletionProposal) proposals[0];
-        Document d = new Document(s);
-        p.fLen = 1;
-        p.applyOnDoc(offset, true, d, 3);
-        assertEquals(StringUtils.format(s0, "3"), d.get());
-    }
-    
-
     public void testDuplicate() throws Exception {
         String s = 
             "class Foo(object):\n" +

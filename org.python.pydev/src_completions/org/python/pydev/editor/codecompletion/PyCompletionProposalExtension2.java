@@ -15,7 +15,9 @@ import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.plugin.PydevPlugin;
 
-public abstract class PyCompletionProposalExtension2 extends PyCompletionProposal implements ICompletionProposalExtension2{
+public abstract class PyCompletionProposalExtension2 extends PyCompletionProposal implements ICompletionProposalExtension2 {
+    
+
     protected PyCompletionPresentationUpdater presentationUpdater;
     public int fLen;
     public boolean fLastIsPar;
@@ -88,14 +90,18 @@ public abstract class PyCompletionProposalExtension2 extends PyCompletionProposa
         String[] strs = PySelection.getActivationTokenAndQual(document, offset, false); 
         //System.out.println("validating:"+strs[0]+" - "+strs[1]);
         String qualifier = strs[1].toLowerCase();
-        if(strs[0].length() == 0 && strs[1].length() == 0){
+        //when we end with a '.', we should start a new completion (and not stay in the old one).
+        if(strs[1].length() == 0 && (strs[0].length() == 0 || strs[0].endsWith("."))){
+            //System.out.println(false);
             return false;
         }
         String displayString = getDisplayString().toLowerCase();
         if(displayString.startsWith(qualifier)){
+            //System.out.println(true);
             return true;
         }
         
+        //System.out.println(false);
         return false;
     }
 
