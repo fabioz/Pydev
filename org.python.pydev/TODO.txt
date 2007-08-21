@@ -5,3 +5,4 @@
 - See why Ctrl+1 is bringing more than 1 completion for the same token on some cases.
 - The filter for the name of tests to ignore when running pyunit should be asked at run-time (with user-option to not show it).
 - When opening a python file, it should try to 'adapt' to the current indent style used (and give warnings about wrong stuff).
+- Ctrl+2+ XXX should be case-independent.
