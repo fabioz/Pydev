@@ -6,6 +6,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.plugin.PydevPlugin;
 
 
 /**
@@ -44,16 +45,42 @@ public class TabNannyDocIterator implements Iterator<Tuple<String, Integer>>{
         return ret;
     }
     
-    public void buildNext() {
+    private void buildNext() {
+        while(!internalBuildNext()){
+            //just keep doing it... -- lot's of nothing ;-)
+        }
+    }
+
+    private boolean internalBuildNext() {
         try {
             //System.out.println("buildNext");
-            char c;
+            char c = '\0';
 
+            int initial = -1; 
             while(true){
+                
+                //safeguard... it must walk a bit every time...
+                if(initial == -1){
+                    initial = offset;
+                }else{
+                    if(initial == offset){
+                        PydevPlugin.log("Error: TabNannyDocIterator didn't walk.\n" +
+                        		"Curr char:"+c+"\n" +
+                        		"Curr char (as int):"+(int)c+"\n" +
+                        		"Offset:"+offset+"\n" +
+                				"DocLen:"+docLen+"\n"
+                				);
+                        offset++;
+                        return true;
+                    }else{
+                        initial = offset;
+                    }
+                }
+                
                 //keep in this loop until we finish the document or until we're able to find some indent string...
                 if(offset >= docLen){
                     nextString = null;
-                    return;
+                    return true;
                 }
                 c = doc.getChar(offset);
                 
@@ -79,34 +106,34 @@ public class TabNannyDocIterator implements Iterator<Tuple<String, Integer>>{
                     
                 } else if (c == '\r'){
                     //line end (time for a break to see if we have some indentation just after it...)
-                    if(!continueAfterIncreaseOffset()){return;}
+                    if(!continueAfterIncreaseOffset()){return true;}
                     c = doc.getChar(offset);
                     if(c == '\n'){
-                        if(!continueAfterIncreaseOffset()){return;}
+                        if(!continueAfterIncreaseOffset()){return true;}
                     }
                     break;
                     
                     
                 } else if (c == '\n'){
                     //line end (time for a break to see if we have some indentation just after it...)
-                    if(!continueAfterIncreaseOffset()){return;}
+                    if(!continueAfterIncreaseOffset()){return  true;}
                     break;
                     
                 } else if (c == '\\') {
                     //escape char found... if it's the last in the line, we don't have a break (we're still in the same line)
                     boolean lastLineChar = false;
                     
-                    if(!continueAfterIncreaseOffset()){return;}
+                    if(!continueAfterIncreaseOffset()){return true;}
                     
                     c = doc.getChar(offset);
                     if(c == '\r'){
-                        if(!continueAfterIncreaseOffset()){return;}
+                        if(!continueAfterIncreaseOffset()){return true;}
                         c = doc.getChar(offset);
                         lastLineChar = true;
                     }
                     
                     if(c == '\n'){
-                        if(!continueAfterIncreaseOffset()){return;}
+                        if(!continueAfterIncreaseOffset()){return true;}
                         lastLineChar = true;
                     }
                     if(!lastLineChar){
@@ -120,7 +147,7 @@ public class TabNannyDocIterator implements Iterator<Tuple<String, Integer>>{
                 } else {
                     // ok, a char is found... go to the end of the line and gather
                     // the spaces to return
-                    if(!continueAfterIncreaseOffset()){return;}
+                    if(!continueAfterIncreaseOffset()){return true;}
                 }
 
             }
@@ -129,7 +156,7 @@ public class TabNannyDocIterator implements Iterator<Tuple<String, Integer>>{
                 c = doc.getChar(offset);
             }else{
                 nextString = null;
-                return;
+                return true;
             }
             
             //ok, if we got here, we're in a position to get the indentation string as spaces and tabs...
@@ -147,13 +174,14 @@ public class TabNannyDocIterator implements Iterator<Tuple<String, Integer>>{
             
             //now, if we didn't have any indentation, try to make another build
             if(nextString.o1.length() == 0){
-                buildNext();
+                return false;
             }
             
             
         } catch (BadLocationException e) {
             throw new RuntimeException(e);
         }
+        return true;
     }
 
     /**

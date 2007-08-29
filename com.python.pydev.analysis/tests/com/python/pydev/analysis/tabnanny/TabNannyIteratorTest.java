@@ -10,7 +10,7 @@ public class TabNannyIteratorTest extends TestCase {
         try {
             TabNannyIteratorTest analyzer2 = new TabNannyIteratorTest();
             analyzer2.setUp();
-            analyzer2.testIterator11();
+//            analyzer2.testIterator13();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -155,4 +155,5 @@ public class TabNannyIteratorTest extends TestCase {
         assertEquals("    ",it.next().o1);
         assertTrue(!it.hasNext()); 
     }
+    
 }
