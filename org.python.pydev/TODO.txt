@@ -6,7 +6,7 @@
 - The filter for the name of tests to ignore when running pyunit should be asked at run-time (with user-option to not show it).
 - When opening a python file, it should try to 'adapt' to the current indent style used (and give warnings about wrong stuff).
 - Ctrl+2+ XXX should be case-independent.
-
+- assign to local variable for constants (all uppercase)
 
 Selection for this doesn't work
 class Kraken20ReadersActionProvider(object):
