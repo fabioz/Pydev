@@ -81,12 +81,15 @@ public class AssistAssign implements IAssistProps {
         //					 self.|result| = 1+1
 
         String callName = getTokToAssign(ps, sel);
+        callName = changeToLowerUppercaseConstant(callName);
 
         if(callName.length() > 0){
             //all that just to change first char to lower case.
             if (callName.toLowerCase().startsWith("get") && callName.length() > 3){
                 callName = callName.substring(3);
             }
+            
+            callName = changeToCodingStd(callName);
             
             for(int i=0;i<callName.length();i++){
                 char c = callName.charAt(i);
@@ -99,7 +102,6 @@ public class AssistAssign implements IAssistProps {
             callName = "result";
         }
         
-        callName = changeToCodingStd(callName);
         String tok = callName;
 
         int firstCharPosition = PySelection.getFirstCharPosition(ps.getDoc(), ps.getAbsoluteCursorOffset());
@@ -112,15 +114,34 @@ public class AssistAssign implements IAssistProps {
         return l;
     }
 
+    private String changeToLowerUppercaseConstant(String callName) {
+        char[] cs = callName.toCharArray();
+        for(char c: cs){
+            if(Character.isLetterOrDigit(c) && !Character.isUpperCase(c)){
+                return callName;
+            }
+        }
+        return callName.toLowerCase();
+    }
+
     private String changeToCodingStd(String callName) {
         if(!this.std.localsAndAttrsCamelcase()){
             StringBuffer ret = new StringBuffer();
             char[] cs = callName.toCharArray();
+            
+            boolean foundLower = false;
+            
             for(char c: cs){
                 if(Character.isUpperCase(c)){
-                    ret.append("_");
+                    if(foundLower){
+                        ret.append('_');
+                    }
+                    foundLower = false;
                     ret.append(Character.toLowerCase(c));
                 }else{
+                    if(Character.isLowerCase(c)){
+                        foundLower = true;
+                    }
                     ret.append(c);
                 }
             }

@@ -49,7 +49,7 @@ public class AssistAssignTest extends TestCase {
         try{
             AssistAssignTest test = new AssistAssignTest();
             test.setUp();
-            test.testSimple4();
+            test.testSimple9();
             test.tearDown();
             junit.textui.TestRunner.run(AssistAssignTest.class);
         }catch(Exception e){
@@ -83,7 +83,7 @@ public class AssistAssignTest extends TestCase {
         String sel = PyAction.getLineWithoutComments(ps);
         
 		assertEquals(true, assist.isValid(ps, sel, null, d.length()));
-		List props = assist.getProps(ps, null, null, null, null, d.length());
+		List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
 		assertEquals(2, props.size());
         
     }
@@ -200,6 +200,7 @@ public class AssistAssignTest extends TestCase {
         assertEquals(2, props.size());
         assertContains("Assign to local (result)", props);
     }
+    
     public void testSimple6() throws BadLocationException {
         String d = ""+
         "def m1():\n" +
@@ -213,6 +214,57 @@ public class AssistAssignTest extends TestCase {
         assertEquals(false, assist.isValid(ps, sel, null, d.length()));
     }
 
+    public void testSimple7() throws BadLocationException {
+        String d = ""+
+        "def m1():\n" +
+        "   ALL_UPPERCASE";
+        
+        Document doc = new Document(d);
+        
+        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        String sel = PyAction.getLineWithoutComments(ps);
+        
+        assertEquals(true, assist.isValid(ps, sel, null, d.length()));
+        List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
+        assertEquals(2, props.size());
+        assertContains("Assign to local (all_uppercase)", props);
+    }
+    
+    public void testSimple8() throws BadLocationException {
+        assist = new AssistAssign(new NonCamelCodingStd());
+        
+        String d = ""+
+        "def m1():\n" +
+        "   IKVMClass";
+        
+        Document doc = new Document(d);
+        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        String sel = PyAction.getLineWithoutComments(ps);
+        
+        assertEquals(true, assist.isValid(ps, sel, null, d.length()));
+        List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
+        assertEquals(2, props.size());
+        assertContains("Assign to local (ikvmclass)", props);
+    }
+    
+    public void testSimple9() throws BadLocationException {
+        assist = new AssistAssign(new NonCamelCodingStd());
+        
+        String d = ""+
+        "def m1():\n" +
+        "   IKVMClassBBBar";
+        
+        Document doc = new Document(d);
+        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        String sel = PyAction.getLineWithoutComments(ps);
+        
+        assertEquals(true, assist.isValid(ps, sel, null, d.length()));
+        List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
+        assertEquals(2, props.size());
+        assertContains("Assign to local (ikvmclass_bbbar)", props);
+    }
+    
+    
     private void assertContains(String string, List<ICompletionProposal> props) {
         StringBuffer buffer = new StringBuffer("Available: \n");
         
