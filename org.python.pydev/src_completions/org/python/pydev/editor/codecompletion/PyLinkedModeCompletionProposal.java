@@ -253,7 +253,7 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
     }
 
     public int getContextInformationPosition() {
-        throw new RuntimeException("Not implemented");
+        return this.fCursorPosition;
     }
 
     public boolean isValidFor(IDocument document, int offset) {
