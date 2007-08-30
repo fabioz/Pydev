@@ -482,6 +482,23 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	assertEquals(1, tokenOccurrences.size());
     }
     
+    public void testIt30() throws Exception {
+        doc = new Document(
+                "class ActionProvider(object):\n" +
+                "    \n" +
+                "    def SlotImportSimulation(cls):\n" +
+                "        ActionProvider()._DoSlotImportSimulation()\n" +
+                "\n" +
+                "\n" 
+        );
+        List<IToken> tokenOccurrences = getTokenOccurrences(0, 7);
+        assertEquals(2, tokenOccurrences.size());
+        for (IToken token : tokenOccurrences) {
+            int colDefinition = token.getColDefinition();
+            assertTrue(colDefinition == 7 || colDefinition == 9);
+        }
+    }
+    
     /**
      * Check if we have some occurrence at the line/col specified
      */

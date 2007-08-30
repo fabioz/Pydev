@@ -23,6 +23,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
@@ -423,9 +424,17 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
                 //can happen on wild imports
                 
             }else if(nameToFind.equals(representation)){
-                ASTEntry entry = new ASTEntry(tup.o3, ast);
-                entry.setAdditionalInfo(FOUND_ADDITIONAL_INFO_IN_AST_ENTRY, tup.o4);
-                ret.add(entry);
+                if(ast instanceof Attribute){
+                    //it can happen, as we won't go up to the part of the actual call (if there's one).
+                    ast = NodeUtils.getAttributeParts((Attribute) ast).get(0);
+                    ASTEntry entry = new ASTEntry(tup.o3, ast);
+                    entry.setAdditionalInfo(FOUND_ADDITIONAL_INFO_IN_AST_ENTRY, tup.o4);
+                    ret.add(entry);
+                }else{
+                    ASTEntry entry = new ASTEntry(tup.o3, ast);
+                    entry.setAdditionalInfo(FOUND_ADDITIONAL_INFO_IN_AST_ENTRY, tup.o4);
+                    ret.add(entry);
+                }
                 
             }else if(FullRepIterable.containsPart(representation, nameToFind)){
             

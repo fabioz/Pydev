@@ -28,7 +28,7 @@ public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
             DEBUG_REFERENCES = true;
             RenameClassRefactoringTest test = new RenameClassRefactoringTest();
             test.setUp();
-            test.testRename3();
+            test.testRename4();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameClassRefactoringTest.class);
@@ -94,6 +94,21 @@ public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
     	assertTrue(references.containsKey("reflib.renameclass2.sub1.__init__"));
     	assertTrue(references.containsKey("reflib.renameclass2.sub1.defmod"));
     	assertTrue(references.containsKey("reflib.renameclass2.defuser2"));
+    }
+    
+    
+    public void testRename4() throws Exception {
+        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass.renkkk", 0, 8);
+        assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
+        assertEquals(1, references.size());
+        
+        List<ASTEntry> refs = references.get(CURRENT_MODULE_IN_REFERENCES);
+        for (ASTEntry entry : refs) {
+            assertTrue(
+                    (entry.node.beginColumn == 1 && entry.node.beginLine == 1) || 
+                    (entry.node.beginColumn == 9 && entry.node.beginLine == 4));
+            assertEquals("ActionProvider", entry.getName());
+        }
     }
     
 

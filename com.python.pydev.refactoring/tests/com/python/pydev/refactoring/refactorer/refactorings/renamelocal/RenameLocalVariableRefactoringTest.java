@@ -13,7 +13,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         	DEBUG = true;
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameAttribute1();
+            test.testRenameClass();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -470,6 +470,19 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     	int line = 3;
     	int col = 21;
     	checkRename(str, line, col, "vlMolecularWeigth", false, true);
+    }
+    
+    public void testRenameClass() throws Exception {
+        String str = "" +
+        "class %s(object):\n" +
+        "    \n" +
+        "    def SlotImportSimulation(cls):\n" +
+        "        %s()._DoSlotImportSimulation()\n" +
+        "\n" +
+        "\n";        
+        int line = 0;
+        int col = 7;
+        checkRename(str, line, col, "ActionProvider", false, true);
     }
     
     public void testRenameNonLocal() throws Exception {
