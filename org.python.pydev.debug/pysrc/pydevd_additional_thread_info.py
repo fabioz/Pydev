@@ -32,7 +32,7 @@ class PyDBAdditionalThreadInfoWithCurrentFramesSupport(AbstractPyDBAdditionalThr
     
     def IterFrames(self):
         ret = []
-        for f in sys._current_frames().values():
+        for f in sys._current_frames().values(): #@UndefinedVariable
             ret.append(f)
         return ret
     
@@ -124,7 +124,7 @@ class PyDBAdditionalThreadInfoWithoutCurrentFramesSupport(AbstractPyDBAdditional
 # and frames, but to support other versions, we can't rely on that.
 #=======================================================================================================================
 try:
-    sys._current_frames
+    sys._current_frames #@UndefinedVariable
     PyDBAdditionalThreadInfo = PyDBAdditionalThreadInfoWithCurrentFramesSupport
 except AttributeError:
     PyDBAdditionalThreadInfo = PyDBAdditionalThreadInfoWithoutCurrentFramesSupport
