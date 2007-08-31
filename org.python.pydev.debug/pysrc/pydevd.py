@@ -760,6 +760,7 @@ def settrace(host='localhost', stdoutToServer = False, stderrToServer = False, p
         if suspend:
             debugger.setSuspend(t, CMD_SET_BREAK)
     
+
 if __name__ == '__main__':
     print >>sys.stderr, "pydev debugger"
     # parse the command line. --file is our last argument that is required
@@ -768,6 +769,8 @@ if __name__ == '__main__':
     except ValueError, e:
         print e
         usage(1)
+        
+    sys.modules['psyco'] = Null()
         
     pydevd_log(2, "Executing file " + setup['file'])
     pydevd_log(2, "arguments:" + str(sys.argv))

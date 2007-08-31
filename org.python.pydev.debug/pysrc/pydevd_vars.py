@@ -205,6 +205,7 @@ def findFrame(thread_id, frame_id):
     if frameFound is None: 
         msgFrames = ''
         i = 0
+        
         for frame in iterFrames(sys._getframe()):
             i += 1
             msgFrames += str(id(frame))

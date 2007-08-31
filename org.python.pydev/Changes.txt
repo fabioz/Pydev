@@ -14,6 +14,7 @@ Pydev
 <li>Code-completion: after a completion is requested, pressing '.' will apply that completion (and if it has parameters, they'll not be added).</li>
 <li>Code-completion: when a code-completion is applied with Ctrl pressed (toggle mode), parameters are not added.</li>
 <li>Assign to local variable/attribute handles constants correctly.</li>
+<li>psyco changed for Null object for debug (so, no changes are required to the code if psyco is used while debugging).</li>
 </ul>
 
 Extensions
