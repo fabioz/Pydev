@@ -8,8 +8,10 @@ package org.python.pydev.editor.codefolding;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -19,6 +21,7 @@ import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.eclipse.ui.IPropertyListener;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocIterator;
 import org.python.pydev.editor.ErrorDescription;
@@ -87,30 +90,28 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
     }
 
     /**
-     * @param root2
-     * @param model
+     * Given the ast, create the needed marks and set them in the passed model.
      */
+    @SuppressWarnings("unchecked")
     private synchronized void addMarksToModel(SimpleNode root2, ProjectionAnnotationModel model) {
         try {
             if (model != null) {
-                ArrayList collapsed = new ArrayList();
+                ArrayList<PyProjectionAnnotation> existing = new ArrayList<PyProjectionAnnotation>();
 
-                //put annotations in array list.
-                Iterator iter = model.getAnnotationIterator();
+                //get the existing annotations
+                Iterator<PyProjectionAnnotation> iter = model.getAnnotationIterator();
                 while (iter != null && iter.hasNext()) {
-                    PyProjectionAnnotation element = (PyProjectionAnnotation) iter.next();
-                    collapsed.add(element);
+                    PyProjectionAnnotation element = iter.next();
+                    existing.add(element);
                 }
 
+                //now, remove the annotations not used and add the new ones needed
                 IDocument doc = editor.getDocument();
                 if(doc != null){ //this can happen if we change the input of the editor very quickly.
-                    addMarks(getMarks(doc, root2), model, collapsed);
-    
-                    //remove the annotations that have not been reinserted.
-                    for (Iterator it = collapsed.iterator(); it.hasNext();) {
-                        PyProjectionAnnotation element = (PyProjectionAnnotation) it.next();
-                        model.removeAnnotation(element);
-                    }
+                    List<FoldingEntry> marks = getMarks(doc, root2);
+                    Map<ProjectionAnnotation, Position> annotationsToAdd = getAnnotationsToAdd(marks, model, existing);
+                    
+                    model.replaceAnnotations(existing.toArray(new Annotation[existing.size()]), annotationsToAdd);
                 }
             }
         } catch (Exception e) {
@@ -121,33 +122,37 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
     /**
      * To add a mark, we have to do the following:
      * 
-     * Get the current node to add and find the next that is on the same indentation or on an indentation that is lower than the current (this will mark the end of the selection).
+     * Get the current node to add and find the next that is on the same indentation or on an indentation that is lower 
+     * than the current (this will mark the end of the selection).
      * 
      * If we don't find that, the end of the selection is the end of the file.
-     * 
-     * @param nodes
-     * @param collapsed
-     * @param model
      */
-    private void addMarks(List<FoldingEntry> nodes, ProjectionAnnotationModel model, ArrayList collapsed) {
+    private Map<ProjectionAnnotation, Position> getAnnotationsToAdd(List<FoldingEntry> nodes, ProjectionAnnotationModel model, 
+            List<PyProjectionAnnotation> existing) {
+        
+        Map<ProjectionAnnotation, Position> annotationsToAdd = new HashMap<ProjectionAnnotation, Position>();
         try {
             for (FoldingEntry element:nodes) {
                 if(element.startLine < element.endLine-1){
-                    addFoldingMark(element, element.startLine, element.endLine, model, collapsed);
+                    Tuple<ProjectionAnnotation, Position> tup = getAnnotationToAdd(element, element.startLine, element.endLine, model, existing);
+                    if(tup != null){
+                        annotationsToAdd.put(tup.o1, tup.o2);
+                    }
                 }
             }
         } catch (BadLocationException e) {
         } catch (NullPointerException e) {
         }
+        return annotationsToAdd;
     }
 
 
     /**
-     * @param node
-     * @param model
-     * @throws BadLocationException
+     * @return an annotation that should be added (or null if that entry already has an annotation
+     * added for it).
      */
-    private void addFoldingMark(FoldingEntry node, int start, int end, ProjectionAnnotationModel model, ArrayList collapsed) throws BadLocationException {
+    private Tuple<ProjectionAnnotation, Position> getAnnotationToAdd(FoldingEntry node, int start, int end, 
+            ProjectionAnnotationModel model, List<PyProjectionAnnotation> existing) throws BadLocationException {
         try {
             IDocument document = editor.getDocumentProvider().getDocument(editor.getEditorInput());
             int offset = document.getLineOffset(start);
@@ -161,30 +166,29 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
 			}
             Position position = new Position(offset, endOffset - offset);
 
-            Annotation anottation = getAnnotationToAdd(position, node, model, collapsed);
-            if (model.getPosition(anottation) != null && model.getPosition(anottation).equals(position) == false) {
-                model.modifyAnnotationPosition(anottation, position);
-            } else {
-                model.addAnnotation(anottation, position);
-            }
+            return getAnnotationToAdd(position, node, model, existing);
 
         } catch (BadLocationException x) {
         	//this could happen
         }
+        return null;
     }
 
     /**
-     * We have to be careful not to remove collapsed annotations because if this happens, previous code folding is not correct.
+     * We have to be careful not to remove existing annotations because if this happens, previous code folding is not correct.
      */
-    private ProjectionAnnotation getAnnotationToAdd(Position position, FoldingEntry node, ProjectionAnnotationModel model, ArrayList collapsed) {
-        for (Iterator iter = collapsed.iterator(); iter.hasNext();) {
-            PyProjectionAnnotation element = (PyProjectionAnnotation) iter.next();
-            if (element.appearsSame(node.getAstEntry())) {
-                collapsed.remove(element); //after getting it, remove it, so we don't accidentally get it again.
-                return element;
+    private Tuple<ProjectionAnnotation, Position> getAnnotationToAdd(Position position, FoldingEntry node, 
+            ProjectionAnnotationModel model, List<PyProjectionAnnotation> existing) {
+        for (Iterator<PyProjectionAnnotation> iter = existing.iterator(); iter.hasNext();) {
+            PyProjectionAnnotation element = iter.next();
+            Position existingPosition = model.getPosition(element);
+            if (existingPosition.equals(position)) {
+                //ok, do nothing to this annotation (neither remove nor add, as it already exists in the correct place).
+                existing.remove(element); 
+                return null;
             }
         }
-        return new PyProjectionAnnotation(node.getAstEntry());
+        return new Tuple<ProjectionAnnotation, Position>(new PyProjectionAnnotation(node.getAstEntry()), position);
     }
 
     /*

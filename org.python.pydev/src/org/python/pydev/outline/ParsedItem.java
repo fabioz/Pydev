@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.bundle.ImageCache;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.ErrorDescription;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -180,17 +181,9 @@ public class ParsedItem implements Comparable<Object>{
             String rep = type.id.trim();
             rep = FullRepIterable.split(rep, '\n')[0];
             rep = FullRepIterable.split(rep, '\r')[0];
-            
-            for (int i = 1; i < rep.length(); i++) {
-                char c = rep.charAt(i);
-                if(c != '-'){
-                    name = rep.substring(i, rep.length());
-                    break;
-                }
-            }
-            if(name == null){
-                name = "---";
-            }
+            rep = rep.substring(1);
+            rep = StringUtils.rightTrim(rep, '-');
+            name = StringUtils.leftTrim(rep, '-');
             
         }else {
             name = NodeUtils.getFullRepresentationString(astThis.node);

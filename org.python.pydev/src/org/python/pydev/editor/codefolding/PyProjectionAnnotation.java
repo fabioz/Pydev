@@ -24,6 +24,7 @@ public class PyProjectionAnnotation extends ProjectionAnnotation{
 
     /**
      * @param node2
+     * @param model 
      * @return
      */
     public boolean appearsSame(ASTEntry node2) {

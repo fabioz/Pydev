@@ -71,6 +71,29 @@ public class StringUtils {
         return input.substring(off, len);
     }
 
+    public static String rightTrim(String input, char charToTrim) {
+        int len = input.length();
+        int st = 0;
+        int off = 0;
+        char[] val = input.toCharArray();
+        
+        while ((st < len) && (val[off + len - 1] == charToTrim)) {
+            len--;
+        }
+        return input.substring(0, len);
+    }
+    
+    public static String leftTrim(String input, char charToTrim) {
+        int len = input.length();
+        int off = 0;
+        char[] val = input.toCharArray();
+        
+        while ((off < len) && (val[off] == charToTrim)) {
+            off++;
+        }
+        return input.substring(off, len);
+    }
+    
     /**
      * Changes all backward slashes (\) for forward slashes (/)
      * 
