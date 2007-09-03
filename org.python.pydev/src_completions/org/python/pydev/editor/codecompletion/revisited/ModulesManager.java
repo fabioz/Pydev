@@ -251,40 +251,37 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         int j = 0;
 
         //now, create in memory modules for all the loaded files (empty modules).
-        for (Iterator iterator = completions.iterator(); iterator.hasNext() && monitor.isCanceled() == false; j++) {
-            Object o = iterator.next();
-            if (o instanceof File) {
-                File f = (File) o;
-                String fileAbsolutePath = REF.getFileAbsolutePath(f);
-                String m = pythonPathHelper.resolveModule(fileAbsolutePath);
+        for (Iterator<File> iterator = completions.iterator(); iterator.hasNext() && monitor.isCanceled() == false; j++) {
+            File f = iterator.next();
+            String fileAbsolutePath = REF.getFileAbsolutePath(f);
+            String m = pythonPathHelper.resolveModule(fileAbsolutePath);
 
-                monitor.setTaskName(new StringBuffer("Module resolved: ").append(j).append(" of ").append(total).append(" (").append(m)
-                        .append(")").toString());
-                monitor.worked(1);
-                if (m != null) {
-                    //we don't load them at this time.
-                    ModulesKey modulesKey = new ModulesKey(m, f);
-                    
-                    //ok, now, let's resolve any conflicts that we might find...
-                    boolean add = false;
-                    
-                    //no conflict (easy)
-                    if(!keys.containsKey(modulesKey)){
+            monitor.setTaskName(new StringBuffer("Module resolved: ").append(j).append(" of ").append(total).append(" (").append(m)
+                    .append(")").toString());
+            monitor.worked(1);
+            if (m != null) {
+                //we don't load them at this time.
+                ModulesKey modulesKey = new ModulesKey(m, f);
+                
+                //ok, now, let's resolve any conflicts that we might find...
+                boolean add = false;
+                
+                //no conflict (easy)
+                if(!keys.containsKey(modulesKey)){
+                    add = true;
+                }else{
+                    //we have a conflict, so, let's resolve which one to keep (the old one or this one)
+                    if(PythonPathHelper.isValidSourceFile(fileAbsolutePath)){
+                        //source files have priority over other modules (dlls) -- if both are source, there is no real way to resolve
+                        //this priority, so, let's just add it over.
                         add = true;
-                    }else{
-                        //we have a conflict, so, let's resolve which one to keep (the old one or this one)
-                        if(PythonPathHelper.isValidSourceFile(fileAbsolutePath)){
-                            //source files have priority over other modules (dlls) -- if both are source, there is no real way to resolve
-                            //this priority, so, let's just add it over.
-                            add = true;
-                        }
                     }
-                    
-                    if(add){
-                    	//the previous must be removed (if there was any)
-                    	keys.remove(modulesKey);
-                    	keys.put(modulesKey, modulesKey);
-                    }
+                }
+                
+                if(add){
+                	//the previous must be removed (if there was any)
+                	keys.remove(modulesKey);
+                	keys.put(modulesKey, modulesKey);
                 }
             }
         }

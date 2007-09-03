@@ -86,6 +86,8 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         assertEquals("testlib.unittest.__init__",helper.resolveModule(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/__init__.py"));
         assertEquals("testlib.unittest.testcase",helper.resolveModule(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/testcase.py"));
         assertEquals(null,helper.resolveModule(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/invalid.py", true));
+        
+        assertEquals(null,helper.resolveModule(TestDependent.TEST_PYSRC_LOC+"extendable/invalid.folder/invalidfile.py"));
     }
     
     public void testModuleCompletion(){
