@@ -1,0 +1,102 @@
+To debug an eclipse instance: 
+1. start eclipse to be debugger with -Xmx256m -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
+2. In another eclipse instance: 
+3. Open debug dialog
+4. Create a new 'remote java application' with the appropriate values
+
+
+References:
+http://java.sun.com/j2se/1.5.0/docs/tooldocs/windows/jdb.html
+http://articles.techrepublic.com.com/5100-3513_11-6139512.html
+http://dev.eclipse.org/newslists/news.eclipse.platform/msg25518.html
+
+
+Notes: 
+
+Workbench.close()
+Workbench.busyClose()
+
+
+!ENTRY org.eclipse.ui 4 0 2007-09-01 16:15:11.484
+!MESSAGE Unhandled event loop exception
+!STACK 0
+java.lang.UnsupportedOperationException
+	at org.python.pydev.debug.ui.actions.EvalExpressionAction.addHandlerListener(EvalExpressionAction.java:125)
+	at org.eclipse.ui.internal.handlers.HandlerProxy.loadHandler(HandlerProxy.java:295)
+	at org.eclipse.ui.internal.handlers.HandlerProxy.isEnabled(HandlerProxy.java:262)
+	at org.eclipse.core.commands.Command.isEnabled(Command.java:831)
+	at org.eclipse.core.commands.Command.setHandler(Command.java:938)
+	at org.eclipse.ui.internal.handlers.HandlerAuthority.updateCommand(HandlerAuthority.java:535)
+	at org.eclipse.ui.internal.handlers.HandlerAuthority.deactivateHandler(HandlerAuthority.java:256)
+	at org.eclipse.ui.internal.handlers.HandlerService.deactivateHandler(HandlerService.java:144)
+	at org.eclipse.ui.internal.handlers.HandlerService.deactivateHandlers(HandlerService.java:153)
+	at org.eclipse.ui.internal.handlers.HandlerPersistence.clearActivations(HandlerPersistence.java:101)
+	at org.eclipse.ui.internal.handlers.HandlerPersistence.dispose(HandlerPersistence.java:107)
+	at org.eclipse.ui.internal.handlers.HandlerService.dispose(HandlerService.java:159)
+	at org.eclipse.ui.internal.services.ServiceLocator.dispose(ServiceLocator.java:95)
+	at org.eclipse.ui.internal.Workbench.shutdown(Workbench.java:2720)
+	at org.eclipse.ui.internal.Workbench.busyClose(Workbench.java:917)
+	at org.eclipse.ui.internal.Workbench.access$15(Workbench.java:834)
+	at org.eclipse.ui.internal.Workbench$22.run(Workbench.java:1078)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:67)
+	at org.eclipse.ui.internal.Workbench.close(Workbench.java:1076)
+	at org.eclipse.ui.internal.Workbench.close(Workbench.java:1048)
+	at org.eclipse.ui.internal.WorkbenchWindow.busyClose(WorkbenchWindow.java:696)
+	at org.eclipse.ui.internal.WorkbenchWindow.access$0(WorkbenchWindow.java:675)
+	at org.eclipse.ui.internal.WorkbenchWindow$2.run(WorkbenchWindow.java:790)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:67)
+	at org.eclipse.ui.internal.WorkbenchWindow.close(WorkbenchWindow.java:788)
+	at org.eclipse.jface.window.Window.handleShellCloseEvent(Window.java:736)
+	at org.eclipse.jface.window.Window$3.shellClosed(Window.java:682)
+	at org.eclipse.swt.widgets.TypedListener.handleEvent(TypedListener.java:91)
+	at org.eclipse.swt.widgets.EventTable.sendEvent(EventTable.java:66)
+	at org.eclipse.swt.widgets.Widget.sendEvent(Widget.java:938)
+	at org.eclipse.swt.widgets.Widget.sendEvent(Widget.java:962)
+	at org.eclipse.swt.widgets.Widget.sendEvent(Widget.java:947)
+	at org.eclipse.swt.widgets.Decorations.closeWidget(Decorations.java:301)
+	at org.eclipse.swt.widgets.Decorations.WM_CLOSE(Decorations.java:1651)
+	at org.eclipse.swt.widgets.Control.windowProc(Control.java:3674)
+	at org.eclipse.swt.widgets.Canvas.windowProc(Canvas.java:291)
+	at org.eclipse.swt.widgets.Decorations.windowProc(Decorations.java:1584)
+	at org.eclipse.swt.widgets.Shell.windowProc(Shell.java:1753)
+	at org.eclipse.swt.widgets.Display.windowProc(Display.java:4351)
+	at org.eclipse.swt.internal.win32.OS.DefWindowProcW(Native Method)
+	at org.eclipse.swt.internal.win32.OS.DefWindowProc(OS.java:2259)
+	at org.eclipse.swt.widgets.Shell.callWindowProc(Shell.java:456)
+	at org.eclipse.swt.widgets.Control.windowProc(Control.java:3760)
+	at org.eclipse.swt.widgets.Canvas.windowProc(Canvas.java:291)
+	at org.eclipse.swt.widgets.Decorations.windowProc(Decorations.java:1584)
+	at org.eclipse.swt.widgets.Shell.windowProc(Shell.java:1753)
+	at org.eclipse.swt.widgets.Display.windowProc(Display.java:4351)
+	at org.eclipse.swt.internal.win32.OS.DefWindowProcW(Native Method)
+	at org.eclipse.swt.internal.win32.OS.DefWindowProc(OS.java:2259)
+	at org.eclipse.swt.widgets.Shell.callWindowProc(Shell.java:456)
+	at org.eclipse.swt.widgets.Control.windowProc(Control.java:3760)
+	at org.eclipse.swt.widgets.Canvas.windowProc(Canvas.java:291)
+	at org.eclipse.swt.widgets.Decorations.windowProc(Decorations.java:1584)
+	at org.eclipse.swt.widgets.Shell.windowProc(Shell.java:1753)
+	at org.eclipse.swt.widgets.Display.windowProc(Display.java:4351)
+	at org.eclipse.swt.internal.win32.OS.DispatchMessageW(Native Method)
+	at org.eclipse.swt.internal.win32.OS.DispatchMessage(OS.java:2264)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3291)
+	at org.eclipse.ui.internal.Workbench.runEventLoop(Workbench.java:2389)
+	at org.eclipse.ui.internal.Workbench.runUI(Workbench.java:2353)
+	at org.eclipse.ui.internal.Workbench.access$4(Workbench.java:2219)
+	at org.eclipse.ui.internal.Workbench$4.run(Workbench.java:466)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:289)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:461)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:149)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:106)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:153)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:106)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:76)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:363)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:176)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:504)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:443)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1169)
+	at org.eclipse.equinox.launcher.Main.main(Main.java:1144)
