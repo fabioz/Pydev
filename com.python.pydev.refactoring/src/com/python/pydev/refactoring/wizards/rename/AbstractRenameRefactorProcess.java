@@ -19,6 +19,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.text.edits.MultiTextEdit;
@@ -255,13 +256,14 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * In this method, changes from the occurrences found in the current document and 
      * other files are transformed to the objects required by the Eclipse Language Toolkit
      */
-    public void fillRefactoringChangeObject(RefactoringRequest request, CheckConditionsContext context, RefactoringStatus status, CompositeChange fChange) {
-        createCurrModuleChange(status, fChange);
-        createOtherFileChanges(fChange, status);
+    public void fillRefactoringChangeObject(RefactoringRequest request, CheckConditionsContext context, RefactoringStatus status, 
+            CompositeChange fChange, Map<Object, ArrayList<TextEdit>> editsAlreadyCreated) {
+        createCurrModuleChange(status, fChange, editsAlreadyCreated);
+        createOtherFileChanges(fChange, status, editsAlreadyCreated);
     }
     
     /**
-     * This function should be overriden to find the occurrences in the local scope
+     * This function should be overridden to find the occurrences in the local scope
      * (and check if they are correct).
      * 
      * @param status object where the status can be set (to add errors/warnings)
@@ -272,7 +274,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
     }
     
     /**
-     * This function should be overriden to find the occurrences in the workspace scope
+     * This function should be overridden to find the occurrences in the workspace scope
      * (and check if they are correct).
      * 
      * @param status object where the status can be set (to add errors/warnings)
@@ -288,8 +290,10 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * 
      * @param fChange the 'root' change.
      * @param status the status of the change
+     * @param editsAlreadyCreated 
      */
-    private void createOtherFileChanges(CompositeChange fChange, RefactoringStatus status) {
+    private void createOtherFileChanges(CompositeChange fChange, RefactoringStatus status, Map<Object, ArrayList<TextEdit>> editsAlreadyCreated) {
+        
         for(Map.Entry<Tuple<String, IFile>, List<ASTEntry>> entry : fileOccurrences.entrySet()){
             //key = module name, IFile for the module (__init__ file may be found if it is a package)
             Tuple<String, IFile> tup = entry.getKey();
@@ -297,20 +301,19 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
             //check the text changes
             List<ASTEntry> astEntries = filterAstEntries(entry.getValue(), AST_ENTRIES_FILTER_TEXT);
             if(astEntries.size() > 0){
+                ArrayList<TextEdit> editsAlreadyCreatedLst = getEditAlreadyCreatedLst(editsAlreadyCreated, tup.o2.getFullPath().toString());
                 IDocument docFromResource = REF.getDocFromResource(tup.o2);
                 TextFileChange fileChange = new TextFileChange("RenameChange: "+request.inputName, tup.o2);
                 
                 MultiTextEdit rootEdit = new MultiTextEdit();
                 fileChange.setEdit(rootEdit);
                 fileChange.setKeepPreviewEdits(true);
-    
-                for (Tuple<TextEdit, String> t : getAllRenameEdits(astEntries, docFromResource)) {
-                    rootEdit.addChild(t.o1);
-                    fileChange.addTextEditGroup(new TextEditGroup(t.o2, t.o1));
-                }
                 
-                fChange.add(fileChange);
+                List<Tuple<TextEdit, String>> renameEdits = getAllRenameEdits(astEntries, docFromResource);
+                fillEditsInDocChange(fChange, editsAlreadyCreatedLst, fileChange, rootEdit, renameEdits);
+
             }
+            
             
             //now, check for file changes
             astEntries = filterAstEntries(entry.getValue(), AST_ENTRIES_FILTER_FILE);
@@ -362,8 +365,11 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * 
      * @param status the status for the change.
      * @param fChange tho 'root' change.
+     * @param editsAlreadyCreated 
      */
-    private void createCurrModuleChange(RefactoringStatus status, CompositeChange fChange) {
+    private void createCurrModuleChange(RefactoringStatus status, CompositeChange fChange, Map<Object, ArrayList<TextEdit>> editsAlreadyCreated) {
+        ArrayList<TextEdit> editsAlreadyCreatedLst = getEditAlreadyCreatedLst(editsAlreadyCreated, "__CURRENT_MODULE__");
+        
         DocumentChange docChange = new DocumentChange("Current module: "+request.getModule().getName(), request.getDoc());
         if(docOccurrences.size() == 0){
             status.addFatalError("No occurrences found.");
@@ -375,12 +381,48 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
         docChange.setKeepPreviewEdits(true);
 
         List<Tuple<TextEdit, String>> renameEdits = getAllRenameEdits(docOccurrences, request.ps.getDoc());
+        fillEditsInDocChange(fChange, editsAlreadyCreatedLst, docChange, rootEdit, renameEdits);
+    }
+
+    private ArrayList<TextEdit> getEditAlreadyCreatedLst(Map<Object, ArrayList<TextEdit>> editsAlreadyCreated, String editsKey) {
+        ArrayList<TextEdit> editsAlreadyCreatedLst = editsAlreadyCreated.get(editsKey);
+        if(editsAlreadyCreatedLst == null){
+            editsAlreadyCreatedLst = new ArrayList<TextEdit>();
+            editsAlreadyCreated.put(editsKey, editsAlreadyCreatedLst);
+        }
+        return editsAlreadyCreatedLst;
+    }
+
+    /**
+     * Puts the edits found in a doc change, tak
+     * @param fChange
+     * @param editsAlreadyCreatedLst
+     * @param docChange
+     * @param rootEdit
+     * @param renameEdits
+     */
+    private void fillEditsInDocChange(CompositeChange fChange, ArrayList<TextEdit> editsAlreadyCreatedLst, TextChange docChange,
+            MultiTextEdit rootEdit, List<Tuple<TextEdit, String>> renameEdits) {
         try{
+            boolean addedEdit = false;
+            AREA_MATCHING:
 			for (Tuple<TextEdit, String> t : renameEdits) {
+			    
+			    for(TextEdit existing:editsAlreadyCreatedLst){
+			        if(existing.covers(t.o1)){
+			            //we only want to add some change if no other edit matches it...
+			            continue AREA_MATCHING;
+			        }
+			    }
+			    
+			    addedEdit = true;
+			    editsAlreadyCreatedLst.add(t.o1);
 	            rootEdit.addChild(t.o1);
 	            docChange.addTextEditGroup(new TextEditGroup(t.o2, t.o1));
 	        }
-	        fChange.add(docChange);
+            if(addedEdit){
+                fChange.add(docChange);
+            }
         }catch (RuntimeException e) {
         	StringBuffer buf = new StringBuffer("Found occurrences:");
         	for (Tuple<TextEdit, String> t : renameEdits) {

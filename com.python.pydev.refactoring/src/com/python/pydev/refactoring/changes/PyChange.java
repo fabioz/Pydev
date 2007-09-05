@@ -3,6 +3,7 @@ package com.python.pydev.refactoring.changes;
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
+import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourceAttributes;
@@ -245,6 +246,6 @@ public abstract class PyChange extends Change {
     
     private static ITextFileBuffer getBuffer(IFile file) {
         ITextFileBufferManager manager= FileBuffers.getTextFileBufferManager();
-        return manager.getTextFileBuffer(file.getFullPath());
+        return manager.getTextFileBuffer(file.getFullPath(), org.eclipse.core.filebuffers.LocationKind.IFILE);
     }
 }

@@ -3,6 +3,7 @@
  */
 package com.python.pydev.refactoring.wizards;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
+import org.eclipse.text.edits.TextEdit;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -24,8 +26,12 @@ public interface IRefactorRenameProcess {
 
     /**
      * In this method, implementors should fill the change object with the renames that were found.
+     * 
+     * @param editsAlreadyCreated: a map to keep track of the edits that have already been created (so that we don't add
+     * the same edit more than once).
      */
-    public abstract void fillRefactoringChangeObject(RefactoringRequest request, CheckConditionsContext context, RefactoringStatus status, CompositeChange fChange);
+    public abstract void fillRefactoringChangeObject(RefactoringRequest request, CheckConditionsContext context, RefactoringStatus status, 
+            CompositeChange fChange, Map<Object, ArrayList<TextEdit>> editsAlreadyCreated);
 
     /**
      * @return a list of entries with the occurrences that will be affected in the refactoring or null if it

@@ -21,6 +21,7 @@ import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
+import org.eclipse.text.edits.TextEdit;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.editor.model.ItemPointer;
@@ -249,10 +250,13 @@ public class PyRenameEntryPoint extends RenameProcessor {
                 }
             }
             if (fillChangeObject) {
+                //keeps what's already created, so that we don't duplicate stuff...
+                Map<Object, ArrayList<TextEdit>> editsAlreadyCreated = new HashMap<Object, ArrayList<TextEdit>>();
+                
                 // and final condition (for creating the change)
                 for (IRefactorRenameProcess p : process) {
                     request.checkCancelled();
-                    p.fillRefactoringChangeObject(request, context, status, fChange);
+                    p.fillRefactoringChangeObject(request, context, status, fChange, editsAlreadyCreated);
                     if (status.hasFatalError() || request.getMonitor().isCanceled()) {
                         return status;
                     }
