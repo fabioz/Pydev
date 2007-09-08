@@ -284,8 +284,14 @@ def changeAttrExpression( thread_id, frame_id, attr, expression ):
 #                frame.f_globals[attr] = eval(expression, frame.f_globals, frame.f_locals)
 #                return
             
-        #default way (only works for changing it in the topmost frame)
-        exec '%s=%s' % (attr, expression) in frame.f_globals, frame.f_locals
+            
+        if attr[:7] == "Globals":
+            attr = attr[8:]
+            if attr in frame.f_globals:
+                frame.f_globals[attr] = eval(expression, frame.f_globals, frame.f_locals)
+        else:
+            #default way (only works for changing it in the topmost frame)
+            exec '%s=%s' % (attr, expression) in frame.f_globals, frame.f_locals
             
             
     except Exception, e:
