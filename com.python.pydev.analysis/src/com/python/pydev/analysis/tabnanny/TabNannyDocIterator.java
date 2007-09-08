@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.Tuple;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -12,16 +12,16 @@ import org.python.pydev.plugin.PydevPlugin;
 /**
  * Class to help iterating through the document's indentation strings.
  * 
- * It will yield Strings with whitespaces/tabs.
+ * It will yield Tuples with Strings (whitespaces/tabs), starting offset, boolean (true if line has more contents than the spaces/tabs)
  * 
  * the indentations within literals, [, (, {, after \ are not considered 
  * (only the ones actually considered indentations are yielded through).
  */
-public class TabNannyDocIterator implements Iterator<Tuple<String, Integer>>{
+public class TabNannyDocIterator implements Iterator<Tuple3<String, Integer, Boolean>>{
     
     private int offset;
     private IDocument doc;
-    private Tuple<String, Integer> nextString;
+    private Tuple3<String, Integer, Boolean> nextString;
     private int docLen;
     private boolean firstPass = true;
     
@@ -35,12 +35,12 @@ public class TabNannyDocIterator implements Iterator<Tuple<String, Integer>>{
         return nextString != null;
     }
 
-    public Tuple<String, Integer> next() {
+    public Tuple3<String, Integer, Boolean> next() {
         if(!hasNext()){
             throw new RuntimeException("Cannot iterate anymore.");
         }
         
-        Tuple<String, Integer> ret = nextString;
+        Tuple3<String, Integer, Boolean> ret = nextString;
         buildNext();
         return ret;
     }
@@ -170,7 +170,8 @@ public class TabNannyDocIterator implements Iterator<Tuple<String, Integer>>{
                 }
                 c = doc.getChar(offset);
             }
-            nextString = new Tuple<String, Integer>(buf.toString(), startingOffset);
+            //true if we are in a line that has more contents than only the whitespaces/tabs
+            nextString = new Tuple3<String, Integer, Boolean>(buf.toString(), startingOffset, c != '\r' && c != '\n');
             
             //now, if we didn't have any indentation, try to make another build
             if(nextString.o1.length() == 0){

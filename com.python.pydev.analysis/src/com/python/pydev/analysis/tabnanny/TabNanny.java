@@ -7,7 +7,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.python.pydev.core.Tuple;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.autoedit.IIndentPrefs;
 import org.python.pydev.plugin.PydevPlugin;
@@ -37,12 +37,12 @@ public class TabNanny{
             return ret;
         }
         
-        List<Tuple<String, Integer>> foundTabs = new ArrayList<Tuple<String,Integer>>();
-        List<Tuple<String, Integer>> foundSpaces = new ArrayList<Tuple<String,Integer>>();
+        List<Tuple3<String, Integer, Boolean>> foundTabs = new ArrayList<Tuple3<String, Integer, Boolean>>();
+        List<Tuple3<String, Integer, Boolean>> foundSpaces = new ArrayList<Tuple3<String, Integer, Boolean>>();
         
         TabNannyDocIterator it = new TabNannyDocIterator(doc);
         while(it.hasNext()){
-            Tuple<String, Integer> indentation = it.next();
+            Tuple3<String, Integer, Boolean> indentation = it.next();
             //it can actually be in both (if we have spaces and tabs in the same indent line).
             if(indentation.o1.indexOf('\t') != -1){
                 foundTabs.add(indentation);
@@ -76,8 +76,8 @@ public class TabNanny{
             
         }
         
-        List<Tuple<String, Integer>> errorsAre;
-        List<Tuple<String, Integer>> validsAre;
+        List<Tuple3<String, Integer, Boolean>> errorsAre;
+        List<Tuple3<String, Integer, Boolean>> validsAre;
         String errorMsg; 
         char errorChar;
         
@@ -104,13 +104,16 @@ public class TabNanny{
      * Creates the errors that are related to a bad indentation (number of space chars is not ok).
      */
     private static void createBadIndentForSpacesMessages(IDocument doc, IAnalysisPreferences analysisPrefs, IIndentPrefs indentPrefs,
-            ArrayList<IMessage> ret, List<Tuple<String, Integer>> validsAre) {
+            ArrayList<IMessage> ret, List<Tuple3<String, Integer, Boolean>> validsAre) {
         
         int tabWidth = indentPrefs.getTabWidth();
         //if we're analyzing the spaces, let's mark invalid indents (tabs are not searched for those because
         //a tab always marks a full indent).
-        for(Tuple<String, Integer> indentation:validsAre){
+        for(Tuple3<String, Integer, Boolean> indentation:validsAre){
             
+            if(!indentation.o3){ //if it does not have more contents (its only whitespaces), let's keep on going!
+                continue;
+            }
             String indentStr = indentation.o1;
             if(indentStr.indexOf("\t") != -1){
                 continue; //the ones that appear in tabs and spaces should not be analyzed here (they'll have their own error messages).
@@ -137,9 +140,9 @@ public class TabNanny{
      * Creates the errors that are related to the mixed indentation.
      */
     private static void createMixedErrorMessages(IDocument doc, IAnalysisPreferences analysisPrefs, ArrayList<IMessage> ret,
-            List<Tuple<String, Integer>> errorsAre, String errorMsg, char errorChar) {
+            List<Tuple3<String, Integer, Boolean>> errorsAre, String errorMsg, char errorChar) {
         
-        for(Tuple<String, Integer> indentation:errorsAre){
+        for(Tuple3<String, Integer, Boolean> indentation:errorsAre){
             Integer offset = indentation.o2;
             int startLine = PySelection.getLineOfOffset(doc, offset)+1;
             IRegion region;
