@@ -4,6 +4,7 @@
  */
 package org.python.pydev.navigator;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,6 +37,7 @@ import org.eclipse.ui.model.BaseWorkbenchContentProvider;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.ModulesKey;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -43,6 +45,7 @@ import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.PythonFile;
 import org.python.pydev.navigator.elements.PythonFolder;
 import org.python.pydev.navigator.elements.PythonNode;
+import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonResource;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.outline.ParsedItem;
@@ -96,12 +99,26 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
      * Notification received when the pythonpath has been changed or rebuilt.
      */
     public void notifyPythonPathRebuilt(IProject project, List<String> projectPythonpath) {
-    	if(DEBUG){
+    	internalDoNotifyPythonPathRebuilt(project, projectPythonpath);
+    }
+
+    /**
+     * This is the actual implementation of the rebuild. 
+     * 
+     * @return the element that should be refreshed.
+     */
+    public IResource internalDoNotifyPythonPathRebuilt(IProject project, List<String> projectPythonpath) {
+        IResource refreshObject = project;
+        if(DEBUG){
     		System.out.println("\n\nRebuilding pythonpath: "+project+" - "+projectPythonpath);
     	}
     	HashSet<Path> projectPythonpathSet = new HashSet<Path>();
     	for (String string : projectPythonpath) {
-    		projectPythonpathSet.add(new Path(string));
+    		Path newPath = new Path(string);
+    		if(project.getLocation().equals(newPath)){
+    		    refreshObject = project.getParent();
+    		}
+            projectPythonpathSet.add(newPath);
 		}
 
         Map<IProject, Set<PythonSourceFolder>> p = projectToSourceFolders;
@@ -110,8 +127,11 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
         	
         	//iterate in a copy
         	for (PythonSourceFolder pythonSourceFolder : new HashSet<PythonSourceFolder>(existingSourceFolders)) {
-				IPath fullPath = pythonSourceFolder.folder.getLocation();
+				IPath fullPath = pythonSourceFolder.container.getLocation();
 				if(!projectPythonpathSet.contains(fullPath)){
+				    if(pythonSourceFolder instanceof PythonProjectSourceFolder){
+				        refreshObject = project.getParent();
+				    }
 					existingSourceFolders.remove(pythonSourceFolder);//it's not a valid source folder anymore...
 					if(DEBUG){
 						System.out.println("Removing:"+pythonSourceFolder+" - "+fullPath);
@@ -120,10 +140,12 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
 			}
         }
         
-        Runnable refreshRunnable = getRefreshRunnable(project);
+        
+        Runnable refreshRunnable = getRefreshRunnable(refreshObject);
         final Collection<Runnable> runnables = new ArrayList<Runnable>();
         runnables.add(refreshRunnable);
         processRunnables(runnables);
+        return refreshObject;
     }
     
     /**
@@ -151,7 +173,7 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
         if(DEBUG){
             System.out.println("Getting resource in python model:"+object);
         }
-        Set<PythonSourceFolder> sourceFolders = getProjectSourceFolders(object);
+        Set<PythonSourceFolder> sourceFolders = getProjectSourceFolders(object.getProject());
         Object f = null;
         PythonSourceFolder sourceFolder = null;
         
@@ -185,14 +207,14 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
      * @param object: the resource we're interested in
      * @return a set with the PythonSourceFolder that exist in the project that contains it
      */
-    protected Set<PythonSourceFolder> getProjectSourceFolders(IResource object) {
+    protected Set<PythonSourceFolder> getProjectSourceFolders(IProject project) {
         Map<IProject, Set<PythonSourceFolder>> p = projectToSourceFolders;
         //may be already disposed
         if(p != null){
-            Set<PythonSourceFolder> sourceFolder = p.get(object.getProject());
+            Set<PythonSourceFolder> sourceFolder = p.get(project);
             if(sourceFolder == null){
                 sourceFolder = new HashSet<PythonSourceFolder>();
-                p.put(object.getProject(), sourceFolder);
+                p.put(project, sourceFolder);
             }
             return sourceFolder;
         }
@@ -245,10 +267,10 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
     public Object[] getChildren(Object parentElement) {
         
         //------------------------------------------- for the working set, just return the children directly
-        if(parentElement instanceof IWorkingSet){
-            IWorkingSet set = (IWorkingSet) parentElement;
-            return set.getElements();
-        }
+//        if(parentElement instanceof IWorkingSet){
+//            IWorkingSet set = (IWorkingSet) parentElement;
+//            return set.getElements();
+//        }
         
         Object[] childrenToReturn = null;
         
@@ -257,9 +279,9 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
             childrenToReturn = getChildrenForIWrappedResource((IWrappedResource) parentElement);
             
             
-        } else if(parentElement instanceof IResource){
+        } else if(parentElement instanceof IResource || parentElement instanceof IWorkingSet){
             // now, this happens if we're not below a python model(so, we may only find a source folder here)
-            childrenToReturn = getChildrenForIResource((IResource) parentElement);
+            childrenToReturn = getChildrenForIResourceOrWorkingSet(parentElement);
         }
         
         if(childrenToReturn == null){
@@ -269,15 +291,18 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
     }
 
     /**
-     * @param parentElement an IResource from where we want to get the children.
+     * @param parentElement an IResource from where we want to get the children (or a working set)
      *  
      * @return as we're not below a source folder here, we have still not entered the 'python' domain,
      * and as the starting point for the 'python' domain is always a source folder, the things
      * that can be returned are IResources and PythonSourceFolders.
      */
-    private Object[] getChildrenForIResource(IResource parentElement) {
+    private Object[] getChildrenForIResourceOrWorkingSet(Object parentElement) {
         PythonNature nature = null;
-        IProject project = parentElement.getProject();
+        IProject project = null;
+        if(parentElement instanceof IResource){
+            project = ((IResource)parentElement).getProject();
+        }
         
         //we can only get the nature if the project is open
         if(project != null && project.isOpen()){
@@ -287,36 +312,62 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
         //replace folders -> source folders (we should only get here on a path that's not below a source folder)
         Object[] childrenToReturn = super.getChildren(parentElement);
         
-        if(nature != null){
-            //if we don't have a python nature in this project, there is no way we can have a PythonSourceFolder
-            Object[] ret = new Object[childrenToReturn.length];
-            for (int i=0; i < childrenToReturn.length; i++) {
+        //if we don't have a python nature in this project, there is no way we can have a PythonSourceFolder
+        Object[] ret = new Object[childrenToReturn.length];
+        for (int i=0; i < childrenToReturn.length; i++) {
+            PythonNature localNature = nature;
+            IProject localProject = project;
+            
+            //now, first we have to try to get it (because it might already be created)
+            Object child = childrenToReturn[i];
+            if(!(child instanceof IResource)){
+                continue;
+            }
+            child = getResourceInPythonModel((IResource) child);
+            ret[i] = child;
+            
+            //if it is a folder (that is not already a PythonSourceFolder, it might be that we have to create a PythonSourceFolder)
+            if (child instanceof IContainer && !(child instanceof PythonSourceFolder)) {
+                IContainer container = (IContainer) child;
                 
-                //now, first we have to try to get it (because it might already be created)
-                Object object = getResourceInPythonModel((IResource) childrenToReturn[i]);
-                ret[i] = object;
-                
-                //if it is a folder (that is not already a PythonSourceFolder, it might be that we have to create a PythonSourceFolder)
-                if (object instanceof IFolder && !(object instanceof PythonSourceFolder)) {
-                    IFolder folder = (IFolder) object;
-                    
-                    try {
-                        //check if it is a source folder (and if it is, create it) 
-                        Set<String> sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet();
-                        IPath fullPath = folder.getFullPath();
-                        if(sourcePathSet.contains(fullPath.toString())){
-                            ret[i] = new PythonSourceFolder(parentElement, folder);
-                            Set<PythonSourceFolder> sourceFolders = getProjectSourceFolders(parentElement);
-                            sourceFolders.add((PythonSourceFolder) ret[i]);
+                try {
+                    //check if it is a source folder (and if it is, create it) 
+                    if(localNature == null){
+                        if(container instanceof IProject){
+                            localProject = (IProject) container;
+                            if(localProject.isOpen() == false){
+                                continue;
+                            }else{
+                                localNature = PythonNature.getPythonNature(localProject);
+                            }
+                        }else{
+                            continue;
                         }
-                    } catch (CoreException e) {
-                        throw new RuntimeException(e);
                     }
+                    //if it's a python project, the nature can't be null
+                    if(localNature == null){
+                        continue;
+                    }
+                    
+                    Set<String> sourcePathSet = localNature.getPythonPathNature().getProjectSourcePathSet();
+                    IPath fullPath = container.getFullPath();
+                    if(sourcePathSet.contains(fullPath.toString())){
+                        if(container instanceof IFolder){
+                            ret[i] = new PythonSourceFolder(parentElement, (IFolder)container);
+                        }else if(container instanceof IProject){
+                            ret[i] = new PythonProjectSourceFolder(parentElement, (IProject)container);
+                        }else{
+                            throw new RuntimeException("Should not get here.");
+                        }
+                        Set<PythonSourceFolder> sourceFolders = getProjectSourceFolders(localProject);
+                        sourceFolders.add((PythonSourceFolder) ret[i]);
+                    }
+                } catch (CoreException e) {
+                    throw new RuntimeException(e);
                 }
             }
-            childrenToReturn = ret;
         }
-        return childrenToReturn;
+        return ret;
     }
 
     /**
@@ -364,6 +415,16 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
                             String moduleName = projectModulesManager.resolveModuleInDirectManager(file.getActualObject(), project);
                             if (moduleName != null) {
                                 IModule module = projectModulesManager.getModuleInDirectManager(moduleName, nature, true);
+                                if(module == null){
+                                    //ok, something strange happened... it shouldn't be null... maybe empty, but not null at this point
+                                    //so, if it exists, let's try to create it...
+                                    //TODO: This should be moved to somewhere else.
+                                    File f = new File(PydevPlugin.getIResourceOSString(file.getActualObject()));
+                                    if(f.exists()){
+                                        projectModulesManager.addModule(new ModulesKey(moduleName, f));
+                                        module = projectModulesManager.getModuleInDirectManager(moduleName, nature, true);
+                                    }
+                                }
                                 if (module instanceof SourceModule) {
                                     SourceModule sourceModule = (SourceModule) module;
    

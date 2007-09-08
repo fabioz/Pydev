@@ -1255,6 +1255,7 @@
          <factory class="org.python.pydev.navigator.ModelAdapter" adaptableType="org.python.pydev.navigator.elements.IWrappedResource">
 			<adapter type="org.eclipse.core.resources.IResource"/>
 			<adapter type="org.eclipse.core.resources.IFolder"/>
+			<adapter type="org.eclipse.core.resources.IProject"/>
 			<adapter type="org.eclipse.core.resources.IContainer"/>
 			<adapter type="org.eclipse.core.resources.IFile"/>
 			<adapter type="org.eclipse.debug.ui.actions.ILaunchable"/>

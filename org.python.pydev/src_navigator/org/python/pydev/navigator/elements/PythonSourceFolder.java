@@ -23,7 +23,7 @@ import org.eclipse.ui.IContributorResourceAdapter;
  */
 public class PythonSourceFolder implements IWrappedResource, IAdaptable, IContributorResourceAdapter{
 
-    public IFolder folder;
+    public IContainer container;
     public Object parentElement;
     
     /**
@@ -36,9 +36,13 @@ public class PythonSourceFolder implements IWrappedResource, IAdaptable, IContri
      */
     public Map<IResource, List<IWrappedResource>> childrenForContainer = new HashMap<IResource, List<IWrappedResource>>();
 
-    public PythonSourceFolder(Object parentElement, IFolder folder) {
+    protected PythonSourceFolder(Object parentElement, IContainer container) {
         this.parentElement = parentElement;
-        this.folder = folder;
+        this.container = container;
+    }
+    
+    public PythonSourceFolder(Object parentElement, IFolder folder) {
+        this(parentElement, (IContainer)folder);
 //        System.out.println("Created PythonSourceFolder:"+this+" - "+folder+" parent:"+parentElement);
     }
 
@@ -47,7 +51,7 @@ public class PythonSourceFolder implements IWrappedResource, IAdaptable, IContri
 	}
 
 	public IResource getActualObject() {
-		return folder;
+		return container;
 	}
 
 	public PythonSourceFolder getSourceFolder() {

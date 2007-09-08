@@ -10,6 +10,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.PythonNode;
+import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
@@ -26,6 +27,9 @@ public class PythonLabelProvider implements ILabelProvider{
      * @see org.eclipse.jface.viewers.ILabelProvider#getImage(java.lang.Object)
      */
     public Image getImage(Object element) {
+        if(element instanceof PythonProjectSourceFolder){
+            return PydevPlugin.getImageCache().get(UIConstants.ROJECT_SOURCE_FOLDER_ICON);
+        }
         if(element instanceof PythonSourceFolder){
             return PydevPlugin.getImageCache().get(UIConstants.SOURCE_FOLDER_ICON);
         }
@@ -48,9 +52,10 @@ public class PythonLabelProvider implements ILabelProvider{
             PythonNode node = (PythonNode) element;
             return node.entry.toString();
         }
+            
         if(element instanceof PythonSourceFolder){
             PythonSourceFolder sourceFolder = (PythonSourceFolder) element;
-            return provider.getText(sourceFolder.folder);
+            return provider.getText(sourceFolder.container);
         }
         if(element instanceof IWrappedResource){
         	IWrappedResource resource = (IWrappedResource) element;

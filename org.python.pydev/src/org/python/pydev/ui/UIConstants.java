@@ -35,6 +35,7 @@ public class UIConstants {
 	public static final String COPY_ICON = "icons/copy.gif";
 	public static final String CLOSE_ICON = "icons/close.gif";
     public static final String SOURCE_FOLDER_ICON = "icons/packagefolder_obj.gif";
+    public static final String ROJECT_SOURCE_FOLDER_ICON = "icons/project_source_folder.gif";
 	
 //completion
 	public static final String COMPLETION_IMPORT_ICON = "icons/imp_obj.gif";

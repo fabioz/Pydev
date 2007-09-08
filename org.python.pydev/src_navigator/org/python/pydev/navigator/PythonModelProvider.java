@@ -26,6 +26,7 @@ import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.PythonFile;
 import org.python.pydev.navigator.elements.PythonFolder;
+import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonResource;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.PydevPlugin;
@@ -370,23 +371,22 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
     protected IWrappedResource doWrap(Object parent, PythonSourceFolder pythonSourceFolder, Object child) {
         if (child instanceof IProject){
             //do nothing (because a project is never going to be an IWrappedResource)
+            if(pythonSourceFolder == null && parent != null){
+                PythonSourceFolder f = doWrapPossibleSourceFolder(parent, (IProject)child);                    	
+                if(f != null){
+                    return f;
+                }
+            }
             
         }else if(child instanceof IFolder){
             IFolder folder = (IFolder) child;
             
             //it may be a PythonSourceFolder
             if(pythonSourceFolder == null && parent != null){
-            	try {
-            		IProject project = ((IContainer)parent).getProject();
-                    PythonNature nature = PythonNature.getPythonNature(project);
-                    if(nature!= null){
-                        //check for source folder
-                        Set<String> sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet();
-                        tryWrapSourceFolder(parent, folder, sourcePathSet);
-                    }
-                } catch (CoreException e) {
-                    throw new RuntimeException(e);
-                }                    	
+            	PythonSourceFolder f = doWrapPossibleSourceFolder(parent, folder);                    	
+            	if(f != null){
+            	    return f;
+            	}
             }
             if(pythonSourceFolder != null){
                 return new PythonFolder((IWrappedResource) parent, folder, pythonSourceFolder);
@@ -410,18 +410,51 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         return null;
     }
 
+    /**
+     * Try to wrap a folder or project as a source folder...
+     */
+    private PythonSourceFolder doWrapPossibleSourceFolder(Object parent, IContainer container) {
+        try {
+        	IProject project;
+        	if(!(container instanceof IProject)){
+        	    project = ((IContainer)parent).getProject();
+        	}else{
+        	    project = (IProject) container;
+        	}
+            PythonNature nature = PythonNature.getPythonNature(project);
+            if(nature!= null){
+                //check for source folder
+                Set<String> sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet();
+                PythonSourceFolder newSourceFolder = tryWrapSourceFolder(parent, container, sourcePathSet);
+                if(newSourceFolder != null){
+                    return newSourceFolder;
+                }
+            }
+        } catch (CoreException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
     
     /**
      * This method checks if the given folder can be wrapped as a source-folder, and if that's possible, creates and returns
      * it
      * @return a created source folder or null if it couldn't be created.
      */
-    private PythonSourceFolder tryWrapSourceFolder(Object parent, IFolder folder, Set<String> sourcePathSet) {
-        IPath fullPath = folder.getFullPath();
+    private PythonSourceFolder tryWrapSourceFolder(Object parent, IContainer container, Set<String> sourcePathSet) {
+        IPath fullPath = container.getFullPath();
         if(sourcePathSet.contains(fullPath.toString())){
-        	PythonSourceFolder sourceFolder = new PythonSourceFolder(parent, folder);
+            PythonSourceFolder sourceFolder;
+            if(container instanceof IFolder){
+                sourceFolder = new PythonSourceFolder(parent, (IFolder)container);
+            }else if(container instanceof IProject){
+                sourceFolder = new PythonProjectSourceFolder(parent, (IProject)container);
+            }else{
+                throw new RuntimeException("Shouldn't get here: "+container.getClass());
+            }
             //System.out.println("Created source folder: "+ret[i]+" - "+folder.getProject()+" - "+folder.getProjectRelativePath());
-            Set<PythonSourceFolder> sourceFolders = getProjectSourceFolders(folder);
+            Set<PythonSourceFolder> sourceFolders = getProjectSourceFolders(container.getProject());
             sourceFolders.add((PythonSourceFolder) sourceFolder);
             return sourceFolder;
         }
@@ -454,6 +487,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
                         IWrappedResource parent = (IWrappedResource) pythonParent;
                         if (res instanceof IProject){
                             //do nothing (because a project is never going to be an IWrappedResource)
+                            throw new RuntimeException("Shouldn't be here...");
                         }else if(res instanceof IFolder){
                             childrenItr.remove();
                             convertedChildren.add(new PythonFolder(parent, (IFolder) res, parent.getSourceFolder()));

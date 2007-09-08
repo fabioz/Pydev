@@ -15,6 +15,7 @@ import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IWorkingSet;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.ui.PydevPackageExplorer.PydevCommonViewer;
 import org.python.pydev.plugin.PydevPlugin;
@@ -111,7 +112,7 @@ public class PyPackageStateSaver {
 			if(i > max){
 				return new ArrayList<Object>();//something strange happened...
 				
-			}else if(resource instanceof IProject){
+			}else if(resource instanceof IProject || resource instanceof IWorkspaceRoot || resource instanceof IWorkingSet){
 				break;
 				
 			}else if(resource instanceof IWrappedResource){

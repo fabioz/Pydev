@@ -2,6 +2,7 @@ package org.python.pydev.navigator;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.mapping.ResourceMapping;
 import org.eclipse.core.runtime.IAdaptable;
@@ -30,7 +31,7 @@ public class ModelAdapter implements IAdapterFactory{
 
     public Class[] getAdapterList() {
         return new Class[]{IWrappedResource.class, ResourceMapping.class, IResource.class, IFolder.class, IFile.class, 
-                IContainer.class, IContributorResourceAdapter.class};
+                IContainer.class, IContributorResourceAdapter.class, IProject.class};
     }
 
 }

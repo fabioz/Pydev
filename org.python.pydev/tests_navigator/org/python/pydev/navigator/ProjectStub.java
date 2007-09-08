@@ -24,12 +24,14 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IPluginDescriptor;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.content.IContentTypeMatcher;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.REF;
 
 public class ProjectStub implements IProject, IWorkbenchAdapter{
 
@@ -38,6 +40,8 @@ public class ProjectStub implements IProject, IWorkbenchAdapter{
     private Map<File, IResource> cache = new HashMap<File, IResource>();
 
     private IPythonNature nature;
+
+    private IContainer parent;
     
     public ProjectStub(File file, IPythonNature nature) {
         Assert.isTrue(file.exists() && file.isDirectory());
@@ -66,8 +70,11 @@ public class ProjectStub implements IProject, IWorkbenchAdapter{
         return (IContainer) getResource(parentFile);
     }
     
+    public void setParent(IContainer parent) {
+        this.parent = parent;
+    }
     public IContainer getParent() {
-        throw new RuntimeException("Project does not get parent?");
+        return this.parent;
     }
 
     @Override
@@ -360,8 +367,7 @@ public class ProjectStub implements IProject, IWorkbenchAdapter{
     }
 
     public IPath getFullPath() {
-        throw new RuntimeException("Not impl");
-        
+        return Path.fromOSString(REF.getFileAbsolutePath(this.projectRoot));
     }
 
     public long getLocalTimeStamp() {
@@ -370,8 +376,7 @@ public class ProjectStub implements IProject, IWorkbenchAdapter{
     }
 
     public IPath getLocation() {
-        throw new RuntimeException("Not impl");
-        
+        return Path.fromOSString(REF.getFileAbsolutePath(this.projectRoot));
     }
 
     public URI getLocationURI() {
