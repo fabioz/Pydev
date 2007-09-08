@@ -321,6 +321,19 @@ a 'forced builtin lib'. More information may be found at the faq: <br/>
 
 
 --------------------------------------------------------------------------------------------------------------Title
+I can't make __builtins__.xxx = something while debugging
+--------------------------------------------------------------------------------------------------------------Answer
+The problem is that pydev passes a dict as the __builtins__ module to execfile while debugging (so, regular
+attribute access is not available on that object).<br><br>
+<br>
+Simply use:<br>
+import __builtin__<br>
+__builtin__.xxx = something<br>
+<br>
+It's basically the same thing, but works when debugging.
+
+
+--------------------------------------------------------------------------------------------------------------Title
 PyLint is not working, what should I do?
 --------------------------------------------------------------------------------------------------------------Answer
 1. make sure that PyLint is correctly installed in your site-packages (try running it at least once
