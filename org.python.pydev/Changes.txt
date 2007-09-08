@@ -17,6 +17,7 @@ Pydev
 <li>psyco changed for Null object for debug (so, no changes are required to the code if psyco is used while debugging).</li>
 <li>Code-folding annotations won't change places.</li>
 <li>Pydev package explorer will correctly show outline for files if the project root is set as a source folder.</li>
+<li>Pydev package explorer: package icon for folders under the pythonpath.</li>
 </ul>
 
 Extensions

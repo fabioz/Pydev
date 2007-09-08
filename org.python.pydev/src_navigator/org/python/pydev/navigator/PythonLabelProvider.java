@@ -9,6 +9,7 @@ import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.python.pydev.navigator.elements.IWrappedResource;
+import org.python.pydev.navigator.elements.PythonFolder;
 import org.python.pydev.navigator.elements.PythonNode;
 import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
@@ -28,10 +29,13 @@ public class PythonLabelProvider implements ILabelProvider{
      */
     public Image getImage(Object element) {
         if(element instanceof PythonProjectSourceFolder){
-            return PydevPlugin.getImageCache().get(UIConstants.ROJECT_SOURCE_FOLDER_ICON);
+            return PydevPlugin.getImageCache().get(UIConstants.PROJECT_SOURCE_FOLDER_ICON);
         }
         if(element instanceof PythonSourceFolder){
             return PydevPlugin.getImageCache().get(UIConstants.SOURCE_FOLDER_ICON);
+        }
+        if(element instanceof PythonFolder){
+            return PydevPlugin.getImageCache().get(UIConstants.FOLDER_PACKAGE_ICON);
         }
         if(element instanceof PythonNode){
             PythonNode node = (PythonNode) element;
