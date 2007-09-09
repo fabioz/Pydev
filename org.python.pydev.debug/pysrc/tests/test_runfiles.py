@@ -123,10 +123,10 @@ class RunfilesTest(unittest.TestCase):
         
     def test_finding_a_file_from_file_system(self):
         test_file = "simple_test.py"
-        self.MyTestRunner.test_dir = [self.file_dir[0] + "/" + test_file]
+        self.MyTestRunner.test_dir = [self.file_dir[0] + test_file]
         files = self.MyTestRunner.find_import_files()
         self.assertEquals( 1, len(files) )
-        self.assertEquals( files[0], test_file )
+        self.assertEquals( files[0], self.file_dir[0] + test_file )
 
     def test_finding_files_in_dir_from_file_system(self):
         self.assertEquals( 1, len(self.files) > 0 )

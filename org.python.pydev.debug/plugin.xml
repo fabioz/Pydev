@@ -141,6 +141,8 @@
 </extension>
 <!--- launcher tab group -->
 <extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+
+	<!--Python-->
 	<launchConfigurationTabGroup
 		type="org.python.pydev.debug.regularLaunchConfigurationType"
 		class="org.python.pydev.debug.ui.PythonTabGroup"
@@ -156,16 +158,19 @@
 		class="org.python.pydev.debug.ui.PythonTabGroup"
 		id="org.python.pydev.debug.ui.PythonTabGroup">
 	</launchConfigurationTabGroup>
+	
+	<!--Jython-->
 	<launchConfigurationTabGroup
 		type="org.python.pydev.debug.jythonUnittestLaunchConfigurationType"
-		class="org.python.pydev.debug.ui.PythonTabGroup"
-		id="org.python.pydev.debug.ui.PythonTabGroup">
+		class="org.python.pydev.debug.ui.JythonTabGroup"
+		id="org.python.pydev.debug.ui.JythonTabGroup">
 	</launchConfigurationTabGroup>
 	<launchConfigurationTabGroup
 		type="org.python.pydev.debug.jythonLaunchConfigurationType"
 		class="org.python.pydev.debug.ui.JythonTabGroup"
 		id="org.python.pydev.debug.ui.JythonTabGroup">
 	</launchConfigurationTabGroup>
+	
 </extension>
 
 <!--- launcher pop up over a python file -->
@@ -245,7 +250,6 @@
         <contextualLaunch>
            <enablement>
               <with variable="selection">
-                 <count value="1"/>
            		 <iterate>
            		 	<or>
                		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
@@ -266,7 +270,6 @@
         <contextualLaunch>
            <enablement>
               <with variable="selection">
-                 <count value="1"/>
            		 <iterate>
            		 	<or>
                		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>

@@ -19,6 +19,7 @@ Pydev
 <li>Code-folding annotations won't change places.</li>
 <li>Pydev package explorer will correctly show outline for files if the project root is set as a source folder.</li>
 <li>Pydev package explorer: package icon for folders under the pythonpath.</li>
+<li>Unittest runner: handles multiple directories.</li>
 </ul>
 
 Extensions

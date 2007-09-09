@@ -14,7 +14,7 @@ import org.python.pydev.plugin.PydevPlugin;
 public class JythonTabGroup extends AbstractLaunchConfigurationTabGroup {
     
     public void createTabs(ILaunchConfigurationDialog arg0, String arg1) {
-        MainModuleTab mainModuleTab = new MainModuleTab(PydevPlugin.getJythonInterpreterManager());
+        MainModuleTab mainModuleTab = new MainModuleTab();
         ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
             mainModuleTab,
             new ArgumentsTab(PydevPlugin.getJythonInterpreterManager(), mainModuleTab), 

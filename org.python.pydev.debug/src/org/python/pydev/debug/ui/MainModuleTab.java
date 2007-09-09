@@ -34,7 +34,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
-import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -84,10 +83,7 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
 
     private List pythonpath;
     
-    private IInterpreterManager interpreterManager;
-    
-    public MainModuleTab(IInterpreterManager interpreterManager) {
-        this.interpreterManager = interpreterManager;
+    public MainModuleTab() {
     }
 
     /**
@@ -143,7 +139,7 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
         try {
             return configuration.getAttribute(Constants.ATTR_INTERPRETER, Constants.ATTR_INTERPRETER_DEFAULT);
         } catch (CoreException e) {
-            return interpreterManager.getDefaultInterpreter();
+            return Constants.ATTR_INTERPRETER_DEFAULT;
         }
     }
     

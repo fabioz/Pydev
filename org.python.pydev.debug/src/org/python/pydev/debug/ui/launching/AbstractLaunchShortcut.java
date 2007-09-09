@@ -6,6 +6,7 @@
 package org.python.pydev.debug.ui.launching;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -48,261 +49,327 @@ import org.python.pydev.ui.NotConfiguredInterpreterException;
  */
 public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 
-	boolean fShowDialog = false;		// show configuration dialog?
-	
+    boolean fShowDialog = false; // show configuration dialog?
+
     //=============================================================================================
     // ILaunchShortcut IMPL
-	//=============================================================================================
-	public void launch(ISelection selection, String mode) {
-		if (selection instanceof IStructuredSelection) {
-			IStructuredSelection structuredSelection = (IStructuredSelection)selection;
-			Object object = structuredSelection.getFirstElement();
-			if (object instanceof IAdaptable) {
-                
-				IFile resource = (IFile)((IAdaptable)object).getAdapter(IFile.class);
-				if (resource != null) {
-					launch(resource, mode, null);
-					return;
-				}
-                
-				IFolder folder = (IFolder)((IAdaptable)object).getAdapter(IFolder.class);
-				if (folder != null) {
-				    launch(folder, mode, null);
-				    return;
-				}
-			}
-		}
-		fileNotFound();
-	}
-	
-    
-	public void launch(IEditorPart editor, String mode) {
-        //we have an editor to run
-		IEditorInput input = editor.getEditorInput();
-		IFile file = (IFile)input.getAdapter(IFile.class);
-		if (file != null) {
-			launch(file, mode, null);
-			return;
-		}
-		fileNotFound();
-	}
-	//=============================================================================================
-	// END ILaunchShortcut IMPL
-	//=============================================================================================
-	
-	protected void fileNotFound() {
-		String msg = "Unable to launch the file. " +
-				    "Possible reasons may include:\n" +
-				    "    - the file being launched is not under a project in the workspace;\n" +
-				    "    - the file was deleted.";
-        reportError(msg, null);	
-	}
-	
-	protected boolean verifyMode(String mode) {
-		boolean ok = mode.equals(ILaunchManager.RUN_MODE) || mode.equals(ILaunchManager.DEBUG_MODE);
-		
-        if (!ok){
-			reportError("Unknown launch mode: " + mode, null);
-        }
-		return ok;
-	}
+    //=============================================================================================
+    @SuppressWarnings("unchecked")
+    public void launch(ISelection selection, String mode) {
+        if (selection instanceof IStructuredSelection) {
+            IStructuredSelection structuredSelection = (IStructuredSelection) selection;
+            
+            //single selection
+            if (structuredSelection.size() == 1) {
+                Object object = structuredSelection.getFirstElement();
+                if (object instanceof IAdaptable) {
 
-	
-	protected static void reportError(String message, Throwable throwable) {
-		if (message == null)
-			message = "Unexpected error";
-		IStatus status = null;
-		if (throwable instanceof CoreException) {
-			status = ((CoreException)throwable).getStatus();
-		} else {
-			status = new Status(IStatus.ERROR, "org.python.pydev.debug", 0, message, throwable);
-		}
-		ErrorDialog.openError(PydevDebugPlugin.getActiveWorkbenchWindow().getShell(), 
-			"Python pydev.debug error", "Python launch failed", status);
-	}
-	
-	/**
-	 * COPIED/MODIFIED from AntLaunchShortcut
-	 * Returns a list of existing launch configuration for the given file.
-	 */
-	protected List findExistingLaunchConfigurations(IResource file) {
-		ILaunchManager manager = org.eclipse.debug.core.DebugPlugin.getDefault().getLaunchManager();
-		ILaunchConfigurationType type = manager.getLaunchConfigurationType(getLaunchConfigurationType());
-		List validConfigs= new ArrayList();
-		if (type == null)
-			return validConfigs;			
-		try {
-			ILaunchConfiguration[] configs = manager.getLaunchConfigurations(type);
-			String defaultLocation =  getDefaultLocation(file);
-			for (int i = 0; i < configs.length; i++) {
-				String configPath = configs[i].getAttribute(Constants.ATTR_LOCATION, "");
-				if (defaultLocation.equals(configPath))
-					validConfigs.add(configs[i]);
-			}
-		} catch (CoreException e) {
-			reportError("Unexpected error", e);
-		}
-		return validConfigs;
-	}
-	
-	/**
-	 * @param file
-	 * @return default string for the location field
-	 */
-	public static String getDefaultLocation (IResource file) {
-		return file.getRawLocation().toString();
-// E3		IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
-// E3		return varManager.generateVariableExpression("workspace_loc", file.getFullPath().toString());
-	}
-	
-    protected abstract String getLaunchConfigurationType();
-    
-    protected ILaunchConfiguration createDefaultLaunchConfiguration(IResource resource) {
-        IInterpreterManager pythonInterpreterManager = getInterpreterManager();
-        String projName = resource.getProject().getName();
-        return createDefaultLaunchConfiguration(resource, getLaunchConfigurationType(), getDefaultLocation(resource), pythonInterpreterManager, projName);
+                    IFile resource = (IFile) ((IAdaptable) object).getAdapter(IFile.class);
+                    if (resource != null) {
+                        launch(resource, mode, null);
+                        return;
+                    }
+
+                    IFolder folder = (IFolder) ((IAdaptable) object).getAdapter(IFolder.class);
+                    if (folder != null) {
+                        launch(folder, mode, null);
+                        return;
+                    }
+                }
+
+            //multiple selection
+            } else if (structuredSelection.size() > 1) {
+                List<IResource> sel = new ArrayList<IResource>();
+                for (Iterator<Object> it = structuredSelection.iterator(); it.hasNext();) {
+                    Object object = it.next();
+                    if (object instanceof IAdaptable) {
+                        IFolder folder = (IFolder) ((IAdaptable) object).getAdapter(IFolder.class);
+                        if (folder != null) {
+                            sel.add(folder);
+                        }else{
+                            IFile file = (IFile) ((IAdaptable) object).getAdapter(IFile.class);
+                            if(file != null){
+                                sel.add(file);
+                            }
+                        }
+                    }
+                }
+                if (sel.size() > 0) {
+                    launch(sel.toArray(new IResource[sel.size()]), mode, null);
+                }
+                return;
+            }
+            StringBuffer buf = new StringBuffer();
+            for (Iterator<Object> it = structuredSelection.iterator(); it.hasNext();) {
+                buf.append(it.next());
+            }
+            reportError("Unable to discover launch config for: "+buf, null);
+            return;
+        }else{
+            PydevPlugin.log("Expecting instance of IStructuredSelection. Received: "+selection.getClass().getName());
+        }
+        
     }
-    
-    public static ILaunchConfiguration createDefaultLaunchConfiguration(IResource resource, String launchConfigurationType, 
+
+    /**
+     * Launch for a selected editor.
+     */
+    public void launch(IEditorPart editor, String mode) {
+        //we have an editor to run
+        IEditorInput input = editor.getEditorInput();
+        IFile file = (IFile) input.getAdapter(IFile.class);
+        if (file != null) {
+            launch(file, mode, null);
+            return;
+        }
+        fileNotFound();
+    }
+
+    //=============================================================================================
+    // END ILaunchShortcut IMPL
+    //=============================================================================================
+
+    protected void fileNotFound() {
+        String msg = "Unable to launch the file. " + 
+                "Possible reasons may include:\n" +
+                "    - the file (editor) being launched is not under a project in the workspace;\n" + 
+                "    - the file was deleted.";
+        reportError(msg, null);
+    }
+
+    protected boolean verifyMode(String mode) {
+        boolean ok = mode.equals(ILaunchManager.RUN_MODE) || mode.equals(ILaunchManager.DEBUG_MODE);
+
+        if (!ok) {
+            reportError("Unknown launch mode: " + mode, null);
+        }
+        return ok;
+    }
+
+    /**
+     * Report some error to the user.
+     */
+    protected static void reportError(String message, Throwable throwable) {
+        if (message == null){
+            message = "Unexpected error";
+        }
+        
+        IStatus status = null;
+        if (throwable instanceof CoreException) {
+            status = ((CoreException) throwable).getStatus();
+        } else {
+            status = new Status(IStatus.ERROR, "org.python.pydev.debug", 0, message, throwable);
+        }
+        ErrorDialog.openError(PydevDebugPlugin.getActiveWorkbenchWindow().getShell(), "Python pydev.debug error", "Python launch failed",
+                status);
+    }
+
+    /**
+     * COPIED/MODIFIED from AntLaunchShortcut
+     * Returns a list of existing launch configuration for the given file.
+     */
+    protected List<ILaunchConfiguration> findExistingLaunchConfigurations(IResource[] file) {
+        ILaunchManager manager = org.eclipse.debug.core.DebugPlugin.getDefault().getLaunchManager();
+        ILaunchConfigurationType type = manager.getLaunchConfigurationType(getLaunchConfigurationType());
+        List<ILaunchConfiguration> validConfigs = new ArrayList<ILaunchConfiguration>();
+        if (type == null) {
+            return validConfigs;
+        }
+
+        try {
+            ILaunchConfiguration[] configs = manager.getLaunchConfigurations(type);
+            String defaultLocation = getDefaultLocation(file);
+            for (int i = 0; i < configs.length; i++) {
+                String configPath = configs[i].getAttribute(Constants.ATTR_LOCATION, "");
+                if (defaultLocation.equals(configPath)) {
+                    validConfigs.add(configs[i]);
+                }
+            }
+        } catch (CoreException e) {
+            reportError("Unexpected error", e);
+        }
+        return validConfigs;
+    }
+
+    /**
+     * @param file
+     * @return default string for the location field
+     */
+    public static String getDefaultLocation(IResource[] file) {
+        StringBuffer buffer = new StringBuffer();
+
+        for (IResource r : file) {
+            if (buffer.length() > 0) {
+                buffer.append("|");
+            }
+            buffer.append(r.getRawLocation().toString());
+        }
+        return buffer.toString();
+        // E3		IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
+        // E3		return varManager.generateVariableExpression("workspace_loc", file.getFullPath().toString());
+    }
+
+    /**
+     * @return a string with the launch configuration type that should be used for the run.
+     */
+    protected abstract String getLaunchConfigurationType();
+
+    protected ILaunchConfiguration createDefaultLaunchConfiguration(IResource[] resource) {
+        IInterpreterManager pythonInterpreterManager = getInterpreterManager();
+        String projName = resource[0].getProject().getName();
+        return createDefaultLaunchConfiguration(resource, getLaunchConfigurationType(), getDefaultLocation(resource),
+                pythonInterpreterManager, projName);
+    }
+
+    public static ILaunchConfiguration createDefaultLaunchConfiguration(IResource[] resource, String launchConfigurationType,
             String location, IInterpreterManager pythonInterpreterManager, String projName) {
         return createDefaultLaunchConfiguration(resource, launchConfigurationType, location, pythonInterpreterManager, projName, null);
     }
-    
-	/**
-	 * COPIED/MODIFIED from AntLaunchShortcut
-	 * @param location 
-	 * @param pythonInterpreterManager 
-	 */
-	public static ILaunchConfiguration createDefaultLaunchConfiguration(IResource resource, String launchConfigurationType, 
+
+    /**
+     * COPIED/MODIFIED from AntLaunchShortcut
+     * @param location 
+     * @param pythonInterpreterManager 
+     */
+    public static ILaunchConfiguration createDefaultLaunchConfiguration(IResource[] resource, String launchConfigurationType,
             String location, IInterpreterManager pythonInterpreterManager, String projName, String vmargs) {
-        
-        
-		ILaunchManager manager = org.eclipse.debug.core.DebugPlugin.getDefault().getLaunchManager();
-		ILaunchConfigurationType type = manager.getLaunchConfigurationType(launchConfigurationType);
-		if (type == null) {
-			reportError("Python launch configuration not found", null);
-			return null;
-		}
+
+        ILaunchManager manager = org.eclipse.debug.core.DebugPlugin.getDefault().getLaunchManager();
+        ILaunchConfigurationType type = manager.getLaunchConfigurationType(launchConfigurationType);
+        if (type == null) {
+            reportError("Python launch configuration not found", null);
+            return null;
+        }
 
         StringBuffer buffer = new StringBuffer(projName);
-		buffer.append(" ");
-		buffer.append(resource.getName());
-		String name = buffer.toString().trim();
-		name= manager.generateUniqueLaunchConfigurationNameFrom(name);
-		
+        buffer.append(" ");
+        StringBuffer resourceNames = new StringBuffer();
+        for(IResource r:resource){
+            if(resourceNames.length() > 0){
+                resourceNames.append(" - ");
+            }
+            resourceNames.append(r.getName());
+        }
+        buffer.append(resourceNames);
+        String name = buffer.toString().trim();
+        name = manager.generateUniqueLaunchConfigurationNameFrom(name);
+
         try {
 
-			ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null, name);
-			// Python Main Tab Arguments
-			
-//			IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
-//			String baseDirectory = varManager.generateVariableExpression("workspace_loc",resource.getRawLocation().removeLastSegments(1).toString());
-			String baseDirectory = resource.getRawLocation().removeLastSegments(1).toString();
-			String arguments = "";
-			
-            workingCopy.setAttribute(Constants.ATTR_PROJECT,projName);
-            workingCopy.setAttribute(Constants.ATTR_RESOURCE_TYPE,resource.getType());
-            workingCopy.setAttribute(Constants.ATTR_INTERPRETER, Constants.ATTR_INTERPRETER_DEFAULT);
-            
-            workingCopy.setAttribute(IDebugUIConstants.ATTR_LAUNCH_IN_BACKGROUND, false);
-			workingCopy.setAttribute(Constants.ATTR_LOCATION,location);
-			workingCopy.setAttribute(Constants.ATTR_WORKING_DIRECTORY,baseDirectory);
-			workingCopy.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS,arguments);
-			workingCopy.setAttribute(Constants.ATTR_VM_ARGUMENTS, vmargs);
+            ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null, name);
+            // Python Main Tab Arguments
 
-			// Common Tab Arguments
-			CommonTab tab = new CommonTab();
-			tab.setDefaults(workingCopy);
-			tab.dispose();
-			return workingCopy.doSave();
+            //IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
+            //String baseDirectory = varManager.generateVariableExpression("workspace_loc",resource.getRawLocation().removeLastSegments(1).toString());
+            String baseDirectory = resource[0].getRawLocation().removeLastSegments(1).toString();
+            String arguments = "";
+
+            workingCopy.setAttribute(Constants.ATTR_PROJECT, projName);
+            workingCopy.setAttribute(Constants.ATTR_RESOURCE_TYPE, resource[0].getType());
+            workingCopy.setAttribute(Constants.ATTR_INTERPRETER, Constants.ATTR_INTERPRETER_DEFAULT);
+
+            workingCopy.setAttribute(IDebugUIConstants.ATTR_LAUNCH_IN_BACKGROUND, false);
+            workingCopy.setAttribute(Constants.ATTR_LOCATION, location);
+            workingCopy.setAttribute(Constants.ATTR_WORKING_DIRECTORY, baseDirectory);
+            workingCopy.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, arguments);
+            workingCopy.setAttribute(Constants.ATTR_VM_ARGUMENTS, vmargs);
+
+            // Common Tab Arguments
+            CommonTab tab = new CommonTab();
+            tab.setDefaults(workingCopy);
+            tab.dispose();
+            return workingCopy.doSave();
         } catch (NotConfiguredInterpreterException e) {
             reportError(e.getMessage(), e);
             throw e;
-		} catch (CoreException e) {
-			reportError(null, e);
-			return null;
-		}
-	}
-
+        } catch (CoreException e) {
+            reportError(null, e);
+            return null;
+        }
+    }
 
     /**
-     * @return the interpreter manager associated with this shortcut (may be overriden if it is not python)
+     * @return the interpreter manager associated with this shortcut (may be overridden if it is not python)
      */
     protected IInterpreterManager getInterpreterManager() {
         return PydevPlugin.getPythonInterpreterManager();
     }
 
-	/**
-	 * COPIED/MODIFIED from AntLaunchShortcut
-	 */
-	protected ILaunchConfiguration chooseConfig(List configs) {
-		if (configs.isEmpty()) {
-			return null;
-		}
-		ILabelProvider labelProvider = DebugUITools.newDebugModelPresentation();
-		ElementListSelectionDialog dialog= new ElementListSelectionDialog(Display.getDefault().getActiveShell(), labelProvider);
-		dialog.setElements(configs.toArray(new ILaunchConfiguration[configs.size()]));
-		dialog.setTitle("Pick a Python configuration");
-		dialog.setMessage("Choose a python configuration to run");
-		dialog.setMultipleSelection(false);
-		int result = dialog.open();
-		labelProvider.dispose();
-		if (result == Window.OK)
-			return (ILaunchConfiguration) dialog.getFirstResult();
-		else
-			return null;
-	}
+    /**
+     * COPIED/MODIFIED from AntLaunchShortcut
+     */
+    protected ILaunchConfiguration chooseConfig(List configs) {
+        if (configs.isEmpty()) {
+            return null;
+        }
+        ILabelProvider labelProvider = DebugUITools.newDebugModelPresentation();
+        ElementListSelectionDialog dialog = new ElementListSelectionDialog(Display.getDefault().getActiveShell(), labelProvider);
+        dialog.setElements(configs.toArray(new ILaunchConfiguration[configs.size()]));
+        dialog.setTitle("Pick a Python configuration");
+        dialog.setMessage("Choose a python configuration to run");
+        dialog.setMultipleSelection(false);
+        int result = dialog.open();
+        labelProvider.dispose();
+        if (result == Window.OK)
+            return (ILaunchConfiguration) dialog.getFirstResult();
+        else
+            return null;
+    }
 
-	/**
-	 * Launch the given targets in the given build file. The targets are
-	 * launched in the given mode.
-	 * 
-	 * @param file the build file to launch
-	 * @param mode the mode in which the build file should be executed
-	 * @param targetAttribute the targets to launch, in the form of the launch
-	 * configuration targets attribute.
-	 */
-	protected void launch(IResource file, String mode, String targetAttribute) {
-		if (!verifyMode(mode)){
-            reportError("Invalid mode "+mode, null);
-		    return;
+    protected void launch(IResource file, String mode, String targetAttribute) {
+        launch(new IResource[] { file }, mode, targetAttribute);
+    }
+
+    /**
+     * Launch the given targets in the given build file. The targets are
+     * launched in the given mode.
+     * 
+     * @param file the build file to launch
+     * @param mode the mode in which the build file should be executed
+     * @param targetAttribute the targets to launch, in the form of the launch
+     * configuration targets attribute.
+     */
+    protected void launch(IResource[] file, String mode, String targetAttribute) {
+        if (!verifyMode(mode)) {
+            reportError("Invalid mode " + mode, null);
+            return;
         }
 
-		ILaunchConfiguration conf = null;
-		List configurations = findExistingLaunchConfigurations(file);
-		if (configurations.isEmpty())
-			conf = createDefaultLaunchConfiguration(file);
-		else {
-			if (configurations.size() == 1) {
-				conf = (ILaunchConfiguration)configurations.get(0);
-			} else {
-				conf = chooseConfig(configurations);
-				if (conf == null)
-					// User cancelled selection
-					return;
-			}
-		}
-        
-		if (conf != null) {
-			if (fShowDialog) {
-				String groupID = "";
-			    
-				if(mode.equals("run")) {
-			        groupID = Constants.PYTHON_RUN_LAUNCH_GROUP;
-			    }else if (mode.equals("debug")){
-			        groupID = Constants.PYTHON_DEBUG_LAUNCH_GROUP;
-			    }
-			    
-				DebugUITools.openLaunchConfigurationDialog(PydevDebugPlugin.getActiveWorkbenchWindow().getShell(), conf, groupID, null);
-			} else {
-				DebugUITools.launch(conf, mode);
-			}
-			return;
-		}
-		fileNotFound();
-	}
-	
-	public void setShowDialog(boolean showDialog) {
-		fShowDialog = showDialog;
-	}
+        ILaunchConfiguration conf = null;
+        List configurations = findExistingLaunchConfigurations(file);
+        if (configurations.isEmpty())
+            conf = createDefaultLaunchConfiguration(file);
+        else {
+            if (configurations.size() == 1) {
+                conf = (ILaunchConfiguration) configurations.get(0);
+            } else {
+                conf = chooseConfig(configurations);
+                if (conf == null)
+                    // User cancelled selection
+                    return;
+            }
+        }
+
+        if (conf != null) {
+            if (fShowDialog) {
+                String groupID = "";
+
+                if (mode.equals("run")) {
+                    groupID = Constants.PYTHON_RUN_LAUNCH_GROUP;
+                } else if (mode.equals("debug")) {
+                    groupID = Constants.PYTHON_DEBUG_LAUNCH_GROUP;
+                }
+
+                DebugUITools.openLaunchConfigurationDialog(PydevDebugPlugin.getActiveWorkbenchWindow().getShell(), conf, groupID, null);
+            } else {
+                DebugUITools.launch(conf, mode);
+            }
+            return;
+        }
+        fileNotFound();
+    }
+
+    public void setShowDialog(boolean showDialog) {
+        fShowDialog = showDialog;
+    }
 }
