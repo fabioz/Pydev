@@ -19,7 +19,7 @@ public class JythonCompletionWithBuiltinsTest extends JythonCodeCompletionTestsB
         try {
             JythonCompletionWithBuiltinsTest test = new JythonCompletionWithBuiltinsTest();
             test.setUp();
-            test.testCompleteImportBuiltin2();
+            test.testStaticAccess();
             test.tearDown();
             
             junit.textui.TestRunner.run(JythonCompletionWithBuiltinsTest.class);
@@ -64,13 +64,23 @@ public class JythonCompletionWithBuiltinsTest extends JythonCodeCompletionTestsB
         s = "from java.lang import Class\n"+
         "Class.";
         requestCompl(s, s.length(), -1, new String[] { "forName(string)" });
-        
     }
+    
     public void testCompleteImportBuiltin() throws BadLocationException, IOException, Exception{
-        
         String s;
         s = "from java import ";
         requestCompl(s, s.length(), -1, new String[] { "lang", "math", "util" });
+    }
+    
+    /**
+     * Test related to: http://sourceforge.net/tracker/index.php?func=detail&aid=1560823&group_id=85796&atid=577329
+     */
+    public void testStaticAccess() throws BadLocationException, IOException, Exception{
+        String s;
+        s = "" +
+            "from javax import swing \n" +
+            "print swing.JFrame.";
+        requestCompl(s, s.length(), -1, new String[] { "EXIT_ON_CLOSE" });
     }
 
 
