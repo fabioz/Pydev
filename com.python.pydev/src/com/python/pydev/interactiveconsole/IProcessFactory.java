@@ -116,9 +116,9 @@ public class IProcessFactory {
         }else{
             ILaunchConfiguration configuration = 
                 AbstractLaunchShortcut.createDefaultLaunchConfiguration(
-                        resource, 
+                        new IResource[]{resource}, 
                         type, 
-                        AbstractLaunchShortcut.getDefaultLocation(resource), 
+                        AbstractLaunchShortcut.getDefaultLocation(new IResource[]{resource}), 
                         manager, 
                         project.getName(), 
                         interactiveConsoleVmArgs
