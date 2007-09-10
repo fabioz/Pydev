@@ -38,7 +38,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testAssertDeterminesClass();
+	      test.testAssignErr();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -1034,6 +1034,17 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     		"foonotexistent.";
     	
     	requestCompl(s, new String[] {});
+    }
+    
+    public void testAssignErr() throws Exception {
+    	String s = 
+    		"class ScalarBarManager:\n" +
+    		"    pass\n" +
+    		"manager = ScalarBarManager()\n" +
+    		"manager._scalar_bars[1].props\n" +
+    		"manager.";
+    	
+    	requestCompl(s, new String[] {"_scalar_bars"});
     }
     
 }
