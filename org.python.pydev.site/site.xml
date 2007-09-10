@@ -19,6 +19,11 @@
    
    
    
+   <feature url="features/org.python.pydev.feature_1.3.9.jar" id="org.python.pydev.feature" version="1.3.9">
+      <category name="Pydev"/>
+   </feature>
+   
+   
    <feature url="features/org.python.pydev.feature_1.3.8.jar" id="org.python.pydev.feature" version="1.3.8">
       <category name="Pydev"/>
    </feature>
