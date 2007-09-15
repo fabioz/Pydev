@@ -1,5 +1,0 @@
-Some resources:
-
-http://www.eclipse.org/articles/article.php?file=Article-JavaCodeManipulation_AST/index.html
-
-Basically, we don't want to integrate java through a shell as it is now, but rather using the information that JDT already has.
