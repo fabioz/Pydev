@@ -1,32 +1,27 @@
 package org.python.pydev.plugin;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Preferences;
@@ -669,206 +664,38 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     
     
     /**
-     * 
      * @return the script to get the variables.
      * 
      * @throws CoreException
      */
     public static File getScriptWithinPySrc(String targetExec) throws CoreException {
         IPath relative = new Path("PySrc").addTrailingSeparator().append(targetExec);
-        return getRelativePath(relative);
+        return PydevPlugin.getBundleInfo().getRelativePath(relative);
     }
 
     /**
-     * @param relative
-     * @return
-     * @throws CoreException
+     * @return the cache that should be used to access images within the pydev plugin.
      */
-    public static File getRelativePath(IPath relative) throws CoreException {
-        return PydevPlugin.getBundleInfo().getRelativePath(relative);
-    }
-    
     public static ImageCache getImageCache(){
         return PydevPlugin.getBundleInfo().getImageCache();
     }
     
 
-    public static File getImageWithinIcons(String icon) throws CoreException {
-
-        IPath relative = new Path("icons").addTrailingSeparator().append(icon);
-
-        return getRelativePath(relative);
-
-    }
-
-    /**
-     * @return All the IFiles below the current folder that are python files (does not check if it has an __init__ path)
-     */
-    public static List<IFile> getAllIFilesBelow(IFolder member) {
-    	final ArrayList<IFile> ret = new ArrayList<IFile>();
-    	try {
-			member.accept(new IResourceVisitor(){
-
-				public boolean visit(IResource resource) {
-					if(resource instanceof IFile){
-						ret.add((IFile) resource);
-						return false; //has no members
-					}
-					return true;
-				}
-				
-			});
-		} catch (CoreException e) {
-			throw new RuntimeException(e);
-		}
-    	return ret;
-    }
-    
-    /**
-     * Returns the directories and python files in a list.
-     * 
-     * @param file
-     * @return tuple with files in pos 0 and folders in pos 1
-     */
-    public static List<File>[] getPyFilesBelow(File file, IProgressMonitor monitor, final boolean includeDirs, boolean checkHasInit) {
-        FileFilter filter = getPyFilesFileFilter(includeDirs);
-        return getPyFilesBelow(file, filter, monitor, true, checkHasInit);
-    }
-    
-    /**
-     * @param includeDirs determines if we can include subdirectories
-     * @return a file filter only for python files (and other dirs if specified)
-     */
-	public static FileFilter getPyFilesFileFilter(final boolean includeDirs) {
-		return new FileFilter() {
-    
-            public boolean accept(File pathname) {
-                if (includeDirs){
-                	if(pathname.isDirectory()){
-                		return true;
-                	}
-                	if(PythonPathHelper.isValidSourceFile(pathname.toString())){
-                		return true;
-                	}
-                	return false;
-                }else{
-                	if(pathname.isDirectory()){
-                		return false;
-                	}
-                	if(PythonPathHelper.isValidSourceFile(pathname.toString())){
-                		return true;
-                	}
-                	return false;
-                }
-            }
-    
-        };
-	}
-
-
-    public static List<File>[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean checkHasInit) {
-        return getPyFilesBelow(file, filter, monitor, true, checkHasInit);
-    }
-    
-    public static List<File>[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders, boolean checkHasInit) {
-        return getPyFilesBelow(file, filter, monitor, addSubFolders, 0, checkHasInit);
-    }
-    /**
-     * Returns the directories and python files in a list.
-     * 
-     * @param file
-     * @param addSubFolders: indicates if sub-folders should be added
-     * @return tuple with files in pos 0 and folders in pos 1
-     */
-    @SuppressWarnings("unchecked")
-    private static List<File>[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders, int level, boolean checkHasInit) {
-        if (monitor == null) {
-            monitor = new NullProgressMonitor();
-        }
-        List<File> filesToReturn = new ArrayList<File>();
-        List<File> folders = new ArrayList<File>();
-
-        if (file.exists() == true) {
-
-            if (file.isDirectory()) {
-                File[] files = null;
-
-                if (filter != null) {
-                    files = file.listFiles(filter);
-                } else {
-                    files = file.listFiles();
-                }
-
-                boolean hasInit = false;
-
-                List<File> foldersLater = new LinkedList<File>();
-                
-                for (int i = 0; i < files.length; i++) {
-                    File file2 = files[i];
-                    
-                    if(file2.isFile()){
-	                    filesToReturn.add(file2);
-	                    monitor.worked(1);
-	                    monitor.setTaskName("Found:" + file2.toString());
-	                    
-                        if (checkHasInit && hasInit == false){
-    	                    if(PythonPathHelper.isValidInitFile(file2.getName())){
-    	                        hasInit = true;
-    	                    }
-                        }
-	                    
-                    }else{
-                        foldersLater.add(file2);
-                    }
-                }
-                
-                if(!checkHasInit  || hasInit || level == 0){
-	                folders.add(file);
-
-	                for (Iterator iter = foldersLater.iterator(); iter.hasNext();) {
-	                    File file2 = (File) iter.next();
-	                    if(file2.isDirectory() && addSubFolders){
-		                    List<File>[] below = getPyFilesBelow(file2, filter, monitor, addSubFolders, level+1, checkHasInit);
-		                    filesToReturn.addAll(below[0]);
-		                    folders.addAll(below[1]);
-		                    monitor.worked(1);
-	                    }
-	                }
-                }
-
-                
-            } else if (file.isFile()) {
-                filesToReturn.add(file);
-                
-            } else{
-                throw new RuntimeException("Not dir nor file... what is it?");
-            }
-        }
-        
-        return new List[] { filesToReturn, folders };
-
-    }
-
-    
-
-
-    //PyUnit integration
-    
-	/** Listener list **/
-    private List listeners = new ArrayList();
+    /** Listener list **/
+    private List testListeners = new ArrayList();
 
 
 	@SuppressWarnings("unchecked")
     public void addTestListener(ITestRunListener listener) {
-		listeners.add(listener);
+		testListeners.add(listener);
 	}
 	
 	public void removeTestListener(ITestRunListener listener) {
-		listeners.remove(listener);
+		testListeners.remove(listener);
 	}
 
 	public List getListeners() {
-		return listeners;
+		return testListeners;
 	}
 	
 	public void runTests(String moduleDir, String moduleName, IProject project) throws IOException, CoreException {
@@ -902,6 +729,8 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 			each.testFailed(klass, methodName, trace);
 		}
 	}
+	
+	
     /**
      * @param file the file we want to get info on.
      * @return a tuple with the pythonnature to be used and the name of the module represented by the file in that scenario.
@@ -980,6 +809,9 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         return store;
     }
     
+    /**
+     * Given a resource get the string in the filesystem for it.
+     */
     public static String getIResourceOSString(IResource f) {
         String fullPath = f.getRawLocation().toOSString();
         //now, we have to make sure it is canonical...

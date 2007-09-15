@@ -53,7 +53,10 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
     }
 
     
-
+    /**
+     * The defaultSelectedInterpreter is actually not used (since we're actually already in the
+     * place where the builtins are stored).
+     */
     public String[] getBuiltins(String defaultSelectedInterpreter) {
     	return getBuiltins();
     }
@@ -106,7 +109,9 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
 	}
 
     
-
+	/**
+	 * Called after the pythonpath is changed.
+	 */
     protected void onChangePythonpath(String defaultSelectedInterpreter, SortedMap<ModulesKey, ModulesKey> keys) {
         //create the builtin modules
         String[] builtins = getBuiltins(defaultSelectedInterpreter);

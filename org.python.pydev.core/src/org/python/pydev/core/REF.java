@@ -678,6 +678,9 @@ public class REF {
                 return "UTF-8"; //exact match
             }
         }
+        if(lower.equals("iso-latin-1-unix")){ 
+            return "latin1"; //handle case from python libraries
+        }
         if(!Charset.isSupported(ret)){
             if(LOG_ENCODING_ERROR){
                 String msg = "The encoding found: >>"+ret+"<< on "+fileLocation+" is not a valid encoding.";

@@ -9,9 +9,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.IPath;
@@ -20,6 +18,8 @@ import org.python.pydev.core.REF;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.utils.PyFileListing;
+import org.python.pydev.utils.PyFileListing.PyFileListingInfo;
 
 /**
  * This class is used to make the code coverage.
@@ -52,19 +52,19 @@ public class PyCoverage {
                 throw new RuntimeException("We can only get information on a dir.");
             }
 
-            List pyFilesBelow[] = new List[] { new ArrayList<Object>(), new ArrayList<Object>() };
+            PyFileListingInfo pyFilesBelow = new PyFileListingInfo();
 
             if (file.exists()) {
-                pyFilesBelow = PydevPlugin.getPyFilesBelow(file, monitor, true, false);
+                pyFilesBelow = PyFileListing.getPyFilesBelow(file, monitor, true, false);
             }
 
-            if (pyFilesBelow[0].size() == 0) { //no files
+            if (pyFilesBelow.filesFound.size() == 0) { //no files
                 return;
             }
 
             //add the folders to the cache
             boolean added = false;
-            for (Iterator<File> it = pyFilesBelow[1].iterator(); it.hasNext();) {
+            for (Iterator<File> it = pyFilesBelow.foldersFound.iterator(); it.hasNext();) {
                 File f = it.next();
                 if (!added) {
                     cache.addFolder(f);
@@ -115,7 +115,7 @@ public class PyCoverage {
 
                 String files = "";
 
-                for (Iterator<Object> iter = pyFilesBelow[0].iterator(); iter.hasNext();) {
+                for (Iterator<File> iter = pyFilesBelow.filesFound.iterator(); iter.hasNext();) {
                     String fStr = iter.next().toString();
                     files += fStr + "|";
                 }

@@ -17,6 +17,14 @@ public class StringUtilsTest extends TestCase {
         assertEquals("%", StringUtils.format("%", new Object[]{}));
     }
     
+    public void testStripExt() {
+        assertEquals("teste", StringUtils.stripExtension("teste.aaa"));
+        assertEquals("teste.aaa", StringUtils.stripExtension("teste.aaa.bbb"));
+        assertEquals("teste", StringUtils.stripExtension("teste"));
+        assertEquals("a", StringUtils.stripExtension("a.a"));
+        assertEquals("", StringUtils.stripExtension(""));
+    }
+    
     
     public void testReplaceAllSlashes() throws Exception {
     	assertEquals("foo", StringUtils.replaceAllSlashes("foo"));

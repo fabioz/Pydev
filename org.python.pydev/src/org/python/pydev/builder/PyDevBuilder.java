@@ -30,8 +30,8 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.utils.PyFileListing;
 
 /**
  * This builder only passes through python files
@@ -148,7 +148,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 	                                //if it is a folder, let's get all python files that are beneath it
 	                                //the heuristics to know if we have to analyze them are the same we have
 	                                //for a single file
-	                                List<IFile> l = PydevPlugin.getAllIFilesBelow((IFolder) member);
+	                                List<IFile> l = PyFileListing.getAllIFilesBelow((IFolder) member);
 	                                
 	                                for (Iterator<IFile> iter = l.iterator(); iter.hasNext();) {
 	                                    IFile element = iter.next();

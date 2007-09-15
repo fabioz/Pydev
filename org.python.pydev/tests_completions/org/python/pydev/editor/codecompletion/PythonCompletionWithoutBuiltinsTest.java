@@ -38,7 +38,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testAssignErr();
+	      test.testCompleteImportCompletion();
 	      test.tearDown();
           System.out.println("Finished");
 

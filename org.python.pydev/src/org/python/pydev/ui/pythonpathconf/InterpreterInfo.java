@@ -34,6 +34,7 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
+import org.python.pydev.utils.PyFileListing;
 
 
 public class InterpreterInfo implements IInterpreterInfo{
@@ -397,8 +398,7 @@ public class InterpreterInfo implements IInterpreterInfo{
 	    for (Iterator<String> iter = libs.iterator(); iter.hasNext();) {
             String folder = iter.next();
             
-            List<File>[] below = PydevPlugin.getPyFilesBelow(new File(folder), filter, monitor, false);
-            dlls.addAll(below[0]);
+            dlls.addAll(PyFileListing.getPyFilesBelow(new File(folder), filter, monitor, false).filesFound);
         }
 	    
 	    dllLibs.clear();

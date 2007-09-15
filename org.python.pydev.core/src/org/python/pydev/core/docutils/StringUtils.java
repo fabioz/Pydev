@@ -70,6 +70,29 @@ public class StringUtils {
         }
         return input.substring(off, len);
     }
+    
+    /**
+     * Given a string remove all from the rightmost '.' onwards.
+     * 
+     * E.g.: bbb.t would return bbb
+     * 
+     * If it has no '.', returns the original string unchanged.
+     */
+    public static String stripExtension(String input) {
+        int len = input.length();
+        int st = 0;
+        int off = 0;
+        char[] val = input.toCharArray();
+        
+        while ((st < len) && (val[off + len - 1] != '.')) {
+            len--;
+        }
+        len--;
+        if(len == -1){
+            return input;
+        }
+        return input.substring(0, len);
+    }
 
     public static String rightTrim(String input, char charToTrim) {
         int len = input.length();

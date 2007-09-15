@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -29,6 +28,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
+import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
@@ -140,6 +140,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     /**
      * Custom deserialization is needed.
      */
+    @SuppressWarnings("unchecked")
     private void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
     	modulesKeys = new TreeMap<ModulesKey, ModulesKey>();
     	
@@ -151,8 +152,8 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                 System.out.println("Read:"+key);
             }
         }
-        for (Iterator iter = set.iterator(); iter.hasNext();) {
-            ModulesKey key = (ModulesKey) iter.next();
+        for (Iterator<ModulesKey> iter = set.iterator(); iter.hasNext();) {
+            ModulesKey key = iter.next();
             //restore with empty modules.
             modulesKeys.put(key, key);
             if(key.file != null){
@@ -200,65 +201,33 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      */
     public abstract String[] getBuiltins(String defaultSelectedInterpreter);
 
-	/**
-	 * 
-	 * @param monitor this is the monitor
-	 * @param pythonpathList this is the pythonpath
-	 * @param completions OUT - the files that were gotten as valid python modules 
-	 * @param fromJar OUT - the names of the modules that were found inside a jar
-	 * @return the total number of modules found (that's completions + fromJar)
-	 */
-	private int listFilesForCompletion(IProgressMonitor monitor, List<String> pythonpathList, List<File> completions, List<String> fromJar) {
-		int total = 0;
-		//first thing: get all files available from the python path and sum them up.
-        for (Iterator<String> iter = pythonpathList.iterator(); iter.hasNext() && monitor.isCanceled() == false;) {
-            String element = iter.next();
 
-            //the slow part is getting the files... not much we can do (I think).
-            File root = new File(element);
-            List<File>[] below = pythonPathHelper.getModulesBelow(root, monitor);
-            if(below != null){
-                completions.addAll(below[0]);
-                total += below[0].size();
-                
-            }else{ //ok, it was null, so, maybe this is not a folder, but  zip file with java classes...
-                List<String> currFromJar = PythonPathHelper.getFromJar(root, monitor);
-                if(currFromJar != null){
-                    fromJar.addAll(currFromJar);
-                    total += currFromJar.size();
-                }
-            }
-        }
-		return total;
-	}
-
+    /**
+     * Change the pythonpath (used for both: system and project)
+     * 
+     * @param project: may be null
+     * @param defaultSelectedInterpreter: may be null
+     */
 	public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor, String defaultSelectedInterpreter) {
 		List<String> pythonpathList = pythonPathHelper.setPythonPath(pythonpath);
-		List<File> completions = new ArrayList<File>();
-		List<String> fromJar = new ArrayList<String>();
-		int total = listFilesForCompletion(monitor, pythonpathList, completions, fromJar);
-		changePythonPath(pythonpath, project, monitor, pythonpathList, completions, fromJar, total, defaultSelectedInterpreter);
-	}
-	
-    /**
-     * @param pythonpath string with the new pythonpath (separated by |)
-     * @param project may be null if there is no associated project.
-     */
-    private void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor, 
-    		List<String> pythonpathList, List<File> completions, List<String> fromJar, int total, String defaultSelectedInterpreter) {
+		ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(pythonpathList, monitor);
 
+		//now, on to actually filling the module keys
     	SortedMap<ModulesKey, ModulesKey> keys = new TreeMap<ModulesKey, ModulesKey>();
         int j = 0;
 
         //now, create in memory modules for all the loaded files (empty modules).
-        for (Iterator<File> iterator = completions.iterator(); iterator.hasNext() && monitor.isCanceled() == false; j++) {
-            File f = iterator.next();
-            String fileAbsolutePath = REF.getFileAbsolutePath(f);
-            String m = pythonPathHelper.resolveModule(fileAbsolutePath);
-
-            monitor.setTaskName(new StringBuffer("Module resolved: ").append(j).append(" of ").append(total).append(" (").append(m)
-                    .append(")").toString());
-            monitor.worked(1);
+        for (Iterator<Map.Entry<File, String>> iterator = modulesFound.regularModules.entrySet().iterator(); iterator.hasNext() && monitor.isCanceled() == false; j++) {
+            Map.Entry<File, String> entry = iterator.next();
+            File f = entry.getKey();
+            String m = entry.getValue();
+            
+            if(j % 15 == 0){
+                //no need to report all the time (that's pretty fast now)
+                monitor.setTaskName(new StringBuffer("Module resolved: ").append(m).toString());
+                monitor.worked(1);
+            }
+            
             if (m != null) {
                 //we don't load them at this time.
                 ModulesKey modulesKey = new ModulesKey(m, f);
@@ -271,7 +240,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                     add = true;
                 }else{
                     //we have a conflict, so, let's resolve which one to keep (the old one or this one)
-                    if(PythonPathHelper.isValidSourceFile(fileAbsolutePath)){
+                    if(PythonPathHelper.isValidSourceFile(f.getName())){
                         //source files have priority over other modules (dlls) -- if both are source, there is no real way to resolve
                         //this priority, so, let's just add it over.
                         add = true;
@@ -286,9 +255,11 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
             }
         }
         
-        for (String modName : fromJar) {
-        	final ModulesKey k = new ModulesKey(modName, null);
-			keys.put(k, k);
+        for(ZipContents zipContents:modulesFound.zipContents){
+            for (String modName : zipContents.foundModules) {
+            	final ModulesKey k = new ModulesKey(modName, null);
+    			keys.put(k, k);
+            }
         }
 
         onChangePythonpath(defaultSelectedInterpreter, keys);

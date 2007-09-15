@@ -7,7 +7,7 @@ package org.python.pydev.tree;
 
 import java.io.File;
 
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.utils.PyFileListing;
 
 /**
  * @author Fabio Zadrozny
@@ -15,7 +15,7 @@ import org.python.pydev.plugin.PydevPlugin;
 public class FileTreePyFilesProvider extends FileTreeContentProvider {
 
     public Object[] getChildren(Object element) {
-        Object[] kids = ((File) element).listFiles(PydevPlugin.getPyFilesFileFilter(true));
+        Object[] kids = ((File) element).listFiles(PyFileListing.getPyFilesFileFilter(true));
         return kids == null ? new Object[0] : kids;
     }
 

@@ -14,30 +14,56 @@ import java.io.Serializable;
  * 
  * @author Fabio Zadrozny
  */
-public class ModulesKey implements Comparable, Serializable{
+public class ModulesKey implements Comparable<ModulesKey>, Serializable{
 
-    private static final long serialVersionUID = 1L;
+    /**
+     * 1L = just name and file
+     * 2L = + zipModulePath
+     */
+    private static final long serialVersionUID = 2L;
+    
+    /**
+     * Then name is always needed!
+     */
     public String name;
+    
+    /**
+     * Builtins may not have the file (null)
+     */
     public File file;
+    
+    /**
+     * This should be null if it's from a file in the filesystem, now, if we're dealing with a zip file,
+     * the file should be the zip file and this the path under which it was found in the zip file.
+     * 
+     * Some cases can be considered:
+     * - if it was found from jython this is a dir from the zip file
+     * - if it was from a zip file from python this is a the .py file path inside the zip file
+     */
+    public String zipModulePath;
 
+    
+    /**
+     * Builtins may not have the file
+     */
+    public ModulesKey(String name, File f) {
+        this(name, f, null);
+    }
+    
     /**
 	 * Creates the module key. File may be null
 	 */
-	public ModulesKey(String name, File f) {
+	public ModulesKey(String name, File f, String zipModulePath) {
 	    this.name = name;
 	    this.file = f;
+	    this.zipModulePath = zipModulePath;
 	}
 
     /**
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
-    public int compareTo(Object o) {
-        if (o instanceof ModulesKey ){
-            ModulesKey m = (ModulesKey)o;
-            
-            return name.compareTo(m.name);
-        }
-        return 0;
+    public int compareTo(ModulesKey o) {
+        return name.compareTo(o.name);
     }
 
     /**
@@ -53,6 +79,7 @@ public class ModulesKey implements Comparable, Serializable{
             return false;
         }
         
+        //consider only the name
         return true;
     }
     
@@ -65,9 +92,15 @@ public class ModulesKey implements Comparable, Serializable{
 	
     @Override
     public String toString() {
+        StringBuffer ret = new StringBuffer(name);
         if(file != null){
-            return name+" - "+file;
+            ret.append(" - ");
+            ret.append(file);
         }
-        return name;
+        if(zipModulePath != null){
+            ret.append(" - zip path:");
+            ret.append(zipModulePath);
+        }
+        return ret.toString();
     }
 }
