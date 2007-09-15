@@ -95,7 +95,11 @@ public class PythonPathHelper implements Serializable{
      */
     public static List<String> getFromJar(File root, IProgressMonitor monitor){
          String fileName = root.getName();
-         if(root.isFile() && (fileName.endsWith(".jar") || fileName.endsWith(".zip"))){ //ok, it may be a jar file, so let's get its contents and get the available modules
+         if(root.isFile() && 
+                 (fileName.endsWith(".jar") || 
+                  fileName.endsWith(".zip") || 
+                  fileName.endsWith(".egg"))){ //ok, it may be a jar file, so let's get its contents and get the available modules
+             
             Set<String> folders = new HashSet<String>();
             try {
                 String zipFileName = root.getName();
@@ -123,7 +127,7 @@ public class PythonPathHelper implements Serializable{
                                     buffer.append("."); //not the last one...
                                 }
                             }
-                            monitor.setTaskName("Found in "+zipFileName+" module "+buffer);
+                            monitor.setTaskName(new StringBuffer("Found in ").append(zipFileName).append(" module ").append(buffer).toString());
                         }
                     }
                 }

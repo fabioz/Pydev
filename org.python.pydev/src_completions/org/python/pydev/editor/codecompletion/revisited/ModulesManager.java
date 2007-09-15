@@ -211,8 +211,8 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
 	private int listFilesForCompletion(IProgressMonitor monitor, List<String> pythonpathList, List<File> completions, List<String> fromJar) {
 		int total = 0;
 		//first thing: get all files available from the python path and sum them up.
-        for (Iterator iter = pythonpathList.iterator(); iter.hasNext() && monitor.isCanceled() == false;) {
-            String element = (String) iter.next();
+        for (Iterator<String> iter = pythonpathList.iterator(); iter.hasNext() && monitor.isCanceled() == false;) {
+            String element = iter.next();
 
             //the slow part is getting the files... not much we can do (I think).
             File root = new File(element);
