@@ -12,7 +12,7 @@ PythonPathHelper.getFromJar
 	if .pyc file we need to analyze it with a shell (and otherwise, statically analyze it)
 
 SystemModulesManager.onChangePythonpath
-	needs to take into account that some file originated from a zip file (from a package or from a python module(
+	needs to take into account that some file originated from a zip file (from a package or from a python module
 	
 ModulesKey
 	needs to know from which zip file it originated

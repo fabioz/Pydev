@@ -58,7 +58,14 @@ public class AdditionalInfoIntegrityCheckerTest extends AdditionalInfoTestsBase 
         try{
             IntegrityInfo info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor);
             assertFalse(info.allOk);
-            assertEquals(1, info.modulesNotInMemory.size());
+            if(info.modulesNotInMemory.size() != 1){
+                StringBuffer notInMemo = new StringBuffer("Modules not in memory (expected only: extendable/initially_not_existant.py)\n");
+                for(ModulesKey key:info.modulesNotInMemory){
+                    notInMemo.append(key);
+                    notInMemo.append("\n");
+                }
+                fail(notInMemo.toString());
+            }
             assertEquals(info.modulesNotInMemory.get(0), new ModulesKey(MOD_NAME, file));
 
             fixAndCheckAllOk(info);

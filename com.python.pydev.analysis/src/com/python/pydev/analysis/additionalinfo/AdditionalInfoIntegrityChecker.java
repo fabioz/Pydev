@@ -60,7 +60,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
         for (String string : pythonpath) {
             File file = new File(string);
             if(file.exists()){
-                List<File> modulesBelow = pythonPathHelper.getModulesBelow(file, monitor)[0];
+                List<File> modulesBelow = pythonPathHelper.getModulesBelow(file, monitor).filesFound;
                 for (File moduleFile : modulesBelow) {
                     String modName = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(moduleFile), true);
                     if(modName != null){

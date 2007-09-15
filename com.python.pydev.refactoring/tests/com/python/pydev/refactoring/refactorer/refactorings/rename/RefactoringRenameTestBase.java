@@ -30,13 +30,13 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+import org.python.pydev.utils.PyFileListing;
 
 import com.python.pydev.refactoring.TestDependentRefactoring;
-import com.python.pydev.refactoring.refactorer.RefactorerFindReferences;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
+import com.python.pydev.refactoring.refactorer.RefactorerFindReferences;
 import com.python.pydev.refactoring.refactorer.refactorings.renamelocal.RefactoringLocalTestBase;
 import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
@@ -81,8 +81,8 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     protected void setUp() throws Exception {
         super.setUp();
         if (filesInRefactoringProject == null){
-            filesInRefactoringProject = PydevPlugin.getPyFilesBelow(new File(TestDependentRefactoring.TEST_PYSRC_LOC_REFACTORING), 
-                    new NullProgressMonitor(), true, false)[0];
+            filesInRefactoringProject = PyFileListing.getPyFilesBelow(new File(TestDependentRefactoring.TEST_PYSRC_LOC_REFACTORING), 
+                    new NullProgressMonitor(), true, false).filesFound;
             
             ArrayList<IFile> iFiles = new ArrayList<IFile>();
             for (File f : filesInRefactoringProject) {
@@ -116,6 +116,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     /**
      * @return the process class that we're testing.
      */
+    @SuppressWarnings("unchecked")
     protected abstract Class getProcessUnderTest();
 
     /**
