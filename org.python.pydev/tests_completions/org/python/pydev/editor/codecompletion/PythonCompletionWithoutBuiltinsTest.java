@@ -38,7 +38,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testCompleteImportCompletion();
+	      test.testPIL();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -56,6 +56,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     protected void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
+        this.restorePythonPath(TestDependent.GetCompletePythonLib(true)+"|"+TestDependent.PYTHON_PIL_PACKAGES, false);
         this.restorePythonPath(false);
         codeCompletion = new PyCodeCompletion();
         PyCodeCompletion.onCompletionRecursionException = new ICallback<Object, CompletionRecursionException>(){
@@ -263,6 +264,17 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 		s = ""+
 		"import ";
 		requestCompl(s, s.length(), -1, new String[] { "proj2root", "testlib"}, nature2);
+	}
+	
+	public void testPIL() throws CoreException, BadLocationException{
+		if(TestDependent.HAS_PIL){
+			String s;
+			s = ""+
+			"import Image\n" +
+			"Image." +
+			"";
+			requestCompl(s, s.length(), -1, new String[] { "RASTERIZE"});
+		}
 	}
 	
 	public void testClassAttrs() throws CoreException, BadLocationException{

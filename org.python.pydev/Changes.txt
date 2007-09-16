@@ -1,3 +1,11 @@
+after 1.3.9
+
+Pydev
+<ul>
+<li>Symlinks under the system pythonpath are supported</li>
+<li>Egg/zip files are now supported in the system pythonpath</li>
+</ul>
+
 after 1.3.8
 
 Pydev
