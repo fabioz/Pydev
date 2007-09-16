@@ -9,10 +9,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
@@ -124,6 +126,7 @@ public class InterpreterObserver implements IInterpreterObserver {
     private AbstractAdditionalInterpreterInfo restoreInfoForModuleManager(IProgressMonitor monitor, IModulesManager m, String additionalFeedback, 
             AbstractAdditionalInterpreterInfo info, PythonNature nature, int grammarVersion) {
         
+        //TODO: Check if keeping a zip file open makes things faster...
 //        long startsAt = System.currentTimeMillis();
         ModulesKey[] allModules = m.getOnlyDirectModules();
         int i = 0;
@@ -137,24 +140,46 @@ public class InterpreterObserver implements IInterpreterObserver {
 
                 if (key.file.exists()) {
 
-                    String fileAbsolutePath = REF.getFileAbsolutePath(key.file);
-					if (PythonPathHelper.isValidSourceFile(fileAbsolutePath)) {
-                        StringBuffer buffer = new StringBuffer();
-                        buffer.append("Creating ");
-                        buffer.append(additionalFeedback);
-                        buffer.append(" additional info (" );
-                        buffer.append(i );
-                        buffer.append(" of " );
-                        buffer.append(allModules.length );
-                        buffer.append(") for " );
-                        buffer.append(key.file.getName());
-                        monitor.setTaskName(buffer.toString());
-                        monitor.worked(1);
+                    boolean isZipModule = key instanceof ModulesKeyForZip;
+                    ModulesKeyForZip modulesKeyForZip = null;
+                    if(isZipModule){
+                        modulesKeyForZip = (ModulesKeyForZip) key;
+                        if(DEBUG_INTERPRETER_OBSERVER){
+                            System.out.println("Found zip: "+modulesKeyForZip.file+" - "+modulesKeyForZip.zipModulePath+" - "+modulesKeyForZip.name);
+                        }
+                    }
+                    
+					if (PythonPathHelper.isValidSourceFile(key.file.getName()) || 
+					        (isZipModule && PythonPathHelper.isValidSourceFile(modulesKeyForZip.zipModulePath))) {
+					    
+					    
+					    if(i % 7 == 0){
+                            StringBuffer buffer = new StringBuffer();
+                            buffer.append("Creating ");
+                            buffer.append(additionalFeedback);
+                            buffer.append(" additional info (" );
+                            buffer.append(i );
+                            buffer.append(" of " );
+                            buffer.append(allModules.length );
+                            buffer.append(") for " );
+                            buffer.append(key.file.getName());
+                            monitor.setTaskName(buffer.toString());
+                            monitor.worked(1);
+					    }
 
                         try {
                             
-                            //  the code below works with the default parser (that has much more info... and is much slower)
-                            PyParser.ParserInfo parserInfo = new PyParser.ParserInfo(REF.getDocFromFile(key.file), false, grammarVersion);
+                            //the code below works with the default parser (that has much more info... and is much slower)
+                            IDocument doc;
+                            if(isZipModule){
+                                doc = REF.getDocFromZip(modulesKeyForZip.file, modulesKeyForZip.zipModulePath);
+                                
+                            }else{
+                                doc = REF.getDocFromFile(key.file);
+                            }
+                            
+                            
+                            PyParser.ParserInfo parserInfo = new PyParser.ParserInfo(doc, false, grammarVersion);
                             Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(parserInfo);
                             SimpleNode node = obj.o1;
 

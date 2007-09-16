@@ -33,7 +33,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
     	CompletionParticipantTest test = new CompletionParticipantTest();
     	try {
 			test.setUp();
-			test.testImportCompletion();
+			test.testImportCompletionFromZip2();
 			test.tearDown();
 			
 			junit.textui.TestRunner.run(CompletionParticipantTest.class);
@@ -45,11 +45,18 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
 
     protected void setUp() throws Exception {
+//        forceAdditionalInfoRecreation = true; -- just for testing purposes
         super.setUp();
         codeCompletion = new PyCodeCompletion();
-        super.restorePythonPath(false);
     }
 
+    @Override
+    protected String getSystemPythonpathPaths() {
+        return TestDependent.GetCompletePythonLib(true)+"|"+
+        TestDependent.TEST_PYSRC_LOC+"myzipmodule.zip"+"|"+
+        TestDependent.TEST_PYSRC_LOC+"myeggmodule.egg";
+    }
+    
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -94,6 +101,24 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
     }
     
 
+    public void testImportCompletionFromZip2() throws CoreException, BadLocationException {
+        participant = new ImportsCompletionParticipant();
+        ICompletionProposal[] proposals = requestCompl("myzip", -1, -1, new String[]{});
+        assertContains("MyZipClass - myzipmodule.myzipfile", proposals);
+        
+        proposals = requestCompl("myegg", -1, -1, new String[]{});
+        assertContains("MyEggClass - myeggmodule.myeggfile", proposals);
+    }
+    
+    public void testImportCompletionFromZip() throws CoreException, BadLocationException {
+        participant = new CtxParticipant();
+        ICompletionProposal[] proposals = requestCompl("myzipm", -1, -1, new String[]{});
+        assertContains("MyZipClass - myzipmodule.myzipfile", proposals);
+        
+        proposals = requestCompl("myegg", -1, -1, new String[]{});
+        assertContains("MyEggClass - myeggmodule.myeggfile", proposals);
+    }
+    
     public void testImportCompletion2() throws CoreException, BadLocationException {
     	participant = new CtxParticipant();
     	ICompletionProposal[] proposals = requestCompl("xml", -1, -1, new String[]{});

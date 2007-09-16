@@ -51,8 +51,9 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
             return super.requestCompl(file, strDoc, documentOffset, returned, retCompl, nature);
         }
         
-        if(documentOffset == -1)
+        if(documentOffset == -1){
             documentOffset = strDoc.length();
+        }
         
         IDocument doc = new Document(strDoc);
         CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion);

@@ -10,7 +10,6 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
-import org.python.pydev.runners.SimpleRunner;
 
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 
@@ -409,7 +408,7 @@ public class SearchTest extends AdditionalInfoTestsBase {
         File windowsFile = new File(TestDependent.PYTHON_LIB+"ntpath.py");
         
 		File expectedFile;
-		if(SimpleRunner.isWindowsPlatform()){
+		if(REF.isWindowsPlatform()){
 			expectedFile = windowsFile;
 			assertTrue("Expecting to find it at line 438, 439 or 440, found it at:"+pointers[0].start.line, 440 == pointers[0].start.line || 439 == pointers[0].start.line|| 438 == pointers[0].start.line); //depends on python version
 		}else{

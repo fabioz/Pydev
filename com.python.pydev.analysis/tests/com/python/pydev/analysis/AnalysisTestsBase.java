@@ -38,6 +38,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
     protected OccurrencesAnalyzer analyzer;
     protected IMessage[] msgs;
     protected AnalysisPreferencesStub prefs;
+    protected boolean forceAdditionalInfoRecreation = false;
 
     //additional info
     protected InterpreterObserver observer;
@@ -61,12 +62,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         
-        final String paths;
-        if(TestDependent.HAS_WXPYTHON_INSTALLED){
-        	paths = TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES+"|"+TestDependent.PYTHON_WXPYTHON_PACKAGES;
-        }else{
-            paths = TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES;
-        }
+        final String paths = getSystemPythonpathPaths();
         String lower = paths.toLowerCase();
         lower = StringUtils.replaceAllSlashes(lower);
 		final Set<String> s = new HashSet<String>(Arrays.asList(lower.split("\\|")));
@@ -91,6 +87,16 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
         prefs = new AnalysisPreferencesStub();
         analyzer = new OccurrencesAnalyzer();
         
+    }
+
+    protected String getSystemPythonpathPaths() {
+        final String paths;
+        if(TestDependent.HAS_WXPYTHON_INSTALLED){
+        	paths = TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES+"|"+TestDependent.PYTHON_WXPYTHON_PACKAGES;
+        }else{
+            paths = TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES;
+        }
+        return paths;
     }
 
     /*
@@ -139,7 +145,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
             
             //try to load it from previous session
             IInterpreterManager interpreterManager = getInterpreterManager();
-            if(!AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(interpreterManager)){
+            if(forceAdditionalInfoRecreation || !AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(interpreterManager)){
                 observer.notifyDefaultPythonpathRestored(interpreterManager, interpreterManager.getDefaultInterpreter(), monitor);
             }
         }
@@ -151,7 +157,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
         boolean ret = super.restoreProjectPythonPath(force, path);
         if(ret){
             //try to load it from previous session
-            if(!AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature.getProject())){
+            if(forceAdditionalInfoRecreation || !AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature.getProject())){
                 observer.notifyProjectPythonpathRestored(nature, new NullProgressMonitor(), null);
             }
         }
