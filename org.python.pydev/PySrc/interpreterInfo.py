@@ -34,7 +34,7 @@ else:
 def fullyNormalizePath(path):
     '''fixes the path so that the format of the path really reflects the directories in the system
     '''
-    return os.path.normcase(os.path.normpath(path))
+    return os.path.normpath(path)
 
 
 if __name__ == '__main__':

@@ -16,11 +16,13 @@
 		- PydevPlugin.getWorkspaceFiles
 		- Message about it: http://www.eclipse.org/newsportal/article.php?id=68521&group=eclipse.platform#68521		
 
-	- Go to definition
-	- Debugger
+	- Simple support (code-completion / modules): OK
+	- Go to definition: OK
 	- Context insensitive import
+		- Should keep zip file open? InterpreterObserver
+	- Debugger
 	- .pyd inside zip file (handled but not tested): 
-		ModulesManager: else if(PythonPathHelper.isValidDll(emptyModuleForZip.pathInZip)){
+		- ModulesManager: else if(PythonPathHelper.isValidDll(emptyModuleForZip.pathInZip)){
 		
 - Handle symlinks (at least in the system config).
 - Change the stdout/stderr for unicode

@@ -5,7 +5,7 @@ package org.python.pydev.ui.pythonpathconf;
 
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.runners.SimplePythonRunner;
+import org.python.pydev.core.REF;
 
 public class PythonInterpreterEditor extends AbstractInterpreterEditor{
 
@@ -15,7 +15,7 @@ public class PythonInterpreterEditor extends AbstractInterpreterEditor{
 
     @Override
     public String[] getInterpreterFilterExtensions() {
-        if (SimplePythonRunner.isWindowsPlatform()) {
+        if (REF.isWindowsPlatform()) {
             return new String[] { "*.exe", "*.*" };
         } 
         return null;

@@ -29,6 +29,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.codec.binary.Base64;
 import org.eclipse.core.filebuffers.FileBuffers;
@@ -44,8 +45,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.osgi.service.environment.Constants;
 import org.python.pydev.core.log.Log;
 
 
@@ -440,7 +443,24 @@ public class REF {
     public static IDocument getDocFromFile(java.io.File f) throws IOException {
     	return getDocFromFile(f, true);
     }
-    
+
+    /**
+     * @return a document with the contents from a path within a zip file.
+     */
+    public static IDocument getDocFromZip(File f, String pathInZip) throws Exception {
+        ZipFile zipFile = new ZipFile(f, ZipFile.OPEN_READ);
+        try {
+            InputStream inputStream = zipFile.getInputStream(zipFile.getEntry(pathInZip));
+            try {
+                Document doc = new Document(REF.getStreamContents(inputStream, null, null));
+                return doc;
+            } finally {
+                inputStream.close();
+            }
+        } finally {
+            zipFile.close();
+        }
+    }
     /**
      * @return the document given its 'filesystem' file
      * @throws IOException 
@@ -693,6 +713,31 @@ public class REF {
      * Useful to silent it on tests
      */
     public static boolean LOG_ENCODING_ERROR = true;
+    
+    /**
+     * Start null... filled on 1st request
+     */
+    public static Boolean isWinCache;
+
+    /**
+     * @return whether we are in windows or not
+     */
+    public static boolean isWindowsPlatform() {
+        if(isWinCache == null){
+            try {
+                isWinCache = Platform.getOS().equals(Constants.OS_WIN32);
+            } catch (NullPointerException e) {
+            	String env = System.getProperty("os.name");
+                if(env.toLowerCase().indexOf("win") != -1){
+                    isWinCache = true;
+                }else{
+                    isWinCache = false;
+                }
+            }
+        }
+        return isWinCache;
+    }
+
 
 
 }

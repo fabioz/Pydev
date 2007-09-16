@@ -42,6 +42,7 @@ import org.eclipse.swt.widgets.Widget;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.PythonListEditor;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.ui.UIConstants;
@@ -163,7 +164,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      */
     private Tree getTreeLibsControl(Composite parent) {
         if (tree == null){
-	    	tree = new Tree(parent, SWT.BORDER);
+	    	tree = new Tree(parent, SWT.BORDER|SWT.MULTI);
 	    	tree.setFont(parent.getFont());
 			tree.addDisposeListener(new DisposeListener() {
 			    public void widgetDisposed(DisposeEvent event) {
@@ -293,7 +294,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             boxSystem.setLayout(layout);
             addBtSystemFolder = createBt(boxSystem, "New Folder", getSelectionListenerSystem());//$NON-NLS-1$
             if(this.interpreterManager.isJython()){
-                addBtSystemJar = createBt(boxSystem, "New Jar", getSelectionListenerSystem());//$NON-NLS-1$
+                addBtSystemJar = createBt(boxSystem, "New Jar/Zip(s)", getSelectionListenerSystem());//$NON-NLS-1$
+            }else{
+                addBtSystemJar = createBt(boxSystem, "New Egg/Zip(s)", getSelectionListenerSystem());//$NON-NLS-1$
             }
             removeBtSystemFolder = createBt(boxSystem, "ListEditor.remove", getSelectionListenerSystem());//$NON-NLS-1$
             boxSystem.addDisposeListener(new DisposeListener() {
@@ -391,13 +394,28 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                             }
                             
                         } else if (widget == addBtSystemJar) {
-                            FileDialog dialog = new FileDialog(getShell());
+                            FileDialog dialog = new FileDialog(getShell(), SWT.PRIMARY_MODAL|SWT.MULTI);
+                            
+                            if(AbstractInterpreterEditor.this.interpreterManager.isJython()){
+                                dialog.setFilterExtensions(PythonPathHelper.WILDCARD_JYTHON_VALID_ZIP_FILES);
+                            }else{
+                                dialog.setFilterExtensions(PythonPathHelper.WILDCARD_PYTHON_VALID_ZIP_FILES);
+                            }
+                            
                             dialog.setFilterPath(lastFileDialogPath);
                             String filePath = dialog.open();
                             if(filePath != null){
                                 lastFileDialogPath = filePath;
-                                info.libs.add(filePath);
-                                info.dllLibs.add(filePath);
+                                File filePath1 = new File(filePath);
+                                String dir = filePath1.getParent();
+                                
+                                String[] fileNames = dialog.getFileNames();
+                                for(String f:fileNames){
+                                    f = dir+File.separatorChar+f;
+                                    if(!info.libs.contains(f)){
+                                        info.libs.add(f);
+                                    }
+                                }
                                 changed = true;
                             }
                                 
@@ -407,7 +425,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                                 TreeItem s = selection[i];
                                 String text = s.getText();
                                 info.libs.remove(text);
-                                info.dllLibs.remove(text);
                                 changed = true;
                             }
                         }
@@ -516,19 +533,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 	            subItem.setImage(imageSystemLib);
 	        }
 	    	item.setExpanded(true);
-	    	
-	    	//ok, now set the dlls
-	    	item = new TreeItem(tree, SWT.NONE);
-	    	item.setText("Compiled libs found in PYTHONPATH (dlls)");
-	    	item.setImage(imageSystemLibRoot);
-
-	    	for (Iterator<String> iter = info.dllLibs.iterator(); iter.hasNext();) {
-	            TreeItem subItem = new TreeItem(item, SWT.NONE);
-	            subItem.setText(iter.next());
-	            subItem.setImage(imageSystemLib);
-	        }
-	    	item.setExpanded(false);
-	    	
 	    	
 	    	//set the forced builtins
 	    	for (Iterator<String> iter = info.forcedLibsIterator(); iter.hasNext();) {

@@ -7,7 +7,6 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -19,12 +18,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
@@ -462,16 +460,10 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                         }else{
                             //handle python file from zip... we have to create it getting the contents from the zip file
                             try {
-                                ZipFile zipFile = new ZipFile(emptyModuleForZip.f, ZipFile.OPEN_READ);
-                                try {
-                                    InputStream inputStream = zipFile.getInputStream(zipFile.getEntry(emptyModuleForZip.pathInZip));
-                                    n = AbstractModule.createModuleFromDoc(name, emptyModuleForZip.f, new Document(REF.getStreamContents(
-                                            inputStream, null, null)), nature, -1, false);
-                                    SourceModule zipModule = (SourceModule) n;
-                                    zipModule.zipFilePath = emptyModuleForZip.pathInZip;
-                                } finally {
-                                    zipFile.close();
-                                }
+                                IDocument doc = REF.getDocFromZip(emptyModuleForZip.f, emptyModuleForZip.pathInZip);
+                                n = AbstractModule.createModuleFromDoc(name, emptyModuleForZip.f, doc, nature, -1, false);
+                                SourceModule zipModule = (SourceModule) n;
+                                zipModule.zipFilePath = emptyModuleForZip.pathInZip;
                             } catch (Exception exc1) {
                                 PydevPlugin.log(exc1);
                                 n = null;

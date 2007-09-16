@@ -12,7 +12,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimplePythonRunner;
-import org.python.pydev.runners.SimpleRunner;
 
 /**
  * @author Fabio Zadrozny
@@ -44,7 +43,7 @@ public class PythonShell extends AbstractShell{
 
 
         String execMsg;
-        if(SimpleRunner.isWindowsPlatform()){ //in windows, we have to put python "path_to_file.py"
+        if(REF.isWindowsPlatform()){ //in windows, we have to put python "path_to_file.py"
             execMsg = interpreter+" \""+REF.getFileAbsolutePath(serverFile)+"\" "+pWrite+" "+pRead;
         }else{ //however in mac, or linux, this gives an error...
             execMsg = interpreter+" "+REF.getFileAbsolutePath(serverFile)+" "+pWrite+" "+pRead;

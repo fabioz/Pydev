@@ -59,8 +59,13 @@ public class InterpreterInfo implements IInterpreterInfo{
      * files: .pyd, .dll, etc.
      * 
      * for jython, the jars should appear here.
+     * 
+     * This attribute is simply not used, so, it is deprecated (it's only maintained for backward
+     * compatibility of the string representation of the InterpreterInfo, but should not be
+     * used anywhere.)
      */
-    public java.util.List<String> dllLibs = new ArrayList<String>(); 
+    @Deprecated
+    private java.util.List<String> dllLibs = new ArrayList<String>(); 
     
     /**
      * __builtin__, os, math, etc for python 

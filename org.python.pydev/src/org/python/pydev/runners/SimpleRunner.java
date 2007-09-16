@@ -17,11 +17,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.osgi.service.environment.Constants;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
@@ -108,7 +106,7 @@ public abstract class SimpleRunner {
             env.putAll(launchManager.getNativeEnvironment());
             
             // Add variables from config
-            boolean win32= isWindowsPlatform();
+            boolean win32= REF.isWindowsPlatform();
             for(Iterator iter= env.entrySet().iterator(); iter.hasNext(); ) {
             	Map.Entry entry= (Map.Entry) iter.next();
             	String key= (String) entry.getKey();
@@ -132,22 +130,7 @@ public abstract class SimpleRunner {
         return null;
     }
 
-    /**
-     * @return whether we are in windows or not
-     */
-    public static boolean isWindowsPlatform() {
-        try {
-            return Platform.getOS().equals(Constants.OS_WIN32);
-        } catch (NullPointerException e) {
-        	String env = System.getProperty("os.name");
-            if(env.toLowerCase().indexOf("win") != -1){
-                return true;
-            }
-            return false;
-        }
-    }
-
-
+    
     /**
      * copied from org.eclipse.jdt.internal.launching.StandardVMRunner
      * @param args - other arguments to be added to the command line (may be null)

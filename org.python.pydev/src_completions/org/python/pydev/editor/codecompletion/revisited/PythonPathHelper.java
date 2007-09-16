@@ -169,7 +169,7 @@ public class PythonPathHelper implements Serializable {
     /**
      * @return true if the given filename should be considered a zip file.
      */
-    private static boolean isValidZipFile(String fileName) {
+    public static boolean isValidZipFile(String fileName) {
         return fileName.endsWith(".jar") || fileName.endsWith(".zip") || fileName.endsWith(".egg");
     }
 
@@ -184,6 +184,10 @@ public class PythonPathHelper implements Serializable {
         return false;
     }
 
+    public final static String[] WILDCARD_JYTHON_VALID_ZIP_FILES = new String[] { "*.jar", "*.zip" };
+    
+    public final static String[] WILDCARD_PYTHON_VALID_ZIP_FILES = new String[] { "*.egg", "*.zip" };
+    
     public final static String[] WILDCARD_VALID_SOURCE_FILES = new String[] { "*.py", "*.pyw" };
 
     public final static String[] DOTTED_VALID_SOURCE_FILES = new String[] { ".py", ".pyw" };
