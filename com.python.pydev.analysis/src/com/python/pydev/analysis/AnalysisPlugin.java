@@ -97,7 +97,9 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             
             pointers.add(new ItemPointer(file,
                     new Location(line-1, col-1),
-                    new Location(line-1, col-1), definition)
+                    new Location(line-1, col-1), 
+                    definition,
+                    definition.module.getZipFilePath())
                     );
         }
     }
