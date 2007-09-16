@@ -104,7 +104,7 @@ public class REF {
         FileInputStream stream = null;
         try {
             stream = new FileInputStream(file);
-            return getFileContents(stream, null, null);
+            return getStreamContents(stream, null, null);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }finally{
@@ -113,11 +113,9 @@ public class REF {
     }
 
     /**
-     * @param stream
-     * @return
-     * @throws IOException
+     * Get the contents from a given stream.
      */
-    private static String getFileContents(InputStream contentStream, String encoding, IProgressMonitor monitor) throws IOException {
+    public static String getStreamContents(InputStream contentStream, String encoding, IProgressMonitor monitor) throws IOException {
         Reader in= null;
         try{
             final int DEFAULT_FILE_SIZE= 15 * 1024;
@@ -470,7 +468,7 @@ public class REF {
         String fileContents = "";
         try {
             String encoding = getPythonFileEncoding(f);
-            fileContents = getFileContents(stream, encoding, null);
+            fileContents = getStreamContents(stream, encoding, null);
         } finally {
             try { if(stream != null) stream.close(); } catch (Exception e) {Log.log(e);}
         }

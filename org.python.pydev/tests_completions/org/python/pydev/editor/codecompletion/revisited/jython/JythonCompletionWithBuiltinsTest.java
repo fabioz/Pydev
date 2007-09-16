@@ -19,7 +19,7 @@ public class JythonCompletionWithBuiltinsTest extends JythonCodeCompletionTestsB
         try {
             JythonCompletionWithBuiltinsTest test = new JythonCompletionWithBuiltinsTest();
             test.setUp();
-            test.testCompleteImportBuiltin();
+            test.testCompleteImportBuiltin2();
             test.tearDown();
             
             junit.textui.TestRunner.run(JythonCompletionWithBuiltinsTest.class);

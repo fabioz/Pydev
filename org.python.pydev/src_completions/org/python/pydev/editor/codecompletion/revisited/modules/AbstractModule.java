@@ -19,6 +19,8 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -186,23 +188,23 @@ public abstract class AbstractModule implements IModule {
 
     
     
+    public static AbstractModule createModuleFromDoc(String name, File f, IDocument doc, IPythonNature nature, int currLine) {
+        return createModuleFromDoc(name, f, doc, nature, currLine, true);
+    }
     /** 
      * This function creates the module given that you have a document (that will be parsed)
      */
-    public static AbstractModule createModuleFromDoc(String name, File f, IDocument doc, IPythonNature nature, int currLine) {
+    public static AbstractModule createModuleFromDoc(String name, File f, IDocument doc, IPythonNature nature, int currLine, boolean checkForPath) {
         //for doc, we are only interested in python files.
         
         if(f != null){
-	        String absolutePath = REF.getFileAbsolutePath(f);
-	        if(PythonPathHelper.isValidSourceFile(absolutePath)){
+	        if(!checkForPath || PythonPathHelper.isValidSourceFile(REF.getFileAbsolutePath(f))){
                 Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, nature, currLine));
-		        SimpleNode n = obj.o1;
-		        return new SourceModule(name, f, n);
+		        return new SourceModule(name, f, obj.o1);
 	        }
         } else {
             Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, nature, currLine));
-	        SimpleNode n = obj.o1;
-	        return new SourceModule(name, f, n);
+	        return new SourceModule(name, f, obj.o1);
         }
         return null;
     }
@@ -264,8 +266,13 @@ public abstract class AbstractModule implements IModule {
      * @param f
      * @return
      */
-    public static AbstractModule createEmptyModule(String m, File f) {
-        return new EmptyModule(m, f);
+    public static AbstractModule createEmptyModule(ModulesKey key) {
+        if(key instanceof ModulesKeyForZip){
+            return new EmptyModuleForZip(key.name, key.file, ((ModulesKeyForZip)key).zipModulePath);
+            
+        }else{
+            return new EmptyModule(key.name, key.file);
+        }
     }
 
     public ILocalScope getLocalScope(int line, int col) {

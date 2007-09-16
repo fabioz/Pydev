@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.launching.StandardVMType;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.LibraryLocation;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.JythonModulesManagerUtils;
 import org.python.pydev.utils.ICallback;
 
 /**
@@ -36,7 +36,7 @@ public class JavaVmLocationFinder {
         try {
             return (File) callbackJavaExecutable.call(null);
         } catch (Exception e) {
-            JavaVmLocationFinder.handleException(e);
+            JythonModulesManagerUtils.tryRethrowAsJDTNotAvailableException(e);
             throw new RuntimeException("Should never get here", e);
         }
     }
@@ -50,7 +50,7 @@ public class JavaVmLocationFinder {
         try {
             return (List<File>) callbackJavaJars.call(null);
         } catch (Exception e) {
-            JavaVmLocationFinder.handleException(e);
+            JythonModulesManagerUtils.tryRethrowAsJDTNotAvailableException(e);
             throw new RuntimeException("Should never get here", e);
         }
     }
@@ -68,7 +68,7 @@ public class JavaVmLocationFinder {
                 File installLocation = defaultVMInstall.getInstallLocation();
                 return StandardVMType.findJavaExecutable(installLocation);
             }catch(Throwable e){
-                handleException(e);
+                JythonModulesManagerUtils.tryRethrowAsJDTNotAvailableException(e);
                 throw new RuntimeException("Should never get here", e);
             }
         }
@@ -90,35 +90,10 @@ public class JavaVmLocationFinder {
                 }
                 return jars;
             }catch(Throwable e){
-                JavaVmLocationFinder.handleException(e);
+                JythonModulesManagerUtils.tryRethrowAsJDTNotAvailableException(e);
                 throw new RuntimeException("Should never get here", e);
             }
         }
     };
-
-    /**
-     * Handles the exception and re-throws it as a JDTNotAvailableException (if it was a LinkageError or a 
-     * ClassNotFoundException or a JDTNotAvailableException) or creates a RuntimeException and throws this exception
-     * encapsulating the previous one
-     * 
-     * @param e the exception that should be transformed to a JDTNotAvailableException (if possible)
-     * @throws JDTNotAvailableException
-     */
-    private static void handleException(Throwable e) throws JDTNotAvailableException {
-        if(e instanceof LinkageError || e instanceof ClassNotFoundException){
-            throw new JDTNotAvailableException();
-            
-        }else if(e instanceof JDTNotAvailableException){
-            JDTNotAvailableException jdtNotAvailableException = (JDTNotAvailableException) e;
-            throw jdtNotAvailableException;
-            
-        }else if(e instanceof RuntimeException){
-            RuntimeException runtimeException = (RuntimeException) e;
-            throw runtimeException;
-        }
-        
-        PydevPlugin.log(e);
-        throw new RuntimeException(e);
-    }
 }
 

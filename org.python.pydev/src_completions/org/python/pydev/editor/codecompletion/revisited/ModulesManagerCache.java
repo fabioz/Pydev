@@ -34,7 +34,7 @@ final class ModulesManagerCache  {
             AbstractModule obj = internalCache.getObj(keyTuple);
 			if(obj == null && modulesManager.modulesKeys.containsKey(key)){
 				key = modulesManager.modulesKeys.get(key); //get the 'real' key
-				obj = AbstractModule.createEmptyModule(key.name, key.file);
+				obj = AbstractModule.createEmptyModule(key);
                 internalCache.add(keyTuple, obj);
 			}
 			return obj;

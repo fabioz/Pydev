@@ -1,0 +1,51 @@
+package org.python.pydev.editor.codecompletion.revisited.javaintegration;
+
+import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZip;
+import org.python.pydev.plugin.PydevPlugin;
+
+/**
+ * Wrap things related to jython (specially dependent on JDT)
+ * 
+ * So, all accesses that require creation of objects dependent on JDT should be done through this class.
+ * 
+ * @author Fabio
+ */
+public class JythonModulesManagerUtils {
+
+    public static AbstractModule createModuleFromJar(EmptyModuleForZip emptyModuleForZip) throws JDTNotAvailableException{
+        try{
+            return new JavaClassModule(emptyModuleForZip);
+        }catch(Exception e){
+            tryRethrowAsJDTNotAvailableException(e);
+            throw new RuntimeException("Should never get here", e);
+        }
+    }
+
+    /**
+     * Handles the exception and re-throws it as a JDTNotAvailableException (if it was a LinkageError or a 
+     * ClassNotFoundException or a JDTNotAvailableException) or creates a RuntimeException and throws this exception
+     * encapsulating the previous one
+     * 
+     * @param e the exception that should be transformed to a JDTNotAvailableException (if possible)
+     * @throws JDTNotAvailableException
+     */
+    public static void tryRethrowAsJDTNotAvailableException(Throwable e) throws JDTNotAvailableException {
+        if(e instanceof LinkageError || e instanceof ClassNotFoundException){
+            throw new JDTNotAvailableException();
+            
+        }else if(e instanceof JDTNotAvailableException){
+            JDTNotAvailableException jdtNotAvailableException = (JDTNotAvailableException) e;
+            throw jdtNotAvailableException;
+            
+        }else if(e instanceof RuntimeException){
+            RuntimeException runtimeException = (RuntimeException) e;
+            throw runtimeException;
+        }
+        
+        PydevPlugin.log(e);
+        throw new RuntimeException(e);
+    }
+
+}

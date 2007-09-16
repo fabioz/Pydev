@@ -8,6 +8,19 @@
 - Ctrl+* should enable/disable mark occurrences
 
 - Enable users to work with zip files and integrate better with java (jars and ast structure).
+	- Missing: jython support: 
+		- Should be added to: JavaClassModule
+		- ClassFile
+		- JavaCore.createJarPackageFragmentRootFrom(file) would do what I want
+		- IEditorInput: ExternalClassFileEditorInput
+		- PydevPlugin.getWorkspaceFiles
+		- Message about it: http://www.eclipse.org/newsportal/article.php?id=68521&group=eclipse.platform#68521		
+
+	- Go to definition
+	- Context insensitive import
+	- .pyd inside zip file (handled but not tested): 
+		ModulesManager: else if(PythonPathHelper.isValidDll(emptyModuleForZip.pathInZip)){
+		
 - Handle symlinks (at least in the system config).
 - Change the stdout/stderr for unicode
 - Accept different file extensions (debugger and others)

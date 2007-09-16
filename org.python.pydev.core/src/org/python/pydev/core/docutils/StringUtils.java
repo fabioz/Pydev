@@ -79,12 +79,16 @@ public class StringUtils {
      * If it has no '.', returns the original string unchanged.
      */
     public static String stripExtension(String input) {
+        return stripFromRigthCharOnwards(input, '.');
+    }
+
+    private static String stripFromRigthCharOnwards(String input, char ch) {
         int len = input.length();
         int st = 0;
         int off = 0;
         char[] val = input.toCharArray();
         
-        while ((st < len) && (val[off + len - 1] != '.')) {
+        while ((st < len) && (val[off + len - 1] != ch)) {
             len--;
         }
         len--;
@@ -92,6 +96,10 @@ public class StringUtils {
             return input;
         }
         return input.substring(0, len);
+    }
+
+    public static String stripFromLastSlash(String input) {
+        return stripFromRigthCharOnwards(input, '/');
     }
 
     public static String rightTrim(String input, char charToTrim) {
@@ -233,4 +241,5 @@ public class StringUtils {
         }
     }
 
+    
 }

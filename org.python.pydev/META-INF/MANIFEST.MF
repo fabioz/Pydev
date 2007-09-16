@@ -32,7 +32,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.navigator.resources,
  org.eclipse.core.filesystem,
  org.eclipse.core.expressions,
- org.junit;resolution:=optional
+ org.junit;resolution:=optional,
+ org.eclipse.jdt.core;resolution:=optional,
+ org.eclipse.jdt.ui;resolution:=optional
 Eclipse-LazyStart: true
 Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.builder,
