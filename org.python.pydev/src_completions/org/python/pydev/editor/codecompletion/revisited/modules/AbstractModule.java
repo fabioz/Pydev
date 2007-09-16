@@ -62,6 +62,13 @@ public abstract class AbstractModule implements IModule {
      */
     public abstract IToken[] getGlobalTokens();
     
+    /**
+     * Don't deal with zip files unless specifically specified
+     */
+    public String getZipFilePath(){
+        return null;
+    }
+    
     /** 
      * @see org.python.pydev.core.IModule#getLocalTokens(int, int, ILocalScope)
      */
@@ -262,9 +269,7 @@ public abstract class AbstractModule implements IModule {
     }
     
     /**
-     * @param m
-     * @param f
-     * @return
+     * @return an empty module representing the key passed.
      */
     public static AbstractModule createEmptyModule(ModulesKey key) {
         if(key instanceof ModulesKeyForZip){

@@ -17,6 +17,7 @@
 		- Message about it: http://www.eclipse.org/newsportal/article.php?id=68521&group=eclipse.platform#68521		
 
 	- Go to definition
+	- Debugger
 	- Context insensitive import
 	- .pyd inside zip file (handled but not tested): 
 		ModulesManager: else if(PythonPathHelper.isValidDll(emptyModuleForZip.pathInZip)){

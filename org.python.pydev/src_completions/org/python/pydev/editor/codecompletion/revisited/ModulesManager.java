@@ -467,6 +467,8 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                                     InputStream inputStream = zipFile.getInputStream(zipFile.getEntry(emptyModuleForZip.pathInZip));
                                     n = AbstractModule.createModuleFromDoc(name, emptyModuleForZip.f, new Document(REF.getStreamContents(
                                             inputStream, null, null)), nature, -1, false);
+                                    SourceModule zipModule = (SourceModule) n;
+                                    zipModule.zipFilePath = emptyModuleForZip.pathInZip;
                                 } finally {
                                     zipFile.close();
                                 }

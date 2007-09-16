@@ -22,6 +22,7 @@ public class ItemPointer {
 	public Location start; // (first character)
 	public Location end;   // (last character)
     public Definition definition; //the definition that originated this ItemPointer (it might be null).
+    public String zipFilePath; //the path within the zip file for this pointer (null if we're not dealing with a zip file)
 	
 	public ItemPointer(Object file) {
 		this(file, new Location(), new Location());
@@ -42,9 +43,10 @@ public class ItemPointer {
 		this.end = end;
 	}
     
-    public ItemPointer(File file2, Location location, Location location2, Definition definition) {
+    public ItemPointer(File file2, Location location, Location location2, Definition definition, String zipFilePath) {
         this(file2, location, location2);
         this.definition = definition;
+        this.zipFilePath = zipFilePath;
     }
 
     @Override

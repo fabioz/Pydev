@@ -19,7 +19,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
@@ -178,7 +177,9 @@ public class PyGoToDefinition extends PyRefactorAction {
      */
     private void doOpen(ItemPointer itemPointer, PyEdit pyEdit) {
         File f = (File) itemPointer.file;
-        if (PythonPathHelper.isValidSourceFile(REF.getFileAbsolutePath(f))){
+        if (PythonPathHelper.isValidSourceFile(f.getName()) || 
+                (itemPointer.zipFilePath != null && PythonPathHelper.isValidSourceFile(itemPointer.zipFilePath)) ){
+            
             final PyOpenAction openAction = (PyOpenAction) pyEdit.getAction(PyEdit.ACTION_OPEN);
             
             openAction.run(itemPointer);

@@ -1,7 +1,7 @@
 /*
  * Created on 18/08/2005
  */
-package org.python.copiedfromeclipsesrc;
+package org.python.pydev.editorinput;
 
 import java.io.File;
 

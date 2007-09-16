@@ -22,10 +22,10 @@ import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IAnnotationModelExtension;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
-import org.python.copiedfromeclipsesrc.PydevFileEditorInput;
 import org.python.pydev.debug.ui.actions.AbstractBreakpointRulerAction;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editorinput.PydevFileEditorInput;
 
 /**
  * This class is used to keep the annotations related to the debugger in sync with external editors

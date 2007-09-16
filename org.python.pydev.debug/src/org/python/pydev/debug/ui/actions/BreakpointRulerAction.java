@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -25,11 +26,11 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.IVerticalRulerInfo;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.IUpdate;
-import org.python.copiedfromeclipsesrc.PydevFileEditorInput;
 import org.python.pydev.core.REF;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyBreakpoint;
 import org.python.pydev.debug.model.PyDebugModelPresentation;
+import org.python.pydev.editorinput.PydevFileEditorInput;
 
 /**
  * Setting/removing breakpoints in the ruler
@@ -101,6 +102,11 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
 
             // if not null, we're dealing with an external file.
             final PydevFileEditorInput pydevFileEditorInput = getPydevFileEditorInput();
+            
+            //TODO: that happens when we're trying to set a breakpoint in a file that's within a zip file.
+            if(pydevFileEditorInput == null && resource instanceof IWorkspaceRoot){
+                return;
+            }
 
             map.put(IMarker.MESSAGE, "what's the message");
             map.put(IMarker.LINE_NUMBER, new Integer(lineNumber));

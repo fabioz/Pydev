@@ -28,11 +28,11 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.IUpdate;
 import org.eclipse.ui.texteditor.MarkerUtilities;
-import org.python.copiedfromeclipsesrc.PydevFileEditorInput;
 import org.python.pydev.core.REF;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyBreakpoint;
 import org.python.pydev.debug.model.PyDebugModelPresentation;
+import org.python.pydev.editorinput.PydevFileEditorInput;
 
 public abstract class AbstractBreakpointRulerAction extends Action implements IUpdate {
 

@@ -20,6 +20,12 @@ public interface IModule {
      * Also, this may return a file that is not a source file (such as a .pyc or .pyd).
      */
     public abstract File getFile();
+    
+    /**
+     * @return the zip file path for this module within the zip file. Should be specified (not null) only if
+     * we're actually dealing with a zip file.
+     */
+    public abstract String getZipFilePath();
 
     /**
      * @return tokens for the imports in the format from xxx import yyy

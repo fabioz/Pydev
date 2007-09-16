@@ -51,7 +51,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.python.copiedfromeclipsesrc.PydevFileEditorInput;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -65,6 +64,9 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.templates.PyContextType;
+import org.python.pydev.editorinput.PydevFileEditorInput;
+import org.python.pydev.editorinput.PydevZipFileEditorInput;
+import org.python.pydev.editorinput.PydevZipFileStorage;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.pyunit.ITestRunListener;
@@ -382,13 +384,34 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
     
     /**
+     * Utility function that opens an editor on a given path within a zip file.
+     * 
+     * @return part that is the editor
+     */
+    public static IEditorPart doOpenEditor(File zipFile, String zipFilePath, boolean activate) {
+        if (zipFile == null || zipFilePath == null){
+            return null;
+        }
+        
+        try {
+            IEditorInput file = new PydevZipFileEditorInput(new PydevZipFileStorage(zipFile, zipFilePath));
+            return openEditorInput(file);
+            
+        } catch (Exception e) {
+            log(IStatus.ERROR, "Unexpected error opening zip file " + zipFile.getAbsolutePath()+ " - "+zipFilePath, e);
+            return null;
+        }
+    }
+    
+    /**
      * Utility function that opens an editor on a given path.
      * 
      * @return part that is the editor
      */
     public static IEditorPart doOpenEditor(IPath path, boolean activate) {
-        if (path == null)
+        if (path == null){
             return null;
+        }
 
         try {
     		IEditorInput file = createEditorInput(path);

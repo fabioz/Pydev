@@ -56,8 +56,13 @@ public class PyOpenAction extends Action {
     public void run(ItemPointer p) {
         editor = null;
         Object file = p.file;
-
-        if (file instanceof IFile) {
+        String zipFilePath = p.zipFilePath;
+        
+        if(zipFilePath != null){
+            //currently, only open zip file 
+            editor = PydevPlugin.doOpenEditor((File)file, zipFilePath, true);
+            
+        } else if (file instanceof IFile) {
         	IFile f = (IFile) file;
             editor = PydevPlugin.doOpenEditor(f, true);
 

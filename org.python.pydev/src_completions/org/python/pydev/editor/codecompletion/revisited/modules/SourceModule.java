@@ -81,6 +81,15 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * File that originated the syntax tree.
      */
     private File file;
+    
+    /**
+     * Path for this module within the zip file (only used if file is actually a file... otherwise it is null).
+     */
+    public String zipFilePath;
+    
+    public String getZipFilePath(){
+        return zipFilePath;
+    }
 
     /**
      * This is the time when the file was last modified.
