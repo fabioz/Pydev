@@ -459,12 +459,14 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
             setErrorMessage("Project location is not valid");
             return false;
         }
-        if (!useDefaults
-                && Platform.getLocation().isPrefixOf(
-                        new Path(locationFieldContents))) {
-            setErrorMessage("Default location error");
-            return false;
-        }
+        
+        //commented out. See comments on https://sourceforge.net/tracker/?func=detail&atid=577329&aid=1798364&group_id=85796
+//        if (!useDefaults
+//                && Platform.getLocation().isPrefixOf(
+//                        new Path(locationFieldContents))) {
+//            setErrorMessage("Default location error");
+//            return false;
+//        }
 
         if (getProjectHandle().exists()) {
             setErrorMessage("Project already exists");
