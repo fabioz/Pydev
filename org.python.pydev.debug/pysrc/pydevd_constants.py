@@ -53,3 +53,9 @@ class Null:
     def write(self, *args, **kwargs):
         pass
     
+    def __nonzero__(self):
+        return 0
+    
+if __name__ == '__main__':
+    if Null():
+        print 'here'
