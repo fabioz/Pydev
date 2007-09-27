@@ -6,6 +6,7 @@
 - When opening a python file, it should try to 'adapt' to the current indent style used (and give warnings about wrong stuff).
 - Ctrl+2+ XXX should be case-independent.
 - Ctrl+* should enable/disable mark occurrences
+- Variable highlight doesn't respect local scope (all docstrings are gotten in the file when renaming a local variable)
 
 - Enable users to work with zip files and integrate better with java (jars and ast structure).
 	- Missing: jython support: 
