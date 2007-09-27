@@ -159,7 +159,7 @@ public class MarkOccurrencesJob extends Job{
             }
             
         } catch (Throwable e) {
-            Log.log(e);
+//            Log.log(e); -- ok, remove this log, as things can happen if the user starts editing after the analysis is requested
         }
         return Status.OK_STATUS;
     }
