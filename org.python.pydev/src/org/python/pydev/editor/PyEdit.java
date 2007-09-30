@@ -128,7 +128,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     private PyAutoIndentStrategy indentStrategy;
 
     /** need to hold onto it to support indentPrefix change through preferences */
-    PyEditConfiguration editConfiguration;
+    private PyEditConfiguration editConfiguration;
+    public PyEditConfiguration getEditConfiguration(){
+        return editConfiguration;
+    }
+    
 
     /**
      * AST that created python model

@@ -9,11 +9,19 @@ import java.io.File;
  */
 public class EmptyModuleForZip extends EmptyModule{
 
-    public String pathInZip;
+    private static final long serialVersionUID = 1L;
 
-    public EmptyModuleForZip(String name, File f, String pathInZip) {
+    public String pathInZip;
+    
+    /**
+     * Determines if it was found as a file within the zip (otherwise, it's a folder).
+     */
+    public boolean isFile;
+
+    public EmptyModuleForZip(String name, File f, String pathInZip, boolean isFile) {
         super(name, f);
         this.pathInZip = pathInZip;
+        this.isFile = isFile;
     }
 
 }

@@ -11,18 +11,18 @@ import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codecompletion.shell.JythonShell;
 
-public class JythonCompletionWithBuiltinsTest extends JythonCodeCompletionTestsBase{
+public class JythonCompletionWithBuiltinsTestWorkbench extends JythonCodeCompletionTestsBase{
     
     private static JythonShell shell;
     
     public static void main(String[] args) {
         try {
-            JythonCompletionWithBuiltinsTest test = new JythonCompletionWithBuiltinsTest();
+            JythonCompletionWithBuiltinsTestWorkbench test = new JythonCompletionWithBuiltinsTestWorkbench();
             test.setUp();
-            test.testCompleteImportBuiltin2();
+//            test.testCompleteImportBuiltin2();
             test.tearDown();
             
-            junit.textui.TestRunner.run(JythonCompletionWithBuiltinsTest.class);
+            junit.textui.TestRunner.run(JythonCompletionWithBuiltinsTestWorkbench.class);
 
         } catch (Exception e) {
             e.printStackTrace();

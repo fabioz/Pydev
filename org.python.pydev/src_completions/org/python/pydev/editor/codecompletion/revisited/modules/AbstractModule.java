@@ -273,7 +273,8 @@ public abstract class AbstractModule implements IModule {
      */
     public static AbstractModule createEmptyModule(ModulesKey key) {
         if(key instanceof ModulesKeyForZip){
-            return new EmptyModuleForZip(key.name, key.file, ((ModulesKeyForZip)key).zipModulePath);
+            ModulesKeyForZip e = ((ModulesKeyForZip)key);
+            return new EmptyModuleForZip(key.name, key.file, e.zipModulePath, e.isFile);
             
         }else{
             return new EmptyModule(key.name, key.file);

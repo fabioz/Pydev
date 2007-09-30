@@ -60,6 +60,8 @@ public class ModulesFoundStructure {
          * 
          * If it is a jar file, those are the .class files.
          * If it is a zip file with .py files, those are the actual .py files (or .pyd files -- dlls)
+         * 
+         * Does not support mixing both
          */
         public Set<String> foundFileZipPaths = new HashSet<String>();
         

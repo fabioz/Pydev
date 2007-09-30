@@ -17,12 +17,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
@@ -32,6 +32,7 @@ import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
+import org.python.pydev.editor.codecompletion.revisited.ModulesKeyTreeMap.Entry;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JythonModulesManagerUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
@@ -50,6 +51,8 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     private final static boolean DEBUG_BUILD = false;
 
     private final static boolean DEBUG_IO = false;
+    
+    private final static boolean DEBUG_ZIP = false;
 
     public ModulesManager() {
     }
@@ -119,7 +122,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * 
      * It is sorted so that we can get things in a 'subtree' faster
      */
-    protected transient SortedMap<ModulesKey, ModulesKey> modulesKeys = new TreeMap<ModulesKey, ModulesKey>();
+    protected transient ModulesKeyTreeMap<ModulesKey, ModulesKey> modulesKeys = new ModulesKeyTreeMap<ModulesKey, ModulesKey>();
 
     protected static transient ModulesManagerCache cache = createCache();
 
@@ -152,7 +155,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      */
     @SuppressWarnings("unchecked")
     private void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
-        modulesKeys = new TreeMap<ModulesKey, ModulesKey>();
+        modulesKeys = new ModulesKeyTreeMap<ModulesKey, ModulesKey>();
 
         files = new HashSet<File>();
         aStream.defaultReadObject();
@@ -192,7 +195,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     /**
      * @param modules The modules to set.
      */
-    private void setModules(SortedMap<ModulesKey, ModulesKey> keys) {
+    private void setModules(ModulesKeyTreeMap<ModulesKey, ModulesKey> keys) {
         this.modulesKeys = keys;
     }
 
@@ -220,7 +223,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(pythonpathList, monitor);
 
         //now, on to actually filling the module keys
-        SortedMap<ModulesKey, ModulesKey> keys = new TreeMap<ModulesKey, ModulesKey>();
+        ModulesKeyTreeMap<ModulesKey, ModulesKey> keys = new ModulesKeyTreeMap<ModulesKey, ModulesKey>();
         int j = 0;
 
         //now, create in memory modules for all the loaded files (empty modules).
@@ -262,15 +265,26 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                 }
             }
         }
-
+        
         for (ZipContents zipContents : modulesFound.zipContents) {
             if (monitor.isCanceled()) {
                 break;
             }
             for (String filePathInZip : zipContents.foundFileZipPaths) {
                 String modName = StringUtils.stripExtension(filePathInZip).replace('/', '.');
-                final ModulesKey k = new ModulesKeyForZip(modName, zipContents.zipFile, filePathInZip);
+                if(DEBUG_ZIP){
+                    System.out.println("Found in zip:"+modName);
+                }
+                ModulesKey k = new ModulesKeyForZip(modName, zipContents.zipFile, filePathInZip, true);
                 keys.put(k, k);
+                
+                if(zipContents.zipContentsType == ZipContents.ZIP_CONTENTS_TYPE_JAR){
+                    //folder modules are only created for jars (because for python files, the __init__.py is required).
+                    for(String s:new FullRepIterable(modName)){
+                        k = new ModulesKeyForZip(s, zipContents.zipFile, s.replace('.', '/'), false);
+                        keys.put(k, k);
+                    }
+                }
             }
         }
 
@@ -363,7 +377,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         synchronized (modulesKeys) {
             //we don't want it to be backed up by the same set (because it may be changed, so, we may get
             //a java.util.ConcurrentModificationException on places that use it)
-            return new TreeMap<ModulesKey, ModulesKey>(modulesKeys.subMap(startingWith, endingWith));
+            return new ModulesKeyTreeMap<ModulesKey, ModulesKey>(modulesKeys.subMap(startingWith, endingWith));
         }
     }
 
@@ -422,7 +436,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
             if (!s.isSynched()) {
                 //change it for an empty and proceed as usual.
                 n = new EmptyModule(s.getName(), s.getFile());
-                doAddSingleModule(new ModulesKey(s.getName(), s.getFile()), n);
+                doAddSingleModule(createModulesKey(s.getName(), s.getFile()), n);
             }
         }
 
@@ -449,15 +463,15 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                     if (e instanceof EmptyModuleForZip) {
                         EmptyModuleForZip emptyModuleForZip = (EmptyModuleForZip) e;
                         
-                        if(emptyModuleForZip.pathInZip.endsWith(".class")){
-                            //handle java class...
+                        if(emptyModuleForZip.pathInZip.endsWith(".class") || !emptyModuleForZip.isFile){
+                            //handle java class... (if it's a class or a folder in a jar)
                             n = JythonModulesManagerUtils.createModuleFromJar(emptyModuleForZip);
                             
                         }else if(PythonPathHelper.isValidDll(emptyModuleForZip.pathInZip)){
                             //.pyd
                             n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
                             
-                        }else{
+                        }else if(PythonPathHelper.isValidSourceFile(emptyModuleForZip.pathInZip)){
                             //handle python file from zip... we have to create it getting the contents from the zip file
                             try {
                                 IDocument doc = REF.getDocFromZip(emptyModuleForZip.f, emptyModuleForZip.pathInZip);
@@ -495,7 +509,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
             }
 
             if (n != null) {
-                doAddSingleModule(new ModulesKey(name, e.f), n);
+                doAddSingleModule(createModulesKey(name, e.f), n);
             } else {
                 System.err.println("The module " + name + " could not be found nor created!");
             }
@@ -505,6 +519,16 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
             throw new RuntimeException("Should not be an empty module anymore!");
         }
         return n;
+    }
+
+    private ModulesKey createModulesKey(String name, File f) {
+        ModulesKey newEntry = new ModulesKey(name, f);
+        Entry<ModulesKey, ModulesKey> oldEntry = this.modulesKeys.getEntry(newEntry);
+        if(oldEntry != null){
+            return oldEntry.getKey();
+        }else{
+            return newEntry;
+        }
     }
 
     protected AbstractModule getBuiltinModule(String name, IPythonNature nature, boolean dontSearchInit) {

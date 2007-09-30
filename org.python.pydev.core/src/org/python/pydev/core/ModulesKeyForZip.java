@@ -26,13 +26,19 @@ public class ModulesKeyForZip extends ModulesKey{
      */
     public String zipModulePath;
     
+    /**
+     * Determines if this module was created because it was found as a file or a folder.
+     */
+    public boolean isFile;
+    
     
     /**
      * Creates the module key. File may be null
      */
-    public ModulesKeyForZip(String name, File f, String zipModulePath) {
+    public ModulesKeyForZip(String name, File f, String zipModulePath, boolean isFile) {
         super(name, f);
         this.zipModulePath = zipModulePath;
+        this.isFile = isFile;
     }
 
     @Override

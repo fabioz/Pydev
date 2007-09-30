@@ -21,9 +21,6 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
  */
 public class EmptyModule extends AbstractModule implements Serializable {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
     public File f;
     
