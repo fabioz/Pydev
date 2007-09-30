@@ -33,7 +33,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
     	CompletionParticipantTest test = new CompletionParticipantTest();
     	try {
 			test.setUp();
-			test.testImportCompletionFromZip2();
+			test.testImportCompletionFromZip();
 			test.tearDown();
 			
 			junit.textui.TestRunner.run(CompletionParticipantTest.class);
@@ -104,15 +104,17 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
     public void testImportCompletionFromZip2() throws CoreException, BadLocationException {
         participant = new ImportsCompletionParticipant();
         ICompletionProposal[] proposals = requestCompl("myzip", -1, -1, new String[]{});
-        assertContains("MyZipClass - myzipmodule.myzipfile", proposals);
+        assertContains("myzipfile - myzipmodule", proposals);
+        assertContains("myzipmodule", proposals);
         
         proposals = requestCompl("myegg", -1, -1, new String[]{});
-        assertContains("MyEggClass - myeggmodule.myeggfile", proposals);
+        assertContains("myeggfile - myeggmodule", proposals);
+        assertContains("myeggmodule", proposals);
     }
     
     public void testImportCompletionFromZip() throws CoreException, BadLocationException {
         participant = new CtxParticipant();
-        ICompletionProposal[] proposals = requestCompl("myzipm", -1, -1, new String[]{});
+        ICompletionProposal[] proposals = requestCompl("myzipc", -1, -1, new String[]{});
         assertContains("MyZipClass - myzipmodule.myzipfile", proposals);
         
         proposals = requestCompl("myegg", -1, -1, new String[]{});
