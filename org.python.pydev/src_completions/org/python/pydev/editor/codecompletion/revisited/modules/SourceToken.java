@@ -99,14 +99,14 @@ public class SourceToken extends AbstractToken{
             Attribute attr = (Attribute) ast;
             while(attr != null){
                 String r = NodeUtils.getRepresentationString(attr);
-                if(r.equals(rep)){
+                if(r != null && r.equals(rep)){
                     return attr;
                 }
                 if(attr.value instanceof Attribute){
                     attr = (Attribute) attr.value;
                 }else{
                     r = NodeUtils.getRepresentationString(attr.value);
-                    if(r.equals(rep)){
+                    if(r!= null && r.equals(rep)){
                         return attr.value;
                     }
                     break;
