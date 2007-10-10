@@ -444,6 +444,17 @@ for up-to-date info on the most useful keybindings provided by Pydev and Eclipse
 
 <br><br>
 
+--------------------------------------------------------------------------------------------------------------Title
+How do I uninstall Pydev
+--------------------------------------------------------------------------------------------------------------Answer
+
+To uninstall you should either go on and remove the org.python.pydev* from eclipse/plugins and eclipse/features or 
+you can go to help > software updates > manage configuration, choose the Pydev plugin and disable it (after that, 
+to completely remove it, you must restart Eclipse and only then select it for uninstall). Note that this process
+is the same for any Eclipse plugin.
+
+<br><br>
+
 
 
 
