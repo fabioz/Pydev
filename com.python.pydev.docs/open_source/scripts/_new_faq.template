@@ -8,7 +8,8 @@ When reporting a bug, don't forget to give the following information:<br><br>
 - System (e.g windows XP)<br>
 - Eclipse version (e.g. 3.1)<br>
 - PyDev version (e.g. 0.9.7)<br>
-- PyDev error log (if any): go to window->show view->other->PDE Runtime->Error log.<br>
+- PyDev error log (if any): go to window->show view->other->PDE Runtime->Error log. (if you have the SDK installed, otherwise,
+you have to find the log file at your_workspace/.metadata/.log)<br>
 - Eclipse install location (e.g. D:\eclipse_3\302\eclipse)<br>
 - Project location where the bug appears (e.g. D:\eclipse\workspace\org.python.pydev)<br>
 <br>
