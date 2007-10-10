@@ -8,6 +8,7 @@ Pydev
 <li>Configuration of pythonpath allows multiple jars/zips to be added at once</li>
 <li>The creation of a project in a non-default location was not allowed within the workspace</li>
 <li>Jython now uses JDT to get completions from jars</li>
+<li>When configuring the pythonpath, the paths are sorted for selection</li>
 </ul>
 
 after 1.3.8

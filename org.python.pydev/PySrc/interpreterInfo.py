@@ -72,7 +72,14 @@ if __name__ == '__main__':
     
 
     result = []
-    for p in sys.path:
+    
+    path_used = sys.path
+    try:
+        path_used = sorted(path_used)
+    except:
+        pass #just ignore it...
+    
+    for p in path_used:
         p = nativePath(p)
         
         try:
