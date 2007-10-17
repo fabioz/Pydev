@@ -7,6 +7,7 @@
 - Ctrl+2+ XXX should be case-independent.
 - Ctrl+* should enable/disable mark occurrences
 - Variable highlight doesn't respect local scope (all docstrings are gotten in the file when renaming a local variable)
+- Adding 'Log' to the undefined vars (such as _) will still yield errors when Log.write is accessed
 
 - Enable users to work with zip files and integrate better with java (jars and ast structure).
 	- Missing: jython support: 
