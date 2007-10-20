@@ -9,11 +9,13 @@ import java.util.HashSet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jdt.ui.actions.OpenAction;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -24,6 +26,8 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaClassModule;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaDefinition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
@@ -183,6 +187,13 @@ public class PyGoToDefinition extends PyRefactorAction {
             final PyOpenAction openAction = (PyOpenAction) pyEdit.getAction(PyEdit.ACTION_OPEN);
             
             openAction.run(itemPointer);
+        }else if(itemPointer.definition instanceof JavaDefinition){
+            //note that it will only be able to find a java definition if JDT is actually available
+            //so, we don't have to care about JDTNotAvailableExceptions here. 
+            JavaDefinition javaDefinition = (JavaDefinition) itemPointer.definition;
+            OpenAction openAction = new OpenAction(pyEdit.getSite());
+            StructuredSelection selection = new StructuredSelection(new Object[]{javaDefinition.javaElement});
+            openAction.run(selection);
         }else{
             MessageDialog.openInformation(getPyEditShell(), "Compiled Extension file", 
                     "The definition was found at: "+f.toString()+"\n" +

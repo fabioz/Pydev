@@ -23,6 +23,7 @@ import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.StringUtils;
@@ -45,7 +46,7 @@ public class JavaClassModule extends AbstractModule {
 
     public static final boolean DEBUG_JARS = false;
     
-    private static final IToken[] EMPTY_ITOKEN = new IToken[0];
+    private static final CompiledToken[] EMPTY_ITOKEN = new CompiledToken[0];
 
     public static HashMap<String, String> replacementMap = new HashMap<String, String>();
     
@@ -57,6 +58,11 @@ public class JavaClassModule extends AbstractModule {
     private CompiledToken[] tokens;
 
     private File file;
+    
+    /**
+     * If true, this represents a .class file in a zip, otherwise, it's a module representation.
+     */
+    private boolean isFileInZip;
 
     @Override
     public File getFile() {
@@ -66,6 +72,7 @@ public class JavaClassModule extends AbstractModule {
     public JavaClassModule(EmptyModuleForZip emptyModuleForZip) {
         super(emptyModuleForZip.getName());
         this.file = emptyModuleForZip.f;
+        this.isFileInZip = emptyModuleForZip.isFile;
         
         //that's because if the JavaPlugin is not initialized, we'll have errors because it will try to create the
         //image descriptor registry from a non-display owner when making the completions (and in this way, we'll 
@@ -88,7 +95,11 @@ public class JavaClassModule extends AbstractModule {
         if(DEBUG_JARS){
             System.out.println("Created JavaClassModule: "+name);
         }
-        this.tokens = createTokens(name);
+        if(isFileInZip){
+            this.tokens = createTokens(name);
+        }else{
+            this.tokens = EMPTY_ITOKEN;
+        }
         
     }
 
@@ -97,17 +108,18 @@ public class JavaClassModule extends AbstractModule {
      */
     private CompiledToken[] createTokens(String packagePlusactTok) {
         ArrayList<CompiledToken> lst = new ArrayList<CompiledToken>();
-        IClasspathEntry entries[] = new IClasspathEntry[] { JavaCore.newLibraryEntry(Path.fromOSString(this.file.getAbsolutePath()), null, null, true) };
-
-        WorkingCopyOwner workingCopyOwner = new WorkingCopyOwner() {};
 
         try {
-            ICompilationUnit unit = workingCopyOwner.newWorkingCopy(name, entries, new NullProgressMonitor());
             
-            String contents = "class CompletionClass {\n" + 
-                              "    void main(){\n" + 
-                              "        new %s().}}" + "";
+            //TODO: if we don't want to depend on jdt inner classes, we should create a org.eclipse.jdt.core.CompletionRequestor
+            //(it's not currently done because its API is not as easy to handle).
+            //we should be able to check the CompletionProposalCollector to see how we can transform the info we want...
+            //also, making that change, it should be faster, because we won't need to 1st create a java proposal to then
+            //create a pydev token (it would be a single step to transform it from a Completion Proposal to an IToken).
             
+            IClasspathEntry entries[] = new IClasspathEntry[] { JavaCore.newLibraryEntry(Path.fromOSString(this.file.getAbsolutePath()), null, null, true) };
+            ICompilationUnit unit = new WorkingCopyOwner(){}.newWorkingCopy(name, entries, new NullProgressMonitor());
+            String contents = "class CompletionClass {void main(){new %s().}}";
             contents = StringUtils.format(contents, packagePlusactTok);
             unit.getBuffer().setContents(contents);
             CompletionProposalCollector collector = new CompletionProposalCollector(unit);
@@ -248,6 +260,74 @@ public class JavaClassModule extends AbstractModule {
      */
     public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature, List<FindInfo> findInfo)
             throws Exception {
+        
+        //try to see if that's a java class from a package... to do that, we must go iterating through the name found
+        //to check if we're able to find modules with that name. If a module with that name is found, that means that 
+        //we actually have a java class. 
+        String[] splitted = FullRepIterable.dotSplit(state.getActivationToken());
+        StringBuffer modNameBuf = new StringBuffer(this.getName());
+        IModule validModule = null;
+        IModule module = null;
+        int i=0; //so that we know what will result in the tok
+        for(;i<splitted.length; i++){
+            String s = splitted[i];
+            modNameBuf.append(".");
+            modNameBuf.append(s);
+            module = nature.getAstManager().getModule(modNameBuf.toString(), nature, true, false);
+            if(module != null){
+                validModule = module;
+            }else{
+                break;
+            }
+        }
+        
+        
+        StringBuffer pathInJavaClass = new StringBuffer();
+        if(validModule == null){
+            validModule = this;
+        }else{
+            //After having found a valid java class, we must also check which was the resulting token within that class 
+            //to check if it's some method or something alike (that should be easy after having the class and the path
+            //to the method we want to find within it).
+            if(!(validModule instanceof JavaClassModule)){
+                throw new RuntimeException("The module found from a java class module was found as another kind: "+validModule.getClass());
+            }
+            for(int j=i; j<splitted.length;j++){
+                if(j!=i){
+                    pathInJavaClass.append(".");
+                }
+                pathInJavaClass.append(splitted[j]);
+            }
+        }
+        
+        //ok, now, if there is no path, the definition is the java class itself.
+        if(pathInJavaClass.length() == 0){
+            JavaClassModule javaClassModule = (JavaClassModule) validModule;
+            
+            IClasspathEntry entries[] = new IClasspathEntry[] { JavaCore.newLibraryEntry(Path.fromOSString(this.file.getAbsolutePath()), null, null, true) };
+            ICompilationUnit unit = new WorkingCopyOwner(){}.newWorkingCopy(name, entries, new NullProgressMonitor());
+            String contents = "import %s.;";
+            contents = StringUtils.format(contents, FullRepIterable.getWithoutLastPart(javaClassModule.getName()));
+            unit.getBuffer().setContents(contents);
+            
+            CompletionProposalCollector collector = new CompletionProposalCollector(unit);
+
+            unit.codeComplete(contents.length() - 1, collector);
+            IJavaCompletionProposal[] javaCompletionProposals = collector.getJavaCompletionProposals();
+
+            String lookingForClass = FullRepIterable.getLastPart(javaClassModule.getName());
+            for (IJavaCompletionProposal javaCompletionProposal : javaCompletionProposals) {
+                if (javaCompletionProposal instanceof AbstractJavaCompletionProposal) {
+                    AbstractJavaCompletionProposal prop = (AbstractJavaCompletionProposal) javaCompletionProposal;
+                    IJavaElement javaElement = prop.getJavaElement();
+                    if(javaElement != null){
+                        if(javaElement.getElementName().equals(lookingForClass)){
+                            return new Definition[]{new JavaDefinition("", javaClassModule, javaElement)};
+                        }
+                    }
+                }
+            }
+        }
         return new Definition[0];
     }
 

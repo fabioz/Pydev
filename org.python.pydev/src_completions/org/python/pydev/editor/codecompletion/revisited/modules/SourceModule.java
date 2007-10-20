@@ -32,6 +32,7 @@ import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ConcreteToken;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaClassModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindDefinitionModelVisitor;
@@ -644,17 +645,26 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
         Tuple3<IModule, String, IToken> o = nature.getAstManager().findOnImportedMods(state.getCopyWithActTok(rep), this);
         
-        if(o != null && o.o1 instanceof SourceModule){
-            mod =  (SourceModule) o.o1;
-            tok = o.o2;
-            
-        }else if(o != null && o.o1 instanceof CompiledModule){
-            //ok, we have to check the compiled module
-            tok = o.o2;
-            if (tok == null || tok.length() == 0 ){
-                return new Definition[]{new Definition(1,1,"",null,null,o.o1)};
-            }else{
+        if(o != null){
+            if(o.o1 instanceof SourceModule){
+                mod =  (SourceModule) o.o1;
+                tok = o.o2;
+                
+            }else if(o.o1 instanceof CompiledModule){
+                //ok, we have to check the compiled module
+                tok = o.o2;
+                if (tok == null || tok.length() == 0 ){
+                    return new Definition[]{new Definition(1,1,"",null,null,o.o1)};
+                }else{
+                    return (Definition[]) o.o1.findDefinition(state.getCopyWithActTok(tok), -1, -1, nature, lFindInfo);
+                }
+                
+            }else if(o.o1 instanceof JavaClassModule){
+                tok = o.o2;
                 return (Definition[]) o.o1.findDefinition(state.getCopyWithActTok(tok), -1, -1, nature, lFindInfo);
+                
+            }else{
+                throw new RuntimeException("Unexpected module found in imports: "+o);
             }
         }
         
