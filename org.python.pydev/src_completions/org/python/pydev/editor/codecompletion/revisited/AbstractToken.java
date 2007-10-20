@@ -5,8 +5,10 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IToken;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -103,6 +105,10 @@ public abstract class AbstractToken implements IToken{
      */
     public int getType() {
         return type;
+    }
+    
+    public Image getImage() {
+        return PyCodeCompletionImages.getImageForType(type);
     }
 
     /**

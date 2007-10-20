@@ -93,7 +93,7 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
                     pyContextInformation = new PyCalltipsContextInformation(contextArgs, contextArgs, request);
                 }
                 PyCompletionProposal proposal = new PyLinkedModeCompletionProposal(name+args,
-                        request.documentOffset - request.qlen, request.qlen, l, PyCodeCompletionImages.getImageForType(type), null, 
+                        request.documentOffset - request.qlen, request.qlen, l, element.getImage(), null, 
                         pyContextInformation, docStr, priority, onApplyAction, args);
                 
 

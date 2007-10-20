@@ -82,6 +82,7 @@ public class JythonCompletionWithBuiltinsTestWorkbench extends JythonCodeComplet
             "print swing.JFrame.";
         requestCompl(s, s.length(), -1, new String[] { "EXIT_ON_CLOSE" });
     }
+    
 
 
 }

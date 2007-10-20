@@ -280,7 +280,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                 
                 if(zipContents.zipContentsType == ZipContents.ZIP_CONTENTS_TYPE_JAR){
                     //folder modules are only created for jars (because for python files, the __init__.py is required).
-                    for(String s:new FullRepIterable(modName)){
+                    for(String s:new FullRepIterable(FullRepIterable.getWithoutLastPart(modName))){ //the one without the last part was already added
                         k = new ModulesKeyForZip(s, zipContents.zipFile, s.replace('.', '/'), false);
                         keys.put(k, k);
                     }

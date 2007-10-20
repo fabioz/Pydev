@@ -7,6 +7,8 @@ package org.python.pydev.core;
 
 import java.io.Serializable;
 
+import org.eclipse.swt.graphics.Image;
+
 /**
  * @author Fabio Zadrozny
  */
@@ -169,4 +171,9 @@ public interface IToken extends Serializable, Comparable{
     public int[] getLineColEnd();
 
     public boolean isString();
+
+    /**
+     * @return the image that should be used in the code-completion for this token.
+     */
+    public Image getImage();
 }

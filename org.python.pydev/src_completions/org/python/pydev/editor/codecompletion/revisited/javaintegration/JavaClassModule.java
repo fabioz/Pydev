@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -18,6 +19,7 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal;
 import org.eclipse.jdt.ui.text.java.CompletionProposalCollector;
 import org.eclipse.jdt.ui.text.java.IJavaCompletionProposal;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
@@ -28,6 +30,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.editor.codecompletion.revisited.jython.ExtractTextFromHtml;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZip;
@@ -68,6 +71,25 @@ public class JavaClassModule extends AbstractModule {
     public File getFile() {
         return file;
     }
+
+    private static HashMap<String, IClasspathEntry[]> classpathEntries = new HashMap<String, IClasspathEntry[]>();
+    
+    private synchronized IClasspathEntry[] getClasspathEntries() {
+        return getClasspathEntries(this.file.getAbsolutePath());
+    }
+    
+    /**
+     * @return the classpath entries used in this class
+     */
+    private static synchronized IClasspathEntry[] getClasspathEntries(String path) {
+        IClasspathEntry[] entry = classpathEntries.get(path);
+        if(entry == null){
+            entry = new IClasspathEntry[] { JavaCore.newLibraryEntry(Path.fromOSString(path), null, null, true) };
+            classpathEntries.put(path, entry);
+        }
+        return entry;
+    }
+
 
     public JavaClassModule(EmptyModuleForZip emptyModuleForZip) {
         super(emptyModuleForZip.getName());
@@ -117,15 +139,7 @@ public class JavaClassModule extends AbstractModule {
             //also, making that change, it should be faster, because we won't need to 1st create a java proposal to then
             //create a pydev token (it would be a single step to transform it from a Completion Proposal to an IToken).
             
-            IClasspathEntry entries[] = new IClasspathEntry[] { JavaCore.newLibraryEntry(Path.fromOSString(this.file.getAbsolutePath()), null, null, true) };
-            ICompilationUnit unit = new WorkingCopyOwner(){}.newWorkingCopy(name, entries, new NullProgressMonitor());
-            String contents = "class CompletionClass {void main(){new %s().}}";
-            contents = StringUtils.format(contents, packagePlusactTok);
-            unit.getBuffer().setContents(contents);
-            CompletionProposalCollector collector = new CompletionProposalCollector(unit);
-
-            unit.codeComplete(contents.length() - 2, collector);
-            IJavaCompletionProposal[] javaCompletionProposals = collector.getJavaCompletionProposals();
+            IJavaCompletionProposal[] javaCompletionProposals = getJavaCompletionProposals(packagePlusactTok, null);
 
             for (IJavaCompletionProposal javaCompletionProposal : javaCompletionProposals) {
                 if (javaCompletionProposal instanceof AbstractJavaCompletionProposal) {
@@ -161,7 +175,18 @@ public class JavaClassModule extends AbstractModule {
                     if(DEBUG_JARS){
                         System.out.println("Element: "+javaElement);
                     }
-                    lst.add(new CompiledToken(javaElement.getElementName(), javaCompletionProposal.getAdditionalProposalInfo(), args, this.name, IToken.TYPE_BUILTIN));
+//                    String additionalProposalInfo = ExtractTextFromHtml.getText(javaCompletionProposal.getAdditionalProposalInfo());
+                    
+                    //TODO: We should do that only when it's actually requested
+                    //so that we don't keep the images in memory (they take lots of memory because they're created
+                    //at runtime -- and are not fixed as those in pydev)
+                    //Image image = javaCompletionProposal.getImage();
+                    //so, we should keep in memory the info needed to pass to CompletionProposalLabelProvider
+                    //to create it only when needed.
+                    
+                    lst.add(new CompiledToken(javaElement.getElementName(), "", args, this.name, 
+                            getType(javaElement.getElementType())));
+
                 } else {
                     System.err.println("Not treated: " + javaCompletionProposal.getClass());
                 }
@@ -171,6 +196,67 @@ public class JavaClassModule extends AbstractModule {
         }
         
         return lst.toArray(new CompiledToken[lst.size()]);
+    }
+
+    /**
+     * Stores the mapping from the java type to the IToken type
+     */
+    private static HashMap<Integer, Integer> typesMapping = new HashMap<Integer, Integer>();
+    static{
+        typesMapping.put(IJavaElement.CLASS_FILE, IToken.TYPE_CLASS);
+        typesMapping.put(IJavaElement.COMPILATION_UNIT, IToken.TYPE_CLASS);
+        typesMapping.put(IJavaElement.PACKAGE_DECLARATION, IToken.TYPE_PACKAGE);
+        typesMapping.put(IJavaElement.PACKAGE_FRAGMENT, IToken.TYPE_PACKAGE);
+        typesMapping.put(IJavaElement.PACKAGE_FRAGMENT_ROOT, IToken.TYPE_PACKAGE);
+    }
+
+    /**
+     * @param elementType the java element type we're interested in
+     * @return the IToken type which is correspondent to the java type
+     */
+    private int getType(int elementType) {
+        Integer found = typesMapping.get(elementType);
+        if(found != null){
+            return found;
+        }
+        return IToken.TYPE_ATTR;
+    }
+
+    /**
+     * @param completeClassDesc the name of the class from where we should get the tokens. E.g. java.lang.Class, javax.swing.JFrame
+     * @param filterCompletionName 
+     * @return a list of completion proposals gotten from that class.
+     * @throws JavaModelException
+     */
+    private IJavaCompletionProposal[] getJavaCompletionProposals(String completeClassDesc, final String filterCompletionName) throws JavaModelException {
+        IClasspathEntry entries[] = getClasspathEntries();
+        ICompilationUnit unit = new WorkingCopyOwner(){}.newWorkingCopy(name, entries, new NullProgressMonitor());
+        String contents = "class CompletionClass {void main(){new %s().}}";
+        contents = StringUtils.format(contents, completeClassDesc);
+        unit.getBuffer().setContents(contents);
+        CompletionProposalCollector collector = new CompletionProposalCollector(unit){
+            @Override
+            public IJavaCompletionProposal createJavaCompletionProposal(CompletionProposal proposal) {
+                IJavaCompletionProposal javaCompletionProposal = super.createJavaCompletionProposal(proposal);
+                if(filterCompletionName == null){
+                    return javaCompletionProposal;
+                }
+                if (javaCompletionProposal instanceof AbstractJavaCompletionProposal) {
+                    AbstractJavaCompletionProposal prop = (AbstractJavaCompletionProposal) javaCompletionProposal;
+                    IJavaElement javaElement = prop.getJavaElement();
+                    if(javaElement != null){
+                        if(javaElement.getElementName().equals(filterCompletionName)){
+                            return javaCompletionProposal;
+                        }
+                    }
+                }
+                return null;
+            }
+        };
+
+        unit.codeComplete(contents.length() - 2, collector);
+        IJavaCompletionProposal[] javaCompletionProposals = collector.getJavaCompletionProposals();
+        return javaCompletionProposals;
     }
 
     /**
@@ -285,6 +371,7 @@ public class JavaClassModule extends AbstractModule {
         StringBuffer pathInJavaClass = new StringBuffer();
         if(validModule == null){
             validModule = this;
+            pathInJavaClass = new StringBuffer(state.getActivationToken());
         }else{
             //After having found a valid java class, we must also check which was the resulting token within that class 
             //to check if it's some method or something alike (that should be easy after having the class and the path
@@ -300,22 +387,38 @@ public class JavaClassModule extends AbstractModule {
             }
         }
         
+        JavaClassModule javaClassModule = (JavaClassModule) validModule;
+        
         //ok, now, if there is no path, the definition is the java class itself.
         if(pathInJavaClass.length() == 0){
-            JavaClassModule javaClassModule = (JavaClassModule) validModule;
             
-            IClasspathEntry entries[] = new IClasspathEntry[] { JavaCore.newLibraryEntry(Path.fromOSString(this.file.getAbsolutePath()), null, null, true) };
+            IClasspathEntry entries[] = getClasspathEntries();
             ICompilationUnit unit = new WorkingCopyOwner(){}.newWorkingCopy(name, entries, new NullProgressMonitor());
             String contents = "import %s.;";
             contents = StringUtils.format(contents, FullRepIterable.getWithoutLastPart(javaClassModule.getName()));
             unit.getBuffer().setContents(contents);
             
-            CompletionProposalCollector collector = new CompletionProposalCollector(unit);
+            final String lookingForClass = FullRepIterable.getLastPart(javaClassModule.getName());
+            CompletionProposalCollector collector = new CompletionProposalCollector(unit){
+                @Override
+                public IJavaCompletionProposal createJavaCompletionProposal(CompletionProposal proposal) {
+                    IJavaCompletionProposal javaCompletionProposal = super.createJavaCompletionProposal(proposal);
+                    if (javaCompletionProposal instanceof AbstractJavaCompletionProposal) {
+                        AbstractJavaCompletionProposal prop = (AbstractJavaCompletionProposal) javaCompletionProposal;
+                        IJavaElement javaElement = prop.getJavaElement();
+                        if(javaElement != null){
+                            if(javaElement.getElementName().equals(lookingForClass)){
+                                return javaCompletionProposal;
+                            }
+                        }
+                    }
+                    return null;
+                }
+            };
 
             unit.codeComplete(contents.length() - 1, collector);
             IJavaCompletionProposal[] javaCompletionProposals = collector.getJavaCompletionProposals();
 
-            String lookingForClass = FullRepIterable.getLastPart(javaClassModule.getName());
             for (IJavaCompletionProposal javaCompletionProposal : javaCompletionProposals) {
                 if (javaCompletionProposal instanceof AbstractJavaCompletionProposal) {
                     AbstractJavaCompletionProposal prop = (AbstractJavaCompletionProposal) javaCompletionProposal;
@@ -323,6 +426,24 @@ public class JavaClassModule extends AbstractModule {
                     if(javaElement != null){
                         if(javaElement.getElementName().equals(lookingForClass)){
                             return new Definition[]{new JavaDefinition("", javaClassModule, javaElement)};
+                        }
+                    }
+                }
+            }
+            
+            
+        }else{
+            String pathInClassStr = pathInJavaClass.toString();
+            //ok, it's not the class directly, so, we have to check what it actually is.
+            IJavaCompletionProposal[] javaCompletionProposals = getJavaCompletionProposals(javaClassModule.getName(), pathInClassStr);
+
+            for (IJavaCompletionProposal javaCompletionProposal : javaCompletionProposals) {
+                if (javaCompletionProposal instanceof AbstractJavaCompletionProposal) {
+                    AbstractJavaCompletionProposal prop = (AbstractJavaCompletionProposal) javaCompletionProposal;
+                    IJavaElement javaElement = prop.getJavaElement();
+                    if(javaElement != null){
+                        if(javaElement.getElementName().equals(pathInClassStr)){
+                            return new Definition[]{new JavaDefinition(pathInClassStr, javaClassModule, javaElement)};
                         }
                     }
                 }
