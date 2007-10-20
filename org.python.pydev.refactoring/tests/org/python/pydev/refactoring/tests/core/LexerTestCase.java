@@ -1,5 +1,7 @@
 package org.python.pydev.refactoring.tests.core;
 
+import org.python.pydev.core.TestDependent;
+
 import junit.framework.TestCase;
 
 public class LexerTestCase extends TestCase {
@@ -8,7 +10,7 @@ public class LexerTestCase extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		this.scanner = new IOTestCaseLexer(new java.io.FileReader("tests/python/core/testIOTestCaseLexer.py"));
+		this.scanner = new IOTestCaseLexer(new java.io.FileReader(TestDependent.TEST_PYDEV_REFACTORING_PLUGIN_LOC+"tests/python/core/testIOTestCaseLexer.py"));
 		this.scanner.scan();
 	}
 

@@ -28,5 +28,6 @@ Export-Package: org.python.pydev.refactoring,
  org.python.pydev.refactoring.core.change,
  org.python.pydev.refactoring.core.edit,
  org.python.pydev.refactoring.core.request,
+ org.python.pydev.refactoring.tests,
  org.python.pydev.refactoring.ui.actions,
  org.python.pydev.refactoring.ui.actions.internal
