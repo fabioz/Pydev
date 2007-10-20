@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ast.adapters;
 
 import org.python.pydev.parser.jython.SimpleNode;
@@ -36,9 +44,9 @@ public class PropertyAdapter extends AbstractNodeAdapter<SimpleNode> {
 		for (int i = 0; i < args.length; i++) {
 			setMethod(args[i], i);
 		}
-		keywordType[] kws = getValue().keywords;
-		for (int i = 0; i < kws.length; i++) {
-			setKeyword(kws[i]);
+		
+		for (keywordType keyword : getValue().keywords) {
+			setKeyword(keyword);
 		}
 		if (getter == null)
 			getter = createNone();
@@ -83,7 +91,6 @@ public class PropertyAdapter extends AbstractNodeAdapter<SimpleNode> {
 			case 3:
 				if (!(nodeHelper.isNone(name)))
 					doc = name;
-			default:
 				break;
 			}
 		}

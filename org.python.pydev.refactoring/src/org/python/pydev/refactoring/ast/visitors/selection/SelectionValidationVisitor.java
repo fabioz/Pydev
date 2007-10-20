@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ast.visitors.selection;
 
 import org.python.pydev.parser.jython.SimpleNode;
@@ -14,7 +22,7 @@ import org.python.pydev.parser.jython.ast.Yield;
 
 public class SelectionValidationVisitor extends VisitorBase {
 
-	private Class[] invalidNode = new Class[] { Break.class, ClassDef.class, Continue.class, FunctionDef.class, ImportFrom.class,
+	private Class<?> [] invalidNode = new Class<?>[] { Break.class, ClassDef.class, Continue.class, FunctionDef.class, ImportFrom.class,
 			Import.class, Pass.class, Return.class, Yield.class };
 
 	@Override
@@ -26,7 +34,7 @@ public class SelectionValidationVisitor extends VisitorBase {
 	}
 
 	private void validateNode(SimpleNode node) throws SelectionException {
-		for (Class clazz : invalidNode) {
+		for (Class<?> clazz : invalidNode) {
 			if (clazz == node.getClass()) {
 				throw new SelectionException(node);
 			}

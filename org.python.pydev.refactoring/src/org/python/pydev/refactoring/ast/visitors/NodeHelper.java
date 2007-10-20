@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ast.visitors;
 
 import java.util.ArrayList;
@@ -380,7 +388,7 @@ public class NodeHelper {
 		keywordType[] kws = node.keywords;
 		int len = args.length + kws.length;
 
-		if (args == null || len > 4)
+		if (len > 4)
 			return false;
 
 		return validatePropertyArguments(node);
@@ -435,18 +443,17 @@ public class NodeHelper {
 	}
 
 	public java.util.List<String> getBaseClassName(SimpleNode node) {
-		java.util.List<String> base = new ArrayList<String>();
+		java.util.List<String> bases = new ArrayList<String>();
 		if (isClassDef(node)) {
 
 			ClassDef clazz = (ClassDef) node;
 			if (isFilledList(clazz.bases)) {
-				for (int i = 0; i < clazz.bases.length; i++) {
-					base.add(getName(clazz.bases[i]));
+				for (exprType base : clazz.bases) {
+					bases.add(getName(base));
 				}
 			}
 		}
-		return base;
-
+		return bases;
 	}
 
 	public boolean hasSelfArgument(exprType[] args) {

@@ -1,10 +1,17 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ast.visitors.context;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.jface.util.Assert;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -30,9 +37,9 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
 
 	protected ModuleAdapter moduleAdapter;
 
-	public AbstractContextVisitor(ModuleAdapter module, AbstractNodeAdapter parent) {
+	public AbstractContextVisitor(ModuleAdapter module, AbstractNodeAdapter<? extends SimpleNode> parent) {
 		super();
-		Assert.isTrue(module != null);
+		assert(module != null);
         
 		this.moduleAdapter = module;
 
@@ -55,13 +62,13 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
 		stack.pop();
 	}
 
-	protected AbstractNodeAdapter before(SimpleNode node) {
-		AbstractNodeAdapter context = createContext(node);
+	protected AbstractNodeAdapter<? extends SimpleNode> before(SimpleNode node) {
+		AbstractNodeAdapter<? extends SimpleNode> context = createContext(node);
 		stack.push(node);
 		return context;
 	}
 
-	private AbstractNodeAdapter create(SimpleNode node) {
+	private AbstractNodeAdapter<? extends SimpleNode> create(SimpleNode node) {
 
 		AbstractScopeNode<?> parent = parents.peek();
 
@@ -75,7 +82,7 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
 
 	protected abstract T createAdapter(AbstractScopeNode<?> parent, SimpleNode node);
 
-	protected AbstractNodeAdapter createContext(SimpleNode node) {
+	protected AbstractNodeAdapter<? extends SimpleNode> createContext(SimpleNode node) {
 		if (nodeHelper.isModule(node)) {
 			assert (node == moduleAdapter.getASTNode());
 			return moduleAdapter;
@@ -118,7 +125,7 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
 	}
 
 	protected void trackContext(SimpleNode node) throws Exception {
-		AbstractNodeAdapter context = before(node);
+		AbstractNodeAdapter<? extends SimpleNode> context = before(node);
 		pushParent(context);
 		traverse(node);
 		parents.pop();
@@ -172,7 +179,7 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
 
 	@Override
 	public Object visitFunctionDef(FunctionDef node) throws Exception {
-		AbstractNodeAdapter context = before(node);
+		AbstractNodeAdapter<? extends SimpleNode> context = before(node);
 		pushParent(context);
 		traverse(node);
 		parents.pop();
@@ -180,7 +187,7 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
 		return null;
 	}
 
-	protected void pushParent(AbstractNodeAdapter context) {
+	protected void pushParent(AbstractNodeAdapter<? extends SimpleNode> context) {
 		if (context instanceof AbstractScopeNode<?>) {
 			parents.push((AbstractScopeNode<?>) context);
 		}

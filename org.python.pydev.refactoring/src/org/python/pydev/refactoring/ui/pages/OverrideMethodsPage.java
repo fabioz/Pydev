@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ui.pages;
 
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
@@ -22,7 +30,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.dialogs.ContainerCheckedTreeViewer;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.codegenerator.overridemethods.OverrideMethodsRequestProcessor;
-import org.python.pydev.refactoring.ui.UITexts;
+import org.python.pydev.refactoring.messages.Messages;
 import org.python.pydev.refactoring.ui.model.OffsetStrategyModel;
 import org.python.pydev.refactoring.ui.model.OffsetStrategyProvider;
 import org.python.pydev.refactoring.ui.model.overridemethods.ClassMethodsTreeProvider;
@@ -83,7 +91,7 @@ public class OverrideMethodsPage extends UserInputWizardPage {
 		mainComp = new Composite(parent, SWT.NONE);
 		mainComp.setLayoutData(gridData);
 		cLabel = new CLabel(mainComp, SWT.NONE);
-		cLabel.setText(UITexts.overrideMethodsSelect);
+		cLabel.setText(Messages.overrideMethodsSelect);
 		cLabel.setLayoutData(gridData11);
 		createTreeComp();
 		createButtonComp();
@@ -116,7 +124,7 @@ public class OverrideMethodsPage extends UserInputWizardPage {
 		buttonComp.setLayout(new GridLayout());
 		buttonComp.setLayoutData(gridData3);
 		selectAll = new Button(buttonComp, SWT.NONE);
-		selectAll.setText(UITexts.wizardSelectAll);
+		selectAll.setText(Messages.wizardSelectAll);
 		selectAll.setLayoutData(gridData2);
 		selectAll.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -126,7 +134,7 @@ public class OverrideMethodsPage extends UserInputWizardPage {
 			}
 		});
 		deselectAll = new Button(buttonComp, SWT.NONE);
-		deselectAll.setText(UITexts.wizardDeselectAll);
+		deselectAll.setText(Messages.wizardDeselectAll);
 		deselectAll.setLayoutData(gridData1);
 		deselectAll.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -161,7 +169,7 @@ public class OverrideMethodsPage extends UserInputWizardPage {
 		comboComp.setLayoutData(gridData7);
 		comboComp.setLayout(fillLayout);
 		insertionPointLbl = new CLabel(comboComp, SWT.NONE);
-		insertionPointLbl.setText(UITexts.offsetStrategyInsertionPointMethod);
+		insertionPointLbl.setText(Messages.offsetStrategyInsertionPointMethod);
 		insertionPointCmb = createComboViewer(comboComp);
 		insertionPointCmb.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {

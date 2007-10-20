@@ -1,9 +1,14 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+ */
+
 package org.python.pydev.refactoring.tests.jython;
 
 import java.io.StringWriter;
 
+import org.python.pydev.jython.IPythonInterpreter;
+import org.python.pydev.jython.JythonPlugin;
 import org.python.pydev.refactoring.tests.core.AbstractRewriterTestCase;
-import org.python.util.PythonInterpreter;
 
 /**
  * @author Dennis Hunziker, Ueli Kistler
@@ -27,15 +32,8 @@ public class JythonTestCase extends AbstractRewriterTestCase {
 		assertEquals(interpretedExcepted, interpretedGenerated);
 	}
 
-	private PythonInterpreter initInterpreter() {
-		PythonInterpreter pi = new PythonInterpreter();
-		pi.set("False", 0);
-		pi.set("True", 1);
-		return pi;
-	}
-
 	private String execPythonCode(String source) {
-		PythonInterpreter pi = initInterpreter();
+	    IPythonInterpreter pi = JythonPlugin.newPythonInterpreter(false);
 
 		StringWriter out = new StringWriter();
 		pi.setOut(out);

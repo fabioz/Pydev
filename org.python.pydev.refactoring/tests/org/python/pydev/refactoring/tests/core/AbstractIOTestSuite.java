@@ -1,3 +1,7 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+ */
+
 package org.python.pydev.refactoring.tests.core;
 
 import java.io.File;
@@ -24,8 +28,8 @@ public abstract class AbstractIOTestSuite extends TestSuite {
 		if (testFiles == null)
 			return;
 
-		for (int i = 0; i < testFiles.length; i++) {
-			this.addTest(createTest(testFiles[i]));
+		for (File testFile : testFiles) {
+			this.addTest(createTest(testFile));
 		}
 	}
 

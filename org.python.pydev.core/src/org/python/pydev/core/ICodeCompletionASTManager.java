@@ -195,7 +195,7 @@ public interface ICodeCompletionASTManager {
      * @param completions OUT this is were completions are added.
      * @param wildImport this is the token identifying the wild import
      */
-    public List<IToken> getCompletionsForWildImport(ICompletionState state, IModule current, List completions, IToken wildImport);
+    public List<IToken> getCompletionsForWildImport(ICompletionState state, IModule current, List<IToken> completions, IToken wildImport);
 
     /**
      * This method returns the python builtins as completions
@@ -220,7 +220,7 @@ public interface ICodeCompletionASTManager {
      * @param current the current module
      * @return a list of IToken
      */
-    public abstract List getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, ICompletionState state, IModule current);
+    public abstract List<IToken> getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, ICompletionState state, IModule current);
     
     /**
      * Fills the HashSet passed with completions for the class passed considering the current local scope. 

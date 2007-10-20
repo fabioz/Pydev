@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.core;
 
 import java.io.File;
@@ -12,6 +20,8 @@ import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.parser.jython.ParseException;
+import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
@@ -35,12 +45,12 @@ public class RefactoringInfo {
 
 	private AbstractScopeNode<?> scopeAdapter;
 
-	public RefactoringInfo(ITextEditor edit, IPythonNature nature) throws Throwable {
+	public RefactoringInfo(ITextEditor edit, IPythonNature nature)  {
 		this(((IFileEditorInput) edit.getEditorInput()).getFile(), edit.getDocumentProvider().getDocument(edit.getEditorInput()),
 				(ITextSelection) edit.getSelectionProvider().getSelection(), nature);
 	}
 
-	public RefactoringInfo(IFile sourceFile, IDocument doc, ITextSelection selection, IPythonNature nature) throws Throwable {
+	public RefactoringInfo(IFile sourceFile, IDocument doc, ITextSelection selection, IPythonNature nature) {
 		this.sourceFile = sourceFile;
 		this.doc = doc;
 		this.nature = nature;
@@ -48,7 +58,7 @@ public class RefactoringInfo {
 		initInfo(selection, userSelection);
 	}
 
-	private void initInfo(ITextSelection selection, ITextSelection userSelection) throws Throwable {
+	private void initInfo(ITextSelection selection, ITextSelection userSelection) {
 		if (this.nature != null) {
 			this.moduleManager = new PythonModuleManager(nature);
 		}
@@ -58,7 +68,11 @@ public class RefactoringInfo {
 			realFile = sourceFile.getRawLocation().toFile();
 		}
 
-		this.moduleAdapter = VisitorFactory.createModuleAdapter(moduleManager, realFile, doc, nature);
+		try {
+			this.moduleAdapter = VisitorFactory.createModuleAdapter(moduleManager, realFile, doc, nature);
+		} catch (ParseException e) {
+			throw new RuntimeException(e);
+		}
 
 		this.extendedSelection = null;
 		this.userSelection = moduleAdapter.normalizeSelection(selection);
@@ -108,7 +122,8 @@ public class RefactoringInfo {
 		if (this.userSelection != null && source.length() > 0) {
 			try {
 				parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature);
-			} catch (Throwable e) {
+			} catch (ParseException e) {
+				/* Parse Exception means the current selection is invalid, discard and return null */
 			}
 		}
 		return parsedAdapter;
@@ -123,7 +138,8 @@ public class RefactoringInfo {
 
 			try {
 				parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature);
-			} catch (Throwable e) {
+			} catch (ParseException e) {
+				/* Parse Exception means the current selection is invalid, discard and return null */
 			}
 		}
 		return parsedAdapter;
@@ -142,7 +158,7 @@ public class RefactoringInfo {
 		try {
 			return normalizeBlockIndentation(selection, selectedText);
 		} catch (Throwable e) {
-
+			/* TODO: uncommented empty exception catch all */
 		}
 		return selectedText;
 

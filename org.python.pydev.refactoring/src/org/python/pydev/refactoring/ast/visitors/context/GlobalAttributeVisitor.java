@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ast.visitors.context;
 
 import java.util.SortedSet;
@@ -135,7 +143,7 @@ public class GlobalAttributeVisitor extends AbstractContextVisitor<SimpleAdapter
 
 	@Override
 	public Object visitClassDef(ClassDef node) throws Exception {
-		AbstractNodeAdapter context = before(node);
+		AbstractNodeAdapter<? extends SimpleNode> context = before(node);
 		pushParent(context);
 		visit(node.body);
 		parents.pop();

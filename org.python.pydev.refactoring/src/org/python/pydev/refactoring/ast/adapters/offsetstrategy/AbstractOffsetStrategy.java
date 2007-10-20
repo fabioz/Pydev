@@ -1,9 +1,18 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ast.adapters.offsetstrategy;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextUtilities;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.ast.visitors.NodeHelper;
 
@@ -11,11 +20,11 @@ public abstract class AbstractOffsetStrategy implements IOffsetStrategy {
 
 	protected IDocument doc;
 
-	protected IASTNodeAdapter adapter;
+	protected IASTNodeAdapter<? extends SimpleNode> adapter;
 
 	protected NodeHelper nodeHelper;
 
-	public AbstractOffsetStrategy(IASTNodeAdapter adapter, IDocument doc) {
+	public AbstractOffsetStrategy(IASTNodeAdapter<? extends SimpleNode> adapter, IDocument doc) {
 		this.adapter = adapter;
 		this.doc = doc;
 		this.nodeHelper = new NodeHelper(TextUtilities.getDefaultLineDelimiter(doc));

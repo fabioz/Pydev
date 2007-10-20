@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.codegenerator.constructorfield;
 
 import java.util.ArrayList;
@@ -11,7 +19,7 @@ import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.core.AbstractPythonRefactoring;
 import org.python.pydev.refactoring.core.RefactoringInfo;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;
-import org.python.pydev.refactoring.ui.UITexts;
+import org.python.pydev.refactoring.messages.Messages;
 import org.python.pydev.refactoring.ui.model.constructorfield.ClassFieldTreeProvider;
 import org.python.pydev.refactoring.ui.pages.ConstructorFieldPage;
 
@@ -21,20 +29,20 @@ public class ConstructorFieldRefactoring extends AbstractPythonRefactoring {
 
 	private IChangeProcessor changeProcessor;
 
-	public ConstructorFieldRefactoring(String name, RefactoringInfo req) {
-		super(name, req);
+	public ConstructorFieldRefactoring(RefactoringInfo req) {
+		super(req);
 		try {
-			initWizard(name);
+			initWizard();
 		} catch (Throwable e) {
-			status.addInfo(UITexts.infoFixCode);
+			status.addInfo(Messages.infoFixCode);
 		}
 	}
 
-	private void initWizard(String name) throws Throwable {
-		ClassFieldTreeProvider provider = new ClassFieldTreeProvider(req.getScopeClass());
-		this.requestProcessor = new ConstructorFieldRequestProcessor(this.req.getNewLineDelim());
-		this.changeProcessor = new ConstructorFieldChangeProcessor(this.name, this.req, this.requestProcessor);
-		this.pages.add(new ConstructorFieldPage(name, provider, requestProcessor));
+	private void initWizard() throws Throwable {
+		ClassFieldTreeProvider provider = new ClassFieldTreeProvider(info.getScopeClass());
+		this.requestProcessor = new ConstructorFieldRequestProcessor(this.info.getNewLineDelim());
+		this.changeProcessor = new ConstructorFieldChangeProcessor(getName(), this.info, this.requestProcessor);
+		this.pages.add(new ConstructorFieldPage(getName(), provider, requestProcessor));
 	}
 
 	@Override
@@ -46,7 +54,7 @@ public class ConstructorFieldRefactoring extends AbstractPythonRefactoring {
 
 	@Override
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-		IClassDefAdapter rootClass = this.req.getScopeClass();
+		IClassDefAdapter rootClass = this.info.getScopeClass();
 
 		if (rootClass != null) {
 			if (rootClass.getAttributes().size() > 0) {
@@ -54,9 +62,13 @@ public class ConstructorFieldRefactoring extends AbstractPythonRefactoring {
 			}
 		}
 
-		status.addFatalError(UITexts.constructorFieldUnavailable);
+		status.addFatalError(Messages.constructorFieldUnavailable);
 
 		return status;
 	}
 
+	@Override
+	public String getName() {
+		return Messages.constructorFieldLabel;
+	}
 }

@@ -1,9 +1,18 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.coderefactoring.extractmethod.request;
 
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.text.ITextSelection;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
@@ -69,8 +78,8 @@ public class ExtractMethodRequest implements IRefactoringRequest {
 		return scopeAdapter;
 	}
 
-	public IASTNodeAdapter getOffsetNode() {
-		IASTNodeAdapter offsetNode = scopeAdapter;
+	public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
+		IASTNodeAdapter<? extends SimpleNode> offsetNode = scopeAdapter;
 		while (offsetNode instanceof FunctionDefAdapter)
 			offsetNode = offsetNode.getParent();
 

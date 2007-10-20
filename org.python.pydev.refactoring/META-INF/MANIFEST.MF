@@ -21,8 +21,13 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.jython,
  org.eclipse.compare
 Eclipse-LazyStart: true
-Bundle-ClassPath: refactoring.jar,
- retroweaver-rt.jar
+Bundle-ClassPath: retroweaver-rt.jar,
+ tests/lib/JFlex.jar,
+ tests/lib/xpp3_min-1.1.3.4.O.jar,
+ tests/lib/xstream-1.2.1.jar,
+ contrib/ch/hsr/ukistler/astgraph/jgraph.jar,
+ jython.jar,
+ refactoring.jar
 Export-Package: org.python.pydev.refactoring,
  org.python.pydev.refactoring.core,
  org.python.pydev.refactoring.core.change,

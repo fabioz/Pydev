@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ast.adapters;
 
 import java.io.File;
@@ -31,14 +39,14 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.refactoring.ast.FQIdentifier;
+import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.BeginOffset;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.EndOffset;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.InitOffset;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.info.ImportVisitor;
-import org.python.pydev.refactoring.core.FQIdentifier;
-import org.python.pydev.refactoring.core.PythonModuleManager;
 
 public class ModuleAdapter extends AbstractScopeNode<Module> {
 
@@ -169,7 +177,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 		return this;
 	}
 
-	public int getOffset(IASTNodeAdapter adapter, int strategy) {
+	public int getOffset(IASTNodeAdapter<? extends SimpleNode> adapter, int strategy) {
 		int offset = 0;
 
 		setStrategy(adapter, strategy);
@@ -192,10 +200,10 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 	}
 
 	public IClassDefAdapter getScopeClass(ITextSelection selection) {
-        IASTNodeAdapter bestClassScope = null;
+        IASTNodeAdapter<? extends SimpleNode> bestClassScope = null;
 		Iterator<IClassDefAdapter> iter = getClasses().iterator();
 		while (iter.hasNext()) {
-            IASTNodeAdapter classScope = (IASTNodeAdapter) iter.next();
+            IASTNodeAdapter<? extends SimpleNode> classScope = iter.next();
 			if (isSelectionInAdapter(selection, classScope)){
 				bestClassScope = classScope;
             }
@@ -219,7 +227,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 		return getGlobarVarNames().contains(name);
 	}
 
-	private boolean isSelectionInAdapter(ITextSelection selection, IASTNodeAdapter adapter) {
+	private boolean isSelectionInAdapter(ITextSelection selection, IASTNodeAdapter<? extends SimpleNode> adapter) {
 
 		int startOffSet = selection.getOffset();
 		int endOffSet = selection.getOffset() + selection.getLength();
@@ -237,22 +245,22 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 		return false;
 	}
 
-	private boolean isAdapterInSelection(ITextSelection selection, IASTNodeAdapter adapter) {
+	private boolean isAdapterInSelection(ITextSelection selection, IASTNodeAdapter<? extends SimpleNode> adapter) {
 
-		int startOffSet = selection.getOffset();
-		int endOffSet = selection.getOffset() + selection.getLength();
+		int selectionStart = selection.getOffset();
+		int selectionEnd = selection.getOffset() + selection.getLength();
 
 		try {
-			int adapterStartOffset = getStartOffset(adapter);
+			int adapterStart = getStartOffset(adapter);
 
-			return (adapterStartOffset >= startOffSet && adapterStartOffset < endOffSet);
+			return (adapterStart >= selectionStart && adapterStart < selectionEnd);
 		} catch (BadLocationException e) {
-
+			/* Fall through and return false */
 		}
 		return false;
 	}
 
-	public int getEndOffset(IASTNodeAdapter adapter, int adapterStartOffset) throws BadLocationException {
+	public int getEndOffset(IASTNodeAdapter<? extends SimpleNode> adapter, int adapterStartOffset) throws BadLocationException {
 		int lastLine = adapter.getNodeLastLine() - 1;
 
 		int adapterEndOffset = 0;
@@ -268,7 +276,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 		return getStartOffset(new SimpleAdapter(this, this, node, getEndLineDelimiter()));
 	}
 
-	public int getStartOffset(IASTNodeAdapter adapter) throws BadLocationException {
+	public int getStartOffset(IASTNodeAdapter<? extends SimpleNode> adapter) throws BadLocationException {
 		return doc.getLineOffset(adapter.getNodeFirstLine() - 1) + adapter.getNodeIndent() - 1;
 	}
 
@@ -445,7 +453,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 	}
 
 
-	public void setStrategy(IASTNodeAdapter adapter, int strategy) {
+	public void setStrategy(IASTNodeAdapter<? extends SimpleNode> adapter, int strategy) {
 		switch (strategy) {
 		case IOffsetStrategy.AFTERINIT:
 			this.offsetStrategy = new InitOffset(adapter, this.doc);

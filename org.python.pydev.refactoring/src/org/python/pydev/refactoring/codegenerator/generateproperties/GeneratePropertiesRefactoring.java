@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.codegenerator.generateproperties;
 
 import java.util.ArrayList;
@@ -11,7 +19,7 @@ import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.core.AbstractPythonRefactoring;
 import org.python.pydev.refactoring.core.RefactoringInfo;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;
-import org.python.pydev.refactoring.ui.UITexts;
+import org.python.pydev.refactoring.messages.Messages;
 import org.python.pydev.refactoring.ui.model.generateproperties.PropertyTreeProvider;
 import org.python.pydev.refactoring.ui.pages.GeneratePropertiesPage;
 
@@ -21,20 +29,20 @@ public class GeneratePropertiesRefactoring extends AbstractPythonRefactoring {
 
 	private IChangeProcessor changeProcessor;
 
-	public GeneratePropertiesRefactoring(String name, RefactoringInfo req) {
-		super(name, req);
+	public GeneratePropertiesRefactoring(RefactoringInfo req) {
+		super(req);
 		try {
-			initWizard(name);
+			initWizard();
 		} catch (Throwable e) {
-			status.addInfo(UITexts.infoFixCode);
+			status.addInfo(Messages.infoFixCode);
 		}
 	}
 
-	private void initWizard(String name) throws Throwable {
-		PropertyTreeProvider provider = new PropertyTreeProvider(req.getClasses());
-		this.requestProcessor = new GeneratePropertiesRequestProcessor(this.req.getNewLineDelim());
-		this.changeProcessor = new GeneratePropertiesChangeProcessor(this.name, this.req, this.requestProcessor);
-		this.pages.add(new GeneratePropertiesPage(name, provider, requestProcessor));
+	private void initWizard() throws Throwable {
+		PropertyTreeProvider provider = new PropertyTreeProvider(info.getClasses());
+		this.requestProcessor = new GeneratePropertiesRequestProcessor(this.info.getNewLineDelim());
+		this.changeProcessor = new GeneratePropertiesChangeProcessor(getName(), this.info, this.requestProcessor);
+		this.pages.add(new GeneratePropertiesPage(getName(), provider, requestProcessor));
 	}
 
 	@Override
@@ -46,7 +54,7 @@ public class GeneratePropertiesRefactoring extends AbstractPythonRefactoring {
 
 	@Override
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-		List<IClassDefAdapter> classes = this.req.getClasses();
+		List<IClassDefAdapter> classes = this.info.getClasses();
 
 		if (classes.size() > 0) {
 			for (IClassDefAdapter adapter : classes) {
@@ -55,9 +63,13 @@ public class GeneratePropertiesRefactoring extends AbstractPythonRefactoring {
 				}
 			}
 		}
-		status.addFatalError(UITexts.generatePropertiesUnavailable);
+		status.addFatalError(Messages.generatePropertiesUnavailable);
 
 		return status;
 	}
 
+	@Override
+	public String getName() {
+		return Messages.generatePropertiesLabel;
+	}
 }

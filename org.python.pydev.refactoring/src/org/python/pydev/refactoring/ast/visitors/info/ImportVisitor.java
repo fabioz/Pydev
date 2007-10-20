@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ast.visitors.info;
 
 import java.util.ArrayList;
@@ -12,7 +20,7 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.aliasType;
-import org.python.pydev.refactoring.core.FQIdentifier;
+import org.python.pydev.refactoring.ast.FQIdentifier;
 
 /**
  * This visitor will resolve module aliases to real module names and also map alias identifiers to real identifier. For the last mapping

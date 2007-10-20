@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ast.adapters;
 
 import org.python.pydev.parser.jython.SimpleNode;
@@ -10,7 +18,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
 
 	private ModuleAdapter module;
 
-	private AbstractScopeNode<?> parent;
+	private AbstractScopeNode<? extends SimpleNode> parent;
 
 	private T adaptee;
 
@@ -97,7 +105,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
 	 * 
 	 * @see org.python.pydev.refactoring.ast.adapters.IASTNodeAdapte#getParent()
 	 */
-	public AbstractScopeNode<?> getParent() {
+	public AbstractScopeNode<? extends SimpleNode> getParent() {
 		return parent;
 	}
 
@@ -135,7 +143,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof AbstractNodeAdapter) {
-			AbstractNodeAdapter adapter = (AbstractNodeAdapter) obj;
+			AbstractNodeAdapter<?> adapter = (AbstractNodeAdapter<?>) obj;
 			return ((getNodeFirstLine() == adapter.getNodeFirstLine()) && (getNodeIndent() == adapter.getNodeIndent()) && (getModule()
 					.equals(adapter.getModule())));
 		}

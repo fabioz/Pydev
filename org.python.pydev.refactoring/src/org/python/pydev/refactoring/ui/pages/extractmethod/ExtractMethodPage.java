@@ -1,26 +1,28 @@
-package org.python.pydev.refactoring.ui.pages;
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
+package org.python.pydev.refactoring.ui.pages.extractmethod;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.TableItem;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.ExtractMethodRequestProcessor;
 import org.python.pydev.refactoring.ui.model.table.SimpleTableItem;
-import org.python.pydev.refactoring.ui.pages.extractmethod.ExtractMethodComposite;
-import org.python.pydev.refactoring.ui.pages.listener.IValidationPage;
+import org.python.pydev.refactoring.ui.pages.PyDevInputWizardPage;
 
-public class ExtractMethodPage extends UserInputWizardPage implements IValidationPage {
-
-	public ExtractMethodRequestProcessor requestProcessor;
-
+public class ExtractMethodPage extends PyDevInputWizardPage {
+	private ExtractMethodRequestProcessor requestProcessor;
 	private ExtractMethodComposite extractComposite;
-
 	private Composite parent;
 
 	public ExtractMethodPage(String name, ExtractMethodRequestProcessor requestProcessor) {
@@ -49,18 +51,6 @@ public class ExtractMethodPage extends UserInputWizardPage implements IValidatio
 
 		voodooResizeToPage();
 		setPageComplete(false);
-	}
-
-	private void voodooResizeToPage() {
-		Point size = getShell().getSize();
-		size.x += 1;
-		size.y += 1;
-		getShell().setSize(size);
-		getShell().layout(true);
-		size.x -= 1;
-		size.y -= 1;
-		getShell().setSize(size);
-		getShell().layout(true);
 	}
 
 	public void updateArgumentTable() {

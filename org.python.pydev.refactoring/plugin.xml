@@ -28,6 +28,18 @@
             description="%peptic.ExtractMethodDescription"
             id="org.python.pydev.refactoring.ui.actions.ExtractMethodCommand"
             name="%peptic.ExtractMethodLabel"/>
+      <!-- waiting for bug fixes
+      <command
+            categoryId="org.python.pydev.refactoring.pepticCategory"
+            description="%peptic.ExtractLocalDescription"
+            id="org.python.pydev.refactoring.ui.actions.ExtractLocalCommand"
+            name="%peptic.ExtractLocalLabel"/>
+      <command
+            categoryId="org.python.pydev.refactoring.pepticCategory"
+            description="%peptic.GenerateDocstringDescription"
+            id="org.python.pydev.refactoring.ui.actions.GenerateDocstringCommand"
+            name="%peptic.GenerateDocstringLabel"/>
+      -->
    </extension>
    <extension
          id="org.python.pydev.refactoring.editorContribution"
@@ -64,6 +76,15 @@
                label="%peptic.GeneratePropertiesLabel"
                menubarPath="org.python.pydev.refactoring.refactoringMenu/pepticSourceGroup"
                style="push"/>
+	     <!-- waiting for bug fixes
+         <action
+               class="org.python.pydev.refactoring.ui.actions.GenerateDocstringAction"
+               definitionId="org.python.pydev.refactoring.ui.actions.GenerateDocstringCommand"
+               id="org.python.pydev.refactoring.ui.actions.GenerateDocstringMenuAction"
+               label="%peptic.GenerateDocstringLabel"
+               menubarPath="org.python.pydev.refactoring.refactoringMenu/pepticSourceGroup"
+               style="push"/>
+         -->
          <action
                class="org.python.pydev.refactoring.ui.actions.ExtractMethodAction"
                definitionId="org.python.pydev.refactoring.ui.actions.ExtractMethodCommand"
@@ -71,6 +92,15 @@
                label="%peptic.ExtractMethodLabel"
                menubarPath="org.python.pydev.refactoring.refactoringMenu/pepticRefactoringGroup"
                style="push"/>
+	     <!-- waiting for bug fixes
+         <action
+               class="org.python.pydev.refactoring.ui.actions.ExtractLocalAction"
+               definitionId="org.python.pydev.refactoring.ui.actions.ExtractLocalCommand"
+               id="org.python.pydev.refactoring.ui.actions.ExtractLocalMenuAction"
+               label="%peptic.ExtractLocalLabel"
+               menubarPath="org.python.pydev.refactoring.refactoringMenu/pepticRefactoringGroup"
+               style="push"/>
+         -->
       </editorContribution>
    </extension>
    <extension
@@ -104,12 +134,30 @@
                id="org.python.pydev.refactoring.ui.actions.RenameAction"
                label="%peptic.GeneratePropertiesLabel"
                menubarPath="org.python.pydev.editor.refactoring/pepticSourceGroup"/>
+         <!-- waiting for bug fixes
+         <action
+               class="org.python.pydev.refactoring.ui.actions.GenerateDocstringAction"
+               definitionId="org.python.pydev.refactoring.ui.actions.GenerateDocstringCommand"
+               id="org.python.pydev.refactoring.ui.actions.GenerateDocstringAction"
+               label="%peptic.GenerateDocstringLabel"
+               menubarPath="org.python.pydev.editor.refactoring/pepticSourceGroup"/>
+         -->
          <action
                class="org.python.pydev.refactoring.ui.actions.ExtractMethodAction"
                definitionId="org.python.pydev.refactoring.ui.actions.ExtractMethodCommand"
                id="org.python.pydev.refactoring.ui.actions.ExtractMethodAction"
                label="%peptic.ExtractMethodLabel"
-               menubarPath="org.python.pydev.editor.refactoring/pepticRefactoringGroup"/>
+               menubarPath="org.python.pydev.editor.refactoring/pepticRefactoringGroup">
+         </action>
+         <!-- waiting for bug fixes
+              <action
+               class="org.python.pydev.refactoring.ui.actions.ExtractLocalAction"
+               definitionId="org.python.pydev.refactoring.ui.actions.ExtractLocalCommand"
+               id="org.python.pydev.refactoring.ui.actions.ExtractLocalAction"
+               label="%peptic.ExtractLocalLabel"
+               menubarPath="org.python.pydev.editor.refactoring/pepticRefactoringGroup">
+         </action>
+         -->
       </viewerContribution>
    </extension>
    <extension
@@ -129,11 +177,25 @@
             contextId="org.eclipse.ui.globalScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M3+M2+T O"/>
+      <!-- waiting for bug fixes
+      <key
+            commandId="org.python.pydev.refactoring.ui.actions.GenerateDocstringCommand"
+            contextId="org.eclipse.ui.globalScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M3+M2+T D"/>
+      -->
       <key
             commandId="org.python.pydev.refactoring.ui.actions.ExtractMethodCommand"
             contextId="org.eclipse.ui.globalScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M3+M2+T E"/>
+      <!-- waiting for bug fixes
+      <key
+            commandId="org.python.pydev.refactoring.ui.actions.ExtractLocalCommand"
+            contextId="org.eclipse.ui.globalScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M3+M2+T O"/>
+      -->
       <key
             sequence="Shift+Alt+M"
             contextId="org.python.pydev.ui.editor.scope"

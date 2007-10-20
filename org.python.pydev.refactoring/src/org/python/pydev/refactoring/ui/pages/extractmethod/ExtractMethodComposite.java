@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ui.pages.extractmethod;
 
 import java.util.List;
@@ -30,7 +38,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
-import org.python.pydev.refactoring.ui.UITexts;
+import org.python.pydev.refactoring.messages.Messages;
 import org.python.pydev.refactoring.ui.controls.LabeledEdit;
 import org.python.pydev.refactoring.ui.model.OffsetStrategyModel;
 import org.python.pydev.refactoring.ui.model.OffsetStrategyProvider;
@@ -120,7 +128,7 @@ public class ExtractMethodComposite extends Composite {
 		labelLData.horizontalAlignment = GridData.FILL;
 		labelLData.grabExcessHorizontalSpace = true;
 		functionSignatureLabel.setLayoutData(labelLData);
-		functionSignatureLabel.setText(UITexts.extractMethodFunctionPreview);
+		functionSignatureLabel.setText(Messages.extractMethodFunctionPreview);
 
 		functionPreviewLabel = new Label(functionSignatureComposite, SWT.NONE);
 		GridData functionSignaturePreviewData = new GridData();
@@ -171,13 +179,13 @@ public class ExtractMethodComposite extends Composite {
 		argumentsButtonComposite.setLayoutData(compositeLData);
 		argumentsButtonComposite.setLayout(compositeLayout);
 
-		editArgumentsButton = createButton(argumentsButtonComposite, UITexts.extractMethodEditButton);
+		editArgumentsButton = createButton(argumentsButtonComposite, Messages.extractMethodEditButton);
 		editArgumentsButton.setEnabled(false);
 
-		upArgumentsButton = createButton(argumentsButtonComposite, UITexts.extractMethodUpButton);
+		upArgumentsButton = createButton(argumentsButtonComposite, Messages.extractMethodUpButton);
 		upArgumentsButton.setEnabled(false);
 
-		downArgumentsButton = createButton(argumentsButtonComposite, UITexts.extractMethodDownButton);
+		downArgumentsButton = createButton(argumentsButtonComposite, Messages.extractMethodDownButton);
 		downArgumentsButton.setEnabled(false);
 
 	}
@@ -253,7 +261,7 @@ public class ExtractMethodComposite extends Composite {
 		argumentsTable.setLinesVisible(true);
 
 		nameColumn = new TableColumn(argumentsTable, SWT.NONE);
-		nameColumn.setText(UITexts.extractMethodArgumentName);
+		nameColumn.setText(Messages.extractMethodArgumentName);
 
 		createArgumentsButton(argumentsComposite);
 		argumentsComposite.addControlListener(new ControlAdapter() {
@@ -286,7 +294,7 @@ public class ExtractMethodComposite extends Composite {
 		labelLData.grabExcessHorizontalSpace = true;
 		labelLData.horizontalAlignment = GridData.FILL;
 		argumentsLabel.setLayoutData(labelLData);
-		argumentsLabel.setText(UITexts.extractMethodArgumentsTitle);
+		argumentsLabel.setText(Messages.extractMethodArgumentsTitle);
 	}
 
 	private void createFunctionName(Composite control) {
@@ -296,7 +304,7 @@ public class ExtractMethodComposite extends Composite {
 		gridData.horizontalAlignment = GridData.FILL;
 		methodNameComposite.setLayoutData(gridData);
 		methodNameComposite.setLayout(compositeLayout);
-		functionNameEdit = new LabeledEdit(methodNameComposite, UITexts.extractMethodFunctionTitle);
+		functionNameEdit = new LabeledEdit(methodNameComposite, Messages.extractMethodFunctionTitle);
 	}
 
 	private void createOffsetStrategy(Composite mainComp) {
@@ -311,7 +319,7 @@ public class ExtractMethodComposite extends Composite {
 		comboComp.setLayoutData(gridData7);
 		comboComp.setLayout(fillLayout);
 		methodInsertionLbl = new CLabel(comboComp, SWT.NONE);
-		methodInsertionLbl.setText(UITexts.offsetStrategyInsertionPointMethod);
+		methodInsertionLbl.setText(Messages.offsetStrategyInsertionPointMethod);
 		methodInsertionComb = createComboViewer(comboComp);
 
 		methodInsertionComb.getCombo().select(0);

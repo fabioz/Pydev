@@ -1,7 +1,16 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.codegenerator.generateproperties;
 
-import org.eclipse.text.edits.TextEdit;
-import org.eclipse.text.edits.TextEditGroup;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.python.pydev.refactoring.codegenerator.generateproperties.edit.DeleteMethodEdit;
 import org.python.pydev.refactoring.codegenerator.generateproperties.edit.GetterMethodEdit;
 import org.python.pydev.refactoring.codegenerator.generateproperties.edit.PropertyEdit;
@@ -10,8 +19,9 @@ import org.python.pydev.refactoring.codegenerator.generateproperties.request.Gen
 import org.python.pydev.refactoring.codegenerator.generateproperties.request.SelectionState;
 import org.python.pydev.refactoring.core.RefactoringInfo;
 import org.python.pydev.refactoring.core.change.AbstractFileChangeProcessor;
+import org.python.pydev.refactoring.core.edit.AbstractTextEdit;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
-import org.python.pydev.refactoring.ui.UITexts;
+import org.python.pydev.refactoring.messages.Messages;
 
 public class GeneratePropertiesChangeProcessor extends AbstractFileChangeProcessor<GeneratePropertiesRequest> {
 
@@ -21,52 +31,32 @@ public class GeneratePropertiesChangeProcessor extends AbstractFileChangeProcess
 
 	@Override
 	protected void processEdit() {
-
-		TextEditGroup getters = new TextEditGroup(UITexts.generatePropertiesGetter);
-		TextEditGroup setters = new TextEditGroup(UITexts.generatePropertiesSetter);
-		TextEditGroup deletes = new TextEditGroup(UITexts.generatePropertiesDelete);
-		TextEditGroup properties = new TextEditGroup(UITexts.generatePropertiesProperty);
-
+		List<AbstractTextEdit> getters = new LinkedList<AbstractTextEdit>();
+		List<AbstractTextEdit> setters = new LinkedList<AbstractTextEdit>();
+		List<AbstractTextEdit> deleters = new LinkedList<AbstractTextEdit>();
+		
+		/* Collect all edits and assign thm to the corresponding editGroups. */
 		for (GeneratePropertiesRequest req : requestProcessor.getRefactoringRequests()) {
 			SelectionState state = req.getSelectionState();
 
-			if (state.isGetter()) {
-				GetterMethodEdit getter = new GetterMethodEdit(req);
-
-				TextEdit edit = getter.getEdit();
-				addEdit(edit);
-
-				getters.addTextEdit(edit);
-			}
-			if (state.isSetter()) {
-				SetterMethodEdit setter = new SetterMethodEdit(req);
-
-				TextEdit edit = setter.getEdit();
-				addEdit(edit);
-
-				setters.addTextEdit(edit);
-			}
-			if (state.isDelete()) {
-				DeleteMethodEdit delete = new DeleteMethodEdit(req);
-
-				TextEdit edit = delete.getEdit();
-				addEdit(edit);
-
-				deletes.addTextEdit(edit);
-			}
+			if (state.isGetter())
+				getters.add(new GetterMethodEdit(req));
+			
+			if (state.isSetter())
+				setters.add(new SetterMethodEdit(req));
+			
+			if (state.isDelete())
+				deleters.add(new DeleteMethodEdit(req));
 		}
 
+		List<AbstractTextEdit> propertyEdits = new LinkedList<AbstractTextEdit>();
 		for (GeneratePropertiesRequest req : requestProcessor.getRefactoringRequests()) {
-			PropertyEdit property = new PropertyEdit(req);
-			TextEdit edit = property.getEdit();
-			addEdit(edit);
-			properties.addTextEdit(edit);
+			propertyEdits.add(new PropertyEdit(req));
 		}
-
-		addGroup(getters);
-		addGroup(setters);
-		addGroup(deletes);
-		addGroup(properties);
+		
+		registerEdit(propertyEdits, Messages.generatePropertiesProperty);
+		registerEdit(getters, 		Messages.generatePropertiesGetter);
+		registerEdit(setters, 		Messages.generatePropertiesSetter);
+		registerEdit(deleters, 		Messages.generatePropertiesDelete);
 	}
-
 }

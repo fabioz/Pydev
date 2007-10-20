@@ -852,8 +852,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     /* (non-Javadoc)
      * @see ICodeCompletionASTManager#getCompletionsForWildImport(ICompletionState, IModule, List, IToken)
      */
-    @SuppressWarnings("unchecked")
-    public List<IToken> getCompletionsForWildImport(ICompletionState state, IModule current, List completions, IToken name) {
+    public List<IToken> getCompletionsForWildImport(ICompletionState state, IModule current, List<IToken> completions, IToken name) {
         try {
         	//this one is an exception... even though we are getting the name as a relative import, we say it
         	//is not because we want to get the module considering __init__

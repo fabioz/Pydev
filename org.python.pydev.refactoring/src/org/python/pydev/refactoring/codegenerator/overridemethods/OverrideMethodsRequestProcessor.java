@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.codegenerator.overridemethods;
 
 import java.util.ArrayList;
@@ -58,9 +66,9 @@ public class OverrideMethodsRequestProcessor implements IRequestProcessor<Overri
 	private List<FunctionDefAdapter> getMethods(ClassTreeNode parent) {
 		List<FunctionDefAdapter> methods = new ArrayList<FunctionDefAdapter>();
 
-		for (int i = 0; i < checked.length; i++) {
-			if (checked[i] instanceof FunctionTreeNode) {
-				FunctionTreeNode method = (FunctionTreeNode) checked[i];
+		for (Object obj : checked) {
+			if (obj instanceof FunctionTreeNode) {
+				FunctionTreeNode method = (FunctionTreeNode) obj;
 				if (method.getParent() == parent) {
 					methods.add(method.getAdapter());
 				}
@@ -73,9 +81,9 @@ public class OverrideMethodsRequestProcessor implements IRequestProcessor<Overri
 	private List<ClassTreeNode> getClasses() {
 		List<ClassTreeNode> classes = new ArrayList<ClassTreeNode>();
 
-		for (int i = 0; i < checked.length; i++) {
-			if (checked[i] instanceof ClassTreeNode) {
-				classes.add((ClassTreeNode) checked[i]);
+		for (Object obj : checked) {
+			if (obj instanceof ClassTreeNode) {
+				classes.add((ClassTreeNode) obj);
 			}
 		}
 

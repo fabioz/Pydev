@@ -4,7 +4,7 @@
 package org.python.pydev.utils;
 
 import org.eclipse.jface.preference.StringFieldEditor;
-import org.eclipse.jface.util.Assert;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;

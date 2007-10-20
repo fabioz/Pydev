@@ -1,8 +1,17 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.codegenerator.generateproperties;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.PropertyTextAdapter;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.ast.visitors.NodeHelper;
@@ -53,7 +62,7 @@ public class GeneratePropertiesRequestProcessor implements IRequestProcessor<Gen
 
 		for (Object elem : checked) {
 			if (elem instanceof TreeNodeSimple) {
-				TreeNodeSimple propertyNode = (TreeNodeSimple) elem;
+				TreeNodeSimple<? extends INodeAdapter> propertyNode = (TreeNodeSimple<?>) elem;
 				if (propertyNode.getParent() == attr) {
 					props.add((PropertyTextAdapter) propertyNode.getAdapter());
 				}

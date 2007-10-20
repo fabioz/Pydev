@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ui.model;
 
 import java.util.ArrayList;
@@ -7,7 +15,7 @@ import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
-import org.python.pydev.refactoring.ui.UITexts;
+import org.python.pydev.refactoring.messages.Messages;
 
 public class OffsetStrategyProvider implements IStructuredContentProvider {
 
@@ -32,17 +40,17 @@ public class OffsetStrategyProvider implements IStructuredContentProvider {
 	}
 
 	private void initLabel() {
-		initLabel = UITexts.offsetStrategyAfterInit;
-		beginLabel = UITexts.offsetStrategyBegin;
-		endLabel = UITexts.offsetStrategyEnd;
+		initLabel = Messages.offsetStrategyAfterInit;
+		beginLabel = Messages.offsetStrategyBegin;
+		endLabel = Messages.offsetStrategyEnd;
 	}
 
 	private int updateLabel(AbstractScopeNode<?> scopeAdapter, int strategyOption) {
 		if (scopeAdapter != null) {
 
 			if (scopeAdapter.getNodeBodyIndent() == 0) {
-				beginLabel = UITexts.offsetStrategyBeginModule;
-				endLabel = UITexts.offsetStrategyEndModule;
+				beginLabel = Messages.offsetStrategyBeginModule;
+				endLabel = Messages.offsetStrategyEndModule;
 				if ((strategyOption & IOffsetStrategy.AFTERINIT) == IOffsetStrategy.AFTERINIT) {
 					strategyOption &= ~IOffsetStrategy.AFTERINIT;
 				}

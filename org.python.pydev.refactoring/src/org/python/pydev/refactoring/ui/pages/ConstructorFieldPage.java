@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ui.pages;
 
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
@@ -22,7 +30,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.dialogs.ContainerCheckedTreeViewer;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.codegenerator.constructorfield.ConstructorFieldRequestProcessor;
-import org.python.pydev.refactoring.ui.UITexts;
+import org.python.pydev.refactoring.messages.Messages;
 import org.python.pydev.refactoring.ui.model.OffsetStrategyModel;
 import org.python.pydev.refactoring.ui.model.OffsetStrategyProvider;
 import org.python.pydev.refactoring.ui.model.constructorfield.ClassFieldTreeProvider;
@@ -83,7 +91,7 @@ public class ConstructorFieldPage extends UserInputWizardPage {
 		mainComp = new Composite(parent, SWT.NONE);
 		mainComp.setLayoutData(gridData);
 		cLabel = new CLabel(mainComp, SWT.NONE);
-		cLabel.setText(UITexts.constructorFieldSelect);
+		cLabel.setText(Messages.constructorFieldSelect);
 		cLabel.setLayoutData(gridData11);
 		createTreeComp();
 		createButtonComp();
@@ -106,7 +114,7 @@ public class ConstructorFieldPage extends UserInputWizardPage {
 		buttonComp.setLayout(new GridLayout());
 		buttonComp.setLayoutData(gridData3);
 		selectAll = new Button(buttonComp, SWT.NONE);
-		selectAll.setText(UITexts.wizardSelectAll);
+		selectAll.setText(Messages.wizardSelectAll);
 		selectAll.setLayoutData(gridData2);
 		selectAll.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -116,7 +124,7 @@ public class ConstructorFieldPage extends UserInputWizardPage {
 			}
 		});
 		deselectAll = new Button(buttonComp, SWT.NONE);
-		deselectAll.setText(UITexts.wizardDeselectAll);
+		deselectAll.setText(Messages.wizardDeselectAll);
 		deselectAll.setLayoutData(gridData1);
 		deselectAll.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -151,7 +159,7 @@ public class ConstructorFieldPage extends UserInputWizardPage {
 		comboComp.setLayoutData(gridData7);
 		comboComp.setLayout(fillLayout);
 		methodInsertionLbl = new CLabel(comboComp, SWT.NONE);
-		methodInsertionLbl.setText(UITexts.offsetStrategyInsertionPointMethod);
+		methodInsertionLbl.setText(Messages.offsetStrategyInsertionPointMethod);
 		methodInsertionComb = createComboViewer(comboComp);
 		methodInsertionComb.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {

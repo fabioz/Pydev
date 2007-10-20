@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ast.visitors.context;
 
 import org.python.pydev.parser.jython.SimpleNode;
@@ -49,7 +57,7 @@ public class PropertyVisitor extends AbstractContextVisitor<PropertyAdapter> {
 	 */
 	@Override
 	public Object visitClassDef(ClassDef node) throws Exception {
-		AbstractNodeAdapter context = before(node);
+		AbstractNodeAdapter<? extends SimpleNode> context = before(node);
 		pushParent(context);
 		visit(node.body);
 		parents.pop();

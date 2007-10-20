@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ast.rewriter;
 
 import java.io.StringWriter;
@@ -70,9 +78,6 @@ import org.python.pydev.parser.jython.ast.listcompType;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
-import org.python.pydev.parser.prettyprinter.PrettyPrinter;
-import org.python.pydev.parser.prettyprinter.PrettyPrinterPrefs;
-import org.python.pydev.parser.prettyprinter.WriterEraser;
 import org.python.pydev.refactoring.ast.printer.SourcePrinter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 
@@ -113,14 +118,15 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
     }
 
     private static RewriterVisitor createRewriterVisitor(Writer out, String source, String newLineDelim) {
-        RewriterVisitor visitor = null;
+        RewriterVisitor visitor = new RewriterVisitor(VisitorFactory.createPrinter(out, newLineDelim));;
+                
         try {
             SimpleNode root = VisitorFactory.getRootNodeFromString(source);
-            visitor = new RewriterVisitor(VisitorFactory.createPrinter(out, newLineDelim));
-            root.accept(visitor);
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        }
+			root.accept(visitor);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
         visitor.flush();
         return visitor;
     }
@@ -256,8 +262,8 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 	private void handleIfElse(If node) throws Exception {
 		boolean passedElsif = false;
 		if (node.orelse != null) {
-			for (int i = 0; i < node.orelse.length; i++) {
-				passedElsif = handleIfElseSuite(node, passedElsif, node.orelse[i]);
+			for (stmtType statement : node.orelse) {
+				passedElsif = handleIfElseSuite(node, passedElsif, statement);
 
 			}
 			if (passedElsif)
@@ -692,9 +698,9 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 
 	private void visitExceptionHandlers(TryExcept node) throws Exception {
 		if (node.handlers != null) {
-			for (int i = 0; i < node.handlers.length; i++) {
+			for (excepthandlerType exceptHandler : node.handlers) {
 				printer.printNewlineAndIndentation();
-				visitExceptHandlerType(node.handlers[i]);
+				visitExceptHandlerType(exceptHandler);
 			}
 
 		}

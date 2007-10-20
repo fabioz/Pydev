@@ -1,5 +1,14 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.codegenerator.overridemethods.request;
 
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
@@ -29,7 +38,7 @@ public class OverrideMethodsRequest implements IRefactoringRequest {
         this.endLineDelim = endLineDelim;
 	}
 
-	public IASTNodeAdapter getOffsetNode() {
+	public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
 		return classAdapter;
 	}
 

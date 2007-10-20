@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.coderefactoring.extractmethod.edit;
 
 import java.util.ArrayList;
@@ -73,7 +81,7 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
 	private List<exprType> initExtractedMethodArguments() {
 		List<exprType> argsList = new ArrayList<exprType>();
 		if (this.scopeAdapter instanceof FunctionDefAdapter) {
-			IASTNodeAdapter parentScopeAdapter = scopeAdapter.getParent();
+			IASTNodeAdapter<? extends SimpleNode> parentScopeAdapter = scopeAdapter.getParent();
 			while (parentScopeAdapter instanceof FunctionDef) {
 				parentScopeAdapter = scopeAdapter.getParent();
 			}

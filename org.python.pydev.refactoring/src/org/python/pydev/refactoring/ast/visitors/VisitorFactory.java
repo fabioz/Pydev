@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ast.visitors;
 
 import java.io.File;
@@ -14,9 +22,12 @@ import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.PyParser;
+import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.VisitorIF;
+import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.AbstractNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
@@ -25,7 +36,6 @@ import org.python.pydev.refactoring.ast.visitors.context.AbstractContextVisitor;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionException;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionExtenderVisitor;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionValidationVisitor;
-import org.python.pydev.refactoring.core.PythonModuleManager;
 
 public class VisitorFactory {
 
@@ -34,7 +44,7 @@ public class VisitorFactory {
 		try {
 			visitor = new SelectionExtenderVisitor(scope.getModule(), selection);
 			scope.getASTNode().accept(visitor);
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 		return visitor.getSelection();
@@ -83,7 +93,7 @@ public class VisitorFactory {
 		return visitor;
 	}
 
-	public static ModuleAdapter createModuleAdapter(PythonModuleManager moduleManager, File file, IDocument doc, IPythonNature nature) throws Throwable {
+	public static ModuleAdapter createModuleAdapter(PythonModuleManager moduleManager, File file, IDocument doc, IPythonNature nature) throws ParseException {
 		if (file != null && file.exists()) {
 			if(moduleManager != null){
 				IModulesManager m = moduleManager.getIModuleManager();
@@ -111,7 +121,7 @@ public class VisitorFactory {
 		return new SourcePrinter(new PrintWriter(out), newLineDelim);
 	}
 
-	public static SimpleNode getRootNodeFromString(String source) throws Throwable {
+	public static SimpleNode getRootNodeFromString(String source) throws ParseException  {
 		return getRootNode(getDocumentFromString(source));
 	}
 
@@ -119,11 +129,25 @@ public class VisitorFactory {
 		return new Document(source);
 	}
 
-	public static Module getRootNode(IDocument doc) throws Throwable {
+	public static Module getRootNode(IDocument doc) throws ParseException {
 		Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, false,
 				IPythonNature.LATEST_GRAMMAR_VERSION));
+		Throwable exception = objects.o2;
+		
+		if (exception != null) {
+			/* We try to get rid of the 'Throwable' exception, if possible */
+			if (exception instanceof ParseException) {
+				throw (ParseException) exception;
+			} else if (exception instanceof TokenMgrError) {
+				/* Error from Lexer */
+				throw new ParseException(exception.toString());
+			} else {
+				throw new RuntimeException(exception);
+			}
+		}
+		
 		if (objects.o2 != null)
-			throw objects.o2;
+			throw new RuntimeException(objects.o2);
 		return (Module) objects.o1;
 	}
 

@@ -1,7 +1,16 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.codegenerator.generateproperties.request;
 
 import java.util.List;
 
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
@@ -73,11 +82,8 @@ public class GeneratePropertiesRequest implements IRefactoringRequest {
 		return state;
 	}
 
-	public IASTNodeAdapter getOffsetNode() {
-		if (classAdapter instanceof IASTNodeAdapter){
-		    return (IASTNodeAdapter) classAdapter;
-        }
-        throw new RuntimeException("Not instance of IASTNodeAdapter:"+classAdapter.getClass());
+	public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
+		return classAdapter;
 	}
 
 	public int getMethodOffsetStrategy() {

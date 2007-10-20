@@ -1,3 +1,7 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+ */
+
 package org.python.pydev.refactoring.tests.codegenerator.overridemethods;
 
 import java.io.File;

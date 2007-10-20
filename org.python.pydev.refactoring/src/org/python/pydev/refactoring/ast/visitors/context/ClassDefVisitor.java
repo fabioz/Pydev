@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ast.visitors.context;
 
 import org.python.pydev.parser.jython.SimpleNode;
@@ -10,7 +18,7 @@ import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 
 public class ClassDefVisitor extends AbstractContextVisitor<IClassDefAdapter> {
 
-	public ClassDefVisitor(ModuleAdapter module, AbstractNodeAdapter parent) {
+	public ClassDefVisitor(ModuleAdapter module, AbstractNodeAdapter<? extends SimpleNode> parent) {
 		super(module, parent);
 	}
 

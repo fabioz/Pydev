@@ -1,3 +1,7 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+ */
+
 package ch.hsr.ukistler.astgraph;
 
 import java.awt.Color;

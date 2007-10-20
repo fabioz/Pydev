@@ -1,13 +1,19 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.codegenerator.constructorfield;
 
-import org.eclipse.text.edits.TextEdit;
-import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.refactoring.codegenerator.constructorfield.edit.ConstructorMethodEdit;
 import org.python.pydev.refactoring.codegenerator.constructorfield.request.ConstructorFieldRequest;
 import org.python.pydev.refactoring.core.RefactoringInfo;
 import org.python.pydev.refactoring.core.change.AbstractFileChangeProcessor;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
-import org.python.pydev.refactoring.ui.UITexts;
+import org.python.pydev.refactoring.messages.Messages;
 
 public class ConstructorFieldChangeProcessor extends AbstractFileChangeProcessor<ConstructorFieldRequest> {
 
@@ -17,19 +23,10 @@ public class ConstructorFieldChangeProcessor extends AbstractFileChangeProcessor
 
 	@Override
 	protected void processEdit() {
-
 		for (ConstructorFieldRequest req : requestProcessor.getRefactoringRequests()) {
-
-			TextEditGroup constructors = new TextEditGroup(UITexts.constructorFieldConstructor);
 			ConstructorMethodEdit constructorEdit = new ConstructorMethodEdit(req);
 
-			TextEdit edit = constructorEdit.getEdit();
-
-			constructors.addTextEdit(edit);
-			addEdit(edit);
-			addGroup(constructors);
+			registerEdit(constructorEdit, Messages.constructorFieldConstructor);
 		}
-
 	}
-
 }

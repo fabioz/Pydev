@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.core.edit;
 
 import org.eclipse.text.edits.TextEdit;
@@ -14,21 +22,18 @@ public abstract class AbstractTextEdit {
 
 	protected ModuleAdapter moduleAdapter;
 
-	protected IASTNodeAdapter offsetAdapter;
+	protected IASTNodeAdapter<? extends SimpleNode> offsetAdapter;
 
 	protected NodeHelper nodeHelper;
 
     protected String newLineDelim;
 
-	private AbstractTextEdit(ModuleAdapter moduleAdapter, IASTNodeAdapter offsetAdapter, String newLineDelim) {
-		this.moduleAdapter = moduleAdapter;
-		this.offsetAdapter = offsetAdapter;
-		this.nodeHelper = new NodeHelper(newLineDelim);
-        this.newLineDelim = newLineDelim;
-	}
-
 	public AbstractTextEdit(IRefactoringRequest req) {
-		this(req.getOffsetNode().getModule(), req.getOffsetNode(), req.getNewLineDelim());
+		String newLineDelim = req.getNewLineDelim();
+		this.moduleAdapter = req.getOffsetNode().getModule();
+		this.offsetAdapter = req.getOffsetNode();
+		this.nodeHelper = new NodeHelper(newLineDelim);
+		this.newLineDelim = newLineDelim;
 	}
 
 	protected abstract SimpleNode getEditNode();

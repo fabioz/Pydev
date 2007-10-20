@@ -1,13 +1,21 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ui.pages;
 
-import static org.python.pydev.refactoring.ui.UITexts.generatePropertiesSelect;
-import static org.python.pydev.refactoring.ui.UITexts.offsetStrategyInsertionPointMethod;
-import static org.python.pydev.refactoring.ui.UITexts.offsetStrategyInsertionPointProperty;
-import static org.python.pydev.refactoring.ui.UITexts.wizardAccessModifier;
-import static org.python.pydev.refactoring.ui.UITexts.wizardAccessPseudo;
-import static org.python.pydev.refactoring.ui.UITexts.wizardAccessPublic;
-import static org.python.pydev.refactoring.ui.UITexts.wizardDeselectAll;
-import static org.python.pydev.refactoring.ui.UITexts.wizardSelectAll;
+import static org.python.pydev.refactoring.messages.Messages.generatePropertiesSelect;
+import static org.python.pydev.refactoring.messages.Messages.offsetStrategyInsertionPointMethod;
+import static org.python.pydev.refactoring.messages.Messages.offsetStrategyInsertionPointProperty;
+import static org.python.pydev.refactoring.messages.Messages.wizardAccessModifier;
+import static org.python.pydev.refactoring.messages.Messages.wizardAccessPseudo;
+import static org.python.pydev.refactoring.messages.Messages.wizardAccessPublic;
+import static org.python.pydev.refactoring.messages.Messages.wizardDeselectAll;
+import static org.python.pydev.refactoring.messages.Messages.wizardSelectAll;
 
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.ComboViewer;

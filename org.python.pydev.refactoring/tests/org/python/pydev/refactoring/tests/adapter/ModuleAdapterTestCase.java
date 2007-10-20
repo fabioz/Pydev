@@ -1,9 +1,13 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+ */
+
 package org.python.pydev.refactoring.tests.adapter;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.refactoring.ast.FQIdentifier;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
-import org.python.pydev.refactoring.core.FQIdentifier;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
 import com.thoughtworks.xstream.XStream;
@@ -27,6 +31,7 @@ public class ModuleAdapterTestCase extends AbstractIOTestCase {
 			config = (ModuleAdapterTestConfig) xstream.fromXML(getConfig());
 		} else {
 			fail("Could not unserialize configuration");
+			return; /* explicit return, fail should already abort */
 		}
 
 		for (String identifier : config.resolveNames) {

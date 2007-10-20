@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ast.adapters;
 
 import java.util.List;
@@ -22,7 +30,7 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNo
 	protected AbstractScopeNode() {
         
     }
-	public AbstractScopeNode(ModuleAdapter module, AbstractScopeNode<?> parent, T node, String endLineDelim) {
+	public AbstractScopeNode(ModuleAdapter module, AbstractScopeNode<? extends SimpleNode> parent, T node, String endLineDelim) {
 		super(module, parent, node, endLineDelim);
 	}
 

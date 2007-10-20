@@ -5,7 +5,7 @@ package org.python.pydev.editor.actions;
 
 
 import org.eclipse.jface.action.IStatusLineManager;
-import org.eclipse.jface.text.Assert;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.ITextListener;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.ITextViewerExtension;

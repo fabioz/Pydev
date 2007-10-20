@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.coderefactoring.extractmethod;
 
 import java.util.ArrayList;
@@ -15,9 +23,8 @@ import org.python.pydev.refactoring.ast.visitors.selection.SelectionException;
 import org.python.pydev.refactoring.core.AbstractPythonRefactoring;
 import org.python.pydev.refactoring.core.RefactoringInfo;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;
-import org.python.pydev.refactoring.ui.UITexts;
-import org.python.pydev.refactoring.ui.pages.ExtractMethodPage;
-import org.python.pydev.refactoring.ui.pages.ExtractMethodPreviewPage;
+import org.python.pydev.refactoring.messages.Messages;
+import org.python.pydev.refactoring.ui.pages.extractmethod.ExtractMethodPage;
 
 public class ExtractMethodRefactoring extends AbstractPythonRefactoring {
 
@@ -31,8 +38,8 @@ public class ExtractMethodRefactoring extends AbstractPythonRefactoring {
 
 	private ModuleAdapter module;
 
-	public ExtractMethodRefactoring(String name, RefactoringInfo req) {
-		super(name, req);
+	public ExtractMethodRefactoring(RefactoringInfo req) {
+		super(req);
 		this.parsedExtendedSelection = null;
 		this.parsedUserSelection = req.getParsedUserSelection();
 		this.parsedExtendedSelection = req.getParsedExtendedSelection();
@@ -41,32 +48,29 @@ public class ExtractMethodRefactoring extends AbstractPythonRefactoring {
 		validateSelections();
 
 		try {
-			initWizard(name);
+			initWizard();
 		} catch (Throwable e) {
-			status.addInfo(UITexts.infoFixCode);
+			status.addInfo(Messages.infoFixCode);
 		}
 	}
 
-	private void initWizard(String name) throws Throwable {
-		ITextSelection standardSelection = req.getUserSelection();
+	private void initWizard() throws Throwable {
+		ITextSelection standardSelection = info.getUserSelection();
 		ModuleAdapter standardModule = this.parsedUserSelection;
 		if (standardModule == null) {
-			standardSelection = req.getExtendedSelection();
+			standardSelection = info.getExtendedSelection();
 			standardModule = this.parsedExtendedSelection;
 		}
 
-		this.requestProcessor = new ExtractMethodRequestProcessor(req.getScopeAdapter(), standardModule, this.getModule(), standardSelection);
+		this.requestProcessor = new ExtractMethodRequestProcessor(info.getScopeAdapter(), standardModule, this.getModule(), standardSelection);
 
-		if (req.isSelectionExtensionRequired() && this.parsedExtendedSelection != null && this.parsedUserSelection != null) {
-			this.pages.add(new ExtractMethodPreviewPage(name, this.req, this.requestProcessor));
-		}
-		this.pages.add(new ExtractMethodPage(name, this.requestProcessor));
+		this.pages.add(new ExtractMethodPage(getName(), this.requestProcessor));
 	}
 
 	@Override
 	protected List<IChangeProcessor> getChangeProcessors() {
 		List<IChangeProcessor> processors = new ArrayList<IChangeProcessor>();
-		this.changeProcessor = new ExtractMethodChangeProcessor(this.name, this.req, this.requestProcessor);
+		this.changeProcessor = new ExtractMethodChangeProcessor(getName(), this.info, this.requestProcessor);
 		processors.add(changeProcessor);
 		return processors;
 	}
@@ -75,14 +79,14 @@ public class ExtractMethodRefactoring extends AbstractPythonRefactoring {
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
 
 		if (this.requestProcessor.getScopeAdapter() == null || this.requestProcessor.getScopeAdapter() instanceof IClassDefAdapter) {
-			status.addFatalError(UITexts.extractMethodScopeInvalid);
+			status.addFatalError(Messages.extractMethodScopeInvalid);
 			return status;
 		}
 		if (status.getEntries().length > 0)
 			return status;
 
 		if (parsedExtendedSelection == null && parsedUserSelection == null) {
-			status.addFatalError(UITexts.extractMethodIncompleteSelection);
+			status.addFatalError(Messages.extractMethodIncompleteSelection);
 			return status;
 		}
 		return status;
@@ -119,5 +123,10 @@ public class ExtractMethodRefactoring extends AbstractPythonRefactoring {
 
 	public ModuleAdapter getModule() {
 		return module;
+	}
+
+	@Override
+	public String getName() {
+		return Messages.extractMethodLabel;
 	}
 }

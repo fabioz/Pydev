@@ -1,13 +1,19 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.codegenerator.overridemethods;
 
-import org.eclipse.text.edits.TextEdit;
-import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.refactoring.codegenerator.overridemethods.edit.MethodEdit;
 import org.python.pydev.refactoring.codegenerator.overridemethods.request.OverrideMethodsRequest;
 import org.python.pydev.refactoring.core.RefactoringInfo;
 import org.python.pydev.refactoring.core.change.AbstractFileChangeProcessor;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
-import org.python.pydev.refactoring.ui.UITexts;
+import org.python.pydev.refactoring.messages.Messages;
 
 public class OverrideMethodsChangeProcessor extends AbstractFileChangeProcessor<OverrideMethodsRequest> {
 
@@ -18,18 +24,8 @@ public class OverrideMethodsChangeProcessor extends AbstractFileChangeProcessor<
 	@Override
 	protected void processEdit() {
 		for (OverrideMethodsRequest req : requestProcessor.getRefactoringRequests()) {
-
-			TextEditGroup methods = new TextEditGroup(UITexts.overrideMethodsMethods);
 			MethodEdit methodEdit = new MethodEdit(req);
-
-			TextEdit edit = methodEdit.getEdit();
-			addEdit(edit);
-
-			methods.addTextEdit(edit);
-
-			addGroup(methods);
+			registerEdit(methodEdit, Messages.overrideMethodsMethods);
 		}
-
 	}
-
 }

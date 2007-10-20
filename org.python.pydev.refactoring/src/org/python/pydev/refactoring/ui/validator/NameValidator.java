@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ui.validator;
 
 import java.util.Arrays;
@@ -13,7 +21,7 @@ public class NameValidator {
 			"finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "not", "or", "pass", "print", "raise", "return",
 			"try", "while", "yield" };
 
-	private final String nameRegExp = "[a-zA-Z_][a-zA-z0-9]*";
+	private final String nameRegExp = "[a-zA-Z_][a-zA-Z_0-9]*";
 
 	private AbstractScopeNode<?> scopeNode;
 
@@ -30,9 +38,9 @@ public class NameValidator {
 		}
 	}
 
-	public void validateLocalName(String name) throws Throwable {
+	public void validateVariableName(String name) throws Throwable {
 		if (!name.matches(nameRegExp)) {
-			throw new Exception("'" + name + "' is not a valid argument name");
+			throw new Exception("'" + name + "' is not a valid variable name");
 		}
 		validateNotKeyword(name);
 	}

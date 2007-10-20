@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.codegenerator.constructorfield;
 
 import java.util.ArrayList;
@@ -6,7 +14,6 @@ import java.util.List;
 
 import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
-import org.python.pydev.refactoring.ast.adapters.SimpleAdapter;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.codegenerator.constructorfield.request.ConstructorFieldRequest;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
@@ -58,7 +65,7 @@ public class ConstructorFieldRequestProcessor implements IRequestProcessor<Const
 		List<INodeAdapter> fields = new ArrayList<INodeAdapter>();
 		ITreeNode field = iter.next();
 		while (field instanceof TreeNodeField) {
-			fields.add((SimpleAdapter) field.getAdapter());
+			fields.add(field.getAdapter());
 			if (iter.hasNext())
 				field = iter.next();
 			else

@@ -1,3 +1,11 @@
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
 package org.python.pydev.refactoring.ui.validator;
 
 import org.eclipse.swt.widgets.Table;
@@ -26,11 +34,11 @@ public class VariableCellValidator {
 	private boolean hasUniqueArguments() {
 		TableItem[] items = table.getItems();
 
-		for (int outer = 0; outer < items.length; outer++) {
-			for (int inner = 0; inner < items.length; inner++) {
+		for (TableItem outer : items) {
+			for (TableItem inner : items) {
 				if (outer != inner) {
-					if (items[outer].getText().equals(items[inner].getText())) {
-						page.setErrorMessage("Variable name " + items[outer].getText() + " was already used");
+					if (outer.getText().equals(inner.getText())) {
+						page.setErrorMessage("Variable name " + outer.getText() + " was already used");
 						return false;
 					}
 				}
@@ -47,7 +55,7 @@ public class VariableCellValidator {
 				SimpleTableItem variableItem = (SimpleTableItem) item;
 				if (variableItem.hasNewName()) {
 					try {
-						validator.validateLocalName(item.getText());
+						validator.validateVariableName(item.getText());
 						validator.validateUniqueVariable(item.getText());
 					} catch (Throwable e) {
 						page.setErrorMessage(e.getMessage());

@@ -1,10 +1,18 @@
-package org.python.pydev.refactoring.ui;
+/* 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
+ *
+ * IFS Institute for Software, HSR Rapperswil, Switzerland
+ * 
+ */
+
+package org.python.pydev.refactoring.messages;
 
 import org.eclipse.osgi.util.NLS;
 
-public class UITexts {
+public class Messages {
 
-	private static final String BUNDLE_NAME = "org.python.pydev.refactoring.ui.uitexts";
+	private static final String BUNDLE_NAME = "org.python.pydev.refactoring.messages.messages";
 
 	public static String errorTitle;
 
@@ -86,6 +94,14 @@ public class UITexts {
 
 	public static String extractMethodScopeInvalid;
 
+	public static String extractLocalNoExpressionSelected;
+
+	public static String extractLocalCreateLocalVariable;
+
+	public static String extractLocalReplaceWithVariable;
+
+	public static String extractLocalVariableTitle;
+
 	public static String imagePath;
 
 	public static String imgClass;
@@ -105,8 +121,18 @@ public class UITexts {
 	public static String extractMethodDownButton;
 
 	public static String extractMethodSelectionPreviewLabel;
+	
+	public static String extractLocalLabel;
+	
+	public static String extractMethodLabel;
+	
+	public static String overrideMethodsLabel;
+	
+	public static String constructorFieldLabel;
+	
+	public static String generatePropertiesLabel;
 
 	static {
-		NLS.initializeMessages(BUNDLE_NAME, UITexts.class);
+		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}
 }
