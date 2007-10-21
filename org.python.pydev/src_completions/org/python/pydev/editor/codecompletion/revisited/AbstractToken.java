@@ -125,10 +125,6 @@ public abstract class AbstractToken implements IToken{
             return false;
         }
         
-        if(c.getDocStr().equals(getDocStr()) == false){
-            return false;
-        }
-
         if(c.getParentPackage().equals(getParentPackage()) == false){
             return false;
         }

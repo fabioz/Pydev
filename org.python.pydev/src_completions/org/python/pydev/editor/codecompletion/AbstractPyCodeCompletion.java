@@ -70,7 +70,6 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
                     continue; 
                 }
                 
-                String docStr = element.getDocStr();
                 int type = element.getType();
                 
                 int priority = IPyCompletionProposal.PRIORITY_DEFAULT;
@@ -93,8 +92,8 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
                     pyContextInformation = new PyCalltipsContextInformation(contextArgs, contextArgs, request);
                 }
                 PyCompletionProposal proposal = new PyLinkedModeCompletionProposal(name+args,
-                        request.documentOffset - request.qlen, request.qlen, l, element.getImage(), null, 
-                        pyContextInformation, docStr, priority, onApplyAction, args);
+                        request.documentOffset - request.qlen, request.qlen, l, element, null, 
+                        pyContextInformation, priority, onApplyAction, args);
                 
 
                 convertedProposals.add(proposal);

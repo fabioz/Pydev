@@ -21,6 +21,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -37,10 +38,57 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
      * are removed)
      */
     private int nPositionsAdded = 0;
+
+    /**
+     * This is the token from where we should get the image and additional info.
+     */
+    private IToken element;
     
+    /**
+     * Constructor where the image and the docstring are lazily computed (initially added for the java integration).
+     */
+    public PyLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, 
+            IToken element, String displayString, IContextInformation contextInformation,  
+            int priority, int onApplyAction, String args) {
+        
+        super(replacementString, replacementOffset, replacementLength, cursorPosition, null, displayString, contextInformation, 
+              "", priority, onApplyAction, args);
+        
+        this.element = element;
+    }
+    
+    /**
+     * Constructor where all the info is passed.
+     */
     public PyLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction, String args) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority, onApplyAction, args);
     }
+    
+    
+    
+    
+    
+    //methods overriden to be lazily gotten ----------------------------------------------------------------------------
+    @Override
+    public Image getImage() {
+        if(element != null){
+            return element.getImage();
+        }else{
+            return super.getImage();
+        }
+    }
+    
+    @Override
+    public String getAdditionalProposalInfo() {
+        if(element != null){
+            return element.getDocStr();
+        }else{
+            return super.getAdditionalProposalInfo();
+        }
+    }
+    //end methods overriden to be lazily gotten ------------------------------------------------------------------------
+    
+    
     
     /*
      * @see ICompletionProposal#getSelection(IDocument)
