@@ -1,24 +1,14 @@
 - hierarchy view: show with f4 / close / open view / f4 (will not work)
 - DEBUGGER BUG: if a class is defined within a method, things later in that method are not able to get the correct name for the breakpoint scope (cannot reproduce?)
 - Debugger: enable users to configure the mappings for remote debugging in a 'nice' way.
-- See why Ctrl+1 is bringing more than 1 completion for the same token on some cases.
 - The filter for the name of tests to ignore when running pyunit should be asked at run-time (with user-option to not show it).
 - When opening a python file, it should try to 'adapt' to the current indent style used (and give warnings about wrong stuff).
 - Ctrl+2+ XXX should be case-independent.
 - Ctrl+* should enable/disable mark occurrences
 - Variable highlight doesn't respect local scope (all docstrings are gotten in the file when renaming a local variable)
 - Adding 'Log' to the undefined vars (such as _) will still yield errors when Log.write is accessed
-- Lazily get the additionalProposalInfo and image (from JavaClassModule) when requested in the completion.
 
 - Enable users to work with zip files and integrate better with java (jars and ast structure).
-	- Missing: jython support: 
-		- Should be added to: JavaClassModule
-		- ClassFile
-		- JavaCore.createJarPackageFragmentRootFrom(file) would do what I want
-		- IEditorInput: ExternalClassFileEditorInput
-		- PydevPlugin.getWorkspaceFiles
-		- Message about it: http://www.eclipse.org/newsportal/article.php?id=68521&group=eclipse.platform#68521		
-
 	- Simple support (code-completion / modules): OK
 	- Go to definition: OK
 	- Context insensitive import
@@ -27,7 +17,6 @@
 	- .pyd inside zip file (handled but not tested): 
 		- ModulesManager: else if(PythonPathHelper.isValidDll(emptyModuleForZip.pathInZip)){
 		
-- Handle symlinks (at least in the system config).
 - Change the stdout/stderr for unicode
 - Accept different file extensions (debugger and others)
 
@@ -132,20 +121,3 @@ Caused by: java.util.ConcurrentModificationException
         at java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:302)
         at org.python.pydev.core.REF.writeToStreamAndCloseIt(REF.java:306)
         ... 14 more
-Module passed in is null!!
-Module passed in is null!!
-Module passed in is null!!
-Module passed in is null!!
-Module passed in is null!!
-Module passed in is null!!
-Module passed in is null!!
-Module passed in is null!!
-Module passed in is null!!
-Module passed in is null!!
-Module passed in is null!!
-Module passed in is null!!
-Module passed in is null!!
-Module passed in is null!!
-Module passed in is null!!
-Module passed in is null!!
-Module passed in is null!!
