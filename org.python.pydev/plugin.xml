@@ -209,6 +209,12 @@
             id="org.python.pydev.editor.commentblocks.CommentBlocksPreferences"/>
 
       <page
+      		name="File types"
+            category="org.python.pydev.plugin.pyCodeStylePreferencesPage"
+            class="org.python.pydev.ui.filetypes.FileTypesPreferencesPage"
+            id="org.python.pydev.ui.filetypes.FileTypesPreferencesPage"/>
+
+      <page
             name="Code Completion"
             class="org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage"
             category="org.python.pydev.prefs"

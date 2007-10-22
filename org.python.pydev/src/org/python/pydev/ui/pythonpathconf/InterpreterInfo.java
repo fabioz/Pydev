@@ -30,10 +30,10 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.utils.PyFileListing;
 
 
@@ -391,7 +391,7 @@ public class InterpreterInfo implements IInterpreterInfo{
             
 	        public boolean accept(File pathname) {
 	            if(pathname.isFile()){
-	                return PythonPathHelper.isValidDll(REF.getFileAbsolutePath(pathname));
+	                return FileTypesPreferencesPage.isValidDll(REF.getFileAbsolutePath(pathname));
 	            }else{
 	                return false;
 	            }

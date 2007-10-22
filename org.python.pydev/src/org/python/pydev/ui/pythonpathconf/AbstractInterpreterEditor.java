@@ -42,10 +42,10 @@ import org.eclipse.swt.widgets.Widget;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.PythonListEditor;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.ui.UIConstants;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * Field editor for a list of python interpreter with executable verifier.
@@ -397,9 +397,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                             FileDialog dialog = new FileDialog(getShell(), SWT.PRIMARY_MODAL|SWT.MULTI);
                             
                             if(AbstractInterpreterEditor.this.interpreterManager.isJython()){
-                                dialog.setFilterExtensions(PythonPathHelper.WILDCARD_JYTHON_VALID_ZIP_FILES);
+                                dialog.setFilterExtensions(FileTypesPreferencesPage.getWildcardJythonValidZipFiles());
                             }else{
-                                dialog.setFilterExtensions(PythonPathHelper.WILDCARD_PYTHON_VALID_ZIP_FILES);
+                                dialog.setFilterExtensions(FileTypesPreferencesPage.getWildcardPythonValidZipFiles());
                             }
                             
                             dialog.setFilterPath(lastFileDialogPath);

@@ -40,6 +40,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZip;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * This class manages the modules that are available
@@ -467,7 +468,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                             //handle java class... (if it's a class or a folder in a jar)
                             n = JythonModulesManagerUtils.createModuleFromJar(emptyModuleForZip);
                             
-                        }else if(PythonPathHelper.isValidDll(emptyModuleForZip.pathInZip)){
+                        }else if(FileTypesPreferencesPage.isValidDll(emptyModuleForZip.pathInZip)){
                             //.pyd
                             n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
                             

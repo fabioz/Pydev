@@ -71,6 +71,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.pyunit.ITestRunListener;
 import org.python.pydev.pyunit.PyUnitTestRunner;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 
@@ -513,7 +514,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
                 Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
                 FileDialog dialog = new FileDialog(shell);
                 dialog.setText(path+" - select correspondent filesystem file.");
-                dialog.setFilterExtensions(new String[]{"*.py; *.pyw"});
+                dialog.setFilterExtensions(FileTypesPreferencesPage.getWildcardValidSourceFiles());
                 String string = dialog.open();
                 if(string != null){
                     l.add(string);

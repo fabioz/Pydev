@@ -7,7 +7,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 
 /**
@@ -54,7 +54,7 @@ public class PythonModuleWizard extends AbstractPythonWizard {
         if(validatedPackage == null){
             return null;
         }
-        String validatedName = filePage.getValidatedName()+PythonPathHelper.getDefaultDottedPythonExtension();
+        String validatedName = filePage.getValidatedName()+FileTypesPreferencesPage.getDefaultDottedPythonExtension();
         
         IFile file = validatedPackage.getFile(new Path(validatedName));
         if(!file.exists()){

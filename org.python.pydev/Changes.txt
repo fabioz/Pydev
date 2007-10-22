@@ -9,6 +9,7 @@ Pydev
 <li>The creation of a project in a non-default location was not allowed within the workspace</li>
 <li>Jython now uses JDT to get completions from jars</li>
 <li>When configuring the pythonpath, the paths are sorted for selection</li>
+<li>The files that pydev recognizes for python can now be customized</li>
 </ul>
 
 after 1.3.8

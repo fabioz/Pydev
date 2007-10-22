@@ -23,9 +23,9 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
@@ -126,7 +126,7 @@ public class JavaClassModuleTestWorkbench extends TestCase {
                 folder.create(true, true, monitor);
             }
             parent = folder;
-            IFile file = parent.getFile(new Path("__init__"+PythonPathHelper.getDefaultDottedPythonExtension()));
+            IFile file = parent.getFile(new Path("__init__"+FileTypesPreferencesPage.getDefaultDottedPythonExtension()));
             if(!file.exists()){
                 file.create(new ByteArrayInputStream(new byte[0]), true, monitor);
             }

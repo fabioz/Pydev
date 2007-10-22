@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
 import org.python.pydev.parser.PyParserManager;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
@@ -104,6 +105,13 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         node.put(DocstringsPrefPage.P_DOCSTRINGCHARACTER, DocstringsPrefPage.DEFAULT_P_DOCSTRINGCHARACTER);
         node.put(DocstringsPrefPage.P_TYPETAGGENERATION, DocstringsPrefPage.DEFAULT_P_TYPETAGGENERATION);
         node.put(DocstringsPrefPage.P_DONT_GENERATE_TYPETAGS, DocstringsPrefPage.DEFAULT_P_DONT_GENERATE_TYPETAGS);
+        
+        //file types
+        node.put(FileTypesPreferencesPage.VALID_SOURCE_FILES, FileTypesPreferencesPage.DEFAULT_VALID_SOURCE_FILES);
+        node.put(FileTypesPreferencesPage.FIRST_CHOICE_PYTHON_SOURCE_FILE, FileTypesPreferencesPage.DEFAULT_FIRST_CHOICE_PYTHON_SOURCE_FILE);
+        
+        
     }
+    
 
 }

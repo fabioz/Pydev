@@ -23,6 +23,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.utils.PyFileListing;
 
 /**
@@ -93,18 +94,13 @@ public class PythonPathHelper implements Serializable {
     private static ModulesFoundStructure.ZipContents getFromJar(File root, IProgressMonitor monitor) {
 
         String fileName = root.getName();
-        if (root.isFile() && isValidZipFile(fileName)) { //ok, it may be a jar file, so let's get its contents and get the available modules
+        if (root.isFile() && FileTypesPreferencesPage.isValidZipFile(fileName)) { //ok, it may be a jar file, so let's get its contents and get the available modules
 
             //the major difference from handling jars from regular python files is that we don't have to check for __init__.py files
-            boolean isValidJarFile = isValidJarFile(fileName);
-
             ModulesFoundStructure.ZipContents zipContents = new ModulesFoundStructure.ZipContents(root);
             
-            if(isValidJarFile){
-                zipContents.zipContentsType = ZipContents.ZIP_CONTENTS_TYPE_JAR;
-            }else{
-                zipContents.zipContentsType = ZipContents.ZIP_CONTENTS_TYPE_PY_ZIP;
-            }
+            //by default it's a zip (for python) -- may change if a .class is found.
+            zipContents.zipContentsType = ZipContents.ZIP_CONTENTS_TYPE_PY_ZIP;
             
             try {
                 String zipFileName = root.getName();
@@ -121,6 +117,11 @@ public class PythonPathHelper implements Serializable {
                         String name = entry.getName();
                         if (!entry.isDirectory()) {
                             if(isValidFileMod(name) || name.endsWith(".class")){
+                                
+                                if(name.endsWith(".class")){
+                                    zipContents.zipContentsType = ZipContents.ZIP_CONTENTS_TYPE_JAR;
+                                }
+                                
                                 //it is a valid python file
                                 if(i % 15 == 0){
                                     if(monitor.isCanceled()){
@@ -159,59 +160,13 @@ public class PythonPathHelper implements Serializable {
         return null;
     }
 
-    /**
-     * @return true if the given filename should be considered a jar file.
-     */
-    private static boolean isValidJarFile(String fileName) {
-        return fileName.endsWith(".jar");
-    }
-
-    /**
-     * @return true if the given filename should be considered a zip file.
-     */
-    public static boolean isValidZipFile(String fileName) {
-        return fileName.endsWith(".jar") || fileName.endsWith(".zip") || fileName.endsWith(".egg");
-    }
-
-    /**
-     * @param path the path we want to analyze
-     * @return if the path passed belongs to a valid python compiled extension
-     */
-    public static boolean isValidDll(String path) {
-        if (path.endsWith(".pyd") || path.endsWith(".so") || path.endsWith(".dll")) {
-            return true;
-        }
-        return false;
-    }
-
-    public final static String[] WILDCARD_JYTHON_VALID_ZIP_FILES = new String[] { "*.jar", "*.zip" };
-    
-    public final static String[] WILDCARD_PYTHON_VALID_ZIP_FILES = new String[] { "*.egg", "*.zip" };
-    
-    public final static String[] WILDCARD_VALID_SOURCE_FILES = new String[] { "*.py", "*.pyw" };
-
-    public final static String[] DOTTED_VALID_SOURCE_FILES = new String[] { ".py", ".pyw" };
-
-    public final static String[] VALID_SOURCE_FILES = new String[] { "py", "pyw" };
-
-    public final static String[] getDottedValidSourceFiles() {
-        return DOTTED_VALID_SOURCE_FILES;
-    }
-
-    public final static String[] getValidSourceFiles() {
-        return VALID_SOURCE_FILES;
-    }
-
-    public final static String getDefaultDottedPythonExtension() {
-        return ".py";
-    }
 
     /**
      * @return if the path passed belongs to a valid python source file (checks for the extension)
      */
     public static boolean isValidSourceFile(String path) {
         path = path.toLowerCase();
-        for (String end : getDottedValidSourceFiles()) {
+        for (String end : FileTypesPreferencesPage.getDottedValidSourceFiles()) {
             if (path.endsWith(end)) {
                 return true;
             }
@@ -228,7 +183,7 @@ public class PythonPathHelper implements Serializable {
             return false;
         }
         ext = ext.toLowerCase();
-        for (String end : getValidSourceFiles()) {
+        for (String end : FileTypesPreferencesPage.getValidSourceFiles()) {
             if (ext.equals(end)) {
                 return true;
             }
@@ -245,7 +200,7 @@ public class PythonPathHelper implements Serializable {
         if (isValidSourceFile(path)) {
             ret = true;
 
-        } else if (isValidDll(path)) {
+        } else if (FileTypesPreferencesPage.isValidDll(path)) {
             ret = true;
         }
 
@@ -267,7 +222,7 @@ public class PythonPathHelper implements Serializable {
         fullPath = getDefaultPathStr(fullPath);
         String fullPathWithoutExtension;
 
-        if (isValidSourceFile(fullPath) || isValidDll(fullPath)) {
+        if (isValidSourceFile(fullPath) || FileTypesPreferencesPage.isValidDll(fullPath)) {
             fullPathWithoutExtension = FullRepIterable.headAndTail(fullPath)[0];
         } else {
             fullPathWithoutExtension = fullPath;
