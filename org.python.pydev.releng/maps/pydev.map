@@ -6,4 +6,5 @@ plugin@org.python.pydev.help=HEAD,:pserver:fabioz@10.0.0.1:/home/users/fabioz/cv
 plugin@org.python.pydev=HEAD,:extssh:fabioz@cvs.sourceforge.net:/cvsroot/pydev,,
 plugin@org.python.pydev.debug=HEAD,:extssh:fabioz@cvs.sourceforge.net:/cvsroot/pydev,,
 plugin@org.python.pydev.templates=HEAD,:extssh:fabioz@cvs.sourceforge.net:/cvsroot/pydev,,
+plugin@org.python.pydev.refactoring=HEAD,:extssh:fabioz@cvs.sourceforge.net:/cvsroot/pydev,,
 feature@org.python.pydev.feature=HEAD,:extssh:fabioz@cvs.sourceforge.net:/cvsroot/pydev,,
