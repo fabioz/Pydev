@@ -20,9 +20,9 @@ import org.eclipse.search.ui.text.TextSearchQueryProvider;
 import org.eclipse.search.ui.text.TextSearchQueryProvider.TextSearchInput;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * Refactorer used to find the references given some refactoring request.
@@ -108,7 +108,7 @@ public class RefactorerFindReferences {
             
             TextSearchInput textSearchInput = new PyTextSearchInput(request.initialName, 
                     true, false, FileTextSearchScope.newSearchScope(resourcesToSearch.toArray(new IProject[0]),
-                            PythonPathHelper.WILDCARD_VALID_SOURCE_FILES, true));
+                            FileTypesPreferencesPage.getWildcardValidSourceFiles(), true));
             
             final ISearchQuery query = searchQueryProvider.createQuery(textSearchInput);
             IStatus status = query.run(request.getMonitor());

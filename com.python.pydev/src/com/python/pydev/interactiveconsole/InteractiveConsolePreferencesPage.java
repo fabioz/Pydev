@@ -6,14 +6,10 @@ package com.python.pydev.interactiveconsole;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.StringFieldEditor;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.utils.LabelFieldEditor;
+import org.python.pydev.utils.LabelFieldEditorWith2Cols;
 import org.python.pydev.utils.MultiStringFieldEditor;
 
 import com.python.pydev.PydevPlugin;
@@ -42,42 +38,10 @@ public class InteractiveConsolePreferencesPage extends FieldEditorPreferencePage
     public void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
-        addField(new LabelFieldEditor("Interactive_console_note","The console is automatically activated with Ctrl+Alt+Enter in any Pydev Editor.\n\n", p){
-
-            private Label label;
-
-            /**
-             * Returns this field editor's label component.
-             * <p>
-             * The label is created if it does not already exist
-             * </p>
-             *
-             * @param parent the parent
-             * @return the label control
-             */
-            public Label getLabelControl2(Composite parent) {
-                if (label == null) {
-                    label = new Label(parent, SWT.LEFT);
-                    label.setFont(parent.getFont());
-                    String text = getLabelText();
-                    if (text != null)
-                        label.setText("Note:\n\n");
-                    label.addDisposeListener(new DisposeListener() {
-                        public void widgetDisposed(DisposeEvent event) {
-                            label = null;
-                        }
-                    });
-                } else {
-                    checkParent(label, parent);
-                }
-                return label;
-            }
-            public int getNumberOfControls() {
-                return 2;
-            }
-            protected void doFillIntoGrid(Composite parent, int numColumns) {
-                getLabelControl2(parent);
-                getLabelControl(parent);
+        addField(new LabelFieldEditorWith2Cols("Interactive_console_note","The console is automatically activated with Ctrl+Alt+Enter in any Pydev Editor.\n\n", p){
+            @Override
+            public String getLabelTextCol1() {
+                return "Note:\n\n";
             }
 
         });

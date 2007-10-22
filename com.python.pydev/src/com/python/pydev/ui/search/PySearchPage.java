@@ -58,8 +58,8 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 public class PySearchPage extends DialogPage implements ISearchPage, IReplacePage{
 
@@ -366,7 +366,7 @@ public class PySearchPage extends DialogPage implements ISearchPage, IReplacePag
 		
 	private String[] getExtensions() {
 		ArrayList<String> exts = new ArrayList<String>();
-		String[] dottedValidSourceFiles = PythonPathHelper.getDottedValidSourceFiles();
+		String[] dottedValidSourceFiles = FileTypesPreferencesPage.getDottedValidSourceFiles();
 		for (String sourceFile : dottedValidSourceFiles) {
 			exts.add('*'+sourceFile);
 		}
