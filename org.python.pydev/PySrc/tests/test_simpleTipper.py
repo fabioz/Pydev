@@ -43,7 +43,7 @@ class Test(unittest.TestCase):
             if not 'Unable to import module' in str(e):
                 raise
         
-    def testImports2(self):
+    def testImports2a(self):
         tips = importsTipper.GenerateTip('__builtin__.RuntimeError')
         self.assertIn('__doc__', tips)
         
