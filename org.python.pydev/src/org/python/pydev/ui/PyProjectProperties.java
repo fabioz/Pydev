@@ -71,7 +71,7 @@ public class PyProjectProperties extends PropertyPage {
                 String externalSourcePath = PythonNature.getPythonPathNature(project).getProjectExternalSourcePath();
 
                 Label l2 = new Label(topComp, SWT.None);
-		    	l2.setText("Project Source Folders and jars.");
+		    	l2.setText("Project Source Folders (and zips/jars/eggs).");
 		    	gd = new GridData();
 		    	gd.grabExcessHorizontalSpace = true;
 		    	gd.grabExcessVerticalSpace = false;
@@ -88,7 +88,7 @@ public class PyProjectProperties extends PropertyPage {
                 
                 
 		    	l2 = new Label(topComp, SWT.None);
-		    	l2.setText("External Source Folders (and jars if jython).");
+		    	l2.setText("External Source Folders (and zips/jars/eggs).");
 		    	gd = new GridData();
 		    	gd.grabExcessHorizontalSpace = true;
 		    	gd.grabExcessVerticalSpace = false;
@@ -104,7 +104,7 @@ public class PyProjectProperties extends PropertyPage {
                     }
                     
                     @Override
-                    protected Object getSelectionDialogAddJar() {
+                    protected Object getSelectionDialogAddZip() {
                         return new FileDialog(getShell());
                     }
                 };

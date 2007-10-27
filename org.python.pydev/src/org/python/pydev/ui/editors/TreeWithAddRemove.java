@@ -25,6 +25,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.dialogs.ProjectFolderSelectionDialog;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * @author Fabio Zadrozny
@@ -73,13 +74,13 @@ public class TreeWithAddRemove extends Composite{
         data.grabExcessHorizontalSpace = true;
         buttonAddSourceFolder.setLayoutData(data);
 
-        Button buttonAddJar = new Button(buttonsSourceFolders, SWT.PUSH);
-        customizeAddSourceFolderButton(buttonAddJar, false);
-        buttonAddJar.setText("Add jar");
+        Button buttonAddZip = new Button(buttonsSourceFolders, SWT.PUSH);
+        customizeAddSourceFolderButton(buttonAddZip, false);
+        buttonAddZip.setText("Add zip/jar/egg");
         data = new GridData ();
         data.horizontalAlignment = GridData.FILL;
         data.grabExcessHorizontalSpace = true;
-        buttonAddJar.setLayoutData(data);
+        buttonAddZip.setLayoutData(data);
         
 		Button buttonRemSourceFolder = new Button(buttonsSourceFolders, SWT.PUSH);
 		customizeRemSourceFolderButton(buttonRemSourceFolder);
@@ -136,7 +137,7 @@ public class TreeWithAddRemove extends Composite{
                 if(chooseSourceFolder){
                     d = getSelectionDialogAddSourceFolder();
                 }else{
-                    d = getSelectionDialogAddJar();
+                    d = getSelectionDialogAddZip();
                 }
                 
                 if(d instanceof FileDialog){
@@ -176,7 +177,7 @@ public class TreeWithAddRemove extends Composite{
                                 IFile p = (IFile) object;
                                 String pathAsString = getPathAsString(p.getProjectRelativePath());
                                 pathAsString = "/"+p.getProject().getName()+pathAsString;
-                                if(pathAsString.endsWith(".jar") || pathAsString.endsWith(".zip")){
+                                if (FileTypesPreferencesPage.isValidZipFile(pathAsString)){
                                     addTreeItem(pathAsString);
                                 }
                             }
@@ -224,8 +225,8 @@ public class TreeWithAddRemove extends Composite{
     /**
      * @return
      */
-    protected Object getSelectionDialogAddJar() {
-        return new ResourceSelectionDialog(getShell(), project, "Choose jars to add to PYTHONPATH");
+    protected Object getSelectionDialogAddZip() {
+        return new ResourceSelectionDialog(getShell(), project, "Choose zip/jar/egg to add to PYTHONPATH");
     }
 
     /**

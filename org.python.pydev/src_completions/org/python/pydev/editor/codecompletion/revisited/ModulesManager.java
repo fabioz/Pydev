@@ -244,25 +244,16 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                 //we don't load them at this time.
                 ModulesKey modulesKey = new ModulesKey(m, f);
 
-                //ok, now, let's resolve any conflicts that we might find...
-                boolean add = false;
-
                 //no conflict (easy)
                 if (!keys.containsKey(modulesKey)) {
-                    add = true;
+                    keys.put(modulesKey, modulesKey);
                 } else {
                     //we have a conflict, so, let's resolve which one to keep (the old one or this one)
                     if (PythonPathHelper.isValidSourceFile(f.getName())) {
                         //source files have priority over other modules (dlls) -- if both are source, there is no real way to resolve
                         //this priority, so, let's just add it over.
-                        add = true;
+                        keys.put(modulesKey, modulesKey);
                     }
-                }
-
-                if (add) {
-                    //the previous must be removed (if there was any)
-                    keys.remove(modulesKey);
-                    keys.put(modulesKey, modulesKey);
                 }
             }
         }

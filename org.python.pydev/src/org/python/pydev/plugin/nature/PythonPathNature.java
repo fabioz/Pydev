@@ -25,6 +25,7 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * @author Fabio Zadrozny
@@ -133,10 +134,10 @@ public class PythonPathNature implements IPythonPathNature {
                     buf.append(REF.getFileAbsolutePath(container.getLocation().toFile()));
                     buf.append("|");
                 
-                }else if(r instanceof IFile){ //jar file
+                }else if(r instanceof IFile){ //zip/jar/egg file
                 	String extension = r.getFileExtension();
-                	if(extension == null || extension.equals("jar") == false){
-                		PydevPlugin.log("Error: the path "+strings[i]+" is a file but is not a .jar file.");
+                	if(extension == null || FileTypesPreferencesPage.isValidZipFile("."+extension) == false){
+                		PydevPlugin.log("Error: the path "+strings[i]+" is a file but is not a recognized zip file.");
                 		
                 	}else{
 	                	buf.append(REF.getFileAbsolutePath(r.getLocation().toFile()));
