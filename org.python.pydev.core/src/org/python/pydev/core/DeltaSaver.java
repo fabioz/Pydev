@@ -283,10 +283,11 @@ public class DeltaSaver<X> {
     /**
      * Passes the current deltas to the delta processor.
      */
-    public void processDeltas(IDeltaProcessor<X> deltaProcessor) {
+    public synchronized void processDeltas(IDeltaProcessor<X> deltaProcessor) {
         synchronized(this.commands){
+            ArrayList<DeltaCommand> commandsToProcess = new ArrayList<DeltaCommand>(this.commands);
 			boolean processed = false;
-	        for (DeltaCommand cmd : this.commands) {
+	        for (DeltaCommand cmd : commandsToProcess) {
 	            try {
 					cmd.processWith(deltaProcessor);
 					processed = false;
