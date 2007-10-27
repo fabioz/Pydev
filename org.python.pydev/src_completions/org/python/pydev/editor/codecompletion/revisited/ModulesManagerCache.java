@@ -19,7 +19,7 @@ final class ModulesManagerCache  {
      * The access to the cache is synchronized
      */
 	LRUCache<Tuple<ModulesKey, ModulesManager>, AbstractModule> internalCache;
-
+	
     ModulesManagerCache() {
         internalCache = new LRUCache<Tuple<ModulesKey, ModulesManager>, AbstractModule>(MAX_NUMBER_OF_MODULES);
 	}

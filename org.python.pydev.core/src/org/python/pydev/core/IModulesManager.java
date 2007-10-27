@@ -117,8 +117,8 @@ public interface IModulesManager {
     public abstract void removeModules(Collection<ModulesKey> toRem);
 
     /**
-     * 
-     * @param key
+     * Will add an Empty Module with the given key (will be made concrete only when its actual contents are requested).
+     * @return the module created for the given key.
      */
-    public abstract void addModule(ModulesKey key);
+    public abstract IModule addModule(ModulesKey key);
 }

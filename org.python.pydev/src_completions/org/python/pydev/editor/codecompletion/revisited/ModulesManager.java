@@ -326,8 +326,10 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         removeThem(toRem);
     }
 
-    public void addModule(final ModulesKey key) {
-        doAddSingleModule(key, new EmptyModule(key.name, key.file));
+    public IModule addModule(final ModulesKey key) {
+        AbstractModule ret = AbstractModule.createEmptyModule(key);
+        doAddSingleModule(key, ret);
+        return ret;
     }
 
     /**
@@ -427,8 +429,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
             SourceModule s = (SourceModule) n;
             if (!s.isSynched()) {
                 //change it for an empty and proceed as usual.
-                n = new EmptyModule(s.getName(), s.getFile());
-                doAddSingleModule(createModulesKey(s.getName(), s.getFile()), n);
+                n = (AbstractModule) addModule(createModulesKey(s.getName(), s.getFile()));
             }
         }
 

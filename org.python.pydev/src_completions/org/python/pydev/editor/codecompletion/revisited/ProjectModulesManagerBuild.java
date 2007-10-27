@@ -14,7 +14,6 @@ import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
-import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
 
 public abstract class ProjectModulesManagerBuild extends ModulesManager implements IProjectModulesManager{
     
@@ -77,8 +76,7 @@ public abstract class ProjectModulesManagerBuild extends ModulesManager implemen
         
         synchronized (modulesKeys) {
 
-            for (Iterator iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
-                ModulesKey key = (ModulesKey) iter.next();
+            for (ModulesKey key : modulesKeys.keySet()) {
                 if (key.file != null && REF.getFileAbsolutePath(key.file).startsWith(absolutePath)) {
                     toRem.add(key);
                 }
@@ -98,9 +96,7 @@ public abstract class ProjectModulesManagerBuild extends ModulesManager implemen
     public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, IPythonNature nature) {
         final String m = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(f));
         if (m != null) {
-            //behaviour changed, now, only set it as an empty module (it will be parsed on demand)
-            final ModulesKey key = new ModulesKey(m, f);
-            doAddSingleModule(key, new EmptyModule(key.name, key.file));
+            addModule(new ModulesKey(m, f));
 
             
         }else if (f != null){ //ok, remove the module that has a key with this file, as it can no longer be resolved

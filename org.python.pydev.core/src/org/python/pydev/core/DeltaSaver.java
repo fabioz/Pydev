@@ -48,6 +48,7 @@ public class DeltaSaver<X> {
             this.data = o;
         }
 
+        @SuppressWarnings("unchecked")
         public abstract void processWith(IDeltaProcessor deltaProcessor);
         
         public void readData(ICallback<Object, ObjectInputStream> readFromFileMethod, ObjectInputStream in) {
@@ -217,7 +218,9 @@ public class DeltaSaver<X> {
      * @param command the command found in the disk
      */
     private void addRestoredCommand(DeltaCommand command) {
-        this.commands.add(command);
+        synchronized(this.commands){
+            this.commands.add(command);
+        }
     }
     
     /**
@@ -253,14 +256,16 @@ public class DeltaSaver<X> {
      * Clears all deltas in the disk (and in memory... also restarts numbering the deltas)
      */
     public void clearAll() {
-        ArrayList<File> deltas = findDeltas();
-        for (File file : deltas) {
-        	if(file.exists()){
-        		file.delete();
-        	}
+        synchronized(this.commands){
+            ArrayList<File> deltas = findDeltas();
+            for (File file : deltas) {
+            	if(file.exists()){
+            		file.delete();
+            	}
+            }
+            this.commands.clear();
+            nCommands = 0;
         }
-        this.commands.clear();
-        nCommands = 0;
     }
 
     public void addInsertCommand(X o) {
@@ -279,7 +284,7 @@ public class DeltaSaver<X> {
      * Passes the current deltas to the delta processor.
      */
     public void processDeltas(IDeltaProcessor<X> deltaProcessor) {
-    	synchronized(this.commands){
+        synchronized(this.commands){
 			boolean processed = false;
 	        for (DeltaCommand cmd : this.commands) {
 	            try {

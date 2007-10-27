@@ -30,9 +30,9 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -106,7 +106,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
      * @see org.python.pydev.core.IProjectModulesManager#processInsert(org.python.pydev.core.ModulesKey)
      */
     public void processInsert(ModulesKey key) {
-        super.doAddSingleModule(key, new EmptyModule(key.name, key.file));
+        super.addModule(key);
     }
 
     /** 
@@ -131,7 +131,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     @Override
     public void doAddSingleModule(ModulesKey key, AbstractModule n) {
         super.doAddSingleModule(key, n);
-        if(deltaSaver != null || !IN_TESTS){ //we don't want deltas in tests
+        if(deltaSaver != null || !IN_TESTS && !(key instanceof ModulesKeyForZip)){ //we don't want deltas in tests nor in zips
             //overriden to add delta
             deltaSaver.addInsertCommand(key);
             checkDeltaSize();

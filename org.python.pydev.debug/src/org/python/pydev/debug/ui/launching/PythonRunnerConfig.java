@@ -233,7 +233,8 @@ public class PythonRunnerConfig {
 	/**
 	 * Sets defaults.
 	 */
-	public PythonRunnerConfig(ILaunchConfiguration conf, String mode, String run) throws CoreException {
+	@SuppressWarnings("unchecked")
+    public PythonRunnerConfig(ILaunchConfiguration conf, String mode, String run) throws CoreException {
 	    this.configuration = conf;
         this.run = run;
 		isDebug = mode.equals(ILaunchManager.DEBUG_MODE);
@@ -317,15 +318,15 @@ public class PythonRunnerConfig {
      * @param envMap
      * @return
      */
-    private boolean specifiedPythonpath(Map envMap) {
+    private boolean specifiedPythonpath(Map<String, String> envMap) {
         if(envMap == null){
             return false;
             
         }else{
     		boolean win32= Platform.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32);
 
-            for (Iterator iter = envMap.keySet().iterator(); iter.hasNext();) {
-                String s = (String) iter.next();
+            for (Iterator<String> iter = envMap.keySet().iterator(); iter.hasNext();) {
+                String s = iter.next();
 
                 if(win32){
                     if(s.toUpperCase().equals("PYTHONPATH")){
