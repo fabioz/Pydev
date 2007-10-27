@@ -150,6 +150,17 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     
+    public void testListComp2(){
+        doc = new Document(
+            "a = [1, 2]\n"+
+            "b = [1, 3]\n"+
+            "for found in [found for found in a if found not in b]:\n"+
+            "    print found\n"
+        );
+        checkNoError();
+        
+    }
+    
     public void testOsPath(){
         doc = new Document(
                 "from os.path import *#@UnusedWildImport\n"+

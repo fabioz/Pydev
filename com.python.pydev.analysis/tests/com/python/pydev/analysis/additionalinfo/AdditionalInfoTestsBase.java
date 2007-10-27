@@ -60,7 +60,7 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
 
         ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature);
         state.setTokenImportedModules(imports);
-        List props = new ArrayList(participant.getGlobalCompletions(request, state));
+        List<Object> props = new ArrayList<Object>(participant.getGlobalCompletions(request, state));
         ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValidSorted(props, request.qualifier, request.isInCalltip);
         
         
