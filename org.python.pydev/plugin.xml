@@ -24,8 +24,8 @@
    <extension point="org.eclipse.ui.editors.documentProviders">
       <provider
             class="org.python.pydev.editor.PyDocumentProvider"
-            id="org.python.copiedfromeclipsesrc.PydevFileEditorInput"
-            inputTypes="org.python.copiedfromeclipsesrc.PydevFileEditorInput"/>
+            id="org.python.pydev.editorinput.PydevFileEditorInput"
+            inputTypes="org.python.pydev.editorinput.PydevFileEditorInput"/>
       <provider
             class="org.python.pydev.editor.PyDocumentProvider"
             id="org.python.pydev.editor.PyDocumentProvider"
