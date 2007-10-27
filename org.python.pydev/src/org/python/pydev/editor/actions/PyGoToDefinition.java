@@ -195,9 +195,21 @@ public class PyGoToDefinition extends PyRefactorAction {
             StructuredSelection selection = new StructuredSelection(new Object[]{javaDefinition.javaElement});
             openAction.run(selection);
         }else{
-            MessageDialog.openInformation(getPyEditShell(), "Compiled Extension file", 
-                    "The definition was found at: "+f.toString()+"\n" +
-                    "(which cannot be opened because it is a compiled extension).");
+            String message;
+            if(itemPointer.definition != null && itemPointer.definition.module instanceof JavaClassModule){
+                JavaClassModule module = (JavaClassModule) itemPointer.definition.module;
+                message = "The definition was found at: "+f.toString()+"\n" +
+                "as the java module: "+module.getName();
+                
+            }else{
+                message = "The definition was found at: "+f.toString()+"\n" +
+                "(which cannot be opened because it is a compiled extension)";
+                
+            }
+            
+            
+            
+            MessageDialog.openInformation(getPyEditShell(), "Compiled Extension file", message);
         }
     }
 
