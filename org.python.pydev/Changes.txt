@@ -10,6 +10,7 @@ Pydev
 <li>Jython now uses JDT to get completions from jars</li>
 <li>When configuring the pythonpath, the paths are sorted for selection</li>
 <li>The files that pydev recognizes for python can now be customized</li>
+<li>Patch by: Carl Robinson: Code-folding for elements such as for, try, while, etc.</li>
 </ul>
 
 after 1.3.8
