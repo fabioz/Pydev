@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -28,19 +29,33 @@ import org.python.pydev.editor.ErrorDescription;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.TryExcept;
+import org.python.pydev.parser.jython.ast.TryFinally;
+import org.python.pydev.parser.jython.ast.While;
+import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.parser.jython.ast.excepthandlerType;
+import org.python.pydev.parser.jython.ast.suiteType;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
-import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
+import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
+import org.python.pydev.parser.visitors.scope.CodeFoldingVisitor;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevPrefs;
 
 /**
  * @author Fabio Zadrozny
  * 
  * This class is used to set the code folding markers.
+ * 
+ * Changed 15/09/07 to include more folding elements
  */
 public class CodeFoldingSetter implements IModelListener, IPropertyListener {
 
@@ -212,43 +227,64 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
      * 
      * Also, there should be no overlap for any of the entries
      */
+    @SuppressWarnings("unchecked")
     public static List<FoldingEntry> getMarks(IDocument doc, SimpleNode ast) {
 
         List<FoldingEntry> ret = new ArrayList<FoldingEntry>();
         
-        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(ast);
+        CodeFoldingVisitor visitor = CodeFoldingVisitor.create(ast);
         //(re) insert annotations.
-        List<ASTEntry> nodes = visitor.getAsList(new Class[]{Import.class, ImportFrom.class, ClassDef.class, FunctionDef.class, Str.class});            
-        for (ASTEntry entry : nodes) {
-            FoldingEntry foldingEntry = null;
-            if(entry.node instanceof Import || entry.node instanceof ImportFrom){
-                foldingEntry = new FoldingEntry(FoldingEntry.TYPE_IMPORT, entry.node.beginLine-1, entry.endLine, entry);
-                
-            }else if(entry.node instanceof ClassDef){
-                ClassDef def = (ClassDef) entry.node;
-                foldingEntry = new FoldingEntry(FoldingEntry.TYPE_DEF, def.name.beginLine-1, entry.endLine, entry);
-                
-            }else if(entry.node instanceof FunctionDef){
-                FunctionDef def = (FunctionDef) entry.node;
-                foldingEntry = new FoldingEntry(FoldingEntry.TYPE_DEF, def.name.beginLine-1, entry.endLine, entry);
-                
-            }else if(entry.node instanceof Str){
-                foldingEntry = new FoldingEntry(FoldingEntry.TYPE_STR, entry.node.beginLine-1, entry.endLine, entry);
-            }
-            if(foldingEntry != null){
-                addFoldingEntry(ret, foldingEntry);
-            }
+        List<Class> elementList = new ArrayList<Class>();
+        Preferences prefs = getPreferences();
+        
+        if(prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_IMPORTS)){
+        	elementList.add(Import.class);
+        	elementList.add(ImportFrom.class);
+        }
+        if(prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_CLASSDEF)){
+        	elementList.add(ClassDef.class);
+        }
+        if(prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_FUNCTIONDEF)){
+        	elementList.add(FunctionDef.class);
+        }
+        if(prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_STRINGS)){
+        	elementList.add(Str.class);
+        }
+        if(prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_WHILE)){
+        	elementList.add(While.class);
+        }
+        if(prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_IF)){
+        	elementList.add(If.class);
+        }
+        if(prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_FOR)){
+        	elementList.add(For.class);
+        }
+        if(prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_WITH)){
+        	elementList.add(With.class);
+        }
+        if(prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_TRY)){
+        	elementList.add(TryExcept.class);
+        	elementList.add(TryFinally.class);
+        }
+        
+        List<ASTEntry> nodes = visitor.getAsList(elementList.toArray(new Class[elementList.size()]));   
+        
+        for(ASTEntry entry:nodes){
+            createFoldingEntries((ASTEntryWithChildren)entry, ret);
         }
         
         //and at last, get the comments
-        DocIterator it = new PySelection.DocIterator(true, new PySelection(doc,0));
-        while(it.hasNext()){
-            String string = it.next();
-            if(string.trim().startsWith("#")){
-                int l = it.getCurrentLine()-1;
-                addFoldingEntry(ret, new FoldingEntry(FoldingEntry.TYPE_COMMENT, l, l+1, new ASTEntry(null, new commentType(string))));
+        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_COMMENTS)){
+        	DocIterator it = new PySelection.DocIterator(true, new PySelection(doc,0));
+            while(it.hasNext()){
+                String string = it.next();
+                if(string.trim().startsWith("#")){
+                    int l = it.getCurrentLine()-1;
+                    addFoldingEntry(ret, new FoldingEntry(FoldingEntry.TYPE_COMMENT, l, l+1, new ASTEntry(null, new commentType(string))));
+                }
             }
         }
+        
         Collections.sort(ret, new Comparator<FoldingEntry>(){
 
             public int compare(FoldingEntry o1, FoldingEntry o2) {
@@ -264,7 +300,164 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
         return ret;
     }
 
-    private static void addFoldingEntry(List<FoldingEntry> ret, FoldingEntry foldingEntry) {
+    /**
+     * @param entry the entry that should be added
+     * @param ret the list where the folding entry generated should be added
+     * @param memo a memo for the nodes that already generated a folding entry (needed
+     * for treating if..elif because the elif will be generated when the if is found, and if it's
+     * found again later we'll want to ignore it)
+     */
+    private static void createFoldingEntries(ASTEntryWithChildren entry, List<FoldingEntry> ret) {
+        FoldingEntry foldingEntry = null;
+        if(entry.node instanceof Import || entry.node instanceof ImportFrom){
+            foldingEntry = new FoldingEntry(FoldingEntry.TYPE_IMPORT, entry.node.beginLine-1, entry.endLine, entry);
+            
+        }else if(entry.node instanceof ClassDef){
+            ClassDef def = (ClassDef) entry.node;
+            foldingEntry = new FoldingEntry(FoldingEntry.TYPE_DEF, def.name.beginLine-1, entry.endLine, entry);
+            
+        }else if(entry.node instanceof FunctionDef){
+            FunctionDef def = (FunctionDef) entry.node;
+            foldingEntry = new FoldingEntry(FoldingEntry.TYPE_DEF, def.name.beginLine-1, entry.endLine, entry);
+            
+        }else if(entry.node instanceof TryExcept){
+            foldingEntry = new FoldingEntry(FoldingEntry.TYPE_EXCEPT, entry.node.beginLine-1, entry.endLine, entry);
+            
+            //Removed: we shouldn't have to rely on getting the body 'end' line at this point... that info should already come
+            //from the CodeFoldingVisitor (so, this code must be adapted to that... also, a revision on the coding standard
+            //must be done)
+            
+            TryExcept tryStmt = (TryExcept) entry.node;
+            if (tryStmt.handlers != null) {
+                for (excepthandlerType except : tryStmt.handlers) {
+                    foldingEntry = checkExcept(entry, ret, foldingEntry, entry.endLine, except);
+                }
+            }
+    
+            if (tryStmt.orelse != null) {
+                foldingEntry = checkOrElse(entry, ret, foldingEntry, entry.endLine, tryStmt.orelse);
+            }
+        
+        }else if(entry.node instanceof TryFinally){
+            //entry for the whole try..finally block
+            
+            TryFinally tryStmt = (TryFinally) entry.node;
+            if (tryStmt.body != null && tryStmt.body.length > 0) {
+                if (!(tryStmt.body[0] instanceof TryExcept) || (tryStmt.body[0].beginLine != tryStmt.beginLine)) {
+                    //Ignore the try if it is part of a try except block in the format:
+                    //try..except..finally (in the same block)
+                    foldingEntry = new FoldingEntry(FoldingEntry.TYPE_FINALLY, entry.node.beginLine-1, entry.endLine, entry);
+                }
+            }
+            if (tryStmt.finalbody != null) {
+                if(foldingEntry != null){
+                    //ok, add the current and set the new current to the finally block
+                    foldingEntry = checkFinally(entry, ret, foldingEntry, entry.endLine, tryStmt.finalbody, true);
+                }else{
+                    //the current one shouldn't be added... (just the finally part)
+                    foldingEntry = new FoldingEntry(FoldingEntry.TYPE_FINALLY, entry.node.beginLine-1, entry.endLine, entry);
+                    foldingEntry = checkFinally(entry, ret, foldingEntry, entry.endLine, tryStmt.finalbody, false);
+                }
+            }
+            
+        }else if(entry.node instanceof With){
+            foldingEntry = new FoldingEntry(FoldingEntry.TYPE_STATEMENT, entry.node.beginLine-1, entry.endLine, entry);
+        
+        }else if(entry.node instanceof While){//XXX start test section
+            foldingEntry = new FoldingEntry(FoldingEntry.TYPE_STATEMENT, entry.node.beginLine-1, entry.endLine, entry);
+            foldingEntry = checkOrElse(entry, ret, foldingEntry, entry.endLine, ((While) entry.node).orelse);
+        
+        }else if(entry.node instanceof For){
+            foldingEntry = new FoldingEntry(FoldingEntry.TYPE_STATEMENT, entry.node.beginLine-1, entry.endLine, entry);
+            foldingEntry = checkOrElse(entry, ret, foldingEntry, entry.endLine, ((For) entry.node).orelse);
+        
+        }else if(entry.node instanceof If){//If comes 'ok' from the CodeFoldingVisitor (no need to check for the else part)
+            foldingEntry = new FoldingEntry(FoldingEntry.TYPE_STATEMENT, entry.node.beginLine-1, entry.endLine, entry);
+        
+        }else if(entry.node instanceof Str){
+            if(entry.node.beginLine != entry.endLine){
+                foldingEntry = new FoldingEntry(FoldingEntry.TYPE_STR, entry.node.beginLine-1, entry.endLine, entry);
+            }
+        }
+        if(foldingEntry != null){
+            addFoldingEntry(ret, foldingEntry);
+        }
+            
+    }
+
+
+    /**
+     * Checks an entry for its 'else' statement. If found, will add a folding entry for the previous block and 
+     * return a new entry for the 'else' part (to the end of the previous block).
+     * 
+     * @param entry the entry that we're analyzing at this point
+     * @param ret where the folding entry should be added
+     * @param foldingEntry the folding entry that will be added with the contents o the full block (so, if it's a 
+     * while...else, it contains the position up to the end of the else block.
+     * @param blockEndLine the end line of the whole block (with the else part)
+     * @param orelse the suite with the else part
+     * @return the same folding entry passed or a new folding entry that should be added in the place of the one passed 
+     * as a parameter
+     */
+    private static FoldingEntry checkOrElse(ASTEntryWithChildren entry, List<FoldingEntry> ret, FoldingEntry foldingEntry,
+            int blockEndLine, suiteType orelse) {
+        return checkOrElseSuite(entry, ret, foldingEntry, blockEndLine, orelse, FoldingEntry.TYPE_ELSE, "else", true);
+    }
+    
+    private static FoldingEntry checkFinally(ASTEntryWithChildren entry, List<FoldingEntry> ret, FoldingEntry foldingEntry,
+            int blockEndLine, suiteType orelse, boolean addPrevious) {
+        return checkOrElseSuite(entry, ret, foldingEntry, blockEndLine, orelse, FoldingEntry.TYPE_FINALLY, "finally", addPrevious);
+    }
+    
+    private static FoldingEntry checkExcept(ASTEntryWithChildren entry, List<FoldingEntry> ret, FoldingEntry foldingEntry,
+            int blockEndLine, excepthandlerType orelse) {
+        return checkOrElseSuite(entry, ret, foldingEntry, blockEndLine, orelse, FoldingEntry.TYPE_EXCEPT, "except", true);
+    }
+    
+    private static FoldingEntry checkOrElseSuite(ASTEntryWithChildren entry, List<FoldingEntry> ret, FoldingEntry foldingEntry,
+            int blockEndLine, SimpleNode orelse, int type, String specialToken, boolean addPrevious) {
+        if (orelse != null){
+            if(orelse.specialsBefore != null){
+                for(Object o:orelse.specialsBefore){
+                    if(o instanceof SpecialStr){
+                        SpecialStr specialStr = (SpecialStr) o;
+                        if(specialStr.str.equals(specialToken)){
+                            foldingEntry.endLine = specialStr.beginLine-1;
+                            if(addPrevious){
+                                addFoldingEntry(ret, foldingEntry);
+                            }
+                            foldingEntry = new FoldingEntry(type, specialStr.beginLine-1, blockEndLine, entry);
+                        }
+                    }
+                }
+            }
+        }
+        return foldingEntry;
+    }
+
+    public static Preferences getPreferences() {
+        if(testingPrefs == null){
+            return PydevPrefs.getPreferences();
+        }else{
+            if (PydevPlugin.getDefault() != null){
+                throw new RuntimeException("Should only get here in tests!");
+            }
+            return testingPrefs;
+        }
+    }
+    
+    private static Preferences testingPrefs;
+    
+    /**
+     * Used for tests
+     * @return
+     */
+    public static void setPreferences(Preferences prefs) {
+        CodeFoldingSetter.testingPrefs = prefs;
+    }
+    
+    
+	private static void addFoldingEntry(List<FoldingEntry> ret, FoldingEntry foldingEntry) {
         //we only group comments and imports
         if(ret.size() > 0 && (foldingEntry.type == FoldingEntry.TYPE_COMMENT || foldingEntry.type == FoldingEntry.TYPE_IMPORT)){
             FoldingEntry prev = ret.get(ret.size()-1);

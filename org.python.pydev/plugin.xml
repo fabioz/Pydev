@@ -240,6 +240,12 @@
             class="org.python.pydev.builder.PyDevBuilderPrefPage"
             id="org.python.pydev.builder.pyDevBuilderPrefPage">
       </page>
+      <page
+            category="org.python.pydev.prefs"
+            class="org.python.pydev.editor.codefolding.PyDevCodeFoldingPrefPage"
+            id="org.python.pydev.editor.codefolding.PyDevCodeFoldingPrefPage"
+            name="Code Folding">
+      </page>
    </extension>
 <!-- Editor menus -->
    <extension point="org.eclipse.ui.editorActions" 

@@ -512,6 +512,8 @@ public final class TreeBuilder24 implements PythonGrammar24TreeConstants {
             //This is because we recognize a try..except in the 'try:' token, but actually end up with a try..finally
             TryExcept tryExcept = (TryExcept) stack.popNode();
             TryFinally tryFinally = new TryFinally(body, finalBody);
+            tryFinally.beginLine = tryExcept.beginLine;
+            tryFinally.beginColumn = tryExcept.beginColumn;
             addSpecialsAndClearOriginal(tryExcept, tryFinally);
             return tryFinally;
             

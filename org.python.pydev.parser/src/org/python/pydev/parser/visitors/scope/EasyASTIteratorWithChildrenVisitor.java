@@ -6,10 +6,18 @@ package org.python.pydev.parser.visitors.scope;
 
 import java.util.ArrayList;
 
-public class EasyASTIteratorWithChildrenVisitor extends EasyAstIteratorBase{
+/**
+ * The ASTEntries in this visitor should know about which context (parent) they're in.
+ * 
+ * The definition of what's a context (e.g.: should an if generate a new context or only a class/method?)
+ * is up to the actual visitor.
+ *
+ * @author Fabio
+ */
+public abstract class EasyASTIteratorWithChildrenVisitor extends EasyAstIteratorBase{
 
     /**
-     * Overriden because we deal only with the nodes with children in this iterator
+     * Overridden because we deal only with the nodes with children in this iterator
      * 
      * @see org.python.pydev.parser.visitors.scope.EasyAstIteratorBase#createEntry()
      */

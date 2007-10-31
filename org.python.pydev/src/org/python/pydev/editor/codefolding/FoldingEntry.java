@@ -1,5 +1,5 @@
 /**
- * 
+ * @author fabioz
  */
 package org.python.pydev.editor.codefolding;
 
@@ -20,6 +20,10 @@ public class FoldingEntry{
     public final static int TYPE_DEF=2;
     public final static int TYPE_COMMENT=3;
     public final static int TYPE_STR=4;
+    public final static int TYPE_STATEMENT=5;
+    public final static int TYPE_ELSE=6;
+    public final static int TYPE_EXCEPT=7;
+    public final static int TYPE_FINALLY=8;
     public int type;
     public int startLine;
     public int endLine;

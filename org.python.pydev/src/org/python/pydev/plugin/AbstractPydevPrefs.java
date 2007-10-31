@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
+import org.python.pydev.editor.codefolding.PyDevCodeFoldingPrefPage;
 
 public abstract class AbstractPydevPrefs extends PreferencePage implements IWorkbenchPreferencePage{
 
@@ -97,9 +98,6 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     
     public static final String AUTO_ADD_SELF = "AUTO_ADD_SELF";
     public static final boolean DEFAULT_AUTO_ADD_SELF = true;
-    
-    public static final String USE_CODE_FOLDING = "USE_CODE_FOLDING";
-    public static final boolean DEFAULT_USE_CODE_FOLDING = true;
     
     public static final String GUESS_TAB_SUBSTITUTION = "GUESS_TAB_SUBSTITUTION";
     public static final boolean DEFAULT_GUESS_TAB_SUBSTITUTION = true;
@@ -304,7 +302,6 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, SUBSTITUTE_TABS));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_ADD_SELF));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, GUESS_TAB_SUBSTITUTION));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, USE_CODE_FOLDING));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_USE_CUSTOM_CARETS));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_WIDE_CARET));
         
@@ -603,7 +600,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
      * @return the place where this plugin preferences are stored.
      */
     public static Preferences getPreferences() {
-        return  PydevPlugin.getDefault().getPluginPreferences();
+        return PydevPlugin.getDefault().getPluginPreferences();
     }
     
     /**

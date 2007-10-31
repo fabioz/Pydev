@@ -8,13 +8,19 @@ import org.python.pydev.core.structure.DecoratableObject;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.TryExcept;
+import org.python.pydev.parser.jython.ast.TryFinally;
+import org.python.pydev.parser.jython.ast.While;
+import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -127,6 +133,24 @@ public class ASTEntry extends DecoratableObject{
             
         }else if(node instanceof Str){
             name = "Str";
+            
+        }else if(node instanceof While){
+            name = "While";
+            
+        }else if(node instanceof If){
+            name = "If";
+            
+        }else if(node instanceof For){
+            name = "For";
+            
+        }else if(node instanceof TryExcept){
+            name = "TryExcept";
+            
+        }else if(node instanceof TryFinally){
+            name = "TryFinally";
+            
+        }else if(node instanceof With){
+            name = "With";
             
         }else if(node instanceof commentType){
             name = "comment";

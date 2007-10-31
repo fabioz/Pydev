@@ -484,7 +484,7 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
             suite = (Suite)stack.popNode();
             TryExcept tryExc = (TryExcept) stack.popNode();
             if (outer != null) {
-                outer.beginLine = tryExc.beginLine - 1;
+                outer.beginLine = tryExc.beginLine;
             }
             tryExc.body = suite.body;
             tryExc.handlers = handlers;

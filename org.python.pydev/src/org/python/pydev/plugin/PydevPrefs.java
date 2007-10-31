@@ -57,8 +57,6 @@ public class PydevPrefs extends AbstractPydevPrefs {
 		
 		addCheckBox(appearanceComposite, "Assume tab spacing when files contain tabs?", GUESS_TAB_SUBSTITUTION, 0);
 		
-		addCheckBox(appearanceComposite, "Use code folding?", USE_CODE_FOLDING, 0);
-		
 		Button master= addCheckBox(appearanceComposite, "Use custom caret", AbstractDecoratedTextEditorPreferenceConstants.EDITOR_USE_CUSTOM_CARETS, 0);
 
 		Button slave= addCheckBox(appearanceComposite, "Enable thick caret", AbstractDecoratedTextEditorPreferenceConstants.EDITOR_WIDE_CARET, 0);

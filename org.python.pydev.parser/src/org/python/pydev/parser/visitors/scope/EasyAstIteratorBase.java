@@ -36,8 +36,9 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      */
     protected Object unhandled_node(SimpleNode node) throws Exception {
         this.lastVisited = node;
-        if (this.lastVisited.beginLine > higherLine){
-            higherLine = this.lastVisited.beginLine;
+        int l = NodeUtils.getLineEnd(this.lastVisited);
+        if (l > higherLine){
+            higherLine = l;
         }
         if(node.specialsAfter != null){
             for(Object o : node.specialsAfter){
@@ -68,7 +69,7 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      * @param node
      * @return
      */
-    private ASTEntry before(SimpleNode node) {
+    protected ASTEntry before(SimpleNode node) {
     	ASTEntry entry;
     	entry = createEntry();
     	
@@ -91,13 +92,17 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
     /**
      * @param entry
      */
-    private void after(ASTEntry entry) {
+    protected void after(ASTEntry entry) {
         stack.pop();
-        int lineEnd = NodeUtils.getLineEnd(lastVisited);
-        if(lineEnd > higherLine){
-            entry.endLine = lineEnd;
-        }else{
-            entry.endLine = higherLine;
+        
+        //only set the end line if it was still not set
+        if(entry.endLine == 0){
+            int lineEnd = NodeUtils.getLineEnd(lastVisited);
+            if(lineEnd > higherLine){
+                entry.endLine = lineEnd;
+            }else{
+                entry.endLine = higherLine;
+            }
         }
     }
 
@@ -141,7 +146,7 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
     }
     
     protected boolean isInGlobal() {
-        Iterator iterator = stack.iterator();
+        Iterator<SimpleNode> iterator = stack.iterator();
         while(iterator.hasNext()){
             SimpleNode node = (SimpleNode) iterator.next();
             if(node instanceof ClassDef || node instanceof FunctionDef){
@@ -156,7 +161,7 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      * @return wether we are in a class or method definition scope
      */
     protected boolean isInClassMethodDecl() {
-        Iterator iterator = stack.iterator();
+        Iterator<SimpleNode> iterator = stack.iterator();
         while(iterator.hasNext()){
             SimpleNode node = (SimpleNode) iterator.next();
             if(node instanceof ClassDef){
@@ -262,13 +267,15 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
     /**
      * @see EasyASTIteratorVisitor#getIterator(Class[])
      */
+    @SuppressWarnings("unchecked")
     public Iterator<ASTEntry> getIterator(Class class_) {
         return getIterator(new Class[]{class_});
     }
 
+    @SuppressWarnings("unchecked")
     public List<ASTEntry> getAsList(Class ... classes) {
         List<ASTEntry> newList = new ArrayList<ASTEntry>();
-        for (Iterator iter = nodes.iterator(); iter.hasNext();) {
+        for (Iterator<ASTEntry> iter = nodes.iterator(); iter.hasNext();) {
             ASTEntry entry = (ASTEntry) iter.next();
             if(isFromClass(entry.node, classes)){
                 newList.add(entry);
@@ -277,6 +284,7 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
         return newList;
     }
     
+    @SuppressWarnings("unchecked")
     public List<ASTEntry> getAsList(Class class_) {
         return getAsList(new Class[]{class_});
     }
@@ -285,6 +293,7 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      * @param classes the classes we are searching for
      * @return an iterator with nodes found from the passed classes
      */
+    @SuppressWarnings("unchecked")
     public Iterator<ASTEntry> getIterator(Class ... classes) {
         return getAsList(classes).iterator();
     }

@@ -93,7 +93,7 @@ public abstract class PyEditProjection extends TextEditor implements IParserObse
      * @return
      */
     public static boolean isFoldingEnabled() {
-        return PydevPrefs.getPreferences().getBoolean(PydevPrefs.USE_CODE_FOLDING);
+        return PydevPrefs.getPreferences().getBoolean(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING);
     }
 
     public Object getAdapter(Class required) {
