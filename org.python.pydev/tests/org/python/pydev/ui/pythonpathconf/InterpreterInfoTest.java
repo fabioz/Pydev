@@ -82,7 +82,7 @@ public class InterpreterInfoTest extends TestCase {
         assertEquals(info, info2);
         assertFalse(info.equals(info3));
         assertFalse(info.equals(info4));
-        assertFalse(info4.equals(info5));
+        assertTrue(info4.equals(info5)); //dlls do not make a difference anymore
         assertFalse(info4.equals(info6));
         assertFalse(info5.equals(info6));
         assertEquals(info6, info6);

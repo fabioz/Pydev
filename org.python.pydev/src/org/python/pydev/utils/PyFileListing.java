@@ -79,7 +79,7 @@ public class PyFileListing {
         
         PyFileListingInfo ret = new PyFileListingInfo();
     
-        if (file.exists()) {
+        if (file != null && file.exists()) {
             //only check files that actually exist
     
             if (file.isDirectory()) {

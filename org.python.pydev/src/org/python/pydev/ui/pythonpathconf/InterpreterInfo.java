@@ -130,13 +130,15 @@ public class InterpreterInfo implements IInterpreterInfo{
     public InterpreterInfo(String version, String exe, Collection<String> libs0){
         this.executableOrJar = exe;
         this.version = version;
+        //deprecated (keep it cleared)
+	    dllLibs.clear();
+
         setModulesManager(new SystemModulesManager());
         libs.addAll(libs0);
     }
     
     public InterpreterInfo(String version, String exe, Collection<String> libs0, Collection<String> dlls){
         this(version, exe, libs0);
-        dllLibs.addAll(dlls);
     }
     
     public InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced) {
@@ -159,10 +161,6 @@ public class InterpreterInfo implements IInterpreterInfo{
         }
         
         if(info.libs.equals(this.libs) == false){
-            return false;
-        }
-        
-        if(info.dllLibs.equals(this.dllLibs) == false){
             return false;
         }
         
@@ -365,12 +363,6 @@ public class InterpreterInfo implements IInterpreterInfo{
             buffer.append(iter.next().toString());
         }
         buffer.append("@");
-        if(dllLibs.size() > 0){
-	        for (Iterator<String> iter = dllLibs.iterator(); iter.hasNext();) {
-	            buffer.append("|");
-	            buffer.append(iter.next().toString());
-	        }
-        }
         
         buffer.append("$");
         if(forcedLibs.size() > 0){
@@ -387,32 +379,6 @@ public class InterpreterInfo implements IInterpreterInfo{
      * Adds the compiled libs (dlls)
      */
     public void restoreCompiledLibs(IProgressMonitor monitor) {
-        FileFilter filter = new FileFilter() {
-            
-	        public boolean accept(File pathname) {
-	            if(pathname.isFile()){
-	                return FileTypesPreferencesPage.isValidDll(REF.getFileAbsolutePath(pathname));
-	            }else{
-	                return false;
-	            }
-	        }
-	
-	    };
-
-	    List<File> dlls = new ArrayList<File>();
-	    for (Iterator<String> iter = libs.iterator(); iter.hasNext();) {
-            String folder = iter.next();
-            
-            dlls.addAll(PyFileListing.getPyFilesBelow(new File(folder), filter, monitor, false).filesFound);
-        }
-	    
-	    dllLibs.clear();
-	    for (Iterator<File> iter = dlls.iterator(); iter.hasNext();) {
-            File f = iter.next();
-            
-            this.dllLibs.add(REF.getFileAbsolutePath(f));
-        }
-	    
 	    //the compiled with the interpreter should be already gotten.
 	    forcedLibs.add("os"); //we have it in source, but want to interpret it, source info (ast) does not give us much
         
