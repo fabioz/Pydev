@@ -13,6 +13,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
@@ -21,7 +22,6 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.ErrorDescription;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
@@ -57,7 +57,7 @@ public class InterpreterObserver implements IInterpreterObserver {
                     currInfo.clearAllInfo();
                 }
                 InterpreterInfo defaultInterpreterInfo = (InterpreterInfo) manager.getInterpreterInfo(defaultSelectedInterpreter, monitor);
-                SystemModulesManager m = defaultInterpreterInfo.getModulesManager();
+                ISystemModulesManager m = defaultInterpreterInfo.getModulesManager();
                 AbstractAdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, "(system: " + manager.getManagerRelatedName() + ")",
                         new AdditionalSystemInterpreterInfo(manager), null, grammarVersion);
 

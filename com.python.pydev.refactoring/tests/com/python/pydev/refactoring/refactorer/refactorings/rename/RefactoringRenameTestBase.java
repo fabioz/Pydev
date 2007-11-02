@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
@@ -23,7 +24,6 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.eclipseresourcestubs.FileResourceStub;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
-import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectStub;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -169,11 +169,11 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     protected void checkSize() {
         IInterpreterManager iMan = getInterpreterManager();
         InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(getProgressMonitor());
-        assertTrue(info.getModulesManager().getSize() > 0);
+        assertTrue(info.getModulesManager().getSize(true) > 0);
         
         int size = ((ASTManager)natureRefactoring.getAstManager()).getSize();
-        assertTrue("Interpreter size:"+info.getModulesManager().getSize()+" should be smaller than project size:"+size+" " +
-                "(because it contains system+project info)" , info.getModulesManager().getSize() < size );
+        assertTrue("Interpreter size:"+info.getModulesManager().getSize(true)+" should be smaller than project size:"+size+" " +
+                "(because it contains system+project info)" , info.getModulesManager().getSize(true) < size );
         
     }
 
@@ -226,7 +226,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     protected Map<Tuple<String, IFile>, List<ASTEntry>> getReferencesForRename(String moduleName, int line, int col, boolean expectError) {
         Map<Tuple<String, IFile>, List<ASTEntry>> occurrencesToReturn=null;
         try {
-            ProjectModulesManager modulesManager = (ProjectModulesManager) natureRefactoring.getAstManager().getModulesManager();
+            IProjectModulesManager modulesManager = (IProjectModulesManager) natureRefactoring.getAstManager().getModulesManager();
             IModule module = modulesManager.getModuleInDirectManager(moduleName, natureRefactoring, true);
             if(module == null){
                 throw new RuntimeException("Unable to get source module for module:"+moduleName);

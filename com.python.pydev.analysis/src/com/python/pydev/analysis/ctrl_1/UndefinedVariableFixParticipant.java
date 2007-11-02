@@ -62,7 +62,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
             importImage = imageCache.get(UIConstants.IMPORT_ICON);
         }
         IModulesManager projectModulesManager = nature.getAstManager().getModulesManager();
-        Set<String> allModules = projectModulesManager.getAllModuleNames();
+        Set<String> allModules = projectModulesManager.getAllModuleNames(true);
 
         //when an undefined variable is found, we can:
         // - add an auto import (if it is a class or a method or some global attribute)

@@ -17,8 +17,8 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
@@ -154,10 +154,10 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
                 		continue;
                 	}
                 	try{
-	                    ProjectModulesManager modulesManager = (ProjectModulesManager) nature.getAstManager().getModulesManager();
+	                    IProjectModulesManager modulesManager = (IProjectModulesManager) nature.getAstManager().getModulesManager();
 	                    
 	                    request.checkCancelled();
-	                    String modName = modulesManager.resolveModuleInDirectManager(file, project);
+	                    String modName = modulesManager.resolveModuleInDirectManager(file);
 	                    
 	                    if(modName != null){
 	                        if(!request.moduleName.equals(modName)){

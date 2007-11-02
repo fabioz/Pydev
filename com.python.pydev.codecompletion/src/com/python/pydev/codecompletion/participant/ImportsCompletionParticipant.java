@@ -44,15 +44,14 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             Image img = PyCodeCompletionImages.getImageForType(IToken.TYPE_PACKAGE);
             
             IModulesManager projectModulesManager = astManager.getModulesManager();
-            Set allModuleNames = projectModulesManager.getAllModuleNames();
+            Set<String> allModuleNames = projectModulesManager.getAllModuleNames(true);
             
             String lowerQual = request.qualifier.toLowerCase();
 
             StringBuffer realImportRep=new StringBuffer();
             HashSet<String> importedNames = getImportedNames(state);
             
-            for (Iterator iter = allModuleNames.iterator(); iter.hasNext();) {
-                String name = (String) iter.next();
+            for (String name:allModuleNames) {
                 if(name.equals(initialModule)){
                     continue;
                 }
