@@ -21,6 +21,7 @@ import org.python.pydev.parser.jython.ast.AugAssign;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Compare;
+import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
@@ -120,6 +121,15 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
     }
     
     @Override
+    public Object visitComprehension(Comprehension node) throws Exception {
+        isInTestScope+=1;
+        Object r = super.visitComprehension(node);
+        isInTestScope-=1;
+        return r;
+
+    }
+    
+    @Override
     public Object visitAssert(Assert node) throws Exception {
         isInTestScope+=1;
         Object r = super.visitAssert(node);
@@ -202,6 +212,7 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
         //global scope, so, even if it is defined later, this is an error...
         messagesManager.addUndefinedMessage(token);
     }
+    
     /**
      * @param m
      */

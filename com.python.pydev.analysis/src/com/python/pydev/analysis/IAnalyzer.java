@@ -9,6 +9,6 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 
 import com.python.pydev.analysis.messages.IMessage;
 
-public interface Analyzer {
+public interface IAnalyzer {
     public IMessage[] analyzeDocument(IPythonNature nature, SourceModule module, IAnalysisPreferences prefs, IDocument document);
 }

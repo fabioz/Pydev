@@ -22,11 +22,11 @@ import com.python.pydev.analysis.tabnanny.TabNanny;
 import com.python.pydev.analysis.visitors.OccurrencesVisitor;
 
 /**
- * This class should analyze unused imports.
+ * This class is responsible for starting the analysis of a given module.
  * 
  * @author Fabio
  */
-public class OccurrencesAnalyzer implements Analyzer {
+public class OccurrencesAnalyzer implements IAnalyzer {
 
 
     public IMessage[] analyzeDocument(IPythonNature nature, SourceModule module, IAnalysisPreferences prefs, IDocument document) {
