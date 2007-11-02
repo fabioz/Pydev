@@ -26,9 +26,9 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.NotConfiguredInterpreterException;
@@ -321,7 +321,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 	                //and at last, restore the system info
 		            for (final InterpreterInfo info: list) {
 		                try {
-	                        SystemModulesManager systemModulesManager = (SystemModulesManager) PydevPlugin.readFromWorkspaceMetadata(info.getExeAsFileSystemValidPath());
+	                        ISystemModulesManager systemModulesManager = (ISystemModulesManager) PydevPlugin.readFromWorkspaceMetadata(info.getExeAsFileSystemValidPath());
                             info.setModulesManager(systemModulesManager);
 	                    } catch (Exception e) {
 	                        //PydevPlugin.logInfo(e); -- don't log it, that should be 'standard' (something changed in the way we store it).
@@ -329,7 +329,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 	                    	//if it does not work it (probably) means that the internal storage format changed among versions,
 	                        //so, we have to recreate that info.
 	                    	final Display def = Display.getDefault();
-	                    	def.syncExec(new Runnable(){
+	                    	def.asyncExec(new Runnable(){
 	
 								public void run() {
 									Shell shell = def.getActiveShell();

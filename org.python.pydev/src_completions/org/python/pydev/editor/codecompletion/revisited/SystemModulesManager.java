@@ -48,8 +48,8 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
      * 
      * @param interpreterInfo the interpreter info that contains this object.
      */
-    public void setInfo(InterpreterInfo interpreterInfo) {
-        this.info = interpreterInfo;
+    public void setInfo(Object interpreterInfo) {
+        this.info = (InterpreterInfo)interpreterInfo;
     }
 
     
@@ -149,7 +149,7 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
         return false;
     }
 
-    protected AbstractModule getBuiltinModule(String name, IPythonNature nature, boolean dontSearchInit) {
+    public AbstractModule getBuiltinModule(String name, IPythonNature nature, boolean dontSearchInit) {
         AbstractModule n = null;
         
         //check for supported builtins these don't have files associated.

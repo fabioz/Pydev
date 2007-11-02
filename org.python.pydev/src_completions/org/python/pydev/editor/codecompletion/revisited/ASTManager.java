@@ -49,17 +49,16 @@ public class ASTManager extends AbstractASTManager implements ICodeCompletionAST
         return getProjectModulesManager();
     }
 
-	private IProjectModulesManager getProjectModulesManager() {
+    /**
+     * @return modules manager wrapped cast to the interface we expect. Creates it if needed.
+     */
+	private synchronized IProjectModulesManager getProjectModulesManager() {
 		if(modulesManager == null){
 			modulesManager = new ProjectModulesManager();
 		}
 		return (IProjectModulesManager) modulesManager;
 	}
 	
-    public IModulesManager createModulesManager(){
-    	return new ProjectModulesManager();
-    }
-
     
     //----------------------- AUXILIARIES
 
@@ -78,7 +77,7 @@ public class ASTManager extends AbstractASTManager implements ICodeCompletionAST
      * @return
      */
     public int getSize() {
-        return getProjectModulesManager().getSize();
+        return getProjectModulesManager().getSize(true);
     }
 
     public static ICodeCompletionASTManager loadFromFile(File astOutputFile) {

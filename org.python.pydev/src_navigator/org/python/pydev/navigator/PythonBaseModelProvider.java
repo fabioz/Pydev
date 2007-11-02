@@ -37,8 +37,8 @@ import org.eclipse.ui.model.BaseWorkbenchContentProvider;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.navigator.elements.IWrappedResource;
@@ -410,9 +410,9 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
                     if(astManager != null){
                         IModulesManager modulesManager = astManager.getModulesManager();
    
-                        if (modulesManager instanceof ProjectModulesManager) {
-                            ProjectModulesManager projectModulesManager = (ProjectModulesManager) modulesManager;
-                            String moduleName = projectModulesManager.resolveModuleInDirectManager(file.getActualObject(), project);
+                        if (modulesManager instanceof IProjectModulesManager) {
+                            IProjectModulesManager projectModulesManager = (IProjectModulesManager) modulesManager;
+                            String moduleName = projectModulesManager.resolveModuleInDirectManager(file.getActualObject());
                             if (moduleName != null) {
                                 IModule module = projectModulesManager.getModuleInDirectManager(moduleName, nature, true);
                                 if(module == null){

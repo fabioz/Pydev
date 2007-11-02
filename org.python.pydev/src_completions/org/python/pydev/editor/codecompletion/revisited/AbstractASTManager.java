@@ -62,7 +62,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     /**
      * This is the guy that will handle project things for us
      */
-    public IModulesManager modulesManager;
+    public volatile IModulesManager modulesManager;
     public IModulesManager getModulesManager(){
         return modulesManager;
     }

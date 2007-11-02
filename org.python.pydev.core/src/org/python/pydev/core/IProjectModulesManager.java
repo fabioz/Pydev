@@ -5,6 +5,7 @@ package org.python.pydev.core;
 
 import java.io.File;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
@@ -31,6 +32,21 @@ public interface IProjectModulesManager extends IModulesManager {
 	public abstract void rebuildModule(File f, IDocument doc, IProject project, IProgressMonitor monitor, IPythonNature nature);
 
 	public abstract void removeModule(File file, IProject project, IProgressMonitor monitor);
+
+	/**
+	 * @return a given module only if it's actually controlled in the given modules manager (not considering any dependencies)
+	 */
+    public abstract IModule getModuleInDirectManager(String name, IPythonNature nature, boolean dontSearchInit);
+
+    /**
+     * @return the name of a given module or null if it can't resolve it for this modules manager.
+     */
+    public abstract String resolveModuleInDirectManager(IFile file);
+
+    /**
+     * @return the name of a given module or null if it can't resolve it for this modules manager.
+     */
+    public abstract String resolveModuleInDirectManager(String full);
 
 
 

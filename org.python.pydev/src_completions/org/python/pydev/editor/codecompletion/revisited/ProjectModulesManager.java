@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -27,6 +28,7 @@ import org.python.pydev.core.IDeltaProcessor;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
@@ -167,7 +169,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         return nature;
     }
     
-    public SystemModulesManager getSystemModulesManager(){
+    public ISystemModulesManager getSystemModulesManager(){
     	return getSystemModulesManager(null);
     }
     
@@ -175,7 +177,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
      * @param defaultSelectedInterpreter 
      * @see org.python.pydev.core.IProjectModulesManager#getSystemModulesManager()
      */
-    public SystemModulesManager getSystemModulesManager(String defaultSelectedInterpreter){
+    public ISystemModulesManager getSystemModulesManager(String defaultSelectedInterpreter){
     	if(nature == null){
     		PydevPlugin.log("Nature still not set");
     		return null; //still not set (initialization)
@@ -193,18 +195,19 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     }
     
     /** 
-     * @see org.python.pydev.core.IProjectModulesManager#getAllModuleNames()
+     * @see org.python.pydev.core.IProjectModulesManager#getAllModuleNames(boolean addDependencies)
      */
-    public Set<String> getAllModuleNames() {
-        Set<String> s = new HashSet<String>();
-        ModulesManager[] managersInvolved = this.getManagersInvolved(true);
-        for (int i = 0; i < managersInvolved.length; i++) {
-            for (Object object : managersInvolved[i].modulesKeys.keySet()) {
-                ModulesKey m = (ModulesKey) object;
-                s.add(m.name);
+    public Set<String> getAllModuleNames(boolean addDependencies) {
+        if(addDependencies){
+            Set<String> s = new HashSet<String>();
+            IModulesManager[] managersInvolved = this.getManagersInvolved(true);
+            for (int i = 0; i < managersInvolved.length; i++) {
+                s.addAll(managersInvolved[i].getAllModuleNames(false));
             }
+            return s;
+        }else{
+            return super.getAllModuleNames(addDependencies);
         }
-        return s;
     }
     
     /**
@@ -213,7 +216,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     @Override
     public SortedMap<ModulesKey, ModulesKey> getAllModulesStartingWith(String strStartingWith) {
     	SortedMap<ModulesKey, ModulesKey> ret = new TreeMap<ModulesKey, ModulesKey>();
-    	ModulesManager[] managersInvolved = this.getManagersInvolved(true);
+    	IModulesManager[] managersInvolved = this.getManagersInvolved(true);
     	for (int i = 0; i < managersInvolved.length; i++) {
     		ret.putAll(managersInvolved[i].getAllDirectModulesStartingWith(strStartingWith));
     	}
@@ -241,25 +244,27 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     public IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit) {
         IModule module = null;
         
-        ModulesManager[] managersInvolved = this.getManagersInvolved(true); //only get the system manager here (to avoid recursion)
+        IModulesManager[] managersInvolved = this.getManagersInvolved(true); //only get the system manager here (to avoid recursion)
 
-        for (ModulesManager m : managersInvolved) {
-            module = m.getBuiltinModule(name, nature, dontSearchInit);
-            if(module != null){
-                if(DEBUG_MODULES){
-                    System.out.println("Trying to get:"+name+" - "+" returned builtin:"+module+" - "+m.getClass());
+        for (IModulesManager m : managersInvolved) {
+            if(m instanceof ISystemModulesManager){
+                module = ((ISystemModulesManager)m).getBuiltinModule(name, nature, dontSearchInit);
+                if(module != null){
+                    if(DEBUG_MODULES){
+                        System.out.println("Trying to get:"+name+" - "+" returned builtin:"+module+" - "+m.getClass());
+                    }
+                    return module;
                 }
-                return module;
             }
         }
         
-        for (ModulesManager m : managersInvolved) {
-            if (m instanceof ProjectModulesManager) {
-                ProjectModulesManager pM = (ProjectModulesManager) m;
+        for (IModulesManager m : managersInvolved) {
+            if (m instanceof IProjectModulesManager) {
+                IProjectModulesManager pM = (IProjectModulesManager) m;
                 module = pM.getModuleInDirectManager(name, nature, dontSearchInit);
 
-            }else if (m instanceof SystemModulesManager) {
-                SystemModulesManager systemModulesManager = (SystemModulesManager) m;
+            }else if (m instanceof ISystemModulesManager) {
+                ISystemModulesManager systemModulesManager = (ISystemModulesManager) m;
                 module = systemModulesManager.getModuleWithoutBuiltins(name, nature, dontSearchInit); 
                 
             }else{
@@ -299,12 +304,12 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
      * @see org.python.pydev.core.IProjectModulesManager#resolveModule(java.lang.String, boolean)
      */
     public String resolveModule(String full, boolean checkSystemManager) {
-        ModulesManager[] managersInvolved = this.getManagersInvolved(checkSystemManager);
-        for (ModulesManager m : managersInvolved) {
+        IModulesManager[] managersInvolved = this.getManagersInvolved(checkSystemManager);
+        for (IModulesManager m : managersInvolved) {
             
             String mod;
-            if (m instanceof ProjectModulesManager) {
-                ProjectModulesManager pM = (ProjectModulesManager) m;
+            if (m instanceof IProjectModulesManager) {
+                IProjectModulesManager pM = (IProjectModulesManager) m;
                 mod = pM.resolveModuleInDirectManager(full);
             
             }else{
@@ -322,7 +327,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         return super.resolveModule(full);
     }
     
-    public String resolveModuleInDirectManager(IResource member, IProject container) {
+    public String resolveModuleInDirectManager(IFile member) {
         File inOs = member.getRawLocation().toFile();
         return resolveModuleInDirectManager(REF.getFileAbsolutePath(inOs));
     }
@@ -336,15 +341,19 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     }
 
     /** 
-     * @see org.python.pydev.core.IProjectModulesManager#getSize()
+     * @see org.python.pydev.core.IProjectModulesManager#getSize(boolean)
      */
-    public int getSize() {
-        int size = 0;
-        ModulesManager[] managersInvolved = this.getManagersInvolved(true);
-        for (int i = 0; i < managersInvolved.length; i++) {
-            size += managersInvolved[i].modulesKeys.size();
+    public int getSize(boolean addDependenciesSize) {
+        if(addDependenciesSize){
+            int size = 0;
+            IModulesManager[] managersInvolved = this.getManagersInvolved(true);
+            for (int i = 0; i < managersInvolved.length; i++) {
+                size += managersInvolved[i].getSize(false);
+            }
+            return size;
+        }else{
+            return super.getSize(addDependenciesSize);
         }
-        return size;
     }
 
     public String[] getBuiltins() {
@@ -372,19 +381,19 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
      * 
      * Change in 1.3.3: adds itself to the list of returned managers
      */
-    private synchronized ModulesManager[] getManagers(boolean checkSystemManager, boolean referenced) {
+    private synchronized IModulesManager[] getManagers(boolean checkSystemManager, boolean referenced) {
     	if(this.completionCache != null){
-    		ModulesManager[] ret = this.completionCache.getManagers(referenced);
+    		IModulesManager[] ret = this.completionCache.getManagers(referenced);
     		if(ret != null){
     			return ret;
     		}
     	}
-        ArrayList<ModulesManager> list = new ArrayList<ModulesManager>();
-        SystemModulesManager systemModulesManager = getSystemModulesManager(null);
+        ArrayList<IModulesManager> list = new ArrayList<IModulesManager>();
+        ISystemModulesManager systemModulesManager = getSystemModulesManager(null);
         if(systemModulesManager == null){
         	//may happen in initialization
         	PydevPlugin.log("System modules manager still not available (still initializing).");
-        	return new ModulesManager[]{};
+        	return new IModulesManager[]{};
         }
         
         if(project != null){
@@ -399,7 +408,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         if(checkSystemManager && systemModulesManager != null){
             list.add(systemModulesManager);
         }
-        ModulesManager[] ret = (ModulesManager[]) list.toArray(new ModulesManager[list.size()]);
+        IModulesManager[] ret = (IModulesManager[]) list.toArray(new IModulesManager[list.size()]);
         if(this.completionCache != null){
         	this.completionCache.setManagers(ret, referenced);
         }
@@ -441,7 +450,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
      * @param list the list that will be filled with the managers
      * @param projects the projects that should have the managers added
      */
-    private void addModuleManagers(ArrayList<ModulesManager> list, Collection<IProject> projects) {
+    private void addModuleManagers(ArrayList<IModulesManager> list, Collection<IProject> projects) {
     	for(IProject project:projects){
 	        PythonNature nature = PythonNature.getPythonNature(project);
 	        if(nature!=null){
@@ -449,7 +458,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
 	            if(otherProjectAstManager != null){
 	                IModulesManager projectModulesManager = otherProjectAstManager.getModulesManager();
 	                if(projectModulesManager != null){
-	                    list.add((ModulesManager) projectModulesManager);
+	                    list.add((IModulesManager) projectModulesManager);
 	                }
 	            }
             }
@@ -460,14 +469,14 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     /**
      * @return Returns the managers that this project references(does not include itself).
      */
-    public ModulesManager[] getManagersInvolved(boolean checkSystemManager) {
+    public IModulesManager[] getManagersInvolved(boolean checkSystemManager) {
         return getManagers(checkSystemManager, true);
     }
 
     /**
      * @return Returns the managers that reference this project (does not include itself).
      */
-    public ModulesManager[] getRefencingManagersInvolved(boolean checkSystemManager) {
+    public IModulesManager[] getRefencingManagersInvolved(boolean checkSystemManager) {
         return getManagers(checkSystemManager, false);
     }
 
@@ -478,14 +487,17 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
      */
     public List<String> getCompletePythonPath(String interpreter){
         List<String> l = new ArrayList<String>();
-        ModulesManager[] managersInvolved = getManagersInvolved(true);
-        for (ModulesManager m:managersInvolved) {
-            if(m instanceof SystemModulesManager){
-                SystemModulesManager systemModulesManager = (SystemModulesManager) m;
+        IModulesManager[] managersInvolved = getManagersInvolved(true);
+        for (IModulesManager m:managersInvolved) {
+            if(m instanceof ISystemModulesManager){
+                ISystemModulesManager systemModulesManager = (ISystemModulesManager) m;
                 l.addAll(systemModulesManager.getCompletePythonPath(interpreter, nature));
                 
             }else{
-                l.addAll(m.pythonPathHelper.getPythonpath());
+                PythonPathHelper h = (PythonPathHelper)m.getPythonPathHelper();
+                if(h != null){
+                    l.addAll(h.getPythonpath());
+                }
             }
         }
         return l;

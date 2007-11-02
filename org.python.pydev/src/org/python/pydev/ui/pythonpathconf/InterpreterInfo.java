@@ -5,8 +5,6 @@
  */
 package org.python.pydev.ui.pythonpathconf;
 
-import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -26,6 +24,7 @@ import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.uiutils.RunInUiThread;
@@ -33,8 +32,6 @@ import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
-import org.python.pydev.utils.PyFileListing;
 
 
 public class InterpreterInfo implements IInterpreterInfo{
@@ -87,7 +84,7 @@ public class InterpreterInfo implements IInterpreterInfo{
      * The modules manager is no longer persisted. It is restored from a separate file, because we do
      * not want to keep it in the 'configuration', as a giant Base64 string.
      */
-    private SystemModulesManager modulesManager;
+    private ISystemModulesManager modulesManager;
     
     /**
      * This callback is only used in tests, to configure the paths that should be chosen after the interpreter is selected.
@@ -109,12 +106,12 @@ public class InterpreterInfo implements IInterpreterInfo{
      * @note: the side-effect of this method is that it sets in the modules manager that this is the
      * info that it should use.
      */
-    public void setModulesManager(SystemModulesManager modulesManager) {
+    public void setModulesManager(ISystemModulesManager modulesManager) {
         modulesManager.setInfo(this);
         this.modulesManager = modulesManager;
     }
 
-    public SystemModulesManager getModulesManager() {
+    public ISystemModulesManager getModulesManager() {
         return modulesManager;
     }
 

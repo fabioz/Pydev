@@ -295,7 +295,7 @@ public class CodeCompletionTestsBase extends TestCase {
         nature = null; //has to be restored for the project, as we just restored the system pythonpath
         
         //ok, the system manager must be there
-        assertTrue(info.getModulesManager().getSize() > 0);
+        assertTrue(info.getModulesManager().getSize(true) > 0);
 
         //and it must be registered as the pydev interpreter manager
         IInterpreterManager iMan2 = getInterpreterManager();
@@ -303,7 +303,7 @@ public class CodeCompletionTestsBase extends TestCase {
         assertTrue(info2 == info);
         
         //does it have the loaded modules?
-        assertTrue(info2.getModulesManager().getSize() > 0);
+        assertTrue(info2.getModulesManager().getSize(true) > 0);
         assertTrue(info2.getModulesManager().getBuiltins().length > 0);
         
     }
@@ -362,15 +362,15 @@ public class CodeCompletionTestsBase extends TestCase {
     protected void checkSize() {
         IInterpreterManager iMan = getInterpreterManager();
         InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(getProgressMonitor());
-        assertTrue(info.getModulesManager().getSize() > 0);
+        assertTrue(info.getModulesManager().getSize(true) > 0);
         
         int size = ((ASTManager)nature.getAstManager()).getSize();
-        assertTrue("Interpreter size:"+info.getModulesManager().getSize()+" should be smaller than project size:"+size+" " +
-        		"(because it contains system+project info)" , info.getModulesManager().getSize() < size );
+        assertTrue("Interpreter size:"+info.getModulesManager().getSize(true)+" should be smaller than project size:"+size+" " +
+        		"(because it contains system+project info)" , info.getModulesManager().getSize(true) < size );
         
         size = ((ASTManager)nature2.getAstManager()).getSize();
-        assertTrue("Interpreter size:"+info.getModulesManager().getSize()+" should be smaller than project size:"+size+" " +
-        		"(because it contains system+project info)" , info.getModulesManager().getSize() < size );
+        assertTrue("Interpreter size:"+info.getModulesManager().getSize(true)+" should be smaller than project size:"+size+" " +
+        		"(because it contains system+project info)" , info.getModulesManager().getSize(true) < size );
     }
    
 

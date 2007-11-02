@@ -14,6 +14,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
+import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
@@ -22,6 +26,7 @@ import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -68,7 +73,7 @@ public class JavaClassModuleTestWorkbench extends TestCase {
         IFolder sourceFolder = project.getFolder(new Path("src"));
         if(!sourceFolder.exists()){
             sourceFolder.create(true, true, monitor);
-            PythonNature.addNature(project, monitor, PythonNature.JYTHON_VERSION_2_1, "src");
+            PythonNature.addNature(project, monitor, PythonNature.JYTHON_VERSION_2_1, "/pydev_unit_test_project/src");
         }
 
         IFile initFile = createPackageStructure(sourceFolder, "pack1.pack2", monitor);
@@ -78,14 +83,17 @@ public class JavaClassModuleTestWorkbench extends TestCase {
             mod1.create(new ByteArrayInputStream(mod1Contents.getBytes()), true, monitor);
         }
 
-//        PyEdit editor = (PyEdit) PydevPlugin.doOpenEditor(mod1, true);
-//        IContentAssistant contentAssistant = editor.getEditConfiguration().getContentAssistant(editor.getPySourceViewer());
-//        IContentAssistProcessor processor = contentAssistant.getContentAssistProcessor(IDocument.DEFAULT_CONTENT_TYPE);
-//        System.out.println("Request props");
-//        ICompletionProposal[] props = processor.computeCompletionProposals(editor.getPySourceViewer(), mod1Contents.length()-1);
-//        for (ICompletionProposal prop : props) {
-//            System.out.println("Prop:"+prop.getDisplayString());
-//        }
+        PyEdit editor = (PyEdit) PydevPlugin.doOpenEditor(mod1, true);
+        IContentAssistant contentAssistant = editor.getEditConfiguration().getContentAssistant(editor.getPySourceViewer());
+        //Halted when requesting props because of syncExec: (asyncExec works)
+        //org.python.pydev.ui.interpreters.AbstractInterpreterManager.getInterpretersFromPersistedString(...).new Runnable() {...}.run().new IRunnableWithProgress() {...}.run(IProgressMonitor)
+        IContentAssistProcessor processor = contentAssistant.getContentAssistProcessor(IDocument.DEFAULT_CONTENT_TYPE);
+        System.out.println("Request props");
+        ICompletionProposal[] props = processor.computeCompletionProposals(editor.getPySourceViewer(), mod1Contents.length()-1);
+        System.out.println("Props requested");
+        for (ICompletionProposal prop : props) {
+            System.out.println("Prop:"+prop.getDisplayString());
+        }
         
         goToManual();
     }

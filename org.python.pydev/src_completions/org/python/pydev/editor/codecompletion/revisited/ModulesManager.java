@@ -64,11 +64,11 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * It will not actually make any computations (the managers must be set from the outside)
      */
     protected static class CompletionCache {
-        public ModulesManager[] referencedManagers;
+        public IModulesManager[] referencedManagers;
 
-        public ModulesManager[] referredManagers;
+        public IModulesManager[] referredManagers;
 
-        public ModulesManager[] getManagers(boolean referenced) {
+        public IModulesManager[] getManagers(boolean referenced) {
             if (referenced) {
                 return this.referencedManagers;
             } else {
@@ -76,7 +76,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
             }
         }
 
-        public void setManagers(ModulesManager[] ret, boolean referenced) {
+        public void setManagers(IModulesManager[] ret, boolean referenced) {
             if (referenced) {
                 this.referencedManagers = ret;
             } else {
@@ -351,8 +351,10 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
 
     /**
      * @return a set of all module keys
+     * 
+     * Note: addDependencies ignored at this point.
      */
-    public Set<String> getAllModuleNames() {
+    public Set<String> getAllModuleNames(boolean addDependencies) {
         Set<String> s = new HashSet<String>();
         synchronized (modulesKeys) {
             for (ModulesKey key : this.modulesKeys.keySet()) {
@@ -386,9 +388,9 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     }
 
     /**
-     * @return
+     * Note: no dependencies at this point (so, just return the keys)
      */
-    public int getSize() {
+    public int getSize(boolean addDependenciesSize) {
         return this.modulesKeys.size();
     }
 
@@ -406,7 +408,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * NOTE: isLookingForRelative description was: when looking for relative imports, we don't check for __init__
      * @return the module represented by this name
      */
-    public IModule getModule(boolean acceptCompiledModule, String name, IPythonNature nature, boolean dontSearchInit) {
+    protected IModule getModule(boolean acceptCompiledModule, String name, IPythonNature nature, boolean dontSearchInit) {
         AbstractModule n = null;
         ModulesKey keyForCacheAccess = new ModulesKey(null, null);
 
@@ -524,10 +526,6 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         }
     }
 
-    protected AbstractModule getBuiltinModule(String name, IPythonNature nature, boolean dontSearchInit) {
-        //default implementation returns null (only the SystemModulesManager will actually return something here)
-        return null;
-    }
 
     /**
      * Passes through all the compiled modules in memory and clears its tokens (so that

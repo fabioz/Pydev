@@ -30,7 +30,7 @@ public interface IModulesManager {
     /**
      * @return a set with the names of all available modules
      */
-    public abstract Set<String> getAllModuleNames();
+    public abstract Set<String> getAllModuleNames(boolean addDependencies);
 
     public abstract ModulesKey[] getOnlyDirectModules();
 
@@ -80,9 +80,11 @@ public interface IModulesManager {
     public abstract void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor, String defaultSelectedInterpreter);
 
     /**
-     * @see org.python.pydev.editor.codecompletion.revisited.ModulesManager#getSize()
+     * @param addDependenciesSize whether the dependencies of a given modules manager 
+     * 
+     * @return the number of modules in this modules manager.
      */
-    public abstract int getSize();
+    public abstract int getSize(boolean addDependenciesSize);
 
     /**
      * Forced builtins are only specified in the system.
@@ -107,6 +109,10 @@ public interface IModulesManager {
     public boolean startCompletionCache();
     public void endCompletionCache();
 
+    /**
+     * @return the pythonpath helper related to this modules manager. May return null if it doesn't have a related
+     * pythonpath helper (e.g.: a modules manager for another kind of project -- such as a java project).
+     */
     public abstract Object /*PythonPathHelper*/ getPythonPathHelper();
 
     /**
@@ -121,4 +127,5 @@ public interface IModulesManager {
      * @return the module created for the given key.
      */
     public abstract IModule addModule(ModulesKey key);
+
 }
