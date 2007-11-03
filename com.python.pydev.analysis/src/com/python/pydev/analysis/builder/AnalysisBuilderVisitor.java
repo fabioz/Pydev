@@ -5,7 +5,11 @@ package com.python.pydev.analysis.builder;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.ui.progress.WorkbenchJob;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -87,15 +91,24 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
             //this may happen if we are not in the regular visiting but in some parser changed (the module is passed, so we don't have to recreate it from the doc)
             setModuleInCache(module);
         }
-        String moduleName = getModuleName(resource, nature);
-        AnalysisBuilderRunnable runnable = AnalysisBuilderRunnable.createRunnable(document, resource, module, analyzeDependent, monitor, isFullBuild(), moduleName);
+        final String moduleName = getModuleName(resource, nature);
+        final AnalysisBuilderRunnable runnable = AnalysisBuilderRunnable.createRunnable(document, resource, module, analyzeDependent, monitor, isFullBuild(), moduleName);
         if(isFullBuild()){
         	runnable.run();
         }else{
-        	Thread thread = new Thread(runnable);
-        	thread.setPriority(Thread.MIN_PRIORITY);
-        	thread.setName("AnalysisBuilderThread :"+moduleName);
-        	thread.start();
+            WorkbenchJob workbenchJob = new WorkbenchJob("") {
+            
+                @Override
+                public IStatus runInUIThread(IProgressMonitor monitor) {
+                    this.getThread().setName("AnalysisBuilderThread :"+moduleName);
+                    runnable.run();
+                    return Status.OK_STATUS;
+                }
+            
+            };
+            workbenchJob.setSystem(true);
+            workbenchJob.setPriority(Job.BUILD);
+            workbenchJob.schedule();
         }
     }
 
