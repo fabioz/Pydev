@@ -2,26 +2,17 @@
 
 
 <ul>
-<li>Fixed problem when configuring jython</li>
-<li>Patch from <strong>paulj</strong>: debbugger working with jython 2.2rc2</li>
-<li>Patch from <strong>Oskar Heck</strong>: debbugger can change globals</li>
-<li>Added action to <strong>delete all .pyc / $py.class</strong> files</li>
-<li>Added actions to <strong>add/remove the pydev configuration from a project</strong> (previously, the only way to add a nature was to open a python file within a project).</li>
-<li><strong>Ctrl+Shift+O</strong>: When used with a selection will consider lines ending with \ (without selection organizes imports)</li>
-<li>Auto-add "import" string will not be added when adding a space in the case: from xxximport (just after from xxx)</li>
-<li>Templates created with tabs (or spaces indent) are now converted to the indent being used in the editor</li>
-<li>Hide non-pydev projects filter working</li>
-<li>Don't show assignments/imports after <strong>if __name__ == '__main__'</strong>: in outline</li>
-<li><strong>Code-completion</strong>: after a completion is requested, pressing '.' will apply that completion (and if it has parameters, they'll not be added).</li>
-<li><strong>Code-completion</strong>: when a code-completion is applied with Ctrl pressed (toggle mode), parameters are not added.</li>
-<li><strong>Assign to local</strong> variable/attribute handles <strong>constants</strong> correctly.</li>
-<li><strong>psyco</strong> changed for Null object for <strong>debug</strong> (so, no changes are required to the code if psyco is used while debugging).</li>
-<li><strong>Code-folding</strong> annotations won't change places.</li>
-<li><strong>Pydev package explorer</strong> will correctly show outline for files if the project root is set as a source folder.</li>
-<li><strong>Pydev package explorer</strong>: folders under the pythonpath have a package icon.</li>
-<li>Unittest runner: handles <strong>multiple selection</strong>.</li>
+<li><strong>Symlinks</strong> supported in the system pythonpath configuration.</li>
+<li><strong>Egg/zip</strong> files are now supported.</li>
+<li>The creation of a project in a non-default location is now allowed within the workspace</li>
+<li><strong>JDT</strong> used to get completions from jars (but referencing other java projects is still not supported).</li>
+<li>Configuration of pythonpath allows multiple selection for removal.</li>
+<li>Configuration of pythonpath allows multiple jars/zips to be added at once.</li>
+<li>When configuring the pythonpath, the paths are sorted for selection.</li>
+<li>The file extensions that pydev recognizes for python can now be customized.</li>
+<li>Patch by <strong>Carl Robinson</strong>: <strong>Code-folding</strong> for elements such as for, try, while, etc.</li>
+<li>Removed the go to next/previous problem annotation (Eclipse 3.3 already provides a default implementation for it).</li>
 </ul>
-
 
 
 <br/>
@@ -81,6 +72,32 @@
 
 <hr/>
 <h2>Features History</h2>
+
+
+<h3>New on: 1.3.9</h3>
+
+
+<ul>
+<li>Fixed problem when configuring jython</li>
+<li>Patch from <strong>paulj</strong>: debbugger working with jython 2.2rc2</li>
+<li>Patch from <strong>Oskar Heck</strong>: debbugger can change globals</li>
+<li>Added action to <strong>delete all .pyc / $py.class</strong> files</li>
+<li>Added actions to <strong>add/remove the pydev configuration from a project</strong> (previously, the only way to add a nature was to open a python file within a project).</li>
+<li><strong>Ctrl+Shift+O</strong>: When used with a selection will consider lines ending with \ (without selection organizes imports)</li>
+<li>Auto-add "import" string will not be added when adding a space in the case: from xxximport (just after from xxx)</li>
+<li>Templates created with tabs (or spaces indent) are now converted to the indent being used in the editor</li>
+<li>Hide non-pydev projects filter working</li>
+<li>Don't show assignments/imports after <strong>if __name__ == '__main__'</strong>: in outline</li>
+<li><strong>Code-completion</strong>: after a completion is requested, pressing '.' will apply that completion (and if it has parameters, they'll not be added).</li>
+<li><strong>Code-completion</strong>: when a code-completion is applied with Ctrl pressed (toggle mode), parameters are not added.</li>
+<li><strong>Assign to local</strong> variable/attribute handles <strong>constants</strong> correctly.</li>
+<li><strong>psyco</strong> changed for Null object for <strong>debug</strong> (so, no changes are required to the code if psyco is used while debugging).</li>
+<li><strong>Code-folding</strong> annotations won't change places.</li>
+<li><strong>Pydev package explorer</strong> will correctly show outline for files if the project root is set as a source folder.</li>
+<li><strong>Pydev package explorer</strong>: folders under the pythonpath have a package icon.</li>
+<li>Unittest runner: handles <strong>multiple selection</strong>.</li>
+</ul>
+
 
 
 <h3>New on: 1.3.8</h3>
