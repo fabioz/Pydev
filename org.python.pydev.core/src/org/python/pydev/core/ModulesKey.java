@@ -83,4 +83,18 @@ public class ModulesKey implements Comparable<ModulesKey>, Serializable{
         }
         return name;
     }
+
+
+    /**
+     * @return true if any of the parts in this modules key start with the passed string (considering the internal
+     * parts lower case).
+     */
+    public boolean hasPartStartingWith(String startingWithLowerCase) {
+        for (String mod : FullRepIterable.dotSplit(this.name.toLowerCase())) {
+            if(mod.startsWith(startingWithLowerCase)){
+                return true;
+            }
+        }
+        return false;
+    }
 }

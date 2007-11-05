@@ -7,14 +7,13 @@
 - Ctrl+* should enable/disable mark occurrences
 - Variable highlight doesn't respect local scope (all docstrings are gotten in the file when renaming a local variable)
 - Adding 'Log' to the undefined vars (such as _) will still yield errors when Log.write is accessed
-- Java integration: should work when a java project is referenced.
+- Java integration: should work when a java project is referenced -- integration started. See: ProjectModulesManager.addModuleManagers (currently commented)
 - Add breakpoint if file is zip
 
 - Enable users to work with zip files and integrate better with java (jars and ast structure).
 	- Simple support (code-completion / modules): OK
-	- Go to definition: OK
-	- Context insensitive import
-		- Should keep zip file open? InterpreterObserver
+	- Go to definition: OK, but needs changing to NameLookup in findDefinition (better API reference -- internal, but we'll be using it in another place, so, it'll have to be supported anyway) 
+	- Context insensitive import: OK
 	- Debugger
 	- .pyd inside zip file (handled but not tested): 
 		- ModulesManager: else if(PythonPathHelper.isValidDll(emptyModuleForZip.pathInZip)){

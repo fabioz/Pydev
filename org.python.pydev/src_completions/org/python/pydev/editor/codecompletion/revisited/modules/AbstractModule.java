@@ -220,9 +220,12 @@ public abstract class AbstractModule implements IModule {
      * This function creates a module and resolves the module name (use this function if only the file is available).
      */
 	public static IModule createModuleFromDoc(File file, IDocument doc, IPythonNature pythonNature, int line, IModulesManager projModulesManager) {
-		String moduleName = MODULE_NAME_WHEN_FILE_IS_UNDEFINED;
+		String moduleName = null;
 	    if(file != null){
 			moduleName = projModulesManager.resolveModule(REF.getFileAbsolutePath(file));
+	    }
+	    if(moduleName == null){
+	        moduleName = MODULE_NAME_WHEN_FILE_IS_UNDEFINED;
 	    }
 		IModule module = createModuleFromDoc(moduleName, file, doc, pythonNature, line);
 	    return module;
@@ -261,9 +264,12 @@ public abstract class AbstractModule implements IModule {
      * @return the module
      */
     public static IModule createModule(SimpleNode n, File file, IModulesManager projModulesManager) {
-		String moduleName = MODULE_NAME_WHEN_FILE_IS_UNDEFINED;
+		String moduleName = null;
 	    if(file != null){
 			moduleName = projModulesManager.resolveModule(REF.getFileAbsolutePath(file));
+	    }
+	    if(moduleName == null){
+	        moduleName = MODULE_NAME_WHEN_FILE_IS_UNDEFINED;
 	    }
     	return createModule(n, file, moduleName);
     }

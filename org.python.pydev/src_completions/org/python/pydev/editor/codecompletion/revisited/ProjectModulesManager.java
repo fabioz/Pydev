@@ -34,6 +34,7 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesKeyForJava;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -122,8 +123,8 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     @Override
     public void doRemoveSingleModule(ModulesKey key) {
         super.doRemoveSingleModule(key);
-        if(deltaSaver != null || !IN_TESTS){ //we don't want deltas in tests
-            //overriden to add delta
+        if(deltaSaver != null && !IN_TESTS){ //we don't want deltas in tests
+            //overridden to add delta
             deltaSaver.addDeleteCommand(key);
             checkDeltaSize();
         }
@@ -133,8 +134,9 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     @Override
     public void doAddSingleModule(ModulesKey key, AbstractModule n) {
         super.doAddSingleModule(key, n);
-        if(deltaSaver != null || !IN_TESTS && !(key instanceof ModulesKeyForZip)){ //we don't want deltas in tests nor in zips
-            //overriden to add delta
+        if((deltaSaver != null && !IN_TESTS) && !(key instanceof ModulesKeyForZip) && !(key instanceof ModulesKeyForJava)){ 
+            //we don't want deltas in tests nor in zips/java modules
+            //overridden to add delta
             deltaSaver.addInsertCommand(key);
             checkDeltaSize();
         }
@@ -195,18 +197,18 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     }
     
     /** 
-     * @see org.python.pydev.core.IProjectModulesManager#getAllModuleNames(boolean addDependencies)
+     * @see org.python.pydev.core.IProjectModulesManager#getAllModuleNames(boolean addDependencies, String startingWithLowerCase)
      */
-    public Set<String> getAllModuleNames(boolean addDependencies) {
+    public Set<String> getAllModuleNames(boolean addDependencies, String startingWithLowerCase) {
         if(addDependencies){
             Set<String> s = new HashSet<String>();
             IModulesManager[] managersInvolved = this.getManagersInvolved(true);
             for (int i = 0; i < managersInvolved.length; i++) {
-                s.addAll(managersInvolved[i].getAllModuleNames(false));
+                s.addAll(managersInvolved[i].getAllModuleNames(false, startingWithLowerCase));
             }
             return s;
         }else{
-            return super.getAllModuleNames(addDependencies);
+            return super.getAllModuleNames(addDependencies, startingWithLowerCase);
         }
     }
     
@@ -462,6 +464,10 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
 	                }
 	            }
             }
+//	        IModulesManager javaModulesManagerForProject = JavaProjectModulesManager.createJavaProjectModulesManagerIfPossible(project);
+//	        if(javaModulesManagerForProject != null){
+//	            list.add(javaModulesManagerForProject);
+//	        }
         }
     }
 

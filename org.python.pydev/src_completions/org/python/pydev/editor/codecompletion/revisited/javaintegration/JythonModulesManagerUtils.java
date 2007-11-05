@@ -32,7 +32,7 @@ public class JythonModulesManagerUtils {
      * @throws JDTNotAvailableException
      */
     public static void tryRethrowAsJDTNotAvailableException(Throwable e) throws JDTNotAvailableException {
-        if(e instanceof LinkageError || e instanceof ClassNotFoundException){
+        if(isOptionalJDTClassNotFound(e)){
             throw new JDTNotAvailableException();
             
         }else if(e instanceof JDTNotAvailableException){
@@ -46,6 +46,13 @@ public class JythonModulesManagerUtils {
         
         PydevPlugin.log(e);
         throw new RuntimeException(e);
+    }
+
+    /**
+     * @return true if the passed throwable belongs to a class of exceptions related to not having JDT available
+     */
+    public static boolean isOptionalJDTClassNotFound(Throwable e) {
+        return e instanceof LinkageError || e instanceof ClassNotFoundException;
     }
 
 }

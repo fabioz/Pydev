@@ -30,7 +30,7 @@ public interface IModulesManager {
     /**
      * @return a set with the names of all available modules
      */
-    public abstract Set<String> getAllModuleNames(boolean addDependencies);
+    public abstract Set<String> getAllModuleNames(boolean addDependencies, String startingWithLowerCase);
 
     public abstract ModulesKey[] getOnlyDirectModules();
 
@@ -65,7 +65,9 @@ public interface IModulesManager {
     public abstract String resolveModule(IResource member, IProject container);
 
     /**
-     * resolve module for all, including the system manager.
+     * Resolve module for all, including the system manager.
+     * 
+     * May return null if we're not able to resolve tho module.
      * 
      * @see org.python.pydev.editor.codecompletion.revisited.ModulesManager#resolveModule(java.lang.String)
      */

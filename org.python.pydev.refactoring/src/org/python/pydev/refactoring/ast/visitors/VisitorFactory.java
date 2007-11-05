@@ -99,9 +99,11 @@ public class VisitorFactory {
 				IModulesManager m = moduleManager.getIModuleManager();
 				if(m != null){
 					String modName = m.resolveModule(REF.getFileAbsolutePath(file));
-					IModule module = m.getModule(modName, nature, true);
-					if (module instanceof ISourceModule) {
-						return createModuleAdapter(moduleManager, (ISourceModule) module, nature);
+					if(modName != null){
+    					IModule module = m.getModule(modName, nature, true);
+    					if (module instanceof ISourceModule) {
+    						return createModuleAdapter(moduleManager, (ISourceModule) module, nature);
+    					}
 					}
 				}
 			}
