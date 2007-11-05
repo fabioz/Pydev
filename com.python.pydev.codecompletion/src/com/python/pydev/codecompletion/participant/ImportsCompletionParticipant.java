@@ -6,7 +6,6 @@ package com.python.pydev.codecompletion.participant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -44,9 +43,9 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             Image img = PyCodeCompletionImages.getImageForType(IToken.TYPE_PACKAGE);
             
             IModulesManager projectModulesManager = astManager.getModulesManager();
-            Set<String> allModuleNames = projectModulesManager.getAllModuleNames(true);
             
             String lowerQual = request.qualifier.toLowerCase();
+            Set<String> allModuleNames = projectModulesManager.getAllModuleNames(true, lowerQual);
 
             StringBuffer realImportRep=new StringBuffer();
             HashSet<String> importedNames = getImportedNames(state);
