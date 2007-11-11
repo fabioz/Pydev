@@ -28,9 +28,15 @@ public interface IModulesManager {
     public abstract ISystemModulesManager getSystemModulesManager();
 
     /**
+     * @param addDependencies: whether we should add the dependencies for this modules manager to the given set 
+     * of module names returned (or if we should just get the direct dependencies in this manager).
+     * 
+     * @param partStartingWithLowerCase: whether a given part of the module starts with the lower case version
+     * of the passed string (e.g.: if mod1.mod2.mod3 will give a match for the string mod3)
+     * 
      * @return a set with the names of all available modules
      */
-    public abstract Set<String> getAllModuleNames(boolean addDependencies, String startingWithLowerCase);
+    public abstract Set<String> getAllModuleNames(boolean addDependencies, String partStartingWithLowerCase);
 
     public abstract ModulesKey[] getOnlyDirectModules();
 

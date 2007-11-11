@@ -1,43 +1,32 @@
 package org.python.pydev.editor.codecompletion.revisited.javaintegration;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IInitializer;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.WorkingCopyOwner;
-import org.eclipse.jdt.internal.core.IJavaElementRequestor;
-import org.eclipse.jdt.internal.core.JavaProject;
-import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.REF;
 
 /**
  * This class wraps a java project as we'd wrap a python project in a ProjectModulesManager, to give info on the 
@@ -101,129 +90,50 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     }
 
     private IJavaProject javaProject;
-    private static Field packageFragmentsAttr;
 
     public JavaProjectModulesManager(IJavaProject javaProject) {
-        if(packageFragmentsAttr == null){
-            packageFragmentsAttr = REF.getAttrFromClass(NameLookup.class, "packageFragments");
-            packageFragmentsAttr.setAccessible(true);
-        }
         this.javaProject = javaProject;
     }
 
 
-    /**
-     * @return a compilation unit to be used for finding what we need (whith the classpath entries that we're interested in).
-     * @throws JavaModelException
-     */
-    private ICompilationUnit createCompilationUnit() throws JavaModelException {
-        ArrayList<IClasspathEntry> usedEntries = new ArrayList<IClasspathEntry>();
-        
-        IClasspathEntry[] rawClasspath = this.javaProject.getRawClasspath();
-        for(IClasspathEntry entry:rawClasspath){
-            int entryKind = entry.getEntryKind();
-            IClasspathEntry resolvedClasspathEntry = JavaCore.getResolvedClasspathEntry(entry);
-            if(entryKind != IClasspathEntry.CPE_CONTAINER){
-                //ignore if it's in the system classpath...
-                usedEntries.add(resolvedClasspathEntry);
-            }
-        }
-        
-        IClasspathEntry[] classpathsArray = usedEntries.toArray(new IClasspathEntry[usedEntries.size()]);
-        ICompilationUnit unit = new WorkingCopyOwner(){}.newWorkingCopy("Temp", classpathsArray, new NullProgressMonitor());
-        return unit;
+    public SortedMap<ModulesKey, ModulesKey> getAllDirectModulesStartingWith(String moduleToGetTokensFrom) {
+        throw new RuntimeException("Not implemented");
     }
 
-    
-    /**
-     * Create a lookup that'll let us search through the java entries in a project.
-     * @return the created NameLookup
-     * @throws JavaModelException
-     */
-    private NameLookup createNameLookup() throws JavaModelException {
-        ICompilationUnit unit = createCompilationUnit();
-        
-        JavaProject j = (JavaProject) javaProject;
-        return j.newNameLookup(new ICompilationUnit[]{unit});
-    }
-    
-    /**
-     * Get only the entries that are not 'system-related'
-     */
-    public SortedMap<ModulesKey, ModulesKey> getAllDirectModulesStartingWith(final String moduleToGetTokensFrom) {
-        try {
-            final NameLookup n = createNameLookup();
-            final TreeMap<ModulesKey, ModulesKey> ret = new TreeMap<ModulesKey, ModulesKey>();
-            final boolean partialMatch = true;
-            
-            IJavaElementRequestor requestor = new IJavaElementRequestor(){
-
-                public void acceptField(IField field) {}
-                public void acceptInitializer(IInitializer initializer) {}
-                public void acceptMemberType(IType type) {}
-                public void acceptMethod(IMethod method) {}
-                public void acceptType(IType type) {
-                    ModulesKeyForJava key = new ModulesKeyForJava(type.getFullyQualifiedName(), type);
-                    ret.put(key, key);
-                    
-                }
-
-                public void acceptPackageFragment(IPackageFragment packageFragment) {
-                    ModulesKeyForJava key = new ModulesKeyForJava(packageFragment.getElementName(), packageFragment);
-                    ret.put(key, key);
-                    n.seekTypes(moduleToGetTokensFrom, packageFragment, partialMatch, 0xFFFF, this);
-                }
-
-                public boolean isCanceled() {
-                    return false;
-                }
-            };
-                
-            n.seekPackageFragments(moduleToGetTokensFrom, partialMatch, requestor);
-            
-            return ret;
-        } catch (JavaModelException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    public Set<String> getAllModuleNames(boolean addDependencies, final String startingWith) {
+    public Set<String> getAllModuleNames(boolean addDependencies, final String partStartingWithLowerCase) {
         if(addDependencies){
             throw new RuntimeException("At this point, it should never be called with dependencies (because it's a java project already)");
         }
+        HashSet<String> ret = new HashSet<String>();
+        IClasspathEntry[] rawClasspath;
         try {
-            final NameLookup n = createNameLookup();
-            final HashSet<String> ret = new HashSet<String>();
-            final boolean partialMatch = true;
-            
-            IJavaElementRequestor requestor = new IJavaElementRequestor(){
-
-                public void acceptField(IField field) {}
-                public void acceptInitializer(IInitializer initializer) {}
-                public void acceptMemberType(IType type) {}
-                public void acceptMethod(IMethod method) {}
-                public void acceptType(IType type) {
-                    ret.add(type.getFullyQualifiedName());
-                    
+            rawClasspath = this.javaProject.getRawClasspath();
+            for(IClasspathEntry entry:rawClasspath){
+                int entryKind = entry.getEntryKind();
+                IClasspathEntry resolvedClasspathEntry = JavaCore.getResolvedClasspathEntry(entry);
+                if(entryKind != IClasspathEntry.CPE_CONTAINER){
+                    //ignore if it's in the system classpath...
+                    IPackageFragmentRoot[] roots = javaProject.findPackageFragmentRoots(resolvedClasspathEntry);
+                    for (IPackageFragmentRoot root : roots) {
+                        IJavaElement[] children = root.getChildren();
+                        for(IJavaElement child:children){
+                            String elementName = child.getElementName();
+                            
+                            for (String mod : FullRepIterable.dotSplit(elementName)) {
+                                if(mod.startsWith(partStartingWithLowerCase)){
+                                    ret.add(elementName);
+                                    break;//inner for
+                                }
+                            }
+                        }
+                    }
                 }
-
-                public void acceptPackageFragment(IPackageFragment packageFragment) {
-                    ret.add(packageFragment.getElementName());
-                    n.seekTypes(startingWith, packageFragment, partialMatch, 0xFFFF, this);
-                }
-
-                public boolean isCanceled() {
-                    return false;
-                }
-            };
-                
-            n.seekPackageFragments(startingWith, partialMatch, requestor);
-            
+            }
             return ret;
         } catch (JavaModelException e) {
             throw new RuntimeException(e);
         }
+        
     }
         
 

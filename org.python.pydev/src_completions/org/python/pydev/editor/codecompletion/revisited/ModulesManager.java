@@ -354,11 +354,11 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * 
      * Note: addDependencies ignored at this point.
      */
-    public Set<String> getAllModuleNames(boolean addDependencies, String startingWithLowerCase) {
+    public Set<String> getAllModuleNames(boolean addDependencies, String partStartingWithLowerCase) {
         Set<String> s = new HashSet<String>();
         synchronized (modulesKeys) {
             for (ModulesKey key : this.modulesKeys.keySet()) {
-                if(key.hasPartStartingWith(startingWithLowerCase)){
+                if(key.hasPartStartingWith(partStartingWithLowerCase)){
                     s.add(key.name);
                 }
             }

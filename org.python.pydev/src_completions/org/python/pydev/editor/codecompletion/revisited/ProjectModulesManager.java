@@ -34,6 +34,7 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesKeyForJava;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.PydevPlugin;
@@ -197,18 +198,18 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     }
     
     /** 
-     * @see org.python.pydev.core.IProjectModulesManager#getAllModuleNames(boolean addDependencies, String startingWithLowerCase)
+     * @see org.python.pydev.core.IProjectModulesManager#getAllModuleNames(boolean addDependencies, String partStartingWithLowerCase)
      */
-    public Set<String> getAllModuleNames(boolean addDependencies, String startingWithLowerCase) {
+    public Set<String> getAllModuleNames(boolean addDependencies, String partStartingWithLowerCase) {
         if(addDependencies){
             Set<String> s = new HashSet<String>();
             IModulesManager[] managersInvolved = this.getManagersInvolved(true);
             for (int i = 0; i < managersInvolved.length; i++) {
-                s.addAll(managersInvolved[i].getAllModuleNames(false, startingWithLowerCase));
+                s.addAll(managersInvolved[i].getAllModuleNames(false, partStartingWithLowerCase));
             }
             return s;
         }else{
-            return super.getAllModuleNames(addDependencies, startingWithLowerCase);
+            return super.getAllModuleNames(addDependencies, partStartingWithLowerCase);
         }
     }
     
