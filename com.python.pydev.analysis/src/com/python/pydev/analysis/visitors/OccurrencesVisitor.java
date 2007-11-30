@@ -31,6 +31,7 @@ import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.While;
+import org.python.pydev.parser.jython.ast.Yield;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.messages.IMessage;
@@ -149,6 +150,14 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
     public Object visitAssign(Assign node) throws Exception {
         isInTestScope+=1;
         Object r = super.visitAssign(node);
+        isInTestScope-=1;
+        return r;
+    }
+    
+    @Override
+    public Object visitYield(Yield node) throws Exception {
+        isInTestScope+=1;
+        Object r = super.visitYield(node);
         isInTestScope-=1;
         return r;
     }

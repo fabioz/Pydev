@@ -2467,4 +2467,15 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	printMessages(msgs, 0);
     }
     
+    public void testNoEffectOk7() {
+        doc = new Document("" +
+                "def check():\n" +
+                "    yield 1 == 2\n" +
+        "");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 0);
+    }
+    
 }
