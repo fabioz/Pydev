@@ -234,8 +234,8 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
 	                additionalInfoForProject = getAdditionalInfoForProject(refProject);
 	                if(additionalInfoForProject != null){
 	                    ret.add(additionalInfoForProject);
+	                    natures.add(PythonNature.getPythonNature(refProject));
 	                }
-	                natures.add(PythonNature.getPythonNature(refProject));
 	            }
 
                 if(addReferencingProjects){
