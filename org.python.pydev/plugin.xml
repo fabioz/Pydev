@@ -1094,7 +1094,6 @@
     </viewerContentBinding>
 </extension>
    
-
   <!-- Declare a content extension that renders the contents of a properties file -->
   <extension point="org.eclipse.ui.navigator.navigatorContent">
          
@@ -1240,6 +1239,13 @@
 	      id="org.python.pydev.navigator.filters.closedProject"
 	  	  class="org.python.pydev.navigator.filters.ClosedProjectsFilter"> 
       </commonFilter>
+      
+      <commonFilter activeByDefault="true" 
+	      name="Pydev: Custom Filters" 
+	      description="Pydev: Hide custom specified filters" 
+	      id="org.python.pydev.navigator.filters.customFilters"
+	  	  class="org.python.pydev.navigator.filters.CustomFilters"> 
+      </commonFilter>
       	  
     </extension>
 
@@ -1260,6 +1266,25 @@
         </viewerActionBinding>
     </extension>
 
+    <extension point="org.eclipse.ui.viewActions"> 
+	  <viewContribution 
+		id="org.python.pydev.navigator.actions.customFilters" 
+   		targetID="org.python.pydev.navigator.view">
+    	<action
+           class="org.python.pydev.navigator.actions.PySetupCustomFilters"
+           icon="icons/filter.gif"
+           id="org.python.pydev.navigator.actions.PySetupCustomFilters"
+           label="Setup custom filters"
+           menubarPath="additions"
+           toolbarPath="additions"
+           tooltip="Setup custom filters."> 
+  		</action> 
+      </viewContribution>
+       
+   </extension>
+
+
+
 	<!-- the adapter factory must be registered (otherwise the CNF cannot 'get it' - even if the objects themselves are
 	adaptable).
     -->
@@ -1274,6 +1299,7 @@
 			<adapter type="org.eclipse.ui.IContributorResourceAdapter"/>
          </factory>
     </extension>
+    
 	<extension point="org.eclipse.ui.navigator.linkHelper">
 		<linkHelper
 			class="org.python.pydev.navigator.actions.PythonLinkHelper"
@@ -1288,4 +1314,5 @@
 			</editorInputEnablement>
 		</linkHelper>
 	</extension>    
+	
  </plugin>

@@ -5,13 +5,13 @@ import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.text.DefaultUndoManager;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.IUndoManager;
+import org.eclipse.jface.text.TextViewerUndoManager;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -50,8 +50,6 @@ public class BreakpointConditionEditor {
 
 	private PythonSourceViewer fViewer;
 
-	private Object fCompletionProcessor;
-		
 	public BreakpointConditionEditor(Composite parent, PythonBreakpointPage page) {
 		fPage = page;
 		fBreakpoint= (PyBreakpoint) fPage.getBreakpoint();
@@ -82,7 +80,7 @@ public class BreakpointConditionEditor {
 		});*/
 		fViewer.setEditable(true);
 		fViewer.setDocument(document);
-		final IUndoManager undoManager= new DefaultUndoManager(10);
+		final IUndoManager undoManager= new TextViewerUndoManager(100);
 		fViewer.setUndoManager(undoManager);
 		undoManager.connect(fViewer);
 		
