@@ -3,6 +3,7 @@ after 1.3.10
 Pydev
 <ul>
 <li><strong>Custom Filters</strong>: User-Defined filters can be specified in the Pydev package explorer.</li>
+<li><strong>Undo limit</strong>: The undo limit set in window > preferences > general > editors > text editors is working for pydev.</li>
 </ul>
 
 Extensions

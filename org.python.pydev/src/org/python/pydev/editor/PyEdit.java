@@ -273,7 +273,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 	        modelListeners = new ArrayList<IModelListener>();
 	        colorCache = new ColorCache(PydevPlugin.getChainedPrefStore());
 	        
-	        editConfiguration = new PyEditConfiguration(colorCache, this, PydevPlugin.getDefault().getPreferenceStore());
+	        editConfiguration = new PyEditConfiguration(colorCache, this, PydevPlugin.getChainedPrefStore());
 	        setSourceViewerConfiguration(editConfiguration);
 	        indentStrategy = editConfiguration.getPyAutoIndentStrategy();
 	        setRangeIndicator(new DefaultRangeIndicator()); // enables standard

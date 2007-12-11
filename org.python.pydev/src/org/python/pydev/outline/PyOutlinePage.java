@@ -188,7 +188,7 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
     /**
      * @return the preference store we should use
      */
-    public IPreferenceStore getStore() {
+    /*package*/IPreferenceStore getStore() {
         return PydevPlugin.getDefault().getPreferenceStore();
     }
     
