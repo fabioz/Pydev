@@ -7,6 +7,8 @@ package org.python.pydev.debug.ui.launching;
 
 import java.io.IOException;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -16,6 +18,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 
 /**
@@ -26,33 +29,67 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
  * <p>I would have subclassed, but ProgramLaunchDelegate hides important internals
  * 
  * Based on org.eclipse.ui.externaltools.internal.program.launchConfigurations.ProgramLaunchDelegate
+ * 
+ * Build order based on org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate
  */
 public abstract class AbstractLaunchConfigurationDelegate extends LaunchConfigurationDelegate implements ILaunchConfigurationDelegate {
-	
-	/**
-	 * Launches the python process.
-	 * 
-	 * Modelled after Ant & Java runners
-	 * see WorkbenchLaunchConfigurationDelegate::launch
-	 */
-	public void launch(ILaunchConfiguration conf, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
 
-		if (monitor == null){
-			monitor = new NullProgressMonitor();
+    private IProject[] fOrderedProjects;
+
+    @Override
+    protected IProject[] getBuildOrder(ILaunchConfiguration configuration, String mode) throws CoreException {
+        return fOrderedProjects;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.debug.core.model.ILaunchConfigurationDelegate2#preLaunchCheck(org.eclipse.debug.core.ILaunchConfiguration,
+     *      java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
+     */
+    @Override
+    public boolean preLaunchCheck(ILaunchConfiguration configuration, String mode, IProgressMonitor monitor) throws CoreException {
+        // build project list
+        fOrderedProjects = null;
+        
+        String projName = configuration.getAttribute(Constants.ATTR_PROJECT, "");
+        if(projName.length() > 0){
+            
+            IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projName);
+
+            if (project != null) {
+                fOrderedProjects = computeReferencedBuildOrder(new IProject[] { project });
+            }
         }
         
-		monitor.beginTask("Preparing configuration", 3);
+        // do generic launch checks
+        return super.preLaunchCheck(configuration, mode, monitor);
+    }
 
-		PythonRunnerConfig runConfig = new PythonRunnerConfig(conf, mode, getRunnerConfigRun());
-		
-		monitor.worked(1);
-		try {
-			PythonRunner.run(runConfig, launch, monitor);
-		} catch (IOException e) {
+    /**
+     * Launches the python process.
+     * 
+     * Modelled after Ant & Java runners
+     * see WorkbenchLaunchConfigurationDelegate::launch
+     */
+    public void launch(ILaunchConfiguration conf, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
+
+        if (monitor == null) {
+            monitor = new NullProgressMonitor();
+        }
+
+        monitor.beginTask("Preparing configuration", 3);
+
+        PythonRunnerConfig runConfig = new PythonRunnerConfig(conf, mode, getRunnerConfigRun());
+
+        monitor.worked(1);
+        try {
+            PythonRunner.run(runConfig, launch, monitor);
+        } catch (IOException e) {
             Log.log(e);
-			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected IO Exception in Pydev debugger", null));
-		}
-	}
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected IO Exception in Pydev debugger", null));
+        }
+    }
 
     /**
      * @return the mode we should use to run it...
