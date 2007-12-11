@@ -36,6 +36,10 @@ public abstract class AbstractLaunchConfigurationDelegate extends LaunchConfigur
 
     private IProject[] fOrderedProjects;
 
+    /**
+     * We need to reimplement this method (otherwise, all the projects in the workspace will be rebuilt, and not only
+     * the ones referenced in the configuration).
+     */
     @Override
     protected IProject[] getBuildOrder(ILaunchConfiguration configuration, String mode) throws CoreException {
         return fOrderedProjects;
