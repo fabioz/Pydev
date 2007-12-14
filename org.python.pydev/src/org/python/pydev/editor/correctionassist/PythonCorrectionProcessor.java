@@ -8,6 +8,7 @@ package org.python.pydev.editor.correctionassist;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,11 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.quickassist.IQuickAssistInvocationContext;
 import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
 import org.eclipse.jface.text.source.Annotation;
+import org.eclipse.jface.text.source.IAnnotationModel;
+import org.eclipse.ui.internal.texteditor.spelling.NoCompletionsProposal;
+import org.eclipse.ui.texteditor.spelling.SpellingAnnotation;
+import org.eclipse.ui.texteditor.spelling.SpellingCorrectionProcessor;
+import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
@@ -147,9 +153,46 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
 
         Collections.sort(results, IPyCodeCompletion.PROPOSAL_COMPARATOR);
 
-        return (ICompletionProposal[]) results.toArray(new ICompletionProposal[0]);
+        
+        
+        //handling spelling... (we only want to show spelling fixes if a spell problem annotation is found at the current location).
+        //we'll only show some spelling proposal if there's some spelling problem (so, we don't have to check the preferences at this place,
+        //as no annotations on spelling will be here if the spelling is not enabled). 
+        ICompletionProposal[] spellProps = null;
+        
+        IAnnotationModel annotationModel = edit.getPySourceViewer().getAnnotationModel();
+        Iterator it = annotationModel.getAnnotationIterator();
+        while(it.hasNext()){
+            Object annotation = it.next();
+            if(annotation instanceof SpellingAnnotation){
+                SpellingAnnotation spellingAnnotation = (SpellingAnnotation) annotation;
+                SpellingProblem spellingProblem = spellingAnnotation.getSpellingProblem();
+                
+                int problemOffset = spellingProblem.getOffset();
+                int problemLen = spellingProblem.getLength();
+                if(problemOffset <= offset && problemOffset+problemLen >= offset){
+                    SpellingCorrectionProcessor spellingCorrectionProcessor = new SpellingCorrectionProcessor();
+                    spellProps = spellingCorrectionProcessor.computeQuickAssistProposals(invocationContext);
+                    break;
+                }
+            }
+        }
+        
+        
+
+        if(spellProps == null || (spellProps.length == 1 && spellProps[0] instanceof NoCompletionsProposal)){
+            //no proposals from the spelling
+            return (ICompletionProposal[]) results.toArray(new ICompletionProposal[results.size()]);
+        }
+        
+        //ok, add the spell problems and return...
+        ICompletionProposal[] ret = (ICompletionProposal[]) results.toArray(new ICompletionProposal[results.size()+spellProps.length]);
+        System.arraycopy(spellProps, 0, ret, results.size(), spellProps.length);
+        return ret;
     }
 
+    
+    
     public String getErrorMessage() {
         return null;
     }

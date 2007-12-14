@@ -6,6 +6,7 @@
 
 package org.python.pydev.editor;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.jface.bindings.keys.ParseException;
@@ -24,11 +25,16 @@ import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
 import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
+import org.eclipse.jface.text.reconciler.IReconciler;
+import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
+import org.eclipse.jface.text.reconciler.MonoReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
+import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
@@ -113,6 +119,25 @@ public class PyEditConfiguration extends TextSourceViewerConfiguration {
         return new IAutoEditStrategy[] {getPyAutoIndentStrategy()};
     }
 
+    @Override
+    public IReconciler getReconciler(ISourceViewer sourceViewer) {
+        if (fPreferenceStore == null || !fPreferenceStore.getBoolean(SpellingService.PREFERENCE_SPELLING_ENABLED))
+            return null;
+
+        SpellingService spellingService = EditorsUI.getSpellingService();
+        if (spellingService.getActiveSpellingEngineDescriptor(fPreferenceStore) == null)
+            return null;
+        
+        //Overridden (just) to return a PyReconciler!
+        IReconcilingStrategy strategy = new PyReconciler(sourceViewer, spellingService); 
+        
+        MonoReconciler reconciler= new MonoReconciler(strategy, false);
+        reconciler.setIsIncrementalReconciler(false);
+        reconciler.setProgressMonitor(new NullProgressMonitor());
+        reconciler.setDelay(500);
+        return reconciler;
+    }
+    
     /**
      * Cache the result, because we'll get asked for it multiple times Now, we always return the PyAutoIndentStrategy. (even on commented lines).
      * 

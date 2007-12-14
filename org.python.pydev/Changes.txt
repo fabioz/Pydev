@@ -5,6 +5,7 @@ Pydev
 <li><strong>Custom Filters</strong>: User-Defined filters can be specified in the Pydev package explorer.</li>
 <li><strong>Undo limit</strong>: The undo limit set in window > preferences > general > editors > text editors is working for pydev.</li>
 <li><strong>Project build</strong>: Only referenced projects are rebuilt (and not all projects in the workspace -- e.g.: unreferenced c++ projects).</li>
+<li><strong>Spell checking</strong>: Integrated for comments and strings (in the general preferences).</li>
 </ul>
 
 Extensions

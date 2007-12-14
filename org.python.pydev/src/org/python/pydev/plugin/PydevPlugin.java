@@ -824,13 +824,20 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
 
     /**
+     * This is a preference store that combines the preferences for pydev with the general preferences for editors.
+     */
+    private static IPreferenceStore fChainedPrefStore;
+    
+    /**
      * @return a preference store that has the pydev preference store and the default editors text store
      */
-    public static IPreferenceStore getChainedPrefStore() {
-        IPreferenceStore general = EditorsUI.getPreferenceStore();
-        IPreferenceStore preferenceStore = getDefault().getPreferenceStore();
-        ChainedPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] { general, preferenceStore });
-        return store;
+    public synchronized static IPreferenceStore getChainedPrefStore() {
+        if(fChainedPrefStore == null){
+            IPreferenceStore general = EditorsUI.getPreferenceStore();
+            IPreferenceStore preferenceStore = getDefault().getPreferenceStore();
+            fChainedPrefStore = new ChainedPreferenceStore(new IPreferenceStore[] { preferenceStore, general });
+        }
+        return fChainedPrefStore;
     }
     
     /**

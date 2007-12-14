@@ -45,7 +45,6 @@ public class PySourceViewer extends ProjectionViewer {
     	return projection.get();
     }
     
-    
         
     /**
      * @param markerLine the line we want markers on
