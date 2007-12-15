@@ -646,6 +646,16 @@ public class NodeUtils {
         return false;
 	}
 
+    /**
+     * @return true if the node is a comment import node (and false otherwise).
+     */
+	public static boolean isComment(SimpleNode ast) {
+        if(ast instanceof commentType) {
+            return true;
+        }
+        return false;
+	}
+
 
 	public static NameTok getNameForAlias(aliasType t) {
 		if(t.asname != null){

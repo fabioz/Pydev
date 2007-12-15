@@ -155,6 +155,11 @@
       
    </extension>
    
+<!-- Preferences Keywords -->
+	<extension point="org.eclipse.ui.keywords" name="Interpreter Keywords">
+	    <keyword id="org.python.pydev.interpreter.keywords"  label="forced builtins pythonpath"/>
+	</extension>    
+
 <!-- Preference page -->
    <extension point="org.eclipse.ui.preferencePages">
       <page
@@ -173,12 +178,18 @@
             category="org.python.pydev.prefs"
             class="org.python.pydev.ui.pythonpathconf.PythonInterpreterPreferencesPage"
             id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython">
+            <keywordReference
+                id="org.python.pydev.interpreter.keywords">
+            </keywordReference>
       </page>
       <page
             name="Interpreter - Jython"
             category="org.python.pydev.prefs"
             class="org.python.pydev.ui.pythonpathconf.JythonInterpreterPreferencesPage"
             id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython">
+	        <keywordReference
+	            id="org.python.pydev.interpreter.keywords">
+	        </keywordReference>
       </page>
       <page
       		name="Pyunit"
@@ -1218,6 +1229,13 @@
 	  	  class="org.python.pydev.navigator.filters.PyTildaFilter"> 
 	  </commonFilter>		 
 	  
+      <commonFilter activeByDefault="false" 
+	      name="Pydev: Comment Nodes" 
+	      description="Pydev: Hide comment nodes" 
+	      id="org.python.pydev.navigator.filters.Comments"
+	  	  class="org.python.pydev.navigator.filters.CommentsFilter"> 
+      </commonFilter> 
+	  
 	  <!-- the ones below are copied from org.eclipse.ui.navigator.resources, with changes from 'instanceof' to 'adapt type'-->
       <commonFilter activeByDefault="true" 
 	      name="Pydev: Hide .* resources" 
@@ -1248,7 +1266,7 @@
       </commonFilter>
       
       <commonFilter activeByDefault="true" 
-	      name="Pydev: Custom Filters" 
+	      name="Pydev: Hide custom specified filters" 
 	      description="Pydev: Hide custom specified filters" 
 	      id="org.python.pydev.navigator.filters.customFilters"
 	  	  class="org.python.pydev.navigator.filters.CustomFilters"> 
@@ -1320,6 +1338,6 @@
 				<instanceof value="org.eclipse.ui.IFileEditorInput"/>
 			</editorInputEnablement>
 		</linkHelper>
-	</extension>    
+	</extension>
 	
  </plugin>
