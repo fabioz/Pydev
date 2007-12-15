@@ -1210,6 +1210,13 @@
 	  	  id="org.python.pydev.navigator.filters.hidePyoFiles" 
 	  	  class="org.python.pydev.navigator.filters.PyoFilter"> 
 	  </commonFilter>		 
+
+  	  <commonFilter activeByDefault="true" 
+	  	  name="Pydev: Hide *.py~ files" 
+	  	  description="Pydev: Hides *.py~ files" 
+	  	  id="org.python.pydev.navigator.filters.hidePyTildaFiles" 
+	  	  class="org.python.pydev.navigator.filters.PyTildaFilter"> 
+	  </commonFilter>		 
 	  
 	  <!-- the ones below are copied from org.eclipse.ui.navigator.resources, with changes from 'instanceof' to 'adapt type'-->
       <commonFilter activeByDefault="true" 
