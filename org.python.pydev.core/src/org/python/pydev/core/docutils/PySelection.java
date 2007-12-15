@@ -48,7 +48,8 @@ public class PySelection {
 	    "continue",
 	    "pass",
 	    "raise",
-	    "yield"
+//	    "yield" -- https://sourceforge.net/tracker/index.php?func=detail&aid=1807411&group_id=85796&atid=577329 (doesn't really end scope)
+//      after seeing the std lib, several cases use yield at the middle of the scope
 	};
 
 	public static final String[] CLASS_AND_FUNC_TOKENS = new String[]{
