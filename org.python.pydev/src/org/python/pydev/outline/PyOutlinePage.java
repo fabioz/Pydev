@@ -21,7 +21,6 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.swt.SWTException;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Tree;
@@ -157,7 +156,7 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
                     bar.setSelection(Math.min(bar.getMaximum(), barPosition));
                 }
             }
-        } catch (SWTException e) {
+        } catch (Throwable e) {
             //things may be disposed...
             PydevPlugin.log(e);
         }finally{

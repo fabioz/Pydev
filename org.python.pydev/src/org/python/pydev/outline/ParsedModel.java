@@ -16,6 +16,7 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.parser.visitors.scope.OutlineCreatorVisitor;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * ParsedModel represents a python file, parsed for OutlineView display
@@ -98,9 +99,7 @@ public class ParsedModel implements IOutlineModel {
         if (newChildren.length != oldChildren.length) {
             
             //at this point, it'll recalculate the children...
-            oldItem.setAstChildrenEntries(newItem.getAstChildrenEntries());
-            oldItem.setAstThis(newItem.getAstThis());
-            oldItem.setErrorDesc(newItem.getErrorDesc());
+            oldItem.updateTo(newItem);
             itemsToRefresh.add(oldItem);
             
         }else {
@@ -115,6 +114,16 @@ public class ParsedModel implements IOutlineModel {
             String newTitle = newItem.toString();
             if (!oldTitle.equals(newTitle)){
                 itemsToUpdate.add(oldItem);
+            }else{
+                ASTEntryWithChildren astThisOld = oldItem.getAstThis();
+                ASTEntryWithChildren astThisNew = newItem.getAstThis();
+                
+                if(astThisOld != null && astThisOld != null && 
+                   astThisOld.node != null && astThisNew.node != null && 
+                   astThisOld.node.getClass() != astThisNew.node.getClass()){
+                    
+                    itemsToUpdate.add(oldItem);
+                }
             }
             
             oldItem.setAstThis(newItem.getAstThis());
@@ -128,30 +137,34 @@ public class ParsedModel implements IOutlineModel {
     public void setRoot(ParsedItem newRoot) {
         // We'll try to do the 'least flicker replace'
         // compare the two root structures, and tell outline what to refresh
-        if (root != null) {
-            ArrayList<ParsedItem> itemsToRefresh = new ArrayList<ParsedItem>();
-            ArrayList<ParsedItem> itemsToUpdate = new ArrayList<ParsedItem>();
-            patchRootHelper(root, newRoot, itemsToRefresh, itemsToUpdate);
-            if (outline != null) {
-                if(outline.isDisposed()){
-                    return;
+        try{
+            if (root != null) {
+                ArrayList<ParsedItem> itemsToRefresh = new ArrayList<ParsedItem>();
+                ArrayList<ParsedItem> itemsToUpdate = new ArrayList<ParsedItem>();
+                patchRootHelper(root, newRoot, itemsToRefresh, itemsToUpdate);
+                if (outline != null) {
+                    if(outline.isDisposed()){
+                        return;
+                    }
+                    
+                    //to update
+                    int itemsToUpdateSize = itemsToUpdate.size();
+                    if(itemsToUpdateSize > 0){
+                        outline.updateItems(itemsToUpdate.toArray(new ParsedItem[itemsToUpdateSize]));
+                    }
+                    
+                    //to refresh
+                    int itemsToRefreshSize = itemsToRefresh.size();
+                    if(itemsToRefreshSize > 0){
+                        outline.refreshItems(itemsToRefresh.toArray(new ParsedItem[itemsToRefreshSize]));
+                    }
                 }
                 
-                //to update
-                int itemsToUpdateSize = itemsToUpdate.size();
-                if(itemsToUpdateSize > 0){
-                    outline.updateItems(itemsToUpdate.toArray(new ParsedItem[itemsToUpdateSize]));
-                }
-                
-                //to refresh
-                int itemsToRefreshSize = itemsToRefresh.size();
-                if(itemsToRefreshSize > 0){
-                    outline.refreshItems(itemsToRefresh.toArray(new ParsedItem[itemsToRefreshSize]));
-                }
+            }else {
+                System.out.println("No old model root?");
             }
-            
-        }else {
-            System.out.println("No old model root?");
+        }catch(Throwable e){
+            PydevPlugin.log(e);
         }
     }
     

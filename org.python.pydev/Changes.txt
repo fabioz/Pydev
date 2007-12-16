@@ -9,6 +9,7 @@ Pydev
 <li><strong>Patch by Laurent Dore</strong>: Added filter for *.py~ and comments</li>
 <li><strong>Dedent</strong>: No auto-dedent after yield</li>
 <li><strong>Tabs to spaces</strong>: The newly added 'insert spaces for tabs' in the general preferences was conflicting with pydev (now, pydev ignores those settings)</li>
+<li><strong>Outline view</strong>: Better refresh (doesn't collapse the tree for simple structure changes).</li>
 </ul>
 
 Extensions

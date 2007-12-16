@@ -57,6 +57,40 @@ public class ParsedItemTest extends PyParserTestBase {
         //module level: only Foo
         assertEquals(1, item.getAstChildrenEntries().length);
         assertNull(item.getAstChildrenEntries()[0].children); //no children
+    }
+    
+    /**
+     * Check if the creation of a new structure will maintain the old items intact (as much as possible).
+     * 
+     * @throws Exception
+     */
+    public void testNewChildrenStructure() throws Exception {
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
+        String str = "" +
+        "class Foo(object):\n" +
+        "    def m1(self):\n" +
+        "        pass\n" +
+        "\n" +
+        "";
         
+        String str2 = "" +
+        "class Foo(object):\n" +
+        "    def m1(self):\n" +
+        "        pass\n" +
+        "    def m2(self):\n" + //one more member
+        "        pass\n" +
+        "\n" +
+        "";
+        
+        SimpleNode node = parseLegalDocStr(str);
+        SimpleNode node2 = parseLegalDocStr(str2);
+        
+        OutlineCreatorVisitor visitor = OutlineCreatorVisitor.create(node);
+        ParsedItem item = new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0]), null);
+        
+        OutlineCreatorVisitor visitor2 = OutlineCreatorVisitor.create(node2);
+        ParsedItem item2 = new ParsedItem(visitor2.getAll().toArray(new ASTEntryWithChildren[0]), null);
+
+        item.updateTo(item2);
     }
 }

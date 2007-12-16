@@ -5,6 +5,8 @@
 package org.python.pydev.outline;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FullRepIterable;
@@ -51,6 +53,7 @@ public class ParsedItem implements Comparable<Object>{
         this.setErrorDesc(errorDesc);
     }
     
+    
     /**
      * Constructor for the root.
      */
@@ -64,17 +67,21 @@ public class ParsedItem implements Comparable<Object>{
     }
 
     public void setAstThis(ASTEntryWithChildren astThis) {
+        this.setAstThis(astThis, null);
+    }
+    
+    public void setAstThis(ASTEntryWithChildren astThis, ASTEntryWithChildren[] astChildrenEntries) {
         this.toStringCache = null;
         this.astThis = astThis;
+        
+        if(astChildrenEntries != null){
+            this.astChildrenEntries = astChildrenEntries;
+            this.children = null; //the children must be recalculated...
+        }
     }
 
     public ASTEntryWithChildren[] getAstChildrenEntries() {
         return astChildrenEntries;
-    }
-
-    public void setAstChildrenEntries(ASTEntryWithChildren[] astChildrenEntries) {
-        this.astChildrenEntries = astChildrenEntries;
-        this.children = null; //the children must be recalculated...
     }
 
     public ErrorDescription getErrorDesc() {
@@ -266,4 +273,72 @@ public class ParsedItem implements Comparable<Object>{
         }
     }
 
+    /**
+     * Updates the structure of this parsed item (old structure) to be the same as the structure in the passed
+     * parsed item (new structure) trying to reuse the existing children (if possible).
+     * 
+     * This is usually only called when the structure actually changes (different number of nodes). A common case
+     * is having a syntax error...
+     */
+    public void updateTo(ParsedItem updateToItem) {
+        this.toStringCache = null;
+        this.errorDesc = updateToItem.errorDesc;
+        this.astThis = updateToItem.astThis;
+        this.astChildrenEntries = updateToItem.astChildrenEntries;
+
+        ParsedItem[] newStructureChildren = updateToItem.getChildren();
+        
+        //handle special cases...
+        if(this.children == null){
+            this.children = newStructureChildren;
+            return;
+        }
+        
+        if(newStructureChildren.length == 0 || this.children.length == 0){
+            //nothing to actually update... (just set the new children directly)
+            this.children = newStructureChildren;
+            return;
+        }
+        
+        ArrayList<ParsedItem> newChildren = new ArrayList<ParsedItem>();
+        
+        
+        //ok, something there... let's update the requested children... 
+        //(trying to maintain the existing nodes were possible)
+        HashMap<String, List<ParsedItem>> childrensCache = new HashMap<String, List<ParsedItem>>();
+        for(ParsedItem existing:this.children){
+            String s = existing.toString();
+            List<ParsedItem> list = childrensCache.get(s);
+            if(list == null){
+                list = new ArrayList<ParsedItem>();
+                childrensCache.put(s, list);
+            }
+            list.add(existing);
+        }
+        
+        for(ParsedItem n:newStructureChildren){
+            ParsedItem similarChild = getSimilarChild(n, childrensCache);
+            if(similarChild != null){
+                similarChild.updateTo(n);
+                n = similarChild;
+            }else{
+                n.parent = this;
+            }
+            newChildren.add(n);
+        }
+
+        
+        this.children = newChildren.toArray(new ParsedItem[newChildren.size()]);
+    }
+
+    private ParsedItem getSimilarChild(ParsedItem n, HashMap<String, List<ParsedItem>> childrensCache) {
+        //try to get a similar child from the 'cache'
+        List<ParsedItem> list = childrensCache.get(n.toString());
+        if(list != null && list.size() > 0){
+            return list.remove(0);
+        }
+        return null;
+    }
+
+    
 }
