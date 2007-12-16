@@ -159,6 +159,9 @@
 	<extension point="org.eclipse.ui.keywords" name="Interpreter Keywords">
 	    <keyword id="org.python.pydev.interpreter.keywords"  label="forced builtins pythonpath"/>
 	</extension>    
+	<extension point="org.eclipse.ui.keywords" name="Pydev Preferences">
+	    <keyword id="org.python.pydev.preferences.keywords"  label="tabs spaces colors folding"/>
+	</extension>    
 
 <!-- Preference page -->
    <extension point="org.eclipse.ui.preferencePages">
@@ -166,6 +169,7 @@
             name="Pydev"
             class="org.python.pydev.plugin.PydevPrefs"
             id="org.python.pydev.prefs">
+            <keywordReference id="org.python.pydev.preferences.keywords"/>
       </page>
       <page
             name="Typing"
@@ -178,9 +182,7 @@
             category="org.python.pydev.prefs"
             class="org.python.pydev.ui.pythonpathconf.PythonInterpreterPreferencesPage"
             id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython">
-            <keywordReference
-                id="org.python.pydev.interpreter.keywords">
-            </keywordReference>
+            <keywordReference id="org.python.pydev.interpreter.keywords"/>
       </page>
       <page
             name="Interpreter - Jython"

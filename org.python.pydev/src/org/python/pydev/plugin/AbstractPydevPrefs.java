@@ -31,7 +31,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
-import org.python.pydev.editor.codefolding.PyDevCodeFoldingPrefPage;
 
 public abstract class AbstractPydevPrefs extends PreferencePage implements IWorkbenchPreferencePage{
 
@@ -477,6 +476,18 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         fCheckBoxes.put(checkBox, key);
         
         return checkBox;
+    }
+    
+    protected Label addLabel(Composite parent, String label, int indentation) {     
+        Label labelWidget= new Label(parent, SWT.None);
+        labelWidget.setText(label);
+        
+        GridData gd= new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
+        gd.horizontalIndent= indentation;
+        gd.horizontalSpan= 2;
+        labelWidget.setLayoutData(gd);
+        
+        return labelWidget;
     }
     
     protected Control addTextField(Composite composite, String label, String key, int textLimit, int indentation, boolean isNumber) {

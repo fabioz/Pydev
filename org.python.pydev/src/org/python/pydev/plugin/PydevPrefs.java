@@ -39,7 +39,7 @@ public class PydevPrefs extends AbstractPydevPrefs {
 
 
 	public PydevPrefs() {
-		setDescription("Pydev editor appearance settings:"); 
+		setDescription("Pydev editor appearance settings:\nNote: Pydev ignores the 'Insert spaces for tabs' in the general settings."); 
 		setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
 		
 		fOverlayStore= createOverlayStore();
@@ -51,9 +51,11 @@ public class PydevPrefs extends AbstractPydevPrefs {
         layout.numColumns= 2;
 		appearanceComposite.setLayout(layout);
 
+		
 		addTextField(appearanceComposite, "Tab length:", TAB_WIDTH, 3, 0, true);
         
 		addCheckBox(appearanceComposite, "Replace tabs with spaces when typing?", SUBSTITUTE_TABS, 0);
+		
 		
 		addCheckBox(appearanceComposite, "Assume tab spacing when files contain tabs?", GUESS_TAB_SUBSTITUTION, 0);
 		

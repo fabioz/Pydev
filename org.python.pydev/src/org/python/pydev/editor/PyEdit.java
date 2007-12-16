@@ -348,6 +348,22 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     }
 
     /**
+     * Overriden becaus pydev already handles spaces -> tabs
+     */
+    @Override
+    protected void installTabsToSpacesConverter() {
+        //Do nothing (pydev already handles that)
+    }
+    
+    /**
+     * Overriden becaus pydev already handles spaces -> tabs
+     */
+    @Override
+    protected void uninstallTabsToSpacesConverter() {
+        //Do nothing (pydev already handles that)
+    }
+
+    /**
      * Initializes everyone that needs document access
      *  
      */
