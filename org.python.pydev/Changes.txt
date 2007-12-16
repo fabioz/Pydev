@@ -5,7 +5,7 @@ Pydev
 <li><strong>Custom Filters</strong>: User-Defined filters can be specified in the Pydev package explorer.</li>
 <li><strong>Undo limit</strong>: The undo limit set in window > preferences > general > editors > text editors is working for pydev.</li>
 <li><strong>Project build</strong>: Only referenced projects are rebuilt (and not all projects in the workspace -- e.g.: unreferenced c++ projects).</li>
-<li><strong>Spell checking</strong>: Integrated for comments and strings (in the general preferences). Note: depends on JDT (eclipse 3.4 should add the support for working without JDT).</li>
+<li><strong>Spell checking</strong>: Integrated for comments and strings (in the general preferences). Note: depends on JDT (eclipse 3.4 should add the support for working without JDT. Reference: http://www.eclipse.org/eclipse/platform-text/3.4/plan.php).</li>
 <li><strong>Patch by Laurent Dore</strong>: Added filter for *.py~ and comments</li>
 <li><strong>Dedent</strong>: No auto-dedent after yield</li>
 <li><strong>Tabs to spaces</strong>: The newly added 'insert spaces for tabs' in the general preferences was conflicting with pydev (now, pydev ignores those settings)</li>
