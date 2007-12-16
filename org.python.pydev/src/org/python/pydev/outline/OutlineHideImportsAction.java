@@ -72,7 +72,7 @@ public class OutlineHideImportsAction extends Action {
                 public boolean select(Viewer viewer, Object parentElement, Object element) {
                     if (element instanceof ParsedItem) {
                         ParsedItem item = (ParsedItem) element;
-                        SimpleNode n = item.astThis.node;
+                        SimpleNode n = item.getAstThis().node;
                         if (n instanceof ImportFrom || n instanceof Import) {
                             return false;
                         }

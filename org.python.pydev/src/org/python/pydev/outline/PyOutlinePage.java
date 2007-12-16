@@ -31,6 +31,7 @@ import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import org.python.pydev.core.bundle.ImageCache;
+import org.python.pydev.editor.ErrorDescription;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
@@ -255,9 +256,10 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
 	    				StructuredSelection sel = (StructuredSelection)event.getSelection();
 	                    if(sel.size() == 1) { // only sync the editing view if it is a single-selection
 	                        ParsedItem firstElement = (ParsedItem) sel.getFirstElement();
-	                        if(firstElement.errorDesc != null && firstElement.errorDesc.message != null){
-	                            int len = firstElement.errorDesc.errorEnd-firstElement.errorDesc.errorStart;
-	                            editorView.setSelection(firstElement.errorDesc.errorStart, len);
+	                        ErrorDescription errorDesc = firstElement.getErrorDesc();
+                            if(errorDesc != null && errorDesc.message != null){
+	                            int len = errorDesc.errorEnd-errorDesc.errorStart;
+	                            editorView.setSelection(errorDesc.errorStart, len);
 	                            return;
 	                        }
 	                    }

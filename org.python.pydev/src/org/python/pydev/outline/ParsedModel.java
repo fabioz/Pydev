@@ -61,7 +61,7 @@ public class ParsedModel implements IOutlineModel {
                             
                             ParsedItem newRoot;
                             if(currRoot != null){
-                                newRoot = new ParsedItem(currRoot.astChildrenEntries, errorDesc);
+                                newRoot = new ParsedItem(currRoot.getAstChildrenEntries(), errorDesc);
                             }else{
                                 newRoot = new ParsedItem(new ASTEntryWithChildren[0], errorDesc);
                             }
@@ -96,18 +96,18 @@ public class ParsedModel implements IOutlineModel {
         
         // stuctural change, different number of children, can stop recursion
         if (newChildren.length != oldChildren.length) {
-            oldItem.astChildrenEntries = newItem.astChildrenEntries;
-            oldItem.astThis = newItem.astThis;
-            oldItem.name = null;
-            oldItem.children = null; // forces reinitialization
-            oldItem.errorDesc = newItem.errorDesc;
+            
+            //at this point, it'll recalculate the children...
+            oldItem.setAstChildrenEntries(newItem.getAstChildrenEntries());
+            oldItem.setAstThis(newItem.getAstThis());
+            oldItem.setErrorDesc(newItem.getErrorDesc());
             itemsToRefresh.add(oldItem);
             
         }else {
             
             // Number of children is the same, fix up all the children
             for (int i=0; i<oldChildren.length; i++) {
-                patchRootHelper(oldChildren[i],newChildren[i],itemsToRefresh, itemsToUpdate);
+                patchRootHelper(oldChildren[i], newChildren[i], itemsToRefresh, itemsToUpdate);
             }
             
             // see if the node needs redisplay
@@ -117,9 +117,8 @@ public class ParsedModel implements IOutlineModel {
                 itemsToUpdate.add(oldItem);
             }
             
-            oldItem.astThis = newItem.astThis;
-            oldItem.errorDesc = newItem.errorDesc;
-            oldItem.name = null;
+            oldItem.setAstThis(newItem.getAstThis());
+            oldItem.setErrorDesc(newItem.getErrorDesc());
         }
     }
     
@@ -137,8 +136,18 @@ public class ParsedModel implements IOutlineModel {
                 if(outline.isDisposed()){
                     return;
                 }
-                outline.updateItems(itemsToUpdate.toArray());
-                outline.refreshItems(itemsToRefresh.toArray());
+                
+                //to update
+                int itemsToUpdateSize = itemsToUpdate.size();
+                if(itemsToUpdateSize > 0){
+                    outline.updateItems(itemsToUpdate.toArray(new ParsedItem[itemsToUpdateSize]));
+                }
+                
+                //to refresh
+                int itemsToRefreshSize = itemsToRefresh.size();
+                if(itemsToRefreshSize > 0){
+                    outline.refreshItems(itemsToRefresh.toArray(new ParsedItem[itemsToRefreshSize]));
+                }
             }
             
         }else {
@@ -149,7 +158,7 @@ public class ParsedModel implements IOutlineModel {
     public SimpleNode[] getSelectionPosition(StructuredSelection sel) {
         if(sel.size() == 1) { // only sync the editing view if it is a single-selection
             Object firstElement = sel.getFirstElement();
-            ASTEntryWithChildren p = ((ParsedItem)firstElement).astThis;
+            ASTEntryWithChildren p = ((ParsedItem)firstElement).getAstThis();
             SimpleNode node = p.node;
             if(node instanceof ClassDef){
                 ClassDef def = (ClassDef) node;

@@ -29,11 +29,10 @@ import org.python.pydev.ui.UIConstants;
 public class ParsedItem implements Comparable<Object>{
 
     private ParsedItem parent;
-    public ParsedItem[] children;
-    public ASTEntryWithChildren astThis; //may be null if root
-    public ASTEntryWithChildren[] astChildrenEntries;
-    public String name;
-    public ErrorDescription errorDesc;
+    private ParsedItem[] children;
+    private ASTEntryWithChildren astThis; //may be null if root
+    private ASTEntryWithChildren[] astChildrenEntries;
+    private ErrorDescription errorDesc;
 
     /**
      * Constructor for a child with valid ast.
@@ -49,7 +48,7 @@ public class ParsedItem implements Comparable<Object>{
      */
     public ParsedItem(ParsedItem parent, ErrorDescription errorDesc) {
         this.parent = parent;
-        this.setErrorDescription(errorDesc);
+        this.setErrorDesc(errorDesc);
     }
     
     /**
@@ -57,10 +56,36 @@ public class ParsedItem implements Comparable<Object>{
      */
     public ParsedItem(ASTEntryWithChildren[] astChildren, ErrorDescription errorDesc) {
         this.astChildrenEntries = astChildren;
-        this.setErrorDescription(errorDesc);
+        this.setErrorDesc(errorDesc);
     }
 
-    public void setErrorDescription(ErrorDescription errorDesc) {
+    public ASTEntryWithChildren getAstThis() {
+        return astThis;
+    }
+
+    public void setAstThis(ASTEntryWithChildren astThis) {
+        this.toStringCache = null;
+        this.astThis = astThis;
+    }
+
+    public ASTEntryWithChildren[] getAstChildrenEntries() {
+        return astChildrenEntries;
+    }
+
+    public void setAstChildrenEntries(ASTEntryWithChildren[] astChildrenEntries) {
+        this.astChildrenEntries = astChildrenEntries;
+        this.children = null; //the children must be recalculated...
+    }
+
+    public ErrorDescription getErrorDesc() {
+        return errorDesc;
+    }
+
+    public void setErrorDesc(ErrorDescription errorDesc) {
+        if(this.errorDesc == null && errorDesc == null){
+            return; // don't clear the caches
+        }
+        this.toStringCache = null;
         this.errorDesc = errorDesc;
     }
 
@@ -125,16 +150,26 @@ public class ParsedItem implements Comparable<Object>{
         return parent;
     }
 
+
+    /**
+     * When null, it must be rebuilt!
+     */
+    private String toStringCache; 
+    
     public String toString() {
+        if(toStringCache == null){
+            toStringCache = calcToString();
+        }
+        return toStringCache;
+    }
+    
+    private String calcToString() {
         if(errorDesc != null && errorDesc.message != null){
             return errorDesc.message;
         }
         
-        if(name != null){
-            return name;
-        }
         if (astThis == null){
-            name = "null";
+            return "null";
             
         } else if (astThis.node instanceof Import) {
             aliasType[] imports = ((Import)astThis.node).names;
@@ -152,7 +187,7 @@ public class ParsedItem implements Comparable<Object>{
                 retVal.append(", ");
             }
             retVal.delete(retVal.length() - 2, retVal.length());
-            name = retVal.toString();
+            return retVal.toString();
             
         }else if (astThis.node instanceof ImportFrom) {
             // from wxPython.wx import *
@@ -174,7 +209,7 @@ public class ParsedItem implements Comparable<Object>{
                 modules.append("*,"); //the comma will be deleted
             }
             modules.deleteCharAt(modules.length()-1);
-            name = modules.toString() + " (" + ((NameTok)importToken.module).id + ")";
+            return modules.toString() + " (" + ((NameTok)importToken.module).id + ")";
             
         }else if (astThis.node instanceof commentType) {
             commentType type = (commentType) astThis.node;
@@ -183,13 +218,11 @@ public class ParsedItem implements Comparable<Object>{
             rep = FullRepIterable.split(rep, '\r')[0];
             rep = rep.substring(1);
             rep = StringUtils.rightTrim(rep, '-');
-            name = StringUtils.leftTrim(rep, '-');
+            return StringUtils.leftTrim(rep, '-');
             
         }else {
-            name = NodeUtils.getFullRepresentationString(astThis.node);
+            return NodeUtils.getFullRepresentationString(astThis.node);
         }
-        
-        return name;
     }
     
     /**

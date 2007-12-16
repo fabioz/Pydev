@@ -72,7 +72,7 @@ public class PyOpenPythonFileAction extends Action {
         } else if (nodesSelected.size() > 0) {
             PythonNode node = nodesSelected.iterator().next();
             ParsedItem actualObject = node.getActualObject();
-            new PyOpenAction().run(new ItemPointer(node.getPythonFile().getActualObject(), NodeUtils.getNameTokFromNode(actualObject.astThis.node)));
+            new PyOpenAction().run(new ItemPointer(node.getPythonFile().getActualObject(), NodeUtils.getNameTokFromNode(actualObject.getAstThis().node)));
 
         } else if (containersSelected.size() > 0) {
             if (this.provider instanceof TreeViewer) {

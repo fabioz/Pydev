@@ -25,11 +25,11 @@ public class ParsedItemTest extends PyParserTestBase {
         ParsedItem item = new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0]), null);
         
         //module level: Foo and 1 comment
-        assertEquals(2, item.astChildrenEntries.length);
-        assertNull(item.astChildrenEntries[1].children); //comment has no children
+        assertEquals(2, item.getAstChildrenEntries().length);
+        assertNull(item.getAstChildrenEntries()[1].children); //comment has no children
         
         //class level: m1 and 1 comment
-        ASTEntryWithChildren classEntry = item.astChildrenEntries[0];
+        ASTEntryWithChildren classEntry = item.getAstChildrenEntries()[0];
         assertEquals(2, classEntry.children.size()); 
         assertNull(classEntry.children.get(1).children); //comment has no children
         
@@ -55,8 +55,8 @@ public class ParsedItemTest extends PyParserTestBase {
         ParsedItem item = new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0]), null);
         
         //module level: only Foo
-        assertEquals(1, item.astChildrenEntries.length);
-        assertNull(item.astChildrenEntries[0].children); //no children
+        assertEquals(1, item.getAstChildrenEntries().length);
+        assertNull(item.getAstChildrenEntries()[0].children); //no children
         
     }
 }

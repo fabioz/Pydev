@@ -12,7 +12,7 @@ public class CommentsFilter extends ViewerFilter{
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
 		if(element instanceof PythonNode){
 			PythonNode node = (PythonNode) element;
-			SimpleNode n = node.entry.astThis.node;
+			SimpleNode n = node.entry.getAstThis().node;
 			if(NodeUtils.isComment(n)){
 				return false;
 			}

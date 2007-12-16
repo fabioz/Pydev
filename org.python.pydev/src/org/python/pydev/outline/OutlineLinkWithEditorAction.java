@@ -18,6 +18,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.IPyEditListener2;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
@@ -163,14 +164,16 @@ public class OutlineLinkWithEditorAction extends Action implements IPyEditListen
     private ParsedItem findSel(ParsedItem r, int startLine) {
         ParsedItem prev = null;
 
-        if (r.children != null) {
-            for (ParsedItem i : r.children) {
-                if (i.astThis != null && i.astThis.node != null) {
-                    if (i.astThis.node.beginLine == startLine) {
+        ParsedItem[] children = r.getChildren();
+        if (children != null) {
+            for (ParsedItem i : children) {
+                ASTEntryWithChildren astThis = i.getAstThis();
+                if (astThis != null && astThis.node != null) {
+                    if (astThis.node.beginLine == startLine) {
                         prev = i;
                         break;
                     }
-                    if (i.astThis.node.beginLine > startLine) {
+                    if (astThis.node.beginLine > startLine) {
                         break;
                     }
                 }
