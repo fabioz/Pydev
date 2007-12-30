@@ -497,6 +497,29 @@ for k in keyword.kwlist:
    name="yield">
    <pattern>yield ${cursor}</pattern>
 </template>
+<template
+   autoinsert="true"
+   contextTypeId="org.python.pydev.editor.templates.python"
+   description="property creation from inner methods"
+   icon="icons/template.gif"
+   id="org.python.pydev.editor.templates.python.property_inner"
+   name="property_inner">
+   <pattern>def ${prop}(): #@NoSelf
+    doc = """${Docstring}""" #@UnusedVariable
+   
+    def fget(self):
+        return self._${prop}
+       
+    def fset(self, value):
+        self._${prop} = value
+       
+    def fdel(self):
+        del self._${prop}
+       
+    return locals()
+   
+${prop} = property(**${prop}())${cursor}</pattern>
+</template>
 
    </extension>
 
