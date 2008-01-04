@@ -877,7 +877,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         }
         IDefinition[] definitions = m.findDefinition(CompletionStateFactory.getEmptyCompletionState(repToCheck, nature), -1, -1, nature, new ArrayList<FindInfo>());
         if(definitions.length == 1){
-            if(definitions[0] instanceof AssignDefinition){
+            IDefinition foundDefinition = definitions[0];
+            if(foundDefinition instanceof AssignDefinition){
                 AssignDefinition d = (AssignDefinition) definitions[0];
                 
                 //if the value is currently None, it will be set later on
@@ -900,17 +901,36 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                             
                         }else if(definition.ast instanceof ClassDef){
                             ClassDef def = (ClassDef) definition.ast;
-                            String docString = NodeUtils.getNodeDocString(def);
-                            if(docString != null){
-                                if(docString.indexOf("@DynamicAttrs") != -1){
-                                    //class that has things dynamically defined.
-                                    return true;
-                                }
+                            if(isDynamicClass(def)){
+                                return true;
                             }
-                            
                         }
                     }
                 }
+            }else if (foundDefinition instanceof Definition){ //not Assign definition
+                Definition definition = (Definition) foundDefinition; 
+                if(definition.ast instanceof ClassDef){
+                    //direct class access
+                    ClassDef classDef = (ClassDef) definition.ast;
+                    if(isDynamicClass(classDef)){
+                        return true;
+                    }
+                }
+                
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return whether the passed class definition has a docstring indicating that it has dynamic
+     */
+    private boolean isDynamicClass(ClassDef def) {
+        String docString = NodeUtils.getNodeDocString(def);
+        if(docString != null){
+            if(docString.indexOf("@DynamicAttrs") != -1){
+                //class that has things dynamically defined.
+                return true;
             }
         }
         return false;
