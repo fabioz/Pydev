@@ -89,77 +89,8 @@ public class PyGoToDefinition extends PyRefactorAction {
             ps = new PySelection(getTextEditor());
             final PyEdit pyEdit = getPyEdit();
             if(areRefactorPreconditionsOK(getRefactoringRequest())){
-
-                HashSet<ItemPointer> set = new HashSet<ItemPointer>();
                 ItemPointer[] defs = findDefinition(pyEdit);
-                if(defs == null){
-                	shell.getDisplay().beep();
-                	return;
-                }
-                for (ItemPointer pointer : defs) {
-                    if(pointer.file != null){
-                        set.add(pointer);
-                    }
-                }
-                final ItemPointer[] where = set.toArray(new ItemPointer[0]);
-    
-                if (where == null) {
-                	shell.getDisplay().beep();
-                	return;
-                }
-    
-                if (where.length > 0){
-                    if (where.length == 1){
-                        ItemPointer itemPointer = where[0];
-                        doOpen(itemPointer, pyEdit);
-                    }else{
-                        //the user has to choose which is the correct definition...
-                        final Display disp = shell.getDisplay();
-                        disp.syncExec(new Runnable(){
-
-                            public void run() {
-                                ElementListSelectionDialog dialog = new ElementListSelectionDialog(shell, new ILabelProvider(){
-
-                                    public Image getImage(Object element) {
-                                        return PyCodeCompletionImages.getImageForType(IToken.TYPE_PACKAGE);
-                                    }
-
-                                    public String getText(Object element) {
-                                        ItemPointer pointer = (ItemPointer)element;
-                                        File f = (File) (pointer).file;
-                                        int line = pointer.start.line;
-                                        return f.getName() + "  ("+f.getParent()+") - line:"+line;
-                                    }
-
-                                    public void addListener(ILabelProviderListener listener) {
-                                    }
-
-                                    public void dispose() {
-                                    }
-
-                                    public boolean isLabelProperty(Object element, String property) {
-                                        return false;
-                                    }
-
-                                    public void removeListener(ILabelProviderListener listener) {
-                                    }}
-                                );
-                                dialog.setTitle("Found matches");
-                                dialog.setTitle("Select the one you believe matches most your search.");
-                                dialog.setElements(where);
-                                dialog.open();
-                                Object[] result = dialog.getResult();
-                                if(result != null && result.length > 0){
-                                    doOpen((ItemPointer) result[0], pyEdit);
-
-                                }
-                            }
-                            
-                        });
-                    }
-                } else {
-                    shell.getDisplay().beep();
-                }
+                openDefinition(defs, pyEdit, shell);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -176,10 +107,92 @@ public class PyGoToDefinition extends PyRefactorAction {
 
 
     /**
+     * Opens a given definition directly or asks the user to choose one of the passed definitions
+     * 
+     * @param defs item pointers with the definitions available for opening.
+     * @param pyEdit pyedit where the action to open the definition was started
+     * @param shell the shell to be used to show dialogs 
+     */
+    public static void openDefinition(ItemPointer[] defs, final PyEdit pyEdit, final Shell shell) {
+        if(defs == null){
+            shell.getDisplay().beep();
+            return;
+        }
+        
+        HashSet<ItemPointer> set = new HashSet<ItemPointer>();
+        for (ItemPointer pointer : defs) {
+            if(pointer.file != null){
+                set.add(pointer);
+            }
+        }
+        final ItemPointer[] where = set.toArray(new ItemPointer[0]);
+
+        if (where == null) {
+            shell.getDisplay().beep();
+            return;
+        }
+
+        if (where.length > 0){
+            if (where.length == 1){
+                ItemPointer itemPointer = where[0];
+                doOpen(itemPointer, pyEdit, shell);
+            }else{
+                //the user has to choose which is the correct definition...
+                final Display disp = shell.getDisplay();
+                disp.syncExec(new Runnable(){
+
+                    public void run() {
+                        ElementListSelectionDialog dialog = new ElementListSelectionDialog(shell, new ILabelProvider(){
+
+                            public Image getImage(Object element) {
+                                return PyCodeCompletionImages.getImageForType(IToken.TYPE_PACKAGE);
+                            }
+
+                            public String getText(Object element) {
+                                ItemPointer pointer = (ItemPointer)element;
+                                File f = (File) (pointer).file;
+                                int line = pointer.start.line;
+                                return f.getName() + "  ("+f.getParent()+") - line:"+line;
+                            }
+
+                            public void addListener(ILabelProviderListener listener) {
+                            }
+
+                            public void dispose() {
+                            }
+
+                            public boolean isLabelProperty(Object element, String property) {
+                                return false;
+                            }
+
+                            public void removeListener(ILabelProviderListener listener) {
+                            }}
+                        );
+                        dialog.setTitle("Found matches");
+                        dialog.setTitle("Select the one you believe matches most your search.");
+                        dialog.setElements(where);
+                        dialog.open();
+                        Object[] result = dialog.getResult();
+                        if(result != null && result.length > 0){
+                            doOpen((ItemPointer) result[0], pyEdit, shell);
+
+                        }
+                    }
+                    
+                });
+            }
+        } else {
+            shell.getDisplay().beep();
+        }
+    }
+
+
+    /**
      * @param itemPointer this is the item pointer that gives the location that should be opened
      * @param pyEdit the editor (so that we can gen the open action)
+     * @param shell 
      */
-    private void doOpen(ItemPointer itemPointer, PyEdit pyEdit) {
+    private static void doOpen(ItemPointer itemPointer, PyEdit pyEdit, Shell shell) {
         File f = (File) itemPointer.file;
         if (PythonPathHelper.isValidSourceFile(f.getName()) || 
                 (itemPointer.zipFilePath != null && PythonPathHelper.isValidSourceFile(itemPointer.zipFilePath)) ){
@@ -209,7 +222,7 @@ public class PyGoToDefinition extends PyRefactorAction {
             
             
             
-            MessageDialog.openInformation(getPyEditShell(), "Compiled Extension file", message);
+            MessageDialog.openInformation(shell, "Compiled Extension file", message);
         }
     }
 

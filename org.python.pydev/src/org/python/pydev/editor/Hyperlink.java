@@ -38,6 +38,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.editor.actions.PyGoToDefinition;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.model.ItemPointer;
@@ -436,8 +437,7 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
                 ItemPointer[] pointers = pyRefactoring.findDefinition(refactoringRequest);
                 
     			if (pointers.length > 0){
-    			    PyOpenAction action = (PyOpenAction)fEditor.getAction(PyEdit.ACTION_OPEN);
-    				action.run(pointers[0]);
+    			    PyGoToDefinition.openDefinition(pointers, fEditor, fEditor.getSite().getShell());
                 }else{
     				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
                 }
