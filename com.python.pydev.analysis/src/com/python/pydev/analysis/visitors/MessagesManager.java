@@ -188,14 +188,17 @@ public class MessagesManager {
      * @return a tuple indicating if it really is undefined and the representation that should be used.
      */
     protected Tuple<Boolean, String> isActuallyUndefined(IToken token, String rep){
-    	boolean isActuallyUndefined = true;
-    	
-    	if(this.prefs.getTokensAlwaysInGlobals().contains(token.getRepresentation())){
-    		isActuallyUndefined = false; 
+    	String tokenRepresentation = token.getRepresentation();
+    	if(tokenRepresentation != null){
+    	    String firstPart = FullRepIterable.getFirstPart(tokenRepresentation);
+            if(this.prefs.getTokensAlwaysInGlobals().contains(firstPart)){
+                return new Tuple<Boolean, String>(false, firstPart); //ok firstPart in not really undefined... 
+        	}
     	}
         
+    	boolean isActuallyUndefined = true;
         if(rep == null){
-        	rep = token.getRepresentation();
+        	rep = tokenRepresentation;
         }
         
         int i;

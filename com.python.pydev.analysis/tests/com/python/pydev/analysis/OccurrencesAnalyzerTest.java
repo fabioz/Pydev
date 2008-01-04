@@ -29,7 +29,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testListComp2();
+            analyzer2.testConsiderAsGlobalsWithAttributeAccess();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -373,6 +373,14 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	);
     	checkNoError();
     	
+    }
+    
+    public void testConsiderAsGlobalsWithAttributeAccess(){
+        doc = new Document(
+            "print considerGlobal.anything"
+        );
+        checkNoError();
+        
     }
     
     
