@@ -194,7 +194,9 @@ public class PyGoToDefinition extends PyRefactorAction {
      */
     private static void doOpen(ItemPointer itemPointer, PyEdit pyEdit, Shell shell) {
         File f = (File) itemPointer.file;
-        if (PythonPathHelper.isValidSourceFile(f.getName()) || 
+        String filename = f.getName();
+        if (PythonPathHelper.isValidSourceFile(filename) || 
+                filename.indexOf('.') == -1 || //treating files without any extension! 
                 (itemPointer.zipFilePath != null && PythonPathHelper.isValidSourceFile(itemPointer.zipFilePath)) ){
             
             final PyOpenAction openAction = (PyOpenAction) pyEdit.getAction(PyEdit.ACTION_OPEN);

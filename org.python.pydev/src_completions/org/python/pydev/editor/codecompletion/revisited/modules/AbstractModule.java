@@ -227,7 +227,7 @@ public abstract class AbstractModule implements IModule {
 	    if(moduleName == null){
 	        moduleName = MODULE_NAME_WHEN_FILE_IS_UNDEFINED;
 	    }
-		IModule module = createModuleFromDoc(moduleName, file, doc, pythonNature, line);
+		IModule module = createModuleFromDoc(moduleName, file, doc, pythonNature, line, false);
 	    return module;
 	}
 
