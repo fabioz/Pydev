@@ -19,6 +19,7 @@ Extensions
 <ul>
 <li><strong>Code-analysis</strong>: Statement without effect false positive on yield.</li>
 <li><strong>Code-analysis</strong>: @DynamicAttrs now works in direct class access (not only on instance access from a class).</li>
+<li><strong>Code-analysis</strong>: Names to consider in global do not trigger undefined variables when used with attribute access.</li>
 </ul>
 
 after 1.3.9
