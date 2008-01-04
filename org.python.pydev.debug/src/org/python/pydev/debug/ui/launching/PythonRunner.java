@@ -97,7 +97,7 @@ public class PythonRunner {
     			runUnitTest(config, launch, monitor);
                 
     		}else { //default - just configured by command line (the others need special attention)
-    	        doIt(config, monitor, config.envp, config.getCommandLine(), config.workingDirectory, launch);
+    	        doIt(config, monitor, config.envp, config.getCommandLine(true), config.workingDirectory, launch);
     		}
         }catch (final JDTNotAvailableException e) {
             PydevPlugin.log(e);
@@ -128,7 +128,7 @@ public class PythonRunner {
 		RemoteDebugger debugger = new RemoteDebugger(config);
 		debugger.startConnect(subMonitor);
 		subMonitor.subTask("Constructing command_line...");
-		String[] cmdLine = config.getCommandLine();
+		String[] cmdLine = config.getCommandLine(true);
 
 		Process p = DebugPlugin.exec(cmdLine, config.workingDirectory, config.envp);	
 		checkProcess(p);
@@ -203,7 +203,7 @@ public class PythonRunner {
     }
 
     private static void runUnitTest(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException{
-    	doIt(config, monitor, config.envp, config.getCommandLine(), config.workingDirectory, launch);
+    	doIt(config, monitor, config.envp, config.getCommandLine(true), config.workingDirectory, launch);
     }
 
     /**

@@ -12,6 +12,7 @@ Pydev
 <li><strong>Outline view</strong>: Better refresh (doesn't collapse the tree for simple structure changes).</li>
 <li><strong>Ctrl+Click</strong>: Now ctrl+click and F3 behave exactly the same way.</li>
 <li><strong>Files without extension</strong>: A file without extension can have code-completion/go to definition (as long as the others around it do have extensions)</li>
+<li><strong>Debug</strong>: Variable substitution is no longer asked twice in debug mode.</li>
 </ul>
 
 Extensions

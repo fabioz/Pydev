@@ -401,7 +401,7 @@ public class PythonRunnerConfig {
 	 * @throws CoreException 
 	 * @throws JDTNotAvailableException 
 	 */
-	public String[] getCommandLine() throws CoreException, JDTNotAvailableException {
+	public String[] getCommandLine(boolean makeVariableSubstitution) throws CoreException, JDTNotAvailableException {
 		List<String> cmdArgs = new ArrayList<String>();
         
         if(isJython()){
@@ -515,7 +515,7 @@ public class PythonRunnerConfig {
         }
         
         String runArguments[] = null;
-        if (arguments != null) {
+        if (makeVariableSubstitution && arguments != null) {
             String expanded = getStringVariableManager().performStringSubstitution(arguments);
             runArguments = parseStringIntoList(expanded);
         }
@@ -556,7 +556,7 @@ public class PythonRunnerConfig {
 	public String getCommandLineAsString() throws JDTNotAvailableException {
 		String[] args;
         try {
-            args = getCommandLine();
+            args = getCommandLine(false);
             return SimpleRunner.getCommandLineAsString(args);
         } catch (CoreException e) {
             throw new RuntimeException(e);
