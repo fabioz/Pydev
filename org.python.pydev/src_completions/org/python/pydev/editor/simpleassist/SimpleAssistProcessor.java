@@ -78,7 +78,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
         whatToShow = SHOW_SIMPLE;
     }
     
-    private void doCycle() {
+    public void doCycle() {
         if(whatToShow == SHOW_SIMPLE){
             whatToShow = SHOW_DEFAULT;
         }

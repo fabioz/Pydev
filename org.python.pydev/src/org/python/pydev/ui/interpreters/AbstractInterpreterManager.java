@@ -329,7 +329,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 	                    	//if it does not work it (probably) means that the internal storage format changed among versions,
 	                        //so, we have to recreate that info.
 	                    	final Display def = Display.getDefault();
-	                    	def.asyncExec(new Runnable(){
+	                    	def.syncExec(new Runnable(){
 	
 								public void run() {
 									Shell shell = def.getActiveShell();

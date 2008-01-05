@@ -450,7 +450,7 @@ public class CodeCompletionTestsBase extends TestCase {
      * @param string the string we're looking for 
      * @param codeCompletionProposals the proposals found
      */
-    protected void assertContains(String string, ICompletionProposal[] codeCompletionProposals) {
+    public static void assertContains(String string, ICompletionProposal[] codeCompletionProposals) {
         for (int i = 0; i < codeCompletionProposals.length; i++) {
             ICompletionProposal completionProposal = codeCompletionProposals[i];
             if(checkIfEquals(string, completionProposal)){
@@ -459,7 +459,7 @@ public class CodeCompletionTestsBase extends TestCase {
         }
         StringBuffer buffer = getAvailableAsStr(codeCompletionProposals);
         
-        fail("The string "+string+" was not found in the returned completions.\nAvailable:\n"+buffer);
+        fail("The string >>"+string+"<< was not found in the returned completions.\nAvailable:\n"+buffer);
     }
     
     /**
@@ -473,7 +473,7 @@ public class CodeCompletionTestsBase extends TestCase {
     	for (int i = 0; i < codeCompletionProposals.length; i++) {
     		ICompletionProposal completionProposal = codeCompletionProposals[i];
     		if(checkIfEquals(string, completionProposal)){
-    			fail("The string "+string+" was found in the returned completions (was not expected to be found).");
+    			fail("The string >>"+string+"<< was found in the returned completions (was not expected to be found).");
     		}
     	}
     }
@@ -485,14 +485,14 @@ public class CodeCompletionTestsBase extends TestCase {
      * @param completionProposal this is the completion proposal
      * @return if the completion we're looking for is the same completion we're checking
      */
-    protected boolean checkIfEquals(String lookingFor, ICompletionProposal completionProposal) {
+    protected static boolean checkIfEquals(String lookingFor, ICompletionProposal completionProposal) {
         return completionProposal.getDisplayString().equals(lookingFor);
     }
 
     /**
      * @return StringBuffer with a string representing the array of proposals found.
      */
-    protected StringBuffer getAvailableAsStr(ICompletionProposal[] codeCompletionProposals) {
+    protected static StringBuffer getAvailableAsStr(ICompletionProposal[] codeCompletionProposals) {
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < codeCompletionProposals.length; i++) {
             buffer.append(codeCompletionProposals[i].getDisplayString());

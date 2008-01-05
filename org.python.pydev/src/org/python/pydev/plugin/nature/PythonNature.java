@@ -278,7 +278,8 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     /**
      * Utility routine to add PythonNature to the project
-     * @return 
+     * 
+     * @param projectPythonpath: @see {@link IPythonPathNature#setProjectSourcePath(String)}
      */
     public static synchronized IPythonNature addNature(IProject project, IProgressMonitor monitor, String version, String projectPythonpath) throws CoreException {
         if (project == null || !project.isOpen()) {

@@ -25,6 +25,7 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.util.regex.Matcher;
@@ -739,6 +740,32 @@ public class REF {
     }
 
 
+    /**
+     * Copy a file from one place to another.
+     * 
+     * Example from: http://www.exampledepot.com/egs/java.nio/File2File.html
+     * 
+     * @param srcFilename the source file
+     * @param dstFilename the destination
+     */
+    public static void copyFile(String srcFilename, String dstFilename){
+        try {
+            // Create channel on the source
+            FileChannel srcChannel = new FileInputStream(srcFilename).getChannel();
+        
+            // Create channel on the destination
+            FileChannel dstChannel = new FileOutputStream(dstFilename).getChannel();
+        
+            // Copy file contents from source to destination
+            dstChannel.transferFrom(srcChannel, 0, srcChannel.size());
+        
+            // Close the channels
+            srcChannel.close();
+            dstChannel.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }
 
