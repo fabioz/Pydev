@@ -3,8 +3,14 @@
  */
 package org.python.pydev.core.docutils;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.text.Document;
+import javax.swing.text.EditorKit;
+import javax.swing.text.html.HTMLEditorKit;
 
 public class StringUtils {
 
@@ -241,5 +247,29 @@ public class StringUtils {
         }
     }
 
-    
+  
+    /**
+     * Given some html, extracts its text.
+     */
+    public static String extractTextFromHTML(String html) {
+        try {
+            EditorKit kit = new HTMLEditorKit();
+            Document doc = kit.createDefaultDocument();
+
+            // The Document class does not yet handle charset's properly.
+            doc.putProperty("IgnoreCharsetDirective", Boolean.TRUE);
+
+            // Create a reader on the HTML content.
+            Reader rd = new StringReader(html);
+
+            // Parse the HTML.
+            kit.read(rd, doc, 0);
+
+            //  The HTML text is now stored in the document
+            return doc.getText(0, doc.getLength());
+        } catch (Exception e) {
+        }
+        return "";
+    }
+
 }

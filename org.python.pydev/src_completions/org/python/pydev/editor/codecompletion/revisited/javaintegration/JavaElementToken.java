@@ -14,6 +14,7 @@ import org.eclipse.jdt.ui.JavadocContentAccess;
 import org.eclipse.jdt.ui.text.java.CompletionProposalLabelProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -60,6 +61,7 @@ public class JavaElementToken extends CompiledToken {
         generatedProposal.setFlags(completionProposalFlags);
         generatedProposal.setAdditionalFlags(completionProposalAdditionalFlags);
         generatedProposal.setDeclarationSignature(completionPropsoalSignature);
+        generatedProposal.setSignature(completionPropsoalSignature);
 
         //uses: kind, flags, signature to create an image. 
         ImageDescriptor descriptor = provider.createImageDescriptor(generatedProposal);
@@ -73,7 +75,7 @@ public class JavaElementToken extends CompiledToken {
         if (javaElement instanceof IMember) {
             IMember member = (IMember) javaElement;
             try {
-                return extractJavadoc(member, new NullProgressMonitor());
+                return StringUtils.extractTextFromHTML(extractJavadoc(member, new NullProgressMonitor()));
             } catch (JavaModelException e) {
                 //just ignore it in this case (that may happen when no docstring is available)
             } catch (Exception e) {
