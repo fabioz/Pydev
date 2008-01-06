@@ -465,10 +465,10 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
 	                }
 	            }
             }
-//	        IModulesManager javaModulesManagerForProject = JavaProjectModulesManager.createJavaProjectModulesManagerIfPossible(project);
-//	        if(javaModulesManagerForProject != null){
-//	            list.add(javaModulesManagerForProject);
-//	        }
+	        IModulesManager javaModulesManagerForProject = JavaProjectModulesManager.createJavaProjectModulesManagerIfPossible(project);
+	        if(javaModulesManagerForProject != null){
+	            list.add(javaModulesManagerForProject);
+	        }
         }
     }
 

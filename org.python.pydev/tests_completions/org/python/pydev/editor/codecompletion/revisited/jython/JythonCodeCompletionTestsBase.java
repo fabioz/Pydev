@@ -86,7 +86,7 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase{
     
     @Override
     protected void setInterpreterManager() {
-        PydevPlugin.setJythonInterpreterManager(new JythonInterpreterManagerStub(preferences));
+        PydevPlugin.setJythonInterpreterManager(new JythonInterpreterManagerStub(getPreferences()));
     }
 
     /**

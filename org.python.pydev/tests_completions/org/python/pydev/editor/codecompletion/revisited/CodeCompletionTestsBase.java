@@ -78,8 +78,15 @@ public class CodeCompletionTestsBase extends TestCase {
      * python nature.
      */
 	public static Class restoredSystem;
-	public Preferences preferences;
+	private Preferences preferences;
 
+	public Preferences getPreferences(){
+	    if(this.preferences == null){
+	        this.preferences = new Preferences();
+	    }
+	    return this.preferences;
+	}
+	
 	protected boolean ADD_MX_TO_FORCED_BUILTINS = true;
     
     /**
@@ -93,7 +100,6 @@ public class CodeCompletionTestsBase extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         PydevPlugin.setBundleInfo(new BundleInfoStub());
-        preferences = new Preferences();
         ProjectModulesManager.IN_TESTS = true;
         REF.IN_TESTS = true;
     }
@@ -284,7 +290,7 @@ public class CodeCompletionTestsBase extends TestCase {
      * Sets the interpreter manager we should use
      */
     protected void setInterpreterManager() {
-        PydevPlugin.setPythonInterpreterManager(new PythonInterpreterManagerStub(preferences));
+        PydevPlugin.setPythonInterpreterManager(new PythonInterpreterManagerStub(this.getPreferences()));
     }
     
     

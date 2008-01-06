@@ -43,7 +43,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
 
-        PydevPlugin.setPythonInterpreterManager(new PythonInterpreterManagerStub(preferences));
+        PydevPlugin.setPythonInterpreterManager(new PythonInterpreterManagerStub(getPreferences()));
         nature = createNature();
         ASTManager manager = new ASTManager();
         nature.setAstManager(manager);

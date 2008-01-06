@@ -23,7 +23,7 @@ public class SimpleJythonRunnerTest extends JythonCodeCompletionTestsBase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        PydevPlugin.setJythonInterpreterManager(new PythonInterpreterManagerStub(preferences));
+        PydevPlugin.setJythonInterpreterManager(new PythonInterpreterManagerStub(getPreferences()));
 
     }
 

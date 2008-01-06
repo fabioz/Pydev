@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -17,6 +18,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.text.IDocument;
@@ -27,6 +29,7 @@ import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This class wraps a java project as we'd wrap a python project in a ProjectModulesManager, to give info on the 
@@ -53,10 +56,17 @@ import org.python.pydev.core.ModulesKey;
 public class JavaProjectModulesManager implements IModulesManager, IProjectModulesManager {
 
     private static final String[] EMPTY_STRINTG_ARRAY = new String[0];
+    
     /**
      * Flag indicating whether JDT is supported in this installation.
      */
     private static boolean JDTSupported = true;
+    
+    
+    // DEBUG CONSTANTS
+    private static final boolean DEBUG_GET_MODULE = false;
+    
+    private static final boolean DEBUG_GET_DIRECT_MODULES = false;
 
 
     /**
@@ -83,6 +93,8 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
                 //try to get to this point again (no need to log it or anything).
                 JDTSupported = false;
                 return null;
+            }else{
+                PydevPlugin.log(e);
             }
         }
         
@@ -96,14 +108,82 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     }
 
 
-    public SortedMap<ModulesKey, ModulesKey> getAllDirectModulesStartingWith(String moduleToGetTokensFrom) {
-        throw new RuntimeException("Not implemented");
+    /**
+     * @return a map with the modules keys for all the available modules that start with the passed token.
+     */
+    public SortedMap<ModulesKey, ModulesKey> getAllDirectModulesStartingWith(final String moduleToGetTokensFrom) {
+        if(DEBUG_GET_DIRECT_MODULES){
+            System.out.println("getAllDirectModulesStartingWith: "+moduleToGetTokensFrom);
+        }
+        final TreeMap<ModulesKey, ModulesKey> ret = new TreeMap<ModulesKey, ModulesKey>();
+        
+        filterJavaPackages(new IFilter(){
+            
+            public boolean accept(String elementName, IPackageFragmentRoot packageRoot, IJavaElement javaElement) {
+                if(elementName.startsWith(moduleToGetTokensFrom)){
+                    if(DEBUG_GET_DIRECT_MODULES){
+                        System.out.println("getAllDirectModulesStartingWith: found:"+elementName);
+                    }
+                    
+                    ModulesKeyForJava key = new ModulesKeyForJava(elementName, packageRoot, javaElement);
+                    ret.put(key, key);
+                }
+                return false;
+            }
+            
+        });
+        
+        return ret;
     }
 
+    /**
+     * @return a set with all the module names contained in this modules manager (only in this modules manager,
+     * as the addDependencies should never be true in this implementation).
+     */
     public Set<String> getAllModuleNames(boolean addDependencies, final String partStartingWithLowerCase) {
         if(addDependencies){
-            throw new RuntimeException("At this point, it should never be called with dependencies (because it's a java project already)");
+            throw new RuntimeException("At this point, it should never be called with dependencies " +
+            		"(because it's a java project already -- it manages that internally already)");
         }
+        
+        return filterJavaPackages(new IFilter(){
+
+            public boolean accept(String elementName, IPackageFragmentRoot packageRoot, IJavaElement javaElement) {
+                for (String mod : FullRepIterable.dotSplit(elementName)) {
+                    if(mod.startsWith(partStartingWithLowerCase)){
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+        });
+        
+    }
+
+
+    /**
+     * Interface to be passed to filter a java package.
+     *
+     * @author Fabio
+     */
+    public static interface IFilter{
+        /**
+         * @param elementName the name of the element (same as javaElement.getElementName())
+         * @param packageRoot the java package where the element is contained
+         * @param javaElement the java element 
+         * 
+         * @return true if the element should be added and false otherwise.
+         */
+        public boolean accept(String elementName, IPackageFragmentRoot packageRoot, IJavaElement javaElement);
+    }
+    
+    
+    /**
+     * This method passes through all the java packages and calls the filter callback passed to choose
+     * if it should be accepted or not. 
+     */
+    private Set<String> filterJavaPackages(IFilter filter) {
         HashSet<String> ret = new HashSet<String>();
         IClasspathEntry[] rawClasspath;
         try {
@@ -119,12 +199,10 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
                         for(IJavaElement child:children){
                             String elementName = child.getElementName();
                             
-                            for (String mod : FullRepIterable.dotSplit(elementName)) {
-                                if(mod.startsWith(partStartingWithLowerCase)){
-                                    ret.add(elementName);
-                                    break;//inner for
-                                }
+                            if(filter.accept(elementName, root, child)){
+                                ret.add(elementName);
                             }
+                            
                         }
                     }
                 }
@@ -133,7 +211,6 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
         } catch (JavaModelException e) {
             throw new RuntimeException(e);
         }
-        
     }
         
 
@@ -211,7 +288,33 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     }
 
     public IModule getModuleInDirectManager(String name, IPythonNature nature, boolean dontSearchInit) {
-//        System.out.println("Trying to get module in java project modules manager: "+name);
+        if(DEBUG_GET_MODULE){
+            System.out.println("Trying to get module in java project modules manager: "+name);
+        }
+        try {
+            IType type = this.javaProject.findType(name);
+            if(DEBUG_GET_MODULE){
+                System.out.println("Found: "+type);
+            }
+            
+            if(type != null){
+                
+                //now, there's a catch here, we'll find any class in the project classpath, even if it's in the 
+                //global classpath (e.g.: rt.jar), and this shouldn't be treated in this project modules manager
+                //(that's treated in the Jython system manager)
+                IJavaElement ancestor = type.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+                if(ancestor instanceof IPackageFragmentRoot){
+                    IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot) ancestor;
+                    IClasspathEntry rawClasspathEntry = packageFragmentRoot.getRawClasspathEntry();
+                    if(rawClasspathEntry.getEntryKind() == IClasspathEntry.CPE_CONTAINER){
+                        return null;
+                    }
+                }
+                return new JavaClassModuleInProject(name, this.javaProject);
+            }
+        } catch (JavaModelException e) {
+            throw new RuntimeException(e);
+        }
         return null;
     }
 

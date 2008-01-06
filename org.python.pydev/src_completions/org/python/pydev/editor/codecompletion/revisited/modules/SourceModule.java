@@ -32,7 +32,8 @@ import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ConcreteToken;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaClassModule;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaClassModule;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaZipClassModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindDefinitionModelVisitor;
@@ -659,7 +660,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                     return (Definition[]) o.o1.findDefinition(state.getCopyWithActTok(tok), -1, -1, nature, lFindInfo);
                 }
                 
-            }else if(o.o1 instanceof JavaClassModule){
+            }else if(o.o1 instanceof AbstractJavaClassModule){
                 tok = o.o2;
                 return (Definition[]) o.o1.findDefinition(state.getCopyWithActTok(tok), -1, -1, nature, lFindInfo);
                 

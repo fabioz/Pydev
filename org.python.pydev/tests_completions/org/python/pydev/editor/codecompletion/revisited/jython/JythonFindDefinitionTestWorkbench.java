@@ -6,29 +6,14 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.IModule;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaClassModule;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaDefinition;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaZipClassModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 
-public class JythonFindDefinitionTestWorkbench extends JythonCodeCompletionTestsBase{
+public class JythonFindDefinitionTestWorkbench extends AbstractJythonWorkbenchTests{
 
-    
-
-    /*
-     * @see TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        CompiledModule.COMPILED_MODULES_ENABLED = true;
-        this.restorePythonPath(false);
-        codeCompletion = new PyCodeCompletion();
-    
-    }
 
     public void testFind() throws Exception {
         String d = ""+
@@ -41,7 +26,7 @@ public class JythonFindDefinitionTestWorkbench extends JythonCodeCompletionTests
         
         assertEquals(1, defs.length);
         assertEquals("", defs[0].value);
-        assertTrue(defs[0].module instanceof JavaClassModule);
+        assertTrue(defs[0].module instanceof JavaZipClassModule);
         assertTrue(((JavaDefinition)defs[0]).javaElement != null);
         assertTrue(defs[0] instanceof JavaDefinition);
         assertEquals("javax.swing.JFrame", defs[0].module.getName());
@@ -57,7 +42,7 @@ public class JythonFindDefinitionTestWorkbench extends JythonCodeCompletionTests
         
         assertEquals(1, defs.length);
         assertEquals("", defs[0].value);
-        assertTrue(defs[0].module instanceof JavaClassModule);
+        assertTrue(defs[0].module instanceof JavaZipClassModule);
         IJavaElement javaElement = ((JavaDefinition)defs[0]).javaElement;
         assertTrue(javaElement != null);
         assertTrue(defs[0] instanceof JavaDefinition);
@@ -76,7 +61,7 @@ public class JythonFindDefinitionTestWorkbench extends JythonCodeCompletionTests
         
         assertEquals(1, defs.length);
         assertEquals("asSubclass", defs[0].value);
-        assertTrue(defs[0].module instanceof JavaClassModule);
+        assertTrue(defs[0].module instanceof JavaZipClassModule);
         IJavaElement javaElement = ((JavaDefinition)defs[0]).javaElement;
         assertTrue(javaElement != null);
         assertEquals("asSubclass", javaElement.getElementName());

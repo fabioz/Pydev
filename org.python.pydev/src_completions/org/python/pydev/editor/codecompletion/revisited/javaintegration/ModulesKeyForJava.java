@@ -1,7 +1,7 @@
 package org.python.pydev.editor.codecompletion.revisited.javaintegration;
 
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.python.pydev.core.ModulesKey;
 
 /**
@@ -11,17 +11,14 @@ import org.python.pydev.core.ModulesKey;
  */
 public class ModulesKeyForJava extends ModulesKey{
 
-    private IPackageFragment packageFragment;
-    private IType type;
 
-    public ModulesKeyForJava(String name, IPackageFragment packageFragment) {
-        super(name, null);
-        this.packageFragment = packageFragment;
-    }
+    private IPackageFragmentRoot packageRoot;
+    private IJavaElement javaElement;
 
-    public ModulesKeyForJava(String name, IType type) {
-        super(name, null);
-        this.type = type;
+    public ModulesKeyForJava(String elementName, IPackageFragmentRoot packageRoot, IJavaElement javaElement) {
+        super(elementName, null);
+        this.packageRoot = packageRoot;
+        this.javaElement = javaElement;
     }
 
 }

@@ -26,7 +26,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaClassModule;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaClassModule;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaDefinition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
@@ -211,8 +211,8 @@ public class PyGoToDefinition extends PyRefactorAction {
             openAction.run(selection);
         }else{
             String message;
-            if(itemPointer.definition != null && itemPointer.definition.module instanceof JavaClassModule){
-                JavaClassModule module = (JavaClassModule) itemPointer.definition.module;
+            if(itemPointer.definition != null && itemPointer.definition.module instanceof AbstractJavaClassModule){
+                AbstractJavaClassModule module = (AbstractJavaClassModule) itemPointer.definition.module;
                 message = "The definition was found at: "+f.toString()+"\n" +
                 "as the java module: "+module.getName();
                 

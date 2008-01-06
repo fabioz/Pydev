@@ -6,12 +6,11 @@ package org.python.pydev.editor.codecompletion.revisited.jython;
 import java.io.IOException;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codecompletion.shell.JythonShell;
 
-public class JythonCompletionWithBuiltinsTestWorkbench extends JythonCodeCompletionTestsBase{
+public class JythonCompletionWithBuiltinsTestWorkbench extends AbstractJythonWorkbenchTests{
     
     private static JythonShell shell;
     
@@ -30,16 +29,12 @@ public class JythonCompletionWithBuiltinsTestWorkbench extends JythonCodeComplet
         
     }
 
-    
     /*
      * @see TestCase#setUp()
      */
     protected void setUp() throws Exception {
         super.setUp();
-
-        CompiledModule.COMPILED_MODULES_ENABLED = true;
-        this.restorePythonPath(false);
-        codeCompletion = new PyCodeCompletion();
+        
 
         //we don't want to start it more than once
         if(shell == null){
