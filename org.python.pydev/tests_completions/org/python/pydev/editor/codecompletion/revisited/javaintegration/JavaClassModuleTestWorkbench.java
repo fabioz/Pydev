@@ -111,6 +111,18 @@ public class JavaClassModuleTestWorkbench extends TestCase {
             //case 3: try with referenced java project
             checkCase3(monitor, mod1, editor);
             
+            //case 4: try with referenced java project with submodules
+            checkCase4(monitor, mod1, editor);
+            
+            //case 5: check imports completion
+            checkCase5(monitor, mod1, editor);
+            
+            //case 6: check imports completion for class
+            checkCase6(monitor, mod1, editor);
+            
+            //case 7: check import for roots (default package and root folders)
+            checkCase7(monitor, mod1, editor);
+            
 //            goToManual();
         }catch(Throwable e){
             //ok, I like errors to appear in stderr (and not only in the unit-test view)
@@ -119,6 +131,58 @@ public class JavaClassModuleTestWorkbench extends TestCase {
         }
     }
 
+    
+    /**
+     * Check with 'import' to find the roots
+     */
+    private void checkCase7(NullProgressMonitor monitor, IFile mod1, PyEdit editor) throws CoreException {
+        String mod1Contents;
+        ICompletionProposal[] props;
+        mod1Contents = "import ";
+        setFileContents(monitor, mod1, mod1Contents);
+        props = requestProposals(mod1Contents, editor);
+        CodeCompletionTestsBase.assertContains("javamod1", props);
+        CodeCompletionTestsBase.assertContains("JavaDefault", props);
+    }
+    
+    /**
+     * Check with javamod1.javamod2.JavaClass2
+     */
+    private void checkCase6(NullProgressMonitor monitor, IFile mod1, PyEdit editor) throws CoreException {
+        String mod1Contents;
+        ICompletionProposal[] props;
+        mod1Contents = "import javamod1.javamod2.";
+        setFileContents(monitor, mod1, mod1Contents);
+        props = requestProposals(mod1Contents, editor);
+        CodeCompletionTestsBase.assertContains("JavaClass2", props);
+    }
+    
+    /**
+     * Check with javamod1.javamod2.JavaClass2
+     */
+    private void checkCase5(NullProgressMonitor monitor, IFile mod1, PyEdit editor) throws CoreException {
+        String mod1Contents;
+        ICompletionProposal[] props;
+        mod1Contents = "import javamod1.";
+        setFileContents(monitor, mod1, mod1Contents);
+        props = requestProposals(mod1Contents, editor);
+        CodeCompletionTestsBase.assertContains("javamod2", props);
+    }
+    
+    
+    /**
+     * Check with javamod1.javamod2.JavaClass2
+     */
+    private void checkCase4(NullProgressMonitor monitor, IFile mod1, PyEdit editor) throws CoreException {
+        String mod1Contents;
+        ICompletionProposal[] props;
+        mod1Contents = "import javamod1.javamod2.JavaClass2\njavamod1.javamod2.JavaClass2.";
+        setFileContents(monitor, mod1, mod1Contents);
+        props = requestProposals(mod1Contents, editor);
+        CodeCompletionTestsBase.assertContains("JAVA_CLASS_CONSTANT_2", props);
+        CodeCompletionTestsBase.assertContains("testJavaClass2(int)", props);
+        CodeCompletionTestsBase.assertContains("main(str)", props);
+    }
 
     /**
      * Check with javamod1.JavaClass
@@ -201,12 +265,31 @@ public class JavaClassModuleTestWorkbench extends TestCase {
         entries.add(JavaRuntime.getDefaultJREContainerEntry());
         javaProject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), monitor);
         
+        //create src/javamod1/javamod2
         IFolder javaMod1Folder = srcFolder.getFolder("javamod1");
         javaMod1Folder.create(true, true, monitor);
         
-        IFile file = javaMod1Folder.getFile("JavaClass.java");
+        IFolder javaMod2Folder = javaMod1Folder.getFolder("javamod2");
+        javaMod2Folder.create(true, true, monitor);
+        
+        
+        //create src/JavaDefault.java
+        IFile javaClassFile = srcFolder.getFile("JavaDefault.java");
         
         String javaClassContents = 
+            "public class JavaDefault {\n"+ //default package        
+            "	private int testJavaDefault(String[] args) {\n"+        
+            "		return 0;\n"+        
+            "	}\n"+        
+            "}\n";
+        
+        javaClassFile.create(new ByteArrayInputStream(javaClassContents.getBytes()), true, monitor);
+        
+        
+        //create src/javamod1/JavaClass.java
+        javaClassFile = javaMod1Folder.getFile("JavaClass.java");
+        
+        javaClassContents = 
 "package javamod1;\n"+        
 "public class JavaClass {\n"+        
 "	\n"+        
@@ -220,7 +303,31 @@ public class JavaClassModuleTestWorkbench extends TestCase {
 "	}\n"+        
 "}\n";
 
-        file.create(new ByteArrayInputStream(javaClassContents.getBytes()), true, monitor);
+        javaClassFile.create(new ByteArrayInputStream(javaClassContents.getBytes()), true, monitor);
+        
+        
+        //create src/javamod1/javamod2/JavaClass2.java
+        javaClassFile = javaMod2Folder.getFile("JavaClass2.java");
+        
+        javaClassContents = 
+"package javamod1.javamod2;\n"+        
+"public class JavaClass2 {\n"+        
+"	\n"+        
+"	public static int JAVA_CLASS_CONSTANT_2 = 1;\n"+        
+"	\n"+        
+"	public JavaClass2(int i){};\n"+        
+"	\n"+        
+"	public static void main(String[] args) {\n"+        
+"		new JavaClass2(1).testJavaClass2(new int[0]);\n"+        
+"	}\n"+        
+"	private int testJavaClass2(int[] args) {\n"+        
+"		return 0;\n"+        
+"	}\n"+        
+"}\n";
+
+        javaClassFile.create(new ByteArrayInputStream(javaClassContents.getBytes()), true, monitor);
+
+        
         project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
         return javaProject;
     }

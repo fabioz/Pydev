@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
@@ -120,14 +121,24 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
         filterJavaPackages(new IFilter(){
             
             public boolean accept(String elementName, IPackageFragmentRoot packageRoot, IJavaElement javaElement) {
-                if(elementName.startsWith(moduleToGetTokensFrom)){
+                if(elementName.startsWith(moduleToGetTokensFrom) && elementName.length() > 0){ //we don't want the 'default' package here!
                     if(DEBUG_GET_DIRECT_MODULES){
                         System.out.println("getAllDirectModulesStartingWith: found:"+elementName);
                     }
                     
                     ModulesKeyForJava key = new ModulesKeyForJava(elementName, packageRoot, javaElement);
                     ret.put(key, key);
+                    
+                    //as we care about the full module name here, we'll only try to check the classes if
+                    //the package name already starts with what we're looking for...
+                    return true;
                 }
+                
+                if(elementName.length() == 0){
+                    //or if we're in the default package.
+                    return true;
+                }
+                
                 return false;
             }
             
@@ -146,19 +157,21 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
             		"(because it's a java project already -- it manages that internally already)");
         }
         
-        return filterJavaPackages(new IFilter(){
+        final HashSet<String> ret = new HashSet<String>();
+
+        filterJavaPackages(new IFilter(){
 
             public boolean accept(String elementName, IPackageFragmentRoot packageRoot, IJavaElement javaElement) {
                 for (String mod : FullRepIterable.dotSplit(elementName)) {
                     if(mod.startsWith(partStartingWithLowerCase)){
-                        return true;
+                        ret.add(elementName);
                     }
                 }
-                return false;
+                return true;
             }
 
         });
-        
+        return ret;
     }
 
 
@@ -180,11 +193,13 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     
     
     /**
-     * This method passes through all the java packages and calls the filter callback passed to choose
-     * if it should be accepted or not. 
+     * This method passes through all the java packages and calls the filter callback passed 
+     * on each package found.
+     * 
+     * If true is returned on the callback, the children of each package (classes) will also be visited,
+     * otherwise, they'll be skipped.
      */
-    private Set<String> filterJavaPackages(IFilter filter) {
-        HashSet<String> ret = new HashSet<String>();
+    private void filterJavaPackages(IFilter filter) {
         IClasspathEntry[] rawClasspath;
         try {
             rawClasspath = this.javaProject.getRawClasspath();
@@ -194,20 +209,36 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
                 if(entryKind != IClasspathEntry.CPE_CONTAINER){
                     //ignore if it's in the system classpath...
                     IPackageFragmentRoot[] roots = javaProject.findPackageFragmentRoots(resolvedClasspathEntry);
+                    
+                    //get the package roots
                     for (IPackageFragmentRoot root : roots) {
                         IJavaElement[] children = root.getChildren();
+                        
+                        //get the actual packages 
                         for(IJavaElement child:children){
-                            String elementName = child.getElementName();
+                            IPackageFragment childPackage = (IPackageFragment) child;
+                            String elementName = childPackage.getElementName();
                             
-                            if(filter.accept(elementName, root, child)){
-                                ret.add(elementName);
+                            //and if the java package is 'accepted'
+                            if(filter.accept(elementName, root, childPackage)){
+                                StringBuffer buffer = new StringBuffer(elementName);
+                                int packageNameLen = buffer.length();
+                                if(packageNameLen > 0){
+                                    buffer.append('.');
+                                    packageNameLen += 1;
+                                }
+                                
+                                //traverse its classes
+                                for(IJavaElement class_:childPackage.getChildren()){
+                                    buffer.append(FullRepIterable.getFirstPart(class_.getElementName())); 
+                                    filter.accept(buffer.toString(), root, class_);
+                                    buffer.delete(packageNameLen, Integer.MAX_VALUE); //to the end of the string
+                                }
                             }
-                            
                         }
                     }
                 }
             }
-            return ret;
         } catch (JavaModelException e) {
             throw new RuntimeException(e);
         }
