@@ -14,12 +14,12 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.text.IDocument;
@@ -323,17 +323,17 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
             System.out.println("Trying to get module in java project modules manager: "+name);
         }
         try {
-            IType type = this.javaProject.findType(name);
+            IJavaElement javaElement = this.javaProject.findElement(new Path(name.replace('.', '/')));
             if(DEBUG_GET_MODULE){
-                System.out.println("Found: "+type);
+                System.out.println("Found: "+javaElement);
             }
             
-            if(type != null){
+            if(javaElement != null){
                 
                 //now, there's a catch here, we'll find any class in the project classpath, even if it's in the 
                 //global classpath (e.g.: rt.jar), and this shouldn't be treated in this project modules manager
                 //(that's treated in the Jython system manager)
-                IJavaElement ancestor = type.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+                IJavaElement ancestor = javaElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
                 if(ancestor instanceof IPackageFragmentRoot){
                     IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot) ancestor;
                     IClasspathEntry rawClasspathEntry = packageFragmentRoot.getRawClasspathEntry();
@@ -341,7 +341,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
                         return null;
                     }
                 }
-                return new JavaClassModuleInProject(name, this.javaProject);
+                return new JavaModuleInProject(name, this.javaProject);
             }
         } catch (JavaModelException e) {
             throw new RuntimeException(e);

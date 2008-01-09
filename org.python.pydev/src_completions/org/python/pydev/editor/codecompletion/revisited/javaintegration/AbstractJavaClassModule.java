@@ -393,5 +393,13 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
         };
         return collector;
     }
+    
+    /**
+     * For java, as we don't have __init__.py, the package folder name is always the actual name of the module
+     */
+    @Override
+    public String getPackageFolderName() {
+        return this.name;
+    }
 
 }

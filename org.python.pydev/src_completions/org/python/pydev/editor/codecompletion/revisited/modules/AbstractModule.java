@@ -300,5 +300,17 @@ public abstract class AbstractModule implements IModule {
     	String n = n2.substring(n2.lastIndexOf('.')+1);
 		return this.getName()+" ("+n+")";
     }
+    
+    
+    /**
+     * @return true if the name we have ends with .__init__ (default for packages -- others are modules)
+     */
+    public boolean isPackage() {
+        return this.name != null && this.name.endsWith(".__init__");
+    }
+    
+    public String getPackageFolderName() {
+        return FullRepIterable.getParentModule(this.name);
+    }
 
 }

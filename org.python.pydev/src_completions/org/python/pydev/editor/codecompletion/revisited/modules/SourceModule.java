@@ -33,7 +33,7 @@ import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ConcreteToken;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaClassModule;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaZipClassModule;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaZipModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindDefinitionModelVisitor;

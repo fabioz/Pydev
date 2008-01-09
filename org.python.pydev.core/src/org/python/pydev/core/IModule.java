@@ -121,4 +121,18 @@ public interface IModule {
      */
     public abstract ILocalScope getLocalScope(int line, int col);
 
+    /**
+     * @return true if this module is actually a package:
+     *  - module with __init__.py for python
+     *  - folder for java (not class)
+     */
+    public abstract boolean isPackage();
+    
+    /**
+     * @return a string with the name of the folder for the package represented by this module -- usually, the
+     * name of the module without the __init__.py.
+     * 
+     * Only actually applicable if isPackage == true
+     */
+    public String getPackageFolderName();
 }

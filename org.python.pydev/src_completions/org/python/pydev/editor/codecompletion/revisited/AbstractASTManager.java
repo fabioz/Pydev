@@ -449,10 +449,12 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 	        //the other .py files as modules that are in the same level as the __init__)
             Set<IToken> initial = new HashSet<IToken>();
             if(searchSameLevelMods){
-		        String modName = module.getName();
-		        if(modName != null && modName.endsWith(".__init__")){
+                //now, we have to ask for the module if it's a 'package' (folders that have __init__.py for python
+                //or only folders -- not classes -- in java).
+		        if(module.isPackage()){
 		        	HashSet<IToken> gotten = new HashSet<IToken>();
-					getAbsoluteImportTokens(FullRepIterable.getParentModule(modName), gotten, IToken.TYPE_IMPORT, true);
+		        	//the module also decides how to get its submodules
+					getAbsoluteImportTokens(module.getPackageFolderName(), gotten, IToken.TYPE_IMPORT, true);
 					for (IToken token : gotten) {
 						if(token.getRepresentation().equals("__init__") == false){
 							initial.add(token);
@@ -985,7 +987,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         IModule mod = null;
 
         //ok, check if it is a token for the new import
-    	if(importedModule instanceof SourceToken){
+    	IPythonNature nature = state.getNature();
+        if(importedModule instanceof SourceToken){
     	    SourceToken token = (SourceToken) importedModule;
             
             if(token.isImportFrom()){
@@ -1010,7 +1013,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                     }
                     relative += "."+tok;
                     
-                    modTok = findModuleFromPath(relative, state.getNature(), false, null);
+                    modTok = findModuleFromPath(relative, nature, false, null);
                     mod = modTok.o1;
                     if(checkValidity(currentModuleName, mod)){
                         Tuple<IModule, String> ret = fixTok(modTok, tok, activationToken);
@@ -1026,7 +1029,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         
         //check as relative with complete rep
         String asRelativeImport = importedModule.getAsRelativeImport(currentModuleName);
-		modTok = findModuleFromPath(asRelativeImport, state.getNature(), true, currentModuleName);
+		modTok = findModuleFromPath(asRelativeImport, nature, true, currentModuleName);
         mod = modTok.o1;
         if(checkValidity(currentModuleName, mod)){
             Tuple<IModule, String> ret = fixTok(modTok, tok, activationToken);
@@ -1041,10 +1044,10 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             if(!originalWithoutRep.endsWith("__init__")){
             	originalWithoutRep = originalWithoutRep + ".__init__";
             }
-    		modTok = findModuleFromPath(originalWithoutRep, state.getNature(), true, null);
+    		modTok = findModuleFromPath(originalWithoutRep, nature, true, null);
             mod = modTok.o1;
             if(modTok.o2.endsWith("__init__") == false && checkValidity(currentModuleName, mod)){
-            	if(mod.isInGlobalTokens(importedModule.getRepresentation(), state.getNature(), false)){
+            	if(mod.isInGlobalTokens(importedModule.getRepresentation(), nature, false)){
             		//then this is the token we're looking for (otherwise, it might be a module).
             		Tuple<IModule, String> ret =  fixTok(modTok, tok, activationToken);
             		if(ret.o2.length() == 0){
@@ -1060,7 +1063,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
         
         //the most 'simple' case: check as absolute with original rep
-        modTok = findModuleFromPath(importedModule.getOriginalRep(), state.getNature(), false, null);
+        modTok = findModuleFromPath(importedModule.getOriginalRep(), nature, false, null);
         mod = modTok.o1;
         if(checkValidity(currentModuleName, mod)){
             Tuple<IModule, String> ret =  fixTok(modTok, tok, activationToken);
@@ -1073,7 +1076,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
         
         //ok, one last shot, to see a relative looking in folders __init__
-        modTok = findModuleFromPath(asRelativeImport, state.getNature(), false, null);
+        modTok = findModuleFromPath(asRelativeImport, nature, false, null);
         mod = modTok.o1;
         if(checkValidity(currentModuleName, mod)){
             Tuple<IModule, String> ret = fixTok(modTok, tok, activationToken);
@@ -1088,7 +1091,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             //if it is not the initial token we were looking for, it is correct
             //if it is in the global tokens of the found module it is correct
             //if none of this situations was found, we probably just found the same token we had when we started (unless I'm mistaken...)
-            else if(activationToken.length() == 0 || ret.o2.equals(activationToken) == false || mod.isInGlobalTokens(activationToken, state.getNature(), false)){
+            else if(activationToken.length() == 0 || ret.o2.equals(activationToken) == false || mod.isInGlobalTokens(activationToken, nature, false)){
                 return ret;
             }
         }

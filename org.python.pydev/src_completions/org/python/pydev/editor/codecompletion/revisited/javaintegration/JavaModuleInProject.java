@@ -15,22 +15,28 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 
 /**
- * This class defines a module that represents a given java class within a java project 
+ * This class defines a module that represents a given java class or package within a java project 
  * (that's referenced from a jython project).
  *
  * @author Fabio
  */
-public class JavaClassModuleInProject extends AbstractJavaClassModule {
+public class JavaModuleInProject extends AbstractJavaClassModule {
 
     private static final boolean DEBUG_CLASS_MODULE_IN_PROJECT = false;
     
+    private static final int UNKNOWN = -1; 
+    private static final int IS_PACKAGE = 0; 
+    private static final int IS_CLASS = 1; 
+    
     private IJavaProject javaProject;
 
+    private int moduleType = UNKNOWN;
+    
     /**
      * @param name that's the name of the module for jython
      * @param javaProject that's the project where it exists.
      */
-    protected JavaClassModuleInProject(String name, IJavaProject javaProject) {
+    protected JavaModuleInProject(String name, IJavaProject javaProject) {
         super(name);
         this.javaProject = javaProject;
         
@@ -46,6 +52,16 @@ public class JavaClassModuleInProject extends AbstractJavaClassModule {
             }
         }
 
+    }
+    
+    /**
+     * @return whether it's a package or a class.
+     */
+    public boolean isPackage() {
+        if(this.moduleType == UNKNOWN){
+            throw new RuntimeException("Still can't determine whether it's a package or not.");
+        }
+        return this.moduleType == IS_PACKAGE;
     }
 
     /**
@@ -89,9 +105,20 @@ public class JavaClassModuleInProject extends AbstractJavaClassModule {
             IType type = this.javaProject.findType(name);
             
             final List<Tuple<IJavaElement, CompletionProposal>> ret = new ArrayList<Tuple<IJavaElement, CompletionProposal>>();
-            ICompilationUnit unit = type.getCompilationUnit();
-            CompletionProposalCollector collector = createCollector(filterCompletionName, ret, unit);
-            type.codeComplete(StringUtils.format(contents, name).toCharArray(), -1, 0, new char[0][0], new char[0][0], new int[0], false, collector);
+            
+            //we only get actual completions on a class (otherwise, what we have is a package -- which is treated
+            //as if it was an empty __init__.py file -- without any tokens).
+            if(type != null){
+                ICompilationUnit unit = type.getCompilationUnit();
+                CompletionProposalCollector collector = createCollector(filterCompletionName, ret, unit);
+                type.codeComplete(StringUtils.format(contents, name).toCharArray(), -1, 0, new char[0][0], new char[0][0], new int[0], false, collector);
+            }
+            
+            if(this.moduleType == UNKNOWN){
+                //if we found the type, it's a class (otherwise it's a package).
+                this.moduleType = type==null?IS_PACKAGE:IS_CLASS;
+            }
+            
             return ret;
         } catch (Throwable e) {
             throw new RuntimeException(e);

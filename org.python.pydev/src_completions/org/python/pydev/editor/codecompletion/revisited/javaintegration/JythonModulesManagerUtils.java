@@ -16,7 +16,7 @@ public class JythonModulesManagerUtils {
 
     public static AbstractModule createModuleFromJar(EmptyModuleForZip emptyModuleForZip) throws JDTNotAvailableException{
         try{
-            return new JavaZipClassModule(emptyModuleForZip);
+            return new JavaZipModule(emptyModuleForZip);
         }catch(Exception e){
             tryRethrowAsJDTNotAvailableException(e);
             throw new RuntimeException("Should never get here", e);

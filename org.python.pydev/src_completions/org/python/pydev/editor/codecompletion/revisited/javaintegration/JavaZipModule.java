@@ -20,14 +20,14 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZip;
 
 /**
- * This is the module wrapper around java files.
+ * This is the module wrapper around java files or java packages.
  * 
  * Don't know how to make the completions for java correctly... check: 
  * http://www.eclipse.org/newsportal/article.php?id=68521&group=eclipse.platform#68521
  * 
  * @author Fabio
  */
-public class JavaZipClassModule extends AbstractJavaClassModule {
+public class JavaZipModule extends AbstractJavaClassModule {
 
     public static final boolean DEBUG_JARS = false;
 
@@ -41,6 +41,13 @@ public class JavaZipClassModule extends AbstractJavaClassModule {
     @Override
     public File getFile() {
         return file;
+    }
+    
+    /**
+     * If it's not a file in a zip, it's a folder (in which case it's a package).
+     */
+    public boolean isPackage() {
+        return !this.isFileInZip;
     }
 
     private static HashMap<String, IClasspathEntry[]> classpathEntries = new HashMap<String, IClasspathEntry[]>();
@@ -68,7 +75,7 @@ public class JavaZipClassModule extends AbstractJavaClassModule {
     /**
      * Creates a java class module from a .class in a jar.
      */
-    public JavaZipClassModule(EmptyModuleForZip emptyModuleForZip) {
+    public JavaZipModule(EmptyModuleForZip emptyModuleForZip) {
         super(emptyModuleForZip.getName());
         this.file = emptyModuleForZip.f;
         this.isFileInZip = emptyModuleForZip.isFile;
@@ -77,8 +84,10 @@ public class JavaZipClassModule extends AbstractJavaClassModule {
             System.out.println("Created JavaZipClassModule: "+name);
         }
         if(isFileInZip){
+            //we only have tokens for a class 
             this.tokens = createTokens(name);
         }else{
+            //otherwise, it's a folder (which is treated as a module without any tokens -- as an empty __init__.py file)
             this.tokens = EMPTY_ITOKEN;
         }
         

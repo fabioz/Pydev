@@ -17,26 +17,29 @@ public class JavaClassModuleTestWorkbench extends AbstractJavaIntegrationTestWor
      */
     public void testJavaClassModule() throws Throwable {
         try{
-            //case 1: try it with the rt.jar classes
-            checkCase1();
+//            //case 1: try it with the rt.jar classes
+//            checkCase1();
+//            
+//            //case 2: try with jar added to the project pythonpath
+//            checkCase2();
+//            
+//            //case 3: try with referenced java project
+//            checkCase3();
+//            
+//            //case 4: try with referenced java project with submodules
+//            checkCase4();
+//            
+//            //case 5: check imports completion
+//            checkCase5();
+//            
+//            //case 6: check imports completion for class
+//            checkCase6();
+//            
+//            //case 7: check import for roots (default package and root folders)
+//            checkCase7();
             
-            //case 2: try with jar added to the project pythonpath
-            checkCase2();
-            
-            //case 3: try with referenced java project
-            checkCase3();
-            
-            //case 4: try with referenced java project with submodules
-            checkCase4();
-            
-            //case 5: check imports completion
-            checkCase5();
-            
-            //case 6: check imports completion for class
-            checkCase6();
-            
-            //case 7: check import for roots (default package and root folders)
-            checkCase7();
+            //case 8: code-completion for tokens of an import
+            checkCase8();
             
 //            goToManual();
         }catch(Throwable e){
@@ -44,6 +47,17 @@ public class JavaClassModuleTestWorkbench extends AbstractJavaIntegrationTestWor
             e.printStackTrace();
             throw e;
         }
+    }
+    
+    
+    /**
+     * Check with the tokens of a defined import
+     */
+    public void checkCase8() throws CoreException {
+        String mod1Contents = "from javamod1 import javamod2\nprint javamod2.";
+        setFileContents(mod1Contents);
+        ICompletionProposal[] props = requestProposals(mod1Contents, editor);
+        CodeCompletionTestsBase.assertContains("JavaClass2", props);
     }
 
     
