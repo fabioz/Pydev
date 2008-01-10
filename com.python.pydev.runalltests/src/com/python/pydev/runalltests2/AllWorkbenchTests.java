@@ -7,7 +7,7 @@ import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaClas
 import org.python.pydev.editor.codecompletion.revisited.jython.JythonCompletionWithBuiltinsTestWorkbench;
 import org.python.pydev.editor.codecompletion.revisited.jython.JythonFindDefinitionTestWorkbench;
 
-import com.python.pydev.analysis.javaintegration.JavaIntegrationAnalysisTestWorkbench;
+import com.python.pydev.codecompletion.JavaIntegrationPydevComTestWorkbench;
 
 public class AllWorkbenchTests {
 
@@ -16,7 +16,7 @@ public class AllWorkbenchTests {
         suite.addTestSuite(JythonCompletionWithBuiltinsTestWorkbench.class);
         suite.addTestSuite(JythonFindDefinitionTestWorkbench.class);
         suite.addTestSuite(JavaClassModuleTestWorkbench.class); 
-        suite.addTestSuite(JavaIntegrationAnalysisTestWorkbench.class); 
+        suite.addTestSuite(JavaIntegrationPydevComTestWorkbench.class); 
         if (suite.countTestCases() == 0) {
             throw new Error("There are no test cases to run");
         } else {

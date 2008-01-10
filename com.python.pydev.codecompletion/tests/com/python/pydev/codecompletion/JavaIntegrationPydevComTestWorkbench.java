@@ -1,9 +1,11 @@
-package com.python.pydev.analysis.javaintegration;
+package com.python.pydev.codecompletion;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaIntegrationTestWorkbench;
 
-public class JavaIntegrationAnalysisTestWorkbench extends AbstractJavaIntegrationTestWorkbench {
+public class JavaIntegrationPydevComTestWorkbench extends AbstractJavaIntegrationTestWorkbench {
     
     
     
@@ -16,7 +18,7 @@ public class JavaIntegrationAnalysisTestWorkbench extends AbstractJavaIntegratio
             checkCase1();
             
             //case 2: try context-insensitive code completion
-            checkCase1();
+            checkCase2();
             
 //            goToManual();
         }catch(Throwable e){
@@ -35,7 +37,10 @@ public class JavaIntegrationAnalysisTestWorkbench extends AbstractJavaIntegratio
     public void checkCase2() throws CoreException {
         String mod1Contents = "JavaClas";
         setFileContents(mod1Contents);
-        //TODO: See if JavaClass and JavaClass2 are there (check full package name)
+        ICompletionProposal[] proposals = this.requestProposals(mod1Contents, editor);
+        
+        CodeCompletionTestsBase.assertContains("JavaClass - javamod1", proposals);
+        CodeCompletionTestsBase.assertContains("JavaClass2 - javamod1.javamod2", proposals);
     }
 
 
