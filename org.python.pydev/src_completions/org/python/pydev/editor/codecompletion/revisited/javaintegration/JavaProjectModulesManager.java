@@ -163,7 +163,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
 
             public boolean accept(String elementName, IPackageFragmentRoot packageRoot, IJavaElement javaElement) {
                 for (String mod : FullRepIterable.dotSplit(elementName)) {
-                    if(mod.startsWith(partStartingWithLowerCase)){
+                    if(mod.toLowerCase().startsWith(partStartingWithLowerCase)){
                         ret.add(elementName);
                     }
                 }
