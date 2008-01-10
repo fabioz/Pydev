@@ -17,26 +17,26 @@ public class JavaClassModuleTestWorkbench extends AbstractJavaIntegrationTestWor
      */
     public void testJavaClassModule() throws Throwable {
         try{
-//            //case 1: try it with the rt.jar classes
-//            checkCase1();
-//            
-//            //case 2: try with jar added to the project pythonpath
-//            checkCase2();
-//            
-//            //case 3: try with referenced java project
-//            checkCase3();
-//            
-//            //case 4: try with referenced java project with submodules
-//            checkCase4();
-//            
-//            //case 5: check imports completion
-//            checkCase5();
-//            
-//            //case 6: check imports completion for class
-//            checkCase6();
-//            
-//            //case 7: check import for roots (default package and root folders)
-//            checkCase7();
+            //case 1: try it with the rt.jar classes
+            checkCase1();
+            
+            //case 2: try with jar added to the project pythonpath
+            checkCase2();
+            
+            //case 3: try with referenced java project
+            checkCase3();
+            
+            //case 4: try with referenced java project with submodules
+            checkCase4();
+            
+            //case 5: check imports completion
+            checkCase5();
+            
+            //case 6: check imports completion for class
+            checkCase6();
+            
+            //case 7: check import for roots (default package and root folders)
+            checkCase7();
             
             //case 8: code-completion for tokens of an import
             checkCase8();

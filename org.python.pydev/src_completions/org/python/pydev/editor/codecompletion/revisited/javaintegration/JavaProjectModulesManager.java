@@ -323,7 +323,11 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
             System.out.println("Trying to get module in java project modules manager: "+name);
         }
         try {
-            IJavaElement javaElement = this.javaProject.findElement(new Path(name.replace('.', '/')));
+            IJavaElement javaElement = this.javaProject.findType(name);
+            if(javaElement == null){
+                javaElement = this.javaProject.findElement(new Path(name.replace('.', '/')));
+            }
+            
             if(DEBUG_GET_MODULE){
                 System.out.println("Found: "+javaElement);
             }
