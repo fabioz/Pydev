@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.ui.text.java.CompletionProposalCollector;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZip;
@@ -93,6 +94,20 @@ public class JavaZipModule extends AbstractJavaClassModule {
         
     }
 
+    /**
+     * @return the java element corresponding to the passed module.
+     */
+    @Override
+    protected IJavaElement findJavaElement(String javaClassModuleName) throws Exception {
+        String contents = "import %s.;";
+        contents = StringUtils.format(contents, FullRepIterable.getWithoutLastPart(javaClassModuleName));
+        final String lookingForClass = FullRepIterable.getLastPart(javaClassModuleName);
+        List<Tuple<IJavaElement, CompletionProposal>> javaCompletionProposals = getJavaCompletionProposals(contents, contents.length() - 1, lookingForClass);
+        if(javaCompletionProposals.size() > 0){
+            return javaCompletionProposals.get(0).o1;
+        }
+        return null;
+    }
     
 
     /**

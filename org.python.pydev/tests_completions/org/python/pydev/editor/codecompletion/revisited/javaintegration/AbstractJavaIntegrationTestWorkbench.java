@@ -187,7 +187,9 @@ public class AbstractJavaIntegrationTestWorkbench extends TestCase{
      * Sets the contents of the mod1.py -- which has the PyEdit opened.
      */
     protected void setFileContents(String mod1Contents) throws CoreException {
-        mod1.setContents(new ByteArrayInputStream(mod1Contents.getBytes()), 0, new NullProgressMonitor());
+        NullProgressMonitor monitor = new NullProgressMonitor();
+        mod1.setContents(new ByteArrayInputStream(mod1Contents.getBytes()), 0, monitor);
+        mod1.refreshLocal(IResource.DEPTH_INFINITE, monitor);
     }
 
 

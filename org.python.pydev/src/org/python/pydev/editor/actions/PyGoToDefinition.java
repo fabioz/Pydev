@@ -80,8 +80,13 @@ public class PyGoToDefinition extends PyRefactorAction {
     /**
      * Overrides the run and calls -- and the whole default refactoring cycle from the beggining, 
      * because unlike most refactoring operations, this one can work with dirty editors.
+     * @return 
      */
     public void run(IAction action) {
+        findDefinitionsAndOpen(true);
+    }
+    
+    public ItemPointer[] findDefinitionsAndOpen(boolean doOpenDefinition) {
     	request = null;
         final Shell shell = getShell();
         try {
@@ -90,7 +95,10 @@ public class PyGoToDefinition extends PyRefactorAction {
             final PyEdit pyEdit = getPyEdit();
             if(areRefactorPreconditionsOK(getRefactoringRequest())){
                 ItemPointer[] defs = findDefinition(pyEdit);
-                openDefinition(defs, pyEdit, shell);
+                if(doOpenDefinition){
+                    openDefinition(defs, pyEdit, shell);
+                }
+                return defs;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -103,6 +111,7 @@ public class PyGoToDefinition extends PyRefactorAction {
                     new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, msg, e));
             
         }
+        return null;
     }
 
 
@@ -231,7 +240,7 @@ public class PyGoToDefinition extends PyRefactorAction {
     /**
      * @return an array of ItemPointer with the definitions found
      */
-    private ItemPointer[] findDefinition(PyEdit pyEdit) {
+    public ItemPointer[] findDefinition(PyEdit pyEdit) {
         IPyRefactoring pyRefactoring = getPyRefactoring("canFindDefinition");
         return pyRefactoring.findDefinition(getRefactoringRequest());
     }

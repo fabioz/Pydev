@@ -550,6 +550,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         PyParserManager.getPyParserManager(null).notifySaved(this);
         notifier.notifyOnSave();
     }
+    
+    @Override
+    public void doSave(IProgressMonitor progressMonitor) {
+        super.doSave(progressMonitor);
+    }
 
     /**
      * Forces the encoding to the one specified in the file

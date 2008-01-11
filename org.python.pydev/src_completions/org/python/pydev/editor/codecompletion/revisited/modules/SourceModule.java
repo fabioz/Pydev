@@ -33,7 +33,6 @@ import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ConcreteToken;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaClassModule;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaZipModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindDefinitionModelVisitor;
@@ -522,7 +521,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @param col: starts at 1
      */
     @SuppressWarnings("unchecked")
-	public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature, List<FindInfo> lFindInfo) throws Exception{
+	public Definition[] findDefinition(ICompletionState state, int line, int col, final IPythonNature nature, List<FindInfo> lFindInfo) throws Exception{
         String rep = state.getActivationToken();
     	if(lFindInfo == null){
     		lFindInfo = new ArrayList<FindInfo>();
@@ -582,9 +581,10 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         
         //not found... check as local imports
         List<IToken> localImportedModules = scopeVisitor.scope.getLocalImportedModules(line, col, this.name);
+        ICodeCompletionASTManager astManager = nature.getAstManager();
         for (IToken tok : localImportedModules) {
         	if(tok.getRepresentation().equals(rep)){
-                Tuple3<IModule, String, IToken> o = nature.getAstManager().findOnImportedMods(new IToken[]{tok}, state.getCopyWithActTok(rep), this.getName());
+                Tuple3<IModule, String, IToken> o = astManager.findOnImportedMods(new IToken[]{tok}, state.getCopyWithActTok(rep), this.getName());
                 if(o != null && o.o1 instanceof SourceModule){
                     ICompletionState copy = state.getCopy();
                     copy.setActivationToken(o.o2);
@@ -608,13 +608,13 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         		String classRep = NodeUtils.getRepresentationString(classDef);
 				IToken[] globalTokens = getGlobalTokens(
         				new CompletionState(line-1, col-1, classRep, nature,""), 
-        				nature.getAstManager());
+        				astManager);
 				
         		String withoutSelf = rep.substring(5);
         		for (IToken token : globalTokens) {
 					if(token.getRepresentation().equals(withoutSelf)){
 						String parentPackage = token.getParentPackage();
-						IModule module = nature.getAstManager().getModule(parentPackage, nature, true);
+						IModule module = astManager.getModule(parentPackage, nature, true);
                         
 						if(token instanceof SourceToken && (module != null || this.name.equals(parentPackage))){
                             if(module == null){
@@ -644,7 +644,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         String tok = rep;
         SourceModule mod = this;
 
-        Tuple3<IModule, String, IToken> o = nature.getAstManager().findOnImportedMods(state.getCopyWithActTok(rep), this);
+        Tuple3<IModule, String, IToken> o = astManager.findOnImportedMods(state.getCopyWithActTok(rep), this);
         
         if(o != null){
             if(o.o1 instanceof SourceModule){

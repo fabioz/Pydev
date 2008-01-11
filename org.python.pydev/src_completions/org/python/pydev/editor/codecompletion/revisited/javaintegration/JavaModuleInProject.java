@@ -9,10 +9,12 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.text.java.CompletionProposalCollector;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This class defines a module that represents a given java class or package within a java project 
@@ -31,6 +33,7 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
     private IJavaProject javaProject;
 
     private int moduleType = UNKNOWN;
+    
     
     /**
      * @param name that's the name of the module for jython
@@ -64,12 +67,11 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
         return this.moduleType == IS_PACKAGE;
     }
 
-    /**
-     * TODO: It doesn't have any file available?
-     */
+    private File file;
+    
     @Override
     public File getFile() {
-        return null;
+        return file;
     }
     
     
@@ -109,23 +111,40 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
             //we only get actual completions on a class (otherwise, what we have is a package -- which is treated
             //as if it was an empty __init__.py file -- without any tokens).
             if(type != null){
-                ICompilationUnit unit = type.getCompilationUnit();
-                CompletionProposalCollector collector = createCollector(filterCompletionName, ret, unit);
-                type.codeComplete(StringUtils.format(contents, name).toCharArray(), -1, 0, new char[0][0], new char[0][0], new int[0], false, collector);
+                getCompletionsForType(contents, filterCompletionName, type, ret);
             }
             
             if(this.moduleType == UNKNOWN){
                 //if we found the type, it's a class (otherwise it's a package).
-                this.moduleType = type==null?IS_PACKAGE:IS_CLASS;
+                if (type == null){
+                    this.moduleType = IS_PACKAGE;
+                }else{
+                    this.moduleType = IS_CLASS;
+                    this.file = new File(PydevPlugin.getIResourceOSString(type.getResource()));
+                }
             }
             
             return ret;
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }   
-        
-        
-
     }
+
+    @Override
+    protected IJavaElement findJavaElement(String javaClassModuleName) throws Exception {
+        return this.javaProject.findType(javaClassModuleName);
+    }
+    
+    /**
+     * Tries to get completions for a given element.
+     */
+    private void getCompletionsForType(String contents, String filterCompletionName, IType type,
+            final List<Tuple<IJavaElement, CompletionProposal>> ret) throws JavaModelException {
+        ICompilationUnit unit = type.getCompilationUnit();
+        CompletionProposalCollector collector = createCollector(filterCompletionName, ret, unit);
+        type.codeComplete(StringUtils.format(contents, name).toCharArray(), -1, 0, new char[0][0], new char[0][0], new int[0], false, collector);
+    }
+    
+    
 
 }

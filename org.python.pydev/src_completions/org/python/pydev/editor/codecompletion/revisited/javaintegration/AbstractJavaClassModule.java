@@ -300,30 +300,37 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
 
         AbstractJavaClassModule javaClassModule = (AbstractJavaClassModule) validModule;
 
-        List<Tuple<IJavaElement, CompletionProposal>> elementsFound;
+        IJavaElement elementFound = null;
         String foundAs;
         if (pathInJavaClass.length() == 0) {
             //ok, now, if there is no path, the definition is the java class itself.
             foundAs = "";
-            String contents = "import %s.;";
-            contents = StringUtils.format(contents, FullRepIterable.getWithoutLastPart(javaClassModule.getName()));
-            final String lookingForClass = FullRepIterable.getLastPart(javaClassModule.getName());
-            elementsFound = getJavaCompletionProposals(contents, contents.length() - 1, lookingForClass);
+            elementFound = findJavaElement(javaClassModule.getName());
 
         } else {
             //ok, it's not the class directly, so, we have to check what it actually is.
             foundAs = pathInJavaClass.toString();
-            elementsFound = getJavaCompletionProposals(javaClassModule.getName(), foundAs);
+            List<Tuple<IJavaElement, CompletionProposal>> javaCompletionProposals = getJavaCompletionProposals(javaClassModule.getName(), foundAs);
+            if(javaCompletionProposals.size() > 0){
+                elementFound = javaCompletionProposals.get(0).o1;
+            }
 
         }
 
-        if (elementsFound.size() > 0) {
-            return new Definition[] { new JavaDefinition(foundAs, javaClassModule, elementsFound.get(0).o1) };
+        if (elementFound != null) {
+            return new Definition[] { new JavaDefinition(foundAs, javaClassModule, elementFound) };
         }
 
         //no definitions found
         return new Definition[0];
     }
+    
+    /**
+     * @return tuple with:
+     * - a list of tuples corresponding to the element and the proposal for the gotten elements
+     * 
+     */
+    protected abstract IJavaElement findJavaElement(String javaClassModuleName) throws Exception;
 
     /**
      * Gets tuples with the java element and the corresponding completion proposal for that element.
