@@ -71,9 +71,8 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
 
 
     /**
-     * This method will check the given project and if it's a java project, will create a 
-     * @param project
-     * @return
+     * This method will check the given project and if it's a java project, will create a project modules manager
+     * that can be used to get things from it as we need in pydev.
      */
     public static IModulesManager createJavaProjectModulesManagerIfPossible(IProject project) {
         if(JDTSupported == false){
@@ -255,19 +254,19 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     }
 
     public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
-        throw new RuntimeException("Not implemented");
+        return this.getModuleInDirectManager(name, nature, dontSearchInit);
     }
 
     public IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit) {
-        throw new RuntimeException("Not implemented");
+        return this.getModuleInDirectManager(name, nature, dontSearchInit);
     }
 
     public IPythonNature getNature() {
-        throw new RuntimeException("Not implemented");
+        return null;
     }
 
     public ModulesKey[] getOnlyDirectModules() {
-        throw new RuntimeException("Not implemented");
+        return new ModulesKey[0];
     }
 
     public Object getPythonPathHelper() {
@@ -275,49 +274,22 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     }
 
     public IModule getRelativeModule(String name, IPythonNature nature) {
-        throw new RuntimeException("Not implemented");
+        return this.getModuleInDirectManager(name, nature, true);
     }
 
     public int getSize(boolean addDependenciesSize) {
-        throw new RuntimeException("Not implemented");
+        return 0;
     }
 
     public ISystemModulesManager getSystemModulesManager() {
-        throw new RuntimeException("Not implemented");
+        return null;
     }
 
-    public boolean isInPythonPath(IResource member, IProject container) {
-        throw new RuntimeException("Not implemented");
-    }
 
-    public String resolveModule(IResource member, IProject container) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    public String resolveModule(String full) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    public String resolveModule(String full, boolean checkSystemManager) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    public void setPythonNature(IPythonNature nature) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    public boolean startCompletionCache() {
-        throw new RuntimeException("Not implemented");
-    }
-    
-    public void endCompletionCache() {
-        throw new RuntimeException("Not implemented");
-    }
-
-    public void endProcessing() {
-        throw new RuntimeException("Not implemented");
-    }
-
+    /**
+     * @param dontSearchInit: not applicable for this method (ignored)
+     * @return the module that corresponds to the passed name.
+     */
     public IModule getModuleInDirectManager(String name, IPythonNature nature, boolean dontSearchInit) {
         if(DEBUG_GET_MODULE){
             System.out.println("Trying to get module in java project modules manager: "+name);
@@ -355,7 +327,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
 
 
     public String resolveModuleInDirectManager(IFile file) {
-        throw new RuntimeException("Not implemented");
+        return null;
     }
 
     public String resolveModuleInDirectManager(String full) {
@@ -365,6 +337,38 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     //------------------------------------------------------------------------------------------------------------------
     //the methods below are not actually implemented for a java project (as they aren't really applicable)
     //------------------------------------------------------------------------------------------------------------------
+
+    public boolean isInPythonPath(IResource member, IProject container) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public String resolveModule(IResource member, IProject container) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public String resolveModule(String full) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public String resolveModule(String full, boolean checkSystemManager) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public void setPythonNature(IPythonNature nature) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public boolean startCompletionCache() {
+        throw new RuntimeException("Not implemented");
+    }
+    
+    public void endCompletionCache() {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public void endProcessing() {
+        throw new RuntimeException("Not implemented");
+    }
     
     public SortedMap<ModulesKey, ModulesKey> getAllModulesStartingWith(String moduleToGetTokensFrom) {
         throw new RuntimeException("Not implemented"); //should never be called (this modules manager is inside another one that should handle it)
