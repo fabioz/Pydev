@@ -116,13 +116,17 @@ def pydevd_log(level, s):
         except:
             pass
 
-globalDbg = None
+#=======================================================================================================================
+# GlobacDbgHolder
+#=======================================================================================================================
+class GlobalDebuggerHolder:
+    globalDbg = None
+    
 def GetGlobalDebugger():
-    return globalDbg
+    return GlobalDebuggerHolder.globalDbg
 
 def SetGlobalDebugger(dbg):
-    global globalDbg
-    globalDbg = dbg
+    GlobalDebuggerHolder.globalDbg = dbg
 
 
 #------------------------------------------------------------------- ACTUAL COMM
@@ -174,16 +178,16 @@ class ReaderThread(PyDBDaemonThread):
                     print 'received >>%s<<' % (buffer,)
                     
                 if len(buffer) == 0:
-                    globalDbg.finishDebuggingSession = True
+                    GlobalDebuggerHolder.globalDbg.finishDebuggingSession = True
                     break
                 while buffer.find('\n') != -1:
                     command, buffer = buffer.split('\n', 1)
                     pydevd_log(1, "received command " + command)
                     args = command.split('\t', 2)
-                    globalDbg.processNetCommand(int(args[0]), int(args[1]), args[2])
+                    GlobalDebuggerHolder.globalDbg.processNetCommand(int(args[0]), int(args[1]), args[2])
         except:
             traceback.print_exc()
-            globalDbg.finishDebuggingSession = True
+            GlobalDebuggerHolder.globalDbg.finishDebuggingSession = True
 
 
 #----------------------------------------------------------------------------------- SOCKET UTILITIES - WRITER
@@ -221,7 +225,7 @@ class WriterThread(PyDBDaemonThread):
                 self.sock.send(out) #TODO: this does not guarantee that all message are sent (and jython does not have a send all)
                 time.sleep(self.timeout)                
         except Exception:
-            globalDbg.finishDebuggingSession = True
+            GlobalDebuggerHolder.globalDbg.finishDebuggingSession = True
             if pydevd_trace >= 0:
                 traceback.print_exc()
     

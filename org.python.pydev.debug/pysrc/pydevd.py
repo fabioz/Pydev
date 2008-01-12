@@ -89,7 +89,11 @@ class PyDBCommandThread(PyDBDaemonThread):
         time.sleep(5) #this one will only start later on (because otherwise we may not have any non-daemon threads
         # If running under jython...
             
-        pydevd_tracing.SetTrace(None) # no debugging on this thread
+        if not sys.platform.startswith("java"):
+            #jython bug: if we start a thread and another thread changes the tracing facility
+            #it may affect other threads 
+            pydevd_tracing.SetTrace(None) # no debugging on this thread
+            
         try:
             while not self.killReceived:
                 try:
@@ -635,7 +639,8 @@ class PyDB:
         self.writer.addCommand(net)
 
         pydevd_tracing.SetTrace(self.trace_dispatch) 
-        try:                     
+        try:                   
+            #not available in jython!  
             threading.settrace(self.trace_dispatch) # for all future threads           
         except:
             pass
