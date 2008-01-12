@@ -24,7 +24,7 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
         try{
             FindDefinitionModelVisitorTest test = new FindDefinitionModelVisitorTest();
             test.setUp();
-            test.testFind3();
+            test.testFind5();
             test.tearDown();
             junit.textui.TestRunner.run(FindDefinitionModelVisitorTest.class);
         }catch(Exception e){
@@ -78,6 +78,25 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
      * @throws Exception
      * 
      */
+    public void testFind4() throws Exception {
+        String d = ""+
+        "mydict = {}\n" +
+        "mydict['key'] = 'value'";        
+        
+        Document doc = new Document(d);
+        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, -1);
+        Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("mydict", nature), 2, 2, nature, new ArrayList<FindInfo>());
+        
+        assertEquals(1, defs.length);
+        assertEquals("mydict", ((AssignDefinition)defs[0]).target);
+        assertEquals("dict", defs[0].value);
+        assertSame(module, defs[0].module);
+    }
+    
+    /**
+     * @throws Exception
+     * 
+     */
     public void testFind3() throws Exception {
     	String d = ""+
     	"class Foo:\n" +
@@ -98,9 +117,47 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
     	assertEquals(6, defs[0].line);
     	assertEquals(17, defs[0].col);
     	assertSame(module, defs[0].module);
-    	
-    	
     }
+    
+    
+    /**
+     * @throws Exception
+     * 
+     */
+    public void testFind5() throws Exception {
+        String d = ""+
+        "class Foo:\n" +
+        "    def m1(self, bar):\n" +
+        "        pass\n" +
+        "        xxx = \\\n" +
+        "           yyy = 10\n" +
+        "        print xxx, yyy\n" +
+        "";
+        
+        Document doc = new Document(d);
+        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 1);
+        ICompletionState emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("xxx", nature);
+        ArrayList<FindInfo> arrayList = new ArrayList<FindInfo>();
+        
+        //look for xxx
+        Definition[] defs = (Definition[]) module.findDefinition(emptyCompletionState, 6, 16, nature, arrayList);
+        
+        assertEquals(1, defs.length);
+        assertEquals(4, defs[0].line);
+        assertEquals(9, defs[0].col);
+        assertSame(module, defs[0].module);
+        
+        //look for yyy
+        emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("yyy", nature);
+        defs = (Definition[]) module.findDefinition(emptyCompletionState, 6, 22, nature, arrayList);
+        
+        assertEquals(1, defs.length);
+        assertEquals(5, defs[0].line);
+        assertEquals(12, defs[0].col);
+        assertSame(module, defs[0].module);
+    }
+    
+    
 
     /**
      * @throws Exception

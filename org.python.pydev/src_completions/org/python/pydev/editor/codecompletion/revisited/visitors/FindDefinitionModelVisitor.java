@@ -27,6 +27,7 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
+import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -287,24 +288,26 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
         }
         
         for (int i = 0; i < node.targets.length; i++) {
-            String rep = NodeUtils.getFullRepresentationString(node.targets[i]);
+            exprType target = node.targets[i];
+            if(target instanceof Subscript){
+                continue; //assigning to an element and not the variable itself. E.g.: mydict[1] = 10 (instead of mydict = 10)
+            }
+            String rep = NodeUtils.getFullRepresentationString(target);
 	        
-            if(rep != null && rep.equals(tokenToFind)){
-	            String value = NodeUtils.getFullRepresentationString(node.value);
+            if(tokenToFind.equals(rep)){ //note, order of equals is important (because one side may be null).
+	            exprType nodeValue = node.value;
+                String value = NodeUtils.getFullRepresentationString(nodeValue);
                 if(value == null){
                     value = "";
                 }
-	            AssignDefinition definition;
-	            int line = NodeUtils.getLineDefinition(node.value);
-	            int col = NodeUtils.getColDefinition(node.value);
 	            
-	            if (node.targets != null && node.targets.length > 0){
-	            	line = NodeUtils.getLineDefinition(node.targets[0]);
-	            	col = NodeUtils.getColDefinition(node.targets[0]);
-	            }
+                //get the line and column correspondent to the target
+	            int line = NodeUtils.getLineDefinition(target);
+	            int col = NodeUtils.getColDefinition(target);
 
-                definition = new AssignDefinition(value, rep, i, node, line, col, scope, module);
+	            AssignDefinition definition = new AssignDefinition(value, rep, i, node, line, col, scope, module);
                 
+	            //mark it as global (if it was found as global in some of the previous contexts).
                 for(Set<String> globals: globalDeclarationsStack){
                     if(globals.contains(rep)){
                         definition.foundAsGlobal = true;
