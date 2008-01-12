@@ -120,6 +120,9 @@ def pydevd_log(level, s):
 # GlobacDbgHolder
 #=======================================================================================================================
 class GlobalDebuggerHolder:
+    '''
+        Holder for the global debugger.
+    '''
     globalDbg = None
     
 def GetGlobalDebugger():

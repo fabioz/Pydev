@@ -91,7 +91,9 @@ class PyDBCommandThread(PyDBDaemonThread):
             
         if not sys.platform.startswith("java"):
             #jython bug: if we start a thread and another thread changes the tracing facility
-            #it may affect other threads 
+            #it affects other threads (it's not set only for the thread but globally) 
+            #TODO: Check http://sourceforge.net/tracker/index.php?func=detail&aid=1870039&group_id=12867&atid=112867
+            #to see when this bug gets fixed
             pydevd_tracing.SetTrace(None) # no debugging on this thread
             
         try:
