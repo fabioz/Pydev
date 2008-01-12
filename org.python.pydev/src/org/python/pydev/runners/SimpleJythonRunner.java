@@ -13,6 +13,7 @@ import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
@@ -101,6 +102,9 @@ public class SimpleJythonRunner extends SimpleRunner{
         
         
         String jythonJar = interpreterManager.getDefaultInterpreter();
+        if(!new File(jythonJar).exists()){
+            throw new RuntimeException(StringUtils.format("Error. The default configured interpreter: %s is does not exist!", jythonJar));
+        }
         InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(jythonJar, new NullProgressMonitor());
 
         StringBuffer jythonPath = new StringBuffer();
