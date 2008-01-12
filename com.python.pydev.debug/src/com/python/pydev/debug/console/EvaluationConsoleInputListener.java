@@ -20,8 +20,10 @@ public class EvaluationConsoleInputListener implements IConsoleInputListener{
 				if(DEBUG){
 					System.out.println("Evaluating:\n"+toEval);
 				}
-				target.getDebugger().postCommand(new EvaluateExpressionCommand(target.getDebugger(), toEval, 
-						((PyStackFrame)context).getLocalsLocator().getPyDBLocation(), true));
+				if(context instanceof PyStackFrame){
+    				target.getDebugger().postCommand(new EvaluateExpressionCommand(target.getDebugger(), toEval, 
+    						((PyStackFrame)context).getLocalsLocator().getPyDBLocation(), true));
+				}
 			}
 			buf = new StringBuffer();
 			
