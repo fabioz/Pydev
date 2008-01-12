@@ -16,7 +16,7 @@ public class TabNannyTest extends TestCase {
         try {
             TabNannyTest analyzer2 = new TabNannyTest();
             analyzer2.setUp();
-//            analyzer2.testInconsistentIndent();
+            analyzer2.testNoInconsistentIndentInStrings();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -93,6 +93,23 @@ public class TabNannyTest extends TestCase {
                 "def m(b):\n" +
                 "    pass\n" +
                 "   \n" +
+                "\n" +
+                ""
+        );
+        
+        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4));
+        assertEquals(0, messages.size());
+        
+    }
+    
+    
+    public void testNoInconsistentIndentInStrings() throws Exception {
+        Document doc = new Document("" +
+                "def foo():\n" +
+                "    string = \"\"\"bla\n" +
+                "code()\n" +
+                "  string ident\n" +
+                "  string ident\"\"\"\n" +
                 "\n" +
                 ""
         );

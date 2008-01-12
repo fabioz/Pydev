@@ -29,7 +29,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testConsiderAsGlobalsWithAttributeAccess();
+            analyzer2.testNoUnusedWithLocals();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -177,7 +177,15 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 "    getattr(1, name).text().latin1\n"
         );
         checkNoError();
-        
+    }
+    
+    public void testNoUnusedWithLocals(){
+        doc = new Document(
+                "def m1():\n"+
+                "    name = ''\n"+
+                "    print locals()\n"
+        );
+        checkNoError();
     }
     
     public void testDelete(){

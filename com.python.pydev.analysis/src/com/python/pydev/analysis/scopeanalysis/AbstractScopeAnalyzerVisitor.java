@@ -319,7 +319,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 
                 ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature);
                 state.setBuiltinsGotten (true); //we don't want any builtins
-                List<IToken> completionsForWildImport = nature.getAstManager().getCompletionsForWildImport(state, current, new ArrayList(), wildImport);
+                List<IToken> completionsForWildImport = nature.getAstManager().getCompletionsForWildImport(state, current, new ArrayList<IToken>(), wildImport);
                 scope.addImportTokens(completionsForWildImport, wildImport);
             }else{
                 List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
@@ -770,7 +770,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      * @return true if it was found
      */
     protected boolean markRead(IToken token, String rep, boolean addToNotDefined, boolean checkIfIsValidImportToken) {
-        Iterator it = new FullRepIterable(rep, true).iterator();
         boolean found = false;
         Found foundAs = null;
         String foundAsStr = null;
@@ -780,12 +779,28 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             acceptedScopes = Scope.SCOPE_TYPE_GLOBAL | Scope.SCOPE_TYPE_METHOD | Scope.SCOPE_TYPE_LIST_COMP;
         }else{
             acceptedScopes = Scope.SCOPE_TYPE_GLOBAL | Scope.SCOPE_TYPE_METHOD | Scope.SCOPE_TYPE_CLASS | Scope.SCOPE_TYPE_LIST_COMP;
-            
         }
         
+        if("locals".equals(rep)){
+            //if locals() is accessed, all the tokens currently found are marked as 'used'
+            //use case:
+            //
+            //def f2():
+            //    a = 1
+            //    b = 2
+            //    c = 3
+            //    f1(**locals())
+            
+            for(Found f:scope.getCurrScopeItems().getAll()){
+                f.setUsed(true);
+            }
+            return true;
+        }
+        
+        Iterator<String> it = new FullRepIterable(rep, true).iterator();
         //search for it
         while (found == false && it.hasNext()){
-            String nextTokToSearch = (String) it.next();
+            String nextTokToSearch = it.next();
             foundAs = scope.findFirst(nextTokToSearch, true, acceptedScopes);
             found = foundAs != null;
             if(found){
@@ -832,7 +847,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                         }
                     }
                     
-                    String prev = null;
                     for(String repToCheck : new FullRepIterable(tokToCheck)){
                         int inGlobalTokens = m.isInGlobalTokens(repToCheck, nature, true, true);
                         
@@ -846,7 +860,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                         }else if(inGlobalTokens == IModule.FOUND_BECAUSE_OF_GETATTR){
                             break;
                         }
-                        prev = repToCheck;
                     }
                 }else if(foundAs.isImport() && !foundAs.importInfo.wasResolved){
                     //import was not resolved

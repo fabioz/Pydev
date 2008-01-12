@@ -18,6 +18,11 @@ import org.python.pydev.parser.jython.ast.TryExcept;
 import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 
+/**
+ * Class used to handle scopes while we're walking through the AST.
+ *
+ * @author Fabio
+ */
 public class Scope implements Iterable<ScopeItems>{
     
     /**

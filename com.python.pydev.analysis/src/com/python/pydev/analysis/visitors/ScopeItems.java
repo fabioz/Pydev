@@ -96,6 +96,21 @@ public class ScopeItems {
         return foundItems.get(foundItems.size()-1);
     }
 
+    /**
+     * @return a list with all the found items in this scope
+     */
+    public List<Found> getAll(){
+        ArrayList<Found> found = new ArrayList<Found>();
+        Collection<List<Found>> values = m.values();
+        for (List<Found> list : values) {
+            found.addAll(list);
+        }
+        return found;
+    }
+    
+    /**
+     * @return all the found items that match the given representation.
+     */
     public List<Found> getAll(String rep){
         List<Found> r = m.get(rep);
         if(r == null){

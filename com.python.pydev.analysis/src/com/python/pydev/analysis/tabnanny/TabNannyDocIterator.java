@@ -140,7 +140,7 @@ public class TabNannyDocIterator implements Iterator<Tuple3<String, Integer, Boo
                         break;
                     }
                     
-                } else if (c == '\'') {
+                } else if (c == '\'' || c == '\"') {
                     //literal found... skip to the end of the literal
                     offset = ParsingUtils.getLiteralEnd(doc, offset, c) + 1;
                     
