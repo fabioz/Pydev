@@ -507,14 +507,26 @@ class PyDB:
             
         elif info.pydev_step_cmd == CMD_STEP_OVER:
             if event == 'return': # if we are returning from the function, stop in parent
-                frame.f_back.f_trace = GetGlobalDebugger().trace_dispatch
-                info.pydev_step_stop = frame.f_back
+                back_frame = frame.f_back
+                if back_frame is not None: 
+                    frame.f_back.f_trace = GetGlobalDebugger().trace_dispatch
+                    info.pydev_step_stop = frame.f_back
+                else:
+                    #No back frame?!? -- this happens in jython (don't know why)
+                    info.pydev_step_stop = None
+                    info.pydev_step_cmd = CMD_RUN
             else:
                 info.pydev_step_stop = frame
                 
         elif info.pydev_step_cmd == CMD_STEP_RETURN:
-            frame.f_back.f_trace = GetGlobalDebugger().trace_dispatch
-            info.pydev_step_stop = frame.f_back
+            back_frame = frame.f_back
+            if back_frame is not None:
+                frame.f_back.f_trace = GetGlobalDebugger().trace_dispatch
+                info.pydev_step_stop = frame.f_back
+            else:
+                #No back frame?!? -- this happens in jython (don't know why)
+                info.pydev_step_stop = None
+                info.pydev_step_cmd = CMD_RUN
  
         del frame
         cmd = self.cmdFactory.makeThreadRunMessage(id(thread), info.pydev_step_cmd)
