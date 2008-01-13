@@ -9,14 +9,14 @@ Now: %EC_HOME%\eclipsec.exe
 
 
 COMP HOME -------------------------------------------------------------------------------
-set EC_HOME=D:\bin\eclipse33
+set EC_HOME=D:\bin\eclipse331_1
 set EC_WORKSPACE=X:\
 set RETROWEAVER_HOME=E:\Install\Dev.Java\retroweaver-all\retroweaver
 set PDE_BUILD_SCRIPTS=\plugins\org.eclipse.pde.build_3.3.0.v20070612\scripts
 x:
 
-set PYDEV_VERSION=1.3.9
-set BUILD_ID=1_3_9
+set PYDEV_VERSION=1.3.11
+set BUILD_ID=1_3_11
 
 cd %EC_WORKSPACE%\org.python.pydev.releng 
 %EC_HOME%\eclipsec.exe -application org.eclipse.ant.core.antRunner -buildfile build.xml -Dconfigs="*,*,*" -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -DbaseLocation=%EC_HOME% -DjavacFailOnError=true -DEC_HOME=%EC_HOME% -DEC_WORKSPACE=%EC_WORKSPACE% -DPYDEV_VERSION=%PYDEV_VERSION% -DBUILD_ID=%BUILD_ID%  -DRETROWEAVER_HOME=%RETROWEAVER_HOME% -DdontFetchAnything=True -DcleanAfter=True -DPDE_BUILD_SCRIPTS=%PDE_BUILD_SCRIPTS%
