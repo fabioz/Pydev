@@ -87,15 +87,18 @@ class PyDBCommandThread(PyDBDaemonThread):
 
     def OnRun(self):
         time.sleep(5) #this one will only start later on (because otherwise we may not have any non-daemon threads
-        # If running under jython...
             
-        if not sys.platform.startswith("java"):
+        run_traced = True
+        if sys.platform.startswith("java") and sys.hexversion <= 0x020201f0:
+            #don't run untraced threads if we're in jython 2.2.1 or lower
             #jython bug: if we start a thread and another thread changes the tracing facility
             #it affects other threads (it's not set only for the thread but globally) 
-            #TODO: Check http://sourceforge.net/tracker/index.php?func=detail&aid=1870039&group_id=12867&atid=112867
-            #to see when this bug gets fixed
+            #Bug: http://sourceforge.net/tracker/index.php?func=detail&aid=1870039&group_id=12867&atid=112867
+            run_traced = False
+        
+        if run_traced:
             pydevd_tracing.SetTrace(None) # no debugging on this thread
-            
+        
         try:
             while not self.killReceived:
                 try:
