@@ -1,5 +1,5 @@
 import sys
-from pydevd_constants import *
+from pydevd_constants import STATE_RUN
 import threading
 import pydevd_frame
 import weakref
@@ -36,80 +36,76 @@ class PyDBAdditionalThreadInfoWithCurrentFramesSupport(AbstractPyDBAdditionalThr
             ret.append(f)
         return ret
     
-    def CreateDbFrame(self, mainDebugger, filename, base, additionalInfo, t, frame):
-        #no need to pass the frame
+    def CreateDbFrame(self, mainDebugger, filename, base, additionalInfo, t, frame): #@UnusedVariable
+        #no need to set the frame (we already have sys._current_frames to get them)
         return pydevd_frame.PyDBFrame(mainDebugger, filename, base, additionalInfo, t)
     
 #=======================================================================================================================
 # PyDBAdditionalThreadInfoWithoutCurrentFramesSupport
 #=======================================================================================================================
 class PyDBAdditionalThreadInfoWithoutCurrentFramesSupport(AbstractPyDBAdditionalThreadInfo):
+    
     def __init__(self):
         AbstractPyDBAdditionalThreadInfo.__init__(self)
         #That's where the last frame entered is kept. That's needed so that we're able to 
         #trace contexts that were previously untraced and are currently active. So, the bad thing
         #is that the frame may be kept alive longer than it would if we go up on the frame stack,
         #and is only disposed when some other frame is removed.
-        #A better way would be if we could get the topmost frame for each thread, but that's currently
-        #not possible.
-        self.lock = threading.RLock()
-        self.pydev_last_frame = []
-        self.pydev_i_frames_added = 0
+        #A better way would be if we could get the topmost frame for each thread, but that's 
+        #not possible (until python 2.5 -- which is the PyDBAdditionalThreadInfoWithCurrentFramesSupport version)
         
+        #NOT RLock!! (could deadlock if it was)
+        self.lock = threading.Lock()
+        
+        #collection with the refs
+        self.pydev_existing_frames = {}
+        
+    def _OnDbFrameCollected(self, ref):
+        '''
+            Callback to be called when a given reference is garbage-collected.
+        '''
+        self.lock.acquire()
+        try:
+            del self.pydev_existing_frames[ref]
+        finally:
+            self.lock.release()
+        
+    
     def _AddDbFrame(self, db_frame):
         self.lock.acquire()
         try:
-            self.pydev_last_frame.append(weakref.ref(db_frame))
-            
-            #after creating some, make a little cleanup in the list
-            self.pydev_i_frames_added += 1
-            if self.pydev_i_frames_added > 20:
-                self.ClearDeadDbFrames()
-                self.pydev_i_frames_added = 0
-            self.ClearDeadDbFrames()
+            #create the db frame with a callback to remove it from the dict when it's garbage-collected
+            #(could be a set, but that's not available on all versions we want to target).
+            r = weakref.ref(db_frame, self._OnDbFrameCollected)
+            self.pydev_existing_frames[r] = r
         finally:
             self.lock.release()
     
-    def ClearDeadDbFrames(self):
-        self.lock.acquire()
-        try:
-            weak_db_frames = self.pydev_last_frame[:]
-            weak_db_frames.reverse()
-            
-            enumerated = range(len(weak_db_frames))
-            enumerated.reverse()
-            
-            for i, weak_db_frame in zip(enumerated, weak_db_frames):
-                db_frame = weak_db_frame()
-                if db_frame is None:
-                    del self.pydev_last_frame[i]
-        finally:
-            self.lock.release()
         
     def CreateDbFrame(self, mainDebugger, filename, base, additionalInfo, t, frame):
-        #the frame must be cached
+        #the frame must be cached as a weak-ref (we return the actual db frame -- which will be kept
+        #alive until its trace_dispatch method is not referenced anymore).
+        #that's a large workaround because:
+        #1. we can't have weak-references to python frame object
+        #2. only from 2.5 onwards we have _current_frames support from the interpreter
         db_frame = pydevd_frame.PyDBFrame(mainDebugger, filename, base, additionalInfo, t)
         db_frame.frame = frame
         self._AddDbFrame(db_frame)
         return db_frame
     
     def IterFrames(self):
+        #we may not have yield, so, lets create a list for the iteration
         self.lock.acquire()
         try:
             ret = []
             
-            weak_db_frames = self.pydev_last_frame[:]
-            weak_db_frames.reverse()
+            weak_db_frames = self.pydev_existing_frames.keys()
             
-            enumerated = range(len(weak_db_frames))
-            enumerated.reverse()
-            
-            for i, weak_db_frame in zip(enumerated, weak_db_frames):
-                db_frame = weak_db_frame()
-                if db_frame is None:
-                    del self.pydev_last_frame[i]
-                else:
-                    ret.append(db_frame.frame)
+            for weak_db_frame in weak_db_frames:
+                try:
+                    ret.append(weak_db_frame().frame)
+                except AttributeError:
+                    pass #ok, garbage-collected already
             return ret
         finally:
             self.lock.release()

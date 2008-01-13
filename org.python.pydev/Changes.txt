@@ -15,6 +15,7 @@ Pydev
 <li><strong>Debug</strong>: Variable substitution is no longer asked twice in debug mode.</li>
 <li><strong>Jython Debug</strong>: No untraced threads if version <= 2.2.1 (this was a jython bug that's patched for the current trunk).</li>
 <li><strong>Jython Integration</strong>: Java modules may be referenced from pydev projects.</li>
+<li><strong>Debugger</strong>: performance improvements to get the existing frames for python 2.4 and jython 2.1.</li>
 </ul>
 
 Extensions

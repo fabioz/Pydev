@@ -226,6 +226,8 @@ class WriterThread(PyDBDaemonThread):
                 out = cmd.getOutgoing()
                 pydevd_log(1, "sending cmd " + out)
                 self.sock.send(out) #TODO: this does not guarantee that all message are sent (and jython does not have a send all)
+                if time is None:
+                    break #interpreter shutdown
                 time.sleep(self.timeout)                
         except Exception:
             GlobalDebuggerHolder.globalDbg.finishDebuggingSession = True

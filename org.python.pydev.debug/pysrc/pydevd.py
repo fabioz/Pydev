@@ -195,6 +195,8 @@ class PyDB:
                 if id(t) == thread_id:
                     self.RUNNING_THREAD_IDS[thread_id] = t
                     cmd = self.cmdFactory.makeThreadCreatedMessage(t)
+                    break
+                    
             if cmd:
                 pydevd_log(2, "found a new thread " + str(thread_id))
                 self.writer.addCommand(cmd)
@@ -275,7 +277,7 @@ class PyDB:
                         
             for tId in self.RUNNING_THREAD_IDS.keys():
                 try:
-                    if tId not in foundThreads.keys():
+                    if not foundThreads.has_key(tId):
                         self.processThreadNotAlive(tId)
                 except:
                     print 'Error iterating through %s (%s) - %s' % (foundThreads, foundThreads.__class__, dir(foundThreads))
@@ -290,6 +292,14 @@ class PyDB:
         @param cmd_id: the id of the command
         @param seq: the sequence of the command
         @param text: the text received in the command
+        
+        @note: this method is run as a big switch... after doing some tests, it's not clear whether changing it for
+        a dict id --> function call will have better performance result. A simple test with xrange(10000000) showed
+        that the gains from having a fast access to what should be executed are lost because of the function call in
+        a way that if we had 10 elements in the switch the if..elif are better -- but growing the number of choices
+        makes the solution with the dispatch look better -- so, if this gets more than 20-25 choices at some time,
+        it may be worth refactoring it (actually, reordering the ifs so that the ones used mostly come before 
+        probably will give better performance).
         '''
 
         self.acquire()
@@ -439,19 +449,15 @@ class PyDB:
                     file = pydevd_file_utils.NormFile(file)
                     line = int(line)
                     
-                    if self.breakpoints.has_key(file):
+                    try:
+                        del self.breakpoints[file][line] #remove the breakpoint in that line
                         if pydevd_trace_breakpoints > 0:
                             print 'Removed breakpoint:%s' % (file)
-                            
-                        if self.breakpoints[file].has_key(line):
-                            del self.breakpoints[file][line]
-                            keys = self.breakpoints[file].keys()
-                            if len(keys) is 0:
-                                del self.breakpoints[file]
-                        else:
-                            pass
+                    except KeyError:
+                        #ok, it's not there...
+                        if pydevd_trace_breakpoints > 0:
                             #Sometimes, when adding a breakpoint, it adds a remove command before (don't really know why)
-                            #print >> sys.stderr, "breakpoint not found", file, str(line)
+                            print >> sys.stderr, "breakpoint not found", file, str(line)
                             
                 elif cmd_id == CMD_EVALUATE_EXPRESSION or cmd_id == CMD_EXEC_EXPRESSION:
                     #command to evaluate the given expression
@@ -514,26 +520,17 @@ class PyDB:
         if info.pydev_step_cmd == CMD_STEP_INTO:
             info.pydev_step_stop = None
             
-        elif info.pydev_step_cmd == CMD_STEP_OVER:
-            if event == 'return': # if we are returning from the function, stop in parent
-                back_frame = frame.f_back
-                if back_frame is not None: 
-                    frame.f_back.f_trace = GetGlobalDebugger().trace_dispatch
-                    info.pydev_step_stop = frame.f_back
-                else:
-                    #No back frame?!? -- this happens in jython (don't know why)
-                    info.pydev_step_stop = None
-                    info.pydev_step_cmd = CMD_RUN
-            else:
-                info.pydev_step_stop = frame
+        elif info.pydev_step_cmd == CMD_STEP_OVER and event != 'return':
+            info.pydev_step_stop = frame
                 
-        elif info.pydev_step_cmd == CMD_STEP_RETURN:
+        elif info.pydev_step_cmd == CMD_STEP_RETURN or (info.pydev_step_cmd == CMD_STEP_OVER and event == 'return'):
             back_frame = frame.f_back
             if back_frame is not None:
-                frame.f_back.f_trace = GetGlobalDebugger().trace_dispatch
-                info.pydev_step_stop = frame.f_back
+                back_frame.f_trace = GetGlobalDebugger().trace_dispatch
+                info.pydev_step_stop = back_frame
             else:
-                #No back frame?!? -- this happens in jython (don't know why)
+                #No back frame?!? -- this happens in jython when we have some frame created from an awt event
+                #(the previous frame would be the awt event, but this doesn't make part of 'jython', only 'java')
                 info.pydev_step_stop = None
                 info.pydev_step_cmd = CMD_RUN
  

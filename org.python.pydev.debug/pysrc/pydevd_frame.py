@@ -5,10 +5,13 @@ import traceback
 #jython has an 'exception' event that must be treated too (strangely it is called when doing a wild import)
 ACCEPTED_EVENTS = {'call':1, 'line':1, 'return':1, 'exception':1}
 
+#=======================================================================================================================
+# PyDBFrame
+#=======================================================================================================================
 class PyDBFrame:
     '''This makes the tracing for a given frame, so, the trace_dispatch
     is used initially when we enter into a new context ('call') and then
-    is reused for the entire context
+    is reused for the entire context.
     '''
     
     def __init__(self, mainDebugger, filename, base, additionalInfo, t):
