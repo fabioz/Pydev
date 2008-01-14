@@ -56,6 +56,7 @@ elif os.name == "posix":
             try:
                 os.unlink(outfile)
             except OSError, e:
+                import errno
                 if e.errno != errno.ENOENT:
                     raise
         res = re.search(expr, trace)

@@ -249,10 +249,6 @@ class BRMContext_impl(BRMContext):
         self._setNonLibPythonPath(filename_path)
         return findReferences(filename_path,line,column)
         
-    def refreshASTFromFileSystem(self):
-        for path in self.paths:
-            self.ast = loadast(path, self.ast)
-
     def _setCompletePythonPath(self,filename):
         pythonpath = [] + sys.path  # make a copy
         self.ast.pythonpath = pythonpath

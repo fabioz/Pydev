@@ -54,8 +54,6 @@ def findReferencesIncludingDefn_impl(sourcenode,node,scope,defnmatch):
             return globalScanForMatches(sourcenode.filename,
                                         NameRefFinder(targetname, defnmatch),
                                         targetname, )
-        if match is not None:
-            return match
     elif isinstance(node,compiler.ast.Function) or \
                              isinstance(node,compiler.ast.Class):
         return handleClassOrFunctionRefs(scope, node, defnmatch)

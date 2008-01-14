@@ -117,7 +117,7 @@ if _os.name in ("nt", "ce"):
         WINFUNCTYPE.__doc__ = CFUNCTYPE.__doc__.replace("CFUNCTYPE", "WINFUNCTYPE")
 
 elif _os.name == "posix":
-    from _ctypes import dlopen as _dlopen
+    from _ctypes import dlopen as _dlopen #@UnresolvedImport
 
 from _ctypes import sizeof, byref, addressof, alignment
 from _ctypes import _SimpleCData
