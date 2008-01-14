@@ -57,7 +57,7 @@ public class PyDeletePycAndClassFiles implements IObjectActionDelegate {
                 }else if(c instanceof IFile){
                     String name = c.getName();
                     if(name != null){
-                        if(name.endsWith(".pyc") || name.endsWith("$py.class")){
+                        if(name.endsWith(".pyc") || name.endsWith(".pyo") || name.endsWith("$py.class")){
                             c.delete(true, nullProgressMonitor);
                             deleted += 1;
                         }

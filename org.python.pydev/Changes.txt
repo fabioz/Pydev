@@ -2,20 +2,24 @@ after 1.3.10
 
 Pydev
 <ul>
-<li><strong>Custom Filters</strong>: User-Defined filters can be specified in the Pydev package explorer.</li>
-<li><strong>Undo limit</strong>: The undo limit set in window > preferences > general > editors > text editors is working for pydev.</li>
+<li><strong>Jython Integration</strong>: Java modules may be referenced from pydev projects (working with code-completion, go to definition, etc).</li>
+<li><strong>Jython Debugger</strong>: Does not attempt to run untraced threads if version &lt;= 2.2.1 (this was a Jython bug that's patched for the current trunk --
+<strong>note:</strong> it prevented the debugger from working correctly with Jython).</li>
 <li><strong>Project build</strong>: Only referenced projects are rebuilt (and not all projects in the workspace -- e.g.: unreferenced c++ projects).</li>
-<li><strong>Spell checking</strong>: Integrated for comments and strings (in the general preferences). Note: depends on JDT (eclipse 3.4 should add the support for working without JDT. Reference: http://www.eclipse.org/eclipse/platform-text/3.4/plan.php).</li>
-<li><strong>Patch by Laurent Dore</strong>: Added filter for *.py~ and comments</li>
-<li><strong>Dedent</strong>: No auto-dedent after yield</li>
-<li><strong>Tabs to spaces</strong>: The newly added 'insert spaces for tabs' in the general preferences was conflicting with pydev (now, pydev ignores those settings)</li>
-<li><strong>Outline view</strong>: Better refresh (doesn't collapse the tree for simple structure changes).</li>
-<li><strong>Ctrl+Click</strong>: Now ctrl+click and F3 behave exactly the same way.</li>
-<li><strong>Files without extension</strong>: A file without extension can have code-completion/go to definition (as long as the others around it do have extensions)</li>
+<li><strong>Spell checking (depends on JDT)</strong>: Integrated for comments and strings within pydev (eclipse 3.4 should add the 
+support for working without JDT. Reference: <a href="http://www.eclipse.org/eclipse/platform-text/3.4/plan.php">
+http://www.eclipse.org/eclipse/platform-text/3.4/plan.php</a>).</li>
+<li><strong>Files without extension</strong>: A file without extension can have code-completion / go to definition (as long as the others around it do have extensions)</li>
 <li><strong>Debug</strong>: Variable substitution is no longer asked twice in debug mode.</li>
-<li><strong>Jython Debug</strong>: No untraced threads if version <= 2.2.1 (this was a jython bug that's patched for the current trunk).</li>
-<li><strong>Jython Integration</strong>: Java modules may be referenced from pydev projects.</li>
-<li><strong>Debugger</strong>: performance improvements to get the existing frames for python 2.4 and jython 2.1.</li>
+<li><strong>Custom Filters</strong>: User-defined filters can be specified in the <strong>Pydev package explorer</strong>.</li>
+<li><strong>Debugger</strong>: performance improvements to get the existing frames for Python 2.4 and Jython 2.1.</li>
+<li><strong>Outline view</strong>: Better refresh (doesn't collapse the tree for simple structure changes).</li>
+<li><strong>Undo limit</strong>: The undo limit set in window > preferences > general > editors > text editors works for pydev.</li>
+<li><strong>Editor: Tabs as spaces</strong>: The newly added 'insert spaces for tabs' in the general preferences was conflicting with pydev (those settings are now ignored)</li>
+<li><strong>Patch by Laurent Dore</strong>: Added filter for *.py~ and comments</li>
+<li><strong>Delete *.pyc action</strong>: also deletes *.pyo files</li>
+<li><strong>Ctrl+Click</strong>: behaves exactly as F3.</li>
+<li><strong>Dedent</strong>: No auto-dedent after yield</li>
 </ul>
 
 Extensions
