@@ -52,7 +52,7 @@ public class JythonModulesManagerUtils {
      * @return true if the passed throwable belongs to a class of exceptions related to not having JDT available
      */
     public static boolean isOptionalJDTClassNotFound(Throwable e) {
-        return e instanceof LinkageError || e instanceof ClassNotFoundException;
+        return e instanceof LinkageError || e instanceof ClassNotFoundException || e instanceof NoClassDefFoundError;
     }
 
 }

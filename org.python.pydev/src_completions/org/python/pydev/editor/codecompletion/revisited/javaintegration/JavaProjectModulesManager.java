@@ -11,7 +11,6 @@ import java.util.TreeMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -21,7 +20,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModule;
@@ -30,7 +28,6 @@ import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This class wraps a java project as we'd wrap a python project in a ProjectModulesManager, to give info on the 
@@ -58,48 +55,12 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
 
     private static final String[] EMPTY_STRINTG_ARRAY = new String[0];
     
-    /**
-     * Flag indicating whether JDT is supported in this installation.
-     */
-    private static boolean JDTSupported = true;
-    
     
     // DEBUG CONSTANTS
     private static final boolean DEBUG_GET_MODULE = false;
     
     private static final boolean DEBUG_GET_DIRECT_MODULES = false;
 
-
-    /**
-     * This method will check the given project and if it's a java project, will create a project modules manager
-     * that can be used to get things from it as we need in pydev.
-     */
-    public static IModulesManager createJavaProjectModulesManagerIfPossible(IProject project) {
-        if(JDTSupported == false){
-            return null;
-        }
-        
-        try{
-            if(project.isOpen()){
-                IProjectNature nature = project.getNature(JavaCore.NATURE_ID);
-                if(nature instanceof IJavaProject){
-                    IJavaProject javaProject = (IJavaProject) nature;
-                    return new JavaProjectModulesManager(javaProject);
-                }
-            }
-        }catch(Throwable e){
-            if(JythonModulesManagerUtils.isOptionalJDTClassNotFound(e)){
-                //ignore it at this point: we don't have JDT... set the static variable to it and don't even
-                //try to get to this point again (no need to log it or anything).
-                JDTSupported = false;
-                return null;
-            }else{
-                PydevPlugin.log(e);
-            }
-        }
-        
-        return null;
-    }
 
     private IJavaProject javaProject;
 
@@ -238,7 +199,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
                     }
                 }
             }
-        } catch (JavaModelException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -319,7 +280,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
                 }
                 return new JavaModuleInProject(name, this.javaProject);
             }
-        } catch (JavaModelException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return null;

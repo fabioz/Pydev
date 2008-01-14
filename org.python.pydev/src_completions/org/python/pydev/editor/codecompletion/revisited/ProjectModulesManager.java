@@ -34,7 +34,7 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaProjectModulesManager;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaProjectModulesManagerCreator;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesKeyForJava;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.PydevPlugin;
@@ -465,7 +465,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
 	                }
 	            }
             }
-	        IModulesManager javaModulesManagerForProject = JavaProjectModulesManager.createJavaProjectModulesManagerIfPossible(project);
+	        IModulesManager javaModulesManagerForProject = JavaProjectModulesManagerCreator.createJavaProjectModulesManagerIfPossible(project);
 	        if(javaModulesManagerForProject != null){
 	            list.add(javaModulesManagerForProject);
 	        }
