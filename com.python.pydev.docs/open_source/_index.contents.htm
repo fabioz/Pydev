@@ -32,6 +32,35 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 <h4>Major highlights:</h4>
 
 <ul>
+<li><strong>Jython Integration</strong>: Java modules may be referenced from pydev projects (working with code-completion, go to definition, etc).</li>
+<li><strong>Jython Debugger</strong>: Does not attempt to run untraced threads if version &lt;= 2.2.1 (this was a Jython bug that's patched for the current trunk --
+<strong>note:</strong> it prevented the debugger from working correctly with Jython).</li>
+
+<li><strong>Project build</strong>: Only referenced projects are rebuilt (and not all projects in the workspace -- e.g.: unreferenced c++ projects).</li>
+
+<li><strong>Spell checking (depends on JDT)</strong>: Integrated for comments and strings within pydev (eclipse 3.4 should add the 
+support for working without JDT. Reference: <a href="http://www.eclipse.org/eclipse/platform-text/3.4/plan.php">
+http://www.eclipse.org/eclipse/platform-text/3.4/plan.php</a>).</li>
+
+<li><strong>Files without extension</strong>: A file without extension can have code-completion / go to definition (as long as the others around it do have extensions)</li>
+<li><strong>Debug</strong>: Variable substitution is no longer asked twice in debug mode.</li>
+<li><strong>Custom Filters</strong>: User-defined filters can be specified in the <strong>Pydev package explorer</strong>.</li>
+<li><strong>Debugger</strong>: performance improvements to get the existing frames for Python 2.4 and Jython 2.1.</li>
+<li><strong>Outline view</strong>: Better refresh (doesn't collapse the tree for simple structure changes).</li>
+
+<li><strong>Undo limit</strong>: The undo limit set in window > preferences > general > editors > text editors works for pydev.</li>
+<li><strong>Editor: Tabs as spaces</strong>: The newly added 'insert spaces for tabs' in the general preferences was conflicting with pydev (those settings are now ignored)</li>
+
+<li><strong>Patch by Laurent Dore</strong>: Added filter for *.py~ and comments</li>
+<li><strong>Delete *.pyc action</strong>: also deletes *.pyo files</li>
+<li><strong>Ctrl+Click</strong>: behaves exactly as F3.</li>
+<li><strong>Dedent</strong>: No auto-dedent after yield</li>
+</ul>
+
+
+<h4>Previous: 1.3.10</h4>
+
+<ul>
 <li><strong>Symlinks</strong> supported in the system pythonpath configuration.</li>
 <li><strong>Egg/zip</strong> files are now supported.</li>
 <li>The creation of a project in a non-default location is now allowed within the workspace</li>
@@ -69,42 +98,6 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 <li>Unittest runner: handles <strong>multiple selection</strong>.</li>
 </ul>
 
-
-<h4>Previous: 1.3.8</h4>
-
-<ul>
-<li>Fixed problems related to the pydev package explorer that appeared when using <strong>java 1.6</strong> (ConcurrentModificationException)</li>
-<li>Other minor bug-fixes</li>
-</ul>
-
-
-<h4>Previous: 1.3.7</h4>
-
-<ul>
-<li><strong>Support for Eclipse 3.3</strong></li>
-<li><strong>Bug Fix</strong>: Interpreter modules not correctly set/persisted after specifying interpreter (so, the builtins and other system libraries would not be available in completions).</li>
-<li><strong><a href="http://www.eclipse.org/mylyn/">Mylyn</a> integration</strong>.</li>
-<li><strong>Open With Pydev</strong>: does not appear for containers anymore.</li>
-<li><strong>Code-completion:</strong> </li>
-The folowing cases are now considered in code-completion to discover the type of a variable:
-<ul>
-	<strong>Type/Interface checking:</strong> (note that 'assert' is required)
-	<li>assert isinstance(obj, Interface) -- default from python</li>
-	<li>assert Interface.implementedBy(obj) -- zope</li>
-	<li>assert IsImplementation(obj, Interface) -- custom request</li>
-	<li>assert IsInterfaceDeclared(obj, Interface) -- custom request</li>
-</ul>
-
-<ul>
-	<strong>Factory methods</strong>
-	<li>a = adapt(obj, Interface) -- pyprotocols</li>
-	<li>a = obj.GetAdapter(Interface) -- custom request</li>
-	<li>a = obj.get_adapter(Interface) -- custom request</li>
-	<li>a = GetSingleton(Interface) -- custom request</li>
-	<li>a = GetImplementation(Interface) -- custom request</li>
-</ul>
-
-</ul>
 
 
 

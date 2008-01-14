@@ -2,18 +2,25 @@
 
 
 <ul>
-<li><strong>Symlinks</strong> supported in the system pythonpath configuration.</li>
-<li><strong>Egg/zip</strong> files are now supported.</li>
-<li>The creation of a project in a non-default location is now allowed within the workspace</li>
-<li><strong>JDT</strong> used to get completions from jars (but referencing other java projects is still not supported).</li>
-<li>Configuration of pythonpath allows multiple selection for removal.</li>
-<li>Configuration of pythonpath allows multiple jars/zips to be added at once.</li>
-<li>When configuring the pythonpath, the paths are sorted for selection.</li>
-<li>The file extensions that pydev recognizes for python can now be customized.</li>
-<li>Patch by <strong>Carl Robinson</strong>: <strong>Code-folding</strong> for elements such as for, try, while, etc.</li>
-<li>Removed the go to next/previous problem annotation (Eclipse 3.3 already provides a default implementation for it).</li>
+<li><strong>Jython Integration</strong>: Java modules may be referenced from pydev projects (working with code-completion, go to definition, etc).</li>
+<li><strong>Jython Debugger</strong>: Does not attempt to run untraced threads if version &lt;= 2.2.1 (this was a Jython bug that's patched for the current trunk --
+<strong>note:</strong> it prevented the debugger from working correctly with Jython).</li>
+<li><strong>Project build</strong>: Only referenced projects are rebuilt (and not all projects in the workspace -- e.g.: unreferenced c++ projects).</li>
+<li><strong>Spell checking (depends on JDT)</strong>: Integrated for comments and strings within pydev (eclipse 3.4 should add the 
+support for working without JDT. Reference: <a href="http://www.eclipse.org/eclipse/platform-text/3.4/plan.php">
+http://www.eclipse.org/eclipse/platform-text/3.4/plan.php</a>).</li>
+<li><strong>Files without extension</strong>: A file without extension can have code-completion / go to definition (as long as the others around it do have extensions)</li>
+<li><strong>Debug</strong>: Variable substitution is no longer asked twice in debug mode.</li>
+<li><strong>Custom Filters</strong>: User-defined filters can be specified in the <strong>Pydev package explorer</strong>.</li>
+<li><strong>Debugger</strong>: performance improvements to get the existing frames for Python 2.4 and Jython 2.1.</li>
+<li><strong>Outline view</strong>: Better refresh (doesn't collapse the tree for simple structure changes).</li>
+<li><strong>Undo limit</strong>: The undo limit set in window > preferences > general > editors > text editors works for pydev.</li>
+<li><strong>Editor: Tabs as spaces</strong>: The newly added 'insert spaces for tabs' in the general preferences was conflicting with pydev (those settings are now ignored)</li>
+<li><strong>Patch by Laurent Dore</strong>: Added filter for *.py~ and comments</li>
+<li><strong>Delete *.pyc action</strong>: also deletes *.pyo files</li>
+<li><strong>Ctrl+Click</strong>: behaves exactly as F3.</li>
+<li><strong>Dedent</strong>: No auto-dedent after yield</li>
 </ul>
-
 
 <br/>
 <hr/>
@@ -33,6 +40,7 @@
 <li><strong>Python 2.5</strong> syntax supported</li>
 <li>PyDev builders can be disabled</li>
 <li>Syntax highlighting</li>
+<li>Spell checking (depends on JDT for Eclipse 3.3)</li>
 <li>Hovering in errors shows descriptions</li>
 <li>Matching brackets highlighted.</li>
 <li>Parser errors marked in the task list</li>
@@ -72,6 +80,24 @@
 
 <hr/>
 <h2>Features History</h2>
+
+
+<h3>New on: 1.3.10</h3>
+
+
+
+<ul>
+<li><strong>Symlinks</strong> supported in the system pythonpath configuration.</li>
+<li><strong>Egg/zip</strong> files are now supported.</li>
+<li>The creation of a project in a non-default location is now allowed within the workspace</li>
+<li><strong>JDT</strong> used to get completions from jars (but referencing other java projects is still not supported).</li>
+<li>Configuration of pythonpath allows multiple selection for removal.</li>
+<li>Configuration of pythonpath allows multiple jars/zips to be added at once.</li>
+<li>When configuring the pythonpath, the paths are sorted for selection.</li>
+<li>The file extensions that pydev recognizes for python can now be customized.</li>
+<li>Patch by <strong>Carl Robinson</strong>: <strong>Code-folding</strong> for elements such as for, try, while, etc.</li>
+<li>Removed the go to next/previous problem annotation (Eclipse 3.3 already provides a default implementation for it).</li>
+</ul>
 
 
 <h3>New on: 1.3.9</h3>

@@ -13,7 +13,19 @@ It works with <a class="a_link" href="http://www.eclipse.org/">Eclipse</a> and t
 
 <h3>Release Changes</h3>
 	<ul>
-		<li><h4>Release 1.3.10 <IMG src="images/new.png" border="0" /></h4></li>
+		<li><h4>Release 1.3.11 <IMG src="images/new.png" border="0" /></h4></li>
+		<ul>
+			<li><strong>Code-analysis</strong>: Doesn't report 'statement without effect' within yield.</li>
+			<li><strong>Code-analysis</strong>: @DynamicAttrs now works in direct class access (not only on instance access from a class).</li>
+			<li><strong>Code-analysis</strong>: Names to consider in global do not trigger undefined variables when they have some attribute access.</li>
+			<li><strong>Code-analysis</strong>: Accessing locals() will mark local variables as read.</li>
+			<li><strong>Code-analysis</strong>: No indentation warnings on multiline strings that use double quotes.</li>
+		</ul>
+	</ul>
+	
+	
+	<ul>
+		<li><h4>Release 1.3.10</h4></li>
 		<ul>
 			<li><strong>Code-analysis</strong>: Doesn't report 'statement without effect' within list comprehension.</li>
 			<li><strong>Context insensitive code completion</strong>: Shows contents of zips/eggs/jars</li>
@@ -21,36 +33,8 @@ It works with <a class="a_link" href="http://www.eclipse.org/">Eclipse</a> and t
 		</ul>
 	</ul>
 	
-	<ul>
-		<li><h4>Release 1.3.9</h4></li>
-		
-		<ul>
-			<li><strong>Code-analysis</strong>: detects bad indentation (wrong number of indent chars).</li>
-			
-			<li><strong>Code-analysis</strong>: Class may be marked with '<strong>@DynamicAttrs</strong>' so that the code-analysis doesn't 
-			give undefined variable errors. See <a href="manual_adv_code_analysis.html#Passing_info_to_code_analysis">Code Analysis</a> for more details.</li>
-			
-			<li><strong>Mark-Occurrences</strong>: Fix: a class that had a call would not be recognized sometimes.</li>
-			<li><strong>Rename Refactoring</strong>: Fix: when different heuristics yielded the same result the text could become garbled.</li>
-		</ul>
-	</ul>
-		
-	<ul>
-		<li><h4>Release 1.3.8</h4></li>
-        <ul>
-			<li><strong>Code-analysis</strong>: Detects mixing of spaces and tabs.</li>
-			<li><strong>Code-analysis</strong>: Reimport not flagged when inside of try..except ImportError.</li>
-        </ul>
-	</ul>
-	
-	<ul>
-		<li><h4>Release 1.3.7</h4></li>
-        <ul>
-			<li><strong>Support for Eclipse 3.3</strong></li>
-            <li>Bug-Fixes!</li>
-        </ul>
-	</ul>
-	
+
+
 	
 	Check the <a href="history.html">Releases History</a> for info on previous versions.
 
