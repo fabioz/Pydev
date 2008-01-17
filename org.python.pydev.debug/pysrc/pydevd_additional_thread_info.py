@@ -1,5 +1,5 @@
 import sys
-from pydevd_constants import STATE_RUN
+from pydevd_constants import * #@UnusedWildImport
 import threading
 import pydevd_frame
 import weakref

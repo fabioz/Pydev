@@ -1,6 +1,6 @@
 from pydevd_comm import * #@UnusedWildImport
-from pydevd_constants import STATE_RUN, STATE_SUSPEND 
-import traceback
+from pydevd_constants import * #@UnusedWildImport
+import traceback #@Reimport
 
 #jython has an 'exception' event that must be treated too (strangely it is called when doing a wild import)
 ACCEPTED_EVENTS = {'call':1, 'line':1, 'return':1, 'exception':1}
