@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.IPyEditListener2;
 import org.python.pydev.editor.PyEdit;
@@ -41,7 +42,7 @@ public class MarkOccurrencesDispatcher implements IPyEditListener, IDocumentList
     public void documentChanged(DocumentEvent event) {
     }
 
-    public void handleCursorPositionChanged(PyEdit edit) {
-    	MarkOccurrencesJob.scheduleRequest(new WeakReference<PyEdit>(edit));
+    public void handleCursorPositionChanged(PyEdit edit, PySelection ps) {
+    	MarkOccurrencesJob.scheduleRequest(new WeakReference<PyEdit>(edit), ps);
     }
 }

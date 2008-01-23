@@ -25,13 +25,13 @@ import org.eclipse.jface.text.link.LinkedModeUI;
 import org.eclipse.jface.text.link.LinkedPositionGroup;
 import org.eclipse.jface.text.link.ProposalPosition;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.ui.progress.UIJob;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.core.parser.ISimpleNode;
-import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.PyParser;
@@ -51,41 +51,51 @@ public class PyRenameInFileAction extends Action{
 	 */
 	private class RenameInFileParserObserver implements IParserObserver {
 		
+	    /**
+	     * As soon as the reparse is done, this method is called to actually make the rename.
+	     */
 		public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc) {
-			pyEdit.getParser().removeParseListener(this); //we'll only listen for this single parse
-			
-			try {
-				ISourceViewer viewer= pyEdit.getPySourceViewer();
-				IDocument document= viewer.getDocument();
-				PySelection ps = PySelection.createFromNonUiThread(pyEdit);
-				LinkedPositionGroup group= new LinkedPositionGroup();
-				
-				if(!fillWithOccurrences(document, group, new NullProgressMonitor(), ps)){
-					return ;
-				}
-				
-				if (group.isEmpty()) {
-					return ;
-				}
-				
-				LinkedModeModel model= new LinkedModeModel();
-				model.addGroup(group);
-				if(model.tryInstall() && model.getTabStopSequence().size() > 0){
-					final LinkedModeUI ui= new EditorLinkedModeUI(model, viewer);
-					Tuple<String,Integer> currToken = ps.getCurrToken();
-					ui.setExitPosition(viewer, currToken.o2 + currToken.o1.length(), 0, Integer.MAX_VALUE);
-					Runnable r = new Runnable(){
-						public void run() {
-							ui.enter();
-						}
-					};
-					RunInUiThread.async(r);
-				}
-			} catch (BadLocationException e) {
-				Log.log(e);
-			} catch (Exception e) {
-				Log.log(e);
-			}
+		    pyEdit.getParser().removeParseListener(this); //we'll only listen for this single parse
+		    
+		    /**
+		     * Create an ui job to actually make the rename
+		     */
+		    UIJob job = new UIJob("Rename"){
+		        
+		        @Override
+		        public IStatus runInUIThread(IProgressMonitor monitor) {
+		            try {
+		                ISourceViewer viewer= pyEdit.getPySourceViewer();
+		                IDocument document= viewer.getDocument();
+		                PySelection ps = new PySelection(pyEdit);
+		                LinkedPositionGroup group= new LinkedPositionGroup();
+		                
+		                if(!fillWithOccurrences(document, group, new NullProgressMonitor(), ps)){
+		                    return Status.OK_STATUS;
+		                }
+		                
+		                if (group.isEmpty()) {
+		                    return Status.OK_STATUS;
+		                }
+		                
+		                LinkedModeModel model= new LinkedModeModel();
+		                model.addGroup(group);
+		                if(model.tryInstall() && model.getTabStopSequence().size() > 0){
+		                    final LinkedModeUI ui= new EditorLinkedModeUI(model, viewer);
+		                    Tuple<String,Integer> currToken = ps.getCurrToken();
+		                    ui.setExitPosition(viewer, currToken.o2 + currToken.o1.length(), 0, Integer.MAX_VALUE);
+		                    ui.enter();
+		                }
+		            } catch (BadLocationException e) {
+		                Log.log(e);
+		            } catch (Throwable e) {
+		                Log.log(e);
+		            }
+		            return Status.OK_STATUS;
+		        }
+		    };
+		    job.setPriority(Job.INTERACTIVE);
+		    job.schedule();
 		}
 		
 		public void parserError(Throwable error, IAdaptable file, IDocument doc) {
@@ -105,10 +115,10 @@ public class PyRenameInFileAction extends Action{
 
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
-				IParserObserver observer = new RenameInFileParserObserver();
-				PyParser parser = pyEdit.getParser();
-				parser.addParseListener(observer); //it will analyze when the next parse is finished
-				parser.forceReparse();
+			IParserObserver observer = new RenameInFileParserObserver();
+			PyParser parser = pyEdit.getParser();
+			parser.addParseListener(observer); //it will analyze when the next parse is finished
+			parser.forceReparse();
 			return Status.OK_STATUS;
 		}
 	}

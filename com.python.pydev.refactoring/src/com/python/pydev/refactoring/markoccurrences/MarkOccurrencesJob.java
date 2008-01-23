@@ -75,15 +75,24 @@ public class MarkOccurrencesJob extends Job{
      */
     private long currRequestTime = -1;
     
-    private MarkOccurrencesJob(WeakReference<PyEdit> editor) {
+    /**
+     * The selection when the occurrences job was requested
+     */
+    private PySelection ps;
+    
+    private MarkOccurrencesJob(WeakReference<PyEdit> editor, PySelection ps) {
     	super("MarkOccurrencesJob");
     	setPriority(Job.BUILD);
     	setSystem(true);
     	this.editor = editor;
+    	this.ps = ps;
         currRequestTime = System.currentTimeMillis();
     }
 
     
+    /**
+     * Mark if we are still abel to do it by the time we get to the run.
+     */
     @SuppressWarnings("unchecked")
     public IStatus run(IProgressMonitor monitor) {
         if(currRequestTime == -1){
@@ -190,7 +199,7 @@ public class MarkOccurrencesJob extends Job{
         //ok, the editor is still there wit ha document... move on
         PyRefactorAction pyRefactorAction = getRefactorAction(pyEdit);
         
-        final RefactoringRequest req = getRefactoringRequest(pyEdit, pyRefactorAction);
+        final RefactoringRequest req = getRefactoringRequest(pyEdit, pyRefactorAction, this.ps);
         
         if(req == null || !req.nature.getRelatedInterpreterManager().isConfigured()){ //we check if it's configured because it may still be a stub...
         	return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(null,null,false);
@@ -282,10 +291,7 @@ public class MarkOccurrencesJob extends Job{
         return true;
     }
 
-    public static RefactoringRequest getRefactoringRequest(final PyEdit pyEdit, PyRefactorAction pyRefactorAction) throws BadLocationException {
-    	return getRefactoringRequest(pyEdit, pyRefactorAction, null);
-    }
-    
+
     /**
      * @param pyEdit the editor where we should look for the occurrences
      * @param pyRefactorAction the action that will return the initial refactoring request
@@ -295,12 +301,7 @@ public class MarkOccurrencesJob extends Job{
      */
 	public static RefactoringRequest getRefactoringRequest(final PyEdit pyEdit, PyRefactorAction pyRefactorAction, PySelection ps) throws BadLocationException {
         final RefactoringRequest req = pyRefactorAction.getRefactoringRequest();
-        req.ps = PySelection.createFromNonUiThread(pyEdit);
-        
-        if(req.ps == null){
-        	return null;
-        }
-        
+        req.ps = ps;
         req.fillInitialNameAndOffset();
         req.inputName = "foo";
         req.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
@@ -371,7 +372,7 @@ public class MarkOccurrencesJob extends Job{
      * This is the function that should be called when we want to schedule a request for 
      * a mark occurrences job.
      */
-    public static synchronized void scheduleRequest(WeakReference<PyEdit> editor2) {
+    public static synchronized void scheduleRequest(WeakReference<PyEdit> editor2, PySelection ps) {
         MarkOccurrencesJob j = singleton;
         if(j != null){
         	synchronized (j) {
@@ -379,7 +380,7 @@ public class MarkOccurrencesJob extends Job{
         		singleton = null;
 			}
         }
-        singleton = new MarkOccurrencesJob(editor2);
+        singleton = new MarkOccurrencesJob(editor2, ps);
         singleton.schedule(750);
     }
 
