@@ -27,7 +27,6 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.uiutils.RunInUiThread;
 
 /**
  * Redone the whole class, so that the interface is better defined and no
@@ -82,27 +81,6 @@ public class PySelection {
                 (ITextSelection) textEditor.getSelectionProvider().getSelection());
     }
 
-    /**
-     * This is a 'factory' method so that we can create a PySelection from a non-ui thread (it syncs the execution
-     * if needed).
-     * 
-     * @param textEditor the text editor that will be used to create the selection
-     * @return the pyselection created
-     */
-    public static PySelection createFromNonUiThread(final ITextEditor textEditor) {
-    	final Tuple<PySelection, Object> t = new Tuple<PySelection, Object>(null, null);
-        Runnable r = new Runnable(){
-            public void run() {
-                try {
-					t.o1 = new PySelection(textEditor);
-				} catch (NullPointerException e) {
-					// this can happen if the selection was still not set up
-				}
-            }
-        };
-        RunInUiThread.sync(r);
-        return t.o1;
-    }
 
     /**
      * @param document the document we are using to make the selection

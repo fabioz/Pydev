@@ -80,7 +80,7 @@ public class OutlineLinkWithEditorAction extends Action implements IPyEditListen
         if (p != null) {
             p.getStore().setValue(PREF_LINK_WITH_EDITOR, doLink);
             if (doLink) {
-                handleCursorPositionChanged(p.editorView);
+                handleCursorPositionChanged(p.editorView, new PySelection(pyEdit.get()));
             }
         }
     }
@@ -104,17 +104,19 @@ public class OutlineLinkWithEditorAction extends Action implements IPyEditListen
     /**
      * Hear mouse selections to update the selection in the outline
      */
-    public void handleCursorPositionChanged(PyEdit edit) {
+    public void handleCursorPositionChanged(PyEdit edit, PySelection ps) {
         PyOutlinePage p = this.page.get();
         if (p != null && edit != null) {
             if (isChecked()) {
-                doLinkOutlinePosition(edit, p);
+                doLinkOutlinePosition(edit, p, ps);
             }
         }
     }
 
-    public void doLinkOutlinePosition(PyEdit edit, PyOutlinePage p) {
-        PySelection ps = new PySelection(edit);
+    /**
+     * Keeps the outline linked with the editor.
+     */
+    protected void doLinkOutlinePosition(PyEdit edit, PyOutlinePage p, PySelection ps) {
         ITextSelection t = ps.getTextSelection();
         IOutlineModel outlineModel = p.model;
         if(outlineModel != null){

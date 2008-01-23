@@ -30,6 +30,7 @@ import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import org.python.pydev.core.bundle.ImageCache;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.ErrorDescription;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -277,7 +278,7 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
 	}
 
     public boolean show(ShowInContext context) {
-        linkWithEditor.doLinkOutlinePosition(this.editorView, this);
+        linkWithEditor.doLinkOutlinePosition(this.editorView, this, new PySelection(this.editorView));
         return true;
     }
 

@@ -28,9 +28,18 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.IVerticalRuler;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorActionBarContributor;
@@ -185,24 +194,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 
     
 
-    @Override
-    protected void handleCursorPositionChanged() {
-        super.handleCursorPositionChanged();
-        if(!initFinished){
-        	return;
-        }
-        for(IPyEditListener listener : getAllListeners()){
-            try {
-                if(listener instanceof IPyEditListener2){
-                    ((IPyEditListener2)listener).handleCursorPositionChanged(this);
-                }
-            } catch (Throwable e) {
-                //must not fail
-                PydevPlugin.log(e);
-            }
-        }
-    }
-
     public List<IPyEditListener> getAllListeners() {
     	while (initFinished == false){
     		synchronized(getLock()){
@@ -283,9 +274,103 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 	        CodeFoldingSetter codeFoldingSetter = new CodeFoldingSetter(this);
 	        this.addModelListener(codeFoldingSetter);
 	        this.addPropertyListener(codeFoldingSetter);
+
         }catch (Throwable e) {
 			PydevPlugin.log(e);
 		}
+    }
+
+    /**
+     * Overriden so that we can set up the cursor listener (notifies changes in the cursor position)
+     */
+    @Override
+    protected ISourceViewer createSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
+        ISourceViewer viewer = super.createSourceViewer(parent, ruler, styles);
+        //add a cursor listener
+        StyledText textWidget = viewer.getTextWidget();
+        PyEditCursorListener cursorListener = new PyEditCursorListener();
+        textWidget.addMouseListener(cursorListener);
+        textWidget.addKeyListener(cursorListener);
+        
+        return viewer;
+    }
+    
+    /**
+     * Class to notify clients that the cursor position changed.
+     */
+    private class PyEditCursorListener implements MouseListener, KeyListener {
+
+        private int lastOffset = -1;
+
+        /**
+         * Notifies clients about a change in the cursor position.
+         */
+        private void notifyCursorPositionChanged() {
+            if(!initFinished){
+                return;
+            }
+            PySelection ps = new PySelection(PyEdit.this);
+            for(IPyEditListener listener : getAllListeners()){
+                try {
+                    if(listener instanceof IPyEditListener2){
+                        ((IPyEditListener2)listener).handleCursorPositionChanged(PyEdit.this, ps);
+                    }
+                } catch (Throwable e) {
+                    //must not fail
+                    PydevPlugin.log(e);
+                }
+            }
+        }
+        
+        public void mouseDoubleClick(MouseEvent e) {
+        }
+
+        public void mouseDown(MouseEvent e) {
+        }
+
+        /**
+         * notify when the user makes a click
+         */
+        public void mouseUp(MouseEvent e) {
+            lastOffset = getOffset();
+            notifyCursorPositionChanged();
+        }
+
+        public void keyPressed(KeyEvent e) {
+        }
+
+        private int getOffset() {
+            return ((ITextSelection)PyEdit.this.getSelectionProvider().getSelection()).getOffset();
+        }
+
+        /**
+         * Notify when the user makes an arrow movement which actually changes the cursor position (because
+         * while doing code-completion it could make that notification when the cursor was changed in the
+         * dialog -- even if it didn't affect the cursor position).
+         */
+        public void keyReleased(KeyEvent e) {
+            if(e.character == '\0'){
+                
+                switch(e.keyCode){
+                    case SWT.ARROW_DOWN:
+                    case SWT.ARROW_UP:
+                    case SWT.ARROW_LEFT:
+                    case SWT.ARROW_RIGHT:
+                    case SWT.HOME:
+                    case SWT.END:
+                    case SWT.PAGE_UP:
+                    case SWT.PAGE_DOWN:
+                        int offset = getOffset();
+                        if(offset != lastOffset){
+                            notifyCursorPositionChanged();
+                            lastOffset = offset;
+                        }
+                    default:
+                        return;
+                }
+            }
+        }
+
     }
 
     
