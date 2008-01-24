@@ -32,6 +32,10 @@ coverage.py -x [-p] MODULE.py [ARG1 ARG2 ...]
 coverage.py -e
     Erase collected coverage data.
 
+coverage.py -waitfor
+    it's the same as -r -m, but...
+    goes to a raw_input() and waits for the files that should be executed...
+
 coverage.py -c
     Collect data from multiple coverage files (as created by -p option above)
     and store it into a single file representing the union of the coverage.
@@ -269,7 +273,11 @@ class StatementFindingAstVisitor(compiler.visitor.ASTVisitor):
         # trace function), so don't record their line numbers.
         pass
 
-the_coverage = None
+
+def getCoverageLoc():
+    global cache_location
+    return cache_location
+
 
 class CoverageException(Exception): pass
 
@@ -298,9 +306,6 @@ class coverage:
     canonical_filename_cache = {}
 
     def __init__(self):
-        global the_coverage
-        if the_coverage:
-            raise CoverageException("Only one coverage object allowed.")
         self.usecache = 1
         self.cache = None
         self.parallel_mode = False
@@ -424,7 +429,7 @@ class coverage:
         
     def get_ready(self, parallel_mode=False):
         if self.usecache and not self.cache:
-            self.cache = os.environ.get(self.cache_env, self.cache_default)
+            self.cache = getCoverageLoc()
             if self.parallel_mode:
                 self.cache += "." + gethostname() + "." + str(os.getpid())
             self.restore()
@@ -746,7 +751,7 @@ class coverage:
                 return "%d" % start
             else:
                 return "%d-%d" % (start, end)
-        ret = string.join(map(stringify, pairs), ", ")
+        ret = string.join(map(stringify, pairs), ",")
         return ret
 
     # Backward compatibility with version 1.
@@ -801,6 +806,22 @@ class coverage:
         return cmp(self.morf_name(x), self.morf_name(y))
 
     def report(self, morfs, show_missing=1, ignore_errors=0, file=None, omit_prefixes=[]):
+        '''
+        @param morfs: list of files that we want to get information from
+        
+        The report is created in the following format:
+        Name            Stmts   Exec  Cover   Missing
+        ---------------------------------------------
+        file_to_test    @    7   @   6  @  85%  @ 8
+        file_to_test2   @   13   @   9  @  69%  @ 12-14, 17
+        ---------------------------------------------
+        TOTAL              20     15    75%   
+        
+        @returns a list of tuples in the format ('file_to_test2', 13, 9, 69.230769230769226, '12-14, 17')
+        @note: 'file' param was 'out'
+        '''
+        
+        
         if not isinstance(morfs, types.ListType):
             morfs = [morfs]
         # On windows, the shell doesn't expand wildcards.  Do it here.
@@ -819,10 +840,10 @@ class coverage:
         fmt_name = "%%- %ds  " % max_name
         fmt_err = fmt_name + "%s: %s"
         header = fmt_name % "Name" + " Stmts   Exec  Cover"
-        fmt_coverage = fmt_name + "% 6d % 6d % 5d%%"
+        fmt_coverage = fmt_name + "@% 6d @% 6d @% 5d%%"
         if show_missing:
             header = header + "   Missing"
-            fmt_coverage = fmt_coverage + "   %s"
+            fmt_coverage = fmt_coverage + "@   %s"
         if not file:
             file = sys.stdout
         print >>file, header
@@ -839,7 +860,7 @@ class coverage:
                     pc = 100.0 * m / n
                 else:
                     pc = 100.0
-                args = (name, n, m, pc)
+                args = (morf, n, m, pc)
                 if show_missing:
                     args = args + (readable,)
                 print >>file, fmt_coverage % args
@@ -850,7 +871,7 @@ class coverage:
             except:
                 if not ignore_errors:
                     typ, msg = sys.exc_info()[:2]
-                    print >>file, fmt_err % (name, typ, msg)
+                    print >>file, fmt_err % (morf, typ, msg)
         if len(morfs) > 1:
             print >>file, "-" * len(header)
             if total_statements > 0:
@@ -926,8 +947,6 @@ class coverage:
         source.close()
         dest.close()
 
-# Singleton object.
-the_coverage = coverage()
 
 # Module functions call methods in the singleton object.
 def use_cache(*args, **kw): 
@@ -966,17 +985,46 @@ def annotate(*args, **kw):
 def annotate_file(*args, **kw): 
     return the_coverage.annotate_file(*args, **kw)
 
-# Save coverage data when Python exits.  (The atexit module wasn't
-# introduced until Python 2.0, so use sys.exitfunc when it's not
-# available.)
-try:
-    import atexit
-    atexit.register(the_coverage.save)
-except ImportError:
-    sys.exitfunc = the_coverage.save
 
 # Command-line interface.
 if __name__ == '__main__':
+#    it's the same as -r -m, but...
+#    goes to a raw_input() and waits for the files that should be executed...
+
+    global cache_location #let's set the cache location now...
+    cache_location = sys.argv[1] #first parameter is the cache location.
+    sys.argv.remove(cache_location)
+    print cache_location
+    
+    global the_coverage
+    # Singleton object.
+    the_coverage = coverage()
+
+    if len(sys.argv) == 2:
+        
+        if '-waitfor' == sys.argv[1]:
+            sys.argv.remove('-waitfor')
+            sys.argv.append('-r')
+            sys.argv.append('-m')
+            
+            #second gets the files to be executed
+            s = raw_input()
+            s = s.replace('\r', '')
+            s = s.replace('\n', '')
+            files = s.split('|')
+            files = [v for v in files if len(v) > 0]
+            sys.argv += files
+    
+    if '-x' in sys.argv:
+        # Save coverage data when Python exits.  (The atexit module wasn't
+        # introduced until Python 2.0, so use sys.exitfunc when it's not
+        # available.)
+        try:
+            import atexit
+            atexit.register(the_coverage.save)
+        except ImportError:
+            sys.exitfunc = the_coverage.save
+    
     the_coverage.command_line(sys.argv[1:])
 
 
@@ -1116,4 +1164,4 @@ if __name__ == '__main__':
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 #
-# $Id: coverage.py,v 1.11 2008-01-24 19:57:13 fabioz Exp $
+# $Id: coverage.py,v 1.12 2008-01-24 19:58:05 fabioz Exp $
