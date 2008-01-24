@@ -71,6 +71,7 @@ import sys
 import threading
 import token
 import types
+import email
 from socket import gethostname
 
 # Python version compatibility
@@ -563,7 +564,7 @@ class coverage:
     # morf_filename(morf).  Return the filename for a module or file.
 
     def morf_filename(self, morf):
-        if isinstance(morf, types.ModuleType):
+        if isinstance(morf, (types.ModuleType, email.LazyImporter)):
             if not hasattr(morf, '__file__'):
                 raise CoverageException("Module has no __file__ attribute.")
             f = morf.__file__
@@ -783,7 +784,7 @@ class coverage:
     def morf_name(self, morf):
         """ Return the name of morf as used in report.
         """
-        if isinstance(morf, types.ModuleType):
+        if isinstance(morf, (types.ModuleType, email.LazyImporter)):
             return morf.__name__
         else:
             return self.relative_filename(os.path.splitext(morf)[0])
@@ -1164,4 +1165,4 @@ if __name__ == '__main__':
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 #
-# $Id: coverage.py,v 1.12 2008-01-24 19:58:05 fabioz Exp $
+# $Id: coverage.py,v 1.13 2008-01-24 20:26:30 fabioz Exp $
