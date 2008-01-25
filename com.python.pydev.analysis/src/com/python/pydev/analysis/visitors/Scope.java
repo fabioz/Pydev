@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
@@ -105,7 +106,7 @@ public class Scope implements Iterable<ScopeItems>{
      * - wild imports (kind of obvious)
      * - imports such as import os.path (one token is created for os and one for os.path) 
      */
-    public void addImportTokens(List<IToken> list, IToken generator) {
+    public void addImportTokens(List<IToken> list, IToken generator, ICompletionCache completionCache) {
     	ScopeItems.TryExceptInfo withinExceptNode = scope.peek().getTryExceptImportError();
     	
     	//only report undefined imports if we're not inside a try..except ImportError.
@@ -120,7 +121,7 @@ public class Scope implements Iterable<ScopeItems>{
     			throw new RuntimeException("Only imports should generate multiple tokens " +
     			"(it may be null for imports in the form import foo.bar, but then all its tokens must be imports).");
     		}
-            importInfo = importChecker.visitImportToken(generator, reportUndefinedImports);
+            importInfo = importChecker.visitImportToken(generator, reportUndefinedImports, completionCache);
 
     	}else{
     		requireTokensToBeImports = true;
@@ -141,7 +142,7 @@ public class Scope implements Iterable<ScopeItems>{
             	if(!o.isImport()){
             		throw new RuntimeException("Expecting import token");
             	}
-            	importInfo = importChecker.visitImportToken(o, reportUndefinedImports);
+            	importInfo = importChecker.visitImportToken(o, reportUndefinedImports, completionCache);
             }
             //can be either the one resolved in the wild import or in this token (if it is not a wild import)
         	found.importInfo = importInfo;

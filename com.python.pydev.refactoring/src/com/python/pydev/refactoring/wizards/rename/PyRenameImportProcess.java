@@ -10,6 +10,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -87,7 +88,7 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                 throw new RuntimeException("Expecting import info from the found entry.");
             }
             if(found.importInfo.wasResolved){
-            	Definition d = found.importInfo.getModuleDefinitionFromImportInfo(request.nature);
+            	Definition d = found.importInfo.getModuleDefinitionFromImportInfo(request.nature, new CompletionCache());
             	if(d == null || d.module == null){
             		status.addFatalError(StringUtils.format("Unable to find the definition for the module."));
             		return;

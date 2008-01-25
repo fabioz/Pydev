@@ -4,6 +4,7 @@
 package com.python.pydev.analysis.visitors;
 
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
@@ -85,9 +86,11 @@ public class ImportChecker {
         /**
          * @return the definition that matches this
          */
-		public Definition getModuleDefinitionFromImportInfo(IPythonNature nature) {
+		public Definition getModuleDefinitionFromImportInfo(IPythonNature nature, ICompletionCache completionCache) {
             try {
-                IDefinition[] definitions = this.mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(this.rep, nature), -1, -1, nature, null);
+                IDefinition[] definitions = this.mod.findDefinition(
+                        CompletionStateFactory.getEmptyCompletionState(this.rep, nature, completionCache), -1, -1, nature);
+                
                 for (IDefinition definition : definitions) {
                     if(definition instanceof Definition){
                         Definition d = (Definition) definition;
@@ -124,22 +127,24 @@ public class ImportChecker {
      * to get dependency info, because it is actually dependent on the module, event though it does not have the
      * token we were looking for.
      */
-    public ImportInfo visitImportToken(IToken token, boolean reportUndefinedImports) {
-        return visitImportToken(reportUndefinedImports, token, moduleName, nature, visitor);
+    public ImportInfo visitImportToken(IToken token, boolean reportUndefinedImports, ICompletionCache completionCache) {
+        return visitImportToken(reportUndefinedImports, token, moduleName, nature, visitor, completionCache);
     }
 
     /**
      * This is so that we can use it without actually being in some visit.
      */
     public static ImportInfo visitImportToken(boolean reportUndefinedImports, IToken token, String moduleName,
-            IPythonNature nature, AbstractScopeAnalyzerVisitor visitor) {
+            IPythonNature nature, AbstractScopeAnalyzerVisitor visitor, ICompletionCache completionCache) {
         //try to find it as a relative import
         boolean wasResolved = false;
         Tuple3<IModule, String, IToken> modTok = null;
 		if(token instanceof SourceToken){
         	
         	ICodeCompletionASTManager astManager = nature.getAstManager();
-        	ICompletionState state = CompletionStateFactory.getEmptyCompletionState(token.getRepresentation(), nature);
+        	ICompletionState state = CompletionStateFactory.getEmptyCompletionState(
+        	        token.getRepresentation(), nature, completionCache);
+        	
             try {
 				modTok = astManager.findOnImportedMods(new IToken[]{token}, state, moduleName);
 			} catch (CompletionRecursionException e1) {

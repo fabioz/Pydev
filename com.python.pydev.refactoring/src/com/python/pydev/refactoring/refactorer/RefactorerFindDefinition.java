@@ -12,9 +12,9 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -23,6 +23,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -165,8 +166,9 @@ public class RefactorerFindDefinition {
                 }
                 request.communicateWork(StringUtils.format("Found: %s possible matches.", tokensEqualTo.size()));
                 IPythonNature nature = request.nature;
+                CompletionCache completionCache = new CompletionCache();
                 for (IInfo info : tokensEqualTo) {
-                    AnalysisPlugin.getDefinitionFromIInfo(pointers, manager, nature, info);
+                    AnalysisPlugin.getDefinitionFromIInfo(pointers, manager, nature, info, completionCache);
                     request.checkCancelled();
                 }
             }
@@ -195,15 +197,20 @@ public class RefactorerFindDefinition {
      * @param pythonNature the nature that we should use to find the definition
      * @throws Exception
      */
-	public void findActualDefinition(RefactoringRequest request, IModule mod, String tok, ArrayList<IDefinition> selected, int beginLine, int beginCol, IPythonNature pythonNature) throws Exception {
-		List<FindInfo> lFindInfo = new ArrayList<FindInfo>();
-		IDefinition[] definitions = mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, pythonNature, beginLine-1, beginCol-1), beginLine, beginCol, pythonNature, lFindInfo);
+	public void findActualDefinition(RefactoringRequest request, IModule mod, String tok, ArrayList<IDefinition> selected, 
+	        int beginLine, int beginCol, IPythonNature pythonNature) throws Exception {
+	    
+	    ICompletionCache completionCache = new CompletionCache();
+	    
+		IDefinition[] definitions = mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, pythonNature, 
+		        beginLine-1, beginCol-1, completionCache), beginLine, beginCol, pythonNature);
+		
 		request.communicateWork("Found:"+definitions.length+ " definitions");
 		for (IDefinition definition : definitions) {
 		    boolean doAdd = true;
 		    if(definition instanceof Definition){
 		        Definition d = (Definition) definition;
-		        doAdd = !findActualTokenFromImportFromDefinition(pythonNature, tok, lFindInfo, selected, d);
+		        doAdd = !findActualTokenFromImportFromDefinition(pythonNature, tok, selected, d, completionCache);
 		    }
 		    request.checkCancelled();
 		    if(doAdd){
@@ -224,7 +231,8 @@ public class RefactorerFindDefinition {
      * @return true if we found a new definition (and false otherwise)
      * @throws Exception
      */
-    private boolean findActualTokenFromImportFromDefinition(IPythonNature nature, String tok, List<FindInfo> lFindInfo, ArrayList<IDefinition> selected, Definition d) throws Exception {
+    private boolean findActualTokenFromImportFromDefinition(IPythonNature nature, String tok, ArrayList<IDefinition> selected, 
+            Definition d, ICompletionCache completionCache) throws Exception {
         boolean didFindNewDef = false;
         
         Set<Tuple3<String, Integer, Integer>> whereWePassed = new HashSet<Tuple3<String, Integer, Integer>>();
@@ -238,7 +246,7 @@ public class RefactorerFindDefinition {
             }
             whereWePassed.add(t1);
             
-            Definition[] found = (Definition[]) d.module.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, nature), d.line, d.col, nature, lFindInfo);
+            Definition[] found = (Definition[]) d.module.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, nature, completionCache), d.line, d.col, nature);
             if(found != null && found.length == 1){
                 Tuple3<String,Integer,Integer> tupFromDefinition = getTupFromDefinition(found[0]);
                 if(tupFromDefinition == null){

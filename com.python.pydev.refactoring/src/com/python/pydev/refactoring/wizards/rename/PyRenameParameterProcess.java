@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -58,7 +59,10 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
         
         IDefinition[] definitions;
         try {
-            definitions = definition.module.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, nature, line-1, col-1), line, col, nature, null);
+            definitions = definition.module.findDefinition(
+                    CompletionStateFactory.getEmptyCompletionState(tok, nature, line-1, col-1, new CompletionCache()), 
+                    line, col, nature);
+            
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

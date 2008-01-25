@@ -13,10 +13,11 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.python.pydev.core.FindInfo;
+import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
@@ -43,13 +44,16 @@ public class RefactorerFinds {
         this.refactorer = refactorer;
     }
 
-    private void findParentDefinitions(IPythonNature nature, Definition d, List<Definition> definitions, List<String> withoutAstDefinitions, HierarchyNodeModel model) throws Exception {
+    private void findParentDefinitions(IPythonNature nature, Definition d, List<Definition> definitions, 
+            List<String> withoutAstDefinitions, HierarchyNodeModel model, ICompletionCache completionCache) throws Exception {
         //ok, let's find the parents...
         for(exprType exp :model.ast.bases){
             String n = NodeUtils.getFullRepresentationString(exp);
             final int line = exp.beginLine;
             final int col = exp.beginColumn+n.length(); //the col must be the last char because it can be a dotted name
-            final Definition[] defs = (Definition[])d.module.findDefinition(CompletionStateFactory.getEmptyCompletionState(n, nature), line, col, nature, new ArrayList<FindInfo>());
+            final Definition[] defs = (Definition[])d.module.findDefinition(
+                    CompletionStateFactory.getEmptyCompletionState(n, nature, completionCache), line, col, nature);
+            
             if(defs.length > 0){
                 definitions.addAll(Arrays.asList(defs));
             }else{
@@ -58,10 +62,12 @@ public class RefactorerFinds {
         }
     }
     
-    private void findParents(IPythonNature nature, Definition d, HierarchyNodeModel initialModel, HashMap<HierarchyNodeModel, HierarchyNodeModel> allFound, RefactoringRequest request) throws Exception {
+    private void findParents(IPythonNature nature, Definition d, HierarchyNodeModel initialModel, 
+            HashMap<HierarchyNodeModel, HierarchyNodeModel> allFound, RefactoringRequest request) throws Exception {
+        
         HashSet<HierarchyNodeModel> foundOnRound = new HashSet<HierarchyNodeModel>();
         foundOnRound.add(initialModel);
-
+        CompletionCache completionCache = new CompletionCache();
         while(foundOnRound.size() > 0){
             HashSet<HierarchyNodeModel> nextRound = new HashSet<HierarchyNodeModel>(foundOnRound);
             foundOnRound.clear();
@@ -69,7 +75,7 @@ public class RefactorerFinds {
             for (HierarchyNodeModel toFindOnRound : nextRound) {
                 List<Definition> definitions = new ArrayList<Definition>();
                 List<String> withoutAstDefinitions = new ArrayList<String>();
-                findParentDefinitions(nature, d, definitions, withoutAstDefinitions, toFindOnRound);
+                findParentDefinitions(nature, d, definitions, withoutAstDefinitions, toFindOnRound, completionCache);
                 
                 request.communicateWork(StringUtils.format("Found: %s parents for: %s", definitions.size(), d.value));
                 

@@ -9,7 +9,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.ui.progress.WorkbenchJob;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -96,10 +95,10 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         if(isFullBuild()){
         	runnable.run();
         }else{
-            WorkbenchJob workbenchJob = new WorkbenchJob("") {
+            Job workbenchJob = new Job("") {
             
                 @Override
-                public IStatus runInUIThread(IProgressMonitor monitor) {
+                public IStatus run(IProgressMonitor monitor) {
                     this.getThread().setName("AnalysisBuilderThread :"+moduleName);
                     runnable.run();
                     return Status.OK_STATUS;

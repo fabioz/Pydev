@@ -1,7 +1,6 @@
 package com.python.pydev.analysis;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
@@ -10,8 +9,8 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -64,7 +63,8 @@ public class AnalysisPlugin extends AbstractUIPlugin {
      * @param nature the nature to be used
      * @param info the info that we are looking for
      */
-    public static void getDefinitionFromIInfo(List<ItemPointer> pointers, ICodeCompletionASTManager manager, IPythonNature nature, IInfo info) {
+    public static void getDefinitionFromIInfo(List<ItemPointer> pointers, ICodeCompletionASTManager manager, IPythonNature nature, 
+            IInfo info, ICompletionCache completionCache) {
         IModule mod;
         String tok;
         mod = manager.getModule(info.getDeclaringModuleName(), nature, true);
@@ -77,7 +77,9 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             }
             tok += info.getName();
             try {
-                IDefinition[] definitions = mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, nature), -1, -1, nature, new ArrayList<FindInfo>());
+                IDefinition[] definitions = mod.findDefinition(
+                        CompletionStateFactory.getEmptyCompletionState(tok, nature, completionCache), -1, -1, nature);
+                
                 getAsPointers(pointers, (Definition[]) definitions);
             } catch (Exception e) {
                 throw new RuntimeException(e);

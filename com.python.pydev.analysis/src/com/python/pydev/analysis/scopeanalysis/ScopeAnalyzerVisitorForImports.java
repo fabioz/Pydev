@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
+import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
@@ -46,7 +47,7 @@ public class ScopeAnalyzerVisitorForImports extends ScopeAnalyzerVisitor {
         if (info != null && info.wasResolved) {
             if(info.rep.length() != 0 && info.token.isImport()){
                 //we only actually had a match with a module if the representation found is empty
-            	Definition definition = info.getModuleDefinitionFromImportInfo(nature);
+            	Definition definition = info.getModuleDefinitionFromImportInfo(nature, this.completionCache);
             	if(definition != null && definition.module.getName().equals(this.moduleToFind.getName())){
             		return true;
             	}

@@ -58,7 +58,7 @@ public class PyRenameInFileAction extends Action{
 		    pyEdit.getParser().removeParseListener(this); //we'll only listen for this single parse
 		    
 		    /**
-		     * Create an ui job to actually make the rename
+		     * Create an ui job to actually make the rename (otherwise we can't make ui.enter() nor create a PySelection.)
 		     */
 		    UIJob job = new UIJob("Rename"){
 		        

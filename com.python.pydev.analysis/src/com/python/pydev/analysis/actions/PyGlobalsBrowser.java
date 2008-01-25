@@ -13,6 +13,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyOpenAction;
+import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -125,7 +126,8 @@ public class PyGlobalsBrowser extends PyAction{
      * @param additionalInfo the additional informations 
      * @param selectedText the text that should be initially set as a filter
      */
-    public static void doSelect(List<IPythonNature> pythonNatures, List<AbstractAdditionalInterpreterInfo> additionalInfo, String selectedText) {
+    public static void doSelect(List<IPythonNature> pythonNatures, List<AbstractAdditionalInterpreterInfo> additionalInfo, 
+            String selectedText) {
         TwoPaneElementSelector dialog = new GlobalsTwoPaneElementSelector(getShell());
         dialog.setTitle("Pydev: Globals Browser");
         dialog.setMessage("Filter");
@@ -145,13 +147,14 @@ public class PyGlobalsBrowser extends PyAction{
             IInfo entry = (IInfo) result[0];
             List<ItemPointer> pointers = new ArrayList<ItemPointer>();
             
+            CompletionCache completionCache = new CompletionCache();
             for(IPythonNature pythonNature:pythonNatures){
                 //try to find in one of the natures...
                 ICodeCompletionASTManager astManager = pythonNature.getAstManager();
                 if(astManager == null){
                 	return;
                 }
-                AnalysisPlugin.getDefinitionFromIInfo(pointers, astManager, pythonNature, entry);
+                AnalysisPlugin.getDefinitionFromIInfo(pointers, astManager, pythonNature, entry, completionCache);
                 if(pointers.size() > 0){
                     new PyOpenAction().run(pointers.get(0));
                     return; //don't check the other natures

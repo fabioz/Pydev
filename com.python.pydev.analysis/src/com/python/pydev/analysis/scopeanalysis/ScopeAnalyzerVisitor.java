@@ -125,7 +125,7 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
                 
                 List<IToken> createdTokens = AbstractVisitor.makeImportToken(importTok, null, this.current.getName(), true);
                 for (IToken token : createdTokens) {
-                    ImportInfo info = this.scope.importChecker.visitImportToken(token, false);
+                    ImportInfo info = this.scope.importChecker.visitImportToken(token, false, this.completionCache);
                     Found found = new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
                     found.importInfo = info;
                     

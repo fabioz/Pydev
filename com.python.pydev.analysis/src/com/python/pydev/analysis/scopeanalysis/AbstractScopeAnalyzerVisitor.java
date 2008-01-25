@@ -11,13 +11,14 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -106,6 +107,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     protected IDocument document;
     
     /**
+     * Helper so that we can keep a cache among the many requests to the code-completion engine.
+     */
+    protected volatile ICompletionCache completionCache;
+    
+    /**
      * Constructor
      * @param prefs 
      * @param document 
@@ -121,7 +127,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         this.scope = new Scope(this, nature, moduleName);
         
         startScope(Scope.SCOPE_TYPE_GLOBAL, null); //initial scope - there is only one 'global' 
-        List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(CompletionStateFactory.getEmptyCompletionState(nature), new ArrayList());
+        ICompletionState completionState = CompletionStateFactory.getEmptyCompletionState(nature, new CompletionCache());
+        this.completionCache = completionState;
+        List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(completionState, new ArrayList());
         for(IToken t : builtinCompletions){
         	Found found = makeFound(t);
         	org.python.pydev.core.Tuple<IToken, Found> tup = new org.python.pydev.core.Tuple<IToken, Found>(t, found);
@@ -302,7 +310,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         unhandled_node(node);
         List <IToken>list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
 
-        scope.addImportTokens(list, null);
+        scope.addImportTokens(list, null, this.completionCache);
         return null;
     }
 
@@ -317,13 +325,13 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             if(AbstractVisitor.isWildImport(node)){
                 IToken wildImport = AbstractVisitor.makeWildImportToken(node, null, moduleName);
                 
-                ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature);
+                ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature, this.completionCache);
                 state.setBuiltinsGotten (true); //we don't want any builtins
                 List<IToken> completionsForWildImport = nature.getAstManager().getCompletionsForWildImport(state, current, new ArrayList<IToken>(), wildImport);
-                scope.addImportTokens(completionsForWildImport, wildImport);
+                scope.addImportTokens(completionsForWildImport, wildImport, this.completionCache);
             }else{
                 List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
-                scope.addImportTokens(list, null);
+                scope.addImportTokens(list, null, this.completionCache);
             }
             
         } catch (Exception e) {
@@ -848,7 +856,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                     }
                     
                     for(String repToCheck : new FullRepIterable(tokToCheck)){
-                        int inGlobalTokens = m.isInGlobalTokens(repToCheck, nature, true, true);
+                        int inGlobalTokens = m.isInGlobalTokens(repToCheck, nature, true, true, completionCache);
                         
                         if (inGlobalTokens == IModule.NOT_FOUND) {
                             if(!isDefinitionUnknown(m, repToCheck)){
@@ -888,7 +896,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         if(repToCheck.length() == 0){
             return false;
         }
-        IDefinition[] definitions = m.findDefinition(CompletionStateFactory.getEmptyCompletionState(repToCheck, nature), -1, -1, nature, new ArrayList<FindInfo>());
+        IDefinition[] definitions = m.findDefinition(CompletionStateFactory.getEmptyCompletionState(repToCheck, nature, this.completionCache), -1, -1, nature);
         if(definitions.length == 1){
             IDefinition foundDefinition = definitions[0];
             if(foundDefinition instanceof AssignDefinition){
@@ -901,8 +909,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 
                 //ok, go to the definition of whatever is set
                 IDefinition[] definitions2 = d.module.findDefinition(
-                        CompletionStateFactory.getEmptyCompletionState(d.value, nature), 
-                        d.line, d.col, nature, new ArrayList<FindInfo>());
+                        CompletionStateFactory.getEmptyCompletionState(d.value, nature, this.completionCache), 
+                        d.line, d.col, nature);
                 
                 if(definitions2.length == 1){
                     //and if it is a function, we're actually unable to find
