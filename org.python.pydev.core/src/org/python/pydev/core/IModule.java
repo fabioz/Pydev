@@ -4,7 +4,6 @@
 package org.python.pydev.core;
 
 import java.io.File;
-import java.util.List;
 
 import org.python.pydev.core.structure.CompletionRecursionException;
 
@@ -50,16 +49,19 @@ public interface IModule {
      */
     public abstract IToken[] getLocalTokens(int line, int col, ILocalScope localScope);
     
-	public abstract boolean isInDirectGlobalTokens(String tok);
+	public abstract boolean isInDirectGlobalTokens(String tok, ICompletionCache completionCache);
 
-    public abstract boolean isInGlobalTokens(String tok, IPythonNature nature) throws CompletionRecursionException;
+    public abstract boolean isInGlobalTokens(String tok, IPythonNature nature, ICompletionCache completionCache) throws CompletionRecursionException;
 
     /**
      * @param tok the token we are looking for
+     * @param completionCache cache for holding the info requested during a find tokens operation (it may have been
+     *      already used in another operation, if it was part of another major operation)
      * @return whether the passed token is part of the global tokens of this module (including imported tokens).
      * @throws CompletionRecursionException 
      */
-    public abstract boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods) throws CompletionRecursionException;
+    public abstract boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, 
+            ICompletionCache completionCache) throws CompletionRecursionException;
 
     public static final int NOT_FOUND                = 0;
     public static final int FOUND_TOKEN              = 1;
@@ -68,6 +70,9 @@ public interface IModule {
     /**
      * @param ifHasGetAttributeConsiderInTokens if this true, consider that the token is in the tokens if a __getattribute__
      * is found.
+     * 
+     * @param completionCache cache for holding the info requested during a find tokens operation (it may have been
+     *      already used in another operation, if it was part of another major operation)
      * 
      * @return whether the passed token is part of the global tokens of this module (including imported tokens) and the 
      * actual reason why it was considered there (as indicated by the constants).
@@ -78,7 +83,8 @@ public interface IModule {
      * 
      * @throws CompletionRecursionException 
      */
-    public int isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, boolean ifHasGetAttributeConsiderInTokens) throws CompletionRecursionException;
+    public int isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, boolean ifHasGetAttributeConsiderInTokens, 
+            ICompletionCache completionCache) throws CompletionRecursionException;
     
     /**
      * This function can be called to find possible definitions of a token (state activation token), based on its name, line and
@@ -90,7 +96,7 @@ public interface IModule {
      * @return array of definitions.
      * @throws Exception
      */
-    public abstract IDefinition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature, List<FindInfo> findInfo) throws Exception;
+    public abstract IDefinition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature) throws Exception;
 
     /**
      * This function should return all tokens that are global for a given token.

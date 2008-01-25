@@ -8,6 +8,8 @@ Pydev
 Extensions
 <ul>
 <li><strong>Optimization</strong>: Mark occurrences only requested on mouse-clicks and cursor changes that do not correspond to code-writing.</li>
+<li><strong>Optimization</strong>: Caches for all tokens available at a given module for a completion request duration.</li>
+<li><strong>Optimization</strong>: Caches to find a given scope in a module.</li>
 
 after 1.3.10
 

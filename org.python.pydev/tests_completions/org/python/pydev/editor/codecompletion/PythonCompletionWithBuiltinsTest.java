@@ -26,7 +26,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testDeepNested8();
+            builtins.testDeepNested9();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -75,7 +75,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
 		String strDoc = "RuntimeError.";
 		File f = new File(file);
 		try{
-			nature.getAstManager().getCompletionsForToken(f, new Document(REF.getFileContents(f)), CompletionStateFactory.getEmptyCompletionState("RuntimeError", nature));
+			nature.getAstManager().getCompletionsForToken(f, new Document(REF.getFileContents(f)), 
+			        CompletionStateFactory.getEmptyCompletionState("RuntimeError", nature, null));
 		}catch(CompletionRecursionException e){
 			//that's ok... we're asking for it here...
 		}

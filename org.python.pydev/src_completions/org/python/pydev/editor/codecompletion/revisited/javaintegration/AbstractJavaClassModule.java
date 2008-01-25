@@ -14,15 +14,14 @@ import org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal;
 import org.eclipse.jdt.ui.text.java.CompletionProposalCollector;
 import org.eclipse.jdt.ui.text.java.IJavaCompletionProposal;
 import org.eclipse.swt.widgets.Display;
-import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
@@ -211,7 +210,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
     }
 
     @Override
-    public boolean isInDirectGlobalTokens(String tok) {
+    public boolean isInDirectGlobalTokens(String tok, ICompletionCache completionCache) {
         if (this.tokens != null) {
             return binaryHasObject(this.tokens, new CompiledToken(tok, "", "", "", 0));
         }
@@ -219,9 +218,9 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
     }
 
     @Override
-    public boolean isInGlobalTokens(String tok, IPythonNature nature) {
+    public boolean isInGlobalTokens(String tok, IPythonNature nature, ICompletionCache completionCache) {
         if (tok.indexOf('.') == -1) {
-            return isInDirectGlobalTokens(tok);
+            return isInDirectGlobalTokens(tok, completionCache);
         } else {
             System.err.println("Still no treated isInDirectGlobalTokens with dotted string:" + tok);
             return false;
@@ -256,7 +255,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
      * @param findInfo 
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
      */
-    public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature, List<FindInfo> findInfo)
+    public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature)
             throws Exception {
 
         //try to see if that's a java class from a package... to do that, we must go iterating through the name found

@@ -1,10 +1,7 @@
 package org.python.pydev.editor.codecompletion.revisited.jython;
 
-import java.util.ArrayList;
-
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jface.text.Document;
-import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.IModule;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaDefinition;
@@ -22,7 +19,7 @@ public class JythonFindDefinitionTestWorkbench extends AbstractJythonWorkbenchTe
 
         Document doc = new Document(d);
         IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 2);
-        Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("swing.JFrame", nature), 2, 7, nature, new ArrayList<FindInfo>());
+        Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("swing.JFrame", nature, null), 2, 7, nature);
         
         assertEquals(1, defs.length);
         assertEquals("", defs[0].value);
@@ -38,7 +35,7 @@ public class JythonFindDefinitionTestWorkbench extends AbstractJythonWorkbenchTe
         
         Document doc = new Document(d);
         IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 1);
-        Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("java.lang.Class", nature), 1, 20, nature, new ArrayList<FindInfo>());
+        Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("java.lang.Class", nature, null), 1, 20, nature);
         
         assertEquals(1, defs.length);
         assertEquals("", defs[0].value);
@@ -57,7 +54,7 @@ public class JythonFindDefinitionTestWorkbench extends AbstractJythonWorkbenchTe
         
         Document doc = new Document(d);
         IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 2);
-        Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("java.lang.Class.asSubclass", nature), 2, 20, nature, new ArrayList<FindInfo>());
+        Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("java.lang.Class.asSubclass", nature, null), 2, 20, nature);
         
         assertEquals(1, defs.length);
         assertEquals("asSubclass", defs[0].value);

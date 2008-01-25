@@ -28,6 +28,7 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
+import org.python.pydev.core.TupleN;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.actions.PyAction;
@@ -46,6 +47,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
 	private static final IToken[] EMPTY_ITOKEN_ARRAY = new IToken[0];
     
+	private static final boolean DEBUG_CACHE = false;
+	
     private transient AssignAnalysis assignAnalysis;
     
     public AbstractASTManager(){
@@ -401,7 +404,37 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     /** 
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForModule(org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.CompletionState, boolean, boolean)
      */
-    public IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods, boolean lookForArgumentCompletion) throws CompletionRecursionException{
+    @SuppressWarnings("unchecked")
+    public IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods, 
+            boolean lookForArgumentCompletion) throws CompletionRecursionException{
+        String name = module.getName();
+        Object key = new TupleN(name!=null?name:"", state.getActivationToken(), searchSameLevelMods, 
+                lookForArgumentCompletion, state.getBuiltinsGotten(), state.getLocalImportsGotten());
+        
+        IToken[] ret = (IToken[]) state.getObj(key);
+        if(ret != null){
+            if(DEBUG_CACHE){
+                System.out.println("Checking if cache is correct for: "+key);
+                IToken[] internal = internalGenerateGetCompletionsForModule(module, state, searchSameLevelMods, lookForArgumentCompletion);
+                //the new request may actually have no tokens if a completion exception occurred.
+                if(internal.length != 0 && ret.length != internal.length){
+                    throw new RuntimeException("This can't happen... it should always return the same completions!");
+                }
+            }
+            return ret;
+        }
+        
+        IToken[] tokens = internalGenerateGetCompletionsForModule(module, state, searchSameLevelMods, lookForArgumentCompletion);
+        state.add(key, tokens);
+        return tokens;
+    }
+
+    /**
+     * This method should only be accessed from the public getCompletionsForModule (which caches the result).
+     */
+    private IToken[] internalGenerateGetCompletionsForModule(IModule module, ICompletionState state, 
+            boolean searchSameLevelMods, boolean lookForArgumentCompletion) throws CompletionRecursionException{
+        
         if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
             Log.toLogFile(this, "getCompletionsForModule");
         }
@@ -835,7 +868,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             
             //now, what we will do is try to do a code completion in os and see if path is found
             if(state == null){
-                state = CompletionStateFactory.getEmptyCompletionState(actToken, nature);
+                state = CompletionStateFactory.getEmptyCompletionState(actToken, nature, new CompletionCache());
             }else{
                 state = state.getCopy();
                 state.setActivationToken(actToken);
@@ -911,7 +944,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             	parentPackage.equals(current.getName()) && 
             	state.getActivationToken().equals(tok) && 
             	!parentPackage.endsWith("__init__")){
-            	if(current.isInDirectGlobalTokens(tok)){
+            	if(current.isInDirectGlobalTokens(tok, state)){
             		return null;
             	}
             }
@@ -953,7 +986,6 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @throws CompletionRecursionException 
      */
     public Tuple3<IModule, String, IToken> findOnImportedMods( IToken[] importedModules, ICompletionState state, String currentModuleName) throws CompletionRecursionException {
-        	
     	FullRepIterable iterable = new FullRepIterable(state.getActivationToken(), true);
     	for(String tok : iterable){
     		for (IToken importedModule : importedModules) {
@@ -1047,7 +1079,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     		modTok = findModuleFromPath(originalWithoutRep, nature, true, null);
             mod = modTok.o1;
             if(modTok.o2.endsWith("__init__") == false && checkValidity(currentModuleName, mod)){
-            	if(mod.isInGlobalTokens(importedModule.getRepresentation(), nature, false)){
+            	if(mod.isInGlobalTokens(importedModule.getRepresentation(), nature, false, state)){
             		//then this is the token we're looking for (otherwise, it might be a module).
             		Tuple<IModule, String> ret =  fixTok(modTok, tok, activationToken);
             		if(ret.o2.length() == 0){
@@ -1091,7 +1123,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             //if it is not the initial token we were looking for, it is correct
             //if it is in the global tokens of the found module it is correct
             //if none of this situations was found, we probably just found the same token we had when we started (unless I'm mistaken...)
-            else if(activationToken.length() == 0 || ret.o2.equals(activationToken) == false || mod.isInGlobalTokens(activationToken, nature, false)){
+            else if(activationToken.length() == 0 || ret.o2.equals(activationToken) == false || 
+                    mod.isInGlobalTokens(activationToken, nature, false, state)){
                 return ret;
             }
         }

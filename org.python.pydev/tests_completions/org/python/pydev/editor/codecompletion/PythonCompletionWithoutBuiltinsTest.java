@@ -23,6 +23,7 @@ import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
 /**
@@ -530,7 +531,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 	
 	public void testIsInGlobalTokens() throws BadLocationException, IOException, Exception{
 		IModule module = nature.getAstManager().getModule("testAssist.__init__", nature, true);
-		assertTrue(module.isInGlobalTokens("assist.ExistingClass.existingMethod", nature));
+		assertTrue(module.isInGlobalTokens("assist.ExistingClass.existingMethod", nature, new CompletionCache()));
 	}
 	
 	

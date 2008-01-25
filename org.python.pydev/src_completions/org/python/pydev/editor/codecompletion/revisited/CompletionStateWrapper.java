@@ -169,4 +169,16 @@ public class CompletionStateWrapper implements ICompletionState {
     	return buf.toString();
     }
 
+    public void add(Object key, Object n) {
+        this.wrapped.add(key, n);
+    }
+
+    public Object getObj(Object o) {
+        return this.wrapped.getObj(o);
+    }
+
+    public void remove(Object key) {
+        this.wrapped.remove(key);
+    }
+
 }

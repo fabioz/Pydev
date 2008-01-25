@@ -18,9 +18,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -266,7 +266,7 @@ public class CompiledModule extends AbstractModule{
     }
     
     @Override
-    public boolean isInDirectGlobalTokens(String tok) {
+    public boolean isInDirectGlobalTokens(String tok, ICompletionCache completionCache) {
     	if(this.tokens != null){
     		return this.tokens.containsKey(tok);
     	}
@@ -274,14 +274,14 @@ public class CompiledModule extends AbstractModule{
     }
     
     @Override
-    public boolean isInGlobalTokens(String tok, IPythonNature nature) {
+    public boolean isInGlobalTokens(String tok, IPythonNature nature, ICompletionCache completionCache) {
         //we have to override because there is no way to check if it is in some import from some other place if it has dots on the tok...
         
         
         if(tok.indexOf('.') == -1){
-            return isInDirectGlobalTokens(tok);
+            return isInDirectGlobalTokens(tok, completionCache);
         }else{
-            ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature);
+            ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature, completionCache);
             String[] headAndTail = FullRepIterable.headAndTail(tok);
             state.setActivationToken (headAndTail[0]);
             String head = headAndTail[1];
@@ -300,7 +300,7 @@ public class CompiledModule extends AbstractModule{
      * @param findInfo 
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
      */
-    public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature, List<FindInfo> findInfo) throws Exception {
+    public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature) throws Exception {
         String token = state.getActivationToken();
         
         if(TRACE_COMPILED_MODULES){
@@ -345,7 +345,7 @@ public class CompiledModule extends AbstractModule{
             if(foundLine == 0 && foundAs.length() > 0 && mod != null){
                 IModule sourceMod = AbstractModule.createModuleFromDoc(mod.getName(), f, new Document(REF.getFileContents(f)), nature, 0);
                 if(sourceMod instanceof SourceModule){
-                    Definition[] definitions = (Definition[]) sourceMod.findDefinition(state.getCopyWithActTok(foundAs), -1, -1, nature, findInfo);
+                    Definition[] definitions = (Definition[]) sourceMod.findDefinition(state.getCopyWithActTok(foundAs), -1, -1, nature);
                     if(definitions.length > 0){
                         this.definitionsFoundCache.add(token, definitions);
                         return definitions;

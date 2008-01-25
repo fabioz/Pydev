@@ -11,7 +11,7 @@ import org.python.pydev.core.structure.CompletionRecursionException;
 
 
 
-public interface ICompletionState {
+public interface ICompletionState extends ICompletionCache {
 
     String getActivationToken();
 

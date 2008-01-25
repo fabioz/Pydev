@@ -12,7 +12,6 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -91,8 +90,8 @@ public class SourceModuleProposalTest extends TestCase {
         s.doc = doc;
         if(tokDef != null)
 			try {
-				s.definition = mod.findGlobalTokDef(CompletionStateFactory.getEmptyCompletionState(tokDef, null), null);
-			} catch (CompletionRecursionException e) {
+				s.definition = mod.findGlobalTokDef(CompletionStateFactory.getEmptyCompletionState(tokDef, null, null), null);
+			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
         s.addTo = addTo;

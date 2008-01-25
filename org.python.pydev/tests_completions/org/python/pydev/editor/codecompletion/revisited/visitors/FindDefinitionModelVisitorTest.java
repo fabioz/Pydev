@@ -5,10 +5,7 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
-import java.util.ArrayList;
-
 import org.eclipse.jface.text.Document;
-import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
@@ -59,14 +56,14 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
 
 		Document doc = new Document(d);
 		IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 2);
-		Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("ex", nature), 3, 3, nature, new ArrayList<FindInfo>());
+		Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("ex", nature, null), 3, 3, nature);
 		
 		assertEquals(1, defs.length);
 		assertEquals("ex", ((AssignDefinition)defs[0]).target);
 		assertEquals("assist.ExistingClass", defs[0].value);
 		assertSame(module, defs[0].module);
 		
-		defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("assist.ExistingClass", nature), 2, 6, nature, new ArrayList<FindInfo>());
+		defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("assist.ExistingClass", nature, null), 2, 6, nature);
 		assertEquals(1, defs.length);
 		assertEquals("ExistingClass", defs[0].value);
 		assertNotSame(module, defs[0].module);
@@ -85,7 +82,7 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
         
         Document doc = new Document(d);
         IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, -1);
-        Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("mydict", nature), 2, 2, nature, new ArrayList<FindInfo>());
+        Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("mydict", nature, null), 2, 2, nature);
         
         assertEquals(1, defs.length);
         assertEquals("mydict", ((AssignDefinition)defs[0]).target);
@@ -109,9 +106,8 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
     	
     	Document doc = new Document(d);
     	IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 2);
-    	ICompletionState emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("bar", nature);
-		ArrayList<FindInfo> arrayList = new ArrayList<FindInfo>();
-		Definition[] defs = (Definition[]) module.findDefinition(emptyCompletionState, 6, 17, nature, arrayList);
+    	ICompletionState emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("bar", nature, null);
+		Definition[] defs = (Definition[]) module.findDefinition(emptyCompletionState, 6, 17, nature);
     	
     	assertEquals(1, defs.length);
     	assertEquals(6, defs[0].line);
@@ -136,11 +132,10 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
         
         Document doc = new Document(d);
         IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 1);
-        ICompletionState emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("xxx", nature);
-        ArrayList<FindInfo> arrayList = new ArrayList<FindInfo>();
+        ICompletionState emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("xxx", nature, null);
         
         //look for xxx
-        Definition[] defs = (Definition[]) module.findDefinition(emptyCompletionState, 6, 16, nature, arrayList);
+        Definition[] defs = (Definition[]) module.findDefinition(emptyCompletionState, 6, 16, nature);
         
         assertEquals(1, defs.length);
         assertEquals(4, defs[0].line);
@@ -148,8 +143,8 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
         assertSame(module, defs[0].module);
         
         //look for yyy
-        emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("yyy", nature);
-        defs = (Definition[]) module.findDefinition(emptyCompletionState, 6, 22, nature, arrayList);
+        emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("yyy", nature, null);
+        defs = (Definition[]) module.findDefinition(emptyCompletionState, 6, 22, nature);
         
         assertEquals(1, defs.length);
         assertEquals(5, defs[0].line);
@@ -179,14 +174,14 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
 		Document doc = new Document(d);
 		IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 9);
 		//self.c is found as an assign
-		Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("self.c",nature), 10, 9, nature, new ArrayList<FindInfo>());
+		Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("self.c",nature, null), 10, 9, nature);
 		
 		assertEquals(1, defs.length);
 		assertEquals("self.c", ((AssignDefinition)defs[0]).target);
 		assertEquals("C", defs[0].value);
 		assertSame(module, defs[0].module);
 		
-		defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("C", nature), 7, 18, nature, new ArrayList<FindInfo>());
+		defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("C", nature, null), 7, 18, nature);
 		assertEquals(1, defs.length);
 		assertEquals("C", defs[0].value);
 		assertSame(module, defs[0].module);

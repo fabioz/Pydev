@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
@@ -24,6 +25,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
  * @author Fabio Zadrozny
  */
 public class CompletionState implements ICompletionState {
+    
     public String activationToken; 
     public int line = -1;
     public int col = -1;
@@ -46,13 +48,14 @@ public class CompletionState implements ICompletionState {
     
     public int lookingForInstance=LOOKING_FOR_INSTANCE_UNDEFINED;
     private List<IToken> tokenImportedModules;
+    private ICompletionCache completionCache;
 
     public ICompletionState getCopy(){
         return new CompletionStateWrapper(this);
     }
     
     public ICompletionState getCopyForResolveImportWithActTok(String actTok) {
-        CompletionState state = (CompletionState) CompletionStateFactory.getEmptyCompletionState(actTok, this.nature);
+        CompletionState state = (CompletionState) CompletionStateFactory.getEmptyCompletionState(actTok, this.nature, this.completionCache);
         state.nature = nature;
         state.findResolveImportMemory = findResolveImportMemory;
         
@@ -126,11 +129,23 @@ public class CompletionState implements ICompletionState {
      * @param nature2
      */
     public CompletionState(int line2, int col2, String token, IPythonNature nature2, String qualifier) {
+        this(line2, col2, token, nature2, qualifier, new CompletionCache());
+    }
+    
+    /**
+     * @param line2 starting at 0
+     * @param col2 starting at 0
+     * @param token
+     * @param qual
+     * @param nature2
+     */
+    public CompletionState(int line2, int col2, String token, IPythonNature nature2, String qualifier, ICompletionCache completionCache) {
         this.line = line2;
         this.col = col2;
         this.activationToken = token;
         this.nature = nature2;
         this.qualifier = qualifier;
+        this.completionCache = completionCache;
     }
     
     public CompletionState(){
@@ -331,6 +346,20 @@ public class CompletionState implements ICompletionState {
     }
     public List<IToken> getTokenImportedModules() {
         return this.tokenImportedModules;
+    }
+    
+    // ICompletionCache interface implementation -----------------------------------------------------------------------
+
+    public void add(Object key, Object n) {
+        this.completionCache.add(key, n);
+    }
+
+    public Object getObj(Object o) {
+        return this.completionCache.getObj(o);
+    }
+
+    public void remove(Object key) {
+        this.completionCache.remove(key);
     }
 
 

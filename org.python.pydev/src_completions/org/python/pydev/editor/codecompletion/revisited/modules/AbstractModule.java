@@ -7,12 +7,11 @@ package org.python.pydev.editor.codecompletion.revisited.modules;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
@@ -81,34 +80,36 @@ public abstract class AbstractModule implements IModule {
      * @param tok the token we are looking for
      * @return true if it was found and false otherwise
      */
-    public abstract boolean isInDirectGlobalTokens(String tok);
+    public abstract boolean isInDirectGlobalTokens(String tok, ICompletionCache completionCache);
 
     /** 
      * @throws CompletionRecursionException 
      * @see org.python.pydev.core.IModule#isInGlobalTokens(java.lang.String, org.python.pydev.plugin.nature.PythonNature)
      */
-    public boolean isInGlobalTokens(String tok, IPythonNature nature) throws CompletionRecursionException{
-    	return isInGlobalTokens(tok, nature, true);
+    public boolean isInGlobalTokens(String tok, IPythonNature nature, ICompletionCache completionCache) throws CompletionRecursionException{
+    	return isInGlobalTokens(tok, nature, true, completionCache);
     }
     
     /** 
      * @throws CompletionRecursionException 
      * @see org.python.pydev.core.IModule#isInGlobalTokens(java.lang.String, org.python.pydev.plugin.nature.PythonNature, boolean)
      */
-    public boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods) throws CompletionRecursionException{
-        return isInGlobalTokens(tok, nature, true, false) != IModule.NOT_FOUND;
+    public boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, 
+            ICompletionCache completionCache) throws CompletionRecursionException{
+        return isInGlobalTokens(tok, nature, true, false, completionCache) != IModule.NOT_FOUND;
     }
     
-    public int isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, boolean ifHasGetAttributeConsiderInTokens) throws CompletionRecursionException{
+    public int isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, boolean ifHasGetAttributeConsiderInTokens, 
+            ICompletionCache completionCache) throws CompletionRecursionException{
         //it's just worth checking it if it is not dotted...
         if(tok.indexOf(".") == -1){
-        	if(isInDirectGlobalTokens(tok)){
+        	if(isInDirectGlobalTokens(tok, completionCache)){
         		return IModule.FOUND_TOKEN;
         	}
         }
         
     	//if still not found, we have to get all the tokens, including regular and wild imports
-        ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature);
+        ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature, completionCache);
         ICodeCompletionASTManager astManager = nature.getAstManager();
         String[] headAndTail = FullRepIterable.headAndTail(tok);
         state.setActivationToken (headAndTail[0]);
@@ -137,7 +138,7 @@ public abstract class AbstractModule implements IModule {
     /**
      * The token we're looking for must be the state activation token
      */
-    public abstract Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature, List<FindInfo> findInfo) throws Exception;
+    public abstract Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature) throws Exception;
 
     /** 
      * @see org.python.pydev.core.IModule#getGlobalTokens(org.python.pydev.editor.codecompletion.revisited.CompletionState, org.python.pydev.core.ICodeCompletionASTManager)

@@ -7,10 +7,9 @@ package org.python.pydev.editor.codecompletion.revisited.modules;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.List;
 
-import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
@@ -75,12 +74,12 @@ public class EmptyModule extends AbstractModule implements Serializable {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
      */
-    public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature, List<FindInfo> findInfo) throws Exception {
+    public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature) throws Exception {
         throw new RuntimeException("Not intended to be called");
     }
 
 	@Override
-	public boolean isInDirectGlobalTokens(String tok) {
+	public boolean isInDirectGlobalTokens(String tok, ICompletionCache completionCache) {
 		throw new RuntimeException("Not intended to be called");
 	}
 

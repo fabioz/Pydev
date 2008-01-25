@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
@@ -52,7 +51,7 @@ public class AssignAnalysis {
             SourceModule s = (SourceModule) module;
             
             try {
-                Definition[] defs = s.findDefinition(state, state.getLine()+1, state.getCol()+1, state.getNature(), new ArrayList<FindInfo>());
+                Definition[] defs = s.findDefinition(state, state.getLine()+1, state.getCol()+1, state.getNature());
                 for (int i = 0; i < defs.length; i++) {
                     //go through all definitions found and make a merge of it...
                     Definition definition = defs[i];

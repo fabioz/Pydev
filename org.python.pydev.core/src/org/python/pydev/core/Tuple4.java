@@ -48,7 +48,11 @@ public class Tuple4<X ,Y, Z, T> implements Serializable{
     
     @Override
     public int hashCode() {
-        return o1.hashCode() * o2.hashCode() * o3.hashCode() * o4.hashCode();
+        return 
+        o1.hashCode() * 
+        o2.hashCode() * 
+        o3.hashCode() * 
+        o4.hashCode();
     }
     
     @Override

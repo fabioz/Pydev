@@ -24,6 +24,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocIterator;
+import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.plugin.PydevPlugin;
@@ -92,7 +93,8 @@ public class PyStringCodeCompletion extends AbstractPyCodeCompletion{
         
         if(ret.size() == 0){
             //if the size is not 0, it means that this is a place for the '@' stuff, and not for the 'default' context for a string.
-            ret.addAll(getStringGlobalsFromParticipants(request, CompletionStateFactory.getEmptyCompletionState(request.activationToken, request.nature)));
+            ret.addAll(getStringGlobalsFromParticipants(request, 
+                    CompletionStateFactory.getEmptyCompletionState(request.activationToken, request.nature, new CompletionCache())));
             
             //the code-below does not work well because the module may not have an actual import for the activation token,
             //so, it is useless too many times

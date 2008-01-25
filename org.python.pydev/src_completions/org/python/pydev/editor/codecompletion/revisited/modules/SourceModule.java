@@ -14,9 +14,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
-import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
@@ -27,6 +27,8 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
+import org.python.pydev.core.cache.Cache;
+import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
@@ -162,7 +164,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @param nature the nature
      * @return true if it was found and false otherwise
      */
-    public boolean isInDirectGlobalTokens(String tok){
+    public boolean isInDirectGlobalTokens(String tok, ICompletionCache completionCache){
         TreeMap<String, Object> tokens = tokensCache.get(GlobalModelVisitor.GLOBAL_TOKENS);
     	if(tokens == null){
     		getGlobalTokens();
@@ -205,6 +207,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @param lookOnlyForNameStartingWith: if not null, well only get from the cache tokens starting with the given representation
      * @return a list of IToken
      */
+    @SuppressWarnings("unchecked")
     private synchronized IToken[] getTokens(int which, ICompletionState state, String lookOnlyForNameStartingWith) {
         if((which & GlobalModelVisitor.INNER_DEFS) != 0){
             throw new RuntimeException("Cannot do this one with caches");
@@ -287,6 +290,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         return createArrayFromCacheValues(tokens, lookOnlyForNameStartingWith);
     }
 
+    @SuppressWarnings("unchecked")
     private IToken[] createArrayFromCacheValues(TreeMap<String, Object> tokens, String lookOnlyForNameStartingWith) {
         List<SourceToken> ret = new ArrayList<SourceToken>();
         
@@ -364,13 +368,13 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                             if(iActTok > actToks.length){
                                 break; //unable to find it
                             }
-                            definitions = findDefinition(initialState.getCopyWithActTok(value), token.getLineDefinition(), token.getColDefinition()+1, manager.getNature(), new ArrayList<FindInfo>());
+                            definitions = findDefinition(initialState.getCopyWithActTok(value), token.getLineDefinition(), token.getColDefinition()+1, manager.getNature());
                             if(definitions.length == 1){
                                 Definition d = definitions[0];
                                 if(d.ast instanceof Assign){
                                     Assign assign = (Assign) d.ast;
                                     value = NodeUtils.getRepresentationString(assign.value);
-                                    definitions = findDefinition(initialState.getCopyWithActTok(value), d.line, d.col, manager.getNature(), new ArrayList<FindInfo>());
+                                    definitions = findDefinition(initialState.getCopyWithActTok(value), d.line, d.col, manager.getNature());
                                 }else if(d.ast instanceof ClassDef){
                                     IToken[] toks = (IToken[]) ((SourceModule)d.module).getClassToks(initialState, manager, d.ast).toArray(EMPTY_ITOKEN_ARRAY);
                                     if(iActTok == actToks.length-1){
@@ -399,7 +403,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                     	if(d.module instanceof SourceModule){
                                     		SourceModule m = (SourceModule) d.module;
                                     		String joined = FullRepIterable.joinFirstParts(actToks);
-                                            Definition[] definitions2 = m.findDefinition(initialState.getCopyWithActTok(joined), d.line, d.col, manager.getNature(), null);
+                                            Definition[] definitions2 = m.findDefinition(initialState.getCopyWithActTok(joined), d.line, d.col, manager.getNature());
                                     		if(definitions2.length == 0){
                                     			return EMPTY_ITOKEN_ARRAY;
                                     		}
@@ -515,37 +519,69 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         }
         return modToks;
     }
+    
+    
+    /**
+     * Caches to hold scope visitors.
+     */
+    private Cache<Object, FindScopeVisitor> scopeVisitorCache = new LRUCache<Object, FindScopeVisitor>(10);
+    private Cache<Object, FindDefinitionModelVisitor> findDefinitionVisitorCache = new LRUCache<Object, FindDefinitionModelVisitor>(10);
+    
+    /**
+     * @return a scope visitor that has already passed through the visiting step for the given line/col.
+     * 
+     * @note we don't have to worry about the ast, as it won't change after we create the source module with it.
+     */
+    @SuppressWarnings("unchecked")
+    private FindScopeVisitor getScopeVisitor(int line, int col) throws Exception{
+        Tuple key = new Tuple(line, col);
+        FindScopeVisitor scopeVisitor = this.scopeVisitorCache.getObj(key);
+        if(scopeVisitor == null){
+            scopeVisitor = new FindScopeVisitor(line, col);
+            if (ast != null){
+                ast.accept(scopeVisitor);
+            }
+            this.scopeVisitorCache.add(key, scopeVisitor);
+        }
+        return scopeVisitor;
+    }
 
+    /**
+     * @return a find definition scope visitor that has already found some definition
+     */
+    @SuppressWarnings("unchecked")
+    private FindDefinitionModelVisitor getFindDefinitionsScopeVisitor(String rep, int line, int col) throws Exception{
+        Tuple3 key = new Tuple3(rep, line, col);
+        FindDefinitionModelVisitor visitor = this.findDefinitionVisitorCache.getObj(key);
+        if(visitor == null){
+            visitor = new FindDefinitionModelVisitor(rep, line, col, this);
+            if (ast != null){
+                try{
+                    ast.accept(visitor);
+                } catch (StopVisitingException e) {
+                    //expected exception
+                }
+            }
+            this.findDefinitionVisitorCache.add(key, visitor);
+        }
+        return visitor;
+    }
+    
     /**
      * @param line: starts at 1
      * @param col: starts at 1
      */
     @SuppressWarnings("unchecked")
-	public Definition[] findDefinition(ICompletionState state, int line, int col, final IPythonNature nature, List<FindInfo> lFindInfo) throws Exception{
+	public Definition[] findDefinition(ICompletionState state, int line, int col, final IPythonNature nature) throws Exception{
         String rep = state.getActivationToken();
-    	if(lFindInfo == null){
-    		lFindInfo = new ArrayList<FindInfo>();
-    	}
         //the line passed in starts at 1 and the lines for the visitor start at 0
         ArrayList<Definition> toRet = new ArrayList<Definition>();
-        FindInfo info = new FindInfo();
-        lFindInfo.add(info);
         
         //first thing is finding its scope
-        FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
-        if (ast != null){
-        	ast.accept(scopeVisitor);
-        }
+        FindScopeVisitor scopeVisitor = getScopeVisitor(line, col);
         
         //this visitor checks for assigns for the token
-        FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(rep, line, col, this);
-        if (ast != null){
-        	try{
-        		ast.accept(visitor);
-			} catch (StopVisitingException e) {
-				//expected exception
-			}
-        }
+        FindDefinitionModelVisitor visitor = getFindDefinitionsScopeVisitor(rep, line, col);
         
         if(visitor.definitions.size() > 0){
         	//ok, it is an assign, so, let's get it
@@ -572,7 +608,6 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         
         //now, check for locals
         IToken[] localTokens = scopeVisitor.scope.getAllLocalTokens();
-        info.localTokens = localTokens;
         for (IToken tok : localTokens) {
         	if(tok.getRepresentation().equals(rep)){
         		return new Definition[]{new Definition(tok, scopeVisitor.scope, this, true)};
@@ -607,7 +642,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         		//ok, we are in a class, so, let's get the self completions
         		String classRep = NodeUtils.getRepresentationString(classDef);
 				IToken[] globalTokens = getGlobalTokens(
-        				new CompletionState(line-1, col-1, classRep, nature,""), 
+        				new CompletionState(line-1, col-1, classRep, nature,"", state), //use the old state as the cache 
         				astManager);
 				
         		String withoutSelf = rep.substring(5);
@@ -657,12 +692,12 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                 if (tok == null || tok.length() == 0 ){
                     return new Definition[]{new Definition(1,1,"",null,null,o.o1)};
                 }else{
-                    return (Definition[]) o.o1.findDefinition(state.getCopyWithActTok(tok), -1, -1, nature, lFindInfo);
+                    return (Definition[]) o.o1.findDefinition(state.getCopyWithActTok(tok), -1, -1, nature);
                 }
                 
             }else if(o.o1 instanceof AbstractJavaClassModule){
                 tok = o.o2;
-                return (Definition[]) o.o1.findDefinition(state.getCopyWithActTok(tok), -1, -1, nature, lFindInfo);
+                return (Definition[]) o.o1.findDefinition(state.getCopyWithActTok(tok), -1, -1, nature);
                 
             }else{
                 throw new RuntimeException("Unexpected module found in imports: "+o);
@@ -677,6 +712,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         	findDefinitionsFromModAndTok(nature, toRet, visitor.moduleImported, mod, copy);
         }catch(CompletionRecursionException e){
         	//ignore (will return what we've got so far)
+//            e.printStackTrace();
         }
             
         return toRet.toArray(new Definition[0]);
@@ -684,9 +720,9 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
     /**
      * Finds the definitions for some module and a token from that module
-     * @throws CompletionRecursionException 
+     * @throws Exception 
      */
-	private void findDefinitionsFromModAndTok(IPythonNature nature, ArrayList<Definition> toRet, String moduleImported, SourceModule mod, ICompletionState state) throws CompletionRecursionException {
+	private void findDefinitionsFromModAndTok(IPythonNature nature, ArrayList<Definition> toRet, String moduleImported, SourceModule mod, ICompletionState state) throws Exception {
         String tok = state.getActivationToken();
 		if(tok != null){
         	if(tok.length() > 0){
@@ -731,9 +767,9 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @param tok
      * @param nature 
      * @return
-     * @throws CompletionRecursionException 
+     * @throws Exception 
      */
-    public Definition findGlobalTokDef(ICompletionState state, IPythonNature nature) throws CompletionRecursionException {
+    public Definition findGlobalTokDef(ICompletionState state, IPythonNature nature) throws Exception {
         String tok = state.getActivationToken();
     	String[] headAndTail = FullRepIterable.headAndTail(tok);
     	String firstPart = headAndTail[0];
@@ -771,14 +807,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                     if(module instanceof SourceModule){
                         //this is just to get its scope...
                         SourceModule m = (SourceModule) module;
-                        FindScopeVisitor scopeVisitor = new FindScopeVisitor(a.beginLine, a.beginColumn);
-                        if (m.ast != null){
-                            try {
-                                m.ast.accept(scopeVisitor);
-                            } catch (Exception e) {
-                                PydevPlugin.log(e);
-                            }
-                        }
+                        FindScopeVisitor scopeVisitor = m.getScopeVisitor(a.beginLine, a.beginColumn);
                         return new Definition(def.o1, def.o2, rep, a, scopeVisitor.scope, module);
                     }else{
                         //line, col
@@ -821,7 +850,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                     finalRep += token.getRepresentation();
                     
                     try {
-                        IDefinition[] definitions = module.findDefinition(state.getCopyWithActTok(finalRep), -1, -1, nature, new ArrayList<FindInfo>());
+                        IDefinition[] definitions = module.findDefinition(state.getCopyWithActTok(finalRep), -1, -1, nature);
                         if(definitions.length > 0){
                             return (Definition) definitions[0];
                         }
