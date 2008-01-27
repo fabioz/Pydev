@@ -148,15 +148,17 @@ public class AnalysisBuilderRunnable implements Runnable{
             checkStop();
             
             IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
+            //update the severities, etc.
             analysisPreferences.clearCaches();
 
+            boolean makeAnalysis = true;
             if (!runner.canDoAnalysis(document) || !PyDevBuilderVisitor.isInPythonPath(r) || //just get problems in resources that are in the pythonpath
                     analysisPreferences.makeCodeAnalysis() == false //let's see if we should do code analysis
             ) {
                 synchronized(r){
                     runner.deleteMarkers(r);
                 }
-                return;
+                makeAnalysis = false;
             }
 
             checkStop();
@@ -168,6 +170,12 @@ public class AnalysisBuilderRunnable implements Runnable{
             	AnalysisBuilderVisitor.fillDependenciesAndRemoveInfo(moduleName, nature, analyzeDependent, monitor, isFullBuild);
             }
             recreateCtxInsensitiveInfo(r, document, module, nature);
+            
+            
+            //let's see if we should continue with the process
+            if(!makeAnalysis){
+                return;
+            }
 
             //monitor.setTaskName("Analyzing module: " + moduleName);
             monitor.worked(1);

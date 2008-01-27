@@ -18,6 +18,7 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.TupleN;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -769,6 +770,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         return markRead(token, rep, true, false);
     }
 
+    
+    
+    
     /**
      * marks a token as read given its representation
      * 
@@ -783,10 +787,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         String foundAsStr = null;
         
         int acceptedScopes = 0;
-        if(scope.getCurrScopeItems().getScopeType() == Scope.SCOPE_TYPE_METHOD){
-            acceptedScopes = Scope.SCOPE_TYPE_GLOBAL | Scope.SCOPE_TYPE_METHOD | Scope.SCOPE_TYPE_LIST_COMP;
+        ScopeItems currScopeItems = scope.getCurrScopeItems();
+        
+        if(currScopeItems.getScopeType() == Scope.SCOPE_TYPE_METHOD){
+            acceptedScopes = Scope.ACCEPTED_METHOD_SCOPES;
         }else{
-            acceptedScopes = Scope.SCOPE_TYPE_GLOBAL | Scope.SCOPE_TYPE_METHOD | Scope.SCOPE_TYPE_CLASS | Scope.SCOPE_TYPE_LIST_COMP;
+            acceptedScopes = Scope.ACCEPTED_ALL_SCOPES;
         }
         
         if("locals".equals(rep)){
@@ -799,7 +805,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             //    c = 3
             //    f1(**locals())
             
-            for(Found f:scope.getCurrScopeItems().getAll()){
+            for(Found f:currScopeItems.getAll()){
                 f.setUsed(true);
             }
             return true;
@@ -856,7 +862,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                     }
                     
                     for(String repToCheck : new FullRepIterable(tokToCheck)){
-                        int inGlobalTokens = m.isInGlobalTokens(repToCheck, nature, true, true, completionCache);
+                        int inGlobalTokens = m.isInGlobalTokens(repToCheck, nature, true, true, this.completionCache);
                         
                         if (inGlobalTokens == IModule.NOT_FOUND) {
                             if(!isDefinitionUnknown(m, repToCheck)){
@@ -889,6 +895,20 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      * False if we're sure it does not exist 
      */
     private boolean isDefinitionUnknown(IModule m, String repToCheck) throws Exception {
+        String name = m.getName();
+        TupleN key = new TupleN("isDefinitionUnknown", name!=null?name:"", repToCheck);
+        Boolean isUnknown = (Boolean) this.completionCache.getObj(key);
+        if(isUnknown == null){
+            isUnknown = internalGenerateIsDefinitionUnknown(m, repToCheck);
+            this.completionCache.add(key, isUnknown);
+        }
+        return isUnknown;
+    }
+    
+    /**
+     * Actually makes the check to see if a given representation is unknown in a given module (without using caches)
+     */
+    private boolean internalGenerateIsDefinitionUnknown(IModule m, String repToCheck) throws Exception {
         if(!(m instanceof SourceModule)){
             return false;
         }

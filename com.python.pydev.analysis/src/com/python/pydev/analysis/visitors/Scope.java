@@ -50,6 +50,16 @@ public class Scope implements Iterable<ScopeItems>{
      * when we are at method definition, not always is as expected...
      */
     public boolean isInMethodDefinition = false;
+
+    /**
+     * Constant defining the scopes that should be considered when we're in a method
+     */
+    public static final int ACCEPTED_METHOD_SCOPES = Scope.SCOPE_TYPE_GLOBAL | Scope.SCOPE_TYPE_METHOD | Scope.SCOPE_TYPE_LIST_COMP;
+    
+    /**
+     * Constant defining all the available scopes
+     */
+    public static final int ACCEPTED_ALL_SCOPES = Scope.SCOPE_TYPE_GLOBAL | Scope.SCOPE_TYPE_METHOD | Scope.SCOPE_TYPE_CLASS | Scope.SCOPE_TYPE_LIST_COMP;
     
     
     /**
@@ -284,8 +294,10 @@ public class Scope implements Iterable<ScopeItems>{
         return ret;
     }
     
+
+
     public Found findFirst(String name, boolean setUsed) {
-    	return findFirst(name,setUsed,SCOPE_TYPE_GLOBAL|SCOPE_TYPE_CLASS|SCOPE_TYPE_METHOD| Scope.SCOPE_TYPE_LIST_COMP);
+    	return findFirst(name, setUsed, ACCEPTED_ALL_SCOPES);
     }
     
     public Found findFirst(String name, boolean setUsed, int acceptedScopes) {

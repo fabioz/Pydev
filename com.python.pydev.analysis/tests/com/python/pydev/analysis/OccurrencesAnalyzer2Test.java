@@ -14,7 +14,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testNoErrorPathInPackage();
+            analyzer2.testErrorNotShownOnDynamicClass();
             analyzer2.tearDown();
             System.out.println("finished");
             
