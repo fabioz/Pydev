@@ -7,6 +7,8 @@ package org.python.pydev.editor.codecompletion.revisited.modules;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
@@ -22,6 +24,7 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.TupleN;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
@@ -99,6 +102,7 @@ public abstract class AbstractModule implements IModule {
         return isInGlobalTokens(tok, nature, true, false, completionCache) != IModule.NOT_FOUND;
     }
     
+    @SuppressWarnings("unchecked")
     public int isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, boolean ifHasGetAttributeConsiderInTokens, 
             ICompletionCache completionCache) throws CompletionRecursionException{
         
@@ -108,40 +112,79 @@ public abstract class AbstractModule implements IModule {
             return IModule.FOUND_TOKEN;
         }
         
-        //it's just worth checking it if it is not dotted...
+        //it's worth checking it if it is not dotted... (much faster as it's in a map already)
         if(tok.indexOf(".") == -1){
         	if(isInDirectGlobalTokens(tok, completionCache)){
         		return IModule.FOUND_TOKEN;
         	}
         }
         
-    	//if still not found, we have to get all the tokens, including regular and wild imports
-        ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature, completionCache);
-        ICodeCompletionASTManager astManager = nature.getAstManager();
         String[] headAndTail = FullRepIterable.headAndTail(tok);
-        state.setActivationToken (headAndTail[0]);
         String head = headAndTail[1];
-        IToken[] globalTokens = astManager.getCompletionsForModule(this, state, searchSameLevelMods);
-        for (IToken token : globalTokens) {
-            String rep = token.getRepresentation();
-            
-            if(ifHasGetAttributeConsiderInTokens && 
-                    //getattribute
-                    (rep.equals("__getattribute__") || rep.equals("__getattr__")) && 
-                    //but not defined in the builtins (it must be overriden)
-                   token.getParentPackage().startsWith("__builtin__") == false){
+        
+        
+        //now, check if it's cached in a way we can use it (we cache it not as raw tokens, but as representation --> token)
+        //to help in later searches.
+        String name = this.getName();
+        Object key = new TupleN("isInGlobalTokens", name!=null?name:"", tok, searchSameLevelMods);
+        Map<String, IToken> cachedTokens = (Map<String, IToken>) completionCache.getObj(key);
+        
+        if(cachedTokens == null){
+            cachedTokens = internalGenerateCachedTokens(nature, completionCache, headAndTail[0], searchSameLevelMods);
+            completionCache.add(key, cachedTokens);
+        }
+        
+        if(cachedTokens.containsKey(head)){
+            return IModule.FOUND_TOKEN;
+        }
+        
+        if(ifHasGetAttributeConsiderInTokens){
+            IToken token = cachedTokens.get("__getattribute__");
+            if(token == null){
+                token = cachedTokens.get("__getattr__");
+            }
+            if(token != null && token.getParentPackage().startsWith("__builtin__") == false){
                 return IModule.FOUND_BECAUSE_OF_GETATTR;
             }
-            
-            if(rep.equals(head)){
-                return IModule.FOUND_TOKEN;
-            }
         }
+        
         //if not found until now, it is not defined
         return IModule.NOT_FOUND;
     }
     
-    
+    /**
+     * Generates the cached tokens in the needed structure for a 'fast' search given a token representation
+     * (creates a map with the name of the token --> token).
+     */
+    private Map<String, IToken> internalGenerateCachedTokens(IPythonNature nature, ICompletionCache completionCache, 
+            String activationToken, boolean searchSameLevelMods) throws CompletionRecursionException {
+
+        Map<String, IToken> cachedTokens = new HashMap<String, IToken>();
+        
+        //if still not found, we have to get all the tokens, including regular and wild imports
+        ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature, completionCache);
+        ICodeCompletionASTManager astManager = nature.getAstManager();
+        state.setActivationToken (activationToken);
+        
+        
+        IToken[] globalTokens = astManager.getCompletionsForModule(this, state, searchSameLevelMods);
+        for (IToken token : globalTokens) {
+            String rep = token.getRepresentation();
+            IToken t = cachedTokens.get(rep);
+            if(t != null){
+                //only override tokens if it's a getattr that's not defined in the builtin module
+                if(rep.equals("__getattribute__") || rep.equals("__getattr__")){
+                    if(token.getParentPackage().startsWith("__builtin__") == false){
+                        cachedTokens.put(rep, token);
+                    }
+                }
+            }else{
+                cachedTokens.put(rep, token);
+            }
+        }
+        return cachedTokens;
+    }
+
     /**
      * The token we're looking for must be the state activation token
      */

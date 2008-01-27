@@ -12,6 +12,7 @@ Extensions
 <li><strong>Optimization</strong>: Caches to find a given scope in a module.</li>
 <li><strong>Code-Analysis</strong>: Invalid 'statement without effect' when raising exception without calling its constructor.</li>
 <li><strong>Code-Analysis</strong>: __path__ available for packages (__init__.py files).</li>
+<li><strong>Context-insensitive info</strong>: Not correctly updated if code-analysis was off (or if a file wasn't analyzed).</li>
 
 after 1.3.10
 

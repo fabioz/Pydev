@@ -408,7 +408,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     public IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods, 
             boolean lookForArgumentCompletion) throws CompletionRecursionException{
         String name = module.getName();
-        Object key = new TupleN(name!=null?name:"", state.getActivationToken(), searchSameLevelMods, 
+        Object key = new TupleN("getCompletionsForModule", name!=null?name:"", state.getActivationToken(), searchSameLevelMods, 
                 lookForArgumentCompletion, state.getBuiltinsGotten(), state.getLocalImportsGotten());
         
         IToken[] ret = (IToken[]) state.getObj(key);
