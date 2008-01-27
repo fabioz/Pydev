@@ -14,7 +14,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testErrorNotShownOnDynamicClass5();
+            analyzer2.testNoErrorPathInPackage();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -88,7 +88,6 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                 "print importer.Struct.bar\n"
         );
         checkNoError();
-        
     }
     
     public void testErrorShownOnInitialSetClass() {
@@ -99,8 +98,46 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         );
         IMessage[] messages = checkError(1);
         assertEquals("Undefined variable from import: m2", messages[0].getMessage());
-        
     }
 
+    public void testNoErrorPathInPackage() {
+        doc = new Document(
+                "import extendable\n"+
+                "print extendable.__path__\n"
+        );
+        checkNoError();
+    }
+    
+    public void testErrorPathNotInModule() {
+        doc = new Document(
+                "from extendable import static\n"+
+                "print static.__path__\n"
+        );
+        IMessage[] messages = checkError(1);
+        assertEquals("Undefined variable from import: __path__", messages[0].getMessage());
+    }
+    
+    public void testErrorPathNotInModule2() {
+        doc = new Document(
+                "from extendable import * #@UnusedWildImport\n"+
+                "__path__\n"
+        );
+        
+        //__path__ does not come on "import *" 
+        IMessage[] messages = checkError(1);
+        assertEquals("Undefined variable: __path__", messages[0].getMessage());
+    }
+    
+    public void testNoEffectInException() {
+        doc = new Document(
+                "def raise_exception():\n"+
+                "    x = None\n"+
+                "    raise Exception, '%(number)s' % {\n"+
+                "        'number': x is None,\n"+
+                "    }\n"
+        );
+        checkNoError();
+    }
+    
 
 }

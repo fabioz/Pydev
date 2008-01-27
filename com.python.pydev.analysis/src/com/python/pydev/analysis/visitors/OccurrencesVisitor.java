@@ -122,6 +122,14 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
     }
     
     @Override
+    public Object visitRaise(Raise node) throws Exception {
+        isInTestScope+=1;
+        Object r = super.visitRaise(node);
+        isInTestScope-=1;
+        return r;
+    }
+    
+    @Override
     public Object visitComprehension(Comprehension node) throws Exception {
         isInTestScope+=1;
         Object r = super.visitComprehension(node);
