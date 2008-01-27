@@ -524,8 +524,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     /**
      * Caches to hold scope visitors.
      */
-    private Cache<Object, FindScopeVisitor> scopeVisitorCache = new LRUCache<Object, FindScopeVisitor>(10);
-    private Cache<Object, FindDefinitionModelVisitor> findDefinitionVisitorCache = new LRUCache<Object, FindDefinitionModelVisitor>(10);
+    private Cache<Object, FindScopeVisitor> scopeVisitorCache = new LRUCache<Object, FindScopeVisitor>(50);
+    private Cache<Object, FindDefinitionModelVisitor> findDefinitionVisitorCache = new LRUCache<Object, FindDefinitionModelVisitor>(50);
     
     /**
      * @return a scope visitor that has already passed through the visiting step for the given line/col.
@@ -891,10 +891,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     public IToken[] getLocalTokens(int line, int col, ILocalScope scope){
         try {
             if(scope == null){
-    	        FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
-    	        if (ast != null){
-                    ast.accept(scopeVisitor);
-    	        }
+    	        FindScopeVisitor scopeVisitor = getScopeVisitor(line, col);
                 scope = scopeVisitor.scope;
             }
 	        
@@ -911,10 +908,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      */
     public ILocalScope getLocalScope(int line, int col) {
         try {
-            FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
-            if (ast != null){
-                ast.accept(scopeVisitor);
-            }
+            FindScopeVisitor scopeVisitor = getScopeVisitor(line, col);
             
             return scopeVisitor.scope;
         } catch (Exception e) {
@@ -939,16 +933,11 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
     
     /**
-     * 
+     * @return the line that ends a given scope (or -1 if not found)
      */
     public int findAstEnd(SimpleNode node) {
         try {
-            int line = node.beginLine;
-            int col = node.beginColumn;
-	        FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
-	        if (ast != null){
-                ast.accept(scopeVisitor);
-	        }
+            FindScopeVisitor scopeVisitor = getScopeVisitor(node.beginLine, node.beginColumn);
 	        
 	        return scopeVisitor.scope.getScopeEndLine();
         } catch (Exception e) {
@@ -958,14 +947,11 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     }
 
     /**
-     * @return
+     * @return the main line (or -1 if not found)
      */
     public int findIfMain() {
         try {
-	        FindScopeVisitor scopeVisitor = new FindScopeVisitor(-1,-1);
-	        if (ast != null){
-                ast.accept(scopeVisitor);
-	        }
+            FindScopeVisitor scopeVisitor = getScopeVisitor(-1, -1);
 	        
 	        return scopeVisitor.scope.getIfMainLine();
         } catch (Exception e) {

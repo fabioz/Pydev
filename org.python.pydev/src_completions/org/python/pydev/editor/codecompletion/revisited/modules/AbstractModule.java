@@ -101,6 +101,13 @@ public abstract class AbstractModule implements IModule {
     
     public int isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, boolean ifHasGetAttributeConsiderInTokens, 
             ICompletionCache completionCache) throws CompletionRecursionException{
+        
+        if("__path__".equals(tok) && this.name != null && this.name.endsWith(".__init__")){
+            //__init__.py modules have the __path__ always defined... it doesn't come in a from xxx import *, but
+            //is there when a from xxx import __path__ is used (or in some other access).
+            return IModule.FOUND_TOKEN;
+        }
+        
         //it's just worth checking it if it is not dotted...
         if(tok.indexOf(".") == -1){
         	if(isInDirectGlobalTokens(tok, completionCache)){
