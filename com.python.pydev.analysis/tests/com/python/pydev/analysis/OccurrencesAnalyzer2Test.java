@@ -14,7 +14,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testErrorNotShownOnDynamicClass();
+            analyzer2.testNoEffectInGenExp();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -135,6 +135,14 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                 "    raise Exception, '%(number)s' % {\n"+
                 "        'number': x is None,\n"+
                 "    }\n"
+        );
+        checkNoError();
+    }
+    
+    public void testNoEffectInGenExp() {
+        doc = new Document(
+                "for val in (3 in (1, 2), 'something else'):\n"+
+                "    print 'val was', val\n"
         );
         checkNoError();
     }
