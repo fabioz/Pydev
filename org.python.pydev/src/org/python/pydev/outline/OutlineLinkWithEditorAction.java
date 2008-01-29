@@ -80,7 +80,10 @@ public class OutlineLinkWithEditorAction extends Action implements IPyEditListen
         if (p != null) {
             p.getStore().setValue(PREF_LINK_WITH_EDITOR, doLink);
             if (doLink) {
-                handleCursorPositionChanged(p.editorView, new PySelection(pyEdit.get()));
+                PyEdit edit = pyEdit.get();
+                if(edit != null){
+                	handleCursorPositionChanged(edit, new PySelection(edit));
+                }
             }
         }
     }
