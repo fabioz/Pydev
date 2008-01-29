@@ -3,16 +3,20 @@ after 1.3.11
 
 Pydev
 <ul>
-<li><strong>Code Coverage</strong>: coverage.py updated to latest version (http://nedbatchelder.com/code/modules/coverage.html).</li>
+<li><strong>Code Coverage</strong>: coverage.py updated to version 2.78 (<a href="http://nedbatchelder.com/code/modules/coverage.html">http://nedbatchelder.com/code/modules/coverage.html</a>).</li>
+<li><strong>Optimization</strong>: Caches (with no memory overhead) added for a number of situations, which can speed completion requests a lot (up to 40x on tests).</li>
+</ul>
 
 Extensions
 <ul>
-<li><strong>Optimization</strong>: Mark occurrences only requested on mouse-clicks and cursor changes that do not correspond to code-writing.</li>
-<li><strong>Optimization</strong>: Caches for all tokens available at a given module for a completion request duration.</li>
-<li><strong>Optimization</strong>: Caches to find a given scope in a module.</li>
-<li><strong>Code-Analysis</strong>: Invalid 'statement without effect' when raising exception without calling its constructor.</li>
-<li><strong>Code-Analysis</strong>: __path__ available for packages (__init__.py files).</li>
-<li><strong>Context-insensitive info</strong>: Not correctly updated if code-analysis was off (or if a file wasn't analyzed).</li>
+<li><strong>Optimization</strong>: Mark occurrences only requested on mouse-clicks and cursor changes.</li>
+<li><strong>Code-Analysis</strong>: No longer running in UI-Thread (which slowed things down in 1.3.10 and 1.3.11).</li>
+<li><strong>Code-Analysis</strong>: Cache optimizations.</li>
+<li><strong>Code-Analysis</strong>: Fixed 'statement without effect' when raising exception with arguments without using the exception constructor.</li>
+<li><strong>Code-Analysis</strong>: Fixed 'statement without effect' on tuple creation.</li>
+<li><strong>Code-Analysis</strong>: __path__ found for packages (__init__.py files).</li>
+<li><strong>Context-insensitive info</strong>: Correctly updated when code-analysis is off (or if file is not analyzed).</li>
+</ul>
 
 after 1.3.10
 
