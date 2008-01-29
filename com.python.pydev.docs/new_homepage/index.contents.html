@@ -13,7 +13,20 @@ It works with <a class="a_link" href="http://www.eclipse.org/">Eclipse</a> and t
 
 <h3>Release Changes</h3>
 	<ul>
-		<li><h4>Release 1.3.11 <IMG src="images/new.png" border="0" /></h4></li>
+		<li><h4>Release 1.3.12 <IMG src="images/new.png" border="0" /></h4></li>
+		<ul>
+			<li><strong>Mark occurrences</strong>: only requested on mouse-clicks and cursor changes.</li>
+			<li><strong>Code-Analysis</strong>: No longer running in UI-Thread (bug which slowed things down in 1.3.10 and 1.3.11).</li>
+			<li><strong>Code-Analysis</strong>: Cache optimizations.</li>
+			<li><strong>Code-Analysis</strong>: Fixed 'statement without effect' when raising exception with arguments without using the exception constructor.</li>
+			<li><strong>Code-Analysis</strong>: Fixed 'statement without effect' on tuple creation.</li>
+			<li><strong>Code-Analysis</strong>: __path__ found for packages (__init__.py files).</li>
+			<li><strong>Context-insensitive info</strong>: Correctly updated when code-analysis is off (or if file is not analyzed).</li>
+		</ul>
+	</ul>
+	
+	<ul>
+		<li><h4>Release 1.3.11</h4></li>
 		<ul>
 			<li><strong>Code-analysis</strong>: Doesn't report 'statement without effect' within yield.</li>
 			<li><strong>Code-analysis</strong>: @DynamicAttrs now works in direct class access (not only on instance access from a class).</li>
