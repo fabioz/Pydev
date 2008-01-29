@@ -1,6 +1,6 @@
 import os
 import sys
-LAST_VERSION_TAG = '1.3.11'
+LAST_VERSION_TAG = '1.3.12'
 
 if __name__ == '__main__':
     d1 = 'open_source/scripts/'

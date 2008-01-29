@@ -32,6 +32,15 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 <h4>Major highlights:</h4>
 
 <ul>
+<li><strong>Code Coverage</strong>: coverage.py updated to version 2.78 (<a href="http://nedbatchelder.com/code/modules/coverage.html">http://nedbatchelder.com/code/modules/coverage.html</a>).</li>
+<li><strong>Optimization</strong>: Caches (with no memory overhead) added for a number of situations, which can speed completion requests a lot (up to 40x on tests).</li>
+</ul>
+
+
+<h4>Previous: 1.3.10</h4>
+
+
+<ul>
 <li><strong>Jython Integration</strong>: Java modules may be referenced from pydev projects (working with code-completion, go to definition, etc).</li>
 <li><strong>Jython Debugger</strong>: Does not attempt to run untraced threads if version &lt;= 2.2.1 (this was a Jython bug that's patched for the current trunk --
 <strong>note:</strong> it prevented the debugger from working correctly with Jython).</li>
