@@ -34,8 +34,8 @@ set PDE_BUILD_SCRIPTS=\plugins\org.eclipse.pde.build_3.3.0.v20070612\scripts
 x:
 
 
-set PYDEV_VERSION=1.3.11
-set BUILD_ID=1_3_11
+set PYDEV_VERSION=1.3.12
+set BUILD_ID=1_3_12
 
 cd %EC_WORKSPACE%\org.python.pydev.releng 
 %EC_HOME%\eclipsec.exe -application org.eclipse.ant.core.antRunner -buildfile build.xml -Dconfigs="*,*,*" -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -DbaseLocation=%EC_HOME% -DjavacFailOnError=true -DEC_HOME=%EC_HOME% -DEC_WORKSPACE=%EC_WORKSPACE% -DPYDEV_VERSION=%PYDEV_VERSION% -DBUILD_ID=%BUILD_ID%  -DRETROWEAVER_HOME=%RETROWEAVER_HOME% -DdontFetchAnything=True -DcleanAfter=True -DPDE_BUILD_SCRIPTS=%PDE_BUILD_SCRIPTS%
@@ -46,42 +46,42 @@ cd %EC_WORKSPACE%\com.python.pydev.releng
 
 Copy to location in work:
 
-xcopy C:\bin\eclipse33_build\features\org.python.pydev.feature_1.3.11 E:\bin\eclipse3311_win32_SDK\features\org.python.pydev.feature_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\features\com.python.pydev.extensions_1.3.11 E:\bin\eclipse3311_win32_SDK\features\com.python.pydev.extensions_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.ast_1.3.11 E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.ast_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.core_1.3.11 E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.core_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.debug_1.3.11 E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.debug_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.help_1.3.11 E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.help_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.jython_1.3.11  E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.jython_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.parser_1.3.11 E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.parser_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.refactoring_1.3.11 E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.refactoring_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.templates_1.3.11 E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.templates_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\org.python.pydev_1.3.11 E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.analysis_1.3.11 E:\bin\eclipse3311_win32_SDK\plugins\com.python.pydev.analysis_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.codecompletion_1.3.11 E:\bin\eclipse3311_win32_SDK\plugins\com.python.pydev.codecompletion_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.debug_1.3.11 E:\bin\eclipse3311_win32_SDK\plugins\com.python.pydev.debug_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.fastparser_1.3.11 E:\bin\eclipse3311_win32_SDK\plugins\com.python.pydev.fastparser_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.refactoring_1.3.11 E:\bin\eclipse3311_win32_SDK\plugins\com.python.pydev.refactoring_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\com.python.pydev_1.3.11 E:\bin\eclipse3311_win32_SDK\plugins\com.python.pydev_1.3.11 /E /D /I
+xcopy C:\bin\eclipse33_build\features\org.python.pydev.feature_1.3.12 E:\bin\eclipse3311_win32_SDK\features\org.python.pydev.feature_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\features\com.python.pydev.extensions_1.3.12 E:\bin\eclipse3311_win32_SDK\features\com.python.pydev.extensions_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.ast_1.3.12 E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.ast_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.core_1.3.12 E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.core_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.debug_1.3.12 E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.debug_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.help_1.3.12 E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.help_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.jython_1.3.12  E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.jython_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.parser_1.3.12 E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.parser_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.refactoring_1.3.12 E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.refactoring_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.templates_1.3.12 E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.templates_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\org.python.pydev_1.3.12 E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.analysis_1.3.12 E:\bin\eclipse3311_win32_SDK\plugins\com.python.pydev.analysis_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.codecompletion_1.3.12 E:\bin\eclipse3311_win32_SDK\plugins\com.python.pydev.codecompletion_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.debug_1.3.12 E:\bin\eclipse3311_win32_SDK\plugins\com.python.pydev.debug_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.fastparser_1.3.12 E:\bin\eclipse3311_win32_SDK\plugins\com.python.pydev.fastparser_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.refactoring_1.3.12 E:\bin\eclipse3311_win32_SDK\plugins\com.python.pydev.refactoring_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\com.python.pydev_1.3.12 E:\bin\eclipse3311_win32_SDK\plugins\com.python.pydev_1.3.12 /E /D /I
 
 
-xcopy C:\bin\eclipse33_build\features\org.python.pydev.feature_1.3.11 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\features\org.python.pydev.feature_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\features\com.python.pydev.extensions_1.3.11 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\features\com.python.pydev.extensions_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.ast_1.3.11 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\org.python.pydev.ast_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.core_1.3.11 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\org.python.pydev.core_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.debug_1.3.11 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\org.python.pydev.debug_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.help_1.3.11 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\org.python.pydev.help_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.jython_1.3.11  C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\org.python.pydev.jython_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.parser_1.3.11 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\org.python.pydev.parser_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.refactoring_1.3.11 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\org.python.pydev.refactoring_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.templates_1.3.11 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\org.python.pydev.templates_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\org.python.pydev_1.3.11 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\org.python.pydev_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.analysis_1.3.11 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\com.python.pydev.analysis_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.codecompletion_1.3.11 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\com.python.pydev.codecompletion_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.debug_1.3.11 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\com.python.pydev.debug_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.fastparser_1.3.11 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\com.python.pydev.fastparser_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.refactoring_1.3.11 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\com.python.pydev.refactoring_1.3.11 /E /D /I
-xcopy C:\bin\eclipse33_build\plugins\com.python.pydev_1.3.11 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\com.python.pydev_1.3.11 /E /D /I
+xcopy C:\bin\eclipse33_build\features\org.python.pydev.feature_1.3.12 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\features\org.python.pydev.feature_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\features\com.python.pydev.extensions_1.3.12 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\features\com.python.pydev.extensions_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.ast_1.3.12 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\org.python.pydev.ast_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.core_1.3.12 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\org.python.pydev.core_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.debug_1.3.12 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\org.python.pydev.debug_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.help_1.3.12 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\org.python.pydev.help_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.jython_1.3.12  C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\org.python.pydev.jython_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.parser_1.3.12 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\org.python.pydev.parser_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.refactoring_1.3.12 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\org.python.pydev.refactoring_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\org.python.pydev.templates_1.3.12 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\org.python.pydev.templates_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\org.python.pydev_1.3.12 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\org.python.pydev_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.analysis_1.3.12 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\com.python.pydev.analysis_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.codecompletion_1.3.12 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\com.python.pydev.codecompletion_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.debug_1.3.12 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\com.python.pydev.debug_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.fastparser_1.3.12 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\com.python.pydev.fastparser_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\com.python.pydev.refactoring_1.3.12 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\com.python.pydev.refactoring_1.3.12 /E /D /I
+xcopy C:\bin\eclipse33_build\plugins\com.python.pydev_1.3.12 C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\plugins\com.python.pydev_1.3.12 /E /D /I
 
 
 
