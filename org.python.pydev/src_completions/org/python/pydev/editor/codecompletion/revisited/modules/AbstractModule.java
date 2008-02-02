@@ -140,16 +140,20 @@ public abstract class AbstractModule implements IModule {
         
         if(ifHasGetAttributeConsiderInTokens){
             IToken token = cachedTokens.get("__getattribute__");
-            if(token == null){
+            if(token == null || isTokenFromBuiltins(token)){
                 token = cachedTokens.get("__getattr__");
             }
-            if(token != null && token.getParentPackage().startsWith("__builtin__") == false){
+            if(token != null && !isTokenFromBuiltins(token)){
                 return IModule.FOUND_BECAUSE_OF_GETATTR;
             }
         }
         
         //if not found until now, it is not defined
         return IModule.NOT_FOUND;
+    }
+
+    private boolean isTokenFromBuiltins(IToken token) {
+        return token.getParentPackage().startsWith("__builtin__");
     }
     
     /**
@@ -174,7 +178,7 @@ public abstract class AbstractModule implements IModule {
             if(t != null){
                 //only override tokens if it's a getattr that's not defined in the builtin module
                 if(rep.equals("__getattribute__") || rep.equals("__getattr__")){
-                    if(token.getParentPackage().startsWith("__builtin__") == false){
+                    if(!isTokenFromBuiltins(token)){
                         cachedTokens.put(rep, token);
                     }
                 }

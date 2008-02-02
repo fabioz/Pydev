@@ -14,6 +14,11 @@ class WithGetAttr(object):
     def __getattribute__(self, attr):
         return attr
     
+class WithGetAttr2(object):
+    
+    def __getattr__(self, attr):
+        return attr
+    
 getWithAttr = WithGetAttr()
 
 class ChildWithGetAttr(WithGetAttr):
