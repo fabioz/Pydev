@@ -23,6 +23,10 @@ Site License
 
 With a Site License you are granted a non-exclusive, nontransferable license to install the Software to any number of computers provided that the product is used solely by employees of the license owner that reside in the same geographic facility (e.g., campus, branch, etc) that was indicated as the Company Site Name in the product order. This license is valid within 1 year from the date of the license purchase. 
 
+Worldwide License
+
+With a Worldwide License you are granted a non-exclusive, nontransferable license to install the Software to any number of computers provided that the product is used solely by employees of the license owner that was indicated as the Company Name in the product order. This license is valid within 1 year from the date of the license purchase.
+
 Upgrades
 
 Unless otherwise indicated, a valid license to use the registered version includes the right to install free version updates, patches, bug-fixes and major upgrades, provided that the release date of the upgrade is within 1 year from the date of the license purchase. 
@@ -63,4 +67,4 @@ ENTIRE AGREEMENT.
 
 You agree that this Agreement expresses the entire understanding between you and Fabio Zadrozny, and supersedes all other communications, oral or written, relating to the Software.
 
-COPYRIGHT 2006 FABIO ZADROZNY
+COPYRIGHT 2006-2008 FABIO ZADROZNY
