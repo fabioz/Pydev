@@ -252,7 +252,15 @@ def evaluateExpression( thread_id, frame_id, expression, doExec ):
     
     expression = expression.replace('@LINE@', '\n')
     if doExec:
-        exec expression in frame.f_globals, frame.f_locals
+        try:
+            #try to make it an eval (if it is an eval we can print it, otherwise we'll exec it and 
+            #it will have whatever the user actually did)
+            compiled = compile(expression, '<string>', 'eval')
+        except:
+            exec expression in frame.f_globals, frame.f_locals
+        else:
+            result = eval( compiled, frame.f_globals, frame.f_locals )
+            print result
         return 
     
     else:
@@ -265,7 +273,7 @@ def evaluateExpression( thread_id, frame_id, expression, doExec ):
     
 def changeAttrExpression( thread_id, frame_id, attr, expression ):
     '''Changes some attribute in a given frame.
-    @note: it will (currently) work if we're not in the topmost frame (that's a python
+    @note: it will not (currently) work if we're not in the topmost frame (that's a python
     deficiency -- and it appears that there is no way of making it currently work --
     will probably need some change to the python internals)
     '''

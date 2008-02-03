@@ -561,7 +561,9 @@ class InternalEvaluateExpression(InternalThreadCommand):
             cmd = dbg.cmdFactory.makeEvaluateExpressionMessage(self.sequence, xml)
             dbg.writer.addCommand(cmd)
         except:
-            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error evaluating expression " + GetExceptionTracebackStr())
+            exc = GetExceptionTracebackStr()
+            print >> sys.stderr, exc
+            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error evaluating expression " + exc)
             dbg.writer.addCommand(cmd)
 
 
