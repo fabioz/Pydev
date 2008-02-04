@@ -227,13 +227,17 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
 		IToolBarManager toolbarManager = actionBars.getToolBarManager();
         
 		toolbarManager.add(new OutlineSortByNameAction(this, imageCache));
-		toolbarManager.add(new OutlineHideCommentsAction(this, imageCache));
-		toolbarManager.add(new OutlineHideImportsAction(this, imageCache));
 		toolbarManager.add(collapseAll);
 		toolbarManager.add(expandAll);
         
         IMenuManager menuManager = actionBars.getMenuManager();
         menuManager.add(linkWithEditor);
+        menuManager.add(new OutlineHideCommentsAction(this, imageCache));
+        menuManager.add(new OutlineHideImportsAction(this, imageCache));
+        menuManager.add(new OutlineHideMagicObjectsAction(this, imageCache));
+        menuManager.add(new OutlineHideFieldsAction(this, imageCache));
+        menuManager.add(new OutlineHideNonPublicMembersAction(this, imageCache));
+        menuManager.add(new OutlineHideStaticMethodsAction(this, imageCache));
 	}
 
     

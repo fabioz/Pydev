@@ -23,6 +23,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.plugin.PydevPlugin;
@@ -96,6 +97,32 @@ public class ParsedItem implements Comparable<Object>{
         this.errorDesc = errorDesc;
     }
 
+    private static final int QUALIFIER_PUBLIC    = 0;
+    private static final int QUALIFIER_PROTECTED = 1; 
+    private static final int QUALIFIER_PRIVATE   = 2; 
+    private static final int QUALIFIER_MAGIC     = 3; 
+
+    private static int qualifierFromName(String name) {
+        if (   (name.startsWith("__")) 
+            	&& (name.endsWith("__"))) {
+        	return QUALIFIER_MAGIC;
+        }
+        else if (name.startsWith("__")) {
+        	return QUALIFIER_PRIVATE;
+        }
+        else if (name.startsWith("_")) {
+        	return QUALIFIER_PROTECTED;
+        }
+        else {
+        	return QUALIFIER_PUBLIC;
+        }
+    	
+    }
+    
+    private static final int DECORATOR_NONE   = 0;
+    private static final int DECORATOR_STATIC = 1;
+    private static final int DECORATOR_CLASS  = 2;
+    
     // returns images based upon element type
     public Image getImage() {
         ImageCache imageCache = PydevPlugin.getImageCache();
@@ -105,14 +132,70 @@ public class ParsedItem implements Comparable<Object>{
         
         SimpleNode token = astThis.node;
         if (token instanceof ClassDef) {
-            return imageCache.get(UIConstants.CLASS_ICON);
+        	String className = NodeUtils.getNameFromNameTok((NameTok) ((ClassDef)token).name);
+        	switch (qualifierFromName(className)) {
+        	case QUALIFIER_PROTECTED:
+                return imageCache.get(UIConstants.PROTECTED_CLASS_ICON);
+        	case QUALIFIER_PRIVATE:
+                return imageCache.get(UIConstants.PRIVATE_CLASS_ICON);
+            default:
+                return imageCache.get(UIConstants.CLASS_ICON);
+        	}
         }
         else if (token instanceof FunctionDef) {
-            if (NodeUtils.getNameFromNameTok((NameTok) ((FunctionDef)token).name).startsWith("_")) {
-                return imageCache.get(UIConstants.PRIVATE_METHOD_ICON);
-            }
-            else
-                return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
+        	int decoratorType = DECORATOR_NONE;
+
+        	FunctionDef functionDefToken = (FunctionDef) token;
+        	for (decoratorsType decorator : functionDefToken.decs) {
+        		if (decorator.func instanceof Name) {
+        			Name decoratorFuncName = (Name) decorator.func;
+        			if (decoratorFuncName.id.equals("staticmethod")) {
+        				decoratorType = DECORATOR_STATIC;
+        			}
+        			else if (decoratorFuncName.id.equals("classmethod")) {
+        				decoratorType = DECORATOR_CLASS;
+        			}
+        		}
+			}
+        	String methodName = NodeUtils.getNameFromNameTok((NameTok) ((FunctionDef)token).name);
+        	switch (qualifierFromName(methodName)) {
+        	case QUALIFIER_MAGIC:
+        		switch(decoratorType) {
+        		case DECORATOR_CLASS:
+                    return imageCache.get(UIConstants.MAGIC_CLASS_METHOD_ICON);
+        		case DECORATOR_STATIC:
+                    return imageCache.get(UIConstants.MAGIC_STATIC_METHOD_ICON);
+                default:
+                    return imageCache.get(UIConstants.MAGIC_METHOD_ICON);
+            	}
+        	case QUALIFIER_PRIVATE: 
+        		switch (decoratorType) {
+        		case DECORATOR_CLASS:
+                    return imageCache.get(UIConstants.PRIVATE_CLASS_METHOD_ICON);
+        		case DECORATOR_STATIC:
+                    return imageCache.get(UIConstants.PRIVATE_STATIC_METHOD_ICON);
+                default:
+                    return imageCache.get(UIConstants.PRIVATE_METHOD_ICON);
+            	}
+        	case QUALIFIER_PROTECTED:
+        		switch (decoratorType) {
+        		case DECORATOR_CLASS:
+                    return imageCache.get(UIConstants.PROTECTED_CLASS_METHOD_ICON);
+        		case DECORATOR_STATIC:
+                    return imageCache.get(UIConstants.PROTECTED_STATIC_METHOD_ICON);
+                default:
+                    return imageCache.get(UIConstants.PROTECTED_METHOD_ICON);
+            	}
+            default:
+            	switch(decoratorType) {
+        		case DECORATOR_CLASS:
+                    return imageCache.get(UIConstants.PUBLIC_CLASS_METHOD_ICON);
+        		case DECORATOR_STATIC:
+                    return imageCache.get(UIConstants.PUBLIC_STATIC_METHOD_ICON);
+                default:
+                    return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
+            	}
+        	}
         }
         else if (token instanceof Import) {
             return imageCache.get(UIConstants.IMPORT_ICON);
@@ -124,7 +207,33 @@ public class ParsedItem implements Comparable<Object>{
             return imageCache.get(UIConstants.COMMENT);
         }
         else if (token instanceof Attribute || token instanceof Name || token instanceof NameTok) {
-            return imageCache.get(UIConstants.PUBLIC_ATTR_ICON);
+        	String name = null;
+            if (token instanceof Attribute) {
+            	Attribute attributeToken = (Attribute) token;
+            	name = NodeUtils.getNameFromNameTok((NameTok) (attributeToken).attr);
+            }
+            else if (token instanceof Name) {
+            	Name nameToken = (Name) token;
+            	name = nameToken.id;
+            }
+            else {
+            	NameTok nameTokToken = (NameTok) token;
+            	name = NodeUtils.getNameFromNameTok(nameTokToken);
+            }
+            
+            if (   (name.startsWith("__")) 
+                	&& (name.endsWith("__"))) {
+                return imageCache.get(UIConstants.MAGIC_FIELD_ICON);
+            }
+            else if (name.startsWith("__")) {
+                return imageCache.get(UIConstants.PRIVATE_FIELD_ICON);
+            }
+            else if (name.startsWith("_")) {
+                return imageCache.get(UIConstants.PROTECTED_FIELD_ICON);
+            }
+            else {
+                return imageCache.get(UIConstants.PUBLIC_FIELD_ICON);
+            }
         }
         else {
             return imageCache.get(UIConstants.ERROR);
