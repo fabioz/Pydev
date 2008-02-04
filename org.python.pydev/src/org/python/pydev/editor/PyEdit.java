@@ -50,7 +50,6 @@ import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.internal.util.SWTResourceUtil;
 import org.eclipse.ui.part.EditorActionBarContributor;
 import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
 import org.eclipse.ui.texteditor.IDocumentProvider;
@@ -152,9 +151,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * The last parsing error description we got.
      */
     private volatile ErrorDescription errorDescription;
-
-    /** Hyperlinking listener */
-    Hyperlink fMouseListener;
 
     /** listeners that get notified of model changes */
     List<IModelListener> modelListeners;
@@ -505,13 +501,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 	                } else if (property.equals(PydevPrefs.GUESS_TAB_SUBSTITUTION)) {
 	                    resetForceTabs();
 	                    
-	                //hyperlink
-	                }else if (property.equals(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_HYPERLINK_COLOR)) {
-	                    colorCache.reloadNamedColor(property);
-	                    if (fMouseListener != null){
-	                        fMouseListener.updateColor(getSourceViewer());
-	                    }
-	                
 	                //colors and styles
 	                } else if (property.equals(PydevPrefs.CODE_COLOR) || property.equals(PydevPrefs.DECORATOR_COLOR) || property.equals(PydevPrefs.NUMBER_COLOR)
 	                        || property.equals(PydevPrefs.KEYWORD_COLOR) || property.equals(PydevPrefs.SELF_COLOR) || property.equals(PydevPrefs.COMMENT_COLOR) 
@@ -790,7 +779,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 	        //open action
 	        IAction openAction = new PyOpenAction();
 	        setAction(ACTION_OPEN, openAction);
-	        enableBrowserLikeLinks();
 	        
 	        
 	        // ----------------------------------------------------------------------------------------
@@ -1077,23 +1065,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         return new ErrorDescription(message, errorLine, errorStart, errorEnd);
     }
 
-
-    public void enableBrowserLikeLinks() {
-        if (fMouseListener == null) {
-            fMouseListener = new Hyperlink(getSourceViewer(), this, colorCache);
-            fMouseListener.install();
-        }
-    }
-
-    /**
-     * Disables browser like links.
-     */
-    public void disableBrowserLikeLinks() {
-        if (fMouseListener != null) {
-            fMouseListener.uninstall();
-            fMouseListener = null;
-        }
-    }
 
     /** stock listener implementation */
     public void addModelListener(IModelListener listener) {

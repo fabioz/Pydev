@@ -1327,6 +1327,7 @@
          </factory>
     </extension>
     
+    <!-- linking the navigator -->
 	<extension point="org.eclipse.ui.navigator.linkHelper">
 		<linkHelper
 			class="org.python.pydev.navigator.actions.PythonLinkHelper"
@@ -1341,5 +1342,22 @@
 			</editorInputEnablement>
 		</linkHelper>
 	</extension>
+	
+	<!-- hyperlink: added on 3.3. see also: PyEditConfiguration.getHyperlinkDetectorTargets -->
+   <extension point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectorTargets">
+      <target id="org.python.pydev.editor.PythonEditor" name="Pydev Editor">
+          <context type="org.eclipse.ui.texteditor.ITextEditor"/>
+      </target>
+   </extension>
+   
+   <extension point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
+      <hyperlinkDetector
+            class="org.python.pydev.editor.hyperlink.PythonElementHyperlinkDetector"
+            id="org.python.pydev.editor.PythonElementHyperlinkDetector"
+            name="Pydev Hyperlink Detector"
+            targetId="org.python.pydev.editor.PythonEditor">
+      </hyperlinkDetector>
+   </extension>
+
 	
  </plugin>

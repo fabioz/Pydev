@@ -6,6 +6,8 @@
 
 package org.python.pydev.editor;
 
+import java.util.Map;
+
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.bindings.keys.KeySequence;
@@ -83,6 +85,18 @@ public class PyEditConfiguration extends TextSourceViewerConfiguration {
         this.setEdit(edit); 
     }
     
+    
+    /*
+     * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getHyperlinkDetectorTargets(org.eclipse.jface.text.source.ISourceViewer)
+     * @since 3.3
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    protected Map getHyperlinkDetectorTargets(ISourceViewer sourceViewer) {
+        Map targets= super.getHyperlinkDetectorTargets(sourceViewer);
+        targets.put("org.python.pydev.editor.PythonEditor", edit); //$NON-NLS-1$
+        return targets;
+    }
 
     @Override
     public IAnnotationHover getAnnotationHover(ISourceViewer sourceViewer) {
