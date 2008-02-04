@@ -164,35 +164,35 @@
          point="org.eclipse.ui.bindings">
       <key
             commandId="org.python.pydev.refactoring.ui.actions.GeneratePropertiesCommand"
-            contextId="org.eclipse.ui.globalScope"
+            contextId="org.python.pydev.ui.editor.scope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M3+M2+T P"/>
       <key
             commandId="org.python.pydev.refactoring.ui.actions.ConstructorFieldCommand"
-            contextId="org.eclipse.ui.globalScope"
+            contextId="org.python.pydev.ui.editor.scope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M3+M2+T C"/>
       <key
             commandId="org.python.pydev.refactoring.ui.actions.OverrideMethodsCommand"
-            contextId="org.eclipse.ui.globalScope"
+            contextId="org.python.pydev.ui.editor.scope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M3+M2+T O"/>
       <!-- waiting for bug fixes
       <key
             commandId="org.python.pydev.refactoring.ui.actions.GenerateDocstringCommand"
-            contextId="org.eclipse.ui.globalScope"
+            contextId="org.python.pydev.ui.editor.scope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M3+M2+T D"/>
       -->
       <key
             commandId="org.python.pydev.refactoring.ui.actions.ExtractMethodCommand"
-            contextId="org.eclipse.ui.globalScope"
+            contextId="org.python.pydev.ui.editor.scope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M3+M2+T E"/>
       <!-- waiting for bug fixes
       <key
             commandId="org.python.pydev.refactoring.ui.actions.ExtractLocalCommand"
-            contextId="org.eclipse.ui.globalScope"
+            contextId="org.python.pydev.ui.editor.scope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M3+M2+T O"/>
       -->

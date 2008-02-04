@@ -3,6 +3,7 @@ after 1.3.12
 Pydev
 <ul>
 <li><strong>Outline view</strong>: working correctly again.</li>
+<li><strong>Keybinding conflict</strong>: Alt+shift+T+XXX refactoring keybindings were defined in the global scope and not only in the pydev scope.</li>
 </ul>
 
 Extensions
