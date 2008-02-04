@@ -4,13 +4,14 @@ Pydev
 <ul>
 <li><strong>Outline view</strong>: working correctly again.</li>
 <li><strong>Keybinding conflict</strong>: Alt+shift+T+XXX refactoring keybindings were defined in the global scope and not only in the pydev scope.</li>
+<li><strong>Hyperlink</strong>: Using new hyperlink mechanism (added at Eclipse 3.3).</li>
 </ul>
 
 Extensions
 
 <ul>
 <li><strong>Debug Console</strong>: will print exceptions raised during the evaluation.</li>
-<li><strong>Debug Console</strong>: will print the result of the evaluation if a valid statement is sent (so, print is not needed for simple things anymore).</li>
+<li><strong>Debug Console</strong>: will print the result of the evaluation if a valid statement is sent (so, 'print' is not needed for simple evaluations anymore).</li>
 </ul>
 
 
