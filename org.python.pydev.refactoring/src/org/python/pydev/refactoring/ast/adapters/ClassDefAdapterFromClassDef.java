@@ -44,7 +44,15 @@ public class ClassDefAdapterFromClassDef implements IClassDefAdapter {
 	}
 
 	public FunctionDefAdapter getFirstInit() {
-		throw new RuntimeException("Not implemented");
+        for(stmtType b:this.classDef.body){
+            if(b instanceof FunctionDef){
+                FunctionDef functionDef = (FunctionDef) b;
+                if(((NameTok)functionDef.name).id.equals("__init__")){
+                    return new FunctionDefAdapter(null, null, (FunctionDef)b, endLineDelim);
+                }
+            }
+        }
+        return null;
 	}
 
 	public List<FunctionDefAdapter> getFunctions() {
@@ -55,7 +63,11 @@ public class ClassDefAdapterFromClassDef implements IClassDefAdapter {
 		ArrayList<FunctionDefAdapter> ret = new ArrayList<FunctionDefAdapter>();
 		for(stmtType b:this.classDef.body){
 			if(b instanceof FunctionDef){
-				ret.add(new FunctionDefAdapter(null, null, (FunctionDef)b, endLineDelim));
+				FunctionDef functionDef = (FunctionDef) b;
+				if(((NameTok)functionDef.name).id.equals("__init__")){
+				    continue;
+				}
+                ret.add(new FunctionDefAdapter(null, null, (FunctionDef)b, endLineDelim));
 			}
 		}
 		return ret;

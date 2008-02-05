@@ -26,10 +26,13 @@ import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.TextUtilities;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
+import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -299,52 +302,38 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 		return adap;
 	}
 
+	/**
+	 * @param clazz the class from where we want to get the bases.
+	 * 
+	 * @return a list of adapters for the base classes of the given class.
+	 */
 	public List<IClassDefAdapter> getBaseClasses(IClassDefAdapter clazz) {
+        CompletionCache completionCache = new CompletionCache();
 
 		List<String> baseNames = clazz.getBaseClassNames();
-		List<IClassDefAdapter> bases = new ArrayList<IClassDefAdapter>();
-		Set<String> importedBaseNames = new HashSet<String>();
-		List<IClassDefAdapter> moduleClasses = getClasses();
-		for (IClassDefAdapter adapter : moduleClasses) {
-			for (String baseName : baseNames) {
+		Set<String> classesToResolve = new HashSet<String>(baseNames);
 
-				if (baseName.compareTo(adapter.getName()) == 0) {
-					bases.add(adapter);
-				} else {
-					importedBaseNames.add(baseName);
-				}
-			}
-		}
-
-		bases.addAll(resolveImportedClass(importedBaseNames));
-
-		return bases;
+		Set<IClassDefAdapter> resolved = resolveClasses(classesToResolve, completionCache);
+        return new ArrayList<IClassDefAdapter>(resolved);
 	}
 
+	/**
+	 * Get a class adapter for a given class contained in this module.
+	 * 
+	 * @param name the name of the class we want to resolve.
+	 * 
+	 * @return an adapter to the class.
+	 */
 	public IClassDefAdapter resolveClass(String name) {
-		for (IClassDefAdapter classAdapter : getClasses()) {
-			if (classAdapter.getName().compareTo(name) == 0) {
-				return classAdapter;
-			} else if (name.contains(".")) {
-				String fileName = file.getName().substring(0, file.getName().indexOf("."));
-				if (name.startsWith(fileName + ".")) {
-					name = name.substring(name.indexOf(".") + 1);
-				}
-				if (name.endsWith("." + classAdapter.getName())) {
-					return classAdapter;
-				}
-
-				IClassDefAdapter current = classAdapter;
-				String fullNestedName = classAdapter.getName();
-				while (nodeHelper.isClassDef(current.getParent().getASTNode())) {
-					current = (IClassDefAdapter) current.getParent();
-					fullNestedName = current.getName() + "." + fullNestedName;
-				}
-				if (fullNestedName.compareTo(name) == 0)
-					return classAdapter;
-			}
-		}
-		return null;
+	    CompletionCache completionCache = new CompletionCache();
+	    
+	    HashSet<String> toResolve = new HashSet<String>();
+	    toResolve.add(name);
+	    Set<IClassDefAdapter> resolved = resolveClasses(toResolve, completionCache);
+	    if(toResolve.size() == 1){
+	        return resolved.iterator().next();
+	    }
+	    return null;
 	}
 
 	/**
@@ -402,16 +391,24 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
      * the tokens returned don't have an associated context, so, after getting them, it may be hard to actually
      * tell the whole class structure above it (but this can be considered secondary for now).
      */	
-	private Set<IClassDefAdapter> resolveImportedClass(Set<String> importedBase) {
+	private Set<IClassDefAdapter> resolveClasses(Set<String> importedBase, CompletionCache completionCache) {
 		Set<IClassDefAdapter> bases = new HashSet<IClassDefAdapter>();
-		if (moduleManager == null)
+		if (moduleManager == null){
+//		    throw new RuntimeException("Must be specified!!");
 			return bases;
-
+		}
+		
+		Set<ClassDef> alreadyTreated = new HashSet<ClassDef>();
+		
+		//let's create the module only once (this way the classdefs will be the same as reparses should not be needed).
+		IModule module = AbstractASTManager.createModule(file, doc, new CompletionState(-1, -1, "", nature, "", completionCache), 
+		        nature.getAstManager());
+		
 		for (String baseName : importedBase) {
-            ICompletionState state = new CompletionState(-1,-1,baseName,nature,"");
+            ICompletionState state = new CompletionState(-1, -1, baseName, nature, "", completionCache);
             IToken[] ret = null;
 			try {
-				ret = nature.getAstManager().getCompletionsForToken(file, doc, state);
+				ret = nature.getAstManager().getCompletionsForModule(module, state);
 			} catch (CompletionRecursionException e) {
 				throw new RuntimeException(e);
 			}
@@ -425,7 +422,11 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 					SimpleNode ast = token.getAst();
 					if(ast instanceof ClassDef || ast instanceof FunctionDef){
 						if(ast.parent instanceof ClassDef){
-							classDefAsts.add((ClassDef) ast.parent);
+							ClassDef classDefAst = (ClassDef) ast.parent;
+							if(!alreadyTreated.contains(classDefAst)){
+							    classDefAsts.add(classDefAst);
+							    alreadyTreated.add(classDefAst);
+							}
 						}
 					}
 					

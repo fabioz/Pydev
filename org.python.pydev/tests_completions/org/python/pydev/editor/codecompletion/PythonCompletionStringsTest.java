@@ -25,7 +25,7 @@ public class PythonCompletionStringsTest  extends CodeCompletionTestsBase {
     /*
      * @see TestCase#setUp()
      */
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
         this.restorePythonPath(false);
@@ -35,7 +35,7 @@ public class PythonCompletionStringsTest  extends CodeCompletionTestsBase {
     /*
      * @see TestCase#tearDown()
      */
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         super.tearDown();
     }

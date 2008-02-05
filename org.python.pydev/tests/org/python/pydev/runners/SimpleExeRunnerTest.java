@@ -16,13 +16,6 @@ import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
  */
 public class SimpleExeRunnerTest extends CodeCompletionTestsBase{
 
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
     
     public void testIt() throws Exception {
         if(TestDependent.HAS_CYGWIN){

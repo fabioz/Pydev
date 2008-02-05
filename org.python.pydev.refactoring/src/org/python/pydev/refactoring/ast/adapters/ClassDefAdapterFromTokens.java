@@ -53,7 +53,7 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter{
 
 
 	public FunctionDefAdapter getFirstInit() {
-		throw new RuntimeException("Not implemented");
+		return null;
 	}
 
 

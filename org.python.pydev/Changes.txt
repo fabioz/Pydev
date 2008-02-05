@@ -7,6 +7,7 @@ Pydev
 <li><strong>PyLint</strong>: working dir is the directory of the analyzed file.</li>
 <li><strong>Project explorer</strong>: fixed bug on integration with Dynamic Web Project.</li>
 <li><strong>Extract method</strong>: fixed bug when trying to refactor structure: a = b = xxx.</li>
+<li><strong>Generate constructor using fields</strong>: working for classes that derive from builtin classes.</li>
 </ul>
 
 

@@ -21,15 +21,12 @@ public class SimpleJythonRunnerTest extends JythonCodeCompletionTestsBase {
     }
 
 
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         PydevPlugin.setJythonInterpreterManager(new PythonInterpreterManagerStub(getPreferences()));
 
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
 
     public void testRun() throws CoreException, IOException {
         SimpleJythonRunner runner = new SimpleJythonRunner();

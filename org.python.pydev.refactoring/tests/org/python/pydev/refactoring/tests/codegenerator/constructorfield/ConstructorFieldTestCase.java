@@ -11,31 +11,39 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
-import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.codegenerator.constructorfield.edit.ConstructorMethodEdit;
-import org.python.pydev.refactoring.tests.adapter.PythonNatureStub;
+import org.python.pydev.refactoring.tests.CompletionEnvironmentSetupHelper;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
 import com.thoughtworks.xstream.XStream;
 
 public class ConstructorFieldTestCase extends AbstractIOTestCase {
 
-	public ConstructorFieldTestCase(String name) {
+	private CompletionEnvironmentSetupHelper setupHelper;
+
+    public ConstructorFieldTestCase(String name) {
 		super(name);
 	}
 
 	@Override
 	public void runTest() throws Throwable {
-		MockupConstructorFieldConfig config = initConfig();
-
-		MockupConstructorFieldRequestProcessor requestProcessor = setupRequestProcessor(config);
-
-		IDocument refactoringDoc = applyConstructorUsingFields(requestProcessor);
-
-		this.setTestGenerated(refactoringDoc.get());
-		assertEquals(getExpected(), getGenerated());
+	    setupHelper = new CompletionEnvironmentSetupHelper();
+	    setupHelper.setupEnv();
+	    try{
+    		MockupConstructorFieldConfig config = initConfig();
+    
+    		MockupConstructorFieldRequestProcessor requestProcessor = setupRequestProcessor(config);
+    
+    		IDocument refactoringDoc = applyConstructorUsingFields(requestProcessor);
+    
+    		this.setTestGenerated(refactoringDoc.get());
+    		assertEquals(getExpected(), getGenerated());
+	    }finally{
+	        setupHelper.tearDownEnv();
+	    }
+		
 	}
-
+	
 	private IDocument applyConstructorUsingFields(MockupConstructorFieldRequestProcessor requestProcessor) throws BadLocationException {
 		ConstructorMethodEdit constructorEdit = new ConstructorMethodEdit(requestProcessor.getRefactoringRequests().get(0));
 
@@ -45,7 +53,8 @@ public class ConstructorFieldTestCase extends AbstractIOTestCase {
 	}
 
 	private MockupConstructorFieldRequestProcessor setupRequestProcessor(MockupConstructorFieldConfig config) throws Throwable {
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()), new PythonNatureStub());
+	    ModuleAdapter module = setupHelper.createModuleAdapter(this);
+		
 		List<IClassDefAdapter> classes = module.getClasses();
 		assertTrue(classes.size() > 0);
 

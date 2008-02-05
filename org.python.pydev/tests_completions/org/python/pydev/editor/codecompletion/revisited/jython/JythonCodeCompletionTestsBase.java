@@ -23,7 +23,7 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase{
     protected boolean calledJavaJars = false;
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         //we also need to set from where the info on the java env
         JavaVmLocationFinder.callbackJavaExecutable = new ICallback(){

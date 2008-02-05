@@ -13,7 +13,7 @@ public class ModulesManagerTest extends CodeCompletionTestsBase{
     }
 
 
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         this.restorePythonPath(false);
     }

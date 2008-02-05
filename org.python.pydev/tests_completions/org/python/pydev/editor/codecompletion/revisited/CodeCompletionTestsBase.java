@@ -97,7 +97,7 @@ public class CodeCompletionTestsBase extends TestCase {
 	/*
      * @see TestCase#setUp()
      */
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         PydevPlugin.setBundleInfo(new BundleInfoStub());
         ProjectModulesManager.IN_TESTS = true;
@@ -107,7 +107,7 @@ public class CodeCompletionTestsBase extends TestCase {
     /*
      * @see TestCase#tearDown()
      */
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         super.tearDown();
         PydevPlugin.setBundleInfo(null);
         ProjectModulesManager.IN_TESTS = false;
@@ -395,7 +395,7 @@ public class CodeCompletionTestsBase extends TestCase {
     
     // ================================================================= helpers for doing code completion requests
     
-    protected IPyCodeCompletion codeCompletion;
+    public IPyCodeCompletion codeCompletion;
     
     public ICompletionProposal[] requestCompl(String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
     	return requestCompl(strDoc, documentOffset, returned, retCompl, nature);

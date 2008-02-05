@@ -38,7 +38,7 @@ public class PythonShellTest extends CodeCompletionTestsBase{
     /*
      * @see TestCase#setUp()
      */
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         restorePythonPathWithSitePackages(false);
         this.shell = startShell();
@@ -57,7 +57,7 @@ public class PythonShellTest extends CodeCompletionTestsBase{
     /*
      * @see TestCase#tearDown()
      */
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         super.tearDown();
         shell.endIt();
     }
