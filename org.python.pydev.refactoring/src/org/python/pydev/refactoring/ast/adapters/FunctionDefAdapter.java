@@ -23,7 +23,7 @@ public class FunctionDefAdapter extends AbstractScopeNode<FunctionDef> {
 
 	public FunctionDefAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, FunctionDef node, String endLineDelim) {
 		super(module, parent, node, endLineDelim);
-		this.arguments = new FunctionArgAdapter(getModule(), this, getASTNode().args, endLineDelim);
+		this.arguments = new FunctionArgAdapter(module, this, getASTNode().args, endLineDelim);
 		this.functions = null;
 	}
 

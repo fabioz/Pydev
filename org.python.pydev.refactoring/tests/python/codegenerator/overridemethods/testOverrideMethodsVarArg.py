@@ -21,7 +21,7 @@ a.myMethod()
 <config>
   <classSelection>0</classSelection>
   <methodSelection>
-    <int>0</int>
+    <string>foo</string>
   </methodSelection>
   <offsetStrategy>4</offsetStrategy>
   <editClass>1</editClass>

@@ -128,16 +128,18 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
     }
 
     
+    protected String getArgs(IToken element, ICompletionState state) {
+        int lookingFor = state.getLookingFor();
+        return getArgs(element, lookingFor);
+    }
     
     /**
-     * @param element
-     * @param lookingForInstance 
-     * @param args
-     * @return
+     * @return a string with the arguments to be shown for the given element.
+     * 
+     * E.g.: >>(self, a, b)<<
      */
-    protected String getArgs(IToken element, ICompletionState state) {
+    private String getArgs(IToken element, int lookingFor) {
         String args = "";
-        int lookingFor = state.getLookingFor();
         boolean lookingForInstance = lookingFor==ICompletionState.LOOKING_FOR_INSTANCE_UNDEFINED || 
                                      lookingFor==ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE ||
                                      lookingFor==ICompletionState.LOOKING_FOR_ASSIGN;

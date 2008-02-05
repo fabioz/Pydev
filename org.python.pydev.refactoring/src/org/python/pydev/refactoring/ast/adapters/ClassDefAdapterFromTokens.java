@@ -10,12 +10,16 @@ package org.python.pydev.refactoring.ast.adapters;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.python.pydev.core.IToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.argumentsType;
+import org.python.pydev.parser.jython.ast.exprType;
 
 
 public class ClassDefAdapterFromTokens implements IClassDefAdapter{
@@ -23,9 +27,11 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter{
     private List<IToken> tokens;
 	private String parentName;
     private String endLineDelim;
+    private ModuleAdapter module;
 
 
-	public ClassDefAdapterFromTokens(String parentName, List<IToken> tokens, String endLineDelim) {
+	public ClassDefAdapterFromTokens(ModuleAdapter module, String parentName, List<IToken> tokens, String endLineDelim) {
+	    this.module = module;
 		this.parentName = parentName;
 		this.tokens = tokens;
         this.endLineDelim = endLineDelim;
@@ -58,7 +64,7 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter{
 
 
 	public List<FunctionDefAdapter> getFunctions() {
-		throw new RuntimeException("Not implemented");
+		return getFunctionsInitFiltered();
 	}
 
 
@@ -66,7 +72,32 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter{
 		ArrayList<FunctionDefAdapter> ret = new ArrayList<FunctionDefAdapter>();
 		for(IToken tok:this.tokens){
 			if(tok.getType() == IToken.TYPE_FUNCTION || tok.getType() == IToken.TYPE_BUILTIN || tok.getType() == IToken.TYPE_UNKNOWN){
-				ret.add(new FunctionDefAdapter(null, null, new FunctionDef(new NameTok(tok.getRepresentation(), NameTok.FunctionName), null, null, null), endLineDelim));
+			    String args = tok.getArgs();
+			    
+			    List<exprType> arguments = new ArrayList<exprType>();
+			    boolean useAnyArgs = false;
+			    if(args.length() > 0){
+		            StringTokenizer strTok = new StringTokenizer(args, "( ,)");
+		            if(!strTok.hasMoreTokens()){
+		                useAnyArgs = true;
+		            }else{
+		                while(strTok.hasMoreTokens()){
+		                    String nextArg = strTok.nextToken();
+		                    arguments.add(new Name(nextArg, Name.Load));
+		                }
+		            }
+			    }else{
+			        useAnyArgs = true;
+			    }
+			    
+			    argumentsType functionArguments = new argumentsType(arguments.toArray(new exprType[0]), null, null, null);
+			    if(useAnyArgs){
+			        functionArguments.vararg = new NameTok("args", NameTok.VarArg);
+			        functionArguments.kwarg = new NameTok("kwrgs", NameTok.KwArg);
+			    }
+//			    System.out.println(tok.getRepresentation()+tok.getArgs());
+				FunctionDef functionDef = new FunctionDef(new NameTok(tok.getRepresentation(), NameTok.FunctionName), functionArguments, null, null);
+                ret.add(new FunctionDefAdapter(this.getModule(), null, functionDef, endLineDelim));
 			}
 		}
 		return ret;
@@ -139,7 +170,7 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter{
 
 
 	public ModuleAdapter getModule() {
-		throw new RuntimeException("Not implemented");
+		return this.module;
 	}
 
 

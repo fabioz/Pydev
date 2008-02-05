@@ -119,7 +119,6 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
 		resolveClassHierarchy(bases, scopeClass, new HashSet<String>());
 		Collections.reverse(bases);
-		bases.add(new ObjectAdapter(this, this, getEndLineDelimiter()));
 
 		return bases;
 	}
@@ -444,10 +443,12 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
             }
             
             for(Map.Entry<String, List<IToken>> entry:map.entrySet()){
-            	bases.add(new ClassDefAdapterFromTokens(entry.getKey(), entry.getValue(), getEndLineDelimiter()));
+                //TODO: The module adapter should probably not be 'this' (make test to break it!)
+            	bases.add(new ClassDefAdapterFromTokens(this, entry.getKey(), entry.getValue(), getEndLineDelimiter()));
             }
             for(ClassDef classDef:classDefAsts){
-            	bases.add(new ClassDefAdapterFromClassDef(classDef, getEndLineDelimiter()));
+                //TODO: The module adapter should probably not be 'this' (make test to break it!)
+            	bases.add(new ClassDefAdapterFromClassDef(this, classDef, getEndLineDelimiter()));
             }
 		}
 		return bases;

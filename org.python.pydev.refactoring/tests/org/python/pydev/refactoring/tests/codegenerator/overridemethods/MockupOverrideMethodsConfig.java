@@ -12,7 +12,7 @@ public class MockupOverrideMethodsConfig {
 
 	private int classSelection;
 
-	private ArrayList<Integer> methodSelection;
+	private ArrayList<String> methodSelection;
 
 	private int offsetStrategy;
 
@@ -21,12 +21,11 @@ public class MockupOverrideMethodsConfig {
 	public MockupOverrideMethodsConfig() {
 		this.classSelection = 0;
 		this.offsetStrategy = IOffsetStrategy.AFTERINIT;
-		this.methodSelection = new ArrayList<Integer>();
-		methodSelection.add(0);
+		this.methodSelection = new ArrayList<String>();
 		this.editClass = 0;
 	}
 
-	public ArrayList<Integer> getMethodSelection() {
+	public ArrayList<String> getMethodSelection() {
 		return methodSelection;
 	}
 

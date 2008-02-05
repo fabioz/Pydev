@@ -10,6 +10,7 @@ package org.python.pydev.refactoring.ast.adapters;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.refactoring.ast.rewriter.RewriterVisitor;
@@ -18,6 +19,7 @@ public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
 
 	public FunctionArgAdapter(ModuleAdapter module, FunctionDefAdapter parent, argumentsType node, String endLineDelim) {
 		super(module, parent, node, endLineDelim);
+		Assert.isNotNull(module);
 	}
 
 	public boolean hasKwArg() {
@@ -70,6 +72,7 @@ public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
 	}
 
 	public String getSignature() {
-		return RewriterVisitor.createSourceFromAST(this.getASTNode(), true, getModule().getEndLineDelimiter());
+		String endLineDelimiter = getModule().getEndLineDelimiter();
+        return RewriterVisitor.createSourceFromAST(this.getASTNode(), true, endLineDelimiter);
 	}
 }

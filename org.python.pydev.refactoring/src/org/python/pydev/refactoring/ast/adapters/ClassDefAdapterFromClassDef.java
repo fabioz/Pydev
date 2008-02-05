@@ -21,8 +21,10 @@ public class ClassDefAdapterFromClassDef implements IClassDefAdapter {
 
 	private ClassDef classDef;
     private String endLineDelim;
+    private ModuleAdapter module;
 
-	public ClassDefAdapterFromClassDef(ClassDef classDef, String endLineDelim) {
+	public ClassDefAdapterFromClassDef(ModuleAdapter module, ClassDef classDef, String endLineDelim) {
+	    this.module = module;
 		this.classDef = classDef;
         this.endLineDelim = endLineDelim;
 	}
@@ -48,7 +50,7 @@ public class ClassDefAdapterFromClassDef implements IClassDefAdapter {
             if(b instanceof FunctionDef){
                 FunctionDef functionDef = (FunctionDef) b;
                 if(((NameTok)functionDef.name).id.equals("__init__")){
-                    return new FunctionDefAdapter(null, null, (FunctionDef)b, endLineDelim);
+                    return new FunctionDefAdapter(module, null, (FunctionDef)b, endLineDelim);
                 }
             }
         }
@@ -56,7 +58,13 @@ public class ClassDefAdapterFromClassDef implements IClassDefAdapter {
 	}
 
 	public List<FunctionDefAdapter> getFunctions() {
-		throw new RuntimeException("Not implemented");
+	    ArrayList<FunctionDefAdapter> ret = new ArrayList<FunctionDefAdapter>();
+	    for(stmtType b:this.classDef.body){
+	        if(b instanceof FunctionDef){
+	            ret.add(new FunctionDefAdapter(module, null, (FunctionDef)b, endLineDelim));
+	        }
+	    }
+	    return ret;
 	}
 
 	public List<FunctionDefAdapter> getFunctionsInitFiltered() {
@@ -67,7 +75,7 @@ public class ClassDefAdapterFromClassDef implements IClassDefAdapter {
 				if(((NameTok)functionDef.name).id.equals("__init__")){
 				    continue;
 				}
-                ret.add(new FunctionDefAdapter(null, null, (FunctionDef)b, endLineDelim));
+                ret.add(new FunctionDefAdapter(module, null, functionDef, endLineDelim));
 			}
 		}
 		return ret;
