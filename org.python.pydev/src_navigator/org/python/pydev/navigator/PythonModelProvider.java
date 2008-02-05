@@ -324,6 +324,11 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         
         for (Iterator childrenItr = currentChildren.iterator(); childrenItr.hasNext();) {
             Object child = childrenItr.next();
+            
+            //yeap, it may be an object that's not an actual resource (created by some other plugin... just continue)
+            if(!(child instanceof IResource)){
+                continue;
+            }
             Object existing = getResourceInPythonModel((IResource) child, true);
             
             if(existing == null){
