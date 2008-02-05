@@ -207,7 +207,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 			String cmdLineToExe = SimplePythonRunner.makeExecutableCommandStr(scriptToExe, paramsToExe);
 			write("Pylint: Executing command line:'"+cmdLineToExe+"'", out);
 			
-			Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutput(cmdLineToExe, script.getParentFile(), project);
+			Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutput(cmdLineToExe, arg.getParentFile(), project);
 			write("Pylint: The stdout of the command line is: "+outTup.o1, out);
 			write("Pylint: The stderr of the command line is: "+outTup.o2, out);
 			

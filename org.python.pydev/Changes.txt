@@ -4,6 +4,7 @@ Pydev
 <ul>
 <li><strong>Outline view</strong>: patch by Laurent Dore adding better icons for different types of fields methods.</li>
 <li><strong>Outline view</strong>: patch by Laurent Dore adding more filters.</li>
+<li><strong>PyLint</strong>: working dir is the directory of the analyzed file.</li>
 </ul>
 
 
