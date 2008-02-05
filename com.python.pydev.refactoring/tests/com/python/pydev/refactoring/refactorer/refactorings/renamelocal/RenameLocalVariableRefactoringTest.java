@@ -23,13 +23,13 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = true;
     }
     
     @Override
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         super.tearDown();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
     }

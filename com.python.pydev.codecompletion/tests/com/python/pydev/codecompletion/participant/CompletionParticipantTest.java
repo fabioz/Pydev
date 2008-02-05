@@ -44,7 +44,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
     }
 
 
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
 //        forceAdditionalInfoRecreation = true; -- just for testing purposes
         super.setUp();
         codeCompletion = new PyCodeCompletion();
@@ -57,9 +57,6 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         TestDependent.TEST_PYSRC_LOC+"myeggmodule.egg";
     }
     
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
 
     public void testImportCompletion() throws CoreException, BadLocationException {
     	participant = new ImportsCompletionParticipant();

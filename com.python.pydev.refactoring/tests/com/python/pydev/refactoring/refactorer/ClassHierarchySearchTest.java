@@ -35,7 +35,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
 
     private Refactorer refactorer;
 
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         this.restorePythonPath(false);
@@ -43,7 +43,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         SourceModule.TESTING = true;
     }
 
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = false;
         ProjectModulesManager projectModulesManager = ((ProjectModulesManager)nature.getAstManager().getModulesManager());
         projectModulesManager.doRemoveSingleModule(new ModulesKey("foo", null));

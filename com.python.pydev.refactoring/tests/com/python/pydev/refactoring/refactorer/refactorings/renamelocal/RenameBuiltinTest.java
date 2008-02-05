@@ -7,11 +7,11 @@ public class RenameBuiltinTest extends RefactoringLocalTestBase {
 		junit.textui.TestRunner.run(RenameBuiltinTest.class);
 	}
 
-	protected void setUp() throws Exception {
+	public void setUp() throws Exception {
 		super.setUp();
 	}
 
-	protected void tearDown() throws Exception {
+	public void tearDown() throws Exception {
 		super.tearDown();
 	}
 

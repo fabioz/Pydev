@@ -29,7 +29,7 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
     protected static boolean DEBUG = false;
 
 
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = getCompiledModulesEnabled();
         this.restorePythonPath(getForceRestorePythonPath());
@@ -45,7 +45,7 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
 		return false;
 	}
     
-    protected void tearDown() throws Exception {
+	public void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         super.tearDown();
     }

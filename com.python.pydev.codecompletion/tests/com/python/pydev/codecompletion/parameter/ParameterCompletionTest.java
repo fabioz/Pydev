@@ -41,7 +41,7 @@ public class ParameterCompletionTest extends AdditionalInfoTestsBase {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
 
@@ -58,7 +58,7 @@ public class ParameterCompletionTest extends AdditionalInfoTestsBase {
     }
     
     @Override
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         super.tearDown();
         useOriginalRequestCompl = false;
         ExtensionHelper.testingParticipants = null;

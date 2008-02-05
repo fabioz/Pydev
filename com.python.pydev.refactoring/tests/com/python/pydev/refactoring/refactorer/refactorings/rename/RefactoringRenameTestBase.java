@@ -78,7 +78,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
      * In the setUp, it initializes the files in the refactoring project
      * @see com.python.pydev.refactoring.refactorer.refactorings.renamelocal.RefactoringLocalTestBase#setUp()
      */
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         if (filesInRefactoringProject == null){
             filesInRefactoringProject = PyFileListing.getPyFilesBelow(new File(TestDependentRefactoring.TEST_PYSRC_LOC_REFACTORING), 
@@ -94,7 +94,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     }
 
     @Override
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         super.tearDown();
     }
     

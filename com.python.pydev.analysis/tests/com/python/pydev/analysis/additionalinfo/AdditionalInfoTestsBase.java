@@ -40,10 +40,6 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
     protected IPyDevCompletionParticipant participant;
     protected boolean useOriginalRequestCompl = false;
     
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
 
     protected ArrayList<IToken> imports;
     

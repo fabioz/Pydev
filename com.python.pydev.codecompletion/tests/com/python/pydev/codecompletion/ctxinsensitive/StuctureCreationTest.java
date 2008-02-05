@@ -40,16 +40,11 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
     
     
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         participant = new CtxParticipant();
         codeCompletion = new PyCodeCompletion();
         this.restorePythonPath(false);
-    }
-    
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
     }
     
 

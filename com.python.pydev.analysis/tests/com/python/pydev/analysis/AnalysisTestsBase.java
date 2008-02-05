@@ -53,7 +53,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
     /*
      * @see TestCase#setUp()
      */
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         AbstractAdditionalDependencyInfo.TESTING = true;
         ProjectModulesManager.IN_TESTS = true;
@@ -102,7 +102,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
     /*
      * @see TestCase#tearDown()
      */
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         super.tearDown();
         AbstractAdditionalDependencyInfo.TESTING = false;
         CompiledModule.COMPILED_MODULES_ENABLED = false;

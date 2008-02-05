@@ -45,7 +45,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
 
     }
 
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         participant = new UndefinedVariableFixParticipant();
         super.restorePythonPath(false);
@@ -55,9 +55,6 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
 
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
     
     public void testFix() throws Exception {
         start = 6;

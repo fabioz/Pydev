@@ -32,14 +32,6 @@ public class OccurrencesAnalyzerListCompTest extends AnalysisTestsBase {
 
 
 
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
     public void testListComprehension() {
         doc = new Document(
                 "def m1():\n" +

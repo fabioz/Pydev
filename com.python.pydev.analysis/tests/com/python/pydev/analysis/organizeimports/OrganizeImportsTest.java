@@ -4,7 +4,6 @@
 package com.python.pydev.analysis.organizeimports;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.core.docutils.PySelection;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
@@ -18,14 +17,11 @@ public class OrganizeImportsTest extends AdditionalInfoTestsBase{
         junit.textui.TestRunner.run(OrganizeImportsTest.class);
     }
 
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         organizer = new OrganizeImports();
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
 
     public void testOrganizeImports() throws Exception {
         String s = "import xxx"; //unused import

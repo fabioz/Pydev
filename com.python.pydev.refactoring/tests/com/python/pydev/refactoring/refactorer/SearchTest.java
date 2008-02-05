@@ -32,16 +32,13 @@ public class SearchTest extends AdditionalInfoTestsBase {
 
 	private Refactorer refactorer;
 
-	protected void setUp() throws Exception {
+	public void setUp() throws Exception {
 		super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         this.restorePythonPath(false);
         refactorer = new Refactorer();
 	}
 
-	protected void tearDown() throws Exception {
-        super.tearDown();
-	}
 	
 	public void testSearch1() throws Exception {
 		//searching for import.

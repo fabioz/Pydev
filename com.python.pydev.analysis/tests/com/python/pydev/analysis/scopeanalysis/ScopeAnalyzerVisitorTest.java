@@ -35,14 +35,6 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
 
     private Document doc;
 
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-    
     public void testIt2() throws Exception {
     	doc = new Document(
     			"import os\n"+

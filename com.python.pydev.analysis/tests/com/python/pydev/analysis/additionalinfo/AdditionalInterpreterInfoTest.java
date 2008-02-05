@@ -30,7 +30,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         }
     }
 
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         info = new AbstractAdditionalDependencyInfo(){
 
@@ -51,11 +51,6 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         };
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    
     
     public void testMap() {
         info.addMethod(createFuncDef("metz" ), "mod1", false, AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
