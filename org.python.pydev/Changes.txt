@@ -5,7 +5,8 @@ Pydev
 <li><strong>Outline view</strong>: patch by Laurent Dore adding better icons for different types of fields methods.</li>
 <li><strong>Outline view</strong>: patch by Laurent Dore adding more filters.</li>
 <li><strong>PyLint</strong>: working dir is the directory of the analyzed file.</li>
-<li><strong>Project Explorer</strong>: fixed bug on integration with Dynamic Web Project.</li>
+<li><strong>Project explorer</strong>: fixed bug on integration with Dynamic Web Project.</li>
+<li><strong>Extract method</strong>: fixed bug when trying to refactor structure: a = b = xxx.</li>
 </ul>
 
 

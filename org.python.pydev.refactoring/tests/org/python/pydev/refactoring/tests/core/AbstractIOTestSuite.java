@@ -19,8 +19,11 @@ public abstract class AbstractIOTestSuite extends TestSuite {
 
 	// can be used to choose which test we want to run
 	public static String FILE_FILTER = "^test.+\\.py$";
-//	public static String FILE_FILTER = "testExtractMethod11.py";
-//	public static String FILE_FILTER = "testBoolOp.py";
+	static{
+//	    FILE_FILTER = "testExtractMethod12.py";
+//	    FILE_FILTER = "testBoolOp.py";
+//	    FILE_FILTER = "testDoubleAssign.py";
+	}
 
 	protected void createTests() {
 		File[] testFiles = getTestFiles(System.getProperty("testDir", TESTDIR));

@@ -348,9 +348,9 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 		return lastNode;
 	}
 
-	private void handlePostNode(SimpleNode parent, SimpleNode lastNode, Iterator<SimpleNode> iter, boolean outdent, boolean separator) {
+	private void handlePostNode(SimpleNode parent, SimpleNode lastNode, Iterator<SimpleNode> iter, boolean outdent, boolean separator, String separatorStr) {
 		if (separator)
-			handleSeparator(parent, lastNode, iter);
+			handleSeparator(parent, lastNode, iter, separatorStr);
 		handleCommentAfter(lastNode);
 
 		if (outdent) {
@@ -378,17 +378,17 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 		handleCommentAfter(node);
 	}
 
-	private void handleSeparator(SimpleNode parent, SimpleNode lastNode, Iterator<SimpleNode> iter) {
+	private void handleSeparator(SimpleNode parent, SimpleNode lastNode, Iterator<SimpleNode> iter, String separatorStr) {
 		if (iter.hasNext()) {
 			if (printer.getNodeHelper().isBoolOp(parent)) {
 				BoolOp boolParent = (BoolOp) parent;
 				printer.printBoolOp(boolParent.op);
 			} else {
-				printer.printListSeparator();
+				printer.printListSeparator(separatorStr);
 			}
 		} else {
 			if (handleCommaOptional(lastNode)) {
-				printer.printListSeparator();
+				printer.printListSeparator(separatorStr);
 			}
 
 		}
@@ -472,6 +472,10 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 	}
 
 	private SimpleNode visit(SimpleNode parent, SimpleNode[] list, boolean outdent, boolean separator) throws Exception {
+	    return visit(parent, list, outdent, separator, null);
+	}
+	
+	private SimpleNode visit(SimpleNode parent, SimpleNode[] list, boolean outdent, boolean separator, String separatorStr) throws Exception {
 		if (list == null)
 			return null;
 		SimpleNode lastNode = null;
@@ -483,7 +487,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 
 			super.visit(lastNode);
 
-			handlePostNode(parent, lastNode, iter, outdent, separator);
+			handlePostNode(parent, lastNode, iter, outdent, separator, separatorStr);
 
 		}
 		return lastNode;
@@ -521,7 +525,7 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 	}
 
 	public Object visitAssign(Assign node) throws Exception {
-		visitWithSeparator(node, node.targets);
+		visitWithSeparator(node, node.targets, " = ");
 		printer.printAssignmentOperator(!inCall(), !inCall());
 		visit(node.value);
 		return null;
@@ -1152,6 +1156,10 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 		return null;
 	}
 
+	private SimpleNode visitWithSeparator(SimpleNode parent, SimpleNode[] body, String separator) throws Exception {
+	    return visit(parent, body, false, true, separator);
+	    
+	}
 	private SimpleNode visitWithSeparator(SimpleNode parent, SimpleNode[] body) throws Exception {
 		return visit(parent, body, false, true);
 	}

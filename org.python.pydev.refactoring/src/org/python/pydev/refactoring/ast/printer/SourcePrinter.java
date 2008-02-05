@@ -457,8 +457,16 @@ public class SourcePrinter {
 		printSpace();
 	}
 
-	public void printListSeparator() {
-		print(syntaxHelper.getListSeparator());
+    public void printListSeparator() {
+        print(syntaxHelper.getListSeparator());
+    }
+    
+	public void printListSeparator(String separatorStr) {
+	    if(separatorStr == null){
+	        printListSeparator();
+	    }else{
+	        print(separatorStr);
+	    }
 	}
 
 	public void printNewlineAndIndentation() {
