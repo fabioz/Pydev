@@ -125,6 +125,9 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
 	public String getBaseContextName(IClassDefAdapter contextClass, String originalName) {
 		originalName = resolveRealToAlias(originalName);
+		if(originalName.startsWith("__builtin__.")){
+		    originalName = originalName.substring(12);
+		}
 		for (String baseName : contextClass.getBaseClassNames()) {
 			if (baseName.endsWith(originalName)) {
 				return baseName;

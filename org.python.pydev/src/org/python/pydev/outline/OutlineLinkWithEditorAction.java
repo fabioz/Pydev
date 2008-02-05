@@ -1,18 +1,16 @@
 package org.python.pydev.outline;
 
 import java.lang.ref.WeakReference;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.ListResourceBundle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.IPyEditListener;
@@ -28,27 +26,15 @@ import org.python.pydev.ui.UIConstants;
  * 
  * @author Fabio
  */
-public class OutlineLinkWithEditorAction extends Action implements IPyEditListener, IPyEditListener2 {
+public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction implements IPyEditListener, IPyEditListener2 {
 
     private static final String PREF_LINK_WITH_EDITOR = "org.python.pydev.PREF_LINK_WITH_EDITOR";
-
-    private WeakReference<PyOutlinePage> page;
 
     private WeakReference<PyEdit> pyEdit;
 
     public OutlineLinkWithEditorAction(PyOutlinePage page, ImageCache imageCache) {
-        super("Link With Editor", IAction.AS_CHECK_BOX);
+        super("Link With Editor", page, imageCache, PREF_LINK_WITH_EDITOR, UIConstants.SYNC_WITH_EDITOR);
 
-        this.page = new WeakReference<PyOutlinePage>(page);
-
-        setChecked(page.getStore().getBoolean(PREF_LINK_WITH_EDITOR));
-        setLinkWithEditor(isChecked());
-
-        try {
-            setImageDescriptor(imageCache.getDescriptor(UIConstants.SYNC_WITH_EDITOR));
-        } catch (MalformedURLException e) {
-            PydevPlugin.log("Missing Icon", e);
-        }
         pyEdit = new WeakReference<PyEdit>(page.editorView);
         relink();
     }
@@ -71,15 +57,20 @@ public class OutlineLinkWithEditorAction extends Action implements IPyEditListen
         unlink();
     }
 
-    public void run() {
-        setLinkWithEditor(isChecked());
+    @Override
+    protected ViewerFilter createFilter() {
+        throw new RuntimeException("Not implemented: as setActionEnabled is overriden, this action is not needed (as this is not a filter action).");
     }
 
-    private void setLinkWithEditor(boolean doLink) {
+    /**
+     * Overridden to enable the linking with the editor instead of having a filter created.
+     */
+    @Override
+    protected void setActionEnabled(boolean enableAction) {
         PyOutlinePage p = this.page.get();
         if (p != null) {
-            p.getStore().setValue(PREF_LINK_WITH_EDITOR, doLink);
-            if (doLink && pyEdit != null) {
+            p.getStore().setValue(PREF_LINK_WITH_EDITOR, enableAction);
+            if (enableAction && pyEdit != null) {
                 PyEdit edit = pyEdit.get();
                 if(edit != null){
                 	handleCursorPositionChanged(edit, new PySelection(edit));

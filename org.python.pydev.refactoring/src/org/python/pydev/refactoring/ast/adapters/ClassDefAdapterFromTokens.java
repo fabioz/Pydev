@@ -14,6 +14,7 @@ import java.util.StringTokenizer;
 
 import org.python.pydev.core.IToken;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
@@ -92,6 +93,9 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter{
 			    
 			    argumentsType functionArguments = new argumentsType(arguments.toArray(new exprType[0]), null, null, null);
 			    if(useAnyArgs){
+			        Name name = new Name("self", Name.Store);
+			        name.addSpecial(new SpecialStr(",", -1, -1), true);
+                    functionArguments.args = new exprType[]{name};
 			        functionArguments.vararg = new NameTok("args", NameTok.VarArg);
 			        functionArguments.kwarg = new NameTok("kwrgs", NameTok.KwArg);
 			    }

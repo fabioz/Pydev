@@ -22,9 +22,9 @@ class B(object):
     '''
         comment
     '''
-    def __hash__(*args, **kwrgs):
-        return __builtin__.object.__hash__(*args, **kwrgs)
+    def __hash__(self, *args, **kwrgs):
+        return object.__hash__(self, *args, **kwrgs)
 
 
-    def __delattr__(*args, **kwrgs):
-        return __builtin__.object.__delattr__(*args, **kwrgs)
+    def __delattr__(self, *args, **kwrgs):
+        return object.__delattr__(self, *args, **kwrgs)
