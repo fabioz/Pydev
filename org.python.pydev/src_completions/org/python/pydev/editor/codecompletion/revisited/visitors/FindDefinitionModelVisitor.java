@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -58,9 +59,10 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     private FastStack<Set<String>> globalDeclarationsStack = new FastStack<Set<String>>();
     
     /**
-     * This is the module we are visiting
+     * This is the module we are visiting: just a weak reference so that we don't create a cycle (let's
+     * leave things easy for the garbage collector).
      */
-    private IModule module;
+    private WeakReference<IModule> module;
     
     /**
      * It is only available if the cursor position is upon a NameTok in an import (it represents the complete
@@ -88,7 +90,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
      */
     public FindDefinitionModelVisitor(String token, int line, int col, IModule module){
         this.tokenToFind = token;
-        this.module = module;
+        this.module = new WeakReference<IModule>(module);
         this.line = line;
         this.col = col;
         this.moduleName = module.getName();
@@ -200,7 +202,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     		}
     		
     		
-    		definitionFound = new Definition(line, name.beginColumn, rep, name, scope, module);
+    		definitionFound = new Definition(line, name.beginColumn, rep, name, scope, module.get());
     		definitions.add(definitionFound);
     	}
     }
@@ -233,7 +235,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     	    		
     	    		definitions.clear();
     	    		
-					definitionFound = new KeywordParameterDefinition(line, node.beginColumn, rep, node, scope, module, this.call.peek());
+					definitionFound = new KeywordParameterDefinition(line, node.beginColumn, rep, node, scope, module.get(), this.call.peek());
     	    		definitions.add(definitionFound);
     	    		throw new StopVisitingException();
     			}
@@ -260,7 +262,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
             }
             
             
-            definitionFound = new Definition(line, name.beginColumn, rep, node, scope, module);
+            definitionFound = new Definition(line, name.beginColumn, rep, node, scope, module.get());
             definitions.add(definitionFound);
         }
     }
@@ -305,7 +307,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
 	            int line = NodeUtils.getLineDefinition(target);
 	            int col = NodeUtils.getColDefinition(target);
 
-	            AssignDefinition definition = new AssignDefinition(value, rep, i, node, line, col, scope, module);
+	            AssignDefinition definition = new AssignDefinition(value, rep, i, node, line, col, scope, module.get());
                 
 	            //mark it as global (if it was found as global in some of the previous contexts).
                 for(Set<String> globals: globalDeclarationsStack){

@@ -524,8 +524,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     /**
      * Caches to hold scope visitors.
      */
-    private Cache<Object, FindScopeVisitor> scopeVisitorCache = new LRUCache<Object, FindScopeVisitor>(50);
-    private Cache<Object, FindDefinitionModelVisitor> findDefinitionVisitorCache = new LRUCache<Object, FindDefinitionModelVisitor>(50);
+    private Cache<Object, FindScopeVisitor> scopeVisitorCache = new LRUCache<Object, FindScopeVisitor>(10);
+    private Cache<Object, FindDefinitionModelVisitor> findDefinitionVisitorCache = new LRUCache<Object, FindDefinitionModelVisitor>(10);
     
     /**
      * @return a scope visitor that has already passed through the visiting step for the given line/col.
