@@ -171,6 +171,8 @@ class PydevTestRunner:
         
         new_imports = []
         for imp in imports:
+            if imp is None:
+                continue #can happen if a file is not a valid module
             for s in system_paths:
                 if imp.startswith(s):
                     new_imports.append(imp[len(s)+1:])
