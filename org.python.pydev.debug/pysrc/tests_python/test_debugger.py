@@ -4,7 +4,7 @@
     to it as if it was run from the outside)
 '''
 import unittest 
-port = 13333
+port = 13334
 
 import os
 def NormFile(filename):
@@ -23,7 +23,6 @@ SHOW_RESULT_STR = False
 
 
 import subprocess
-import sys
 import socket
 import threading
 import time
@@ -281,21 +280,39 @@ class WriterThreadCase1(AbstractWriterThread):
 #=======================================================================================================================
 class Test(unittest.TestCase):
     
-    def CheckCase(self, writerThreadClass):
+    def CheckCase(self, writerThreadClass, run_as_python=True):
         writerThread = writerThreadClass()
         writerThread.start()
         
-        args = [
-            'python',
-            PYDEVD_FILE, 
-            '--RECORD_SOCKET_READS',
-            '--client', 
-            'localhost', 
-            '--port', 
-            str(port), 
-            '--file', 
-            writerThread.TEST_FILE,
-        ]
+        if run_as_python:
+            args = [
+                'python',
+                PYDEVD_FILE, 
+                '--RECORD_SOCKET_READS',
+                '--client', 
+                'localhost', 
+                '--port', 
+                str(port), 
+                '--file', 
+                writerThread.TEST_FILE,
+            ]
+            
+        else:
+            #run as jython
+            args = [
+                r'D:\bin\jdk_1_5_09\bin\javaw.exe',
+                '-classpath',
+                'D:/bin/jython-2.2.1/jython.jar',
+                'org.python.util.jython',
+                PYDEVD_FILE, 
+                '--RECORD_SOCKET_READS',
+                '--client', 
+                'localhost', 
+                '--port', 
+                str(port), 
+                '--file', 
+                writerThread.TEST_FILE,
+            ]
         
         process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         class ProcessReadThread(threading.Thread):
@@ -347,6 +364,19 @@ class Test(unittest.TestCase):
         
     def testCase4(self):
         self.CheckCase(WriterThreadCase4)
+
+            
+    def testCase5(self):
+        self.CheckCase(WriterThreadCase1, False)
+        
+    def testCase6(self):
+        self.CheckCase(WriterThreadCase2, False)
+        
+    def testCase7(self):
+        self.CheckCase(WriterThreadCase3, False)
+        
+    def testCase8(self):
+        self.CheckCase(WriterThreadCase4, False)
         
         
 
