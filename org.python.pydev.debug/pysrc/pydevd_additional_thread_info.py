@@ -1,7 +1,7 @@
 import sys
 from pydevd_constants import * #@UnusedWildImport
 import threading
-import pydevd_frame
+from pydevd_frame import PyDBFrame
 import weakref
 
 #=======================================================================================================================
@@ -31,14 +31,11 @@ class AbstractPyDBAdditionalThreadInfo:
 class PyDBAdditionalThreadInfoWithCurrentFramesSupport(AbstractPyDBAdditionalThreadInfo):
     
     def IterFrames(self):
-        ret = []
-        for f in sys._current_frames().values(): #@UndefinedVariable
-            ret.append(f)
-        return ret
-    
-    def CreateDbFrame(self, mainDebugger, filename, base, additionalInfo, t, frame): #@UnusedVariable
-        #no need to set the frame (we already have sys._current_frames to get them)
-        return pydevd_frame.PyDBFrame(mainDebugger, filename, base, additionalInfo, t)
+        #sys._current_frames(): dictionary with thread id -> topmost frame
+        return sys._current_frames().values() #return a copy... don't know if it's changed if we did get an iterator
+
+    #just create the db frame directly
+    CreateDbFrame = PyDBFrame
     
 #=======================================================================================================================
 # PyDBAdditionalThreadInfoWithoutCurrentFramesSupport
@@ -88,7 +85,7 @@ class PyDBAdditionalThreadInfoWithoutCurrentFramesSupport(AbstractPyDBAdditional
         #that's a large workaround because:
         #1. we can't have weak-references to python frame object
         #2. only from 2.5 onwards we have _current_frames support from the interpreter
-        db_frame = pydevd_frame.PyDBFrame(mainDebugger, filename, base, additionalInfo, t)
+        db_frame = PyDBFrame(mainDebugger, filename, base, additionalInfo, t, frame)
         db_frame.frame = frame
         self._AddDbFrame(db_frame)
         return db_frame

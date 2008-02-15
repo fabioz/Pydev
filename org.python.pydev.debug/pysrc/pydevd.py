@@ -759,7 +759,9 @@ def settrace(host='localhost', stdoutToServer = False, stderrToServer = False, p
         
         #that's right, debug only threads that pass through this function
         #(so, we just call sys.settrace and not threading.settrace)
-        sys.settrace(debugger.trace_dispatch)
+        #note that we do that through pydevd_tracing.SetTrace so that the tracing
+        #is not warned to the user!
+        pydevd_tracing.SetTrace(debugger.trace_dispatch)
         PyDBCommandThread(debugger).start()
         
     else:
@@ -775,7 +777,7 @@ def settrace(host='localhost', stdoutToServer = False, stderrToServer = False, p
             additionalInfo = pydevd_additional_thread_info.PyDBAdditionalThreadInfo()
             t.additionalInfo = additionalInfo
             
-        sys.settrace(debugger.trace_dispatch)
+        pydevd_tracing.SetTrace(debugger.trace_dispatch)
         if suspend:
             debugger.setSuspend(t, CMD_SET_BREAK)
     

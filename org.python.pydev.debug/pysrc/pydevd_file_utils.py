@@ -4,9 +4,7 @@ import os.path
 NORM_FILENAME_CONTAINER = {}
 NORM_FILENAME_AND_BASE_CONTAINER = {}
 
-def NormFileFromFrame(frame):
-    return NormFile(frame.f_code.co_filename)
-    
+
 def NormFile(filename):
     try:
         return NORM_FILENAME_CONTAINER[filename]

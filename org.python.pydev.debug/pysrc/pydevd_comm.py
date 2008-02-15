@@ -100,7 +100,7 @@ pydevd_trace = -1
 pydevd_trace_breakpoints = -1
 
 class DebugInfoHolder:
-    RECORD_SOCKET_READS = True
+    RECORD_SOCKET_READS = False
 
 
 def pydevd_log(level, s):
