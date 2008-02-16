@@ -23,7 +23,6 @@ class PyDBFrame:
         self._args[0].doWaitSuspend(*args, **kwargs)
     
     def trace_dispatch(self, frame, event, arg):
-        #jython has an 'exception' event that must be treated too (strangely it is called when doing a wild import)
         if event not in ('line', 'call', 'return', 'exception'):
             return None
             

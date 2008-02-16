@@ -15,36 +15,40 @@ each command has a format:
 
     Commands:
  
-    NUMBER   NAME                 FROM*     ARGUMENTS                     RESPONSE      NOTE
+    NUMBER   NAME                     FROM*     ARGUMENTS                     RESPONSE      NOTE
 100 series: program execution
-    101      RUN                  JAVA      -                             -
-    102      LIST_THREADS         JAVA                                    RETURN with XML listing of all threads
-    103      THREAD_CREATE        PYDB      -                             XML with thread information
-    104      THREAD_KILL          JAVA      id (or * to exit)             kills the thread
-                                  PYDB      id                            nofies JAVA that thread was killed
-    105      THREAD_SUSPEND       JAVA      XML of the stack,             suspends the thread
-                                            reason for suspension
-                                  PYDB      id                            notifies JAVA that thread was suspended
-    106      THREAD_RUN           JAVA      id                            resume the thread
-                                  PYDB      id \t reason                  notifies JAVA that thread was resumed
-    107      STEP_INTO            JAVA      thread_id
-    108      STEP_OVER            JAVA      thread_id
-    109      STEP_RETURN          JAVA      thread_id
-    110      GET_VARIABLE         JAVA      var_locator                   GET_VARIABLE with XML of var content
-                                            see code for definition
-    111      SET_BREAK            JAVA      file/line of the breakpoint
-    112      REMOVE_BREAK         JAVA      file/line of the return
-    113      EVALUATE_EXPRESSION  JAVA      expression                    result of evaluating the expression
-    114      CMD_GET_FRAME        RDB
-    115      CMD_EXEC_EXPRESSION  RDB
-    116      CMD_WRITE_TO_CONSOLE PYDB
+    101      RUN                      JAVA      -                             -
+    102      LIST_THREADS             JAVA                                    RETURN with XML listing of all threads
+    103      THREAD_CREATE            PYDB      -                             XML with thread information
+    104      THREAD_KILL              JAVA      id (or * to exit)             kills the thread
+                                      PYDB      id                            nofies JAVA that thread was killed
+    105      THREAD_SUSPEND           JAVA      XML of the stack,             suspends the thread
+                                                reason for suspension
+                                      PYDB      id                            notifies JAVA that thread was suspended
+                                      
+    106      CMD_THREAD_RUN           JAVA      id                            resume the thread
+                                      PYDB      id \t reason                  notifies JAVA that thread was resumed
+                                      
+    107      STEP_INTO                JAVA      thread_id
+    108      STEP_OVER                JAVA      thread_id
+    109      STEP_RETURN              JAVA      thread_id
+    
+    110      GET_VARIABLE             JAVA      thread_id \t frame_id \t      GET_VARIABLE with XML of var content
+                                                FRAME|GLOBAL \t attributes*
+                                                
+    111      SET_BREAK                JAVA      file/line of the breakpoint
+    112      REMOVE_BREAK             JAVA      file/line of the return
+    113      CMD_EVALUATE_EXPRESSION  JAVA      expression                    result of evaluating the expression
+    114      CMD_GET_FRAME            JAVA                                    request for frame contents
+    115      CMD_EXEC_EXPRESSION      JAVA
+    116      CMD_WRITE_TO_CONSOLE     PYDB
     
 500 series diagnostics/ok
-    901      VERSION              either      Version string (1.0)        Currently just used at startup
-    902      RETURN               either      Depends on caller    -
+    901      VERSION                  either      Version string (1.0)        Currently just used at startup
+    902      RETURN                   either      Depends on caller    -
     
 900 series: errors
-    501      ERROR                either      -                           This is reserved for unexpected errors.
+    501      ERROR                    either      -                           This is reserved for unexpected errors.
                                   
     * JAVA - remote debugger, the java end
     * PYDB - pydevd, the python end

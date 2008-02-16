@@ -369,7 +369,7 @@ class PyDB:
                     
                 elif cmd_id == CMD_GET_VARIABLE:
                     #we received some command to get a variable
-                    #the text is: thread\tstackframe\tFRAME|GLOBAL\tattributes*
+                    #the text is: thread_id\tframe_id\tFRAME|GLOBAL\tattributes*
                     try:
                         thread_id, frame_id, scopeattrs = text.split('\t', 2)
                         thread_id = long(thread_id)
