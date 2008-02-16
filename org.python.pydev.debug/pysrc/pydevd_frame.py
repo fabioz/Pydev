@@ -35,13 +35,16 @@ class PyDBFrame:
         
         #print 'frame: trace_dispatch', self.base, frame.f_lineno, event, frame.f_code.co_name
 
-        probably_skip_context = False
+        can_skip = additionalInfo.pydev_state == STATE_RUN and additionalInfo.pydev_step_stop is None \
+            and additionalInfo.pydev_step_cmd is None
+            
         # Let's check to see if we are in a function that has a breakpoint. If we don't have a breakpoint, 
         # we will return nothing for the next trace
         #also, after we hit a breakpoint and go to some other debugging state, we have to force the set trace anyway,
         #so, that's why the additional checks are there.
         if not breakpoint:
-            probably_skip_context = True
+            if can_skip:
+                return None
 
         else:
             #checks the breakpoint to see if there is a context match in some function
@@ -51,30 +54,28 @@ class PyDBFrame:
             if curr_func_name in ('?', '<module>'):
                 curr_func_name = ''
                 
-            for b, condition, func_name in breakpoint.itervalues():
+            for _b, condition, func_name in breakpoint.itervalues():
                 #will match either global or some function
                 if func_name in ('None', curr_func_name):
                     break
                 
-            else: # if we had some break, it won't get here (so, that's a context that we probably want to skip -- see conditions below)
-                probably_skip_context = True
-
-        if probably_skip_context:
-            if additionalInfo.pydev_state == STATE_RUN and additionalInfo.pydev_step_stop is None and additionalInfo.pydev_step_cmd is None:
-                #print 'skipping', self.base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
-                return None
-            
-            if additionalInfo.pydev_step_cmd in (CMD_STEP_OVER, CMD_STEP_RETURN) and additionalInfo.pydev_step_stop != frame:
-                #print 'skipping', self.base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
-                return None
+            else: # if we had some break, it won't get here (so, that's a context that we want to skip)
+                if can_skip:
+                    #print 'skipping', frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
+                    return None
                 
-        #We just hit a breakpoint or we are already in step mode. Either way, let's trace this frame
+        #We may have hit a breakpoint or we are already in step mode. Either way, let's check what we should do in this frame
         #print 'NOT skipped', base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
 
         
         try:
             line = frame.f_lineno
-            if additionalInfo.pydev_state != STATE_SUSPEND and breakpoint is not None and breakpoint.has_key(line):
+            
+            #return is not taken into account for breakpoint hit because we'd have a double-hit in this case
+            #(one for the line and the other for the return).
+            if event != 'return' and additionalInfo.pydev_state != STATE_SUSPEND and breakpoint is not None \
+                and breakpoint.has_key(line):
+                
                 #ok, hit breakpoint, now, we have to discover if it is a conditional breakpoint
                 # lets do the conditional stuff here
                 condition = breakpoint[line][1]
@@ -107,10 +108,14 @@ class PyDBFrame:
                 self.setSuspend(thread, CMD_STEP_INTO)
                 self.doWaitSuspend(thread, frame, event, arg)      
                 
-            
-            elif additionalInfo.pydev_step_cmd in (CMD_STEP_OVER, CMD_STEP_RETURN) and event in ('line', 'return'): 
-                if additionalInfo.pydev_step_stop == frame:
-                    self.setSuspend(thread, additionalInfo.pydev_step_cmd)
+            elif additionalInfo.pydev_step_cmd in (CMD_STEP_OVER, CMD_STEP_RETURN):
+                self.setSuspend(thread, additionalInfo.pydev_step_cmd)
+                
+                if event == 'return':
+                    #if we're in a return, we want it to appear to the user in the previous frame!
+                    self.doWaitSuspend(thread, frame.f_back, event, arg)
+                    
+                elif event == 'line' and additionalInfo.pydev_step_stop == frame:
                     self.doWaitSuspend(thread, frame, event, arg)
                 
                     

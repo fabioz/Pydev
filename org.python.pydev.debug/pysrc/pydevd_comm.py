@@ -170,7 +170,7 @@ class ReaderThread(PyDBDaemonThread):
         try:
             while not self.killReceived:
                 buffer += self.sock.recv(1024)
-                if DEBUG_RECORD_SOCKET_READS:
+                if DebugInfoHolder.DEBUG_RECORD_SOCKET_READS:
                     print 'received >>%s<<' % (buffer,)
                     
                 if len(buffer) == 0:
@@ -383,7 +383,7 @@ class NetCommandFactory:
                 myLine = str(curFrame.f_lineno)
                 #print "line is ", myLine
                 
-                #the variables are all goten 'on-demand'
+                #the variables are all gotten 'on-demand'
                 #variables = pydevd_vars.frameVarsToXML(curFrame)
 
                 variables = ''
@@ -524,8 +524,9 @@ class InternalGetFrame(InternalThreadCommand):
                 cmd = dbg.cmdFactory.makeGetFrameMessage(self.sequence, xml)
                 dbg.writer.addCommand(cmd)
             except pydevd_vars.FrameNotFoundError:
-                #don't print this error: frame not found: means that the client is dis-synchronized (but that's ok)
-                cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving frame: %s from thread: %s" % (self.frame_id, self.thread_id))
+                #pydevd_vars.dumpFrames(self.thread_id)
+                #don't print this error: frame not found: means that the client is not synchronized (but that's ok)
+                cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Frame not found: %s from thread: %s" % (self.frame_id, self.thread_id))
                 dbg.writer.addCommand(cmd)
         except:
             cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving frame: %s from thread: %s" % (self.frame_id, self.thread_id))

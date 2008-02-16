@@ -607,7 +607,7 @@ class PyDB:
             processInternalCommands = psyco.proxy(processInternalCommands)
             doWaitSuspend = psyco.proxy(doWaitSuspend)
         except ImportError:
-            print >> sys.stderr, 'pydev debugger warning: psyco not available for debugger speedups'
+            print >> sys.stderr, 'pydev debugger: warning: psyco not available for debugger speedups'
 
 
     def run(self, file, globals=None, locals=None):
@@ -822,7 +822,7 @@ if __name__ == '__main__':
  
     pydevd_vm_type.SetupType(setup.get('vm_type', None))
     
-    DEBUG_RECORD_SOCKET_READS = setup.get('DEBUG_RECORD_SOCKET_READS', False)
+    DebugInfoHolder.DEBUG_RECORD_SOCKET_READS = setup.get('DEBUG_RECORD_SOCKET_READS', False)
 
     debugger = PyDB()
     debugger.connect(setup['client'], setup['port'])

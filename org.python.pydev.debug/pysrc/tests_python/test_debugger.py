@@ -1,10 +1,10 @@
 '''
     The idea is that we record the commands sent to the debugger and reproduce them from this script
-    (so, this works as the client, which spaws the debugger as a separate process and communicates
+    (so, this works as the client, which spawns the debugger as a separate process and communicates
     to it as if it was run from the outside)
 '''
 import unittest 
-port = 13334
+port = 13335
 
 import os
 def NormFile(filename):
@@ -119,10 +119,14 @@ class AbstractWriterThread(threading.Thread):
         threadId = splitted[3]
         return threadId
         
-    def WaitForBreakpointHit(self):
+    def WaitForBreakpointHit(self, reason='111', get_line=False): 
+        '''
+            109 is return
+            111 is breakpoint
+        '''
         i = 0
         #wait for hit breakpoint
-        while not 'stop_reason="111"' in self.readerThread.lastReceived:
+        while not ('stop_reason="%s"' % reason) in self.readerThread.lastReceived:
             i += 1
             time.sleep(1)
             if i >= 10:
@@ -132,7 +136,11 @@ class AbstractWriterThread(threading.Thread):
         splitted = self.readerThread.lastReceived.split('"')
         threadId = splitted[1]
         frameId = splitted[5]
+        if get_line:
+            return threadId, frameId, int(splitted[11])
+            
         return threadId, frameId
+        
     
 
     def WriteMakeInitialRun(self):
@@ -155,6 +163,12 @@ class AbstractWriterThread(threading.Thread):
         
     def WriteStepOver(self, threadId):
         self.Write("108\t%s\t%s" % (self.NextSeq(), threadId,))
+        
+    def WriteStepIn(self, threadId):
+        self.Write("107\t%s\t%s" % (self.NextSeq(), threadId,))
+        
+    def WriteStepReturn(self, threadId):
+        self.Write("109\t%s\t%s" % (self.NextSeq(), threadId,))
 
     def WriteSuspendThread(self, threadId):
         self.Write("105\t%s\t%s" % (self.NextSeq(), threadId,))
@@ -165,6 +179,80 @@ class AbstractWriterThread(threading.Thread):
     def WriteKillThread(self, threadId):
         self.Write("104\t%s\t%s" % (self.NextSeq(), threadId,))
         
+
+
+#=======================================================================================================================
+# WriterThreadCase5
+#=======================================================================================================================
+class WriterThreadCase6(AbstractWriterThread):
+    
+    TEST_FILE = NormFile('_debugger_case56.py')
+        
+    def run(self):
+        self.StartSocket()
+        self.WriteAddBreakpoint(2, 'Call2') 
+        self.WriteMakeInitialRun()
+        
+        threadId, frameId = self.WaitForBreakpointHit()
+        
+        self.WriteGetFrame(threadId, frameId)
+        
+        self.WriteStepReturn(threadId)
+        
+        threadId, frameId, line = self.WaitForBreakpointHit('109', True)
+
+        assert line == 8, 'Expecting it to go to line 8. Went to: %s' % line
+        
+        self.WriteStepIn(threadId)
+        
+        threadId, frameId, line = self.WaitForBreakpointHit('107', True)
+        
+        #goes to line 4 in jython (function declaration line)
+        assert line in (4, 5), 'Expecting it to go to line 4 or 5. Went to: %s' % line
+        
+        self.WriteRunThread(threadId)
+
+        assert 13 == self._sequence, 'Expected 15. Had: %s'  % self._sequence
+        
+        self.finishedOk = True
+
+#=======================================================================================================================
+# WriterThreadCase5
+#=======================================================================================================================
+class WriterThreadCase5(AbstractWriterThread):
+    
+    TEST_FILE = NormFile('_debugger_case56.py')
+        
+    def run(self):
+        self.StartSocket()
+        self.WriteAddBreakpoint(2, 'Call2') 
+        self.WriteMakeInitialRun()
+        
+        threadId, frameId = self.WaitForBreakpointHit()
+        
+        self.WriteGetFrame(threadId, frameId)
+        
+        self.WriteRemoveBreakpoint(2)
+        
+        self.WriteStepReturn(threadId)
+        
+        threadId, frameId, line = self.WaitForBreakpointHit('109', True)
+
+        assert line == 8, 'Expecting it to go to line 8. Went to: %s' % line
+        
+        self.WriteStepIn(threadId)
+        
+        threadId, frameId, line = self.WaitForBreakpointHit('107', True)
+        
+        #goes to line 4 in jython (function declaration line)
+        assert line in (4, 5), 'Expecting it to go to line 4 or 5. Went to: %s' % line
+        
+        self.WriteRunThread(threadId)
+
+        assert 15 == self._sequence, 'Expected 15. Had: %s'  % self._sequence
+        
+        self.finishedOk = True
+
 
 #=======================================================================================================================
 # WriterThreadCase4
@@ -364,19 +452,31 @@ class Test(unittest.TestCase):
         
     def testCase4(self):
         self.CheckCase(WriterThreadCase4)
-
             
     def testCase5(self):
+        self.CheckCase(WriterThreadCase5)
+            
+    def testCase6(self):
+        self.CheckCase(WriterThreadCase6)
+
+            
+    def testCase1a(self):
         self.CheckCase(WriterThreadCase1, False)
         
-    def testCase6(self):
+    def testCase2a(self):
         self.CheckCase(WriterThreadCase2, False)
         
-    def testCase7(self):
+    def testCase3a(self):
         self.CheckCase(WriterThreadCase3, False)
         
-    def testCase8(self):
+    def testCase4a(self):
         self.CheckCase(WriterThreadCase4, False)
+        
+    def testCase5a(self):
+        self.CheckCase(WriterThreadCase5, False)
+        
+    def testCase6a(self):
+        self.CheckCase(WriterThreadCase6, False)
         
         
 
@@ -385,7 +485,8 @@ class Test(unittest.TestCase):
 #=======================================================================================================================
 if __name__ == '__main__':
     suite = unittest.makeSuite(Test)
+    
 #    suite = unittest.TestSuite()
-#    suite.addTest(Test('testCase1'))
+#    suite.addTest(Test('testCase6'))
     unittest.TextTestRunner().run(suite)
 

@@ -10,6 +10,7 @@ Pydev
 <li><strong>Generate constructor using fields</strong>: working for classes that derive from builtin classes.</li>
 <li><strong>Override methods</strong>: working for classes that derive from builtin classes.</li>
 <li><strong>Debugger can use psyco</strong>: see <a href="http://pydev.blogspot.com/2008/02/pydev-debugger-and-psyco-speedups.html">blog post</a>.</li>
+<li><strong>Debugger</strong>: handles return events correctly.</li>
 </ul>
 
 

@@ -15,7 +15,10 @@ except:
 DEBUG_TRACE_LEVEL = -1
 DEBUG_TRACE_BREAKPOINTS = -1
 
-DEBUG_RECORD_SOCKET_READS = False
+class DebugInfoHolder:
+    #we have to put it here because it can be set through the command line (so, the 
+    #already imported references would not have it).
+    DEBUG_RECORD_SOCKET_READS = False
 
 #Optimize with psyco? This gave a 50% speedup in the debugger in tests 
 USE_PSYCO_OPTIMIZATION = True
