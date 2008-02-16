@@ -288,7 +288,7 @@ class Test(unittest.TestCase):
             args = [
                 'python',
                 PYDEVD_FILE, 
-                '--RECORD_SOCKET_READS',
+                '--DEBUG_RECORD_SOCKET_READS',
                 '--client', 
                 'localhost', 
                 '--port', 
@@ -305,7 +305,7 @@ class Test(unittest.TestCase):
                 'D:/bin/jython-2.2.1/jython.jar',
                 'org.python.util.jython',
                 PYDEVD_FILE, 
-                '--RECORD_SOCKET_READS',
+                '--DEBUG_RECORD_SOCKET_READS',
                 '--client', 
                 'localhost', 
                 '--port', 

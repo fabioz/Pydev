@@ -79,13 +79,13 @@ class PyDBAdditionalThreadInfoWithoutCurrentFramesSupport(AbstractPyDBAdditional
             self.lock.release()
     
         
-    def CreateDbFrame(self, mainDebugger, filename, base, additionalInfo, t, frame):
+    def CreateDbFrame(self, mainDebugger, filename, additionalInfo, t, frame):
         #the frame must be cached as a weak-ref (we return the actual db frame -- which will be kept
         #alive until its trace_dispatch method is not referenced anymore).
         #that's a large workaround because:
         #1. we can't have weak-references to python frame object
         #2. only from 2.5 onwards we have _current_frames support from the interpreter
-        db_frame = PyDBFrame(mainDebugger, filename, base, additionalInfo, t, frame)
+        db_frame = PyDBFrame(mainDebugger, filename, additionalInfo, t, frame)
         db_frame.frame = frame
         self._AddDbFrame(db_frame)
         return db_frame

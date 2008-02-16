@@ -1,3 +1,4 @@
+import sys
 from pydevd_constants import * #@UnusedWildImport
 
 from pydevd_comm import  CMD_CHANGE_VARIABLE,\
@@ -17,7 +18,6 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE,\
                          CMD_THREAD_RUN,\
                          CMD_THREAD_SUSPEND,\
                          CMD_VERSION,\
-                         DebugInfoHolder,\
                          GetGlobalDebugger,\
                          InternalChangeVariable,\
                          InternalEvaluateExpression,\
@@ -31,15 +31,13 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE,\
                          ReaderThread,\
                          SetGlobalDebugger,\
                          WriterThread,\
-                         pydevd_findThreadById,\
-                         pydevd_log,\
-                         pydevd_trace_breakpoints,\
-                         startClient,\
-                         startServer
+                         PydevdFindThreadById,\
+                         PydevdLog,\
+                         StartClient,\
+                         StartServer
 
 import os
 import pydevd_file_utils
-import sys
 import threading 
 import traceback 
 import pydevd_vm_type 
@@ -66,6 +64,7 @@ DONT_TRACE = {
               'pydevd_vars.py':1,
               'pydevd_vm_type.py':1,
               'pydevd.py':1 ,
+              'pydevd_psyco_stub.py':1
               }
 
 connected = False
@@ -104,12 +103,12 @@ class PyDBCommandThread(PyDBDaemonThread):
                 try:
                     self.pyDb.processInternalCommands()
                 except:
-                    pydevd_log(0, 'Finishing debug communication...(2)')
+                    PydevdLog(0, 'Finishing debug communication...(2)')
                 time.sleep(0.5)
         except:
             pass
             #only got this error in interpreter shutdown
-            #pydevd_log(0, 'Finishing debug communication...(3)')
+            #PydevdLog(0, 'Finishing debug communication...(3)')
             
 
 
@@ -174,9 +173,9 @@ class PyDB:
 
     def connect(self, host, port):
         if host:
-            s = startClient(host, port)
+            s = StartClient(host, port)
         else:
-            s = startServer(port)
+            s = StartServer(port)
             
         self.initializeNetwork(s)
         
@@ -198,10 +197,10 @@ class PyDB:
                     break
                     
             if cmd:
-                pydevd_log(2, "found a new thread " + str(thread_id))
+                PydevdLog(2, "found a new thread ", str(thread_id))
                 self.writer.addCommand(cmd)
             else:
-                pydevd_log(0, "could not find thread by id to register")
+                PydevdLog(0, "could not find thread by id to register")
                 
         return self.cmdQueue[thread_id]
         
@@ -255,16 +254,16 @@ class PyDB:
                 if not isinstance(t, PyDBDaemonThread):
                     foundNonPyDBDaemonThread = True
                     queue = self.getInternalQueue(id(t))
-                    cmdsToReadd = [] #some commands must be processed by the thread itself... if that's the case,
-                                     #we will re-add the commands to the queue after executing.
+                    cmdsToReadd = []    #some commands must be processed by the thread itself... if that's the case,
+                                        #we will re-add the commands to the queue after executing.
                     try:
                         while True:
                             int_cmd = queue.get(False)
                             if int_cmd.canBeExecutedBy(currThreadId):
-                                pydevd_log(2, "processing internal command " + str(int_cmd))
+                                PydevdLog(2, "processing internal command ", str(int_cmd))
                                 int_cmd.doIt(self)
                             else:
-                                pydevd_log(2, "NOT processign internal command " + str(int_cmd))
+                                PydevdLog(2, "NOT processing internal command ", str(int_cmd))
                                 cmdsToReadd.append(int_cmd)
                                 
                     except PydevQueue.Empty:
@@ -322,7 +321,7 @@ class PyDB:
                     self.postInternalCommand(int_cmd, text)
                     
                 elif cmd_id == CMD_THREAD_SUSPEND:
-                    t = pydevd_findThreadById(text)
+                    t = PydevdFindThreadById(text)
                     if t: 
                         additionalInfo = None
                         try:
@@ -339,7 +338,7 @@ class PyDB:
                         self.setSuspend(t, CMD_THREAD_SUSPEND)
     
                 elif cmd_id  == CMD_THREAD_RUN:
-                    t = pydevd_findThreadById(text)
+                    t = PydevdFindThreadById(text)
                     if t: 
                         t.additionalInfo.pydev_step_cmd = None
                         t.additionalInfo.pydev_step_stop = None
@@ -347,7 +346,7 @@ class PyDB:
                         
                 elif cmd_id == CMD_STEP_INTO or cmd_id == CMD_STEP_OVER or cmd_id == CMD_STEP_RETURN:
                     #we received some command to make a single step
-                    t = pydevd_findThreadById(text)
+                    t = PydevdFindThreadById(text)
                     if t:
                         t.additionalInfo.pydev_step_cmd = cmd_id
                         t.additionalInfo.pydev_state = STATE_RUN
@@ -407,7 +406,7 @@ class PyDB:
                     
                     line = int( line )
                     
-                    if pydevd_trace_breakpoints > 0:
+                    if DEBUG_TRACE_BREAKPOINTS > 0:
                         print 'Added breakpoint:%s - line:%s - func_name:%s' % (file, line, func_name)
                         
                     if self.breakpoints.has_key( file ):
@@ -451,11 +450,11 @@ class PyDB:
                     
                     try:
                         del self.breakpoints[file][line] #remove the breakpoint in that line
-                        if pydevd_trace_breakpoints > 0:
+                        if DEBUG_TRACE_BREAKPOINTS > 0:
                             print 'Removed breakpoint:%s' % (file)
                     except KeyError:
                         #ok, it's not there...
-                        if pydevd_trace_breakpoints > 0:
+                        if DEBUG_TRACE_BREAKPOINTS > 0:
                             #Sometimes, when adding a breakpoint, it adds a remove command before (don't really know why)
                             print >> sys.stderr, "breakpoint not found", file, str(line)
                             
@@ -464,7 +463,8 @@ class PyDB:
                     #text is: thread\tstackframe\tLOCAL\texpression
                     thread_id, frame_id, scope, expression = text.split('\t', 3)
                     thread_id = long(thread_id)
-                    int_cmd = InternalEvaluateExpression(seq, thread_id, frame_id, expression, cmd_id == CMD_EXEC_EXPRESSION)
+                    int_cmd = InternalEvaluateExpression(seq, thread_id, frame_id, expression, 
+                        cmd_id == CMD_EXEC_EXPRESSION)
                     self.postInternalCommand(int_cmd, thread_id)
                         
                         
@@ -479,7 +479,9 @@ class PyDB:
             except Exception, e:
                 traceback.print_exc(e)
                 traceback.print_exc()
-                cmd = self.cmdFactory.makeErrorMessage(seq, "Unexpected exception in processNetCommand: %s\nInitial params: %s" % (str(e), (cmd_id, seq, text)))
+                cmd = self.cmdFactory.makeErrorMessage(seq, 
+                    "Unexpected exception in processNetCommand: %s\nInitial params: %s" % (str(e), (cmd_id, seq, text)))
+                    
                 self.writer.addCommand(cmd)
         finally:
             self.release()
@@ -569,8 +571,9 @@ class PyDB:
                 return None
     
             try:
-                #this shouldn't give an exception, but it could happen... (python bug
-                #see http://sourceforge.net/tracker/index.php?func=detail&aid=1733757&group_id=5470&atid=105470 for details)
+                #this shouldn't give an exception, but it could happen... (python bug)
+                #see http://mail.python.org/pipermail/python-bugs-list/2007-June/038796.html
+                #and related bug: http://bugs.python.org/issue1733757
                 t = threading.currentThread()
             except:
                 frame.f_trace = self.trace_dispatch
@@ -580,22 +583,32 @@ class PyDB:
             if not t.isAlive():
                 self.processThreadNotAlive(id(t))
                 return None # suspend tracing
-            
+
             try:
                 additionalInfo = t.additionalInfo
             except AttributeError:
-                additionalInfo = pydevd_additional_thread_info.PyDBAdditionalThreadInfo()
-                t.additionalInfo = additionalInfo
+                t.additionalInfo = additionalInfo = pydevd_additional_thread_info.PyDBAdditionalThreadInfo()
             
             #always keep a reference to the topmost frame so that we're able to start tracing it (if it was untraced)
             #that's needed when a breakpoint is added in a current frame for a currently untraced context.
             
             #each new frame...
-            dbFrame = additionalInfo.CreateDbFrame(self, filename, base, additionalInfo, t, frame)
+            dbFrame = additionalInfo.CreateDbFrame(self, filename, additionalInfo, t, frame)
             return dbFrame.trace_dispatch(frame, event, arg)
         except:
             traceback.print_exc()
             return None
+            
+    if USE_PSYCO_OPTIMIZATION:
+        try:
+            import psyco
+            trace_dispatch = psyco.proxy(trace_dispatch)
+            processNetCommand = psyco.proxy(processNetCommand)
+            processInternalCommands = psyco.proxy(processInternalCommands)
+            doWaitSuspend = psyco.proxy(doWaitSuspend)
+        except ImportError:
+            print >> sys.stderr, 'pydev debugger warning: psyco not available for debugger speedups'
+
 
     def run(self, file, globals=None, locals=None):
 
@@ -685,9 +698,9 @@ def processCommandLine(argv):
             del argv[i]            
             retVal['file'] = argv[i];
             i = len(argv) # pop out, file is our last argument
-        elif (argv[i] == '--RECORD_SOCKET_READS'):
+        elif (argv[i] == '--DEBUG_RECORD_SOCKET_READS'):
             del argv[i]            
-            retVal['RECORD_SOCKET_READS'] = True
+            retVal['DEBUG_RECORD_SOCKET_READS'] = True
         else:
             raise ValueError, "unexpected option " + argv[i]
     return retVal
@@ -783,22 +796,33 @@ def settrace(host='localhost', stdoutToServer = False, stderrToServer = False, p
     
 
 if __name__ == '__main__':
-    print >>sys.stderr, "pydev debugger"
+    print >>sys.stderr, "pydev debugger: starting"
     # parse the command line. --file is our last argument that is required
     try:
         setup = processCommandLine(sys.argv)
     except ValueError, e:
         print e
         usage(1)
+    
+    #as to get here all our imports are already resovled, the psyco module can be
+    #changed and we'll still get the speedups in the debugger, as those functions 
+    #are already compiled at this time.
+    try:
+        import psyco 
+    except ImportError:
+        pass #that's ok, no need to mock psyco if it's not available anyways
+    else:
+        #if it's available, let's change it for a stub (pydev already made use of it)
+        import pydevd_psyco_stub
+        sys.modules['psyco'] = pydevd_psyco_stub
+
         
-    sys.modules['psyco'] = Null()
-        
-    pydevd_log(2, "Executing file " + setup['file'])
-    pydevd_log(2, "arguments:" + str(sys.argv))
+    PydevdLog(2, "Executing file ", setup['file'])
+    PydevdLog(2, "arguments:", str(sys.argv))
  
     pydevd_vm_type.SetupType(setup.get('vm_type', None))
     
-    DebugInfoHolder.RECORD_SOCKET_READS = setup.get('RECORD_SOCKET_READS', False)
+    DEBUG_RECORD_SOCKET_READS = setup.get('DEBUG_RECORD_SOCKET_READS', False)
 
     debugger = PyDB()
     debugger.connect(setup['client'], setup['port'])

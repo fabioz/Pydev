@@ -96,23 +96,16 @@ VERSION_STRING = "1.0"
 
 #--------------------------------------------------------------------------------------------------- UTILITIES
 
-pydevd_trace = -1
-pydevd_trace_breakpoints = -1
-
-class DebugInfoHolder:
-    RECORD_SOCKET_READS = False
-
-
-def pydevd_log(level, s):
+def PydevdLog(level, *args):
     """ levels are: 
         0 most serious warnings/errors
         1 warnings/significant events
         2 informational trace
     """
-    if level <= pydevd_trace:
+    if level <= DEBUG_TRACE_LEVEL:
         #yes, we can have errors printing if the console of the program has been finished (and we're still trying to print something)
         try:
-            print >>sys.stderr, s 
+            print >>sys.stderr, args
         except:
             pass
 
@@ -177,7 +170,7 @@ class ReaderThread(PyDBDaemonThread):
         try:
             while not self.killReceived:
                 buffer += self.sock.recv(1024)
-                if DebugInfoHolder.RECORD_SOCKET_READS:
+                if DEBUG_RECORD_SOCKET_READS:
                     print 'received >>%s<<' % (buffer,)
                     
                 if len(buffer) == 0:
@@ -185,7 +178,7 @@ class ReaderThread(PyDBDaemonThread):
                     break
                 while buffer.find('\n') != -1:
                     command, buffer = buffer.split('\n', 1)
-                    pydevd_log(1, "received command " + command)
+                    PydevdLog(1, "received command ", command)
                     args = command.split('\t', 2)
                     GlobalDebuggerHolder.globalDbg.processNetCommand(int(args[0]), int(args[1]), args[2])
         except:
@@ -219,19 +212,19 @@ class WriterThread(PyDBDaemonThread):
                 try:
                     cmd = self.cmdQueue.get(1)
                 except:
-                    #pydevd_log(0, 'Finishing debug communication...(1)')
+                    #PydevdLog(0, 'Finishing debug communication...(1)')
                     #when liberating the thread here, we could have errors because we were shutting down
                     #but the thread was still not liberated
                     return
                 out = cmd.getOutgoing()
-                pydevd_log(1, "sending cmd " + out)
+                PydevdLog(1, "sending cmd ", out)
                 self.sock.send(out) #TODO: this does not guarantee that all message are sent (and jython does not have a send all)
                 if time is None:
                     break #interpreter shutdown
                 time.sleep(self.timeout)                
         except Exception:
             GlobalDebuggerHolder.globalDbg.finishDebuggingSession = True
-            if pydevd_trace >= 0:
+            if DEBUG_TRACE_LEVEL >= 0:
                 traceback.print_exc()
     
     
@@ -239,7 +232,7 @@ class WriterThread(PyDBDaemonThread):
 
 #--------------------------------------------------- CREATING THE SOCKET THREADS
     
-def startServer(port):
+def StartServer(port):
     """ binds to a port, waits for the debugger to connect """
     s = socket(AF_INET, SOCK_STREAM)
     s.bind(('', port))
@@ -247,17 +240,17 @@ def startServer(port):
     newSock, _addr = s.accept()
     return newSock
 
-def startClient(host, port):
+def StartClient(host, port):
     """ connects to a host/port """
-    pydevd_log(1, "Connecting to " + host + ":" + str(port))
+    PydevdLog(1, "Connecting to ", host, ":", str(port))
     try:
         s = socket(AF_INET, SOCK_STREAM);
 
         s.connect((host, port))
-        pydevd_log(1, "Connected.")
+        PydevdLog(1, "Connected.")
         return s
     except:
-        print "server timed out after 10 seconds, could not connect to " + host + ":" + str(port)
+        print "server timed out after 10 seconds, could not connect to ", host, ":", str(port)
         print "Exiting. Bye!"
         sys.exit(1)
 
@@ -309,7 +302,7 @@ class NetCommandFactory:
 
     def makeErrorMessage(self, seq, text):
         cmd = NetCommand(CMD_ERROR, seq, text)
-        if pydevd_trace > 2:
+        if DEBUG_TRACE_LEVEL > 2:
             print >>sys.stderr, "Error: ", text
         return cmd;
 
@@ -456,7 +449,7 @@ class InternalTerminateThread(InternalThreadCommand):
         self.thread_id = thread_id
 
     def doIt(self, dbg):
-        pydevd_log(1,  "killing " + str(self.thread_id))
+        PydevdLog(1,  "killing ", str(self.thread_id))
         cmd = dbg.cmdFactory.makeThreadKilledMessage(self.thread_id)
         dbg.writer.addCommand(cmd)
         time.sleep(0.1)
@@ -567,7 +560,7 @@ class InternalEvaluateExpression(InternalThreadCommand):
             dbg.writer.addCommand(cmd)
 
 
-def pydevd_findThreadById(thread_id):
+def PydevdFindThreadById(thread_id):
     try:
         thread_id = long(thread_id)
         # there was a deadlock here when I did not remove the tracing function when thread was dead

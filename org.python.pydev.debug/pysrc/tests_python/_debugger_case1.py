@@ -23,9 +23,13 @@ class Observable(object):
             o = o()
             
             
+            try:
+                import gc
+            except ImportError:
+                o = None #jython does not have gc, so, there's no sense testing this in it
+            
             if o is not None:
                 print 'still observing', o
-                import gc
                 print 'number of referrers:', len(gc.get_referrers(o))
                 frame = gc.get_referrers(o)[0]
                 frame_referrers = gc.get_referrers(frame)
