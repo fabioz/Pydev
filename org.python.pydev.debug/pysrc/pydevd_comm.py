@@ -301,7 +301,7 @@ class NetCommandFactory:
     def threadToXML(self, thread):
         """ thread information as XML """
         name = pydevd_vars.makeValidXmlValue(thread.getName())
-        cmdText = '<thread name="%s" id="%s" />' % (urllib.quote(name), id(thread) )
+        cmdText = '<thread name="%s" id="%s" />' % (urllib.quote(name), id(thread))
         return cmdText
 
     def makeErrorMessage(self, seq, text):
@@ -310,7 +310,7 @@ class NetCommandFactory:
             print >>sys.stderr, "Error: ", text
         return cmd;
 
-    def makeThreadCreatedMessage(self,thread):
+    def makeThreadCreatedMessage(self, thread):
         cmdText = "<xml>" + self.threadToXML(thread) + "</xml>"
         return NetCommand(CMD_THREAD_CREATE, 0, cmdText)
  
@@ -380,7 +380,7 @@ class NetCommandFactory:
                 myName = curFrame.f_code.co_name #method name (if in method) or ? if global
                 #print "name is ", myName
                 
-                myFile = pydevd_file_utils.NormFile( curFrame.f_code.co_filename )                
+                myFile = pydevd_file_utils.NormFileToClient(curFrame.f_code.co_filename)                
                 #print "file is ", myFile
                 #myFile = inspect.getsourcefile(curFrame) or inspect.getfile(frame)
                 
@@ -391,13 +391,13 @@ class NetCommandFactory:
                 #variables = pydevd_vars.frameVarsToXML(curFrame)
 
                 variables = ''
-                cmdTextList.append( '<frame id="%s" name="%s" ' % (myId , pydevd_vars.makeValidXmlValue(myName))) 
-                cmdTextList.append( 'file="%s" line="%s">"'     % (urllib.quote(myFile, '/>_= \t'), myLine)) 
-                cmdTextList.append( variables  ) 
-                cmdTextList.append( "</frame>" ) 
+                cmdTextList.append('<frame id="%s" name="%s" ' % (myId , pydevd_vars.makeValidXmlValue(myName))) 
+                cmdTextList.append('file="%s" line="%s">"'     % (urllib.quote(myFile, '/>_= \t'), myLine)) 
+                cmdTextList.append(variables) 
+                cmdTextList.append("</frame>") 
                 curFrame = curFrame.f_back
             
-            cmdTextList.append( "</thread></xml>" )
+            cmdTextList.append("</thread></xml>")
             cmdText = ''.join(cmdTextList)
             return NetCommand(CMD_THREAD_SUSPEND, 0, cmdText)
         except:
@@ -453,7 +453,7 @@ class InternalTerminateThread(InternalThreadCommand):
         self.thread_id = thread_id
 
     def doIt(self, dbg):
-        PydevdLog(1,  "killing ", str(self.thread_id))
+        PydevdLog(1, "killing ", str(self.thread_id))
         cmd = dbg.cmdFactory.makeThreadKilledMessage(self.thread_id)
         dbg.writer.addCommand(cmd)
         time.sleep(0.1)
@@ -503,7 +503,7 @@ class InternalChangeVariable(InternalThreadCommand):
     def doIt(self, dbg):
         """ Converts request into python variable """
         try:
-            pydevd_vars.changeAttrExpression( self.thread_id, self.frame_id, self.attr, self.expression )
+            pydevd_vars.changeAttrExpression(self.thread_id, self.frame_id, self.attr, self.expression)
         except Exception:
             cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error changing variable attr:%s expression:%s traceback:%s" % (self.attr, self.expression, GetExceptionTracebackStr()))
             dbg.writer.addCommand(cmd)
@@ -552,7 +552,7 @@ class InternalEvaluateExpression(InternalThreadCommand):
     def doIt(self, dbg):
         """ Converts request into python variable """
         try:
-            result = pydevd_vars.evaluateExpression( self.thread_id, self.frame_id, self.expression, self.doExec )
+            result = pydevd_vars.evaluateExpression(self.thread_id, self.frame_id, self.expression, self.doExec)
             xml = "<xml>"
             xml += pydevd_vars.varToXML(result, "")
             xml += "</xml>"

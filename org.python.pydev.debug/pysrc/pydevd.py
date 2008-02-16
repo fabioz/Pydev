@@ -236,10 +236,10 @@ class PyDB:
         self.acquire()
         try:
             if bufferStdOutToServer:
-                self.checkOutput(sys.stdoutBuf,1) #@UndefinedVariable
+                self.checkOutput(sys.stdoutBuf, 1) #@UndefinedVariable
                     
             if bufferStdErrToServer:
-                self.checkOutput(sys.stderrBuf,2) #@UndefinedVariable
+                self.checkOutput(sys.stderrBuf, 2) #@UndefinedVariable
 
             currThreadId = id(threading.currentThread())
             threads = threading.enumerate()
@@ -395,21 +395,25 @@ class PyDB:
                 elif cmd_id == CMD_SET_BREAK:
                     #command to add some breakpoint.
                     # text is file\tline. Add to breakpoints dictionary
-                    file, line, condition = text.split( '\t', 2 )
+                    file, line, condition = text.split('\t', 2)
                     if condition.startswith('**FUNC**'):
                         func_name, condition = condition.split('\t', 1)
                         func_name = func_name[8:]
                     else:
                         func_name = ''
                     
-                    file = pydevd_file_utils.NormFile( file )
+                    file = pydevd_file_utils.NormFileToServer(file)
                     
-                    line = int( line )
+                    if not os.path.exists(file):
+                        print >> sys.stderr, 'pydev debugger: warning: trying to add breakpoint'\
+                            ' to file that does not exist: %s (will have no effect)' % (file, )
+                    
+                    line = int(line)
                     
                     if DEBUG_TRACE_BREAKPOINTS > 0:
                         print 'Added breakpoint:%s - line:%s - func_name:%s' % (file, line, func_name)
                         
-                    if self.breakpoints.has_key( file ):
+                    if self.breakpoints.has_key(file):
                         breakDict = self.breakpoints[file]
                     else:
                         breakDict = {}
@@ -445,7 +449,7 @@ class PyDB:
                     #command to remove some breakpoint
                     #text is file\tline. Remove from breakpoints dictionary
                     file, line = text.split('\t', 1)
-                    file = pydevd_file_utils.NormFile(file)
+                    file = pydevd_file_utils.NormFileToServer(file)
                     line = int(line)
                     
                     try:
@@ -488,7 +492,7 @@ class PyDB:
 
     def processThreadNotAlive(self, threadId):
         """ if thread is not alive, cancel trace_dispatch processing """
-        thread = self.RUNNING_THREAD_IDS.get(threadId,None)
+        thread = self.RUNNING_THREAD_IDS.get(threadId, None)
         if thread is None:
             return
         
@@ -720,14 +724,14 @@ def SetTraceForParents(frame, dispatch_func):
         frame = frame.f_back
     del frame
 
-def settrace(host='localhost', stdoutToServer = False, stderrToServer = False, port=5678, suspend=True):
+def settrace(host = 'localhost', stdoutToServer = False, stderrToServer = False, port = 5678, suspend = True):
     '''
     @param host: the user may specify another host, if the debug server is not in the same machine
     @param stdoutToServer: when this is true, the stdout is passed to the debug server
     @param stderrToServer: when this is true, the stderr is passed to the debug server
         so that they are printed in its console and not in this process console.
     @param port: specifies which port to use for communicating with the server (note that the server must be started 
-        in the same port)
+        in the same port). @note: currently it's hard-coded at 5678 in the client
     @param suspend: whether a breakpoint should be emulated as soon as this function is called. 
     '''
     
