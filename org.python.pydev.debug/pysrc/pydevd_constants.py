@@ -8,6 +8,7 @@ STATE_SUSPEND = 2
 try:
     __setFalse = False
 except:
+    #Jython needs that
     False = 0
     True = 1
 
