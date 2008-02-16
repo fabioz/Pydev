@@ -92,8 +92,8 @@ CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901 
 
-MAX_IO_MSG_SIZE = 400 #if the io is too big, we'll not send all (could make the debugger too non-responsive)
-                      #this number can be changed if there's need to do so
+MAX_IO_MSG_SIZE = 1000  #if the io is too big, we'll not send all (could make the debugger too non-responsive)
+                        #this number can be changed if there's need to do so
 
 VERSION_STRING = "1.0"
 

@@ -1,13 +1,13 @@
-#@PydevCodeAnalysisIgnore that's because some things rely on jython, some on python... so, let's keep it like that
 """ pydevd_vars deals with variables:
     resolution/conversion to XML.
 """
-from types import *
+from types import * #@UnusedWildImport
+import sys #@Reimport
 import urllib
 import threading
-import sys
 import pydevd_resolver
 import traceback
+from pydevd_constants import * #@UnusedWildImport
 
 #-------------------------------------------------------------------------- defining true and false for earlier versions
 
@@ -29,39 +29,39 @@ class FrameNotFoundError(RuntimeError):pass
 typeMap = {}
 try:
     #jython does not have this types
-   try:
-       typeMap[BooleanType] = (BooleanType, BooleanType.__name__, None)
-   except NameError:
-       pass #early versions of python do not have it.
-   typeMap[BufferType] = (BufferType, BufferType.__name__, None)   
-   typeMap = {
-       NoneType : (NoneType, NoneType.__name__, None),
-       IntType : (IntType, IntType.__name__, None),
-       LongType : (LongType, LongType.__name__, None),
-       FloatType : (FloatType, FloatType.__name__, None),
-       ComplexType : (ComplexType, ComplexType.__name__, None),
-       StringType : (StringType, StringType.__name__, None),
-       UnicodeType : (UnicodeType, UnicodeType.__name__, None),
-       TupleType : (TupleType, TupleType.__name__, pydevd_resolver.tupleResolver),
-       ListType : (ListType, ListType.__name__, pydevd_resolver.tupleResolver),
-       DictType : (DictType, DictType.__name__, pydevd_resolver.dictResolver)
-   }
+    try:
+        typeMap[BooleanType] = (BooleanType, BooleanType.__name__, None)
+    except NameError:
+        pass #early versions of python do not have it.
+    typeMap[BufferType] = (BufferType, BufferType.__name__, None)   
+    typeMap = {
+        NoneType : (NoneType, NoneType.__name__, None),
+        IntType : (IntType, IntType.__name__, None),
+        LongType : (LongType, LongType.__name__, None),
+        FloatType : (FloatType, FloatType.__name__, None),
+        ComplexType : (ComplexType, ComplexType.__name__, None),
+        StringType : (StringType, StringType.__name__, None),
+        UnicodeType : (UnicodeType, UnicodeType.__name__, None),
+        TupleType : (TupleType, TupleType.__name__, pydevd_resolver.tupleResolver),
+        ListType : (ListType, ListType.__name__, pydevd_resolver.tupleResolver),
+        DictType : (DictType, DictType.__name__, pydevd_resolver.dictResolver)
+    }
 except:   
-   from org.python import core
-   typeMap = {
-       core.PyNone : ( core.PyNone, core.PyNone.__name__, None),
-       core.PyInteger : ( core.PyInteger, core.PyInteger.__name__, None),
-       core.PyLong : ( core.PyLong, core.PyLong.__name__, None),
-       core.PyFloat : ( core.PyFloat, core.PyFloat.__name__, None),
-       core.PyComplex : ( core.PyComplex, core.PyComplex.__name__, None),
-       core.PyString : ( core.PyString, core.PyString.__name__, None),       
-       core.PyTuple : ( core.PyTuple, core.PyTuple.__name__, pydevd_resolver.tupleResolver),
-       core.PyList : ( core.PyList, core.PyList.__name__, pydevd_resolver.tupleResolver),
-       core.PyDictionary: (core.PyDictionary, core.PyDictionary.__name__, pydevd_resolver.dictResolver),
-       core.PyJavaInstance: (core.PyJavaInstance, core.PyJavaInstance.__name__, pydevd_resolver.instanceResolver),
-       core.PyStringMap: (core.PyStringMap, core.PyStringMap.__name__, pydevd_resolver.dictResolver)       
-   }   
-   pass
+    from org.python import core #@UnresolvedImport
+    typeMap = {
+        core.PyNone : ( core.PyNone, core.PyNone.__name__, None),
+        core.PyInteger : ( core.PyInteger, core.PyInteger.__name__, None),
+        core.PyLong : ( core.PyLong, core.PyLong.__name__, None),
+        core.PyFloat : ( core.PyFloat, core.PyFloat.__name__, None),
+        core.PyComplex : ( core.PyComplex, core.PyComplex.__name__, None),
+        core.PyString : ( core.PyString, core.PyString.__name__, None),       
+        core.PyTuple : ( core.PyTuple, core.PyTuple.__name__, pydevd_resolver.tupleResolver),
+        core.PyList : ( core.PyList, core.PyList.__name__, pydevd_resolver.tupleResolver),
+        core.PyDictionary: (core.PyDictionary, core.PyDictionary.__name__, pydevd_resolver.dictResolver),
+        core.PyJavaInstance: (core.PyJavaInstance, core.PyJavaInstance.__name__, pydevd_resolver.instanceResolver),
+        core.PyStringMap: (core.PyStringMap, core.PyStringMap.__name__, pydevd_resolver.dictResolver)       
+    }   
+    pass
 
 
 def getType(o):
@@ -127,9 +127,9 @@ def varToXML(v, name):
     xml = '<var name="%s" type="%s"' % (name, typeName)
     
     if value: 
-        #cannot be too big... communication does not handle it.
-        if len(value) >  200:
-            value = value[0:200]
+        #cannot be too big... communication may not handle it.
+        if len(value) >  MAXIMUM_VARIABLE_REPRESENTATION_SIZE:
+            value = value[0:MAXIMUM_VARIABLE_REPRESENTATION_SIZE]
             value += '...'
 
         #fix to work with unicode values
@@ -149,6 +149,15 @@ def varToXML(v, name):
         xmlCont = ''
         
     return ''.join((xml, xmlValue, xmlCont, ' />\n'))
+    
+
+if USE_PSYCO_OPTIMIZATION:
+    try:
+        import psyco
+        varToXML = psyco.proxy(varToXML)
+    except ImportError:
+        pass
+
 
 def frameVarsToXML(frame):
     """ dumps frame variables to XML
