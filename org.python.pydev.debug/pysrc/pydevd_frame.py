@@ -130,7 +130,6 @@ class PyDBFrame:
     if USE_PSYCO_OPTIMIZATION:
         try:
             import psyco
+            trace_dispatch = psyco.proxy(trace_dispatch)
         except ImportError:
             pass #ok, psyco not available
-        else:
-            trace_dispatch = psyco.proxy(trace_dispatch)

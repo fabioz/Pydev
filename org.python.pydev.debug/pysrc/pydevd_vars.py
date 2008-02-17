@@ -1,13 +1,13 @@
 """ pydevd_vars deals with variables:
     resolution/conversion to XML.
 """
+from pydevd_constants import * #@UnusedWildImport
 from types import * #@UnusedWildImport
 import sys #@Reimport
 import urllib
 import threading
 import pydevd_resolver
 import traceback
-from pydevd_constants import * #@UnusedWildImport
 
 #-------------------------------------------------------------------------- defining true and false for earlier versions
 
@@ -46,6 +46,7 @@ try:
         ListType : (ListType, ListType.__name__, pydevd_resolver.tupleResolver),
         DictType : (DictType, DictType.__name__, pydevd_resolver.dictResolver)
     }
+    
 except:   
     from org.python import core #@UnresolvedImport
     typeMap = {
@@ -61,7 +62,6 @@ except:
         core.PyJavaInstance: (core.PyJavaInstance, core.PyJavaInstance.__name__, pydevd_resolver.instanceResolver),
         core.PyStringMap: (core.PyStringMap, core.PyStringMap.__name__, pydevd_resolver.dictResolver)       
     }   
-    pass
 
 
 def getType(o):

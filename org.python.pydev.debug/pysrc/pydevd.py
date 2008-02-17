@@ -612,6 +612,7 @@ class PyDB:
             processNetCommand = psyco.proxy(processNetCommand)
             processInternalCommands = psyco.proxy(processInternalCommands)
             doWaitSuspend = psyco.proxy(doWaitSuspend)
+            getInternalQueue = psyco.proxy(getInternalQueue)
         except ImportError:
             print >> sys.stderr, 'pydev debugger: warning: psyco not available for debugger speedups'
 
