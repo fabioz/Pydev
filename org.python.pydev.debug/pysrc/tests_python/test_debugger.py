@@ -141,6 +141,16 @@ class AbstractWriterThread(threading.Thread):
             
         return threadId, frameId
         
+    def WaitForVars(self, expected): 
+        i = 0
+        #wait for hit breakpoint
+        while not expected in self.readerThread.lastReceived:
+            i += 1
+            time.sleep(1)
+            if i >= 10:
+                raise AssertionError('After %s seconds, a break was not hit.' % i)
+
+        return True
     
 
     def WriteMakeInitialRun(self):
@@ -182,7 +192,45 @@ class AbstractWriterThread(threading.Thread):
 
 
 #=======================================================================================================================
-# WriterThreadCase5
+# WriterThreadCase7
+#======================================================================================================================
+class WriterThreadCase7(AbstractWriterThread):
+    
+    TEST_FILE = NormFile('_debugger_case7.py')
+        
+    def run(self):
+        self.StartSocket()
+        self.WriteAddBreakpoint(2, 'Call') 
+        self.WriteMakeInitialRun()
+        
+        threadId, frameId = self.WaitForBreakpointHit('111')
+        
+        self.WriteGetFrame(threadId, frameId)
+        
+        self.WaitForVars('<xml></xml>') #no vars at this point
+        
+        self.WriteStepOver(threadId)
+        
+        self.WriteGetFrame(threadId, frameId)
+        
+        self.WaitForVars('<xml><var name="variable_for_test_1" type="int" value="int%253A 10" />%0A</xml>')
+        
+        self.WriteStepOver(threadId)
+        
+        self.WriteGetFrame(threadId, frameId)
+        
+        self.WaitForVars('<xml><var name="variable_for_test_1" type="int" value="int%253A 10" />%0A<var name="variable_for_test_2" type="int" value="int%253A 20" />%0A</xml>')
+        
+        self.WriteRunThread(threadId)
+
+        assert 17 == self._sequence, 'Expected 17. Had: %s'  % self._sequence
+        
+        self.finishedOk = True
+        
+
+
+#=======================================================================================================================
+# WriterThreadCase6
 #=======================================================================================================================
 class WriterThreadCase6(AbstractWriterThread):
     
@@ -458,6 +506,9 @@ class Test(unittest.TestCase):
             
     def testCase6(self):
         self.CheckCase(WriterThreadCase6)
+        
+    def testCase7(self):
+        self.CheckCase(WriterThreadCase7)
 
             
     def testCase1a(self):
@@ -478,6 +529,9 @@ class Test(unittest.TestCase):
     def testCase6a(self):
         self.CheckCase(WriterThreadCase6, False)
         
+    def testCase7a(self):
+        self.CheckCase(WriterThreadCase7, False)
+        
         
 
 #=======================================================================================================================
@@ -487,6 +541,6 @@ if __name__ == '__main__':
     suite = unittest.makeSuite(Test)
     
 #    suite = unittest.TestSuite()
-#    suite.addTest(Test('testCase6'))
+#    suite.addTest(Test('testCase7'))
     unittest.TextTestRunner().run(suite)
 
