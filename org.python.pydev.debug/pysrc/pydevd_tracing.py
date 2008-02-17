@@ -1,12 +1,12 @@
 from pydevd_constants import * #@UnusedWildImport
 
 try:
-    import cStringIO as StringIO #may not alway be available @UnusedImport
+    import cStringIO as StringIO #may not always be available @UnusedImport
 except:
     import StringIO #@Reimport
 
 import threading
-import sys
+import sys #@Reimport
 import traceback
 
 class TracingFunctionHolder:
@@ -41,7 +41,7 @@ def _GetStackStr(frame):
 
 def _InternalSetTrace(tracing_func):
     if TracingFunctionHolder._warn:
-        frame = sys._getframe()
+        frame = GetFrame()
         if not frame.f_back.f_code.co_filename.lower().endswith('threading.py'):
             
             message = \

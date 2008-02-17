@@ -191,7 +191,7 @@ def dumpFrames(thread_id):
     if thread_id != id(threading.currentThread()) : 
         raise VariableError("findFrame: must execute on same thread")
         
-    curFrame = sys._getframe()
+    curFrame = GetFrame()
     for frame in iterFrames(curFrame):
         print id(frame)
     
@@ -200,7 +200,7 @@ def findFrame(thread_id, frame_id):
     if thread_id != id(threading.currentThread()) : 
         raise VariableError("findFrame: must execute on same thread")
 
-    curFrame = sys._getframe()
+    curFrame = GetFrame()
     if frame_id == "*": 
         return curFrame # any frame is specified with "*"
     
@@ -224,7 +224,7 @@ def findFrame(thread_id, frame_id):
         msgFrames = ''
         i = 0
         
-        for frame in iterFrames(sys._getframe()):
+        for frame in iterFrames(GetFrame()):
             i += 1
             msgFrames += str(id(frame))
             if i % 5 == 0:

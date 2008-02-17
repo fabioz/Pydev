@@ -1,5 +1,7 @@
-import sys
+#IMPORTANT: pydevd_constants must be the 1st thing defined because it'll keep a reference to the original sys._getframe
 from pydevd_constants import * #@UnusedWildImport
+
+import sys
 
 from pydevd_comm import  CMD_CHANGE_VARIABLE,\
                          CMD_EVALUATE_EXPRESSION,\
@@ -762,7 +764,7 @@ def settrace(host = 'localhost', stdoutToServer = False, stderrToServer = False,
             sys.stderrBuf = pydevd_io.IOBuf()
             sys.stderr = pydevd_io.IORedirector(sys.stderr, sys.stderrBuf) #@UndefinedVariable
             
-        SetTraceForParents(sys._getframe(), debugger.trace_dispatch)
+        SetTraceForParents(GetFrame(), debugger.trace_dispatch)
         
         t = threading.currentThread()      
         try:
@@ -785,7 +787,7 @@ def settrace(host = 'localhost', stdoutToServer = False, stderrToServer = False,
         #ok, we're already in debug mode, with all set, so, let's just set the break
         debugger = GetGlobalDebugger()
         
-        SetTraceForParents(sys._getframe(), debugger.trace_dispatch)
+        SetTraceForParents(GetFrame(), debugger.trace_dispatch)
         
         t = threading.currentThread()      
         try:

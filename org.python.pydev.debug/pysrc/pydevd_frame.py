@@ -91,7 +91,7 @@ class PyDBFrame:
                 self.setSuspend(thread, CMD_SET_BREAK)
                 
             # if thread has a suspend flag, we suspend with a busy wait
-            if additionalInfo.pydev_state == STATE_SUSPEND:
+            if additionalInfo.pydev_state == STATE_SUSPEND and additionalInfo.pydev_step_cmd != CMD_STEP_RETURN:
                 self.doWaitSuspend(thread, frame, event, arg)
                 return self.trace_dispatch
             

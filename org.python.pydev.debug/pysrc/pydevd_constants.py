@@ -23,6 +23,10 @@ class DebugInfoHolder:
 #Optimize with psyco? This gave a 50% speedup in the debugger in tests 
 USE_PSYCO_OPTIMIZATION = True
 
+#Hold a reference to the original _getframe
+import sys
+GetFrame = sys._getframe
+
 #Used to determine the maximum size of each variable passed to eclipse -- having a big value here may make
 #the communication slower -- as the variables are being gathered lazily in the latest version of eclipse,
 #this value was raised from 200 to 100.
