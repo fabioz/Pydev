@@ -12,7 +12,7 @@ class PyDBFrame:
     '''
     
     def __init__(self, *args):
-        #args = mainDebugger, filename, base, additionalInfo, t, frame
+        #args = mainDebugger, filename, base, info, t, frame
         #yeap, much faster than putting in self and the getting it from self later on
         self._args = args[:-1]
     
@@ -26,14 +26,14 @@ class PyDBFrame:
         if event not in ('line', 'call', 'return', 'exception'):
             return None
             
-        mainDebugger, filename, additionalInfo, thread = self._args
+        mainDebugger, filename, info, thread = self._args
         
         breakpoint = mainDebugger.breakpoints.get(filename)
         
         #print 'frame: trace_dispatch', self.base, frame.f_lineno, event, frame.f_code.co_name
 
-        can_skip = additionalInfo.pydev_state == STATE_RUN and additionalInfo.pydev_step_stop is None \
-            and additionalInfo.pydev_step_cmd is None
+        can_skip = info.pydev_state == STATE_RUN and info.pydev_step_stop is None \
+            and info.pydev_step_cmd is None
             
         # Let's check to see if we are in a function that has a breakpoint. If we don't have a breakpoint, 
         # we will return nothing for the next trace
@@ -58,11 +58,11 @@ class PyDBFrame:
                 
             else: # if we had some break, it won't get here (so, that's a context that we want to skip)
                 if can_skip:
-                    #print 'skipping', frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
+                    #print 'skipping', frame.f_lineno, info.pydev_state, info.pydev_step_stop, info.pydev_step_cmd
                     return None
                 
         #We may have hit a breakpoint or we are already in step mode. Either way, let's check what we should do in this frame
-        #print 'NOT skipped', base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
+        #print 'NOT skipped', base, frame.f_lineno, info.pydev_state, info.pydev_step_stop, info.pydev_step_cmd
 
         
         try:
@@ -70,7 +70,7 @@ class PyDBFrame:
             
             #return is not taken into account for breakpoint hit because we'd have a double-hit in this case
             #(one for the line and the other for the return).
-            if event != 'return' and additionalInfo.pydev_state != STATE_SUSPEND and breakpoint is not None \
+            if event != 'return' and info.pydev_state != STATE_SUSPEND and breakpoint is not None \
                 and breakpoint.has_key(line):
                 
                 #ok, hit breakpoint, now, we have to discover if it is a conditional breakpoint
@@ -91,7 +91,7 @@ class PyDBFrame:
                 self.setSuspend(thread, CMD_SET_BREAK)
                 
             # if thread has a suspend flag, we suspend with a busy wait
-            if additionalInfo.pydev_state == STATE_SUSPEND and additionalInfo.pydev_step_cmd != CMD_STEP_RETURN:
+            if info.pydev_state == STATE_SUSPEND and info.pydev_step_cmd != CMD_STEP_RETURN:
                 self.doWaitSuspend(thread, frame, event, arg)
                 return self.trace_dispatch
             
@@ -101,24 +101,43 @@ class PyDBFrame:
         
         #step handling. We stop when we hit the right frame
         try:
-            if additionalInfo.pydev_step_cmd == CMD_STEP_INTO and event in ('line', 'return'):
-                self.setSuspend(thread, CMD_STEP_INTO)
-                self.doWaitSuspend(thread, frame, event, arg)      
+            
+            if info.pydev_step_cmd == CMD_STEP_INTO:
                 
-            elif additionalInfo.pydev_step_cmd in (CMD_STEP_OVER, CMD_STEP_RETURN):
-                self.setSuspend(thread, additionalInfo.pydev_step_cmd)
-                
-                if event == 'return':
-                    #if we're in a return, we want it to appear to the user in the previous frame!
-                    self.doWaitSuspend(thread, frame.f_back, event, arg)
+                stop = event in ('line', 'return')
                     
-                elif event == 'line' and additionalInfo.pydev_step_stop == frame:
+            elif info.pydev_step_cmd == CMD_STEP_OVER:
+                
+                stop = info.pydev_step_stop == frame and event in ('line', 'return')
+            
+            elif info.pydev_step_cmd == CMD_STEP_RETURN:
+                
+                stop = event == 'return' and info.pydev_step_stop == frame
+            
+            else:
+                stop = False
+                    
+            if stop:
+                #event is always == line or return at this point
+                if event == 'line':
+                    self.setSuspend(thread, info.pydev_step_cmd)
                     self.doWaitSuspend(thread, frame, event, arg)
+                else:
+                    back = frame.f_back
+                    if back is not None:
+                        #if we're in a return, we want it to appear to the user in the previous frame!
+                        self.setSuspend(thread, info.pydev_step_cmd)
+                        self.doWaitSuspend(thread, back, event, arg)
+                    else:
+                        #in jython we may not have a back frame
+                        info.pydev_step_stop = None
+                        info.pydev_step_cmd = None
+                        info.pydev_state = STATE_RUN
                 
                     
         except:
             traceback.print_exc()
-            additionalInfo.pydev_step_cmd = None
+            info.pydev_step_cmd = None
         
         #if we are quitting, let's stop the tracing
         retVal = None

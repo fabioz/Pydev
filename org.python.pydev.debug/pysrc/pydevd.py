@@ -528,20 +528,23 @@ class PyDB:
         if info.pydev_step_cmd == CMD_STEP_INTO:
             info.pydev_step_stop = None
             
-        elif info.pydev_step_cmd == CMD_STEP_OVER and event != 'return':
+        elif info.pydev_step_cmd == CMD_STEP_OVER:
             info.pydev_step_stop = frame
-                
-        elif info.pydev_step_cmd == CMD_STEP_RETURN or (info.pydev_step_cmd == CMD_STEP_OVER and event == 'return'):
+            
+        elif info.pydev_step_cmd == CMD_STEP_RETURN:
             back_frame = frame.f_back
             if back_frame is not None:
-                back_frame.f_trace = GetGlobalDebugger().trace_dispatch
-                info.pydev_step_stop = back_frame
+                #steps back to the same frame (in a return call it will stop in the 'back frame' for the user)
+                info.pydev_step_stop = frame
             else:
                 #No back frame?!? -- this happens in jython when we have some frame created from an awt event
                 #(the previous frame would be the awt event, but this doesn't make part of 'jython', only 'java')
+                #so, if we're doing a step return in this situation, it's the same as just making it run
                 info.pydev_step_stop = None
-                info.pydev_step_cmd = CMD_RUN
- 
+                info.pydev_step_cmd = None
+                info.pydev_state = STATE_RUN
+                
+                
         del frame
         cmd = self.cmdFactory.makeThreadRunMessage(id(thread), info.pydev_step_cmd)
         self.writer.addCommand(cmd)

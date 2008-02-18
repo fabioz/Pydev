@@ -121,6 +121,7 @@ class AbstractWriterThread(threading.Thread):
         
     def WaitForBreakpointHit(self, reason='111', get_line=False): 
         '''
+            108 is over
             109 is return
             111 is breakpoint
         '''
@@ -189,6 +190,68 @@ class AbstractWriterThread(threading.Thread):
     def WriteKillThread(self, threadId):
         self.Write("104\t%s\t%s" % (self.NextSeq(), threadId,))
         
+
+
+#=======================================================================================================================
+# WriterThreadCase9
+#======================================================================================================================
+class WriterThreadCase9(AbstractWriterThread):
+    
+    TEST_FILE = NormFile('_debugger_case89.py')
+        
+    def run(self):
+        self.StartSocket()
+        self.WriteAddBreakpoint(10, 'Method3') 
+        self.WriteMakeInitialRun()
+        
+        threadId, frameId = self.WaitForBreakpointHit('111')
+        
+        self.WriteStepOver(threadId)
+        
+        threadId, frameId, line = self.WaitForBreakpointHit('108', True)
+        
+        assert line == 11, 'Expected return to be in line 11, was: %s' % line
+        
+        self.WriteStepOver(threadId)
+        
+        threadId, frameId, line = self.WaitForBreakpointHit('108', True)
+        
+        assert line == 12, 'Expected return to be in line 12, was: %s' % line
+        
+        self.WriteRunThread(threadId)
+
+        assert 11 == self._sequence, 'Expected 11. Had: %s'  % self._sequence
+        
+        self.finishedOk = True
+        
+
+#=======================================================================================================================
+# WriterThreadCase8
+#======================================================================================================================
+class WriterThreadCase8(AbstractWriterThread):
+    
+    TEST_FILE = NormFile('_debugger_case89.py')
+        
+    def run(self):
+        self.StartSocket()
+        self.WriteAddBreakpoint(10, 'Method3') 
+        self.WriteMakeInitialRun()
+        
+        threadId, frameId = self.WaitForBreakpointHit('111')
+        
+        self.WriteStepReturn(threadId)
+        
+        threadId, frameId, line = self.WaitForBreakpointHit('109', True)
+        
+        assert line == 15, 'Expected return to be in line 15, was: %s' % line
+        
+        self.WriteRunThread(threadId)
+
+        assert 9 == self._sequence, 'Expected 9. Had: %s'  % self._sequence
+        
+        self.finishedOk = True
+        
+
 
 
 #=======================================================================================================================
@@ -509,6 +572,12 @@ class Test(unittest.TestCase):
         
     def testCase7(self):
         self.CheckCase(WriterThreadCase7)
+        
+    def testCase8(self):
+        self.CheckCase(WriterThreadCase8)
+        
+    def testCase9(self):
+        self.CheckCase(WriterThreadCase9)
 
             
     def testCase1a(self):
@@ -532,6 +601,12 @@ class Test(unittest.TestCase):
     def testCase7a(self):
         self.CheckCase(WriterThreadCase7, False)
         
+    def testCase8a(self):
+        self.CheckCase(WriterThreadCase8, False)
+        
+    def testCase9a(self):
+        self.CheckCase(WriterThreadCase9, False)
+        
         
 
 #=======================================================================================================================
@@ -541,6 +616,6 @@ if __name__ == '__main__':
     suite = unittest.makeSuite(Test)
     
 #    suite = unittest.TestSuite()
-#    suite.addTest(Test('testCase7'))
+#    suite.addTest(Test('testCase9'))
     unittest.TextTestRunner().run(suite)
 
