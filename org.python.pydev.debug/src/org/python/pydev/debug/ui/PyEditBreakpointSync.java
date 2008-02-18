@@ -100,16 +100,23 @@ public class PyEditBreakpointSync implements IBreakpointListener, IPyEditListene
     // update annotations ----------------------------------------------------------------------------------------------
     // update annotations ----------------------------------------------------------------------------------------------
     
-    private void updateAnnotations() {
+    @SuppressWarnings("unchecked")
+	private void updateAnnotations() {
         if(edit != null){
             IDocumentProvider provider= edit.getDocumentProvider();
-            IAnnotationModel model= provider.getAnnotationModel(edit.getEditorInput());
+            IAnnotationModel model = provider.getAnnotationModel(edit.getEditorInput());
             IAnnotationModelExtension modelExtension = (IAnnotationModelExtension) model;
             
-            
+            if(model == null){
+            	return;
+            }
             List<Annotation> existing = new ArrayList<Annotation>();
-            for(Iterator it = model.getAnnotationIterator(); it.hasNext();){
-                existing.add((Annotation) it.next());
+            Iterator<Annotation> it = model.getAnnotationIterator();
+            if(it == null){
+            	return;
+            }
+            while(it.hasNext()){
+                existing.add(it.next());
             }
             
             

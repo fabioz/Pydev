@@ -692,11 +692,13 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                 if (tok == null || tok.length() == 0 ){
                     return new Definition[]{new Definition(1,1,"",null,null,o.o1)};
                 }else{
+                	state.checkFindDefinitionMemory(o.o1, tok);
                     return (Definition[]) o.o1.findDefinition(state.getCopyWithActTok(tok), -1, -1, nature);
                 }
                 
             }else if(o.o1 instanceof AbstractJavaClassModule){
                 tok = o.o2;
+                state.checkFindDefinitionMemory(o.o1, tok);
                 return (Definition[]) o.o1.findDefinition(state.getCopyWithActTok(tok), -1, -1, nature);
                 
             }else{
