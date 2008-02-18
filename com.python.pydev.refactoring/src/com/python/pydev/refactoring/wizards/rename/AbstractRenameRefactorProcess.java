@@ -42,7 +42,6 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
-import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.analysis.scopeanalysis.AstEntryScopeAnalysisConstants;
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitor;
@@ -424,18 +423,19 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
                 fChange.add(docChange);
             }
         }catch (RuntimeException e) {
-        	StringBuffer buf = new StringBuffer("Found occurrences:");
-        	for (Tuple<TextEdit, String> t : renameEdits) {
-        		buf.append("Offset: ");
-        		buf.append(t.o1.getOffset());
-        		buf.append("Len: ");
-        		buf.append(t.o1.getLength());
-        		buf.append("Str: ");
-        		buf.append(t.o2);
-        		buf.append("\n");
-        	}
-        	
-        	PydevPlugin.log(buf.toString(), e);
+        	//StringBuffer buf = new StringBuffer("Found occurrences:");
+        	//for (Tuple<TextEdit, String> t : renameEdits) {
+        	//	buf.append("Offset: ");
+        	//	buf.append(t.o1.getOffset());
+        	//	buf.append("Len: ");
+        	//	buf.append(t.o1.getLength());
+        	//	buf.append("Str: ");
+        	//	buf.append(t.o2);
+        	//	buf.append("\n");
+        	//}
+        	//
+        	//don't bother reporting this to the user (usually happens if we have it the file changes during the analysis).
+        	//PydevPlugin.log(buf.toString(), e);
 			throw e;
 		}
     }
