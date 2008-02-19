@@ -13,7 +13,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         	DEBUG = true;
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameClass();
+            test.testRenameParameter5();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -151,6 +151,40 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     	int line = 1;
     	int col = 16;
     	checkRename(str, line, col, "foo", false, true);
+    }
+    
+    public void testRenameParameter5() throws Exception {
+        String str = "" +
+		"class Test:\n"+
+		"    \n"+
+		"    def call(self, %s):\n"+
+		"        '''@param %s: entuhoen'''\n"+
+		"        \n"+
+		"    def testing(self):\n"+
+		"        '''\n"+
+		"            @param here: etnhuon\n"+
+		"        '''\n"+
+		"        here = 19\n"+
+		"        print 'here'\n";
+        
+        int line = 3;
+        int col = 19;
+        checkRename(str, line, col, "here", false, true);
+    }
+    
+    public void testRenameParameter4() throws Exception {
+        String str = "" +
+        "'''\n" +
+        "foo\n" +
+        "'''\n" +
+        "class Foo:\n" +
+        "    def m1(self,%s):\n" +
+        "        '''%s'''\n" +
+        "        print %s\n" +
+        "\n";
+        int line = 4;
+        int col = 17;
+        checkRename(str, line, col, "foo", false, true);
     }
     
     public void testRenameParameter2() throws Exception {
@@ -315,6 +349,23 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     	int line = 2;
     	int col = 9;
     	checkRename(str, line, col, "tup", false, true);
+    }
+    
+    
+    public void testRenameLocalAttr2() throws Exception {
+        String str = "" +
+        "'''\n" +
+        "tup\n" + //should not rename 'global' comments when found in a local scope
+        "'''\n" +
+        "class Foo:\n" +
+        "    def foo(self):\n" +
+        "        '''@param %s: bbbbb xxxxx'''\n" +
+        "        %s = 10\n" +
+        "        print %s\n" +
+        "";
+        int line = 6;
+        int col = 9;
+        checkRename(str, line, col, "tup", false, true);
     }
     
     public void testRenameAttribute() throws Exception {

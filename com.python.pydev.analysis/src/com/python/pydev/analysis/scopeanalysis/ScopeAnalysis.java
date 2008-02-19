@@ -7,6 +7,7 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -51,9 +52,11 @@ public class ScopeAnalysis {
 	 * @param occurencesFor the string we're looking for
 	 * @param module the module where we want to find the occurrences
 	 * @param scope the scope we're in
-	 * @return a list of entries with the occurrences
+	 * @return tuple with:
+	 * 1st element: the node where the local was found (may be null)
+	 * 2nd element: a list of entries with the occurrences
 	 */
-    public static List<ASTEntry> getLocalOccurrences(String occurencesFor, IModule module, ILocalScope scope) {
+    public static Tuple<SimpleNode, List<ASTEntry>> getLocalOccurrences(String occurencesFor, IModule module, ILocalScope scope) {
     	SimpleNode simpleNode=null;
     	
     	if(scope.getScopeStack().size() > 0){
@@ -65,10 +68,10 @@ public class ScopeAnalysis {
     	}
     	
     	if (simpleNode == null){
-    		return new ArrayList<ASTEntry>();
+    		return new Tuple<SimpleNode, List<ASTEntry>>(null, new ArrayList<ASTEntry>());
     	}
     	
-        return ScopeAnalysis.getLocalOccurrences(occurencesFor, simpleNode);
+        return new Tuple<SimpleNode, List<ASTEntry>>(simpleNode, ScopeAnalysis.getLocalOccurrences(occurencesFor, simpleNode));
     }
 
 
