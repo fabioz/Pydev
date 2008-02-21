@@ -192,7 +192,7 @@ public class AssignAnalysis {
             
             
             if(lookForAssign){
-                //we might want to extend that later to check the return of some function...
+                //TODO: we might want to extend that later to check the return of some function for code-completion purposes...
                 state.setLookingFor(ICompletionState.LOOKING_FOR_ASSIGN);
                 ICompletionState copy = state.getCopy();
                 copy.setActivationToken (definition.value);

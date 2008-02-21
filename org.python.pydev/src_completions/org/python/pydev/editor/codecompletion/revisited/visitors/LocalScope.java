@@ -197,7 +197,9 @@ public class LocalScope implements ILocalScope {
             String rep = NodeUtils.getFullRepresentationString(entry.node);
             if(rep.startsWith(dottedActTok)){
                 rep = rep.substring(dottedActTok.length());
-                comps.add(new SourceToken(entry.node, FullRepIterable.getFirstPart(rep), "", "", "", IToken.TYPE_OBJECT_FOUND_INTERFACE));
+                if(!"pass".equals(rep)){ //that'd be something that can happen when trying to recreate the parsing
+                    comps.add(new SourceToken(entry.node, FullRepIterable.getFirstPart(rep), "", "", "", IToken.TYPE_OBJECT_FOUND_INTERFACE));
+                }
             }
         }
         return new ArrayList<IToken>(comps);

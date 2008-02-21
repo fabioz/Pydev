@@ -601,7 +601,9 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                     toRet.add((Definition) next);
                 }
 	        }
-            return (Definition[]) toRet.toArray(new Definition[0]);
+            if(toRet.size() > 0){
+                return (Definition[]) toRet.toArray(new Definition[0]);
+            }
         }
         
         
