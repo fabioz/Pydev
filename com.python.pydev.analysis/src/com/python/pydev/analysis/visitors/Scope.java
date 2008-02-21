@@ -14,6 +14,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.TryExcept;
 
 import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
@@ -399,7 +400,25 @@ public class Scope implements Iterable<ScopeItems>{
         	Map<String,Tuple<IToken, Found>> m = s.namesToIgnore;
             Tuple<IToken, Found> found = findInNamesToIgnore(rep, m);
 			if(found != null){
-                return found;
+			    
+			    //if we're in a class scope and we have a reference with the same name in the 'still not declared scope',
+			    //it's not a match
+			    //
+			    //class A:
+			    //    print A <-- undeclared!
+	            GenAndTok genAndTok = found.o2.getSingle();
+	            if(currScopeType == Scope.SCOPE_TYPE_CLASS){
+	                if(genAndTok.tok instanceof SourceToken){
+	                    SourceToken sourceToken = (SourceToken) genAndTok.tok;
+	                    if(sourceToken.getAst() instanceof ClassDef){
+	                        found = null;
+	                    }
+	                }
+	            }
+
+	            if(found != null){
+	                return found;
+	            }
             }
         }
         return null;

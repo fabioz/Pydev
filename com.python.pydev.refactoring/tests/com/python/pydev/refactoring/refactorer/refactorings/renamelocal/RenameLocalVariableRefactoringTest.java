@@ -13,7 +13,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         	DEBUG = true;
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameParameter5();
+            test.testRename1();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -170,6 +170,49 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         int line = 3;
         int col = 19;
         checkRename(str, line, col, "here", false, true);
+    }
+    
+    public void testRenameMethod() throws Exception {
+        String str = "" +
+        "class Test:\n"+
+        "    \n"+
+        "    def %s(self):\n"+
+        "        pass\n"+
+        "        \n";
+        
+        int line = 2;
+        int col = 9;
+        checkRename(str, line, col, "Test", false, true);
+    }
+    
+    public void testRenameMethod2() throws Exception {
+        String str = "" +
+        "class Test:\n"+
+        "    \n"+
+        "    def %s(self, here):\n"+
+        "        '''@param here: entuhoen'''\n"+
+        "        \n"+
+        "    %s = staticmethod(%s)\n"+
+        "\n";
+        
+        int line = 2;
+        int col = 9;
+        checkRename(str, line, col, "Test", false, true);
+    }
+    
+    public void testRenameClass2() throws Exception {
+        String str = "" +
+        "class %s:\n"+
+        "    \n"+
+        "    def Test(self, here):\n"+
+        "        '''@param here: entuhoen'''\n"+
+        "        \n"+
+        "    Test = staticmethod(Test)\n"+
+        "\n";
+        
+        int line = 0;
+        int col = 7;
+        checkRename(str, line, col, "Test", false, true);
     }
     
     public void testRenameParameter4() throws Exception {

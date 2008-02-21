@@ -114,7 +114,7 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
             oc.addAll(ScopeAnalysis.getLocalOccurrences(request.initialName, root));
         }
         
-        List<ASTEntry> attributeReferences = ScopeAnalysis.getAttributeReferences(request.initialName, root);
+        List<ASTEntry> attributeReferences = ScopeAnalysis.getAttributeReferences(request.initialName, root, 0);
         
         if(classDefInAst != null){
             NameTokType funcName = ((ClassDef)classDefInAst.node).name;

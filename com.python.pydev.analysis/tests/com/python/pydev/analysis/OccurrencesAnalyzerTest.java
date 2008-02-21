@@ -1339,8 +1339,8 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
         
-        printMessages(msgs);
-        assertEquals(0, msgs.length);
+        printMessages(msgs, 1);
+        assertContainsMsg("Undefined variable: I", msgs);
     }
     
     public void testScopes6() {

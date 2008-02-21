@@ -16,6 +16,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -103,6 +104,12 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
 		        NameTokType funcName = ((FunctionDef)functionDefEntry.node).name;
                 for (ASTEntry entry : attributeReferences) {
                     if(entry.node != funcName){
+                        if(entry.node instanceof NameTok){
+                            NameTok nameTok = (NameTok) entry.node;
+                            if(nameTok.ctx == NameTok.ClassName){
+                                continue;
+                            }
+                        }
                         ret.add(entry);
                     }
                 }

@@ -13,6 +13,7 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
+import com.python.pydev.analysis.scopeanalysis.AttributeReferencesVisitor;
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 
 public class PyRenameAttributeProcess extends AbstractRenameWorkspaceRefactorProcess{

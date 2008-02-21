@@ -27,14 +27,18 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public class ScopeAnalysis {
 
+    public static List<ASTEntry> getAttributeReferences(String occurencesFor, SimpleNode simpleNode) {
+        //default is accepting all
+        return getAttributeReferences(occurencesFor, simpleNode, AttributeReferencesVisitor.ACCEPT_ALL);
+    }
 	/**
 	 * @return the list of entries with the name parts of attributes (not taking into account its first
 	 * part) that are equal to the occurencesFor string. 
 	 */
-	public static List<ASTEntry> getAttributeReferences(String occurencesFor, SimpleNode simpleNode) {
+	public static List<ASTEntry> getAttributeReferences(String occurencesFor, SimpleNode simpleNode, int accept) {
 	    List<ASTEntry> ret = new ArrayList<ASTEntry>();
 
-        AttributeReferencesVisitor visitor = AttributeReferencesVisitor.create(simpleNode);
+        AttributeReferencesVisitor visitor = AttributeReferencesVisitor.create(simpleNode, accept);
         Iterator<ASTEntry> iterator = visitor.getNamesIterator();
         
         while(iterator.hasNext()){
