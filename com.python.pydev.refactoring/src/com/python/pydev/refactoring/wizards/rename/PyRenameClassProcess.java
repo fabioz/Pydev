@@ -15,7 +15,6 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
-import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
@@ -114,16 +113,13 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
             oc.addAll(ScopeAnalysis.getLocalOccurrences(request.initialName, root));
         }
         
-        List<ASTEntry> attributeReferences = ScopeAnalysis.getAttributeReferences(request.initialName, root, 0);
         
-        if(classDefInAst != null){
-            NameTokType funcName = ((ClassDef)classDefInAst.node).name;
-            for (ASTEntry entry : attributeReferences) {
-                if(entry.node != funcName){
-                    oc.add(entry);
-                }
-            }
-        }else{
+        if(classDefInAst == null){
+            //only get attribute references if the class defitinion was not found in this module
+            // -- which means that it was found as an import. E.g.:
+            // import foo
+            // foo.ClassAccess <-- Searching for ClassAccess
+            List<ASTEntry> attributeReferences = ScopeAnalysis.getAttributeReferences(request.initialName, root, 0);
             oc.addAll(attributeReferences);
         }
 
