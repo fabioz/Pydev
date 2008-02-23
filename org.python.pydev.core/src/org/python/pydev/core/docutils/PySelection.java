@@ -115,6 +115,11 @@ public class PySelection {
         }
     }
     
+    /**
+     * @param line 0-based
+     * @param col 0-based
+     * @return the absolute cursor offset in the contained document
+     */
     public int getAbsoluteCursorOffset(int line, int col) {
         return getAbsoluteCursorOffset(doc, line, col);
     }
