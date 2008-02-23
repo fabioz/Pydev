@@ -436,9 +436,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 String sub = it.next();
                 if(it.hasNext()){
                     if( markRead(token, sub, false, false) ){
-                        if (found == false){
-                            found = true;
-                        }
+                        found = true;
                     }
                 }else{
                     markRead(token, fullRep, !found, true); //only set it to add to not defined if it was still not found

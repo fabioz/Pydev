@@ -82,6 +82,7 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
         	
 	        final SimpleNode parentNode = functionDefEntry.parent.node;
 	        if(parentNode instanceof ClassDef){
+	            
 	        	//ok, we're in a class, the first thing is to add the reference to the function just gotten
 	        	ret.add(new ASTEntry(functionDefEntry, ((FunctionDef)functionDefEntry.node).name));
 	        	

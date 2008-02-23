@@ -170,14 +170,24 @@ public abstract class AbstractMessage implements IMessage{
         return str;
     }
     
+    /**
+     * @return the starting column for the given token (1-based)
+     */
     public static int getStartCol(IToken generator, IDocument doc) {
     	return getStartCol(generator, doc, generator.getRepresentation());
     }
     
+    /**
+     * @return the starting column for the given token (1-based)
+     */
     public static int getStartCol(IToken generator, IDocument doc, String shortMessage) {
     	return getStartCol(generator, doc, shortMessage, false);
     	
     }
+    
+    /**
+     * @return the starting column for the given token (1-based)
+     */
     public static int getStartCol(IToken generator, IDocument doc, String shortMessage, boolean returnAsName) {
        
         //not import...

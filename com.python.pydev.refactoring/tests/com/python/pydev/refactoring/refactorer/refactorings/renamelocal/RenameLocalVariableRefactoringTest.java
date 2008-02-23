@@ -13,7 +13,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         	DEBUG = true;
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameClass3();
+            test.testRenameAttribute2();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -60,6 +60,22 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     		"";
     	
     	checkRename(str, line, col, "_foo", false, true);
+    }
+    
+    public void testRenameAttribute2() throws Exception {
+        int line = 5;
+        int col = 5;
+        String str = 
+            "class Foo(object):\n" +
+            "    \n" +
+            "    def %s(self):\n" +
+            "        pass\n" +
+            "        \n" +
+            "Foo.%s\n" +
+            "\n" +
+            "";
+        
+        checkRename(str, line, col, "Foo", false, true);
     }
     
     public void testRenameClass3() throws Exception {

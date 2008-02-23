@@ -1,11 +1,15 @@
 package com.python.pydev.analysis.scopeanalysis;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.EasyAstIteratorBase;
 
 /**
@@ -40,11 +44,19 @@ public class AttributeReferencesVisitor extends EasyAstIteratorBase{
 	
 	@Override
 	public Object visitAttribute(Attribute node) throws Exception {
+	    //we don't want to visit the 1st part (only the others)
+	    List<SimpleNode> attributeParts = NodeUtils.getAttributeParts(node);
+	    Iterator<SimpleNode> it = attributeParts.iterator();
+	    SimpleNode firstPart = it.next();
+	    firstPart.accept(this);
+	    
 	    Object ret = null;
 		inAttr += 1;
         try{
-    		
-    		ret = super.visitAttribute(node);
+            while(it.hasNext()) {
+                it.next().accept(this);
+            }
+
         }finally{    		
             inAttr -= 1;
         }
