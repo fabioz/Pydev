@@ -1462,6 +1462,7 @@ public class PySelection {
         private boolean forward;
         private boolean isFirst = true;
 		private int numberOfLines;
+		private int lastReturnedLine=-1;
 		private PySelection ps;
 		
 		public DocIterator(boolean forward, PySelection ps){
@@ -1499,6 +1500,7 @@ public class PySelection {
         		String line;
 				if (forward) {
 					line = ps.getLine(startingLine);
+					lastReturnedLine = startingLine;
 					startingLine++;
 				} else {
 					if (isFirst) {
@@ -1507,6 +1509,7 @@ public class PySelection {
 					}else{
 						line = ps.getLine(startingLine);
 					}
+					lastReturnedLine = startingLine;
 					startingLine--;
 				}
 				return line;
@@ -1517,6 +1520,10 @@ public class PySelection {
 
         public void remove() {
             throw new RuntimeException("Remove not implemented.");
+        }
+
+        public int getLastReturnedLine() {
+            return lastReturnedLine;
         }
     }
 

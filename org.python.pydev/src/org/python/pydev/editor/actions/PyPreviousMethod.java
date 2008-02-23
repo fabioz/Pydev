@@ -6,41 +6,14 @@
 
 package org.python.pydev.editor.actions;
 
-import java.util.Iterator;
-
-import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.visitors.scope.ASTEntry;
-import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
-
-
 /**
+ * Class that makes the action of going to the previous method
+ * 
  * @author Fabio Zadrozny
  */
 public class PyPreviousMethod extends PyMethodNavigation {
 
-	// me is the last node w
-    public ASTEntry getSelect(SimpleNode ast, int line) {
-        EasyASTIteratorVisitor visitor = EasyASTIteratorVisitor.create(ast);
-        Iterator<ASTEntry> classesAndMethodsIterator = visitor.getClassesAndMethodsIterator();
-        ASTEntry last = null;
-        
-        while(classesAndMethodsIterator.hasNext()){
-            ASTEntry entry = classesAndMethodsIterator.next();
-            SimpleNode nameNode = getNameNode(entry);
-            if(nameNode.beginLine-1 < line ){
-                last = entry;
-            }
-        }
-        return last;
-    }
-
-    @Override
-    protected boolean goToEndOfFile() {
+    protected boolean getSearchForward(){
         return false;
-    }
-
-    @Override
-    protected boolean goToStartOfFile() {
-        return true;
     }
 }

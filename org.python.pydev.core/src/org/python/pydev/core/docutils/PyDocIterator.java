@@ -9,13 +9,14 @@ public class PyDocIterator implements Iterator<String> {
 
 	private int offset;
 	private IDocument doc;
+	
 	private boolean addNewLinesToRet = true;
     private boolean returnNewLinesOnLiterals = false;
     private boolean inLiteral = false;
-    private int literalEnd;
-    private boolean changeLiteralsForSpaces;
+    private int literalEnd = 0;
+    private boolean changeLiteralsForSpaces = false;
     private int lastReturned = -1;
-    private boolean addComments;
+    private boolean addComments = false;
 	
     public PyDocIterator(IDocument doc, boolean addNewLinesToRet) {
         this(doc, addNewLinesToRet, false, false);
@@ -41,6 +42,17 @@ public class PyDocIterator implements Iterator<String> {
 	
 	public PyDocIterator(IDocument doc) {
 		this.doc = doc;
+	}
+	
+	/**
+	 * Changes the current offset in the document. Note: this method is not safe for use after the iteration
+	 * started!
+	 * 
+	 * @param offset the offset where this class should start parsing (note: the offset must be a 
+	 * code partition, otherwise the yielded values will be wrong).
+	 */
+	public void setStartingOffset(int offset){
+	    this.offset = offset;
 	}
 
 	public boolean hasNext() {

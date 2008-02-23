@@ -11,8 +11,16 @@ Pydev
 <li><strong>Override methods</strong>: working for classes that derive from builtin classes.</li>
 <li><strong>Debugger can use psyco</strong>: see <a href="http://pydev.blogspot.com/2008/02/pydev-debugger-and-psyco-speedups.html">blog post</a>.</li>
 <li><strong>Debugger</strong>: handles return events correctly.</li>
+<li><strong>Go to previous/next method</strong>: (Ctrl+Shift+Up/Down): More reliable: does not depend on having a correct parse anymore.</li>
 </ul>
 
+
+Extensions
+
+<ul>
+<li><strong>Local renames</strong>: scoping issues.</li>
+<li><strong>Local renames</strong>: comments/strings only renamed in local scope for local variable.</li>
+</ul>
 
 after 1.3.12
 
