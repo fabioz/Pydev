@@ -166,10 +166,13 @@ public class ASTEntry extends DecoratableObject{
 	public SimpleNode getNameNode() {
         if (node instanceof ClassDef){
             return ((ClassDef)node).name;
+            
         } else if (node instanceof FunctionDef){
             return ((FunctionDef)node).name;
+            
         } else{
         	return node;
+        	
         }
 	}
 	
@@ -188,4 +191,41 @@ public class ASTEntry extends DecoratableObject{
 		buffer.append(">");
 		return buffer.toString();
 	}
+
+
+    
+	@Override
+	public int hashCode() {
+	    int i=31;
+	    String n = getName();
+	    if(n != null){
+	        i *= n.hashCode();
+	    }
+	    i += node.beginLine;
+	    i *= node.beginColumn;
+	    return i;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+	    if (!(obj instanceof ASTEntry)){
+            return false;
+        }
+	    ASTEntry other = (ASTEntry) obj;
+	    
+	    if(node.beginColumn != other.node.beginColumn || node.beginLine != other.node.beginLine || 
+            endCol != other.endCol || endLine != other.endLine){
+	        return false;
+	    }
+	    
+	    
+	    //compare names (cannot be null)
+	    String n = getName();
+	    String oN = other.getName();
+        if(!n.equals(oN)){
+            return false;
+        }
+	    return true;
+	}
+	
 }
