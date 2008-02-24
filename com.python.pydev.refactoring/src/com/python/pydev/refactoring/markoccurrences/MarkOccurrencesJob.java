@@ -6,6 +6,7 @@ package com.python.pydev.refactoring.markoccurrences;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -235,7 +236,7 @@ public class MarkOccurrencesJob extends Job{
     private synchronized boolean addAnnotations(final PyEdit pyEdit, IAnnotationModel annotationModel, final RefactoringRequest req, PyRenameEntryPoint processor) throws BadLocationException {
         //add the annotations
         synchronized (getLockObject(annotationModel)) {
-            List<ASTEntry> occurrences = processor.getOccurrences();
+            HashSet<ASTEntry> occurrences = processor.getOccurrences();
             if(occurrences != null){
             	Map<String, Object> cache = pyEdit.cache;
             	if(cache == null){

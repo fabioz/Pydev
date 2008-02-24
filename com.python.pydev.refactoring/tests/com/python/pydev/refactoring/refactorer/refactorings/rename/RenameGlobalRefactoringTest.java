@@ -1,6 +1,6 @@
 package com.python.pydev.refactoring.refactorer.refactorings.rename;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -29,7 +29,7 @@ public class RenameGlobalRefactoringTest extends RefactoringRenameTestBase {
 
     
     public void testRename1() throws Exception {
-        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameglobal.renglobal", 0, 8);
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameglobal.renglobal", 0, 8);
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
         
     }

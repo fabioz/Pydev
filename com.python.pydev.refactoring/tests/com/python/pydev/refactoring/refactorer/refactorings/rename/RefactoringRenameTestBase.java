@@ -7,6 +7,7 @@ package com.python.pydev.refactoring.refactorer.refactorings.rename;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +26,8 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.eclipseresourcestubs.FileResourceStub;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectStub;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -34,6 +37,8 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.PyFileListing;
 
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.refactoring.TestDependentRefactoring;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 import com.python.pydev.refactoring.refactorer.RefactorerFindReferences;
@@ -74,6 +79,9 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
 
     protected static boolean DEBUG_REFERENCES = false;
     
+
+    
+    
     /**
      * In the setUp, it initializes the files in the refactoring project
      * @see com.python.pydev.refactoring.refactorer.refactorings.renamelocal.RefactoringLocalTestBase#setUp()
@@ -87,6 +95,13 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             ArrayList<IFile> iFiles = new ArrayList<IFile>();
             for (File f : filesInRefactoringProject) {
                 iFiles.add(new FileResourceStub(f, natureRefactoring.getProject()));
+                
+                String modName = natureRefactoring.resolveModule(f);
+                SourceModule mod = (SourceModule) AbstractModule.createModule(modName, f, natureRefactoring, 0);
+                
+                //also create the additional info so that it can be used for finds
+                AbstractAdditionalInterpreterInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(natureRefactoring.getProject());
+                additionalInfo.addAstInfo(mod.getAst(), modName, natureRefactoring, false);
             }
             
             RefactorerFindReferences.FORCED_RETURN = iFiles;
@@ -182,10 +197,10 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
      * @param line: starts at 0
      * @param col: starts at 0
      */
-    protected Map<String, List<ASTEntry>> getReferencesForRenameSimple(String moduleName, int line, int col) {
-        Map<String, List<ASTEntry>> referencesForRename = getReferencesForRenameSimple(moduleName, line, col, false);
+    protected Map<String, HashSet<ASTEntry>> getReferencesForRenameSimple(String moduleName, int line, int col) {
+        Map<String, HashSet<ASTEntry>> referencesForRename = getReferencesForRenameSimple(moduleName, line, col, false);
         if(DEBUG_REFERENCES){
-            for (Map.Entry<String, List<ASTEntry>> entry : referencesForRename.entrySet()) {
+            for (Map.Entry<String, HashSet<ASTEntry>> entry : referencesForRename.entrySet()) {
                 System.out.println(entry.getKey());
                 for(ASTEntry e :entry.getValue()){
                     System.out.println(e);
@@ -199,11 +214,11 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
      * Same as {@link #getReferencesForRename(String, int, int, boolean)} but returning
      * the key for the map as a string with the module name.
      */
-    protected Map<String, List<ASTEntry>> getReferencesForRenameSimple(String moduleName, int line, int col, boolean expectError) {
-        Map<String, List<ASTEntry>> occurrencesToReturn=new HashMap<String, List<ASTEntry>>();
+    protected Map<String, HashSet<ASTEntry>> getReferencesForRenameSimple(String moduleName, int line, int col, boolean expectError) {
+        Map<String, HashSet<ASTEntry>> occurrencesToReturn=new HashMap<String, HashSet<ASTEntry>>();
         
-        Map<Tuple<String, IFile>, List<ASTEntry>> referencesForRename = getReferencesForRename(moduleName, line, col, expectError);
-        for (Map.Entry<Tuple<String, IFile>, List<ASTEntry>> entry : referencesForRename.entrySet()) {
+        Map<Tuple<String, IFile>, HashSet<ASTEntry>> referencesForRename = getReferencesForRename(moduleName, line, col, expectError);
+        for (Map.Entry<Tuple<String, IFile>, HashSet<ASTEntry>> entry : referencesForRename.entrySet()) {
             if(occurrencesToReturn.get(entry.getKey()) != null){
                 throw new RuntimeException("Error. Module: "+entry.getKey()+" already exists.");
             }
@@ -223,8 +238,8 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
      * @return a map with the name of the module and the file representing it pointing to the
      * references found in that module.
      */
-    protected Map<Tuple<String, IFile>, List<ASTEntry>> getReferencesForRename(String moduleName, int line, int col, boolean expectError) {
-        Map<Tuple<String, IFile>, List<ASTEntry>> occurrencesToReturn=null;
+    protected Map<Tuple<String, IFile>, HashSet<ASTEntry>> getReferencesForRename(String moduleName, int line, int col, boolean expectError) {
+        Map<Tuple<String, IFile>, HashSet<ASTEntry>> occurrencesToReturn=null;
         try {
             IProjectModulesManager modulesManager = (IProjectModulesManager) natureRefactoring.getAstManager().getModulesManager();
             IModule module = modulesManager.getModuleInDirectManager(moduleName, natureRefactoring, true);
@@ -260,7 +275,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     /**
      * Used to see if some line/col is available in a list of entries.
      */
-    protected void assertContains(int line, int col, List<ASTEntry> names) {
+    protected void assertContains(int line, int col, HashSet<ASTEntry> names) {
         for (ASTEntry name : names) {
             SimpleNode node = name.node;
             if(node instanceof ClassDef){

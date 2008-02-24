@@ -71,14 +71,14 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * This is the list that contains only the occurrences for the current document,
      * passed by the request.
      */
-    protected List<ASTEntry> docOccurrences = new ArrayList<ASTEntry>();
+    protected HashSet<ASTEntry> docOccurrences = new HashSet<ASTEntry>();
     
     /**
      * This map contains:
      * key: tuple with module name and the IFile representing that module
      * value: list of ast entries to be replaced in a given file
      */
-    protected Map<Tuple<String, IFile>, List<ASTEntry>> fileOccurrences = new HashMap<Tuple<String,IFile>, List<ASTEntry>>();
+    protected Map<Tuple<String, IFile>, HashSet<ASTEntry>> fileOccurrences = new HashMap<Tuple<String,IFile>, HashSet<ASTEntry>>();
 
     /**
      * May be used by subclasses
@@ -115,9 +115,9 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      */
     protected void addOccurrences(List<ASTEntry> oc, IFile file, String modName) {
         Tuple<String, IFile> key = new Tuple<String, IFile>(modName, file);
-        List<ASTEntry> existent = fileOccurrences.get(key);
+        Set<ASTEntry> existent = fileOccurrences.get(key);
         if(existent == null){
-        	fileOccurrences.put(key, oc);
+        	fileOccurrences.put(key, new HashSet<ASTEntry>(oc));
         }else{
         	existent.addAll(oc);
         }
@@ -131,7 +131,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * @param doc the doc where the occurrences were found
      * @return a list of tuples with the TextEdit and the description for that edit.
      */
-    protected List<Tuple<TextEdit, String>> getAllRenameEdits(List<ASTEntry> occurrences, IDocument doc) {
+    protected List<Tuple<TextEdit, String>> getAllRenameEdits(HashSet<ASTEntry> occurrences, IDocument doc) {
     	Set<Integer> s = new HashSet<Integer>();
     	
         List<Tuple<TextEdit, String>> ret = new ArrayList<Tuple<TextEdit, String>>();
@@ -293,12 +293,12 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      */
     private void createOtherFileChanges(CompositeChange fChange, RefactoringStatus status, Map<Object, ArrayList<TextEdit>> editsAlreadyCreated) {
         
-        for(Map.Entry<Tuple<String, IFile>, List<ASTEntry>> entry : fileOccurrences.entrySet()){
+        for(Map.Entry<Tuple<String, IFile>, HashSet<ASTEntry>> entry : fileOccurrences.entrySet()){
             //key = module name, IFile for the module (__init__ file may be found if it is a package)
             Tuple<String, IFile> tup = entry.getKey();
             
             //check the text changes
-            List<ASTEntry> astEntries = filterAstEntries(entry.getValue(), AST_ENTRIES_FILTER_TEXT);
+            HashSet<ASTEntry> astEntries = filterAstEntries(entry.getValue(), AST_ENTRIES_FILTER_TEXT);
             if(astEntries.size() > 0){
                 ArrayList<TextEdit> editsAlreadyCreatedLst = getEditAlreadyCreatedLst(editsAlreadyCreated, tup.o2.getFullPath().toString());
                 IDocument docFromResource = REF.getDocFromResource(tup.o2);
@@ -341,8 +341,8 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
 
     public final static int AST_ENTRIES_FILTER_TEXT = 1;
     public final static int AST_ENTRIES_FILTER_FILE = 2;
-    private List<ASTEntry> filterAstEntries(List<ASTEntry> value, int astEntryFilter) {
-        ArrayList<ASTEntry> ret = new ArrayList<ASTEntry>();
+    private HashSet<ASTEntry> filterAstEntries(HashSet<ASTEntry> value, int astEntryFilter) {
+        HashSet<ASTEntry> ret = new HashSet<ASTEntry>();
         
         for (ASTEntry entry : value) {
             if(entry instanceof ASTEntryWithSourceModule){
@@ -460,7 +460,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      *  
      * @see com.python.pydev.refactoring.wizards.IRefactorRenameProcess#getOccurrences()
      */
-    public List<ASTEntry> getOccurrences() {
+    public HashSet<ASTEntry> getOccurrences() {
         return docOccurrences;
     }
 
@@ -470,7 +470,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * 
      * @see com.python.pydev.refactoring.wizards.IRefactorRenameProcess#getOccurrencesInOtherFiles()
      */
-    public Map<Tuple<String, IFile>, List<ASTEntry>> getOccurrencesInOtherFiles() {
+    public Map<Tuple<String, IFile>, HashSet<ASTEntry>> getOccurrencesInOtherFiles() {
         return this.fileOccurrences;
     }
     

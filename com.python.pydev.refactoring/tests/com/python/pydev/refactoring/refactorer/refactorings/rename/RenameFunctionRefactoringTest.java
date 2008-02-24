@@ -4,7 +4,7 @@
  */
 package com.python.pydev.refactoring.refactorer.refactorings.rename;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -26,7 +26,6 @@ public class RenameFunctionRefactoringTest extends RefactoringRenameTestBase {
             DEBUG_REFERENCES = true;
             RenameFunctionRefactoringTest test = new RenameFunctionRefactoringTest();
             test.setUp();
-            test.testRename1();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameFunctionRefactoringTest.class);
@@ -42,7 +41,7 @@ public class RenameFunctionRefactoringTest extends RefactoringRenameTestBase {
 
     
     public void testRename1() throws Exception {
-        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamefunction.renfoo", 0, 8);
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamefunction.renfoo", 0, 8);
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
         assertTrue(references.containsKey("reflib.renamefunction.accessfoo")); 
         
@@ -70,7 +69,7 @@ public class RenameFunctionRefactoringTest extends RefactoringRenameTestBase {
 
     
     public void testRename2() throws Exception {
-        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamefunction.accessfoo", 0, 22);
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamefunction.accessfoo", 0, 22);
         assertTrue(references.containsKey("reflib.renamefunction.accessfoo") == false); //the current module does not have a separated key here
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
         assertTrue(references.containsKey("reflib.renamefunction.renfoo")); //the module where it is actually defined
@@ -78,7 +77,7 @@ public class RenameFunctionRefactoringTest extends RefactoringRenameTestBase {
     }
     
     public void testRename3() throws Exception {
-    	Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameparameter.methoddef", 1, 6);
+    	Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameparameter.methoddef", 1, 6);
     	assertTrue(references.containsKey("reflib.renameparameter.methodaccess")); 
     	assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
     	assertEquals(4, references.get("reflib.renameparameter.methodaccess").size());
@@ -87,11 +86,12 @@ public class RenameFunctionRefactoringTest extends RefactoringRenameTestBase {
     }
     
     public void testRename4() throws Exception {
-        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamefunction.classfunc", 1, 8);
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamefunction.classfunc", 1, 8);
         assertEquals(1, references.size()); 
         assertEquals(2, references.get(CURRENT_MODULE_IN_REFERENCES).size());
         checkProcessors();
     }
+    
     
 
 }

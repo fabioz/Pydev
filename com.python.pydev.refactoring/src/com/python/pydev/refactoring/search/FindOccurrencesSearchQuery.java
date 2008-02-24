@@ -47,7 +47,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
     public IStatus run(IProgressMonitor monitor) throws OperationCanceledException {
         try {
         	req.pushMonitor(monitor);
-            Map<Tuple<String, IFile>, List<ASTEntry>> occurrences;
+            Map<Tuple<String, IFile>, HashSet<ASTEntry>> occurrences;
             occurrences = pyRefactoring.findAllOccurrences(req);
             if(occurrences == null){
                 return null;
@@ -56,7 +56,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
             
             
             HashSet<Integer> foundOffsets = new HashSet<Integer>();
-            for (Map.Entry<Tuple<String, IFile>, List<ASTEntry>> o : occurrences.entrySet()) {
+            for (Map.Entry<Tuple<String, IFile>, HashSet<ASTEntry>> o : occurrences.entrySet()) {
             	
             	foundOffsets.clear();
                 IFile file = o.getKey().o2;

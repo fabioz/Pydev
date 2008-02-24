@@ -4,7 +4,7 @@
 package com.python.pydev.refactoring.wizards;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
@@ -37,7 +37,7 @@ public interface IRefactorRenameProcess {
      * @return a list of entries with the occurrences that will be affected in the refactoring or null if it
      * does not have this kind of association.
      */
-    public List<ASTEntry> getOccurrences();
+    public HashSet<ASTEntry> getOccurrences();
 
     /**
      * @return a map with the files that will be affected in the refactoring pointing
@@ -45,5 +45,5 @@ public interface IRefactorRenameProcess {
      * 
      * The tuple that is the key of the map has the file and the module name that the file represents.
      */
-    public Map<Tuple<String, IFile>, List<ASTEntry>> getOccurrencesInOtherFiles();
+    public Map<Tuple<String, IFile>, HashSet<ASTEntry>> getOccurrencesInOtherFiles();
 }

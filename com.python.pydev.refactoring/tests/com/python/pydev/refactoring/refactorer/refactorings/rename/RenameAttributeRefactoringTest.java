@@ -1,6 +1,6 @@
 package com.python.pydev.refactoring.refactorer.refactorings.rename;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -32,7 +32,7 @@ public class RenameAttributeRefactoringTest extends RefactoringRenameTestBase  {
     public void testRenameAttribute() throws Exception {
         //Line 1 = "    a.attrInstance = 10"
         //rename attrInstance
-        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameattribute.attr2", 1, 8); 
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameattribute.attr2", 1, 8); 
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
         assertTrue(references.containsKey("reflib.renameattribute.attr1")); 
         assertEquals(3, references.get(CURRENT_MODULE_IN_REFERENCES).size());

@@ -1,6 +1,6 @@
 package com.python.pydev.refactoring.refactorer.refactorings.rename;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -32,7 +32,7 @@ public class RenameSelfRefactoringTest extends RefactoringRenameTestBase  {
     public void testRenameSelf() throws Exception {
         //Line 0 = "def Method1(param1, param2=None):"
         //rename param1
-        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameself.renameselfclass", 2, 14); 
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameself.renameselfclass", 2, 14); 
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
         assertTrue(references.containsKey("reflib.renameself.renameselfclass2")); 
         assertEquals(3, references.get(CURRENT_MODULE_IN_REFERENCES).size());

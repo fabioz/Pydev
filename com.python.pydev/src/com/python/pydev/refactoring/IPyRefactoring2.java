@@ -1,5 +1,6 @@
 package com.python.pydev.refactoring;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -37,5 +38,5 @@ public interface IPyRefactoring2  {
      * @return A map so that: the key of the map has the file and the module name that the file represents and 
      * the value a list of occurrences.
      */
-    public Map<Tuple<String, IFile>, List<ASTEntry>> findAllOccurrences(RefactoringRequest req) throws OperationCanceledException, CoreException;
+    public Map<Tuple<String, IFile>, HashSet<ASTEntry>> findAllOccurrences(RefactoringRequest req) throws OperationCanceledException, CoreException;
 }

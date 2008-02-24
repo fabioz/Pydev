@@ -79,7 +79,7 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
         //the local scope should have already determined which is the module to be renamed (unless it
         //is an unresolved import, in which case we'll only make a local refactor)
         if(docOccurrences.size() != 0){
-            ASTEntry entry = docOccurrences.get(0);
+            ASTEntry entry = docOccurrences.iterator().next();
             Found found = (Found) entry.getAdditionalInfo(ScopeAnalyzerVisitor.FOUND_ADDITIONAL_INFO_IN_AST_ENTRY, null);
             if(found == null){
                 throw new RuntimeException("Expecting decorated entry.");

@@ -4,6 +4,8 @@
  */
 package com.python.pydev.refactoring.refactorer.refactorings.rename;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +46,7 @@ public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
 
     
     public void testRename1() throws Exception {
-        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass.renfoo", 0, 8);
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass.renfoo", 0, 8);
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
         
         assertFalse(references.containsKey("reflib.renameclass.renfoo")); //the current module does not have a separated key here
@@ -72,23 +74,23 @@ public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
 
     
     public void testRename2() throws Exception {
-        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass.accessfoo", 0, 22);
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass.accessfoo", 0, 22);
         assertTrue(references.containsKey("reflib.renameclass.accessfoo") == false); //the current module does not have a separated key here
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
         assertTrue(references.containsKey("reflib.renameclass.renfoo")); //the module where it is actually defined
     }
     
     public void testRenameLocalClass() throws Exception {
-        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamelocaltoken.__init__", 1, 12);
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamelocaltoken.__init__", 1, 12);
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
         assertEquals(1, references.size());
-        List<ASTEntry> entries = references.get(CURRENT_MODULE_IN_REFERENCES);
+        Collection<ASTEntry> entries = references.get(CURRENT_MODULE_IN_REFERENCES);
         assertEquals(2, entries.size());
     }
     
     
     public void testRename3() throws Exception {
-    	Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass2.defuser", 2, 8);
+    	Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass2.defuser", 2, 8);
     	assertTrue(references.containsKey("reflib.renameclass2.defuser") == false); //the current module does not have a separated key here
     	assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
     	assertTrue(references.containsKey("reflib.renameclass2.sub1.__init__"));
@@ -98,11 +100,11 @@ public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
     
     
     public void testRename4() throws Exception {
-        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass.renkkk", 0, 8);
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass.renkkk", 0, 8);
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
         assertEquals(1, references.size());
         
-        List<ASTEntry> refs = references.get(CURRENT_MODULE_IN_REFERENCES);
+        Collection<ASTEntry> refs = references.get(CURRENT_MODULE_IN_REFERENCES);
         for (ASTEntry entry : refs) {
             assertTrue(
                     (entry.node.beginColumn == 1 && entry.node.beginLine == 1) || 

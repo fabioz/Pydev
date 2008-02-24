@@ -1,6 +1,7 @@
 package com.python.pydev.refactoring.refactorer.refactorings.rename;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -35,7 +36,7 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase  {
         //import mod1
         //from mod1 import submod1
         
-        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamemodule.importer", 0, 8); 
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamemodule.importer", 0, 8); 
         assertEquals(3, references.size());
         
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
@@ -54,7 +55,7 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase  {
         //import mod1
         //from mod1 import submod1
         
-        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamemodule.importer", 1, 18); 
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamemodule.importer", 1, 18); 
         checkSubMod1References(references);
         assertTrue(references.containsKey("reflib.renamemodule.importer2")); 
         assertTrue(references.containsKey("reflib.renamemodule.importer3")); 
@@ -66,7 +67,7 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase  {
     public void testRenameModuleInWorkspace3() throws Exception {
     	//from reflib.renamemodule.mod1 import submod1
     	
-    	Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamemodule.importer5", 0, 40); 
+    	Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamemodule.importer5", 0, 40); 
     	checkSubMod1References(references);
     	assertTrue(references.containsKey("reflib.renamemodule.importer")); 
     	assertTrue(references.containsKey("reflib.renamemodule.importer2")); 
@@ -75,13 +76,13 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase  {
     	assertTrue(references.containsKey("reflib.renamemodule.mod1.submod1")); //module renamed 
     }
 
-	private void checkSubMod1References(Map<String, List<ASTEntry>> references) {
+	private void checkSubMod1References(Map<String, HashSet<ASTEntry>> references) {
 		assertEquals(6, references.size());
         
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
         assertEquals(1, references.get(CURRENT_MODULE_IN_REFERENCES).size());
         
-        for(List<ASTEntry> values:references.values()){
+        for(Collection<ASTEntry> values:references.values()){
         	assertEquals(1, values.size());
         }
 	}

@@ -4,7 +4,7 @@
  */
 package com.python.pydev.refactoring.refactorer.refactorings.rename;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -33,7 +33,7 @@ public class RefactoringLocalToken extends RefactoringRenameTestBase {
 
     
     public void testRename1() throws Exception {
-        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass.renfoo", 0, 8);
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass.renfoo", 0, 8);
         assertTrue(references.containsKey("reflib.renameclass.renfoo") == false); //the current module does not have a separated key here
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
         
@@ -46,7 +46,7 @@ public class RefactoringLocalToken extends RefactoringRenameTestBase {
 
     
     public void testRename2() throws Exception {
-        Map<String, List<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass.accessfoo", 0, 22);
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass.accessfoo", 0, 22);
         assertTrue(references.containsKey("reflib.renameclass.accessfoo") == false); //the current module does not have a separated key here
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
         assertTrue(references.containsKey("reflib.renameclass.renfoo")); //the module where it is actually defined

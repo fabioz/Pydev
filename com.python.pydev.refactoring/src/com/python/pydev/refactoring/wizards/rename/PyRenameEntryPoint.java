@@ -290,13 +290,13 @@ public class PyRenameEntryPoint extends RenameProcessor {
      * @return the list of occurrences that are found in the current document.
      *         Does not get the occurrences if they are in other files
      */
-    public List<ASTEntry> getOccurrences() {
+    public HashSet<ASTEntry> getOccurrences() {
         if (process == null || process.size() == 0) {
             return null;
         }
-        List<ASTEntry> occurrences = new ArrayList<ASTEntry>();
+        HashSet<ASTEntry> occurrences = new HashSet<ASTEntry>();
         for (IRefactorRenameProcess p : process) {
-            List<ASTEntry> o = p.getOccurrences();
+            HashSet<ASTEntry> o = p.getOccurrences();
             if (o != null) {
                 occurrences.addAll(o);
             }
@@ -308,22 +308,22 @@ public class PyRenameEntryPoint extends RenameProcessor {
      * @return a map that points the references found in other files Note that
      *         this will exclude the references found in this buffer.
      */
-    public Map<Tuple<String, IFile>, List<ASTEntry>> getOccurrencesInOtherFiles() {
-        HashMap<Tuple<String, IFile>, List<ASTEntry>> m = new HashMap<Tuple<String, IFile>, List<ASTEntry>>();
+    public Map<Tuple<String, IFile>, HashSet<ASTEntry>> getOccurrencesInOtherFiles() {
+        HashMap<Tuple<String, IFile>, HashSet<ASTEntry>> m = new HashMap<Tuple<String, IFile>, HashSet<ASTEntry>>();
         if (process == null || process.size() == 0) {
             return null;
         }
 
         for (IRefactorRenameProcess p : process) {
-            Map<Tuple<String, IFile>, List<ASTEntry>> o = p.getOccurrencesInOtherFiles();
+            Map<Tuple<String, IFile>, HashSet<ASTEntry>> o = p.getOccurrencesInOtherFiles();
             if (o != null) {
 
-                for (Map.Entry<Tuple<String, IFile>, List<ASTEntry>> entry : o.entrySet()) {
+                for (Map.Entry<Tuple<String, IFile>, HashSet<ASTEntry>> entry : o.entrySet()) {
                     Tuple<String, IFile> key = entry.getKey();
 
-                    List<ASTEntry> existingOccurrences = m.get(key);
+                    HashSet<ASTEntry> existingOccurrences = m.get(key);
                     if (existingOccurrences == null) {
-                        existingOccurrences = new ArrayList<ASTEntry>();
+                        existingOccurrences = new HashSet<ASTEntry>();
                         m.put(key, existingOccurrences);
                     }
 

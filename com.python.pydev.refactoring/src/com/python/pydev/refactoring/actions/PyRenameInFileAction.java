@@ -163,7 +163,7 @@ public class PyRenameInFileAction extends Action{
         //process it to get what we need
 		processor.checkInitialConditions(monitor);
         processor.checkFinalConditions(monitor, null);
-		List<ASTEntry> occurrences = processor.getOccurrences();
+        HashSet<ASTEntry> occurrences = processor.getOccurrences();
 		
 		if(monitor.isCanceled()){
 			return false;
