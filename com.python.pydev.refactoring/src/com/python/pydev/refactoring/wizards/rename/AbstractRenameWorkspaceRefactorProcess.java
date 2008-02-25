@@ -19,6 +19,7 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
@@ -62,6 +63,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
      * @return a list with the references that point to the definition we're renaming. 
      */
     protected List<ASTEntry> getOccurrencesInOtherModule(RefactoringStatus status, String initialName, SourceModule module, PythonNature nature) {
+    	CompletionCache completionCache = new CompletionCache();
         List<ASTEntry> entryOccurrences = findReferencesOnOtherModule(status, initialName, module);
 
         if(getRecheckWhereDefinitionWasFound()){
@@ -71,7 +73,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
                 int col = entry.node.beginColumn;
                 try {
                 	ArrayList<IDefinition> definitions = new ArrayList<IDefinition>();
-					refactorerFindDefinition.findActualDefinition(request, module, initialName, definitions, line, col, nature);
+					refactorerFindDefinition.findActualDefinition(request, module, initialName, definitions, line, col, nature, completionCache);
 					//Definition[] definitions = module.findDefinition(new CompletionState(line-1, col-1, initialName, nature, ""), line, col, nature, null);
                     for (IDefinition def : definitions) {
                     	if(def instanceof Definition){

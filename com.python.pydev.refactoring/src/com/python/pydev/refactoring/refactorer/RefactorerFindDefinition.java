@@ -136,6 +136,8 @@ public class RefactorerFindDefinition {
             request.communicateWork("Module name found:"+modName);
             
             
+            CompletionCache completionCache = new CompletionCache();
+
             String tok = tokenAndQual[0] + tokenAndQual[1];
             try {
                 //2. check findDefinition (SourceModule)
@@ -145,7 +147,7 @@ public class RefactorerFindDefinition {
 				int beginCol = request.getBeginCol()+1;
 				IPythonNature pythonNature = request.nature;
 
-				findActualDefinition(request, mod, tok, selected, beginLine, beginCol, pythonNature);
+				findActualDefinition(request, mod, tok, selected, beginLine, beginCol, pythonNature, completionCache);
                 AnalysisPlugin.getAsPointers(pointers, selected.toArray(new Definition[0]));
                 
             } catch (OperationCanceledException e) {
@@ -166,7 +168,6 @@ public class RefactorerFindDefinition {
                 }
                 request.communicateWork(StringUtils.format("Found: %s possible matches.", tokensEqualTo.size()));
                 IPythonNature nature = request.nature;
-                CompletionCache completionCache = new CompletionCache();
                 for (IInfo info : tokensEqualTo) {
                     AnalysisPlugin.getDefinitionFromIInfo(pointers, manager, nature, info, completionCache);
                     request.checkCancelled();
@@ -195,12 +196,12 @@ public class RefactorerFindDefinition {
      * @param beginLine starts at 1
      * @param beginCol starts at 1
      * @param pythonNature the nature that we should use to find the definition
+     * @param completionCache cache to store completions
+     * 
      * @throws Exception
      */
 	public void findActualDefinition(RefactoringRequest request, IModule mod, String tok, ArrayList<IDefinition> selected, 
-	        int beginLine, int beginCol, IPythonNature pythonNature) throws Exception {
-	    
-	    ICompletionCache completionCache = new CompletionCache();
+	        int beginLine, int beginCol, IPythonNature pythonNature, ICompletionCache completionCache) throws Exception {
 	    
 		IDefinition[] definitions = mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, pythonNature, 
 		        beginLine-1, beginCol-1, completionCache), beginLine, beginCol, pythonNature);
