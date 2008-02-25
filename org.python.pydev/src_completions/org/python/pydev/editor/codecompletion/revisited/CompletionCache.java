@@ -11,7 +11,7 @@ import org.python.pydev.core.cache.LRUCache;
 public class CompletionCache extends LRUCache<Object, Object> implements ICompletionCache {
 
     public CompletionCache() {
-        super(250);
+        super(200);
     }
 
 }

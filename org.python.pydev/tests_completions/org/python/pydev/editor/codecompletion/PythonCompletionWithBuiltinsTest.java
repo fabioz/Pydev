@@ -14,6 +14,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
@@ -76,7 +77,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
 		File f = new File(file);
 		try{
 			nature.getAstManager().getCompletionsForToken(f, new Document(REF.getFileContents(f)), 
-			        CompletionStateFactory.getEmptyCompletionState("RuntimeError", nature, null));
+			        CompletionStateFactory.getEmptyCompletionState("RuntimeError", nature, new CompletionCache()));
 		}catch(CompletionRecursionException e){
 			//that's ok... we're asking for it here...
 		}

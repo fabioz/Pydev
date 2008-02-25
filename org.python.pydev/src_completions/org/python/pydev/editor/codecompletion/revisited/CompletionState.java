@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
@@ -145,6 +146,7 @@ public class CompletionState implements ICompletionState {
         this.activationToken = token;
         this.nature = nature2;
         this.qualifier = qualifier;
+        Assert.isNotNull(completionCache);
         this.completionCache = completionCache;
     }
     

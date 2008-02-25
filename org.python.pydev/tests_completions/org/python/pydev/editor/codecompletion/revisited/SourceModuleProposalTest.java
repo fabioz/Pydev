@@ -90,7 +90,7 @@ public class SourceModuleProposalTest extends TestCase {
         s.doc = doc;
         if(tokDef != null)
 			try {
-				s.definition = mod.findGlobalTokDef(CompletionStateFactory.getEmptyCompletionState(tokDef, null, null), null);
+				s.definition = mod.findGlobalTokDef(CompletionStateFactory.getEmptyCompletionState(tokDef, null, new CompletionCache()), null);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
