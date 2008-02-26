@@ -20,7 +20,7 @@ public class PyFormatStdTest extends TestCase {
         try {
 	        PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
-            n.testFormatEscapedQuotes();
+            n.testNoFormatCommaOnNewLine();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -61,6 +61,23 @@ public class PyFormatStdTest extends TestCase {
         
         assertEquals(s2, PyFormatStd.formatStr(s, std));
     
+    }
+    
+    public void testNoFormatCommaOnNewLine(){
+    	std.spaceAfterComma = true;
+    	std.parametersWithSpace = false;
+    	
+    	String s = ""+
+    	"def a(a,\n" +
+    	"      b):\n"+
+    	"    pass\n";
+    	
+    	String s1 = ""+
+    	"def a(a,\n" +
+    	"      b):\n"+
+    	"    pass\n";
+    	
+    	assertEquals(s1, PyFormatStd.formatStr(s, std));
     }
 
     public void testFormatEscapedQuotes(){
@@ -299,7 +316,7 @@ public class PyFormatStdTest extends TestCase {
         std.parametersWithSpace = true;
 
         String s = "" +
-		"methodCall( a, \n"+
+		"methodCall( a,\n"+
 		"            b \n"+
 		"           ) ";
 

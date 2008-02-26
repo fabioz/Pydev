@@ -126,6 +126,7 @@ public class PyFormatStd extends PyAction implements IFormatter{
     public static String formatStr(String str, FormatStd std ){
         char[] cs = str.toCharArray();
         StringBuffer buf = new StringBuffer();
+        char lastChar = '\0';
         for (int i = 0; i < cs.length; i++) {
             char c = cs[i];
             
@@ -144,8 +145,14 @@ public class PyFormatStd extends PyAction implements IFormatter{
 		        
                 
             }else{
+            	if(c == '\r' || c == '\n'){
+	            	if(lastChar == ',' && std.spaceAfterComma){
+	            		buf.deleteCharAt(buf.length()-1);
+	            	}
+            	}
                 buf.append(c);
             }
+            lastChar = c;
         }
         return buf.toString();
     }
