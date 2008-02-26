@@ -20,5 +20,5 @@
 - CNF: Go into / up in pydev package explorer: http://richclientplatform.blogspot.com/2007/07/adding-go-into-and-go-up-to-cnf.html
 - Option to add line at end of file
 - Generate log for reporting errors
-
+- Rename refactoring: check for overriden methods
 
