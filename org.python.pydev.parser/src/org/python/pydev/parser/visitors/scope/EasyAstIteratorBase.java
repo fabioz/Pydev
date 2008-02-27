@@ -9,7 +9,9 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.VisitorBase;
+import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
@@ -28,6 +30,7 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
     protected final FastStack<ASTEntry> parents = new FastStack<ASTEntry>();
     
     protected SimpleNode lastVisited;
+    protected ASTEntry lastDefVisited; //ClassDef or FunctionDef
     
     private int higherLine = -1;
     
@@ -103,10 +106,52 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
             }else{
                 entry.endLine = higherLine;
             }
+            
+            //also make comments found after the node a part of its context.
+            List<Object> s = entry.node.specialsAfter;
+            if(s != null){
+                for(Object o:s){
+                    if(o instanceof commentType){
+                        commentType comment = (commentType) o;
+                        if(comment.beginLine > entry.endLine){
+                            entry.endLine = comment.beginLine;
+                        }
+                    }
+                }
+            }
         }
+        this.lastDefVisited = entry;
     }
 
 
+    @Override
+    public Object visitModule(Module node) throws Exception {
+        Object ret = super.visitModule(node);
+        
+        //after visiting the module, let's put the comments to the last definition found
+        int size = this.nodes.size();
+        if(size > 0){
+            int i = -1;
+            if(node.specialsAfter != null){
+                for (Object o : node.specialsAfter) {
+                    if(o instanceof commentType){
+                        commentType type = (commentType) o;
+                        if(type.beginLine > i){
+                            i = type.beginLine;
+                        }
+                    }
+                }
+            }
+            if(i != -1 && this.lastDefVisited != null){
+                if(lastDefVisited.endLine < i){
+                    lastDefVisited.endLine = i;
+                }
+            }
+            
+        }
+        return ret;
+    }
+    
     /**
      * @param node the node we're adding in an 'atomic' way
      * @return the ast entry that was created in this 'atomic' add
