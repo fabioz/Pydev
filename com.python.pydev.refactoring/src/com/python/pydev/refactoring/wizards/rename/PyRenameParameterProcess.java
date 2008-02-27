@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.text.Region;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -132,6 +134,7 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
      */
     private List<ASTEntry> getParameterOccurences(List<ASTEntry> occurrences, SimpleNode root) {
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
+        List<Tuple<Integer, Integer>> acceptedCommentRanges = new ArrayList<Tuple<Integer,Integer>>();
         for (ASTEntry entry : occurrences) {
             
             if(entry.node instanceof Name){
@@ -145,6 +148,8 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
                 //process a function definition (get the parameters with the given name and
                 //references inside that function)
                 processFunctionDef(ret, entry);
+                ASTEntry parent = entry.parent;
+                acceptedCommentRanges.add(new Tuple<Integer, Integer>(parent.node.beginLine, parent.endLine));
                 
             }else if(entry.node instanceof Name){
                 processFoundName(root, ret, (Name) entry.node);
@@ -156,7 +161,14 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess{
         }
         if(ret.size() > 0){
             //only add comments and strings if there's at least some other occurrence
-            ret.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
+            List<ASTEntry> commentOccurrences = ScopeAnalysis.getCommentOccurrences(request.initialName, root);
+            for (ASTEntry commentOccurrence : commentOccurrences) {
+                for(Tuple<Integer, Integer> range:acceptedCommentRanges){
+                    if(commentOccurrence.node.beginLine >= range.o1 && commentOccurrence.node.beginLine <= range.o2){
+                        ret.add(commentOccurrence);
+                    }
+                }
+            }
         }
         return ret;
     }

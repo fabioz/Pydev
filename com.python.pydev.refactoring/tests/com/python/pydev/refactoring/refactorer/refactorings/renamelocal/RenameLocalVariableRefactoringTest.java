@@ -13,7 +13,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         	DEBUG = true;
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameAttribute2();
+            test.testRenameParamDocs();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -48,18 +48,42 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         checkRename(getDefaultDocStr(), line, col, "bb", true, false, "aaa bb");
     }
     
-    public void testAttrRename() throws Exception {
-    	int line = 2;
-    	int col = 14;
+    public void testNoCommentsRename() throws Exception {
+    	int line = 6;
+    	int col = 27;
     	String str = 
-    		"class Bar(object):\n" +
-    		"    def _GetFoo(self):\n" +
-    		"        self.%s()\n" +
-    		"    def %s(self):\n" +
+    		"#bar (no rename)\n" +
+    		"class RenameFunc2:\n" +
+    		"    '''\n" +
+    		"        bar (no rename)\n" +
+    		"    '''\n" +
+    		"    \n" +
+    		"    def RenameFunc2(self, %s):\n" +
+    		"        '''\n" +
+    		"            %s\n" +
+    		"        '''\n" +
+    		"        #%s\n" +
+    		"        \n" +
+    		"    def Other(self):\n" +
+    		"        #bar (no rename)\n" +
     		"        pass\n" +
     		"";
     	
-    	checkRename(str, line, col, "_foo", false, true);
+    	checkRename(str, line, col, "bar", false, true);
+    }
+    
+    public void testAttrRename() throws Exception {
+        int line = 2;
+        int col = 14;
+        String str = 
+            "class Bar(object):\n" +
+            "    def _GetFoo(self):\n" +
+            "        self.%s()\n" +
+            "    def %s(self):\n" +
+            "        pass\n" +
+            "";
+        
+        checkRename(str, line, col, "_foo", false, true);
     }
     
     public void testRenameAttribute2() throws Exception {
@@ -712,7 +736,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     public void testRenameParamDocs2() throws Exception {
     	String str = "" +
     	"tok = 10\n" +
-        "#checking %s right?\n"+
+        "#checking tok right?\n"+ //not renamed (out of context)
     	"def m1(%s=tok):\n" + //only get the tok that is a parameter the docs and comments
     	"    \n" +
     	"";
