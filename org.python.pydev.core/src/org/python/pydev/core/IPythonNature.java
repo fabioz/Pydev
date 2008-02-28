@@ -64,12 +64,6 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
     boolean isPython() throws CoreException;
     
     /**
-     * @return whether this kind of project should accept the decorators syntax
-     * @throws CoreException 
-     */
-    boolean acceptsDecorators() throws CoreException;
-    
-    /**
      * @return the id that is related to this nature given its type
      * 
      * @see #PYTHON_RELATED

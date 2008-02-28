@@ -12,6 +12,7 @@ Pydev
 <li><strong>Debugger can use psyco</strong>: see <a href="http://pydev.blogspot.com/2008/02/pydev-debugger-and-psyco-speedups.html">blog post</a>.</li>
 <li><strong>Debugger</strong>: handles return events correctly.</li>
 <li><strong>Go to previous/next method</strong>: (Ctrl+Shift+Up/Down): More reliable: does not depend on having a correct parse anymore.</li>
+<li><strong>New project</strong>: Marked as python 2.5 by default (was python 2.4).</li>
 </ul>
 
 

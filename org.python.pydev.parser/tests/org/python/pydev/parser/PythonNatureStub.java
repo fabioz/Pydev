@@ -15,10 +15,6 @@ import org.python.pydev.core.IToken;
 
 public class PythonNatureStub implements IPythonNature {
 
-    public boolean acceptsDecorators() throws CoreException {
-        throw new RuntimeException("Not implemented");
-    }
-
     public void endRequests() {
         throw new RuntimeException("Not implemented");
     }

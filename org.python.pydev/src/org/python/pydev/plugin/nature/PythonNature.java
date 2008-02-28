@@ -603,7 +603,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     }
 
     public String getDefaultVersion(){
-        return PYTHON_VERSION_2_4;
+        return PYTHON_VERSION_2_5;
     }
 
     
@@ -616,10 +616,6 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     public boolean isPython() throws CoreException {
         return !isJython();
-    }
-    
-    public boolean acceptsDecorators() throws CoreException {
-        return getVersion().equals(PYTHON_VERSION_2_4);
     }
     
     public void saveAstManager() {

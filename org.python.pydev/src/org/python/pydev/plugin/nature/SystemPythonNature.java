@@ -45,10 +45,6 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
 		return manager.isPython();
 	}
 
-	public boolean acceptsDecorators() throws CoreException {
-		return true;
-	}
-
 	public int getRelatedId() throws CoreException {
 		return PythonNature.getRelatedId(this);
 	}
