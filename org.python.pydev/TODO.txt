@@ -21,4 +21,4 @@
 - Option to add line at end of file
 - Generate log for reporting errors
 - Rename refactoring: check for overriden methods
-
+- See SocketUtil version of JDT and reason behind its changes.

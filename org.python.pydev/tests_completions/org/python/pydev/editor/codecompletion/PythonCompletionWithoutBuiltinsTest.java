@@ -1059,6 +1059,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     	
     	requestCompl(s, new String[] {"_scalar_bars"});
     }
+
     
 }
 

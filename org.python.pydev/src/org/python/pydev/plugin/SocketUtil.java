@@ -18,6 +18,12 @@ import java.util.Random;
  * No dependencies kept it on the classpath reliably
  */
 public class SocketUtil {
+    
+    
+    //TODO: see org.eclipse.jdt.launching.SocketUtil as they seem to have deprecated that same method in
+    //favor of another (better?) one.
+    
+    
 	private static final Random fgRandom= new Random(System.currentTimeMillis());
 	
 	/**

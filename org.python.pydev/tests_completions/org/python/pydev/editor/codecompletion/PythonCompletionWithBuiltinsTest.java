@@ -321,5 +321,16 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     }
     
 
+    public void testInstanceCompletion() throws Exception {
+        String s = 
+            "class A:\n" +
+            "    def __init__(self):\n" +
+            "        self.list1 = []\n" +
+            "if __name__ == '__main__':\n" +
+            "    a = A()\n" +
+            "    a.list1.";
+        
+        requestCompl(s, -1, new String[] {"pop()", "remove()"});
+    }
 
 }

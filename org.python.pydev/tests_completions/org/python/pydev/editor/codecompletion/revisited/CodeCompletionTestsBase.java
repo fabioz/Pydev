@@ -511,6 +511,10 @@ public class CodeCompletionTestsBase extends TestCase {
         return requestCompl(strDoc, -1, retCompl.length, retCompl);
     }
     
+    public ICompletionProposal[] requestCompl(String strDoc, int expectedCompletions, String []retCompl) throws CoreException, BadLocationException{
+        return requestCompl(strDoc, -1, expectedCompletions, retCompl);
+    }
+    
     public ICompletionProposal[] requestCompl(String strDoc, String retCompl) throws CoreException, BadLocationException{
         return requestCompl(strDoc, new String[]{retCompl});
     }
