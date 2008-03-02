@@ -19,6 +19,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -195,7 +196,11 @@ public class AssignAnalysis {
                 //TODO: we might want to extend that later to check the return of some function for code-completion purposes...
                 state.setLookingFor(ICompletionState.LOOKING_FOR_ASSIGN);
                 ICompletionState copy = state.getCopy();
-                copy.setActivationToken (definition.value);
+                if(definition.ast instanceof Attribute){
+                    copy.setActivationToken(NodeUtils.getFullRepresentationString(definition.ast));
+                }else{
+                    copy.setActivationToken(definition.value);
+                }
                 copy.setLine(definition.line);
                 copy.setCol(definition.col);
                 module = definition.module;
