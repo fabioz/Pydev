@@ -171,12 +171,32 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     public Object visitClassDef(ClassDef node) throws Exception {
         addToNamesToIgnore(node);
+        AbstractScopeAnalyzerVisitor visitor = this;
+
+        //we want to visit the bases before actually starting the class scope (as it's as if they're attribute
+        //accesses).
+        if (node.bases != null) {
+        	for (int i = 0; i < node.bases.length; i++) {
+        		if (node.bases[i] != null)
+        			node.bases[i].accept(visitor);
+        	}
+        }
 
         startScope(Scope.SCOPE_TYPE_CLASS, node);
-        Object object = super.visitClassDef(node);
+        
+        if (node.name != null){
+        	node.name.accept(visitor);
+        }
+        
+        if (node.body != null) {
+            for (int i = 0; i < node.body.length; i++) {
+                if (node.body[i] != null)
+                	node.body[i].accept(visitor);
+            }
+        }
         endScope(node);
         
-        return object;
+        return null;
     }
 
     /**

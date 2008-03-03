@@ -29,7 +29,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testNoUnusedWithLocals();
+            analyzer2.testInternalClassDefinition();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2492,6 +2492,25 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         msgs = analyzeDoc();
         
         printMessages(msgs, 0);
+    }
+    
+    
+    public void testInternalClassDefinition() {
+    	doc = new Document("" +
+    			"class Container:\n" +
+    			"    \n" +
+    			"    def Method(self):\n" +
+    			"        \n" +
+    			"        class ClassSuper:\n" +
+    			"            pass\n" +
+    			"        class ClassSub(ClassSuper):\n" +
+    			"            pass\n" +
+    			"    \n" +
+    	"");
+    	analyzer = new OccurrencesAnalyzer();
+    	msgs = analyzeDoc();
+    	
+    	printMessages(msgs, 0);
     }
     
 }
