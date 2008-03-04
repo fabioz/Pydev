@@ -338,8 +338,8 @@ public abstract class AbstractShell {
 
 			try {
 
-				int pWrite = SocketUtil.findUnusedLocalPort("127.0.0.1", 50000, 55000);
-				int pRead = SocketUtil.findUnusedLocalPort("127.0.0.1", 55001, 60000);
+				int pWrite = SocketUtil.findUnusedLocalPort();
+				int pRead = SocketUtil.findUnusedLocalPort();
 
 				if (process != null) {
 					endIt(); //end the current process

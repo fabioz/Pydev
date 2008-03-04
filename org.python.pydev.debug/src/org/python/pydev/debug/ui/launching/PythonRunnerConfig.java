@@ -346,7 +346,7 @@ public class PythonRunnerConfig {
 
     public int getDebugPort() throws CoreException {
 		if (debugPort == 0) {
-			debugPort= SocketUtil.findUnusedLocalPort("", 5000, 15000); //$NON-NLS-1$
+			debugPort= SocketUtil.findUnusedLocalPort();
 			if (debugPort == -1)
 				throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not find a free socket for debugger", null));
 		}

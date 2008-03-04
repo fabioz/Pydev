@@ -115,7 +115,7 @@ public class PyUnitTestRunner {
      */
     public void runTests(String testModuleDir, String testModuleName, IProject project) throws IOException{
         //int pWrite = SocketUtil.findUnusedLocalPort("127.0.0.1", 50000, 55000);
-        int pRead = SocketUtil.findUnusedLocalPort("127.0.0.1", 60001, 65000);
+        int pRead = SocketUtil.findUnusedLocalPort();
 
         if(process != null)
             endIt();
@@ -131,7 +131,7 @@ public class PyUnitTestRunner {
         
         sleepALittle(1000);
         try {
-	        serverSocket = new ServerSocket(pRead);         //read from this port
+	        serverSocket = new ServerSocket(pRead); //read from this port
 	        try {
 	        	socketToRead = serverSocket.accept();
 	        	try {
