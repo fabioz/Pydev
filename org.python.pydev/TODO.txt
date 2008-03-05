@@ -21,4 +21,20 @@
 - Option to add line at end of file
 - Generate log for reporting errors
 - Rename refactoring: check for overriden methods
-- See SocketUtil version of JDT and reason behind its changes.
+
+- Try to reproduce:
+problems:
+
+!MESSAGE Error in occurrences while analyzing modName:petro20.writers.kase._kase_writer initialName:compression line (start at 0):10
+!STACK 0
+java.lang.RuntimeException: Error in occurrences while analyzing modName:petro20.writers.kase._kase_writer initialName:compression line (start at 0):10
+	at com.python.pydev.refactoring.markoccurrences.MarkOccurrencesJob.checkAnnotations(MarkOccurrencesJob.java:229)
+	at com.python.pydev.refactoring.markoccurrences.MarkOccurrencesJob.run(MarkOccurrencesJob.java:125)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:55)
+Caused by: java.lang.ClassCastException: org.python.pydev.parser.jython.ast.Module
+	at com.python.pydev.refactoring.wizards.rename.PyRenameParameterProcess.init(PyRenameParameterProcess.java:109)
+	at com.python.pydev.refactoring.wizards.rename.PyRenameParameterProcess.<init>(PyRenameParameterProcess.java:70)
+	at com.python.pydev.refactoring.wizards.RefactorProcessFactory.getProcess(RefactorProcessFactory.java:64)
+	at com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint.checkInitialConditions(PyRenameEntryPoint.java:193)
+	at com.python.pydev.refactoring.markoccurrences.MarkOccurrencesJob.checkAnnotations(MarkOccurrencesJob.java:216)
+	... 2 more

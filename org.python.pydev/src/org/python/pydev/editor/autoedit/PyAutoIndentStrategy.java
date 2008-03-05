@@ -51,6 +51,9 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
     
     /**
      * Set indentation automatically after newline.
+     * 
+     * @return tuple with the indentation to be set and a boolean determining if it was found
+     * to be within a parenthesis or not.
      */
     private Tuple<String,Boolean> autoIndentNewline(IDocument document, int length, String text, int offset)
             throws BadLocationException {
@@ -288,7 +291,8 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
     	}
         
         String contentType = ParsingUtils.getContentType(document, command.offset);
-		if(!contentType.equals( ParsingUtils.PY_DEFAULT)){
+
+		if(!contentType.equals(ParsingUtils.PY_DEFAULT)){
             //the indentation is only valid for things in the code (comments should not be indented).
             //(that is, if it is not a new line... in this case, it may have to be indented)
             if(!isNewLine){
@@ -321,6 +325,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             	PySelection ps = new PySelection(document, command.offset);
             	//it is a tab
             	String lineContentsToCursor = ps.getLineContentsToCursor();
+            	int currSize = lineContentsToCursor.length();
             	int cursorLine = ps.getCursorLine();
             	if(cursorLine > 0){
             		//this is to know which would be expected if it was a new line in the previous line
@@ -337,18 +342,27 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             		if (txt.length() > 0){
             			//now, we should not apply that indent if we are already at the 'max' indent in this line
             			//(or better: we should go to that max if it would pass it)
-            			int sizeApplied = ps.getStartLineOffset()+ lineContentsToCursor.length() + txt.length();
-            			int sizeExpected = ps.getStartLineOffset()+ txt.length();
-            			int currSize = ps.getAbsoluteCursorOffset();
+            			int sizeExpected = txt.length();
+            			int sizeApplied = currSize + sizeExpected;
 
             			if(currSize >= sizeExpected){
-            				//do nothing (we already passed what we expected from the indentation)
-            			    int len = sizeApplied-sizeExpected;
+            				//ok, we already passed what we expected from the indentation, so, let's indent
+            				//to the next 'expected' position...
+            				
+            				boolean applied = false;
+            				//handle within parenthesis
                             if(prevLineTup.o2){
+                            	int len = sizeApplied-sizeExpected;
                                 if(prevExpectedIndent.length() > len){
                                     command.text = prevExpectedIndent.substring(len);
+                                    applied = true;
                                 }
                             }
+                            
+                            if(!applied){
+                            	applyDefaultForTab(command, currSize);
+                            }
+                            
             			}else if(sizeExpected == sizeApplied){
                             if(command.length == 0){
                 				ps.deleteSpacesAfter(command.offset);
@@ -358,7 +372,12 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             				ps.deleteSpacesAfter(command.offset);
             				command.text = txt.substring(0, sizeExpected - currSize);
             			}
+            		}else{
+            			applyDefaultForTab(command, currSize);
             		}
+            		
+            	}else{ //cursorLine == 0
+                	applyDefaultForTab(command, currSize);
             	}
             }
             
@@ -534,6 +553,18 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Updates the text to the next tab position
+     * @param command the command to be edited
+     * @param lineContentsToCursorLen the current cursor position at the current line
+     */
+	private void applyDefaultForTab(DocumentCommand command, int lineContentsToCursorLen) {
+		int tabWidth = getIndentPrefs().getTabWidth();
+		
+		int mod = (lineContentsToCursorLen+tabWidth) % tabWidth;
+		command.text = DocUtils.createSpaceString(tabWidth-mod);
+	}
 
     /**
      * This function makes the else auto-dedent (if available)

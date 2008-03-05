@@ -25,7 +25,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testAutoImportStr2();
+            s.testOffsetType2();
             s.tearDown();
     		junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -77,6 +77,24 @@ public class PyAutoIndentStrategyTest extends TestCase {
         DocCmd docCmd = new DocCmd(str.length(), 0, "\t");
         strategy.customizeDocumentCommand(new Document(str), docCmd);
         assertEquals("    ", docCmd.text);
+    }
+    
+    public void testOffsetType() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = 
+    		"print 'aaa'";
+    	DocCmd docCmd = new DocCmd(str.length()-"'aaa'".length(), 0, "\t");
+    	strategy.customizeDocumentCommand(new Document(str), docCmd);
+    	assertEquals("  ", docCmd.text);
+    }
+    
+    public void testOffsetType2() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = 
+    		"\nprint 'aaa'"; //just to check in 2nd line (and not on the 1st -- which has different semantics)
+    	DocCmd docCmd = new DocCmd(str.length()-"'aaa'".length(), 0, "\t");
+    	strategy.customizeDocumentCommand(new Document(str), docCmd);
+    	assertEquals("  ", docCmd.text);
     }
     
     public void testTab2() {
@@ -1142,6 +1160,25 @@ public class PyAutoIndentStrategyTest extends TestCase {
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         expected = "():";
         assertEquals(expected, docCmd.text);
+    }
+    
+    public void testSmartIndent() {
+    	TestIndentPrefs testIndentPrefs = new TestIndentPrefs(true, 4);
+    	strategy.setIndentPrefs(testIndentPrefs);
+    	String doc = null;
+    	DocCmd docCmd = null;
+    	String expected = null;
+    	
+    	doc = 
+    		"class SuperContainer:\n" +
+    		"    def SuperMethod(self):\n" +
+    		"        pass\n" +
+    		"       " +
+    		"";
+    	docCmd = new DocCmd(doc.length(), 0, "\t");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	expected = " ";
+    	assertEquals(expected, docCmd.text);
     }
     
     public void testNoAutoSelf2() {

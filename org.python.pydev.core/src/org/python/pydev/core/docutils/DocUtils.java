@@ -8,6 +8,8 @@ import java.util.StringTokenizer;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.python.pydev.core.cache.Cache;
+import org.python.pydev.core.cache.LRUCache;
 
 /**
  * This class contains commonly used text- or document-related functions,
@@ -126,15 +128,27 @@ public class DocUtils {
     
 
     /**
+     * Small cache to hold strings only with spaces (so that each width has a created string).
+     */
+    private static Cache<Integer, String> widthToSpaceString = new LRUCache<Integer, String>(8);
+    
+    /**
      * Creates a string of spaces of the designated length.
      * @param width number of spaces you want to create a string of
      * @return the created string
      */
     public static String createSpaceString(int width) {
+    	String existing = widthToSpaceString.getObj(width);
+    	if(existing != null){
+    		return existing;
+    	}
         StringBuffer b = new StringBuffer(width);
-        while (width-- > 0)
+        while (width-- > 0){
             b.append(' ');
-        return b.toString();
+        }
+        String newStr = b.toString();
+        widthToSpaceString.add(width, newStr);
+        return newStr;
     }
 
     public static char getPeer(char c){

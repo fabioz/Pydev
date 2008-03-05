@@ -8,7 +8,7 @@ import java.util.Iterator;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
-import org.eclipse.jface.text.IDocumentPartitioner;
+import org.eclipse.jface.text.IDocumentPartitionerExtension2;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IPythonPartitions;
 
@@ -439,9 +439,11 @@ public class ParsingUtils implements IPythonPartitions{
      */
     public static String getContentType(IDocument document, int i) {
         IDocumentExtension3 docExtension= (IDocumentExtension3) document;
-        IDocumentPartitioner partitioner = docExtension.getDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE);
+        IDocumentPartitionerExtension2 partitioner = (IDocumentPartitionerExtension2)
+        	docExtension.getDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE);
+        
         if(partitioner != null){
-            return partitioner.getContentType(i);
+            return partitioner.getContentType(i, true);
         }
         return getContentType(document.get(), i);
     }

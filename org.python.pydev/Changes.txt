@@ -14,6 +14,8 @@ Pydev
 <li><strong>Go to previous/next method</strong>: (Ctrl+Shift+Up/Down): More reliable: does not depend on having a correct parse anymore.</li>
 <li><strong>Auto-formatting</strong>: No space after comma if next char is new line.</li>
 <li><strong>New project</strong>: Marked as python 2.5 by default (was python 2.4).</li>
+<li><strong>Code Completion</strong>: Handling of completions defined as attributes in classes (accessed from outside of the class).</li>
+<li><strong>Auto-indent</strong>: Better handling when indenting to next tab position within the code.</li>
 </ul>
 
 
@@ -22,6 +24,7 @@ Extensions
 <ul>
 <li><strong>Local renames</strong>: scoping issues.</li>
 <li><strong>Local renames</strong>: comments/strings only renamed in local scope for local variable.</li>
+<li><strong>Wrong undefined variable</strong>: a base-class could be raised as undefined if used in a method scope.</li>
 </ul>
 
 after 1.3.12
