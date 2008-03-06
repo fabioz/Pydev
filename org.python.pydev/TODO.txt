@@ -7,6 +7,7 @@
 - Ctrl+* should enable/disable mark occurrences
 - Variable highlight doesn't respect local scope (all docstrings are gotten in the file when renaming a local variable)
 - Add breakpoint if file is zip
+- Mark new project as python 2.5
 
 - Enable users to work with zip files and integrate better with java (jars and ast structure).
 	- Simple support (code-completion / modules): OK
