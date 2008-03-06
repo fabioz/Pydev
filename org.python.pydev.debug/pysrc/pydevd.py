@@ -617,7 +617,8 @@ class PyDB:
             doWaitSuspend = psyco.proxy(doWaitSuspend)
             getInternalQueue = psyco.proxy(getInternalQueue)
         except ImportError:
-            print >> sys.stderr, 'pydev debugger: warning: psyco not available for debugger speedups'
+            if not sys.platform.startswith("java"):
+                print >> sys.stderr, 'pydev debugger: warning: psyco not available for debugger speedups'
 
 
     def run(self, file, globals=None, locals=None):

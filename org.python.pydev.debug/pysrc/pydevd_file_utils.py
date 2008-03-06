@@ -19,7 +19,9 @@
     
     @note: DEBUG_CLIENT_SERVER_TRANSLATION can be set to True to debug the result of those translations
     
-    @note: the case of the prefixes is important! 
+    @note: the case of the paths is important! Note that this can be tricky to get right when one machine
+    uses a case-independent filesystem and the other uses a case-dependent filesystem (if the system being
+    debugged is case-independent, 'normcase()' should be used on the paths defined in PATHS_FROM_CLIENT_TO_SERVER). 
     
     @note: all the paths with breakpoints must be translated (otherwise they won't be found in the server)
     
@@ -28,8 +30,9 @@
         
         see parameter docs on pydevd.py
         
-    @note: for doing a remote debugging, all the pydevd_ files must be on the server accessible through
-        the PYTHONPATH.
+    @note: for doing a remote debugging session, all the pydevd_ files must be on the server accessible 
+        through the PYTHONPATH (and the PATHS_FROM_CLIENT_TO_SERVER only need to be set on the target 
+        machine as needed).
 '''
 
 
@@ -40,15 +43,19 @@ import os.path
 import sys
 normcase = os.path.normcase
 
+#defined as a list of tuples where the 1st element of the tuple is the path in the client machine
+#and the 2nd element is the path in the server machine.
+#see module docstring for more details.
 PATHS_FROM_CLIENT_TO_SERVER = []
 
-#testing
+#example:
 #PATHS_FROM_CLIENT_TO_SERVER = [
 #(normcase(r'd:\temp\temp_workspace_2\test_python\src\yyy\yyy'),
 # normcase(r'd:\temp\temp_workspace_2\test_python\src\hhh\xxx'))]
 
-DEBUG_CLIENT_SERVER_TRANSLATION = True
+DEBUG_CLIENT_SERVER_TRANSLATION = False
 
+#caches filled as requested during the debug session
 NORM_FILENAME_CONTAINER = {}
 NORM_FILENAME_AND_BASE_CONTAINER = {}
 NORM_FILENAME_TO_SERVER_CONTAINER = {}
