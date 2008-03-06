@@ -21,6 +21,7 @@
 - Option to add line at end of file
 - Generate log for reporting errors
 - Rename refactoring: check for overriden methods
+- Remote debugging: use module name is possible?
 
 - Try to reproduce:
 problems:
