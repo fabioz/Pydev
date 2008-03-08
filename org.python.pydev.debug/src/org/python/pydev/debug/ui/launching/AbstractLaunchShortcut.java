@@ -16,6 +16,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.variables.IStringVariableManager;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -259,17 +261,22 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
             ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null, name);
             // Python Main Tab Arguments
 
-            //IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
-            //String baseDirectory = varManager.generateVariableExpression("workspace_loc",resource.getRawLocation().removeLastSegments(1).toString());
-            String baseDirectory = resource[0].getRawLocation().removeLastSegments(1).toString();
+            // Build the working directory to a path relative to the workspace_loc
+            IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
+            String baseDirectory = resource[0].getFullPath().removeLastSegments(1).makeRelative().toString();
+        	baseDirectory = varManager.generateVariableExpression("workspace_loc", baseDirectory);
             String arguments = "";
+
+            // Build the location to a path relative to the workspace_loc
+            String moduleFile = resource[0].getFullPath().makeRelative().toString();
+            moduleFile = varManager.generateVariableExpression("workspace_loc", moduleFile);
 
             workingCopy.setAttribute(Constants.ATTR_PROJECT, projName);
             workingCopy.setAttribute(Constants.ATTR_RESOURCE_TYPE, resource[0].getType());
             workingCopy.setAttribute(Constants.ATTR_INTERPRETER, Constants.ATTR_INTERPRETER_DEFAULT);
 
             workingCopy.setAttribute(IDebugUIConstants.ATTR_LAUNCH_IN_BACKGROUND, false);
-            workingCopy.setAttribute(Constants.ATTR_LOCATION, location);
+            workingCopy.setAttribute(Constants.ATTR_LOCATION, moduleFile);
             workingCopy.setAttribute(Constants.ATTR_WORKING_DIRECTORY, baseDirectory);
             workingCopy.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, arguments);
             workingCopy.setAttribute(Constants.ATTR_VM_ARGUMENTS, vmargs);
@@ -298,7 +305,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
     /**
      * COPIED/MODIFIED from AntLaunchShortcut
      */
-    protected ILaunchConfiguration chooseConfig(List configs) {
+    protected ILaunchConfiguration chooseConfig(List<ILaunchConfiguration> configs) {
         if (configs.isEmpty()) {
             return null;
         }
@@ -336,7 +343,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
         }
 
         ILaunchConfiguration conf = null;
-        List configurations = findExistingLaunchConfigurations(file);
+        List<ILaunchConfiguration> configurations = findExistingLaunchConfigurations(file);
         if (configurations.isEmpty())
             conf = createDefaultLaunchConfiguration(file);
         else {

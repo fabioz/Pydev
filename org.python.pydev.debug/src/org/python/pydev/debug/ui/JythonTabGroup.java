@@ -11,17 +11,23 @@ import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.RefreshTab;
 import org.python.pydev.plugin.PydevPlugin;
 
+/**
+ * Special launch configuration for Jython
+ */
 public class JythonTabGroup extends AbstractLaunchConfigurationTabGroup {
     
-    public void createTabs(ILaunchConfigurationDialog arg0, String arg1) {
-        MainModuleTab mainModuleTab = new MainModuleTab();
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.debug.ui.ILaunchConfigurationTabGroup#createTabs(org.eclipse.debug.ui.ILaunchConfigurationDialog, java.lang.String)
+	 */
+    public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
         ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
-            mainModuleTab,
-            new ArgumentsTab(PydevPlugin.getJythonInterpreterManager(), mainModuleTab), 
+        	new MainModuleTab(),
+            new ArgumentsTab(),
+            new InterpreterTab(PydevPlugin.getJythonInterpreterManager()),
             new RefreshTab(),
             new EnvironmentTab(),
             new CommonTab() };
         setTabs(tabs);
     }
-
 }

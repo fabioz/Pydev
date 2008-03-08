@@ -12,7 +12,9 @@ public interface Constants {
 
 	// Icons
 	static final String MAIN_ICON = "icons/python.gif";
-	
+	static final String ARGUMENTS_ICON  = "icons/arguments.gif";
+	static final String PYTHON_ORG_ICON = "icons/python_16x16.png";
+		
 	// Plugin constants
 	static final String PLUGIN_ID = "org.python.pydev.debug";
 	static final String PYTHON_DEBUG_LAUNCH_GROUP = "org.python.pydev.debug.debug";

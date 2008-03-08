@@ -127,8 +127,14 @@ public class PythonRunnerConfig {
      * @throws CoreException if unable to retrieve the associated launch
      * configuration attribute, or if unable to resolve any variables
      */
-    public static String getArguments(ILaunchConfiguration configuration) throws CoreException {
-        return configuration.getAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, (String) null);
+    public static String getArguments(ILaunchConfiguration configuration, boolean makeArgumentsVariableSubstitution) throws CoreException {
+        String arguments = configuration.getAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, "");
+        if(makeArgumentsVariableSubstitution){
+    		return VariablesPlugin.getDefault().getStringVariableManager()
+    				.performStringSubstitution(arguments);
+        }else{
+            return arguments;
+        }
     }
     /**
      * Parses the argument text into an array of individual
@@ -189,7 +195,7 @@ public class PythonRunnerConfig {
      * @throws CoreException if unable to retrieve the launch configuration attribute or if unable to 
      * resolve the default interpreter.
      */
-    private static String getInterpreterLocation(ILaunchConfiguration conf, IPythonNature nature) throws CoreException {
+    public static String getInterpreterLocation(ILaunchConfiguration conf, IPythonNature nature) throws CoreException {
 		IInterpreterManager interpreterManager = PydevPlugin.getInterpreterManager(nature);
         String location = conf.getAttribute(Constants.ATTR_INTERPRETER, Constants.ATTR_INTERPRETER_DEFAULT);
         
@@ -229,41 +235,79 @@ public class PythonRunnerConfig {
         }
     }
 
-
+    /**
+     * Gets the project that should be used for a launch configuration
+     * @param conf the launch configuration from where the project should be gotten
+     * @return the related IProject
+     * @throws CoreException
+     */
+    public static IProject getProjectFromConfiguration(ILaunchConfiguration conf) throws CoreException{
+        String projName = conf.getAttribute(Constants.ATTR_PROJECT, "");
+        if (projName == null || projName.length() == 0){
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get project for the run",null));
+        }
+        
+        IWorkspace w = ResourcesPlugin.getWorkspace();
+        IProject p = w.getRoot().getProject(projName);   
+        if(p == null){ // Ok, we could not find it out
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not get project: " + projName, null));
+        }        
+        return p;
+    }
+    
+    /**
+     * Can be used to extract the pythonpath used from a given configuration.
+     * 
+     * @param conf the configuration from where we want to get the pythonpath
+     * @return a string with the pythonpath used (with | as a separator)
+     * @throws CoreException
+     */
+    public static String getPythonpathFromConfiguration(ILaunchConfiguration conf) throws CoreException{
+        IProject p = getProjectFromConfiguration(conf);
+        PythonNature pythonNature = PythonNature.getPythonNature(p);
+        if (pythonNature == null) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Project should have a python nature: " + p.getName(), null));
+        }
+        String l = getInterpreterLocation(conf, pythonNature);
+        return SimpleRunner.makePythonPathEnvString(p, l);
+    }
+    
+    public PythonRunnerConfig(ILaunchConfiguration conf, String mode, String run) throws CoreException {
+        this(conf, mode, run, true);
+    }
+    
 	/**
 	 * Sets defaults.
 	 */
 	@SuppressWarnings("unchecked")
-    public PythonRunnerConfig(ILaunchConfiguration conf, String mode, String run) throws CoreException {
+    public PythonRunnerConfig(ILaunchConfiguration conf, String mode, String run, boolean makeArgumentsVariableSubstitution) throws CoreException {
 	    this.configuration = conf;
         this.run = run;
 		isDebug = mode.equals(ILaunchManager.DEBUG_MODE);
 		isInteractive = mode.equals("interactive");
 		
         resource = getLocation(conf);
-		arguments = getArguments(conf);
+		arguments = getArguments(conf, makeArgumentsVariableSubstitution);
 		IPath workingPath = getWorkingDirectory(conf);
 		workingDirectory = workingPath == null ? null : workingPath.toFile();
 		acceptTimeout = PydevPrefs.getPreferences().getInt(PydevPrefs.CONNECT_TIMEOUT);
-
-		//find the project
-        IWorkspace w = ResourcesPlugin.getWorkspace();
-        String projName = conf.getAttribute(Constants.ATTR_PROJECT, "");
-        if (projName.length() == 0){
-            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get project for the run",null));
-        }
         
-        project = w.getRoot().getProject(projName);   
+        project = getProjectFromConfiguration(conf);
         
-
         if(project == null){ //Ok, we could not find it out
             CoreException e = PydevPlugin.log("Could not get project for resource: "+resource);
             throw e;
         }
 
         // We need the project to find out the default interpreter from the InterpreterManager.
-        interpreterLocation = getInterpreterLocation(conf, (IPythonNature) project.getNature(PythonNature.PYTHON_NATURE_ID));
-		interpreter = getInterpreter(conf, (IPythonNature) project.getNature(PythonNature.PYTHON_NATURE_ID));
+        IPythonNature pythonNature = PythonNature.getPythonNature(project);
+        if (pythonNature == null) {
+            CoreException e = PydevPlugin.log("No python nature for project: " + project.getName());
+            throw e;
+        }
+        
+        interpreterLocation = getInterpreterLocation(conf, pythonNature);
+		interpreter = getInterpreter(conf, pythonNature);
         
         //make the environment
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
