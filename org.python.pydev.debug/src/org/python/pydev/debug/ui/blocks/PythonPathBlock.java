@@ -72,6 +72,7 @@ public class PythonPathBlock extends AbstractLaunchConfigurationTab {
 	 */
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
 		// Nothing to apply, this is a read-only control
+	    initializeFrom(configuration);
 	}
 
 	/*

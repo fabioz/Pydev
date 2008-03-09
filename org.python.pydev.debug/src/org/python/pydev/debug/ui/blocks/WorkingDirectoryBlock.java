@@ -40,6 +40,7 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
 			
+	private static final String DEFAULT_WORKING_DIRECTORY_TEXT = "${project_loc}";
 	// Local directory
 	private Button fWorkspaceButton;
 	private Button fFileSystemButton;
@@ -244,7 +245,7 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
 	protected void setDefaultWorkingDir() {
 		ILaunchConfiguration config = getLaunchConfiguration();
 		if (config != null) {
-			setDefaultWorkingDirectoryText("${project_loc}");
+			setDefaultWorkingDirectoryText(DEFAULT_WORKING_DIRECTORY_TEXT);
 			return;
 		}
 		setDefaultWorkingDirectoryText(System.getProperty("user.dir")); //$NON-NLS-1$
@@ -300,10 +301,17 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
 	public void initializeFrom(ILaunchConfiguration configuration) {
 		setLaunchConfiguration(configuration);
 		try {			
-			String wd = configuration.getAttribute(Constants.ATTR_WORKING_DIRECTORY, (String)null);
+			String wd = configuration.getAttribute(Constants.ATTR_WORKING_DIRECTORY, (String) null);
+			String owd = configuration.getAttribute(Constants.ATTR_OTHER_WORKING_DIRECTORY, (String) null);
 			setDefaultWorkingDir();
-			if (wd != null) {
+
+			if (	(	(wd != null)
+					&&  (wd.equals(owd)))
+				||  (owd == null)) {
 				setOtherWorkingDirectoryText(wd);
+			}
+			else {
+				fOtherWorkingText.setText(owd);
 			}
 		} 
 		catch (CoreException e) {
@@ -316,8 +324,11 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
 	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#performApply(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
 	 */
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
+
+		configuration.setAttribute(Constants.ATTR_OTHER_WORKING_DIRECTORY, fOtherWorkingText.getText().trim());
+		
 		if(fUseDefaultDirButton.getSelection()) {
-			configuration.setAttribute(Constants.ATTR_WORKING_DIRECTORY, (String)null);
+			configuration.setAttribute(Constants.ATTR_WORKING_DIRECTORY, (String) null);
 		}
 		else {
 			configuration.setAttribute(Constants.ATTR_WORKING_DIRECTORY, getWorkingDirectoryText());

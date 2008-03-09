@@ -28,7 +28,9 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Widget;
 import org.python.pydev.debug.core.Constants;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.dialogs.PythonModulePickerDialog;
 
 /**
@@ -36,9 +38,10 @@ import org.python.pydev.ui.dialogs.PythonModulePickerDialog;
  */
 public class MainModuleBlock extends AbstractLaunchConfigurationTab {
 
-	private Text   fMainModuleText;
+	private Text fMainModuleText;
 	private Button fMainModuleBrowseButton;
 	private String fProjectName;
+	private ModifyListener fProjectModifyListener;
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#createControl(org.eclipse.swt.widgets.Composite)
@@ -74,8 +77,8 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
         fMainModuleBrowseButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			    IFile currentFile    = getMainModuleFile();
-				IResource resource   = workspace.getRoot().findMember(fProjectName);
+			    IFile currentFile = getMainModuleFile();
+				IResource resource = workspace.getRoot().findMember(fProjectName);
 
 				if (resource instanceof IProject) {
 					IProject project = (IProject) resource;
@@ -103,6 +106,30 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
 				}
 			}
 		});
+        
+        // Create a ModifyListener, used to listen for project modifications in the ProjectBlock. 
+        // This assumes that the Project is in a Text control...
+        fProjectModifyListener = new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				Widget widget = e.widget;
+				if (widget instanceof Text) {
+					Text text = (Text) widget;
+					fProjectName = text.getText();
+					IWorkspace workspace = ResourcesPlugin.getWorkspace();
+					IResource resource = workspace.getRoot().findMember(fProjectName);
+
+					boolean enabled = false;
+					if (   (resource != null)
+						&& (resource instanceof IProject)) {
+						IProject project = (IProject) resource;
+			            PythonNature nature = PythonNature.getPythonNature(project);
+						enabled = (nature != null);
+					}
+					
+					fMainModuleBrowseButton.setEnabled(enabled);
+				}
+			}
+        };        
 	}
 
 	/*
@@ -233,14 +260,15 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
     	}
     	return result;
     }
+     
 
     /**
-     * Hook for an external listener, enabling/disabling the browse button if
-     * the current project has a python nature.
-     * 
-     * @param enabled passed {@link Button.setEnabled(boolean)}
-     */ 
-    public void setEnabled(boolean enabled) {
-		fMainModuleBrowseButton.setEnabled(enabled);
-	}
+     * Obtain a listener, used to detect changes of the currently selected project
+     * This updates the browse button, and allos the appropriate selection of the main module.
+     *  
+     * @return a ModifyListener that updates the block controls.
+     */
+    public ModifyListener getProjectModifyListener() {
+    	return fProjectModifyListener;
+    }
 }

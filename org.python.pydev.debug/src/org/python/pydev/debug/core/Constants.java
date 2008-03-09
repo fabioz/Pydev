@@ -35,6 +35,7 @@ public interface Constants {
 // ATTR_* are copied from IExternalToolConstants, replicated since I have no access to originals
 	static final String ATTR_LOCATION = "org.eclipse.ui.externaltools" + ".ATTR_LOCATION";
 	static final String ATTR_WORKING_DIRECTORY = "org.eclipse.ui.externaltools" + ".ATTR_WORKING_DIRECTORY";
+	static final String ATTR_OTHER_WORKING_DIRECTORY = "org.eclipse.ui.externaltools" + ".ATTR_OTHER_WORKING_DIRECTORY";
 	static final String ATTR_PROGRAM_ARGUMENTS = "org.eclipse.ui.externaltools" + ".ATTR_TOOL_ARGUMENTS";
 
 	static final String ATTR_INTERPRETER = PLUGIN_ID + ".ATTR_INTERPRETER";

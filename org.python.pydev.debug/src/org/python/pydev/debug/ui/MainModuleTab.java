@@ -3,28 +3,19 @@
  */
 package org.python.pydev.debug.ui;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Widget;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.blocks.MainModuleBlock;
 import org.python.pydev.debug.ui.blocks.ProjectBlock;
 import org.python.pydev.debug.ui.blocks.PythonPathBlock;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * Tab where user chooses project and Python module for launch
@@ -67,30 +58,9 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
         fMainModuleBlock.createControl(composite);
         fPythonPathBlock.createControl(composite);
         
-        // Add a modify listener, that enables/disables the Browse button
-        // when the selected project does not have a python nature
-        fProjectBlock.addModifyListener(new ModifyListener() {
-
-			public void modifyText(ModifyEvent e) {
-				Widget widget = e.widget;
-				if (widget instanceof Text) {
-					Text text = (Text) widget;
-					String projectName = text.getText();
-					IWorkspace workspace = ResourcesPlugin.getWorkspace();
-					IResource resource = workspace.getRoot().findMember(projectName);
-
-					boolean enabled = false;
-					if (   (resource != null)
-						&& (resource instanceof IProject)) {
-						IProject project = (IProject) resource;
-			            PythonNature nature = PythonNature.getPythonNature(project);
-						enabled = (nature != null);
-					}
-					
-					fMainModuleBlock.setEnabled(enabled);
-				}
-			}
-        });
+        // Add a modify listener, that updates the module block
+        // when the selected project changes
+        fProjectBlock.addModifyListener(fMainModuleBlock.getProjectModifyListener());
     }
 
     /*

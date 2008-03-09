@@ -13,6 +13,8 @@ import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
@@ -44,69 +46,67 @@ import org.python.pydev.plugin.PydevPlugin;
 public class InterpreterTab extends AbstractLaunchConfigurationTab {
 
     // Widgets
-    Combo interpreterComboField;
+    private Combo  fInterpreterComboField;
+    private Button fButtonSeeResultingCommandLine;
+    private Text   fCommandLineText;
     
     // View constant
     public static final String DEFAULT_INTERPRETER_NAME = "Default Interpreter";
 
-    private IInterpreterManager interpreterManager;
-    private Button buttonSeeResultingCommandLine;
-    private ILaunchConfigurationWorkingCopy workingCopyForCommandLineGeneration;
-    private Text text;
+    private IInterpreterManager fInterpreterManager;
+    private ILaunchConfigurationWorkingCopy fWorkingCopyForCommandLineGeneration;
 
-    private SelectionListener listener = new SelectionListener(){
+    private SelectionListener fSelectionListener = new SelectionListener(){
 
         public void widgetSelected(SelectionEvent e) {
-            if(e.getSource() == buttonSeeResultingCommandLine){
+            if(e.getSource() == fButtonSeeResultingCommandLine) {
                 try {
-                    //ok, show the command-line to the user
+                    // ok, show the command-line to the user
                     ILaunchConfigurationDialog launchConfigurationDialog = getLaunchConfigurationDialog();
-                    ILaunchConfigurationTab[] tabs = launchConfigurationDialog.getTabs();
-                    for (int i = 0; i < tabs.length; i++) {
-                        tabs[i].performApply(workingCopyForCommandLineGeneration);
+                    for (ILaunchConfigurationTab launchConfigurationTab: launchConfigurationDialog.getTabs()) {
+                        launchConfigurationTab.performApply(fWorkingCopyForCommandLineGeneration);
                     }
-                    PythonRunnerConfig config = getConfig(workingCopyForCommandLineGeneration, launchConfigurationDialog);
+                    PythonRunnerConfig config = getConfig(fWorkingCopyForCommandLineGeneration, launchConfigurationDialog);
                     String commandLineAsString = config.getCommandLineAsString();
                     commandLineAsString = WordUtils.wrap(commandLineAsString, 80);
                     commandLineAsString += "\n\nThe PYTHONPATH that will be used is:\n\n";
                     commandLineAsString += config.pythonpathUsed;
-                    text.setText(commandLineAsString);
+                    fCommandLineText.setText(commandLineAsString);
                 } catch (Exception e1) {
-                    text.setText("Unable to make the command-line. \n\nReason:\n\n"+e1.getMessage());
+                    fCommandLineText.setText("Unable to make the command-line. \n\nReason:\n\n"+e1.getMessage());
                 }
             }
         }
-
 
         public void widgetDefaultSelected(SelectionEvent e) {
         }
     };
 
     /**
-     * @param conf the launch configuration to be used
+     * @param configuration the launch configuration to be used
      * @param launchConfigurationDialog the dialog for the launch configuration
      * @return a PythonRunnerConfig configured with the given launch configuration
      * @throws CoreException
      */
-    private PythonRunnerConfig getConfig(ILaunchConfiguration conf, ILaunchConfigurationDialog launchConfigurationDialog) throws CoreException {
+    private PythonRunnerConfig getConfig(ILaunchConfiguration configuration, ILaunchConfigurationDialog launchConfigurationDialog) throws CoreException {
         String run;
-        if(interpreterManager.isJython()){
+        if (fInterpreterManager.isJython()) {
             run = PythonRunnerConfig.RUN_JYTHON;
-        }else if(interpreterManager.isPython()){
+        } else if(fInterpreterManager.isPython()) {
             run = PythonRunnerConfig.RUN_REGULAR;
-        }else{
+        } else {
             throw new RuntimeException("Should be python or jython interpreter (found unknown).");
         }
         
         boolean makeArgumentsVariableSubstitution = false;
-        //we don't want to make the arguments substitution (because it could end opening up a dialog for the user
-        //requesting something).
-        PythonRunnerConfig config = new PythonRunnerConfig(conf, launchConfigurationDialog.getMode(), run, makeArgumentsVariableSubstitution);
+        // we don't want to make the arguments substitution (because it could end opening up a 
+        // dialog for the user requesting something).
+        PythonRunnerConfig config = new PythonRunnerConfig(configuration, launchConfigurationDialog.getMode(), run, makeArgumentsVariableSubstitution);
         return config;
     }
     
     public InterpreterTab(IInterpreterManager interpreterManager) {
-        this.interpreterManager = interpreterManager;
+        this.fInterpreterManager = interpreterManager;
     }
 
     /*
@@ -127,8 +127,8 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
         data.horizontalSpan = 2;
         label6.setLayoutData (data);
 
-        interpreterComboField = new Combo (comp, SWT.DROP_DOWN);
-        String[] interpreters = this.interpreterManager.getInterpreters();
+        fInterpreterComboField = new Combo (comp, SWT.DROP_DOWN);
+        String[] interpreters = this.fInterpreterManager.getInterpreters();
         if (interpreters.length > 0){
         	// There is at least one interpreter defined, add the default interpreter option at the beginning.
             String[] interpreterNames = interpreters;
@@ -139,24 +139,28 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
             	interpreters[i+1] = interpreterNames[i];
             }
         }
-        interpreterComboField.setItems (interpreters);
-        interpreterComboField.select(0);
+        fInterpreterComboField.setItems (interpreters);
+        fInterpreterComboField.select(0);
         data = new GridData ();
         data.horizontalAlignment = GridData.FILL;
         data.horizontalSpan = 2;
-        interpreterComboField.setLayoutData (data);
-        // interpreterComboField.addModifyListener(modifyListener);
+        fInterpreterComboField.setLayoutData (data);
+        fInterpreterComboField.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				updateLaunchConfigurationDialog();
+			}
+        });
         
-        buttonSeeResultingCommandLine = new Button (comp, SWT.NONE);
-        buttonSeeResultingCommandLine.setText ("See resulting command-line for the given parameters");
+        fButtonSeeResultingCommandLine = new Button (comp, SWT.NONE);
+        fButtonSeeResultingCommandLine.setText ("See resulting command-line for the given parameters");
         data = new GridData ();
         data.horizontalSpan = 2;
         data.horizontalAlignment = GridData.FILL;
-        buttonSeeResultingCommandLine.setLayoutData (data);
-        buttonSeeResultingCommandLine.addSelectionListener(this.listener);
+        fButtonSeeResultingCommandLine.setLayoutData (data);
+        fButtonSeeResultingCommandLine.addSelectionListener(this.fSelectionListener);
         
-        text = new Text (comp, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-        text.setText ("In case you are in doubt how will the run happen, click the button to \n" +
+        fCommandLineText = new Text (comp, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+        fCommandLineText.setText ("In case you are in doubt how will the run happen, click the button to \n" +
                       "see the command-line that will be executed with the current parameters\n" +
                       "(and the PYTHONPATH / CLASSPATH used for the run).");
         data = new GridData ();
@@ -165,7 +169,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
         data.verticalAlignment = GridData.FILL;
         data.horizontalSpan = 1;
         data.verticalSpan = 5;
-        text.setLayoutData (data);
+        fCommandLineText.setLayoutData (data);
     }
 
     /*
@@ -227,7 +231,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
      */
     public void initializeFrom(ILaunchConfiguration configuration) {
         try {
-            workingCopyForCommandLineGeneration = configuration.getWorkingCopy();
+            fWorkingCopyForCommandLineGeneration = configuration.getWorkingCopy();
         } catch (CoreException e1) {
             throw new RuntimeException(e1);
         }
@@ -239,7 +243,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
         catch (CoreException e) {
         }
 
-        String[] interpreters = interpreterComboField.getItems();
+        String[] interpreters = fInterpreterComboField.getItems();
         
         if(interpreters.length == 0){
             setErrorMessage("No interpreter is configured, please, go to window > preferences > interpreters and add the interpreter you want to use.");
@@ -262,12 +266,12 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
             
             if (selectThis == -1) {
             	if (interpreter.startsWith("${")) {
-            		interpreterComboField.setText(interpreter);
+            		fInterpreterComboField.setText(interpreter);
             	}else{
             		setErrorMessage("Obsolete interpreter is selected. Choose a new one.");
             	}
             }else{
-                interpreterComboField.select(selectThis);
+                fInterpreterComboField.select(selectThis);
             }
         }
     }
@@ -279,12 +283,12 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
         String value;        
 
-        if (interpreterComboField.getSelectionIndex() == 0){
+        if (fInterpreterComboField.getSelectionIndex() == 0){
         	// The default was selected
         	value = Constants.ATTR_INTERPRETER_DEFAULT;
         	
         }else{
-        	value = interpreterComboField.getText();
+        	value = fInterpreterComboField.getText();
         }
         setAttribute(configuration, Constants.ATTR_INTERPRETER, value);
     }
@@ -295,7 +299,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
      */
     protected boolean checkIfInterpreterExists(String interpreter) {
     	if (interpreter.equals(Constants.ATTR_INTERPRETER_DEFAULT))	{
-    	    if(this.interpreterManager.getDefaultInterpreter() != null){
+    	    if(this.fInterpreterManager.getDefaultInterpreter() != null){
     			// The default interpreter is selected, and we have a default interpreter
 	    		return true;
 	    	}
@@ -303,7 +307,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
 	    	return false;
     	}
     	
-        String[] interpreters = this.interpreterManager.getInterpreters();
+        String[] interpreters = this.fInterpreterManager.getInterpreters();
         for (int i = 0; i < interpreters.length; i++) {
             if (interpreters[i] != null && interpreters[i].equals(interpreter)) {
                 return true;
