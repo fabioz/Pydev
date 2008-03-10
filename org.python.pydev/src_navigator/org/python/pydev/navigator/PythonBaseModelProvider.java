@@ -125,18 +125,20 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
         if(p != null){
         	Set<PythonSourceFolder> existingSourceFolders = p.get(project);
         	
-        	//iterate in a copy
-        	for (PythonSourceFolder pythonSourceFolder : new HashSet<PythonSourceFolder>(existingSourceFolders)) {
-				IPath fullPath = pythonSourceFolder.container.getLocation();
-				if(!projectPythonpathSet.contains(fullPath)){
-				    if(pythonSourceFolder instanceof PythonProjectSourceFolder){
-				        refreshObject = project.getParent();
-				    }
-					existingSourceFolders.remove(pythonSourceFolder);//it's not a valid source folder anymore...
-					if(DEBUG){
-						System.out.println("Removing:"+pythonSourceFolder+" - "+fullPath);
-					}
-				}
+        	if(existingSourceFolders != null){
+            	//iterate in a copy
+            	for (PythonSourceFolder pythonSourceFolder : new HashSet<PythonSourceFolder>(existingSourceFolders)) {
+    				IPath fullPath = pythonSourceFolder.container.getLocation();
+    				if(!projectPythonpathSet.contains(fullPath)){
+    				    if(pythonSourceFolder instanceof PythonProjectSourceFolder){
+    				        refreshObject = project.getParent();
+    				    }
+    					existingSourceFolders.remove(pythonSourceFolder);//it's not a valid source folder anymore...
+    					if(DEBUG){
+    						System.out.println("Removing:"+pythonSourceFolder+" - "+fullPath);
+    					}
+    				}
+            	}
 			}
         }
         
