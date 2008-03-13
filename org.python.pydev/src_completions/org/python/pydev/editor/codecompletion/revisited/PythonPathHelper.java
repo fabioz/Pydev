@@ -319,10 +319,7 @@ public class PythonPathHelper implements Serializable {
                         }
                     } else {
                         //simple part, we don't have to go into subfolders to check validity...
-                        if (isFile) {
-                            throw new RuntimeException(
-                                    "This should never happen... if it is a file, it always has a dot, so, this should not happen...");
-                        } else if (moduleFile.isDirectory() && isFileOrFolderWithInit(moduleFile) == false) {
+                        if (!isFile && moduleFile.isDirectory() && isFileOrFolderWithInit(moduleFile) == false) {
                             return null;
                         }
                         return s;

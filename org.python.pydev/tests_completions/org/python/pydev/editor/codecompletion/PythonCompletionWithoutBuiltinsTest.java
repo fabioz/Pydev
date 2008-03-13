@@ -15,6 +15,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
@@ -39,7 +40,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testPIL();
+	      test.testInModuleWithoutExtension();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -452,6 +453,12 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[]{"Test1", "Test2"});   
     }
 
+	public void testInModuleWithoutExtension() throws FileNotFoundException, CoreException, BadLocationException{
+	    String file = TestDependent.TEST_PYSRC_LOC+"mod_without_extension";
+	    String strDoc = REF.getFileContents(new File(file));
+	    requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[]{"ClassInModWithoutExtension"});   
+	}
+	
 	public void testWildImportRecursive() throws BadLocationException, IOException, Exception{
         String s;
         s = "from testrecwild import *\n" +
