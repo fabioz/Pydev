@@ -29,7 +29,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testInternalClassDefinition();
+            analyzer2.testInternalClassDefinition2();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2506,6 +2506,22 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"        class ClassSub(ClassSuper):\n" +
     			"            pass\n" +
     			"    \n" +
+    	"");
+    	analyzer = new OccurrencesAnalyzer();
+    	msgs = analyzeDoc();
+    	
+    	printMessages(msgs, 0);
+    }
+    
+    public void testInternalClassDefinition2() {
+    	doc = new Document("" +
+    			"class Obj:\n" +
+    			"    \n" +
+    			"    class EmptyObj:\n" +
+    			"        pass\n" +
+    			"    def __init__(self, g=EmptyObj):\n" +
+    			"        pass\n" +
+    			"        \n" +
     	"");
     	analyzer = new OccurrencesAnalyzer();
     	msgs = analyzeDoc();
