@@ -224,7 +224,6 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 			lastNode = visitWithSeparator(node, reverseNodeArray(node.args));
 
 			if (isFilledList(node.keywords)) {
-				printer.printListSeparator();
 				lastNode = visitWithSeparator(node, reverseNodeArray(node.keywords));
 			}
 			if (node.starargs != null) {

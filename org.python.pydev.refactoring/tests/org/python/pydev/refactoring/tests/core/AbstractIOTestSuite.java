@@ -24,6 +24,7 @@ public abstract class AbstractIOTestSuite extends TestSuite {
 //	    FILE_FILTER = "testBoolOp.py";
 //	    FILE_FILTER = "testDoubleAssign.py";
 //	    FILE_FILTER = "testOverrideMethodsBuiltins.py";
+//	    FILE_FILTER = "testDecorators2.py";
 	}
 
 	protected void createTests() {

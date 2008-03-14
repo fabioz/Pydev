@@ -720,11 +720,15 @@ public class SourcePrinter {
 		for (Object object : specials) {
 			if (object instanceof SpecialStr) {
 				SpecialStr str = (SpecialStr) object;
-				return (str.str.compareTo(pattern) == 0);
+				if (str.str.compareTo(pattern) == 0){
+				    return true;
+				}
 
 			} else if (object instanceof String) {
 				String text = (String) object;
-				return (text.compareTo(pattern) == 0);
+				if(text.compareTo(pattern) == 0){
+				    return true;
+				}
 			}
 		}
 		return false;
