@@ -23,7 +23,7 @@ public class PyParser25Test extends PyParserTestBase{
         try {
             PyParser25Test test = new PyParser25Test();
             test.setUp();
-            test.testEmptyYield();
+            test.testNewWithStmt4();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser25Test.class);
@@ -133,6 +133,38 @@ public class PyParser25Test extends PyParserTestBase{
                 "with foo as x:\n" +
                 "    print 'bla'\n" +
                 "";
+        //we'll actually treat this as a try..finally with a body with try..except..else
+        Module mod = (Module) parseLegalDocStr(str);
+        assertEquals(2, mod.body.length);
+        assertTrue(mod.body[1] instanceof With);
+        With w = (With) mod.body[1];
+        assertTrue(w.optional_vars != null);
+        
+    }
+    
+    public void testNewWithStmt3(){
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
+        String str = "" +
+        "from __future__ import division, with_statement\n" +
+        "with foo as x:\n" +
+        "    print 'bla'\n" +
+        "";
+        //we'll actually treat this as a try..finally with a body with try..except..else
+        Module mod = (Module) parseLegalDocStr(str);
+        assertEquals(2, mod.body.length);
+        assertTrue(mod.body[1] instanceof With);
+        With w = (With) mod.body[1];
+        assertTrue(w.optional_vars != null);
+        
+    }
+    
+    public void testNewWithStmt4(){
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
+        String str = "" +
+        "from __future__ import (division, with_statement)\n" +
+        "with foo as x:\n" +
+        "    print 'bla'\n" +
+        "";
         //we'll actually treat this as a try..finally with a body with try..except..else
         Module mod = (Module) parseLegalDocStr(str);
         assertEquals(2, mod.body.length);

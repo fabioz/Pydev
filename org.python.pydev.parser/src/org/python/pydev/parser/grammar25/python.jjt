@@ -1053,12 +1053,13 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
         <MULTIPLY> {this.addSpecialToken("*",STRATEGY_ADD_AFTER_PREV);}//from xx import *
         
         //from xxx import a,b,c
-        | (importName=import_as_name() ({this.addSpecialToken(",");} <COMMA> import_as_name())* 
-          {if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}) 
+        | (importName=import_as_name() {if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);} 
+        	({this.addSpecialToken(",");} <COMMA> (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);})* 
+          ) 
         
         //from xxx import (a,b,c)
         | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   
-          import_as_name() 
+          (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);} 
           (
            ({
              if(state!=0){
@@ -1067,7 +1068,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
              state=1; 
              this.addSpecialToken(",");
              } 
-             <COMMA> ( {state=0;} import_as_name())? )* 
+             <COMMA> ( {state=0;} (importName=import_as_name(){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}))? )* 
            <RPAREN>  {this.findTokenAndAdd(")");} 
           )
     )
