@@ -65,7 +65,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
      */
     @SuppressWarnings("restriction")
     protected void checkJavaImageDescriptorCreated() {
-        if (!imageDescriptorCreated) {
+        if (imageDescriptorCreated) {
             return;
         }
         //that's because if the JavaPlugin is not initialized, we'll have errors because it will try to create the
