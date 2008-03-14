@@ -4,6 +4,7 @@ Pydev
 <ul>
 <li><strong>Files without extension</strong>: If a file that does not have an extension is found in the root of the pythonpath, code-completion and breakpoints work with it.</li>
 <li><strong>from __future__ import (xxx, with_statement)</strong>: works.</li>
+<li><strong>Extract method</strong>: comma was removed when present after a tuple and before a keyword argument.</li>
 </ul>
 
 
