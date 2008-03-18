@@ -2,7 +2,7 @@
 
 #
 # XML-RPC CLIENT LIBRARY
-# $Id: _pydev_xmlrpclib.py,v 1.1 2008-03-18 02:55:16 fabioz Exp $
+# $Id: _pydev_xmlrpclib.py,v 1.2 2008-03-18 12:04:00 fabioz Exp $
 #
 # an XML-RPC client interface for Python.
 #
@@ -462,14 +462,14 @@ if not _bool_is_builtin:
 
 try:
     # optional xmlrpclib accelerator
-    import _xmlrpclib
+    import _xmlrpclib #@UnresolvedImport
     FastParser = _xmlrpclib.Parser
     FastUnmarshaller = _xmlrpclib.Unmarshaller
 except (AttributeError, ImportError):
     FastParser = FastUnmarshaller = None
 
 try:
-    import _xmlrpclib
+    import _xmlrpclib #@UnresolvedImport
     FastMarshaller = _xmlrpclib.Marshaller
 except (AttributeError, ImportError):
     FastMarshaller = None
