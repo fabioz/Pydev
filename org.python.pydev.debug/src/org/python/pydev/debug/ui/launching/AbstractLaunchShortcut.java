@@ -5,6 +5,7 @@
  */
 package org.python.pydev.debug.ui.launching;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -228,13 +230,21 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
         return createDefaultLaunchConfiguration(resource, launchConfigurationType, location, pythonInterpreterManager, projName, null);
     }
 
-    /**
-     * COPIED/MODIFIED from AntLaunchShortcut
-     * @param location 
-     * @param pythonInterpreterManager 
-     */
     public static ILaunchConfiguration createDefaultLaunchConfiguration(IResource[] resource, String launchConfigurationType,
             String location, IInterpreterManager pythonInterpreterManager, String projName, String vmargs) {
+        return createDefaultLaunchConfiguration(resource, launchConfigurationType, location, pythonInterpreterManager, 
+                projName, vmargs, "", true);
+    }
+//    
+    /**
+     * 
+     * @param resource only used if captureOutput is true!
+     * @param location only used if captureOutput is false!
+     * 
+     */
+    public static ILaunchConfiguration createDefaultLaunchConfiguration(IResource[] resource, String launchConfigurationType,
+            String location, IInterpreterManager pythonInterpreterManager, String projName, String vmargs, String programArguments,
+            boolean captureOutput) {
 
         ILaunchManager manager = org.eclipse.debug.core.DebugPlugin.getDefault().getLaunchManager();
         ILaunchConfigurationType type = manager.getLaunchConfigurationType(launchConfigurationType);
@@ -243,17 +253,42 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
             return null;
         }
 
-        StringBuffer buffer = new StringBuffer(projName);
-        buffer.append(" ");
-        StringBuffer resourceNames = new StringBuffer();
-        for(IResource r:resource){
-            if(resourceNames.length() > 0){
-                resourceNames.append(" - ");
+        IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
+        
+        String name;
+        String baseDirectory;
+        String moduleFile;
+        int resourceType;
+        
+        if(captureOutput){
+            StringBuffer buffer = new StringBuffer(projName);
+            buffer.append(" ");
+            StringBuffer resourceNames = new StringBuffer();
+            for(IResource r:resource){
+                if(resourceNames.length() > 0){
+                    resourceNames.append(" - ");
+                }
+                resourceNames.append(r.getName());
             }
-            resourceNames.append(r.getName());
+            buffer.append(resourceNames);
+            name = buffer.toString().trim();
+            
+            // Build the working directory to a path relative to the workspace_loc
+            baseDirectory = resource[0].getFullPath().removeLastSegments(1).makeRelative().toString();
+            baseDirectory = varManager.generateVariableExpression("workspace_loc", baseDirectory);
+            
+            // Build the location to a path relative to the workspace_loc
+            moduleFile = resource[0].getFullPath().makeRelative().toString();
+            moduleFile = varManager.generateVariableExpression("workspace_loc", moduleFile);
+            resourceType = resource[0].getType();
+        }else{
+            captureOutput = true;
+            name = location;
+            baseDirectory = new File(location).getParent();
+            moduleFile = location;
+            resourceType = IResource.FILE;
         }
-        buffer.append(resourceNames);
-        String name = buffer.toString().trim();
+        
         name = manager.generateUniqueLaunchConfigurationNameFrom(name);
 
         try {
@@ -261,25 +296,17 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
             ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null, name);
             // Python Main Tab Arguments
 
-            // Build the working directory to a path relative to the workspace_loc
-            IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
-            String baseDirectory = resource[0].getFullPath().removeLastSegments(1).makeRelative().toString();
-        	baseDirectory = varManager.generateVariableExpression("workspace_loc", baseDirectory);
-            String arguments = "";
-
-            // Build the location to a path relative to the workspace_loc
-            String moduleFile = resource[0].getFullPath().makeRelative().toString();
-            moduleFile = varManager.generateVariableExpression("workspace_loc", moduleFile);
-
             workingCopy.setAttribute(Constants.ATTR_PROJECT, projName);
-            workingCopy.setAttribute(Constants.ATTR_RESOURCE_TYPE, resource[0].getType());
+            workingCopy.setAttribute(Constants.ATTR_RESOURCE_TYPE, resourceType);
             workingCopy.setAttribute(Constants.ATTR_INTERPRETER, Constants.ATTR_INTERPRETER_DEFAULT);
 
-            workingCopy.setAttribute(IDebugUIConstants.ATTR_LAUNCH_IN_BACKGROUND, false);
             workingCopy.setAttribute(Constants.ATTR_LOCATION, moduleFile);
             workingCopy.setAttribute(Constants.ATTR_WORKING_DIRECTORY, baseDirectory);
-            workingCopy.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, arguments);
+            workingCopy.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, programArguments);
             workingCopy.setAttribute(Constants.ATTR_VM_ARGUMENTS, vmargs);
+            
+            workingCopy.setAttribute(IDebugUIConstants.ATTR_LAUNCH_IN_BACKGROUND, captureOutput);
+            workingCopy.setAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT, captureOutput);
 
             // Common Tab Arguments
             CommonTab tab = new CommonTab();

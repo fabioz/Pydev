@@ -286,9 +286,6 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         // super idents newlines the same amount as the previous line
     	final boolean isNewLine = isNewLineText(document, command.length, command.text);
     	
-    	if(isNewLine){
-    		autoIndentSameAsPrevious(document, command);
-    	}
         
         String contentType = ParsingUtils.getContentType(document, command.offset);
 
@@ -299,6 +296,8 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             	//we have to take care about tabs anyway
             	getIndentPrefs().convertToStd(document, command);
                 return;
+            }else{
+                autoIndentSameAsPrevious(document, command);
             }
         }
         
@@ -306,21 +305,8 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         try {
         	
             if (isNewLine) {
-            	if(prefs.getSmartIndentPar()){
-            	    PySelection selection = new PySelection(document, command.offset);
-                    if(selection.getCursorLineContents().trim().length() > 0){
-    	            	command.text = autoIndentNewline(document, command.length, command.text, command.offset).o1;
-    	            	if(PySelection.containsOnlyWhitespaces(selection.getLineContentsToCursor())){
-    	            		command.caretOffset = command.offset + selection.countSpacesAfter(command.offset);
-    	            	}
-                    }
-            	}else{
-            		PySelection selection = new PySelection(document, command.offset);
-            		if(selection.getCursorLineContents().trim().endsWith(":")){
-            			command.text += prefs.getIndentationString();
-            		}
-            		
-            	}
+            	customizeNewLine(document, command);
+            	
             }else if(command.text.equals("\t")){
             	PySelection ps = new PySelection(document, command.offset);
             	//it is a tab
@@ -399,69 +385,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             	 */
             	autoDedentElif(document, command);
 
-            	if(prefs.getAutoParentesis()){
-            		PySelection ps = new PySelection(document, command.offset);
-	                String line = ps.getLine();
-	
-	                if (shouldClose(ps, '(')) {
-	
-	                    boolean hasClass = line.indexOf("class ") != -1;
-	                    boolean hasClassMethodDef = line.indexOf(" def ") != -1 || line.indexOf("\tdef ") != -1;
-	                    boolean hasMethodDef = line.indexOf("def ") != -1;
-	                    boolean hasNoDoublePoint = line.indexOf(":") == -1;
-	
-	                    command.shiftsCaret = false;
-	                    if (hasNoDoublePoint && (hasClass || hasClassMethodDef || hasMethodDef)) {
-	                        if (hasClass) {
-	                            //command.text = "(object):"; //TODO: put some option in the interface for that
-	                            //command.caretOffset = command.offset + 7;
-	                            command.text = "():";
-	                            command.caretOffset = command.offset + 1;
-                                
-	                        } else if (hasClassMethodDef && prefs.getAutoAddSelf()) {
-                                String prevLine = ps.getLine(ps.getCursorLine()-1);
-                                if(prevLine.indexOf("@classmethod") != -1){
-                                    command.text = "(cls):";
-                                    command.caretOffset = command.offset + 4;
-                                    
-                                }else if(prevLine.indexOf("@staticmethod") != -1){
-                                    command.text = "():";
-                                    command.caretOffset = command.offset + 1;
-                                    
-                                }else{
-                                    
-                                    boolean addRegular = true;
-                                    Tuple3<String, String, String> scopeStart = ps.getPreviousLineThatStartsScope(PySelection.CLASS_AND_FUNC_TOKENS, false);
-                                    if(scopeStart != null){
-                                        if(scopeStart.o1 != null && scopeStart.o1.indexOf("def ") != -1){
-                                            int iCurrDef = PySelection.getFirstCharPosition(line);
-                                            int iPrevDef = PySelection.getFirstCharPosition(scopeStart.o1);
-                                            if(iCurrDef > iPrevDef){
-                                                addRegular = false;
-                                                
-                                            }
-                                        }
-                                    }
-                                    if(addRegular){
-        	                            command.text = "(self):";
-        	                            command.caretOffset = command.offset + 5;
-                                    }else{
-                                        command.text = "():";
-                                        command.caretOffset = command.offset + 1;
-                                    }
-                                }
-	                        } else if (hasMethodDef) {
-	                            command.text = "():";
-	                            command.caretOffset = command.offset + 1;
-	                        } else {
-	                            throw new RuntimeException(getClass().toString() + ": customizeDocumentCommand()");
-	                        }
-	                    } else {
-	                        command.text = "()";
-	                        command.caretOffset = command.offset + 1;
-	                    }
-	                }
-        		}
+            	customizeParenthesis(document, command);
 
             }
 	            
@@ -551,6 +475,91 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             // screw up command.text so unit tests can pick it up
             command.text = "BadLocationException";
             throw new RuntimeException(e);
+        }
+    }
+
+    public void customizeParenthesis(IDocument document, DocumentCommand command) throws BadLocationException {
+        if(prefs.getAutoParentesis()){
+        	PySelection ps = new PySelection(document, command.offset);
+            String line = ps.getLine();
+
+            if (shouldClose(ps, '(')) {
+
+                boolean hasClass = line.indexOf("class ") != -1;
+                boolean hasClassMethodDef = line.indexOf(" def ") != -1 || line.indexOf("\tdef ") != -1;
+                boolean hasMethodDef = line.indexOf("def ") != -1;
+                boolean hasNoDoublePoint = line.indexOf(":") == -1;
+
+                command.shiftsCaret = false;
+                if (hasNoDoublePoint && (hasClass || hasClassMethodDef || hasMethodDef)) {
+                    if (hasClass) {
+                        //command.text = "(object):"; //TODO: put some option in the interface for that
+                        //command.caretOffset = command.offset + 7;
+                        command.text = "():";
+                        command.caretOffset = command.offset + 1;
+                        
+                    } else if (hasClassMethodDef && prefs.getAutoAddSelf()) {
+                        String prevLine = ps.getLine(ps.getCursorLine()-1);
+                        if(prevLine.indexOf("@classmethod") != -1){
+                            command.text = "(cls):";
+                            command.caretOffset = command.offset + 4;
+                            
+                        }else if(prevLine.indexOf("@staticmethod") != -1){
+                            command.text = "():";
+                            command.caretOffset = command.offset + 1;
+                            
+                        }else{
+                            
+                            boolean addRegular = true;
+                            Tuple3<String, String, String> scopeStart = ps.getPreviousLineThatStartsScope(PySelection.CLASS_AND_FUNC_TOKENS, false);
+                            if(scopeStart != null){
+                                if(scopeStart.o1 != null && scopeStart.o1.indexOf("def ") != -1){
+                                    int iCurrDef = PySelection.getFirstCharPosition(line);
+                                    int iPrevDef = PySelection.getFirstCharPosition(scopeStart.o1);
+                                    if(iCurrDef > iPrevDef){
+                                        addRegular = false;
+                                        
+                                    }
+                                }
+                            }
+                            if(addRegular){
+                                command.text = "(self):";
+                                command.caretOffset = command.offset + 5;
+                            }else{
+                                command.text = "():";
+                                command.caretOffset = command.offset + 1;
+                            }
+                        }
+                    } else if (hasMethodDef) {
+                        command.text = "():";
+                        command.caretOffset = command.offset + 1;
+                    } else {
+                        throw new RuntimeException(getClass().toString() + ": customizeDocumentCommand()");
+                    }
+                } else {
+                    command.text = "()";
+                    command.caretOffset = command.offset + 1;
+                }
+            }
+        }
+    }
+
+    public void customizeNewLine(IDocument document, DocumentCommand command) throws BadLocationException {
+        prefs = getIndentPrefs();
+        autoIndentSameAsPrevious(document, command);
+        if(prefs.getSmartIndentPar()){
+            PySelection selection = new PySelection(document, command.offset);
+            if(selection.getCursorLineContents().trim().length() > 0){
+            	command.text = autoIndentNewline(document, command.length, command.text, command.offset).o1;
+            	if(PySelection.containsOnlyWhitespaces(selection.getLineContentsToCursor())){
+            		command.caretOffset = command.offset + selection.countSpacesAfter(command.offset);
+            	}
+            }
+        }else{
+        	PySelection selection = new PySelection(document, command.offset);
+        	if(selection.getCursorLineContents().trim().endsWith(":")){
+        		command.text += prefs.getIndentationString();
+        	}
         }
     }
 
@@ -732,6 +741,15 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
      * @throws BadLocationException 
      */
     private void performPairReplacement(IDocument document, DocumentCommand command) throws BadLocationException {
+        boolean skipChar = canSkipOpenParenthesis(document, command);
+        if(skipChar){
+            //if we have the same number of peers, we want to eat the char
+            command.text = DocUtils.EMPTY_STRING;
+            command.caretOffset = command.offset + 1;
+        }
+    }
+
+    public boolean canSkipOpenParenthesis(IDocument document, DocumentCommand command) throws BadLocationException {
         PySelection ps = new PySelection(document, command.offset);
 
         char c = ps.getCharAtCurrentOffset();
@@ -741,12 +759,9 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         ParsingUtils.removeCommentsWhitespacesAndLiterals(doc);
         int chars = PyAction.countChars(c, doc);
         int peers = PyAction.countChars(peer, doc);
-        
-        if( chars == peers){
-            //if we have the same number of peers, we want to eat the char
-            command.text = DocUtils.EMPTY_STRING;
-            command.caretOffset = command.offset + 1;
-        }
+
+        boolean skipChar = chars == peers;
+        return skipChar;
     }
 
     /**

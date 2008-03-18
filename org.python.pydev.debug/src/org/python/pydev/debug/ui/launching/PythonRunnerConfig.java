@@ -509,12 +509,7 @@ public class PythonRunnerConfig {
         
     		cmdArgs.add(interpreter.toOSString());
     		// Next option is for unbuffered stdout, otherwise Eclipse will not see any output until done
-            if(isInteractive){
-                cmdArgs.add("-i");
-                
-            }else{
-                cmdArgs.add("-u");
-            }
+            cmdArgs.add("-u");
         
             addVmArgs(cmdArgs);
             
@@ -553,10 +548,7 @@ public class PythonRunnerConfig {
     		}
         }
         
-        if(!isInteractive){
-            //wnen it is interactive, we don't have the resource
-    		cmdArgs.add(resource.toOSString());
-        }
+        cmdArgs.add(resource.toOSString());
         
         String runArguments[] = null;
         if (makeVariableSubstitution && arguments != null) {

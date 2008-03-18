@@ -1,5 +1,5 @@
 #line to run:
-#java -classpath E:\Dev.Jython\jython_Release_2_2alpha1\jython.jar;C:\bin\eclipse311\plugins\org.junit_3.8.1\junit.jar org.python.util.jython D:\eclipse_workspace\org.python.pydev\PySrc\tests\test_jysimpleTipper.py
+#java -classpath D:\bin\jython-2.1\jython.jar;D:\bin\eclipse331_1\plugins\org.junit_3.8.2.v200706111738\junit.jar org.python.util.jython x:\org.python.pydev\PySrc\tests\test_jysimpleTipper.py
 
 import unittest
 import os
@@ -12,7 +12,7 @@ sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
 
 #this does not work (they must be in the system pythonpath)
 #sys.path.insert(1, r"D:\bin\eclipse321\plugins\org.junit_3.8.1\junit.jar" ) #some late loading jar tests
-#sys.path.insert(1, r"D:\bin\eclipse321\plugins\org.apache.ant_1.6.5\lib\ant.jar" ) #some late loading jar tests
+#sys.path.insert(1, r"D:\bin\eclipse331_1\plugins\org.apache.ant_1.7.0.v200706080842\lib\ant.jar" ) #some late loading jar tests
 
 from jyimportsTipper import ismethod
 from jyimportsTipper import isclass
@@ -90,6 +90,11 @@ class TestMod(unittest.TestCase):
         assert f.endswith('os.py')
         ret = self.assertIn('path', tip)
         self.assertEquals('', ret[2])
+        
+    def testTipOnString(self):
+        f, tip = jyimportsTipper.GenerateTip('string')
+        self.assertIn('join', tip)
+        self.assertIn('uppercase', tip)
         
     def testImports(self):
         tip = jyimportsTipper.GenerateTip('__builtin__')[1]

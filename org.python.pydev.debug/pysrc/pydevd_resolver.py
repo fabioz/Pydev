@@ -4,8 +4,9 @@ import traceback
 try:
     __setFalse = False
 except:
-    False = 0
-    True = 1
+    import __builtin__
+    __builtin__.True = 1
+    __builtin__.False = 0
 
 class InspectStub:    
     def isbuiltin(self, _args):       

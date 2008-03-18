@@ -6,15 +6,12 @@ import sys
 
 
 #completion types.
-TYPE_UNKNOWN = -1
-TYPE_IMPORT = 0
-TYPE_CLASS = 1
-TYPE_FUNCTION = 2
-TYPE_ATTR = 3
-TYPE_BUILTIN = 4
-TYPE_PARAM = 5
-
-TYPE_BUILTIN_AS_STR = '4'
+TYPE_IMPORT = '0'
+TYPE_CLASS = '1'
+TYPE_FUNCTION = '2'
+TYPE_ATTR = '3'
+TYPE_BUILTIN = '4'
+TYPE_PARAM = '5'
 
 def _imp(name):
     try:
@@ -32,7 +29,7 @@ def GetFile(mod):
     try:
         f = inspect.getsourcefile(mod) or inspect.getfile(mod)
     except:
-        if hasattr(mod,'__file__'):
+        if hasattr(mod, '__file__'):
             f = mod.__file__
             if f.lower(f[-4:]) in ['.pyc', '.pyo']:
                 filename = f[:-4] + '.py'
@@ -41,7 +38,7 @@ def GetFile(mod):
             
     return f
 
-def Find( name ):
+def Find(name):
     f = None
     parent = None
     
@@ -76,14 +73,14 @@ def Find( name ):
         
     return f, mod, parent, foundAs
 
-def Search( data ):
+def Search(data):
     '''@return file, line, col
     '''
     
-    data = data.replace( '\n', '' )
-    if data.endswith( '.' ):
-        data = data.rstrip( '.' )
-    f, mod, parent, foundAs = Find( data )
+    data = data.replace('\n', '')
+    if data.endswith('.'):
+        data = data.rstrip('.')
+    f, mod, parent, foundAs = Find(data)
     try:
         return DoFind(f, mod), foundAs
     except:
@@ -132,15 +129,15 @@ def DoFind(f, mod):
     
     
     
-def GenerateTip( data ):
-    data = data.replace( '\n', '' )
-    if data.endswith( '.' ):
-        data = data.rstrip( '.' )
+def GenerateTip(data):
+    data = data.replace('\n', '')
+    if data.endswith('.'):
+        data = data.rstrip('.')
         
-    f, mod, parent, foundAs = Find( data )
+    f, mod, parent, foundAs = Find(data)
     #print >> open('temp.txt', 'w'), f
-    tips = GenerateImportsTipForModule( mod )
-    return f,tips
+    tips = GenerateImportsTipForModule(mod)
+    return f, tips
     
     
 def CheckChar(c):
@@ -148,15 +145,21 @@ def CheckChar(c):
         return '_'
     return c
 
-def GenerateImportsTipForModule( mod ):
+def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr, filter=lambda name:True):
     '''
-    @param mod: the module from where we should get the completions
+        @param obj_to_complete: the object from where we should get the completions
+        @param dirComps: if passed, we should not 'dir' the object and should just iterate those passed as a parameter
+        @param getattr: the way to get a given object from the obj_to_complete (used for the completer)
+        @param filter: a callable that receives the name and decides if it should be appended or not to the results
+        @return: list of tuples, so that each tuple represents a completion with:
+            name, doc, args, type (from the TYPE_* constants)
     '''
     ret = []
     
-    dirComps = dir( mod )
-    if hasattr(mod, '__dict__'):
-        dirComps.append('__dict__')
+    if dirComps is None:
+        dirComps = dir(obj_to_complete)
+        if hasattr(obj_to_complete, '__dict__'):
+            dirComps.append('__dict__')
         
     getCompleteInfo = True
     
@@ -168,108 +171,116 @@ def GenerateImportsTipForModule( mod ):
     
     dontGetDocsOn = (float, int, str, tuple, list, type)
     for d in dirComps:
-
+        
+        if d is None:
+            continue
+            
+        if not filter(d):
+            continue
+        
         args = ''
 
-        if getCompleteInfo:
-            try:
-                obj = getattr(mod, d)
-                retType = TYPE_BUILTIN
-    
-                #check if we have to get docs
-                getDoc = True
-                for class_ in dontGetDocsOn:
-                    if isinstance(obj, class_):
-                        getDoc = False
-                        break
-                        
-                doc = ''
-                if getDoc:
-                    #no need to get this info... too many constants are defined and 
-                    #makes things much slower (passing all that through sockets takes quite some time)
-                    try:
-                        doc = inspect.getdoc( obj )
-                    except: #may happen on jython when checking java classes (so, just ignore it)
-                        doc = ''
-                        
-                        
-                if inspect.ismethod(obj) or inspect.isbuiltin(obj) or inspect.isfunction(obj) or inspect.isroutine(obj):
-                    try:
-                        args, vargs, kwargs, defaults = inspect.getargspec( obj )
-                            
-                        r = ''
-                        for a in ( args ):
-                            if len( r ) > 0:
-                                r = r+', '
-                            r = r+str( a )
-                        args = '(%s)' % (r)
-                    except TypeError:
-                        #ok, let's see if we can get the arguments from the doc
-                        args = '()'
-                        try:
-                            if len(doc) > 0:
-                                i = doc.find('->')
-                                if i < 0:
-                                    i = doc.find('\n')
-                                    if i < 0:
-                                        i = doc.find('\r')
-                                        
-                                        
-                                if i > 0:
-                                    s = doc[0:i]
-                                    s = s.strip()
-                                    
-                                    #let's see if we have a docstring in the first line
-                                    if s[-1] == ')':
-                                        start = s.find('(')
-                                        if start >= 0:
-                                            end = s.find('[')
-                                            if end <= 0:
-                                                end = len(s)
-                                            
-                                            args = s[start:end]
-                                            if not args[-1] == ')':
-                                                args = args+')'
+        try:
+            obj = getattr(obj_to_complete, d)
+        except: #just ignore and get it without aditional info
+            ret.append((d, '', args, TYPE_BUILTIN))
+        else:
 
+            if getCompleteInfo:
+                try:
+                    retType = TYPE_BUILTIN
+        
+                    #check if we have to get docs
+                    getDoc = True
+                    for class_ in dontGetDocsOn:
+                        if isinstance(obj, class_):
+                            getDoc = False
+                            break
+                            
+                    doc = ''
+                    if getDoc:
+                        #no need to get this info... too many constants are defined and 
+                        #makes things much slower (passing all that through sockets takes quite some time)
+                        try:
+                            doc = inspect.getdoc(obj)
+                            if doc is None:
+                                doc = ''
+                        except: #may happen on jython when checking java classes (so, just ignore it)
+                            doc = ''
+                            
+                            
+                    if inspect.ismethod(obj) or inspect.isbuiltin(obj) or inspect.isfunction(obj) or inspect.isroutine(obj):
+                        try:
+                            args, vargs, kwargs, defaults = inspect.getargspec(obj)
+                                
+                            r = ''
+                            for a in (args):
+                                if len(r) > 0:
+                                    r = r+', '
+                                r = r+str(a)
+                            args = '(%s)' % (r)
+                        except TypeError:
+                            #ok, let's see if we can get the arguments from the doc
+                            args = '()'
+                            try:
+                                if len(doc) > 0:
+                                    i = doc.find('->')
+                                    if i < 0:
+                                        i = doc.find('\n')
+                                        if i < 0:
+                                            i = doc.find('\r')
                                             
-                                            #now, get rid of unwanted chars
-                                            l = len(args)-1
-                                            r = []
-                                            for i in range(len(args)):
-                                                if i == 0 or i == l:
-                                                    r.append(args[i])
-                                                else:
-                                                    r.append(CheckChar(args[i]))
-                                                    
-                                            args = ''.join(r)
                                             
-                        except:
-                            pass
+                                    if i > 0:
+                                        s = doc[0:i]
+                                        s = s.strip()
+                                        
+                                        #let's see if we have a docstring in the first line
+                                        if s[-1] == ')':
+                                            start = s.find('(')
+                                            if start >= 0:
+                                                end = s.find('[')
+                                                if end <= 0:
+                                                    end = len(s)
+                                                
+                                                args = s[start:end]
+                                                if not args[-1] == ')':
+                                                    args = args+')'
     
-                    retType = TYPE_FUNCTION
+                                                
+                                                #now, get rid of unwanted chars
+                                                l = len(args)-1
+                                                r = []
+                                                for i in range(len(args)):
+                                                    if i == 0 or i == l:
+                                                        r.append(args[i])
+                                                    else:
+                                                        r.append(CheckChar(args[i]))
+                                                        
+                                                args = ''.join(r)
+                                                
+                            except:
+                                pass
+        
+                        retType = TYPE_FUNCTION
+                        
+                    elif inspect.isclass(obj):
+                        retType = TYPE_CLASS
+                        
+                    elif inspect.ismodule(obj):
+                        retType = TYPE_IMPORT
+                        
+                    else:
+                        retType = TYPE_ATTR
                     
-                elif inspect.isclass(obj):
-                    retType = TYPE_CLASS
                     
-                elif inspect.ismodule(obj):
-                    retType = TYPE_IMPORT
+                    #add token and doc to return - assure only strings.
+                    ret.append((d, doc, args, retType))
                     
-                else:
-                    retType = TYPE_ATTR
+                except: #just ignore and get it without aditional info
+                    ret.append((d, '', args, TYPE_BUILTIN))
                 
-                
-                #add token and doc to return - assure only strings.
-                ret.append(   (d, doc, args, str(retType))   )
-                
-            except: #just ignore and get it without aditional info
-                ret.append(   (d, '', args, TYPE_BUILTIN_AS_STR)   )
-            
-        else: #getCompleteInfo == False
-            try:
-                obj = getattr(mod, d)
-            except: #just ignore and get it without aditional info
-                ret.append(   (d, '', args, TYPE_BUILTIN_AS_STR)   )
-            else:
+            else: #getCompleteInfo == False
                 if inspect.ismethod(obj) or inspect.isbuiltin(obj) or inspect.isfunction(obj) or inspect.isroutine(obj):
                     retType = TYPE_FUNCTION
                     
@@ -283,7 +294,7 @@ def GenerateImportsTipForModule( mod ):
                     retType = TYPE_ATTR
                 #ok, no complete info, let's try to do this as fast and clean as possible
                 #so, no docs for this kind of information, only the signatures
-                ret.append(   (d, '', args, retType)   )
+                ret.append((d, '', str(args), retType))
             
     return ret
 

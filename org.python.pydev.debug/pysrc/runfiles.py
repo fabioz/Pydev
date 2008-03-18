@@ -8,11 +8,11 @@ import unittest
 
 
 try:
-    #support jython
     __setFalse = False
 except:
-    False = 0
-    True = 1
+    import __builtin__
+    __builtin__.True = 1
+    __builtin__.False = 0
 
 #=======================================================================================================================
 # parse_cmdline

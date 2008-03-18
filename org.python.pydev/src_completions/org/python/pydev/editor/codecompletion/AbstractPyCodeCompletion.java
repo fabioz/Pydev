@@ -133,19 +133,23 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
         return getArgs(element, lookingFor);
     }
     
+    private String getArgs(IToken element, int lookingFor) {
+        return getArgs(element.getArgs(), element.getType(), lookingFor);
+    }
+    
     /**
      * @return a string with the arguments to be shown for the given element.
      * 
      * E.g.: >>(self, a, b)<<
      */
-    private String getArgs(IToken element, int lookingFor) {
+    public static String getArgs(String argsReceived, int type, int lookingFor) {
         String args = "";
         boolean lookingForInstance = lookingFor==ICompletionState.LOOKING_FOR_INSTANCE_UNDEFINED || 
                                      lookingFor==ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE ||
                                      lookingFor==ICompletionState.LOOKING_FOR_ASSIGN;
-        if(element.getArgs().trim().length() > 0){
+        if(argsReceived.trim().length() > 0){
             StringBuffer buffer = new StringBuffer("(");
-            StringTokenizer strTok = new StringTokenizer(element.getArgs(), "( ,)");
+            StringTokenizer strTok = new StringTokenizer(argsReceived, "( ,)");
 
             while(strTok.hasMoreTokens()){
                 String tok = strTok.nextToken();
@@ -167,7 +171,7 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
             }
             buffer.append(")");
             args = buffer.toString();
-        } else if (element.getType() == IToken.TYPE_FUNCTION){
+        } else if (type == IToken.TYPE_FUNCTION){
             args = "()";
         }
         

@@ -6,6 +6,8 @@
 	<classpathentry kind="src" path="src_navigator"/>
 	<classpathentry kind="src" path="src_completions"/>
 	<classpathentry kind="src" path="tests_completions"/>
+	<classpathentry kind="src" path="src_dltk_console"/>
+	<classpathentry kind="src" path="tests_dltk_console"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>

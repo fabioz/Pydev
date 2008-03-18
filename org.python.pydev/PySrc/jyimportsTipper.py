@@ -5,20 +5,26 @@ from java.lang import String #@UnresolvedImport
 import java.lang #@UnresolvedImport
 import sys
 
+try:
+    __setFalse = False
+except:
+    import __builtin__
+    __builtin__.True = 1
+    __builtin__.False = 0
+    
+    
 from org.python.core import PyReflectedFunction #@UnresolvedImport
 
 from org.python import core #@UnresolvedImport
+from org.python.core import PyClass #@UnresolvedImport
 
 #completion types.
-TYPE_UNKNOWN = -1
-TYPE_IMPORT = 0
-TYPE_CLASS = 1
-TYPE_FUNCTION = 2
-TYPE_ATTR = 3
-TYPE_BUILTIN = 4
-TYPE_PARAM = 5
-
-TYPE_BUILTIN_AS_STR = '4'
+TYPE_IMPORT = '0'
+TYPE_CLASS = '1'
+TYPE_FUNCTION = '2'
+TYPE_ATTR = '3'
+TYPE_BUILTIN = '4'
+TYPE_PARAM = '5'
 
 def _imp(name):
     try:
@@ -31,7 +37,7 @@ def _imp(name):
             s = 'Unable to import module: %s - sys.path: %s' % (str(name), sys.path)
             raise RuntimeError(s)
 
-def Find( name ):
+def Find(name):
     f = None
     if name.startswith('__builtin__'):
         if name == '__builtin__.str':
@@ -68,13 +74,13 @@ def formatParamClassName(paramClassName):
     return paramClassName
 
 
-def GenerateTip( data ):
-    data = data.replace( '\n', '' )
-    if data.endswith( '.' ):
-        data = data.rstrip( '.' )
+def GenerateTip(data):
+    data = data.replace('\n', '')
+    if data.endswith('.'):
+        data = data.rstrip('.')
     
-    f, mod = Find( data )
-    tips = GenerateImportsTipForModule( mod )
+    f, mod = Find(data)
+    tips = GenerateImportsTipForModule(mod)
     return f, tips
     
 
@@ -93,7 +99,7 @@ class Info:
         '''
         
         s = 'function:%s args=%s, varargs=%s, kwargs=%s, docs:%s' % \
-            (str(self.name), str( self.args), str( self.varargs), str( self.kwargs), str( self.doc))
+            (str(self.name), str(self.args), str(self.varargs), str(self.kwargs), str(self.doc))
         return s
         
 
@@ -163,7 +169,7 @@ def ismethod(func):
                 return args, varargs, varkw
             
             args = getargs(func.func_code)
-            return 1, [Info(func.func_name, args = args[0], varargs = args[1],  kwargs = args[2], doc = func.func_doc)]
+            return 1, [Info(func.func_name, args = args[0], varargs = args[1], kwargs = args[2], doc = func.func_doc)]
             
         if isinstance(func, core.PyMethod):
             #this is something from java itself, and jython just wrapped it...
@@ -233,7 +239,7 @@ def ismethod(func):
     except Exception, e:
         s = StringIO.StringIO()
         traceback.print_exc(file=s)
-        return 1, [Info(str('ERROR'),  doc = s.getvalue())]
+        return 1, [Info(str('ERROR'), doc = s.getvalue())]
         
     return 0, None
 
@@ -241,7 +247,7 @@ def ismodule(mod):
     #java modules... do we have other way to know that?
     if not hasattr(mod, 'getClass') and not hasattr(mod, '__class__') \
        and hasattr(mod, '__name__'):
-           return 1
+            return 1
            
     return isinstance(mod, core.PyModule)
 
@@ -250,58 +256,67 @@ def dirObj(obj):
     ret = []
     found = java.util.HashMap()
     original = obj
-    if hasattr(obj, '__class__') and obj.__class__ ==  java.lang.Class:
+    if hasattr(obj, '__class__'):
+        if obj.__class__ ==  java.lang.Class:
 
-        #get info about superclasses
-        classes = []
-        classes.append(obj)
-        try:
-            c = obj.getSuperclass()
-        except TypeError:
-            #may happen on jython when getting the java.lang.Class class
-            c = obj.getSuperclass(obj)
-            
-        while c != None:
-            classes.append(c)
-            c = c.getSuperclass()
-        
-        #get info about interfaces
-        interfs = []
-        for obj in classes:
+            #get info about superclasses
+            classes = []
+            classes.append(obj)
             try:
-                interfs.extend(obj.getInterfaces())
+                c = obj.getSuperclass()
             except TypeError:
-                interfs.extend(obj.getInterfaces(obj))
-        classes.extend(interfs)
-            
-        #now is the time when we actually get info on the declared methods and fields
-        for obj in classes:
-            try:
-                declaredMethods = obj.getDeclaredMethods()
-            except TypeError:
-                declaredMethods = obj.getDeclaredMethods(obj)
+                #may happen on jython when getting the java.lang.Class class
+                c = obj.getSuperclass(obj)
                 
-            try:
-                declaredFields = obj.getDeclaredFields()
-            except TypeError:
-                declaredFields = obj.getDeclaredFields(obj)
+            while c != None:
+                classes.append(c)
+                c = c.getSuperclass()
+            
+            #get info about interfaces
+            interfs = []
+            for obj in classes:
+                try:
+                    interfs.extend(obj.getInterfaces())
+                except TypeError:
+                    interfs.extend(obj.getInterfaces(obj))
+            classes.extend(interfs)
                 
-            for i in range(len(declaredMethods)):
-                name = declaredMethods[i].getName()
+            #now is the time when we actually get info on the declared methods and fields
+            for obj in classes:
+                try:
+                    declaredMethods = obj.getDeclaredMethods()
+                except TypeError:
+                    declaredMethods = obj.getDeclaredMethods(obj)
+                    
+                try:
+                    declaredFields = obj.getDeclaredFields()
+                except TypeError:
+                    declaredFields = obj.getDeclaredFields(obj)
+                    
+                for i in range(len(declaredMethods)):
+                    name = declaredMethods[i].getName()
+                    ret.append(name)
+                    found.put(name, 1)
+                    
+                for i in range(len(declaredFields)):
+                    name = declaredFields[i].getName()
+                    ret.append(name)
+                    found.put(name, 1)
+                    
+                    
+        elif isclass(obj.__class__): 
+            d = dir(obj.__class__)
+            for name in d:
                 ret.append(name)
                 found.put(name, 1)
-                
-            for i in range(len(declaredFields)):
-                name = declaredFields[i].getName()
-                ret.append(name)
-                found.put(name, 1)
+            
 
     #this simple dir does not always get all the info, that's why we have the part before
     #(e.g.: if we do a dir on String, some methods that are from other interfaces such as 
     #charAt don't appear)
     d = dir(original)
     for name in d:
-        if found.get(name) is not 1:
+        if found.get(name) != 1:
             ret.append(name)
             
     return ret
@@ -311,13 +326,13 @@ def formatArg(arg):
     '''formats an argument to be shown
     '''
     
-    s = str( arg )
+    s = str(arg)
     dot = s.rfind('.')
     if dot >= 0:
         s = s[dot+1:]
     
-    s = s.replace(';','')
-    s = s.replace('[]','Array')
+    s = s.replace(';', '')
+    s = s.replace('[]', 'Array')
     if len(s) > 0:
         c = s[0].lower()
         s =  c + s[1:]
@@ -325,23 +340,34 @@ def formatArg(arg):
     return s
     
     
-def GenerateImportsTipForModule( mod ):
+def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr, filter=lambda name:True):
     '''
-    @param mod: the module from where we should get the completions
+        @param obj_to_complete: the object from where we should get the completions
+        @param dirComps: if passed, we should not 'dir' the object and should just iterate those passed as a parameter
+        @param getattr: the way to get a given object from the obj_to_complete (used for the completer)
+        @param filter: a callable that receives the name and decides if it should be appended or not to the results
+        @return: list of tuples, so that each tuple represents a completion with:
+            name, doc, args, type (from the TYPE_* constants)
     '''
     ret = []
     
-    dirComps = dirObj( mod )
+    if dirComps is None:
+        dirComps = dirObj(obj_to_complete)
     
-    dontGetDocsOn = (float, int, str, tuple, list, type)
     for d in dirComps:
 
+        if d is None:
+            continue
+            
+        if not filter(d):
+            continue
+            
         args = ''
         doc = ''
         retType = TYPE_BUILTIN
 
         try:
-            obj = getattr(mod, d)
+            obj = getattr(obj_to_complete, d)
         except (AttributeError, java.lang.NoClassDefFoundError):
             #jython has a bug in its custom classloader that prevents some things from working correctly, so, let's see if
             #we can fix that... (maybe fixing it in jython itself would be a better idea, as this is clearly a bug)
@@ -371,7 +397,7 @@ def GenerateImportsTipForModule( mod ):
             #
             #whereas if we had added the jar to the classpath before, everything would be fine by now...
 
-            ret.append(   (d, '', '', str(retType))   )
+            ret.append((d, '', '', retType))
             #that's ok, private things cannot be gotten...
             continue
         else:
@@ -383,8 +409,8 @@ def GenerateImportsTipForModule( mod ):
                     args, vargs, kwargs = info.args, info.varargs, info.kwargs
                     doc = info.getAsDoc()
                     r = ''
-                    for a in ( args ):
-                        if len( r ) > 0:
+                    for a in (args):
+                        if len(r) > 0:
                             r += ', '
                         r += formatArg(a)
                     args = '(%s)' % (r)
@@ -401,7 +427,7 @@ def GenerateImportsTipForModule( mod ):
                 retType = TYPE_IMPORT
         
         #add token and doc to return - assure only strings.
-        ret.append(   (d, doc, args, str(retType))   )
+        ret.append((d, doc, args, retType))
         
             
     return ret

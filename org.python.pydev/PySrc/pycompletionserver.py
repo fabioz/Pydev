@@ -2,11 +2,12 @@
 '''
 @author Fabio Zadrozny 
 '''
-
+import __builtin__
+    
 try:
     import java.lang
-    True = 1
-    False = 0
+    __builtin__.True = 1
+    __builtin__.False = 0
     IS_JYTHON = True
     SERVER_NAME = 'jycompletionserver'
     from java.lang import Thread
@@ -20,8 +21,8 @@ except ImportError:
         IS_JYTHON = False
     except NameError:
         #it is an early version of python
-        True = 1
-        False = 0
+        __builtin__.True = 1
+        __builtin__.False = 0
         
     IS_JYTHON = False
     SERVER_NAME = 'pycompletionserver'

@@ -8,9 +8,9 @@ STATE_SUSPEND = 2
 try:
     __setFalse = False
 except:
-    #Jython needs that
-    False = 0
-    True = 1
+    import __builtin__
+    __builtin__.True = 1
+    __builtin__.False = 0
 
 DEBUG_TRACE_LEVEL = -1
 DEBUG_TRACE_BREAKPOINTS = -1

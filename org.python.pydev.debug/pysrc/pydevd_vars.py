@@ -14,9 +14,9 @@ import traceback
 try:
     __setFalse = False
 except:
-    #early versions of python do not have it.
-    False = 0
-    True = 1
+    import __builtin__
+    __builtin__.True = 1
+    __builtin__.False = 0
 
 #------------------------------------------------------------------------------------------------------ class for errors
 

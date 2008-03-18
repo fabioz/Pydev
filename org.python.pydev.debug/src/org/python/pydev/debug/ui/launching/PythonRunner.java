@@ -190,10 +190,15 @@ public class PythonRunner {
             }
             process = registerWithDebugPluginForProcessType(label, launch, p, processAttributes, "java");
         } else {
+            
+            //in the interactive session, we'll just create the process, it won't actually be registered
+            //in the debug plugin (the communication is all done through xml-rpc).
             if(config.isInteractive){
                 label = "Interactive session: "+cmdLine[0]+" ("+config.resource.lastSegment()+")"; //c:/bin/python.exe
             }
-            process = registerWithDebugPlugin(label, launch, p, processAttributes);
+            process = null;//registerWithDebugPlugin(label, launch, p, processAttributes);
+            subMonitor.subTask("Done");
+            return null;
         }
         checkProcess(p, process);
 

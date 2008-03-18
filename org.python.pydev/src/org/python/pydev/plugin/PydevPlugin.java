@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -28,6 +29,8 @@ import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.jface.window.Window;
@@ -60,6 +63,7 @@ import org.python.pydev.core.bundle.BundleInfo;
 import org.python.pydev.core.bundle.IBundleInfo;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.dltk.console.ui.ScriptConsoleUIConstants;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
@@ -703,6 +707,26 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     public static ImageCache getImageCache(){
         return PydevPlugin.getBundleInfo().getImageCache();
     }
+    
+    
+    //Images for the console
+    private static final String[][] IMAGES = new String[][] { { "icons/save.gif", //$NON-NLS-1$
+            ScriptConsoleUIConstants.SAVE_SESSION_ICON }, { "icons/terminate.gif", //$NON-NLS-1$
+            ScriptConsoleUIConstants.TERMINATE_ICON } };
+
+    @Override
+    protected void initializeImageRegistry(ImageRegistry registry) {
+        for (int i = 0; i < IMAGES.length; ++i) {
+            URL url = getDefault().getBundle().getEntry(IMAGES[i][0]);
+            registry.put(IMAGES[i][1], ImageDescriptor.createFromURL(url));
+        }
+    }
+
+    public ImageDescriptor getImageDescriptor(String key) {
+        return getImageRegistry().getDescriptor(key);
+    }
+    //End Images for the console
+
     
 
     /** Listener list **/
