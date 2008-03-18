@@ -152,7 +152,7 @@ public class PyGlobalsBrowser extends PyAction{
                 //try to find in one of the natures...
                 ICodeCompletionASTManager astManager = pythonNature.getAstManager();
                 if(astManager == null){
-                	return;
+                	continue;
                 }
                 AnalysisPlugin.getDefinitionFromIInfo(pointers, astManager, pythonNature, entry, completionCache);
                 if(pointers.size() > 0){
