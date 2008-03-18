@@ -6,6 +6,7 @@ package org.python.pydev.runners;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -63,7 +64,11 @@ public abstract class SimpleRunner {
             return null; //we cannot get it
         }
     
-    	DebugPlugin defaultPlugin = DebugPlugin.getDefault();
+    	return createEnvWithPythonpath(pythonPathEnvStr);
+    }
+
+	public static String[] createEnvWithPythonpath(String pythonPathEnvStr) throws CoreException {
+		DebugPlugin defaultPlugin = DebugPlugin.getDefault();
     	if(defaultPlugin != null){
             Map<String,String> env = getDefaultSystemEnv(defaultPlugin);		
     
@@ -72,12 +77,12 @@ public abstract class SimpleRunner {
     	}else{
     	    return null;
     	}
-    }
+	}
 
     /**
      * @return an array with the env variables for the system with the format xx=yy  
      */
-    public String[] getDefaultSystemEnvAsArray() throws CoreException {
+    public static String[] getDefaultSystemEnvAsArray() throws CoreException {
         Map<String,String> defaultSystemEnv = getDefaultSystemEnv();
         if(defaultSystemEnv != null){
             return getMapEnvAsArray(defaultSystemEnv);
@@ -88,7 +93,7 @@ public abstract class SimpleRunner {
     /**
      * @return a map with the env variables for the system  
      */
-    public Map<String,String> getDefaultSystemEnv() throws CoreException {
+    public static Map<String,String> getDefaultSystemEnv() throws CoreException {
         DebugPlugin defaultPlugin = DebugPlugin.getDefault();
         return getDefaultSystemEnv(defaultPlugin);
     }
@@ -97,7 +102,7 @@ public abstract class SimpleRunner {
      * @return a map with the env variables for the system  
      */
     @SuppressWarnings("unchecked")
-    private Map<String,String> getDefaultSystemEnv(DebugPlugin defaultPlugin) throws CoreException {
+    private static Map<String,String> getDefaultSystemEnv(DebugPlugin defaultPlugin) throws CoreException {
         if(defaultPlugin != null){
             ILaunchManager launchManager = defaultPlugin.getLaunchManager();
     
@@ -199,17 +204,28 @@ public abstract class SimpleRunner {
         }
     	paths = pythonPathNature.getCompleteProjectPythonPath(interpreter);
     
-        String separator = getPythonPathSeparator();
+        return makePythonPathEnvFromPaths(paths);
+    }
+
+    /**
+     * @param paths the paths to be added
+     * @return a String suitable to be added to the PYTHONPATH environment variable.
+     */
+	public static String makePythonPathEnvFromPaths(Collection<String> paths) {
+		String separator = getPythonPathSeparator();
     	StringBuffer pythonpath = new StringBuffer();
-        for (int i = 0; i < paths.size(); i++) {
-    		if (i > 0){
+    	boolean first = true;
+        for (String path:paths) {
+    		if (first){
+    			first = false;
+    		}else{
     			pythonpath.append(separator);
     		}
-    		String path = REF.getFileAbsolutePath(new File((String) paths.get(i)));
+    		
             pythonpath.append(path);
     	}
         return pythonpath.toString();
-    }
+	}
     
     /**
      * @return the separator for the pythonpath variables (system dependent)
@@ -228,7 +244,7 @@ public abstract class SimpleRunner {
      * @param env a map that will have its values formatted to xx=yy, so that it can be passed in an exec
      * @return an array with the formatted map
      */
-    private String[] getMapEnvAsArray(Map<String,String> env) {
+    private static String[] getMapEnvAsArray(Map<String,String> env) {
         List<String> strings= new ArrayList<String>(env.size());
     	for(Iterator<Map.Entry<String, String>> iter= env.entrySet().iterator(); iter.hasNext(); ) {
     		Map.Entry<String, String> entry = iter.next();

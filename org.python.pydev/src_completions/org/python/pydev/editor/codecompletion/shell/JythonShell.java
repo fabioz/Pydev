@@ -23,7 +23,7 @@ public class JythonShell extends AbstractShell{
     protected synchronized String createServerProcess(int pWrite, int pRead) throws IOException, JDTNotAvailableException {
         String args = pWrite+" "+pRead;
         String script = REF.getFileAbsolutePath(serverFile);
-        String executableStr = SimpleJythonRunner.makeExecutableCommandStr(script);
+        String executableStr = SimpleJythonRunner.makeExecutableCommandStr(script, "");
         executableStr += " "+args;
         process = new SimplePythonRunner().createProcess(executableStr, serverFile.getParentFile());
         

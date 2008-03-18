@@ -71,7 +71,7 @@ public class SimpleJythonRunner extends SimpleRunner{
         //"java.exe" -classpath "C:\bin\jython21\jython.jar" -Dpython.path xxx;xxx;xxx org.python.util.jython script %ARGS%
 
         try {
-            String executionString = makeExecutableCommandStr(script);
+            String executionString = makeExecutableCommandStr(script, "");
             
             return runAndGetOutput(executionString, workingDir, project);
         } catch (RuntimeException e) {
@@ -87,7 +87,7 @@ public class SimpleJythonRunner extends SimpleRunner{
      * @return
      * @throws IOException
      */
-    public static String makeExecutableCommandStr(String script) throws IOException, JDTNotAvailableException {
+    public static String makeExecutableCommandStr(String script, String basePythonPath, String ... args) throws IOException, JDTNotAvailableException {
         IInterpreterManager interpreterManager = PydevPlugin.getJythonInterpreterManager();
         String javaLoc = JavaVmLocationFinder.findDefaultJavaExecutable().getCanonicalPath();
         
@@ -107,7 +107,7 @@ public class SimpleJythonRunner extends SimpleRunner{
         }
         InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(jythonJar, new NullProgressMonitor());
 
-        StringBuffer jythonPath = new StringBuffer();
+        StringBuffer jythonPath = new StringBuffer(basePythonPath);
         String pathSeparator = SimpleRunner.getPythonPathSeparator();
         for (String lib : info.libs) {
             if(jythonPath.length() != 0){
@@ -141,7 +141,7 @@ public class SimpleJythonRunner extends SimpleRunner{
             "org.python.util.jython",
             script
         };
-        String executionString = getCommandLineAsString(s);
+        String executionString = getCommandLineAsString(s, args);
 
         return executionString;
     }

@@ -240,7 +240,8 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
      * 
      * @param resource only used if captureOutput is true!
      * @param location only used if captureOutput is false!
-     * 
+     * @param captureOutput determines if the output should be captured or not (if captured a console will be
+     * shown to it by default)
      */
     public static ILaunchConfiguration createDefaultLaunchConfiguration(IResource[] resource, String launchConfigurationType,
             String location, IInterpreterManager pythonInterpreterManager, String projName, String vmargs, String programArguments,
