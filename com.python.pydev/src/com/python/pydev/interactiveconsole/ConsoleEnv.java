@@ -94,7 +94,7 @@ public class ConsoleEnv {
     }
 
     /**
-     * Writes something to the process (throught the document or throught the console).
+     * Writes something to the process (through the document or through the console).
      */
     private void write(IDocument doc, String string) throws BadLocationException, IOException {
         if(showInputInPrompt){
