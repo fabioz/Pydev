@@ -33,7 +33,15 @@ def m1():
     def filter():
         return attr <-- mark occurrences here!
         
-
+console:
+	- getpass: echo mode
+	- undo/redo for current line
+	- colors config
+	- OK: esc: clear current line
+	- pg up/down: console history in dialog
+	- start writing: move cursor automatically to command line
+	- correct messages (translation)
+	- qualifier match context insensitive
 
 - Try to reproduce:
 problems:

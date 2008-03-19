@@ -25,13 +25,14 @@ import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.TextConsoleViewer;
-import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.dltk.console.ScriptConsoleHistory;
 import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.dltk.console.ui.ScriptConsole;
-import org.python.pydev.editor.actions.PyBackspace;
+import org.python.pydev.dltk.console.ui.internal.actions.HandleBackspaceAction;
+import org.python.pydev.dltk.console.ui.internal.actions.HandleDeletePreviousWord;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This is the viewer for the console.
@@ -40,14 +41,19 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
     private class ScriptConsoleStyledText extends StyledText {
 
-        public ScriptConsoleStyledText(Composite parent, int style) {
+        private HandleBackspaceAction handleBackspaceAction;
+        private HandleDeletePreviousWord handleDeletePreviousWord;
+        
+		public ScriptConsoleStyledText(Composite parent, int style) {
             super(parent, style);
+            handleBackspaceAction = new HandleBackspaceAction();
+            handleDeletePreviousWord = new HandleDeletePreviousWord();
         }
 
         public void invokeAction(int action) {
             if (isCaretOnLastLine()) {
                 try {
-                    switch (action) {
+					switch (action) {
                     case ST.LINE_UP:
                         history.prev();
                         listener.setCommandLine(history.get());
@@ -64,7 +70,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                         if (getCaretOffset() <= getCommandLineOffset()) {
                             return;
                         }
-                        handleBackspace();
+                        handleBackspaceAction.execute(getDocument(), getCaretPosition(), getCommandLineOffset());
                         return;
 
                     case ST.DELETE_NEXT:
@@ -74,6 +80,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                         break;
 
                     case ST.DELETE_WORD_PREVIOUS:
+                    	handleDeletePreviousWord.execute(getDocument(), getCaretPosition(), getCommandLineOffset());
                         return;
                     }
 
@@ -108,17 +115,6 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     
     public IConsoleStyleProvider getStyleProvider() {
         return styleProvider;
-    }
-
-    /**
-     * Handles a backspace in the current document.
-     */
-    public void handleBackspace() {
-        IDocument doc = this.getDocument();
-        PyBackspace pyBackspace = new PyBackspace();
-        int caretPosition = this.getCaretPosition();
-        pyBackspace.setDontEraseMoreThan(getCommandLineOffset());
-        pyBackspace.perform(new PySelection(doc, caretPosition));
     }
 
     /**
@@ -174,13 +170,14 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
         final StyledText styledText = getTextWidget();
 
-        // styledText.setEditable(false);
-
-        // Correct keyboard actions
         styledText.addFocusListener(new FocusListener() {
 
+        	/**
+        	 * When the initial focus is gained, set the caret position to the last position (just after the prompt)
+        	 */
             public void focusGained(FocusEvent e) {
                 setCaretPosition(getDocument().getLength());
+                //just a 1-time listener
                 styledText.removeFocusListener(this);
             }
 
@@ -209,22 +206,43 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                             return;
                         }
                         
+                        if (event.character == SWT.ESC) {
+                        	listener.setCommandLine("");
+                        	return;
+                        }
+                        
                         if (PyContentAssistant.matchesContentAssistKeybinding(event)) {
                             event.doit = false;
                             return;
                         }
+                    }else{ //not printable char
+                        if (isCaretOnLastLine()) {
+	                    	if(event.keyCode == SWT.PAGE_UP){
+	                    		event.doit = false;
+	                    		System.out.println("Up");
+	                    		return;
+	                    	}
+	                    	
+	                    	if(event.keyCode == SWT.PAGE_DOWN){
+	                    		event.doit = false;
+	                    		System.out.println("Down");
+	                    		return;
+	                    	}
+                        }
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    PydevPlugin.log(e);
                 }
             }
         });
 
         styledText.addKeyListener(new KeyListener() {
             public void keyPressed(KeyEvent e) {
-                if (PyContentAssistant.matchesContentAssistKeybinding(e)) {
-                    contentHandler.contentAssistRequired();
-                }
+            	if (getCaretPosition() >= getCommandLineOffset()){
+	                if (PyContentAssistant.matchesContentAssistKeybinding(e)) {
+	                    contentHandler.contentAssistRequired();
+	                }
+            	}
             }
 
             public void keyReleased(KeyEvent e) {
