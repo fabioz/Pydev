@@ -1,6 +1,5 @@
 package org.python.pydev.debug.newconsole;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -29,6 +28,13 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication{
 
     private XmlRpcClient client;
 
+    /**
+     * Initializes the xml-rpc communication.
+     * 
+     * @param port the port where the communication should happen.
+     * 
+     * @throws MalformedURLException
+     */
     public PydevConsoleCommunication(int port) throws MalformedURLException {
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
         config.setServerURL(new URL("http://127.0.0.1:"+port));
@@ -37,8 +43,8 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication{
         this.client = client;
     }
     
-    public void close() throws IOException {
-        System.out.println("Finishing communication.");
+    public void close() throws Exception {
+        this.client.execute("close", new Object[0]);
     }
 
     public InterpreterResponse execInterpreter(String command) throws Exception {
@@ -113,7 +119,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication{
     
     
     public String getDescription(String text) throws Exception {
-        return "Need description: text";
+        return client.execute("getDescription", new Object[]{text}).toString();
     }
 
 }

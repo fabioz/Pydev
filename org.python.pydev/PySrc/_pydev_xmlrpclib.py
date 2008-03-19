@@ -2,7 +2,7 @@
 
 #
 # XML-RPC CLIENT LIBRARY
-# $Id: _pydev_xmlrpclib.py,v 1.2 2008-03-18 12:04:00 fabioz Exp $
+# $Id: _pydev_xmlrpclib.py,v 1.3 2008-03-19 02:22:30 fabioz Exp $
 #
 # an XML-RPC client interface for Python.
 #
@@ -405,7 +405,7 @@ def _datetime(data):
     return value
 
 def _datetime_type(data):
-    t = time.strptime(data, "%Y%m%dT%H:%M:%S")
+    t = time.strptime(data, "%Y%m%dT%H:%M:%S") #@UndefinedVariable
     return datetime.datetime(*tuple(t)[:6])
 
 ##
@@ -513,7 +513,7 @@ else:
                 self.parser = self.feed = None # nuke circular reference
 
         def handle_proc(self, tag, attr):
-            m = re.search("encoding\s*=\s*['\"]([^\"']+)[\"']", attr)
+            m = re.search("encoding\s*=\s*['\"]([^\"']+)[\"']", attr) #@UndefinedVariable
             if m:
                 self.handle_xml(m.group(1), 1)
 

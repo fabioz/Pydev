@@ -150,7 +150,64 @@ class InterpreterInterface:
         from _completer import Completer
         completer = Completer(self.namespace, None)
         return completer.complete(text)
+        
     
+    def getDescription(self, text):
+        obj = None
+        if '.' not in text:
+            try:
+                obj = self.namespace[text]
+            except KeyError:
+                return ''
+                
+        else:
+            try:
+                splitted = text.split('.')
+                obj = self.namespace[splitted[0]]
+                for t in splitted[1:]:
+                    obj = getattr(obj, t)
+            except:
+                return ''
+                
+            
+        if obj is not None:
+            try:
+                if not sys.platform.startswith("java"):
+                    #Python
+                    import inspect
+                    doc = inspect.getdoc(obj) 
+                    if doc is not None:
+                        return doc
+                        
+                else:
+                    #Jython
+                    doc = obj.__doc__
+                    if doc is not None:
+                        return doc
+                    
+                    import jyimportsTipper
+                    is_method, infos = jyimportsTipper.ismethod(obj)
+                    ret = ''
+                    if is_method:
+                        for info in infos:
+                            ret += info.getAsDoc()
+                        return ret
+            except:
+                pass
+                
+        try:
+            #if no attempt succeeded, try to return repr()... 
+            return repr(obj)
+        except:
+            try:
+                #otherwise the class 
+                return str(obj.__class__)
+            except:
+                #if all fails, go to an empty string 
+                return ''
+        
+    def close(self):
+        sys.exit()
         
     
 #=======================================================================================================================
@@ -173,6 +230,8 @@ if __name__ == '__main__':
         
     server.register_function(interpreter.addExec)
     server.register_function(interpreter.getCompletions)
+    server.register_function(interpreter.getDescription)
+    server.register_function(interpreter.close)
     
     #we don't want output to anywhere (only to the server -- with sockets!)
     sys.stderr = NoReadWrite()

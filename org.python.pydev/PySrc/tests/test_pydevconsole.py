@@ -36,7 +36,13 @@ class Test(unittest.TestCase):
         comps = interpreter.getCompletions('va')
         self.assert_(('val', '', '', '3') in comps or ('val', '', '', '4') in comps)
         
-        
+        interpreter.addExec('s = "mystring"')
+        print interpreter.getDescription('s')
+        desc = interpreter.getDescription('val')
+        print '>>%s<<' % desc
+        self.assert_(desc.index('str(object) -> string') >= 0)
+        self.assert_(interpreter.getDescription('val.join').index('S.join(sequence) -> string'))
+#        self.assert_('str(object) -> string' in interpreter.getDescription('val.join'))
         
 #=======================================================================================================================
 # main        

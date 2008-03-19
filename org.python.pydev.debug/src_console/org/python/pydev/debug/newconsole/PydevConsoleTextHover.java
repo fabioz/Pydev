@@ -9,6 +9,7 @@
  *******************************************************************************/
 package org.python.pydev.debug.newconsole;
 
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.dltk.console.IScriptConsoleShell;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
@@ -25,11 +26,10 @@ public class PydevConsoleTextHover extends ScriptConsoleTextHover {
 
     protected String getHoverInfoImpl(IScriptConsoleViewer viewer, IRegion hoverRegion) {
         try {
-            int cursorPosition = hoverRegion.getOffset() - viewer.getCommandLineOffset();
+            IDocument document = viewer.getDocument();
+            int cursorPosition = hoverRegion.getOffset();
 
-            String commandLine = viewer.getCommandLine();
-
-            return interpreterShell.getDescription(commandLine, cursorPosition);
+            return interpreterShell.getDescription(document, cursorPosition);
         } catch (Exception e) {
             PydevPlugin.log(e);
             return null;

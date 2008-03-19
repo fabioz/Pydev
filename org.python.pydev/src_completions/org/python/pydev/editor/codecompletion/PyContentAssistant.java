@@ -7,9 +7,9 @@ package org.python.pydev.editor.codecompletion;
 
 import org.eclipse.jface.bindings.TriggerSequence;
 import org.eclipse.jface.bindings.keys.KeySequence;
-import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.bindings.keys.KeyStroke;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.keys.IBindingService;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
@@ -56,16 +56,39 @@ public class PyContentAssistant extends ContentAssistant{
     }
     
     private String getIterationGesture() {
-        TriggerSequence binding= getIterationBinding();
+        TriggerSequence binding = getContentAssistProposalBinding();
         return binding != null ? binding.format(): "completion key";
     }
 
-    private KeySequence getIterationBinding() {
-        final IBindingService bindingSvc= (IBindingService) PlatformUI.getWorkbench().getAdapter(IBindingService.class);
-        TriggerSequence binding= bindingSvc.getBestActiveBindingFor(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS);
+    /**
+     * @return the keysequence that should be used for a content assist request.
+     */
+    public static KeySequence getContentAssistProposalBinding() {
+        final IBindingService bindingSvc = (IBindingService) PlatformUI.getWorkbench().getAdapter(IBindingService.class);
+        TriggerSequence binding = bindingSvc.getBestActiveBindingFor(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS);
         if (binding instanceof KeySequence)
             return (KeySequence) binding;
         return null;
     }
+
+    /**
+     * @return true if the given event matches a content assistant keystroke (and false otherwise).
+     */
+    public static boolean matchesContentAssistKeybinding(KeyEvent event) {
+        KeySequence keySequence = getContentAssistProposalBinding();
+        KeyStroke[] keyStrokes = keySequence.getKeyStrokes();
+        
+        
+        for (KeyStroke keyStroke : keyStrokes) {
+            
+            if(keyStroke.getNaturalKey() == event.keyCode && (keyStroke.getModifierKeys() & event.stateMask)!=0){
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    
 
 }

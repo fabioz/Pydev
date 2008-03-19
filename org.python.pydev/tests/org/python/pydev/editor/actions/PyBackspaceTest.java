@@ -12,7 +12,7 @@ public class PyBackspaceTest extends TestCase {
         PyBackspaceTest test = new PyBackspaceTest();
         try {
             test.setUp();
-            test.testBackspace16c();
+            test.testEraseMoreThan();
             test.tearDown();
         } catch (Exception e) {
             e.printStackTrace();
@@ -33,6 +33,21 @@ public class PyBackspaceTest extends TestCase {
 
         backspace.perform(ps);
         assertEquals("a = 1", doc.get());
+    }
+    
+    public void testEraseMoreThan() throws Exception {
+        Document doc = new Document("a = 10");        
+        
+        backspace.perform(new PySelection(doc, 0, doc.getLength(), 0));
+        assertEquals("a = 1", doc.get());
+        
+        backspace.setDontEraseMoreThan(5);
+        backspace.perform(new PySelection(doc, 0, doc.getLength(), 0));
+        assertEquals("a = 1", doc.get());
+        
+        backspace.setDontEraseMoreThan(4);
+        backspace.perform(new PySelection(doc, 0, doc.getLength(), 0));
+        assertEquals("a = ", doc.get());
     }
     
     public void testBackspace2() throws Exception {

@@ -53,7 +53,6 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
         super.createActions();
 
         proposalsAction = new ContentAssistProposalsAction(getViewer());
-        proposalsAction = new ContentAssistProposalsAction(getViewer());
 
         SaveConsoleSessionAction saveSessionAction = new SaveConsoleSessionAction((ScriptConsole) getConsole(),
                 ScriptConsoleMessages.SaveSessionAction, ScriptConsoleMessages.SaveSessionTooltip);

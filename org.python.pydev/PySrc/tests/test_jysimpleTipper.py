@@ -186,12 +186,12 @@ class TestCompl(unittest.TestCase):
         assert not isclass(out)
             
         dbg( '\n\n--------------------------- out.println')
-        isMet = ismethod(out.println)
+        isMet = ismethod(out.println) #@UndefinedVariable
         assert isMet[0]
         assert len(isMet[1]) == 10
         self.assertEquals(isMet[1][0].basicAsStr(), "function:println args=[], varargs=None, kwargs=None, docs:None")
         assert isMet[1][1].basicAsStr() == "function:println args=['long'], varargs=None, kwargs=None, docs:None"
-        assert not isclass(out.println)
+        assert not isclass(out.println) #@UndefinedVariable
         
         dbg( '\n\n--------------------------- str')
         isMet = ismethod(str)

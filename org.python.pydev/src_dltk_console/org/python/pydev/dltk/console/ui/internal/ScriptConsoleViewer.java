@@ -25,10 +25,13 @@ import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.TextConsoleViewer;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.dltk.console.ScriptConsoleHistory;
 import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.dltk.console.ui.ScriptConsole;
+import org.python.pydev.editor.actions.PyBackspace;
+import org.python.pydev.editor.codecompletion.PyContentAssistant;
 
 /**
  * This is the viewer for the console.
@@ -61,7 +64,8 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                         if (getCaretOffset() <= getCommandLineOffset()) {
                             return;
                         }
-                        break;
+                        handleBackspace();
+                        return;
 
                     case ST.DELETE_NEXT:
                         if (getCaretOffset() < getCommandLineOffset()) {
@@ -106,10 +110,27 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         return styleProvider;
     }
 
+    /**
+     * Handles a backspace in the current document.
+     */
+    public void handleBackspace() {
+        IDocument doc = this.getDocument();
+        PyBackspace pyBackspace = new PyBackspace();
+        int caretPosition = this.getCaretPosition();
+        pyBackspace.setDontEraseMoreThan(getCommandLineOffset());
+        pyBackspace.perform(new PySelection(doc, caretPosition));
+    }
+
+    /**
+     * @return the caret position (based on the document)
+     */
     public int getCaretPosition() {
         return getTextWidget().getCaretOffset();
     }
 
+    /**
+     * Sets the new caret position in the console.
+     */
     public void setCaretPosition(final int offset) {
         getTextWidget().getDisplay().asyncExec(new Runnable() {
             public void run() {
@@ -188,7 +209,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                             return;
                         }
                         
-                        if (event.keyCode == 32 && (event.stateMask & SWT.CTRL) > 0) {
+                        if (PyContentAssistant.matchesContentAssistKeybinding(event)) {
                             event.doit = false;
                             return;
                         }
@@ -201,12 +222,9 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
         styledText.addKeyListener(new KeyListener() {
             public void keyPressed(KeyEvent e) {
-                // if (e.keyCode == 32 && (e.stateMask & SWT.CTRL) > 0) {
-                if ((e.keyCode == 32 && (e.stateMask & SWT.CTRL) > 0)) {
-                    // System.out.println(".keyPressed()");
+                if (PyContentAssistant.matchesContentAssistKeybinding(e)) {
                     contentHandler.contentAssistRequired();
                 }
-
             }
 
             public void keyReleased(KeyEvent e) {

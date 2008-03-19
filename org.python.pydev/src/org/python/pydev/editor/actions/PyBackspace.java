@@ -29,6 +29,7 @@ import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 public class PyBackspace extends PyAction {
 
     private IIndentPrefs prefs;
+    private int dontEraseMoreThan = -1;
     
     public void setIndentPrefs(IIndentPrefs prefs) {
         this.prefs = prefs;
@@ -174,7 +175,7 @@ public class PyBackspace extends PyAction {
     private void eraseSingleChar(PySelection ps) throws BadLocationException {
         ITextSelection textSelection = ps.getTextSelection();
 
-        ps.getDoc().replace(textSelection.getOffset() - 1, 1, "");
+        makeDelete(ps.getDoc(), textSelection.getOffset() - 1, 1);
     }
 
     /**
@@ -191,7 +192,7 @@ public class PyBackspace extends PyAction {
 
         //System.out.println("Replacing offset: "+(offset) +" lenght: "+
         // (length));
-        ps.getDoc().replace(offset, length, "");
+        makeDelete(ps.getDoc(), offset, length);
     }
 
     /**
@@ -202,7 +203,7 @@ public class PyBackspace extends PyAction {
     private void eraseSelection(PySelection ps) throws BadLocationException {
         ITextSelection textSelection = ps.getTextSelection();
 
-        ps.getDoc().replace(textSelection.getOffset(), textSelection.getLength(), "");
+        makeDelete(ps.getDoc(), textSelection.getOffset(), textSelection.getLength());
     }
 
     /**
@@ -218,7 +219,7 @@ public class PyBackspace extends PyAction {
         int length = cursorOffset - lastCharPosition - 1;
         //System.out.println("Replacing offset: "+(offset) +" lenght: "+
         // (length));
-        ps.getDoc().replace(offset, length, "");
+        makeDelete(ps.getDoc(), offset, length);
     }
 
     /**
@@ -295,7 +296,23 @@ public class PyBackspace extends PyAction {
             }
         }
         
+        makeDelete(doc, replaceOffset, replaceLength);
+    }
+
+    private void makeDelete(IDocument doc, int replaceOffset, int replaceLength) throws BadLocationException {
+        if(replaceOffset < dontEraseMoreThan){
+            int delta = dontEraseMoreThan - replaceOffset;
+            replaceOffset = dontEraseMoreThan;
+            replaceLength -= delta;
+            if(replaceLength <= 0){
+                return;
+            }
+        }
         doc.replace(replaceOffset, replaceLength, "");
+    }
+
+    public void setDontEraseMoreThan(int offset) {
+        this.dontEraseMoreThan = offset;
     }
 
 

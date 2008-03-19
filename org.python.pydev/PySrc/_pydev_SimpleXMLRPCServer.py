@@ -337,8 +337,12 @@ class SimpleXMLRPCDispatcher:
         if method is None:
             return ""
         else:
-            import pydoc
-            return pydoc.getdoc(method)
+            try:
+                import pydoc
+            except ImportError:
+                return "" #not there for jython
+            else:
+                return pydoc.getdoc(method)
 
     def system_multicall(self, call_list):
         """system.multicall([{'methodName': 'add', 'params': [2, 2]}, ...]) => \

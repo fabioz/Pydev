@@ -118,7 +118,7 @@ class Completer:
         
         a = {}
         
-        for dict_with_comps in [__builtin__.__dict__, self.namespace, self.global_namespace]:
+        for dict_with_comps in [__builtin__.__dict__, self.namespace, self.global_namespace]: #@UndefinedVariable
             a.update(dict_with_comps)
             
         filter = _StartsWithFilter(text)
@@ -141,7 +141,7 @@ class Completer:
         import re
 
         # Another option, seems to work great. Catches things like ''.<tab>
-        m = re.match(r"(\S+(\.\w+)*)\.(\w*)$", text)
+        m = re.match(r"(\S+(\.\w+)*)\.(\w*)$", text) #@UndefinedVariable
 
         if not m:
             return []

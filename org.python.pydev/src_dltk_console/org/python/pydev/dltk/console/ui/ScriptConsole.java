@@ -22,40 +22,36 @@ import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.dltk.console.ScriptConsoleHistory;
 import org.python.pydev.dltk.console.ScriptConsolePrompt;
 import org.python.pydev.dltk.console.ui.internal.ICommandHandler;
-import org.python.pydev.dltk.console.ui.internal.ScriptConsoleInput;
 import org.python.pydev.dltk.console.ui.internal.ScriptConsolePage;
 import org.python.pydev.dltk.console.ui.internal.ScriptConsoleSession;
-import org.python.pydev.plugin.PydevPlugin;
 
-public class ScriptConsole extends TextConsole implements ICommandHandler {
+public abstract class ScriptConsole extends TextConsole implements ICommandHandler {
 
-    private ScriptConsolePage page;
+    protected ScriptConsolePage page;
 
-    private ScriptConsolePartitioner partitioner;
+    protected ScriptConsolePartitioner partitioner;
 
-    private IContentAssistProcessor processor;
+    protected IScriptConsoleInterpreter interpreter;
 
-    private ITextHover hover;
+    protected ScriptConsoleSession session;
 
-    private IScriptConsoleInterpreter interpreter;
+    protected ListenerList consoleListeners;
 
-    private ScriptConsoleSession session;
+    protected ScriptConsolePrompt prompt;
 
-    private ListenerList consoleListeners;
-
-    private ScriptConsolePrompt prompt;
-
-    private ScriptConsoleHistory history;
+    protected ScriptConsoleHistory history;
 
     protected IConsoleDocumentPartitioner getPartitioner() {
         return partitioner;
     }
 
-    public ScriptConsole(String consoleName, String consoleType) {
+    public ScriptConsole(String consoleName, String consoleType, IScriptConsoleInterpreter interpreterArg) {
         super(consoleName, consoleType, null, true);
 
+        this.interpreter = interpreterArg;
+        
         this.consoleListeners = new ListenerList(ListenerList.IDENTITY);
-        this.prompt = new ScriptConsolePrompt("=>", "->"); //$NON-NLS-1$ //$NON-NLS-2$
+        this.prompt = createConsolePrompt();
         this.history = new ScriptConsoleHistory();
 
         this.session = new ScriptConsoleSession();
@@ -66,6 +62,20 @@ public class ScriptConsole extends TextConsole implements ICommandHandler {
         partitioner.connect(getDocument());
     }
 
+    
+    protected abstract IContentAssistProcessor createConsoleCompletionProcessor();
+
+    /**
+     * @return the text hover to be used in the console.
+     */
+    protected abstract ITextHover createHover();
+
+    /**
+     * @return the console prompt that should be used.
+     */
+    protected abstract ScriptConsolePrompt createConsolePrompt();
+
+    
     public IScriptConsoleSession getSession() {
         return session;
     }
@@ -78,29 +88,8 @@ public class ScriptConsole extends TextConsole implements ICommandHandler {
         consoleListeners.remove(listener);
     }
 
-    protected void setContentAssistProcessor(IContentAssistProcessor processor) {
-        this.processor = processor;
-    }
-
     protected void setInterpreter(IScriptConsoleInterpreter interpreter) {
         this.interpreter = interpreter;
-//		interpreter.addInitialListenerOperation(new Runnable() {
-//			public void run() {
-//				Object[] listeners = consoleListeners.getListeners();
-//				String output = ScriptConsole.this.interpreter
-//						.getInitialOuput();
-//				if (output != null) {
-//					for (int i = 0; i < listeners.length; i++) {
-//						((IScriptConsoleListener) listeners[i])
-//								.interpreterResponse(output);
-//					}
-//				}
-//			}
-//		});
-    }
-
-    public void setPrompt(ScriptConsolePrompt prompt) {
-        this.prompt = prompt;
     }
 
     public ScriptConsolePrompt getPrompt() {
@@ -111,47 +100,63 @@ public class ScriptConsole extends TextConsole implements ICommandHandler {
         return history;
     }
 
-    protected void setTextHover(ITextHover hover) {
-        this.hover = hover;
-    }
 
+    /**
+     * Creates the actual page to be shown to the user.
+     */
+    @Override
     public IPageBookViewPage createPage(IConsoleView view) {
-        SourceViewerConfiguration cfg = new ScriptConsoleSourceViewerConfiguration(processor, hover);
+        SourceViewerConfiguration cfg = new ScriptConsoleSourceViewerConfiguration(
+                createConsoleCompletionProcessor(), createHover());
+        
         page = new ScriptConsolePage(this, view, cfg);
         return page;
     }
 
+    /**
+     * Clears the console
+     */
     public void clearConsole() {
         page.clearConsolePage();
     }
 
-    public IScriptConsoleInput getInput() {
-        return new ScriptConsoleInput(page);
-    }
 
+    /**
+     * Handles some command that the user entered
+     * 
+     * @param userInput that's the command to be evaluated by the user.
+     */
     public InterpreterResponse handleCommand(String userInput) throws Exception {
         Object[] listeners = consoleListeners.getListeners();
-        for (Object listener:listeners) {
-            ((IScriptConsoleListener)listener).userRequest(userInput);
+
+        //notify about the user request
+        for (Object listener : listeners) {
+            ((IScriptConsoleListener) listener).userRequest(userInput);
         }
 
+        //executes the user input in the interpreter
         InterpreterResponse response = interpreter.exec(userInput);
 
+        //sets the new mode
         prompt.setMode(!response.more);
 
-        for (Object listener:listeners) {
-            ((IScriptConsoleListener)listener).interpreterResponse(response.out);
-            ((IScriptConsoleListener)listener).interpreterResponse(response.err);
+        //notify about the console answer
+        for (Object listener : listeners) {
+            ((IScriptConsoleListener) listener).interpreterResponse(response.out);
+            ((IScriptConsoleListener) listener).interpreterResponse(response.err);
         }
 
         return response;
     }
 
+    /**
+     * Finishes the interpreter (and stops the communication)
+     */
     public void terminate() {
         try {
             interpreter.close();
         } catch (Exception e) {
-            PydevPlugin.log(e);
         }
+        interpreter = null;
     }
 }

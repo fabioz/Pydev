@@ -1,10 +1,10 @@
 package org.python.pydev.debug.newconsole;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
@@ -50,21 +50,34 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         return consoleCommunication.getCompletions(actTok, offset);
     }
 
+    
     /*
      * (non-Javadoc)
-     * @see org.python.pydev.dltk.console.IScriptConsoleShell#getDescription(java.lang.String, int)
+     * @see org.python.pydev.dltk.console.IScriptConsoleShell#getDescription(org.eclipse.jface.text.IDocument, int)
      */
-    public String getDescription(String commandLine, int position) throws Exception {
-        return consoleCommunication.getDescription(commandLine);
+    public String getDescription(IDocument doc, int position) throws Exception {
+        ActivationTokenAndQual tokenAndQual = PySelection.getActivationTokenAndQual(doc, position, true, false);
+        String actTok = tokenAndQual.activationToken;
+        if(tokenAndQual.qualifier != null && tokenAndQual.qualifier.length() > 0){
+            if(actTok.length() > 0 && actTok.charAt(actTok.length()-1) != '.'){
+                actTok += '.';
+            }
+            actTok += tokenAndQual.qualifier;
+        }
+        return consoleCommunication.getDescription(actTok);
     }
 
     /*
      * (non-Javadoc)
      * @see org.python.pydev.dltk.console.IScriptConsoleShell#close()
      */
-    public void close() throws IOException {
+    public void close() {
         if (consoleCommunication != null) {
-            consoleCommunication.close();
+            try{
+                consoleCommunication.close();
+            }catch(Exception e){
+                //ignore
+            }
             consoleCommunication = null;
         }
         // run all close runnables.

@@ -9,8 +9,6 @@
  *******************************************************************************/
 package org.python.pydev.dltk.console;
 
-import java.io.IOException;
-
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 
 public interface IScriptConsoleCommunication {
@@ -21,7 +19,7 @@ public interface IScriptConsoleCommunication {
     
     public String getDescription(String text) throws Exception;
 
-    void close() throws IOException;
+    void close() throws Exception;
     
 
 }

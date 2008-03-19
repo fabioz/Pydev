@@ -9,6 +9,7 @@
  *******************************************************************************/
 package org.python.pydev.dltk.console;
 
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 
 /**
@@ -29,13 +30,13 @@ public interface IScriptConsoleShell {
     ICompletionProposal[] getCompletions(String commandLine, int position, int offset) throws Exception;
 
     /**
-     * @param commandLine the current command in the buffer (still not entered)
-     * @param position the relative position in the current buffer where the caret is 
+     * @param doc the document with all the contents of the console 
+     * @param offset the offset that's being hovered in the viewer
      * 
      * @return the description to be shown to the user (hover)
      * @throws Exception
      */
-    String getDescription(String commandLine, int position) throws Exception;
+    String getDescription(IDocument doc, int offset) throws Exception;
 
     /**
      * Closes the shell
