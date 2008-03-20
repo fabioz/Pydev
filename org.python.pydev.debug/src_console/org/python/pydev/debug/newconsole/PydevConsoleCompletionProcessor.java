@@ -9,10 +9,20 @@ import org.eclipse.jface.text.contentassist.IContextInformationPresenter;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.python.pydev.dltk.console.IScriptConsoleShell;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
+import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
+import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
 import org.python.pydev.plugin.PydevPlugin;
 
+/**
+ * Gathers completions for the pydev console.
+ * 
+ * @author fabioz
+ */
 public class PydevConsoleCompletionProcessor implements IContentAssistProcessor {
 
+	/**
+	 * Checks to see if the context information is valid.
+	 */
     protected static class Validator implements IContextInformationValidator, IContextInformationPresenter {
 
         protected int installOffset;
@@ -43,9 +53,13 @@ public class PydevConsoleCompletionProcessor implements IContentAssistProcessor 
     }
 
     public char[] getCompletionProposalAutoActivationCharacters() {
-        return new char[] { '.' };
+        return SimpleAssistProcessor.getStaticAutoActivationCharacters(
+        		PythonCompletionProcessor.getStaticCompletionProposalAutoActivationCharacters(), 0);
     }
 
+    /**
+     * Get the completions
+     */
     public ICompletionProposal[] computeCompletionProposals(ITextViewer v, int offset) {
         IScriptConsoleViewer viewer = (IScriptConsoleViewer) v;
 
@@ -63,7 +77,6 @@ public class PydevConsoleCompletionProcessor implements IContentAssistProcessor 
     }
 
     public IContextInformation[] computeContextInformation(ITextViewer v, int offset) {
-//        IScriptConsoleViewer viewer = (IScriptConsoleViewer) v;
         return null;
     }
 
@@ -75,6 +88,9 @@ public class PydevConsoleCompletionProcessor implements IContentAssistProcessor 
         return validator;
     }
     
+    /**
+     * @return an error message that happened while getting the completions
+     */
     public String getErrorMessage() {
         String msg = errorMessage;
         errorMessage = null;

@@ -109,16 +109,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
         
         contextInformationValidator = new PyContextInformationValidator();
         
-        //clears the cache when the preferences are changed.
-        IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
-        preferenceStore.addPropertyChangeListener(new IPropertyChangeListener(){
 
-            public void propertyChange(PropertyChangeEvent event) {
-                activationChars = null; //clear the cache when it changes
-            }
-            
-        });
-        
         pyContentAssistant.addCompletionListener(new ICompletionListener(){
 
             public void assistSessionEnded(ContentAssistEvent event) {
@@ -282,8 +273,30 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     public char[] getCompletionProposalAutoActivationCharacters() {
         return getStaticCompletionProposalAutoActivationCharacters();
     }
-    
+
+    /**
+     * Attribute that determines if the listener that'll clear the auto activation chars is already in place.
+     */
+    private volatile static boolean listenerToClearAutoActivationAlreadySetup = false;
+
+    /**
+     * @return the auto-activation chars that should be used.
+     */
     public static char[] getStaticCompletionProposalAutoActivationCharacters() {
+		if(!listenerToClearAutoActivationAlreadySetup){
+	        //clears the cache when the preferences are changed.
+	        IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
+	        preferenceStore.addPropertyChangeListener(new IPropertyChangeListener(){
+	
+	            public void propertyChange(PropertyChangeEvent event) {
+	                activationChars = null; //clear the cache when it changes
+	            }
+	            
+	        });
+	        listenerToClearAutoActivationAlreadySetup = true;
+		}
+        
+    	
         if(activationChars == null){ //let's cache this
 	     
         	if(!PyCodeCompletionPreferencesPage.useAutocomplete()){

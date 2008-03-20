@@ -12,6 +12,11 @@ package org.python.pydev.dltk.console.ui.internal;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.contentassist.ContentAssistEvent;
+import org.eclipse.jface.text.contentassist.ICompletionListener;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.contentassist.IContentAssistantExtension2;
+import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyleRange;
@@ -29,6 +34,7 @@ import org.python.pydev.dltk.console.ScriptConsoleHistory;
 import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.dltk.console.ui.ScriptConsole;
+import org.python.pydev.dltk.console.ui.ScriptConsoleContentAssistant;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleBackspaceAction;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleDeletePreviousWord;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
@@ -107,11 +113,15 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         }
     }
 
+    private boolean inCompletion = false;
+    
     private ScriptConsoleHistory history;
 
     private ScriptConsoleDocumentListener listener;
 
     IConsoleStyleProvider styleProvider;
+
+	protected ScriptConsole console;
     
     public IConsoleStyleProvider getStyleProvider() {
         return styleProvider;
@@ -157,15 +167,25 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         return new ScriptConsoleStyledText(parent, styles);
     }
 
+    /**
+     * Constructor 
+     * 
+     * @param parent parent for this viewer
+     * @param console the console that this viewer is showing
+     * @param contentHandler
+     */
     public ScriptConsoleViewer(Composite parent, ScriptConsole console,
             final IScriptConsoleContentHandler contentHandler) {
         super(parent, console);
 
+        this.console = console;
+        
         this.styleProvider = createStyleProvider();
 
         this.history = console.getHistory();
 
         this.listener = new ScriptConsoleDocumentListener(this, console, console.getPrompt(), console.getHistory());
+        
         this.listener.setDocument(getDocument());
 
         final StyledText styledText = getTextWidget();
@@ -202,12 +222,21 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                         }
 
                         if (event.character == SWT.CR) {
+                        	//in a new line, always set the caret to the end of the document
                             getTextWidget().setCaretOffset(getDocument().getLength());
+                            
+                            //if we had an enter with the shift pressed and we're in a completion, we must stop it
+                            if(inCompletion && (event.stateMask & SWT.SHIFT) != 0){
+                            	((ScriptConsoleContentAssistant)ScriptConsoleViewer.this.fContentAssistant).hide();
+                            }
                             return;
                         }
                         
                         if (event.character == SWT.ESC) {
-                        	listener.setCommandLine("");
+                        	if(!inCompletion){
+                        		//while in a completion, esc won't clear the line (just stop the completion)
+                        		listener.setCommandLine("");
+                        	}
                         	return;
                         }
                         
@@ -252,6 +281,30 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         clear();
     }
 
+
+    /**
+     * Listen to the completions because we've to know when we're doing a completion or not.
+     */
+    @Override
+    public void configure(SourceViewerConfiguration configuration) {
+    	super.configure(configuration);
+    	if(fContentAssistant != null){
+    		((IContentAssistantExtension2)fContentAssistant).addCompletionListener(new ICompletionListener(){
+
+    			public void assistSessionStarted(ContentAssistEvent event) {
+    				inCompletion = true;
+    			}
+    			
+				public void assistSessionEnded(ContentAssistEvent event) {
+					inCompletion = false;
+				}
+
+				public void selectionChanged(ICompletionProposal proposal, boolean smartToggle) {
+				}}
+    		);
+    	}
+    }
+    
     /**
      * Can be overridden to create a style provider for the console.
      * @return a style provider.

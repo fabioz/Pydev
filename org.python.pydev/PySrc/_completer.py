@@ -34,10 +34,10 @@ class _StartsWithFilter:
     
     
     def __init__(self, start_with):
-        self.start_with = start_with
+        self.start_with = start_with.lower()
         
     def __call__(self, name):
-        return name.startswith(self.start_with)
+        return name.lower().startswith(self.start_with)
 
 #=======================================================================================================================
 # Completer

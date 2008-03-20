@@ -43,10 +43,18 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication{
         this.client = client;
     }
     
+    /**
+     * Stops the communication with the client (passes message for it to quit).
+     */
     public void close() throws Exception {
         this.client.execute("close", new Object[0]);
     }
 
+    /**
+     * Executes a given line in the interpreter.
+     * 
+     * @param command the command to be executed in the client
+     */
     public InterpreterResponse execInterpreter(String command) throws Exception {
         Object[] execute = (Object[]) this.client.execute("addExec", new Object[]{command});
         
@@ -58,13 +66,22 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication{
                 needInput);
     }
 
-    private boolean extractBool(Object execute) {
-        if(execute instanceof Boolean){
-            return (Boolean)execute;
+    /**
+     * Gets an object as a boolean. 
+     * 
+     * @param objToGetAsBool
+     * @return a boolean with the object
+     */
+    private boolean extractBool(Object objToGetAsBool) {
+        if(objToGetAsBool instanceof Boolean){
+            return (Boolean)objToGetAsBool;
         }
-        return Boolean.parseBoolean(execute.toString());
+        return Boolean.parseBoolean(objToGetAsBool.toString());
     }
 
+    /**
+     * @return completions from the client
+     */
     @SuppressWarnings("unchecked")
     public ICompletionProposal[] getCompletions(String text, int offset) throws Exception {
         Object fromServer = client.execute("getCompletions", new Object[]{text});
@@ -87,7 +104,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication{
                     
                     String name = (String) comp[0];
                     String docStr = (String) comp[1];
-                    int type = extractType(comp[3]);
+                    int type = extractInt(comp[3]);
                     String args = AbstractPyCodeCompletion.getArgs((String) comp[2], type,
                             ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE) ;
                     name += args;
@@ -97,9 +114,9 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication{
                         priority = IPyCompletionProposal.PRIORITY_LOCALS;
                     }
                     
-                    ret.add(new PyCompletionProposal(name.substring(length),
-                            offset, 0, 0, 
-                            PyCodeCompletionImages.getImageForType(type), name, null, docStr, priority));
+                    ret.add(new PyCompletionProposal(name,
+                    		offset-length, length, 0, 
+                    		PyCodeCompletionImages.getImageForType(type), name, null, docStr, priority));
                     
                 }
             }
@@ -110,14 +127,23 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication{
         return proposals;
     }
 
-    private int extractType(Object type) {
-        if(type instanceof Integer){
-            return (Integer)type;
+    /**
+     * Extracts an int from an object
+     * 
+     * @param objToGetInt the object that should be gotten as an int
+     * @return int with the int the object represents
+     */
+    private int extractInt(Object objToGetInt) {
+        if(objToGetInt instanceof Integer){
+            return (Integer)objToGetInt;
         }
-        return Integer.parseInt(type.toString());
+        return Integer.parseInt(objToGetInt.toString());
     }
     
     
+    /**
+     * @return the description of the given attribute in the shell
+     */
     public String getDescription(String text) throws Exception {
         return client.execute("getDescription", new Object[]{text}).toString();
     }
