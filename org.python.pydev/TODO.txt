@@ -34,14 +34,21 @@ def m1():
         return attr <-- mark occurrences here!
         
 console:
+	- OK: esc: clear current line
+	- OK: pg up: console history in dialog
+	- OK: paste in correct limits
+	- OK: cut: only cut valid stuff
+	- OK: qualifier match context insensitive
+	- OK: copy should not get prompt
+	- OK: start writing: move cursor automatically to command line
+	- OK: auto-indent
+	- OK: code-completion
+	- OK: context info
+	
 	- getpass: echo mode
 	- undo/redo for current line
 	- colors config
-	- OK: esc: clear current line
-	- pg up/down: console history in dialog
-	- start writing: move cursor automatically to command line
 	- correct messages (translation)
-	- qualifier match context insensitive
 
 - Try to reproduce:
 problems:

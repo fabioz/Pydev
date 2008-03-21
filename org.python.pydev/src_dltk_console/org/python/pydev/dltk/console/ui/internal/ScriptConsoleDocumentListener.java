@@ -11,13 +11,13 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.TextUtilities;
-import org.eclipse.swt.custom.StyleRange;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.dltk.console.ScriptConsoleHistory;
 import org.python.pydev.dltk.console.ScriptConsolePrompt;
 import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
 import org.python.pydev.dltk.console.ui.ScriptConsolePartitioner;
+import org.python.pydev.dltk.console.ui.ScriptStyleRange;
 import org.python.pydev.editor.autoedit.DocCmd;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.plugin.PydevPlugin;
@@ -115,7 +115,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             try{
                 doc.set(""); //$NON-NLS-1$
                 appendInvitation();
-                viewer.setCaretPosition(doc.getLength());
+                viewer.setCaretOffset(doc.getLength());
             }finally{
                 stopDisconnected();
             }
@@ -203,7 +203,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
         IConsoleStyleProvider styleProvider = viewer.getStyleProvider();
         if (styleProvider != null) {
-            StyleRange style;
+            ScriptStyleRange style;
             if(stdout){
                 style = styleProvider.createInterpreterOutputStyle(out, start);
             }else{ //stderr
@@ -225,7 +225,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      *  
      * @param style the style to be added.
      */
-    private void addToPartitioner(StyleRange style) {
+    private void addToPartitioner(ScriptStyleRange style) {
         IDocumentPartitioner partitioner = viewer.getDocument().getDocumentPartitioner();
         if (partitioner instanceof ScriptConsolePartitioner) {
             ScriptConsolePartitioner scriptConsolePartitioner = (ScriptConsolePartitioner) partitioner;
@@ -323,7 +323,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             newText = docCmd.text;
             if(!docCmd.shiftsCaret){
                 shiftsCaret = false;
-                viewer.setCaretPosition(offset + (docCmd.caretOffset-currentOffset));
+                viewer.setCaretOffset(offset + (docCmd.caretOffset-currentOffset));
             }
         }else if (addedCloseParen){
             Document parenDoc = new Document(getCommandLine()+")");
@@ -333,7 +333,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             boolean canSkipOpenParenthesis = strategy.canSkipOpenParenthesis(parenDoc, docCmd);
             if(canSkipOpenParenthesis){
                 shiftsCaret = false;
-                viewer.setCaretPosition(offset + 1);
+                viewer.setCaretOffset(offset + 1);
                 newText = newText.substring(1);
             }
         }
@@ -344,7 +344,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         applyStyleToUserAddedText(cmd, doc.getLength());
         appendText(cmd);
         if(shiftsCaret){
-            viewer.setCaretPosition(doc.getLength()-newDeltaCaretPosition);
+            viewer.setCaretOffset(doc.getLength()-newDeltaCaretPosition);
         }
 
 
@@ -367,7 +367,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     private void applyStyleToUserAddedText(String cmd, int offset2) {
         IConsoleStyleProvider styleProvider = viewer.getStyleProvider();
         if (styleProvider != null) {
-            StyleRange style = styleProvider.createUserInputStyle(cmd, offset2);
+            ScriptStyleRange style = styleProvider.createUserInputStyle(cmd, offset2);
             if (style != null) {
                 addToPartitioner(style);
             }
@@ -417,11 +417,11 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     protected void appendInvitation() throws BadLocationException {
         int start = doc.getLength();
         String promptStr = prompt.toString();
-        viewer.setCaretPosition(doc.getLength());
+        viewer.setCaretOffset(doc.getLength());
         viewer.revealEndOfDocument();
         IConsoleStyleProvider styleProvider = viewer.getStyleProvider();
         if (styleProvider != null) {
-            StyleRange style = styleProvider.createPromptStyle(promptStr, start);
+            ScriptStyleRange style = styleProvider.createPromptStyle(promptStr, start);
             if (style != null) {
                 addToPartitioner(style);
             }

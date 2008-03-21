@@ -9,7 +9,7 @@ import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
  */
 public interface IScriptConsoleViewer2ForDocumentListener {
 
-    void setCaretPosition(int length);
+    void setCaretOffset(int length);
 
     IConsoleStyleProvider getStyleProvider();
 

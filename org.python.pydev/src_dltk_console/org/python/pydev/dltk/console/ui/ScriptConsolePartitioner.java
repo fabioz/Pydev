@@ -17,7 +17,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.TypedRegion;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.IConsoleDocumentPartitioner;
 
@@ -31,7 +30,7 @@ public class ScriptConsolePartitioner implements IConsoleDocumentPartitioner {
 
     private static final String[] LEGAL_CONTENT_TYPES = new String[]{IDocument.DEFAULT_CONTENT_TYPE};
     
-    private List<StyleRange> ranges = new ArrayList<StyleRange>();
+    private List<ScriptStyleRange> ranges = new ArrayList<ScriptStyleRange>();
 
     public ScriptConsolePartitioner() {
     }
@@ -47,10 +46,11 @@ public class ScriptConsolePartitioner implements IConsoleDocumentPartitioner {
      * 
      * @param r the range to be added.
      */
-    public void addRange(StyleRange r) {
-        if(r.length > 0){
+    public void addRange(ScriptStyleRange r) {
+        if(r.length > 0){ //only add ranges with some len.
+            
             for(int i=ranges.size()-1; i>=0; i--){
-                StyleRange last = ranges.get(i);
+                ScriptStyleRange last = ranges.get(i);
                 int end = last.start+last.length;
                 if(end > r.start){
                     if(r.start <= last.start){
@@ -59,22 +59,35 @@ public class ScriptConsolePartitioner implements IConsoleDocumentPartitioner {
                         last.length = r.start-last.start;
                     }
                 }else{
-                    //
                     break;
                 }
             }
-            ranges.add(r);
+            
+            boolean updatedRange = false;
+            if(ranges.size() > 0){
+                ScriptStyleRange lastRange = ranges.get(ranges.size()-1);
+                if(lastRange.scriptType == r.scriptType){
+                    if(lastRange.start+lastRange.length == r.start){
+                        lastRange.length += r.length;
+                        updatedRange = true;
+                    }
+                }
+            }
+            
+            if(!updatedRange){
+                ranges.add(r);
+            }
         }
     }
 
     /**
      * @return the ranges that intersect with the given offset/length.
      */
-    public StyleRange[] getStyleRanges(int offset, int length) {
+    public ScriptStyleRange[] getStyleRanges(int offset, int length) {
         int lastOffset = offset;
         
-        List<StyleRange> result = new ArrayList<StyleRange>();
-        for (StyleRange r:ranges) {
+        List<ScriptStyleRange> result = new ArrayList<ScriptStyleRange>();
+        for (ScriptStyleRange r:ranges) {
             if ((r.start >= offset && r.start <= offset + length) || (r.start < offset && r.start+r.length > offset)){
                 result.add(r);
                 lastOffset = r.start+r.length;
@@ -84,12 +97,12 @@ public class ScriptConsolePartitioner implements IConsoleDocumentPartitioner {
         if(lastOffset < offset+length){
             //if we haven't been able to cover the whole range, there's probably something wrong (so, let's 
             //leave it in gray so that we know about that).
-            StyleRange lastPart = new StyleRange(lastOffset, length-lastOffset, Display.getDefault().getSystemColor(SWT.COLOR_GRAY),
-                    Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+            ScriptStyleRange lastPart = new ScriptStyleRange(lastOffset, length-lastOffset, Display.getDefault().getSystemColor(SWT.COLOR_GRAY),
+                    Display.getDefault().getSystemColor(SWT.COLOR_WHITE), ScriptStyleRange.UNKNOWN);
             result.add(lastPart);
         }
         
-        return (StyleRange[]) result.toArray(new StyleRange[result.size()]);
+        return (ScriptStyleRange[]) result.toArray(new ScriptStyleRange[result.size()]);
     }
 
     

@@ -21,7 +21,7 @@ import org.python.pydev.plugin.PydevPlugin;
  * Handles the history so that the user can do Ctrl+up / Ctrl+down
  */
 public class ScriptConsoleHistory {
-    
+
     /**
      * Holds the history in an easy way to handle it.
      */
@@ -122,5 +122,16 @@ public class ScriptConsoleHistory {
         }
 
         return (String) lines.get(currLine);
+    }
+
+    /**
+     * @return all the elements from the command history (except the one currently in the buffer).
+     */
+    public List<String> getAsList() {
+        ArrayList<String> list = new ArrayList<String>(lines);
+        if(list.size() > 0){
+            list.remove(list.size()-1); //remove the last on (current)
+        }
+        return list;
     }
 }

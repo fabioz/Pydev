@@ -11,7 +11,7 @@ public class ScriptConsoleHistoryTest extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
     }
-
+    
     public void testScriptConsole() throws Exception {
         ScriptConsoleHistory c = new ScriptConsoleHistory();
         assertFalse(c.prev());

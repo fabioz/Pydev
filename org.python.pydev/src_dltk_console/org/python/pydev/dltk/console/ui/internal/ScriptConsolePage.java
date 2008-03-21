@@ -94,7 +94,4 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
         proposalsAction.run();
     }
 
-    public void insertText(String text) {
-        viewer.insertText(text);
-    }
 }
