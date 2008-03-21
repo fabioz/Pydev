@@ -49,6 +49,9 @@ console:
 	- undo/redo for current line
 	- colors config
 	- correct messages (translation)
+	- initial commands for starting the console (maybe project dependent?)
+	- execfile for current editor in the console
+	- context insensitive completions
 
 - Try to reproduce:
 problems:
