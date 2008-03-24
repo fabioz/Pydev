@@ -11,6 +11,7 @@ package org.python.pydev.dltk.console;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 
 /**
  * This is the interface required by the console 'shell': meaning that those are the things
@@ -19,6 +20,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 public interface IScriptConsoleShell {
 
     /**
+     * @param viewer the viewer that requested the completions (can be used to get document, etc).
      * @param commandLine the current command in the buffer (still not entered)
      * @param position the relative position in the current buffer where the caret is 
      * @param offset the actual offset where the completions were requested (needed for creating the IProposals so that
@@ -27,7 +29,7 @@ public interface IScriptConsoleShell {
      * @return the proposals to be applied.
      * @throws Exception
      */
-    ICompletionProposal[] getCompletions(String commandLine, int position, int offset) throws Exception;
+    ICompletionProposal[] getCompletions(IScriptConsoleViewer viewer, String commandLine, int position, int offset) throws Exception;
 
     /**
      * @param doc the document with all the contents of the console 

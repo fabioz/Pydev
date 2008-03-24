@@ -58,7 +58,9 @@ public class PydevConsoleFactory implements IConsoleFactory {
 //
 //            print >> sys.stderr, 'Ok, all set up... Enjoy'
         
-        final ILaunch launch = new IProcessFactory().createInteractiveLaunch();
+        IProcessFactory iprocessFactory = new IProcessFactory();
+        
+        final ILaunch launch = iprocessFactory.createInteractiveLaunch();
         if(launch == null){
         	return null;
         }
@@ -66,6 +68,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
         PydevConsoleInterpreter interpreter = new PydevConsoleInterpreter();
         int port = Integer.parseInt(launch.getAttribute(IProcessFactory.INTERACTIVE_LAUNCH_PORT));
         interpreter.setConsoleCommunication(new PydevConsoleCommunication(port));
+        interpreter.setNaturesUsed(iprocessFactory.getNaturesUsed());
 
         if (launch != null) {
             interpreter.addCloseOperation(new Runnable() {

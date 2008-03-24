@@ -44,6 +44,8 @@ console:
 	- OK: auto-indent
 	- OK: code-completion
 	- OK: context info
+	- OK: context insensitive completions
+	- OK: home must go to: 1st char / prompt end / line start
 	
 	- getpass: echo mode
 	- undo/redo for current line
@@ -51,7 +53,6 @@ console:
 	- correct messages (translation)
 	- initial commands for starting the console (maybe project dependent?)
 	- execfile for current editor in the console
-	- context insensitive completions
 
 - Try to reproduce:
 problems:

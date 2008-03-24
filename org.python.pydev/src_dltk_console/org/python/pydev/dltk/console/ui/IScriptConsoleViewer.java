@@ -9,11 +9,40 @@
  *******************************************************************************/
 package org.python.pydev.dltk.console.ui;
 
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 
+/**
+ * Interface that must be implemented by the console viewer. Provides info related to what
+ * may be edited or not.
+ */
 public interface IScriptConsoleViewer extends ITextViewer {
     
-    String getCommandLine();
+    /**
+     * @return the contents of the current buffer (text edited still not passed to the shell)
+     */
+    public String getCommandLine();
 
-    int getCommandLineOffset();
+    /**
+     * @return the offset where the current buffer starts (editable area of the document)
+     */
+    public int getCommandLineOffset();
+    
+    /**
+     * @return the current caret offset.
+     */
+    public int getCaretOffset();
+    
+    /**
+     * Sets the new caret offset.
+     * 
+     * @param offset the offset for the caret.
+     */
+    public void setCaretOffset(int offset);
+
+    /**
+     * @return the document being viewed by this console viewer
+     */
+    public IDocument getDocument();
+
 }

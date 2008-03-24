@@ -5,6 +5,7 @@ package org.python.pydev.debug.newconsole.env;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -15,6 +16,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
@@ -27,6 +29,12 @@ import org.python.pydev.runners.SimpleRunner;
  */
 public class IProcessFactory {
 
+    private List<IPythonNature> naturesUsed;
+
+    public List<IPythonNature> getNaturesUsed() {
+        return naturesUsed;
+    }
+    
     /**
      * @return a shell that we can use.
      */
@@ -68,6 +76,7 @@ public class IProcessFactory {
         	IInterpreterManager interpreterManager = dialog.getInterpreterManager();
         	
 			if(pythonpath != null && interpreterManager != null){
+			    naturesUsed = dialog.getNatures();
 		        int port = SocketUtil.findUnusedLocalPort();
 		        final Launch launch = new Launch(null, "interactive", null);
 		        launch.setAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT, "false");

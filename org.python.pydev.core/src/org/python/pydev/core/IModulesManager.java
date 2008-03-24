@@ -25,6 +25,10 @@ public interface IModulesManager {
      */
     public abstract IPythonNature getNature();
 
+    /**
+     * @return the modules manager that has the system information (for the same type of this modules manager
+     * -- e.g. python, jython)
+     */
     public abstract ISystemModulesManager getSystemModulesManager();
 
     /**

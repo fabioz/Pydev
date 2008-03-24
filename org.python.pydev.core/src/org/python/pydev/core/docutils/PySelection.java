@@ -512,6 +512,15 @@ public class PySelection {
         addLine(getDoc(), getEndLineDelim(), contents, afterLine);
     }
     
+    /**
+     * Adds a line to the document.
+     * 
+     * @param doc the document
+     * @param endLineDelim the delimiter that should be used
+     * @param contents what should be added (the end line delimiter may be added before or after those contents
+     *  (depending on what are the current contents of the document).
+     * @param afterLine the contents should be added after the line specified here.
+     */
     public static void addLine(IDocument doc, String endLineDelim, String contents, int afterLine){
         try {
             
@@ -541,7 +550,6 @@ public class PySelection {
     }
 
     /**
-     * @param ps
      * @return the line where the cursor is (from the cursor position to the end of the line).
      * @throws BadLocationException
      */

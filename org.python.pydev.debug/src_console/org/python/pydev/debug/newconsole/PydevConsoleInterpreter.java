@@ -1,16 +1,25 @@
 package org.python.pydev.debug.newconsole;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.dltk.console.IScriptConsoleCommunication;
 import org.python.pydev.dltk.console.IScriptConsoleInterpreter;
 import org.python.pydev.dltk.console.InterpreterResponse;
+import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
+import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
+import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
+import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
+import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant;
 
 /**
  * Default implementation for the console interpreter. 
@@ -23,6 +32,15 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
     private List<Runnable> closeRunnables = new ArrayList<Runnable>();
 
+    private List<ISimpleAssistParticipant> participants;
+
+    private List<IPythonNature> naturesUsed;
+
+    @SuppressWarnings("unchecked")
+    public PydevConsoleInterpreter() {
+        this.participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_SIMPLE_ASSIST);
+    }
+    
     /*
      * (non-Javadoc)
      * @see org.python.pydev.dltk.console.IScriptConsoleInterpreter#exec(java.lang.String)
@@ -31,11 +49,9 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         return consoleCommunication.execInterpreter(command);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.python.pydev.dltk.console.IScriptConsoleShell#getCompletions(java.lang.String, int, int)
-     */
-    public ICompletionProposal[] getCompletions(String commandLine, int position, int offset) throws Exception {
+    @SuppressWarnings("unchecked")
+    public ICompletionProposal[] getCompletions(IScriptConsoleViewer viewer, String commandLine, 
+            int position, int offset) throws Exception {
 
         String text = commandLine.substring(0, position);
         ActivationTokenAndQual tokenAndQual = PySelection.getActivationTokenAndQual(new Document(text), text.length(), true, false);
@@ -47,7 +63,36 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
             }
             actTok += tokenAndQual.qualifier;
         }
-        return consoleCommunication.getCompletions(actTok, offset);
+
+        //simple completions (clients)
+        ArrayList<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
+        for (ISimpleAssistParticipant participant : participants) {
+            results.addAll(participant.computeCompletionProposals(tokenAndQual.activationToken, 
+                    tokenAndQual.qualifier, null, null, offset));
+        }
+
+
+        
+        ArrayList<ICompletionProposal> results2 = new ArrayList<ICompletionProposal>();
+        
+        //shell completions 
+        ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(actTok, offset);
+        results2.addAll(Arrays.asList(consoleCompletions));
+        
+        
+        //other participants
+        List<IPyDevCompletionParticipant> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);
+        for (IPyDevCompletionParticipant participant:participants) {
+            if(participant instanceof IPyDevCompletionParticipant2){
+                IPyDevCompletionParticipant2 participant2 = (IPyDevCompletionParticipant2) participant;
+                results2.addAll(participant2.getConsoleCompletions(tokenAndQual, this.naturesUsed, viewer, offset));
+            }
+        }
+        
+        Collections.sort(results2, IPyCodeCompletion.PROPOSAL_COMPARATOR);
+        results.addAll(results2);
+        
+        return (ICompletionProposal[]) results.toArray(new ICompletionProposal[0]);
     }
 
     
@@ -101,6 +146,10 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
     
     public void addCloseOperation(Runnable runnable) {
         this.closeRunnables.add(runnable);
+    }
+
+    public void setNaturesUsed(List<IPythonNature> naturesUsed) {
+        this.naturesUsed = naturesUsed;
     }
 
 

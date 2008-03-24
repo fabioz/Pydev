@@ -436,9 +436,14 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         return TextUtilities.getDefaultLineDelimiter(doc);
     }
 
-    protected int getLastLineLength() throws BadLocationException {
+    public int getLastLineLength() throws BadLocationException {
         int lastLine = doc.getNumberOfLines() - 1;
         return doc.getLineLength(lastLine);
+    }
+    
+    public int getLastLineOffset() throws BadLocationException {
+        int lastLine = doc.getNumberOfLines() - 1;
+        return doc.getLineOffset(lastLine);
     }
 
     public int getLastLineReadOnlySize() {

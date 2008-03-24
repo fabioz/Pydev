@@ -3,6 +3,11 @@ package org.python.pydev.dltk.console.ui;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.Color;
 
+/**
+ * Defines a style range that identifies a given type of content in the console (as defined in the constants)
+ *
+ * @author Fabio
+ */
 public class ScriptStyleRange extends StyleRange{
 
     public static final int UNKNOWN = -1;

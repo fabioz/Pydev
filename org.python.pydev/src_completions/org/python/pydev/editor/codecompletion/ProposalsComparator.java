@@ -12,9 +12,9 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 /**
  * @author Fabio Zadrozny
  */
-public class ProposalsComparator implements Comparator {
+public class ProposalsComparator implements Comparator<ICompletionProposal> {
 
-    public int compare(Object o1, Object o2) {
+    public int compare(ICompletionProposal o1, ICompletionProposal o2) {
         
         if(o1 instanceof IPyCompletionProposal && o2 instanceof IPyCompletionProposal){
 	        IPyCompletionProposal p1 = (IPyCompletionProposal) o1;
@@ -51,12 +51,7 @@ public class ProposalsComparator implements Comparator {
         }
         
         
-        
-        
-        ICompletionProposal p1 = (ICompletionProposal) o1;
-        ICompletionProposal p2 = (ICompletionProposal) o2;
-        
-        return p1.getDisplayString().compareToIgnoreCase(p2.getDisplayString());
+        return o1.getDisplayString().compareToIgnoreCase(o2.getDisplayString());
     }
 
 }

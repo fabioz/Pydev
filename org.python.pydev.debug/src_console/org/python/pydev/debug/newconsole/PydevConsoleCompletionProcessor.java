@@ -44,8 +44,10 @@ public class PydevConsoleCompletionProcessor implements IContentAssistProcessor 
     private IScriptConsoleShell interpreterShell;
     private String errorMessage = null;
 
+    @SuppressWarnings("unchecked")
     public PydevConsoleCompletionProcessor(IScriptConsoleShell interpreterShell) {
         this.interpreterShell = interpreterShell;
+
     }
     
     public char[] getContextInformationAutoActivationCharacters() {
@@ -67,7 +69,7 @@ public class PydevConsoleCompletionProcessor implements IContentAssistProcessor 
             String commandLine = viewer.getCommandLine();
             int cursorPosition = offset - viewer.getCommandLineOffset();
 
-            return interpreterShell.getCompletions(commandLine, cursorPosition, offset);
+            return interpreterShell.getCompletions(viewer, commandLine, cursorPosition, offset);
         } catch (Exception e) {
             this.errorMessage = e.getMessage();
             PydevPlugin.log(e);

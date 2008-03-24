@@ -40,6 +40,7 @@ import org.python.pydev.dltk.console.ui.ScriptConsoleContentAssistant;
 import org.python.pydev.dltk.console.ui.ScriptStyleRange;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleBackspaceAction;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleDeletePreviousWord;
+import org.python.pydev.dltk.console.ui.internal.actions.HandleLineStartAction;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -119,7 +120,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                     }
                 }else{ //not printable char
                     if (isCaretInEditableRange()) {
-                    	if(event.keyCode == SWT.PAGE_UP){
+                    	if(!inCompletion && event.keyCode == SWT.PAGE_UP){
                     		event.doit = false;
                     		List<String> commands = history.getAsList();
                     		List<String> commandsToExecute = ScriptConsoleHistorySelector.select(commands);
@@ -160,14 +161,36 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
          * line -- nor in the prompt)
          */
         private HandleDeletePreviousWord handleDeletePreviousWord;
+
+        /**
+         * Handles a line start action (home) stays within the same line changing from the 
+         * 1st char of text, beggining of prompt, beggining of line.
+         */
+        private HandleLineStartAction handleLineStartAction;
         
 		public ScriptConsoleStyledText(Composite parent, int style) {
             super(parent, style);
             handleBackspaceAction = new HandleBackspaceAction();
             handleDeletePreviousWord = new HandleDeletePreviousWord();
+            handleLineStartAction = new HandleLineStartAction();
         }
 
-        public void invokeAction(int action) {
+		
+		public void invokeAction(int action) {
+		    
+		    //some actions have a different scope (not in selected range / out of selected range)
+            switch (action) {
+                case ST.LINE_START:
+                    if(handleLineStartAction.execute(getDocument(), getCaretOffset(), 
+                            getCommandLineOffset(), ScriptConsoleViewer.this)){
+                        return;
+                    }else{
+                        super.invokeAction(action);
+                    }
+
+            }
+            
+            
             if (isSelectedRangeEditable()) {
                 try {
 					switch (action) {
@@ -207,6 +230,8 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         }
 
         
+
+        
         /**
          * When cutting something, we must be sure that it'll only mess with the contents
          * in the command line.
@@ -227,6 +252,9 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             super.paste();
         }
         
+        /**
+         * When copying something, we don't want to copy the prompt contents.
+         */
         @Override
         public void copy(int clipboardType) {
             checkWidget();
@@ -312,6 +340,14 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         }
         
         return true;
+    }
+    
+    /**
+     * @return true if the caret is currently in a position that can be edited.
+     * @throws BadLocationException 
+     */
+    protected boolean isCaretInLastLine() throws BadLocationException{
+        return getTextWidget().getCaretOffset() >= listener.getLastLineOffset();
     }
 
     /**

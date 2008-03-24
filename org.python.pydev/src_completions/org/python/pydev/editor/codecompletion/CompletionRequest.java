@@ -6,6 +6,7 @@
 package org.python.pydev.editor.codecompletion;
 
 import java.io.File;
+import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ICompletionRequest;
@@ -78,6 +79,9 @@ public class CompletionRequest implements ICompletionRequest {
      */
     public File editorFile;
 
+    /**
+     * Used when a completion is requested for an editor
+     */
     public IPythonNature nature;
 
     public IDocument doc;

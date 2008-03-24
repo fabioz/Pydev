@@ -3,6 +3,7 @@ package org.python.pydev.debug.newconsole.env;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
@@ -36,6 +37,8 @@ final class ChooseProcessTypeDialog extends Dialog {
 	private Collection<String> pythonpath;
 
 	private IInterpreterManager interpreterManager;
+	
+	private List<IPythonNature> natures = new ArrayList<IPythonNature>();
 
     ChooseProcessTypeDialog(Shell shell, PyEdit activeEditor) {
         super(shell);
@@ -119,33 +122,35 @@ final class ChooseProcessTypeDialog extends Dialog {
 	 */
     @Override
     protected void okPressed() {
-    	IInterpreterManager interpreterManager = null;
+    	IInterpreterManager localInterpreterManager = null;
     	
         if(checkboxForCurrentEditor.isEnabled() && checkboxForCurrentEditor.getSelection()){
         	IProject project = this.activeEditor.getProject();
         	PythonNature nature = PythonNature.getPythonNature(project);
+        	natures.add(nature);
         	this.pythonpath = new ArrayList<String>(nature.getPythonPathNature().getCompleteProjectPythonPath(
         			nature.getRelatedInterpreterManager().getDefaultInterpreter()));
         	this.interpreterManager = nature.getRelatedInterpreterManager();
         	
         }else if(checkboxPython.isEnabled() && checkboxPython.getSelection()){
-        	interpreterManager = PydevPlugin.getPythonInterpreterManager();
+        	localInterpreterManager = PydevPlugin.getPythonInterpreterManager();
         	
         }else if(checkboxJython.isEnabled() && checkboxJython.getSelection()){
-        	interpreterManager = PydevPlugin.getJythonInterpreterManager();
+        	localInterpreterManager = PydevPlugin.getJythonInterpreterManager();
         	
         }
         
-        if(interpreterManager != null){
-        	this.interpreterManager = interpreterManager;
-        	String defaultInterpreter = interpreterManager.getDefaultInterpreter();
+        if(localInterpreterManager != null){
+        	this.interpreterManager = localInterpreterManager;
+        	String defaultInterpreter = localInterpreterManager.getDefaultInterpreter();
         	IWorkspace w = ResourcesPlugin.getWorkspace();
         	HashSet<String> pythonpath = new HashSet<String>();
         	for(IProject p:w.getRoot().getProjects()){
         		PythonNature nature = PythonNature.getPythonNature(p);
         		try{
 	        		if(nature != null){
-	        			if(nature.getRelatedInterpreterManager() == interpreterManager){
+	        			if(nature.getRelatedInterpreterManager() == localInterpreterManager){
+	        			    natures.add(nature);
 							pythonpath.addAll(nature.getPythonPathNature().
 									getCompleteProjectPythonPath(defaultInterpreter));
 	        			}
@@ -171,4 +176,8 @@ final class ChooseProcessTypeDialog extends Dialog {
 	public IInterpreterManager getInterpreterManager() {
 		return this.interpreterManager;
 	}
+	
+	public List<IPythonNature> getNatures() {
+        return natures;
+    }
 }
