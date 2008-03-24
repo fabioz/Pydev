@@ -163,7 +163,7 @@ public class DocUtils {
             }
         }
         
-        throw new RuntimeException("Unable to find peer for :"+c);
+        throw new NoPeerAvailableException("Unable to find peer for :"+c);
         
     }
 

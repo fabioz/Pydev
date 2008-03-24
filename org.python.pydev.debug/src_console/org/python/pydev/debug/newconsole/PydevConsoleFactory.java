@@ -65,28 +65,26 @@ public class PydevConsoleFactory implements IConsoleFactory {
         	return null;
         }
 
-        PydevConsoleInterpreter interpreter = new PydevConsoleInterpreter();
+        PydevConsoleInterpreter consoleInterpreter = new PydevConsoleInterpreter();
         int port = Integer.parseInt(launch.getAttribute(IProcessFactory.INTERACTIVE_LAUNCH_PORT));
-        interpreter.setConsoleCommunication(new PydevConsoleCommunication(port));
-        interpreter.setNaturesUsed(iprocessFactory.getNaturesUsed());
-
-        if (launch != null) {
-            interpreter.addCloseOperation(new Runnable() {
-                public void run() {
-                    IProcess[] processes = launch.getProcesses();
-                    if (processes != null) {
-                        for (IProcess p:processes) {
-                            try {
-                                p.terminate();
-                            } catch (Exception e) {
-                                PydevPlugin.log(e);
-                            }
+        consoleInterpreter.setConsoleCommunication(new PydevConsoleCommunication(port));
+        consoleInterpreter.setNaturesUsed(iprocessFactory.getNaturesUsed());
+        
+        consoleInterpreter.addCloseOperation(new Runnable() {
+            public void run() {
+                IProcess[] processes = launch.getProcesses();
+                if (processes != null) {
+                    for (IProcess p:processes) {
+                        try {
+                            p.terminate();
+                        } catch (Exception e) {
+                            PydevPlugin.log(e);
                         }
                     }
                 }
-            });
-        }
-        return interpreter;
+            }
+        });
+        return consoleInterpreter;
 
     }
 

@@ -71,5 +71,14 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
         doc.replace(doc.getLength(), 0, "def m1");
         doc.replace(doc.getLength(), 0, "(");
         assertEquals(StringUtils.format(">>> class A:%s>>>     def m1(self):", listener.getDelimeter()), doc.get());
+        
+        listener.clear();
+        assertEquals(">>> ", doc.get());
+        doc.replace(doc.getLength(), 0, "c()");
+        assertEquals(">>> c()", doc.get());
+        doc.replace(doc.getLength()-1, 0, ")");
+        assertEquals(">>> c()", doc.get());
+        doc.replace(doc.getLength(), 0, ")");
+        assertEquals(">>> c())", doc.get());
     }
 }

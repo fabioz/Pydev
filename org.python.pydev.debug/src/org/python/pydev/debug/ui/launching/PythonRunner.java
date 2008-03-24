@@ -172,7 +172,7 @@ public class PythonRunner {
         subMonitor.subTask("Constructing command_line...");
         String commandLineAsString = SimpleRunner.getCommandLineAsString(cmdLine);
         //System.out.println("running command line: "+commandLineAsString);
-        Map processAttributes = new HashMap();
+        Map<Object, Object> processAttributes = new HashMap<Object, Object>();
             
         processAttributes.put(IProcess.ATTR_CMDLINE, commandLineAsString);
         
@@ -186,7 +186,7 @@ public class PythonRunner {
         String label = cmdLine[cmdLine.length-1];
         if(config.isJython()) {
             if(config.isInteractive){
-                label = "Interactive session: "+cmdLine[0]+" ... "+config.interpreter.toOSString()+" ("+config.resource.lastSegment()+")"; //java jython.jar
+            	throw new RuntimeException("Interactive not supported here!");
             }
             process = registerWithDebugPluginForProcessType(label, launch, p, processAttributes, "java");
         } else {
@@ -194,7 +194,7 @@ public class PythonRunner {
             //in the interactive session, we'll just create the process, it won't actually be registered
             //in the debug plugin (the communication is all done through xml-rpc).
             if(config.isInteractive){
-                label = "Interactive session: "+cmdLine[0]+" ("+config.resource.lastSegment()+")"; //c:/bin/python.exe
+            	throw new RuntimeException("Interactive not supported here!");
             }
             process = null;//registerWithDebugPlugin(label, launch, p, processAttributes);
             subMonitor.subTask("Done");
@@ -217,26 +217,17 @@ public class PythonRunner {
      * @throws JDTNotAvailableException 
 	 */
 	private static IProcess registerWithDebugPlugin(PythonRunnerConfig config, ILaunch launch, Process p) throws JDTNotAvailableException {
-		HashMap processAttributes = new HashMap();
+		HashMap<Object, Object> processAttributes = new HashMap<Object, Object>();
 		processAttributes.put(IProcess.ATTR_CMDLINE, config.getCommandLineAsString());
 		return registerWithDebugPlugin(config.resource.lastSegment(), launch,p, processAttributes);
 	}
 
-    /**
-	 * The debug plugin needs to be notified about our process.
-	 * It'll then display the appropriate UI.
-	 */
-    private static IProcess registerWithDebugPlugin(String cmdLine, String label, ILaunch launch, Process p) {
-		HashMap processAttributes = new HashMap();
-		processAttributes.put(IProcess.ATTR_CMDLINE, cmdLine);
-		return registerWithDebugPlugin(label, launch,p, processAttributes);
-	}
     
     /**
      * The debug plugin needs to be notified about our process.
      * It'll then display the appropriate UI.
      */
-    private static IProcess registerWithDebugPlugin(String label, ILaunch launch, Process p, Map processAttributes) {
+    private static IProcess registerWithDebugPlugin(String label, ILaunch launch, Process p, Map<Object, Object> processAttributes) {
         processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
         processAttributes.put(IProcess.ATTR_PROCESS_LABEL, label);
         processAttributes.put(DebugPlugin.ATTR_CAPTURE_OUTPUT, "true");
@@ -247,7 +238,7 @@ public class PythonRunner {
 	 * The debug plugin needs to be notified about our process.
 	 * It'll then display the appropriate UI.
 	 */
-    private static IProcess registerWithDebugPluginForProcessType(String label, ILaunch launch, Process p, Map processAttributes, String processType) {
+    private static IProcess registerWithDebugPluginForProcessType(String label, ILaunch launch, Process p, Map<Object, Object> processAttributes, String processType) {
 	    processAttributes.put(IProcess.ATTR_PROCESS_TYPE, processType);
 	    processAttributes.put(IProcess.ATTR_PROCESS_LABEL, label);
         processAttributes.put(DebugPlugin.ATTR_CAPTURE_OUTPUT, "true");

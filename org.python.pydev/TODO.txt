@@ -46,13 +46,14 @@ console:
 	- OK: context info
 	- OK: context insensitive completions
 	- OK: home must go to: 1st char / prompt end / line start
+	- OK: correct messages (translation)
 	
 	- getpass: echo mode
 	- undo/redo for current line
 	- colors config
-	- correct messages (translation)
 	- initial commands for starting the console (maybe project dependent?)
 	- execfile for current editor in the console
+	- creating 2nd console view has problems with the interactive console
 
 - Try to reproduce:
 problems:

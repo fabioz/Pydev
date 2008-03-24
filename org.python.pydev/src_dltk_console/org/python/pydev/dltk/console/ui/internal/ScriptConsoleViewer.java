@@ -87,8 +87,8 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             try {
                 if (event.character != '\0') { // Printable character
                     
-                    if(event.stateMask == 0 && Character.isLetter(event.character)){
-                        //it's a valid letter without any stateMask (so, just entering regular text).
+                    if(Character.isLetter(event.character) && (event.stateMask == 0 || (event.stateMask & SWT.SHIFT) != 0)){
+                        //it's a valid letter without any stateMask (so, just entering regular text or upper/lowercase -- if shift is there).
                         if (!isSelectedRangeEditable()) {
                             getTextWidget().setCaretOffset(getDocument().getLength());
                         }

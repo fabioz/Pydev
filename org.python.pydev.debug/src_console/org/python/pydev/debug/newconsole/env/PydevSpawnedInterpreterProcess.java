@@ -1,11 +1,8 @@
 package org.python.pydev.debug.newconsole.env;
 
-import java.io.IOException;
-
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
-import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.debug.core.model.IStreamsProxy;
 import org.eclipse.ui.console.IOConsole;
 import org.python.pydev.plugin.PydevPlugin;
@@ -34,7 +31,7 @@ public class PydevSpawnedInterpreterProcess implements IProcess {
     }
     
     public String getLabel() {
-        return "Jython Internal Process";
+        return "Pydev Interactive Interpreter Process";
     }
 
     public ILaunch getLaunch() {
@@ -42,23 +39,7 @@ public class PydevSpawnedInterpreterProcess implements IProcess {
     }
 
     public IStreamsProxy getStreamsProxy() {
-        if(proxy == null){
-            proxy = new IStreamsProxy(){
-    
-                public IStreamMonitor getErrorStreamMonitor() {
-                    throw new RuntimeException("not impl");
-                }
-    
-                public IStreamMonitor getOutputStreamMonitor() {
-                    throw new RuntimeException("not impl");
-                }
-    
-                public void write(String input) throws IOException {
-                	throw new RuntimeException("not impl");
-                }
-            };
-        }
-        return proxy;
+        return null;
     }
 
     public void setAttribute(String key, String value) {
@@ -70,11 +51,11 @@ public class PydevSpawnedInterpreterProcess implements IProcess {
     }
 
     public int getExitValue() throws DebugException {
-        throw new RuntimeException("not impl");
+        return 0;
     }
 
     public Object getAdapter(Class adapter) {
-        throw new RuntimeException("not impl");
+        return null;
     }
 
     public boolean canTerminate() {

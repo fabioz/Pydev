@@ -326,15 +326,19 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                 viewer.setCaretOffset(offset + (docCmd.caretOffset-currentOffset));
             }
         }else if (addedCloseParen){
-            Document parenDoc = new Document(getCommandLine()+")");
-            int currentOffset = parenDoc.getLength()-1;
-            DocCmd docCmd = new DocCmd(currentOffset, 0, ")");
-            docCmd.shiftsCaret = true;
-            boolean canSkipOpenParenthesis = strategy.canSkipOpenParenthesis(parenDoc, docCmd);
-            if(canSkipOpenParenthesis){
-                shiftsCaret = false;
-                viewer.setCaretOffset(offset + 1);
-                newText = newText.substring(1);
+        	String cmdLine = getCommandLine();
+            String existingDoc = cmdLine+text.substring(1);
+            int cmdLineOffset = cmdLine.length();
+            if(existingDoc.length() > cmdLineOffset){
+				Document parenDoc = new Document(existingDoc);
+	            DocCmd docCmd = new DocCmd(cmdLineOffset, 0, ")");
+	            docCmd.shiftsCaret = true;
+	            boolean canSkipOpenParenthesis = strategy.canSkipOpenParenthesis(parenDoc, docCmd);
+	            if(canSkipOpenParenthesis){
+	                shiftsCaret = false;
+	                viewer.setCaretOffset(offset + 1);
+	                newText = newText.substring(1);
+	            }
             }
         }
 

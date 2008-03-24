@@ -16,6 +16,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.ImportsSelection;
+import org.python.pydev.core.docutils.NoPeerAvailableException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
@@ -753,16 +754,23 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         PySelection ps = new PySelection(document, command.offset);
 
         char c = ps.getCharAtCurrentOffset();
-        char peer = DocUtils.getPeer(c);
-        StringBuffer doc = new StringBuffer(document.get());
-        //it is not enough just counting the chars, we have to ignore those that are within comments or literals.
-        ParsingUtils.removeCommentsWhitespacesAndLiterals(doc);
-        int chars = PyAction.countChars(c, doc);
-        int peers = PyAction.countChars(peer, doc);
-
-        boolean skipChar = chars == peers;
-        return skipChar;
+        
+        try{
+	        char peer = DocUtils.getPeer(c);
+	        
+	        StringBuffer doc = new StringBuffer(document.get());
+	        //it is not enough just counting the chars, we have to ignore those that are within comments or literals.
+	        ParsingUtils.removeCommentsWhitespacesAndLiterals(doc);
+	        int chars = PyAction.countChars(c, doc);
+	        int peers = PyAction.countChars(peer, doc);
+	
+	        boolean skipChar = chars == peers;
+	        return skipChar;
+        }catch(NoPeerAvailableException e){
+        	return false;
+        }
     }
+        
 
     /**
      * @param ps
