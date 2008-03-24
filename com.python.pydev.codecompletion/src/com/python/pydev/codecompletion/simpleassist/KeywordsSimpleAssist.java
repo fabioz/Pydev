@@ -138,7 +138,8 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant{
         return buf.toString();
     }
     
-    public Collection<ICompletionProposal> computeCompletionProposals(String activationToken, String qualifier, PySelection ps, PyEdit edit, int offset) {
+    public Collection<ICompletionProposal> computeCompletionProposals(String activationToken, String qualifier, 
+            PySelection ps, PyEdit edit, int offset) {
         List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
         //check if we have to use it
         if(!CodeCompletionPreferencesPage.useKeywordsCodeCompletion()){
