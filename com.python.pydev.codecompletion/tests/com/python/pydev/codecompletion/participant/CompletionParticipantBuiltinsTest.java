@@ -15,10 +15,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.IModulesObserver;
 
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 import com.python.pydev.analysis.additionalinfo.builders.AdditionalInfoModulesObserver;
@@ -52,13 +50,13 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
 
         participant = new CtxParticipant();
         
-        ExtensionHelper.testingParticipants = new HashMap<String, List>();
+        ExtensionHelper.testingParticipants = new HashMap<String, List<Object>>();
         
-        ArrayList<IPyDevCompletionParticipant> participants = new ArrayList<IPyDevCompletionParticipant>();
+        ArrayList<Object> participants = new ArrayList<Object>(); /*IPyDevCompletionParticipant*/
         participants.add(participant);
         ExtensionHelper.testingParticipants.put(ExtensionHelper.PYDEV_COMPLETION, participants);
         
-        ArrayList<IModulesObserver> modulesObserver = new ArrayList<IModulesObserver>();
+        ArrayList<Object> modulesObserver = new ArrayList<Object>(); /*IModulesObserver*/
         modulesObserver.add(new AdditionalInfoModulesObserver());
         ExtensionHelper.testingParticipants.put(ExtensionHelper.PYDEV_MODULES_OBSERVER, modulesObserver);
         

@@ -10,7 +10,6 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
@@ -48,8 +47,8 @@ public class ParameterCompletionTest extends AdditionalInfoTestsBase {
         useOriginalRequestCompl = true;
         participant = new CtxParticipant();
         
-        ExtensionHelper.testingParticipants = new HashMap<String, List>();
-        ArrayList<IPyDevCompletionParticipant> participants = new ArrayList<IPyDevCompletionParticipant>();
+        ExtensionHelper.testingParticipants = new HashMap<String, List<Object>>();
+        ArrayList<Object> participants = new ArrayList<Object>(); /*IPyDevCompletionParticipant*/
         participants.add(participant);
         ExtensionHelper.testingParticipants.put(ExtensionHelper.PYDEV_COMPLETION, participants);
         
