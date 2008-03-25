@@ -47,13 +47,14 @@ console:
 	- OK: context insensitive completions
 	- OK: home must go to: 1st char / prompt end / line start
 	- OK: correct messages (translation)
+	- OK: creating 2nd console view has problems with the interactive console
 	
 	- getpass: echo mode
 	- undo/redo for current line
 	- colors config
 	- initial commands for starting the console (maybe project dependent?)
 	- execfile for current editor in the console
-	- creating 2nd console view has problems with the interactive console
+	- class Foo(): adding 'object' through simple completions does not work well
 
 - Try to reproduce:
 problems:

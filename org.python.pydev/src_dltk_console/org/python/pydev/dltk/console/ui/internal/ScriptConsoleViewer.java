@@ -378,13 +378,21 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
         this.console = console;
         
-        this.styleProvider = createStyleProvider();
-
-        this.history = console.getHistory();
-
-        this.listener = new ScriptConsoleDocumentListener(this, console, console.getPrompt(), console.getHistory());
+        ScriptConsoleViewer existingViewer = this.console.getViewer();
         
-        this.listener.setDocument(getDocument());
+        if(existingViewer == null){
+            this.console.setViewer(this);
+            this.styleProvider = createStyleProvider();
+            this.history = console.getHistory();
+            this.listener = new ScriptConsoleDocumentListener(this, console, console.getPrompt(), console.getHistory());
+            this.listener.setDocument(getDocument());
+        }else{
+            this.styleProvider = existingViewer.styleProvider;
+            this.history = existingViewer.history;
+            this.listener = existingViewer.listener;
+            this.listener.addViewer(this);
+        }
+        
 
         final StyledText styledText = getTextWidget();
 
@@ -435,7 +443,9 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             }
         });
 
-        clear();
+        if(existingViewer == null){
+            clear();
+        }
     }
 
 

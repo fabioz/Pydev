@@ -3,6 +3,11 @@
  */
 package org.python.pydev.dltk.console.ui.internal;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -45,9 +50,14 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     private int disconnectionLevel = 0;  
     
     /**
-     * Viewer for the documment contained in this listener.
+     * Viewer for the document contained in this listener.
      */
     private IScriptConsoleViewer2ForDocumentListener viewer;
+    
+    /**
+     * Additional viewers for the same document.
+     */
+    private List<WeakReference<IScriptConsoleViewer2ForDocumentListener>> otherViewers = new ArrayList<WeakReference<IScriptConsoleViewer2ForDocumentListener>>();
 
     /**
      * Empty document (should not be written to).
@@ -115,7 +125,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             try{
                 doc.set(""); //$NON-NLS-1$
                 appendInvitation();
-                viewer.setCaretOffset(doc.getLength());
+                setCaretOffset(doc.getLength());
             }finally{
                 stopDisconnected();
             }
@@ -125,13 +135,32 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     }
 
     /**
+     * Adds some other viewer for the same document.
+     * 
+     * @param scriptConsoleViewer this is the viewer that should be added as a second viewer for the same
+     * document.
+     */
+    public void addViewer(IScriptConsoleViewer2ForDocumentListener scriptConsoleViewer) {
+        this.otherViewers.add(new WeakReference<IScriptConsoleViewer2ForDocumentListener>(scriptConsoleViewer));
+    }
+
+    /**
      * Constructor
+     * 
+     * @param viewer this is the viewer to which this listener is attached. It's the main viewer. Other viewers
+     * may be added later through addViewer() for sharing the same listener and being properly updated.
+     * 
+     * @param handler this is the object that'll handle the commands
+     * @param prompt shows the prompt to the user
+     * @param history keeps track of the commands added by the user.
      */
     public ScriptConsoleDocumentListener(IScriptConsoleViewer2ForDocumentListener viewer, 
             ICommandHandler handler, ScriptConsolePrompt prompt,
             ScriptConsoleHistory history) {
         this.prompt = prompt;
+        
         this.handler = handler;
+        
         this.history = history;
 
         this.viewer = viewer;
@@ -323,7 +352,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             newText = docCmd.text;
             if(!docCmd.shiftsCaret){
                 shiftsCaret = false;
-                viewer.setCaretOffset(offset + (docCmd.caretOffset-currentOffset));
+                setCaretOffset(offset + (docCmd.caretOffset-currentOffset));
             }
         }else if (addedCloseParen){
         	String cmdLine = getCommandLine();
@@ -336,7 +365,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 	            boolean canSkipOpenParenthesis = strategy.canSkipOpenParenthesis(parenDoc, docCmd);
 	            if(canSkipOpenParenthesis){
 	                shiftsCaret = false;
-	                viewer.setCaretOffset(offset + 1);
+	                setCaretOffset(offset + 1);
 	                newText = newText.substring(1);
 	            }
             }
@@ -348,7 +377,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         applyStyleToUserAddedText(cmd, doc.getLength());
         appendText(cmd);
         if(shiftsCaret){
-            viewer.setCaretOffset(doc.getLength()-newDeltaCaretPosition);
+            setCaretOffset(doc.getLength()-newDeltaCaretPosition);
         }
 
 
@@ -421,8 +450,8 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     protected void appendInvitation() throws BadLocationException {
         int start = doc.getLength();
         String promptStr = prompt.toString();
-        viewer.setCaretOffset(doc.getLength());
-        viewer.revealEndOfDocument();
+        setCaretOffset(doc.getLength());
+        revealEndOfDocument();
         IConsoleStyleProvider styleProvider = viewer.getStyleProvider();
         if (styleProvider != null) {
             ScriptStyleRange style = styleProvider.createPromptStyle(promptStr, start);
@@ -434,17 +463,60 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     }
 
     /**
+     * Shows the end of the document for the main viewer and all the related viewer for the same document. 
+     */
+    private void revealEndOfDocument() {
+        viewer.revealEndOfDocument();
+        for(Iterator<WeakReference<IScriptConsoleViewer2ForDocumentListener>> it=otherViewers.iterator();it.hasNext();){
+            WeakReference<IScriptConsoleViewer2ForDocumentListener> ref = it.next();
+            IScriptConsoleViewer2ForDocumentListener v = ref.get();
+            if(v == null){
+                it.remove();
+            }else{
+                v.revealEndOfDocument();
+            }
+        }
+    }
+
+
+    /**
+     * Sets the caret offset to the passed offset for the main viewer and all the related viewer for the same document. 
+     * @param offset the offset to which the caret should be moved
+     */
+    private void setCaretOffset(int offset) {
+        viewer.setCaretOffset(offset);
+        for(Iterator<WeakReference<IScriptConsoleViewer2ForDocumentListener>> it=otherViewers.iterator();it.hasNext();){
+            WeakReference<IScriptConsoleViewer2ForDocumentListener> ref = it.next();
+            IScriptConsoleViewer2ForDocumentListener v = ref.get();
+            if(v == null){
+                it.remove();
+            }else{
+                v.setCaretOffset(offset);
+            }
+        }
+    }
+
+
+    /**
      * @return the delimiter to be used to add new lines to the console.
      */
     public String getDelimeter() {
         return TextUtilities.getDefaultLineDelimiter(doc);
     }
 
+    /**
+     * @return the length of the last line
+     * @throws BadLocationException
+     */
     public int getLastLineLength() throws BadLocationException {
         int lastLine = doc.getNumberOfLines() - 1;
         return doc.getLineLength(lastLine);
     }
     
+    /**
+     * @return the offset where the last line starts
+     * @throws BadLocationException
+     */
     public int getLastLineOffset() throws BadLocationException {
         int lastLine = doc.getNumberOfLines() - 1;
         return doc.getLineOffset(lastLine);
@@ -502,4 +574,6 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     public void setCommandLine(String command) throws BadLocationException {
         doc.replace(getCommandLineOffset(), getCommandLineLength(), command);
     }
+
+
 }

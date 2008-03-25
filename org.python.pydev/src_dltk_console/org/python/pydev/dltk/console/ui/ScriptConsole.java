@@ -9,6 +9,8 @@
  *******************************************************************************/
 package org.python.pydev.dltk.console.ui;
 
+import java.lang.ref.WeakReference;
+
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
@@ -24,6 +26,7 @@ import org.python.pydev.dltk.console.ScriptConsolePrompt;
 import org.python.pydev.dltk.console.ui.internal.ICommandHandler;
 import org.python.pydev.dltk.console.ui.internal.ScriptConsolePage;
 import org.python.pydev.dltk.console.ui.internal.ScriptConsoleSession;
+import org.python.pydev.dltk.console.ui.internal.ScriptConsoleViewer;
 
 public abstract class ScriptConsole extends TextConsole implements ICommandHandler {
 
@@ -40,6 +43,8 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
     protected ScriptConsolePrompt prompt;
 
     protected ScriptConsoleHistory history;
+
+    private WeakReference<ScriptConsoleViewer> viewer;
 
     protected IConsoleDocumentPartitioner getPartitioner() {
         return partitioner;
@@ -158,5 +163,16 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         } catch (Exception e) {
         }
         interpreter = null;
+    }
+
+    public void setViewer(ScriptConsoleViewer scriptConsoleViewer) {
+        this.viewer = new WeakReference<ScriptConsoleViewer>(scriptConsoleViewer);
+    }
+    
+    public ScriptConsoleViewer getViewer(){
+        if(this.viewer != null){
+            return this.viewer.get();
+        }
+        return null;
     }
 }
