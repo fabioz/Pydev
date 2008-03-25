@@ -26,7 +26,7 @@ public interface IPyDevCompletionParticipant2 {
      * @param requestOffset the offset where the request for completions was issued
      * @return a list of completion proposals to be applied in the console
      */
-    Collection<ICompletionProposal> getConsoleCompletions(ActivationTokenAndQual tokenAndQual, 
+    Collection<ICompletionProposal> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual, 
             List<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset);
 
 }

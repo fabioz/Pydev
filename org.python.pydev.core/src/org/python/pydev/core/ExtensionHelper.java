@@ -22,7 +22,7 @@ public class ExtensionHelper {
      * This should be used to add participants at test-time. It should be the name
      * of the extension point to a list (which will be returned)
      */
-    public static Map<String, List> testingParticipants;
+    public static Map<String, List<Object>> testingParticipants;
     
     private static Map<String, IExtension[]> extensionsCache = new HashMap<String, IExtension[]>();
     
@@ -68,9 +68,10 @@ public class ExtensionHelper {
         return extensions;
     }
     
-    public static Object getParticipant(String type) {
+    @SuppressWarnings("unchecked")
+	public static Object getParticipant(String type) {
     	//only one participant may be used for this
-    	List participants = getParticipants(type);
+    	List<Object> participants = getParticipants(type);
     	if(participants.size() == 1){
     		return participants.get(0);
     	}

@@ -16,8 +16,8 @@ public interface ISimpleAssistParticipant {
      * 
      * @param activationToken this is the activation token
      * @param qualifier this is the qualifier
-     * @param ps the selection in the editor (may be null if it's requested without using a PyEdit)
-     * @param edit the edit (may be null if there's no PyEdit available. E.g. console)
+     * @param ps the selection in the editor 
+     * @param edit the edit 
      * @param offset the offset
      * 
      * @return a list of completions

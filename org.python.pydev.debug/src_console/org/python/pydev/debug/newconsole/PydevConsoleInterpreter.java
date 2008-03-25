@@ -17,9 +17,8 @@ import org.python.pydev.dltk.console.IScriptConsoleInterpreter;
 import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
-import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
-import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant;
+import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
 
 /**
  * Default implementation for the console interpreter. 
@@ -32,13 +31,20 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
     private List<Runnable> closeRunnables = new ArrayList<Runnable>();
 
-    private List<ISimpleAssistParticipant> participants;
+    private List<ISimpleAssistParticipant2> simpleParticipants;
 
     private List<IPythonNature> naturesUsed;
 
     @SuppressWarnings("unchecked")
-    public PydevConsoleInterpreter() {
-        this.participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_SIMPLE_ASSIST);
+	public PydevConsoleInterpreter() {
+        List<Object> p = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_SIMPLE_ASSIST);
+        ArrayList<ISimpleAssistParticipant2> list = new ArrayList<ISimpleAssistParticipant2>();
+        for(Object o:p){
+        	if(o instanceof ISimpleAssistParticipant2){
+        		list.add((ISimpleAssistParticipant2) o);
+        	}
+        }
+		this.simpleParticipants = list;
     }
     
     /*
@@ -66,9 +72,9 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
         //simple completions (clients)
         ArrayList<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
-        for (ISimpleAssistParticipant participant : participants) {
-            results.addAll(participant.computeCompletionProposals(tokenAndQual.activationToken, 
-                    tokenAndQual.qualifier, null, null, offset));
+        for (ISimpleAssistParticipant2 participant : simpleParticipants) {
+            results.addAll(participant.computeConsoleProposals(tokenAndQual.activationToken, 
+                    tokenAndQual.qualifier, offset));
         }
 
 
@@ -81,11 +87,11 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         
         
         //other participants
-        List<IPyDevCompletionParticipant> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);
-        for (IPyDevCompletionParticipant participant:participants) {
+        List<Object> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);
+        for (Object participant:participants) {
             if(participant instanceof IPyDevCompletionParticipant2){
                 IPyDevCompletionParticipant2 participant2 = (IPyDevCompletionParticipant2) participant;
-                results2.addAll(participant2.getConsoleCompletions(tokenAndQual, this.naturesUsed, viewer, offset));
+                results2.addAll(participant2.computeConsoleCompletions(tokenAndQual, this.naturesUsed, viewer, offset));
             }
         }
         
