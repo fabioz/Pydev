@@ -41,7 +41,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
 
     // Console completions ---------------------------------------------------------------------------------------------
     
-    public Collection<ICompletionProposal> getConsoleCompletions(ActivationTokenAndQual tokenAndQual,
+    public Collection<ICompletionProposal> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
             List<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset) {
         ArrayList<ICompletionProposal> completions = new ArrayList<ICompletionProposal>();
         

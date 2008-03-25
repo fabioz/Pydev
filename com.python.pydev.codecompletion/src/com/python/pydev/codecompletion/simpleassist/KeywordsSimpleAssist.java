@@ -24,6 +24,7 @@ import org.python.pydev.editor.autoedit.DocCmd;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant;
+import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
 
 import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
 
@@ -63,7 +64,7 @@ while
 yield
  * @author Fabio
  */
-public class KeywordsSimpleAssist implements ISimpleAssistParticipant{
+public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAssistParticipant2{
 
     
     public static String defaultKeywordsAsString(){
@@ -231,4 +232,8 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant{
         
         
     }
+
+	public Collection<ICompletionProposal> computeConsoleProposals(String activationToken, String qualifier, int offset) {
+		throw new RuntimeException("Not implemented");
+	}
 }

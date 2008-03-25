@@ -44,7 +44,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
     /**
      * IPyDevCompletionParticipant2
      */
-    public Collection<ICompletionProposal> getConsoleCompletions(ActivationTokenAndQual tokenAndQual,
+    public Collection<ICompletionProposal> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
             List<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset) {
         List<ICompletionProposal> completions = new ArrayList<ICompletionProposal>();
         if(tokenAndQual.activationToken != null && tokenAndQual.activationToken.length() > 0){
