@@ -55,6 +55,7 @@ console:
 	- initial commands for starting the console (maybe project dependent?)
 	- execfile for current editor in the console
 	- class Foo(): adding 'object' through simple completions does not work well
+	- simple completions problem
 
 - Try to reproduce:
 problems:
