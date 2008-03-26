@@ -175,4 +175,10 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         }
         return null;
     }
+
+    /**
+     * Must be overridden to create a style provider for the console (configures colors) 
+     * @return a style provider.
+     */
+    public abstract IConsoleStyleProvider createStyleProvider();
 }

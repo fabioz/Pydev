@@ -23,6 +23,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.core.bundle.ImageCache;
+import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.debug.unittest.ITestRunListener;
 
 /**
@@ -46,6 +47,13 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
     public void start(BundleContext context) throws Exception {
         super.start(context);
         imageCache = new ImageCache(PydevDebugPlugin.getDefault().getBundle().getEntry("/"));
+    }
+    
+    @Override
+    public void stop(BundleContext context) throws Exception {
+        super.stop(context);
+        ColorManager.getDefault().dispose();
+        imageCache.dispose();
     }
 
     public static PydevDebugPlugin getDefault() {

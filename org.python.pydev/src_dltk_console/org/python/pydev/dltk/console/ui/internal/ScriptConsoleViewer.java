@@ -37,7 +37,6 @@ import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.dltk.console.ui.ScriptConsole;
 import org.python.pydev.dltk.console.ui.ScriptConsoleContentAssistant;
-import org.python.pydev.dltk.console.ui.ScriptStyleRange;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleBackspaceAction;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleDeletePreviousWord;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleLineStartAction;
@@ -317,11 +316,17 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
      * Sets the new caret position in the console.
      */
     public void setCaretOffset(final int offset) {
-        getTextWidget().getDisplay().asyncExec(new Runnable() {
-            public void run() {
-                getTextWidget().setCaretOffset(offset);
+        final StyledText textWidget = getTextWidget();
+        if(textWidget != null){
+            Display display = textWidget.getDisplay();
+            if(display != null){
+                display.asyncExec(new Runnable() {
+                    public void run() {
+                        textWidget.setCaretOffset(offset);
+                    }
+                });
             }
-        });
+        }
     }
 
     /**
@@ -373,16 +378,18 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
      * @param contentHandler
      */
     public ScriptConsoleViewer(Composite parent, ScriptConsole console,
-            final IScriptConsoleContentHandler contentHandler) {
+            final IScriptConsoleContentHandler contentHandler, IConsoleStyleProvider styleProvider) {
         super(parent, console);
 
         this.console = console;
+        this.getTextWidget().setBackground(console.getBackground());
+
         
         ScriptConsoleViewer existingViewer = this.console.getViewer();
         
         if(existingViewer == null){
             this.console.setViewer(this);
-            this.styleProvider = createStyleProvider();
+            this.styleProvider = styleProvider;
             this.history = console.getHistory();
             this.listener = new ScriptConsoleDocumentListener(this, console, console.getPrompt(), console.getHistory());
             this.listener.setDocument(getDocument());
@@ -472,36 +479,6 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     	}
     }
     
-    /**
-     * Can be overridden to create a style provider for the console.
-     * @return a style provider.
-     */
-    protected IConsoleStyleProvider createStyleProvider() {
-        return new IConsoleStyleProvider(){
-
-            public ScriptStyleRange createInterpreterErrorStyle(String content, int offset) {
-                return new ScriptStyleRange(offset, content.length(), Display.getDefault().getSystemColor(SWT.COLOR_RED),
-                        Display.getDefault().getSystemColor(SWT.COLOR_WHITE), ScriptStyleRange.STDERR);
-            }
-
-            public ScriptStyleRange createInterpreterOutputStyle(String content, int offset) {
-                return new ScriptStyleRange(offset, content.length(), Display.getDefault().getSystemColor(SWT.COLOR_BLACK),
-                        Display.getDefault().getSystemColor(SWT.COLOR_WHITE), ScriptStyleRange.STDOUT);
-            }
-
-            public ScriptStyleRange createPromptStyle(String prompt, int offset) {
-                return new ScriptStyleRange(offset, prompt.length(), Display.getDefault().getSystemColor(SWT.COLOR_GREEN),
-                        Display.getDefault().getSystemColor(SWT.COLOR_WHITE), ScriptStyleRange.PROMPT);
-            }
-
-            public ScriptStyleRange createUserInputStyle(String content, int offset) {
-                return new ScriptStyleRange(offset, content.length(), Display.getDefault().getSystemColor(SWT.COLOR_BLUE),
-                        Display.getDefault().getSystemColor(SWT.COLOR_WHITE), ScriptStyleRange.STDIN);
-            }
-            
-        };
-    }
-
     
     /**
      * @return the contents of the current buffer (text edited still not passed to the shell)

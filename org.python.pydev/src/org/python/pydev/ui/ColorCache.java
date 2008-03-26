@@ -15,10 +15,11 @@ import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * ColorCache gets colors by RGB, or name
- * Named colors are retreived from preferences
+ * Named colors are retrieved from preferences
  * 
  * It would be nice if color cache listened to preference changes
  * and modified its colors when prefs changed. But currently colors are
@@ -72,7 +73,7 @@ public class ColorCache {
 					color = getColor(new RGB(0,0,0));
 				}
 				else {
-					System.err.println("Unknown color:" + name);
+					PydevPlugin.log("Unknown color:" + name);
 					color = getColor(new RGB(255,0,0));
 				}
 			}
@@ -84,7 +85,7 @@ public class ColorCache {
 				}
 				catch (DataFormatException e) {
 					// Data conversion failure, maybe someone edited our prefs by hand
-					e.printStackTrace();
+					PydevPlugin.log(e);
 					color = new Color(Display.getCurrent(), new RGB(255, 50, 0));
 				}
 			}

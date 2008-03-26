@@ -196,9 +196,7 @@ public class PythonRunner {
             if(config.isInteractive){
             	throw new RuntimeException("Interactive not supported here!");
             }
-            process = null;//registerWithDebugPlugin(label, launch, p, processAttributes);
-            subMonitor.subTask("Done");
-            return null;
+            process = registerWithDebugPlugin(label, launch, p, processAttributes);
         }
         checkProcess(p, process);
 

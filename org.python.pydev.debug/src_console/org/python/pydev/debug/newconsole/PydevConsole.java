@@ -2,8 +2,12 @@ package org.python.pydev.debug.newconsole;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.ITextHover;
+import org.eclipse.swt.graphics.Color;
+import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.dltk.console.ScriptConsolePrompt;
+import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
 import org.python.pydev.dltk.console.ui.ScriptConsole;
+import org.python.pydev.dltk.console.ui.ScriptStyleRange;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -27,7 +31,43 @@ public class PydevConsole extends ScriptConsole {
     
     public PydevConsole(PydevConsoleInterpreter interpreter) {
         super(CONSOLE_NAME + " [" + getNextId() + "]", CONSOLE_TYPE, interpreter);
+        setBackground(ColorManager.getPreferenceColor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR));
     }
+
+    
+    /**
+     * Can be overridden to create a style provider for the console.
+     * @return a style provider.
+     */
+    public IConsoleStyleProvider createStyleProvider() {
+        return new IConsoleStyleProvider(){
+
+            private ScriptStyleRange getIt(String content, int offset, String foregroundPrefName, int scriptStyle){
+                Color foreground = ColorManager.getPreferenceColor(foregroundPrefName);
+                
+                //background is the default (already set)
+                return new ScriptStyleRange(offset, content.length(), foreground, null, scriptStyle);
+            }
+            
+            public ScriptStyleRange createInterpreterErrorStyle(String content, int offset) {
+                return getIt(content, offset, PydevConsoleConstants.CONSOLE_SYS_ERR_COLOR, ScriptStyleRange.STDERR);
+            }
+
+            public ScriptStyleRange createInterpreterOutputStyle(String content, int offset) {
+                return getIt(content, offset, PydevConsoleConstants.CONSOLE_SYS_OUT_COLOR, ScriptStyleRange.STDOUT);
+            }
+
+            public ScriptStyleRange createPromptStyle(String content, int offset) {
+                return getIt(content, offset, PydevConsoleConstants.CONSOLE_PROMPT_COLOR, ScriptStyleRange.PROMPT);
+            }
+
+            public ScriptStyleRange createUserInputStyle(String content, int offset) {
+                return getIt(content, offset, PydevConsoleConstants.CONSOLE_SYS_IN_COLOR, ScriptStyleRange.STDIN);
+            }
+            
+        };
+    }
+
 
     
     /**

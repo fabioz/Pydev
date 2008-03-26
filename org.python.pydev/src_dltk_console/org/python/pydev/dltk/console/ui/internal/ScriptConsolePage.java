@@ -76,7 +76,7 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
 
     protected TextConsoleViewer createViewer(Composite parent) {
         ScriptConsole console = (ScriptConsole) getConsole();
-        viewer = new ScriptConsoleViewer(parent, console, this);
+        viewer = new ScriptConsoleViewer(parent, console, this, console.createStyleProvider());
         viewer.configure(cfg);
         return viewer;
     }

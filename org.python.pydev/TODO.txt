@@ -49,10 +49,10 @@ console:
 	- OK: correct messages (translation)
 	- OK: creating 2nd console view has problems with the interactive console
 	- OK: class Foo(): adding 'object' through simple completions does not work well
+	- OK: colors config
 	
 	- getpass: echo mode
 	- undo/redo for current line
-	- colors config
 	- initial commands for starting the console (maybe project dependent?)
 	- execfile for current editor in the console
 	- up/down should select content in history based on what's already in the console

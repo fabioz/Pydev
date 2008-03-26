@@ -492,6 +492,15 @@
   <extension point="org.eclipse.core.runtime.preferences">
      <initializer class="org.python.pydev.debug.newconsole.PydevConsolePreferencesInitializer"/>
   </extension>
+  
+  <extension point="org.eclipse.ui.preferencePages">
+     <page
+        name="Interactive Console"
+        category="org.python.pydev.prefs"
+        class="org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs"
+        id="org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs">
+     </page>
+  </extension>
 <!-- end console stuff -->
 
 </plugin>
