@@ -75,6 +75,11 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
      * Console itself
      */
     protected ScriptConsole console;
+
+    /**
+     * Attribute defines if this is the main viewer (other viewers may be associated to the same document) 
+     */
+    private boolean isMainViewer;
     
     /**
      * This class is responsible for checking if commands should be issued or not given the command requested
@@ -388,12 +393,14 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         ScriptConsoleViewer existingViewer = this.console.getViewer();
         
         if(existingViewer == null){
+            this.isMainViewer = true;
             this.console.setViewer(this);
             this.styleProvider = styleProvider;
             this.history = console.getHistory();
             this.listener = new ScriptConsoleDocumentListener(this, console, console.getPrompt(), console.getHistory());
             this.listener.setDocument(getDocument());
         }else{
+            this.isMainViewer = false;
             this.styleProvider = existingViewer.styleProvider;
             this.history = existingViewer.history;
             this.listener = existingViewer.listener;
@@ -450,9 +457,6 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             }
         });
 
-        if(existingViewer == null){
-            clear();
-        }
     }
 
 
@@ -476,6 +480,10 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 				public void selectionChanged(ICompletionProposal proposal, boolean smartToggle) {
 				}}
     		);
+    	}
+    	
+    	if(isMainViewer){
+    	    clear();
     	}
     }
     

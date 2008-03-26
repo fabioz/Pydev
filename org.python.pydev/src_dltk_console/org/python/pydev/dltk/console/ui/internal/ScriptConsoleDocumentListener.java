@@ -450,8 +450,6 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     protected void appendInvitation() throws BadLocationException {
         int start = doc.getLength();
         String promptStr = prompt.toString();
-        setCaretOffset(doc.getLength());
-        revealEndOfDocument();
         IConsoleStyleProvider styleProvider = viewer.getStyleProvider();
         if (styleProvider != null) {
             ScriptStyleRange style = styleProvider.createPromptStyle(promptStr, start);
@@ -460,6 +458,8 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             }
         }
         appendText(promptStr); //caret already updated
+        setCaretOffset(doc.getLength());
+        revealEndOfDocument();
     }
 
     /**
