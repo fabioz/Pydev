@@ -60,8 +60,9 @@ console:
 	- initial commands for starting the console (maybe project dependent?)
 	- execfile for current editor in the console
 	- up/down should select content in history based on what's already in the console
-	- no async exec for caret update
+	- no async exec for caret update (almost finished: only the constructor still has it with async)
 	- ctrl+1 should work for things such as assign
+	- the 'xml' module seems to be appearing multiple times (when it shouldn't)
 
 - Try to reproduce:
 problems:

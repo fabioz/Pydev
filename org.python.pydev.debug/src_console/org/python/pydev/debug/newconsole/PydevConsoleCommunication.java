@@ -115,7 +115,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication{
                     }
                     
                     ret.add(new PyCompletionProposal(name,
-                    		offset-length, length, 0, 
+                    		offset-length, length, name.length(), 
                     		PyCodeCompletionImages.getImageForType(type), name, null, docStr, priority));
                     
                 }

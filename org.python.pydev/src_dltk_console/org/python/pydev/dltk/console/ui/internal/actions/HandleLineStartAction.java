@@ -51,17 +51,17 @@ public class HandleLineStartAction {
             
             //1st see: if we're in the start of the line, go to the 1st char after the prompt
             if(lineOffset == absoluteCursorOffset || firstCharOffset < absoluteCursorOffset){
-                viewer.setCaretOffset(firstCharOffset);
+                viewer.setCaretOffset(firstCharOffset, false);
                 return true;
             }
             
             
             if(promptEndOffset < absoluteCursorOffset){
-                viewer.setCaretOffset(promptEndOffset);
+                viewer.setCaretOffset(promptEndOffset, false);
                 return true;
             }
             
-            viewer.setCaretOffset(lineOffset);
+            viewer.setCaretOffset(lineOffset, false);
             return true;
             
         } catch (BadLocationException e) {

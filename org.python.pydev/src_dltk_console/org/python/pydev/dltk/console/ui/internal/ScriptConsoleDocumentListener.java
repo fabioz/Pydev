@@ -124,8 +124,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             startDisconnected();
             try{
                 doc.set(""); //$NON-NLS-1$
-                appendInvitation();
-                setCaretOffset(doc.getLength());
+                appendInvitation(true);
             }finally{
                 stopDisconnected();
             }
@@ -214,7 +213,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             history.commit();
             offset = getLastLineLength();
         }
-        appendInvitation();
+        appendInvitation(false);
     }
 
     /**
@@ -447,7 +446,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * 
      * @throws BadLocationException
      */
-    protected void appendInvitation() throws BadLocationException {
+    protected void appendInvitation(boolean async) throws BadLocationException {
         int start = doc.getLength();
         String promptStr = prompt.toString();
         IConsoleStyleProvider styleProvider = viewer.getStyleProvider();
@@ -458,7 +457,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             }
         }
         appendText(promptStr); //caret already updated
-        setCaretOffset(doc.getLength());
+        setCaretOffset(doc.getLength(), async);
         revealEndOfDocument();
     }
 
@@ -479,19 +478,23 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     }
 
 
+    private void setCaretOffset(int offset) {
+    	setCaretOffset(offset, false);
+    }
+    
     /**
      * Sets the caret offset to the passed offset for the main viewer and all the related viewer for the same document. 
      * @param offset the offset to which the caret should be moved
      */
-    private void setCaretOffset(int offset) {
-        viewer.setCaretOffset(offset);
+    private void setCaretOffset(int offset, boolean async) {
+        viewer.setCaretOffset(offset, async);
         for(Iterator<WeakReference<IScriptConsoleViewer2ForDocumentListener>> it=otherViewers.iterator();it.hasNext();){
             WeakReference<IScriptConsoleViewer2ForDocumentListener> ref = it.next();
             IScriptConsoleViewer2ForDocumentListener v = ref.get();
             if(v == null){
                 it.remove();
             }else{
-                v.setCaretOffset(offset);
+                v.setCaretOffset(offset, async);
             }
         }
     }

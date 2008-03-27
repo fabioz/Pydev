@@ -45,7 +45,7 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
                 //do nothing
             }
 
-            public void setCaretOffset(int length) {
+            public void setCaretOffset(int length, boolean async) {
                 //do nothing
             }
         }, 

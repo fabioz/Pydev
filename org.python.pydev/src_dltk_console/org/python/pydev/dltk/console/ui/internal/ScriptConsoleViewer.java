@@ -20,6 +20,8 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistantExtension2;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ExtendedModifyEvent;
+import org.eclipse.swt.custom.ExtendedModifyListener;
 import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.VerifyKeyListener;
@@ -28,6 +30,7 @@ import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -168,18 +171,67 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
         /**
          * Handles a line start action (home) stays within the same line changing from the 
-         * 1st char of text, beggining of prompt, beggining of line.
+         * 1st char of text, beginning of prompt, beginning of line.
          */
         private HandleLineStartAction handleLineStartAction;
         
+        private volatile int internalCaretSet = -1;
+        
+        /**
+         * Constructor.
+         * 
+         * @param parent parent for the styled text
+         * @param style style to be used
+         */
 		public ScriptConsoleStyledText(Composite parent, int style) {
             super(parent, style);
+            
+            /**
+             * The StyledText will change the caretOffset that we've updated during the modifications,
+             * so, the verify and the extended modify listener will keep track if it actually does
+             * that and will reset the caret to the position we actually added it.
+             * 
+             * Feels like a hack but I couldn't find a better way to do it.
+             */
+            addVerifyListener(new VerifyListener(){
+
+    			public void verifyText(VerifyEvent e) {
+    				internalCaretSet = -1;
+    			}}
+            );
+
+            /**
+             * Set it to the location we've set it to be.
+             */
+            addExtendedModifyListener(new ExtendedModifyListener(){
+
+    			public void modifyText(ExtendedModifyEvent event) {
+    				if(internalCaretSet != -1){
+    					if(internalCaretSet != getCaretOffset()){
+    						setCaretOffset(internalCaretSet);
+    					}
+    					internalCaretSet = -1;
+    				}
+    			}}
+            );
+            
             handleBackspaceAction = new HandleBackspaceAction();
             handleDeletePreviousWord = new HandleDeletePreviousWord();
             handleLineStartAction = new HandleLineStartAction();
         }
 
+		/**
+		 * Overridden to keep track of changes in the caret.
+		 */
+		@Override
+		public void setCaretOffset(int offset) {
+			internalCaretSet = offset;
+			super.setCaretOffset(offset);
+		}
 		
+		/**
+		 * Execute some action.
+		 */
 		public void invokeAction(int action) {
 		    
 		    //some actions have a different scope (not in selected range / out of selected range)
@@ -319,18 +371,24 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
     /**
      * Sets the new caret position in the console.
+     * 
+     * TODO: async should not be allowed (only clearing the shell at the constructor still uses that)
      */
-    public void setCaretOffset(final int offset) {
+    public void setCaretOffset(final int offset, boolean async) {
         final StyledText textWidget = getTextWidget();
         if(textWidget != null){
-            Display display = textWidget.getDisplay();
-            if(display != null){
-                display.asyncExec(new Runnable() {
-                    public void run() {
-                        textWidget.setCaretOffset(offset);
-                    }
-                });
-            }
+        	if(async){
+        		Display display = textWidget.getDisplay();
+        		if(display != null){
+        			display.asyncExec(new Runnable() {
+        				public void run() {
+        					textWidget.setCaretOffset(offset);
+        				}
+        			});
+        		}
+        	}else{
+        		textWidget.setCaretOffset(offset);
+        	}
         }
     }
 
@@ -416,7 +474,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         	 * When the initial focus is gained, set the caret position to the last position (just after the prompt)
         	 */
             public void focusGained(FocusEvent e) {
-                setCaretOffset(getDocument().getLength());
+                setCaretOffset(getDocument().getLength(), true);
                 //just a 1-time listener
                 styledText.removeFocusListener(this);
             }

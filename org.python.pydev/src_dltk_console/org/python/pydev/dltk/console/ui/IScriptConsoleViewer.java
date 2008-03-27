@@ -38,7 +38,7 @@ public interface IScriptConsoleViewer extends ITextViewer {
      * 
      * @param offset the offset for the caret.
      */
-    public void setCaretOffset(int offset);
+    public void setCaretOffset(int offset, boolean async);
 
     /**
      * @return the document being viewed by this console viewer
