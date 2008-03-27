@@ -85,9 +85,6 @@ public class PyConsoleCompletion  extends PyCompletionProposal{
             document.replace(document.getLength(), 0, newCurrentLineString);
             
             IScriptConsoleViewer v = this.viewer.get();
-            if(v != null){
-                v.setCaretOffset(getSelection(document).x);
-            }
         } catch (BadLocationException x) {
             PydevPlugin.log(x);
         }
