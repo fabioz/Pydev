@@ -37,6 +37,11 @@ public class ScriptConsoleHistory {
      */
     private Document historyAsDoc;
 
+    /**
+     * When getting previous or next, this string must be matched
+     */
+    private String matchStart = "";
+
     public ScriptConsoleHistory() {
         this.lines = new ArrayList<String>();
         this.lines.add(""); //$NON-NLS-1$
@@ -79,9 +84,15 @@ public class ScriptConsoleHistory {
      * @return true if we've been able to go to a previous line (and false if there's no previous command in the history).
      */
     public boolean prev() {
-        if (currLine > 0) {
+        while(true){
+            if (currLine <= 0) {
+                break;
+            }
             --currLine;
-            return true;
+            String curr = get();
+            if(curr.startsWith(this.matchStart)){
+                return true;
+            }
         }
 
         return false;
@@ -91,11 +102,17 @@ public class ScriptConsoleHistory {
      * @return true if we've been able to go to a next line (and false if there's no next command in the history).
      */
     public boolean next() {
-        if (currLine < lines.size() - 1) {
+        while(true){
+            if (currLine >= lines.size() - 1) {
+                break;
+            }
             ++currLine;
-            return true;
+            String curr = get();
+            if(curr.startsWith(this.matchStart)){
+                return true;
+            }
         }
-
+        
         return false;
     }
 
@@ -133,5 +150,9 @@ public class ScriptConsoleHistory {
             list.remove(list.size()-1); //remove the last on (current)
         }
         return list;
+    }
+
+    public void setMatchStart(String string) {
+        this.matchStart = string;
     }
 }

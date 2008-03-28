@@ -13,7 +13,9 @@ package org.python.pydev.dltk.console.ui.internal;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.contentassist.ContentAssistEvent;
 import org.eclipse.jface.text.contentassist.ICompletionListener;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -149,6 +151,12 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         }
     }
 
+    
+    /**
+     * Marks if a history request just started.
+     */
+    volatile int inHistoryRequests = 0;
+    volatile boolean changedAfterLastHistoryRequest=false;
 
     /**
      * This is the text widget that's used to edit the console. It has some treatments to handle
@@ -175,6 +183,9 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
          */
         private HandleLineStartAction handleLineStartAction;
         
+        /**
+         * Contains the caret offset that has been set from the console API.
+         */
         private volatile int internalCaretSet = -1;
         
         /**
@@ -206,6 +217,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             addExtendedModifyListener(new ExtendedModifyListener(){
 
     			public void modifyText(ExtendedModifyEvent event) {
+
     				if(internalCaretSet != -1){
     					if(internalCaretSet != getCaretOffset()){
     						setCaretOffset(internalCaretSet);
@@ -233,7 +245,6 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 		 * Execute some action.
 		 */
 		public void invokeAction(int action) {
-		    
 		    //some actions have a different scope (not in selected range / out of selected range)
             switch (action) {
                 case ST.LINE_START:
@@ -249,18 +260,15 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             
             if (isSelectedRangeEditable()) {
                 try {
+                    int historyChange = 0;
 					switch (action) {
                     case ST.LINE_UP:
-                        history.prev();
-                        listener.setCommandLine(history.get());
-                        setCaretOffset(getDocument().getLength());
-                        return;
+                        historyChange = 1;
+                        break;
 
                     case ST.LINE_DOWN:
-                        history.next();
-                        listener.setCommandLine(history.get());
-                        setCaretOffset(getDocument().getLength());
-                        return;
+                        historyChange = 2;
+                        break;
 
                     case ST.DELETE_PREVIOUS:
                         handleBackspaceAction.execute(getDocument(), getCaretOffset(), getCommandLineOffset());
@@ -270,6 +278,30 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                     	handleDeletePreviousWord.execute(getDocument(), getCaretOffset(), getCommandLineOffset());
                         return;
                     }
+					
+					if(historyChange != 0){
+					    if(changedAfterLastHistoryRequest){
+					        //only set a new match if it didn't change since the last time we did an UP/DOWN
+					        System.out.println("changed: setting new match:"+getCommandLine());
+					        history.setMatchStart(getCommandLine());
+					    }
+					    if(historyChange == 1){
+					        history.prev();
+					    }else{
+					        history.next();
+					    }
+					    
+					    inHistoryRequests += 1;
+                        try {
+                            listener.setCommandLine(history.get());
+                            setCaretOffset(getDocument().getLength());
+                        } finally {
+                            inHistoryRequests -= 1;
+                        }
+                        changedAfterLastHistoryRequest = false;
+                        return;
+					}
+
 
                 } catch (BadLocationException e) {
                     PydevPlugin.log(e);
@@ -467,6 +499,18 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         
 
         final StyledText styledText = getTextWidget();
+        
+        getDocument().addDocumentListener(new IDocumentListener(){
+
+            public void documentAboutToBeChanged(DocumentEvent event) {
+            }
+
+            public void documentChanged(DocumentEvent event) {
+                if(inHistoryRequests == 0){
+                    changedAfterLastHistoryRequest = true;
+                }
+            }}
+        );
 
         styledText.addFocusListener(new FocusListener() {
 

@@ -63,6 +63,8 @@ console:
 	- execfile for current editor in the console
 	- up/down should select content in history based on what's already in the console
 	- ctrl+1 should work for things such as assign
+	- make use in debugger
+	- shell still seems open after 'killing' eclipse.
 
 - Try to reproduce:
 problems:
