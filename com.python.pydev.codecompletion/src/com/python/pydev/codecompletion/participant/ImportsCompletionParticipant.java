@@ -83,6 +83,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         Set<String> allModuleNames = modulesManager.getAllModuleNames(false, lowerQual);
 
         StringBuffer realImportRep=new StringBuffer();
+        HashSet<String> alreadyFound = new HashSet<String>();
         
         for (String name:allModuleNames) {
             
@@ -116,13 +117,19 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                     displayString.append(packageName);
                 }
                 
+                String found = displayString.toString();
+                if(alreadyFound.contains(found)){
+                    continue;
+                }
+                alreadyFound.add(found);
+                
                 PyConsoleCompletion  proposal = new PyConsoleCompletion (
                         importRep,
                         requestOffset - qlen, 
                         qlen, 
                         realImportRep.length(), 
                         img, 
-                        displayString.toString(), 
+                        found, 
                         (IContextInformation)null, 
                         "", 
                         lowerImportRep.equals(lowerQual)? IPyCompletionProposal.PRIORITY_LOCALS_2 : IPyCompletionProposal.PRIORITY_PACKAGES,
