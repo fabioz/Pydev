@@ -25,8 +25,8 @@ public class ScriptConsoleHistoryTest extends TestCase {
         assertEquals("aaa", c.get());
         
         c.setMatchStart("b");
-        assertTrue(c.prev()); //must cycle (will change other tests too)
-        assertEquals("bbb", c.get());
+        assertFalse(c.prev()); //must cycle (will change other tests too)
+        assertEquals("aaa", c.get());
     }
         
     
@@ -82,9 +82,9 @@ public class ScriptConsoleHistoryTest extends TestCase {
         assertEquals("test", c.get());
         assertFalse(c.prev());
         assertEquals("test", c.get());
-        assertTrue(c.next());
-        assertEquals("", c.get());
-        assertTrue(c.prev());
+        assertFalse(c.next()); //the 'current' buffer doesn't enter the history
+        assertEquals("test", c.get());
+        assertFalse(c.prev());
         assertEquals("test", c.get());
         
         c.update("kkk");

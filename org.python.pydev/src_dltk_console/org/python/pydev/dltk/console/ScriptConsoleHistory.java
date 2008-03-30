@@ -84,6 +84,7 @@ public class ScriptConsoleHistory {
      * @return true if we've been able to go to a previous line (and false if there's no previous command in the history).
      */
     public boolean prev() {
+        int initialCurrLine = currLine;
         while(true){
             if (currLine <= 0) {
                 break;
@@ -94,7 +95,7 @@ public class ScriptConsoleHistory {
                 return true;
             }
         }
-
+        currLine = initialCurrLine; //don't change if we weren't able to find a match.
         return false;
     }
 
@@ -102,8 +103,9 @@ public class ScriptConsoleHistory {
      * @return true if we've been able to go to a next line (and false if there's no next command in the history).
      */
     public boolean next() {
+        int initialCurrLine = currLine;
         while(true){
-            if (currLine >= lines.size() - 1) {
+            if (currLine >= lines.size() - 2) { //we don't want to add the 'current' line here
                 break;
             }
             ++currLine;
@@ -112,6 +114,7 @@ public class ScriptConsoleHistory {
                 return true;
             }
         }
+        currLine = initialCurrLine; //don't change if we weren't able to find a match.
         
         return false;
     }

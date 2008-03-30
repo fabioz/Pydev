@@ -4,8 +4,10 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.model.IProcess;
+import org.eclipse.debug.core.Launch;
 import org.eclipse.ui.console.IConsoleFactory;
+import org.python.pydev.core.Tuple3;
+import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.env.IProcessFactory;
 import org.python.pydev.debug.newconsole.env.UserCanceledException;
 import org.python.pydev.dltk.console.ui.ScriptConsoleManager;
@@ -60,28 +62,25 @@ public class PydevConsoleFactory implements IConsoleFactory {
         
         IProcessFactory iprocessFactory = new IProcessFactory();
         
-        final ILaunch launch = iprocessFactory.createInteractiveLaunch();
+        Tuple3<Launch, Process, Integer> launchAndProcess = iprocessFactory.createInteractiveLaunch();
+        if(launchAndProcess == null){
+            return null;
+        }
+        final ILaunch launch = launchAndProcess.o1;
         if(launch == null){
-        	return null;
+            return null;
         }
 
         PydevConsoleInterpreter consoleInterpreter = new PydevConsoleInterpreter();
         int port = Integer.parseInt(launch.getAttribute(IProcessFactory.INTERACTIVE_LAUNCH_PORT));
-        consoleInterpreter.setConsoleCommunication(new PydevConsoleCommunication(port));
+        consoleInterpreter.setConsoleCommunication(new PydevConsoleCommunication(port, launchAndProcess.o2, launchAndProcess.o3));
         consoleInterpreter.setNaturesUsed(iprocessFactory.getNaturesUsed());
+        
+        PydevDebugPlugin.getDefault().addConsoleLaunch(launch);
         
         consoleInterpreter.addCloseOperation(new Runnable() {
             public void run() {
-                IProcess[] processes = launch.getProcesses();
-                if (processes != null) {
-                    for (IProcess p:processes) {
-                        try {
-                            p.terminate();
-                        } catch (Exception e) {
-                            PydevPlugin.log(e);
-                        }
-                    }
-                }
+                PydevDebugPlugin.getDefault().removeConsoleLaunch(launch);
             }
         });
         return consoleInterpreter;

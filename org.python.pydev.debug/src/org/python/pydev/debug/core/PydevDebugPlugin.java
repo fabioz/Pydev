@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IWorkspace;
@@ -15,6 +14,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -24,7 +25,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
-import org.python.pydev.debug.unittest.ITestRunListener;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * The main plugin for Python Debugger.
@@ -37,8 +38,6 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
 
     public ImageCache imageCache;
 
-    /** Listener list **/
-    private List listeners = new ArrayList();
 
     public PydevDebugPlugin() {
         plugin = this;
@@ -54,6 +53,13 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
         super.stop(context);
         ColorManager.getDefault().dispose();
         imageCache.dispose();
+        for(ILaunch l: new ArrayList<ILaunch>(consoleLaunches)){
+            try{
+                this.removeConsoleLaunch(l);
+            }catch(Exception e){
+                PydevPlugin.log(e);
+            }
+        }
     }
 
     public static PydevDebugPlugin getDefault() {
@@ -158,50 +164,39 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
         }
     }
 
-    public void addTestListener(ITestRunListener listener) {
-        listeners.add(listener);
+
+    /**
+     * Holds the console launches that should be terminated.
+     */
+    private List<ILaunch> consoleLaunches = new ArrayList<ILaunch>();
+    
+    /**
+     * Adds launch to the list of launches managed by pydev. Added launches will be shutdown
+     * if they are not removed before the plugin shutdown.
+     * 
+     * @param launch launch to be added
+     */
+    public void addConsoleLaunch(ILaunch launch) {
+        consoleLaunches.add(launch);
     }
 
-    public void removeTestListener(ITestRunListener listener) {
-        listeners.remove(listener);
-    }
-
-    public List getListeners() {
-        return listeners;
-    }
-
-    public void fireTestsStarted(int count, String path_to_file) {
-        for (Iterator all = getListeners().iterator(); all.hasNext();) {
-            ITestRunListener each = (ITestRunListener) all.next();
-            each.testsStarted(count, path_to_file);
-        }
-    }
-
-    public void fireTestsFinished(String summary) {
-        for (Iterator all = getListeners().iterator(); all.hasNext();) {
-            ITestRunListener each = (ITestRunListener) all.next();
-            each.testsFinished(summary);
-        }
-    }
-
-    public void fireTestStarted(String klass, String methodName) {
-        for (Iterator all = getListeners().iterator(); all.hasNext();) {
-            ITestRunListener each = (ITestRunListener) all.next();
-            each.testStarted(klass, methodName);
-        }
-    }
-
-    public void fireTestOK(String klass, String methodName) {
-        for (Iterator all = getListeners().iterator(); all.hasNext();) {
-            ITestRunListener each = (ITestRunListener) all.next();
-            each.testOK(klass, methodName);
-        }
-    }
-
-    public void fireTestFailed(String klass, String methodName, String failureType, String trace) {
-        for (Iterator all = getListeners().iterator(); all.hasNext();) {
-            ITestRunListener each = (ITestRunListener) all.next();
-            each.testFailed(klass, methodName, failureType, trace);
+    /**
+     * Removes a launch from a pydev console and stops the related process.
+     *  
+     * @param launch the launch to be removed
+     */
+    public void removeConsoleLaunch(ILaunch launch) {
+        if(consoleLaunches.remove(launch)){
+            IProcess[] processes = launch.getProcesses();
+            if (processes != null) {
+                for (IProcess p:processes) {
+                    try {
+                        p.terminate();
+                    } catch (Exception e) {
+                        PydevPlugin.log(e);
+                    }
+                }
+            }
         }
     }
 

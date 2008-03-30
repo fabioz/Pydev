@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.Launch;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
@@ -17,6 +16,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
@@ -52,18 +52,20 @@ public class IProcessFactory {
      * - python interpreter
      * - jython interpreter
      * 
-     * @return the Launch created
+     * @return the Launch, the Process created and the port that'll be used for the server to call back into
+     * this client for requesting input.
      * 
      * @throws UserCanceledException
      * @throws Exception
      */
-    public ILaunch createInteractiveLaunch()
+    public Tuple3<Launch, Process, Integer> createInteractiveLaunch()
             throws UserCanceledException, Exception {
     	
         IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
         IWorkbenchPage activePage = workbenchWindow.getActivePage();
         IEditorPart activeEditor = activePage.getActiveEditor();
         PyEdit edit = null;
+        Process process = null;
         
         if (activeEditor instanceof PyEdit) {
             edit = (PyEdit) activeEditor;
@@ -78,6 +80,8 @@ public class IProcessFactory {
 			if(pythonpath != null && interpreterManager != null){
 			    naturesUsed = dialog.getNatures();
 		        int port = SocketUtil.findUnusedLocalPort();
+		        int clientPort = SocketUtil.findUnusedLocalPort();
+		        
 		        final Launch launch = new Launch(null, "interactive", null);
 		        launch.setAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT, "false");
 		        launch.setAttribute(INTERACTIVE_LAUNCH_PORT, ""+port);
@@ -89,22 +93,22 @@ public class IProcessFactory {
 		        String commandLine;
 		        if(interpreterManager.isPython()){
 		        	commandLine = SimplePythonRunner.makeExecutableCommandStr(scriptWithinPySrc.getAbsolutePath(), 
-		        			new String[]{""+port});
+		        			new String[]{""+port, ""+clientPort});
 		        	
 		        }else if(interpreterManager.isJython()){
 		        	commandLine = SimpleJythonRunner.makeExecutableCommandStr(scriptWithinPySrc.getAbsolutePath(), 
-		        			pythonpathEnv, new String[]{""+port});
+		        			pythonpathEnv, new String[]{""+port, ""+clientPort});
 		        	
 		        }else{
 		        	throw new RuntimeException("Expected interpreter manager to be python or jython related.");
 		        }
-		        Process process = Runtime.getRuntime().exec(commandLine, env, null);
+		        process = Runtime.getRuntime().exec(commandLine, env, null);
 		        PydevSpawnedInterpreterProcess spawnedInterpreterProcess = 
 		        	new PydevSpawnedInterpreterProcess(process, launch);
 		        
 		        launch.addProcess(spawnedInterpreterProcess);
 		        
-		        return launch;
+		        return new Tuple3<Launch, Process, Integer>(launch, process, clientPort);
         	}
         }
         return null;

@@ -1,7 +1,5 @@
 from code import InteractiveConsole
-from StringIO import StringIO
-import time
-import threading
+import os
 import sys
 
 try:
@@ -11,16 +9,10 @@ except:
     __builtin__.True = 1
     __builtin__.False = 0
 
-#=======================================================================================================================
-# NoReadWrite
-#=======================================================================================================================
-class NoReadWrite:
-    
-    def read(self, *args, **kwargs):
-        pass
-        
-    def write(self, *args, **kwargs):
-        pass
+try:
+    import xmlrpclib
+except ImportError:
+    import _pydev_xmlrpclib as xmlrpclib
 
 #=======================================================================================================================
 # StdIn
@@ -30,48 +22,20 @@ class StdIn:
         Object to be added to stdin (to emulate it as non-blocking while the next line arrives)
     '''
     
-    def __init__(self, interpreter, push_thread):
+    def __init__(self, interpreter, host, client_port):
         self.interpreter = interpreter
-        self.readline_return = None
-        self.push_thread = push_thread
-    
+        self.client_port = client_port
+        self.host = host
     
     def readline(self, *args, **kwargs): #@UnusedVariable
-        #a better option (instead of a thread) would be to callback into the client (so, the client should also 
-        #have a server so that we can talk 2 ways here).
-        self.push_thread.need_input = True
-        while self.readline_return is None:
-            time.sleep(0.01)
-        return self.readline_return
+        #Ok, callback into the client to see get the new input
+        server = xmlrpclib.Server('http://%s:%s' % (self.host, self.client_port))
+        return server.RequestInput()
+        
         
     #in the interactive interpreter, a read and a readline are the same.
     read = readline
         
-#=======================================================================================================================
-# PushThread
-#=======================================================================================================================
-class PushThread(threading.Thread):
-    '''
-        We need to add things to the interpreter because the user may end up adding a raw_input()
-        and we don't want to block the console if that happens.
-        
-        Another option would be having the client as another Xml-rpc server, so, instead of making
-        this thread it would just callback into the client for an answer.
-    '''
-    
-    def __init__(self, interpreter, line):
-        threading.Thread.__init__(self)
-        self.interpreter = interpreter
-        self.line = line
-        self.need_input = False
-        
-    def run(self):
-        try:
-            self.more = self.interpreter.push(self.line)
-        finally:
-            del self.interpreter
-            del self.line
-
 #=======================================================================================================================
 # InterpreterInterface
 #=======================================================================================================================
@@ -80,71 +44,29 @@ class InterpreterInterface:
         The methods in this class should be registered in the xml-rpc server.
     '''
     
-    def __init__(self):
+    def __init__(self, host, client_port):
+        self.client_port = client_port
+        self.host = host
         self.namespace = {}
         self.interpreter = InteractiveConsole(self.namespace)
-        self.std_in_that_needs_input = None
-        self.push_thread_that_needs_input = None
+
         
     def addExec(self, line):
         #f_opened = open('c:/temp/a.txt', 'a')
         #f_opened.write(line+'\n')
         
-        original_out = sys.stdout
-        original_err = sys.stderr
         original_in = sys.stdin
-        
-        
-        out = sys.stdout = StringIO()
-        err = sys.stderr = StringIO()
-        
-        if self.std_in_that_needs_input is not None:
-            std_in = sys.stdin = self.std_in_that_needs_input
-            push_thread = self.push_thread_that_needs_input
-            push_thread.need_input = False
-        else:
-            push_thread = PushThread(self.interpreter, line)
-            std_in = sys.stdin = StdIn(self, push_thread)
+        sys.stdin = StdIn(self, self.host, self.client_port)
         
         try:
-            if self.std_in_that_needs_input is not None:
-                self.std_in_that_needs_input.readline_return = line
-            else:
-                push_thread.start()
-                
-            while not hasattr(push_thread, 'more') and not push_thread.need_input:
-                time.sleep(0.01)
-            
-            if push_thread.need_input:
-                self.push_thread_that_needs_input = push_thread
-                self.std_in_that_needs_input = std_in
-                more = False
-                need_input = True
-            else:
-                self.push_thread_that_needs_input = None
-                self.std_in_that_needs_input = None
-                more = push_thread.more
-                need_input = False
-                
+            more = self.interpreter.push(line)
         finally:
-        
-            out = out.getvalue()
-            err = err.getvalue()
-            
-            sys.stdout = original_out
-            sys.stderr = original_err
             sys.stdin = original_in
-            
-        #f_opened.write('returning\n')
-        #f_opened.write(str(out))
-        #f_opened.write('\n')
-        #f_opened.write(str(err))
-        #f_opened.write('\n')
-        #f_opened.write(str(more))
-        #f_opened.write('\n')
-        #f_opened.write(str(need_input))
-        #f_opened.write('\nend returning\n')
-        return out, err, more, need_input
+        
+        #it's always false at this point
+        need_input = False
+        return more, need_input
+        
             
     def getCompletions(self, text):
         from _completer import Completer
@@ -206,37 +128,58 @@ class InterpreterInterface:
                 #if all fails, go to an empty string 
                 return ''
         
+    
     def close(self):
-        sys.exit()
+        sys.exit(0)
         
     
+    
 #=======================================================================================================================
-# main
+# _DoExit
 #=======================================================================================================================
-if __name__ == '__main__':
-    port = sys.argv[1]
-    port = int(port)
+def _DoExit(*args):
+    '''
+        We have to override the exit because calling sys.exit will only actually exit the main thread,
+        and as we're in a Xml-rpc server, that won't work.
+    '''
+    
+    try:
+        import java.lang.System
+        java.lang.System.exit(1)
+    except ImportError:
+        if len(args) == 1:
+            os._exit(args[0])
+        else:
+            os._exit(0)
+    
+#=======================================================================================================================
+# StartServer
+#=======================================================================================================================
+def StartServer(host, port, client_port):
+    #replace exit (see comments on method)
+    #note that this does not work in jython!!! (sys method can't be replaced).
+    sys.exit = _DoExit
     
     try:
         from SimpleXMLRPCServer import SimpleXMLRPCServer
     except ImportError:
         from _pydev_SimpleXMLRPCServer import SimpleXMLRPCServer
         
-    interpreter = InterpreterInterface()
-    try:
-        server = SimpleXMLRPCServer(('localhost', port)) #allow_none cannot be passed to jython
-    except TypeError:
-        server = SimpleXMLRPCServer(('localhost', port))
+    interpreter = InterpreterInterface(host, client_port)
+    server = SimpleXMLRPCServer((host, port), logRequests=False)
         
     server.register_function(interpreter.addExec)
     server.register_function(interpreter.getCompletions)
     server.register_function(interpreter.getDescription)
     server.register_function(interpreter.close)
     
-    #we don't want output to anywhere (only to the server -- with sockets!)
-    sys.stderr = NoReadWrite()
-    sys.stdout = NoReadWrite()
-    
     server.serve_forever()
 
+    
+#=======================================================================================================================
+# main
+#=======================================================================================================================
+if __name__ == '__main__':
+    port, client_port = sys.argv[1:3]
+    StartServer('localhost', int(port), int(client_port))
     

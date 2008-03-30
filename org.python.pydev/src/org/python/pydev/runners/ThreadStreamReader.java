@@ -29,4 +29,14 @@ public class ThreadStreamReader extends Thread {
             e.printStackTrace();
         }
     }
+
+    /**
+     * @return the contents that were obtained from this instance since it was started or since
+     * the last call to this method.
+     */
+    public String getAndClearContents() {
+        StringBuffer oldContents = contents;
+        contents = new StringBuffer();
+        return oldContents.toString();
+    }
 }

@@ -282,22 +282,24 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 					if(historyChange != 0){
 					    if(changedAfterLastHistoryRequest){
 					        //only set a new match if it didn't change since the last time we did an UP/DOWN
-					        System.out.println("changed: setting new match:"+getCommandLine());
 					        history.setMatchStart(getCommandLine());
 					    }
+					    boolean didChange;
 					    if(historyChange == 1){
-					        history.prev();
+					        didChange = history.prev();
 					    }else{
-					        history.next();
+					        didChange = history.next();
 					    }
 					    
-					    inHistoryRequests += 1;
-                        try {
-                            listener.setCommandLine(history.get());
-                            setCaretOffset(getDocument().getLength());
-                        } finally {
-                            inHistoryRequests -= 1;
-                        }
+					    if(didChange){
+    					    inHistoryRequests += 1;
+                            try {
+                                listener.setCommandLine(history.get());
+                                setCaretOffset(getDocument().getLength());
+                            } finally {
+                                inHistoryRequests -= 1;
+                            }
+					    }
                         changedAfterLastHistoryRequest = false;
                         return;
 					}

@@ -340,8 +340,8 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         try {
 	        Status s = new Status(errorLevel, getPluginID(), errorLevel, message, e);
 	        getDefault().getLog().log(s);
-        } catch (Exception e1) {
-            //logging should not fail!
+        } catch (Throwable e1) {
+            //logging should never fail!
         }
     }
 
