@@ -68,7 +68,7 @@ public class ScriptConsolePartitionerTest extends TestCase {
         assertEquals(2, styleRanges[1].start);
         assertEquals(1, styleRanges[1].length);
         assertEquals(3, styleRanges[2].start);
-        assertEquals(47, styleRanges[2].length);
+        assertEquals(48, styleRanges[2].length);
     }
 
 }

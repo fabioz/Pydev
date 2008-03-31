@@ -489,7 +489,10 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             this.console.setViewer(this);
             this.styleProvider = styleProvider;
             this.history = console.getHistory();
-            this.listener = new ScriptConsoleDocumentListener(this, console, console.getPrompt(), console.getHistory());
+            
+            this.listener = new ScriptConsoleDocumentListener(this, console, console.getPrompt(), 
+                    console.getHistory(), console.getLineTrackers());
+            
             this.listener.setDocument(getDocument());
         }else{
             this.isMainViewer = false;

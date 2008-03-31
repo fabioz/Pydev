@@ -48,7 +48,6 @@ public class ScriptConsolePartitioner implements IConsoleDocumentPartitioner {
      */
     public void addRange(ScriptStyleRange r) {
         if(r.length > 0){ //only add ranges with some len.
-            
             for(int i=ranges.size()-1; i>=0; i--){
                 ScriptStyleRange last = ranges.get(i);
                 int end = last.start+last.length;
@@ -84,20 +83,35 @@ public class ScriptConsolePartitioner implements IConsoleDocumentPartitioner {
      * @return the ranges that intersect with the given offset/length.
      */
     public ScriptStyleRange[] getStyleRanges(int offset, int length) {
-        int lastOffset = offset;
+        int lastOffset = -1;
+        
+        boolean found = false;
         
         List<ScriptStyleRange> result = new ArrayList<ScriptStyleRange>();
-        for (ScriptStyleRange r:ranges) {
+        for(int i=ranges.size()-1; i>=0; i--){
+            ScriptStyleRange r = ranges.get(i);
             if ((r.start >= offset && r.start <= offset + length) || (r.start < offset && r.start+r.length > offset)){
-                result.add(r);
-                lastOffset = r.start+r.length;
+                found = true;
+                //it must always be a copy because it may be changed later by the TextConsole when
+                //some hyperlink has a matching position.
+                result.add(0, (ScriptStyleRange) r.clone()); 
+                if(lastOffset == -1){
+                    lastOffset = r.start+r.length;
+                }
+            }else if(found){
+                //break on 1st not found (after finding the 1st)
+                break;
             }
         }
 
+        if(lastOffset == -1){
+            lastOffset = offset;
+        }
+        
         if(lastOffset < offset+length){
             //if we haven't been able to cover the whole range, there's probably something wrong (so, let's 
             //leave it in gray so that we know about that).
-            ScriptStyleRange lastPart = new ScriptStyleRange(lastOffset, length-lastOffset, Display.getDefault().getSystemColor(SWT.COLOR_GRAY),
+            ScriptStyleRange lastPart = new ScriptStyleRange(lastOffset, (offset+length)-lastOffset, Display.getDefault().getSystemColor(SWT.COLOR_GRAY),
                     Display.getDefault().getSystemColor(SWT.COLOR_WHITE), ScriptStyleRange.UNKNOWN);
             result.add(lastPart);
         }

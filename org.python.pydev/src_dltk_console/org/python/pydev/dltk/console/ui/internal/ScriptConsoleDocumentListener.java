@@ -9,13 +9,16 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IDocumentPartitioner;
+import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.dltk.console.ScriptConsoleHistory;
@@ -69,6 +72,11 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * Strategy used for indenting / tabs
      */
     private PyAutoIndentStrategy strategy = new PyAutoIndentStrategy();
+
+    /**
+     * Console line trackers (for hyperlinking)
+     */
+    private List<IConsoleLineTracker> consoleLineTrackers;
     
     public PyAutoIndentStrategy getIndentStrategy(){
         return strategy;
@@ -155,7 +163,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      */
     public ScriptConsoleDocumentListener(IScriptConsoleViewer2ForDocumentListener viewer, 
             ICommandHandler handler, ScriptConsolePrompt prompt,
-            ScriptConsoleHistory history) {
+            ScriptConsoleHistory history, List<IConsoleLineTracker> consoleLineTrackers) {
         this.prompt = prompt;
         
         this.handler = handler;
@@ -167,6 +175,8 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         this.offset = 0;
 
         this.doc = null;
+        
+        this.consoleLineTrackers = consoleLineTrackers;
         
     }
 
@@ -242,6 +252,26 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             }
         }
         appendText(out);
+        
+        PySelection ps = new PySelection(doc, start);
+        int cursorLine = ps.getCursorLine();
+        int numberOfLines = doc.getNumberOfLines();
+        
+        //right after appending the text, let's notify line trackers
+        for(int i=cursorLine;i<numberOfLines;i++){
+            try{
+                int offset = ps.getLineOffset(i);
+                int endOffset = ps.getEndLineOffset(i);
+                
+                Region region = new Region(offset, endOffset-offset);
+                
+                for(IConsoleLineTracker lineTracker:this.consoleLineTrackers){
+                    lineTracker.lineAppended(region);
+                }
+            }catch(Exception e){
+                PydevPlugin.log(e);
+            }
+        }
     }
 
     

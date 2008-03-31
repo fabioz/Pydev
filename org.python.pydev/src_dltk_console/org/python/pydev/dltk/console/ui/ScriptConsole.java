@@ -10,8 +10,10 @@
 package org.python.pydev.dltk.console.ui;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
@@ -181,4 +183,9 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
      * @return a style provider.
      */
     public abstract IConsoleStyleProvider createStyleProvider();
+
+    /**
+     * @return a list of trackers that'll identify links in the console.
+     */
+    public abstract List<IConsoleLineTracker> getLineTrackers();
 }

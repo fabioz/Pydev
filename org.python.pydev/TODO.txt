@@ -60,6 +60,7 @@ console:
 	- OK: stdout/stderr gotten from the server without using sockets
 	- OK: sys.exit may halt shell
 	- OK: shell still seems open after 'killing' eclipse.
+	- OK: add hyperlinks to tracebacks in console
 	
 	- getpass: echo mode
 	- undo/redo for current line
@@ -67,7 +68,6 @@ console:
 	- execfile for current editor in the console
 	- ctrl+1 should work for things such as assign
 	- make use in debugger
-	- linked tracebacks
 	
 	Limitations:
 	- if raw_input() does not come from the main thread, it'll be ignored (and halted forever)

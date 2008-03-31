@@ -46,8 +46,13 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 			this.pointer = pointer;
 		}
 		
-		public void linkEntered() {}
-		public void linkExited() {}
+		public void linkEntered(){
+		    
+		}
+		
+		public void linkExited(){
+		    
+		}
 
 		public void linkActivated() {
 			PyOpenAction open = new PyOpenAction();
@@ -99,8 +104,9 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 						link = new ConsoleLink(p);
 					}
 				}
-				if (link != null)
+				if (link != null){
 					console.addLink(link, lineOffset + fileStart, lineLength - fileStart);
+				}
 			}
 		} catch (BadLocationException e) {
 			PydevDebugPlugin.log(IStatus.ERROR, "unexpected error", e);

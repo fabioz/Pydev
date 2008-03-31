@@ -1,9 +1,23 @@
 package org.python.pydev.debug.newconsole;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.debug.core.model.IProcess;
+import org.eclipse.debug.core.model.IStreamMonitor;
+import org.eclipse.debug.core.model.IStreamsProxy;
+import org.eclipse.debug.ui.console.IConsole;
+import org.eclipse.debug.ui.console.IConsoleHyperlink;
+import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.ui.console.IHyperlink;
+import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
+import org.python.pydev.debug.ui.PythonConsoleLineTracker;
 import org.python.pydev.dltk.console.ScriptConsolePrompt;
 import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
 import org.python.pydev.dltk.console.ui.ScriptConsole;
@@ -15,7 +29,7 @@ import org.python.pydev.plugin.PydevPlugin;
  *
  * @author Fabio
  */
-public class PydevConsole extends ScriptConsole {
+public class PydevConsole extends ScriptConsole implements IConsole {
 
     public static final String CONSOLE_TYPE = "org.python.pydev.debug.newconsole.PydevConsole";
 
@@ -106,4 +120,60 @@ public class PydevConsole extends ScriptConsole {
         return new ScriptConsolePrompt(newPrompt, continuePrompt);
     }
 
+    
+    /**
+     * Overridden to get the line trackers that'll add hyperlinks to the console.
+     */
+    @Override
+    public List<IConsoleLineTracker> getLineTrackers() {
+        List<IConsoleLineTracker> lineTrackers = new ArrayList<IConsoleLineTracker>();
+        PythonConsoleLineTracker lineTracker = new PythonConsoleLineTracker();
+        lineTracker.init(this);
+        lineTrackers.add(lineTracker);
+        return lineTrackers;
+    }
+
+    /**
+     * IConsole: Add a link to the console
+     */
+    public void addLink(IConsoleHyperlink link, int offset, int length) {
+        this.addLink((IHyperlink)link, offset, length);
+    }
+
+    /**
+     * IConsole: Add a link to the console
+     */
+    public void addLink(IHyperlink link, int offset, int length) {
+        try {
+            super.addHyperlink(link, offset, length);
+        } catch (BadLocationException e) {
+            PydevPlugin.log(e);
+        }
+    }
+
+    
+    //required by the IConsole interface -- because of hyperlinks (but not actually used)
+    public void connect(IStreamsProxy streamsProxy) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    //required by the IConsole interface -- because of hyperlinks (but not actually used)
+    public void connect(IStreamMonitor streamMonitor, String streamIdentifer) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    //required by the IConsole interface -- because of hyperlinks (but not actually used)
+    public IProcess getProcess() {
+        throw new RuntimeException("Not implemented");
+    }
+
+    //required by the IConsole interface -- because of hyperlinks (but not actually used)
+    public IRegion getRegion(IConsoleHyperlink link) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    //required by the IConsole interface -- because of hyperlinks (but not actually used)
+    public IOConsoleOutputStream getStream(String streamIdentifier) {
+        throw new RuntimeException("Not implemented");
+    }
 }
