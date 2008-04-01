@@ -74,6 +74,8 @@ console:
 	- Output is not asynchonous (so, the stdout and stderr will only be shown when a new line is sent to the console)
 	
 
+docs: http://www.fabioz.com/pydev/manual_adv_remote_debugger.html  (need to be in debug perspective)
+
 - Try to reproduce:
 problems:
 
