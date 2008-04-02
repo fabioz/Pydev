@@ -33,6 +33,8 @@ public final class PydevConsoleConstants {
     public static final String CONSOLE_BACKGROUND_COLOR = "pydevconsole_background_color";
     public static final RGB DEFAULT_CONSOLE_BACKGROUND_COLOR = new RGB(255, 255, 255);
     
+    public static final String CONSOLE_TYPE = "org.python.pydev.debug.newconsole.PydevConsole";
+    
     
     
 }

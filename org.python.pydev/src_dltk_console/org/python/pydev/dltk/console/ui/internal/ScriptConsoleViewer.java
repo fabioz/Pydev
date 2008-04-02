@@ -624,6 +624,12 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         listener.clear();
     }
 
+    /**
+     * @return the last time the document shown in this viewer was edited.
+     */
+    public long getLastChangeMillis() {
+        return listener.getLastChangeMillis();
+    }
     
     /*
      * Overridden just to change visibility.

@@ -48,9 +48,33 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
     private int offset;
 
+    /**
+     * Document to which this listener is attached.
+     */
     private IDocument doc;
     
     private int disconnectionLevel = 0;  
+    
+    /**
+     * The time for the last change in the document that was listened in this console.
+     */
+    private long lastChangeMillis;
+    
+    /**
+     * @return the last time the document that this console was listening to was changed.
+     */
+    public long getLastChangeMillis() {
+        return lastChangeMillis;
+    }
+    
+    /**
+     * Constructor.
+     * 
+     * Will initialize the lastChangeMillis to the creation time of this listener. 
+     */
+    public ScriptConsoleDocumentListener() {
+        this.lastChangeMillis = System.currentTimeMillis();
+    }
     
     /**
      * Viewer for the document contained in this listener.
@@ -441,6 +465,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * within this listener (passing commands to the handler if needed, getting results, etc).
      */
     public void documentChanged(DocumentEvent event) {
+        lastChangeMillis = System.currentTimeMillis();
         startDisconnected();
         try{
             int eventOffset = event.getOffset();

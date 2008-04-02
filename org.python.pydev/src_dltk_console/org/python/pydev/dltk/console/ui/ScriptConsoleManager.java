@@ -9,7 +9,11 @@
  *******************************************************************************/
 package org.python.pydev.dltk.console.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -44,30 +48,6 @@ public class ScriptConsoleManager {
 
     protected ScriptConsoleManager() {
         this.manager = ConsolePlugin.getDefault().getConsoleManager();
-    }
-
-    /**
-     * @param consoleType the console type we're searching for
-     * @return the currently active console.
-     */
-    public ScriptConsole getActiveScriptConsole(String consoleType) {
-        IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-        if (window != null) {
-            IWorkbenchPage page = window.getActivePage();
-            if (page != null) {
-                IViewPart part = page.findView(IConsoleConstants.ID_CONSOLE_VIEW);
-
-                if (part != null && part instanceof IConsoleView) {
-                    IConsoleView view = (IConsoleView) part;
-                    IConsole console = view.getConsole();
-
-                    if (console instanceof ScriptConsole && console.getType().equals(consoleType)) {
-                        return (ScriptConsole) console;
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     /**

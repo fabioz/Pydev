@@ -31,8 +31,6 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PydevConsole extends ScriptConsole implements IConsole {
 
-    public static final String CONSOLE_TYPE = "org.python.pydev.debug.newconsole.PydevConsole";
-
     public static final String CONSOLE_NAME = "Pydev Console";
 
     public static int nextId = -1;
@@ -44,7 +42,7 @@ public class PydevConsole extends ScriptConsole implements IConsole {
     }
     
     public PydevConsole(PydevConsoleInterpreter interpreter) {
-        super(CONSOLE_NAME + " [" + getNextId() + "]", CONSOLE_TYPE, interpreter);
+        super(CONSOLE_NAME + " [" + getNextId() + "]", PydevConsoleConstants.CONSOLE_TYPE, interpreter);
         setBackground(ColorManager.getPreferenceColor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR));
     }
 

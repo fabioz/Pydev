@@ -61,11 +61,11 @@ console:
 	- OK: sys.exit may halt shell
 	- OK: shell still seems open after 'killing' eclipse.
 	- OK: add hyperlinks to tracebacks in console
+	- OK: Ctrl+Alt+Enter: create console / send contents to console / make execfile for current file
 	
 	- getpass: echo mode
 	- undo/redo for current line
 	- initial commands for starting the console (maybe project dependent?)
-	- execfile for current editor in the console
 	- ctrl+1 should work for things such as assign
 	- make use in debugger
 	
