@@ -3,19 +3,34 @@
  */
 package com.python.pydev.interactiveconsole;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ListResourceBundle;
-import java.util.Map;
-import java.util.WeakHashMap;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.IConsoleConstants;
+import org.eclipse.ui.console.IConsoleView;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.debug.newconsole.PydevConsole;
+import org.python.pydev.debug.newconsole.PydevConsoleConstants;
+import org.python.pydev.debug.newconsole.PydevConsoleFactory;
+import org.python.pydev.dltk.console.ui.ScriptConsole;
+import org.python.pydev.dltk.console.ui.internal.ScriptConsoleViewer;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.runners.SimpleRunner;
 
 /**
  * This class will setup the editor so that we can evaluate commands on new lines.
@@ -35,11 +50,42 @@ public class EvaluateActionSetter implements IPyEditListener{
 		public  void run(){
 		    try {
                 PySelection selection = new PySelection(edit);
-                String code = selection.getTextSelection().getText();
-                try {
-                    getConsoleEnv(edit.getProject(), edit).execute(code, selection.getEndLineDelim());
-                } catch (UserCanceledException e) {
-                    //ok
+                
+                ScriptConsole console = getActiveScriptConsole(PydevConsoleConstants.CONSOLE_TYPE);
+                
+                if(console == null){
+                    //if no console is available, create it (if possible).
+                    PydevConsoleFactory factory = new PydevConsoleFactory();
+                    console = factory.createConsole();
+                }
+                
+                if(console instanceof PydevConsole){
+                    //ok, console available 
+                    PydevConsole pydevConsole = (PydevConsole) console;
+                    IDocument document = pydevConsole.getDocument();
+                    
+                    String code = selection.getTextSelection().getText();
+                    if(code.length() != 0){
+                        document.replace(document.getLength(), 0, code+"\n");
+                    }else{
+                        //no code available: do an execfile in the current context
+                        File editorFile = this.edit.getEditorFile();
+                        
+                        if(editorFile != null){
+                            String fileStr = SimpleRunner.getCommandLineAsString(new String[]{editorFile.toString()});
+                            
+                            char[] characters = fileStr.trim().toCharArray();
+                            StringBuffer buf = new StringBuffer();
+                            for (int i = 0; i < characters.length; i++) {
+                                char character= characters[i];
+                                if (character == '\\') {
+                                    buf.append("\\");
+                                }
+                                buf.append(character);
+                            }
+                            document.replace(document.getLength(), 0, StringUtils.format("execfile('%s')\n", buf.toString()));
+                        }
+                    }
                 }
             } catch (Exception e) {
                 Log.log(e);
@@ -49,62 +95,89 @@ public class EvaluateActionSetter implements IPyEditListener{
 
 	private static final String EVALUATE_ACTION_ID = "org.python.pydev.interactiveconsole.evaluateActionSetter";
 
-    /**
-     * As this class is a 'singleton', this means that we will only have 1 active console at any time (or at least
-     * one for each type of interpreter: jython or python).
-     */
-    private Map<PyEdit, ConsoleEnv> fConsoleEnv = new WeakHashMap<PyEdit, ConsoleEnv>();
+	
 
     /**
-     * @return a console environment for a given project and editor. If it still does not exist or is
-     * already terminated, a new console env will be created.
-     * @throws UserCanceledException 
+     * @param consoleType the console type we're searching for
+     * @return the currently active console.
      */
-    public synchronized ConsoleEnv getConsoleEnv(IProject project, PyEdit edit) throws UserCanceledException {
-        try {
-            ConsoleEnv consoleEnv = fConsoleEnv.get(edit);
-
-            if (consoleEnv == null || consoleEnv.isTerminated()) {
+    private ScriptConsole getActiveScriptConsole(String consoleType) {
+        IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+        if (window != null) {
+            IWorkbenchPage page = window.getActivePage();
+            if (page != null) {
                 
-                consoleEnv = new ConsoleEnv(project, edit.getIFile(), InteractiveConsolePreferencesPage.showConsoleInput(), 
-                        edit.getPythonNature().getRelatedInterpreterManager(), edit);
+                List<IViewPart> consoleParts = getConsoleParts(page, false);
+                if(consoleParts.size() == 0){
+                    consoleParts = getConsoleParts(page, true);
+                }
                 
-                fConsoleEnv.put(edit, consoleEnv);
                 
+                if (consoleParts.size() > 0) {
+                    IConsoleView view = null;
+                    long lastChangeMillis = Long.MIN_VALUE;
+                    
+                    if(consoleParts.size() == 1){
+                        view = (IConsoleView) consoleParts.get(0);
+                    }else{
+                        //more than 1 view available
+                        for(int i=0;i<consoleParts.size();i++){
+                            IConsoleView temp = (IConsoleView) consoleParts.get(i);
+                            IConsole console = temp.getConsole();
+                            if(console instanceof PydevConsole){
+                                PydevConsole tempConsole = (PydevConsole) console;
+                                ScriptConsoleViewer viewer = tempConsole.getViewer();
+                                
+                                long tempLastChangeMillis = viewer.getLastChangeMillis();
+                                if(tempLastChangeMillis > lastChangeMillis){
+                                    lastChangeMillis = tempLastChangeMillis;
+                                    view = temp;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if(view != null){
+                        IConsole console = view.getConsole();
+    
+                        if (console instanceof ScriptConsole && console.getType().equals(consoleType)) {
+                            return (ScriptConsole) console;
+                        }
+                    }
+                }
             }
-            return consoleEnv;
-            
-        } catch (UserCanceledException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
+        return null;
     }
 
     /**
-     * @return whether we have an active console linked to some edit.
+     * @param page the page where the console view is
+     * @param restore whether we should try to restore it
+     * @return a list with the parts containing the console
      */
-    public boolean isConsoleEnvActive(PyEdit edit) {
-        try {
-            ConsoleEnv consoleEnv = fConsoleEnv.get(edit);
-            boolean notNull = consoleEnv != null;
-            boolean ret = notNull && !consoleEnv.isTerminated();
-            if(notNull && ret == false){
-                //it exists but is already terminated (so, let's remove it from the cache)
-                fConsoleEnv.remove(edit);
+    private List<IViewPart> getConsoleParts(IWorkbenchPage page, boolean restore) {
+        List<IViewPart> consoleParts = new ArrayList<IViewPart>();
+        
+        IViewReference[] viewReferences = page.getViewReferences();
+        for(IViewReference ref:viewReferences){
+            if(ref.getId().equals(IConsoleConstants.ID_CONSOLE_VIEW)){
+                IViewPart part = ref.getView(restore);
+                if(part != null){
+                    consoleParts.add(part);
+                    if(restore){
+                        return consoleParts;
+                    }
+                }
             }
-            return ret;
-            
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
+        return consoleParts;
     }
+
 
     /**
      * This method associates Ctrl+new line with the evaluation of commands in the console. 
      */
     public void onCreateActions(ListResourceBundle resources, final PyEdit edit, IProgressMonitor monitor) {
-        new PyEditConsoleListener(this, edit, monitor);
         final EvaluateAction evaluateAction = new EvaluateAction(edit);
         evaluateAction.setActionDefinitionId(EVALUATE_ACTION_ID);
         evaluateAction.setId(EVALUATE_ACTION_ID);
@@ -124,12 +197,7 @@ public class EvaluateActionSetter implements IPyEditListener{
     }
 
     public void onDispose(PyEdit edit, IProgressMonitor monitor) {
-        if(isConsoleEnvActive(edit)){
-            ConsoleEnv env = fConsoleEnv.get(edit);
-            if(env != null){
-                env.terminate();
-            }
-        }
+        //ignore
     }
 
     public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
