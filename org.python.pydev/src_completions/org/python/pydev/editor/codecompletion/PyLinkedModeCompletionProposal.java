@@ -38,6 +38,11 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
      * are removed)
      */
     private int nPositionsAdded = 0;
+    
+    /**
+     * If true, we'll go to the linked mode after applying a completion.
+     */
+    private boolean goToLinkedMode = true;
 
     /**
      * This is the token from where we should get the image and additional info.
@@ -62,6 +67,14 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
      */
     public PyLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction, String args) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority, onApplyAction, args);
+    }
+    
+    /**
+     * Constructor where all the info is passed.
+     */
+    public PyLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction, String args, boolean goToLinkedMode) {
+        super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority, onApplyAction, args);
+        this.goToLinkedMode = goToLinkedMode;
     }
     
     
@@ -126,6 +139,11 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
                     args = "";
                 }
                 super.apply(doc);
+                
+                if(!goToLinkedMode){
+                    return;
+                }
+                
                 int iPar = -1;
                 int exitPos = offset + args.length()+1;
                 goToLinkedModeFromArgs(viewer, offset, doc, exitPos, iPar, args);
@@ -143,7 +161,7 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
                 String strToAdd = fReplacementString.substring(dif);
                 boolean doReturn = applyOnDoc(offset, eat, doc, dif, trigger);
                 
-                if(doReturn){
+                if(doReturn || !goToLinkedMode){
                     return;
                 }
                 
@@ -216,6 +234,9 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
     }
 
     private void goToLinkedModeFromArgs(ITextViewer viewer, int offset, IDocument doc, int exitPos, int iPar, String newStr) throws BadLocationException {
+        if(!goToLinkedMode){
+            return;
+        }
         List<Integer> offsetsAndLens = new ArrayList<Integer>();
         
         StringBuffer buffer = new StringBuffer();
@@ -245,6 +266,9 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
     }
 
     private void goToLinkedMode(ITextViewer viewer, int offset, IDocument doc, int exitPos, int iPar, List<Integer> offsetsAndLens) throws BadLocationException {
+        if(!goToLinkedMode){
+            return;
+        }
         if(offsetsAndLens.size() > 0){
             LinkedModeModel model= new LinkedModeModel();
             

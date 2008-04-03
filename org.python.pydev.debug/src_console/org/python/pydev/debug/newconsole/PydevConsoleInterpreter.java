@@ -18,6 +18,7 @@ import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
+import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
 
 /**
@@ -85,6 +86,10 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(actTok, offset);
         results2.addAll(Arrays.asList(consoleCompletions));
         
+        
+        //templates
+        PyTemplateCompletionProcessor pyTemplateCompletionProcessor = new PyTemplateCompletionProcessor();
+        pyTemplateCompletionProcessor.addTemplateProposals(viewer, offset, results2);
         
         //other participants
         List<Object> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);

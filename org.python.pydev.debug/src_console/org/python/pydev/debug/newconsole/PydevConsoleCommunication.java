@@ -2,7 +2,6 @@ package org.python.pydev.debug.newconsole;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.xmlrpc.XmlRpcException;
@@ -18,10 +17,10 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.dltk.console.IScriptConsoleCommunication;
 import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.editor.codecompletion.AbstractPyCodeCompletion;
-import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
+import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.ThreadStreamReader;
 
@@ -256,23 +255,30 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                     int type = extractInt(comp[3]);
                     String args = AbstractPyCodeCompletion.getArgs((String) comp[2], type,
                             ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE) ;
-                    name += args;
+                    String nameAndArgs = name+args;
 
                     int priority = IPyCompletionProposal.PRIORITY_DEFAULT;
                     if(type == IToken.TYPE_PARAM){
                         priority = IPyCompletionProposal.PRIORITY_LOCALS;
                     }
                     
-                    ret.add(new PyCompletionProposal(name,
-                    		offset-length, length, name.length(), 
-                    		PyCodeCompletionImages.getImageForType(type), name, null, docStr, priority));
+//                    ret.add(new PyCompletionProposal(name,
+//                    		offset-length, length, name.length(), 
+//                    		PyCodeCompletionImages.getImageForType(type), name, null, docStr, priority));
+                    
+                    int cursorPos = name.length();
+                    if(args.length() > 1){
+                        cursorPos += 1;
+                    }
+                    ret.add(new PyLinkedModeCompletionProposal(nameAndArgs,
+                            offset-length, length, cursorPos, 
+                            PyCodeCompletionImages.getImageForType(type), nameAndArgs, null, docStr, priority, 
+                            PyCompletionProposal.ON_APPLY_DEFAULT, args, false));
                     
                 }
             }
         }
         ICompletionProposal[] proposals = ret.toArray(new ICompletionProposal[ret.size()]);
-        
-        Arrays.sort(proposals, IPyCodeCompletion.PROPOSAL_COMPARATOR);
         return proposals;
     }
 

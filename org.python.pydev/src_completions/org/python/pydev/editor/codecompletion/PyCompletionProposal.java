@@ -123,7 +123,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 	        try {
                 String args;
                 if(fArgs.length() > 0){
-                    args = fArgs.substring(1, fArgs.length()-1); //remove the parentesis
+                    args = fArgs.substring(1, fArgs.length()-1); //remove the parenthesis
                     document.replace(fReplacementOffset+fReplacementLength, 0, args);
                 }
 	        } catch (BadLocationException x) {

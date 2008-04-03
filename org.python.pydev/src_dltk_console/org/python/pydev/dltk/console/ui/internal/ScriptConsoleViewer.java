@@ -110,12 +110,17 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                     }
 
                     if (event.character == SWT.CR) {
-                    	//in a new line, always set the caret to the end of the document
-                        getTextWidget().setCaretOffset(getDocument().getLength());
                         
                         //if we had an enter with the shift pressed and we're in a completion, we must stop it
                         if(inCompletion && (event.stateMask & SWT.SHIFT) != 0){
                         	((ScriptConsoleContentAssistant)ScriptConsoleViewer.this.fContentAssistant).hide();
+                        }
+                        
+                        if(!inCompletion){
+                            //in a new line, always set the caret to the end of the document (if not in completion)
+                            //(note that when we make a hide in the previous 'if', it will automatically exit the
+                            //completion mode (so, it'll also get into this part of the code)
+                            getTextWidget().setCaretOffset(getDocument().getLength());
                         }
                         return;
                     }

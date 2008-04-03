@@ -79,7 +79,7 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor{
     }
 
     /**
-     * Overriden so that we can do the indentation in this case.
+     * Overridden so that we can do the indentation in this case.
      * 
      * Creates a concrete template context for the given region in the document. This involves finding out which
      * context type is valid at the given location, and then creating a context of this type. The default implementation
