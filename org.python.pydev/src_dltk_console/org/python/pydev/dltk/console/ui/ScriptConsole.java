@@ -29,6 +29,8 @@ import org.python.pydev.dltk.console.ui.internal.ICommandHandler;
 import org.python.pydev.dltk.console.ui.internal.ScriptConsolePage;
 import org.python.pydev.dltk.console.ui.internal.ScriptConsoleSession;
 import org.python.pydev.dltk.console.ui.internal.ScriptConsoleViewer;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.codecompletion.PyContentAssistant;
 
 public abstract class ScriptConsole extends TextConsole implements ICommandHandler {
 
@@ -70,7 +72,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
     }
 
     
-    protected abstract IContentAssistProcessor createConsoleCompletionProcessor();
+    protected abstract IContentAssistProcessor createConsoleCompletionProcessor(PyContentAssistant pyContentAssistant);
 
     /**
      * @return the text hover to be used in the console.
@@ -113,8 +115,17 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
      */
     @Override
     public IPageBookViewPage createPage(IConsoleView view) {
-        SourceViewerConfiguration cfg = new ScriptConsoleSourceViewerConfiguration(
-                createConsoleCompletionProcessor(), createHover());
+        
+        PyContentAssistant ca = new PyContentAssistant();
+        IContentAssistProcessor processor = createConsoleCompletionProcessor(ca);
+        ca.setContentAssistProcessor(processor, ScriptConsoleSourceViewerConfiguration.PARTITION_TYPE);
+
+        ca.enableAutoActivation(true);
+        ca.enableAutoInsert(false);
+        ca.setAutoActivationDelay(PyCodeCompletionPreferencesPage.getAutocompleteDelay());
+
+        
+        SourceViewerConfiguration cfg = new ScriptConsoleSourceViewerConfiguration(createHover(), ca);
         
         page = new ScriptConsolePage(this, view, cfg);
         return page;
@@ -188,4 +199,9 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
      * @return a list of trackers that'll identify links in the console.
      */
     public abstract List<IConsoleLineTracker> getLineTrackers();
+
+    /**
+     * @return the commands that should be initially set in the prompt.
+     */
+    public abstract String getInitialCommands();
 }

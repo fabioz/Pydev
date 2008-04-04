@@ -59,6 +59,11 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * The time for the last change in the document that was listened in this console.
      */
     private long lastChangeMillis;
+
+    /**
+     * The commands that should be initially set in the console
+     */
+    private String initialCommands;
     
     /**
      * @return the last time the document that this console was listening to was changed.
@@ -150,8 +155,9 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
     /**
      * Clear the document and show the initial prompt.
+     * @param addInitialCommands indicates if the initial commands should be appended to the document. 
      */
-    public void clear() {
+    public void clear(boolean addInitialCommands) {
         try {
             startDisconnected();
             try{
@@ -162,6 +168,14 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             }
         } catch (BadLocationException e) {
             PydevPlugin.log(e);
+        }
+        
+        if(addInitialCommands){
+            try {
+                doc.replace(doc.getLength(), 0, this.initialCommands);
+            } catch (BadLocationException e) {
+                PydevPlugin.log(e);
+            }
         }
     }
 
@@ -184,10 +198,11 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * @param handler this is the object that'll handle the commands
      * @param prompt shows the prompt to the user
      * @param history keeps track of the commands added by the user.
+     * @param initialCommands the commands that should be initially added 
      */
     public ScriptConsoleDocumentListener(IScriptConsoleViewer2ForDocumentListener viewer, 
             ICommandHandler handler, ScriptConsolePrompt prompt,
-            ScriptConsoleHistory history, List<IConsoleLineTracker> consoleLineTrackers) {
+            ScriptConsoleHistory history, List<IConsoleLineTracker> consoleLineTrackers, String initialCommands) {
         this.prompt = prompt;
         
         this.handler = handler;
@@ -202,6 +217,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         
         this.consoleLineTrackers = consoleLineTrackers;
         
+        this.initialCommands = initialCommands;
     }
 
     /**

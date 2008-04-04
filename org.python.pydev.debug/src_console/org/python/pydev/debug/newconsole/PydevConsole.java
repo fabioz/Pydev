@@ -16,12 +16,14 @@ import org.eclipse.jface.text.ITextHover;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.IOConsoleOutputStream;
+import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.debug.ui.PythonConsoleLineTracker;
 import org.python.pydev.dltk.console.ScriptConsolePrompt;
 import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
 import org.python.pydev.dltk.console.ui.ScriptConsole;
 import org.python.pydev.dltk.console.ui.ScriptStyleRange;
+import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -86,8 +88,8 @@ public class PydevConsole extends ScriptConsole implements IConsole {
      * The completion processor for pydev.
      */
     @Override
-    protected PydevConsoleCompletionProcessor createConsoleCompletionProcessor() {
-        return new PydevConsoleCompletionProcessor(interpreter);
+    protected PydevConsoleCompletionProcessor createConsoleCompletionProcessor(PyContentAssistant pyContentAssistant) {
+        return new PydevConsoleCompletionProcessor(interpreter, pyContentAssistant);
     }
     
     /**
@@ -131,6 +133,15 @@ public class PydevConsole extends ScriptConsole implements IConsole {
         return lineTrackers;
     }
 
+    /**
+     * @return the initial commands set in the preferences
+     */
+    @Override
+    public String getInitialCommands() {
+        return PydevDebugPlugin.getDefault().getPreferenceStore().
+            getString(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS);
+    }
+    
     /**
      * IConsole: Add a link to the console
      */

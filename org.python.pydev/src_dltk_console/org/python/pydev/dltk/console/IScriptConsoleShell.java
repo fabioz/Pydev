@@ -25,11 +25,12 @@ public interface IScriptConsoleShell {
      * @param position the relative position in the current buffer where the caret is 
      * @param offset the actual offset where the completions were requested (needed for creating the IProposals so that
      * they can be correctly applied).
+     * @param whatToShow see constants at: AbstractCompletionProcessorWithCycling
      * 
      * @return the proposals to be applied.
      * @throws Exception
      */
-    ICompletionProposal[] getCompletions(IScriptConsoleViewer viewer, String commandLine, int position, int offset) throws Exception;
+    ICompletionProposal[] getCompletions(IScriptConsoleViewer viewer, String commandLine, int position, int offset, int whatToShow) throws Exception;
 
     /**
      * @param doc the document with all the contents of the console 

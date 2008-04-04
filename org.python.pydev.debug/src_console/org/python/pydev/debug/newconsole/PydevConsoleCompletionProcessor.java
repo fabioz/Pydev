@@ -2,13 +2,16 @@ package org.python.pydev.debug.newconsole;
 
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.TextPresentation;
+import org.eclipse.jface.text.contentassist.ContentAssistEvent;
+import org.eclipse.jface.text.contentassist.ICompletionListener;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationPresenter;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.python.pydev.dltk.console.IScriptConsoleShell;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
+import org.python.pydev.editor.codecompletion.AbstractCompletionProcessorWithCycling;
+import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
 import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
 import org.python.pydev.plugin.PydevPlugin;
@@ -18,7 +21,7 @@ import org.python.pydev.plugin.PydevPlugin;
  * 
  * @author fabioz
  */
-public class PydevConsoleCompletionProcessor implements IContentAssistProcessor {
+public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessorWithCycling implements ICompletionListener {
 
 	/**
 	 * Checks to see if the context information is valid.
@@ -43,9 +46,12 @@ public class PydevConsoleCompletionProcessor implements IContentAssistProcessor 
     private IContextInformationValidator validator;
     private IScriptConsoleShell interpreterShell;
     private String errorMessage = null;
+    private int lastActivationCount=-1;
 
     @SuppressWarnings("unchecked")
-    public PydevConsoleCompletionProcessor(IScriptConsoleShell interpreterShell) {
+    public PydevConsoleCompletionProcessor(IScriptConsoleShell interpreterShell, PyContentAssistant pyContentAssistant) {
+        super(pyContentAssistant);
+        pyContentAssistant.addCompletionListener(this);
         this.interpreterShell = interpreterShell;
 
     }
@@ -60,19 +66,40 @@ public class PydevConsoleCompletionProcessor implements IContentAssistProcessor 
     }
 
     /**
-     * Get the completions
+     * Get the completions (and cycle the completion mode if needed).
      */
     public ICompletionProposal[] computeCompletionProposals(ITextViewer v, int offset) {
+        //cycle if we're in a new activation for requests (a second ctrl+space or
+        //a new request)
+        boolean cycleRequest;
+        
+        if(lastActivationCount == -1){
+            //new request: don't cycle
+            lastActivationCount = this.pyContentAssistant.lastActivationCount;
+            cycleRequest = false;
+            updateStatus();
+        }else{
+            //we already had a request (so, we may cycle or not depending on the activation count)
+            cycleRequest = this.pyContentAssistant.lastActivationCount != lastActivationCount;
+        }
+        
+        if(cycleRequest){
+            lastActivationCount = this.pyContentAssistant.lastActivationCount;
+            doCycle();
+            updateStatus();
+        }
+
         IScriptConsoleViewer viewer = (IScriptConsoleViewer) v;
 
         try {
             String commandLine = viewer.getCommandLine();
             int cursorPosition = offset - viewer.getCommandLineOffset();
 
-            return interpreterShell.getCompletions(viewer, commandLine, cursorPosition, offset);
+            return interpreterShell.getCompletions(viewer, commandLine, cursorPosition, offset, this.whatToShow);
         } catch (Exception e) {
             this.errorMessage = e.getMessage();
             PydevPlugin.log(e);
+            
         }
 
         return new ICompletionProposal[] {};
@@ -97,5 +124,17 @@ public class PydevConsoleCompletionProcessor implements IContentAssistProcessor 
         String msg = errorMessage;
         errorMessage = null;
         return msg;
+    }
+
+    public void assistSessionEnded(ContentAssistEvent event) {
+    }
+
+    public void assistSessionStarted(ContentAssistEvent event) {
+        this.lastActivationCount = -1;
+        //we have to start with templates because it'll start already cycling.
+        startCycle();
+    }
+
+    public void selectionChanged(ICompletionProposal proposal, boolean smartToggle) {
     }
 }

@@ -59,7 +59,7 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
             }
         }, 
             
-        prompt, new ScriptConsoleHistory(), new ArrayList<IConsoleLineTracker>());
+        prompt, new ScriptConsoleHistory(), new ArrayList<IConsoleLineTracker>(), "");
         
         PyAutoIndentStrategy strategy = listener.getIndentStrategy();
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
@@ -73,7 +73,7 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
         doc.replace(doc.getLength(), 0, "(");
         assertEquals(StringUtils.format(">>> class A:%s>>>     def m1(self):", listener.getDelimeter()), doc.get());
         
-        listener.clear();
+        listener.clear(false);
         assertEquals(">>> ", doc.get());
         doc.replace(doc.getLength(), 0, "c()");
         assertEquals(">>> c()", doc.get());

@@ -63,14 +63,15 @@ console:
 	- OK: add hyperlinks to tracebacks in console
 	- OK: Ctrl+Alt+Enter: create console / send contents to console / make execfile for current file
 	- OK: templates in code-completion
+	- OK: vmargs for jython
+	- OK: cycle completions
+	- OK initial commands for starting the console
 	
 	- getpass: echo mode
 	- persistent history
 	- undo/redo for current line
-	- initial commands for starting the console (maybe project dependent?)
 	- ctrl+1 should work for things such as assign
 	- make use in debugger
-	- cycle completions
 	
 	Limitations:
 	- if raw_input() does not come from the main thread, it'll be ignored (and halted forever)

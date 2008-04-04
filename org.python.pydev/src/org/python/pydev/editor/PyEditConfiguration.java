@@ -10,8 +10,6 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
-import org.eclipse.jface.bindings.keys.KeySequence;
-import org.eclipse.jface.bindings.keys.ParseException;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.DefaultInformationControl;
@@ -303,23 +301,7 @@ public class PyEditConfiguration extends TextSourceViewerConfiguration {
 
         pyContentAssistant.setDocumentPartitioning(IPythonPartitions.PYTHON_PARTITION_TYPE);
         pyContentAssistant.setAutoActivationDelay(PyCodeCompletionPreferencesPage.getAutocompleteDelay());
-        try{
-        	pyContentAssistant.setRepeatedInvocationMode(true);
-        }catch(Exception e){
-        	PydevPlugin.log(e);
-        }
-        
-        try {
-            pyContentAssistant.setRepeatedInvocationTrigger(KeySequence.getInstance("Ctrl+Space"));
-        } catch (ParseException e) {
-            PydevPlugin.log(e);
-        }
-        
-        try{
-        	pyContentAssistant.setStatusLineVisible(true);
-        }catch(Exception e){
-        	PydevPlugin.log(e);
-        }
+
         
         return pyContentAssistant;
     }

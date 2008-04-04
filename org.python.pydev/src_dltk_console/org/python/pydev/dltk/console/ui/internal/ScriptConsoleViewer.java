@@ -41,7 +41,6 @@ import org.python.pydev.dltk.console.ScriptConsoleHistory;
 import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.dltk.console.ui.ScriptConsole;
-import org.python.pydev.dltk.console.ui.ScriptConsoleContentAssistant;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleBackspaceAction;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleDeletePreviousWord;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleLineStartAction;
@@ -113,7 +112,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                         
                         //if we had an enter with the shift pressed and we're in a completion, we must stop it
                         if(inCompletion && (event.stateMask & SWT.SHIFT) != 0){
-                        	((ScriptConsoleContentAssistant)ScriptConsoleViewer.this.fContentAssistant).hide();
+                        	((PyContentAssistant)ScriptConsoleViewer.this.fContentAssistant).hide();
                         }
                         
                         if(!inCompletion){
@@ -480,7 +479,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
      * @param contentHandler
      */
     public ScriptConsoleViewer(Composite parent, ScriptConsole console,
-            final IScriptConsoleContentHandler contentHandler, IConsoleStyleProvider styleProvider) {
+            final IScriptConsoleContentHandler contentHandler, IConsoleStyleProvider styleProvider, String initialCommands) {
         super(parent, console);
 
         this.console = console;
@@ -496,7 +495,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             this.history = console.getHistory();
             
             this.listener = new ScriptConsoleDocumentListener(this, console, console.getPrompt(), 
-                    console.getHistory(), console.getLineTrackers());
+                    console.getHistory(), console.getLineTrackers(), initialCommands);
             
             this.listener.setDocument(getDocument());
         }else{
@@ -595,7 +594,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     	}
     	
     	if(isMainViewer){
-    	    clear();
+    	    clear(true);
     	}
     }
     
@@ -625,8 +624,8 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     /**
      * Used to clear the contents of the document
      */
-    public void clear() {
-        listener.clear();
+    public void clear(boolean addInitialCommands) {
+        listener.clear(addInitialCommands);
     }
 
     /**

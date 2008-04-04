@@ -82,12 +82,16 @@ public class SimpleJythonRunner extends SimpleRunner{
         
     }
 
+    public static String makeExecutableCommandStr(String script, String basePythonPath, String ... args) throws IOException, JDTNotAvailableException {
+       return makeExecutableCommandStrWithVMArgs(script, basePythonPath, "", args); 
+    }
+    
     /**
      * @param script
      * @return
      * @throws IOException
      */
-    public static String makeExecutableCommandStr(String script, String basePythonPath, String ... args) throws IOException, JDTNotAvailableException {
+    public static String makeExecutableCommandStrWithVMArgs(String script, String basePythonPath, String vmArgs, String ... args) throws IOException, JDTNotAvailableException {
         IInterpreterManager interpreterManager = PydevPlugin.getJythonInterpreterManager();
         String javaLoc = JavaVmLocationFinder.findDefaultJavaExecutable().getCanonicalPath();
         
@@ -138,6 +142,7 @@ public class SimpleJythonRunner extends SimpleRunner{
             "-Dpython.path="+ jythonPath.toString(),
             "-classpath",
             jythonJar+pathSeparator+jythonPath,
+            vmArgs,
             "org.python.util.jython",
             script
         };

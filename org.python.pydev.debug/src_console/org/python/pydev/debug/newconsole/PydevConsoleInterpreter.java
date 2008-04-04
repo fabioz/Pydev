@@ -16,6 +16,7 @@ import org.python.pydev.dltk.console.IScriptConsoleCommunication;
 import org.python.pydev.dltk.console.IScriptConsoleInterpreter;
 import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
+import org.python.pydev.editor.codecompletion.AbstractCompletionProcessorWithCycling;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
@@ -58,7 +59,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
     @SuppressWarnings("unchecked")
     public ICompletionProposal[] getCompletions(IScriptConsoleViewer viewer, String commandLine, 
-            int position, int offset) throws Exception {
+            int position, int offset, int whatToShow) throws Exception {
 
         String text = commandLine.substring(0, position);
         ActivationTokenAndQual tokenAndQual = PySelection.getActivationTokenAndQual(new Document(text), text.length(), true, false);
@@ -71,37 +72,48 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
             actTok += tokenAndQual.qualifier;
         }
 
+        
+        boolean showOnlyTemplates = whatToShow == AbstractCompletionProcessorWithCycling.SHOW_ONLY_TEMPLATES;
+        
         //simple completions (clients)
         ArrayList<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
+        
         for (ISimpleAssistParticipant2 participant : simpleParticipants) {
             results.addAll(participant.computeConsoleProposals(tokenAndQual.activationToken, 
                     tokenAndQual.qualifier, offset));
         }
 
-
         
         ArrayList<ICompletionProposal> results2 = new ArrayList<ICompletionProposal>();
         
-        //shell completions 
-        ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(actTok, offset);
-        results2.addAll(Arrays.asList(consoleCompletions));
-        
-        
-        //templates
-        PyTemplateCompletionProcessor pyTemplateCompletionProcessor = new PyTemplateCompletionProcessor();
-        pyTemplateCompletionProcessor.addTemplateProposals(viewer, offset, results2);
-        
-        //other participants
-        List<Object> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);
-        for (Object participant:participants) {
-            if(participant instanceof IPyDevCompletionParticipant2){
-                IPyDevCompletionParticipant2 participant2 = (IPyDevCompletionParticipant2) participant;
-                results2.addAll(participant2.computeConsoleCompletions(tokenAndQual, this.naturesUsed, viewer, offset));
-            }
+        if(!showOnlyTemplates){
+            //shell completions 
+            ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(actTok, offset);
+            results2.addAll(Arrays.asList(consoleCompletions));
         }
         
-        Collections.sort(results2, IPyCodeCompletion.PROPOSAL_COMPARATOR);
+        if(tokenAndQual.activationToken.length() == 0){
+            //templates (only if we have no activation token)
+            PyTemplateCompletionProcessor pyTemplateCompletionProcessor = new PyTemplateCompletionProcessor();
+            pyTemplateCompletionProcessor.addTemplateProposals(viewer, offset, results2);
+        
+            Collections.sort(results2, IPyCodeCompletion.PROPOSAL_COMPARATOR);
+        }
+        
+        ArrayList<ICompletionProposal> results3 = new ArrayList<ICompletionProposal>();
+        if(!showOnlyTemplates){
+            //other participants
+            List<Object> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);
+            for (Object participant:participants) {
+                if(participant instanceof IPyDevCompletionParticipant2){
+                    IPyDevCompletionParticipant2 participant2 = (IPyDevCompletionParticipant2) participant;
+                    results3.addAll(participant2.computeConsoleCompletions(tokenAndQual, this.naturesUsed, viewer, offset));
+                }
+            }
+            Collections.sort(results3, IPyCodeCompletion.PROPOSAL_COMPARATOR);
+        }
         results.addAll(results2);
+        results.addAll(results3);
         
         return (ICompletionProposal[]) results.toArray(new ICompletionProposal[0]);
     }

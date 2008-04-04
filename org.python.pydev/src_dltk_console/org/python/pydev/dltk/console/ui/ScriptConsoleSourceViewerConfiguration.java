@@ -11,28 +11,26 @@ package org.python.pydev.dltk.console.ui;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextHover;
-import org.eclipse.jface.text.contentassist.ContentAssistant;
-import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.codecompletion.PyContentAssistant;
 
 /**
  * Configuration for the source viewer.
  */
 public class ScriptConsoleSourceViewerConfiguration extends SourceViewerConfiguration {
     
-    private static final String PARTITION_TYPE = IDocument.DEFAULT_CONTENT_TYPE;
-
-    private IContentAssistProcessor processor;
+    public static final String PARTITION_TYPE = IDocument.DEFAULT_CONTENT_TYPE;
 
     private ITextHover hover;
 
-    public ScriptConsoleSourceViewerConfiguration(IContentAssistProcessor processor, ITextHover hover) {
-        this.processor = processor;
+    private PyContentAssistant ca;
+
+    public ScriptConsoleSourceViewerConfiguration(ITextHover hover, PyContentAssistant ca) {
         this.hover = hover;
+        this.ca = ca;
     }
 
     public int getTabWidth(ISourceViewer sourceViewer) {
@@ -48,13 +46,6 @@ public class ScriptConsoleSourceViewerConfiguration extends SourceViewerConfigur
     }
 
     public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
-        ContentAssistant ca = new ScriptConsoleContentAssistant();
-        ca.setContentAssistProcessor(processor, PARTITION_TYPE);
-
-        ca.enableAutoActivation(true);
-        ca.enableAutoInsert(false);
-        ca.setAutoActivationDelay(PyCodeCompletionPreferencesPage.getAutocompleteDelay());
-
         return ca;
     }
 }

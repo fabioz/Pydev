@@ -15,7 +15,6 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ContentAssistEvent;
 import org.eclipse.jface.text.contentassist.ICompletionListener;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -32,34 +31,7 @@ import org.python.pydev.plugin.PydevPlugin;
  * 
  * This class is responsible for code completion / template completion.
  */
-public class PythonCompletionProcessor implements IContentAssistProcessor {
-
-    //-------- cycling through regular completions and templates
-    private static final int SHOW_ALL = 1;
-    private static final int SHOW_ONLY_TEMPLATES = 2;
-    private int whatToShow = SHOW_ALL;
-    
-    public void startCycle(){
-        whatToShow = SHOW_ALL;
-    }
-    
-    private void doCycle() {
-        if(whatToShow == SHOW_ALL){
-            whatToShow = SHOW_ONLY_TEMPLATES;
-        }else{
-            whatToShow = SHOW_ALL;
-        }
-    }
-    
-    public void updateStatus(){
-        if(whatToShow == SHOW_ALL){
-            pyContentAssistant.setIterationStatusMessage("Press %s for templates.");
-        }else{
-            pyContentAssistant.setIterationStatusMessage("Press %s for default completions.");
-        }
-    }
-    //-------- end cycling through regular completions and templates
-
+public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCycling {
 
     
     /**
@@ -93,16 +65,13 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      */
     private PyContextInformationValidator contextInformationValidator;
     
-    /**
-     * This is the content assistant that is used to start this processor.
-     */
-    private PyContentAssistant pyContentAssistant;
     
     /**
      * @param edit the editor that works with this processor
      * @param pyContentAssistant the content assistant that will invoke this completion
      */
     public PythonCompletionProcessor(PyEdit edit, PyContentAssistant pyContentAssistant) {
+        super(pyContentAssistant);
         this.edit = edit;
         this.pyContentAssistant = pyContentAssistant;
         this.codeCompletion = getCodeCompletionEngine();

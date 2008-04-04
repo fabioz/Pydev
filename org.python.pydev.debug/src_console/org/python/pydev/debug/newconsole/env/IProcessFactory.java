@@ -17,6 +17,8 @@ import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple3;
+import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
@@ -96,8 +98,11 @@ public class IProcessFactory {
 		        			new String[]{""+port, ""+clientPort});
 		        	
 		        }else if(interpreterManager.isJython()){
-		        	commandLine = SimpleJythonRunner.makeExecutableCommandStr(scriptWithinPySrc.getAbsolutePath(), 
-		        			pythonpathEnv, new String[]{""+port, ""+clientPort});
+		            String vmArgs = PydevDebugPlugin.getDefault().getPreferenceStore().
+		                getString(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS);
+		            
+		        	commandLine = SimpleJythonRunner.makeExecutableCommandStrWithVMArgs(scriptWithinPySrc.getAbsolutePath(), 
+		        			pythonpathEnv, vmArgs, new String[]{""+port, ""+clientPort});
 		        	
 		        }else{
 		        	throw new RuntimeException("Expected interpreter manager to be python or jython related.");
