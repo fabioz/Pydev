@@ -28,8 +28,11 @@ public class CtxInsensitiveImportComplProposal extends PyCompletionProposalExten
      */
     public String realImportRep;
 
-    public CtxInsensitiveImportComplProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority, 
+    public CtxInsensitiveImportComplProposal(String replacementString, int replacementOffset, int replacementLength, 
+            int cursorPosition, Image image, String displayString, IContextInformation contextInformation, 
+            String additionalProposalInfo, int priority, 
             String realImportRep) {
+        
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "");
         this.realImportRep = realImportRep;
     }
