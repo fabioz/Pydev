@@ -45,6 +45,7 @@ import org.python.pydev.dltk.console.ui.internal.actions.HandleBackspaceAction;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleDeletePreviousWord;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleLineStartAction;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
+import org.python.pydev.plugin.KeyBindingHelper;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -545,7 +546,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         //verify if it was a content assist
         styledText.addVerifyKeyListener(new VerifyKeyListener(){
             public void verifyKey(VerifyEvent event) {
-                if (PyContentAssistant.matchesContentAssistKeybinding(event)) {
+                if (KeyBindingHelper.matchesContentAssistKeybinding(event) || KeyBindingHelper.matchesQuickAssistKeybinding(event)) {
                     event.doit = false;
                     return;
                 }
@@ -558,9 +559,12 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         styledText.addKeyListener(new KeyListener() {
             public void keyPressed(KeyEvent e) {
             	if (getCaretOffset() >= getCommandLineOffset()){
-	                if (PyContentAssistant.matchesContentAssistKeybinding(e)) {
+	                if (KeyBindingHelper.matchesContentAssistKeybinding(e)) {
 	                    contentHandler.contentAssistRequired();
-	                }
+	                    
+	                }else if (KeyBindingHelper.matchesQuickAssistKeybinding(e)) {
+	                    contentHandler.quickAssistRequired();
+                    }
             	}
             }
 
@@ -577,20 +581,26 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     @Override
     public void configure(SourceViewerConfiguration configuration) {
     	super.configure(configuration);
+    	ICompletionListener completionListener = new ICompletionListener(){
+    	    
+    	    public void assistSessionStarted(ContentAssistEvent event) {
+    	        inCompletion = true;
+    	    }
+    	    
+    	    public void assistSessionEnded(ContentAssistEvent event) {
+    	        inCompletion = false;
+    	    }
+    	    
+    	    public void selectionChanged(ICompletionProposal proposal, boolean smartToggle) {
+    	    }
+	    };
+	    
     	if(fContentAssistant != null){
-    		((IContentAssistantExtension2)fContentAssistant).addCompletionListener(new ICompletionListener(){
-
-    			public void assistSessionStarted(ContentAssistEvent event) {
-    				inCompletion = true;
-    			}
-    			
-				public void assistSessionEnded(ContentAssistEvent event) {
-					inCompletion = false;
-				}
-
-				public void selectionChanged(ICompletionProposal proposal, boolean smartToggle) {
-				}}
-    		);
+            ((IContentAssistantExtension2)fContentAssistant).addCompletionListener(completionListener);
+    	}
+    	
+    	if(fQuickAssistAssistant != null){
+    	    fQuickAssistAssistant.addCompletionListener(completionListener);
     	}
     	
     	if(isMainViewer){

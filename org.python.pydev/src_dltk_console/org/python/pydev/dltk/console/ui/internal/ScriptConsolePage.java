@@ -30,18 +30,30 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
 
     public static final String SCRIPT_GROUP = "scriptGroup"; //$NON-NLS-1$
 
+    /**
+     * Action to request content assist proposals.
+     *
+     * @author Fabio
+     */
     protected class ContentAssistProposalsAction extends TextViewerAction {
 
         public ContentAssistProposalsAction(ITextViewer viewer) {
             super(viewer, ISourceViewer.CONTENTASSIST_PROPOSALS);
         }
     }
-
-    protected class ContentAssistContextInfoAction extends TextViewerAction {
-        public ContentAssistContextInfoAction(ITextViewer viewer) {
-            super(viewer, ISourceViewer.CONTENTASSIST_CONTEXT_INFORMATION);
+    
+    /**
+     * Action to request quick assist proposals.
+     *
+     * @author Fabio
+     */
+    protected class QuickAssistProposalsAction extends TextViewerAction {
+        
+        public QuickAssistProposalsAction(ITextViewer viewer) {
+            super(viewer, ISourceViewer.QUICK_ASSIST);
         }
     }
+
 
     private SourceViewerConfiguration cfg;
 
@@ -49,10 +61,13 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
 
     private TextViewerAction proposalsAction;
 
+    private TextViewerAction quickAssistAction;
+
     protected void createActions() {
         super.createActions();
 
         proposalsAction = new ContentAssistProposalsAction(getViewer());
+        quickAssistAction = new QuickAssistProposalsAction(getViewer());
 
         SaveConsoleSessionAction saveSessionAction = new SaveConsoleSessionAction((ScriptConsole) getConsole(),
                 ScriptConsoleMessages.SaveSessionAction, ScriptConsoleMessages.SaveSessionTooltip);
@@ -93,6 +108,10 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
 
     public void contentAssistRequired() {
         proposalsAction.run();
+    }
+
+    public void quickAssistRequired() {
+        quickAssistAction.run();
     }
 
 }

@@ -7,10 +7,8 @@ package org.python.pydev.editor.correctionassist;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -79,25 +77,6 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
 
     private ImageCache imageCache;
 
-    private static Map<String, IAssistProps> additionalAssists = new HashMap<String, IAssistProps>();
-
-    public static boolean hasAdditionalAssist(String id) {
-        synchronized (additionalAssists) {
-            return additionalAssists.containsKey(id);
-        }
-    }
-
-    public static void addAdditionalAssist(String id, IAssistProps assist) {
-        synchronized (additionalAssists) {
-            additionalAssists.put(id, assist);
-        }
-    }
-
-    public static void removeAdditionalAssist(String id, IAssistProps assist) {
-        synchronized (additionalAssists) {
-            additionalAssists.remove(id);
-        }
-    }
 
     /**
      * @param edit
@@ -124,12 +103,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
         String sel = PyAction.getLineWithoutComments(ps);
 
         List<IAssistProps> assists = new ArrayList<IAssistProps>();
-        synchronized (PythonCorrectionProcessor.additionalAssists) {
-            for (IAssistProps prop : additionalAssists.values()) {
-                assists.add(prop);
-            }
-        }
-
+        
         assists.add(new AssistTry());
         assists.add(new AssistImport());
         assists.add(new AssistDocString());

@@ -11,6 +11,39 @@ Pydev
 <li><strong>from __future__ import (xxx, with_statement)</strong>: works.</li>
 <li><strong>Extract method</strong>: comma was removed when present after a tuple and before a keyword argument.</li>
 <li><strong>New console view!</strong>: </li>
+	- OK: esc: clear current line
+	- OK: pg up: console history in dialog
+	- OK: paste in correct limits
+	- OK: cut: only cut valid stuff
+	- OK: qualifier match context insensitive
+	- OK: copy should not get prompt
+	- OK: start writing: move cursor automatically to command line
+	- OK: auto-indent
+	- OK: code-completion
+	- OK: context info
+	- OK: context insensitive completions
+	- OK: home must go to: 1st char / prompt end / line start
+	- OK: correct messages (translation)
+	- OK: creating 2nd console view has problems with the interactive console
+	- OK: class Foo(): adding 'object' through simple completions does not work well
+	- OK: colors config
+	- OK: the 'xml' module seems to be appearing multiple times (when it shouldn't)
+	- OK: no async exec for caret update (almost finished: only the constructor still has it with async)
+	- OK: up/down should select content in history based on what's already in the console
+	- OK: stdout/stderr gotten from the server without using sockets
+	- OK: sys.exit may halt shell
+	- OK: shell still seems open after 'killing' eclipse.
+	- OK: add hyperlinks to tracebacks in console
+	- OK: Ctrl+Alt+Enter: create console / send contents to console / make execfile for current file
+	- OK: templates in code-completion
+	- OK: vmargs for jython
+	- OK: cycle completions
+	- OK initial commands for starting the console
+	- OK: ctrl+1 works for assign quick-assist
+	Limitations:
+	- if raw_input() does not come from the main thread, it'll be ignored (and halted forever)
+	- Output is not asynchonous (so, the stdout and stderr will only be shown when a new line is sent to the console)
+
 </ul>
 
 

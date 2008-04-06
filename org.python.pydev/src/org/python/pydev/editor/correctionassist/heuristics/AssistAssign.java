@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.codingstd.ICodingStd;
 import org.python.pydev.core.IPythonNature;
@@ -51,12 +52,27 @@ public class AssistAssign implements IAssistProps {
     }
     
     /**
-     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection, org.python.pydev.core.bundle.ImageCache, java.io.File, org.python.pydev.plugin.PythonNature)
+     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps
      */
-    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offset) throws BadLocationException {
+    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, 
+            PyEdit edit, int offset) throws BadLocationException {
+        return this.getProps(ps, imageCache, edit.getPySourceViewer(), offset, PyAction.getLineWithoutComments(ps), 
+                PySelection.getFirstCharPosition(ps.getDoc(), ps.getAbsoluteCursorOffset()));
+    }        
+    
+    /**
+     * Actual implementation (receiving a source viewer and only the actually used parameters).
+     * 
+     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps
+     * 
+     * @param lineWithoutComments the line that should be checked (without any comments)
+     */
+    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, 
+            ISourceViewer sourceViewer, int offset, String lineWithoutComments, int firstCharAbsolutePosition) 
+            throws BadLocationException {
+            
         List<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
-        String sel = PyAction.getLineWithoutComments(ps);
-        if (sel.trim().length() == 0) {
+        if (lineWithoutComments.trim().length() == 0) {
             return l;
         }
 
@@ -80,7 +96,7 @@ public class AssistAssign implements IAssistProps {
         //					 |result| = 1+1
         //					 self.|result| = 1+1
 
-        String callName = getTokToAssign(ps, sel);
+        String callName = getTokToAssign(ps, lineWithoutComments);
         callName = changeToLowerUppercaseConstant(callName);
 
         if(callName.length() > 0){
@@ -104,13 +120,12 @@ public class AssistAssign implements IAssistProps {
         
         String tok = callName;
 
-        int firstCharPosition = PySelection.getFirstCharPosition(ps.getDoc(), ps.getAbsoluteCursorOffset());
         callName += " = ";
-        l.add(new AssistAssignCompletionProposal(callName, firstCharPosition, 0, 0, getImage(imageCache, UIConstants.ASSIST_ASSIGN_TO_LOCAL),
-                "Assign to local ("+tok+")", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, edit));
+        l.add(new AssistAssignCompletionProposal(callName, firstCharAbsolutePosition, 0, 0, getImage(imageCache, UIConstants.ASSIST_ASSIGN_TO_LOCAL),
+                "Assign to local ("+tok+")", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, sourceViewer));
         
-        l.add(new AssistAssignCompletionProposal("self." + callName, firstCharPosition, 0, 5, getImage(imageCache,UIConstants.ASSIST_ASSIGN_TO_CLASS),
-                "Assign to field (self."+tok+")", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, edit));
+        l.add(new AssistAssignCompletionProposal("self." + callName, firstCharAbsolutePosition, 0, 5, getImage(imageCache, UIConstants.ASSIST_ASSIGN_TO_CLASS),
+                "Assign to field (self."+tok+")", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, sourceViewer));
         return l;
     }
 
@@ -152,39 +167,40 @@ public class AssistAssign implements IAssistProps {
     }
 
     /**
-     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection, java.lang.String)
+     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid
      */
     public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
-        try {
-            if(! (ps.getTextSelection().getLength() == 0))
-                return false;
-
-            String lineToCursor = ps.getLineContentsToCursor();
-
-            if( ! ( sel.indexOf("class ") == -1 && sel.indexOf("def ") == -1 && sel.indexOf("import ") == -1))
-                return false;
-
-            String eqReplaced = sel.replaceAll("==", "");
-            if (eqReplaced.indexOf("=") != -1){ //we have some equal
-                //ok, make analysis taking into account the first parentesis
-                if(eqReplaced.indexOf('(') == -1){
-                    return false;
-                }
-                int i = eqReplaced.indexOf('(');
-                if(eqReplaced.substring(0, i).indexOf('=') != -1){
-                    return false;
-                }
-            }
-            
-            if( lineToCursor.trim().endsWith(")"))
-                return true;
-            
-            if( lineToCursor.indexOf('.') != -1)
-                return true;
-            
-            
-        } catch (BadLocationException e) {
+        return isValid(ps.getTextSelection().getLength(), sel, offset);
+    }
+    
+    /**
+     * @param selectionLength the length of the currently selected text 
+     * @param lineContents the contents of the line
+     * @param offset the offset of the cursor
+     * @return true if an assign is available and false otherwise
+     */
+    public boolean isValid(int selectionLength, String lineContents, int offset) {
+        if(! (selectionLength == 0)){
             return false;
+        }
+
+        if( ! ( lineContents.indexOf("class ") == -1 &&
+                lineContents.indexOf("def ") == -1 && 
+                lineContents.indexOf("import ") == -1)){
+            
+            return false;
+        }
+
+        String eqReplaced = lineContents.replaceAll("==", "");
+        if (eqReplaced.indexOf("=") != -1){ //we have some equal
+            //ok, make analysis taking into account the first parentesis
+            if(eqReplaced.indexOf('(') == -1){
+                return false;
+            }
+            int i = eqReplaced.indexOf('(');
+            if(eqReplaced.substring(0, i).indexOf('=') != -1){
+                return false;
+            }
         }
         return true;
     }

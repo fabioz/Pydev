@@ -12,10 +12,10 @@ package org.python.pydev.dltk.console.ui;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
+import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
-import org.python.pydev.editor.codecompletion.PyContentAssistant;
 
 /**
  * Configuration for the source viewer.
@@ -26,11 +26,14 @@ public class ScriptConsoleSourceViewerConfiguration extends SourceViewerConfigur
 
     private ITextHover hover;
 
-    private PyContentAssistant ca;
+    private IContentAssistant contentAssist;
 
-    public ScriptConsoleSourceViewerConfiguration(ITextHover hover, PyContentAssistant ca) {
+    private IQuickAssistAssistant quickAssist;
+
+    public ScriptConsoleSourceViewerConfiguration(ITextHover hover, IContentAssistant contentAssist, IQuickAssistAssistant quickAssist) {
         this.hover = hover;
-        this.ca = ca;
+        this.contentAssist = contentAssist;
+        this.quickAssist = quickAssist;
     }
 
     public int getTabWidth(ISourceViewer sourceViewer) {
@@ -45,7 +48,13 @@ public class ScriptConsoleSourceViewerConfiguration extends SourceViewerConfigur
         return new String[] { PARTITION_TYPE };
     }
 
+    @Override
     public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
-        return ca;
+        return contentAssist;
+    }
+    
+    @Override
+    public IQuickAssistAssistant getQuickAssistAssistant(ISourceViewer sourceViewer) {
+        return quickAssist;
     }
 }

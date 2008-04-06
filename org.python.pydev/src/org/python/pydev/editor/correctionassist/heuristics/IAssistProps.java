@@ -33,7 +33,8 @@ public interface IAssistProps {
      * @return a list of completions with proposals to fix things
      * @throws BadLocationException
      */
-    List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offset) throws BadLocationException;
+    List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, 
+            PyEdit edit, int offset) throws BadLocationException;
 
     /**
      * Gets wether this assist proposal is valid to be applied at the current line

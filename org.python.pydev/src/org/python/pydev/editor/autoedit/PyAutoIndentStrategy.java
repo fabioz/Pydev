@@ -298,7 +298,11 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             	getIndentPrefs().convertToStd(document, command);
                 return;
             }else{
-                autoIndentSameAsPrevious(document, command);
+                if(!contentType.equals(ParsingUtils.PY_COMMENT)){
+                    //within string, just regular indent...
+                    autoIndentSameAsPrevious(document, command);
+                    return;
+                }
             }
         }
         

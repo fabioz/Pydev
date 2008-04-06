@@ -25,13 +25,14 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testOffsetType2();
+            s.testCommentsIndent2();
             s.tearDown();
     		junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
             e.printStackTrace();
         }
     }
+
 
     /*
      * @see TestCase#setUp()
@@ -68,6 +69,32 @@ public class PyAutoIndentStrategyTest extends TestCase {
         strategy.customizeDocumentCommand(doc, docCmd);
         assertEquals("\n        ", docCmd.text); 
     }
+    
+    public void testNewLineOnDocstring() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String str = "" +
+        "def Raise():    \n" +
+        "    '''\n" +
+        "" +
+        "";
+        final Document doc = new Document(str);
+        DocCmd docCmd = new DocCmd(doc.getLength()-1, 0, "\n");
+        strategy.customizeDocumentCommand(doc, docCmd);
+        assertEquals("\n    ", docCmd.text); 
+    }
+    
+    public void testNewLineOnClass() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String str = "\n" +
+        "class C:\n" +
+        "    pass" +
+        "";
+        final Document doc = new Document(str);
+        DocCmd docCmd = new DocCmd(1, 0, "\n");
+        strategy.customizeDocumentCommand(doc, docCmd);
+        assertEquals("\n", docCmd.text); 
+    }
+
 
     public void testTab() {
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4));

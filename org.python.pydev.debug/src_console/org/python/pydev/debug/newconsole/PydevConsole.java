@@ -13,6 +13,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
+import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.IOConsoleOutputStream;
@@ -24,6 +25,7 @@ import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
 import org.python.pydev.dltk.console.ui.ScriptConsole;
 import org.python.pydev.dltk.console.ui.ScriptStyleRange;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
+import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -90,6 +92,11 @@ public class PydevConsole extends ScriptConsole implements IConsole {
     @Override
     protected PydevConsoleCompletionProcessor createConsoleCompletionProcessor(PyContentAssistant pyContentAssistant) {
         return new PydevConsoleCompletionProcessor(interpreter, pyContentAssistant);
+    }
+    
+    @Override
+    protected IQuickAssistProcessor createConsoleQuickAssistProcessor(PyCorrectionAssistant quickAssist) {
+        return new PydevConsoleQuickAssistProcessor(quickAssist);
     }
     
     /**

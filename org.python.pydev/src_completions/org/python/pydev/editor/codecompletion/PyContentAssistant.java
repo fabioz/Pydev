@@ -6,15 +6,10 @@
 package org.python.pydev.editor.codecompletion;
 
 import org.eclipse.jface.bindings.TriggerSequence;
-import org.eclipse.jface.bindings.keys.KeySequence;
-import org.eclipse.jface.bindings.keys.KeyStroke;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.keys.IBindingService;
-import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.plugin.KeyBindingHelper;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -42,7 +37,7 @@ public class PyContentAssistant extends ContentAssistant{
             PydevPlugin.log(e);
         }
         
-        setRepeatedInvocationTrigger(getContentAssistProposalBinding());
+        setRepeatedInvocationTrigger(KeyBindingHelper.getContentAssistProposalBinding());
         
         try{
             setStatusLineVisible(true);
@@ -88,40 +83,10 @@ public class PyContentAssistant extends ContentAssistant{
     }
     
     private String getIterationGesture() {
-        TriggerSequence binding = getContentAssistProposalBinding();
+        TriggerSequence binding = KeyBindingHelper.getContentAssistProposalBinding();
         return binding != null ? binding.format(): "completion key";
     }
 
-    /**
-     * @return the keysequence that should be used for a content assist request.
-     */
-    public static KeySequence getContentAssistProposalBinding() {
-        final IBindingService bindingSvc = (IBindingService) PlatformUI.getWorkbench().getAdapter(IBindingService.class);
-        TriggerSequence binding = bindingSvc.getBestActiveBindingFor(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS);
-        if (binding instanceof KeySequence)
-            return (KeySequence) binding;
-        return null;
-    }
-
-    /**
-     * @return true if the given event matches a content assistant keystroke (and false otherwise).
-     */
-    public static boolean matchesContentAssistKeybinding(KeyEvent event) {
-        KeySequence keySequence = getContentAssistProposalBinding();
-        KeyStroke[] keyStrokes = keySequence.getKeyStrokes();
-        
-        
-        for (KeyStroke keyStroke : keyStrokes) {
-            
-            if(keyStroke.getNaturalKey() == event.keyCode && (keyStroke.getModifierKeys() & event.stateMask)!=0){
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
-    
     /**
      * Available for stopping the completion.
      */

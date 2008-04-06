@@ -1,0 +1,90 @@
+package org.python.pydev.debug.newconsole;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.quickassist.IQuickAssistInvocationContext;
+import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
+import org.eclipse.jface.text.source.Annotation;
+import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.viewers.ISelection;
+import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.dltk.console.ui.internal.ScriptConsoleViewer;
+import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
+import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
+import org.python.pydev.plugin.PydevPlugin;
+
+/**
+ * Shows quick assists for the console
+ *
+ * @author Fabio
+ */
+public class PydevConsoleQuickAssistProcessor implements IQuickAssistProcessor {
+
+    public PydevConsoleQuickAssistProcessor(PyCorrectionAssistant quickAssist) {
+    }
+
+    public boolean canAssist(IQuickAssistInvocationContext invocationContext) {
+        return true;
+    }
+
+    public boolean canFix(Annotation annotation) {
+        return false;
+    }
+    
+    
+    /**
+     * Computes quick assists for the console.
+     */
+    public ICompletionProposal[] computeQuickAssistProposals(IQuickAssistInvocationContext invocationContext) {
+        ISourceViewer sourceViewer = invocationContext.getSourceViewer();
+        List<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
+        if(sourceViewer instanceof ScriptConsoleViewer){
+            ScriptConsoleViewer viewer = (ScriptConsoleViewer) sourceViewer;
+            
+            //currently, only the assign quick assist is used
+            AssistAssign assistAssign = new AssistAssign();
+            
+            ISelection selection = sourceViewer.getSelectionProvider().getSelection();
+            if(selection instanceof ITextSelection){
+                PySelection ps = new PySelection(sourceViewer.getDocument(), (ITextSelection) selection);
+                int offset = viewer.getCaretOffset();
+                String commandLine = viewer.getCommandLine();
+                
+                //let's calculate the 1st line that is not a whitespace.
+                if(assistAssign.isValid(ps.getSelLength(), commandLine, offset)){
+                    int commandLineOffset = viewer.getCommandLineOffset();
+                    try {
+                        IDocument doc = sourceViewer.getDocument();
+                        while(true){
+                            if(commandLineOffset == doc.getLength()-1){
+                                break;
+                            }
+                            char c = doc.getChar(commandLineOffset);
+                            if(Character.isWhitespace(c)){
+                                commandLineOffset++;
+                            }else{
+                                break;
+                            }
+                        }
+                        props.addAll(assistAssign.getProps(ps, PydevPlugin.getImageCache(), sourceViewer, 
+                                offset, commandLine, commandLineOffset));
+                        
+                    } catch (BadLocationException e) {
+                        PydevPlugin.log(e);
+                    }
+                }
+            }
+        }
+        return props.toArray(new ICompletionProposal[props.size()]);
+    }
+
+    public String getErrorMessage() {
+        return null;
+    }
+
+}

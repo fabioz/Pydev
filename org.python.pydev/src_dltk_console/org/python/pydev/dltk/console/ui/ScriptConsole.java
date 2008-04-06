@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
+import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.ui.console.IConsoleDocumentPartitioner;
 import org.eclipse.ui.console.IConsoleView;
@@ -31,6 +32,7 @@ import org.python.pydev.dltk.console.ui.internal.ScriptConsoleSession;
 import org.python.pydev.dltk.console.ui.internal.ScriptConsoleViewer;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
+import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 
 public abstract class ScriptConsole extends TextConsole implements ICommandHandler {
 
@@ -72,7 +74,15 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
     }
 
     
+    /**
+     * @return the assistant that should handle content assist requests (code completion)
+     */
     protected abstract IContentAssistProcessor createConsoleCompletionProcessor(PyContentAssistant pyContentAssistant);
+    
+    /**
+     * @return the assistant that should handle quick assist requests (quick fixes)
+     */
+    protected abstract IQuickAssistProcessor createConsoleQuickAssistProcessor(PyCorrectionAssistant quickAssist);
 
     /**
      * @return the text hover to be used in the console.
@@ -116,20 +126,28 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
     @Override
     public IPageBookViewPage createPage(IConsoleView view) {
         
-        PyContentAssistant ca = new PyContentAssistant();
-        IContentAssistProcessor processor = createConsoleCompletionProcessor(ca);
-        ca.setContentAssistProcessor(processor, ScriptConsoleSourceViewerConfiguration.PARTITION_TYPE);
+        PyContentAssistant contentAssist = new PyContentAssistant();
+        IContentAssistProcessor processor = createConsoleCompletionProcessor(contentAssist);
+        contentAssist.setContentAssistProcessor(processor, ScriptConsoleSourceViewerConfiguration.PARTITION_TYPE);
 
-        ca.enableAutoActivation(true);
-        ca.enableAutoInsert(false);
-        ca.setAutoActivationDelay(PyCodeCompletionPreferencesPage.getAutocompleteDelay());
+        contentAssist.enableAutoActivation(true);
+        contentAssist.enableAutoInsert(false);
+        contentAssist.setAutoActivationDelay(PyCodeCompletionPreferencesPage.getAutocompleteDelay());
 
         
-        SourceViewerConfiguration cfg = new ScriptConsoleSourceViewerConfiguration(createHover(), ca);
+        PyCorrectionAssistant quickAssist = new PyCorrectionAssistant();
+        // next create a content assistant processor to populate the completions window
+        IQuickAssistProcessor quickAssistProcessor = createConsoleQuickAssistProcessor(quickAssist);
+
+        // Correction assist works on all
+        quickAssist.setQuickAssistProcessor(quickAssistProcessor);
+
+        SourceViewerConfiguration cfg = new ScriptConsoleSourceViewerConfiguration(createHover(), contentAssist, quickAssist);
         
         page = new ScriptConsolePage(this, view, cfg);
         return page;
     }
+
 
     /**
      * Clears the console

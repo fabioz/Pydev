@@ -10,10 +10,12 @@
 package org.python.pydev.dltk.console.ui.internal;
 
 /**
- * Used to handle content assist.
+ * Used to handle content assist requests.
  */
 public interface IScriptConsoleContentHandler {
     
     void contentAssistRequired();
+
+    void quickAssistRequired();
     
 }

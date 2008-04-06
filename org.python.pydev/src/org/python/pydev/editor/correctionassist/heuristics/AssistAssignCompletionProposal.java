@@ -12,17 +12,30 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.python.pydev.core.uiutils.RunInUiThread;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 
+/**
+ * Proposal for making an assign to a variable or to a field when some method call is found in the current line.
+ *
+ * @author Fabio
+ */
 public class AssistAssignCompletionProposal extends PyCompletionProposal{
 
-	private PyEdit pyEdit;
+    /**
+     * The related viewer (needed to get into link mode)
+     */
+	private ISourceViewer sourceViewer;
 
-	public AssistAssignCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority, PyEdit edit) {
-		super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority);
-		this.pyEdit = edit;
+	public AssistAssignCompletionProposal(String replacementString, int replacementOffset, int replacementLength, 
+	        int cursorPosition, Image image, String displayString, IContextInformation contextInformation, 
+	        String additionalProposalInfo, int priority, ISourceViewer sourceViewer) {
+	    
+	    super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, 
+	            contextInformation, additionalProposalInfo, priority);
+	    this.sourceViewer = sourceViewer;
+	    
 	}
+	
 	
 	@Override
 	public void apply(IDocument document) {
@@ -30,12 +43,14 @@ public class AssistAssignCompletionProposal extends PyCompletionProposal{
 			//default apply
 			int lineOfOffset = document.getLineOfOffset(fReplacementOffset);
 			document.replace(fReplacementOffset, fReplacementLength, fReplacementString);
+			
+			
 			int lineOffset = document.getLineOffset(lineOfOffset);
 			int lineLength = document.getLineLength(lineOfOffset);
 			String lineDelimiter = document.getLineDelimiter(lineOfOffset);
 			int lineDelimiterLen = lineDelimiter != null? lineDelimiter.length():0;
 			
-			ISourceViewer viewer= pyEdit.getPySourceViewer();
+			ISourceViewer viewer= sourceViewer;
 			
 			LinkedModeModel model= new LinkedModeModel();
 			LinkedPositionGroup group= new LinkedPositionGroup();
