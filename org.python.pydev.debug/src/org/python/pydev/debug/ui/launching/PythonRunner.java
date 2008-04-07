@@ -23,6 +23,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -130,7 +131,7 @@ public class PythonRunner {
 		subMonitor.subTask("Constructing command_line...");
 		String[] cmdLine = config.getCommandLine(true);
 
-		Process p = DebugPlugin.exec(cmdLine, config.workingDirectory, config.envp);	
+		Process p = createProcess(launch, config.envp, cmdLine, config.workingDirectory);
 		checkProcess(p);
 		
 		IProcess process = registerWithDebugPlugin(config, launch, p);
@@ -179,7 +180,7 @@ public class PythonRunner {
         subMonitor.subTask("Exec...");
         
         //it was dying before register, so, I made this faster to see if this fixes it
-        Process p = DebugPlugin.exec(cmdLine, workingDirectory, envp);	
+        Process p = createProcess(launch, envp, cmdLine, workingDirectory);	
         checkProcess(p);
 
         IProcess process;
@@ -204,6 +205,15 @@ public class PythonRunner {
         subMonitor.subTask("Done");
         return process;
     }
+    
+    /**
+     * Actually creates the process (and create the encoding config file)
+     */
+    private static Process createProcess(ILaunch launch, String[] envp, String[] cmdLine, File workingDirectory) throws CoreException {
+        createEncodingFileForLaunch(launch);
+        Process p = DebugPlugin.exec(cmdLine, workingDirectory, envp);
+        return p;
+    }
 
     private static void runUnitTest(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException{
     	doIt(config, monitor, config.envp, config.getCommandLine(true), config.workingDirectory, launch);
@@ -226,10 +236,7 @@ public class PythonRunner {
      * It'll then display the appropriate UI.
      */
     private static IProcess registerWithDebugPlugin(String label, ILaunch launch, Process p, Map<Object, Object> processAttributes) {
-        processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
-        processAttributes.put(IProcess.ATTR_PROCESS_LABEL, label);
-        processAttributes.put(DebugPlugin.ATTR_CAPTURE_OUTPUT, "true");
-        return DebugPlugin.newProcess(launch,p, label, processAttributes);
+        return registerWithDebugPluginForProcessType(label, launch, p, processAttributes, Constants.PROCESS_TYPE);
     }
 	
 	/**
@@ -240,6 +247,26 @@ public class PythonRunner {
 	    processAttributes.put(IProcess.ATTR_PROCESS_TYPE, processType);
 	    processAttributes.put(IProcess.ATTR_PROCESS_LABEL, label);
         processAttributes.put(DebugPlugin.ATTR_CAPTURE_OUTPUT, "true");
+        
+        createEncodingFileForLaunch(launch);
 	    return DebugPlugin.newProcess(launch,p, label, processAttributes);
 	}
+    
+    /**
+     * Creates a file the specification of the console encoding to be used by the pydev sitecustomize.
+     * 
+     * @param launch the launch to which the encoding shoud be created.
+     */
+    public static void createEncodingFileForLaunch(ILaunch launch) {
+        String encoding = launch.getAttribute(DebugPlugin.ATTR_CONSOLE_ENCODING);
+        if(encoding != null && encoding.trim().length() > 0){
+            try {
+                File file = PydevPlugin.getScriptWithinPySrc("pydev_sitecustomize");
+                file = new File(file, "encoding_config");
+                REF.writeStrToFile(encoding, file);
+            } catch (CoreException e) {
+                PydevPlugin.log(e);
+            }
+        }
+    }
 }

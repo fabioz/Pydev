@@ -111,14 +111,14 @@ public class SimpleJythonRunner extends SimpleRunner{
         }
         InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(jythonJar, new NullProgressMonitor());
 
+        //pythonpath is: base path + libs path.
+        String libs = SimpleRunner.makePythonPathEnvFromPaths(info.libs);
         StringBuffer jythonPath = new StringBuffer(basePythonPath);
         String pathSeparator = SimpleRunner.getPythonPathSeparator();
-        for (String lib : info.libs) {
-            if(jythonPath.length() != 0){
-                jythonPath.append(pathSeparator); 
-            }
-            jythonPath.append(lib);
+        if(jythonPath.length() != 0){
+            jythonPath.append(pathSeparator); 
         }
+        jythonPath.append(libs);
         
         
         //may have the dir or be null

@@ -190,10 +190,11 @@ public abstract class SimpleRunner {
      * @return a string that can be used as the PYTHONPATH env variable
      */
     public static String makePythonPathEnvString(IProject project, String interpreter) {
-        List<String> paths;
         if(project == null){
-            return ""; //no pythonpath can be gotten (set to empty, so that the default is gotten)
+            return makePythonPathEnvFromPaths(new ArrayList<String>()); //no pythonpath can be gotten (set to empty, so that the default is gotten)
         }
+        
+        List<String> paths;
         
         //if we have a project, get its complete pythonpath
         IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
@@ -211,7 +212,18 @@ public abstract class SimpleRunner {
      * @param paths the paths to be added
      * @return a String suitable to be added to the PYTHONPATH environment variable.
      */
-	public static String makePythonPathEnvFromPaths(Collection<String> paths) {
+	public static String makePythonPathEnvFromPaths(Collection<String> inPaths) {
+	    ArrayList<String> paths = new ArrayList<String>(inPaths);
+	    try {
+	        //whenever we launch a file from pydev, we must add the sitecustomize to the pythonpath so that
+	        //the default encoding (for the console) can be set.
+	        //see: http://sourceforge.net/tracker/index.php?func=detail&aid=1580766&group_id=85796&atid=577329
+	        
+            paths.add(0, REF.getFileAbsolutePath(PydevPlugin.getScriptWithinPySrc("pydev_sitecustomize")));
+        } catch (CoreException e) {
+            PydevPlugin.log(e);
+        }
+	    
 		String separator = getPythonPathSeparator();
     	StringBuffer pythonpath = new StringBuffer();
     	boolean first = true;

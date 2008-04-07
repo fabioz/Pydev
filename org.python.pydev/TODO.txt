@@ -35,6 +35,16 @@ def m1():
 - static analysis case:
 import os
 os.Bar().Foo() <-- error in wrong places!
+
+
+- debugger
+class env:
+    pass
+
+if __name__ == '__main__':
+    print 'step 1\n' #set break here 
+
+#comment <-- removing this comments makes break work (see breakpoint context)
         
 console:
 	- getpass: echo mode
