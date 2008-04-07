@@ -1,3 +1,7 @@
+check:
+PythonCorrectionProcessor: ImageCache
+PythonRunner: Catch all exceptions on creating file!
+
 - hierarchy view: show with f4 / close / open view / f4 (will not work)
 - DEBUGGER BUG: if a class is defined within a method, things later in that method are not able to get the correct name for the breakpoint scope (cannot reproduce?)
 - Debugger: enable users to configure the mappings for remote debugging in a 'nice' way.
