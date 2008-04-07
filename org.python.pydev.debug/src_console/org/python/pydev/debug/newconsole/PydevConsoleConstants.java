@@ -40,6 +40,6 @@ public final class PydevConsoleConstants {
     public static final String DEFAULT_INTERACTIVE_CONSOLE_VM_ARGS = "-Xmx64m";
 
     public static final String INITIAL_INTERPRETER_CMDS = "INITIAL_INTERPRETER_CMDS";
-    public static final String DEFAULT_INITIAL_INTERPRETER_CMDS = "import sys; print '%s %s' % (sys.executable, sys.version)\n";
+    public static final String DEFAULT_INITIAL_INTERPRETER_CMDS = "import sys; print '%s %s' % (sys.executable or sys.platform, sys.version)\n";
 
 }

@@ -10,6 +10,7 @@ Pydev
 <li><strong>Files without extension</strong>: If a file that does not have an extension is found in the root of the pythonpath, code-completion and breakpoints work with it.</li>
 <li><strong>from __future__ import (xxx, with_statement)</strong>: works.</li>
 <li><strong>Extract method</strong>: comma was removed when present after a tuple and before a keyword argument.</li>
+<li><strong>Console Encoding</strong>: print u"\xF6" works (see http://sourceforge.net/tracker/index.php?func=detail&aid=1580766&group_id=85796&atid=577329 for details).</li>
 <li><strong>New console view!</strong>: </li>
 	- OK: esc: clear current line
 	- OK: pg up: console history in dialog

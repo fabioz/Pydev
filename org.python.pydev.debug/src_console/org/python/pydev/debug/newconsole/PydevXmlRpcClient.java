@@ -73,7 +73,7 @@ public class PydevXmlRpcClient implements IPydevXmlRpcClient{
             
 
             public void handleError(XmlRpcRequest request, Throwable error) {
-                result[0] = error.getMessage();
+                result[0] = new Object[]{error.getMessage()};
             }
             
             public void handleResult(XmlRpcRequest request, Object receivedResult) {

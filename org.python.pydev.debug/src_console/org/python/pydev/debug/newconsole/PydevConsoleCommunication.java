@@ -14,6 +14,7 @@ import org.apache.xmlrpc.webserver.WebServer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.dltk.console.IScriptConsoleCommunication;
 import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.editor.codecompletion.AbstractPyCodeCompletion;
@@ -127,6 +128,13 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      * Helper to keep on busy loop.
      */
     private volatile Object lock2 = new Object();
+    
+    /**
+     * Keeps a flag indicating that we were able to communicate successfully with the shell at least once
+     * (if we haven't we may retry more than once the first time, as jython can take a while to initialize
+     * the communication)
+     */
+    private volatile boolean firstCommWorked = false;
 
     
     /**
@@ -169,32 +177,81 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         }else{
             //create a thread that'll keep locked until an answer is received from the server.
             Thread thread = new Thread(){
+                
+                /**
+                 * Executes the needed command 
+                 * 
+                 * @return a tuple with (null, more) or (error, false)
+                 * 
+                 * @throws XmlRpcException
+                 */
+                private Tuple<String, Boolean> exec() throws XmlRpcException{
+                
+                    Object[] execute = (Object[]) client.execute("addExec", new Object[]{command});
+                    
+                    Object object = execute[0];
+                    boolean more;
+                    
+                    String errorContents = null;
+                    if(object instanceof Boolean){
+                        more = (Boolean)object;
+                        
+                    }else{
+                        String str = object.toString();
+                        
+                        String lower = str.toLowerCase();
+                        if(lower.equals("true") || lower.equals("1")){
+                            more = true;
+                        }else if(lower.equals("false")|| lower.equals("0")){
+                            more = false;
+                        }else{
+                            more = false;
+                            errorContents = str;
+                        }
+                    }
+                    return new Tuple<String, Boolean>(errorContents, more);
+                }
+                
                 @Override
                 public void run() {
                     boolean needInput = false;
                     try{
-                        Object[] execute = (Object[]) client.execute("addExec", new Object[]{command});
                         
-                        Object object = execute[0];
-                        boolean more;
+                        Tuple<String, Boolean> executed = null;
                         
-                        String errorContents = null;
-                        if(object instanceof Boolean){
-                            more = (Boolean)object;
+                        
+                        //the 1st time we'll do a connection attempt, we can try up to 5 times (until the 1st time the connection
+                        //is accepted)
+                        int commAttempts = 0;
+                        
+                        while(true){
+                            executed = exec();
                             
-                        }else{
-                            String str = object.toString();
-                            
-                            String lower = str.toLowerCase();
-                            if(lower.equals("true") || lower.equals("1")){
-                                more = true;
-                            }else if(lower.equals("false")|| lower.equals("0")){
-                                more = false;
+                            //executed.o1 is not null only if we had an error
+                            if(executed.o1 != null && executed.o1.indexOf("Connection refused: connect") != -1){
+                                if(firstCommWorked){
+                                    break;
+                                }else{
+                                    if(commAttempts < 5){
+                                        commAttempts += 1;
+                                        continue;
+                                    }else{
+                                        break;
+                                    }
+                                }
+                                
                             }else{
-                                more = false;
-                                errorContents = str;
+                                break;
                             }
+                            
+                            //unreachable code!!
+                            //throw new RuntimeException("Can never get here!");
                         }
+                        
+                        firstCommWorked = true;
+                        
+                        String errorContents = executed.o1;
+                        boolean more = executed.o2;
                         
                         if(errorContents == null){
                             errorContents = stdErrReader.getAndClearContents();
