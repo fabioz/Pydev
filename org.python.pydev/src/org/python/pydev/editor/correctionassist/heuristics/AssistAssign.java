@@ -21,6 +21,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
+import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.PyCodeStylePreferencesPage;
 import org.python.pydev.ui.UIConstants;
 
@@ -56,7 +57,12 @@ public class AssistAssign implements IAssistProps {
      */
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, 
             PyEdit edit, int offset) throws BadLocationException {
-        return this.getProps(ps, imageCache, edit.getPySourceViewer(), offset, PyAction.getLineWithoutComments(ps), 
+        PySourceViewer viewer = null;
+        if(edit != null){
+            edit.getPySourceViewer();
+        }
+        
+        return this.getProps(ps, imageCache, viewer, offset, PyAction.getLineWithoutComments(ps), 
                 PySelection.getFirstCharPosition(ps.getDoc(), ps.getAbsoluteCursorOffset()));
     }        
     

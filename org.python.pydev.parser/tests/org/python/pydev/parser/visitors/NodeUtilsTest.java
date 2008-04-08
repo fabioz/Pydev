@@ -1,15 +1,28 @@
 package org.python.pydev.parser.visitors;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.python.pydev.parser.PyParserTestBase;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
 public class NodeUtilsTest extends PyParserTestBase {
 
 	public static void main(String[] args) {
-		junit.textui.TestRunner.run(NodeUtilsTest.class);
+	    try {
+            NodeUtilsTest test = new NodeUtilsTest();
+            test.setUp();
+            test.testClassEndLine();
+            test.tearDown();
+            
+            junit.textui.TestRunner.run(NodeUtilsTest.class);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+	    
 	}
 
 	public void testFullRep() throws Exception {
@@ -39,4 +52,57 @@ public class NodeUtilsTest extends PyParserTestBase {
 		entry = iterator.next(); //Attribute
 		assertEquals("aa.bbb.cccc", NodeUtils.getFullRepresentationString(entry.node));
 	}
+	
+	public void testClassEndLine() {
+	    SimpleNode ast1 = parseLegalDocStr("" +
+	            "class env:\n" +
+	            "    pass\n" +
+	            "\n" +
+	            "#comment\n");
+	    
+	    checkEndLine(ast1, 4);
+	    
+	    ast1 = parseLegalDocStr("" +
+                "class env:\n" +
+                "    pass\n" +
+                "\n" +
+        	    "if True:\n" +
+        	    "    pass\n" +
+        	    "#comment\n");
+	    
+	    checkEndLine(ast1, 2);
+	}
+	
+	public void testGetContextName() {
+	    SimpleNode ast1 = parseLegalDocStr("" +
+	            "class env:\n" +
+	            "    pass\n" +
+	            "\n" +
+	            "if __name__ == '__main__':\n" +
+	            "    print 'step 1'\n" +
+	            "\n");
+	    
+	    SimpleNode ast2 = parseLegalDocStr("" +
+	    		"class env:\n" +
+	    		"    pass\n" +
+	    		"\n" +
+	    		"if __name__ == '__main__':\n" +
+	    		"    print 'step 1'\n" +
+	    		"\n" +
+	    		"#comment");
+	    
+        checkEndLine(ast1, 2);
+        checkEndLine(ast2, 2);
+	    
+	    assertEquals(null, NodeUtils.getContextName(4, ast1));
+        assertEquals(null, NodeUtils.getContextName(4, ast2));
+    }
+
+    private void checkEndLine(SimpleNode ast1, int endLine) {
+        EasyASTIteratorVisitor visitor = EasyASTIteratorVisitor.create(ast1);
+        
+        List<ASTEntry> classes = visitor.getClassesAndMethodsList();
+        assertEquals(1, classes.size());
+        assertEquals(endLine, classes.get(0).endLine);
+    }
 }

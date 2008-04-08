@@ -53,6 +53,12 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
                 }
             }
         }
+        
+        //the lastDefVisited is only kept if it's really the last definition visited (if there's a node
+        //visited after the last def, it's not kept).
+        if(this.lastDefVisited != null){
+            this.lastDefVisited = null;
+        }
         return null;
     }
 
@@ -128,7 +134,8 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
     public Object visitModule(Module node) throws Exception {
         Object ret = super.visitModule(node);
         
-        //after visiting the module, let's put the comments to the last definition found
+        //after visiting the module, let's put the comments to the scope of the last definition found
+        //if there were no other statements out of the class scope.
         int size = this.nodes.size();
         if(size > 0){
             int i = -1;

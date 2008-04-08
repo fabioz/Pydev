@@ -287,7 +287,7 @@ public class NodeUtils {
         	//attributes are tricky because we only have backwards access initially, so, we have to:
         	
         	//get it forwards
-        	List attributeParts = getAttributeParts((Attribute) node);
+        	List<SimpleNode> attributeParts = getAttributeParts((Attribute) node);
         	StringBuffer buf = new StringBuffer();
         	for (Object part : attributeParts) {
 				if(part instanceof Call){
