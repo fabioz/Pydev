@@ -170,7 +170,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitClassDef(org.python.pydev.parser.jython.ast.ClassDef)
      */
     public Object visitClassDef(ClassDef node) throws Exception {
-        addToNamesToIgnore(node);
         AbstractScopeAnalyzerVisitor visitor = this;
 
         //we want to visit the bases before actually starting the class scope (as it's as if they're attribute
@@ -194,7 +193,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 	node.body[i].accept(visitor);
             }
         }
+        
         endScope(node);
+        
+        //the class is only added to the names to ignore when it's scope is resolved!
+        addToNamesToIgnore(node, true);
+        
         
         return null;
     }
@@ -202,7 +206,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     /**
      * used so that the token is added to the names to ignore...
      */
-    protected void addToNamesToIgnore(SimpleNode node) {
+    protected void addToNamesToIgnore(SimpleNode node, boolean finishClassScope) {
         SourceToken token = AbstractVisitor.makeToken(node, "");
         ScopeItems currScopeItems = scope.getCurrScopeItems();
         
@@ -224,9 +228,15 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             IToken tok = single.tok;
             String rep = tok.getRepresentation();
             if(rep.equals(token.getRepresentation())){
-                //found match in names to ignore... 
-                it.remove();
-                onNotDefinedFoundLater(n, found);
+                //found match in names to ignore...
+                
+                if(finishClassScope && foundScopeType == Scope.SCOPE_TYPE_CLASS && scope.getCurrScopeId() < single.scopeFound.getScopeId()){
+                    it.remove();
+                    onAddUndefinedMessage(tok, found);   
+                }else{
+                    it.remove();
+                    onNotDefinedFoundLater(n, found);
+                }
             }
         }
     }
@@ -245,7 +255,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         unhandled_node(node);
-        addToNamesToIgnore(node);
+        addToNamesToIgnore(node, false);
 
         AbstractScopeAnalyzerVisitor visitor = this;
         argumentsType args = node.args;
@@ -385,7 +395,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 if(!rep.equals("self") && !rep.equals("cls")){ 
                     scope.addToken(token,token);
                 }else{
-                    addToNamesToIgnore(node); //ignore self
+                    addToNamesToIgnore(node, false); //ignore self
                 }
             }
         } 
@@ -414,7 +424,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
 
             SourceToken token = AbstractVisitor.makeToken(nameAst, moduleName);
             scope.addTokenToGlobalScope(token);
-            addToNamesToIgnore(nameAst); // it is global, so, ignore it...
+            addToNamesToIgnore(nameAst, false); // it is global, so, ignore it...
         }
         return null;
     }

@@ -29,7 +29,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testInternalClassDefinition2();
+            analyzer2.testScopes5a();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -1343,6 +1343,19 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         assertContainsMsg("Undefined variable: I", msgs);
     }
     
+    public void testScopes5a() {
+        doc = new Document(
+                "class Internal:\n"+
+                "    print Internal\n"+
+                ""   
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 1);
+        assertContainsMsg("Undefined variable: Internal", msgs);
+    }
+    
     public void testScopes6() {
         doc = new Document(
             "def ok():          \n"+
@@ -2519,9 +2532,8 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     			"    \n" +
     			"    class EmptyObj:\n" +
     			"        pass\n" +
-    			"    def __init__(self, g=EmptyObj):\n" +
-    			"        pass\n" +
-    			"        \n" +
+    			"\n"+
+    			"    EmptyObj\n" +
     	"");
     	analyzer = new OccurrencesAnalyzer();
     	msgs = analyzeDoc();

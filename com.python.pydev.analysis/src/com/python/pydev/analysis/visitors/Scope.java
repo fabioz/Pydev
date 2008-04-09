@@ -400,25 +400,7 @@ public class Scope implements Iterable<ScopeItems>{
         	Map<String,Tuple<IToken, Found>> m = s.namesToIgnore;
             Tuple<IToken, Found> found = findInNamesToIgnore(rep, m);
 			if(found != null){
-			    
-			    //if we're in a class scope and we have a reference with the same name in the 'still not declared scope',
-			    //it's not a match
-			    //
-			    //class A:
-			    //    print A <-- undeclared!
-	            GenAndTok genAndTok = found.o2.getSingle();
-	            if(currScopeType == Scope.SCOPE_TYPE_CLASS){
-	                if(genAndTok.tok instanceof SourceToken){
-	                    SourceToken sourceToken = (SourceToken) genAndTok.tok;
-	                    if(sourceToken.getAst() instanceof ClassDef){
-	                        found = null;
-	                    }
-	                }
-	            }
-
-	            if(found != null){
-	                return found;
-	            }
+			    return found;
             }
         }
         return null;
