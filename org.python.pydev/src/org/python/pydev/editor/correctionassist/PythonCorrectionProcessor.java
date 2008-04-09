@@ -7,8 +7,10 @@ package org.python.pydev.editor.correctionassist;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -77,6 +79,45 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
 
     private ImageCache imageCache;
 
+    /**
+     * Contains additional assists (used from the jython scripting: pyedit_assign_params_to_attributes.py to add new assists)
+     */
+    private static Map<String, IAssistProps> additionalAssists = new HashMap<String, IAssistProps>();
+
+    /**
+     * Checks if some assist with the given id is already added.
+     * 
+     * @param id the id of the assist
+     * @return true if it's already added and false otherwise
+     */
+    public static boolean hasAdditionalAssist(String id) {
+        synchronized (additionalAssists) {
+            return additionalAssists.containsKey(id);
+        }
+    }
+
+    /**
+     * Adds some additional assist to Ctrl+1 (used from the scripting engine)
+     * 
+     * @param id the id of the assist
+     * @param assist the assist to be added
+     */
+    public static void addAdditionalAssist(String id, IAssistProps assist) {
+        synchronized (additionalAssists) {
+            additionalAssists.put(id, assist);
+        }
+    }
+
+    /**
+     * Removes some additional assist from Ctrl+1
+     * 
+     * @param id id of the assist to be removed
+     */
+    public static void removeAdditionalAssist(String id) {
+        synchronized (additionalAssists) {
+            additionalAssists.remove(id);
+        }
+    }
 
     /**
      * @param edit
@@ -103,7 +144,12 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
         String sel = PyAction.getLineWithoutComments(ps);
 
         List<IAssistProps> assists = new ArrayList<IAssistProps>();
-        
+        synchronized (PythonCorrectionProcessor.additionalAssists) {
+            for (IAssistProps prop : additionalAssists.values()) {
+                assists.add(prop);
+            }
+        }
+
         assists.add(new AssistTry());
         assists.add(new AssistImport());
         assists.add(new AssistDocString());
