@@ -1068,6 +1068,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
 
     public void testInnerDefinition() throws Exception {
+        //NOTE: THIS TEST IS CURRENTLY EXPECTED TO FAIL!
+        //testInnerDefinition2 is the same but gets the context correctly (must still check why this happens).
         String s = 
             "class Bar:\n" +
             "    \n" +

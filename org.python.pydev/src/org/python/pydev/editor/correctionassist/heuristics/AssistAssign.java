@@ -58,8 +58,8 @@ public class AssistAssign implements IAssistProps {
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, 
             PyEdit edit, int offset) throws BadLocationException {
         PySourceViewer viewer = null;
-        if(edit != null){
-            edit.getPySourceViewer();
+        if(edit != null){ //only in tests it's actually null
+            viewer = edit.getPySourceViewer();
         }
         
         return this.getProps(ps, imageCache, viewer, offset, PyAction.getLineWithoutComments(ps), 
