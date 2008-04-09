@@ -263,8 +263,8 @@ public class PythonRunner {
             try {
                 File file = PydevPlugin.getScriptWithinPySrc("pydev_sitecustomize");
                 file = new File(file, "encoding_config");
-                REF.writeStrToFile(encoding, file);
-            } catch (CoreException e) {
+                REF.writeStrToFile(encoding.trim(), file);
+            } catch (Throwable e) {
                 PydevPlugin.log(e);
             }
         }

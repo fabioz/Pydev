@@ -3,48 +3,64 @@ after 1.3.14
 Pydev Extensions
 <ul>
 <li><strong>Globals Browser</strong>: Was not correctly showing definition on a case with multiple projects when one did not have the python nature configured.</li>
+<li><strong>Code Analysis</strong>: False positive fixed: Classes defined within a class context are correctly found when later accessed in the parent context.</li>
+<li><strong>Interactive console integration</strong></li>
+	<ul>
+		<li>Context insensitive completions with auto-import</li>
+		<li>Ctrl+Alt+Enter: can be used to:</li>
+		<ul>
+			<li>Create console if no console exists</li> 
+			<li>Send selected text to console</li>
+			<li>Make execfile for current file if there's no selected text</li>
+		</ul>
+	</ul>
 </ul>
 
 Pydev
+
 <ul>
 <li><strong>Files without extension</strong>: If a file that does not have an extension is found in the root of the pythonpath, code-completion and breakpoints work with it.</li>
-<li><strong>from __future__ import (xxx, with_statement)</strong>: works.</li>
-<li><strong>Extract method</strong>: comma was removed when present after a tuple and before a keyword argument.</li>
-<li><strong>Console Encoding</strong>: print u"\xF6" works (see http://sourceforge.net/tracker/index.php?func=detail&aid=1580766&group_id=85796&atid=577329 for details).</li>
-<li><strong>New console view!</strong>: </li>
-	- OK: esc: clear current line
-	- OK: pg up: console history in dialog
-	- OK: paste in correct limits
-	- OK: cut: only cut valid stuff
-	- OK: qualifier match context insensitive
-	- OK: copy should not get prompt
-	- OK: start writing: move cursor automatically to command line
-	- OK: auto-indent
-	- OK: code-completion
-	- OK: context info
-	- OK: context insensitive completions
-	- OK: home must go to: 1st char / prompt end / line start
-	- OK: correct messages (translation)
-	- OK: creating 2nd console view has problems with the interactive console
-	- OK: class Foo(): adding 'object' through simple completions does not work well
-	- OK: colors config
-	- OK: the 'xml' module seems to be appearing multiple times (when it shouldn't)
-	- OK: no async exec for caret update (almost finished: only the constructor still has it with async)
-	- OK: up/down should select content in history based on what's already in the console
-	- OK: stdout/stderr gotten from the server without using sockets
-	- OK: sys.exit may halt shell
-	- OK: shell still seems open after 'killing' eclipse.
-	- OK: add hyperlinks to tracebacks in console
-	- OK: Ctrl+Alt+Enter: create console / send contents to console / make execfile for current file
-	- OK: templates in code-completion
-	- OK: vmargs for jython
-	- OK: cycle completions
-	- OK initial commands for starting the console
-	- OK: ctrl+1 works for assign quick-assist
-	Limitations:
-	- if raw_input() does not come from the main thread, it'll be ignored (and halted forever)
-	- Output is not asynchonous (so, the stdout and stderr will only be shown when a new line is sent to the console)
-
+<li><strong>Extract method</strong>: comma not removed when found after a tuple and before a keyword argument.</li>
+<li><strong>Console Encoding</strong>: print u"\xF6" works (console encoding correctly customized in python -- see <a href="http://sourceforge.net/tracker/index.php?func=detail&aid=1580766&group_id=85796&atid=577329">http://sourceforge.net/tracker/index.php?func=detail&aid=1580766&group_id=85796&atid=577329</a> for details).</li>
+<li><strong>Debugger</strong>: Context of breakpoint correctly defined when comments are present in the end of the module.</li>
+<li>from __future__ import (xxx, with_statement): works.</li>
+<li><strong>Interactive Console View</strong>, featuring:</li>
+	<ul>
+		<li><strong>Code Completion</strong></li>
+		<ul>
+			<li>Context sensitive with shell completions</li>
+			<li>Qualifier matches as case insensitive</li>
+			<li>Templates</li>
+			<li>Repeating the activation changes from templates to default completions</li>
+		</ul>
+			
+		<li><strong>Console Configurations</strong></li>
+		<ul>
+			<li>Initial commands for starting the console</li>
+			<li>Colors for the console</li>
+			<li>Vmargs can be specified for jython</li>
+		</ul>
+		
+		<li><strong>Auto-indent</strong></li>
+		<li><strong>Auto-edits</strong></li>
+		<li><strong>Context info on hover</strong></li>
+		<li><strong>Up / Down Arrows</strong> cycles through the history (and uses the current text to match for the start of the history command)</li>
+		<li><strong>Page Up</strong>: shows dialog with console history (where lines to be re-executed can be selected)</li>
+		<li><strong>Esc</strong>: clears current line</li>
+		<li><strong>ctrl+1</strong> works for assign quick-assist</li>
+		<li><strong>Hyperlinks</strong> addedd to tracebacks in the console</li>
+		<li>Paste added directly to the command line</li>
+		<li>Cut will only cut from the command line</li>
+		<li>Copy does not get the prompt chars</li>
+		<li>Home goes to: first text char / prompt end / line start (and cycles again)</li>
+		<li>Cursor automatically moved to command line on key events</li>
+		<li>Multiple views of the same console can be created</li>
+		
+		<li>Limitations</li>
+		<ul>
+			<li>Output is not asynchonous (stdout and stderr are only shown after a new command is sent to the console)</li>
+		</ul>
+	</ul>
 </ul>
 
 
