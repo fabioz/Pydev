@@ -32,6 +32,57 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 <h4>Major highlights:</h4>
 
 <ul>
+<li><strong>Files without extension</strong>: If a file that does not have an extension is found in the root of the pythonpath, code-completion and breakpoints work with it.</li>
+<li><strong>Extract method</strong>: comma not removed when found after a tuple and before a keyword argument.</li>
+<li><strong>Console Encoding</strong>: print u"\xF6" works (console encoding correctly customized in python -- see <a href="http://sourceforge.net/tracker/index.php?func=detail&aid=1580766&group_id=85796&atid=577329">http://sourceforge.net/tracker/index.php?func=detail&aid=1580766&group_id=85796&atid=577329</a> for details).</li>
+<li><strong>Debugger</strong>: Context of breakpoint correctly defined when comments are present in the end of the module.</li>
+<li>from __future__ import (xxx, with_statement): works.</li>
+<li><strong>Interactive Console View</strong>, featuring:</li>
+	<ul>
+		<li><strong>Code Completion</strong></li>
+		<ul>
+			<li>Context sensitive with shell completions</li>
+			<li>Qualifier matches as case insensitive</li>
+			<li>Templates</li>
+			<li>Repeating the activation changes from templates to default completions</li>
+		</ul>
+			
+		<li><strong>Console Configurations</strong></li>
+		<ul>
+			<li>Initial commands for starting the console</li>
+			<li>Colors for the console</li>
+			<li>Vmargs can be specified for jython</li>
+		</ul>
+		
+		<li><strong>Auto-indent</strong></li>
+		<li><strong>Auto-edits</strong></li>
+		<li><strong>Context info on hover</strong></li>
+		<li><strong>Up / Down Arrows</strong> cycles through the history (and uses the current text to match for the start of the history command)</li>
+		<li><strong>Page Up</strong>: shows dialog with console history (where lines to be re-executed can be selected)</li>
+		<li><strong>Esc</strong>: clears current line</li>
+		<li><strong>ctrl+1</strong> works for assign quick-assist</li>
+		<li><strong>Hyperlinks</strong> addedd to tracebacks in the console</li>
+		<li>Paste added directly to the command line</li>
+		<li>Cut will only cut from the command line</li>
+		<li>Copy does not get the prompt chars</li>
+		<li>Home goes to: first text char / prompt end / line start (and cycles again)</li>
+		<li>Cursor automatically moved to command line on key events</li>
+		<li>Multiple views of the same console can be created</li>
+		
+		<li>Limitations</li>
+		<ul>
+			<li>Output is not asynchonous (stdout and stderr are only shown after a new command is sent to the console)</li>
+		</ul>
+	</ul>
+</ul>
+
+
+
+
+
+<h3>Previous: 1.3.14</h3>
+
+<ul>
 <li><strong>Outline view</strong>: patch by Laurent Dore: better icons for different types of fields methods.</li>
 <li><strong>Outline view</strong>: patch by Laurent Dore: more filters.</li>
 <li><strong>PyLint</strong>: working dir is the directory of the analyzed file.</li>
@@ -56,43 +107,6 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 <li><strong>Hyperlink</strong>: Using new hyperlink mechanism (added at Eclipse 3.3).</li>
 </ul>
 
-<h3>Previous: 1.3.12</h3>
-
-
-<ul>
-<li><strong>Code Coverage</strong>: coverage.py updated to version 2.78 (<a href="http://nedbatchelder.com/code/modules/coverage.html">http://nedbatchelder.com/code/modules/coverage.html</a>).</li>
-<li><strong>Optimization</strong>: Caches (with no memory overhead) added for a number of situations, which can speed completion requests a lot (up to 40x on tests).</li>
-</ul>
-
-
-<h4>Previous: 1.3.11</h4>
-
-
-<ul>
-<li><strong>Jython Integration</strong>: Java modules may be referenced from pydev projects (working with code-completion, go to definition, etc).</li>
-<li><strong>Jython Debugger</strong>: Does not attempt to run untraced threads if version &lt;= 2.2.1 (this was a Jython bug that's patched for the current trunk --
-<strong>note:</strong> it prevented the debugger from working correctly with Jython).</li>
-
-<li><strong>Project build</strong>: Only referenced projects are rebuilt (and not all projects in the workspace -- e.g.: unreferenced c++ projects).</li>
-
-<li><strong>Spell checking (depends on JDT)</strong>: Integrated for comments and strings within pydev (eclipse 3.4 should add the 
-support for working without JDT. Reference: <a href="http://www.eclipse.org/eclipse/platform-text/3.4/plan.php">
-http://www.eclipse.org/eclipse/platform-text/3.4/plan.php</a>).</li>
-
-<li><strong>Files without extension</strong>: A file without extension can have code-completion / go to definition (as long as the others around it do have extensions)</li>
-<li><strong>Debug</strong>: Variable substitution is no longer asked twice in debug mode.</li>
-<li><strong>Custom Filters</strong>: User-defined filters can be specified in the <strong>Pydev package explorer</strong>.</li>
-<li><strong>Debugger</strong>: performance improvements to get the existing frames for Python 2.4 and Jython 2.1.</li>
-<li><strong>Outline view</strong>: Better refresh (doesn't collapse the tree for simple structure changes).</li>
-
-<li><strong>Undo limit</strong>: The undo limit set in window > preferences > general > editors > text editors works for pydev.</li>
-<li><strong>Editor: Tabs as spaces</strong>: The newly added 'insert spaces for tabs' in the general preferences was conflicting with pydev (those settings are now ignored)</li>
-
-<li><strong>Patch by Laurent Dore</strong>: Added filter for *.py~ and comments</li>
-<li><strong>Delete *.pyc action</strong>: also deletes *.pyo files</li>
-<li><strong>Ctrl+Click</strong>: behaves exactly as F3.</li>
-<li><strong>Dedent</strong>: No auto-dedent after yield</li>
-</ul>
 
 
 

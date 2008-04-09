@@ -1,22 +1,53 @@
 <h2>New on: LAST_VERSION_TAG</h2>
 
 
+
 <ul>
-<li><strong>Outline view</strong>: patch by Laurent Dore: better icons for different types of fields methods.</li>
-<li><strong>Outline view</strong>: patch by Laurent Dore: more filters.</li>
-<li><strong>PyLint</strong>: working dir is the directory of the analyzed file.</li>
-<li><strong>Project explorer</strong>: fixed bug on integration with Dynamic Web Project.</li>
-<li><strong>Extract method</strong>: fixed bug when trying to refactor structure: a = b = xxx.</li>
-<li><strong>Generate constructor using fields</strong>: working for classes that derive from builtin classes.</li>
-<li><strong>Override methods</strong>: working for classes that derive from builtin classes.</li>
-<li><strong>Debugger can use psyco for speedups</strong>: see <a href="http://pydev.blogspot.com/2008/02/pydev-debugger-and-psyco-speedups.html">http://pydev.blogspot.com/2008/02/pydev-debugger-and-psyco-speedups.html</a>.</li>
-<li><strong>Debugger</strong>: shows parent frame when stepping in a return event.</li>
-<li><strong>Go to previous/next method</strong>: (Ctrl+Shift+Up/Down): does not rely on having a correct parse anymore.</li>
-<li><strong>Auto-formatting</strong>: No space after comma if next char is new line.</li>
-<li><strong>Code Completion</strong>: Handling completions from attribute access in classes (accessed from outside of the class).</li>
-<li><strong>Auto-indent</strong>: Better handling when indenting to next tab position within the code.</li>
-<li><strong>Caches</strong>: Some places were recreating the cache used during a completion request instead of using the available one (which could have a memory impact on some situations).</li>
+<li><strong>Files without extension</strong>: If a file that does not have an extension is found in the root of the pythonpath, code-completion and breakpoints work with it.</li>
+<li><strong>Extract method</strong>: comma not removed when found after a tuple and before a keyword argument.</li>
+<li><strong>Console Encoding</strong>: print u"\xF6" works (console encoding correctly customized in python -- see <a href="http://sourceforge.net/tracker/index.php?func=detail&aid=1580766&group_id=85796&atid=577329">http://sourceforge.net/tracker/index.php?func=detail&aid=1580766&group_id=85796&atid=577329</a> for details).</li>
+<li><strong>Debugger</strong>: Context of breakpoint correctly defined when comments are present in the end of the module.</li>
+<li>from __future__ import (xxx, with_statement): works.</li>
+<li><strong>Interactive Console View</strong>, featuring:</li>
+	<ul>
+		<li><strong>Code Completion</strong></li>
+		<ul>
+			<li>Context sensitive with shell completions</li>
+			<li>Qualifier matches as case insensitive</li>
+			<li>Templates</li>
+			<li>Repeating the activation changes from templates to default completions</li>
+		</ul>
+			
+		<li><strong>Console Configurations</strong></li>
+		<ul>
+			<li>Initial commands for starting the console</li>
+			<li>Colors for the console</li>
+			<li>Vmargs can be specified for jython</li>
+		</ul>
+		
+		<li><strong>Auto-indent</strong></li>
+		<li><strong>Auto-edits</strong></li>
+		<li><strong>Context info on hover</strong></li>
+		<li><strong>Up / Down Arrows</strong> cycles through the history (and uses the current text to match for the start of the history command)</li>
+		<li><strong>Page Up</strong>: shows dialog with console history (where lines to be re-executed can be selected)</li>
+		<li><strong>Esc</strong>: clears current line</li>
+		<li><strong>ctrl+1</strong> works for assign quick-assist</li>
+		<li><strong>Hyperlinks</strong> addedd to tracebacks in the console</li>
+		<li>Paste added directly to the command line</li>
+		<li>Cut will only cut from the command line</li>
+		<li>Copy does not get the prompt chars</li>
+		<li>Home goes to: first text char / prompt end / line start (and cycles again)</li>
+		<li>Cursor automatically moved to command line on key events</li>
+		<li>Multiple views of the same console can be created</li>
+		
+		<li>Limitations</li>
+		<ul>
+			<li>Output is not asynchonous (stdout and stderr are only shown after a new command is sent to the console)</li>
+		</ul>
+	</ul>
 </ul>
+
+
 
 <br/>
 <hr/>
@@ -25,7 +56,7 @@
 <h3>Editor:</h3>
 <ul>
 <li><strong>Package Explorer</strong> showing outline for python modules</li>
-<li><strong><a href="http://www.eclipse.org/mylar/">Mylar</a></strong> integration (separate feature: org.python.pydev.mylar.feature)</li>
+<li><strong><a href="http://www.eclipse.org/mylyn/">Mylyn</a></strong> integration (separate feature: org.python.pydev.mylyn.feature)</li>
 <LI>Jython and Python support!</li>
 <LI>Support for scripting Pydev with Jython</li>
 <LI>Nice PYTHONPATH configuration!</li>
@@ -73,9 +104,72 @@
 
 
 
+<h3>Interactive Console View</h3>
+	<ul>
+		<li><strong>Code Completion</strong></li>
+		<ul>
+			<li>Context sensitive with shell completions</li>
+			<li>Qualifier matches as case insensitive</li>
+			<li>Templates</li>
+			<li>Repeating the activation changes from templates to default completions</li>
+		</ul>
+			
+		<li><strong>Console Configurations</strong></li>
+		<ul>
+			<li>Initial commands for starting the console</li>
+			<li>Colors for the console</li>
+			<li>Vmargs can be specified for jython</li>
+		</ul>
+		
+		<li><strong>Auto-indent</strong></li>
+		<li><strong>Auto-edits</strong></li>
+		<li><strong>Context info on hover</strong></li>
+		<li><strong>Up / Down Arrows</strong> cycles through the history (and uses the current text to match for the start of the history command)</li>
+		<li><strong>Page Up</strong>: shows dialog with console history (where lines to be re-executed can be selected)</li>
+		<li><strong>Esc</strong>: clears current line</li>
+		<li><strong>ctrl+1</strong> works for assign quick-assist</li>
+		<li><strong>Hyperlinks</strong> addedd to tracebacks in the console</li>
+		<li>Paste added directly to the command line</li>
+		<li>Cut will only cut from the command line</li>
+		<li>Copy does not get the prompt chars</li>
+		<li>Home goes to: first text char / prompt end / line start (and cycles again)</li>
+		<li>Cursor automatically moved to command line on key events</li>
+		<li>Multiple views of the same console can be created</li>
+		
+		<li>Limitations</li>
+		<ul>
+			<li>Output is not asynchonous (stdout and stderr are only shown after a new command is sent to the console)</li>
+		</ul>
+	</ul>
+</ul>
+
+
+
+
 
 <hr/>
 <h2>Features History</h2>
+
+
+<h3>New on: 1.3.14</h3>
+
+
+<ul>
+<li><strong>Outline view</strong>: patch by Laurent Dore: better icons for different types of fields methods.</li>
+<li><strong>Outline view</strong>: patch by Laurent Dore: more filters.</li>
+<li><strong>PyLint</strong>: working dir is the directory of the analyzed file.</li>
+<li><strong>Project explorer</strong>: fixed bug on integration with Dynamic Web Project.</li>
+<li><strong>Extract method</strong>: fixed bug when trying to refactor structure: a = b = xxx.</li>
+<li><strong>Generate constructor using fields</strong>: working for classes that derive from builtin classes.</li>
+<li><strong>Override methods</strong>: working for classes that derive from builtin classes.</li>
+<li><strong>Debugger can use psyco for speedups</strong>: see <a href="http://pydev.blogspot.com/2008/02/pydev-debugger-and-psyco-speedups.html">http://pydev.blogspot.com/2008/02/pydev-debugger-and-psyco-speedups.html</a>.</li>
+<li><strong>Debugger</strong>: shows parent frame when stepping in a return event.</li>
+<li><strong>Go to previous/next method</strong>: (Ctrl+Shift+Up/Down): does not rely on having a correct parse anymore.</li>
+<li><strong>Auto-formatting</strong>: No space after comma if next char is new line.</li>
+<li><strong>Code Completion</strong>: Handling completions from attribute access in classes (accessed from outside of the class).</li>
+<li><strong>Auto-indent</strong>: Better handling when indenting to next tab position within the code.</li>
+<li><strong>Caches</strong>: Some places were recreating the cache used during a completion request instead of using the available one (which could have a memory impact on some situations).</li>
+</ul>
 
 
 <h3>New on: 1.3.13</h3>

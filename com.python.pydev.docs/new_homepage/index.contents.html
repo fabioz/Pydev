@@ -13,7 +13,25 @@ It works with <a class="a_link" href="http://www.eclipse.org/">Eclipse</a> and t
 
 <h3>Release Changes</h3>
 	<ul>
-		<li><h4>Release 1.3.14 <IMG src="images/new.png" border="0" /></h4></li>
+		<li><h4>Release 1.3.15 <IMG src="images/new.png" border="0" /></h4></li>
+		<ul>
+		<li><strong>Globals Browser</strong>: Was not correctly showing definition on a case with multiple projects when one did not have the python nature configured.</li>
+		<li><strong>Code Analysis</strong>: False positive: Classes defined within a class context are correctly found when later accessed in the parent context.</li>
+		<li><strong>Interactive console integration</strong></li>
+			<ul>
+				<li>Context insensitive completions with auto-import in console</li>
+				<li>Ctrl+Alt+Enter: can be used to:</li>
+				<ul>
+					<li>Create console if no console exists</li> 
+					<li>Send selected text to console</li>
+					<li>Make execfile for current file if there's no selected text</li>
+				</ul>
+			</ul>
+		</ul>
+	</ul>
+	
+	<ul>
+		<li><h4>Release 1.3.14</h4></li>
 		<ul>
 			<li><strong>Local renames</strong>: scoping issues.</li>
 			<li><strong>Local renames</strong>: comments/strings only renamed in local scope for local variable.</li>
@@ -31,19 +49,7 @@ It works with <a class="a_link" href="http://www.eclipse.org/">Eclipse</a> and t
 		</ul>
 	</ul>
 	
-	<ul>
-		<li><h4>Release 1.3.12</h4></li>
-		<ul>
-			<li><strong>Mark occurrences</strong>: only requested on mouse-clicks and cursor changes.</li>
-			<li><strong>Code-Analysis</strong>: No longer running in UI-Thread (bug which slowed things down in 1.3.10 and 1.3.11).</li>
-			<li><strong>Code-Analysis</strong>: Cache optimizations.</li>
-			<li><strong>Code-Analysis</strong>: Fixed 'statement without effect' when raising exception with arguments without using the exception constructor.</li>
-			<li><strong>Code-Analysis</strong>: Fixed 'statement without effect' on tuple creation.</li>
-			<li><strong>Code-Analysis</strong>: __path__ found for packages (__init__.py files).</li>
-			<li><strong>Context-insensitive info</strong>: Correctly updated when code-analysis is off (or if file is not analyzed).</li>
-		</ul>
-	</ul>
-	
+
 
 	
 	Check the <a href="history.html">Releases History</a> for info on previous versions.
