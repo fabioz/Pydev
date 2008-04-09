@@ -40,7 +40,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testInModuleWithoutExtension();
+	      test.testInnerDefinition();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -1067,6 +1067,30 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     	requestCompl(s, new String[] {"_scalar_bars"});
     }
 
+    public void testInnerDefinition() throws Exception {
+        String s = 
+            "class Bar:\n" +
+            "    \n" +
+            "    class Foo:\n" +
+            "        pass\n" +
+            "    F"; //request at the Bar context
+        
+        requestCompl(s, new String[] {"Foo"});
+    }
+    
+    
+    public void testInnerDefinition2() throws Exception {
+        String s = 
+            "class Bar:\n" +
+            "    \n" +
+            "    class Foo:\n" +
+            "        pass\n" +
+            "    \n" +
+            "    F"; //request at the Bar context
+        
+        requestCompl(s, new String[] {"Foo"});
+    }
+    
     
 }
 

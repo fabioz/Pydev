@@ -28,6 +28,7 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
@@ -133,6 +134,7 @@ public class LocalScope implements ILocalScope {
         for (Iterator<SimpleNode> iter = this.scope.iterator(); iter.hasNext();) {
             SimpleNode element = iter.next();
             
+            stmtType[] body = null;
             if (element instanceof FunctionDef) {
                 FunctionDef f = (FunctionDef) element;
                 for (int i = 0; i < f.args.args.length; i++) {
@@ -142,10 +144,19 @@ public class LocalScope implements ILocalScope {
                 if(onlyArgs){
                     continue;
                 }
+                body = f.body;
+            }
+            
+            else if(element instanceof ClassDef && !iter.hasNext()){
+                ClassDef classDef = (ClassDef) element;
+                body = classDef.body;
+            }
+            
+            if(body != null){
                 try {
-                    for (int i = 0; i < f.body.length; i++) {
-		                GlobalModelVisitor visitor = new GlobalModelVisitor(GlobalModelVisitor.GLOBAL_TOKENS, "");
-                        f.body[i].accept(visitor);
+                    for (int i = 0; i < body.length; i++) {
+                        GlobalModelVisitor visitor = new GlobalModelVisitor(GlobalModelVisitor.GLOBAL_TOKENS, "");
+                        body[i].accept(visitor);
                         List<IToken> t = visitor.tokens;
                         for (Iterator<IToken> iterator = t.iterator(); iterator.hasNext();) {
                             SourceToken tok = (SourceToken) iterator.next();
