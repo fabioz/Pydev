@@ -128,6 +128,8 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
 
 
 	public Object getAdapter(Class adapter) {
+		AdapterDebug.print(this, adapter);
+		
 		if (adapter.equals(ILaunch.class))
 			return target.getAdapter(adapter);
 		else if (adapter.equals(IPropertySource.class) ||
@@ -146,7 +148,7 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
 		if(adapter.equals(IDeferredWorkbenchAdapter.class)){
 			return new DeferredWorkbenchAdapter(this);
 		}
-		//System.err.println("PyVariable Need adapter " + adapter.toString());
+		AdapterDebug.printDontKnow(this, adapter);
 		return super.getAdapter(adapter);
 	}
 

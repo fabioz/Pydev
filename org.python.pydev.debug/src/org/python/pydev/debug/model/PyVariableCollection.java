@@ -15,6 +15,7 @@ import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 import org.python.pydev.debug.model.remote.GetVariableCommand;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * PyVariableCollection represents container variables.
@@ -26,8 +27,17 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
 
 	PyVariable[] variables = new PyVariable[0];
 	IVariable[] waitVariables = null;
-	int requestedVariables = 0; // Network request state: 0 did not request, 1 requested, 2 requested & arrived
-	boolean fireChangeEvent = true;
+	
+	static final int NETWORK_REQUEST_NOT_REQUESTED = 0;
+	static final int NETWORK_REQUEST_NOT_ARRIVED = 1;
+	static final int NETWORK_REQUEST_ARRIVED = 2;
+	
+	/**
+	 * Defines the network state
+	 */
+	int networkState = NETWORK_REQUEST_NOT_REQUESTED; // Network request state: 0 did not request, 1 requested, 2 requested & arrived
+	
+	private boolean fireChangeEvent = true;
 	
 	public PyVariableCollection(AbstractDebugTarget target, String name, String type, String value, IVariableLocator locator) {
 		super(target, name, type, value, locator);
@@ -57,7 +67,7 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
 	public void commandComplete(AbstractDebuggerCommand cmd) {
 		variables = getCommandVariables(cmd);
 		
-		requestedVariables = 2;
+		networkState = NETWORK_REQUEST_ARRIVED;
 		if (fireChangeEvent){
 			target.fireEvent(new DebugEvent(this, DebugEvent.CHANGE, DebugEvent.STATE));
 		}
@@ -88,9 +98,9 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
 	}
 
 	public IVariable[] getVariables() throws DebugException {
-		if (requestedVariables == 2){
+		if (networkState == NETWORK_REQUEST_ARRIVED){
 			return variables;
-		} else if (requestedVariables == 1){
+		} else if (networkState == NETWORK_REQUEST_NOT_ARRIVED){
 			return getWaitVariables();
 		}
 
@@ -98,7 +108,7 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
 		// send the command, and then busy-wait
 		GetVariableCommand cmd = getVariableCommand(dbg);
 		cmd.setCompletionListener(this);
-		requestedVariables = 1;
+		networkState = NETWORK_REQUEST_NOT_ARRIVED;
 		fireChangeEvent = false;	// do not fire change event while we are waiting on response
 		dbg.postCommand(cmd);
 		try {
@@ -108,16 +118,19 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
 			// I try to minimize the occurence here, by giving pydevd time to complete the
 			// task before we are forced to do asynchronous notification.
 			int i = 10; 
-			while (--i > 0 && requestedVariables != 2)
+			while (--i > 0 && networkState != NETWORK_REQUEST_ARRIVED){
 				Thread.sleep(50);
+			}
+			
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			PydevPlugin.log(e);
 		}
 		fireChangeEvent = true;
-		if (requestedVariables == 2)
+		if (networkState == NETWORK_REQUEST_ARRIVED){
 			return variables;
-		else
+		}else{
 			return getWaitVariables();
+		}
 	}
 
 	public AbstractRemoteDebugger getDebugger() {

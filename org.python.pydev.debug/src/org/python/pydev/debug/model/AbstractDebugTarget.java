@@ -552,6 +552,8 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 	}
 	
 	public Object getAdapter(Class adapter) {		
+		AdapterDebug.print(this, adapter);
+		
 		// Not really sure what to do here, but I am trying
 		if (adapter.equals(ILaunch.class)){
 			return launch;
@@ -579,7 +581,8 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 				){
 			return  super.getAdapter(adapter);
         }
-		// System.err.println("Need adapter " + adapter.toString());
+		
+		AdapterDebug.printDontKnow(this, adapter);
 		return super.getAdapter(adapter);
 	}
 

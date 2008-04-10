@@ -209,24 +209,25 @@ public class PyThread extends PlatformObject implements IThread {
 	}
 
 	public Object getAdapter(Class adapter) {
+		AdapterDebug.print(this, adapter);
+		
 		if (adapter.equals(ILaunch.class) ||
-			adapter.equals(IResource.class))
+			adapter.equals(IResource.class)){
 			return target.getAdapter(adapter);
-		else if (adapter.equals(ITaskListResourceAdapter.class))
+		}else if (adapter.equals(ITaskListResourceAdapter.class)){
 			return null;
-		else if (adapter.equals(IPropertySource.class) 
+		}else if (adapter.equals(IPropertySource.class) 
 				|| adapter.equals(ITaskListResourceAdapter.class)
 				|| adapter.equals(org.eclipse.debug.ui.actions.IToggleBreakpointsTarget.class)
 				|| adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class)
 				|| adapter.equals(org.eclipse.ui.IContributorResourceAdapter.class)
 				|| adapter.equals(org.eclipse.ui.model.IWorkbenchAdapter.class)
 				|| adapter.equals(org.eclipse.ui.IActionFilter.class)
-				) 
+				) {
 			return  super.getAdapter(adapter);
-		else {
-//			System.err.println("PythonThread Need adapter " + adapter.toString());
-			Platform.getAdapterManager().getAdapter(this, adapter);
 		}
+		//Platform.getAdapterManager().getAdapter(this, adapter);
+		AdapterDebug.printDontKnow(this, adapter);
 		// ongoing, I do not fully understand all the interfaces they'd like me to support
 		return super.getAdapter(adapter);
 	}

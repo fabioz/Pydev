@@ -23,6 +23,7 @@ import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -33,6 +34,9 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 
 	static public String PY_DEBUG_MODEL_ID = "org.python.pydev.debug";
 
+	/**
+	 * Listeners compared by identity
+	 */
 	protected ListenerList fListeners = new ListenerList(ListenerList.IDENTITY);
 
 	protected boolean displayVariableTypeNames = false; // variables display attribute
@@ -41,21 +45,23 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
      * @return the image for some debug element
      */
 	public Image getImage(Object element) {
+		ImageCache imageCache = PydevDebugPlugin.getImageCache();
+		
 		if (element instanceof PyBreakpoint) {
 			try {
 				PyBreakpoint pyBreakpoint = (PyBreakpoint) element;
 				
 				if ((pyBreakpoint).isEnabled())
 					if (pyBreakpoint.isConditionEnabled()){
-						return PydevDebugPlugin.getImageCache().get("icons/breakmarker_conditional.gif");
+						return imageCache.get("icons/breakmarker_conditional.gif");
 					}else{
-						return PydevDebugPlugin.getImageCache().get("icons/breakmarker.gif");
+						return imageCache.get("icons/breakmarker.gif");
 					}
 				
 				else if (pyBreakpoint.isConditionEnabled()){
-					return PydevDebugPlugin.getImageCache().get("icons/breakmarker_gray_conditional.gif");
+					return imageCache.get("icons/breakmarker_gray_conditional.gif");
 				}else{
-					return PydevDebugPlugin.getImageCache().get("icons/breakmarker_gray.gif");
+					return imageCache.get("icons/breakmarker_gray.gif");
 				}
 				
 			} catch (CoreException e) {
@@ -63,10 +69,10 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 			}
 			
 		} else if (element instanceof PyVariableCollection) {
-			return PydevDebugPlugin.getImageCache().get("icons/greendot_big.gif");
+			return imageCache.get("icons/greendot_big.gif");
 			
 		} else if (element instanceof PyVariable) {
-			return PydevDebugPlugin.getImageCache().get("icons/greendot.gif");
+			return imageCache.get("icons/greendot.gif");
 			
 		} else if (element instanceof PyDebugTarget || element instanceof PyThread || element instanceof PyStackFrame){
 			return null;
@@ -181,10 +187,11 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 	}
 
 	public void setAttribute(String attribute, Object value) {
-		if (attribute.equals(IDebugModelPresentation.DISPLAY_VARIABLE_TYPE_NAMES))
+		if (attribute.equals(IDebugModelPresentation.DISPLAY_VARIABLE_TYPE_NAMES)){
 			displayVariableTypeNames = ((Boolean) value).booleanValue();
-		else
+		}else{
 			System.err.println("setattribute");
+		}
 	}
 
 	public void addListener(ILabelProviderListener listener) {

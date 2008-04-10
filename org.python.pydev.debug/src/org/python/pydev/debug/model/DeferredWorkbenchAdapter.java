@@ -98,15 +98,15 @@ public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapt
 			// VariablesView does not deal well with children changing asynchronously.
 			// it causes unneeded scrolling, because view preserves selection instead
 			// of visibility.
-			// I try to minimize the occurence here, by giving pydevd time to complete the
+			// I try to minimize the occurrence here, by giving pydevd time to complete the
 			// task before we are forced to do asynchronous notification.
-			int i = 50; 
+			int i = 1000; 
 			while (--i > 0 && commandVariables == null){
 				if(this.monitor != null && this.monitor.isCanceled() == true){
 					//canceled request... let's return
 					return new PyVariable[0];
 				}
-				Thread.sleep(50);
+				Thread.sleep(10); //10 seconds
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();

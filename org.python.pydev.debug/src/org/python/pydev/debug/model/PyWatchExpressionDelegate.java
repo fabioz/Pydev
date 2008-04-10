@@ -129,7 +129,7 @@ public class PyWatchExpressionDelegate
 		}
 		synchronized(variables) {
 			if (variables[0] instanceof PyVariableCollection) {
-				((PyVariableCollection)variables[0]).requestedVariables = 2;
+				((PyVariableCollection)variables[0]).networkState = PyVariableCollection.NETWORK_REQUEST_ARRIVED;
 			}
 		}
 		

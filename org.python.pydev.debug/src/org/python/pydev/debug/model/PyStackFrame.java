@@ -251,6 +251,8 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
 	}
 
 	public Object getAdapter(Class adapter) {
+		AdapterDebug.print(this, adapter);
+
 		if (adapter.equals(ILaunch.class) ||
 			adapter.equals(IResource.class)){
 			return thread.getAdapter(adapter);
@@ -272,8 +274,8 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
 			return new DeferredWorkbenchAdapter(this);
 		}
 		
+		AdapterDebug.printDontKnow(this, adapter);
 		// ongoing, I do not fully understand all the interfaces they'd like me to support
-//		System.err.println("PyStackFrame Need adapter " + adapter.toString());
 		return super.getAdapter(adapter);
 	}
 
