@@ -197,6 +197,7 @@
               </with>
            </enablement>
         </contextualLaunch>
+        <configurationType id="org.python.pydev.debug.regularLaunchConfigurationType"/>
 	</shortcut>
 	<shortcut
 		label="Jython Run"
@@ -218,6 +219,7 @@
               </with>
            </enablement>
         </contextualLaunch>
+        <configurationType id="org.python.pydev.debug.jythonLaunchConfigurationType"/>
 	</shortcut>
 	<shortcut
 		label="Python Coverage"
@@ -240,6 +242,7 @@
               </with>
            </enablement>
         </contextualLaunch>
+        <configurationType id="org.python.pydev.debug.coverageLaunchConfigurationType"/>
 	</shortcut>
 	<shortcut
 		label="Python unit-test"
@@ -260,6 +263,7 @@
               </with>
            </enablement>
         </contextualLaunch>
+        <configurationType id="org.python.pydev.debug.unittestLaunchConfigurationType"/>
 	</shortcut>
 	<shortcut
 		label="Jython unit-test"
@@ -280,6 +284,7 @@
               </with>
            </enablement>
         </contextualLaunch>
+        <configurationType id="org.python.pydev.debug.jythonUnittestLaunchConfigurationType"/>
 	</shortcut>
 </extension>
 

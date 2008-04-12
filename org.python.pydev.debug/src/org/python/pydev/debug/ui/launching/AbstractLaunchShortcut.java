@@ -321,6 +321,8 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
             workingCopy.setAttribute(IDebugUIConstants.ATTR_LAUNCH_IN_BACKGROUND, captureOutput);
             workingCopy.setAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT, captureOutput);
 
+            workingCopy.setMappedResources(resource);
+            
             // Common Tab Arguments
             CommonTab tab = new CommonTab();
             tab.setDefaults(workingCopy);

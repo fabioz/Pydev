@@ -170,6 +170,7 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
         String value = fMainModuleText.getText().trim();
         setAttribute(configuration, Constants.ATTR_LOCATION, value);
+        configuration.setMappedResources(new IResource[]{getMainModuleFile()});
 	}
 
 	/*
