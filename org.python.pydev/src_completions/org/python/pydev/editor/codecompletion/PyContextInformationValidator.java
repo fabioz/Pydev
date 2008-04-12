@@ -47,7 +47,6 @@ public class PyContextInformationValidator implements IContextInformationValidat
      * IContextInformationValidator
      */
     public void install(IContextInformation info, IDocument doc, int offset) {
-        System.out.println("Install");
         this.returnedFalseOnce = false;
         this.fInformation = (PyCalltipsContextInformation) info;
         this.doc = doc;
@@ -67,7 +66,6 @@ public class PyContextInformationValidator implements IContextInformationValidat
      * @see IContextInformationValidator#isContextInformationValid(int)
      */
     public boolean isContextInformationValid(int position) {
-        System.out.println("isContextInformationValid:" + position);
         if (doc == null) {
             this.returnedFalseOnce = true;
             return false;
@@ -109,7 +107,6 @@ public class PyContextInformationValidator implements IContextInformationValidat
      * @see IContextInformationPresenter#updatePresentation(int, TextPresentation)
      */
     public boolean updatePresentation(int position, TextPresentation presentation) {
-        System.out.println("updatePresentation: " + position);
         int currentParameter = -1;
 
         try {
@@ -118,7 +115,6 @@ public class PyContextInformationValidator implements IContextInformationValidat
             return false;
         }
 
-        System.out.println("updatePresentation: current param: " + currentParameter);
         if (fCurrentParameter != -1) {
             if (currentParameter == fCurrentParameter) {
                 return false;
