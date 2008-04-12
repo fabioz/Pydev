@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 """
 dyld emulation
 """

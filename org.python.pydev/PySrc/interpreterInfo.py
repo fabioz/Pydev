@@ -80,7 +80,7 @@ if __name__ == '__main__':
     
     path_used = sys.path
     try:
-        path_used = sorted(path_used)
+        path_used = sorted(path_used) #@UndefinedVariable -- not on all versions
     except:
         pass #just ignore it...
     

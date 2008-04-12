@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 import sys, os
 import ctypes
 

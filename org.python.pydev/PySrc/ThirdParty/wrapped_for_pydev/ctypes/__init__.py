@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 """create and manipulate C data types in Python"""
 
 import os as _os, sys as _sys
