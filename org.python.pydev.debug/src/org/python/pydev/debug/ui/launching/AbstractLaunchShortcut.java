@@ -182,10 +182,14 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 
         try {
             ILaunchConfiguration[] configs = manager.getLaunchConfigurations(type);
-            String defaultLocation = getDefaultLocation(file);
+            
+            //let's see if we can find it with a location relative or not.
+            String defaultLocation = getDefaultLocation(file, true);
+            String defaultLocation2 = getDefaultLocation(file, false);
+            
             for (int i = 0; i < configs.length; i++) {
                 String configPath = configs[i].getAttribute(Constants.ATTR_LOCATION, "");
-                if (defaultLocation.equals(configPath)) {
+                if (defaultLocation.equals(configPath) || defaultLocation2.equals(configPath)) {
                     validConfigs.add(configs[i]);
                 }
             }
@@ -199,14 +203,23 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
      * @param file
      * @return default string for the location field
      */
-    public static String getDefaultLocation(IResource[] file) {
+    public static String getDefaultLocation(IResource[] file, boolean makeRelative) {
         StringBuffer buffer = new StringBuffer();
 
         for (IResource r : file) {
             if (buffer.length() > 0) {
                 buffer.append("|");
             }
-            buffer.append(r.getRawLocation().toString());
+            
+            String loc;
+            
+            if(makeRelative){
+                IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
+                loc = makeFileRelativeToWorkspace(file, varManager);
+            }else{
+                loc = r.getRawLocation().toString();
+            }
+            buffer.append(loc);
         }
         return buffer.toString();
         // E3		IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
@@ -221,7 +234,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
     protected ILaunchConfiguration createDefaultLaunchConfiguration(IResource[] resource) {
         IInterpreterManager pythonInterpreterManager = getInterpreterManager();
         String projName = resource[0].getProject().getName();
-        return createDefaultLaunchConfiguration(resource, getLaunchConfigurationType(), getDefaultLocation(resource),
+        return createDefaultLaunchConfiguration(resource, getLaunchConfigurationType(), getDefaultLocation(resource, false), //it'll be made relative later on
                 pythonInterpreterManager, projName);
     }
 
@@ -279,8 +292,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
             baseDirectory = varManager.generateVariableExpression("workspace_loc", baseDirectory);
             
             // Build the location to a path relative to the workspace_loc
-            moduleFile = resource[0].getFullPath().makeRelative().toString();
-            moduleFile = varManager.generateVariableExpression("workspace_loc", moduleFile);
+            moduleFile = makeFileRelativeToWorkspace(resource, varManager);
             resourceType = resource[0].getType();
         }else{
             captureOutput = true;
@@ -321,6 +333,13 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
             reportError(null, e);
             return null;
         }
+    }
+
+    private static String makeFileRelativeToWorkspace(IResource[] resource, IStringVariableManager varManager) {
+        String moduleFile;
+        moduleFile = resource[0].getFullPath().makeRelative().toString();
+        moduleFile = varManager.generateVariableExpression("workspace_loc", moduleFile);
+        return moduleFile;
     }
 
     /**
