@@ -329,14 +329,14 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                         cursorPos += 1;
                     }
                     
+                    int replacementOffset = offset-length;
                     PyCalltipsContextInformation pyContextInformation = null;
                     if(args.length() > 2){
-                        String contextArgs = args.substring(1, args.length()-1); //remove the parentesis
-                        pyContextInformation = new PyCalltipsContextInformation(contextArgs, contextArgs);
+                        pyContextInformation = new PyCalltipsContextInformation(args, replacementOffset+name.length()+1); //just after the parenthesis
                     }
-
+                    
                     ret.add(new PyLinkedModeCompletionProposal(nameAndArgs,
-                            offset-length, length, cursorPos, 
+                            replacementOffset, length, cursorPos, 
                             PyCodeCompletionImages.getImageForType(type), nameAndArgs, pyContextInformation, docStr, priority, 
                             PyCompletionProposal.ON_APPLY_DEFAULT, args, false));
                     

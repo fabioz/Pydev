@@ -77,8 +77,11 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
                     priority = IPyCompletionProposal.PRIORITY_LOCALS;
                 }
                 
+                //that's negated so that we can use it as an integer later on (to sum it)
+                int notInCalltip = 1;
                 int onApplyAction = PyCompletionProposal.ON_APPLY_DEFAULT;
                 if(request.isInCalltip){
+                    notInCalltip = 0; //when we're in the calltip, we don't have to add a char '(' to the start of the context information.
                     if(request.alreadyHasParams){
                         onApplyAction = PyCompletionProposal.ON_APPLY_JUST_SHOW_CTX_INFO;
                         
@@ -86,13 +89,13 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
                         onApplyAction = PyCompletionProposal.ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS;
                     }
                 }
+                int replacementOffset = request.documentOffset - request.qlen;
                 PyCalltipsContextInformation pyContextInformation = null;
                 if(args.length() > 2){
-                    String contextArgs = args.substring(1, args.length()-1); //remove the parentesis
-                    pyContextInformation = new PyCalltipsContextInformation(contextArgs, contextArgs);
+                    pyContextInformation = new PyCalltipsContextInformation(args, replacementOffset+name.length()+notInCalltip); //just after the parenthesis
                 }
                 PyCompletionProposal proposal = new PyLinkedModeCompletionProposal(name+args,
-                        request.documentOffset - request.qlen, request.qlen, l, element, null, 
+                        replacementOffset, request.qlen, l, element, null, 
                         pyContextInformation, priority, onApplyAction, args);
                 
 

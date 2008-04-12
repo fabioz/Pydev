@@ -16,9 +16,9 @@ public class PyContextInformationValidatorTest extends TestCase {
 	
 	public void testIt() throws Exception {
 		PyContextInformationValidator validator = new PyContextInformationValidator();
-		assertEquals(1, validator.getCharCount(new Document("m1(a,b)\n"), 3, 5, ",", "", true));
-		assertEquals(1, validator.getCharCount(new Document("m1('',b)\n"), 3, 6, ",", "", true));
-		assertEquals(1, validator.getCharCount(new Document("m1('''(''',b)\n"), 3, 11, ",", "", true));
+		assertEquals(1, validator.getCurrentParameter(new Document("m1(a,b)\n"), 3, 5, ",", "", true));
+		assertEquals(1, validator.getCurrentParameter(new Document("m1('',b)\n"), 3, 6, ",", "", true));
+		assertEquals(1, validator.getCurrentParameter(new Document("m1('''(''',b)\n"), 3, 11, ",", "", true));
 	}
 
 }

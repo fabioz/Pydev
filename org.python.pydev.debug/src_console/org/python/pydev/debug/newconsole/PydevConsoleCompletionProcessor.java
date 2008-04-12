@@ -1,17 +1,16 @@
 package org.python.pydev.debug.newconsole;
 
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.jface.text.contentassist.ContentAssistEvent;
 import org.eclipse.jface.text.contentassist.ICompletionListener;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
-import org.eclipse.jface.text.contentassist.IContextInformationPresenter;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.python.pydev.dltk.console.IScriptConsoleShell;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.editor.codecompletion.AbstractCompletionProcessorWithCycling;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
+import org.python.pydev.editor.codecompletion.PyContextInformationValidator;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
 import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
 import org.python.pydev.plugin.PydevPlugin;
@@ -23,27 +22,13 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessorWithCycling implements ICompletionListener {
 
-	/**
-	 * Checks to see if the context information is valid.
-	 */
-    protected static class Validator implements IContextInformationValidator, IContextInformationPresenter {
 
-        protected int installOffset;
-
-        public boolean isContextInformationValid(int offset) {
-            return Math.abs(installOffset - offset) < 5;
-        }
-
-        public void install(IContextInformation info, ITextViewer viewer, int offset) {
-            installOffset = offset;
-        }
-
-        public boolean updatePresentation(int documentPosition, TextPresentation presentation) {
-            return false;
-        }
-    }
-
-    private IContextInformationValidator validator;
+    /**
+     * This is the class that manages the context information (validates it and
+     * changes its presentation).
+     */
+    private PyContextInformationValidator contextInformationValidator;
+    
     private IScriptConsoleShell interpreterShell;
     private String errorMessage = null;
     private int lastActivationCount=-1;
@@ -110,11 +95,11 @@ public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessor
     }
 
     public IContextInformationValidator getContextInformationValidator() {
-        if (validator == null) {
-            validator = new Validator();
+        if (contextInformationValidator == null) {
+            contextInformationValidator = new PyContextInformationValidator();
         }
 
-        return validator;
+        return contextInformationValidator;
     }
     
     /**

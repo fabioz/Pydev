@@ -16,6 +16,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.contentassist.ContentAssistEvent;
 import org.eclipse.jface.text.contentassist.ICompletionListener;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -276,7 +277,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                         break;
 
                     case ST.DELETE_PREVIOUS:
-                        handleBackspaceAction.execute(getDocument(), getCaretOffset(), getCommandLineOffset());
+                        handleBackspaceAction.execute(getDocument(), (ITextSelection) ScriptConsoleViewer.this.getSelection(), getCommandLineOffset());
                         return;
 
                     case ST.DELETE_WORD_PREVIOUS:

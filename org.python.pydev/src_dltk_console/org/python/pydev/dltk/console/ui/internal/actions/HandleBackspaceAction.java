@@ -1,6 +1,7 @@
 package org.python.pydev.dltk.console.ui.internal.actions;
 
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyBackspace;
 
@@ -11,12 +12,12 @@ import org.python.pydev.editor.actions.PyBackspace;
  */
 public class HandleBackspaceAction {
 
-	public void execute(IDocument doc, int caretPosition, int commandLineOffset) {
+	public void execute(IDocument doc, ITextSelection selection, int commandLineOffset) {
 
 		
 		PyBackspace pyBackspace = new PyBackspace();
         pyBackspace.setDontEraseMoreThan(commandLineOffset);
-        PySelection ps = new PySelection(doc, caretPosition);
+        PySelection ps = new PySelection(doc, selection);
         
 		pyBackspace.perform(ps);
 	}

@@ -11,50 +11,60 @@ import org.eclipse.swt.graphics.Image;
 public class PyCalltipsContextInformation implements IContextInformation{
 
 
-    /** The name of the context. */
-    private final String fContextDisplayString;
-    /** The information to be displayed. */
-    private final String fInformationDisplayString;
-    /** The image to be displayed. */
+    /** 
+     * The arguments to be displayed. 
+     */
+    private final String argumentsWithParens;
+    
+    /** 
+     * The information to be displayed (calculated when requested)
+     */
+    private String argumentsWithoutParens;
+    
+    /** 
+     * The image to be displayed.
+     */
     private final Image fImage;
-
+    
+    /**
+     * The place where the replacement started.
+     */
+    private int fReplacementOffset;
+    
     /**
      * Creates a new context information without an image.
      *
-     * @param contextDisplayString the string to be used when presenting the context
-     * @param informationDisplayString the string to be displayed when presenting the context information
+     * @param argumentsWithParens the arguments available.
+     * @param replacementOffset the offset where the replacement for the arguments started (the place right after the
+     * parenthesis start)
      */
-    public PyCalltipsContextInformation(String contextDisplayString, String informationDisplayString) {
-        this(null, contextDisplayString, informationDisplayString);
+    public PyCalltipsContextInformation(String arguments, int replacementOffset) {
+        this(null, arguments, replacementOffset);
     }
+
 
     /**
      * Creates a new context information with an image.
      *
      * @param image the image to display when presenting the context information
-     * @param contextDisplayString the string to be used when presenting the context
-     * @param informationDisplayString the string to be displayed when presenting the context information,
-     *      may not be <code>null</code>
+     * @param argumentsWithParens the arguments available.
+     * @param replacementOffset the offset where the replacement started
      */
-    public PyCalltipsContextInformation(Image image, String contextDisplayString, String informationDisplayString) {
-
-        Assert.isNotNull(informationDisplayString);
+    public PyCalltipsContextInformation(Image image, String argumentsWithParens, int replacementOffset) {
+        Assert.isNotNull(argumentsWithParens);
 
         fImage= image;
-        fContextDisplayString= contextDisplayString;
-        fInformationDisplayString= informationDisplayString;
+        this.argumentsWithParens = argumentsWithParens;
+        fReplacementOffset = replacementOffset;
     }
 
     /*
      * @see IContextInformation#equals(Object)
      */
     public boolean equals(Object object) {
-        if (object instanceof IContextInformation) {
-            IContextInformation contextInformation= (IContextInformation) object;
-            boolean equals= fInformationDisplayString.equalsIgnoreCase(contextInformation.getInformationDisplayString());
-            if (fContextDisplayString != null)
-                equals= equals && fContextDisplayString.equalsIgnoreCase(contextInformation.getContextDisplayString());
-            return equals;
+        if (object instanceof PyCalltipsContextInformation) {
+            PyCalltipsContextInformation contextInformation= (PyCalltipsContextInformation) object;
+            return argumentsWithParens.equalsIgnoreCase(contextInformation.argumentsWithParens);
         }
         return false;
     }
@@ -64,15 +74,17 @@ public class PyCalltipsContextInformation implements IContextInformation{
      * @since 3.1
      */
     public int hashCode() {
-        int low= fContextDisplayString != null ? fContextDisplayString.hashCode() : 0;
-        return (fInformationDisplayString.hashCode() << 16) | low;
+        return argumentsWithParens.hashCode();
     }
 
     /*
      * @see IContextInformation#getInformationDisplayString()
      */
     public String getInformationDisplayString() {
-        return fInformationDisplayString;
+        if(argumentsWithoutParens == null){
+            argumentsWithoutParens = argumentsWithParens.substring(1, argumentsWithParens.length()-1); //remove the parenthesis
+        }
+        return argumentsWithoutParens;
     }
 
     /*
@@ -86,9 +98,12 @@ public class PyCalltipsContextInformation implements IContextInformation{
      * @see IContextInformation#getContextDisplayString()
      */
     public String getContextDisplayString() {
-        if (fContextDisplayString != null)
-            return fContextDisplayString;
-        return fInformationDisplayString;
+        return getInformationDisplayString();
+    }
+
+
+    public int getReplacementOffset() {
+        return this.fReplacementOffset;
     }
 
 
