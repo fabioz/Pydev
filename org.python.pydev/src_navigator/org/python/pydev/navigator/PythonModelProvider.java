@@ -487,7 +487,12 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
                     
                 }else{
                     //now, if it's not but its parent is, go on and create it
-                    Object pythonParent = getResourceInPythonModel(res.getParent(), true);
+                    IContainer p = res.getParent();
+                    if(p == null){
+                        continue;
+                    }
+                    
+                    Object pythonParent = getResourceInPythonModel(p, true);
                     if(pythonParent instanceof IWrappedResource){
                         IWrappedResource parent = (IWrappedResource) pythonParent;
                         if (res instanceof IProject){

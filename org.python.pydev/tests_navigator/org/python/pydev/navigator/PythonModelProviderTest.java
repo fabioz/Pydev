@@ -3,6 +3,7 @@ package org.python.pydev.navigator;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -10,6 +11,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.ui.navigator.PipelinedShapeModification;
+import org.eclipse.ui.navigator.PipelinedViewerUpdate;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.navigator.elements.IWrappedResource;
@@ -55,6 +57,24 @@ public class PythonModelProviderTest extends TestCase {
         assertEquals(1, files.size());
         Object wrappedResource = files.iterator().next();
         assertTrue(wrappedResource instanceof IWrappedResource);
+    }
+    
+    /**
+     * Test if intercepting an object that does not have a parent works. 
+     */
+    public void testInterceptRefresh() throws Exception {
+        PythonNature nature = createNature(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot/source/python");
+        
+        project = new ProjectStub(new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot"), nature);
+        provider = new PythonModelProvider();
+        
+        
+        PipelinedViewerUpdate update = new PipelinedViewerUpdate();
+        Set<IResource> refreshTargets = update.getRefreshTargets();
+        refreshTargets.add(project);
+        provider.interceptRefresh(update); 
+        IResource wrappedResource = refreshTargets.iterator().next();
+        assertTrue(wrappedResource == project);
     }
     
     /**
