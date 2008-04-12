@@ -19,6 +19,7 @@ import org.python.pydev.dltk.console.IScriptConsoleCommunication;
 import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.editor.codecompletion.AbstractPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
+import org.python.pydev.editor.codecompletion.PyCalltipsContextInformation;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
@@ -327,9 +328,16 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                     if(args.length() > 1){
                         cursorPos += 1;
                     }
+                    
+                    PyCalltipsContextInformation pyContextInformation = null;
+                    if(args.length() > 2){
+                        String contextArgs = args.substring(1, args.length()-1); //remove the parentesis
+                        pyContextInformation = new PyCalltipsContextInformation(contextArgs, contextArgs);
+                    }
+
                     ret.add(new PyLinkedModeCompletionProposal(nameAndArgs,
                             offset-length, length, cursorPos, 
-                            PyCodeCompletionImages.getImageForType(type), nameAndArgs, null, docStr, priority, 
+                            PyCodeCompletionImages.getImageForType(type), nameAndArgs, pyContextInformation, docStr, priority, 
                             PyCompletionProposal.ON_APPLY_DEFAULT, args, false));
                     
                 }

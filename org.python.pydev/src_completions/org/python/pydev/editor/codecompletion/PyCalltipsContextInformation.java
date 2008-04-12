@@ -24,7 +24,7 @@ public class PyCalltipsContextInformation implements IContextInformation{
      * @param contextDisplayString the string to be used when presenting the context
      * @param informationDisplayString the string to be displayed when presenting the context information
      */
-    public PyCalltipsContextInformation(String contextDisplayString, String informationDisplayString, CompletionRequest request) {
+    public PyCalltipsContextInformation(String contextDisplayString, String informationDisplayString) {
         this(null, contextDisplayString, informationDisplayString);
     }
 

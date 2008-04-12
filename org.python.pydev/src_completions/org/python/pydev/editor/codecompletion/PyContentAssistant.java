@@ -6,9 +6,15 @@
 package org.python.pydev.editor.codecompletion;
 
 import org.eclipse.jface.bindings.TriggerSequence;
+import org.eclipse.jface.text.DefaultInformationControl;
+import org.eclipse.jface.text.IInformationControl;
+import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
+import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.swt.widgets.Shell;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.editor.PyInformationPresenter;
 import org.python.pydev.plugin.KeyBindingHelper;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -95,4 +101,12 @@ public class PyContentAssistant extends ContentAssistant{
         super.hide();
     }
     
+    public static IInformationControlCreator createInformationControlCreator(ISourceViewer sourceViewer) {
+        return new IInformationControlCreator() {
+            public IInformationControl createInformationControl(Shell parent) {
+                return new DefaultInformationControl(parent, new PyInformationPresenter());
+            }
+        };
+    }
+
 }

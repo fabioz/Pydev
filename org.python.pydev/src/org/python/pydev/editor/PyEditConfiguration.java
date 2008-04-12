@@ -328,20 +328,13 @@ public class PyEditConfiguration extends TextSourceViewerConfiguration {
     }
 
     
-    // The presenter instance for the information window
-    private static final DefaultInformationControl.IInformationPresenter presenter = new PyInformationPresenter();
-
     /*
      * (non-Javadoc)
      * 
      * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getInformationControlCreator(org.eclipse.jface.text.source.ISourceViewer)
      */
     public IInformationControlCreator getInformationControlCreator(ISourceViewer sourceViewer) {
-        return new IInformationControlCreator() {
-            public IInformationControl createInformationControl(Shell parent) {
-                return new DefaultInformationControl(parent, presenter);
-            }
-        };
+        return PyContentAssistant.createInformationControlCreator(sourceViewer);
     }
 
     /**

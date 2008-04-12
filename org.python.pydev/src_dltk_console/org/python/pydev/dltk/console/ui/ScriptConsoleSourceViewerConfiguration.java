@@ -10,12 +10,14 @@
 package org.python.pydev.dltk.console.ui;
 
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
+import org.python.pydev.editor.codecompletion.PyContentAssistant;
 
 /**
  * Configuration for the source viewer.
@@ -26,11 +28,11 @@ public class ScriptConsoleSourceViewerConfiguration extends SourceViewerConfigur
 
     private ITextHover hover;
 
-    private IContentAssistant contentAssist;
+    private PyContentAssistant contentAssist;
 
     private IQuickAssistAssistant quickAssist;
 
-    public ScriptConsoleSourceViewerConfiguration(ITextHover hover, IContentAssistant contentAssist, IQuickAssistAssistant quickAssist) {
+    public ScriptConsoleSourceViewerConfiguration(ITextHover hover, PyContentAssistant contentAssist, IQuickAssistAssistant quickAssist) {
         this.hover = hover;
         this.contentAssist = contentAssist;
         this.quickAssist = quickAssist;
@@ -50,11 +52,23 @@ public class ScriptConsoleSourceViewerConfiguration extends SourceViewerConfigur
 
     @Override
     public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
+        contentAssist.setInformationControlCreator(this.getInformationControlCreator(sourceViewer));
         return contentAssist;
     }
     
     @Override
     public IQuickAssistAssistant getQuickAssistAssistant(ISourceViewer sourceViewer) {
+        quickAssist.setInformationControlCreator(this.getInformationControlCreator(sourceViewer));
         return quickAssist;
     }
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getInformationControlCreator(org.eclipse.jface.text.source.ISourceViewer)
+     */
+    public IInformationControlCreator getInformationControlCreator(ISourceViewer sourceViewer) {
+        return PyContentAssistant.createInformationControlCreator(sourceViewer);
+    }
+
 }

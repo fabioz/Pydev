@@ -89,7 +89,7 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
                 PyCalltipsContextInformation pyContextInformation = null;
                 if(args.length() > 2){
                     String contextArgs = args.substring(1, args.length()-1); //remove the parentesis
-                    pyContextInformation = new PyCalltipsContextInformation(contextArgs, contextArgs, request);
+                    pyContextInformation = new PyCalltipsContextInformation(contextArgs, contextArgs);
                 }
                 PyCompletionProposal proposal = new PyLinkedModeCompletionProposal(name+args,
                         request.documentOffset - request.qlen, request.qlen, l, element, null, 
