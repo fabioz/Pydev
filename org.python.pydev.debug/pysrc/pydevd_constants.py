@@ -24,7 +24,7 @@ class DebugInfoHolder:
 USE_PSYCO_OPTIMIZATION = True
 
 #Hold a reference to the original _getframe (because psyco will change that as soon as it's imported)
-import sys
+import sys #Note: the sys import must be here anyways (others depend on it)
 GetFrame = sys._getframe
 
 #Used to determine the maximum size of each variable passed to eclipse -- having a big value here may make

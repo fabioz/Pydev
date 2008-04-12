@@ -151,4 +151,5 @@ class PyDBFrame:
             import psyco
             trace_dispatch = psyco.proxy(trace_dispatch)
         except ImportError:
+            sys.exc_clear() #don't keep the traceback
             pass #ok, psyco not available

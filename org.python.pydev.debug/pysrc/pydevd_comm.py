@@ -56,7 +56,6 @@ each command has a format:
 from pydevd_constants import * #@UnusedWildImport
 
 import time
-import sys
 import threading
 import Queue as PydevQueue
 from socket import socket

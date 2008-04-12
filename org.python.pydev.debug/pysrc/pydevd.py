@@ -1,8 +1,6 @@
 #IMPORTANT: pydevd_constants must be the 1st thing defined because it'll keep a reference to the original sys._getframe
 from pydevd_constants import * #@UnusedWildImport
 
-import sys
-
 from pydevd_comm import  CMD_CHANGE_VARIABLE,\
                          CMD_EVALUATE_EXPRESSION,\
                          CMD_EXEC_EXPRESSION,\
@@ -617,6 +615,7 @@ class PyDB:
             doWaitSuspend = psyco.proxy(doWaitSuspend)
             getInternalQueue = psyco.proxy(getInternalQueue)
         except ImportError:
+            sys.exc_clear() #don't keep the traceback
             if not sys.platform.startswith("java"):
                 print >> sys.stderr, 'pydev debugger: warning: psyco not available for debugger speedups'
 
@@ -815,12 +814,13 @@ if __name__ == '__main__':
         print e
         usage(1)
     
-    #as to get here all our imports are already resovled, the psyco module can be
+    #as to get here all our imports are already resolved, the psyco module can be
     #changed and we'll still get the speedups in the debugger, as those functions 
     #are already compiled at this time.
     try:
         import psyco 
     except ImportError:
+        sys.exc_clear()
         pass #that's ok, no need to mock psyco if it's not available anyways
     else:
         #if it's available, let's change it for a stub (pydev already made use of it)

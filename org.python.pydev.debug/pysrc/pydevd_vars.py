@@ -156,7 +156,7 @@ if USE_PSYCO_OPTIMIZATION:
         import psyco
         varToXML = psyco.proxy(varToXML)
     except ImportError:
-        pass
+        sys.exc_clear() #don't keep the traceback
 
 
 def frameVarsToXML(frame):
