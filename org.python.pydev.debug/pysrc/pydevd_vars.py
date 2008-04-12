@@ -156,7 +156,8 @@ if USE_PSYCO_OPTIMIZATION:
         import psyco
         varToXML = psyco.proxy(varToXML)
     except ImportError:
-        sys.exc_clear() #don't keep the traceback
+        if hasattr(sys, 'exc_clear'): #jython does not have it
+            sys.exc_clear() #don't keep the traceback -- clients don't want to see it
 
 
 def frameVarsToXML(frame):

@@ -30,10 +30,15 @@ class PyDBFrame:
         
         breakpoint = mainDebugger.breakpoints.get(filename)
         
-        #print 'frame: trace_dispatch', self.base, frame.f_lineno, event, frame.f_code.co_name
-
-        can_skip = info.pydev_state == STATE_RUN and info.pydev_step_stop is None \
-            and info.pydev_step_cmd is None
+        
+        if info.pydev_state == STATE_RUN:
+            #we can skip if:
+            #- we have no stop marked
+            #- we should make a step return/step over and we're not in the current frame
+            can_skip = (info.pydev_step_cmd is None and info.pydev_step_stop is None)\
+            or (info.pydev_step_cmd in (CMD_STEP_RETURN, CMD_STEP_OVER) and info.pydev_step_stop is not frame) 
+        else:
+            can_skip = False
             
         # Let's check to see if we are in a function that has a breakpoint. If we don't have a breakpoint, 
         # we will return nothing for the next trace
@@ -62,7 +67,7 @@ class PyDBFrame:
                     return None
                 
         #We may have hit a breakpoint or we are already in step mode. Either way, let's check what we should do in this frame
-        #print 'NOT skipped', base, frame.f_lineno, info.pydev_state, info.pydev_step_stop, info.pydev_step_cmd
+        #print 'NOT skipped', frame.f_lineno, frame.f_code.co_name
 
         
         try:
@@ -108,11 +113,11 @@ class PyDBFrame:
                     
             elif info.pydev_step_cmd == CMD_STEP_OVER:
                 
-                stop = info.pydev_step_stop == frame and event in ('line', 'return')
+                stop = info.pydev_step_stop is frame and event in ('line', 'return')
             
             elif info.pydev_step_cmd == CMD_STEP_RETURN:
                 
-                stop = event == 'return' and info.pydev_step_stop == frame
+                stop = event == 'return' and info.pydev_step_stop is frame
             
             else:
                 stop = False
@@ -151,5 +156,6 @@ class PyDBFrame:
             import psyco
             trace_dispatch = psyco.proxy(trace_dispatch)
         except ImportError:
-            sys.exc_clear() #don't keep the traceback
+            if hasattr(sys, 'exc_clear'): #jython does not have it
+                sys.exc_clear() #don't keep the traceback
             pass #ok, psyco not available

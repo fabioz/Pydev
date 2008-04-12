@@ -6,6 +6,7 @@ Pydev
 <li>Interactive console: context information showing in completions</li>
 <li>Interactive console: backspace will also delete the selected text</li>
 <li>Code completion: calltips context info correctly made 'bold'</li>
+<li>Debugger: Step over/Step return can now execute with untraced frames (much faster)</li>
 
 after 1.3.14
 

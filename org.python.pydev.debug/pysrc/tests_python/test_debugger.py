@@ -20,6 +20,7 @@ PYDEVD_FILE = NormFile('../pydevd.py')
 
 SHOW_WRITES_AND_READS = False
 SHOW_RESULT_STR = False
+SHOW_OTHER_DEBUG_INFO = False
 
 
 import subprocess
@@ -85,9 +86,14 @@ class AbstractWriterThread(threading.Thread):
         
     
     def StartSocket(self):
+        if SHOW_WRITES_AND_READS:
+            print 'StartSocket'
+        
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind(('', port))
         s.listen(1)
+        if SHOW_WRITES_AND_READS:
+            print 'Waiting in socket.accept()'
         newSock, addr = s.accept()
         if SHOW_WRITES_AND_READS:
             print 'Test Writer Thread Socket:', newSock, addr
@@ -499,7 +505,7 @@ class Test(unittest.TestCase):
         else:
             #run as jython
             args = [
-                r'D:\bin\jdk_1_5_09\bin\javaw.exe',
+                r'D:\bin\jdk_1_5_09\bin\java.exe',
                 '-classpath',
                 'D:/bin/jython-2.2.1/jython.jar',
                 'org.python.util.jython',
@@ -513,6 +519,9 @@ class Test(unittest.TestCase):
                 writerThread.TEST_FILE,
             ]
         
+        if SHOW_OTHER_DEBUG_INFO:
+            print 'executing', ' '.join(args)
+            
         process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         class ProcessReadThread(threading.Thread):
             def run(self):
@@ -526,18 +535,33 @@ class Test(unittest.TestCase):
         processReadThread = ProcessReadThread()
         processReadThread.setDaemon(True)
         processReadThread.start()
+        if SHOW_OTHER_DEBUG_INFO:
+            print 'Both processes started'
         
+        #polls can fail (because the process may finish and the thread still not -- so, we give it some more chances to
+        #finish successfully).
+        pools_failed = 0
         while writerThread.isAlive():
+            if process.poll() is not None:
+                pools_failed += 1
             time.sleep(.2)
-        
-        for i in range(10):
-            if processReadThread.resultStr is None:
-                time.sleep(.5)
-            else:
+            if pools_failed == 10:
                 break
+        
+        if process.poll() is None:
+            for i in range(10):
+                if processReadThread.resultStr is None:
+                    time.sleep(.5)
+                else:
+                    break
+            else:
+                writerThread.DoKill()
+        
         else:
-            writerThread.DoKill()
-            
+            if process.poll() < 0:
+                self.fail("The other process exited with error code: "+str(process.poll())+" result:"+processReadThread.resultStr)
+                    
+        
         if SHOW_RESULT_STR:
             print processReadThread.resultStr
             
@@ -616,6 +640,6 @@ if __name__ == '__main__':
     suite = unittest.makeSuite(Test)
     
 #    suite = unittest.TestSuite()
-#    suite.addTest(Test('testCase9'))
-    unittest.TextTestRunner().run(suite)
+#    suite.addTest(Test('testCase1'))
+    unittest.TextTestRunner(verbosity=1).run(suite)
 

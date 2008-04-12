@@ -615,10 +615,12 @@ class PyDB:
             doWaitSuspend = psyco.proxy(doWaitSuspend)
             getInternalQueue = psyco.proxy(getInternalQueue)
         except ImportError:
-            sys.exc_clear() #don't keep the traceback
+            if hasattr(sys, 'exc_clear'): #jython does not have it
+                sys.exc_clear() #don't keep the traceback (let's keep it clear for when we go to the point of executing client code)
+                
             if not sys.platform.startswith("java"):
                 print >> sys.stderr, 'pydev debugger: warning: psyco not available for debugger speedups'
-
+            
 
     def run(self, file, globals=None, locals=None):
 
@@ -820,7 +822,8 @@ if __name__ == '__main__':
     try:
         import psyco 
     except ImportError:
-        sys.exc_clear()
+        if hasattr(sys, 'exc_clear'): #jython does not have it
+            sys.exc_clear() #don't keep the traceback -- clients don't want to see it
         pass #that's ok, no need to mock psyco if it's not available anyways
     else:
         #if it's available, let's change it for a stub (pydev already made use of it)
