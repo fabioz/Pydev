@@ -56,7 +56,7 @@ class PyDBFrame:
             if curr_func_name in ('?', '<module>'):
                 curr_func_name = ''
                 
-            for _b, condition, func_name in breakpoint.itervalues():
+            for _b, condition, func_name in breakpoint.values(): #jython does not support itervalues()
                 #will match either global or some function
                 if func_name in ('None', curr_func_name):
                     break
