@@ -17,8 +17,13 @@ True, False = 1,0
 import time
 
 if sys.platform == "cygwin":
-    sys.path.append(os.path.join(sys.path[0],'ThirdParty'))
-    import ctypes
+    
+    try:
+        import ctypes #use from the system if available
+    except ImportError:
+        sys.path.append(os.path.join(sys.path[0],'ThirdParty/wrapped_for_pydev'))
+        import ctypes
+        
     def nativePath(path):
         MAX_PATH=512  # On cygwin NT, its 260 lately, but just need BIG ENOUGH buffer
         '''Get the native form of the path, like c:\\Foo for /cygdrive/c/Foo'''

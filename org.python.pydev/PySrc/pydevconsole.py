@@ -31,8 +31,16 @@ class StdIn:
         #Ok, callback into the client to see get the new input
         server = xmlrpclib.Server('http://%s:%s' % (self.host, self.client_port))
         return server.RequestInput()
+    
+    def isatty(self):    
+        return False #not really a file
         
+    def write(self, *args, **kwargs):
+        pass #not available StdIn (but it can be expected to be in the stream interface)
         
+    def flush(self, *args, **kwargs):
+        pass #not available StdIn (but it can be expected to be in the stream interface)
+       
     #in the interactive interpreter, a read and a readline are the same.
     read = readline
         
