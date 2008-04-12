@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.source.Annotation;
@@ -22,6 +24,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.bundle.BundleUtils;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
 
@@ -168,20 +171,19 @@ public class PydevPlugin extends AbstractUIPlugin {
             URL url = configurationLocation.getURL();
             String path = url.getPath();
             File file = new File(path);
-            if(!file.exists()){
-                return false;
+            if(file.exists()){
+                file = new File(file, "features");
+                if(file.exists()){
+                    file = new File(file, "com.python.pydev");
+                }
             }
             
-            file = new File(file, "features");
             if(!file.exists()){
-                return false;
+                //Let's give it a 2nd chance for finding it inside of the com.python.pydev plugin.
+                file = BundleUtils.getRelative(new Path("/"), getBundle());
+                file = new File(file.getParentFile(), "com.python.pydev");
             }
-            
-            file = new File(file, "com.python.pydev");
-            if(!file.exists()){
-                return false;
-            }
-            
+                
             File fileLicense = new File(file, "pydev_ext");
             File fileEmail = new File(file, "pydev_ext_email");
             
@@ -195,7 +197,7 @@ public class PydevPlugin extends AbstractUIPlugin {
                 }
             }
             return false;
-        }catch(Exception e){
+        }catch(Throwable e){
             return false;
         }
     }
