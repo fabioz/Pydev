@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.docutils.WordUtils;
 import org.python.pydev.debug.core.Constants;
+import org.python.pydev.debug.ui.launching.InvalidRunException;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -87,8 +88,9 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
      * @param launchConfigurationDialog the dialog for the launch configuration
      * @return a PythonRunnerConfig configured with the given launch configuration
      * @throws CoreException
+     * @throws InvalidRunException 
      */
-    private PythonRunnerConfig getConfig(ILaunchConfiguration configuration, ILaunchConfigurationDialog launchConfigurationDialog) throws CoreException {
+    private PythonRunnerConfig getConfig(ILaunchConfiguration configuration, ILaunchConfigurationDialog launchConfigurationDialog) throws CoreException, InvalidRunException {
         String run;
         if (fInterpreterManager.isJython()) {
             run = PythonRunnerConfig.RUN_JYTHON;

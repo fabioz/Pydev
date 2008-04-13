@@ -47,7 +47,7 @@ public class PythonPathHelper implements Serializable {
      * @param acceptPoint says if we can have dots in the str that has the path to be analyzed
      * @return a trimmed string with all the '\' converted to '/'
      */
-    public String getDefaultPathStr(String str) {
+    public static String getDefaultPathStr(String str) {
         //this check is no longer done... could result in other problems
         // if(acceptPoint == false && str.indexOf(".") == 0){ //cannot start with a dot
         // 		throw new RuntimeException("The pythonpath can only have absolute paths (cannot start with '.', therefore, the path: '"+str+"' is not valid.");
@@ -418,7 +418,7 @@ public class PythonPathHelper implements Serializable {
      * @param string this is the string that has the pythonpath (separated by |)
      * @param lPath OUT: this list is filled with the pythonpath.
      */
-    public void getPythonPathFromStr(String string, List<String> lPath) {
+    public static void getPythonPathFromStr(String string, List<String> lPath) {
         String[] strings = string.split("\\|");
         for (int i = 0; i < strings.length; i++) {
             String defaultPathStr = getDefaultPathStr(strings[i]);

@@ -419,7 +419,12 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     }
 
 
-	private void getProjectsRecursively(IProject project, boolean referenced, HashSet<IProject> memo) {
+    /**
+     * @param project the project for which we wante references.
+     * @param referenced whether we want to get the referenced projects or the ones referencing this one.
+     * @param memo (out) this is the place where all the projects will e available.
+     */
+	public static void getProjectsRecursively(IProject project, boolean referenced, HashSet<IProject> memo) {
 		IProject[] projects = null;
 		try {
 			if(referenced){

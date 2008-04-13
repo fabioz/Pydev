@@ -1,6 +1,5 @@
 package org.python.pydev.debug.ui.blocks;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
@@ -55,7 +54,7 @@ public class PythonPathBlock extends AbstractLaunchConfigurationTab {
     		for (String p:paths) {
     			fPythonPathList.add(p);
             }
-        } catch (CoreException e) {
+        } catch (Exception e) {
         	// Exceptions here may have several reasons
         	// - The interpreter is incorrectly configured
         	// - The arguments use an unresolved variable.
