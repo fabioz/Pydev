@@ -176,4 +176,10 @@ public class PythonModelProviderTest extends TestCase {
 		assertNotSame(children1[0], children4[0]); //because it was removed
 	}
     
+    
+    public void testDontRemoveOtherPluginElements() throws Exception {
+    	//TODO: see TODO's in those methods and make it work
+		provider.getPipelinedChildren(null, null);
+		provider.getPipelinedElements(null, null);
+	}
 }

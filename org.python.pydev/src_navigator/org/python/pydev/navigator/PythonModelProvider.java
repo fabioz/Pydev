@@ -60,6 +60,11 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             System.out.println("getPipelinedChildren");
         }
         Object[] children = getChildren(parent);
+        //TODO: We cannot clear and re-add things unless we actually have something related to pydev here
+        //otherwise we may end up messing with elements from other plugins -- e.g.: CDT
+        //to reproduce: create CDT project and source folder for it: when it's expanded, if pydev is enabled,
+        //it won't show the source folder with the CDT icon (because we've just removed it and added a 
+        //regular folder element)
         currentElements.clear();
         currentElements.addAll(Arrays.asList(children));
     }
@@ -76,6 +81,11 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             System.out.println("getPipelinedElements");
         }
         Object[] children = getElements(input);
+        //TODO: We cannot clear and re-add things unless we actually have something related to pydev here
+        //otherwise we may end up messing with elements from other plugins -- e.g.: CDT
+        //to reproduce: create CDT project and source folder for it: when it's expanded, if pydev is enabled,
+        //it won't show the source folder with the CDT icon (because we've just removed it and added a 
+        //regular folder element)
         currentElements.clear();
         currentElements.addAll(Arrays.asList(children));
     }
