@@ -32,6 +32,8 @@ def GetClassesAndData():
 - Rename refactoring: check for overriden methods
 - Remote debugging: use module name is possible? (not filesystem dependent)
 - better warning when user does not have psyco (while debugging)
+- PyGlobalsBrowser.getFromWorkspace() should work with jython and python if both are available
+
 
 - occurrences case:
 def m1():
