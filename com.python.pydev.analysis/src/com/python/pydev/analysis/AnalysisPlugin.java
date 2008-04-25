@@ -72,6 +72,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             //ok, now that we found the module, we have to get the actual definition
             tok = "";
             String path = info.getPath();
+            
             if(path != null && path.length() > 0){
                 tok = path+".";
             }
@@ -79,7 +80,21 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             try {
                 IDefinition[] definitions = mod.findDefinition(
                         CompletionStateFactory.getEmptyCompletionState(tok, nature, completionCache), -1, -1, nature);
-                
+
+                if((definitions == null || definitions.length == 0) && path != null && path.length() > 0){
+                    //this can happen if we have something as an attribute in the path:
+                    
+                    //class Bar(object):
+                    //    def __init__(self):
+                    //        self.xxx = 10
+                    //
+                    //so, we'de get a find definition for Bar.__init__.xxx which is something we won't find
+                    //for now, let's simply return a match in the correct context (although the correct way of doing
+                    //it would be analyzing that context to find the match)
+                    definitions = mod.findDefinition(
+                            CompletionStateFactory.getEmptyCompletionState(path, nature, completionCache), -1, -1, nature);
+                    
+                }
                 getAsPointers(pointers, (Definition[]) definitions);
             } catch (Exception e) {
                 throw new RuntimeException(e);
