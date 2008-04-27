@@ -4,7 +4,6 @@
  */
 package org.python.pydev.navigator;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -47,6 +46,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 public class PythonModelProvider extends PythonBaseModelProvider implements IPipelinedTreeContentProvider {
 
     private static final boolean DEBUG = false;
+
     
     /**
      * This method basically replaces all the elements for other resource elements
@@ -59,14 +59,8 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         if(DEBUG){
             System.out.println("getPipelinedChildren");
         }
-        Object[] children = getChildren(parent);
-        //TODO: We cannot clear and re-add things unless we actually have something related to pydev here
-        //otherwise we may end up messing with elements from other plugins -- e.g.: CDT
-        //to reproduce: create CDT project and source folder for it: when it's expanded, if pydev is enabled,
-        //it won't show the source folder with the CDT icon (because we've just removed it and added a 
-        //regular folder element)
-        currentElements.clear();
-        currentElements.addAll(Arrays.asList(children));
+        PipelinedShapeModification modification = new PipelinedShapeModification(parent, currentElements);
+        convertToPythonElementsAddOrRemove(modification, true);
     }
 
     /**
@@ -80,14 +74,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         if(DEBUG){
             System.out.println("getPipelinedElements");
         }
-        Object[] children = getElements(input);
-        //TODO: We cannot clear and re-add things unless we actually have something related to pydev here
-        //otherwise we may end up messing with elements from other plugins -- e.g.: CDT
-        //to reproduce: create CDT project and source folder for it: when it's expanded, if pydev is enabled,
-        //it won't show the source folder with the CDT icon (because we've just removed it and added a 
-        //regular folder element)
-        currentElements.clear();
-        currentElements.addAll(Arrays.asList(children));
+        getPipelinedChildren(input, currentElements);
     }
 
     /**
@@ -100,7 +87,12 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         if(DEBUG){
             System.out.println("getPipelinedParent");
         }
-        return getParent(object);
+        if (object instanceof IWrappedResource){
+            return getParent(object);
+        }else{
+            return aSuggestedParent;
+        }
+        
     }
 
     /**

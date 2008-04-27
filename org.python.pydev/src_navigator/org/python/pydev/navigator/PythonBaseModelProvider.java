@@ -67,7 +67,7 @@ import org.python.pydev.plugin.nature.PythonNatureListenersManager;
  * 
  * @author Fabio
  */
-public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implements IResourceChangeListener, IPythonNatureListener {
+public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvider implements IResourceChangeListener, IPythonNatureListener {
 
     /**
      * Object representing an empty array.
@@ -267,13 +267,6 @@ public class PythonBaseModelProvider extends BaseWorkbenchContentProvider implem
      * @return the children for some element (IWrappedResource or IResource)
      */
     public Object[] getChildren(Object parentElement) {
-        
-        //------------------------------------------- for the working set, just return the children directly
-//        if(parentElement instanceof IWorkingSet){
-//            IWorkingSet set = (IWorkingSet) parentElement;
-//            return set.getElements();
-//        }
-        
         Object[] childrenToReturn = null;
         
         if(parentElement instanceof IWrappedResource){

@@ -2,6 +2,7 @@ package org.python.pydev.navigator;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,11 +26,11 @@ public class PythonModelProviderTest extends TestCase {
         try {
             PythonModelProviderTest test = new PythonModelProviderTest();
             test.setUp();
-            test.testProjectIsRoot();
+            test.testDontRemoveOtherPluginElements();
             test.tearDown();
             
             junit.textui.TestRunner.run(PythonModelProviderTest.class);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
         
@@ -178,8 +179,37 @@ public class PythonModelProviderTest extends TestCase {
     
     
     public void testDontRemoveOtherPluginElements() throws Exception {
-    	//TODO: see TODO's in those methods and make it work
-		provider.getPipelinedChildren(null, null);
-		provider.getPipelinedElements(null, null);
+        final HashSet<String> pythonPathSet = new HashSet<String>();
+        pythonPathSet.add(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot/source");
+        PythonNature nature = createNature(pythonPathSet);
+        
+        project = new ProjectStub(new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot"), nature);
+        provider = new PythonModelProvider();
+
+		HashSet<Object> currentChildren = new HashSet<Object>();
+		currentChildren.add("Test");
+        provider.getPipelinedChildren(project, currentChildren);
+        
+        assertEquals(1, currentChildren.size());
+        assertEquals("Test", currentChildren.iterator().next());
+        
+        Object[] children = provider.getChildren(project);
+        currentChildren.addAll(Arrays.asList(children));
+        provider.getPipelinedChildren(project, currentChildren);
+
+        assertEquals(2, currentChildren.size()); //Test + source folder
+        boolean found = false;
+        for(Object o:currentChildren){
+            if("Test".equals(o)){
+                found = true;
+            }else{
+                assertTrue(o instanceof PythonSourceFolder);
+            }
+        }
+        if(!found){
+            fail("Could not find generated child");
+        }
+        
+        
 	}
 }
