@@ -10,6 +10,7 @@ Pydev
 <li>Launching: F9 will reuse an existing launch instead of creating a new one every time</li>
 <li>Launching: The default launch with Ctrl+F11 will not ask again for the launch associated with a file (for new launches)</li>
 <li>Project Explorer: fixed integration problems with CDT (and others)</li>
+<li>Launch: console encoding passed as environment variable (no longer written to the install location)</li>
 
 after 1.3.14
 

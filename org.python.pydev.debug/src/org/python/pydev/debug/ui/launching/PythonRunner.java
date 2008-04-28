@@ -23,7 +23,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -210,7 +209,13 @@ public class PythonRunner {
      * Actually creates the process (and create the encoding config file)
      */
     private static Process createProcess(ILaunch launch, String[] envp, String[] cmdLine, File workingDirectory) throws CoreException {
-        createEncodingFileForLaunch(launch);
+        String encoding = launch.getAttribute(DebugPlugin.ATTR_CONSOLE_ENCODING);
+        if(encoding != null && encoding.trim().length() > 0){
+            String[] s = new String[envp.length+1];
+            System.arraycopy(envp, 0, s, 0, envp.length);
+            s[s.length-1] = "PYDEV_CONSOLE_ENCODING="+encoding;
+            envp = s;
+        }        
         Process p = DebugPlugin.exec(cmdLine, workingDirectory, envp);
         return p;
     }
@@ -243,30 +248,13 @@ public class PythonRunner {
 	 * The debug plugin needs to be notified about our process.
 	 * It'll then display the appropriate UI.
 	 */
-    private static IProcess registerWithDebugPluginForProcessType(String label, ILaunch launch, Process p, Map<Object, Object> processAttributes, String processType) {
+    private static IProcess registerWithDebugPluginForProcessType(String label, ILaunch launch, Process p, 
+            Map<Object, Object> processAttributes, String processType) {
 	    processAttributes.put(IProcess.ATTR_PROCESS_TYPE, processType);
 	    processAttributes.put(IProcess.ATTR_PROCESS_LABEL, label);
         processAttributes.put(DebugPlugin.ATTR_CAPTURE_OUTPUT, "true");
         
-        createEncodingFileForLaunch(launch);
 	    return DebugPlugin.newProcess(launch,p, label, processAttributes);
 	}
     
-    /**
-     * Creates a file the specification of the console encoding to be used by the pydev sitecustomize.
-     * 
-     * @param launch the launch to which the encoding shoud be created.
-     */
-    public static void createEncodingFileForLaunch(ILaunch launch) {
-        String encoding = launch.getAttribute(DebugPlugin.ATTR_CONSOLE_ENCODING);
-        if(encoding != null && encoding.trim().length() > 0){
-            try {
-                File file = PydevPlugin.getScriptWithinPySrc("pydev_sitecustomize");
-                file = new File(file, "encoding_config");
-                REF.writeStrToFile(encoding.trim(), file);
-            } catch (Throwable e) {
-                PydevPlugin.log(e);
-            }
-        }
-    }
 }

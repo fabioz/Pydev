@@ -14,46 +14,20 @@ encoding = None
 
 #----------------------------------------------------------------------------------------------------------------------- 
 #check if the encoding has been specified for this launch...    
-config_file_str = os.path.dirname(__file__)
-config_file_str = os.path.join(config_file_str, 'encoding_config')
 
 #set the encoding with the encoding_config file that should've been created
 #before launching the last application (it'll be removed after we get its contents)
-if os.path.exists(config_file_str):
-    try:
-        config_file = open(config_file_str, 'r')
-    except:
+try:
+    new_encoding = os.environ.get('PYDEV_CONSOLE_ENCODING')
+    if new_encoding and new_encoding.strip():
+        encoding = new_encoding.strip()
         if DEBUG:
-            import traceback;traceback.print_exc() #@Reimport
-        
-    else:
-        #ok, file opened
-        try:
-            try:
-                new_encoding = config_file.read()
-                if new_encoding.strip():
-                    encoding = new_encoding.strip()
-                    if DEBUG:
-                        print 'encoding read: ', encoding
-            except:
-                #ok, just ignore it if we couldn't get it
-                if DEBUG:
-                    import traceback;traceback.print_exc() #@Reimport
+            print 'encoding from env (PYDEV_CONSOLE_ENCODING): ', encoding
+except:
+    #ok, just ignore it if we couldn't get it
+    if DEBUG:
+        import traceback;traceback.print_exc() #@Reimport
                 
-        finally:
-            try:
-                config_file.close()
-            except:
-                if DEBUG:
-                    import traceback;traceback.print_exc() #@Reimport
-    
-    try:
-        #remove the file (it's valid only for a single launch)
-        os.remove(config_file_str)
-    except:
-        if DEBUG:
-            import traceback;traceback.print_exc() #@Reimport
-
 
 
 #----------------------------------------------------------------------------------------------------------------------- 
@@ -66,6 +40,8 @@ if not encoding:
     else:
         #that's the way that the encoding is specified in WorkbenchEncoding.getWorkbenchDefaultEncoding
         encoding = System.getProperty("file.encoding", "")
+        if DEBUG:
+            print 'encoding from "file.encoding": ', encoding
 
 
 #----------------------------------------------------------------------------------------------------------------------- 
@@ -81,6 +57,8 @@ if not encoding:
         if loc[1]:
             #ok, default locale is set (if the user didn't specify any encoding, the system default should be used)
             encoding = loc[1]
+            if DEBUG:
+                print 'encoding from "locale": ', encoding
     
 
 #----------------------------------------------------------------------------------------------------------------------- 
@@ -94,6 +72,8 @@ if not encoding:
 #and finally, set the encoding
 try:
     if encoding:
+        if DEBUG:
+            print 'Setting default encoding', encoding
         sys.setdefaultencoding(encoding) #@UndefinedVariable (it's deleted after the site.py is executed -- so, it's undefined for code-analysis)
 except:
     #ignore if we cannot set it correctly
