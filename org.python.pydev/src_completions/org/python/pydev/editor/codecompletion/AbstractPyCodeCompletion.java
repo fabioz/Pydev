@@ -34,8 +34,10 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
      * tokens to actual completions as requested by the Eclipse infrastructure.
      * @param lookingForInstance if looking for instance, we should not add the 'self' as parameter.
      */
-    protected void changeItokenToCompletionPropostal(ITextViewer viewer, CompletionRequest request, List<ICompletionProposal> convertedProposals, List iTokenList, boolean importsTip, ICompletionState state) {
-        for (Iterator iter = iTokenList.iterator(); iter.hasNext();) {
+    protected void changeItokenToCompletionPropostal(ITextViewer viewer, CompletionRequest request, 
+            List<ICompletionProposal> convertedProposals, List<Object> iTokenList, boolean importsTip, ICompletionState state) {
+        
+        for (Iterator<Object> iter = iTokenList.iterator(); iter.hasNext();) {
             
             Object obj = iter.next();
             

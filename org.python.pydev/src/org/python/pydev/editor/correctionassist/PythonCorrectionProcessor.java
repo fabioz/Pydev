@@ -31,7 +31,7 @@ import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocString;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
 import org.python.pydev.editor.correctionassist.heuristics.AssistImport;
-import org.python.pydev.editor.correctionassist.heuristics.AssistTry;
+import org.python.pydev.editor.correctionassist.heuristics.AssistSurroundWith;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -150,7 +150,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
             }
         }
 
-        assists.add(new AssistTry());
+        assists.add(new AssistSurroundWith());
         assists.add(new AssistImport());
         assists.add(new AssistDocString());
         assists.add(new AssistAssign());

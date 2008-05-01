@@ -7,15 +7,11 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.jface.text.templates.DocumentTemplateContext;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
-import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateProposal;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.ExtensionHelper;
@@ -26,15 +22,13 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocIterator;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
-import org.python.pydev.editor.templates.PyContextType;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * The code-completion engine that should be used inside strings
  * 
  * @author fabioz
  */
-public class PyStringCodeCompletion extends AbstractPyCodeCompletion{
+public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion{
 
     /**
      * Epydoc fields (after @)
@@ -193,40 +187,6 @@ public class PyStringCodeCompletion extends AbstractPyCodeCompletion{
 	
 	
     
-
-	/**
-	 * Creates a concrete template context for the given region in the document. This involves finding out which
-	 * context type is valid at the given location, and then creating a context of this type. The default implementation
-	 * returns a <code>DocumentTemplateContext</code> for the context type at the given location.
-	 *
-	 * @param viewer the viewer for which the context is created
-	 * @param region the region into <code>document</code> for which the context is created
-	 * @return a template context that can handle template insertion at the given location, or <code>null</code>
-	 */
-	private TemplateContext createContext(ITextViewer viewer, IRegion region, IDocument document) {
-		TemplateContextType contextType= getContextType(viewer, region);
-		if (contextType != null) {
-			return new DocumentTemplateContext(contextType, document, region.getOffset(), region.getLength());
-		}
-		return null;
-	}
-
-	
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.text.templates.TemplateCompletionProcessor#getContextType(org.eclipse.jface.text.ITextViewer,
-     *      org.eclipse.jface.text.IRegion)
-     */
-    private TemplateContextType getContextType(ITextViewer viewer, IRegion region) {
-        PydevPlugin plugin = PydevPlugin.getDefault();
-        if(plugin == null){
-        	//just for tests
-        	return new TemplateContextType();
-        }
-		return plugin.getContextTypeRegistry().getContextType(PyContextType.PY_CONTEXT_TYPE);
-    }
-
     /**
      * @return completions added from contributors
      */

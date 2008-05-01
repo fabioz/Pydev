@@ -37,7 +37,7 @@ public interface IAssistProps {
             PyEdit edit, int offset) throws BadLocationException;
 
     /**
-     * Gets wether this assist proposal is valid to be applied at the current line
+     * Gets whether this assist proposal is valid to be applied at the current line
      * 
      * @param ps the current selection
      * @param sel is the current string without any comments

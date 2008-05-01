@@ -18,6 +18,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.ui.PlatformUI;
@@ -1681,6 +1682,11 @@ public class PySelection {
         } catch (BadLocationException e) {
         }
         return 0;
+    }
+
+
+    public IRegion getRegion() {
+        return new Region(this.textSelection.getOffset(), this.textSelection.getLength());
     }
 
 
