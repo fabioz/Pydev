@@ -7,6 +7,7 @@ Pydev
 <li>Interactive console: backspace will also delete the selected text</li>
 <li>Code completion: calltips context info correctly made 'bold'</li>
 <li>Debugger: Step over/Step return can now execute with untraced frames (much faster)</li>
+<li>Debugger: Problem when handling thread that had no context traced and was directly removed.</li>
 <li>Launching: F9 will reuse an existing launch instead of creating a new one every time</li>
 <li>Launching: The default launch with Ctrl+F11 will not ask again for the launch associated with a file (for new launches)</li>
 <li>Project Explorer: fixed integration problems with CDT (and others)</li>

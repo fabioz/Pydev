@@ -192,6 +192,11 @@ class PyDB:
             cmd = None
             for t in all_threads:
                 if id(t) == thread_id:
+                    if not hasattr(t, 'additionalInfo'):
+                        #see http://sourceforge.net/tracker/index.php?func=detail&aid=1955428&group_id=85796&atid=577329
+                        #Let's create the additional info right away!
+                        t.additionalInfo = pydevd_additional_thread_info.PyDBAdditionalThreadInfo()
+                        
                     self.RUNNING_THREAD_IDS[thread_id] = t
                     cmd = self.cmdFactory.makeThreadCreatedMessage(t)
                     break
