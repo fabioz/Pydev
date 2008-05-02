@@ -906,7 +906,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 state.checkWildImportInMemory(current, mod);
                 IToken[] completionsForModule = getCompletionsForModule(mod, state);
                 for (int j = 0; j < completionsForModule.length; j++) {
-                    completions.add(completionsForModule[j]);
+                    IToken token = completionsForModule[j];
+                    //on wild imports we don't get names that start with '_'
+                    if(!token.getRepresentation().startsWith("_")){
+                        completions.add(token);
+                    }
                 }
             } else {
                 //"Module not found:" + name.getRepresentation()

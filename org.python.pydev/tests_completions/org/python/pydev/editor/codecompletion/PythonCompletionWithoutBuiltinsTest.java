@@ -40,7 +40,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testInnerDefinition();
+//	      test.testImportMultipleFromImport2();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -84,12 +84,12 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 	public void testCompleteImportCompletion() throws CoreException, BadLocationException{
 	    requestCompl("from testl"                          , "testlib");
 	    requestCompl("import testl"                        , "testlib");
-	    requestCompl("from testlib import "                , new String[]{"__init__", "unittest"});
+	    requestCompl("from testlib import "                , new String[]{"__init__", "unittest", "__path__"});
 	    requestCompl("from testlib import unittest, __in"  , new String[]{"__init__"});
 	    requestCompl("from testlib import unittest,__in"   , new String[]{"__init__"});
 	    requestCompl("from testlib import unittest ,__in"  , new String[]{"__init__"});
 	    requestCompl("from testlib import unittest , __in" , new String[]{"__init__"});
-	    requestCompl("from testlib import unittest , "     , new String[]{"__init__", "unittest"});
+	    requestCompl("from testlib import unittest , "     , new String[]{"__init__", "unittest", "__path__"});
 	    
 	    requestCompl("from testlib.unittest import  ", getTestLibUnittestTokens());
 
@@ -214,7 +214,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 	public void testMultilineImportCompletion() throws CoreException, BadLocationException{
 	    String s = "from testlib import (\n";
 	    
-	    requestCompl(s, new String[]{"__init__", "unittest"});
+	    requestCompl(s, new String[]{"__init__", "unittest", "__path__"});
 	    
 	}
 
@@ -224,6 +224,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     public String[] getTestLibUnittestTokens() {
         return new String[]{
           "__init__"
+        , "__path__"
         , "anothertest"
         , "AnotherTest"
         , "GUITest"
@@ -502,7 +503,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 	    String s;
 	    s = "import testlib.unittest.relative\n" +
 	    "testlib.";
-	    requestCompl(s, -1, 0, new String[] { });
+	    requestCompl(s, -1, -1, new String[] {"__path__"});
 	}
 	
 	

@@ -177,7 +177,7 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
             "from extendable import calltips\n" +
             "calltips.";
         
-        requestCompl(s, s.length(), 1, new String[] {"method1(a, b)"});
+        requestCompl(s, s.length(), 2, new String[] {"method1(a, b)", "__path__"});
     }
         
 }

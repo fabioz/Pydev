@@ -31,6 +31,10 @@ public class GlobalModelVisitor extends AbstractVisitor {
     public GlobalModelVisitor(int visitWhat, String moduleName) {
         this.visitWhat = visitWhat;
         this.moduleName = moduleName;
+        
+        if(moduleName != null && moduleName.endsWith("__init__")){
+            this.tokens.add(new SourceToken(new Name("__path__", Name.Load), "__path__", "", "", moduleName));
+        }
     }
 
     protected Object unhandled_node(SimpleNode node) throws Exception {

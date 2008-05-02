@@ -104,8 +104,9 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         Document doc = new Document(sDoc);
         ICompletionState state = new CompletionState(line,col, token, nature, "");
         comps = getComps(doc, state);
-        assertEquals(9, comps.length);
+        assertEquals(10, comps.length);
 
+        ASTManagerTest.assertIsIn("__path__", comps);
         ASTManagerTest.assertIsIn("TestCase", comps);
         ASTManagerTest.assertIsIn("main", comps);
         ASTManagerTest.assertIsIn("TestCaseAlias", comps);
@@ -242,8 +243,9 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         Document doc = new Document(sDoc);
         ICompletionState state = new CompletionState(line,col, token, nature,"");
         comps = getComps(doc, state);
-        assertEquals(9, comps.length);
+        assertEquals(10, comps.length);
 
+        ASTManagerTest.assertIsIn("__path__", comps);
         ASTManagerTest.assertIsIn("TestCase", comps);
         ASTManagerTest.assertIsIn("main", comps);
         ASTManagerTest.assertIsIn("TestCaseAlias", comps);

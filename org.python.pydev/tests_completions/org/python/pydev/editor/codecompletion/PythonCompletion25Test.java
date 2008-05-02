@@ -53,6 +53,7 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
     public String[] getTestLibUnittestTokens() {
         return new String[]{
           "__init__"
+        , "__path__"
         , "anothertest"
         , "AnotherTest"
         , "GUITest"
