@@ -13,6 +13,7 @@ Pydev
 <li>Interactive console: backspace will also delete the selected text</li>
 <li>Code completion: calltips context info correctly made 'bold'</li>
 <li>Code completion: variables starting with '_' do not come in a wild import</li>
+<li>Code completion: can be requested for external files (containing system info)</li>
 <li>Debugger: Step over/Step return can now execute with untraced frames (much faster)</li>
 <li>Debugger: Problem when handling thread that had no context traced and was directly removed.</li>
 <li>Launching: F9 will reuse an existing launch instead of creating a new one every time</li>

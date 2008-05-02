@@ -26,15 +26,25 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
 	}
     
 	public String getVersion() throws CoreException {
-		throw new RuntimeException("Not Implemented");
+		if(this.manager.isPython()){
+		    return IPythonNature.PYTHON_VERSION_LATEST;
+		}else if(this.manager.isJython()){
+		    return IPythonNature.JYTHON_VERSION_LATEST;
+		}else{
+		    throw new RuntimeException("Not python nor jython?");
+		}
 	}
 
 	public String getDefaultVersion() {
-		throw new RuntimeException("Not Implemented");
+		try {
+            return getVersion();
+        } catch (CoreException e) {
+            throw new RuntimeException(e);
+        }
 	}
 
 	public void setVersion(String version) throws CoreException {
-		throw new RuntimeException("Not Implemented");
+		throw new RuntimeException("Not Implemented: the system nature is read-only.");
 	}
 
 	public boolean isJython() throws CoreException {
@@ -54,7 +64,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
 	}
 
 	public void saveAstManager() {
-		throw new RuntimeException("Not Implemented");
+		throw new RuntimeException("Not Implemented: system nature is only transient.");
 	}
 
 	public IPythonPathNature getPythonPathNature() {
@@ -101,20 +111,31 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         return manager;
     }
 
+    
+    //builtin completions
+    private IToken[] builtinCompletions;
+    
 	public IToken[] getBuiltinCompletions() {
-		return null;
+		return builtinCompletions;
 	}
 
 	public void setBuiltinCompletions(IToken[] toks) {
+	    this.builtinCompletions = toks;
 	}
+	
+	
+	//builtin mod
+	private IModule builtinMod;
 
 	public IModule getBuiltinMod() {
-		return null;
+		return builtinMod;
 	}
 
 	public void setBuiltinMod(IModule mod) {
+	    this.builtinMod = mod;
 	}
 
+	
     public int getGrammarVersion() {
         IInterpreterInfo info = manager.getDefaultInterpreterInfo(new NullProgressMonitor());
         if(info != null){

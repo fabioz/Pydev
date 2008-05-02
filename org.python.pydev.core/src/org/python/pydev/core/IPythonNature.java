@@ -23,6 +23,9 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
     public static final String PYTHON_VERSION_2_5 = "python 2.5";
     public static final String JYTHON_VERSION_2_1 = "jython 2.1";
     
+    public static final String JYTHON_VERSION_LATEST = JYTHON_VERSION_2_1;
+    public static final String PYTHON_VERSION_LATEST = PYTHON_VERSION_2_5;
+    
     /**
      * this id is provided so that we can have an identifier for python-related things (independent of its version)
      */
@@ -47,6 +50,12 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
 
     /**
      * set the project version given the constants provided
+     * 
+     * @see PYTHON_VERSION_2_3
+     * @see PYTHON_VERSION_2_4
+     * @see PYTHON_VERSION_2_5
+     * @see JYTHON_VERSION_2_1
+     * 
      * @throws CoreException 
      */
     void setVersion(String version) throws CoreException;

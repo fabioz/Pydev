@@ -19,11 +19,14 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.SystemPythonNature;
+import org.python.pydev.ui.interpreters.ChooseInterpreterManager;
 
 /**
  * @author Dmoore
@@ -120,6 +123,14 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
             ArrayList<ICompletionProposal> pythonAndTemplateProposals = new ArrayList<ICompletionProposal>();
             
             IPythonNature nature = edit.getPythonNature();
+            
+            if(nature == null){
+                IInterpreterManager manager = ChooseInterpreterManager.chooseInterpreterManager();
+                if(manager != null){
+                    nature = new SystemPythonNature(manager);
+                }
+            }
+            
             if(nature == null || !nature.startRequests()){
             	return new ICompletionProposal[0];
             }
