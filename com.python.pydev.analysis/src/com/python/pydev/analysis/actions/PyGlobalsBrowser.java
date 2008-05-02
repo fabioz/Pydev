@@ -18,6 +18,7 @@ import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
+import org.python.pydev.ui.interpreters.ChooseInterpreterManager;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
@@ -85,19 +86,8 @@ public class PyGlobalsBrowser extends PyAction{
      * @param selectedText the text that should be initally set as the filter
      */
     public static void getFromWorkspace(String selectedText) {
-        IInterpreterManager pyManager = PydevPlugin.getPythonInterpreterManager();
-        IInterpreterManager jyManager = PydevPlugin.getJythonInterpreterManager();
-        IInterpreterManager useManager = null;
-        if(pyManager.isConfigured()){
-            //default is python, so that's it
-            useManager = pyManager;
-        }else if(jyManager.isConfigured()){
-            //ok, no python... go for jython
-            useManager = jyManager;
-        }
-        
+        IInterpreterManager useManager = ChooseInterpreterManager.chooseInterpreterManager();
         if(useManager == null){
-            MessageDialog.openError(getShell(), "No configured manager", "Neither the python nor the jython\ninterpreter is configured.");
             return;
         }
         
