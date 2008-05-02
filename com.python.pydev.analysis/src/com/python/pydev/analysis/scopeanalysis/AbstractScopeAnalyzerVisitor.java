@@ -130,7 +130,14 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         startScope(Scope.SCOPE_TYPE_GLOBAL, null); //initial scope - there is only one 'global' 
         ICompletionState completionState = CompletionStateFactory.getEmptyCompletionState(nature, new CompletionCache());
         this.completionCache = completionState;
+        
         List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(completionState, new ArrayList());
+        
+        if(moduleName != null && moduleName.endsWith("__init__")){
+            //__path__ should be added to modules that have __init__
+            builtinCompletions.add(new SourceToken(new Name("__path__", Name.Load), "__path__", "", "", moduleName));
+        }
+        
         for(IToken t : builtinCompletions){
         	Found found = makeFound(t);
         	org.python.pydev.core.Tuple<IToken, Found> tup = new org.python.pydev.core.Tuple<IToken, Found>(t, found);

@@ -4,7 +4,16 @@
  */
 package com.python.pydev.analysis;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.REF;
+import org.python.pydev.core.TestDependent;
+import org.python.pydev.editor.TestIndentPrefs;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 
 import com.python.pydev.analysis.messages.IMessage;
 
@@ -14,7 +23,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testErrorNotShownOnDynamicClass6();
+            analyzer2.testPathFound2();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -155,5 +164,26 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         checkNoError();
     }
     
-
+    public void testPathFound() throws IOException{
+        
+        analyzer = new OccurrencesAnalyzer();
+        File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/with_path.py");
+        Document doc = new Document(REF.getFileContents(file));
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.with_path", file, nature, 0), 
+                prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+        
+        printMessages(msgs, 0);
+    }
+    
+    public void testPathFound2() throws IOException{
+        
+        analyzer = new OccurrencesAnalyzer();
+        File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/__init__.py");
+        Document doc = new Document(REF.getFileContents(file));
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.__init__", file, nature, 0), 
+                prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+        
+        printMessages(msgs, 0);
+    }
+    
 }
