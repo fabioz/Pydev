@@ -33,10 +33,10 @@ public class FastParser {
     private static final stmtType[] EMTPY_STMT_TYPE = new stmtType[0];
 
     //spaces* 'def' space+ identifier
-    private static final Pattern FUNCTION_PATTERN = Pattern.compile("(\\s*)(def\\s+)(\\w*)");
+    private static final Pattern FUNCTION_PATTERN = Pattern.compile("(\\s+|^)(def\\s+)(\\w*)");
 
     //spaces* 'class' space+ identifier
-    private static final Pattern CLASS_PATTERN = Pattern.compile("(\\s*)(class\\s+)(\\w*)");
+    private static final Pattern CLASS_PATTERN = Pattern.compile("(\\s+|^)(class\\s+)(\\w*)");
     
 
     //constant with the prefix position in the pattern (class or def)

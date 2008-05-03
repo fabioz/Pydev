@@ -17,6 +17,19 @@ import org.python.pydev.parser.visitors.NodeUtils;
  */
 public class FastParserTest extends TestCase {
 
+    public static void main(String[] args) {
+        try {
+            FastParserTest test = new FastParserTest();
+            test.setUp();
+            test.testGettingClass3();
+            test.tearDown();
+            junit.textui.TestRunner.run(FastParserTest.class);
+
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+    
     public void testGettingClassOrFunc() throws Exception {
         Document doc = new Document();
         doc.set("def bar(a):\n" +
@@ -80,6 +93,54 @@ public class FastParserTest extends TestCase {
         found = FastParser.firstClassOrFunction(doc, 15, false);
         checkNode(10, 1, 10, 7, (ClassDef)found);
         
+    }
+    
+    public void testGettingClass2() throws Exception {
+        Document doc = new Document();
+        doc.set("def GetClassesAndData():\n" +
+                "    curr_widget_class = 10\n" +
+                "\n" +
+                "" +
+        "");
+        
+        List<stmtType> all = FastParser.parseClassesAndFunctions(doc);
+        assertEquals(1, all.size());
+    }
+    
+    public void testGettingClass3() throws Exception {
+        Document doc = new Document();
+        doc.set("class A(object):\n" +
+                "    curr_widget_class = 10\n" +
+                "\n" +
+                "" +
+        "");
+        
+        List<stmtType> all = FastParser.parseClassesAndFunctions(doc);
+        assertEquals(1, all.size());
+    }
+    
+    public void testGettingClass4() throws Exception {
+        Document doc = new Document();
+        doc.set("\nclass A(object):\n" +
+                "    curr_widget_class = 10\n" +
+                "\n" +
+                "" +
+        "");
+        
+        List<stmtType> all = FastParser.parseClassesAndFunctions(doc);
+        assertEquals(1, all.size());
+    }
+    
+    public void testGettingMethod() throws Exception {
+        Document doc = new Document();
+        doc.set("def a():\n" +
+                "    curr_widget_def = 10\n" +
+                "\n" +
+                "" +
+        "");
+        
+        List<stmtType> all = FastParser.parseClassesAndFunctions(doc);
+        assertEquals(1, all.size());
     }
 
     private void check(List<stmtType> all, int position, int classBeginLine, int classBeginCol, int nameBeginLine, int nameBeginCol) {

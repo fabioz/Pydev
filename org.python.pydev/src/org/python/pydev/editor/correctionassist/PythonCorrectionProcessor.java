@@ -23,7 +23,6 @@ import org.eclipse.ui.texteditor.spelling.SpellingAnnotation;
 import org.eclipse.ui.texteditor.spelling.SpellingCorrectionProcessor;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
@@ -77,8 +76,6 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
 
     private PyEdit edit;
 
-    private ImageCache imageCache;
-
     /**
      * Contains additional assists (used from the jython scripting: pyedit_assign_params_to_attributes.py to add new assists)
      */
@@ -124,7 +121,6 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
      */
     public PythonCorrectionProcessor(PyEdit edit) {
         this.edit = edit;
-        this.imageCache = new ImageCache(PydevPlugin.getDefault().getBundle().getEntry("/"));
     }
 
     public boolean canAssist(IQuickAssistInvocationContext invocationContext) {
@@ -161,7 +157,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
             try {
                 if (assist.isValid(ps, sel, edit, offset)) {
                     try {
-                        results.addAll(assist.getProps(ps, imageCache, edit.getEditorFile(), edit.getPythonNature(), edit, offset));
+                        results.addAll(assist.getProps(ps, PydevPlugin.getImageCache(), edit.getEditorFile(), edit.getPythonNature(), edit, offset));
                     } catch (BadLocationException e) {
                         PydevPlugin.log(e);
                     }

@@ -22,6 +22,7 @@ Pydev
 <li>Project Explorer: fixed integration problems with CDT (and others)</li>
 <li>Launch: console encoding passed as environment variable (no longer written to the install location)</li>
 <li>More templates for "surround with" (Ctrl+1 with selected code)</li>
+<li>Previous/next method could match 'class' and 'def' on invalid location</li>
 
 after 1.3.14
 
