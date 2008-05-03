@@ -18,7 +18,6 @@
 	- .pyd inside zip file (handled but not tested): 
 		- ModulesManager: else if(PythonPathHelper.isValidDll(emptyModuleForZip.pathInZip)){
 		
-- Change the stdout/stderr for unicode
 - CNF: Go into / up in pydev package explorer: http://richclientplatform.blogspot.com/2007/07/adding-go-into-and-go-up-to-cnf.html
 - Option to add line at end of file
 - Generate log for reporting errors
@@ -28,27 +27,12 @@
 - PyGlobalsBrowser.getFromWorkspace() should work with jython and python if both are available
 
 
-- occurrences case:
-def m1():
-    _expr, attr = 1, 3
 
-    def filter():
-        return attr <-- mark occurrences here!
-        
 - static analysis case:
 import os
 os.Bar().Foo() <-- error in wrong places!
 
 
-- debugger
-class env:
-    pass
-
-if __name__ == '__main__':
-    print 'step 1\n' #set break here 
-
-#comment <-- removing this comments makes break work (see breakpoint context)
-        
 console:
 	- getpass: echo mode
 	- persistent history
