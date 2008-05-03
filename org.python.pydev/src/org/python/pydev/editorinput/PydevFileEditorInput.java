@@ -9,10 +9,12 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.editors.text.ILocationProvider;
 import org.eclipse.ui.model.IWorkbenchAdapter;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * this class is also added to the plugin.xml so that we map the pydev document provider to this class.
@@ -132,14 +134,21 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
      * @see java.lang.Object#equals(java.lang.Object)
      */
     public boolean equals(Object o) {
-        if (o == this)
+        if (o == this){
             return true;
+        }
 
         if (o instanceof PydevFileEditorInput) {
             PydevFileEditorInput input= (PydevFileEditorInput) o;
             return fFile.equals(input.fFile);
         }
 
+        if (o instanceof IFileEditorInput) {
+            IFileEditorInput input = (IFileEditorInput) o;
+            File otherFile = new File(PydevPlugin.getIResourceOSString(input.getFile()));
+            return fFile.equals(otherFile);
+        }
+        
         if (o instanceof IPathEditorInput) {
             IPathEditorInput input= (IPathEditorInput)o;
             return getPath().equals(input.getPath());

@@ -7,6 +7,20 @@ import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.parser.visitors.scope.OutlineCreatorVisitor;
 
 public class ParsedItemTest extends PyParserTestBase {
+    
+    public static void main(String[] args) {
+        try {
+            ParsedItemTest analyzer2 = new ParsedItemTest();
+            analyzer2.setUp();
+            analyzer2.testParsedItemCreation3();
+            analyzer2.tearDown();
+            System.out.println("finished");
+            
+            junit.textui.TestRunner.run(ParsedItemTest.class);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
 
     public void testParsedItemCreation() throws Exception {
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
@@ -36,6 +50,32 @@ public class ParsedItemTest extends PyParserTestBase {
         // method level: 1 comment
         ASTEntryWithChildren functionEntry = classEntry.children.get(0);
         assertEquals(1, functionEntry.children.size()); 
+        
+    }
+    
+    public void testParsedItemCreation3() throws Exception {
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
+        String str = "" +
+        "class Test:\n" +
+        "    def __init__(self):\n" +
+        "        self.foo, self.bar = 1, 2\n" +
+        "";
+        
+        SimpleNode node = parseLegalDocStr(str);
+        
+        OutlineCreatorVisitor visitor = OutlineCreatorVisitor.create(node);
+        ParsedItem item = new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0]), null);
+        
+        //module level: Test
+        assertEquals(1, item.getAstChildrenEntries().length);
+        
+        //class level: __init__
+        ASTEntryWithChildren classEntry = item.getAstChildrenEntries()[0];
+        assertEquals(1, classEntry.children.size()); 
+        
+        // method level: 2 attributes
+        ASTEntryWithChildren functionEntry = classEntry.children.get(0);
+        assertEquals(2, functionEntry.children.size()); 
         
     }
     
