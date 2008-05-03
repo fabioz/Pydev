@@ -11,6 +11,7 @@ Pydev
 <li>Interactive console: help() works</li>
 <li>Interactive console: context information showing in completions</li>
 <li>Interactive console: backspace will also delete the selected text</li>
+<li>Interactive console: ESC does not close the console when in floating mode anymore</li>
 <li>Code completion: calltips context info correctly made 'bold'</li>
 <li>Code completion: variables starting with '_' do not come in a wild import</li>
 <li>Code completion: can be requested for external files (containing system info)</li>

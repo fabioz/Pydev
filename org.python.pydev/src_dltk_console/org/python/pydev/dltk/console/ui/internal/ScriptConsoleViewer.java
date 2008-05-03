@@ -32,6 +32,8 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Point;
@@ -510,6 +512,20 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         
 
         final StyledText styledText = getTextWidget();
+        
+        
+        //Added because we don't want the console to close when the user presses ESC
+        //(as it would when it's on a floating window)
+        //we do that because ESC is meant to clear the current line (and as such, 
+        //should do that action and not close the console).
+        styledText.addTraverseListener(new TraverseListener(){
+
+            public void keyTraversed(TraverseEvent e) {
+                if(e.detail == SWT.TRAVERSE_ESCAPE){
+                    e.doit = false;
+                }
+            }});
+
         
         getDocument().addDocumentListener(new IDocumentListener(){
 

@@ -324,7 +324,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * @param style the style to be added.
      */
     private void addToPartitioner(ScriptStyleRange style) {
-        IDocumentPartitioner partitioner = viewer.getDocument().getDocumentPartitioner();
+        IDocumentPartitioner partitioner = this.doc.getDocumentPartitioner();
         if (partitioner instanceof ScriptConsolePartitioner) {
             ScriptConsolePartitioner scriptConsolePartitioner = (ScriptConsolePartitioner) partitioner;
             scriptConsolePartitioner.addRange(style);
