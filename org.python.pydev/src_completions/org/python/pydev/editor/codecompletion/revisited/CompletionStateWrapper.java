@@ -90,6 +90,10 @@ public class CompletionStateWrapper implements ICompletionState {
     public void checkWildImportInMemory(IModule current, IModule mod) throws CompletionRecursionException {
         wrapped.checkWildImportInMemory(current, mod);
     }
+    
+    public boolean canStillCheckFindSourceFromCompiled(IModule mod, String tok) {
+        return wrapped.canStillCheckFindSourceFromCompiled(mod, tok);
+    }
 
 
     public boolean getBuiltinsGotten() {

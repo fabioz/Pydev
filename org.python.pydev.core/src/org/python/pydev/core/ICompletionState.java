@@ -67,6 +67,15 @@ public interface ICompletionState extends ICompletionCache {
     
     void checkFindResolveImportMemory(IToken tok) throws CompletionRecursionException;
     
+    
+    /**
+     * Unlike other checks, it won't throw an exception, but'll see if the given module was already checked for
+     * a given token (this happens when we're looking for a token that has been found in a compiled module and
+     * we want to translate to an actual position... but if we loop for some reason, it has to be stopped and 
+     * the actual compiled module is the source of the definition).
+     */
+    boolean canStillCheckFindSourceFromCompiled(IModule mod, String tok);
+    
     boolean getIsInCalltip();
 
     public static final int LOOKING_FOR_INSTANCE_UNDEFINED=0;

@@ -342,7 +342,7 @@ public class CompiledModule extends AbstractModule{
                 System.out.println("CompiledModule.findDefinition: found at:"+mod.getName());
             }
             int foundLine = def.o2[0];
-            if(foundLine == 0 && foundAs.length() > 0 && mod != null){
+            if(foundLine == 0 && foundAs.length() > 0 && mod != null && state.canStillCheckFindSourceFromCompiled(mod, foundAs)){
                 IModule sourceMod = AbstractModule.createModuleFromDoc(mod.getName(), f, new Document(REF.getFileContents(f)), nature, 0);
                 if(sourceMod instanceof SourceModule){
                     Definition[] definitions = (Definition[]) sourceMod.findDefinition(state.getCopyWithActTok(foundAs), -1, -1, nature);

@@ -27,7 +27,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testInstanceCompletion();
+            builtins.testNumpy();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -50,7 +50,9 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         this.restorePythonPath(TestDependent.GetCompletePythonLib(true)+"|"+
-        		TestDependent.PYTHON_WXPYTHON_PACKAGES+"|"+TestDependent.PYTHON_MX_PACKAGES, false);
+        		TestDependent.PYTHON_WXPYTHON_PACKAGES+"|"+
+        		TestDependent.PYTHON_MX_PACKAGES+"|"+
+        		TestDependent.PYTHON_NUMPY_PACKAGES, false);
         
         codeCompletion = new PyCodeCompletion();
 
@@ -154,6 +156,17 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
             "from mx import DateTime\n"+
             "DateTime.";
             requestCompl(s, s.length(), -1, new String[]{"now()"});
+        }
+    }
+    
+    
+    public void testNumpy() throws BadLocationException, IOException, Exception{
+        if(TestDependent.HAS_NUMPY_INSTALLED){
+            String s = ""+
+            "from numpy import less\n"+
+            "less.";
+            requestCompl(new File(TestDependent.TEST_PYSRC_LOC+"extendable/not_existent.py"), 
+                    s, s.length(), -1, new String[]{"types", "ntypes", "nout", "nargs", "nin"});
         }
     }
     

@@ -42,6 +42,7 @@ public class CompletionState implements ICompletionState {
     public Memo<String> findDefinitionMemory = new Memo<String>();
     public Stack<Memo<IToken>> findResolveImportMemory = new Stack<Memo<IToken>>();
     public Memo<String> findModuleCompletionsMemory = new Memo<String>();
+    public Memo<String> findSourceFromCompiledMemory = new Memo<String>(1); //max is 1 for this one!
     
     public boolean builtinsGotten=false;
     public boolean localImportsGotten=false;
@@ -212,6 +213,14 @@ public class CompletionState implements ICompletionState {
         if(this.memory.isInRecursion(module, base)){
             throw new CompletionRecursionException("Possible recursion found -- probably programming error --  (module: "+module.getName()+", token: "+base+") - stopping analysis.");
         }
+    }
+    
+    
+    public boolean canStillCheckFindSourceFromCompiled(IModule mod, String tok) {
+        if(!findSourceFromCompiledMemory.isInRecursion(mod, tok)){
+            return true;
+        }
+        return false;
     }
     
     /**

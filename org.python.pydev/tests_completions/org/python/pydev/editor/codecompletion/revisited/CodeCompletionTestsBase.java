@@ -88,6 +88,7 @@ public class CodeCompletionTestsBase extends TestCase {
 	}
 	
 	protected boolean ADD_MX_TO_FORCED_BUILTINS = true;
+	protected boolean ADD_NUMPY_TO_FORCED_BUILTINS = true;
     
     /**
      * Whether we want to debug problems in this class.
@@ -257,6 +258,9 @@ public class CodeCompletionTestsBase extends TestCase {
             info.restoreCompiledLibs(getProgressMonitor());
             if(ADD_MX_TO_FORCED_BUILTINS){
             	info.addForcedLib("mx");
+            }
+            if(ADD_NUMPY_TO_FORCED_BUILTINS){
+                info.addForcedLib("numpy");
             }
             info.restorePythonpath(path, getProgressMonitor()); //here
 
