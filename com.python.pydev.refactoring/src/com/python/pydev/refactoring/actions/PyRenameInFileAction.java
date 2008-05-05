@@ -3,6 +3,9 @@
  */
 package com.python.pydev.refactoring.actions;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -83,7 +86,8 @@ public class PyRenameInFileAction extends Action{
 		                if(model.tryInstall() && model.getTabStopSequence().size() > 0){
 		                    final LinkedModeUI ui= new EditorLinkedModeUI(model, viewer);
 		                    Tuple<String,Integer> currToken = ps.getCurrToken();
-		                    ui.setExitPosition(viewer, currToken.o2 + currToken.o1.length(), 0, Integer.MAX_VALUE);
+		                    ui.setCyclingMode(LinkedModeUI.CYCLE_ALWAYS);
+		                    ui.setExitPosition(viewer, currToken.o2 + currToken.o1.length(), 0, 0 /*ordered so that 0 is current pos*/);
 		                    ui.enter();
 		                }
 		            } catch (BadLocationException e) {
@@ -171,10 +175,37 @@ public class PyRenameInFileAction extends Action{
 
 		//used so that we don't add duplicates
 		Set<Tuple<Integer,Integer>> found = new HashSet<Tuple<Integer,Integer>>();
-		
+        List<ProposalPosition> groupPositions = new ArrayList<ProposalPosition>();
+
 		if(occurrences != null){
+			
+			//first, just sort by position (line, col)
+            ArrayList<ASTEntry> sortedOccurrences = new ArrayList<ASTEntry>(occurrences);
+            Collections.sort(sortedOccurrences, new Comparator<ASTEntry>(){
+
+				public int compare(ASTEntry o1, ASTEntry o2) {
+					int thisVal = o1.node.beginLine;
+					int anotherVal = o2.node.beginLine;
+					int ret;
+					if(thisVal == anotherVal){ //if it's in the same line, let's sort by column
+						thisVal = o1.node.beginColumn;
+						anotherVal = o2.node.beginColumn;
+						ret = (thisVal<anotherVal ? -1 : (thisVal==anotherVal ? 0 : 1));
+					}else{
+						ret = (thisVal<anotherVal ? -1 : 1);
+					}
+					return ret;
+
+				}}
+            );
+            
+            //now, gather positions to add to the group
+			
 			int i = 0;
-			for (ASTEntry entry : occurrences) {
+			int firstPosition = -1;
+			int absoluteCursorOffset = ps.getAbsoluteCursorOffset();
+			
+			for (ASTEntry entry : sortedOccurrences) {
                 try {
 					IRegion lineInformation = document.getLineInformation(entry.node.beginLine - 1);
 					int colDef = NodeUtils.getClassOrFuncColDefinition(entry.node) -1;
@@ -187,15 +218,37 @@ public class PyRenameInFileAction extends Action{
                     	i++;
                     	ProposalPosition proposalPosition = new ProposalPosition(document, offset, len, i , new ICompletionProposal[0]);
                     	found.add(foundAt);
-                    	group.addPosition(proposalPosition);
+                    	groupPositions.add(proposalPosition);
+                    	if(offset <= absoluteCursorOffset && absoluteCursorOffset < offset+len){
+                    		firstPosition = i;
+                    	}
                     }
 				} catch (Exception e) {
 					Log.log(e);
 					return false;
 				}
 			}
+			
+			if(firstPosition != -1){
+				ArrayList<ProposalPosition> newGroupPositions = new ArrayList<ProposalPosition>();
+				
+				//add from current to end
+				for(i=firstPosition-1; i<groupPositions.size(); i++){
+					newGroupPositions.add(groupPositions.get(i));
+				}
+				//and now from the start up to the current
+				for(i=0; i<firstPosition-1; i++){
+					newGroupPositions.add(groupPositions.get(i));
+				}
+				
+				groupPositions = newGroupPositions;
+			}
+			
+			for(ProposalPosition proposalPosition:groupPositions){
+				group.addPosition(proposalPosition);
+			}
 		}
-		return true;
+		return groupPositions.size() > 0;
 	}
 
 }
