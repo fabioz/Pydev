@@ -688,39 +688,53 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @throws CompletionRecursionException 
      */
     protected IToken[] searchOnSameLevelMods(Set<IToken> initial, ICompletionState state) throws CompletionRecursionException {
+        IToken[] ret = null;
+        Tuple<IModule, IModulesManager> modUsed = null;
+        String actTokUsed = null;
+        
         for (IToken token : initial) {
 			//ok, maybe it was from the set that is in the same level as this one (this will only happen if we are on an __init__ module)
         	String rep = token.getRepresentation();
         	
 			if(state.getActivationToken().startsWith(rep)){
 				String absoluteImport = token.getAsAbsoluteImport();
-				IModule sameLevelMod = getModule(absoluteImport, state.getNature(), true);
+				modUsed = modulesManager.getModuleAndRelatedModulesManager(absoluteImport, state.getNature(), true, false);
+				
+				IModule sameLevelMod = null; 
+				if(modUsed != null){
+				    sameLevelMod = modUsed.o1;
+				}
+				
 				if(sameLevelMod == null){
 					return null;
 				}
 				
 				String qualifier = state.getActivationToken().substring(rep.length());
 
-				ICompletionState copy = state.getCopy();
-				copy.setBuiltinsGotten (true); //we don't want builtins... 
 
-				if(state.getActivationToken().equals(rep)){
-					copy.setActivationToken ("");
-					return getCompletionsForModule(sameLevelMod, copy);
-					
+                if(state.getActivationToken().equals(rep)){
+                    actTokUsed = "";
 				} else if(qualifier.startsWith(".")){
-					copy.setActivationToken (qualifier.substring(1));
-					return getCompletionsForModule(sameLevelMod, copy);
+				    actTokUsed = qualifier.substring(1);
         		}
+                
+                if(actTokUsed != null){
+                    ICompletionState copy = state.getCopyWithActTok(actTokUsed);
+                    copy.setBuiltinsGotten (true); //we don't want builtins... 
+                    ret = getCompletionsForModule(sameLevelMod, copy);
+                    break;
+                }
         	}
 		}
-        return null;
+        
+        return ret;
 	}
 
     /**
      * @see ICodeCompletionASTManager#getGlobalCompletions
      */
-    public List<IToken> getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, ICompletionState state, IModule current) {
+    public List<IToken> getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, 
+            ICompletionState state, IModule current) {
         if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
             Log.toLogFile(this, "getGlobalCompletions");
         }
@@ -989,7 +1003,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * 2: actual tok
      * @throws CompletionRecursionException 
      */
-    public Tuple3<IModule, String, IToken> findOnImportedMods( IToken[] importedModules, ICompletionState state, String currentModuleName) throws CompletionRecursionException {
+    public Tuple3<IModule, String, IToken> findOnImportedMods( IToken[] importedModules, ICompletionState state, 
+            String currentModuleName) throws CompletionRecursionException {
+        
     	FullRepIterable iterable = new FullRepIterable(state.getActivationToken(), true);
     	for(String tok : iterable){
     		for (IToken importedModule : importedModules) {

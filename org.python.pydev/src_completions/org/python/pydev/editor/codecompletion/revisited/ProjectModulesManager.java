@@ -34,6 +34,7 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaProjectModulesManagerCreator;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesKeyForJava;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -245,6 +246,20 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
      * @see org.python.pydev.core.IProjectModulesManager#getModule(java.lang.String, org.python.pydev.plugin.nature.PythonNature, boolean, boolean)
      */
     public IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit) {
+        Tuple<IModule, IModulesManager> ret = getModuleAndRelatedModulesManager(name, nature, checkSystemManager, dontSearchInit);
+        if(ret != null){
+            return ret.o1;
+        }
+        return null;
+    }
+    
+    
+    /** 
+     * @return a tuple with the IModule requested and the IModulesManager that contained that module.
+     */
+    public Tuple<IModule, IModulesManager> getModuleAndRelatedModulesManager(String name, IPythonNature nature, 
+            boolean checkSystemManager, boolean dontSearchInit) {
+        
         IModule module = null;
         
         IModulesManager[] managersInvolved = this.getManagersInvolved(true); //only get the system manager here (to avoid recursion)
@@ -256,7 +271,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
                     if(DEBUG_MODULES){
                         System.out.println("Trying to get:"+name+" - "+" returned builtin:"+module+" - "+m.getClass());
                     }
-                    return module;
+                    return new Tuple<IModule, IModulesManager>(module, m);
                 }
             }
         }
@@ -278,7 +293,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
                 if(DEBUG_MODULES){
                     System.out.println("Trying to get:"+name+" - "+" returned:"+module+" - "+m.getClass());
                 }
-                return module;
+                return new Tuple<IModule, IModulesManager>(module, m);
             }
         }
         if(DEBUG_MODULES){
@@ -287,6 +302,9 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         return null;
     }
     
+    /**
+     * Only searches the modules contained in the direct modules manager.
+     */
     public IModule getModuleInDirectManager(String name, IPythonNature nature, boolean dontSearchInit) {
         return super.getModule(name, nature, dontSearchInit);
     }

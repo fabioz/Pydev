@@ -166,7 +166,17 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
      * @return if the path passed belongs to a valid python compiled extension
      */
     public static boolean isValidDll(String path) {
-        if (path.endsWith(".pyd") || path.endsWith(".so") || path.endsWith(".dll")) {
+        if (path.endsWith(".pyd") || path.endsWith(".so") || path.endsWith(".dll") || path.endsWith(".a")) {
+            return true;
+        }
+        return false;
+    }
+    /**
+     * @param extension extension we want to analyze
+     * @return if the extension passed belongs to a valid python compiled extension
+     */
+    public static boolean isValidDllExtension(String extension) {
+        if (extension.equals("pyd") || extension.equals("so") || extension.equals("dll") || extension.equals("a")) {
             return true;
         }
         return false;

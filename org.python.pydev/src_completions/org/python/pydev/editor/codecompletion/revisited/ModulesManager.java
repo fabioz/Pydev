@@ -515,8 +515,18 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         if (n instanceof EmptyModule) {
             throw new RuntimeException("Should not be an empty module anymore!");
         }
+        if(n instanceof SourceModule){
+            SourceModule sourceModule = (SourceModule) n;
+            //now, here's a catch... it may be a bootstrap module...
+            if(sourceModule.isBootstrapModule()){
+                //if it's a bootstrap module, we must replace it for the related compiled module.
+                n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
+            }
+        }
         return n;
     }
+    
+
 
     private ModulesKey createModulesKey(String name, File f) {
         ModulesKey newEntry = new ModulesKey(name, f);

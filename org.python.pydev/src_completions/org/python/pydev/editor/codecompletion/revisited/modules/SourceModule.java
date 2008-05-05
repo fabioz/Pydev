@@ -6,6 +6,7 @@
 package org.python.pydev.editor.codecompletion.revisited.modules;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,13 +46,17 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.StopVisitingExc
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * The module should have all the information we need for code completion, find definition, and refactoring on a module.
@@ -84,6 +89,11 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * File that originated the syntax tree.
      */
     private File file;
+    
+    /**
+     * Is bootstrap?
+     */
+    private Boolean bootstrap;
     
     /**
      * Path for this module within the zip file (only used if file is actually a file... otherwise it is null).
@@ -986,5 +996,84 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 	public void setName(String n) {
 		this.name = n;
 	}
+
+	/**
+	 * @return true if this is a bootstrap module (i.e.: a module that's only used to load a compiled module with the
+	 * same name -- that used in eggs)
+	 * 
+     * A bootstrapped module is the way that egg handles pyd files: 
+     * it'll create a file with the same name of the dll (e.g.:
+     * 
+     * for having a umath.pyd, it'll create a umath.py file with the contents below
+     * 
+     * File for boostrap
+     * def __bootstrap__():
+     *    global __bootstrap__, __loader__, __file__
+     *    import sys, pkg_resources, imp
+     *    __file__ = pkg_resources.resource_filename(__name__,'umath.pyd')
+     *    del __bootstrap__, __loader__
+     *    imp.load_dynamic(__name__,__file__)
+     * __bootstrap__()
+     * 
+	 */
+    public boolean isBootstrapModule() {
+        if(bootstrap == null){
+            IToken[] ret = getGlobalTokens();
+            if(ret != null && ret.length == 1 && this.file != null){
+                IToken tok = ret[0];
+
+                if("__bootstrap__".equals(tok.getRepresentation())){
+                    //if we get here, we already know that it defined a __bootstrap__, so, let's see if it was also called
+                    SimpleNode ast = this.getAst();
+                    if(ast instanceof Module){
+                        Module module = (Module) ast;
+                        if(module.body != null && module.body.length > 0){
+                            ast = module.body[module.body.length-1];
+                            if(ast instanceof Expr){
+                                Expr expr = (Expr) ast;
+                                ast = expr.value;
+                                if(ast instanceof Call){
+                                    Call call = (Call) ast;
+                                    String callRep = NodeUtils.getRepresentationString(call);
+                                    if(callRep != null && callRep.equals("__bootstrap__")){
+                                        //ok, and now , the last thing is checking if there's a dll with the same name...
+                                        final String modName = FullRepIterable.getLastPart(this.getName());
+                                        
+                                        File folder = file.getParentFile();
+                                        File[] validBootsrappedDlls = folder.listFiles(new FilenameFilter(){
+
+                                            public boolean accept(File dir, String name) {
+                                                int i = name.lastIndexOf('.');
+                                                if(i > 0){
+                                                    String namePart = name.substring(0, i);
+                                                    if(namePart.equals(modName)){
+                                                        String extension = name.substring(i+1);
+                                                        if(extension.length() > 0 && FileTypesPreferencesPage.isValidDllExtension(extension)){
+                                                            return true;
+                                                        }
+                                                    }
+                                                }
+                                                return false;
+                                            }}
+                                        );
+                                        
+                                        if(validBootsrappedDlls.length > 0){
+                                            bootstrap = Boolean.TRUE;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if(bootstrap == null){
+                //if still not set, it's not a bootstrap.
+                bootstrap = Boolean.FALSE;
+            }
+        }
+        
+        return bootstrap;    
+    }
 
 }

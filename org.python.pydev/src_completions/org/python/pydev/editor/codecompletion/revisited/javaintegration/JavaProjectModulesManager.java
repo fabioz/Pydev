@@ -28,6 +28,7 @@ import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.Tuple;
 
 /**
  * This class wraps a java project as we'd wrap a python project in a ProjectModulesManager, to give info on the 
@@ -243,6 +244,15 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     }
 
     public ISystemModulesManager getSystemModulesManager() {
+        return null;
+    }
+    
+    public Tuple<IModule, IModulesManager> getModuleAndRelatedModulesManager(String name, IPythonNature nature,
+            boolean checkSystemManager, boolean dontSearchInit) {
+        IModule module = this.getModule(name, nature, checkSystemManager, dontSearchInit);
+        if(module != null){
+            return new Tuple<IModule, IModulesManager>(module, this);
+        }
         return null;
     }
 

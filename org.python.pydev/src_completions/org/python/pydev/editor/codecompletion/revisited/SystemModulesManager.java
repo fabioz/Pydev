@@ -12,10 +12,12 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
@@ -181,7 +183,8 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
                         n = cache.getObj(keyForCacheAccess, this);
                     }
                     
-                    if(n instanceof EmptyModule || n instanceof SourceModule){ //it is actually found as a source module, so, we have to 'coerce' it to a compiled module
+                    if(n instanceof EmptyModule || n instanceof SourceModule){ 
+                        //it is actually found as a source module, so, we have to 'coerce' it to a compiled module
                         n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
                         doAddSingleModule(new ModulesKey(n.getName(), null), n);
                         return n;
@@ -193,7 +196,8 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
                     keyForCacheAccess.name = name;
                     n = cache.getObj(keyForCacheAccess, this);
                     
-                    if(n == null || n instanceof EmptyModule || n instanceof SourceModule){ //still not created or not defined as compiled module (as it should be)
+                    if(n == null || n instanceof EmptyModule || n instanceof SourceModule){ 
+                        //still not created or not defined as compiled module (as it should be)
                         n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
                         doAddSingleModule(new ModulesKey(n.getName(), null), n);
                         return n;
@@ -248,6 +252,14 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
     }
 
 
+    public Tuple<IModule, IModulesManager> getModuleAndRelatedModulesManager(String name, IPythonNature nature,
+            boolean checkSystemManager, boolean dontSearchInit) {
+        IModule module = this.getModule(name, nature, checkSystemManager, dontSearchInit);
+        if(module != null){
+            return new Tuple<IModule, IModulesManager>(module, this);
+        }
+        return null;
+    }
 
 
 }

@@ -27,7 +27,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testNumpy();
+            builtins.testPreferCompiledOnBootstrap2();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -237,6 +237,19 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         "import prefersrc\n"+
         "prefersrc.";
         requestCompl(s, s.length(), -1, new String[]{"PreferSrc"});
+    }
+    
+    public void testPreferCompiledOnBootstrap() throws BadLocationException, IOException, Exception{
+        String s = ""+
+        "from extendable.bootstrap_dll import umath\n"+
+        "umath.";
+        requestCompl(s, s.length(), -1, new String[]{"less"});
+    }
+    
+    public void testPreferCompiledOnBootstrap2() throws BadLocationException, IOException, Exception{
+        String s = ""+
+        "from extendable.bootstrap_dll.umath import ";
+        requestCompl(s, s.length(), -1, new String[]{"less"});
     }
     
     public void testWxPython1() throws BadLocationException, IOException, Exception{

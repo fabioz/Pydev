@@ -140,4 +140,12 @@ public interface IModulesManager {
      */
     public abstract IModule addModule(ModulesKey key);
 
+    /** 
+     * @return a tuple with the IModule requested and the IModulesManager that contained that module.
+     * May return null if not found.
+     */
+    public Tuple<IModule, IModulesManager> getModuleAndRelatedModulesManager(String name, IPythonNature nature, 
+            boolean checkSystemManager, boolean dontSearchInit);
+
+
 }
