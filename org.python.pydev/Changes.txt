@@ -2,31 +2,31 @@ after 1.3.15
 
 Pydev Extensions
 <ul>
-<li><strong>__path__</strong>: Not correctly found on some situations.</li>
+<li><strong>Code Analysis</strong>: __path__ Not correctly found on some situations.</li>
 <li><strong>Local rename (ctrl+2+r)</strong>: Positions correctly ordered for tabbing.</li>
 </ul>
 
 
 Pydev
-<li>Bug fix for pydev package explorer when refreshed element parent was null</li>
-<li>Interactive console: help() works</li>
-<li>Interactive console: context information showing in completions</li>
-<li>Interactive console: backspace will also delete the selected text</li>
-<li>Interactive console: ESC does not close the console when in floating mode anymore</li>
-<li>Code completion: calltips context info correctly made 'bold'</li>
-<li>Code completion: variables starting with '_' do not come in a wild import</li>
-<li>Code completion: can be requested for external files (containing system info)</li>
-<li>Code completion: fixed recursion condition</li>
-<li>Code completion: egg file distributed with dll that have a source module with the same name only with a __bootstrap__ now loads the dll instead of the source module (e.g.: numpy egg)</li>
-<li>Debugger: Step over/Step return can now execute with untraced frames (much faster)</li>
-<li>Debugger: Problem when handling thread that had no context traced and was directly removed.</li>
-<li>Launching: F9 will reuse an existing launch instead of creating a new one every time</li>
-<li>Launching: The default launch with Ctrl+F11 will not ask again for the launch associated with a file (for new launches)</li>
-<li>Project Explorer: fixed integration problems with CDT (and others)</li>
-<li>Launch: console encoding passed as environment variable (no longer written to the install location)</li>
-<li>More templates for "surround with" (Ctrl+1 with selected code)</li>
+<li><strong>Interactive console</strong>: help() works</li>
+<li><strong>Interactive console</strong>: context information showing in completions</li>
+<li><strong>Interactive console</strong>: backspace will also delete the selected text</li>
+<li><strong>Interactive console</strong>: ESC does not close the console when in floating mode anymore</li>
+<li><strong>Code completion</strong>: calltips context info correctly made 'bold'</li>
+<li><strong>Code completion</strong>: variables starting with '_' do not come in import *</li>
+<li><strong>Code completion</strong>: can be requested for external files (containing system info)</li>
+<li><strong>Code completion</strong>: fixed recursion condition</li>
+<li><strong>Code completion</strong>: egg file distributed with dll that has a source module with the same name only with a __bootstrap__ method now loads the dll instead of the source module (e.g.: numpy egg)</li>
+<li><strong>Debugger</strong>: Step over/Step return can now execute with untraced frames (much faster)</li>
+<li><strong>Debugger</strong>: Problem when handling thread that had no context traced and was directly removed.</li>
+<li><strong>Launching</strong>: F9 will reuse an existing launch instead of creating a new one every time</li>
+<li><strong>Launching</strong>: The default launch with Ctrl+F11 will not ask again for the launch associated with a file (for new launches -- old launches should be deleted)</li>
+<li><strong>Project Explorer</strong>: fixed integration problems with CDT (and others)</li>
+<li><strong>Launch</strong>: console encoding passed as environment variable (no longer written to the install location)</li>
+<li>More templates for "surround with" (Ctrl+1)</li>
 <li>Previous/next method could match 'class' and 'def' on invalid location</li>
 <li>Outline: Assign with multiple targets is recognized</li>
+<li>Bug fix for pydev package explorer when refreshed element parent was null</li>
 
 after 1.3.14
 
