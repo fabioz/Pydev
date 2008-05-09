@@ -4,6 +4,7 @@
  */
 package org.python.pydev.navigator;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -59,6 +60,14 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         if(DEBUG){
             System.out.println("getPipelinedChildren");
         }
+        
+        if(parent instanceof IWrappedResource){
+            Object[] children = getChildren(parent);
+            currentElements.clear();
+            currentElements.addAll(Arrays.asList(children));
+            return;
+        }
+        
         PipelinedShapeModification modification = new PipelinedShapeModification(parent, currentElements);
         convertToPythonElementsAddOrRemove(modification, true);
     }

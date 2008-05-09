@@ -228,7 +228,7 @@ public class WorkspaceRootStub implements IWorkspaceRoot, IWorkbenchAdapter{
     }
 
     public IContainer getParent() {
-        throw new RuntimeException("Not implemented");
+        return null;
     }
 
     public String getPersistentProperty(QualifiedName key) throws CoreException {

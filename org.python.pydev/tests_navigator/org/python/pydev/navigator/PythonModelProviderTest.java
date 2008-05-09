@@ -16,6 +16,7 @@ import org.eclipse.ui.navigator.PipelinedViewerUpdate;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.navigator.elements.IWrappedResource;
+import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -26,7 +27,7 @@ public class PythonModelProviderTest extends TestCase {
         try {
             PythonModelProviderTest test = new PythonModelProviderTest();
             test.setUp();
-            test.testDontRemoveOtherPluginElements();
+            test.testCreateChildrenInWrappedResource();
             test.tearDown();
             
             junit.textui.TestRunner.run(PythonModelProviderTest.class);
@@ -209,7 +210,34 @@ public class PythonModelProviderTest extends TestCase {
         if(!found){
             fail("Could not find generated child");
         }
-        
-        
 	}
+    
+    
+    public void testCreateChildrenInWrappedResource() throws Exception {
+        final HashSet<String> pythonPathSet = new HashSet<String>();
+        pythonPathSet.add(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot"); //root is the source
+        PythonNature nature = createNature(pythonPathSet);
+        
+        
+        WorkspaceRootStub workspaceRootStub = new WorkspaceRootStub();
+        project = new ProjectStub(new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot"), nature);
+        workspaceRootStub.addChild(project);
+        project.setParent(workspaceRootStub);
+        
+        
+        provider = new PythonModelProvider();
+        
+        HashSet<Object> currentChildren = new HashSet<Object>();
+        currentChildren.add(project);
+        provider.getPipelinedChildren(workspaceRootStub, currentChildren);
+        
+        assertEquals(1, currentChildren.size());
+        PythonProjectSourceFolder projectSourceFolder = (PythonProjectSourceFolder) currentChildren.iterator().next();
+        
+        currentChildren = new HashSet<Object>();
+        provider.getPipelinedChildren(projectSourceFolder, currentChildren);
+
+        assertEquals(1, currentChildren.size());
+    }
+    
 }
