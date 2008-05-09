@@ -46,14 +46,43 @@ import org.python.pydev.debug.model.remote.RunCommand;
 import org.python.pydev.debug.model.remote.SetBreakpointCommand;
 import org.python.pydev.debug.model.remote.ThreadListCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
+import org.python.pydev.plugin.PydevPlugin;
 
+/**
+ * This is the target for the debug (
+ *
+ * @author Fabio
+ */
 public abstract class AbstractDebugTarget extends PlatformObject implements IDebugTarget, ILaunchListener {
 	
+    /**
+     * Path pointing to the file that started the debug (e.g.: file with __name__ == '__main__') 
+     */
 	protected IPath file;
+	
+	/**
+	 * The threads found in the debugger.
+	 */
 	protected PyThread[] threads;
+	
+	/**
+	 * Indicates whether we've already disconnected from the debugger.
+	 */
 	protected boolean disconnected = false;
+	
+	/**
+	 * This is the instance used to pass messages to the debugger.
+	 */
 	protected AbstractRemoteDebugger debugger;	
+	
+	/**
+	 * Launch that triggered the debug session.
+	 */
 	protected ILaunch launch;
+	
+	/**
+	 * Class used to check for modifications in the values already found.
+	 */
     private ValueModificationChecker modificationChecker;
 
     public AbstractDebugTarget() {
@@ -153,22 +182,42 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 	}
 
     //Breakpoints ------------------------------------------------------------------------------------------------------
+	/**
+	 * @return true if the given breakpoint is supported by this target
+	 */
 	public boolean supportsBreakpoint(IBreakpoint breakpoint) {
 		return breakpoint instanceof PyBreakpoint;
 	}
 	
+	/**
+	 * @return true if all the breakpoints should be skipped. Patch from bug: 
+	 * http://sourceforge.net/tracker/index.php?func=detail&aid=1960983&group_id=85796&atid=577329
+	 */
+	private boolean shouldSkipBreakpoints() {
+		DebugPlugin manager= DebugPlugin.getDefault();
+		return manager != null && !manager.getBreakpointManager().isEnabled();
+	}
+	
+	/**
+	 * Adds a breakpoint if it's enabled.
+	 */
 	public void breakpointAdded(IBreakpoint breakpoint) {
 		try {
-			if (breakpoint instanceof PyBreakpoint && ((PyBreakpoint)breakpoint).isEnabled()) {
+			if (breakpoint instanceof PyBreakpoint) {
 				PyBreakpoint b = (PyBreakpoint)breakpoint;
-				SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, b.getFile(), b.getLine(), b.getCondition(), b.getFunctionName());
-				debugger.postCommand(cmd);
+				if (b.isEnabled() && !shouldSkipBreakpoints()) {
+					SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, b.getFile(), b.getLine(), b.getCondition(), b.getFunctionName());
+					debugger.postCommand(cmd);
+				}
 			}
 		} catch (CoreException e) {
-			e.printStackTrace();
+		    PydevPlugin.log(e);
 		}
 	}
 
+	/**
+	 * Removes an existing breakpoint from the debug target.
+	 */
 	public void breakpointRemoved(IBreakpoint breakpoint, IMarkerDelta delta) {
 		if (breakpoint instanceof PyBreakpoint) {
 			PyBreakpoint b = (PyBreakpoint)breakpoint;
@@ -177,12 +226,21 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 		}
 	}
 
+    /**
+     * Called when a breakpoint is changed. 
+     * E.g.: 
+     *  - When line numbers change in the file
+     *  - When the manager decides to enable/disable all existing markers
+     *  - When the breakpoint properties (hit condition) are edited
+     */
 	public void breakpointChanged(IBreakpoint breakpoint, IMarkerDelta delta) {
 		if (breakpoint instanceof PyBreakpoint) {
 			breakpointRemoved(breakpoint, null);
 			breakpointAdded(breakpoint);
 		}
 	}
+	
+	
 	//End Breakpoints --------------------------------------------------------------------------------------------------
 
     
@@ -446,19 +504,12 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
             
             for (IMarker marker : markers) {
                 PyBreakpoint brk = (PyBreakpoint) breakpointManager.getBreakpoint(marker);
-                
-                if (brk.isEnabled()) {
-                    SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, brk.getFile(), brk.getLine(), brk.getCondition(), brk.getFunctionName());
-                    debugger.postCommand(cmd);
-                }
+                breakpointAdded(brk);
             }
             
             for (IMarker marker: condMarkers) {
             	PyBreakpoint brk = (PyBreakpoint) breakpointManager.getBreakpoint(marker);
-            	if (brk.isEnabled()) {
-            		SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, brk.getFile(), brk.getLine(), brk.getCondition(), brk.getFunctionName());
-            		debugger.postCommand(cmd);
-            	}
+                breakpointAdded(brk);
             }
         } catch (Throwable t) {
             PydevDebugPlugin.errorDialog("Error setting breakpoints", t);
