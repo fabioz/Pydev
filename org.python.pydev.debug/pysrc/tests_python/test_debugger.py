@@ -167,6 +167,9 @@ class AbstractWriterThread(threading.Thread):
         self.Write("501\t%s\t1.0" % self.NextSeq())
         
     def WriteAddBreakpoint(self, line, func):
+        '''
+            @param line: starts at 1
+        '''
         if func is not None:
             self.Write("111\t%s\t%s\t%s\t**FUNC**%s\tNone" % (self.NextSeq(), self.TEST_FILE, line, func))
         else:
@@ -195,6 +198,40 @@ class AbstractWriterThread(threading.Thread):
         
     def WriteKillThread(self, threadId):
         self.Write("104\t%s\t%s" % (self.NextSeq(), threadId,))
+        
+
+
+#=======================================================================================================================
+# WriterThreadCase10
+#======================================================================================================================
+class WriterThreadCase10(AbstractWriterThread):
+    
+    TEST_FILE = NormFile('_debugger_case10.py')
+        
+    def run(self):
+        self.StartSocket()
+        self.WriteAddBreakpoint(2, 'Method1') 
+        self.WriteMakeInitialRun()
+        
+        threadId, frameId = self.WaitForBreakpointHit('111')
+        
+        self.WriteStepReturn(threadId)
+        
+        threadId, frameId, line = self.WaitForBreakpointHit('109', True)
+        
+        assert line == 11, 'Expected return to be in line 11, was: %s' % line
+        
+        self.WriteStepOver(threadId)
+        
+        threadId, frameId, line = self.WaitForBreakpointHit('108', True)
+        
+        assert line == 12, 'Expected return to be in line 12, was: %s' % line
+        
+        self.WriteRunThread(threadId)
+
+        assert 11 == self._sequence, 'Expected 11. Had: %s'  % self._sequence
+        
+        self.finishedOk = True
         
 
 
@@ -602,6 +639,9 @@ class Test(unittest.TestCase):
         
     def testCase9(self):
         self.CheckCase(WriterThreadCase9)
+        
+    def testCase10(self):
+        self.CheckCase(WriterThreadCase10)
 
             
     def testCase1a(self):
@@ -631,6 +671,9 @@ class Test(unittest.TestCase):
     def testCase9a(self):
         self.CheckCase(WriterThreadCase9, False)
         
+    def testCase10a(self):
+        self.CheckCase(WriterThreadCase10, False)
+        
         
 
 #=======================================================================================================================
@@ -640,6 +683,6 @@ if __name__ == '__main__':
     suite = unittest.makeSuite(Test)
     
 #    suite = unittest.TestSuite()
-#    suite.addTest(Test('testCase1'))
+#    suite.addTest(Test('testCase10'))
     unittest.TextTestRunner(verbosity=1).run(suite)
 

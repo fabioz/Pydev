@@ -539,6 +539,8 @@ class PyDB:
             if back_frame is not None:
                 #steps back to the same frame (in a return call it will stop in the 'back frame' for the user)
                 info.pydev_step_stop = frame
+                frame.f_trace = self.trace_dispatch
+                SetTraceForParents(frame, self.trace_dispatch)
             else:
                 #No back frame?!? -- this happens in jython when we have some frame created from an awt event
                 #(the previous frame would be the awt event, but this doesn't make part of 'jython', only 'java')
