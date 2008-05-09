@@ -88,12 +88,15 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             System.out.println("getPipelinedParent");
         }
         if (object instanceof IWrappedResource){
-            return getParent(object);
-        }else{
-            return aSuggestedParent;
+            IWrappedResource resource = (IWrappedResource) object;
+            Object parentElement = resource.getParentElement();
+            if(parentElement != null){
+                return parentElement;
+            }
         }
-        
+        return aSuggestedParent;
     }
+    
 
     /**
      * This method intercepts some addition to the tree and converts its elements to python 
