@@ -417,6 +417,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         	return new IModulesManager[]{};
         }
         
+        //get the projects 1st
         if(project != null){
         	HashSet<IProject> projs = new HashSet<IProject>();
         	getProjectsRecursively(project, referenced, projs);
@@ -425,10 +426,12 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         //add itself
         list.add(this);
         
-        //the system is the last one we add.
+        //the system is the last one we add 
+        //http://sourceforge.net/tracker/index.php?func=detail&aid=1687018&group_id=85796&atid=577329
         if(checkSystemManager && systemModulesManager != null){
             list.add(systemModulesManager);
         }
+        
         IModulesManager[] ret = (IModulesManager[]) list.toArray(new IModulesManager[list.size()]);
         if(this.completionCache != null){
         	this.completionCache.setManagers(ret, referenced);
