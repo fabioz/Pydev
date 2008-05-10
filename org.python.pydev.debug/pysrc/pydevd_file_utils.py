@@ -1,9 +1,8 @@
 '''
-    This module provides utilities to get the absolute filenames so that we can be sure that
-    the case of a file will match the actual file in the filesystem (otherwise breakpoints won't be hit).
-    
-    It also provides means for the user to make path conversions when doing a remote debugging session in
-    one machine and debugging in another.
+    This module provides utilities to get the absolute filenames so that we can be sure that:
+        - The case of a file will match the actual file in the filesystem (otherwise breakpoints won't be hit).
+        - Providing means for the user to make path conversions when doing a remote debugging session in
+          one machine and debugging in another.
     
     To do that, the PATHS_FROM_CLIENT_TO_SERVER constant must be filled with the appropriate paths.
     
@@ -31,8 +30,8 @@
         see parameter docs on pydevd.py
         
     @note: for doing a remote debugging session, all the pydevd_ files must be on the server accessible 
-        through the PYTHONPATH (and the PATHS_FROM_CLIENT_TO_SERVER only need to be set on the target 
-        machine as needed).
+        through the PYTHONPATH (and the PATHS_FROM_CLIENT_TO_SERVER only needs to be set on the target 
+        machine for the paths that'll actually have breakpoints).
 '''
 
 
