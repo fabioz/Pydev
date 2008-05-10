@@ -533,6 +533,8 @@ class PyDB:
             
         elif info.pydev_step_cmd == CMD_STEP_OVER:
             info.pydev_step_stop = frame
+            frame.f_trace = self.trace_dispatch
+            SetTraceForParents(frame, self.trace_dispatch)
             
         elif info.pydev_step_cmd == CMD_STEP_RETURN:
             back_frame = frame.f_back
