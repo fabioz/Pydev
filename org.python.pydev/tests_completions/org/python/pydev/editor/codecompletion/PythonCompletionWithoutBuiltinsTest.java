@@ -40,7 +40,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-//	      test.testImportMultipleFromImport2();
+	      test.testRelativeImportWithSubclass();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -458,6 +458,12 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 	    String file = TestDependent.TEST_PYSRC_LOC+"mod_without_extension";
 	    String strDoc = REF.getFileContents(new File(file));
 	    requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[]{"ClassInModWithoutExtension"});   
+	}
+	
+	public void testRelativeImportWithSubclass() throws FileNotFoundException, CoreException, BadLocationException{
+	    String file = TestDependent.TEST_PYSRC_LOC+"extendable/relative_with_sub/bb.py";
+	    String strDoc = REF.getFileContents(new File(file));
+	    requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[]{"yyy()"});   
 	}
 	
 	public void testWildImportRecursive() throws BadLocationException, IOException, Exception{

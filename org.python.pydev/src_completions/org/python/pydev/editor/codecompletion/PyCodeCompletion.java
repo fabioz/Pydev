@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.codecompletion;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -422,7 +423,19 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                         int line = request.doc.getLineOfOffset(request.documentOffset);
                         IRegion region = request.doc.getLineInformationOfOffset(request.documentOffset);
                         int col =  request.documentOffset - region.getOffset();
-                        IModule module = AbstractModule.createModuleFromDoc("", null, request.doc, request.nature, line);
+                        
+                        
+                        //ok, try our best shot at getting the module name of the current buffer used in the request.
+                        String modName = "";
+                        File requestFile = request.editorFile;
+                        if(request.editorFile != null){
+                            String resolveModule = request.nature.resolveModule(requestFile);
+                            if(resolveModule != null){
+                                modName = resolveModule;
+                            }
+                        }
+                        
+                        IModule module = AbstractModule.createModuleFromDoc(modName, requestFile, request.doc, request.nature, line);
                       
                         ASTManager astMan = ((ASTManager)request.nature.getAstManager());
                         theList.addAll(new AssignAnalysis().getAssignCompletions(astMan, module, new CompletionState(line, col, request.activationToken, request.nature, request.qualifier)));

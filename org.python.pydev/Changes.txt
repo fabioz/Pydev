@@ -4,6 +4,7 @@ Pydev
 <li><strong>Pydev Package Explorer</strong>: projects that had the project folder in the pythonpath did not show children.</li>
 <li><strong>Debugger</strong>: Disable all works. Patch from: Oldrich Jedlicka</li>
 <li><strong>Debugger</strong>: Problem when making a step return</li>
+<li><strong>Code-completion</strong>: Working for attributes found in a superclass imported with a relative import</li>
 
 after 1.3.15
 
