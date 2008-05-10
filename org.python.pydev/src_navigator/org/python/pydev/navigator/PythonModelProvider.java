@@ -223,12 +223,11 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             	while(true){
                     
             		//add the current to the found
-            		found.push(parentContainer);
-            		parentContainer = parentContainer.getParent();
             		if(parentContainer == null){
             			break;
             		}
                     
+            		found.push(parentContainer);
             		if(parentContainer instanceof IProject){
                         //we got to the project without finding any part of a python model already there, so, let's see
                         //if any of the parts was actually a source folder (that was still not added)
@@ -258,8 +257,10 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             			break;
             		}
             		
+                    parentContainer = parentContainer.getParent();
             	}
             	
+
             	
                 wrapChildren(parentInWrap, sourceFolderInWrap, modification.getChildren(), isAdd);
             }
@@ -294,19 +295,25 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         PythonSourceFolder pythonSourceFolder = null;
         for(Iterator<Object> it = found.topDownIterator();it.hasNext();){
             Object child = it.next();
-            if(child instanceof IFolder){
+            if(child instanceof IFolder || child instanceof IProject){
                 if(pythonSourceFolder == null){
-                    pythonSourceFolder = tryWrapSourceFolder(currentParent, (IFolder) child, sourcePathSet);
+                    pythonSourceFolder = tryWrapSourceFolder(currentParent, (IContainer) child, sourcePathSet);
+                    
                     if(pythonSourceFolder != null){
                         currentParent = pythonSourceFolder;
+                        
                     }else if(child instanceof IContainer){
                         currentParent = (IContainer) child;
+                        
                     }
+                    
                     //just go on (if we found the source folder or not, because if we found, that's ok, and if
                     //we didn't, then the children will not be in the python model anyway)
                     continue;
                 }
             }
+            
+            
             if(pythonSourceFolder != null){
                 IWrappedResource r = doWrap(currentParent, pythonSourceFolder, child);
                 if(r != null){
@@ -338,6 +345,12 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         
         for (Iterator childrenItr = currentChildren.iterator(); childrenItr.hasNext();) {
             Object child = childrenItr.next();
+            
+            if(child == null){
+                //only case when a child is removed and another one is not added (null)
+                childrenItr.remove();
+                continue;
+            }
             
             //yeap, it may be an object that's not an actual resource (created by some other plugin... just continue)
             if(!(child instanceof IResource)){
@@ -389,7 +402,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
     @SuppressWarnings("unchecked")
     protected IWrappedResource doWrap(Object parent, PythonSourceFolder pythonSourceFolder, Object child) {
         if (child instanceof IProject){
-            //do nothing (because a project is never going to be an IWrappedResource)
+            //ok, let's see if the child is a source folder (as the default project can be the actual source folder)
             if(pythonSourceFolder == null && parent != null){
                 PythonSourceFolder f = doWrapPossibleSourceFolder(parent, (IProject)child);                    	
                 if(f != null){
@@ -470,7 +483,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             }else if(container instanceof IProject){
                 sourceFolder = new PythonProjectSourceFolder(parent, (IProject)container);
             }else{
-                throw new RuntimeException("Shouldn't get here: "+container.getClass());
+                return null; //some other container we don't know how to treat!
             }
             //System.out.println("Created source folder: "+ret[i]+" - "+folder.getProject()+" - "+folder.getProjectRelativePath());
             Set<PythonSourceFolder> sourceFolders = getProjectSourceFolders(container.getProject());
@@ -490,6 +503,13 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         LinkedHashSet convertedChildren = new LinkedHashSet();
         for (Iterator childrenItr = currentChildren.iterator(); childrenItr.hasNext();) {
             Object child = childrenItr.next();
+            
+            if(child == null){
+                //only case when a child is removed and another one is not added (null)
+                childrenItr.remove();
+                continue;
+            }
+            
             if(child instanceof IResource && !(child instanceof IWrappedResource)){
                 IResource res = (IResource) child;
                 
@@ -509,15 +529,18 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
                     Object pythonParent = getResourceInPythonModel(p, true);
                     if(pythonParent instanceof IWrappedResource){
                         IWrappedResource parent = (IWrappedResource) pythonParent;
+                        
                         if (res instanceof IProject){
-                            //do nothing (because a project is never going to be an IWrappedResource)
-                            throw new RuntimeException("Shouldn't be here...");
+                            throw new RuntimeException("A project's parent should never be an IWrappedResource!");
+                            
                         }else if(res instanceof IFolder){
                             childrenItr.remove();
                             convertedChildren.add(new PythonFolder(parent, (IFolder) res, parent.getSourceFolder()));
+                            
                         }else if(res instanceof IFile){
                             childrenItr.remove();
                             convertedChildren.add(new PythonFile(parent, (IFile) res, parent.getSourceFolder()));
+                            
                         }else if (child instanceof IResource){
                             childrenItr.remove();
                             convertedChildren.add(new PythonResource(parent, (IResource) child, parent.getSourceFolder()));

@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
@@ -42,11 +43,25 @@ public class ProjectStub implements IProject, IWorkbenchAdapter{
     private IPythonNature nature;
 
     private IContainer parent;
+
+    private boolean addNullChild;
+
+    private List<Object> additionalChildren;
     
     public ProjectStub(File file, IPythonNature nature) {
+        this(file, nature, false);
+    }
+    
+    public ProjectStub(File file, IPythonNature nature, boolean addNullChild) {
+        this(file, nature, addNullChild, new ArrayList<Object>());
+    }
+    
+    public ProjectStub(File file, IPythonNature nature, boolean addNullChild, List<Object> additionalChildren) {
         Assert.isTrue(file.exists() && file.isDirectory());
         this.projectRoot = file;
         this.nature = nature;
+        this.addNullChild = addNullChild;
+        this.additionalChildren = additionalChildren;
     }
     
     public IResource getResource(File parentFile) {
@@ -604,7 +619,7 @@ public class ProjectStub implements IProject, IWorkbenchAdapter{
 		}else{
 			throw new RuntimeException("Shouldn't happen");
 		}
-		ArrayList<IResource> ret = new ArrayList<IResource>();
+		ArrayList<Object> ret = new ArrayList<Object>();
 		for(File file:folder.listFiles()){
 			if(file.getName().toLowerCase().equals("cvs")){
 				continue;
@@ -615,6 +630,10 @@ public class ProjectStub implements IProject, IWorkbenchAdapter{
 				ret.add(new FileStub(this, file));
 			}
 		}
+		if(addNullChild){
+		    ret.add(null);
+		}
+		ret.addAll(this.additionalChildren);
 		return ret.toArray();
 	}
 

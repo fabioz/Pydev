@@ -308,18 +308,33 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
         Object[] childrenToReturn = super.getChildren(parentElement);
         
         //if we don't have a python nature in this project, there is no way we can have a PythonSourceFolder
-        Object[] ret = new Object[childrenToReturn.length];
+        List<Object> ret = new ArrayList<Object>(childrenToReturn.length);
         for (int i=0; i < childrenToReturn.length; i++) {
             PythonNature localNature = nature;
             IProject localProject = project;
             
             //now, first we have to try to get it (because it might already be created)
             Object child = childrenToReturn[i];
-            if(!(child instanceof IResource)){
+            
+            if(child == null){
+                continue;
+            }
+            
+            //only add it if it wasn't null
+            ret.add(child);
+            
+            if(!(child instanceof IResource)){ 
+                //not an element that we can treat in pydev (but still, it was already added)
                 continue;
             }
             child = getResourceInPythonModel((IResource) child);
-            ret[i] = child;
+            
+            if(child == null){
+                //ok, it was not in the python model (but it was already added with the original representation, so, that's ok)
+                continue;
+            }else{
+                ret.set(ret.size()-1, child); //replace the element added for the one in the python model
+            }
             
             //if it is a folder (that is not already a PythonSourceFolder, it might be that we have to create a PythonSourceFolder)
             if (child instanceof IContainer && !(child instanceof PythonSourceFolder)) {
@@ -347,22 +362,24 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                     Set<String> sourcePathSet = localNature.getPythonPathNature().getProjectSourcePathSet();
                     IPath fullPath = container.getFullPath();
                     if(sourcePathSet.contains(fullPath.toString())){
+                        PythonSourceFolder createdSourceFolder;
                         if(container instanceof IFolder){
-                            ret[i] = new PythonSourceFolder(parentElement, (IFolder)container);
+                            createdSourceFolder = new PythonSourceFolder(parentElement, (IFolder)container);
                         }else if(container instanceof IProject){
-                            ret[i] = new PythonProjectSourceFolder(parentElement, (IProject)container);
+                            createdSourceFolder = new PythonProjectSourceFolder(parentElement, (IProject)container);
                         }else{
                             throw new RuntimeException("Should not get here.");
                         }
+                        ret.set(ret.size()-1, createdSourceFolder); //replace the element added for the one in the python model
                         Set<PythonSourceFolder> sourceFolders = getProjectSourceFolders(localProject);
-                        sourceFolders.add((PythonSourceFolder) ret[i]);
+                        sourceFolders.add(createdSourceFolder);
                     }
                 } catch (CoreException e) {
                     throw new RuntimeException(e);
                 }
             }
         }
-        return ret;
+        return ret.toArray();
     }
 
     /**
@@ -455,33 +472,37 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
      * @return an array with the wrapped types 
      */
     protected Object[] wrapChildren(IWrappedResource parent, PythonSourceFolder pythonSourceFolder, Object[] children) {
-        Object[] childrenToReturn;
-        Object[] ret = new Object[children.length];
+        List<Object> ret = new ArrayList<Object>(children.length);
 
         for (int i = 0; i < children.length; i++) {
             Object object = children[i];
-            Object existing = getResourceInPythonModel((IResource) object, true);
-            if(existing == null){
-                if(object instanceof IFolder){
-                    IFolder folder = (IFolder) object;
-                    ret[i] = new PythonFolder(parent, folder, pythonSourceFolder);
+            
+            if(object instanceof IResource){
+                Object existing = getResourceInPythonModel((IResource) object, true);
+                if(existing == null){
                     
-                }else if(object instanceof IFile){
-                    IFile file = (IFile) object;
-                    ret[i] = new PythonFile(parent, file, pythonSourceFolder);
-                    
-                }else if(object instanceof IResource){
-                    ret[i] = new PythonResource(parent, (IResource) object, pythonSourceFolder);
-                    
-                }else{
-                    ret[i] = existing;
+                    if(object instanceof IFolder){
+                        object = new PythonFolder(parent, ((IFolder) object), pythonSourceFolder);
+                        
+                    }else if(object instanceof IFile){
+                        object = new PythonFile(parent, ((IFile) object), pythonSourceFolder);
+                        
+                    }else if(object instanceof IResource){
+                        object = new PythonResource(parent, (IResource) object, pythonSourceFolder);
+                    }
+                }else{ //existing != null
+                    object = existing;
                 }
-            }else{
-                ret[i] = existing;
             }
+            
+            if(object == null){
+                continue;
+            }else{
+                ret.add(object);
+            }
+            
         }
-        childrenToReturn = ret;
-        return childrenToReturn;
+        return ret.toArray();
     }
     
     /**

@@ -27,7 +27,7 @@ public class PythonModelProviderTest extends TestCase {
         try {
             PythonModelProviderTest test = new PythonModelProviderTest();
             test.setUp();
-            test.testCreateChildrenInWrappedResource();
+            test.testProjectIsRoot2();
             test.tearDown();
             
             junit.textui.TestRunner.run(PythonModelProviderTest.class);
@@ -55,10 +55,15 @@ public class PythonModelProviderTest extends TestCase {
     	
         HashSet<Object> files = new HashSet<Object>();
         files.add(file);
+        files.add(null);
+        files.add("string");
         provider.interceptAdd(new PipelinedShapeModification(file.getParent(), files));
-        assertEquals(1, files.size());
-        Object wrappedResource = files.iterator().next();
-        assertTrue(wrappedResource instanceof IWrappedResource);
+        assertEquals(2, files.size());
+        for(Object wrappedResource:files){
+            assertTrue((wrappedResource instanceof IWrappedResource && 
+                    ((IWrappedResource)wrappedResource).getActualObject() == file)|| 
+                    wrappedResource.equals("string"));
+        }
     }
     
     /**
@@ -72,13 +77,47 @@ public class PythonModelProviderTest extends TestCase {
         
         
         PipelinedViewerUpdate update = new PipelinedViewerUpdate();
-        Set<IResource> refreshTargets = update.getRefreshTargets();
+        Set<Object> refreshTargets = update.getRefreshTargets();
         refreshTargets.add(project);
+        refreshTargets.add(null);
+        refreshTargets.add("string");
         provider.interceptRefresh(update); 
-        IResource wrappedResource = refreshTargets.iterator().next();
-        assertTrue(wrappedResource == project);
+        assertEquals(2, refreshTargets.size());
+        for (Object wrappedResource:refreshTargets){
+            assertTrue(wrappedResource == project || wrappedResource.equals("string"));
+        }
     }
     
+    /**
+     * Test if setting the project root as a source folder will return an object from the python model.
+     */
+    public void testProjectIsRoot2() throws Exception {
+        String pythonpathLoc = TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot";
+        final HashSet<String> pythonPathSet = new HashSet<String>();
+        pythonPathSet.add(pythonpathLoc);
+        
+        PythonNature nature = createNature(pythonPathSet);
+        
+        WorkspaceRootStub workspaceRootStub = new WorkspaceRootStub();
+        project = new ProjectStub(new File(pythonpathLoc), nature);
+        provider = new PythonModelProvider();
+        FolderStub folder = new FolderStub(project, new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot/source"));
+        
+        workspaceRootStub.addChild(project);
+        project.setParent(workspaceRootStub);
+        
+        HashSet<Object> folders = new HashSet<Object>();
+        folders.add(folder);
+        PipelinedShapeModification addModification = new PipelinedShapeModification(project, folders);
+        addModification.setParent(project);
+        provider.interceptAdd(addModification);
+        
+        assertEquals(1, addModification.getChildren().size());
+        //it should've been wrapped
+        assertTrue(addModification.getChildren().iterator().next() instanceof IWrappedResource);
+    }
+        
+        
     /**
      * Test if setting the project root as a source folder will return an object from the python model.
      */
@@ -94,11 +133,31 @@ public class PythonModelProviderTest extends TestCase {
         provider = new PythonModelProvider();
         
         workspaceRootStub.addChild(project);
+        workspaceRootStub.addChild(null);
+        workspaceRootStub.addChild("other");
         project.setParent(workspaceRootStub);
         
+        
         Object[] children1 = provider.getChildren(workspaceRootStub);
-        assertEquals(1, children1.length);
-        assertTrue("Expecting source folder. Received: "+children1[0].getClass().getName(), children1[0] instanceof PythonSourceFolder);
+        assertEquals(2, children1.length);
+        int stringsFound=0;
+        int projectSourceFoldersFound=0;
+        for (Object c : children1) {
+            if(c instanceof String){
+                stringsFound+=1;
+                
+            }else if(c instanceof PythonProjectSourceFolder){
+                projectSourceFoldersFound+=1;
+                
+            }else{
+                fail("Expecting source folder or string. Received: "+c.getClass().getName());
+            }
+        }
+        assertEquals(1, stringsFound);
+        assertEquals(1, projectSourceFoldersFound);
+        
+        
+        
         
         //now, let's go and change the pythonpath location to a folder within the project and see if it changes...
         pythonPathSet.clear();
@@ -107,9 +166,24 @@ public class PythonModelProviderTest extends TestCase {
         assertTrue("Expecting the refresh object to be the root and not the project", refreshObject instanceof IWorkspaceRoot);
         
         children1 = provider.getChildren(workspaceRootStub);
-        assertEquals(1, children1.length);
-        assertTrue("Expecting IProject. Received: "+children1[0].getClass().getName(), children1[0] instanceof IProject);
-
+        assertEquals(2, children1.length);
+        stringsFound=0;
+        int projectsFound=0;
+        for (Object c : children1) {
+            if(c instanceof String){
+                stringsFound+=1;
+                
+            }else if(c instanceof IProject){
+                projectsFound+=1;
+                
+            }else{
+                fail("Expecting source folder or string. Received: "+c.getClass().getName());
+            }
+        }
+        assertEquals(1, stringsFound);
+        assertEquals(1, projectsFound);
+        
+        
         //set to be the root again
         pythonPathSet.clear();
         pythonPathSet.add(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot");
@@ -148,9 +222,10 @@ public class PythonModelProviderTest extends TestCase {
     public void testPythonpathChanges() throws Exception {
         final HashSet<String> pythonPathSet = new HashSet<String>();
         pythonPathSet.add(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot/source");
+        pythonPathSet.add("invalid");
     	PythonNature nature = createNature(pythonPathSet);
     	
-    	project = new ProjectStub(new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot"), nature);
+    	project = new ProjectStub(new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot"), nature, true);
     	provider = new PythonModelProvider();
 		Object[] children1 = provider.getChildren(project);
 		assertTrue(children1[0] instanceof PythonSourceFolder);
@@ -220,6 +295,37 @@ public class PythonModelProviderTest extends TestCase {
         
         
         WorkspaceRootStub workspaceRootStub = new WorkspaceRootStub();
+        ArrayList<Object> additionalChildren = new ArrayList<Object>();
+        additionalChildren.add("string");
+        project = new ProjectStub(new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot"), nature, true, additionalChildren);
+        workspaceRootStub.addChild(project);
+        project.setParent(workspaceRootStub);
+        
+        
+        provider = new PythonModelProvider();
+        
+        HashSet<Object> currentChildren = new HashSet<Object>();
+        currentChildren.add(project);
+        currentChildren.add(null);
+        provider.getPipelinedChildren(workspaceRootStub, currentChildren);
+        
+        assertEquals(1, currentChildren.size());
+        PythonProjectSourceFolder projectSourceFolder = (PythonProjectSourceFolder) currentChildren.iterator().next();
+        
+        currentChildren = new HashSet<Object>();
+        currentChildren.add(null);
+        provider.getPipelinedChildren(projectSourceFolder, currentChildren);
+
+        assertEquals(2, currentChildren.size());
+    }
+    
+    public void testNullElements() throws Exception {
+        final HashSet<String> pythonPathSet = new HashSet<String>();
+        pythonPathSet.add(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot"); //root is the source
+        PythonNature nature = createNature(pythonPathSet);
+        
+        
+        WorkspaceRootStub workspaceRootStub = new WorkspaceRootStub();
         project = new ProjectStub(new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot"), nature);
         workspaceRootStub.addChild(project);
         project.setParent(workspaceRootStub);
@@ -229,14 +335,17 @@ public class PythonModelProviderTest extends TestCase {
         
         HashSet<Object> currentChildren = new HashSet<Object>();
         currentChildren.add(project);
+        currentChildren.add(null);
         provider.getPipelinedChildren(workspaceRootStub, currentChildren);
         
         assertEquals(1, currentChildren.size());
         PythonProjectSourceFolder projectSourceFolder = (PythonProjectSourceFolder) currentChildren.iterator().next();
         
         currentChildren = new HashSet<Object>();
+        currentChildren.add(null);
+        currentChildren.add(null);
         provider.getPipelinedChildren(projectSourceFolder, currentChildren);
-
+        
         assertEquals(1, currentChildren.size());
     }
     
