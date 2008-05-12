@@ -30,6 +30,24 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 <h3>New Release: LAST_VERSION_TAG</h3>
 
 <h4>Major highlights:</h4>
+
+<ul>
+<li><strong>Pydev Package Explorer</strong>: projects that had the project folder in the pythonpath did not show children items correctly.</li>
+<li><strong>Debugger</strong>: Disable all works. Patch from: Oldrich Jedlicka</li>
+<li><strong>Debugger</strong>: Problem when making a step return / step over</li>
+<li><strong>Code-completion</strong>: Working for attributes found in a superclass imported with a relative import</li>
+
+Patches from Felix Schwarz:
+<ul>
+
+<li>Allow to configure an interpreter even if the workspace path name contains spaces</li>
+<li>Completion server does not work when the eclipse directory contains spaces</li>
+<li>Fix deletion of resources in pydev package explorer for Eclipse 3.4</li>
+</ul>
+</ul>
+
+
+<h3>Previous: 1.3.16</h3>
 <ul>
 <li><strong>Interactive console</strong>: help() works</li>
 <li><strong>Interactive console</strong>: context information showing in completions</li>
@@ -100,34 +118,6 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 
 
 
-
-
-<h3>Previous: 1.3.14</h3>
-
-<ul>
-<li><strong>Outline view</strong>: patch by Laurent Dore: better icons for different types of fields methods.</li>
-<li><strong>Outline view</strong>: patch by Laurent Dore: more filters.</li>
-<li><strong>PyLint</strong>: working dir is the directory of the analyzed file.</li>
-<li><strong>Project explorer</strong>: fixed bug on integration with Dynamic Web Project.</li>
-<li><strong>Extract method</strong>: fixed bug when trying to refactor structure: a = b = xxx.</li>
-<li><strong>Generate constructor using fields</strong>: working for classes that derive from builtin classes.</li>
-<li><strong>Override methods</strong>: working for classes that derive from builtin classes.</li>
-<li><strong>Debugger can use psyco for speedups</strong>: see <a href="http://pydev.blogspot.com/2008/02/pydev-debugger-and-psyco-speedups.html">http://pydev.blogspot.com/2008/02/pydev-debugger-and-psyco-speedups.html</a>.</li>
-<li><strong>Debugger</strong>: shows parent frame when stepping in a return event.</li>
-<li><strong>Go to previous/next method</strong>: (Ctrl+Shift+Up/Down): does not rely on having a correct parse anymore.</li>
-<li><strong>Auto-formatting</strong>: No space after comma if next char is new line.</li>
-<li><strong>Code Completion</strong>: Handling completions from attribute access in classes (accessed from outside of the class).</li>
-<li><strong>Auto-indent</strong>: Better handling when indenting to next tab position within the code.</li>
-<li><strong>Caches</strong>: Some places were recreating the cache used during a completion request instead of using the available one (which could have a memory impact on some situations).</li>
-</ul>
-
-<h3>Previous: 1.3.13</h3>
-
-<ul>
-<li><strong>Outline view</strong>: working correctly again.</li>
-<li><strong>Keybinding conflict</strong>: Alt+shift+T+XXX refactoring keybindings are now only defined in the pydev scope.</li>
-<li><strong>Hyperlink</strong>: Using new hyperlink mechanism (added at Eclipse 3.3).</li>
-</ul>
 
 
 
