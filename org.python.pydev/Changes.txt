@@ -1,16 +1,18 @@
 after 1.3.16
 
 Pydev
-<li><strong>Pydev Package Explorer</strong>: projects that had the project folder in the pythonpath did not show children.</li>
+<li><strong>Pydev Package Explorer</strong>: projects that had the project folder in the pythonpath did not show children items correctly.</li>
 <li><strong>Debugger</strong>: Disable all works. Patch from: Oldrich Jedlicka</li>
-<li><strong>Debugger</strong>: Problem when making a step return</li>
+<li><strong>Debugger</strong>: Problem when making a step return / step over</li>
 <li><strong>Code-completion</strong>: Working for attributes found in a superclass imported with a relative import</li>
+<ul>
 Patches from Felix Schwarz:
 
-[Patch] Add missing variables to TestDependent templates
-[PATCH] Allow to configure an interpreter even if the workspace path name contains spaces
-[PATCH] completion server does not work when the eclipse directory contains spaces
-[PATCH] Fix deletion of resources in PyDev package explorer
+<li>Allow to configure an interpreter even if the workspace path name contains spaces</li>
+<li>Completion server does not work when the eclipse directory contains spaces</li>
+<li>Fix deletion of resources in pydev package explorer in Eclipse 3.4</li>
+</ul>
+
 
 after 1.3.15
 
