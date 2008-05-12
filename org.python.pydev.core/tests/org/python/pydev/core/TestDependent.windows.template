@@ -48,8 +48,14 @@ public class TestDependent {
     public static final boolean HAS_GLU_INSTALLED = false;
     public static final boolean HAS_SWT_ON_PATH = false;
     public static final boolean HAS_NUMARRAY_INSTALLED = false;
-	public static final boolean HAS_MX_DATETIME = true;
+	public static final boolean HAS_MX_DATETIME = false;
+	public static final boolean HAS_NUMPY_INSTALLED = false;
+
+	public static final String PYTHON_MX_PACKAGES = null;
+	public static final String PYTHON_PIL_PACKAGES = null;
+	public static final String PYTHON_NUMPY_PACKAGES = null;
 	
+	public static final boolean HAS_PIL = false;
 	public static boolean HAS_CYGWIN = false;
 	public static String CYGWIN_PYTHON_EXE="E:/install/Utils.Cygwin/bin/python2.4.exe";
 	public static final String CYGWIN_CYGPATH_LOCATION = "c:/bin/cygwin/bin/cygpath.exe";
