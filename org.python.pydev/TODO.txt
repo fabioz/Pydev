@@ -1,3 +1,5 @@
+- Change all calls to Runtime.exec(String) to Runtime.exec(String[])
+
 
 - hierarchy view: show with f4 / close / open view / f4 (will not work)
 - DEBUGGER BUG: if a class is defined within a method, things later in that method are not able to get the correct name for the breakpoint scope (cannot reproduce?)

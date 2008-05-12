@@ -51,12 +51,8 @@ public class SimplePythonRunner extends SimpleRunner {
      * @return the string with the command to run the passed script with jython
      */
     public static String makeExecutableCommandStr(String script, String[] args) {
-        String[] s = new String[]{
-            PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter() , 
-            "-u" ,
-            script ,
-        };
-
+        String interpreter = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
+		String[] s = preparePythonCallParameters(interpreter, script, args);
         return getCommandLineAsString(s, args);
     }
 
@@ -72,7 +68,7 @@ public class SimplePythonRunner extends SimpleRunner {
      * 
      * @return the stdout of the run (if any)
      */
-    public Tuple<String,String>  runAndGetOutputWithInterpreter(String interpreter, String script, String[] args, File workingDir, IProject project, IProgressMonitor monitor) {
+    public Tuple<String,String> runAndGetOutputWithInterpreter(String interpreter, String script, String[] args, File workingDir, IProject project, IProgressMonitor monitor) {
         monitor.setTaskName("Mounting executable string...");
         monitor.worked(5);
         
@@ -81,16 +77,31 @@ public class SimplePythonRunner extends SimpleRunner {
             throw new RuntimeException("The script passed for execution ("+script+") does not exist.");
         }
         
-        String[] s = new String[]{
-            interpreter, 
-            "-u" ,
-            script ,
-        };
-
+        String[] s = preparePythonCallParameters(interpreter, script, args);
         monitor.worked(1);
-        return runAndGetOutput(getCommandLineAsString(s,args), workingDir, project, monitor);
+        return runAndGetOutput(s, workingDir, project, monitor);
     }
 
+    /**
+     * Creates array with what should be passed to Runtime.exec to run python.
+     * 
+     * @param interpreter interpreter that should do the run
+     * @param script python script to execute
+     * @param args additional arguments to pass to python
+     * @return the created array
+     */
+	private static String[] preparePythonCallParameters(String interpreter, String script, String[] args) {
+		if (args == null) {
+			args = new String[0];
+		}
+		
+		String[] s = new String[3 + args.length];
+        s[0] = interpreter;
+        s[1] = "-u";
+        s[2] = script;
+        System.arraycopy(args, 0, s, 3, args.length);
+		return s;
+	}
 
 
 
