@@ -48,7 +48,8 @@ public class PythonShell extends AbstractShell{
         }else{ //however in mac, or linux, this gives an error...
             execMsg = interpreter+" "+REF.getFileAbsolutePath(serverFile)+" "+pWrite+" "+pRead;
         }
-        process = new SimplePythonRunner().createProcess(execMsg, serverFile.getParentFile());
+        String[] parameters = {interpreter, REF.getFileAbsolutePath(serverFile), ""+pWrite, ""+pRead};
+        process = new SimplePythonRunner().createProcess(parameters, serverFile.getParentFile());
 
         return execMsg;
     }

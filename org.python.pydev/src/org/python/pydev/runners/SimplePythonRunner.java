@@ -41,8 +41,8 @@ public class SimplePythonRunner extends SimpleRunner {
      * @return a string with the output of the process (stdout)
      */
     public Tuple<String,String> runAndGetOutput(String script, String[] args, File workingDir, IProject project) {
-        String executionString = makeExecutableCommandStr(script, args);
-        return runAndGetOutput(executionString, workingDir, project);
+    	String[] parameters = addInterpreterToArgs(script, args);
+        return runAndGetOutput(parameters, workingDir, project);
     }
 
     /**
@@ -51,10 +51,14 @@ public class SimplePythonRunner extends SimpleRunner {
      * @return the string with the command to run the passed script with jython
      */
     public static String makeExecutableCommandStr(String script, String[] args) {
-        String interpreter = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
-		String[] s = preparePythonCallParameters(interpreter, script, args);
+        String[] s = addInterpreterToArgs(script, args);
         return getCommandLineAsString(s, args);
     }
+
+	private static String[] addInterpreterToArgs(String script, String[] args) {
+		String interpreter = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
+		return preparePythonCallParameters(interpreter, script, args);
+	}
 
     /**
      * Execute the string and format for windows if we have spaces...

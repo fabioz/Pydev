@@ -39,6 +39,10 @@ public abstract class SimpleRunner {
         return Runtime.getRuntime().exec(executionString, null, workingDir);
     }
 
+    public Process createProcess(String[] parameters, File workingDir) throws IOException {
+        return Runtime.getRuntime().exec(parameters, null, workingDir);
+    }
+
     /**
      * THIS CODE IS COPIED FROM org.eclipse.debug.internal.core.LaunchManager
      * 
@@ -294,6 +298,10 @@ public abstract class SimpleRunner {
      */
     public Tuple<String,String>  runAndGetOutput(String executionString, File workingDir, IProject project) {
         return runAndGetOutput(executionString, workingDir, project, new NullProgressMonitor());
+    }
+    
+    public Tuple<String,String>  runAndGetOutput(String[] arguments, File workingDir, IProject project) {
+        return runAndGetOutput(arguments, workingDir, project, new NullProgressMonitor());
     }
     
     /**
