@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.actions.DeleteResourceAction;
 
@@ -69,6 +70,17 @@ public class PyDeleteResourceAction extends DeleteResourceAction {
         return true;
     }
     
+
+	@Override
+	public IStructuredSelection getStructuredSelection() {
+		ISelection selection = provider.getSelection();
+		if (!selection.isEmpty()) {
+			IStructuredSelection sSelection = (IStructuredSelection) selection;
+			return sSelection;
+		}
+		return new StructuredSelection();
+	}
+	
     @Override
     protected List getSelectedResources() {
         return selected;
