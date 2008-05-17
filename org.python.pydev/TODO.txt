@@ -1,3 +1,9 @@
+- Context insensitive completions:
+  - Don't bring imports for completions already in the document
+  - Make new imports from the same module use the same from xxx import yyy (when xxx is the same)
+  - Organize imports should pass all the not defined vars and show the imports available for them
+  - Organize imports should merge imports with the same 'xxx' in from xxx import yyy, bbb, etc 
+
 - Change all calls to Runtime.exec(String) to Runtime.exec(String[])
 
 

@@ -18,9 +18,9 @@ import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.docutils.PyDocIterator;
+import org.python.pydev.core.docutils.ImportHandle;
+import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.WordUtils;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -94,33 +94,17 @@ public class PyOrganizeImports extends PyAction{
 	public static void performArrangeImports(IDocument doc, String endLineDelim){
 		ArrayList list = new ArrayList();
 		
+		//Gather imports in a structure we can work on.
+		PyImportsHandling pyImportsHandling = new PyImportsHandling(doc);
 		int firstImport = -1;
-		PyDocIterator it = new PyDocIterator(doc, false, false, false, true);
-		while(it.hasNext()){
-			String str = it.next();
-		    
-		    if((str.startsWith("import ") || str.startsWith("from "))){
-                int iToAdd = it.getLastReturnedLine();
-                if(str.indexOf('(') != -1){ //we have something like from os import (pipe,\nfoo)
-                    while(it.hasNext() && str.indexOf(')') == -1){
-                        String str1 = it.next();
-                        str += endLineDelim+str1;
-                    }
-                }
-                if(WordUtils.endsWith(str, '\\')){
-                    while(it.hasNext() && WordUtils.endsWith(str, '\\')){
-                        //we have to get all until there are no more back-slashes
-                        String str1 = it.next();
-                        str += endLineDelim+str1;
-                    }
-                }
-		        list.add( new Object[]{iToAdd, str} );
-		        
-		        if(firstImport == -1){
-		            firstImport = iToAdd;
-		        }
-		    }
-        }
+		for(ImportHandle imp:pyImportsHandling){
+            list.add( new Object[]{imp.startFoundLine, imp.importFound} );
+            
+            if(firstImport == -1){
+                firstImport = imp.startFoundLine;
+            }
+		}
+
 		
 		//check if we had any import
 		if(firstImport == -1){

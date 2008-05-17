@@ -31,6 +31,7 @@ public class PyDocIterator implements Iterator<String> {
      * @param addNewLinesToRet whether the new line character should be added to the return
      * @param returnNewLinesOnLiterals whether we should return the new lines found in the literals (not the char, but the line itself)
      * @param changeLiteralsForSpaces whether we should replace the literals with spaces (so that we don't loose offset information)
+     * @param addComments if true, comments found will be yielded (otherwise, no comments will be shown)
      */
 	public PyDocIterator(IDocument doc, boolean addNewLinesToRet, boolean returnNewLinesOnLiterals, boolean changeLiteralsForSpaces, boolean addComments) {
 		this(doc);
