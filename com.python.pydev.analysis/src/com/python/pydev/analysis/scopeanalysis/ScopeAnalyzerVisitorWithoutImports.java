@@ -17,6 +17,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.Tuple4;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -439,7 +440,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
             }else if(FullRepIterable.containsPart(representation, nameToFind)){
             
                 Name nameAst = new Name(nameToFind, Name.Store);
-                String[] strings = FullRepIterable.dotSplit(representation);
+                String[] strings = StringUtils.dotSplit(representation);
                 
                 int plus = 0;
                 for (String string : strings) {

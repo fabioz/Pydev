@@ -21,6 +21,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -267,7 +268,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
     private void addAssignTargets(ASTEntry entry, String moduleName, boolean generateDelta, int doOn, String path, boolean lastIsMethod ) {
         String rep = NodeUtils.getFullRepresentationString(entry.node);
         if(lastIsMethod){
-            String[] parts = FullRepIterable.dotSplit(rep);
+            String[] parts = StringUtils.dotSplit(rep);
             if(parts.length >= 2){
                 //at least 2 parts are required
                 if(parts[0].equals("self")){

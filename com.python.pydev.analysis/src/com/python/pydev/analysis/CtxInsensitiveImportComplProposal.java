@@ -11,6 +11,9 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.python.pydev.core.docutils.ImportHandle;
+import org.python.pydev.core.docutils.ImportNotRecognizedException;
+import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.PyCompletionProposalExtension2;
@@ -33,7 +36,8 @@ public class CtxInsensitiveImportComplProposal extends PyCompletionProposalExten
             String additionalProposalInfo, int priority, 
             String realImportRep) {
         
-        super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "");
+        super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
+                contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "");
         this.realImportRep = realImportRep;
     }
     
@@ -42,16 +46,43 @@ public class CtxInsensitiveImportComplProposal extends PyCompletionProposalExten
         apply(document, trigger, stateMask, offset);
     }
     
+    /**
+     * This is the point where the completion is written. It has to be written and if some import is also available
+     * it should be inserted at this point.
+     * 
+     * We have to be careful to only add an import if that's really needed (e.g.: there's no other import that
+     * equals the import that should be added).
+     * 
+     * Also, we have to check if this import should actually be grouped with another import that already exists.
+     * (and it could be a multi-line import)
+     */
     public void apply(IDocument document, char trigger, int stateMask, int offset) {
         try {
             PySelection selection = new PySelection(document);
-            int lineToAddImport;
+            int lineToAddImport=-1;
             if (realImportRep.length() > 0){
-                lineToAddImport = selection.getLineAvailableForImport();
+                
+                PyImportsHandling importsHandling = new PyImportsHandling(document);
+                for(ImportHandle handle:importsHandling){
+                    try {
+                        if(handle.contains(realImportRep)){
+                            lineToAddImport = -2; //signal that there's no need to find a line available to add the import
+                            break;
+                        }
+                    } catch (ImportNotRecognizedException e) {
+                        // the realImportRep is not a valid import?
+                    }
+                }
+                
+                if(lineToAddImport == -1){
+                    lineToAddImport = selection.getLineAvailableForImport();
+                }
             }else{
                 lineToAddImport = -1;
             }
             String delimiter = PyAction.getDelimiter(document);
+            
+            
             
             //first do the completion
             int dif = offset - fReplacementOffset;
@@ -83,6 +114,10 @@ public class CtxInsensitiveImportComplProposal extends PyCompletionProposalExten
     }
 
 
+    /**
+     * If another proposal with the same name exists, this method will be called to determine if 
+     * both completions should coexist or if one of them should be removed.  
+     */
     @Override
     public int getOverrideBehavior(ICompletionProposal curr) {
         if(curr instanceof CtxInsensitiveImportComplProposal){

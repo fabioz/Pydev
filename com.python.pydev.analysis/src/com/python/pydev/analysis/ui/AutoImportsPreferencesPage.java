@@ -6,7 +6,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.docutils.StringUtils;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.AnalysisPreferenceInitializer;
@@ -45,7 +45,7 @@ public class AutoImportsPreferencesPage extends FieldEditorPreferencePage implem
     
     public static String removeImportsStartingWithUnderIfNeeded(String declPackageWithoutInit) {
         if(doIgnoreImportsStartingWithUnder()){
-            String[] splitted = FullRepIterable.dotSplit(declPackageWithoutInit);
+            String[] splitted = StringUtils.dotSplit(declPackageWithoutInit);
             StringBuffer buf = new StringBuffer();
             
             boolean foundStartingWithoutUnder=false;
