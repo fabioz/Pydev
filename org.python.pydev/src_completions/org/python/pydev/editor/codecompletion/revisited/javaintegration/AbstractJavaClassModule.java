@@ -22,6 +22,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
@@ -261,7 +262,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
         //try to see if that's a java class from a package... to do that, we must go iterating through the name found
         //to check if we're able to find modules with that name. If a module with that name is found, that means that 
         //we actually have a java class. 
-        String[] splitted = FullRepIterable.dotSplit(state.getActivationToken());
+        String[] splitted = StringUtils.dotSplit(state.getActivationToken());
         StringBuffer modNameBuf = new StringBuffer(this.getName());
         IModule validModule = null;
         IModule module = null;

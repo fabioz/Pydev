@@ -228,6 +228,12 @@
             id="org.python.pydev.ui.filetypes.FileTypesPreferencesPage"/>
 
       <page
+      		name="Imports"
+            category="org.python.pydev.plugin.pyCodeStylePreferencesPage"
+            class="org.python.pydev.ui.importsconf.ImportsPreferencesPage"
+            id="org.python.pydev.ui.importsconf.ImportsPreferencesPage"/>
+
+      <page
             name="Code Completion"
             class="org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage"
             category="org.python.pydev.prefs"

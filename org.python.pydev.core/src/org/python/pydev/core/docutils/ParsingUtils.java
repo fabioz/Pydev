@@ -9,7 +9,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitionerExtension2;
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IPythonPartitions;
 
 
@@ -533,7 +532,7 @@ public class ParsingUtils implements IPythonPartitions{
             toSplit = '\r';
         }
         
-        String[] strings = FullRepIterable.split(code, toSplit);
+        String[] strings = StringUtils.split(code, toSplit);
         return strings[strings.length-1];
     }
 

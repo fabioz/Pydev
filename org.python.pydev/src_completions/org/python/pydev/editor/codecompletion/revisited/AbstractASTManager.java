@@ -29,6 +29,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.TupleN;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.actions.PyAction;
@@ -130,7 +131,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 
                 if(level > 0){
                     //ok, it is the import added on python 2.5 (from .. import xxx)
-                    String[] moduleParts = FullRepIterable.dotSplit(moduleName);
+                    String[] moduleParts = StringUtils.dotSplit(moduleName);
                     if(moduleParts.length > level){
                         relative = FullRepIterable.joinParts(moduleParts, moduleParts.length-level);
                     }
@@ -234,7 +235,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 }
 
                 if (element.length() > 0 && goForIt) {
-                    String[] splitted = FullRepIterable.dotSplit(element);
+                    String[] splitted = StringUtils.dotSplit(element);
                     if (splitted.length > 0) {
                         //this is the completion
                         set.add(new ConcreteToken(splitted[0], "", "", moduleToGetTokensFrom, type));
@@ -1051,7 +1052,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                     //ok, it is the import added on python 2.5 (from .. import xxx)
                     
                     String parentPackage = token.getParentPackage();
-                    String[] moduleParts = FullRepIterable.dotSplit(parentPackage);
+                    String[] moduleParts = StringUtils.dotSplit(parentPackage);
                     String relative = null;
                     if(moduleParts.length > level){
                         relative = FullRepIterable.joinParts(moduleParts, moduleParts.length-level);

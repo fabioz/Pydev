@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.ErrorDescription;
@@ -330,8 +329,8 @@ public class ParsedItem implements Comparable<Object>{
         }else if (astThis.node instanceof commentType) {
             commentType type = (commentType) astThis.node;
             String rep = type.id.trim();
-            rep = FullRepIterable.split(rep, '\n')[0];
-            rep = FullRepIterable.split(rep, '\r')[0];
+            rep = StringUtils.split(rep, '\n')[0];
+            rep = StringUtils.split(rep, '\r')[0];
             rep = rep.substring(1);
             rep = StringUtils.rightTrim(rep, '-');
             return StringUtils.leftTrim(rep, '-');

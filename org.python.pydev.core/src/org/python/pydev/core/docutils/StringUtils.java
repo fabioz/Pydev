@@ -14,6 +14,13 @@ import javax.swing.text.html.HTMLEditorKit;
 
 public class StringUtils {
 
+    /**
+     * Formats a string, replacing %s with the arguments passed.
+     * 
+     * @param str string to be formatted
+     * @param args arguments passed
+     * @return a string with the %s replaced by the arguments passed
+     */
     public static String format(String str, Object... args) {
         StringBuffer buffer = new StringBuffer();
         int j = 0;
@@ -38,6 +45,12 @@ public class StringUtils {
         return buffer.toString();
     }
 
+    /**
+     * Counts the number of %s in the string
+     * 
+     * @param str the string to be analyzide
+     * @return the number of %s in the string
+     */
     public static int countPercS(String str) {
         int j = 0;
 
@@ -54,6 +67,9 @@ public class StringUtils {
         return j;
     }
 
+    /**
+     * Removes whitespaces at the beggining of the string.
+     */
     public static String rightTrim(String input) {
         int len = input.length();
         int st = 0;
@@ -66,6 +82,9 @@ public class StringUtils {
         return input.substring(0, len);
     }
 
+    /**
+     * Removes whitespaces at the end of the string.
+     */
     public static String leftTrim(String input) {
         int len = input.length();
         int off = 0;
@@ -108,6 +127,9 @@ public class StringUtils {
         return stripFromRigthCharOnwards(input, '/');
     }
 
+    /**
+     * Removes the occurrences of the passed char in the beggining of the string.
+     */
     public static String rightTrim(String input, char charToTrim) {
         int len = input.length();
         int st = 0;
@@ -120,6 +142,9 @@ public class StringUtils {
         return input.substring(0, len);
     }
     
+    /**
+     * Removes the occurrences of the passed char in the end of the string.
+     */
     public static String leftTrim(String input, char charToTrim) {
         int len = input.length();
         int off = 0;
@@ -159,6 +184,12 @@ public class StringUtils {
         return string;
     }
 
+    /**
+     * Splits the given string in a list where each element is a line.
+     * 
+     * @param string string to be splitted.
+     * @return list of strings where each string is a line.
+     */
     public static List<String> splitInLines(String string) {
         ArrayList<String> ret = new ArrayList<String>();
         int len = string.length();
@@ -270,6 +301,49 @@ public class StringUtils {
         } catch (Exception e) {
         }
         return "";
+    }
+
+    /**
+     * Splits some string given some char
+     */
+    public static String[] split(String string, char toSplit) {
+        ArrayList<String> ret = new ArrayList<String>();
+        int len = string.length();
+        
+        int last = 0;
+        
+        char c = 0;
+        
+        for (int i = 0; i < len; i++) {
+            c = string.charAt(i);
+            if(c == toSplit){
+                if(last != i){
+                    ret.add(string.substring(last, i));
+                }
+                while(c == toSplit && i < len-1){
+                    i++;
+                    c = string.charAt(i);
+                }
+                last = i;
+            }
+        }
+        if(c != toSplit){
+            if(last == 0 && len > 0){
+                ret.add(string); //it is equal to the original (no dots)
+                
+            }else if(last < len){
+                ret.add(string.substring(last, len));
+                
+            }
+        }
+        return ret.toArray(new String[ret.size()]);
+    }
+
+    /**
+     * Splits the string as would string.split("\\."), but without yielding empty strings
+     */
+    public static String[] dotSplit(String string) {
+        return split(string, '.');
     }
 
 }

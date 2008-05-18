@@ -8,6 +8,8 @@ package org.python.pydev.core;
 import java.io.File;
 import java.io.Serializable;
 
+import org.python.pydev.core.docutils.StringUtils;
+
 /**
  * This class defines the key to use for some module. All its operations are based on its name.
  * The file may be null.
@@ -90,7 +92,7 @@ public class ModulesKey implements Comparable<ModulesKey>, Serializable{
      * parts lower case).
      */
     public boolean hasPartStartingWith(String startingWithLowerCase) {
-        for (String mod : FullRepIterable.dotSplit(this.name.toLowerCase())) {
+        for (String mod : StringUtils.dotSplit(this.name.toLowerCase())) {
             if(mod.startsWith(startingWithLowerCase)){
                 return true;
             }

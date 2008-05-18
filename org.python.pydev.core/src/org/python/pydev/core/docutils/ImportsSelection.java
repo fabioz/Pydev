@@ -24,8 +24,7 @@ public class ImportsSelection {
     
         // check if we have a from or an import.
         if (fromIndex != -1 || importIndex != -1) {
-            trimmedLine = trimmedLine.replaceAll("#.*", ""); // remove
-                                                                // comments
+            trimmedLine = trimmedLine.replaceAll("#.*", ""); // remove comments
             String[] strings = trimmedLine.split(" ");
     
             if (fromIndex != -1 && importIndex == -1) {

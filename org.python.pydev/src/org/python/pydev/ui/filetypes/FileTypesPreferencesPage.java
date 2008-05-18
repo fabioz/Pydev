@@ -7,7 +7,7 @@ import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.WordUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
@@ -137,7 +137,7 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
             String[] ret = pythondValidSourceFiles;
             if(ret == null){
                 String validStr = PydevPrefs.getPreferences().getString(FileTypesPreferencesPage.VALID_SOURCE_FILES);
-                String[] s = FullRepIterable.split(validStr, ',');
+                String[] s = StringUtils.split(validStr, ',');
                 for(int i=0;i<s.length;i++){
                     s[i] = s[i].trim();
                 }

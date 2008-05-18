@@ -30,12 +30,12 @@ import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
@@ -163,7 +163,7 @@ public class AbstractJavaIntegrationTestWorkbench extends TestCase{
             return null;
         }
         IContainer parent = sourceFolder;
-        String[] packageParts = FullRepIterable.dotSplit(packageName);
+        String[] packageParts = StringUtils.dotSplit(packageName);
         for (String packagePart : packageParts) {
             IFolder folder = parent.getFolder(new Path(packagePart));
             if(!folder.exists()){

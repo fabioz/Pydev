@@ -29,6 +29,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.StringUtils;
 
 /**
  * This class wraps a java project as we'd wrap a python project in a ProjectModulesManager, to give info on the 
@@ -123,7 +124,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
         filterJavaPackages(new IFilter(){
 
             public boolean accept(String elementName, IPackageFragmentRoot packageRoot, IJavaElement javaElement) {
-                for (String mod : FullRepIterable.dotSplit(elementName)) {
+                for (String mod : StringUtils.dotSplit(elementName)) {
                     if(mod.toLowerCase().startsWith(partStartingWithLowerCase)){
                         ret.add(elementName);
                     }

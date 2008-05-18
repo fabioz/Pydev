@@ -30,6 +30,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.cache.Cache;
 import org.python.pydev.core.cache.LRUCache;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
@@ -345,7 +346,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     public IToken[] getGlobalTokens(ICompletionState initialState, ICodeCompletionASTManager manager) {
         String activationToken = initialState.getActivationToken();
         int activationTokenLen = activationToken.length();
-        String[] actToks = FullRepIterable.dotSplit(activationToken);
+        String[] actToks = StringUtils.dotSplit(activationToken);
         
         String goFor = null;
         if(actToks.length > 0){

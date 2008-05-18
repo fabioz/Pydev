@@ -3,8 +3,9 @@
  */
 package org.python.pydev.core;
 
-import java.util.ArrayList;
 import java.util.Iterator;
+
+import org.python.pydev.core.docutils.StringUtils;
 
 /**
  * iterates through a string so that parts of it are gotten each time in a progressive way based on dots
@@ -230,56 +231,13 @@ public class FullRepIterable implements Iterable<String>{
 	 * @return whether the foundRep contains some part with the nameToFind
 	 */
 	public static boolean containsPart(String foundRep, String nameToFind) {
-		String[] strings = dotSplit(foundRep);
+		String[] strings = StringUtils.dotSplit(foundRep);
 		for (String string : strings) {
 			if(string.equals(nameToFind)){
 				return true;
 			}
 		}
 		return false;
-	}
-
-    /**
-     * Splits some string given some char
-     */
-	public static String[] split(String string, char toSplit) {
-	    ArrayList<String> ret = new ArrayList<String>();
-	    int len = string.length();
-	    
-	    int last = 0;
-	    
-	    char c = 0;
-	    
-	    for (int i = 0; i < len; i++) {
-	        c = string.charAt(i);
-	        if(c == toSplit){
-	            if(last != i){
-	                ret.add(string.substring(last, i));
-	            }
-	            while(c == toSplit && i < len-1){
-	                i++;
-	                c = string.charAt(i);
-	            }
-	            last = i;
-	        }
-	    }
-	    if(c != toSplit){
-	        if(last == 0 && len > 0){
-	            ret.add(string); //it is equal to the original (no dots)
-	            
-	        }else if(last < len){
-	            ret.add(string.substring(last, len));
-	            
-	        }
-	    }
-	    return ret.toArray(new String[ret.size()]);
-    }
-    
-	/**
-	 * Splits the string as would string.split("\\."), but without yielding empty strings
-	 */
-	public static String[] dotSplit(String string) {
-        return split(string, '.');
 	}
 	
 

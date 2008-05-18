@@ -80,7 +80,7 @@ public interface ICodeCompletionASTManager {
     //----------------------------------- COMPLETIONS
 
     /**
-     * Returns the imports that start with a given string. The comparisson is not case dependent. Passes all the modules in the cache.
+     * Returns the imports that start with a given string. The comparison is not case dependent. Passes all the modules in the cache.
      * 
      * @param initial: this is the initial module (e.g.: foo.bar) or an empty string.
      * @return a Set with the imports as tuples with the name, the docstring.

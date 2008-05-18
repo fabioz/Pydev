@@ -223,7 +223,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     public static final int BEHAVIOR_IS_OVERRIDEN = 2;
 
     /**
-     * @param curr
+     * @param curr another completion that has the same internal representation.
      * @return the behavior when faced with a given proposal (that has the same internal representation)
      */
     public int getOverrideBehavior(ICompletionProposal curr) {

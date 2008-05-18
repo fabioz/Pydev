@@ -5,6 +5,8 @@ package org.python.pydev.core;
 
 import java.util.Iterator;
 
+import org.python.pydev.core.docutils.StringUtils;
+
 import junit.framework.TestCase;
 
 public class FullRepIterableTest extends TestCase {
@@ -106,34 +108,34 @@ public class FullRepIterableTest extends TestCase {
     
     
     public void testDotSplit() throws Exception {
-    	String[] strings = FullRepIterable.dotSplit("foo.bar.f");
+    	String[] strings = StringUtils.dotSplit("foo.bar.f");
     	assertEquals(3, strings.length);
     	assertEquals("foo", strings[0]);
     	assertEquals("bar", strings[1]);
     	assertEquals("f", strings[2]);
 		
-    	strings = FullRepIterable.dotSplit("foo.bar.");
+    	strings = StringUtils.dotSplit("foo.bar.");
     	assertEquals(2, strings.length);
     	assertEquals("foo", strings[0]);
     	assertEquals("bar", strings[1]);
     	
     	assertEquals(0, "...".split("\\.").length);
-    	strings = FullRepIterable.dotSplit("...");
+    	strings = StringUtils.dotSplit("...");
     	assertEquals(0, strings.length);
     	
-    	strings = FullRepIterable.dotSplit("");
+    	strings = StringUtils.dotSplit("");
     	assertEquals(0, strings.length);
     	
-    	strings = FullRepIterable.dotSplit("foo");
+    	strings = StringUtils.dotSplit("foo");
     	assertEquals(1, strings.length);
     	assertEquals("foo", strings[0]);
     	
-    	strings = FullRepIterable.dotSplit("f.bu");
+    	strings = StringUtils.dotSplit("f.bu");
     	assertEquals(2, strings.length);
     	assertEquals("f", strings[0]);
     	assertEquals("bu", strings[1]);
     	
-    	strings = FullRepIterable.dotSplit("..f.b...u..");
+    	strings = StringUtils.dotSplit("..f.b...u..");
     	assertEquals(3, strings.length);
     	assertEquals("f", strings[0]);
     	assertEquals("b", strings[1]);

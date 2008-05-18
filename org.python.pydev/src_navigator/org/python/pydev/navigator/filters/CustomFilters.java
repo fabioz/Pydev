@@ -9,7 +9,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.navigator.actions.PySetupCustomFilters;
 import org.python.pydev.navigator.properties.StringMatcherSimple;
 import org.python.pydev.plugin.PydevPlugin;
@@ -93,7 +93,7 @@ public class CustomFilters extends ViewerFilter{
     
     
     public void update(String customFilters) {
-        String[] splittedCustomFilters = FullRepIterable.split(customFilters, ',');
+        String[] splittedCustomFilters = StringUtils.split(customFilters, ',');
         StringMatcherSimple[] temp = new StringMatcherSimple[splittedCustomFilters.length];
         for (int i = 0; i < temp.length; i++) {
             temp[i] = new StringMatcherSimple(splittedCustomFilters[i].trim());

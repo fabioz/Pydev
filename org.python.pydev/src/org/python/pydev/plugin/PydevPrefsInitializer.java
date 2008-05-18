@@ -9,6 +9,7 @@ import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
 import org.python.pydev.parser.PyParserManager;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
+import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
@@ -123,6 +124,11 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         //file types
         node.put(FileTypesPreferencesPage.VALID_SOURCE_FILES, FileTypesPreferencesPage.DEFAULT_VALID_SOURCE_FILES);
         node.put(FileTypesPreferencesPage.FIRST_CHOICE_PYTHON_SOURCE_FILE, FileTypesPreferencesPage.DEFAULT_FIRST_CHOICE_PYTHON_SOURCE_FILE);
+        
+        //imports
+        node.putBoolean(ImportsPreferencesPage.GROUP_IMPORTS, ImportsPreferencesPage.DEFAULT_GROUP_IMPORTS);
+        node.putBoolean(ImportsPreferencesPage.MULTILINE_IMPORTS, ImportsPreferencesPage.DEFAULT_MULTILINE_IMPORTS);
+        node.put(ImportsPreferencesPage.BREAK_IMPORTS_MODE, ImportsPreferencesPage.DEFAULT_BREAK_IMPORTS_MODE);
         
         
     }
