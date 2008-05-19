@@ -65,10 +65,12 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
     	ICompletionProposal[] proposals = requestCompl("unittest", new String[]{"unittest", "unittest - testlib"}); //the unittest module and testlib.unittest
     	
         Document document = new Document("unittest");
+        ((CtxInsensitiveImportComplProposal)proposals[0]).indentString = "    ";
         ((CtxInsensitiveImportComplProposal)proposals[0]).apply(document, ' ', 0, 8);
         PySelectionTest.checkStrEquals("import unittest\r\nunittest", document.get());
             
         document = new Document("unittest");
+        ((CtxInsensitiveImportComplProposal)proposals[1]).indentString = "    ";
         ((CtxInsensitiveImportComplProposal)proposals[1]).apply(document, ' ', 0, 8);
         PySelectionTest.checkStrEquals("from testlib import unittest\r\nunittest", document.get());
 
@@ -78,6 +80,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         try {
             proposals = requestCompl("_priv3", new String[]{"_priv3 - relative.rel1._priv1._priv2"}); 
             document = new Document("_priv3");
+            ((CtxInsensitiveImportComplProposal)proposals[0]).indentString = "    ";
             ((CtxInsensitiveImportComplProposal)proposals[0]).apply(document, ' ', 0, 6);
             PySelectionTest.checkStrEquals("from relative.rel1._priv1._priv2 import _priv3\r\n_priv3", document.get());
         } finally {
@@ -131,6 +134,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         try {
             proposals = requestCompl("Priv3", new String[]{"Priv3 - relative.rel1._priv1._priv2._priv3"}); 
             Document document = new Document("Priv3");
+            ((CtxInsensitiveImportComplProposal)proposals[0]).indentString = "    ";
             ((CtxInsensitiveImportComplProposal)proposals[0]).apply(document, ' ', 0, 5);
             PySelectionTest.checkStrEquals("from relative.rel1 import Priv3\r\nPriv3", document.get());
         } finally {
