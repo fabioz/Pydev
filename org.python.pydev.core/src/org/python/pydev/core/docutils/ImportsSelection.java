@@ -169,6 +169,9 @@ public class ImportsSelection {
                         if(c != '\\'){
                             allEndingWithSlash = false;
                         }
+                    }else if(trimmedLine.length() == 0){
+                        //if some empty line was found, stop the analysis.
+                        break;
                     }
                 }
                 expectContinue = true;

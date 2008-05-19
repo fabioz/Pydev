@@ -1055,6 +1055,9 @@ public class PySelection {
     }
     
     
+    /**
+     * @return the number of line breaks in the passed string.
+     */
     public static int countLineBreaks(String replacementString) {
         int lineBreaks = 0;
         int ignoreNextNAt = -1;

@@ -75,6 +75,10 @@ public class PyCodeCompletionTest extends TestCase {
 
         doTest("from this space", "");
         doTest("from ", " ");
+        
+        doTest("nothere", "");
+        doTest("from i import y\n\na=10", "");
+        doTest("from i import (y)\n\na=10", "");
     }
 
 }

@@ -8,6 +8,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.docutils.WordUtils;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.utils.LabelFieldEditor;
 
 
@@ -63,6 +64,18 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
     
     public void init(IWorkbench workbench) {
         // pass
+    }
+
+
+    /**
+     * @return true if imports should be grouped when possible. E.g.: If from aaa import b and from aaa import c
+     * exist, they should be grouped as from aaa import b, c
+     */
+    public static boolean getGroupImports() {
+        if(PydevPlugin.getDefault() == null){
+            return true;
+        }
+        return PydevPrefs.getPreferences().getBoolean(GROUP_IMPORTS);
     }
     
     

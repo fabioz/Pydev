@@ -23,8 +23,8 @@ public class ImportHandle {
     public static class ImportHandleInfo{
         
         //spaces* 'from' space+ module space+ import (mod as y)
-        private static final Pattern FromImportPattern = Pattern.compile("(from\\s+)(\\.*\\w+)(\\s+import\\s+)(\\w+|\\s|,|#|\\(|\\))*(\\z)");
-        private static final Pattern ImportPattern = Pattern.compile("(import\\s+)(\\w+|\\s|,|#|\\(|\\))*(\\z)");
+        private static final Pattern FromImportPattern = Pattern.compile("(from\\s+)(\\.*\\w+)+(\\s+import\\s+)(\\w+|\\s|,|#|\\(|\\)|\\\\)*");
+        private static final Pattern ImportPattern = Pattern.compile("(import\\s+)(\\w+|\\s|,|#|\\(|\\)|\\\\)*");
         
         /**
          * Holds the 'KKK' if the import is from KKK import YYY
@@ -43,7 +43,29 @@ public class ImportHandle {
          * with #comment and an empty string.
          */
         private List<String> importedStrComments;
+        
+        /**
+         * Starting line for this import.
+         */
+        private int startLine;
+        
+        /**
+         * Ending line for this import.
+         */
+        private int endLine;
+        
+        /**
+         * Holds whether the import started in the middle of the line (after a ';')
+         */
+        private boolean startedInMiddleOfLine;
 
+        /**
+         * Constructor that does not set the line for the import.
+         */
+        public ImportHandleInfo(String importFound) throws ImportNotRecognizedException {
+            this(importFound, -1, -1, false);
+        }
+        
         /**
          * Constructor.
          * 
@@ -52,7 +74,11 @@ public class ImportHandle {
          * @param importFound
          * @throws ImportNotRecognizedException 
          */
-        public ImportHandleInfo(String importFound) throws ImportNotRecognizedException {
+        public ImportHandleInfo(String importFound, int lineStart, int lineEnd, boolean startedInMiddleOfLine) throws ImportNotRecognizedException {
+            this.startLine = lineStart;
+            this.endLine = lineEnd;
+            this.startedInMiddleOfLine = startedInMiddleOfLine;
+            
             importFound=importFound.trim();
             char firstChar = importFound.charAt(0);
             
@@ -61,7 +87,8 @@ public class ImportHandle {
                 //from import
                 Matcher matcher = FromImportPattern.matcher(importFound);
                 if(matcher.matches()){
-                    this.fromStr = matcher.group(2); 
+                    this.fromStr = importFound.substring(matcher.end(1), 
+                            matcher.end(2)).trim(); 
                     
                     //we have to do that because the last group will only have the last match in the string
                     String importedStr = importFound.substring(matcher.end(3), 
@@ -115,7 +142,7 @@ public class ImportHandle {
                     addImportAlias(lst, importComments, alias, "");
                     alias = new StringBuffer();
                     
-                }else if(c == '(' || c == ')'){
+                }else if(c == '(' || c == ')' || c == '\\'){
                     //do nothing
                     
                     
@@ -183,6 +210,27 @@ public class ImportHandle {
         public List<String> getCommentsForImports() {
             return this.importedStrComments;
         }
+
+        /**
+         * @return the start line for this import (0-based)
+         */
+        public int getStartLine() {
+            return this.startLine;
+        }
+
+        /**
+         * @return the end line for this import (0-based)
+         */
+        public int getEndLine() {
+            return this.endLine;
+        }
+
+        /**
+         * @return true if this import was started in the middle of the line. I.e.: after a ';'
+         */
+        public boolean getStartedInMiddleOfLine() {
+            return this.startedInMiddleOfLine;
+        }
         
     }
 
@@ -208,7 +256,7 @@ public class ImportHandle {
     public int endFoundLine;
     
     /**
-     * Import informatiot for the import found and handled in this class (only created on request)
+     * Import information for the import found and handled in this class (only created on request)
      */
     private List<ImportHandleInfo> importInfo;
 
@@ -225,14 +273,13 @@ public class ImportHandle {
     }
 
     /**
-     * @param realImportRep the import to match. Note that only a single import statement may be passed as a parameter.
+     * @param realImportHandleInfo the import to match. Note that only a single import statement may be passed as a parameter.
      * 
      * @return true if the passed import matches the import in this handle (note: as this class can actually wrap more
      * than 1 import, it'll return true if any of the internal imports match the passed import)
      * @throws ImportNotRecognizedException if the passed import could not be recognized
      */
-    public boolean contains(String realImportRep) throws ImportNotRecognizedException {
-        ImportHandleInfo otherImportInfo = new ImportHandleInfo(realImportRep);
+    public boolean contains(ImportHandleInfo otherImportInfo) throws ImportNotRecognizedException {
         List<ImportHandleInfo> importHandleInfo = this.getImportInfo();
         
         for(ImportHandleInfo info : importHandleInfo) {
@@ -267,6 +314,9 @@ public class ImportHandle {
         if(this.importInfo == null){
             this.importInfo = new ArrayList<ImportHandleInfo>();
             
+            int line = startFoundLine;
+            boolean startedInMiddle = false;
+            
             StringBuffer imp = new StringBuffer();
             for(int i=0;i<importFound.length();i++){
                 char c = importFound.charAt(i);
@@ -276,19 +326,26 @@ public class ImportHandle {
                     
                 }else if(c == ';'){
                     try {
-                        this.importInfo.add(new ImportHandleInfo(imp.toString()));
+                        String impStr = imp.toString();
+                        int endLine = line+PySelection.countLineBreaks(impStr);
+                        this.importInfo.add(new ImportHandleInfo(impStr, line, endLine, startedInMiddle));
+                        line = endLine;
                     } catch (ImportNotRecognizedException e) {
                         //that's ok, not a valid import (at least, we couldn't parse it)
                     }
                     imp = new StringBuffer();
-                    
+                    startedInMiddle = true;
                 }else{
+                    if(c == '\r' || c == '\n'){
+                        startedInMiddle = false;
+                    }
                     imp.append(c);
                 }
                 
             }
             try {
-                this.importInfo.add(new ImportHandleInfo(imp.toString()));
+                String impStr = imp.toString();
+                this.importInfo.add(new ImportHandleInfo(impStr, line, line+PySelection.countLineBreaks(impStr), startedInMiddle));
             } catch (ImportNotRecognizedException e) {
                 //that's ok, not a valid import (at least, we couldn't parse it)
             }
