@@ -23,8 +23,8 @@ public class ImportHandle {
     public static class ImportHandleInfo{
         
         //spaces* 'from' space+ module space+ import (mod as y)
-        private static final Pattern FromImportPattern = Pattern.compile("(from\\s+)(\\.*\\w+)+(\\s+import\\s+)(\\w+|\\s|,|#|\\(|\\)|\\\\)*");
-        private static final Pattern ImportPattern = Pattern.compile("(import\\s+)(\\w+|\\s|,|#|\\(|\\)|\\\\)*");
+        private static final Pattern FromImportPattern = Pattern.compile("(from\\s+)(\\.*\\w+)+(\\s+import\\s+)");
+        private static final Pattern ImportPattern = Pattern.compile("(import\\s+)");
         
         /**
          * Holds the 'KKK' if the import is from KKK import YYY
@@ -86,13 +86,13 @@ public class ImportHandle {
             if (firstChar == 'f') {
                 //from import
                 Matcher matcher = FromImportPattern.matcher(importFound);
-                if(matcher.matches()){
+                if(matcher.find()){
                     this.fromStr = importFound.substring(matcher.end(1), 
                             matcher.end(2)).trim(); 
                     
                     //we have to do that because the last group will only have the last match in the string
                     String importedStr = importFound.substring(matcher.end(3), 
-                            matcher.end(4)).trim();
+                            importFound.length()).trim();
                     
                     buildImportedList(importedStr);
                     
@@ -104,10 +104,10 @@ public class ImportHandle {
             }else if(firstChar == 'i'){
                 //regular import
                 Matcher matcher = ImportPattern.matcher(importFound);
-                if(matcher.matches()){
+                if(matcher.find()){
                     //we have to do that because the last group will only have the last match in the string
                     String importedStr = importFound.substring(matcher.end(1), 
-                            matcher.end(2)).trim();
+                            importFound.length()).trim();
                     
                     buildImportedList(importedStr);
                     
