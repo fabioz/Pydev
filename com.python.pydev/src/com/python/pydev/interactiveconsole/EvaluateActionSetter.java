@@ -72,7 +72,7 @@ public class EvaluateActionSetter implements IPyEditListener{
                         File editorFile = this.edit.getEditorFile();
                         
                         if(editorFile != null){
-                            String fileStr = SimpleRunner.getCommandLineAsString(new String[]{editorFile.toString()});
+                            String fileStr = SimpleRunner.getArgumentsAsStr(new String[]{editorFile.toString()});
                             
                             char[] characters = fileStr.trim().toCharArray();
                             StringBuffer buf = new StringBuffer();

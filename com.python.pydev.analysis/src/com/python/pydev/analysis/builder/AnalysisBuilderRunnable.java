@@ -4,14 +4,11 @@
 package com.python.pydev.analysis.builder;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -183,9 +180,6 @@ public class AnalysisBuilderRunnable implements Runnable{
             checkStop();
             OccurrencesAnalyzer analyzer = new OccurrencesAnalyzer();
 
-            ArrayList<IMarker> existing = new ArrayList<IMarker>();
-            findAnalysisMarkers(existing); 
-            
             //ok, let's do it
             checkStop();
             IMessage[] messages = analyzer.analyzeDocument(nature, (SourceModule) module, analysisPreferences, document, this.internalCancelMonitor);
@@ -198,17 +192,7 @@ public class AnalysisBuilderRunnable implements Runnable{
             //don't stop after setting to add / remove the markers
             r = resource.get();
             if(r != null){
-                synchronized(r){
-                    runner.addMarkers(r, document, messages, existing);
-                    
-                    for (IMarker marker : existing) {
-                        try {
-                            marker.delete();
-                        } catch (CoreException e) {
-                            PydevPlugin.log(e);
-                        }
-                    }
-                }
+                runner.setMarkers(r, document, messages);
             }
         } catch (OperationCanceledException e) {
             //ok, ignore it
@@ -225,24 +209,6 @@ public class AnalysisBuilderRunnable implements Runnable{
         }
     }
 
-
-    private void findAnalysisMarkers(ArrayList<IMarker> existing) {
-		IResource r = resource.get();
-		if(r == null){
-			return;
-		}
-        synchronized (r) {
-    		try {
-    		    IMarker[] found = r.findMarkers(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
-    		    for (IMarker marker : found) {
-    		        existing.add(marker);
-    		    }
-    		} catch (CoreException e) {
-    		    //ignore it
-    		    PydevPlugin.log(e);
-    		}
-        }
-	}
     
     private void recreateCtxInsensitiveInfo(IResource resource, IDocument document, IModule sourceModule, PythonNature nature) {
     	if(resource == null){

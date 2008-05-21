@@ -7,12 +7,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PydevMarkerUtils;
+import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
 import org.python.pydev.core.log.Log;
 
 import com.python.pydev.analysis.messages.IMessage;
@@ -70,18 +69,22 @@ public class AnalysisRunner {
     
 
     /**
+     * Sets the analysis markers in the resource (removes current markers and adds the new ones)
+     * 
      * @param resource the resource where we want to add the markers
      * @param document the document
      * @param messages the messages to add
      * @param existing these are the existing markers. After this method, the list will contain only the ones that
      * should be removed.
      */
-    public void addMarkers(IResource resource, IDocument document, IMessage[] messages, ArrayList<IMarker> existing) {
+    public void setMarkers(IResource resource, IDocument document, IMessage[] messages) {
     	if(resource == null){
     		return;
     	}
         try {
-            
+            //Timer timer = new Timer();
+            //System.out.println("Start creating markers");
+            ArrayList<MarkerInfo> lst = new ArrayList<MarkerInfo>();
             //add the markers... the id is put as additional info for it
             for (IMessage m : messages) {
                 
@@ -104,20 +107,16 @@ public class AnalysisRunner {
                 if(DEBUG_ANALYSIS_RUNNER){
                 	System.out.printf("\nAdding at start:%s end:%s line:%s message:%s " , startCol, endCol, startLine, msg);
                 }
-                PydevMarkerUtils.createMarker(resource, 
-                        document, 
-                        msg, 
-                        startLine, 
-                        startCol,
-                        endLine, 
-                        endCol, 
-                        AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER,
-                        m.getSeverity(),
-                        additionalInfo,
-                        existing);
+                
+                
+                MarkerInfo markerInfo = new PydevMarkerUtils.MarkerInfo(document, msg, 
+                        AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, m.getSeverity(), 
+                        false, false, startLine, startCol, endLine, endCol, additionalInfo);
+                lst.add(markerInfo);
             }
-        } catch (BadLocationException e) {
-            //ignore (the file may have changed during the time we started and finished the analysis)
+            
+            PydevMarkerUtils.replaceMarkers(lst, resource, AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER);
+            //timer.printDiff("Time to put markers: "+lst.size());
         } catch (Exception e) {
             Log.log(e);
         }
