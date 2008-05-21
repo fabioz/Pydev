@@ -7,9 +7,13 @@
 package org.python.pydev.runners;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -40,9 +44,9 @@ public class SimplePythonRunner extends SimpleRunner {
      * 
      * @return a string with the output of the process (stdout)
      */
-    public Tuple<String,String> runAndGetOutput(String script, String[] args, File workingDir, IProject project) {
+    public Tuple<String,String> runAndGetOutputFromPythonScript(String script, String[] args, File workingDir, IProject project) {
     	String[] parameters = addInterpreterToArgs(script, args);
-        return runAndGetOutput(parameters, workingDir, project);
+        return runAndGetOutput(parameters, workingDir, project, new NullProgressMonitor());
     }
 
     /**
@@ -50,9 +54,13 @@ public class SimplePythonRunner extends SimpleRunner {
      * @param args the arguments to be passed to the script
      * @return the string with the command to run the passed script with jython
      */
-    public static String makeExecutableCommandStr(String script, String[] args) {
+    public static String[] makeExecutableCommandStr(String script, String[] args) {
         String[] s = addInterpreterToArgs(script, args);
-        return getCommandLineAsString(s, args);
+        
+        List<String> asList = new ArrayList<String>(Arrays.asList(s));
+        asList.addAll(Arrays.asList(args));
+
+        return asList.toArray(new String[0]);
     }
 
 	private static String[] addInterpreterToArgs(String script, String[] args) {

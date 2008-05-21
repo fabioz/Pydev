@@ -10,7 +10,7 @@ import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
-import org.python.pydev.runners.SimplePythonRunner;
+import org.python.pydev.runners.SimpleRunner;
 
 public class JythonShell extends AbstractShell{
 
@@ -19,15 +19,17 @@ public class JythonShell extends AbstractShell{
     }
     
 
+    /**
+     * Will create the jython shell and return a string to be shown to the user with the jython shell command line.
+     */
     @Override
     protected synchronized String createServerProcess(int pWrite, int pRead) throws IOException, JDTNotAvailableException {
         String args = pWrite+" "+pRead;
         String script = REF.getFileAbsolutePath(serverFile);
-        String executableStr = SimpleJythonRunner.makeExecutableCommandStr(script, "");
-        executableStr += " "+args;
-        process = new SimplePythonRunner().createProcess(executableStr, serverFile.getParentFile());
+        String[] executableStr = SimpleJythonRunner.makeExecutableCommandStr(script, "", args);
+        process = SimpleRunner.createProcess(executableStr, serverFile.getParentFile());
         
-        return executableStr;
+        return SimpleRunner.getArgumentsAsStr(executableStr);
     }
 
 

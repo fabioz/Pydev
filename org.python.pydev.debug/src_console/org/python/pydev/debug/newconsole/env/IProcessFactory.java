@@ -92,7 +92,7 @@ public class IProcessFactory {
 		        String[] env = SimpleRunner.createEnvWithPythonpath(pythonpathEnv);
 		
 		        File scriptWithinPySrc = PydevPlugin.getScriptWithinPySrc("pydevconsole.py");
-		        String commandLine;
+		        String[] commandLine;
 		        if(interpreterManager.isPython()){
 		        	commandLine = SimplePythonRunner.makeExecutableCommandStr(scriptWithinPySrc.getAbsolutePath(), 
 		        			new String[]{""+port, ""+clientPort});

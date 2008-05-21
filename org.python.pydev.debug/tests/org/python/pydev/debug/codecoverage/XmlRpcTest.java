@@ -19,7 +19,6 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.newconsole.IPydevXmlRpcClient;
 import org.python.pydev.debug.newconsole.PydevXmlRpcClient;
 import org.python.pydev.plugin.SocketUtil;
-import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.ThreadStreamReader;
 
 public class XmlRpcTest extends TestCase{
@@ -86,15 +85,13 @@ public class XmlRpcTest extends TestCase{
     private Process startServer(int client_port, int port, boolean python) throws IOException {
         File f = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"pysrc/pydevconsole.py");
         
-        String cmdLine;
+        String[] cmdLine;
         if(python){
-            cmdLine = SimplePythonRunner.getCommandLineAsString(
-                    new String[]{TestDependent.PYTHON_EXE, "-u", REF.getFileAbsolutePath(f), ""+port, ""+client_port});
+            cmdLine = new String[]{TestDependent.PYTHON_EXE, "-u", REF.getFileAbsolutePath(f), ""+port, ""+client_port};
         }else{
-            cmdLine = SimplePythonRunner.getCommandLineAsString(
-                    new String[]{TestDependent.JAVA_LOCATION, "-classpath",
+            cmdLine = new String[]{TestDependent.JAVA_LOCATION, "-classpath",
                             TestDependent.JYTHON_JAR_LOCATION, "org.python.util.jython",
-                            REF.getFileAbsolutePath(f), ""+port, ""+client_port});
+                            REF.getFileAbsolutePath(f), ""+port, ""+client_port};
         }
         
         Process process = Runtime.getRuntime().exec(cmdLine);

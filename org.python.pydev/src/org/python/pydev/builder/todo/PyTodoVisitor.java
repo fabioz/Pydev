@@ -5,8 +5,9 @@
  */
 package org.python.pydev.builder.todo;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -15,6 +16,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.builder.PydevMarkerUtils;
+import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -29,31 +31,45 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
      */
     public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
         if (document != null) {
-            List todoTags = PyTodoPrefPage.getTodoTags();
+            List<String> todoTags = PyTodoPrefPage.getTodoTags();
             if(todoTags.size() > 0){
 
 	            int numberOfLines = document.getNumberOfLines();
 	
 	            try {
-	                resource.deleteMarkers(IMarker.TASK, false, IResource.DEPTH_ZERO);
-	
+	                //Timer timer = new Timer();
+	                List<PydevMarkerUtils.MarkerInfo> lst = new ArrayList<PydevMarkerUtils.MarkerInfo>();
+	                
 	                int line = 0;
 	                while (line < numberOfLines) {
 	                    IRegion region = document.getLineInformation(line);
 	                    String tok = document.get(region.getOffset(), region.getLength());
 	                    int index;
 	
-	                    for (Iterator iter = todoTags.iterator(); iter.hasNext();) {
-	                        String element = (String) iter.next();
+	                    for (String element : todoTags) {
 	
 	                        if ((index = tok.indexOf(element)) != -1) {
-	                            PydevMarkerUtils.createMarker(resource, document, tok.substring(index).trim(), line, IMarker.TASK, IMarker.SEVERITY_WARNING, false, false, null);
+	                            
+	                            String message=tok.substring(index).trim();
+	                            String markerType=IMarker.TASK;
+	                            int severity=IMarker.SEVERITY_WARNING;
+	                            boolean userEditable=false;
+	                            boolean isTransient=false;
+	                            int absoluteStart=region.getOffset()+index;
+	                            int absoluteEnd=absoluteStart+message.length();
+	                            Map<String, Object> additionalInfo = null;
+	                            
+	                            
+	                            MarkerInfo markerInfo = new PydevMarkerUtils.MarkerInfo(document, message, markerType, severity, userEditable, 
+	                                    isTransient, line, absoluteStart, absoluteEnd, additionalInfo);
+	                            lst.add(markerInfo);
 	                        }
-	
 	                    }
-	
 	                    line++;
 	                }
+	                
+	                PydevMarkerUtils.replaceMarkers(lst, resource, IMarker.TASK);
+                    //timer.printDiff("Total time to put markers: "+lst.size());
 	            } catch (Exception e) {
 	                PydevPlugin.log(e);
 	            } 

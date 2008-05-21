@@ -5,6 +5,9 @@ package org.python.pydev.runners;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -56,24 +59,8 @@ public class SimpleJythonRunner extends SimpleRunner{
                 "org.python.util.jython" 
                 ,script
             };
-            String executionString = getCommandLineAsString(s);
 
-            return runAndGetOutput(executionString, workingDir, project, monitor);
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        
-    }
-    @Override
-    public Tuple<String,String> runAndGetOutput(String script, String[] args, File workingDir, IProject project) {
-        //"java.exe" -classpath "C:\bin\jython21\jython.jar" -Dpython.path xxx;xxx;xxx org.python.util.jython script %ARGS%
-
-        try {
-            String executionString = makeExecutableCommandStr(script, "");
-            
-            return runAndGetOutput(executionString, workingDir, project);
+            return runAndGetOutput(s, workingDir, project, monitor);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -82,7 +69,7 @@ public class SimpleJythonRunner extends SimpleRunner{
         
     }
 
-    public static String makeExecutableCommandStr(String script, String basePythonPath, String ... args) throws IOException, JDTNotAvailableException {
+    public static String[] makeExecutableCommandStr(String script, String basePythonPath, String ... args) throws IOException, JDTNotAvailableException {
        return makeExecutableCommandStrWithVMArgs(script, basePythonPath, "", args); 
     }
     
@@ -91,7 +78,7 @@ public class SimpleJythonRunner extends SimpleRunner{
      * @return
      * @throws IOException
      */
-    public static String makeExecutableCommandStrWithVMArgs(String script, String basePythonPath, String vmArgs, String ... args) throws IOException, JDTNotAvailableException {
+    public static String[] makeExecutableCommandStrWithVMArgs(String script, String basePythonPath, String vmArgs, String ... args) throws IOException, JDTNotAvailableException {
         IInterpreterManager interpreterManager = PydevPlugin.getJythonInterpreterManager();
         String javaLoc = JavaVmLocationFinder.findDefaultJavaExecutable().getCanonicalPath();
         
@@ -146,9 +133,10 @@ public class SimpleJythonRunner extends SimpleRunner{
             "org.python.util.jython",
             script
         };
-        String executionString = getCommandLineAsString(s, args);
-
-        return executionString;
+        
+        List<String> asList = new ArrayList<String>(Arrays.asList(s));
+        asList.addAll(Arrays.asList(args));
+        return asList.toArray(new String[0]);
     }
 
 }

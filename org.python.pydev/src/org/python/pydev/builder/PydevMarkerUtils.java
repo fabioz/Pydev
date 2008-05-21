@@ -3,7 +3,6 @@
  */
 package org.python.pydev.builder;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,201 +16,171 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.plugin.PydevPlugin;
 
+/**
+ * Helper class to deal with markers.
+ * 
+ * It's main use is to replace the markers in a given resource for another set of markers.
+ *
+ * @author Fabio
+ */
 public class PydevMarkerUtils {
-
-    public static IMarker markerExists(IResource resource, String message, int charStart, int charEnd, String type) {
-        return markerExists(resource, message, charStart, charEnd, type, null);
-    }
+    
     /**
-     * Checks pre-existance of marker.
+     * This class represents the information to create a marker.
+     *
+     * @author Fabio
      */
-    public static IMarker markerExists(IResource resource, String message, int charStart, int charEnd, String type, List<IMarker> existingMarkers) {
-        existingMarkers = checkExistingMarkers(resource, type, existingMarkers);
+    public static class MarkerInfo{
+        public IDocument doc;
+        public String message; 
+        public String markerType;
+        public int severity; 
+        public boolean userEditable; 
+        public boolean isTransient;
+        public int lineStart;
+        public int colStart;
+        public int lineEnd; 
+        public int absoluteStart=-1;
+        public int absoluteEnd=-1; 
+        public int colEnd; 
+        public Map<String, Object> additionalInfo;
         
-        try {
-            for (IMarker task : existingMarkers) {
-                Object msg = task.getAttribute(IMarker.MESSAGE);
-                Object start = task.getAttribute(IMarker.CHAR_START);
-                Object end = task.getAttribute(IMarker.CHAR_END);
+        
+        /**
+         * Constructor passing lines and relative positions
+         */
+        public MarkerInfo(IDocument doc, String message, String markerType, int severity, boolean userEditable,
+                boolean isTransient, int lineStart, int colStart, int lineEnd, int colEnd,
+                Map<String, Object> additionalInfo) {
+            super();
+            this.doc = doc;
+            this.message = message;
+            this.markerType = markerType;
+            this.severity = severity;
+            this.userEditable = userEditable;
+            this.isTransient = isTransient;
+            this.lineStart = lineStart;
+            this.colStart = colStart;
+            this.lineEnd = lineEnd;
+            this.colEnd = colEnd;
+            this.additionalInfo = additionalInfo;
+        }
+        
+        
+        /**
+         * Constructor passing absolute position
+         */
+        public MarkerInfo(IDocument doc, String message, String markerType, int severity, boolean userEditable,
+                boolean isTransient, int line, int absoluteStart, int absoluteEnd,
+                Map<String, Object> additionalInfo) {
+            super();
+            this.doc = doc;
+            this.message = message;
+            this.markerType = markerType;
+            this.severity = severity;
+            this.userEditable = userEditable;
+            this.isTransient = isTransient;
+            this.lineStart = line;
+            this.lineEnd = line;
+            this.absoluteStart = absoluteStart;
+            this.absoluteEnd = absoluteEnd;
+            this.additionalInfo = additionalInfo;
+        }
 
+        /**
+         * @return a map with the properties to be set in the marker
+         * @throws BadLocationException 
+         */
+        private HashMap<String, Object> getAsMap() throws BadLocationException {
+            
+            if (lineStart < 0) {
+                lineStart = 0;
+            }
 
-                if(msg == null || start == null || end == null || message == null){
-                	return null;
+            
+            if(absoluteStart == -1 || absoluteEnd == -1){
+                //if the absolute wasn't specified, let's calculate it
+                IRegion start = doc.getLineInformation(lineStart);
+                absoluteStart = start.getOffset() + colStart;
+                if (lineEnd >= 0 && colEnd >= 0) {
+                    IRegion end = doc.getLineInformation(lineEnd);
+                    absoluteEnd = end.getOffset() + colEnd;
+                } else {
+                    //ok, we have to calculate it based on the line contents...
+                    String line = doc.get(start.getOffset(), start.getLength());
+                    int i;
+                    StringBuffer buffer;
+                    if ((i = line.indexOf('#')) != -1) {
+                        buffer = new StringBuffer(line.substring(0, i));
+                    } else {
+                        buffer = new StringBuffer(line);
+                    }
+                    while (buffer.length() > 0 && Character.isWhitespace(buffer.charAt(buffer.length() - 1))) {
+                        buffer.deleteCharAt(buffer.length() - 1);
+                    }
+                    absoluteEnd = start.getOffset() + buffer.length();
                 }
-                boolean eqMessage = msg.equals(message);
-                boolean eqCharStart = (Integer) start == charStart;
-				boolean eqCharEnd = (Integer) end == charEnd;
+            }
+            
+            HashMap<String, Object> map = new HashMap<String, Object>();
+            map.put(IMarker.MESSAGE, message);
+            map.put(IMarker.LINE_NUMBER, lineStart);
+            map.put(IMarker.CHAR_START, absoluteStart);
+            map.put(IMarker.CHAR_END, absoluteEnd);
+            map.put(IMarker.SEVERITY, severity);
+            map.put(IMarker.USER_EDITABLE, userEditable);
+            map.put(IMarker.TRANSIENT, isTransient);
+            
+            if(additionalInfo != null){
+                map.putAll(additionalInfo);
+            }
+            return map;
+        }
+        
+        
+    }
 
-                if (eqMessage && eqCharStart && eqCharEnd) {
-                    return task;
+
+
+    /**
+     * This method allows clients to rplace the existing markers of some type in a given resource for other markers.
+     * 
+     * @param lst the new markers to be set in the resource
+     * @param resource the resource were the markers should be replaced
+     * @param markerType the type of the marker that'll be replaced
+     */
+    public static void replaceMarkers(List<MarkerInfo> lst, IResource resource, String markerType) {
+        IMarker[] existingMarkers;
+        try {
+            existingMarkers = resource.findMarkers(markerType, false, IResource.DEPTH_ZERO);
+        } catch (CoreException e1) {
+            PydevPlugin.log(e1);
+            existingMarkers = new IMarker[0];
+        }
+        
+        int lastExistingUsed = 0;
+        try {
+            for (MarkerInfo markerInfo : lst) {
+                if(lastExistingUsed < existingMarkers.length){
+                    IMarker marker = existingMarkers[lastExistingUsed];
+                    marker.setAttributes(markerInfo.getAsMap());
+                    lastExistingUsed += 1;
+                }else{
+                    MarkerUtilities.createMarker(resource, markerInfo.getAsMap(), markerType);
                 }
             }
         } catch (Exception e) {
             PydevPlugin.log(e);
         }
-        return null;
-    }
-
-    public static IMarker markerExists(IResource resource, String message, int lineNumber, String type) {
-        return markerExists(resource, message, lineNumber, lineNumber, type, null);
-    }
-    
-    /**
-     * Checks pre-existance of marker.
-     * 
-     * @param resource resource in wich marker will searched
-     * @param message message for marker
-     * @param lineNumber line number where marker should exist
-     * @return pre-existance of marker
-     */
-    public static IMarker markerExists(IResource resource, String message, int lineNumber, String type, List<IMarker> existingMarkers) {
-        existingMarkers = checkExistingMarkers(resource, type, existingMarkers);
         
+        //erase the ones that weren't replaced.
         try {
-            for (IMarker task : existingMarkers) {
-                boolean eqLineNumber = (Integer)task.getAttribute(IMarker.LINE_NUMBER) == lineNumber;
-                boolean eqMessage = task.getAttribute(IMarker.MESSAGE).equals(message);
-                if (eqLineNumber && eqMessage){
-                    return task;
-                }
+            for(int i=lastExistingUsed; i < existingMarkers.length; i++){
+                //erase the ones we didn't use
+                existingMarkers[i].delete();
             }
-        } catch (CoreException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            PydevPlugin.log(e);
         }
-        return null;
     }
-
-
-    public static void createMarker(IResource resource, IDocument doc, String message, 
-            int lineStart, int colStart, int lineEnd, int colEnd, 
-            String markerType, int severity) throws BadLocationException {
-        createMarker(resource, doc, message, lineStart, colStart, lineEnd, colEnd, markerType, severity, null);
-    }
-
-    public static IMarker createMarker(IResource resource, IDocument doc, String message, 
-            int lineStart, int colStart, int lineEnd, int colEnd, 
-            String markerType, int severity, Map<String, Object> additionalInfo) throws BadLocationException {
-        return createMarker(resource, doc, message, lineStart, colStart, lineEnd, colEnd, markerType, severity, additionalInfo, null);
-    }
-    
-    public static IMarker createMarker(IResource resource, IDocument doc, String message, 
-            int lineStart, int colStart, int lineEnd, int colEnd, 
-            String markerType, int severity, Map<String, Object> additionalInfo, List<IMarker> existingMarkers) throws BadLocationException {
-    	synchronized (resource) {
-
-	        existingMarkers = checkExistingMarkers(resource, markerType, existingMarkers);
-	
-	        if(lineStart < 0){
-	            lineStart = 0;
-	        }
-	        
-	        int startAbsolute;
-	        int endAbsolute;
-	        
-	        try {
-	            IRegion start = doc.getLineInformation(lineStart);
-	            startAbsolute = start.getOffset() + colStart;
-	            if (lineEnd >= 0 && colEnd >= 0) {
-	                IRegion end = doc.getLineInformation(lineEnd);
-	                endAbsolute = end.getOffset() + colEnd;
-	            } else {
-	                //ok, we have to calculate it based on the line contents...
-	                String line = doc.get(start.getOffset(), start.getLength());
-	                int i;
-	                StringBuffer buffer;
-	                if((i = line.indexOf('#')) != -1){
-	                    buffer = new StringBuffer(line.substring(0, i));
-	                }else{
-	                    buffer = new StringBuffer(line);
-	                }
-	                while(buffer.length() > 0 && Character.isWhitespace(buffer.charAt(buffer.length() - 1))){
-	                    buffer.deleteCharAt(buffer.length() -1);
-	                }
-	                endAbsolute = start.getOffset() + buffer.length();
-	            }
-	        } catch (BadLocationException e) {
-                throw e;
-	        } catch (Exception e) {
-	            throw new RuntimeException(e);
-	        }
-	    
-	        IMarker marker = markerExists(resource, message, startAbsolute, endAbsolute, markerType, existingMarkers);
-	        if (marker == null) {
-	            try {
-	                
-	                
-	                HashMap<String, Object> map = new HashMap<String, Object>();
-	                map.put(IMarker.MESSAGE, message);
-	                map.put(IMarker.LINE_NUMBER, lineStart);
-	                map.put(IMarker.CHAR_START, startAbsolute);
-	                map.put(IMarker.CHAR_END, endAbsolute);
-	                map.put(IMarker.SEVERITY, severity);
-	                
-	                //add the additional info
-	                if(additionalInfo != null){
-		                for (Map.Entry<String, Object> entry : additionalInfo.entrySet()) {
-		                    map.put(entry.getKey(), entry.getValue());
-		                }
-	                }
-	                
-	                MarkerUtilities.createMarker(resource, map, markerType);
-	            } catch (Exception e) {
-	                PydevPlugin.log(e);
-	            }
-	        }else{
-	        	//to check if it exists, we don't check all attributes, so, let's update those that we don't check (if needed).
-	        	try {
-	        		final Object lN = marker.getAttribute(IMarker.LINE_NUMBER);
-					if(lN == null || ((Integer)lN) != lineStart){
-	        			marker.setAttribute(IMarker.LINE_NUMBER, new Integer(lineStart));
-	        		}
-					
-	        		final Object mS = marker.getAttribute(IMarker.SEVERITY);
-					if(mS == null || ((Integer)mS) != severity){
-	        			marker.setAttribute(IMarker.SEVERITY, severity);
-	        		}
-					
-				} catch (Exception e) {
-					PydevPlugin.log(e);
-				}
-	            existingMarkers.remove(marker);
-	        }
-	        return marker;
-    	}
-    }
-    /**
-     * @param resource
-     * @param markerType
-     * @param existingMarkers
-     * @return
-     */
-    private static List<IMarker> checkExistingMarkers(IResource resource, String markerType, List<IMarker> existingMarkers) {
-    	synchronized (resource) {
-	        if(existingMarkers == null){
-	            try {
-	                existingMarkers = new ArrayList<IMarker>();
-	                IMarker[] markers = resource.findMarkers(markerType, true, IResource.DEPTH_ZERO);
-	                for (IMarker marker : markers) {
-	                    existingMarkers.add(marker);
-	                }
-	            } catch (CoreException e) {
-	            	existingMarkers = new ArrayList<IMarker>();
-	                PydevPlugin.log(e);
-	            }
-	        }
-	        return existingMarkers;
-    	}
-    }
-    
-
-
-    public static IMarker createMarker(IResource resource, IDocument doc, String message, int lineNumber, String markerType, int severity, boolean userEditable, boolean istransient, List<IMarker> existingMarkers) throws BadLocationException {
-    	synchronized (resource) {
-	    	HashMap<String, Object> map = new HashMap<String, Object>();
-	    	map.put(IMarker.USER_EDITABLE, userEditable);
-	    	map.put(IMarker.TRANSIENT, istransient);
-	        return createMarker(resource, doc, message, lineNumber, 0, lineNumber, 0, markerType, severity, map, existingMarkers);
-    	}
-    }
-
 }

@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.console.ConsolePlugin;
@@ -32,6 +31,7 @@ import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.builder.PydevMarkerUtils;
+import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
@@ -109,28 +109,22 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 	                new Job("Adding markers"){
 	                
 	                    protected IStatus run(IProgressMonitor monitor) {
-	                        try {
-	                            resource.deleteMarkers(PYLINT_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
-	                        } catch (CoreException e3) {
-	                            PydevPlugin.log(e3);
-	                        }
+	                        
+	                        ArrayList<MarkerInfo> lst = new ArrayList<PydevMarkerUtils.MarkerInfo>();
 	
 	                        for (Iterator<Object[]> iter = markers.iterator(); iter.hasNext();) {
 	                            Object[] el = iter.next();
 	                            
 	                            String tok   = (String) el[0];
-	                            String type  = (String) el[1];
-	                            int priority = ((Integer)el[2]).intValue();
-	                            String id    = (String) el[3];
-	                            int line     = ((Integer)el[4]).intValue();
-	        		            try {
-                                    PydevMarkerUtils.createMarker(resource, document, "ID:"+id+" "+tok , 
-                                    		line, 0,line, 0,  
-                                    		type, priority);
-                                } catch (BadLocationException e) {
-                                    // ignore (the file may have changed during the time we were analyzing the file)
-                                }
+	                            int priority = ((Integer)el[1]).intValue();
+	                            String id    = (String) el[2];
+	                            int line     = ((Integer)el[3]).intValue();
+	                            
+	                            lst.add(new PydevMarkerUtils.MarkerInfo(document, "ID:" + id + " " + tok,
+                                        PYLINT_PROBLEM_MARKER, priority, false, false, line, 0, line, 0, null));
 	                        }
+	                        
+	                        PydevMarkerUtils.replaceMarkers(lst, resource, PYLINT_PROBLEM_MARKER);
 	
 	                        return PydevPlugin.makeStatus(Status.OK, "", null);
 	                    }
@@ -173,8 +167,8 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
          * @param id
          * @param line
          */
-        private void addToMarkers(String tok, String type, int priority, String id, int line) {
-            markers.add(new Object[]{tok, type, priority, id, line} );
+        private void addToMarkers(String tok, int priority, String id, int line) {
+            markers.add(new Object[]{tok, priority, id, line} );
         }
         
         /**
@@ -192,7 +186,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             list.add("--include-ids=y");
             
             //user args
-            String userArgs = PyLintPrefPage.getPylintArgs().replaceAll("\r","").replaceAll("\n"," ");
+            String userArgs = PyLintPrefPage.getPylintArgs().replaceAll("\r\n"," ").replaceAll("\r"," ").replaceAll("\n"," ");
             StringTokenizer tokenizer2 = new StringTokenizer(userArgs);
             while(tokenizer2.hasMoreTokens()){
                 list.add(tokenizer2.nextToken());
@@ -204,10 +198,9 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             
             String scriptToExe = REF.getFileAbsolutePath(script);
 			String[] paramsToExe = list.toArray(new String[0]);
-			String cmdLineToExe = SimplePythonRunner.makeExecutableCommandStr(scriptToExe, paramsToExe);
-			write("Pylint: Executing command line:'"+cmdLineToExe+"'", out);
+			write("Pylint: Executing command line:'", out, scriptToExe, paramsToExe, "'");
 			
-			Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutput(cmdLineToExe, arg.getParentFile(), project);
+			Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputFromPythonScript(scriptToExe, paramsToExe, arg.getParentFile(), project);
 			write("Pylint: The stdout of the command line is: "+outTup.o1, out);
 			write("Pylint: The stderr of the command line is: "+outTup.o2, out);
 			
@@ -241,7 +234,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                 String tok = tokenizer.nextToken();
                 
                 try {
-                    String type = null;
+                    boolean found=false;
                     int priority = 0;
                     
                     //W0611:  3: Unused import finalize
@@ -251,27 +244,27 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                     if(indexOfDoublePoints != -1){
                         
 	                    if(tok.startsWith("C")&& useC){
-	                        type = PYLINT_PROBLEM_MARKER;
+	                        found=true;
 	                        //priority = IMarker.SEVERITY_WARNING;
 	                        priority = cSeverity;
 	                    }
 	                    else if(tok.startsWith("R")  && useR ){
-	                        type = PYLINT_PROBLEM_MARKER;
+	                        found=true;
 	                        //priority = IMarker.SEVERITY_WARNING;
 	                        priority = rSeverity;
 	                    }
 	                    else if(tok.startsWith("W")  && useW ){
-	                        type = PYLINT_PROBLEM_MARKER;
+	                        found=true;
 	                        //priority = IMarker.SEVERITY_WARNING;
 	                        priority = wSeverity;
 	                    }
 	                    else if(tok.startsWith("E") && useE ){
-	                        type = PYLINT_PROBLEM_MARKER;
+	                        found=true;
 	                        //priority = IMarker.SEVERITY_ERROR;
 	                        priority = eSeverity;
 	                    }
 	                    else if(tok.startsWith("F") && useF ){
-	                        type = PYLINT_PROBLEM_MARKER;
+	                        found=true;
 	                        //priority = IMarker.SEVERITY_ERROR;
 	                        priority = fSeverity;
 	                    }else{
@@ -283,7 +276,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                     }
                     
                     try {
-                        if(type != null){
+                        if(found){
                             String id = tok.substring(0, tok.indexOf(":")).trim();
                             
                             int i = tok.indexOf(":");
@@ -319,7 +312,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                                 continue;
 
                             tok = tok.substring(i+1);
-                            addToMarkers(tok, type, priority, id, line-1);
+                            addToMarkers(tok, priority, id, line-1);
                         }
                     } catch (RuntimeException e2) {
                         PydevPlugin.log(e2);
@@ -367,10 +360,22 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         }
     }
     
-    public static void write(String cmdLineToExe, IOConsoleOutputStream out) {
+    public static void write(String cmdLineToExe, IOConsoleOutputStream out, Object ... args) {
     	try {
     		if(fConsole != null && out != null){
     			synchronized(fConsole){
+    			    if(args != null){
+    			        for (Object arg : args) {
+    			            if(arg instanceof String){
+    			                cmdLineToExe += " "+arg;
+    			            }else if(arg instanceof String[]){
+                                String[] strings = (String[]) arg;
+                                for (String string : strings) {
+                                    cmdLineToExe += " "+string;
+                                }
+    			            }
+                        }
+    			    }
     				out.write(cmdLineToExe);
     			}
     		}

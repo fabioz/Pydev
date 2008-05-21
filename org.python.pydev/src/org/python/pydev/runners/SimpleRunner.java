@@ -33,14 +33,10 @@ import org.python.pydev.plugin.nature.PythonNature;
 public abstract class SimpleRunner {
 
     /**
-     * Just execute the string. Does nothing else.
+     * Passes the commands directly to Runtime.exec (with a null envp)
      */
-    public Process createProcess(String executionString, File workingDir) throws IOException {
-        return Runtime.getRuntime().exec(executionString, null, workingDir);
-    }
-
-    public Process createProcess(String[] parameters, File workingDir) throws IOException {
-        return Runtime.getRuntime().exec(parameters, null, workingDir);
+    public static Process createProcess(String[] cmdarray, File workingDir) throws IOException {
+        return Runtime.getRuntime().exec(cmdarray, null, workingDir);
     }
 
     /**
@@ -145,7 +141,7 @@ public abstract class SimpleRunner {
      * @param args - other arguments to be added to the command line (may be null)
      * @return
      */
-    public static String getCommandLineAsString(String[] commandLine, String ... args) {
+    public static String getArgumentsAsStr(String[] commandLine, String ... args) {
         if(args != null && args.length > 0){
             String[] newCommandLine = new String[commandLine.length + args.length];
             System.arraycopy(commandLine, 0, newCommandLine, 0, commandLine.length);
@@ -279,41 +275,22 @@ public abstract class SimpleRunner {
     	return strings.toArray(new String[strings.size()]);
     }
 
-    /**
-     * shortcut
-     */
-    public Tuple<String,String> runAndGetOutput(String executionString, File workingDir, IProgressMonitor monitor) {
-        return runAndGetOutput(executionString, workingDir, null, monitor);
-    }
-    
-    /**
-     * shortcut
-     */
-    public Tuple<String,String>  runAndGetOutput(String executionString, File workingDir) {
-        return runAndGetOutput(executionString, workingDir, null, new NullProgressMonitor());
-    }
-    
-    /**
-     * shortcut
-     */
-    public Tuple<String,String>  runAndGetOutput(String executionString, File workingDir, IProject project) {
-        return runAndGetOutput(executionString, workingDir, project, new NullProgressMonitor());
-    }
-    
-    public Tuple<String,String>  runAndGetOutput(String[] arguments, File workingDir, IProject project) {
-        return runAndGetOutput(arguments, workingDir, project, new NullProgressMonitor());
-    }
-    
-    /**
-     * shortcut
-     */
-    public Tuple<String,String>  runAndGetOutput(String script, String[] args, File workingDir) {
-        return runAndGetOutput(script, args, workingDir, null);
-    }
 
-
-    public Tuple<String, String> runAndGetOutput(String[] arguments, File workingDir, IProject project, IProgressMonitor monitor) {
-    	String executionString = getCommandLineAsString(arguments);
+    /**
+     * Runs the given command line and returns a tuple with the output (stdout and stderr) of executing it.
+     * 
+     * @param cmdarray array with the commands to be passed to Runtime.exec
+     * @param workingDir the working dir (may be null)
+     * @param project the project (used to get the pythonpath and put it into the environment) -- if null, no environment is passed.
+     * @param monitor the progress monitor to be used -- may be null
+     * 
+     * @return a tuple with stdout and stderr
+     */
+    public Tuple<String, String> runAndGetOutput(String[] cmdarray, File workingDir, IProject project, IProgressMonitor monitor) {
+        if(monitor == null){
+            monitor = new NullProgressMonitor();
+        }
+    	String executionString = getArgumentsAsStr(cmdarray);
     	monitor.setTaskName("Executing: "+executionString);
         monitor.worked(5);
         Process process = null;
@@ -326,7 +303,7 @@ public abstract class SimpleRunner {
                     throw new RuntimeException(StringUtils.format("Working dir must be an existing directory (received: %s)", workingDir));
                 }
             }
-            process = Runtime.getRuntime().exec(arguments, envp, workingDir);
+            process = Runtime.getRuntime().exec(cmdarray, envp, workingDir);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -340,7 +317,7 @@ public abstract class SimpleRunner {
      * @param monitor monitor for giving progress
      * @return a tuple with the output of stdout and stderr
      */
-	private Tuple<String, String> getProcessOutput(Process process,
+	protected Tuple<String, String> getProcessOutput(Process process,
 			String executionString, IProgressMonitor monitor) {
 		if (process != null) {
 
@@ -389,50 +366,6 @@ public abstract class SimpleRunner {
 	}
 
 
-    /**
-     * This is the method that actually does the running (all others are just 'shortcuts' to this one).
-     * 
-     * @param executionString this is the string that will be executed
-     * @param workingDir this is the directory where the execution will happen
-     * @param project this is the project that is related to the run (it is used to get the environment for the shell we are going to
-     * execute with the correct pythonpath environment variable).
-     * @param monitor this is the monitor used to communicate the progress to the user
-     * 
-     * @return the string that is the output of the process (stdout) and the stderr (o2)
-     */
-    public Tuple<String,String> runAndGetOutput(String executionString, File workingDir, IProject project, IProgressMonitor monitor) {
-        monitor.setTaskName("Executing: "+executionString);
-        monitor.worked(5);
-        Process process = null;
-        
-        try {
-            monitor.setTaskName("Making pythonpath environment..."+executionString);
-            String[] envp = getEnvironment(PythonNature.getPythonNature(project), null); //should get the environment for the default interpreter and the given project
-            monitor.setTaskName("Making exec..."+executionString);
-            if(workingDir != null){
-                if(!workingDir.isDirectory()){
-                    throw new RuntimeException(StringUtils.format("Working dir must be an existing directory (received: %s)", workingDir));
-                }
-            }
-            process = Runtime.getRuntime().exec(executionString, envp, workingDir);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        return getProcessOutput(process, executionString, monitor);
-    }
-
-    /**
-     * Execute the script specified with the interpreter for a given project 
-     * 
-     * @param script the script we will execute
-     * @param args the arguments to pass to the script
-     * @param workingDir the working directory
-     * @param project the project that is associated to this run
-     * 
-     * @return a string with the output of the process (stdout)
-     */
-    public abstract Tuple<String,String>  runAndGetOutput(String script, String args[], File workingDir, IProject project);
 
     /**
      * @param pythonpath the pythonpath string to be used 

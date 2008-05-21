@@ -55,8 +55,8 @@ public class PythonTest extends TestCase {
     }
 
     private static Throwable exec(File f) {
-        String cmdLine = SimplePythonRunner.getCommandLineAsString(new String[]{TestDependent.PYTHON_EXE, "-u", REF.getFileAbsolutePath(f)});
-        Tuple<String, String> output = new SimplePythonRunner().runAndGetOutput(cmdLine, f.getParentFile());
+        Tuple<String, String> output = new SimplePythonRunner().runAndGetOutput(new String[] {
+                TestDependent.PYTHON_EXE, "-u", REF.getFileAbsolutePath(f) }, f.getParentFile(), null, null);
         if(output.o2.indexOf("FAILED") != -1){
             throw new AssertionError(output.toString());
         }

@@ -11,7 +11,7 @@ import java.io.IOException;
 import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.runners.SimplePythonRunner;
+import org.python.pydev.runners.SimpleRunner;
 
 /**
  * @author Fabio Zadrozny
@@ -49,7 +49,7 @@ public class PythonShell extends AbstractShell{
             execMsg = interpreter+" "+REF.getFileAbsolutePath(serverFile)+" "+pWrite+" "+pRead;
         }
         String[] parameters = {interpreter, REF.getFileAbsolutePath(serverFile), ""+pWrite, ""+pRead};
-        process = new SimplePythonRunner().createProcess(parameters, serverFile.getParentFile());
+        process = SimpleRunner.createProcess(parameters, serverFile.getParentFile());
 
         return execMsg;
     }

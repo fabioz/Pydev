@@ -611,7 +611,10 @@ public class PythonRunnerConfig {
     }
 
 	
-	
+	/**
+	 * @return an array with the vm arguments in the given configuration.
+	 * @throws CoreException
+	 */
     private String[] getVMArguments(ILaunchConfiguration configuration) throws CoreException {
     	String args = configuration.getAttribute(Constants.ATTR_VM_ARGUMENTS, (String) null);
         if (args != null && args.trim().length() > 0) {
@@ -621,11 +624,16 @@ public class PythonRunnerConfig {
        return null;
 	}
 
+    /**
+     * @return A command line to be shown to the user. Note that this command line should not actually be used for
+     * an execution (only String[] should be passed to Runtie.exec)
+     * @throws JDTNotAvailableException
+     */
 	public String getCommandLineAsString() throws JDTNotAvailableException {
 		String[] args;
         try {
             args = getCommandLine(false);
-            return SimpleRunner.getCommandLineAsString(args);
+            return SimpleRunner.getArgumentsAsStr(args);
         } catch (CoreException e) {
             throw new RuntimeException(e);
         }
