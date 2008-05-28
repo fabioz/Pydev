@@ -19,6 +19,7 @@ import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This class is used to make the refactorings.
@@ -55,7 +56,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
         try {
             AbstractShell.getServerShell(IPythonNature.PYTHON_RELATED, AbstractShell.OTHERS_SHELL).restartShell();
         } catch (Exception e) {
-            e.printStackTrace();
+        	PydevPlugin.log(e);
         } 
     }
     
@@ -66,7 +67,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
         try {
             AbstractShell.getServerShell(IPythonNature.PYTHON_RELATED, AbstractShell.OTHERS_SHELL).endIt();
         } catch (Exception e) {
-            e.printStackTrace();
+        	PydevPlugin.log(e);
         }
     }
     
@@ -90,12 +91,12 @@ public class PyRefactoring extends AbstractPyRefactoring {
 	 
 	            return URLDecoder.decode(pytonShell.read(request.getMonitor()), "UTF-8");
 	        } catch (Exception e) {
-	            e.printStackTrace();
+	        	PydevPlugin.log("Error writing: "+str, e);
 	            
 	            pytonShell.restartShell();
 	        }
         } catch (Exception e1) {
-            e1.printStackTrace();
+        	PydevPlugin.log("Error writing: "+str, e1);
         }
         return null;
     }
