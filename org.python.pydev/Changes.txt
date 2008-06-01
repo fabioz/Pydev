@@ -1,3 +1,19 @@
+after 1.3.17
+
+
+Pydev Extensions
+<ul>
+<li><strong>Auto-import</strong>: Groups imports when possible.</li>
+<li><strong>Auto-import</strong>: Doesn't bring imports for completions already in the document even if a parse is not successful.</li>
+</ul>
+
+Pydev
+<ul>
+<li><strong>Executing external programs</strong>: Using Runtime.exec(String[] cmdargs) instead of the version accepting only a string.</li>
+<li><strong>Organize Imports (ctrl+shift+O)</strong>: Imports can be grouped.</li>
+</ul>
+
+
 after 1.3.16
 
 Pydev

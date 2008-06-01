@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.Tuple;
 
 /**
  * Class that represents an import found in a document.
@@ -230,6 +231,17 @@ public class ImportHandle {
          */
         public boolean getStartedInMiddleOfLine() {
             return this.startedInMiddleOfLine;
+        }
+        
+        /**
+         * @return a list of tuples with the iported string and the comment that's attached to it.
+         */
+        public List<Tuple<String, String>> getImportedStrAndComments() {
+            ArrayList<Tuple<String,String>> lst = new ArrayList<Tuple<String,String>>();
+            for(int i=0;i<this.importedStr.size();i++){
+                lst.add(new Tuple<String, String>(this.importedStr.get(i), this.importedStrComments.get(i)));
+            }
+            return lst;
         }
         
     }

@@ -422,7 +422,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     }
 
     /**
-     * @return the indentation preferences
+     * @return the indentation preferences. Any action writing something should use this one in the editor because
+     * we want to make sure that the indent must be the one bounded to this editor (because tabs may be forced in a given
+     * editor, even if does not match the global settings).
      */
     public IIndentPrefs getIndentPrefs() {
         return indentStrategy.getIndentPrefs();

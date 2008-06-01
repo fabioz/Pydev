@@ -10,19 +10,28 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentRewriteSession;
 import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
+import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.Tuple;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.ImportHandle;
 import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 /**
  * @author Fabio Zadrozny
@@ -36,7 +45,9 @@ public class PyOrganizeImports extends PyAction{
 	public void run(IAction action) {
 		try 
 		{
-			PySelection ps = new PySelection ( getTextEditor ( ));
+			PyEdit pyEdit = getPyEdit();
+			
+            PySelection ps = new PySelection(pyEdit);
 		    String endLineDelim = ps.getEndLineDelim();
 			final IDocument doc = ps.getDoc();
 			DocumentRewriteSession session = startWrite(doc);
@@ -46,14 +57,13 @@ public class PyOrganizeImports extends PyAction{
 					//let's see if someone wants to make a better implementation in another plugin...
 					List<IOrganizeImports> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_ORGANIZE_IMPORTS);
 					if (participants.size() == 1) {
-						PyEdit pyEdit = getPyEdit();
 						participants.get(0).performArrangeImports(ps, pyEdit);
 					} else {
 						if (participants.size() > 1) {
 							//let's issue a warning... this extension can only have 1 plugin implementing it
 							PydevPlugin.log("The organize imports has more than one plugin with this extension point, therefore, the default is being used.");
 						}
-						performArrangeImports(doc, endLineDelim);
+						performArrangeImports(doc, endLineDelim, pyEdit.getIndentPrefs().getIndentationString());
 					}
 				} else {
 					performSimpleSort(doc, endLineDelim, ps.getStartLineIndex(), ps.getEndLineIndex());
@@ -91,14 +101,13 @@ public class PyOrganizeImports extends PyAction{
      * @param endLineDelim
      */
     @SuppressWarnings("unchecked")
-	public static void performArrangeImports(IDocument doc, String endLineDelim){
-		ArrayList list = new ArrayList();
-		
+	public static void performArrangeImports(IDocument doc, String endLineDelim, String indentStr){
+		List<Tuple3<Integer, String, ImportHandle>> list = new ArrayList<Tuple3<Integer, String, ImportHandle>>();
 		//Gather imports in a structure we can work on.
 		PyImportsHandling pyImportsHandling = new PyImportsHandling(doc);
 		int firstImport = -1;
 		for(ImportHandle imp:pyImportsHandling){
-            list.add( new Object[]{imp.startFoundLine, imp.importFound} );
+            list.add( new Tuple3<Integer, String, ImportHandle>(imp.startFoundLine, imp.importFound, imp) );
             
             if(firstImport == -1){
                 firstImport = imp.startFoundLine;
@@ -111,56 +120,224 @@ public class PyOrganizeImports extends PyAction{
 		    return;
 		}
 		
-		//sort in inverse order
-		Collections.sort(list, new Comparator(){
+        //sort in inverse order (for removal of the string of the document).
+        Collections.sort(list, new Comparator<Tuple3<Integer, String, ImportHandle>>() {
 
-            public int compare(Object o1, Object o2) {
-                Object[] c1 = (Object[])o1;
-                Object[] c2 = (Object[])o2;
-                Integer i1 = (Integer) c1[0];
-                Integer i2 = (Integer) c2[0];
-                return i2.compareTo(i1);
+            public int compare(Tuple3<Integer, String, ImportHandle> o1, Tuple3<Integer, String, ImportHandle> o2) {
+                return o2.o1.compareTo(o1.o1);
             }
-		});
-
-		//ok, now we have to delete all lines with imports.
-		for (Iterator iter = list.iterator(); iter.hasNext();) {
-		    Object[] element = (Object[]) iter.next();
-            String s = (String) element[1];
+        });
+        //ok, now we have to delete all lines with imports.
+        for (Iterator<Tuple3<Integer, String, ImportHandle>> iter = list.iterator(); iter.hasNext();) {
+            Tuple3<Integer, String, ImportHandle> element = iter.next();
+            String s = element.o2;
             int i = PySelection.countLineBreaks(s);
-            while(i >= 0){
-                PySelection.deleteLine(doc, ((Integer)element[0]).intValue());
+            while (i >= 0) {
+                PySelection.deleteLine(doc, (element.o1).intValue());
                 i--;
             }
         }
-		
-		Collections.sort(list, new Comparator(){
+        Collections.sort(list, new Comparator<Tuple3<Integer, String, ImportHandle>>() {
 
-            public int compare(Object o1, Object o2) {
-                Object[] c1 = (Object[])o1;
-                Object[] c2 = (Object[])o2;
-                String s1 = (String) c1[1];
-                String s2 = (String) c2[1];
-                return s1.compareTo(s2);
+            public int compare(Tuple3<Integer, String, ImportHandle> o1, Tuple3<Integer, String, ImportHandle> o2) {
+                return o1.o2.compareTo(o2.o2);
             }
-		});
-		
+        });
         firstImport--; //add line after the the specified
+        
+        //now, re-add the imports
         StringBuffer all = new StringBuffer();
-		for (Iterator iter = list.iterator(); iter.hasNext();) {
-		    Object[] element = (Object[]) iter.next();
-		    all.append((String) element[1]);
-		    all.append(endLineDelim);
+        
+        
+        if(!ImportsPreferencesPage.getGroupImports()){
+            //no grouping
+            for (Iterator<Tuple3<Integer, String, ImportHandle>> iter = list.iterator(); iter.hasNext();) {
+                Tuple3<Integer, String, ImportHandle> element = iter.next();
+                all.append(element.o2);
+                all.append(endLineDelim);
+            }
+        }else{ //we have to group the imports!
+            
+            //import from to the imports that should be grouped given its 'from'
+            TreeMap<String, List<ImportHandleInfo>> m = new TreeMap<String, List<ImportHandleInfo>>();
+            List<ImportHandleInfo> importsWithoutFrom = new ArrayList<ImportHandleInfo>();
+            
+            //fill the info
+            for (Iterator<Tuple3<Integer, String, ImportHandle>> iter = list.iterator(); iter.hasNext();) {
+                Tuple3<Integer, String, ImportHandle> element = iter.next();
+                
+                List<ImportHandleInfo> importInfo = element.o3.getImportInfo();
+                for (ImportHandleInfo importHandleInfo : importInfo) {
+                    String fromImportStr = importHandleInfo.getFromImportStr();
+                    if(fromImportStr == null){
+                        importsWithoutFrom.add(importHandleInfo);
+                    }else{
+                        List<ImportHandleInfo> lst = m.get(fromImportStr);
+                        if(lst == null){
+                            lst = new ArrayList<ImportHandleInfo>();
+                            m.put(fromImportStr, lst);
+                        }
+                        lst.add(importHandleInfo);
+                    }
+                }
+            }
+            
+            
+            //preferences for multiline imports
+            boolean multilineImports = ImportsPreferencesPage.getMultilineImports();
+            int maxCols = 80;
+            if(multilineImports){
+                if(PydevPlugin.getDefault() != null){
+                    IPreferenceStore chainedPrefStore = PydevPlugin.getChainedPrefStore();
+                    maxCols = chainedPrefStore.getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
+                }
+            }else{
+                maxCols = Integer.MAX_VALUE;
+            }
+            
+            
+            //preferences for how to break imports
+            String breakIportMode = ImportsPreferencesPage.getBreakIportMode();
+            boolean breakWithParenthesis = true;
+            if(!breakIportMode.equals(ImportsPreferencesPage.BREAK_IMPORTS_MODE_PARENTHESIS)){
+                breakWithParenthesis = false;
+            }
+            
+
+            
+            Set<Entry<String, List<ImportHandleInfo>>> entrySet = m.entrySet();
+            for (Entry<String, List<ImportHandleInfo>> entry : entrySet) {
+                
+                //first, reorganize them in the order to be written (the ones with comments after the ones without)
+                ArrayList<Tuple<String, String>> importsAndComments = new ArrayList<Tuple<String, String>>();
+                ArrayList<Tuple<String, String>> importsAndNoComments = new ArrayList<Tuple<String, String>>();
+                
+                for (ImportHandleInfo v : entry.getValue()) {
+                    List<String> importedStr = v.getImportedStr();
+                    List<String> commentsForImports = v.getCommentsForImports();
+                    for(int i=0;i<importedStr.size();i++){
+                        String importedString = importedStr.get(i);
+                        String comment = commentsForImports.get(i);
+                        if(comment.length() > 0){
+                            importsAndComments.add(new Tuple<String, String>(importedString, comment));
+                        }else{
+                            importsAndNoComments.add(new Tuple<String, String>(importedString, comment));
+                        }
+                    }
+                }
+                
+                
+                
+                
+                //ok, it's all filled, let's start rewriting it!
+                boolean firstInLine = true;
+                StringBuffer line = new StringBuffer();
+                StringBuffer lastFromXXXImportWritten = null;
+                boolean addedParenForLine = false;
+                
+                //ok, write all the ones with comments after the ones without any comments (each one with comment
+                //will be written as a new import)
+                importsAndNoComments.addAll(importsAndComments);
+                for(int i=0;i<importsAndNoComments.size();i++){
+                    
+                    Tuple<String, String> tuple = importsAndNoComments.get(i);
+                    
+                    if(firstInLine){
+                        lastFromXXXImportWritten = new StringBuffer();
+                        lastFromXXXImportWritten.append("from ");
+                        lastFromXXXImportWritten.append(entry.getKey());
+                        lastFromXXXImportWritten.append(" import ");
+                        line.append(lastFromXXXImportWritten);
+                    }else{
+                        line.append(", ");
+                    }
+                    
+                    if(multilineImports){
+                        if(line.length() + tuple.o1.length() + tuple.o2.length() > maxCols){
+                            //we have to make the wrapping
+                            if(breakWithParenthesis){
+                                if(!addedParenForLine){
+                                    line.insert(lastFromXXXImportWritten.length(), "(");
+                                    addedParenForLine = true;
+                                }
+                                line.append(endLineDelim);
+                                line.append(indentStr);
+                            }else{
+                                line.append("\\");
+                                line.append(endLineDelim);
+                                line.append(indentStr);
+                            }
+                            all.append(line);
+                            line = new StringBuffer();
+                        }
+                    }
+                    
+                    line.append(tuple.o1);
+                    
+                    if(addedParenForLine && i == importsAndComments.size()){
+                        line.append(")");
+                    }
+                    
+                    firstInLine = false;
+                    
+                    if(tuple.o2.length() > 0){
+                        if(addedParenForLine){
+                            addedParenForLine = false;
+                            line.append(")");
+                        }
+                        line.append(" ");
+                        line.append(tuple.o2);
+                        line.append(endLineDelim);
+                        all.append(line);
+                        line = new StringBuffer();
+                        firstInLine = true;
+                    }
+                }
+                
+                
+                if(!firstInLine){
+                    if(addedParenForLine){
+                        addedParenForLine = false;
+                        line.append(")");
+                    }
+                    line.append(endLineDelim);
+                    all.append(line);
+                    line = new StringBuffer();
+                }
+            }
+            
+            //now, write the regular imports (no wrapping or tabbing here)
+            for(ImportHandleInfo info:importsWithoutFrom){
+                
+                List<String> importedStr = info.getImportedStr();
+                List<String> commentsForImports = info.getCommentsForImports();
+                for(int i=0;i<importedStr.size();i++){
+                    all.append("import ");
+                    String importedString = importedStr.get(i);
+                    String comment = commentsForImports.get(i);
+                    all.append(importedString);
+                    if(comment.length() > 0){
+                        all.append(" ");
+                        all.append(comment);
+                    }
+                    all.append(endLineDelim);
+                }
+            }
+            
         }
-	    PySelection.addLine(doc, endLineDelim, all.toString(), firstImport);
+        
+        
+        PySelection.addLine(doc, endLineDelim, all.toString(), firstImport);
     }
 
     /**
+     * Performs a simple sort without taking into account the actual contents of the selection (aside from lines
+     * ending with '\' which are considered as a single line).
      * 
-     * @param doc
-     * @param endLineDelim
-     * @param startLine
-     * @param endLine
+     * @param doc the document to be sorted
+     * @param endLineDelim the delimiter to be used
+     * @param startLine the first line where the sort should happen
+     * @param endLine the last line where the sort should happen
      */
     @SuppressWarnings("unchecked")
 	public static void performSimpleSort(IDocument doc, String endLineDelim, int startLine, int endLine) {

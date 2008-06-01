@@ -73,10 +73,47 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
      */
     public static boolean getGroupImports() {
         if(PydevPlugin.getDefault() == null){
-            return true;
+            return groupImportsForTests;
         }
         return PydevPrefs.getPreferences().getBoolean(GROUP_IMPORTS);
     }
     
+    /**
+     * May be changed for testing purposes.
+     */
+    public static boolean groupImportsForTests = true;
+    
+    
+    /**
+     * @return true if imports should be wrapped when they exceed the print margin.
+     */
+    public static boolean getMultilineImports() {
+        if(PydevPlugin.getDefault() == null){
+            return multilineImportsForTests;
+        }
+        return PydevPrefs.getPreferences().getBoolean(MULTILINE_IMPORTS);
+    }
+    
+    /**
+     * May be changed for testing purposes.
+     */
+    public static boolean multilineImportsForTests = true;
+    
+    /**
+     * @return the way to break imports as the constants specified
+     * @see #BREAK_IMPORTS_MODE_ESCAPE
+     * @see #BREAK_IMPORTS_MODE_PARENTHESIS
+     */
+    public static String getBreakIportMode() {
+        if(PydevPlugin.getDefault() == null){
+            return breakImportModeForTests;
+        }
+        return PydevPrefs.getPreferences().getString(BREAK_IMPORTS_MODE);
+    }
+    
+    /**
+     * May be changed for testing purposes.
+     */
+    public static String breakImportModeForTests = BREAK_IMPORTS_MODE_PARENTHESIS;
     
 }
