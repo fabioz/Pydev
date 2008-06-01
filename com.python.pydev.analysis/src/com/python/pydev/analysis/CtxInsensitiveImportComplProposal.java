@@ -107,10 +107,15 @@ public class CtxInsensitiveImportComplProposal extends PyCompletionProposalExten
                                 
                             }else if(groupInto == null && realImportHandleInfo.getFromImportStr() != null){
                                 List<ImportHandleInfo> handleImportInfo = handle.getImportInfo();
+                                
                                 for (ImportHandleInfo importHandleInfo : handleImportInfo) {
+                                    
                                     if(realImportHandleInfo.getFromImportStr().equals(importHandleInfo.getFromImportStr())){
-                                        groupInto = importHandleInfo;
-                                        break;
+                                        List<String> commentsForImports = importHandleInfo.getCommentsForImports();
+                                        if(commentsForImports.size() > 0 && commentsForImports.get(commentsForImports.size()-1).length() == 0){
+                                            groupInto = importHandleInfo;
+                                            break;
+                                        }
                                     }
                                 }
                             }

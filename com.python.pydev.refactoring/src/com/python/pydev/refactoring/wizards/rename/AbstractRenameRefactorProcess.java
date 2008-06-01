@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.IModule;
@@ -254,6 +255,8 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
             
 			request.getAST().accept(visitor);
 			entryOccurrences = visitor.getEntryOccurrences();
+        } catch (BadLocationException e) {
+            //don't log
 		} catch (Exception e) {
 			Log.log(e);
 		}

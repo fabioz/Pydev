@@ -154,18 +154,19 @@ public class MarkOccurrencesJob extends Job{
                     Log.log("Error while analyzing the file:"+pyEdit.getIFile());
                 }
             } catch (Throwable initialE) {
-                Throwable e = initialE;
-                int i = 0;
-                while(e.getCause() != null && e.getCause() != e && i < 30){
-                    e = e.getCause();
-                    i++;//safeguard for recursion
-                }
-                if(e instanceof BadLocationException){
-                    //ignore (may have changed during the analysis)
-                }else{
-                	Log.log(initialE);
-                	Log.log("Error while analyzing the file:"+pyEdit.getIFile());
-                }
+                //Totally ignore this one
+//                Throwable e = initialE;
+//                int i = 0;
+//                while(e.getCause() != null && e.getCause() != e && i < 30){
+//                    e = e.getCause();
+//                    i++;//safeguard for recursion
+//                }
+//                if(e instanceof BadLocationException){
+//                    //ignore (may have changed during the analysis)
+//                }else{
+//                	Log.log(initialE);
+//                	Log.log("Error while analyzing the file:"+pyEdit.getIFile());
+//                }
             }
             
         } catch (Throwable e) {
