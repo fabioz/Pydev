@@ -36,11 +36,14 @@ public class AutoImportsPreferencesPage extends FieldEditorPreferencePage implem
     public void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
-        addField(new BooleanFieldEditor(AnalysisPreferenceInitializer.DO_AUTO_IMPORT, "Do auto Import?", BooleanFieldEditor.DEFAULT, p));
+        addField(new BooleanFieldEditor(AnalysisPreferenceInitializer.DO_AUTO_IMPORT, "Do auto import?", BooleanFieldEditor.DEFAULT, p));
         
         addField(new BooleanFieldEditor(AnalysisPreferenceInitializer.DO_IGNORE_IMPORTS_STARTING_WITH_UNDER, 
                 "Ignore last modules starting with '_' when doing auto-import/quick fix?", 
                 BooleanFieldEditor.DEFAULT, p));
+        
+        addField(new BooleanFieldEditor(AnalysisPreferenceInitializer.DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS,
+                "Do auto import on organize imports (Ctrl+Shift+O)?", BooleanFieldEditor.DEFAULT, p));
     }
     
     public static String removeImportsStartingWithUnderIfNeeded(String declPackageWithoutInit) {
@@ -80,7 +83,18 @@ public class AutoImportsPreferencesPage extends FieldEditorPreferencePage implem
         }
         return TESTS_DO_AUTO_IMPORT;
     }
+    
+    
+    public static boolean TESTS_DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS = true;
+    public static boolean doAutoImportOnOrganizeImports(){
+        AnalysisPlugin plugin = getPlugin();
+        if(plugin != null){
+            return plugin.getPreferenceStore().getBoolean(AnalysisPreferenceInitializer.DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS);
+        }
+        return TESTS_DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS;
+    }
 
+    
     public static boolean TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = false;
     public static boolean doIgnoreImportsStartingWithUnder(){
         AnalysisPlugin plugin = getPlugin();

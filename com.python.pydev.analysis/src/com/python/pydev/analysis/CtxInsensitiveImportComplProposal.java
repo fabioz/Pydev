@@ -137,8 +137,10 @@ public class CtxInsensitiveImportComplProposal extends PyCompletionProposalExten
             
             
             //first do the completion
-            int dif = offset - fReplacementOffset;
-            document.replace(offset-dif, dif+this.fLen, fReplacementString);
+            if(fReplacementString.length() > 0){
+                int dif = offset - fReplacementOffset;
+                document.replace(offset-dif, dif+this.fLen, fReplacementString);
+            }
             
 
             if(groupInto != null && realImportHandleInfo != null){

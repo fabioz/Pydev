@@ -66,6 +66,9 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
     public static final String DO_AUTO_IMPORT = "DO_AUTO_IMPORT";
     public static final boolean DEFAULT_DO_AUT_IMPORT = true;
 	
+    public static final String DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS = "DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS";
+    public static final boolean DEFAULT_DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS = true;
+    
     public static final String DO_IGNORE_IMPORTS_STARTING_WITH_UNDER = "DO_IGNORE_FIELDS_WITH_UNDER";
     public static final boolean DEFAULT_DO_IGNORE_FIELDS_WITH_UNDER = false;
     
@@ -85,6 +88,7 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
         node.putInt(WHEN_ANALYZE, DEFAULT_WHEN_ANALYZE);
         node.putBoolean(DO_CODE_ANALYSIS, DEFAULT_DO_CODE_ANALYSIS);
         node.putBoolean(DO_AUTO_IMPORT, DEFAULT_DO_AUT_IMPORT);
+        node.putBoolean(DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS, DEFAULT_DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS);
         node.putBoolean(DO_IGNORE_IMPORTS_STARTING_WITH_UNDER, DEFAULT_DO_IGNORE_FIELDS_WITH_UNDER);
     }
 

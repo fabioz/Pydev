@@ -48,11 +48,11 @@
    </extension>
    
    <extension point="org.python.pydev.pydev_ctrl_1">
-  		<builder_participant class="com.python.pydev.analysis.ctrl_1.AnalysisMarkersParticipants"/>
+		<ctrl_1_participant class="com.python.pydev.analysis.ctrl_1.AnalysisMarkersParticipants"/>
    </extension>
    
    <extension point="org.python.pydev.pydev_ctrl_1">
-  		<builder_participant class="com.python.pydev.analysis.ctrl_1.DontAnalyzeFileMarkerParticipant"/>
+		<ctrl_1_participant class="com.python.pydev.analysis.ctrl_1.DontAnalyzeFileMarkerParticipant"/>
    </extension>
    <extension point="org.python.pydev.pydev_globals_browser">
    		<globals_browser_participant class="com.python.pydev.analysis.actions.PyGlobalsBrowser"/>
@@ -61,11 +61,10 @@
    <extension point="org.python.pydev.pydev_pyedit_listener">
   		<pyedit_listener_participant class="com.python.pydev.analysis.actions.AnalyzeOnRequestSetter"/>
    </extension>
-<!--    still not finished
+<!-- organize imports participant -->
    <extension point="org.python.pydev.pydev_organize_imports">
-  		<builder_participant class="com.python.pydev.analysis.organizeimports.OrganizeImports"/>
+		<organize_imports_participant class="com.python.pydev.analysis.organizeimports.OrganizeImports"/>
    </extension>
--->
 
 <extension point="org.eclipse.ui.actionSets">
   <actionSet

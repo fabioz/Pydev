@@ -34,8 +34,31 @@ import com.python.pydev.analysis.builder.AnalysisParserObserver;
 import com.python.pydev.analysis.builder.AnalysisRunner;
 import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
 
+/**
+ * Class that'll create proposals for fixing an undefined variable found.
+ *
+ * @author Fabio
+ */
 public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticipant{
 
+    /**
+     * Defines whether a reparse should be forced after applying the completion.
+     */
+    private boolean forceReparseOnApply;
+
+    public UndefinedVariableFixParticipant(){
+        this(true);
+    }
+    
+    public UndefinedVariableFixParticipant(boolean forceReparseOnApply){
+        this.forceReparseOnApply = forceReparseOnApply;
+    }
+    
+    /**
+     * @see IAnalysisMarkersParticipant#addProps(IMarker, IAnalysisPreferences, String, PySelection, int, IPythonNature, 
+     * PyEdit, List)
+     * 
+     */
     public void addProps(IMarker marker, 
             IAnalysisPreferences analysisPreferences, 
             String line, 
@@ -120,9 +143,14 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                     declPackageWithoutInit = declPackageWithoutInit.substring(0, declPackageWithoutInit.length()-9);
                 }
                 
-                declPackageWithoutInit = AutoImportsPreferencesPage.removeImportsStartingWithUnderIfNeeded(declPackageWithoutInit);
-                String importDeclaration = new StringBuffer("from ").append(declPackageWithoutInit).append(" import ").append(name).toString();
-                String displayImport = new StringBuffer("Import ").append(name).append(" (").append(declPackage).append(")").toString();
+                declPackageWithoutInit = AutoImportsPreferencesPage
+                        .removeImportsStartingWithUnderIfNeeded(declPackageWithoutInit);
+                
+                String importDeclaration = new StringBuffer("from ").append(declPackageWithoutInit).append(" import ")
+                        .append(name).toString();
+                
+                String displayImport = new StringBuffer("Import ").append(name).append(" (").append(declPackage)
+                        .append(")").toString();
                 
                 mods.add(new Tuple<String,String>(importDeclaration, displayImport));
             }
@@ -144,13 +172,16 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
             	@Override
             	public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
             		super.apply(viewer, trigger, stateMask, offset);
-            		//and after aplying it, let's request a reanalysis
-            		if(viewer instanceof PySourceViewer){
-            			PySourceViewer sourceViewer = (PySourceViewer) viewer;
-						PyEdit edit = sourceViewer.getEdit();
-						if(edit != null){
-							edit.getParser().forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
-						}
+            		if(forceReparseOnApply){
+                		//and after aplying it, let's request a reanalysis
+                		if(viewer instanceof PySourceViewer){
+                			PySourceViewer sourceViewer = (PySourceViewer) viewer;
+    						PyEdit edit = sourceViewer.getEdit();
+    						if(edit != null){
+    							edit.getParser().forceReparse(new Tuple<String, Boolean>(
+                                    AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
+    						}
+                		}
             		}
             	}
             });
