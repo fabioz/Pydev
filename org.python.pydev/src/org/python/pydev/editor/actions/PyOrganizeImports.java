@@ -50,26 +50,34 @@ public class PyOrganizeImports extends PyAction{
             PySelection ps = new PySelection(pyEdit);
 		    String endLineDelim = ps.getEndLineDelim();
 			final IDocument doc = ps.getDoc();
-			DocumentRewriteSession session = startWrite(doc);
+			DocumentRewriteSession session = null;
 			
 			try {
 				if (ps.getStartLineIndex() == ps.getEndLineIndex()) {
 					//let's see if someone wants to make a better implementation in another plugin...
 					List<IOrganizeImports> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_ORGANIZE_IMPORTS);
-					if (participants.size() == 1) {
-						participants.get(0).performArrangeImports(ps, pyEdit);
-					} else {
-						if (participants.size() > 1) {
-							//let's issue a warning... this extension can only have 1 plugin implementing it
-							PydevPlugin.log("The organize imports has more than one plugin with this extension point, therefore, the default is being used.");
-						}
-						performArrangeImports(doc, endLineDelim, pyEdit.getIndentPrefs().getIndentationString());
+					
+					for (IOrganizeImports organizeImports : participants) {
+                        if(!organizeImports.beforePerformArrangeImports(ps, pyEdit)){
+                            return;
+                        }
+                    }
+					
+					session = startWrite(doc);
+					
+					performArrangeImports(doc, endLineDelim, pyEdit.getIndentPrefs().getIndentationString());
+					
+					for (IOrganizeImports organizeImports : participants) {
+					    organizeImports.afterPerformArrangeImports(ps, pyEdit);
 					}
 				} else {
+				    session = startWrite(doc);
 					performSimpleSort(doc, endLineDelim, ps.getStartLineIndex(), ps.getEndLineIndex());
 				}
 			} finally {
-				endWrite(doc, session);
+			    if(session != null){
+			        endWrite(doc, session);
+			    }
 			}
 		} 
 		catch ( Exception e ) 
@@ -79,6 +87,9 @@ public class PyOrganizeImports extends PyAction{
 		}		
     }
 
+    /**
+     * Stop a rewrite session
+     */
 	private void endWrite(IDocument doc, DocumentRewriteSession session) {
 		if(doc instanceof IDocumentExtension4){
 			IDocumentExtension4 d = (IDocumentExtension4) doc;
@@ -86,6 +97,9 @@ public class PyOrganizeImports extends PyAction{
 		}
 	}
 
+	/**
+	 * Starts a rewrite session (keep things in a single undo/redo)
+	 */
 	private DocumentRewriteSession startWrite(IDocument doc) {
 		if(doc instanceof IDocumentExtension4){
 			IDocumentExtension4 d = (IDocumentExtension4) doc;
@@ -159,74 +173,27 @@ public class PyOrganizeImports extends PyAction{
         }else{ //we have to group the imports!
             
             //import from to the imports that should be grouped given its 'from'
-            TreeMap<String, List<ImportHandleInfo>> m = new TreeMap<String, List<ImportHandleInfo>>();
+            TreeMap<String, List<ImportHandleInfo>> importsWithFrom = new TreeMap<String, List<ImportHandleInfo>>();
             List<ImportHandleInfo> importsWithoutFrom = new ArrayList<ImportHandleInfo>();
             
-            //fill the info
-            for (Iterator<Tuple3<Integer, String, ImportHandle>> iter = list.iterator(); iter.hasNext();) {
-                Tuple3<Integer, String, ImportHandle> element = iter.next();
-                
-                List<ImportHandleInfo> importInfo = element.o3.getImportInfo();
-                for (ImportHandleInfo importHandleInfo : importInfo) {
-                    String fromImportStr = importHandleInfo.getFromImportStr();
-                    if(fromImportStr == null){
-                        importsWithoutFrom.add(importHandleInfo);
-                    }else{
-                        List<ImportHandleInfo> lst = m.get(fromImportStr);
-                        if(lst == null){
-                            lst = new ArrayList<ImportHandleInfo>();
-                            m.put(fromImportStr, lst);
-                        }
-                        lst.add(importHandleInfo);
-                    }
-                }
-            }
-            
+            fillImportStructures(list, importsWithFrom, importsWithoutFrom);
             
             //preferences for multiline imports
             boolean multilineImports = ImportsPreferencesPage.getMultilineImports();
-            int maxCols = 80;
-            if(multilineImports){
-                if(PydevPlugin.getDefault() != null){
-                    IPreferenceStore chainedPrefStore = PydevPlugin.getChainedPrefStore();
-                    maxCols = chainedPrefStore.getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
-                }
-            }else{
-                maxCols = Integer.MAX_VALUE;
-            }
-            
+            int maxCols = getMaxCols(multilineImports);
             
             //preferences for how to break imports
-            String breakIportMode = ImportsPreferencesPage.getBreakIportMode();
-            boolean breakWithParenthesis = true;
-            if(!breakIportMode.equals(ImportsPreferencesPage.BREAK_IMPORTS_MODE_PARENTHESIS)){
-                breakWithParenthesis = false;
-            }
+            boolean breakWithParenthesis = getBreakImportsWithParenthesis();
             
 
-            
-            Set<Entry<String, List<ImportHandleInfo>>> entrySet = m.entrySet();
+            Set<Entry<String, List<ImportHandleInfo>>> entrySet = importsWithFrom.entrySet();
             for (Entry<String, List<ImportHandleInfo>> entry : entrySet) {
                 
                 //first, reorganize them in the order to be written (the ones with comments after the ones without)
                 ArrayList<Tuple<String, String>> importsAndComments = new ArrayList<Tuple<String, String>>();
                 ArrayList<Tuple<String, String>> importsAndNoComments = new ArrayList<Tuple<String, String>>();
                 
-                for (ImportHandleInfo v : entry.getValue()) {
-                    List<String> importedStr = v.getImportedStr();
-                    List<String> commentsForImports = v.getCommentsForImports();
-                    for(int i=0;i<importedStr.size();i++){
-                        String importedString = importedStr.get(i);
-                        String comment = commentsForImports.get(i);
-                        if(comment.length() > 0){
-                            importsAndComments.add(new Tuple<String, String>(importedString, comment));
-                        }else{
-                            importsAndNoComments.add(new Tuple<String, String>(importedString, comment));
-                        }
-                    }
-                }
-                
-                
+                fillImportFromInfo(entry, importsAndComments, importsAndNoComments);
                 
                 
                 //ok, it's all filled, let's start rewriting it!
@@ -306,28 +273,113 @@ public class PyOrganizeImports extends PyAction{
                 }
             }
             
-            //now, write the regular imports (no wrapping or tabbing here)
-            for(ImportHandleInfo info:importsWithoutFrom){
-                
-                List<String> importedStr = info.getImportedStr();
-                List<String> commentsForImports = info.getCommentsForImports();
-                for(int i=0;i<importedStr.size();i++){
-                    all.append("import ");
-                    String importedString = importedStr.get(i);
-                    String comment = commentsForImports.get(i);
-                    all.append(importedString);
-                    if(comment.length() > 0){
-                        all.append(" ");
-                        all.append(comment);
-                    }
-                    all.append(endLineDelim);
-                }
-            }
+            writeImportsWithoutFrom(endLineDelim, all, importsWithoutFrom);
             
         }
         
         
         PySelection.addLine(doc, endLineDelim, all.toString(), firstImport);
+    }
+
+    
+    /**
+     * Write the imports that don't have a 'from' in the beggining (regular imports)
+     */
+    private static void writeImportsWithoutFrom(String endLineDelim, StringBuffer all,
+            List<ImportHandleInfo> importsWithoutFrom) {
+        //now, write the regular imports (no wrapping or tabbing here)
+        for(ImportHandleInfo info:importsWithoutFrom){
+            
+            List<String> importedStr = info.getImportedStr();
+            List<String> commentsForImports = info.getCommentsForImports();
+            for(int i=0;i<importedStr.size();i++){
+                all.append("import ");
+                String importedString = importedStr.get(i);
+                String comment = commentsForImports.get(i);
+                all.append(importedString);
+                if(comment.length() > 0){
+                    all.append(" ");
+                    all.append(comment);
+                }
+                all.append(endLineDelim);
+            }
+        }
+    }
+
+    /**
+     * Fills the lists passed based on the entry set, so that imports that have comments are contained in a list
+     * and imports without comments in another.
+     */
+    private static void fillImportFromInfo(Entry<String, List<ImportHandleInfo>> entry,
+            ArrayList<Tuple<String, String>> importsAndComments, ArrayList<Tuple<String, String>> importsAndNoComments) {
+        for (ImportHandleInfo v : entry.getValue()) {
+            List<String> importedStr = v.getImportedStr();
+            List<String> commentsForImports = v.getCommentsForImports();
+            for(int i=0;i<importedStr.size();i++){
+                String importedString = importedStr.get(i);
+                String comment = commentsForImports.get(i);
+                if(comment.length() > 0){
+                    importsAndComments.add(new Tuple<String, String>(importedString, comment));
+                }else{
+                    importsAndNoComments.add(new Tuple<String, String>(importedString, comment));
+                }
+            }
+        }
+    }
+
+    /**
+     * @return true if the imports should be split with parenthesis (instead of escaping)
+     */
+    private static boolean getBreakImportsWithParenthesis() {
+        String breakIportMode = ImportsPreferencesPage.getBreakIportMode();
+        boolean breakWithParenthesis = true;
+        if(!breakIportMode.equals(ImportsPreferencesPage.BREAK_IMPORTS_MODE_PARENTHESIS)){
+            breakWithParenthesis = false;
+        }
+        return breakWithParenthesis;
+    }
+
+    /**
+     * @return the maximum number of columns that may be available in a line.
+     */
+    private static int getMaxCols(boolean multilineImports) {
+        int maxCols = 80;
+        if(multilineImports){
+            if(PydevPlugin.getDefault() != null){
+                IPreferenceStore chainedPrefStore = PydevPlugin.getChainedPrefStore();
+                maxCols = chainedPrefStore.getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
+            }
+        }else{
+            maxCols = Integer.MAX_VALUE;
+        }
+        return maxCols;
+    }
+
+    /**
+     * Fills the import structure passed, so that the imports from will be grouped by the 'from' part and the regular
+     * imports will be in a separate list.
+     */
+    private static void fillImportStructures(List<Tuple3<Integer, String, ImportHandle>> list,
+            TreeMap<String, List<ImportHandleInfo>> importsWithFrom, List<ImportHandleInfo> importsWithoutFrom) {
+        //fill the info
+        for (Iterator<Tuple3<Integer, String, ImportHandle>> iter = list.iterator(); iter.hasNext();) {
+            Tuple3<Integer, String, ImportHandle> element = iter.next();
+            
+            List<ImportHandleInfo> importInfo = element.o3.getImportInfo();
+            for (ImportHandleInfo importHandleInfo : importInfo) {
+                String fromImportStr = importHandleInfo.getFromImportStr();
+                if(fromImportStr == null){
+                    importsWithoutFrom.add(importHandleInfo);
+                }else{
+                    List<ImportHandleInfo> lst = importsWithFrom.get(fromImportStr);
+                    if(lst == null){
+                        lst = new ArrayList<ImportHandleInfo>();
+                        importsWithFrom.put(fromImportStr, lst);
+                    }
+                    lst.add(importHandleInfo);
+                }
+            }
+        }
     }
 
     /**
