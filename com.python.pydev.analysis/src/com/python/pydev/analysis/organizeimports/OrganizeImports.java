@@ -5,6 +5,7 @@ package com.python.pydev.analysis.organizeimports;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -12,11 +13,13 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
+import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
+import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
@@ -149,15 +152,22 @@ public class OrganizeImports implements IOrganizeImports{
     /**
      * @return the markers representing undefined variables found in the editor.
      */
-    private ArrayList<IMarker> getUndefinedVariableMarkers(final PyEdit edit) {
+    @SuppressWarnings("unchecked")
+	private ArrayList<IMarker> getUndefinedVariableMarkers(final PyEdit edit) {
         PySourceViewer s = edit.getPySourceViewer();
         
-        Iterable<IMarker> markers = s.getMarkerIteratable();
-
         ArrayList<IMarker> undefinedVariablesMarkers = new ArrayList<IMarker>();
+        IAnnotationModel annotationModel = s.getAnnotationModel();
+        Iterator it = annotationModel.getAnnotationIterator();
         
         //get the markers we are interested in (undefined variables)
-        for (IMarker marker : markers) {
+        while(it.hasNext()){
+        	Object ann=it.next();
+        	if(!(ann instanceof MarkerAnnotation)){
+        		continue;
+        	}
+			MarkerAnnotation markerAnnotation = (MarkerAnnotation) ann;
+			IMarker marker = markerAnnotation.getMarker();
             try {
                 String type = marker.getType();
                 if(type != null && type.equals(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER)){
