@@ -43,6 +43,12 @@ public class CtxInsensitiveImportComplProposal extends PyCompletionProposalExten
      * This is the indentation string that should be used
      */
     public String indentString;
+    
+    /**
+     * Determines if the import was added or if only the completion was applied.
+     */
+    private int importLen = 0;
+
 
     public CtxInsensitiveImportComplProposal(String replacementString, int replacementOffset, int replacementLength, 
             int cursorPosition, Image image, String displayString, IContextInformation contextInformation, 
@@ -169,6 +175,7 @@ public class CtxInsensitiveImportComplProposal extends PyCompletionProposalExten
                         }
                         
                         int end = lineInformation.getOffset()+len;
+                        importLen = strToAdd.length();
                         document.replace(end, 0, strToAdd);
                         return;
                         
@@ -183,6 +190,7 @@ public class CtxInsensitiveImportComplProposal extends PyCompletionProposalExten
                     }
                     
                     int end = lineInformation.getOffset()+len;
+                    importLen = strToAdd.length();
                     document.replace(end, 0, strToAdd);
                     return;
                 }                
@@ -191,7 +199,10 @@ public class CtxInsensitiveImportComplProposal extends PyCompletionProposalExten
             //if we got here, it hasn't been added in a grouped way, so, let's add it in a new import
             if(lineToAddImport >=0 && lineToAddImport <= document.getNumberOfLines()){
                 IRegion lineInformation = document.getLineInformation(lineToAddImport);
-                document.replace(lineInformation.getOffset(), 0, realImportRep+delimiter);
+                String strToAdd = realImportRep+delimiter;
+                importLen = strToAdd.length();
+                document.replace(lineInformation.getOffset(), 0, strToAdd);
+                return;
             }
 
             
@@ -203,10 +214,6 @@ public class CtxInsensitiveImportComplProposal extends PyCompletionProposalExten
     
     @Override
     public Point getSelection(IDocument document) {
-        int importLen = 0;
-        if(realImportRep.length() > 0){
-            importLen = realImportRep.length()+PyAction.getDelimiter(document).length();
-        }
         return new Point(fReplacementOffset+fReplacementString.length()+importLen, 0 );
     }
     
