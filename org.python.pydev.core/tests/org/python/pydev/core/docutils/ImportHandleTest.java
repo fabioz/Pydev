@@ -118,7 +118,7 @@ public class ImportHandleTest extends TestCase {
         assertEquals("AAA", importInfo.get(0).getFromImportStr());
         lst = new ArrayList<String>();
         lst.add("BBB");
-        lst.add("CCC");
+        lst.add("DDD as CCC");
         assertEquals(lst, importInfo.get(0).getImportedStr());
         
         importHandle = new ImportHandle(null, "from AAA import BBB #, DDD as CCC", 0, 0);

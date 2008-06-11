@@ -147,12 +147,14 @@ public class ImportHandle {
                     //do nothing
                     
                     
-                }else if(c == ' ' || c == '\t'){
-                    String curr = alias.toString();
-                    if(curr.endsWith(" as") | curr.endsWith("\tas")){
-                        alias = new StringBuffer();
-                    }
-                    alias.append(c);
+// commented out: we'll get the xxx as yyy all in the alias. Clients may treat it separately if needed.
+//                }else if(c == ' ' || c == '\t'){
+//                    
+//                    String curr = alias.toString();
+//                    if(curr.endsWith(" as") | curr.endsWith("\tas")){
+//                        alias = new StringBuffer();
+//                    }
+//                    alias.append(c);
                     
                 }else{
                     alias.append(c);

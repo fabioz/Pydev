@@ -19,7 +19,7 @@ public class PyOrganizeImportsTest extends TestCase {
         try {
             PyOrganizeImportsTest test = new PyOrganizeImportsTest();
             test.setUp();
-            test.testPerformGroupingWithWraps3();
+            test.testPerformWithGroupingWithAs();
             test.tearDown();
             junit.textui.TestRunner.run(PyOrganizeImportsTest.class);
         } catch (Throwable e) {
@@ -118,6 +118,26 @@ String result = ""+
         
         assertEquals(result, doc.get());
     }
+    
+    
+    public void testPerformWithGroupingWithAs() {
+        ImportsPreferencesPage.groupImportsForTests = true;
+        String d = ""+
+        "from a import c as d\n"+
+        "from a import f as g\n"+
+        "import e as g\n";
+        
+        Document doc = new Document(d);
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        
+        String result = ""+
+        "from a import c as d, f as g\n"+
+        "import e as g\n"+
+        "";
+        
+//        System.out.println(">>"+doc.get()+"<<");
+        assertEquals(result, doc.get());
+    }
 
     
     public void testPerformGroupingWithWraps() {
@@ -179,6 +199,23 @@ String result = ""+
         "from a import (cccccccccccccccccccccccccccccccccccccccccccccccccc, \n" +
         "    eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee) #comment 1\n"+
         "from a import ffffffffffffffffffffffffffffffffffffffffffffffffff #comment 2\n";
+        
+//        System.out.println(">>"+doc.get()+"<<");
+        assertEquals(result, doc.get());
+    }
+    
+    
+    public void testPerformGroupingWithWraps4() {
+        ImportsPreferencesPage.groupImportsForTests = true;
+        String d = ""+
+        "from cccccccccccccccccccccccccccccccccccccccccccccccccc import eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n"; //50 * 'c'
+        
+        Document doc = new Document(d);
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        
+        String result = ""+
+        "from cccccccccccccccccccccccccccccccccccccccccccccccccc import (\n" +
+        "    eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee)\n";
         
 //        System.out.println(">>"+doc.get()+"<<");
         assertEquals(result, doc.get());

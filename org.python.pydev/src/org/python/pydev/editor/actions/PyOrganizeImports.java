@@ -242,6 +242,7 @@ public class PyOrganizeImports extends PyAction{
                     line.append(tuple.o1);
                     
                     if(addedParenForLine && i == importsAndComments.size()){
+                        addedParenForLine = false;
                         line.append(")");
                     }
                     
