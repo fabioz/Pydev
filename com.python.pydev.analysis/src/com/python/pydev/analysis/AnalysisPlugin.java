@@ -141,23 +141,25 @@ public class AnalysisPlugin extends AbstractUIPlugin {
 
 
     public static ImageCache getImageCache() {
-        if(plugin != null){
-            if (imageCache == null) {
-                imageCache = new ImageCache(plugin.getBundle().getEntry("/"));
-            }
+        if (imageCache != null) {
             return imageCache;
+        }
+            
+        if(plugin != null){
+            imageCache = new ImageCache(plugin.getBundle().getEntry("/"));
         }else{
             // we don't have it on tests
             org.python.pydev.plugin.PydevPlugin.log("unable to get image cache");
             
             //return one that always return null
-            return new ImageCache(){
+            imageCache = new ImageCache(){
                 @Override
                 public Image get(String key) {
                     return null;
                 }
             };
         }
+        return imageCache;
     }
     
     public static final String CLASS_WITH_IMPORT_ICON = "icons/class_obj_imp.gif";
