@@ -12,6 +12,7 @@ import java.util.Map;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.structure.FastStack;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -181,14 +182,14 @@ public class ScopeItems {
     
     @Override
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        FastStringBuffer buffer = new FastStringBuffer();
         buffer.append("ScopeItem (type:");
         buffer.append(Scope.getScopeTypeStr(scopeType));
         buffer.append(")\n");
         for (Map.Entry<String, List<Found>> entry : m.entrySet()) {
             buffer.append(entry.getKey());
             buffer.append(": contains ");
-            buffer.append(entry.getValue());
+            buffer.append(entry.getValue().toString());
             buffer.append("\n");
         }
         return buffer.toString();

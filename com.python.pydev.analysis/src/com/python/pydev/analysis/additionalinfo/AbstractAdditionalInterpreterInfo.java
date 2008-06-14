@@ -24,6 +24,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -392,7 +393,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
         }
 
         //now that we have the stack, let's make it into a path...
-        StringBuffer buf = new StringBuffer();
+        FastStringBuffer buf = new FastStringBuffer();
         while(stack.size() > 0){
             if(buf.length() > 0){
                 buf.append(".");
@@ -638,7 +639,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
     @Override
     public String toString() {
         synchronized (lock) {
-	    	StringBuffer buffer = new StringBuffer();
+            FastStringBuffer buffer = new FastStringBuffer();
 	    	buffer.append("AdditionalInfo{");
 	
 	    	buffer.append("topLevel=[");
@@ -657,7 +658,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param buffer
      * @param name
      */
-    private void entrySetToString(StringBuffer buffer, Set<Entry<String, List<IInfo>>> name) {
+    private void entrySetToString(FastStringBuffer buffer, Set<Entry<String, List<IInfo>>> name) {
         synchronized (lock) {
 	        for (Entry<String, List<IInfo>> entry : name) {
 				List<IInfo> value = entry.getValue();

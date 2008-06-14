@@ -10,12 +10,15 @@ import java.util.List;
 import java.util.TreeMap;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.window.Window;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
@@ -28,6 +31,7 @@ import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 
+import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.builder.AnalysisParserObserver;
@@ -42,10 +46,13 @@ import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
  */
 public class OrganizeImports implements IOrganizeImports{
 
+    private static final String DIALOG_SETTINGS = "com.python.pydev.analysis.ORGANIZE_IMPORTS_DIALOG"; //$NON-NLS-1$;
+    
     /**
      * That's where everything happens.
      * 
-     * Important: if the document is in a rewrite session, trying to highlight a given session does not work.
+     * Important: if the document is in a rewrite session, trying to highlight a given session does not work
+     * (so, we cannot be in a rewrite session in this case).
      */
     public boolean beforePerformArrangeImports(final PySelection ps, final PyEdit edit) {
         if(!AutoImportsPreferencesPage.doAutoImportOnOrganizeImports()){
@@ -76,6 +83,9 @@ public class OrganizeImports implements IOrganizeImports{
         //variable to hold whether we should keep on choosing the imports
         final Boolean[] keepGoing = new Boolean[]{true}; 
         
+        
+        final IDialogSettings dialogSettings = AnalysisPlugin.getDefault().getDialogSettings();
+        
         //analyse the markers (one by one)
         for (final IMarker marker : map.values()) {
             if(!keepGoing[0]){
@@ -105,13 +115,55 @@ public class OrganizeImports implements IOrganizeImports{
                             
                             ElementListSelectionDialog dialog= new ElementListSelectionDialog(activeShell, 
                                     new LabelProvider(){
+                                
+                                //get the image and text for each completion
+                                
+                                @Override
+                                public Image getImage(Object element) {
+                                    CtxInsensitiveImportComplProposal comp = ((CtxInsensitiveImportComplProposal)element);
+                                    return comp.getImage();
+                                }
+                                
                                 @Override
                                 public String getText(Object element) {
                                     CtxInsensitiveImportComplProposal comp = ((CtxInsensitiveImportComplProposal)element);
                                     return comp.getDisplayString();
                                 }
-                            });
-                            
+                                
+                            }) {
+                                
+                                //override things to return the last position of the dialog correctly
+
+                                /**
+                                 * @see org.eclipse.ui.dialogs.SelectionDialog#getDialogBoundsSettings()
+                                 */
+                                protected IDialogSettings getDialogBoundsSettings() {
+                                    IDialogSettings section = dialogSettings.getSection(DIALOG_SETTINGS);
+                                    if (section == null) {
+                                        section = dialogSettings.addNewSection(DIALOG_SETTINGS);
+                                    }
+                                    return section;
+                                }
+
+                                /* (non-Javadoc)
+                                 * @see org.eclipse.jface.dialogs.Dialog#getInitialSize()
+                                 */
+                                protected Point getInitialSize() {
+                                    IDialogSettings settings = getDialogBoundsSettings();
+                                    if (settings != null) {
+                                        try {
+                                            int width = settings.getInt("DIALOG_WIDTH"); //$NON-NLS-1$
+                                            int height = settings.getInt("DIALOG_HEIGHT"); //$NON-NLS-1$
+                                            if (width > 0 & height > 0) {
+                                                return new Point(width, height);
+                                            }
+                                        } catch (NumberFormatException nfe) {
+                                            //make the default return
+                                        }
+                                    }
+                                    return new Point(300, 300);
+                                }
+                            };
                             
                             dialog.setTitle("Choose import");
                             dialog.setMessage("Which import should be added?");

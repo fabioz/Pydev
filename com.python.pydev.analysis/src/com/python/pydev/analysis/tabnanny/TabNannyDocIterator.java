@@ -6,6 +6,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 
 
@@ -160,7 +161,7 @@ public class TabNannyDocIterator implements Iterator<Tuple3<String, Integer, Boo
             }
             
             //ok, if we got here, we're in a position to get the indentation string as spaces and tabs...
-            StringBuffer buf = new StringBuffer();
+            FastStringBuffer buf = new FastStringBuffer();
             int startingOffset = offset;
             while (c == ' ' || c == '\t') {
                 buf.append(c);

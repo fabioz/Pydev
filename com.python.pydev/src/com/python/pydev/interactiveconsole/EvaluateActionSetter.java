@@ -23,6 +23,7 @@ import org.eclipse.ui.console.IConsoleView;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.newconsole.PydevConsole;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
@@ -75,7 +76,7 @@ public class EvaluateActionSetter implements IPyEditListener{
                             String fileStr = SimpleRunner.getArgumentsAsStr(new String[]{editorFile.toString()});
                             
                             char[] characters = fileStr.trim().toCharArray();
-                            StringBuffer buf = new StringBuffer();
+                            FastStringBuffer buf = new FastStringBuffer(characters.length+characters.length/2);
                             for (int i = 0; i < characters.length; i++) {
                                 char character= characters[i];
                                 if (character == '\\') {

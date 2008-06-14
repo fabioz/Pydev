@@ -21,6 +21,7 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
@@ -82,7 +83,8 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         String lowerQual = qual.toLowerCase();
         Set<String> allModuleNames = modulesManager.getAllModuleNames(false, lowerQual);
 
-        StringBuffer realImportRep=new StringBuffer();
+        FastStringBuffer realImportRep=new FastStringBuffer();
+        FastStringBuffer displayString = new FastStringBuffer();
         HashSet<String> alreadyFound = new HashSet<String>();
         
         for (String name:allModuleNames) {
@@ -90,7 +92,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             FullRepIterable iterable = new FullRepIterable(name);
             for (String string : iterable) {
                 //clear the buffer...
-                realImportRep.delete(0, realImportRep.length());
+                realImportRep.clear();
                 
                 String[] strings = FullRepIterable.headAndTail(string);
                 String importRep = strings[1];
@@ -99,23 +101,25 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                     continue;
                 }
 
-                StringBuffer displayString = new StringBuffer(importRep);
+                displayString.clear();
+                displayString.append(importRep);
                 
                 String packageName = strings[0];
+                if(packageName.length() > 0){
+                    if(addAutoImport){
+                        realImportRep.append("from ");
+                        realImportRep.append(packageName);
+                        realImportRep.append(" ");
+                    }
+                    displayString.append(" - ");
+                    displayString.append(packageName);
+                }
+                
                 if(addAutoImport){
                     realImportRep.append("import ");
                     realImportRep.append(strings[1]);
                 }
                 
-                if(packageName.length() > 0){
-                    if(addAutoImport){
-                        realImportRep.insert(0, " ");
-                        realImportRep.insert(0, packageName);
-                        realImportRep.insert(0, "from ");
-                    }
-                    displayString.append(" - ");
-                    displayString.append(packageName);
-                }
                 
                 String found = displayString.toString();
                 if(alreadyFound.contains(found)){
@@ -162,7 +166,8 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             String lowerQual = request.qualifier.toLowerCase();
             Set<String> allModuleNames = projectModulesManager.getAllModuleNames(true, lowerQual);
 
-            StringBuffer realImportRep=new StringBuffer();
+            FastStringBuffer realImportRep=new FastStringBuffer();
+            FastStringBuffer displayString=new FastStringBuffer();
             HashSet<String> importedNames = getImportedNames(state);
             
             for (String name:allModuleNames) {
@@ -173,7 +178,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                 FullRepIterable iterable = new FullRepIterable(name);
                 for (String string : iterable) {
                     //clear the buffer...
-                    realImportRep.delete(0, realImportRep.length());
+                    realImportRep.clear();
                     
                     String[] strings = FullRepIterable.headAndTail(string);
                     String importRep = strings[1];
@@ -182,23 +187,25 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                         continue;
                     }
 
-                    StringBuffer displayString = new StringBuffer(importRep);
+                    displayString.clear();
+                    displayString.append(importRep);
                     
                     String packageName = strings[0];
+                    if(packageName.length() > 0){
+                        if(addAutoImport){
+                            realImportRep.append("from ");
+                            realImportRep.append(packageName);
+                            realImportRep.append(" ");
+                        }
+                        displayString.append(" - ");
+                        displayString.append(packageName);
+                    }
+                    
                     if(addAutoImport){
                         realImportRep.append("import ");
                         realImportRep.append(strings[1]);
                     }
                     
-                    if(packageName.length() > 0){
-                        if(addAutoImport){
-                            realImportRep.insert(0, " ");
-                            realImportRep.insert(0, packageName);
-                            realImportRep.insert(0, "from ");
-                        }
-                        displayString.append(" - ");
-                        displayString.append(packageName);
-                    }
                     
                     CtxInsensitiveImportComplProposal  proposal = new CtxInsensitiveImportComplProposal (
                             importRep,

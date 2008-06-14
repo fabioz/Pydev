@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.AnalysisPreferenceInitializer;
@@ -46,12 +47,12 @@ public class AutoImportsPreferencesPage extends FieldEditorPreferencePage implem
                 "Do auto import on organize imports (Ctrl+Shift+O)?", BooleanFieldEditor.DEFAULT, p));
     }
     
-    public static String removeImportsStartingWithUnderIfNeeded(String declPackageWithoutInit) {
+    public static String removeImportsStartingWithUnderIfNeeded(String declPackageWithoutInit, FastStringBuffer buf) {
         if(doIgnoreImportsStartingWithUnder()){
             String[] splitted = StringUtils.dotSplit(declPackageWithoutInit);
-            StringBuffer buf = new StringBuffer();
             
             boolean foundStartingWithoutUnder=false;
+            buf.clear();
             for (int i=splitted.length-1;i>=0;i--) {
                 String s=splitted[i];
                 if(!foundStartingWithoutUnder){
@@ -62,7 +63,7 @@ public class AutoImportsPreferencesPage extends FieldEditorPreferencePage implem
                 }
                 buf.insert(0, s);
                 if(i != 0){
-                    buf.insert(0, '.');
+                    buf.insert(0, ".");
                 }
             }
             declPackageWithoutInit = buf.toString();

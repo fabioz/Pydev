@@ -23,6 +23,7 @@ import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -301,8 +302,9 @@ public class TextEditCreation {
         List<Tuple<TextEdit, String>> ret = new ArrayList<Tuple<TextEdit, String>>();
         //occurrences = sortOccurrences(occurrences);
 
+        FastStringBuffer entryBuf = new FastStringBuffer();
         for (ASTEntry entry : occurrences) {
-            StringBuffer entryBuf = new StringBuffer();
+            entryBuf.clear();
 
             Integer loc = (Integer) entry.getAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, 0);
 

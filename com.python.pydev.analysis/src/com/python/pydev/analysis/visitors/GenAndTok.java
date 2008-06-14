@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 public class GenAndTok{
     
@@ -46,7 +47,7 @@ public class GenAndTok{
     
     @Override
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        FastStringBuffer buffer = new FastStringBuffer();
         buffer.append("GenAndTok [ ");
         
         buffer.append(generator.getRepresentation());
@@ -63,7 +64,7 @@ public class GenAndTok{
 				buffer.append(ref.getRepresentation());
 				buffer.append(",");
 			}
-	        buffer.deleteCharAt(buffer.length()-1); //remove the last comma
+	        buffer.deleteLast(); //remove the last comma
 	        buffer.append(") ");
         }
         

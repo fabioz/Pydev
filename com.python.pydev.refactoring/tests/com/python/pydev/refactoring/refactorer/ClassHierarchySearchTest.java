@@ -8,6 +8,7 @@ import java.util.List;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -243,10 +244,10 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
 
 
     private HierarchyNodeModel assertIsIn(String name, String modName, List<HierarchyNodeModel> parents) {
-        StringBuffer available = new StringBuffer();
+        FastStringBuffer available = new FastStringBuffer();
         
         for (HierarchyNodeModel model : parents) {
-            available.append(model.name+" - "+model.moduleName);
+            available.append(model.name).append(" - ").append(model.moduleName);
             if(model.name.equals(name)){
             	if(modName == null){
             		return model;

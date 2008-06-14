@@ -9,6 +9,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.autoedit.IIndentPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -109,6 +110,8 @@ public class TabNanny{
         int tabWidth = indentPrefs.getTabWidth();
         //if we're analyzing the spaces, let's mark invalid indents (tabs are not searched for those because
         //a tab always marks a full indent).
+        
+        FastStringBuffer buffer = new FastStringBuffer();
         for(Tuple3<String, Integer, Boolean> indentation:validsAre){
             
             if(!indentation.o3){ //if it does not have more contents (its only whitespaces), let's keep on going!
@@ -128,8 +131,9 @@ public class TabNanny{
                 int startCol = 1;
                 int endCol = startCol+lenFound;
 
+                buffer.clear();
                 ret.add(new Message(IAnalysisPreferences.TYPE_INDENTATION_PROBLEM, 
-                        new StringBuffer("Bad Indentation (").append(lenFound).append(" spaces)").toString(), 
+                        buffer.append("Bad Indentation (").append(lenFound).append(" spaces)").toString(), 
                         startLine, startLine, startCol, endCol, analysisPrefs));
                     
             }

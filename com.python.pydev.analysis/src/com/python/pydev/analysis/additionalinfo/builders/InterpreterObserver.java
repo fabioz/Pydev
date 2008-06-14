@@ -19,6 +19,7 @@ import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.ErrorDescription;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
@@ -130,6 +131,9 @@ public class InterpreterObserver implements IInterpreterObserver {
 //        long startsAt = System.currentTimeMillis();
         ModulesKey[] allModules = m.getOnlyDirectModules();
         int i = 0;
+        
+        FastStringBuffer msgBuffer = new FastStringBuffer();
+
         for (ModulesKey key : allModules) {
             if(monitor.isCanceled()){
                 return null;
@@ -154,16 +158,16 @@ public class InterpreterObserver implements IInterpreterObserver {
 					    
 					    
 					    if(i % 7 == 0){
-                            StringBuffer buffer = new StringBuffer();
-                            buffer.append("Creating ");
-                            buffer.append(additionalFeedback);
-                            buffer.append(" additional info (" );
-                            buffer.append(i );
-                            buffer.append(" of " );
-                            buffer.append(allModules.length );
-                            buffer.append(") for " );
-                            buffer.append(key.file.getName());
-                            monitor.setTaskName(buffer.toString());
+					        msgBuffer.clear();
+                            msgBuffer.append("Creating ");
+                            msgBuffer.append(additionalFeedback);
+                            msgBuffer.append(" additional info (" );
+                            msgBuffer.append(i );
+                            msgBuffer.append(" of " );
+                            msgBuffer.append(allModules.length );
+                            msgBuffer.append(") for " );
+                            msgBuffer.append(key.file.getName());
+                            monitor.setTaskName(msgBuffer.toString());
                             monitor.worked(1);
 					    }
 

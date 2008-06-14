@@ -13,6 +13,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.structure.FastStack;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.ast.TryExcept;
 
@@ -347,11 +348,11 @@ public class Scope implements Iterable<ScopeItems>{
 
     @Override
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        FastStringBuffer buffer = new FastStringBuffer();
         buffer.append("Scope: ");
         for (ScopeItems item : scope) {
             buffer.append("\n");
-            buffer.append(item);
+            buffer.appendObject(item);
             
         }
         return buffer.toString();

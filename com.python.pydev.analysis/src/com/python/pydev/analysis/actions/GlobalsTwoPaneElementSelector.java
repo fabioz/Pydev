@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.TwoPaneElementSelector;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.uiutils.DialogMemento;
 import org.python.pydev.ui.UIConstants;
 
@@ -33,8 +34,8 @@ public class GlobalsTwoPaneElementSelector extends TwoPaneElementSelector{
 		@Override
 		public String getText(Object element) {
 		    IInfo info = (IInfo) element;
-		    StringBuffer buf = new StringBuffer(info.getDeclaringModuleName());
 		    String path = info.getPath();
+            FastStringBuffer buf = new FastStringBuffer(info.getDeclaringModuleName(), 90);
 		    if(path != null && path.length() > 0){
 		        buf.append("/");
 		        buf.append(path);

@@ -14,6 +14,7 @@ import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -159,7 +160,7 @@ public abstract class AbstractMessage implements IMessage{
         String str;
         if(msg instanceof Object[]){
             Object[] msgs = (Object[]) msg;
-            StringBuffer buffer = new StringBuffer();
+            FastStringBuffer buffer = new FastStringBuffer();
             for (Object o : msgs) {
                 buffer.append(o.toString());
             }
@@ -400,7 +401,7 @@ public abstract class AbstractMessage implements IMessage{
                 
             }else if(countPercS == 1){
                 //if we have only 1, all parameters should be concatenated in a single string
-                StringBuffer buf = new StringBuffer();
+                FastStringBuffer buf = new FastStringBuffer();
                 for (int i = 0; i < o.length; i++) {
                     buf.append(o[i].toString());
                     if(i != o.length-1){

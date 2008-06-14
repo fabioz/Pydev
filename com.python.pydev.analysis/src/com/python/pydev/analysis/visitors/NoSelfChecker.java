@@ -9,6 +9,7 @@ import java.util.Map;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.structure.FastStack;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -53,7 +54,7 @@ public class NoSelfChecker {
     public void beforeClassDef(ClassDef node) {
         scope.push(Scope.SCOPE_TYPE_CLASS);
         
-        StringBuffer buf = new StringBuffer();
+        FastStringBuffer buf = new FastStringBuffer();
         for(exprType base : node.bases){
             if(buf.length() > 0){
                 buf.append(",");

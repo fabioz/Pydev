@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 
@@ -30,7 +31,7 @@ public class CompositeMessage extends AbstractMessage{
     }
 
     public String getShortMessage() {
-        StringBuffer buffer = new StringBuffer();
+        FastStringBuffer buffer = new FastStringBuffer();
         
         Set<String> messages = new TreeSet<String>();
         for (Iterator<IMessage> iter = msgs.iterator(); iter.hasNext();) {

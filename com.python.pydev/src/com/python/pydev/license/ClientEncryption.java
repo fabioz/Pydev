@@ -3,6 +3,8 @@ package com.python.pydev.license;
 import java.math.BigInteger;
 import java.util.ArrayList;
 
+import org.python.pydev.core.structure.FastStringBuffer;
+
 //encrypt ==> c = m^e( mod N )
 // m = data in a number
 // e = modulus of public key( in this case of client side )
@@ -43,7 +45,7 @@ public class ClientEncryption {
     
 	public String encrypt(String data) {
         String[] chunks = getChunks(data);
-        StringBuffer buf = new StringBuffer();
+        FastStringBuffer buf = new FastStringBuffer();
         for (String string : chunks) {
             BigInteger m = new BigInteger( string.getBytes() );
             BigInteger encrypted = m.modPow( e, N ); 
@@ -56,7 +58,7 @@ public class ClientEncryption {
 
 	public String decrypt(String data) {
         String[] strings = data.split("@");
-        StringBuffer buf = new StringBuffer();
+        FastStringBuffer buf = new FastStringBuffer();
         for (String string : strings) {
             BigInteger c = new BigInteger(string);
             BigInteger decrypted = c.modPow(e, N);

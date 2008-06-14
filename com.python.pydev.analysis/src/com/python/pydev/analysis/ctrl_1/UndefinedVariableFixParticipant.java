@@ -19,12 +19,14 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
+import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
@@ -80,9 +82,9 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         String fullRep = ps.getFullRepAfterSelection();
         
         ImageCache imageCache = PydevPlugin.getImageCache();
-        Image importImage = null;
+        Image packageImage = null;
         if(imageCache != null){ //making tests
-            importImage = imageCache.get(UIConstants.IMPORT_ICON);
+            packageImage = imageCache.get(UIConstants.COMPLETION_PACKAGE_ICON);
         }
         IModulesManager projectModulesManager = nature.getAstManager().getModulesManager();
         Set<String> allModules = projectModulesManager.getAllModuleNames(true, markerContents.toLowerCase());
@@ -95,6 +97,10 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         
         Set<Tuple<String,String>> mods = new HashSet<Tuple<String,String>>();
         //1. check if it is some module
+        
+        //use a single buffer to create all the strings
+        FastStringBuffer buffer = new FastStringBuffer();
+        
         for (String completeName : allModules) {
             FullRepIterable iterable = new FullRepIterable(completeName);
 
@@ -105,8 +111,11 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                     if(fullRep.length() == mod.length() //it does not only start with, but it is equal to it.
                        || (fullRep.length() > mod.length() && fullRep.charAt(mod.length()) == '.')
                        ){ 
-                        mods.add(new Tuple<String,String>(new StringBuffer("import ").append(mod).toString(), 
-                                new StringBuffer("Import ").append(mod).toString()));
+                        buffer.clear();
+                        String realImportRep = buffer.append("import ").append(mod).toString();
+                        buffer.clear();
+                        String displayString = buffer.append("Import ").append(mod).toString();
+                        addProp(props, realImportRep, displayString, packageImage, offset, mods);
                     }
                 }
                 
@@ -116,14 +125,18 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                 
                 if(importRep.equals(markerContents)){
                     if(packageName.length() > 0){
-                        String realImportRep = new StringBuffer("from ").append(packageName).append(" ").append("import ").append(strings[1]).toString();
-                        String displayString = new StringBuffer("Import ").append(importRep).append(" (").append(packageName).append(")").toString();
-                        mods.add(new Tuple<String,String>(realImportRep, displayString));
+                        buffer.clear();
+                        String realImportRep = buffer.append("from ").append(packageName).append(" ").append("import ").append(strings[1]).toString();
+                        buffer.clear();
+                        String displayString = buffer.append("Import ").append(importRep).append(" (").append(packageName).append(")").toString();
+                        addProp(props, realImportRep, displayString, packageImage, offset, mods);
                         
                     }else{
-                        String displayString = new StringBuffer("Import ").append(importRep).toString();
-                        String realImportRep = new StringBuffer("import ").append(strings[1]).toString();
-                        mods.add(new Tuple<String,String>(realImportRep, displayString));
+                        buffer.clear();
+                        String realImportRep = buffer.append("import ").append(strings[1]).toString();
+                        buffer.clear();
+                        String displayString = buffer.append("Import ").append(importRep).toString();
+                        addProp(props, realImportRep, displayString, packageImage, offset, mods);
                     }
                 }
             }
@@ -132,6 +145,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         
         //2. check if it is some global class or method
         List<AbstractAdditionalInterpreterInfo> additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfo(nature);
+        FastStringBuffer tempBuf = new FastStringBuffer();
         for (AbstractAdditionalInterpreterInfo info : additionalInfo) {
             List<IInfo> tokensEqualTo = info.getTokensEqualTo(markerContents, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
             for (IInfo found : tokensEqualTo) {
@@ -144,50 +158,62 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                 }
                 
                 declPackageWithoutInit = AutoImportsPreferencesPage
-                        .removeImportsStartingWithUnderIfNeeded(declPackageWithoutInit);
+                        .removeImportsStartingWithUnderIfNeeded(declPackageWithoutInit, tempBuf);
                 
-                String importDeclaration = new StringBuffer("from ").append(declPackageWithoutInit).append(" import ")
+                
+                buffer.clear();
+                String importDeclaration = buffer.append("from ").append(declPackageWithoutInit).append(" import ")
                         .append(name).toString();
                 
-                String displayImport = new StringBuffer("Import ").append(name).append(" (").append(declPackage)
+                buffer.clear();
+                String displayImport = buffer.append("Import ").append(name).append(" (").append(declPackage)
                         .append(")").toString();
                 
-                mods.add(new Tuple<String,String>(importDeclaration, displayImport));
+                addProp(props, importDeclaration, displayImport, AnalysisPlugin.getImageForAutoImportTypeInfo(found), offset, mods);
             }
-        }
-        
-        for (Tuple<String,String> string : mods) {
-            props.add(new CtxInsensitiveImportComplProposal(
-                    "",
-                    offset,
-                    0,
-                    0,
-                    importImage,
-                    string.o2,
-                    null,
-                    "",
-                    IPyCompletionProposal.PRIORITY_LOCALS,
-                    string.o1
-                    ){
-            	@Override
-            	public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
-            		super.apply(viewer, trigger, stateMask, offset);
-            		if(forceReparseOnApply){
-                		//and after aplying it, let's request a reanalysis
-                		if(viewer instanceof PySourceViewer){
-                			PySourceViewer sourceViewer = (PySourceViewer) viewer;
-    						PyEdit edit = sourceViewer.getEdit();
-    						if(edit != null){
-    							edit.getParser().forceReparse(new Tuple<String, Boolean>(
-                                    AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
-    						}
-                		}
-            		}
-            	}
-            });
         }
     }
 
+
+    private void addProp(List<ICompletionProposal> props, String importDeclaration, String displayImport, 
+            Image importImage, int offset, Set<Tuple<String, String>> mods) {
+        Tuple<String, String> tuple = new Tuple<String, String>(importDeclaration, displayImport);
+        if(mods.contains(tuple)){
+            return;
+        }
+        
+        mods.add(tuple);
+        
+        props.add(new CtxInsensitiveImportComplProposal(
+                "",
+                offset,
+                0,
+                0,
+                importImage,
+                displayImport,
+                null,
+                "",
+                IPyCompletionProposal.PRIORITY_LOCALS,
+                importDeclaration
+                ){
+            @Override
+            public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
+                super.apply(viewer, trigger, stateMask, offset);
+                if(forceReparseOnApply){
+                    //and after applying it, let's request a reanalysis
+                    if(viewer instanceof PySourceViewer){
+                        PySourceViewer sourceViewer = (PySourceViewer) viewer;
+                        PyEdit edit = sourceViewer.getEdit();
+                        if(edit != null){
+                            edit.getParser().forceReparse(new Tuple<String, Boolean>(
+                                AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
     
 
 }

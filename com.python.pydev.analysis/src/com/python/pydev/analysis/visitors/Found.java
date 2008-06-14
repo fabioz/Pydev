@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 
@@ -70,13 +71,13 @@ public class Found implements Iterable<GenAndTok>{
     
     @Override
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        FastStringBuffer buffer = new FastStringBuffer();
         buffer.append("Found { (used:");
         buffer.append(used);
         buffer.append(") [");
         
         for (GenAndTok g : found) {
-            buffer.append(g);
+            buffer.appendObject(g);
             buffer.append("  ");
         }
         buffer.append(" ]}");

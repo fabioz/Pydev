@@ -12,6 +12,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -69,7 +70,7 @@ public class ImportChecker {
         
         @Override
         public String toString() {
-            StringBuffer buffer = new StringBuffer();
+            FastStringBuffer buffer = new FastStringBuffer();
             buffer.append("ImportInfo(");
             buffer.append(" Resolved:");
             buffer.append(wasResolved);

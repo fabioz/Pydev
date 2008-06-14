@@ -15,6 +15,7 @@ import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
@@ -86,8 +87,9 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
         List<IInfo> tokensStartingWith = additionalInfoForProject.getTokensStartingWith(
                 qual, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
         
-        StringBuffer realImportRep = new StringBuffer();
-        StringBuffer displayString = new StringBuffer();
+        FastStringBuffer realImportRep = new FastStringBuffer();
+        FastStringBuffer displayString = new FastStringBuffer();
+        FastStringBuffer tempBuf = new FastStringBuffer();
         for (IInfo info : tokensStartingWith) {
             //there always must be a declaringModuleName
             String declaringModuleName = info.getDeclaringModuleName();
@@ -104,14 +106,14 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
             }
             
             if(addAutoImport){
-                realImportRep.delete(0, realImportRep.length()); //clear the buffer
+                realImportRep.clear();
                 realImportRep.append("from ");
-                realImportRep.append(AutoImportsPreferencesPage.removeImportsStartingWithUnderIfNeeded(declaringModuleName));
+                realImportRep.append(AutoImportsPreferencesPage.removeImportsStartingWithUnderIfNeeded(declaringModuleName, tempBuf));
                 realImportRep.append(" import ");
                 realImportRep.append(rep);
             }
             
-            displayString.delete(0, displayString.length()); //clear the buffer
+            displayString.clear();
             displayString.append(rep );
             displayString.append(" - ");
             displayString.append(declaringModuleName);
@@ -161,8 +163,10 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
             List<IInfo> tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, request.nature, 
                     AbstractAdditionalInterpreterInfo.TOP_LEVEL);
             
-            StringBuffer realImportRep = new StringBuffer();
-            StringBuffer displayString = new StringBuffer();
+            FastStringBuffer realImportRep = new FastStringBuffer();
+            FastStringBuffer displayString = new FastStringBuffer();
+            FastStringBuffer tempBuf = new FastStringBuffer();
+            
             for (IInfo info : tokensStartingWith) {
                 //there always must be a declaringModuleName
                 String declaringModuleName = info.getDeclaringModuleName();
@@ -184,14 +188,14 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
                 }
                 
                 if(addAutoImport){
-                    realImportRep.delete(0, realImportRep.length()); //clear the buffer
+                    realImportRep.clear();
                     realImportRep.append("from ");
-                    realImportRep.append(AutoImportsPreferencesPage.removeImportsStartingWithUnderIfNeeded(declaringModuleName));
+                    realImportRep.append(AutoImportsPreferencesPage.removeImportsStartingWithUnderIfNeeded(declaringModuleName, tempBuf));
                     realImportRep.append(" import ");
                     realImportRep.append(rep);
                 }
                 
-                displayString.delete(0, displayString.length()); //clear the buffer
+                displayString.clear();
                 displayString.append(rep );
                 displayString.append(" - ");
                 displayString.append(declaringModuleName);

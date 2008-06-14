@@ -58,6 +58,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
@@ -546,7 +547,6 @@ public class PySearchPage extends DialogPage implements ISearchPage, IReplacePag
 	private String insertEscapeChars(String text) {
 		if (text == null || text.equals("")) //$NON-NLS-1$
 			return ""; //$NON-NLS-1$
-		StringBuffer sbIn= new StringBuffer(text);
 		BufferedReader reader= new BufferedReader(new StringReader(text));
 		int lengthOfFirstLine= 0;
 		try {
@@ -557,10 +557,10 @@ public class PySearchPage extends DialogPage implements ISearchPage, IReplacePag
 		} catch (IOException ex) {
 			return ""; //$NON-NLS-1$
 		}
-		StringBuffer sbOut= new StringBuffer(lengthOfFirstLine + 5);
+		FastStringBuffer sbOut= new FastStringBuffer(lengthOfFirstLine + 5);
 		int i= 0;
 		while (i < lengthOfFirstLine) {
-			char ch= sbIn.charAt(i);
+			char ch= text.charAt(i);
 			if (ch == '*' || ch == '?' || ch == '\\')
 				sbOut.append("\\"); //$NON-NLS-1$
 			sbOut.append(ch);
