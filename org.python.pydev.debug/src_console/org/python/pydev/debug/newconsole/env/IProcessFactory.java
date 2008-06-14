@@ -95,14 +95,14 @@ public class IProcessFactory {
 		        String[] commandLine;
 		        if(interpreterManager.isPython()){
 		        	commandLine = SimplePythonRunner.makeExecutableCommandStr(scriptWithinPySrc.getAbsolutePath(), 
-		        			new String[]{""+port, ""+clientPort});
+		        			new String[]{String.valueOf(port), String.valueOf(clientPort)});
 		        	
 		        }else if(interpreterManager.isJython()){
 		            String vmArgs = PydevDebugPlugin.getDefault().getPreferenceStore().
 		                getString(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS);
 		            
 		        	commandLine = SimpleJythonRunner.makeExecutableCommandStrWithVMArgs(scriptWithinPySrc.getAbsolutePath(), 
-		        			pythonpathEnv, vmArgs, new String[]{""+port, ""+clientPort});
+		        			pythonpathEnv, vmArgs, new String[]{String.valueOf(port), String.valueOf(clientPort)});
 		        	
 		        }else{
 		        	throw new RuntimeException("Expected interpreter manager to be python or jython related.");

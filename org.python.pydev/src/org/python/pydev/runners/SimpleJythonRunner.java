@@ -122,18 +122,34 @@ public class SimpleJythonRunner extends SimpleRunner{
         }
         if(cacheDir != null){
             cacheDir = "-Dpython.cachedir="+ cacheDir.trim();
+        }
+        
+        String[] s;
+        if(cacheDir != null){
+            s = new String[]{
+                javaLoc ,
+                cacheDir,
+                "-Dpython.path="+ jythonPath.toString(),
+                "-classpath",
+                jythonJar+pathSeparator+jythonPath,
+                vmArgs,
+                "org.python.util.jython",
+                script
+            };
+        }else{
+            s = new String[]{
+                javaLoc ,
+                //cacheDir, no cache dir if it's not available
+                "-Dpython.path="+ jythonPath.toString(),
+                "-classpath",
+                jythonJar+pathSeparator+jythonPath,
+                vmArgs,
+                "org.python.util.jython",
+                script
+            };
             
         }
-        String[] s = new String[]{
-            javaLoc ,
-            cacheDir,
-            "-Dpython.path="+ jythonPath.toString(),
-            "-classpath",
-            jythonJar+pathSeparator+jythonPath,
-            vmArgs,
-            "org.python.util.jython",
-            script
-        };
+        
         
         List<String> asList = new ArrayList<String>(Arrays.asList(s));
         asList.addAll(Arrays.asList(args));
