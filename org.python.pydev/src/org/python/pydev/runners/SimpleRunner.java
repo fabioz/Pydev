@@ -27,6 +27,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -152,7 +153,8 @@ public abstract class SimpleRunner {
         
         if (commandLine.length < 1)
             return ""; //$NON-NLS-1$
-        StringBuffer buf= new StringBuffer();
+        FastStringBuffer buf= new FastStringBuffer();
+        FastStringBuffer command= new FastStringBuffer();
         for (int i= 0; i < commandLine.length; i++) {
             if(commandLine[i] == null){
                 continue; //ignore nulls (changed from original code)
@@ -160,7 +162,7 @@ public abstract class SimpleRunner {
             
             buf.append(' ');
             char[] characters= commandLine[i].toCharArray();
-            StringBuffer command= new StringBuffer();
+            command.clear();
             boolean containsSpace= false;
             for (int j = 0; j < characters.length; j++) {
                 char character= characters[j];

@@ -23,6 +23,7 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.ui.texteditor.IStatusField;
 import org.eclipse.ui.texteditor.IStatusFieldExtension;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 
 /**
@@ -390,7 +391,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
      * @return the given string with all tab characters replace with a proper status line presentation
      */
     private String escapeTabs(String string) {
-        StringBuffer buffer= new StringBuffer();
+        FastStringBuffer buffer= new FastStringBuffer();
 
         int begin= 0;
         int end= string.indexOf('\t', begin);

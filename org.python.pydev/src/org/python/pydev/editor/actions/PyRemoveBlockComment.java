@@ -10,6 +10,7 @@ import java.util.HashSet;
 
 import org.eclipse.jface.action.IAction;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * Removes a comment block. Comment blocks are slightly different than regular
@@ -52,7 +53,7 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
      */
     public int perform(PySelection ps) {
         // What we'll be replacing the selected text with
-        StringBuffer strbuf = new StringBuffer();
+        FastStringBuffer strbuf = new FastStringBuffer();
 
 
         try {

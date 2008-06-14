@@ -31,6 +31,7 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.editor.codecompletion.revisited.ModulesKeyTreeMap.Entry;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JythonModulesManagerUtils;
@@ -227,6 +228,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         ModulesKeyTreeMap<ModulesKey, ModulesKey> keys = new ModulesKeyTreeMap<ModulesKey, ModulesKey>();
         int j = 0;
 
+        FastStringBuffer buffer = new FastStringBuffer();
         //now, create in memory modules for all the loaded files (empty modules).
         for (Iterator<Map.Entry<File, String>> iterator = modulesFound.regularModules.entrySet().iterator(); iterator.hasNext()
                 && monitor.isCanceled() == false; j++) {
@@ -236,7 +238,8 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
 
             if (j % 15 == 0) {
                 //no need to report all the time (that's pretty fast now)
-                monitor.setTaskName(new StringBuffer("Module resolved: ").append(m).toString());
+                buffer.clear();
+                monitor.setTaskName(buffer.append("Module resolved: ").append(m).toString());
                 monitor.worked(1);
             }
 

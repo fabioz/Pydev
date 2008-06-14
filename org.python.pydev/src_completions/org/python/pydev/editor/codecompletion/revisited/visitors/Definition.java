@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 
@@ -106,7 +107,7 @@ public class Definition implements IDefinition {
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        StringBuffer buffer = new StringBuffer("Definition=");
+        FastStringBuffer buffer = new FastStringBuffer("Definition=", 30+value.length());
         buffer.append(value);
         buffer.append(" line=");
         buffer.append(line);

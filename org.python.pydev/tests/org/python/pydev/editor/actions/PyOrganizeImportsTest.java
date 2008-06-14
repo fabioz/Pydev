@@ -19,7 +19,7 @@ public class PyOrganizeImportsTest extends TestCase {
         try {
             PyOrganizeImportsTest test = new PyOrganizeImportsTest();
             test.setUp();
-            test.testPerformWithGroupingWithAs();
+            test.testPerformGroupingWithWrapsLong();
             test.tearDown();
             junit.textui.TestRunner.run(PyOrganizeImportsTest.class);
         } catch (Throwable e) {
@@ -152,6 +152,27 @@ String result = ""+
         
         String result = ""+
         "from a import (cccccccccccccccccccccccccccccccccccccccccccccccccc, \n" +
+        "    eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee, \n"+
+        "    ffffffffffffffffffffffffffffffffffffffffffffffffff)\n";
+        
+//        System.out.println(">>"+doc.get()+"<<");
+        assertEquals(result, doc.get());
+    }
+    
+    
+    
+    
+    public void testPerformGroupingWithWrapsLong() {
+        ImportsPreferencesPage.groupImportsForTests = true;
+        String d = ""+
+        "from cccccccccccccccccccccccccccccccccccccccccccccccccc import eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n"+
+        "from cccccccccccccccccccccccccccccccccccccccccccccccccc import ffffffffffffffffffffffffffffffffffffffffffffffffff";
+        
+        Document doc = new Document(d);
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        
+        String result = ""+
+        "from cccccccccccccccccccccccccccccccccccccccccccccccccc import (\n" +
         "    eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee, \n"+
         "    ffffffffffffffffffffffffffffffffffffffffffffffffff)\n";
         

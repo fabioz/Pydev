@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.ResourceSelectionDialog;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.UIConstants;
@@ -264,7 +265,7 @@ public class TreeWithAddRemove extends Composite{
     }
 
     public String getTreeItemsAsStr(){
-        StringBuffer ret = new StringBuffer();
+        FastStringBuffer ret = new FastStringBuffer();
         TreeItem[] items = tree.getItems();
         for (int i = 0; i < items.length; i++) {
             String text = items[i].getText();

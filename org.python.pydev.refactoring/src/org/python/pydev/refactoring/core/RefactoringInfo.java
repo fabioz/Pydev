@@ -20,6 +20,7 @@ import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
@@ -181,7 +182,7 @@ public class RefactoringInfo {
 			bodyIndent += 1;
 		}
 		if (bodyIndent > 0) {
-			StringBuffer selectedCode = new StringBuffer();
+		    FastStringBuffer selectedCode = new FastStringBuffer();
 			for (String line : lines) {
 				if (line.startsWith(indentation)) {
 					selectedCode.append(line.substring(bodyIndent) + lineDelimiter);

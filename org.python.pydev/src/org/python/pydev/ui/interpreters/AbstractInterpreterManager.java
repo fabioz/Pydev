@@ -29,6 +29,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.NotConfiguredInterpreterException;
@@ -375,7 +376,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * @see org.python.pydev.core.IInterpreterManager#getStringToPersist(java.lang.String[])
      */
     public String getStringToPersist(String[] executables) {
-        StringBuffer buf = new StringBuffer();
+        FastStringBuffer buf = new FastStringBuffer();
         for (String exe : executables) {
             InterpreterInfo info = this.exeToInfo.get(exe);
             if(info!=null){

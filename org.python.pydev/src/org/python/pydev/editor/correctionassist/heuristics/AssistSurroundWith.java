@@ -21,6 +21,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.AbstractTemplateCodeCompletion;
@@ -51,7 +52,7 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
         
         //get the 1st char (determines indent)
         int firstCharPosition = PySelection.getFirstCharRelativePosition(ps.getDoc(), start);
-        StringBuffer startIndentBuffer = new StringBuffer();
+        FastStringBuffer startIndentBuffer = new FastStringBuffer(firstCharPosition+1);
         int i = 0;
         while(i < firstCharPosition){
             startIndentBuffer.append(" ");

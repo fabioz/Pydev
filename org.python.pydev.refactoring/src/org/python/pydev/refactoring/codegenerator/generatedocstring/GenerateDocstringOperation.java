@@ -23,6 +23,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
@@ -79,7 +80,7 @@ public class GenerateDocstringOperation implements IWorkspaceRunnable {
 
         String inAndIndent = getInAndIndent(selection);
 
-        StringBuffer buf = new StringBuffer();
+        FastStringBuffer buf = new FastStringBuffer();
         String docStringMarker = DocstringsPrefPage.getDocstringMarker();
         
         buf.append(inAndIndent + docStringMarker);
@@ -92,14 +93,14 @@ public class GenerateDocstringOperation implements IWorkspaceRunnable {
                 if(!PySelection.isIdentifier(paramName)){
                     continue;
                 }
-                buf.append(inAndIndent + "@param " + paramName + ":");
+                buf.append(inAndIndent).append("@param ").append(paramName).append(":");
                 if (DocstringsPrefPage.getTypeTagShouldBeGenerated(paramName)) {
-                    buf.append(inAndIndent + "@type " + paramName + ":");
+                    buf.append(inAndIndent).append("@type ").append(paramName).append(":");
                 }
             }
         }
         
-        buf.append(inAndIndent + docStringMarker);
+        buf.append(inAndIndent).append(docStringMarker);
 
 		try {
 			int insertOffset = selection.getEndLineOffset(lineOfLastParam);

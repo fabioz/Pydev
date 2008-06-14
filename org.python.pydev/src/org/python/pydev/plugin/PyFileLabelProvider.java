@@ -8,6 +8,7 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 public class PyFileLabelProvider implements ILabelProvider {
 
@@ -24,10 +25,10 @@ public class PyFileLabelProvider implements ILabelProvider {
     public String getText(Object element) {
         if(element instanceof IFile){
             IFile f = (IFile) element;
-            StringBuffer buffer = new StringBuffer();
+            FastStringBuffer buffer = new FastStringBuffer();
             buffer.append(f.getName());
             buffer.append(" (");
-            buffer.append(f.getFullPath().removeFileExtension().removeLastSegments(1));
+            buffer.append(f.getFullPath().removeFileExtension().removeLastSegments(1).toString());
             buffer.append(")");
             return buffer.toString();
         }

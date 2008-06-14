@@ -14,12 +14,13 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codefolding.PySourceViewer;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class PyTextHover implements ITextHover{
 
     private boolean pythonCommentOrMultiline;
+    private FastStringBuffer buf = new FastStringBuffer();
 
     public PyTextHover(ISourceViewer sourceViewer, String contentType) {
         pythonCommentOrMultiline = false;
@@ -31,8 +32,11 @@ public class PyTextHover implements ITextHover{
         }
     }
 
-    public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
-        StringBuffer buf = new StringBuffer();
+    /**
+     * Synchronized because of buffer access.
+     */
+    public synchronized String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
+        buf.clear();
         if(!pythonCommentOrMultiline){
             if(textViewer instanceof PySourceViewer){
                 PySourceViewer s = (PySourceViewer) textViewer;
@@ -47,7 +51,7 @@ public class PyTextHover implements ITextHover{
                                 if(buf.length() >0){
                                     buf.append("\n");
                                 }
-                                buf.append(marker.getAttribute(IMarker.MESSAGE));
+                                buf.appendObject(marker.getAttribute(IMarker.MESSAGE));
                             }
                         }
                     } catch (CoreException e) {

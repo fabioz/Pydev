@@ -14,6 +14,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.texteditor.MarkerUtilities;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -109,14 +110,14 @@ public class PydevMarkerUtils {
                     //ok, we have to calculate it based on the line contents...
                     String line = doc.get(start.getOffset(), start.getLength());
                     int i;
-                    StringBuffer buffer;
+                    FastStringBuffer buffer;
                     if ((i = line.indexOf('#')) != -1) {
-                        buffer = new StringBuffer(line.substring(0, i));
+                        buffer = new FastStringBuffer(line.substring(0, i), 0);
                     } else {
-                        buffer = new StringBuffer(line);
+                        buffer = new FastStringBuffer(line, 0);
                     }
                     while (buffer.length() > 0 && Character.isWhitespace(buffer.charAt(buffer.length() - 1))) {
-                        buffer.deleteCharAt(buffer.length() - 1);
+                        buffer.deleteLast();
                     }
                     absoluteEnd = start.getOffset() + buffer.length();
                 }

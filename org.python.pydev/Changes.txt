@@ -5,6 +5,8 @@ Pydev Extensions
 <ul>
 <li><strong>Auto-import</strong>: Groups imports when possible.</li>
 <li><strong>Auto-import</strong>: Doesn't bring imports for completions already in the document even if a parse is not successful.</li>
+<li><strong>Organize Imports (ctrl+shift+O)</strong>: Suggests imports to the undefined tokens in the editor.</li>
+<li><strong>Import quick-fix</strong>: Icons correspondent to the element being imported.</li>
 </ul>
 
 Pydev

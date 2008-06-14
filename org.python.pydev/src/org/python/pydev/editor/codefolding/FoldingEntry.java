@@ -3,6 +3,7 @@
  */
 package org.python.pydev.editor.codefolding;
 
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 public class FoldingEntry{
@@ -60,7 +61,7 @@ public class FoldingEntry{
     
     @Override
     public String toString() {
-        StringBuffer buf = new StringBuffer();
+        FastStringBuffer buf = new FastStringBuffer();
         buf.append("FoldingEntry<");
         buf.append("type:");
         buf.append(type);

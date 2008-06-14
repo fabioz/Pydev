@@ -8,14 +8,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.python.pydev.core.structure.FastStringBuffer;
+
 public class ThreadStreamReaderPrinter extends Thread {
     private static final boolean DEBUG = false;
     InputStream is;
-    StringBuffer contents;
+    FastStringBuffer contents;
 
     
     public ThreadStreamReaderPrinter(InputStream is) {
-        contents = new StringBuffer();
+        contents = new FastStringBuffer();
         setName("ThreadStreamReaderPrinter");
         this.is = is;
     }
@@ -32,7 +34,7 @@ public class ThreadStreamReaderPrinter extends Thread {
             }
             if(DEBUG){
                 System.out.print(contents);
-                contents = new StringBuffer();
+                contents = new FastStringBuffer();
             }
         } catch (IOException ioe) {
             ioe.printStackTrace();

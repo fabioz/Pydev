@@ -20,6 +20,7 @@ import org.python.pydev.core.docutils.NoPeerAvailableException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.actions.PyAction;
 
 /**
@@ -238,7 +239,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 			// find white spaces
 			int end= findEndOfWhiteSpace(d, start, offset);
 
-			StringBuffer buf= new StringBuffer(text);
+			FastStringBuffer buf= new FastStringBuffer(text, end-start+1);
 			if (end > start) {
 				// append to input
 				buf.append(d.get(start, end - start));

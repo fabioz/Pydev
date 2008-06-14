@@ -9,6 +9,7 @@ package org.python.pydev.editor.actions;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * @author fabioz
@@ -27,7 +28,7 @@ public class PyUncomment extends PyComment {
      */
     public Tuple<Integer, Integer> perform(PySelection ps) throws BadLocationException {
         // What we'll be replacing the selected text with
-        StringBuffer strbuf = new StringBuffer();
+        FastStringBuffer strbuf = new FastStringBuffer();
 
         // If they selected a partial line, count it as a full one
         ps.selectCompleteLine();

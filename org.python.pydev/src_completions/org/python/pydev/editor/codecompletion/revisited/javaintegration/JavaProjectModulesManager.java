@@ -30,6 +30,7 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * This class wraps a java project as we'd wrap a python project in a ProjectModulesManager, to give info on the 
@@ -165,6 +166,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
         IClasspathEntry[] rawClasspath;
         try {
             rawClasspath = this.javaProject.getRawClasspath();
+            FastStringBuffer buffer = new FastStringBuffer();
             for(IClasspathEntry entry:rawClasspath){
                 int entryKind = entry.getEntryKind();
                 IClasspathEntry resolvedClasspathEntry = JavaCore.getResolvedClasspathEntry(entry);
@@ -183,7 +185,8 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
                             
                             //and if the java package is 'accepted'
                             if(filter.accept(elementName, root, childPackage)){
-                                StringBuffer buffer = new StringBuffer(elementName);
+                                buffer.clear();
+                                buffer.append(elementName);
                                 int packageNameLen = buffer.length();
                                 if(packageNameLen > 0){
                                     buffer.append('.');
@@ -194,7 +197,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
                                 for(IJavaElement class_:childPackage.getChildren()){
                                     buffer.append(FullRepIterable.getFirstPart(class_.getElementName())); 
                                     filter.accept(buffer.toString(), root, class_);
-                                    buffer.delete(packageNameLen, Integer.MAX_VALUE); //to the end of the string
+                                    buffer.setCount(packageNameLen); //leave only the package part for the next append
                                 }
                             }
                         }

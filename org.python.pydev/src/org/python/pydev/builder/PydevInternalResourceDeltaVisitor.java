@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.builder.pycremover.PycRemoverBuilderVisitor;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -103,7 +104,8 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
                     if(isAddOrChange){
                         //communicate the progress
                         currentResourcesVisited++;
-                        PyDevBuilder.communicateProgress(monitor, totalResources, currentResourcesVisited, resource, this);
+                        FastStringBuffer bufferToCreateString = new FastStringBuffer();
+                        PyDevBuilder.communicateProgress(monitor, totalResources, currentResourcesVisited, resource, this, bufferToCreateString);
                     }
                 }else if(ext.equals("pyc")){
                     try {

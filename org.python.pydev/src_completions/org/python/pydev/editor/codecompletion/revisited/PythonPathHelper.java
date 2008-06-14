@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
@@ -111,6 +112,7 @@ public class PythonPathHelper implements Serializable {
                     Enumeration<? extends ZipEntry> entries = zipFile.entries();
     
                     int i=0;
+                    FastStringBuffer buffer = new FastStringBuffer();
                     //ok, now that we have the zip entries, let's map them to modules
                     while (entries.hasMoreElements()) {
                         ZipEntry entry = entries.nextElement();
@@ -127,7 +129,8 @@ public class PythonPathHelper implements Serializable {
                                     if(monitor.isCanceled()){
                                         return null;
                                     }
-                                    monitor.setTaskName(new StringBuffer("Found in ").append(zipFileName).append(" module ").append(name).toString());
+                                    buffer.clear();
+                                    monitor.setTaskName(buffer.append("Found in ").append(zipFileName).append(" module ").append(name).toString());
                                     monitor.worked(1);
                                 }
                                 

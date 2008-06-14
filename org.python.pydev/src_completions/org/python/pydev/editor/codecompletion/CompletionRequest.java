@@ -6,13 +6,13 @@
 package org.python.pydev.editor.codecompletion;
 
 import java.io.File;
-import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * This class defines the information used for a code completion request.
@@ -146,10 +146,10 @@ public class CompletionRequest implements ICompletionRequest {
 
     @Override
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        FastStringBuffer buffer = new FastStringBuffer();
         buffer.append("CompletionRequest[");
         buffer.append(" editorFile:");
-        buffer.append(editorFile);
+        buffer.appendObject(editorFile);
         buffer.append(" activationToken:");
         buffer.append(activationToken);
         buffer.append(" qualifier:");

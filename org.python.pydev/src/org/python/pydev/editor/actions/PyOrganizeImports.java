@@ -29,6 +29,7 @@ import org.python.pydev.core.docutils.ImportHandle;
 import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
@@ -160,7 +161,7 @@ public class PyOrganizeImports extends PyAction{
         firstImport--; //add line after the the specified
         
         //now, re-add the imports
-        StringBuffer all = new StringBuffer();
+        FastStringBuffer all = new FastStringBuffer();
         
         
         if(!ImportsPreferencesPage.getGroupImports()){
@@ -187,6 +188,9 @@ public class PyOrganizeImports extends PyAction{
             
 
             Set<Entry<String, List<ImportHandleInfo>>> entrySet = importsWithFrom.entrySet();
+            FastStringBuffer lastFromXXXImportWritten = new FastStringBuffer();
+            FastStringBuffer line = new FastStringBuffer();
+            
             for (Entry<String, List<ImportHandleInfo>> entry : entrySet) {
                 
                 //first, reorganize them in the order to be written (the ones with comments after the ones without)
@@ -198,8 +202,7 @@ public class PyOrganizeImports extends PyAction{
                 
                 //ok, it's all filled, let's start rewriting it!
                 boolean firstInLine = true;
-                StringBuffer line = new StringBuffer();
-                StringBuffer lastFromXXXImportWritten = null;
+                line.clear();
                 boolean addedParenForLine = false;
                 
                 //ok, write all the ones with comments after the ones without any comments (each one with comment
@@ -210,7 +213,7 @@ public class PyOrganizeImports extends PyAction{
                     Tuple<String, String> tuple = importsAndNoComments.get(i);
                     
                     if(firstInLine){
-                        lastFromXXXImportWritten = new StringBuffer();
+                        lastFromXXXImportWritten.clear();
                         lastFromXXXImportWritten.append("from ");
                         lastFromXXXImportWritten.append(entry.getKey());
                         lastFromXXXImportWritten.append(" import ");
@@ -235,13 +238,13 @@ public class PyOrganizeImports extends PyAction{
                                 line.append(indentStr);
                             }
                             all.append(line);
-                            line = new StringBuffer();
+                            line.clear();
                         }
                     }
                     
                     line.append(tuple.o1);
                     
-                    if(addedParenForLine && i == importsAndComments.size()){
+                    if(addedParenForLine && i == importsAndNoComments.size()){
                         addedParenForLine = false;
                         line.append(")");
                     }
@@ -257,7 +260,7 @@ public class PyOrganizeImports extends PyAction{
                         line.append(tuple.o2);
                         line.append(endLineDelim);
                         all.append(line);
-                        line = new StringBuffer();
+                        line.clear();
                         firstInLine = true;
                     }
                 }
@@ -270,7 +273,7 @@ public class PyOrganizeImports extends PyAction{
                     }
                     line.append(endLineDelim);
                     all.append(line);
-                    line = new StringBuffer();
+                    line.clear();
                 }
             }
             
@@ -286,7 +289,7 @@ public class PyOrganizeImports extends PyAction{
     /**
      * Write the imports that don't have a 'from' in the beggining (regular imports)
      */
-    private static void writeImportsWithoutFrom(String endLineDelim, StringBuffer all,
+    private static void writeImportsWithoutFrom(String endLineDelim, FastStringBuffer all,
             List<ImportHandleInfo> importsWithoutFrom) {
         //now, write the regular imports (no wrapping or tabbing here)
         for(ImportHandleInfo info:importsWithoutFrom){

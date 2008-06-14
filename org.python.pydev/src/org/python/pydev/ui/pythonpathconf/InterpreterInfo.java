@@ -27,6 +27,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
@@ -350,7 +351,7 @@ public class InterpreterInfo implements IInterpreterInfo{
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        FastStringBuffer buffer = new FastStringBuffer();
         buffer.append("Version");
         buffer.append(version);
         buffer.append("Executable:");

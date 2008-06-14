@@ -22,6 +22,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -239,7 +240,7 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
         }
         List<Integer> offsetsAndLens = new ArrayList<Integer>();
         
-        StringBuffer buffer = new StringBuffer();
+        FastStringBuffer buffer = new FastStringBuffer();
         for (int i = 0; i < newStr.length(); i++) {
             char c = newStr.charAt(i);
             
@@ -253,7 +254,7 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
             }else{
                 if(buffer.length() > 0){
                     offsetsAndLens.add(buffer.length());
-                    buffer = new StringBuffer();
+                    buffer.clear();
                 }
             }
         }

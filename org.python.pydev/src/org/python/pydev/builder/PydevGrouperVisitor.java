@@ -13,6 +13,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**
@@ -48,6 +49,9 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
     	if(!nature.startRequests()){
     		return;
     	}
+    	
+    	FastStringBuffer bufferToCreateString = new FastStringBuffer();
+    	
     	try{
 	        if(!nature.isResourceInPythonpath(resource)){
 	        	return; // we only analyze resources that are in the pythonpath
@@ -60,8 +64,8 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
 	            if (visitor.maxResourcesToVisit() == PyDevBuilderVisitor.MAX_TO_VISIT_INFINITE || visitor.maxResourcesToVisit() >= totalResources) {
 	                visitor.memo = memo; //setting the memo must be the first thing.
 	                try {
-	                    //communicate progress for each visitor
-	                    PyDevBuilder.communicateProgress(monitor, totalResources, currentResourcesVisited, resource, visitor);
+                        //communicate progress for each visitor
+	                    PyDevBuilder.communicateProgress(monitor, totalResources, currentResourcesVisited, resource, visitor, bufferToCreateString);
 	                    REF.invoke(visitor, name, resource, document, monitor);
 	                    
 	                    //ok, standard visiting ended... now, we have to check if we should visit the other

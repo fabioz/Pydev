@@ -9,6 +9,7 @@ package org.python.pydev.editor.actions;
 import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -73,7 +74,8 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
      */
     public int perform(PySelection ps) {
         // What we'll be replacing the selected text with
-        StringBuffer strbuf = new StringBuffer();
+        FastStringBuffer strbuf = new FastStringBuffer();
+        FastStringBuffer tempBuffer = new FastStringBuffer();
 
         // If they selected a partial line, count it as a full one
         ps.selectCompleteLine();
@@ -117,7 +119,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
                     tokLen = 4;
                 }
                 
-                fullCommentLine = getFullCommentLine(classIndex);
+                fullCommentLine = getFullCommentLine(classIndex, tempBuffer);
                 String spacesBefore;
                 if(classIndex > 0){
                     spacesBefore = line.substring(0, classIndex);
@@ -125,10 +127,10 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
                     spacesBefore = "";
                 }
                 
-                strbuf.append(spacesBefore+"#" + fullCommentLine + endLineDelim);
+                strbuf.append(spacesBefore+"#").append(fullCommentLine).append(endLineDelim);
                 String initialLine = line;
                 line = line.substring(classIndex+tokLen);
-                StringBuffer className = new StringBuffer();
+                FastStringBuffer className = new FastStringBuffer();
                 for(int i=0;i<line.length();i++){
                     char cN = line.charAt(i);
                     if(Character.isJavaIdentifierPart(cN)){
@@ -144,14 +146,14 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
                 strbuf.append(endLineDelim);
                 
                 strbuf.append(spacesBefore);
-                strbuf.append("#" + fullCommentLine);
+                strbuf.append("#").append(fullCommentLine);
                 strbuf.append(endLineDelim);
                 strbuf.append(initialLine);
                 
                 
             }else{
-                fullCommentLine = getFullCommentLine(0);
-                strbuf.append("#" + fullCommentLine + endLineDelim);
+                fullCommentLine = getFullCommentLine(0, tempBuffer);
+                strbuf.append("#").append(fullCommentLine).append(endLineDelim);
                 // For each line, comment them out
                 for (int i = startLineIndex; i <= endLineIndex; i++) {
                     strbuf.append("#");
@@ -163,7 +165,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
                     strbuf.append(endLineDelim);
                 }
                 // End of block
-                strbuf.append("#" + fullCommentLine);
+                strbuf.append("#").append(fullCommentLine);
             }
             
             int startOffset = ps.getStartLine().getOffset();
@@ -190,12 +192,12 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
      * 
      * @return Comment line string, or a default one if Preferences are null
      */
-    protected String getFullCommentLine(int subtract) {
+    protected String getFullCommentLine(int subtract, FastStringBuffer buffer) {
         Tuple<Integer,Character> colsAndChar = getColsAndChar();
         int cols = colsAndChar.o1-subtract;
         char c = colsAndChar.o2;
 
-        StringBuffer buffer = new StringBuffer(cols);
+        buffer.clear();
         for (int i = 0; i < cols-1; i++) {
             buffer.append(c);
         }

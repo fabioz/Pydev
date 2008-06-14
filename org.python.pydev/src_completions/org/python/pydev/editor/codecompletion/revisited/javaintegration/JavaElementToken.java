@@ -15,6 +15,7 @@ import org.eclipse.jdt.ui.text.java.CompletionProposalLabelProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -127,7 +128,7 @@ public class JavaElementToken extends CompiledToken {
      * Gets the reader content as a String
      */
     private static String getString(Reader reader) {
-        StringBuffer buf = new StringBuffer();
+        FastStringBuffer buf = new FastStringBuffer();
         char[] buffer = new char[1024];
         int count;
         try {

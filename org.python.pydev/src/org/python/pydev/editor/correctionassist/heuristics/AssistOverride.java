@@ -16,6 +16,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
@@ -56,10 +57,12 @@ public class AssistOverride implements IAssistProps {
         PyCodeCompletion.getSelfOrClsCompletions(request, selfCompletions, state, true);
 
         
+        FastStringBuffer buffer = new FastStringBuffer();
         for (IToken token:selfCompletions) {
             String rep = token.getRepresentation();
             if(rep.startsWith(tok)){
-		        StringBuffer buffer = new StringBuffer( start );
+                buffer.clear();
+                buffer.append(start);
                 buffer.append(rep);
 
                 String args = token.getArgs();

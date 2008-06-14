@@ -20,6 +20,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.plugin.PydevPlugin;
@@ -339,9 +340,10 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
     }
 
     private static String createStaticSpaceString(int tabWidth) {
-        StringBuffer b = new StringBuffer(tabWidth);
-        while (tabWidth-- > 0)
+        FastStringBuffer b = new FastStringBuffer(tabWidth);
+        while (tabWidth-- > 0){
             b.append(" ");
+        }
         return b.toString();
     }
     

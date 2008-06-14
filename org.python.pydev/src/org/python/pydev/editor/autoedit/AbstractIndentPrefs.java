@@ -9,6 +9,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.docutils.DocUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * @author Fabio Zadrozny
@@ -79,7 +80,7 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
 			} else {
 			    // contains a char (pasted text)
 				byte[] byteLine = text.getBytes();
-				StringBuffer newText = new StringBuffer();
+				FastStringBuffer newText = new FastStringBuffer();
 				for (int count = 0; count < byteLine.length; count++) {
 					if (byteLine[count] == '\t'){
 						newText.append(indentString);

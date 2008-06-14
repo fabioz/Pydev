@@ -37,6 +37,7 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.w3c.dom.DOMException;
@@ -133,8 +134,13 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
     private volatile boolean inInit;  
     
-    private void traceFunc(String func){
+    private void traceFunc(String func, Object ... args){
         if(TRACE_PYTHON_NATURE_STORE){
+            FastStringBuffer buf = new FastStringBuffer(func, 128);
+            for(Object o:args){
+                buf.appendObject(o);
+            }
+            func = buf.toString();
             if(!func.startsWith("END ")){
                 System.out.println(indent+func);
                 indent.append("  ");
@@ -164,7 +170,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                 this.document = null;
                 
             }else{
-                traceFunc("setProject - "+project.getName());
+                traceFunc("setProject - ", project.getName());
             	try{
         	        this.project = project;
         	        this.xmlFile = project.getFile(STORE_FILE_NAME);
@@ -179,7 +185,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                 }finally{
                 	loaded = true;
                 }
-                traceFunc("END setProject - "+project.getName());
+                traceFunc("END setProject - ", project.getName());
             }
         }
     }
@@ -204,11 +210,11 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         if(this.project == null){
             return "";
         }
-        traceFunc("getPathProperty - "+key);
+        traceFunc("getPathProperty - ", key);
         synchronized (this) {
         	checkLoad("getPathProperty");
             String ret = getPathStringFromArray(getPathPropertyFromXml(key));
-            traceFunc("END getPathProperty - "+ret);
+            traceFunc("END getPathProperty - ", ret);
             return ret;
         }
     }
@@ -335,7 +341,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                 ret = nodeList.item(0);
             }
             
-            traceFunc("END getRootNodeInXml -- "+ret);
+            traceFunc("END getRootNodeInXml -- ", ret);
             if(ret != null){
                 return ret;
             }
@@ -381,7 +387,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                         if (attrs != null && attrs.getLength() > 0) {
                             String name = attrs.getNamedItem(PYDEV_NATURE_PROPERTY_NAME).getNodeValue();
                             if (name != null && name.equals(keyString)) {
-                                traceFunc("END findPropertyNodeInXml - "+child);
+                                traceFunc("END findPropertyNodeInXml - ", child);
                                 return child;
                             }
                         }
@@ -453,7 +459,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         traceFunc("getPathStringFromArray");
         synchronized (this) {
             if (pathArray != null) {
-                StringBuffer s = new StringBuffer("");
+                FastStringBuffer s = new FastStringBuffer();
                 for (int i = 0; i < pathArray.length; i++) {
                     if (i > 0) {
                         s.append('|');
@@ -494,7 +500,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
             return "";
         }
 
-        traceFunc("getPropertyFromXml - "+key);
+        traceFunc("getPropertyFromXml - ", key);
         synchronized (this) {
         	checkLoad("getPropertyFromXml");
             try {
@@ -502,7 +508,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     
                 if (propertyNode != null) {
                     String ret = getTextContent(propertyNode);
-                    traceFunc("END getPropertyFromXml -- "+ret);
+                    traceFunc("END getPropertyFromXml -- ", ret);
                     return ret;
                 }
     
@@ -581,7 +587,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     private synchronized String getTextContent(Node self) throws DOMException {
         traceFunc("getTextContent");
         synchronized (this) {
-            StringBuffer fBufferStr = new StringBuffer();
+            FastStringBuffer fBufferStr = new FastStringBuffer();
             Node child = self.getFirstChild();
             if (child != null) {
                 Node next = child.getNextSibling();
@@ -589,21 +595,16 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                     if(hasTextContent(child)){
                         String nodeValue = child.getNodeValue();
                         if(nodeValue != null){
-                            traceFunc("END getTextContent - "+nodeValue);
+                            traceFunc("END getTextContent - ", nodeValue);
                             return nodeValue;
                         }
                     }
                     traceFunc("END getTextContent - EMPTY");
                     return "";
                 }
-                if (fBufferStr == null){
-                    fBufferStr = new StringBuffer();
-                }
-                else {
-                    fBufferStr.setLength(0);
-                }
+                fBufferStr.clear();
                 getTextContent(fBufferStr, self);
-                traceFunc("END getTextContent - "+fBufferStr);
+                traceFunc("END getTextContent - ", fBufferStr);
                 return fBufferStr.toString();
             }
             traceFunc("END getTextContent - EMPTY");
@@ -613,7 +614,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
     
     // internal method taking a StringBuffer in parameter
-    private synchronized void getTextContent(StringBuffer buf, Node self) throws DOMException {
+    private synchronized void getTextContent(FastStringBuffer buf, Node self) throws DOMException {
         traceFunc("getTextContent");
         synchronized (this) {
             Node child = self.getFirstChild();
@@ -633,7 +634,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         synchronized (this) {
             boolean ret = child.getNodeType() != Node.COMMENT_NODE &&
                             child.getNodeType() != Node.PROCESSING_INSTRUCTION_NODE;
-            traceFunc("END hasTextContent "+ret);
+            traceFunc("END hasTextContent ", ret);
             return ret;
         }
     }
@@ -757,7 +758,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         if(project == null){
             return;
         }
-        traceFunc("resourceChanged -- "+project.getName());
+        traceFunc("resourceChanged -- ", project.getName());
         if(inInit){
             traceFunc("END resourceChanged (inInit)");
             return;
@@ -807,7 +808,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                 nature.rebuildPath();
             }
         }
-        traceFunc("END resourceChanged -- rebuilt:"+doRebuild);
+        traceFunc("END resourceChanged -- rebuilt:", doRebuild);
     }
 
     /**

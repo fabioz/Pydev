@@ -14,6 +14,7 @@ import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * Creates a bulk comment. Comments all selected lines
@@ -48,7 +49,6 @@ public class PyComment extends PyAction {
      */
     public Tuple<Integer, Integer> perform(PySelection ps) throws BadLocationException {
         // What we'll be replacing the selected text with
-        StringBuffer strbuf = new StringBuffer();
 
         // If they selected a partial line, count it as a full one
         ps.selectCompleteLine();
@@ -56,6 +56,7 @@ public class PyComment extends PyAction {
         String selectedText = ps.getSelectedText();
         List<String> ret = StringUtils.splitInLines(selectedText);
         
+        FastStringBuffer strbuf = new FastStringBuffer(selectedText.length()+ret.size()+2);
         for(String line: ret){
             strbuf.append('#');
             strbuf.append(line);

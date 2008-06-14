@@ -11,6 +11,7 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.docutils.ImportsSelection;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 
 public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
@@ -153,7 +154,7 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
                                      lookingFor==ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE ||
                                      lookingFor==ICompletionState.LOOKING_FOR_ASSIGN;
         if(argsReceived.trim().length() > 0){
-            StringBuffer buffer = new StringBuffer("(");
+            FastStringBuffer buffer = new FastStringBuffer("(", 128);
             StringTokenizer strTok = new StringTokenizer(argsReceived, "( ,)");
 
             while(strTok.hasMoreTokens()){

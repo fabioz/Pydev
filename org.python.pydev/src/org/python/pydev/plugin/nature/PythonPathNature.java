@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
@@ -115,7 +116,7 @@ public class PythonPathNature implements IPythonPathNature {
         //we have to work on this one to resolve to full files, as what is stored is the position
         //relative to the project location
         String[] strings = source.split("\\|");
-        StringBuffer buf = new StringBuffer();
+        FastStringBuffer buf = new FastStringBuffer();
         for (int i = 0; i < strings.length; i++) {
             if(strings[i].trim().length()>0){
                 IPath p = new Path(strings[i]);
@@ -156,7 +157,7 @@ public class PythonPathNature implements IPythonPathNature {
         if(external == null){
             external = "";
         }
-        return buf.toString()+"|"+external;
+        return buf.append("|").append(external).toString();
     }
 
     

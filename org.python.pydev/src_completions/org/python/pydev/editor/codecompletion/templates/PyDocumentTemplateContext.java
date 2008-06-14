@@ -16,6 +16,7 @@ import org.eclipse.jface.text.templates.TemplateException;
 import org.eclipse.jface.text.templates.TemplateTranslator;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.IIndentPrefs;
@@ -78,7 +79,8 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContext {
             }
         }else{
             if(pattern.indexOf(spacesIndentString) != -1){
-                StringBuffer newPattern = new StringBuffer();
+                FastStringBuffer newPattern = new FastStringBuffer();
+                FastStringBuffer newTabsIndent = new FastStringBuffer();
                 
                 for(int i=0; i<splitted.size();i++){
                     String string = splitted.get(i);
@@ -95,7 +97,7 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContext {
                         if(spacesFound % spacesIndentString.length() != 0){
                             tabsToAdd += 1;
                         }
-                        StringBuffer newTabsIndent = new StringBuffer();
+                        newTabsIndent.clear();
                         for(int j = 0; j< tabsToAdd; j++){
                             newTabsIndent.append("\t");
                         }
@@ -115,7 +117,7 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContext {
         }
         
         if(splitted.size() > 1 && indentTo != null && indentTo.length() > 0){
-            StringBuffer buffer = new StringBuffer(splitted.get(0));
+            FastStringBuffer buffer = new FastStringBuffer(splitted.get(0), 128);
             for (int i=1; i<splitted.size();i++) { //we don't want to get the first line
                 buffer.append(indentTo);
                 buffer.append(splitted.get(i));

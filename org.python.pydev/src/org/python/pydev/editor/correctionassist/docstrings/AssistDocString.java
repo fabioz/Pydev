@@ -16,6 +16,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
@@ -44,7 +45,7 @@ public class AssistDocString implements IAssistProps {
         String indentation = PyAction.getStaticIndentationString(edit);
         String inAndIndent = delimiter + initial + indentation;
 
-        StringBuffer buf = new StringBuffer();
+        FastStringBuffer buf = new FastStringBuffer();
         String docStringMarker = DocstringsPrefPage.getDocstringMarker();
         buf.append(inAndIndent + docStringMarker);
         buf.append(inAndIndent);

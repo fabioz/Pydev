@@ -20,6 +20,7 @@ import org.eclipse.jface.text.rules.RuleBasedScanner;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.ColorCache;
@@ -105,7 +106,7 @@ public class PyCodeScanner extends RuleBasedScanner {
         /**
          * Used to keep the state of the token
          */
-        private StringBuffer buffer;
+        private FastStringBuffer buffer = new FastStringBuffer();
         
         /**
          * Defines if we are at an hexa number
@@ -117,7 +118,7 @@ public class PyCodeScanner extends RuleBasedScanner {
          */
         public boolean isWordStart(char c) {
             isInHexa = false;
-            buffer = new StringBuffer();
+            buffer.clear();
             buffer.append(c);
             return Character.isDigit(c);
         }

@@ -17,6 +17,7 @@ import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
@@ -100,7 +101,7 @@ public class SimpleJythonRunner extends SimpleRunner{
 
         //pythonpath is: base path + libs path.
         String libs = SimpleRunner.makePythonPathEnvFromPaths(info.libs);
-        StringBuffer jythonPath = new StringBuffer(basePythonPath);
+        FastStringBuffer jythonPath = new FastStringBuffer(basePythonPath, 128);
         String pathSeparator = SimpleRunner.getPythonPathSeparator();
         if(jythonPath.length() != 0){
             jythonPath.append(pathSeparator); 

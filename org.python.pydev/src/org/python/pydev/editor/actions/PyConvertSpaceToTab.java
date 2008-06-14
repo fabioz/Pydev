@@ -7,7 +7,10 @@
 package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 
 /**
@@ -46,7 +49,7 @@ public class PyConvertSpaceToTab extends PyAction {
      */
     public static boolean perform(PySelection ps) {
         // What we'll be replacing the selected text with
-        StringBuffer strbuf = new StringBuffer();
+        FastStringBuffer strbuf = new FastStringBuffer();
 
         // If they selected a partial line, count it as a full one
         ps.selectCompleteLine();
@@ -55,16 +58,20 @@ public class PyConvertSpaceToTab extends PyAction {
 
         try {
             // For each line, strip their whitespace
-            for (i = ps.getStartLineIndex(); i <= ps.getEndLineIndex(); i++) {
-                String line = ps.getDoc().get(ps.getDoc().getLineInformation(i).getOffset(), ps.getDoc().getLineInformation(i).getLength());
-                strbuf.append(line.replaceAll(getTabSpace(), "\t") + (i < ps.getEndLineIndex() ? ps.getEndLineDelim() : ""));
+            String tabSpace = getTabSpace();
+            IDocument doc = ps.getDoc();
+            int endLineIndex = ps.getEndLineIndex();
+            String endLineDelim = ps.getEndLineDelim();
+            
+            for (i = ps.getStartLineIndex(); i <= endLineIndex; i++) {
+                IRegion lineInformation = doc.getLineInformation(i);
+                String line = doc.get(lineInformation.getOffset(), lineInformation.getLength());
+                strbuf.append(line.replaceAll(tabSpace, "\t")).append((i < endLineIndex ? endLineDelim : ""));
             }
 
             // If all goes well, replace the text with the modified information
-            if (strbuf.toString() != null) {
-                ps.getDoc().replace(ps.getStartLine().getOffset(), ps.getSelLength(), strbuf.toString());
-                return true;
-            }
+            doc.replace(ps.getStartLine().getOffset(), ps.getSelLength(), strbuf.toString());
+            return true;
         } catch (Exception e) {
             beep(e);
         }

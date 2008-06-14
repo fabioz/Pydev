@@ -12,6 +12,7 @@ import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.Token;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 
 /**
@@ -39,7 +40,7 @@ public class PyWordRule implements IRule {
     /** The table of predefined words and token for this rule */
     protected Map fWords= new HashMap();
     /** Buffer used for pattern detection */
-    private StringBuffer fBuffer= new StringBuffer();
+    private FastStringBuffer fBuffer= new FastStringBuffer();
 
     private IToken classNameToken;
 
@@ -103,7 +104,7 @@ public class PyWordRule implements IRule {
         if (fDetector.isWordStart((char) c)) {
             if (fColumn == UNDEFINED || (fColumn == scanner.getColumn() - 1)) {
 
-                fBuffer.setLength(0);
+                fBuffer.clear();
                 do {
                     fBuffer.append((char) c);
                     c= scanner.read();

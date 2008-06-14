@@ -7,6 +7,8 @@
 
 package org.python.pydev.refactoring.ast.printer;
 
+import org.python.pydev.core.structure.FastStringBuffer;
+
 
 public class SyntaxHelper {
 	private static final String AT_SYMBOL = "@";
@@ -341,7 +343,7 @@ public class SyntaxHelper {
 	}
 
 	public String getStar(int i) {
-		StringBuffer buf = new StringBuffer();
+	    FastStringBuffer buf = new FastStringBuffer(i+1);
 		for (int j = 0; j < i; j++)
 			buf.append(STAR);
 

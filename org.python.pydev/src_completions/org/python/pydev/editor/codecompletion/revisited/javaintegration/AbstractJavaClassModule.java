@@ -23,6 +23,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
@@ -105,11 +106,13 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
 
             List<Tuple<IJavaElement, CompletionProposal>> elementsFound = getJavaCompletionProposals(packagePlusactTok, null);
 
+            FastStringBuffer tempArgs = new FastStringBuffer(128);
             for (Tuple<IJavaElement, CompletionProposal> element : elementsFound) {
                 IJavaElement javaElement = element.o1;
                 String args = "";
                 if (javaElement instanceof IMethod) {
-                    StringBuffer tempArgs = new StringBuffer("()");
+                    tempArgs.clear();
+                    tempArgs.append("()");
                     IMethod method = (IMethod) javaElement;
                     for (String param : method.getParameterTypes()) {
                         if (tempArgs.length() > 2) {
@@ -263,7 +266,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
         //to check if we're able to find modules with that name. If a module with that name is found, that means that 
         //we actually have a java class. 
         String[] splitted = StringUtils.dotSplit(state.getActivationToken());
-        StringBuffer modNameBuf = new StringBuffer(this.getName());
+        FastStringBuffer modNameBuf = new FastStringBuffer(this.getName(), 128);
         IModule validModule = null;
         IModule module = null;
         int i = 0; //so that we know what will result in the tok
@@ -279,10 +282,12 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
             }
         }
 
-        StringBuffer pathInJavaClass = new StringBuffer();
+        modNameBuf.clear();
+        FastStringBuffer pathInJavaClass = modNameBuf; //get it cleared
         if (validModule == null) {
             validModule = this;
-            pathInJavaClass = new StringBuffer(state.getActivationToken());
+            pathInJavaClass.clear();
+            pathInJavaClass.append(state.getActivationToken());
         } else {
             //After having found a valid java class, we must also check which was the resulting token within that class 
             //to check if it's some method or something alike (that should be easy after having the class and the path

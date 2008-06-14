@@ -8,6 +8,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 public class CompletionStateWrapper implements ICompletionState {
 
@@ -166,7 +167,7 @@ public class CompletionStateWrapper implements ICompletionState {
     
     @Override
     public String toString() {
-    	StringBuffer buf = new StringBuffer();
+        FastStringBuffer buf = new FastStringBuffer();
     	buf.append("CompletionStateWrapper[ ");
     	buf.append(this.activationToken);
     	buf.append(" ]");

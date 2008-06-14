@@ -28,6 +28,7 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -230,6 +231,8 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         double total = 0;
         int totalResources = resourcesToParse.size();
         int i = 0;
+        
+        FastStringBuffer bufferToCreateString = new FastStringBuffer();
 
         for (Iterator<IFile> iter = resourcesToParse.iterator(); iter.hasNext() && monitor.isCanceled() == false;) {
             i += 1;
@@ -257,7 +260,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 	                    PyDevBuilderVisitor visitor = (PyDevBuilderVisitor) it.next();
 	                    visitor.memo = memo; //setting the memo must be the first thing.
 	    
-	                    communicateProgress(monitor, totalResources, i, r, visitor);
+	                    communicateProgress(monitor, totalResources, i, r, visitor, bufferToCreateString);
 	                    
 	                    //on a full build, all visits are as some add...
 	                    visitor.visitAddedResource(r, doc, monitor);
@@ -276,20 +279,24 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
     /**
      * Used so that we can communicate the progress to the user
+     * 
+     * @param bufferToCreateString: this is a buffer that's emptied and used to create the string to be shown to the
+     * user with the progress.
      */
-    public static void communicateProgress(IProgressMonitor monitor, int totalResources, int i, IResource r, PyDevBuilderVisitor visitor) {
+    public static void communicateProgress(IProgressMonitor monitor, int totalResources, int i, IResource r, 
+            PyDevBuilderVisitor visitor, FastStringBuffer bufferToCreateString) {
         if(monitor != null){
-            StringBuffer msgBuf = new StringBuffer();
-            msgBuf.append("Pydev: Analyzing ");
-            msgBuf.append(i);
-            msgBuf.append(" of ");
-            msgBuf.append(totalResources);
-            msgBuf.append(" (");
-            msgBuf.append(r.getName());
-            msgBuf.append(")");
+            bufferToCreateString.clear();
+            bufferToCreateString.append("Pydev: Analyzing ");
+            bufferToCreateString.append(i);
+            bufferToCreateString.append(" of ");
+            bufferToCreateString.append(totalResources);
+            bufferToCreateString.append(" (");
+            bufferToCreateString.append(r.getName());
+            bufferToCreateString.append(")");
        
             //in this case the visitor does not have the progress and therefore does not communicate the progress
-            String name = msgBuf.toString();
+            String name = bufferToCreateString.toString();
             monitor.subTask(name);
         }
     }

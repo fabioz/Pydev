@@ -9,6 +9,7 @@
 package org.python.pydev.refactoring.core.edit;
 
 import org.eclipse.text.edits.TextEdit;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
@@ -65,7 +66,7 @@ public abstract class AbstractTextEdit {
 	}
 
 	protected String getIndentation(int indent) {
-		StringBuffer buf = new StringBuffer();
+	    FastStringBuffer buf = new FastStringBuffer();
 		while (indent > 1) {
 			buf.append(WHITESPACE);
 			indent--;

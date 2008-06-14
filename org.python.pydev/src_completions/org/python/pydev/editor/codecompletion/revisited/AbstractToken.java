@@ -8,6 +8,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -186,7 +187,7 @@ public abstract class AbstractToken implements IToken{
     public String toString() {
         
         if(getParentPackage() != null && getParentPackage().length() > 0){
-            return new StringBuffer(getRepresentation()).append(" - ").append(getParentPackage()).toString();
+            return new FastStringBuffer(getRepresentation(), 64).append(" - ").append(getParentPackage()).toString();
         }else{
             return getRepresentation();
         }

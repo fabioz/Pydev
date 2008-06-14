@@ -12,6 +12,7 @@ import java.util.TreeSet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * This class contains all the information we need from the folders beneath the pythonpath.
@@ -84,6 +85,7 @@ public class ModulesFoundStructure {
          */
         public void consolidatePythonpathInfo(IProgressMonitor monitor) {
             int i=0;
+            FastStringBuffer buffer = new FastStringBuffer();
             for (Map.Entry<String, String> entry : pyFilesLowerToRegular.entrySet()) {
                 if(i % 15==0){
                     
@@ -94,7 +96,8 @@ public class ModulesFoundStructure {
                     monitor.worked(1);
 
                 }
-                StringBuffer buffer = new StringBuffer(StringUtils.stripFromLastSlash(entry.getKey()));
+                buffer.clear();
+                buffer.append(StringUtils.stripFromLastSlash(entry.getKey()));
                 boolean add = true;
                 if(zipContentsType == ZIP_CONTENTS_TYPE_PY_ZIP){
                     //we don't need to check for __init__ if we have a jar

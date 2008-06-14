@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 
 /**
@@ -84,7 +85,7 @@ public class PyFileListing {
     
             if (file.isDirectory()) {
                 if(level != 0){
-                    StringBuffer newModuleRep = new StringBuffer(currModuleRep); 
+                    FastStringBuffer newModuleRep = new FastStringBuffer(currModuleRep, 128); 
                     if(newModuleRep.length() != 0){
                         newModuleRep.append(".");
                     }

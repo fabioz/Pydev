@@ -6,14 +6,16 @@ package org.python.pydev.runners;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.python.pydev.core.structure.FastStringBuffer;
+
 public class ThreadStreamReader extends Thread {
     InputStream is;
-    public StringBuffer contents;
+    public FastStringBuffer contents;
 
     public ThreadStreamReader(InputStream is) {
     	this.setName("ThreadStreamReader");
     	this.setDaemon(true);
-        contents = new StringBuffer();
+        contents = new FastStringBuffer();
         this.is = is;
     }
 
@@ -35,8 +37,8 @@ public class ThreadStreamReader extends Thread {
      * the last call to this method.
      */
     public String getAndClearContents() {
-        StringBuffer oldContents = contents;
-        contents = new StringBuffer();
+        FastStringBuffer oldContents = contents;
+        contents = new FastStringBuffer();
         return oldContents.toString();
     }
 }

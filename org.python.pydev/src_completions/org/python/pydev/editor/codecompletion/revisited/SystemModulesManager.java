@@ -19,6 +19,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.cache.LRUCache;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
@@ -169,6 +170,8 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
         ModulesKey keyForCacheAccess = new ModulesKey(null, null);
         
         boolean foundStartingWithBuiltin = false;
+        FastStringBuffer buffer = null;
+        
         for (int i = 0; i < builtins.length; i++) {
             String forcedBuiltin = builtins[i];
             if (name.startsWith(forcedBuiltin)) {
@@ -179,7 +182,12 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
                     n = cache.getObj(keyForCacheAccess, this);
                     
                     if(n == null && dontSearchInit == false){
-                        keyForCacheAccess.name = new StringBuffer(name).append(".__init__").toString();
+                        if(buffer == null){
+                            buffer = new FastStringBuffer();
+                        }else{
+                            buffer.clear();
+                        }
+                        keyForCacheAccess.name = buffer.append(name).append(".__init__").toString();
                         n = cache.getObj(keyForCacheAccess, this);
                     }
                     

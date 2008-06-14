@@ -11,6 +11,7 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.ErrorDescription;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -288,7 +289,7 @@ public class ParsedItem implements Comparable<Object>{
             
         } else if (astThis.node instanceof Import) {
             aliasType[] imports = ((Import)astThis.node).names;
-            StringBuffer retVal = new StringBuffer();
+            FastStringBuffer retVal = new FastStringBuffer();
             for (int i=0; i<imports.length; i++) {
                 aliasType aliasType = imports[i];
                 
@@ -301,7 +302,9 @@ public class ParsedItem implements Comparable<Object>{
                 retVal.append(((NameTok)aliasType.name).id);
                 retVal.append(", ");
             }
-            retVal.delete(retVal.length() - 2, retVal.length());
+            //delete the last 2 chars
+            retVal.deleteLast();
+            retVal.deleteLast();
             return retVal.toString();
             
         }else if (astThis.node instanceof ImportFrom) {

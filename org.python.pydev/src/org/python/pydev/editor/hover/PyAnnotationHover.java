@@ -10,6 +10,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -19,7 +20,7 @@ public class PyAnnotationHover implements IAnnotationHover{
     }
 
     public String getHoverInfo(ISourceViewer sourceViewer, int lineNumber) {
-        StringBuffer buf = new StringBuffer();
+        FastStringBuffer buf = new FastStringBuffer();
         
         if(sourceViewer instanceof PySourceViewer){
             PySourceViewer s = (PySourceViewer) sourceViewer;
@@ -31,7 +32,7 @@ public class PyAnnotationHover implements IAnnotationHover{
                             if(buf.length() >0){
                                 buf.append("\n");
                             }
-                            buf.append(marker.getAttribute(IMarker.MESSAGE));
+                            buf.appendObject(marker.getAttribute(IMarker.MESSAGE));
                         }
                     }
                 } catch (CoreException e) {

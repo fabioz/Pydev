@@ -21,6 +21,7 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyCodeScanner;
 import org.python.pydev.editor.PyColoredScanner;
 import org.python.pydev.editor.PyDoubleClickStrategy;
@@ -106,7 +107,7 @@ public class PyPreviewConfiguration extends SourceViewerConfiguration {
 	public void resetIndentPrefixes() {
 		Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
 		int tabWidth = prefs.getInt(PydevPrefs.TAB_WIDTH);
-		StringBuffer spaces = new StringBuffer(8);
+		FastStringBuffer spaces = new FastStringBuffer(8);
 
 		for (int i = 0; i < tabWidth; i++) {
 			spaces.append(" ");

@@ -36,6 +36,7 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
@@ -171,7 +172,7 @@ public class PyEditConfiguration extends TextSourceViewerConfiguration {
     public void resetIndentPrefixes() {
         Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
         int tabWidth = DefaultIndentPrefs.getStaticTabWidth();
-        StringBuffer spaces = new StringBuffer(8);
+        FastStringBuffer spaces = new FastStringBuffer(8);
 
         for (int i = 0; i < tabWidth; i++) {
             spaces.append(" ");
