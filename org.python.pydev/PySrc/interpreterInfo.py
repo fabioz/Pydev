@@ -32,6 +32,7 @@ if sys.platform == "cygwin":
         path = fullyNormalizePath(path)
         ctypes.cdll.cygwin1.cygwin_conv_to_win32_path(path, retval) #@UndefinedVariable
         return retval.value
+        
 else:
     def nativePath(path):
         return fullyNormalizePath(path)
@@ -53,6 +54,10 @@ if __name__ == '__main__':
         executable = nativePath(sys.executable)
     except:
         executable = sys.executable
+        
+    if sys.platform == "cygwin" and not executable.endswith('.exe'):
+        executable += '.exe'
+
     
     try:
         s = 'Version%s.%s' % (sys.version_info[0], sys.version_info[1])
