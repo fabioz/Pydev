@@ -11,6 +11,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.contentassist.ICompletionProposalExtension;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -22,7 +23,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.codecompletion.PyCompletionProposalExtension2;
+import org.python.pydev.editor.codecompletion.AbstractPyCompletionProposalExtension2;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
@@ -32,7 +33,7 @@ import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
  * 
  * @author Fabio
  */
-public class CtxInsensitiveImportComplProposal extends PyCompletionProposalExtension2{
+public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionProposalExtension2 implements ICompletionProposalExtension{
     
     /**
      * If empty, act as a regular completion
@@ -48,6 +49,11 @@ public class CtxInsensitiveImportComplProposal extends PyCompletionProposalExten
      * Determines if the import was added or if only the completion was applied.
      */
     private int importLen = 0;
+
+    /**
+     * Offset forced to be returned (only valid if >= 0)
+     */
+    private int newForcedOffset = -1;
 
 
     public CtxInsensitiveImportComplProposal(String replacementString, int replacementOffset, int replacementLength, 
@@ -90,6 +96,20 @@ public class CtxInsensitiveImportComplProposal extends PyCompletionProposalExten
     public void apply(IDocument document, char trigger, int stateMask, int offset) {
         if(this.indentString == null){
             throw new RuntimeException("Indent string not set (not called with a PyEdit as viewer?)");
+        }
+        
+        
+        if(trigger == '.'){
+            //do not apply completion when it's triggered by '.', because that's usually not what's wanted
+            //e.g.: if the user writes sys and the current completion is SystemError, pressing '.' will apply
+            //the completion, but what the user usually wants is just having sys.xxx and not SystemError.xxx
+            try {
+                document.replace(offset, 0, ".");
+                newForcedOffset = offset+1;
+            } catch (BadLocationException e) {
+                PydevPlugin.log(e);
+            }
+            return;
         }
 
         
@@ -214,6 +234,10 @@ public class CtxInsensitiveImportComplProposal extends PyCompletionProposalExten
     
     @Override
     public Point getSelection(IDocument document) {
+        if(newForcedOffset >= 0){
+            return new Point(newForcedOffset, 0); 
+        }
+        
         return new Point(fReplacementOffset+fReplacementString.length()+importLen, 0 );
     }
     
@@ -237,5 +261,34 @@ public class CtxInsensitiveImportComplProposal extends PyCompletionProposalExten
         }else{
             return BEHAVIOR_IS_OVERRIDEN;
         }
+    }
+
+    
+    //-------------------- methods from interface: ICompletionProposalExtension
+    
+    public void apply(IDocument document, char trigger, int offset) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public int getContextInformationPosition() {
+        return this.fCursorPosition;
+    }
+
+    protected final static char[] VAR_TRIGGER= new char[] { '.' };
+
+    /**
+     * We want to apply it on \n or on '.'
+     * 
+     * When . is entered, the user will finish (and apply) the current completion
+     * and request a new one with '.'
+     * 
+     * If not added, it won't request the new one (and will just stop the current)
+     */
+    public char[] getTriggerCharacters() {
+        return VAR_TRIGGER;
+    }
+
+    public boolean isValidFor(IDocument document, int offset) {
+        return validate(document, offset, null);
     }
 }
