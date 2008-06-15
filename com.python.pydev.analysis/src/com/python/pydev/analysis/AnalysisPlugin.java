@@ -202,7 +202,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
      * Returns the directory that can be used to store things for some project
      */
     public static File getStorageDirForProject(IProject p) {
-        IPath location = p.getWorkingLocation(getDefault().getBundle().getSymbolicName());
+        IPath location = p.getWorkingLocation(plugin.getBundle().getSymbolicName());
         IPath path = location;
     
         File file = new File(path.toOSString());
