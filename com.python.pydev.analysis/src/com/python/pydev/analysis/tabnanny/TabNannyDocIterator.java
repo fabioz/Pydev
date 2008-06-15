@@ -98,11 +98,11 @@ public class TabNannyDocIterator implements Iterator<Tuple3<String, Integer, Boo
                 
                 if (c == '#'){ 
                     //comment (doesn't consider the escape char)
-                    offset = ParsingUtils.eatComments(doc, new StringBuffer(), offset);
+                    offset = ParsingUtils.eatComments(doc, null, offset);
                     
                 } else if (c == '{' || c == '[' || c == '(') {
                     //starting some call, dict, list, tuple... we're at the same indentation until it is finished
-                    offset = ParsingUtils.eatPar(doc, offset, new StringBuffer(), c);
+                    offset = ParsingUtils.eatPar(doc, offset, null, c);
     
                     
                 } else if (c == '\r'){
