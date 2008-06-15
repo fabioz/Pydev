@@ -227,13 +227,13 @@ public class PyOrganizeImports extends PyAction{
                             //we have to make the wrapping
                             if(breakWithParenthesis){
                                 if(!addedParenForLine){
-                                    line.insert(lastFromXXXImportWritten.length(), "(");
+                                    line.insert(lastFromXXXImportWritten.length(), '(');
                                     addedParenForLine = true;
                                 }
                                 line.append(endLineDelim);
                                 line.append(indentStr);
                             }else{
-                                line.append("\\");
+                                line.append('\\');
                                 line.append(endLineDelim);
                                 line.append(indentStr);
                             }
@@ -246,7 +246,7 @@ public class PyOrganizeImports extends PyAction{
                     
                     if(addedParenForLine && i == importsAndNoComments.size()){
                         addedParenForLine = false;
-                        line.append(")");
+                        line.append(')');
                     }
                     
                     firstInLine = false;
@@ -254,9 +254,9 @@ public class PyOrganizeImports extends PyAction{
                     if(tuple.o2.length() > 0){
                         if(addedParenForLine){
                             addedParenForLine = false;
-                            line.append(")");
+                            line.append(')');
                         }
-                        line.append(" ");
+                        line.append(' ');
                         line.append(tuple.o2);
                         line.append(endLineDelim);
                         all.append(line);
@@ -269,7 +269,7 @@ public class PyOrganizeImports extends PyAction{
                 if(!firstInLine){
                     if(addedParenForLine){
                         addedParenForLine = false;
-                        line.append(")");
+                        line.append(')');
                     }
                     line.append(endLineDelim);
                     all.append(line);
@@ -302,7 +302,7 @@ public class PyOrganizeImports extends PyAction{
                 String comment = commentsForImports.get(i);
                 all.append(importedString);
                 if(comment.length() > 0){
-                    all.append(" ");
+                    all.append(' ');
                     all.append(comment);
                 }
                 all.append(endLineDelim);

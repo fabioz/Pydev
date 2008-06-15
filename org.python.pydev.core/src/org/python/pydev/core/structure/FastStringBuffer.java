@@ -1,9 +1,15 @@
 package org.python.pydev.core.structure;
 
 /**
- * This is a custom string that works around char[] objects to provide minimum allocation/garbage collection overhead.
- * To be used mostly when several small concatenations of strings are used and in local contexts while reusing the 
- * same object to create multiple strings.
+ * This is a custom string buffer optimized for append(), clear() and deleteLast(). 
+ * 
+ * Basically it aims at being created once, being used for something, having clear() called and then reused
+ * (ultimately providing minimum allocation/garbage collection overhead for that use-case).
+ * 
+ * append() is optimizing by doing less checks (so, exceptions thrown may be uglier on invalid operations
+ * and null is not checked for in the common case -- use appendObject if it may be null).
+ * 
+ * clear() and deleteLast() only change the internal count and have almost zero overhead.
  *
  * @author Fabio
  */
@@ -47,7 +53,7 @@ public final class FastStringBuffer {
     }
 
     /**
-     * Appends a string to the buffer 
+     * Appends a string to the buffer. Passing a null string will throw an exception.
      */
     public FastStringBuffer append(String string) {
         int strLen = string.length();
@@ -62,11 +68,12 @@ public final class FastStringBuffer {
         return this;
     }
 
+    /**
+     * Resizes the internal buffer to have at least the minimum capacity passed (but may be more)
+     */
     private void resizeForMinimum(int minimumCapacity) {
         int newCapacity = (value.length + 1) * 2;
-        if (newCapacity < 0) {
-            newCapacity = Integer.MAX_VALUE;
-        } else if (minimumCapacity > newCapacity) {
+        if (minimumCapacity > newCapacity) {
             newCapacity = minimumCapacity;
         }
         char newValue[] = new char[newCapacity];
@@ -74,11 +81,17 @@ public final class FastStringBuffer {
         value = newValue;
     }
 
+    /**
+     * Appends an int to the buffer.
+     */
     public final FastStringBuffer append(int n) {
         append(String.valueOf(n));
         return this;
     }
     
+    /**
+     * Appends a char to the buffer.
+     */
     public final FastStringBuffer append(char n) {
         if (count + 1 > value.length) {
             resizeForMinimum(count + 1);
@@ -88,16 +101,25 @@ public final class FastStringBuffer {
         return this;
     }
 
+    /**
+     * Appends a long to the buffer.
+     */
     public final FastStringBuffer append(long n) {
         append(String.valueOf(n));
         return this;
     }
 
+    /**
+     * Appends a boolean to the buffer.
+     */
     public final FastStringBuffer append(boolean b) {
         append(String.valueOf(b));
         return this;
     }
-
+    
+    /**
+     * Appends an array of chars to the buffer.
+     */
     public FastStringBuffer append(char[] chars) {
         int newCount = count + chars.length;
         if (newCount > value.length) {
@@ -108,20 +130,31 @@ public final class FastStringBuffer {
         return this;
     }
 
+    /**
+     * Appends another buffer to this buffer.
+     */
     public FastStringBuffer append(FastStringBuffer other) {
         append(other.value, 0, other.count);
         return this;
     }
 
+    /**
+     * Appends an array of chars to this buffer, starting at the offset passed with the length determined.
+     */
     public FastStringBuffer append(char[] chars, int offset, int len) {
-        if (count + len > value.length) {
-            resizeForMinimum(count + len);
+        int newCount = count + len;
+        if (newCount > value.length) {
+            resizeForMinimum(newCount);
         }
         System.arraycopy(chars, offset, value, count, len);
-        count += len;
+        count = newCount;
         return this;
     }
 
+    
+    /**
+     * Reverses the contents on this buffer
+     */
     public FastStringBuffer reverse() {
         final int limit = count / 2;
         for (int i = 0; i < limit; ++i) {
@@ -132,29 +165,48 @@ public final class FastStringBuffer {
         return this;
     }
 
+    
+    /**
+     * Clears this buffer.
+     */
     public void clear() {
         this.count = 0;
     }
 
+    /**
+     * @return the length of this buffer
+     */
     public int length() {
         return this.count;
     }
 
+    /**
+     * @return a new stringt with the contents of this buffer.
+     */
     @Override
     public String toString() {
         return new String(value, 0, count);
     }
 
+    /**
+     * Erases the last char in this buffer
+     */
     public void deleteLast() {
         if (this.count > 0) {
             this.count--;
         }
     }
 
+    /**
+     * @return the char given at a specific position of the buffer (no bounds check)
+     */
     public char charAt(int i) {
         return this.value[i];
     }
 
+    /**
+     * Inserts a string at a given position in the buffer.
+     */
     public FastStringBuffer insert(int offset, String str) {
         int len = str.length();
         int newCount = count + len;
@@ -166,11 +218,31 @@ public final class FastStringBuffer {
         count = newCount;
         return this;
     }
-
-    public FastStringBuffer appendObject(Object attribute) {
-        return append(attribute != null?attribute.toString():"null");
+    
+    /**
+     * Inserts a char at a given position in the buffer.
+     */
+    public FastStringBuffer insert(int offset, char c) {
+        int newCount = count + 1;
+        if (newCount > value.length){
+            resizeForMinimum(newCount);
+        }
+        System.arraycopy(value, offset, value, offset + 1, count - offset);
+        value[offset] = c;
+        count = newCount;
+        return this;
     }
 
+    /**
+     * Appends object.toString(). If null, "null" is appended.
+     */
+    public FastStringBuffer appendObject(Object object) {
+        return append(object != null?object.toString():"null");
+    }
+
+    /**
+     * Sets the new size of this buffer (warning: use with care: no validation is done of the len passed)
+     */
     public void setCount(int newLen) {
         this.count = newLen;
     }

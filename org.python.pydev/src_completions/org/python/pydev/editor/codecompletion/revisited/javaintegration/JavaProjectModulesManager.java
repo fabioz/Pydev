@@ -190,7 +190,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
                                 int packageNameLen = buffer.length();
                                 if(packageNameLen > 0){
                                     buffer.append('.');
-                                    packageNameLen += 1;
+                                    packageNameLen++;
                                 }
                                 
                                 //traverse its classes

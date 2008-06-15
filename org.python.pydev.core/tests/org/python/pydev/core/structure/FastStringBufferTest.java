@@ -31,6 +31,8 @@ public class FastStringBufferTest extends TestCase{
         assertEquals("a22aabbcccdddddddddddddddddddddddddddddd", fastString.toString());
         fastString.append('$');
         assertEquals("a22aabbcccdddddddddddddddddddddddddddddd$", fastString.toString());
+        fastString.insert(1, ".");
+        assertEquals("a.22aabbcccdddddddddddddddddddddddddddddd$", fastString.toString());
     }
     
     
