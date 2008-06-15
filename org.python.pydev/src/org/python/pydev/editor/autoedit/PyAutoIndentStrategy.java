@@ -763,7 +763,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         try{
 	        char peer = DocUtils.getPeer(c);
 	        
-	        StringBuffer doc = new StringBuffer(document.get());
+	        FastStringBuffer doc = new FastStringBuffer(document.get(), 2);
 	        //it is not enough just counting the chars, we have to ignore those that are within comments or literals.
 	        ParsingUtils.removeCommentsWhitespacesAndLiterals(doc);
 	        int chars = PyAction.countChars(c, doc);

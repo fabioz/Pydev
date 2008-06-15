@@ -19,6 +19,7 @@ import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -217,7 +218,7 @@ public class PyContextInformationValidator implements IContextInformationValidat
                 break;
             case '"':
             case '\'':
-                int eaten = ParsingUtils.eatLiterals(document, new StringBuffer(), offset - 1) + 1;
+                int eaten = ParsingUtils.eatLiterals(document, null, offset - 1) + 1;
                 if (eaten > offset) {
                     offset = eaten;
                 }

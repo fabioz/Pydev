@@ -8,6 +8,7 @@ import java.util.Iterator;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 public class ParsingUtilsTest extends TestCase {
 
@@ -15,7 +16,7 @@ public class ParsingUtilsTest extends TestCase {
     	try {
 			ParsingUtilsTest test = new ParsingUtilsTest();
 			test.setUp();
-//			test.testIterator8();
+			test.testMakeParseable();
 			test.tearDown();
 			junit.textui.TestRunner.run(ParsingUtilsTest.class);
 		} catch (Throwable e) {
@@ -295,7 +296,7 @@ public class ParsingUtilsTest extends TestCase {
         expected = 
             "\na=10\n" +
             "";
-        assertEquals(expected, ParsingUtils.makePythonParseable(code, "\n", new StringBuffer("    pass")));
+        assertEquals(expected, ParsingUtils.makePythonParseable(code, "\n", new FastStringBuffer("    pass", 16)));
     }
     
 }

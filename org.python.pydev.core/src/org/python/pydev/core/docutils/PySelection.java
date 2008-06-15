@@ -28,6 +28,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * Redone the whole class, so that the interface is better defined and no
@@ -178,7 +179,7 @@ public class PySelection {
      * 
      */
     public int getLineAvailableForImport() {
-        StringBuffer multiLineBuf = new StringBuffer();
+        FastStringBuffer multiLineBuf = new FastStringBuffer();
         int[] firstGlobalLiteral = getFirstGlobalLiteral(multiLineBuf, 0);
 
         if (multiLineBuf.length() > 0 && firstGlobalLiteral[0] >= 0 && firstGlobalLiteral[1] >= 0) {
@@ -231,7 +232,6 @@ public class PySelection {
                 ImportInfo importInfo = ImportsSelection.getImportsTipperStr(str, false);
                 if(importInfo != null && importInfo.importsTipperStr != null && importInfo.importsTipperStr.trim().length() > 0){
                     if((i = str.indexOf('(')) != -1){
-                        StringBuffer buf = new StringBuffer();
                         //start of a multiline import
                         int lineOffset = -1;
                         try {
@@ -239,7 +239,7 @@ public class PySelection {
 						} catch (BadLocationException e1) {
 							throw new RuntimeException(e1);
 						}
-                        int j = ParsingUtils.eatPar(document, lineOffset+i, buf);
+                        int j = ParsingUtils.eatPar(document, lineOffset+i, null);
                         try {
                             line = document.getLineOfOffset(j);
                         } catch (BadLocationException e) {
@@ -267,7 +267,7 @@ public class PySelection {
      * @param buf (out) this is the comment itself
      * @return a tuple with the offset of the start and end of the first multiline comment found
      */
-    public int[] getFirstGlobalLiteral(StringBuffer buf, int initialOffset){
+    public int[] getFirstGlobalLiteral(FastStringBuffer buf, int initialOffset){
         try {
             IDocument d = getDoc();
             String strDoc = d.get(initialOffset, d.getLength() - initialOffset);
@@ -326,7 +326,7 @@ public class PySelection {
     }
 
     public static String getLineWithoutCommentsOrLiterals(String l) {
-        StringBuffer buf = new StringBuffer(l);
+        FastStringBuffer buf = new FastStringBuffer(l, 2);
         ParsingUtils.removeCommentsWhitespacesAndLiterals(buf, false);
         return buf.toString();
         
@@ -336,7 +336,7 @@ public class PySelection {
     }
 
 	public static String getLineWithoutLiterals(String line) {
-		StringBuffer buf = new StringBuffer(line);
+		FastStringBuffer buf = new FastStringBuffer(line, 2);
 		ParsingUtils.removeLiterals(buf);
 		return buf.toString();
 	}
@@ -850,10 +850,9 @@ public class PySelection {
             return null;
         }
         int lineOffset = getStartLineOffset();
-        StringBuffer buf = new StringBuffer();
         String docContents = doc.get();
         int i = lineOffset + openParIndex;
-        int j = ParsingUtils.eatPar(docContents, i, buf);
+        int j = ParsingUtils.eatPar(docContents, i, null);
         String insideParentesisTok = docContents.substring(i + 1, j);
 
         StringTokenizer tokenizer = new StringTokenizer(insideParentesisTok, ",");

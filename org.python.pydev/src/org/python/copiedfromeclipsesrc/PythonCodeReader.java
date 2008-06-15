@@ -114,12 +114,12 @@ public class PythonCodeReader {
 			
 			switch (current) {
 				case '#':
-                    fOffset = ParsingUtils.eatComments(fDocument, new StringBuffer(), fOffset);
+                    fOffset = ParsingUtils.eatComments(fDocument, null, fOffset);
 					return current;
 					
 				case '"':
 				case '\'':
-				    fOffset = ParsingUtils.eatLiterals(fDocument, new StringBuffer(), fOffset-1)+1;
+				    fOffset = ParsingUtils.eatLiterals(fDocument, null, fOffset-1)+1;
 					continue;
 			}
 			

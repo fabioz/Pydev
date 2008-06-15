@@ -10,6 +10,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitionerExtension2;
 import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 
 
@@ -21,7 +22,7 @@ public class ParsingUtils implements IPythonPartitions{
      * @param i the position
      * @return the : position
      */
-    public static int eatToColon(char[] cs, StringBuffer buf, int i) {
+    public static int eatToColon(char[] cs, FastStringBuffer buf, int i) {
         while(i < cs.length && cs[i] != ':'){
             buf.append(cs[i]);
             i++;
@@ -34,17 +35,22 @@ public class ParsingUtils implements IPythonPartitions{
 
     /**
      * @param cs the char array we are parsing
-     * @param buf used to add the comments contents (out)
+     * @param buf used to add the comments contents (out) -- if it's null, it'll simply advance to the position and 
+     * return it.
      * @param i the # position
      * @return the end of the comments position (end of document or new line char)
      */
-    public static int eatComments(Object cs, StringBuffer buf, int i) {
+    public static int eatComments(Object cs, FastStringBuffer buf, int i) {
         while(i < len(cs) && charAt(cs,i) != '\n' && charAt(cs,i) != '\r'){
-            buf.append(charAt(cs,i));
+            if(buf != null){
+                buf.append(charAt(cs,i));
+            }
             i++;
         }
         if(i < len(cs))
-            buf.append(charAt(cs,i));
+            if(buf != null){
+                buf.append(charAt(cs,i));
+            }
     
         return i;
     }
@@ -69,7 +75,7 @@ public class ParsingUtils implements IPythonPartitions{
      * @param i the start of the token
      * @return the end of the token position (end of document or new line char or whitespace)
      */
-    public static int eatToken(char[] cs, StringBuffer buf, int i) {
+    public static int eatToken(char[] cs, FastStringBuffer buf, int i) {
         while(i < cs.length && !Character.isWhitespace(cs[i])){
             buf.append(cs[i]);
             i++;
@@ -86,7 +92,7 @@ public class ParsingUtils implements IPythonPartitions{
      * @param i the ' or " position
      * @return the end of the literal position (or end of document)
      */
-    public static int eatLiterals(Object cs, StringBuffer buf, int i) {
+    public static int eatLiterals(Object cs, FastStringBuffer buf, int i) {
         //ok, current pos is ' or "
         //check if we're starting a single or multiline comment...
         char curr = charAt(cs, i);
@@ -130,11 +136,14 @@ public class ParsingUtils implements IPythonPartitions{
      * @param i the ' or " position
      * @return the end of the literal position (or end of document)
      */
-    public static int eatPar(Object cs, int i, StringBuffer buf) {
+    public static int eatPar(Object cs, int i, FastStringBuffer buf) {
         return eatPar(cs, i, buf, '(');
     }
     
-    public static int eatPar(Object cs, int i, StringBuffer buf, char par) {
+    /**
+     * @param buf if null, it'll simply advance without adding anything to the buffer.
+     */
+    public static int eatPar(Object cs, int i, FastStringBuffer buf, char par) {
         char c = ' ';
         
         char closingPar = DocUtils.getPeer(par);
@@ -145,17 +154,18 @@ public class ParsingUtils implements IPythonPartitions{
             j++;
             
             if(c == '\'' || c == '"'){ //ignore comments or multiline comments...
-                j = ParsingUtils.eatLiterals( cs, new StringBuffer(), j-1)+1;
+                j = ParsingUtils.eatLiterals( cs, null, j-1)+1;
                 
             }else if(c == '#'){
-                j = ParsingUtils.eatComments(cs, new StringBuffer(), j-1)+1;
+                j = ParsingUtils.eatComments(cs, null, j-1)+1;
                 
             }else if( c == par){ //open another par.
-                j = eatPar(cs, j-1, new StringBuffer(), par)+1;
+                j = eatPar(cs, j-1, null, par)+1;
             
             }else{
-
-                buf.append(c);
+                if(buf != null){
+                    buf.append(c);
+                }
             }
         }
         return j;
@@ -212,6 +222,9 @@ public class ParsingUtils implements IPythonPartitions{
         if (o instanceof char[]) {
             return ((char[]) o)[i];
         }
+        if (o instanceof FastStringBuffer) {
+            return ((FastStringBuffer) o).charAt(i);
+        }
         if (o instanceof StringBuffer) {
             return ((StringBuffer) o).charAt(i);
         }
@@ -231,6 +244,9 @@ public class ParsingUtils implements IPythonPartitions{
     public static int len(Object o){
         if (o instanceof char[]) {
             return ((char[]) o).length;
+        }
+        if (o instanceof FastStringBuffer) {
+            return ((FastStringBuffer) o).length();
         }
         if (o instanceof StringBuffer) {
             return ((StringBuffer) o).length();
@@ -268,18 +284,18 @@ public class ParsingUtils implements IPythonPartitions{
         return i;
     }
 
-    public static int eatWhitespaces(StringBuffer buf, int i) {
+    public static int eatWhitespaces(FastStringBuffer buf, int i) {
         while(i < buf.length() && Character.isWhitespace(buf.charAt(i))){
             i++;
         }
         return i;
     }
 
-    public static void removeCommentsWhitespacesAndLiterals(StringBuffer buf) {
+    public static void removeCommentsWhitespacesAndLiterals(FastStringBuffer buf) {
         removeCommentsWhitespacesAndLiterals(buf, true);
     }
     /**
-     * Removes all the comments, whitespaces and literals from a stringbuffer (might be useful when
+     * Removes all the comments, whitespaces and literals from a FastStringBuffer (might be useful when
      * just finding matches for something).
      * 
      * NOTE: the literals and the comments are changed for spaces (if we don't remove them too)
@@ -287,7 +303,7 @@ public class ParsingUtils implements IPythonPartitions{
      * @param buf the buffer from where things should be removed.
      * @param whitespacesToo: are you sure about the whitespaces?
      */
-    public static void removeCommentsWhitespacesAndLiterals(StringBuffer buf, boolean whitespacesToo) {
+    public static void removeCommentsWhitespacesAndLiterals(FastStringBuffer buf, boolean whitespacesToo) {
         for (int i = 0; i < buf.length(); i++) {
             char ch = buf.charAt(i);
             if(ch == '#'){
@@ -322,7 +338,7 @@ public class ParsingUtils implements IPythonPartitions{
             }
         }
     }
-	public static void removeLiterals(StringBuffer buf) {
+	public static void removeLiterals(FastStringBuffer buf) {
         for (int i = 0; i < buf.length(); i++) {
             char ch = buf.charAt(i);
             if(ch == '#'){
@@ -347,7 +363,7 @@ public class ParsingUtils implements IPythonPartitions{
 	}
 
     
-    public static void removeCommentsAndWhitespaces(StringBuffer buf) {
+    public static void removeCommentsAndWhitespaces(FastStringBuffer buf) {
         
         for (int i = 0; i < buf.length(); i++) {
             char ch = buf.charAt(i);
@@ -371,7 +387,7 @@ public class ParsingUtils implements IPythonPartitions{
         }
     }
 
-    public static void removeToClosingPar(StringBuffer buf) {
+    public static void removeToClosingPar(FastStringBuffer buf) {
         int length = buf.length();
         for (int i = length -1; i >= 0; i--) {
             char ch = buf.charAt(i);
@@ -397,7 +413,7 @@ public class ParsingUtils implements IPythonPartitions{
      * that it may be slow.
      */
     public static String getContentType(String initial, int currPos) {
-        StringBuffer buf = new StringBuffer(initial);
+        FastStringBuffer buf = new FastStringBuffer(initial, 0);
         String curr = PY_DEFAULT;
         
         for (int i = 0; i < buf.length() && i < currPos; i++) {
@@ -448,7 +464,7 @@ public class ParsingUtils implements IPythonPartitions{
     }
 
     public static String makePythonParseable(String code, String delimiter) {
-        return makePythonParseable(code, delimiter, new StringBuffer());
+        return makePythonParseable(code, delimiter, new FastStringBuffer());
     }
     
     /**
@@ -457,9 +473,9 @@ public class ParsingUtils implements IPythonPartitions{
      * @param delimiter the delimiter we should use
      * @return a String that can be passed to the shell
      */
-    public static String makePythonParseable(String code, String delimiter, StringBuffer lastLine) {
-        StringBuffer buffer = new StringBuffer();
-        StringBuffer currLine = new StringBuffer();
+    public static String makePythonParseable(String code, String delimiter, FastStringBuffer lastLine) {
+        FastStringBuffer buffer = new FastStringBuffer();
+        FastStringBuffer currLine = new FastStringBuffer();
         
         //we may have line breaks with \r\n, or only \n or \r
         boolean foundNewLine = false;
@@ -497,12 +513,12 @@ public class ParsingUtils implements IPythonPartitions{
                 if(!PySelection.containsOnlyWhitespaces(currLine.toString())){
                     buffer.append(currLine);
                     lastLine = currLine;
-                    currLine = new StringBuffer();
+                    currLine = new FastStringBuffer();
                     buffer.append(delimiter);
                     foundNewLine = true;
                     
                 }else{ //found a line only with whitespaces
-                    currLine = new StringBuffer();
+                    currLine = new FastStringBuffer();
                 }
             }
         }

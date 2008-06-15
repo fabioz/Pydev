@@ -272,6 +272,24 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
     }
     
     /**
+     * Counts the number of occurences of a certain character in a string.
+     * 
+     * @param line the string to search in
+     * @param c the character to search for
+     * @return an integer (int) representing the number of occurences of this character
+     */
+    public static int countChars(char c, FastStringBuffer line) {
+        int ret = 0;
+        int len = line.length();
+        for (int i = 0; i < len; i++) {
+            if(line.charAt(i) == c){
+                ret += 1;
+            }
+        }
+        return ret;
+    }
+    
+    /**
      * @param ps
      * @return string with the token or empty token if not found.
      */

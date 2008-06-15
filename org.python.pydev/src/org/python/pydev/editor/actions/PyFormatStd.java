@@ -14,64 +14,65 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.parser.prettyprinter.Formatter;
 import org.python.pydev.parser.prettyprinter.IFormatter;
 import org.python.pydev.plugin.PyCodeFormatterPage;
 
 /**
  * @author Fabio Zadrozny
  */
-public class PyFormatStd extends PyAction implements IFormatter{
+public class PyFormatStd extends PyAction implements IFormatter {
 
-    public static class FormatStd{
+    public static class FormatStd {
         public boolean spaceAfterComma;
+
         public boolean parametersWithSpace;
     }
-    
+
     /**
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
     public void run(IAction action) {
-		try {
+        try {
             IFormatter participant = (IFormatter) ExtensionHelper.getParticipant(ExtensionHelper.PYDEV_FORMATTER);
-            if(participant==null){
+            if (participant == null) {
                 participant = this;
             }
-            PySelection ps = new PySelection ( getTextEditor ());
+            PySelection ps = new PySelection(getTextEditor());
             IDocument doc = ps.getDoc();
-            
+
             int startLine = ps.getStartLineIndex();
             PyEdit pyEdit = getPyEdit();
-            if(ps.getTextSelection().getLength() == 0){
+            if (ps.getTextSelection().getLength() == 0) {
                 participant.formatAll(doc, pyEdit);
-            }else{
+            } else {
                 participant.formatSelection(doc, startLine, ps.getEndLineIndex(), pyEdit, ps);
             }
-            
-            if(startLine >= doc.getNumberOfLines()){
-                startLine = doc.getNumberOfLines()-1;
+
+            if (startLine >= doc.getNumberOfLines()) {
+                startLine = doc.getNumberOfLines() - 1;
             }
             TextSelection sel = new TextSelection(doc, doc.getLineOffset(startLine), 0);
             getTextEditor().getSelectionProvider().setSelection(sel);
 
-		} catch ( Exception e ) {
-			beep ( e );
-		}		
+        } catch (Exception e) {
+            beep(e);
+        }
     }
 
-    public void formatSelection(IDocument doc, int startLine, int endLineIndex, IPyEdit edit, PySelection ps){
+    public void formatSelection(IDocument doc, int startLine, int endLineIndex, IPyEdit edit, PySelection ps) {
 //        Formatter formatter = new Formatter();
 //        formatter.formatSelection(doc, startLine, endLineIndex, edit, ps);
         performFormatSelection(doc, startLine, endLineIndex);
     }
-    
+
     public void formatAll(IDocument doc, IPyEdit edit) {
 //        Formatter formatter = new Formatter();
 //        formatter.formatAll(doc, edit);
         performFormatAll(doc);
     }
-    
+
     /**
      * @param doc
      * @param endLineDelim
@@ -82,28 +83,28 @@ public class PyFormatStd extends PyAction implements IFormatter{
         try {
             IRegion start = doc.getLineInformation(startLineIndex);
             IRegion end = doc.getLineInformation(endLineIndex);
-        
+
             int iStart = start.getOffset();
-            int iEnd = end.getOffset()+end.getLength();
-            
-	        String d = doc.get(iStart, iEnd-iStart);
-	        FormatStd formatStd = getFormat();
-	        String formatted = formatStr(d, formatStd);
-	        
-	        doc.replace(iStart, iEnd-iStart, formatted);
-	        
+            int iEnd = end.getOffset() + end.getLength();
+
+            String d = doc.get(iStart, iEnd - iStart);
+            FormatStd formatStd = getFormat();
+            String formatted = formatStr(d, formatStd);
+
+            doc.replace(iStart, iEnd - iStart, formatted);
+
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
     }
 
-    private FormatStd getFormat(){
+    private FormatStd getFormat() {
         FormatStd formatStd = new FormatStd();
         formatStd.parametersWithSpace = PyCodeFormatterPage.useSpaceForParentesis();
         formatStd.spaceAfterComma = PyCodeFormatterPage.useSpaceAfterComma();
         return formatStd;
     }
-    
+
     /**
      * @param doc
      * @param endLineDelim
@@ -115,7 +116,6 @@ public class PyFormatStd extends PyAction implements IFormatter{
         doc.set(formatted);
     }
 
-
     /**
      * This method formats a string given some standard.
      * 
@@ -123,33 +123,32 @@ public class PyFormatStd extends PyAction implements IFormatter{
      * @param std
      * @return
      */
-    public static String formatStr(String str, FormatStd std ){
+    public static String formatStr(String str, FormatStd std) {
         char[] cs = str.toCharArray();
-        StringBuffer buf = new StringBuffer();
+        FastStringBuffer buf = new FastStringBuffer();
         char lastChar = '\0';
         for (int i = 0; i < cs.length; i++) {
             char c = cs[i];
-            
-            if(c == '\'' || c == '"'){ //ignore comments or multiline comments...
+
+            if (c == '\'' || c == '"') { //ignore comments or multiline comments...
                 i = ParsingUtils.eatLiterals(cs, buf, i);
-                
-            }else if(c == '#'){
+
+            } else if (c == '#') {
                 i = ParsingUtils.eatComments(cs, buf, i);
-                
-            }else if(c == ','){
-		        i = formatForComma(std, cs, buf, i);
-		        
-            }else if(c == '('){
-		        
+
+            } else if (c == ',') {
+                i = formatForComma(std, cs, buf, i);
+
+            } else if (c == '(') {
+
                 i = formatForPar(cs, i, std, buf);
-		        
-                
-            }else{
-            	if(c == '\r' || c == '\n'){
-	            	if(lastChar == ',' && std.spaceAfterComma){
-	            		buf.deleteCharAt(buf.length()-1);
-	            	}
-            	}
+
+            } else {
+                if (c == '\r' || c == '\n') {
+                    if (lastChar == ',' && std.spaceAfterComma) {
+                        buf.deleteLast();
+                    }
+                }
                 buf.append(c);
             }
             lastChar = c;
@@ -161,86 +160,85 @@ public class PyFormatStd extends PyAction implements IFormatter{
      * @param cs
      * @param i
      */
-    private static int formatForPar(char[] cs, int i, FormatStd std, StringBuffer buf) {
+    private static int formatForPar(char[] cs, int i, FormatStd std, FastStringBuffer buf) {
         char c = ' ';
-        StringBuffer locBuf = new StringBuffer();
-        
-        int j = i+1;
-        while(j < cs.length && (c = cs[j]) != ')'){
-            
+        FastStringBuffer locBuf = new FastStringBuffer();
+
+        int j = i + 1;
+        while (j < cs.length && (c = cs[j]) != ')') {
+
             j++;
-            
-            if(c == '\'' || c == '"'){ //ignore comments or multiline comments...
-                j = ParsingUtils.eatLiterals( cs, locBuf, j-1)+1;
-                
-            }else if(c == '#'){
-                j = ParsingUtils.eatComments(cs, locBuf, j-1)+1;
-                
-            }else if( c == '('){ //open another par.
-                j = formatForPar(cs, j-1, std, locBuf)+1;
-            
-            }else{
+
+            if (c == '\'' || c == '"') { //ignore comments or multiline comments...
+                j = ParsingUtils.eatLiterals(cs, locBuf, j - 1) + 1;
+
+            } else if (c == '#') {
+                j = ParsingUtils.eatComments(cs, locBuf, j - 1) + 1;
+
+            } else if (c == '(') { //open another par.
+                j = formatForPar(cs, j - 1, std, locBuf) + 1;
+
+            } else {
 
                 locBuf.append(c);
             }
         }
-        
-        if(c == ')'){
-            
+
+        if (c == ')') {
+
             char c1;
-            StringBuffer buf1 = new StringBuffer();
-            
-            if(locBuf.indexOf("\n") != -1){
-	            for (int k = locBuf.length(); k > 0 && (c1 = locBuf.charAt(k-1))!= '\n'; k--) {
-	                buf1.insert(0, c1);
-	            }
+            FastStringBuffer buf1 = new FastStringBuffer();
+
+            if (locBuf.indexOf('\n') != -1) {
+                for (int k = locBuf.length(); k > 0 && (c1 = locBuf.charAt(k - 1)) != '\n'; k--) {
+                    buf1.insert(0, c1);
+                }
             }
-            
-	        String formatStr = formatStr(trim(locBuf), std);
-	        formatStr = trim(new StringBuffer(formatStr));
-	        
-	        String closing = ")";
-	        if(buf1.length() > 0 && PySelection.containsOnlyWhitespaces(buf1.toString())){
-	            formatStr += buf1.toString();
-	        }else if(std.parametersWithSpace){
-	            closing = " )";
-	        }
-	        
-	        if(std.parametersWithSpace){
-	            if(formatStr.length() == 0){
-		            buf.append( "()" );
-	                
-	            }else{
-		            buf.append( "( " );
-		            buf.append( formatStr );
-		            buf.append( closing );
-	            }
-	        }else{
-	            buf.append( "(" );
-	            buf.append( formatStr );
-	            buf.append( closing );
-	        }
-	        return j;
-        }else{
+
+            String formatStr = formatStr(trim(locBuf).toString(), std);
+            FastStringBuffer formatStrBuf = trim(new FastStringBuffer(formatStr, 10));
+
+            String closing = ")";
+            if (buf1.length() > 0 && PySelection.containsOnlyWhitespaces(buf1.toString())) {
+                formatStrBuf.append(buf1);
+
+            } else if (std.parametersWithSpace) {
+                closing = " )";
+            }
+
+            if (std.parametersWithSpace) {
+                if (formatStrBuf.length() == 0) {
+                    buf.append("()");
+
+                } else {
+                    buf.append("( ");
+                    buf.append(formatStrBuf);
+                    buf.append(closing);
+                }
+            } else {
+                buf.append('(');
+                buf.append(formatStrBuf);
+                buf.append(closing);
+            }
+            return j;
+        } else {
             return i;
         }
     }
 
-    
-    
     /**
      * We just want to trim whitespaces, not newlines!
      * @param locBuf
      * @return
      */
-    private static String trim(StringBuffer locBuf) {
-        while(locBuf.length() > 0 && locBuf.charAt(0) == ' '){
+    private static FastStringBuffer trim(FastStringBuffer locBuf) {
+        while (locBuf.length() > 0 && locBuf.firstChar() == ' ') {
             locBuf.deleteCharAt(0);
         }
-        while(locBuf.length() > 0 && locBuf.charAt(locBuf.length()-1) == ' '){
-            locBuf.deleteCharAt(locBuf.length()-1);
+        while (locBuf.length() > 0 && locBuf.lastChar() == ' ') {
+            locBuf.deleteLast();
         }
-        return locBuf.toString();
+        return locBuf;
     }
 
     /**
@@ -250,14 +248,14 @@ public class PyFormatStd extends PyAction implements IFormatter{
      * @param i
      * @return
      */
-    private static int formatForComma(FormatStd std, char[] cs, StringBuffer buf, int i) {
-        while(i < cs.length-1 && (cs[i+1]) == ' '){
+    private static int formatForComma(FormatStd std, char[] cs, FastStringBuffer buf, int i) {
+        while (i < cs.length - 1 && (cs[i + 1]) == ' ') {
             i++;
         }
-        
-        if(std.spaceAfterComma){
+
+        if (std.spaceAfterComma) {
             buf.append(", ");
-        }else{
+        } else {
             buf.append(',');
         }
         return i;

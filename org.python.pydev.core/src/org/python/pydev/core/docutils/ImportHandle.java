@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * Class that represents an import found in a document.
@@ -130,18 +131,19 @@ public class ImportHandle {
             ArrayList<String> lst = new ArrayList<String>();
             ArrayList<String> importComments = new ArrayList<String>();
             
-            StringBuffer alias = new StringBuffer();
+            FastStringBuffer alias = new FastStringBuffer();
+            FastStringBuffer comments = new FastStringBuffer();
             for(int i=0;i<importedStr.length();i++){
                 char c = importedStr.charAt(i);
                 if(c == '#'){
-                    StringBuffer comments = new StringBuffer();
+                    comments = comments.clear();
                     i = ParsingUtils.eatComments(importedStr, comments, i);
                     addImportAlias(lst, importComments, alias, comments.toString());
-                    alias = new StringBuffer();
+                    alias = alias.clear();
                     
                 }else if(c == ',' || c == '\r' || c == '\n'){
                     addImportAlias(lst, importComments, alias, "");
-                    alias = new StringBuffer();
+                    alias = alias.clear();
                     
                 }else if(c == '(' || c == ')' || c == '\\'){
                     //do nothing
@@ -179,7 +181,7 @@ public class ImportHandle {
          * @param alias the name of the import to be added
          * @param importComment the comment related to the import
          */
-        private void addImportAlias(ArrayList<String> lst, ArrayList<String> importComments, StringBuffer alias, 
+        private void addImportAlias(ArrayList<String> lst, ArrayList<String> importComments, FastStringBuffer alias, 
                 String importComment) {
             
             String aliasStr = alias.toString().trim();
@@ -331,7 +333,7 @@ public class ImportHandle {
             int line = startFoundLine;
             boolean startedInMiddle = false;
             
-            StringBuffer imp = new StringBuffer();
+            FastStringBuffer imp = new FastStringBuffer();
             for(int i=0;i<importFound.length();i++){
                 char c = importFound.charAt(i);
                 
@@ -347,7 +349,7 @@ public class ImportHandle {
                     } catch (ImportNotRecognizedException e) {
                         //that's ok, not a valid import (at least, we couldn't parse it)
                     }
-                    imp = new StringBuffer();
+                    imp = imp.clear();
                     startedInMiddle = true;
                 }else{
                     if(c == '\r' || c == '\n'){

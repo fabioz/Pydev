@@ -13,7 +13,7 @@ package org.python.pydev.core.structure;
  *
  * @author Fabio
  */
-public final class FastStringBuffer {
+public final class FastStringBuffer{
 
     /**
      * Holds the actual chars
@@ -88,7 +88,7 @@ public final class FastStringBuffer {
         append(String.valueOf(n));
         return this;
     }
-    
+
     /**
      * Appends a char to the buffer.
      */
@@ -97,7 +97,7 @@ public final class FastStringBuffer {
             resizeForMinimum(count + 1);
         }
         value[count] = n;
-        count ++;
+        count++;
         return this;
     }
 
@@ -116,7 +116,7 @@ public final class FastStringBuffer {
         append(String.valueOf(b));
         return this;
     }
-    
+
     /**
      * Appends an array of chars to the buffer.
      */
@@ -151,7 +151,6 @@ public final class FastStringBuffer {
         return this;
     }
 
-    
     /**
      * Reverses the contents on this buffer
      */
@@ -165,12 +164,12 @@ public final class FastStringBuffer {
         return this;
     }
 
-    
     /**
      * Clears this buffer.
      */
-    public void clear() {
+    public FastStringBuffer clear() {
         this.count = 0;
+        return this;
     }
 
     /**
@@ -210,21 +209,21 @@ public final class FastStringBuffer {
     public FastStringBuffer insert(int offset, String str) {
         int len = str.length();
         int newCount = count + len;
-        if (newCount > value.length){
+        if (newCount > value.length) {
             resizeForMinimum(newCount);
         }
         System.arraycopy(value, offset, value, offset + len, count - offset);
-        str.getChars(0, str.length(), value, offset);
+        str.getChars(0, len, value, offset);
         count = newCount;
         return this;
     }
-    
+
     /**
      * Inserts a char at a given position in the buffer.
      */
     public FastStringBuffer insert(int offset, char c) {
         int newCount = count + 1;
-        if (newCount > value.length){
+        if (newCount > value.length) {
             resizeForMinimum(newCount);
         }
         System.arraycopy(value, offset, value, offset + 1, count - offset);
@@ -237,7 +236,7 @@ public final class FastStringBuffer {
      * Appends object.toString(). If null, "null" is appended.
      */
     public FastStringBuffer appendObject(Object object) {
-        return append(object != null?object.toString():"null");
+        return append(object != null ? object.toString() : "null");
     }
 
     /**
@@ -247,4 +246,70 @@ public final class FastStringBuffer {
         this.count = newLen;
     }
 
+    public FastStringBuffer delete(int start, int end) {
+        if (start < 0)
+            throw new StringIndexOutOfBoundsException(start);
+        if (end > count)
+            end = count;
+        if (start > end)
+            throw new StringIndexOutOfBoundsException();
+        int len = end - start;
+        if (len > 0) {
+            System.arraycopy(value, start + len, value, start, count - end);
+            count -= len;
+        }
+        return this;
+    }
+
+    public FastStringBuffer replace(int start, int end, String str) {
+        if (start < 0)
+            throw new StringIndexOutOfBoundsException(start);
+        if (start > count)
+            throw new StringIndexOutOfBoundsException("start > length()");
+        if (start > end)
+            throw new StringIndexOutOfBoundsException("start > end");
+        if (end > count)
+            end = count;
+
+        if (end > count)
+            end = count;
+        int len = str.length();
+        int newCount = count + len - (end - start);
+        if (newCount > value.length) {
+            resizeForMinimum(newCount);
+        }
+
+        System.arraycopy(value, end, value, start + len, count - end);
+        str.getChars(0, len, value, start);
+        count = newCount;
+        return this;
+    }
+
+    public FastStringBuffer deleteCharAt(int index) {
+        if ((index < 0) || (index >= count)) {
+            throw new StringIndexOutOfBoundsException(index);
+        }
+        System.arraycopy(value, index + 1, value, index, count - index - 1);
+        count--;
+        return this;
+    }
+
+    public int indexOf(char c) {
+        for(int i=0;i<this.count;i++){
+            if(c == this.value[i]){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public char firstChar() {
+        return this.value[0];
+    }
+    
+    public char lastChar() {
+        return this.value[this.count-1];
+    }
+
+    
 }
