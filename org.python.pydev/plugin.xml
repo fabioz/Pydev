@@ -987,6 +987,7 @@
    <extension-point id="pydev_formatter" name="Pydev Formatter" schema="schema/pydev_formatter.exsd"/>
    <extension-point id="pydev_globals_browser" name="Pydev Globals Browser" schema="schema/pydev_globals_browser.exsd"/>
    <extension-point id="pydev_debug_preferences_page" name="Pydev Debug Preferences Page" schema="schema/pydev_debug_preferences_page.exsd"/>
+   <extension-point id="pydev_pythonpath_contrib" name="Python Path Contributor" schema="schema/pydev_pythonpath_contrib.exsd"/>
 <!-- wizards -->
    <extension point="org.eclipse.ui.newWizards">
       <category

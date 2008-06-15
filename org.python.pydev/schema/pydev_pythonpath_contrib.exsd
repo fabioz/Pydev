@@ -1,0 +1,131 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.python.pydev">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.python.pydev" id="pydev_pythonpath_contrib" name="Python Path Contributor"/>
+      </appInfo>
+      <documentation>
+         Applied from patch: http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1988084&amp;group_id=85796&amp;atid=577329
+
+Important: these paths will only be available for new projects.
+
+For this to work in existing projects, the user must explicitly go to project &gt; properties &gt; PyDev - PYTHONPATH and click &apos;Force restore internal info&apos; or re-configure the interpreter (which does restore the internal info too).
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <complexType>
+         <sequence>
+            <element ref="path_contributor" minOccurs="0" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="path_contributor">
+      <complexType>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn=":org.python.pydev.plugin.nature.IPythonPathContributor"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="since"/>
+      </appInfo>
+      <documentation>
+         [Enter the first release in which this extension point appears.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         To provide c:\temp to be available in the pythonpath, do:
+
+&lt;extension point=&quot;org.python.pydev.pydev_pythonpath_contrib&quot;&gt;
+    &lt;path_contributor class=&quot;org.MyPathContributor&quot;/&gt;
+&lt;/extension&gt;
+
+
+package org;
+
+import org.eclipse.core.resources.IProject;
+import org.python.pydev.plugin.nature.IPythonPathContributor;
+
+public class MyPathContributor implements IPythonPathContributor {
+
+    public MyPathContributor() {
+    }
+
+    public String getAdditionalPythonPath(IProject project) {
+        return &quot;c:\\temp&quot;;
+    }
+
+}
+
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         More info can be found at the IPythonPathContributor interface.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         [Enter information about supplied implementation of this extension point.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         
+      </documentation>
+   </annotation>
+
+</schema>

@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
@@ -109,6 +110,7 @@ public class PythonPathNature implements IPythonPathNature {
         
         String source = getProjectSourcePath();
         String external = getProjectExternalSourcePath();
+        String contributed = getContributedSourcePath();
         
         if(source == null){
             source = "";
@@ -157,7 +159,33 @@ public class PythonPathNature implements IPythonPathNature {
         if(external == null){
             external = "";
         }
-        return buf.append("|").append(external).toString();
+        return buf.append("|").append(external).append("|").append(contributed).toString();
+    }
+
+
+    /**
+     * Gets the source path contributed by plugins.
+     * 
+     * See: http://sourceforge.net/tracker/index.php?func=detail&aid=1988084&group_id=85796&atid=577329
+     * 
+     * @throws CoreException
+     */
+    private String getContributedSourcePath() throws CoreException {
+        FastStringBuffer buff = new FastStringBuffer();
+        synchronized (buff) {
+            List contributors = ExtensionHelper.getParticipants("org.python.pydev.pydev_pythonpath_contrib");
+            for (Object contribObj : contributors) {
+                IPythonPathContributor contributor = (IPythonPathContributor) contribObj;
+                String additionalPythonPath = contributor.getAdditionalPythonPath(project);
+                if (additionalPythonPath != null && additionalPythonPath.trim().length() > 0) {
+                    if (buff.length() > 0){
+                        buff.append("|");
+                    }
+                    buff.append(additionalPythonPath.trim());
+                }
+            }
+        }
+        return buff.toString();
     }
 
     
