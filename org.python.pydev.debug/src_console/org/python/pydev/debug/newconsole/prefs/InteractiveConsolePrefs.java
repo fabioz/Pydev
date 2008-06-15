@@ -12,6 +12,10 @@ import org.python.pydev.utils.MultiStringFieldEditor;
 
 public class InteractiveConsolePrefs extends FieldEditorPreferencePage implements IWorkbenchPreferencePage{
 
+    public InteractiveConsolePrefs() {
+        super(FLAT);
+    }
+    
     @Override
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
@@ -39,7 +43,6 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
     public void init(IWorkbench workbench) {
         setDescription("Pydev interactive console preferences."); 
         setPreferenceStore(PydevDebugPlugin.getDefault().getPreferenceStore());
-
     }
 
 }
