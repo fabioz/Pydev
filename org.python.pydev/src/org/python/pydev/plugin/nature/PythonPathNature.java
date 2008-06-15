@@ -170,19 +170,17 @@ public class PythonPathNature implements IPythonPathNature {
      * 
      * @throws CoreException
      */
+    @SuppressWarnings("unchecked")
     private String getContributedSourcePath() throws CoreException {
         FastStringBuffer buff = new FastStringBuffer();
-        synchronized (buff) {
-            List contributors = ExtensionHelper.getParticipants("org.python.pydev.pydev_pythonpath_contrib");
-            for (Object contribObj : contributors) {
-                IPythonPathContributor contributor = (IPythonPathContributor) contribObj;
-                String additionalPythonPath = contributor.getAdditionalPythonPath(project);
-                if (additionalPythonPath != null && additionalPythonPath.trim().length() > 0) {
-                    if (buff.length() > 0){
-                        buff.append("|");
-                    }
-                    buff.append(additionalPythonPath.trim());
+        List<IPythonPathContributor> contributors = ExtensionHelper.getParticipants("org.python.pydev.pydev_pythonpath_contrib");
+        for (IPythonPathContributor contributor : contributors) {
+            String additionalPythonPath = contributor.getAdditionalPythonPath(project);
+            if (additionalPythonPath != null && additionalPythonPath.trim().length() > 0) {
+                if (buff.length() > 0){
+                    buff.append("|");
                 }
+                buff.append(additionalPythonPath.trim());
             }
         }
         return buff.toString();
