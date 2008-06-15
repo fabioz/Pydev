@@ -26,7 +26,7 @@ import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.plugin.PydevPlugin;
 
-public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtension2 implements ICompletionProposalExtension{
+public class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposalExtension2 implements ICompletionProposalExtension{
     
 
     private int firstParameterLen = 0;
@@ -49,6 +49,11 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
      * This is the token from where we should get the image and additional info.
      */
     private IToken element;
+    
+    /**
+     * Offset forced to be returned (only valid if >= 0)
+     */
+    private int newForcedOffset = -1;
     
     /**
      * Constructor where the image and the docstring are lazily computed (initially added for the java integration).
@@ -108,6 +113,10 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
      * @see ICompletionProposal#getSelection(IDocument)
      */
     public Point getSelection(IDocument document) {
+        if(newForcedOffset >= 0){
+            return new Point(newForcedOffset, 0); 
+        }
+        
         if(onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO){
             return null;
         }
@@ -125,8 +134,23 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
 
 
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
+        
         boolean eat = (stateMask & SWT.MOD1) != 0;
         IDocument doc = viewer.getDocument();
+        
+        if(trigger == '.'){
+            //do not apply completion when it's triggered by '.', because that's usually not what's wanted
+            //e.g.: if the user writes sys and the current completion is SystemError, pressing '.' will apply
+            //the completion, but what the user usually wants is just having sys.xxx and not SystemError.xxx
+            try {
+                doc.replace(offset, 0, ".");
+                newForcedOffset = offset+1;
+            } catch (BadLocationException e) {
+                PydevPlugin.log(e);
+            }
+            return;
+        }
+        
         
         if(onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO){
             return;
@@ -304,7 +328,7 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
     
     
     
-    //ICompletionProposalExtension
+    //-------------------------------------------- ICompletionProposalExtension
 
     protected final static char[] VAR_TRIGGER= new char[] { '.' };
     
@@ -313,6 +337,8 @@ public class PyLinkedModeCompletionProposal extends PyCompletionProposalExtensio
      * 
      * When . is entered, the user will finish (and apply) the current completion
      * and request a new one with '.'
+     * 
+     * If not added, it won't request the new one (and will just stop the current)
      */
     public char[] getTriggerCharacters(){
         if(onApplyAction == ON_APPLY_DEFAULT){

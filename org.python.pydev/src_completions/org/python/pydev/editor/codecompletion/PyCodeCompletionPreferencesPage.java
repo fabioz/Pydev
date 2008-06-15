@@ -77,7 +77,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 		        "for which constructs such as 'from xxx import yyy' should be " +
 		        "analyzed to get its actual token and if it maps to a method, its paramaters will be added in the completion.", 80);
 		IntegerFieldEditor deepAnalysisFieldEditor = new IntegerFieldEditor(
-        		        ARGUMENTS_DEEP_ANALYSIS_N_CHARS, "Minimun number of chars in qualifier for\ndeep analysis for parameters in 'from' imports:", p);
+        		        ARGUMENTS_DEEP_ANALYSIS_N_CHARS, "Minimum number of chars in qualifier for\ndeep analysis for parameters in 'from' imports:", p);
         addField(deepAnalysisFieldEditor);
         deepAnalysisFieldEditor.getLabelControl(p).setToolTipText(tooltip);
         deepAnalysisFieldEditor.getTextControl(p).setToolTipText(tooltip);
@@ -101,7 +101,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 		
 
 		addField(new BooleanFieldEditor(
-                DEBUG_CODE_COMPLETION, "Debug code completion?.", p));
+                DEBUG_CODE_COMPLETION, "Debug code completion?", p));
 		
     }
     

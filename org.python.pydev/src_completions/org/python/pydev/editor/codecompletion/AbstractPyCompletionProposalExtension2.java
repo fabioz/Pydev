@@ -15,15 +15,19 @@ import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.plugin.PydevPlugin;
 
-public abstract class PyCompletionProposalExtension2 extends PyCompletionProposal implements ICompletionProposalExtension2 {
+public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletionProposal implements ICompletionProposalExtension2 {
     
 
     protected PyCompletionPresentationUpdater presentationUpdater;
     public int fLen;
     public boolean fLastIsPar;
 
-    public PyCompletionProposalExtension2(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction, String args) {
-        super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority, onApplyAction, args);
+    public AbstractPyCompletionProposalExtension2(String replacementString, int replacementOffset, int replacementLength,
+            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
+            String additionalProposalInfo, int priority, int onApplyAction, String args) {
+        
+        super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
+                contextInformation, additionalProposalInfo, priority, onApplyAction, args);
         presentationUpdater = new PyCompletionPresentationUpdater();
     }
 
