@@ -2,6 +2,7 @@ package org.python.pydev.debug.newconsole.prefs;
 
 import org.eclipse.jface.preference.ColorFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
@@ -38,11 +39,23 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
         
         addField(new StringFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS, 
                 "Vm Args for jython\n(used only on external\nprocess option):", p));
+        
+        addField(new IntegerFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS, 
+                "Maximum connection attempts\nfor initial communication:", p));
     }
 
     public void init(IWorkbench workbench) {
         setDescription("Pydev interactive console preferences."); 
         setPreferenceStore(PydevDebugPlugin.getDefault().getPreferenceStore());
+    }
+
+    public static int getMaximumAttempts() {
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+        if(plugin != null){
+            return plugin.getPreferenceStore().getInt(PydevConsoleConstants.INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS);
+        }else{
+            return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS;
+        }
     }
 
 }

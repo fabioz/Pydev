@@ -41,5 +41,8 @@ public final class PydevConsoleConstants {
 
     public static final String INITIAL_INTERPRETER_CMDS = "INITIAL_INTERPRETER_CMDS";
     public static final String DEFAULT_INITIAL_INTERPRETER_CMDS = "import sys; print '%s %s' % (sys.executable or sys.platform, sys.version)\n";
+    
+    public static final String INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS = "INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS";
+    public static final int DEFAULT_INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS = 20;
 
 }

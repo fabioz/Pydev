@@ -11,10 +11,15 @@ import org.apache.xmlrpc.server.XmlRpcHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcNoSuchHandlerException;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.webserver.WebServer;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.dltk.console.IScriptConsoleCommunication;
 import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.editor.codecompletion.AbstractPyCodeCompletion;
@@ -90,8 +95,19 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      */
     public void close() throws Exception {
         if(this.client != null){
-            this.client.execute("close", new Object[0]);
-            this.client = null;
+            new Job("Close console communication"){
+
+                @Override
+                protected IStatus run(IProgressMonitor monitor) {
+                    try {
+                        PydevConsoleCommunication.this.client.execute("close", new Object[0]);
+                    } catch (Exception e) {
+                        //Ok, we can ignore this one on close.
+                    }
+                    PydevConsoleCommunication.this.client = null;
+                    return Status.OK_STATUS;
+                }
+            }.schedule(); //finish it
         }
         
         if(this.webServer != null){
@@ -177,8 +193,8 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
             //the thread that we started in the last exec is still alive if we were waiting for an input.
         }else{
             //create a thread that'll keep locked until an answer is received from the server.
-            Thread thread = new Thread(){
-                
+            Job job = new Job("Pydev Console Communication"){
+
                 /**
                  * Executes the needed command 
                  * 
@@ -214,18 +230,23 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                 }
                 
                 @Override
-                public void run() {
+                protected IStatus run(IProgressMonitor monitor) {
                     boolean needInput = false;
                     try{
                         
                         Tuple<String, Boolean> executed = null;
                         
                         
-                        //the 1st time we'll do a connection attempt, we can try up to 5 times (until the 1st time the connection
-                        //is accepted)
+                        //the 1st time we'll do a connection attempt, we can try to connect n times (until the 1st time the connection
+                        //is accepted) -- that's mostly because the server may take a while to get started.
                         int commAttempts = 0;
+                        int maximumAttempts = InteractiveConsolePrefs.getMaximumAttempts();
+                        //System.out.println(maximumAttempts);
                         
                         while(true){
+                            if(monitor.isCanceled()){
+                                return Status.CANCEL_STATUS;
+                            }
                             executed = exec();
                             
                             //executed.o1 is not null only if we had an error
@@ -233,7 +254,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                                 if(firstCommWorked){
                                     break;
                                 }else{
-                                    if(commAttempts < 5){
+                                    if(commAttempts < maximumAttempts){
                                         commAttempts += 1;
                                         continue;
                                     }else{
@@ -245,7 +266,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                                 break;
                             }
                             
-                            //unreachable code!!
+                            //unreachable code!! -- commented because eclipse will complain about it
                             //throw new RuntimeException("Can never get here!");
                         }
                         
@@ -264,16 +285,19 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                         nextResponse = new InterpreterResponse("", "Exception while pushing line to console:"+e.getMessage(), 
                                 false, needInput);
                     }
+                    return Status.OK_STATUS;
                 }
             };
-            thread.start();
+            
+            job.schedule();
+            
         }
         
         //busy loop until we have a response
         while(nextResponse == null){
             synchronized(lock2){
                 try {
-                    lock2.wait(10);
+                    lock2.wait(20);
                 } catch (InterruptedException e) {
                     PydevPlugin.log(e);
                 }

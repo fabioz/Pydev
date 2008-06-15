@@ -68,7 +68,7 @@ public class PydevXmlRpcClient implements IPydevXmlRpcClient{
     public Object execute(String command, Object[] args) throws XmlRpcException{
         final Object[] result = new Object[]{null};
         
-        //make ana async call so that we can keep track of not actually having an answer.
+        //make an async call so that we can keep track of not actually having an answer.
         this.impl.executeAsync(command, args, new AsyncCallback(){
             
 
