@@ -11,3 +11,6 @@ installing in Eclipse, we have to start the controller agent:
 cd E:\install\Dev.Eclipse3\tptpdc.win_ia32-TPTP-4.0.1-200510031151
 set RASERVER_HOME=E:\install\Dev.Eclipse3\tptpdc.win_ia32-TPTP-4.0.1-200510031151
 bin\RAServer.exe
+
+
+With jprobe: find org.eclipse.equinox.launcher_1.0.1.R33x_v20070828.jar and put org.eclipse.core.launcher.Main as main class.
