@@ -22,6 +22,7 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionEvent;
@@ -248,7 +249,9 @@ public class PyCodeCoverageView extends ViewPart {
     private final class ChooseAction extends ProgressAction {
         public void run() {
             ContainerSelectionDialog dialog = new ContainerSelectionDialog(getSite().getShell(), null, false, "Test");
-            dialog.open();
+            if (dialog.open() != Window.OK) {
+              return;
+            }
             Object[] objects = dialog.getResult();
             if (objects.length == 1) { //only one folder can be selected
                 if (objects[0] instanceof IPath) {
