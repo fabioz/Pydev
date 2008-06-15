@@ -63,7 +63,7 @@ public class AutoImportsPreferencesPage extends FieldEditorPreferencePage implem
                 }
                 buf.insert(0, s);
                 if(i != 0){
-                    buf.insert(0, ".");
+                    buf.insert(0, '.');
                 }
             }
             declPackageWithoutInit = buf.toString();
