@@ -14,6 +14,7 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.performanceeval.Timer;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -30,8 +31,14 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testTryReparse();
+            
+            //Timer timer = new Timer();
+            //test.parseFilesInDir(new File("D:/bin/Python251/Lib/site-packages/wx-2.8-msw-unicode"), true);
+            //test.parseFilesInDir(new File("D:/bin/Python251/Lib/"), false);
+            //timer.printDiff();
             test.tearDown();
+            
+            
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
         } catch (Exception e) {
@@ -304,17 +311,25 @@ public class PyParserTest extends PyParserTestBase{
         parseFilesInDir(file);
     }
 
+    private void parseFilesInDir(File file) {
+        parseFilesInDir(file, false);
+    }
+    
     /**
      * @param file
      */
-    private void parseFilesInDir(File file) {
+    private void parseFilesInDir(File file, boolean recursive) {
         assertTrue("Directory "+file+" does not exist", file.exists());
         assertTrue(file.isDirectory());
+        
         File[] files = file.listFiles();
         for (int i = 0; i < files.length; i++) {
             File f = files[i];
             if(f.getAbsolutePath().toLowerCase().endsWith(".py")){
                 parseLegalDocStr(REF.getFileContents(f), f);
+                
+            }else if(recursive && f.isDirectory()){
+                parseFilesInDir(f, recursive);
             }
         }
     }
