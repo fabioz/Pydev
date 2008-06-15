@@ -51,12 +51,13 @@ public final class FastStringBuffer {
      */
     public FastStringBuffer append(String string) {
         int strLen = string.length();
+        int newCount = count + strLen;
 
-        if (this.count + strLen > this.value.length) {
-            resizeForMinimum(this.count + strLen);
+        if (newCount > this.value.length) {
+            resizeForMinimum(newCount);
         }
         string.getChars(0, strLen, value, this.count);
-        this.count += strLen;
+        this.count = newCount;
 
         return this;
     }
@@ -83,7 +84,7 @@ public final class FastStringBuffer {
             resizeForMinimum(count + 1);
         }
         value[count] = n;
-        count += 1;
+        count ++;
         return this;
     }
 
@@ -98,11 +99,12 @@ public final class FastStringBuffer {
     }
 
     public FastStringBuffer append(char[] chars) {
-        if (count + chars.length > value.length) {
-            resizeForMinimum(count + chars.length);
+        int newCount = count + chars.length;
+        if (newCount > value.length) {
+            resizeForMinimum(newCount);
         }
         System.arraycopy(chars, 0, value, count, chars.length);
-        count += chars.length;
+        count = newCount;
         return this;
     }
 
@@ -145,7 +147,7 @@ public final class FastStringBuffer {
 
     public void deleteLast() {
         if (this.count > 0) {
-            this.count -= 1;
+            this.count--;
         }
     }
 
