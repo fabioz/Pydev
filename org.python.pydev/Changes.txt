@@ -15,6 +15,7 @@ Pydev
 <li><strong>Organize Imports (ctrl+shift+O)</strong>: Imports can be grouped.</li>
 <li><strong>Cygwin</strong>: sys.executable in cygwin was not returning '.exe' in the end as it should.</li>
 <li><strong>Additional paths for PYTHONPATH</strong>: extension point allows plugins to contribute paths to the PYTHONPATH.</li>
+<li><strong>Code-completion</strong>: typing '.' won't apply the selected completion, but will still request a new one with the current contents.</li>
 </ul>
 
 
