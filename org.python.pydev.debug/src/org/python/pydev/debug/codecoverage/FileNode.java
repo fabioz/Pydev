@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.python.pydev.core.structure.FastStringBuffer;
+
 /**
  * @author Fabio Zadrozny
  */
@@ -40,7 +42,16 @@ public class FileNode {
     }
     
     public static String toString(String str, int stmts, int exec, String notExecuted) {
-        return getName(str) + "   " +getStmts(stmts)+"     "+exec+"      "+calcCover(stmts, exec) +"  "+notExecuted;
+        return new FastStringBuffer().
+            append(getName(str)).
+            append("   ").
+            append(getStmts(stmts)).
+            append("     ").
+            append(exec).
+            append("      ").
+            append(calcCover(stmts, exec)).
+            append("  ").
+            append(notExecuted).toString();
     }
     
     public static String getName(String str){
@@ -55,22 +66,19 @@ public class FileNode {
     }
 
     public static String getStmts(int stmts){
-        String str = stmts+"";
+        FastStringBuffer str = new FastStringBuffer();
+        str.append(stmts);
         while (str.length() < 4){
-            str = " "+str;
+            str.insert(0, " ");
         }
-        return str;
+        return str.toString();
     }
 
     public static String getExec(int exec){
-        String str = exec+"";
-        while (str.length() < 4){
-            str = " "+str;
-        }
-        return str;
+        return getStmts(exec);
     }
 
-    public static String calcCover( int stmts, int exec){
+    public static String calcCover(int stmts, int exec){
         double v = 0;
         if(stmts != 0){
             v = ((double)exec) / ((double)stmts) * 100.0;

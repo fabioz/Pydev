@@ -11,6 +11,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.python.pydev.core.structure.FastStringBuffer;
+
 
 /**
  * 
@@ -182,7 +184,7 @@ public class CoverageCache {
     public String getStatistics(Object node) {
         
 
-        StringBuffer buffer = new StringBuffer();
+        FastStringBuffer buffer = new FastStringBuffer();
         try {
             List<Object> list = getFiles(node);  //array of FileNode
             
@@ -195,7 +197,7 @@ public class CoverageCache {
             
             for (Iterator<Object> it = list.iterator(); it.hasNext();) {
                 Object element = it.next();
-                buffer.append(element.toString()+"\n");
+                buffer.append(element.toString()).append("\n");
                 if(element instanceof FileNode){ //it may have been an error node...
 	                totalExecuted += ((FileNode)element).exec;
 	                totalStmts += ((FileNode)element).stmts;
@@ -203,7 +205,7 @@ public class CoverageCache {
             }
             
             buffer.append("-----------------------------------------------------------------------------\n");
-            buffer.append(FileNode.toString("TOTAL",totalStmts, totalExecuted, "")+"\n");
+            buffer.append(FileNode.toString("TOTAL",totalStmts, totalExecuted, "")).append("\n");
             
         } catch (NodeNotFoudException e) {
             buffer.append("File has no statistics.");

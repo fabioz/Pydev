@@ -320,12 +320,20 @@ public class PyOrganizeImports extends PyAction{
             List<String> importedStr = v.getImportedStr();
             List<String> commentsForImports = v.getCommentsForImports();
             for(int i=0;i<importedStr.size();i++){
-                String importedString = importedStr.get(i);
-                String comment = commentsForImports.get(i);
+                String importedString = importedStr.get(i).trim();
+                String comment = commentsForImports.get(i).trim();
+                boolean isWildImport = importedString.equals("*");
+                if(isWildImport){
+                    importsAndComments.clear();
+                    importsAndNoComments.clear();
+                }
                 if(comment.length() > 0){
                     importsAndComments.add(new Tuple<String, String>(importedString, comment));
                 }else{
                     importsAndNoComments.add(new Tuple<String, String>(importedString, comment));
+                }
+                if(isWildImport){
+                    return;
                 }
             }
         }

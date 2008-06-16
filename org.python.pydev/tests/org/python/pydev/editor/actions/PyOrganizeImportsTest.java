@@ -19,7 +19,7 @@ public class PyOrganizeImportsTest extends TestCase {
         try {
             PyOrganizeImportsTest test = new PyOrganizeImportsTest();
             test.setUp();
-            test.testPerformGroupingWithWrapsLong();
+            test.testPerformWithGroupingAndWild();
             test.tearDown();
             junit.textui.TestRunner.run(PyOrganizeImportsTest.class);
         } catch (Throwable e) {
@@ -88,6 +88,31 @@ String result = ""+
         "import b\n"+
         "\n";
         
+        assertEquals(result, doc.get());
+        
+    }
+    
+    public void testPerformWithGroupingAndWild() {
+        ImportsPreferencesPage.groupImportsForTests = true;
+        String d = ""+
+        "import b\n"+
+        "import a\n"+
+        "\n"+
+        "from a import *\n"+
+        "from b import d\n"+
+        "from a import b";
+        
+        Document doc = new Document(d);
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        
+        String result = ""+
+        "from a import *\n"+
+        "from b import d\n"+
+        "import a\n"+
+        "import b\n"+
+        "\n";
+        
+//        System.out.println(doc.get());
         assertEquals(result, doc.get());
         
     }
