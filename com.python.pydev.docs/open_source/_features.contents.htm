@@ -1,20 +1,13 @@
 <h2>New on: LAST_VERSION_TAG</h2>
 
 <ul>
-<li><strong>Pydev Package Explorer</strong>: projects that had the project folder in the pythonpath did not show children items correctly.</li>
-<li><strong>Debugger</strong>: Disable all works. Patch from: Oldrich Jedlicka</li>
-<li><strong>Debugger</strong>: Problem when making a step return / step over</li>
-<li><strong>Code-completion</strong>: Working for attributes found in a superclass imported with a relative import</li>
-
-Patches from Felix Schwarz:
-<ul>
-
-<li>Allow to configure an interpreter even if the workspace path name contains spaces</li>
-<li>Completion server does not work when the eclipse directory contains spaces</li>
-<li>Fix deletion of resources in pydev package explorer for Eclipse 3.4</li>
+<li><strong>Executing external programs</strong>: Using Runtime.exec(String[] cmdargs) instead of a string with the generated command (fixes problems regarding having spaces in the installation).</li>
+<li><strong>Organize Imports (ctrl+shift+O)</strong>: Imports can be grouped.</li>
+<li><strong>Cygwin</strong>: sys.executable in cygwin was not returning '.exe' in the end of the executable as it should.</li>
+<li><strong>Additional paths for PYTHONPATH</strong> (Patch from Eric Wittmann): extension point allows plugins to contribute paths to the PYTHONPATH.</li>
+<li><strong>Code-completion</strong>: typing '.' won't apply the selected completion, but will still request a new one with the current contents.</li>
+<li><strong>Pydev Package Explorer</strong>: Problem while trying to show active editor on the pydev package explorer.</li>
 </ul>
-</ul>
-
 
 
 <br/>
@@ -119,6 +112,24 @@ Patches from Felix Schwarz:
 <h2>Features History</h2>
 
 
+
+<h3>New on: 1.3.17</h3>
+
+
+<ul>
+<li><strong>Pydev Package Explorer</strong>: projects that had the project folder in the pythonpath did not show children items correctly.</li>
+<li><strong>Debugger</strong>: Disable all works. Patch from: Oldrich Jedlicka</li>
+<li><strong>Debugger</strong>: Problem when making a step return / step over</li>
+<li><strong>Code-completion</strong>: Working for attributes found in a superclass imported with a relative import</li>
+
+Patches from Felix Schwarz:
+<ul>
+
+<li>Allow to configure an interpreter even if the workspace path name contains spaces</li>
+<li>Completion server does not work when the eclipse directory contains spaces</li>
+<li>Fix deletion of resources in pydev package explorer for Eclipse 3.4</li>
+</ul>
+</ul>
 
 <h3>New on: 1.3.16</h3>
 
