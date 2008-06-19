@@ -246,6 +246,14 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             			
             			while(found.size() > 0){
             				Object f = found.pop();
+            				if(f instanceof IResource){
+            					//no need to create it if it's already in the model!
+            					Object child = sourceFolderInWrap.getChild((IResource)f);
+            					if(child != null && child instanceof IWrappedResource){
+            						wrappedResource = (IWrappedResource) child;
+            						continue;
+            					}
+            				}
 							//creating is enough to add it to the model
             				if(f instanceof IFile){
             					wrappedResource = new PythonFile(wrappedResource, (IFile)f, sourceFolderInWrap);

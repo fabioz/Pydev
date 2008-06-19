@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.ui.IContributorResourceAdapter;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This is the the model for a source folder that exists within a project.
@@ -60,6 +61,21 @@ public class PythonSourceFolder implements IWrappedResource, IAdaptable, IContri
 	
 	public void addChild(IWrappedResource child){
 		IResource actualObject = (IResource) child.getActualObject();
+		
+		Object p = child.getParentElement();
+		if(p != null && p instanceof IWrappedResource){
+			IWrappedResource pWrapped = (IWrappedResource) p;
+			if(pWrapped.getActualObject().equals(actualObject)){
+				PydevPlugin.log("Trying to add an element that has itself as parent: "+actualObject);
+			}
+		}
+		
+		//if there was already a child to the given object, remove it before adding this one.
+		IWrappedResource existing = children.get(actualObject);
+		if(existing != null){
+			removeChild(actualObject);
+		}
+		
         children.put(actualObject, child);
         
         IContainer container = actualObject.getParent();
