@@ -3,48 +3,29 @@
 
 	<h3>Interactive Console</h3>
 	<p>
-		In Pydev Extensions, you can use <strong>Ctrl+Alt+Enter</strong> (while in the Pydev editor)
-		to open a console for you, and you can use the editor to pass commands to the opened console.
-		<br/><br/>
-		<strong>NOTE</strong> in versions before <strong>1.2.2</strong> the binding used was <strong>Ctrl+Enter</strong>
-	</p>
-	<br/>
-	<p>
-		The console will remain open for experimentation while the editor is open or until you explicitly 
-		destroy it in the console view.
+		Pydev Extensions add some features to the <a href="http://pydev.sourceforge.net/console.html">open source interactive interpreter</a>:
+		<br/>
+		<br/>
 	</p>
 	
 	<p>
-		<strong>NOTE</strong>: This is only available for Pydev Extensions. In the open source version, you can
-		have a python console for experimenting following the FAQ: 
-		<a href="http://pydev.sourceforge.net/faq.html#ref_12">How do I configure a python shell for experimenting with Python?</a>
+		<strong>Ctrl+Alt+Enter</strong> (while in the Pydev editor) can be used
+		to open a console if there's no open console. With an open console, <strong>Ctrl+Alt+Enter</strong>
+		will make an execfile of the current editor in the console, so that its symbols are available for further experimentation.
+		<br/>
+		<br/>
 	</p>
 	
 	<p>
-		The Pydev editor enables you to pass commands directly from the editor to the console, either evaluating on
-		each new line, or only on request for a given selected code (configured in the preferences -- see below). 
+		<strong>Code-completion with auto-import</strong>: In the console, Pydev Extensions will add 
+		context-insensitive completions, in the same way they're added in the editor, so, when it's finished, a 
+		"from mod import ChosenClass" will be added and evaluated, and the current
+		line will be kept for further typing.  
+		<br/>
+		<br/>
 	</p>
-	
 	<p>
-		Alternatively you may code directly in the Console if you want.
-	</p>
-	
-	<p>
-		You may also choose some 'common' operations you want it to execute each time you create a new shell (configured in the preferences -- see below).
-	</p>
-	
-	
-	<p>
-	<br/>
-		<p align="center">
-			<IMG src="images/interactiveconsole/preferences.png" border="1"/><br/><br/>
-			Preferences for the Interactive Console<br/><br/>
-		</p>
-	</p>
-	
-	<p>
-		You should check the following <strong><a href="manual_screencasts_presentation1.html">Sceencast</a></strong> 
-		to actually see it in action (from the middle to the end of the screencast).
+		For more info on context-insensitive completions see: <a href="manual_adv_complnoctx.html">Context-insensitive completions</a>
 	</p>
 
 </contents_area>
