@@ -331,6 +331,13 @@
                id="org.python.pydev.editor.actions.comment">
          </action>
          <action
+               definitionId="org.python.pydev.editor.actions.togglecomment"
+               label="Toggle Comment"
+               class="org.python.pydev.editor.actions.PyToggleComment"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/editGroup"
+               id="org.python.pydev.editor.actions.togglecomment">
+         </action>
+         <action
                definitionId="org.python.pydev.editor.actions.removeBlockComment"
                label="Remove comment block"
                class="org.python.pydev.editor.actions.PyRemoveBlockComment"
@@ -618,6 +625,13 @@
             categoryId="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.comment">
       </command>
+<!-- command: toggle comment-->
+      <command
+            name="Python Toggle Comment"
+            description="Toggles comments of python line/s (Adds/Removes # at beggining of the line)"
+            categoryId="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.togglecomment">
+      </command>
 <!-- command: Go To Defition-->
       <command
             name="Python Go To Definition"
@@ -782,7 +796,7 @@
       <key
             sequence="Ctrl+/"
             contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.editor.actions.comment"
+            commandId="org.python.pydev.editor.actions.togglecomment"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key

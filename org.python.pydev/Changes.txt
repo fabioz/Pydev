@@ -1,3 +1,10 @@
+after 1.3.18
+
+Pydev
+<ul>
+<li><strong>Ctr+/</strong>: Changed to toggle comment (instead of only comment) -- patch from Christoph Pickl</li>
+</ul>
+
 after 1.3.17
 
 

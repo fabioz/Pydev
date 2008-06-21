@@ -23,6 +23,7 @@ import org.python.pydev.core.structure.FastStringBuffer;
  * @author Parhaum Toofanian
  */
 public class PyComment extends PyAction {
+    
     /**
      * Grabs the selection information and performs the action.
      */
@@ -58,8 +59,7 @@ public class PyComment extends PyAction {
         
         FastStringBuffer strbuf = new FastStringBuffer(selectedText.length()+ret.size()+2);
         for(String line: ret){
-            strbuf.append('#');
-            strbuf.append(line);
+            strbuf.append('#').append(line);
         }
         
         ITextSelection txtSel = ps.getTextSelection();

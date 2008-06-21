@@ -17,8 +17,6 @@ import org.python.pydev.core.structure.FastStringBuffer;
 public class PyUncomment extends PyComment {
     /* Selection element */
 
-
-
     /**
      * Performs the action with a given PySelection
      * 
@@ -27,21 +25,26 @@ public class PyUncomment extends PyComment {
      * @throws BadLocationException 
      */
     public Tuple<Integer, Integer> perform(PySelection ps) throws BadLocationException {
-        // What we'll be replacing the selected text with
-        FastStringBuffer strbuf = new FastStringBuffer();
 
         // If they selected a partial line, count it as a full one
         ps.selectCompleteLine();
+        
+        // What we'll be replacing the selected text with
+        FastStringBuffer strbuf = new FastStringBuffer(ps.getSelLength()+1); //no, it won't be more that the current sel
 
-        int i;
-        // For each line, comment them out
-        for (i = ps.getStartLineIndex(); i <= ps.getEndLineIndex(); i++) {
+        // For each line, uncomment it
+        int endLineIndex = ps.getEndLineIndex();
+        String endLineDelim = ps.getEndLineDelim();
+
+        for (int i = ps.getStartLineIndex(); i <= endLineIndex; i++) {
             String l = ps.getLine(i);
             if (l.trim().startsWith("#")) { // we may want to remove comment that are not really in the beggining...
-                strbuf.append(l.replaceFirst("#", "") + (i < ps.getEndLineIndex() ? ps.getEndLineDelim() : ""));
+                strbuf.append(l.replaceFirst("#", ""));
             } else {
-                strbuf.append(l + (i < ps.getEndLineIndex() ? ps.getEndLineDelim() : ""));
+                strbuf.append(l);
             }
+            //add a new line if we're not in the last line.
+            strbuf.append(i < endLineIndex ? endLineDelim : "");
         }
 
         int start = ps.getStartLine().getOffset();
@@ -49,17 +52,6 @@ public class PyUncomment extends PyComment {
         // Replace the text with the modified information
         ps.getDoc().replace(start, ps.getSelLength(), replacement);
         return new Tuple<Integer, Integer>(start, replacement.length());
-    }
-
-    /**
-     * Same as comment, but remove the first char.
-     */
-    protected String replaceStr(String str, String endLineDelim) {
-        str = str.replaceAll(endLineDelim + "#", endLineDelim);
-        if (str.startsWith("#")) {
-            str = str.substring(1);
-        }
-        return str;
     }
 
 }
