@@ -103,6 +103,12 @@ public class PythonSourceFolder implements IWrappedResource, IAdaptable, IContri
 	}
 	
 	public Object getChild(IResource actualObject){
+		if(actualObject == null){
+			return null;
+		}
+		if(this.getActualObject().equals(actualObject)){
+			return this;
+		}
 		IWrappedResource ret = children.get(actualObject);
 		//System.out.println("Gotten child:"+ret+" for resource:"+actualObject);
         return ret;
