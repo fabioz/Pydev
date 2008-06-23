@@ -11,7 +11,7 @@ import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.exprType;
 
 /**
- * This class is used so that after transversing the AST, we have a simple structure for navigating
+ * This class is used so that after traversing the AST, we have a simple structure for navigating
  * upon its nodes;
  *
  * This structure should provide:
