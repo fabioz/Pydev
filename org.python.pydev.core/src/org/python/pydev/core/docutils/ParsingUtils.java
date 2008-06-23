@@ -47,10 +47,12 @@ public class ParsingUtils implements IPythonPartitions{
             }
             i++;
         }
-        if(i < len(cs))
+        
+        if(i < len(cs)){
             if(buf != null){
                 buf.append(charAt(cs,i));
             }
+        }
     
         return i;
     }

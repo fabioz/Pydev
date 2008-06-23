@@ -12,6 +12,8 @@ import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
 import javax.swing.text.html.HTMLEditorKit;
 
+import org.python.pydev.core.structure.FastStringBuffer;
+
 public class StringUtils {
 
     /**
@@ -22,7 +24,7 @@ public class StringUtils {
      * @return a string with the %s replaced by the arguments passed
      */
     public static String format(String str, Object... args) {
-        StringBuffer buffer = new StringBuffer();
+        FastStringBuffer buffer = new FastStringBuffer(str.length()+(16*args.length));
         int j = 0;
 
         for (int i = 0; i < str.length(); i++) {
@@ -30,7 +32,7 @@ public class StringUtils {
             if (c == '%' && i + 1 < str.length()) {
                 char nextC = str.charAt(i + 1);
                 if (nextC == 's') {
-                    buffer.append(args[j]);
+                    buffer.append(args[j].toString());
                     j++;
                     i++;
                 } else if (nextC == '%') {
@@ -195,7 +197,7 @@ public class StringUtils {
         int len = string.length();
 
         char c;
-        StringBuffer buf = new StringBuffer();
+        FastStringBuffer buf = new FastStringBuffer();
 
         for (int i = 0; i < len; i++) {
             c = string.charAt(i);
@@ -208,11 +210,11 @@ public class StringUtils {
                     buf.append('\n');
                 }
                 ret.add(buf.toString());
-                buf = new StringBuffer();
+                buf.clear();
             }
             if (c == '\n') {
                 ret.add(buf.toString());
-                buf = new StringBuffer();
+                buf.clear();
 
             }
         }
@@ -233,7 +235,7 @@ public class StringUtils {
     }
 
     public static String replaceAll(String string, String replace, String with) {
-        StringBuffer ret = new StringBuffer();
+        FastStringBuffer ret = new FastStringBuffer();
         int len = string.length();
         int replaceLen = replace.length();
         
@@ -255,7 +257,7 @@ public class StringUtils {
     }
 
     public static String removeWhitespaceColumnsToLeft(String hoverInfo) {
-        StringBuffer buf = new StringBuffer();
+        FastStringBuffer buf = new FastStringBuffer();
         int firstCharPosition = Integer.MAX_VALUE;
         
         List<String> splitted = splitInLines(hoverInfo);
