@@ -1,3 +1,5 @@
+- Check: Context insensitive info being created twice??? (create a test case for that)
+
 - Context insensitive completions:
   - Organize imports should pass all the not defined vars and show the imports available for them
   - Organize imports should merge imports with the same 'xxx' in from xxx import yyy, bbb, etc 
