@@ -25,6 +25,9 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.resource.FontDescriptor;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -40,14 +43,12 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorActionBarContributor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
-import org.eclipse.ui.internal.util.SWTResourceUtil;
 import org.eclipse.ui.part.EditorActionBarContributor;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ContentAssistAction;
@@ -734,6 +735,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 	        pyEditScripting = null;
 	        cache.clear();
 	        cache = null;
+	        
+	        if(this.resourceManager != null){
+	        	this.resourceManager.dispose();
+	        	this.resourceManager = null;
+	        }
     	}catch (Throwable e) {
 			PydevPlugin.log(e);
 		}
@@ -1175,15 +1181,27 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 	    return offlineActionsManager.onOfflineAction(requestedStr, target);
 	}
     
-    /**
+	private LocalResourceManager resourceManager;
+	
+	public LocalResourceManager getResourceManager() {
+		if(resourceManager == null){
+			resourceManager = new LocalResourceManager(JFaceResources.getResources());
+		}
+		return resourceManager;
+	}
+	
+	/**
      * Used in the script pyedit_list_bindings.py
      */
 	public Font getFont(FontData descriptor) {
-        Font font = (Font) SWTResourceUtil.getFontTable().get(descriptor);
-        if (font == null) {
-            font = new Font(Display.getCurrent(), descriptor);
-            SWTResourceUtil.getFontTable().put(descriptor, font);
-        }
+		Font font = getResourceManager().createFont(FontDescriptor.createFrom(descriptor));
+		
+//		Old implementation (for Eclipse 3.3)
+//        Font font = (Font) SWTResourceUtil.getFontTable().get(descriptor);
+//        if (font == null) {
+//            font = new Font(Display.getCurrent(), descriptor);
+//            SWTResourceUtil.getFontTable().put(descriptor, font);
+//        }
         return font;
     }
 	//--------------------------------------------------------------------- END: actions that are activated after Ctrl+2

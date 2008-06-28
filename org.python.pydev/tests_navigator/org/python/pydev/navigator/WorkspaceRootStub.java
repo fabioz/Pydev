@@ -3,6 +3,7 @@ package org.python.pydev.navigator;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -400,5 +401,35 @@ public class WorkspaceRootStub implements IWorkspaceRoot, IWorkbenchAdapter{
     public Object getParent(Object o) {
         throw new RuntimeException("Not implemented");
     }
+
+	public IProject[] getProjects(int memberFlags) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Map getPersistentProperties() throws CoreException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Map getSessionProperties() throws CoreException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean isDerived(int options) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean isHidden() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void setHidden(boolean isHidden) throws CoreException {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

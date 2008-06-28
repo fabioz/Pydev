@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URI;
+import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -358,6 +359,31 @@ public class FileStub2 implements IFile {
     public int findMaxProblemSeverity(String type, boolean includeSubtypes, int depth) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
+
+	public Map getPersistentProperties() throws CoreException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Map getSessionProperties() throws CoreException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean isDerived(int options) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean isHidden() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void setHidden(boolean isHidden) throws CoreException {
+		// TODO Auto-generated method stub
+		
+	}
 
 
 }

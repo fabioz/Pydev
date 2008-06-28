@@ -649,5 +649,36 @@ public class ProjectStub implements IProject, IWorkbenchAdapter{
 		throw new RuntimeException("Not implemented");
 	}
 
+	public void create(IProjectDescription description, int updateFlags,
+			IProgressMonitor monitor) throws CoreException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public Map getPersistentProperties() throws CoreException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Map getSessionProperties() throws CoreException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean isDerived(int options) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean isHidden() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void setHidden(boolean isHidden) throws CoreException {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }

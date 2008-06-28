@@ -1,7 +1,7 @@
 package org.python.copiedfromeclipsesrc;
 
 /*******************************************************************************
- * Copyright (c) 2000, 2005 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,8 +11,12 @@ package org.python.copiedfromeclipsesrc;
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.resource.ColorDescriptor;
+import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.viewers.DecoratingLabelProvider;
 import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.IFontProvider;
@@ -24,11 +28,10 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.internal.util.SWTResourceUtil;
+import org.eclipse.ui.internal.util.Util;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipse.ui.model.IWorkbenchAdapter2;
 
@@ -39,7 +42,7 @@ import org.eclipse.ui.model.IWorkbenchAdapter2;
  * This class provides a facility for subclasses to define annotations
  * on the labels and icons of adaptable objects.
  * 
- * NOTE: I JUST HATE WHEN THE SINGLE METHOD I WANT TO OVERRIDE IS DECLARED AS FINAL!!! (getText in this case)
+ * Copied just so that we can have getText and getImage overridden.
  */
 public class CopiedWorkbenchLabelProvider extends LabelProvider implements
         IColorProvider, IFontProvider {
@@ -49,9 +52,9 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
      * mechanism.
      * 
      * @return a new <code>DecoratingLabelProvider</code> which wraps a <code>
-     *   new <code>WorkbenchLabelProvider</code>
+     *   new <code>CopiedWorkbenchLabelProvider</code>
      */
-    public static ILabelProvider getDecoratingWorkbenchLabelProvider() {
+    public static ILabelProvider getDecoratingCopiedWorkbenchLabelProvider() {
         return new DecoratingLabelProvider(new CopiedWorkbenchLabelProvider(),
                 PlatformUI.getWorkbench().getDecoratorManager()
                         .getLabelDecorator());
@@ -63,18 +66,20 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
      * associations in the registry.
      */
     private IPropertyListener editorRegistryListener = new IPropertyListener() {
-        public void propertyChanged(Object source, int propId) {
-            if (propId == IEditorRegistry.PROP_CONTENTS) {
-                fireLabelProviderChanged(new LabelProviderChangedEvent(CopiedWorkbenchLabelProvider.this));
-            }
-        }
-    };
+		public void propertyChanged(Object source, int propId) {
+			if (propId == IEditorRegistry.PROP_CONTENTS) {
+				fireLabelProviderChanged(new LabelProviderChangedEvent(CopiedWorkbenchLabelProvider.this));
+			}
+		}
+	};		
+	private ResourceManager resourceManager;
 
     /**
      * Creates a new workbench label provider.
      */
     public CopiedWorkbenchLabelProvider() {
-        PlatformUI.getWorkbench().getEditorRegistry().addPropertyListener(editorRegistryListener);
+    	PlatformUI.getWorkbench().getEditorRegistry().addPropertyListener(editorRegistryListener);
+    	this.resourceManager = new LocalResourceManager(JFaceResources.getResources());
     }
 
     /**
@@ -114,8 +119,10 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
      * Method declared on ILabelProvider
      */
     public void dispose() {
-        PlatformUI.getWorkbench().getEditorRegistry().removePropertyListener(editorRegistryListener);
-        super.dispose();
+    	PlatformUI.getWorkbench().getEditorRegistry().removePropertyListener(editorRegistryListener);
+    	resourceManager.dispose();
+    	resourceManager = null;
+    	super.dispose();
     }
     
     /**
@@ -126,11 +133,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
      * object is not adaptable. 
      */
     protected final IWorkbenchAdapter getAdapter(Object o) {
-        if (!(o instanceof IAdaptable)) {
-            return null;
-        }
-        return (IWorkbenchAdapter) ((IAdaptable) o)
-                .getAdapter(IWorkbenchAdapter.class);
+        return (IWorkbenchAdapter)Util.getAdapter(o, IWorkbenchAdapter.class);
     }
 
     /**
@@ -141,11 +144,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
      * object is not adaptable. 
      */
     protected final IWorkbenchAdapter2 getAdapter2(Object o) {
-        if (!(o instanceof IAdaptable)) {
-            return null;
-        }
-        return (IWorkbenchAdapter2) ((IAdaptable) o)
-                .getAdapter(IWorkbenchAdapter2.class);
+        return (IWorkbenchAdapter2)Util.getAdapter(o, IWorkbenchAdapter2.class);
     }
 
     /* (non-Javadoc)
@@ -165,12 +164,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
         //add any annotations to the image descriptor
         descriptor = decorateImage(descriptor, element);
 
-        Image image = (Image) SWTResourceUtil.getImageTable().get(descriptor);
-        if (image == null) {
-            image = descriptor.createImage();
-            SWTResourceUtil.getImageTable().put(descriptor, image);
-        }
-        return image;
+        return resourceManager.createImage(descriptor);
     }
 
     /* (non-Javadoc)
@@ -216,12 +210,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
             return null;
         }
 
-        Font font = (Font) SWTResourceUtil.getFontTable().get(descriptor);
-        if (font == null) {
-            font = new Font(Display.getCurrent(), descriptor);
-            SWTResourceUtil.getFontTable().put(descriptor, font);
-        }
-        return font;
+        return resourceManager.createFont(FontDescriptor.createFrom(descriptor));
     }
 
     private Color getColor(Object element, boolean forground) {
@@ -235,11 +224,6 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
             return null;
         }
 
-        Color color = (Color) SWTResourceUtil.getColorTable().get(descriptor);
-        if (color == null) {
-            color = new Color(Display.getCurrent(), descriptor);
-            SWTResourceUtil.getColorTable().put(descriptor, color);
-        }
-        return color;
+        return resourceManager.createColor(ColorDescriptor.createFrom(descriptor));
     }
 }

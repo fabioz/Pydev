@@ -2,6 +2,7 @@ package org.python.pydev.navigator;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -491,5 +492,30 @@ public class FolderStub implements IFolder{
     public int findMaxProblemSeverity(String type, boolean includeSubtypes, int depth) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
+
+	public Map getPersistentProperties() throws CoreException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Map getSessionProperties() throws CoreException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean isDerived(int options) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean isHidden() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void setHidden(boolean isHidden) throws CoreException {
+		// TODO Auto-generated method stub
+		
+	}
 
 }
