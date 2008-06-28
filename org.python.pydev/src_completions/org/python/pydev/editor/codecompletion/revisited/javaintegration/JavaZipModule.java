@@ -148,7 +148,8 @@ public class JavaZipModule extends AbstractJavaClassModule {
         final List<Tuple<IJavaElement, CompletionProposal>> ret = new ArrayList<Tuple<IJavaElement, CompletionProposal>>();
         
         IClasspathEntry entries[] = getClasspathEntries();
-        ICompilationUnit unit = new WorkingCopyOwner(){}.newWorkingCopy(name, entries, new NullProgressMonitor());
+        //Using old version for compatibility with eclipse 3.2
+        ICompilationUnit unit = new WorkingCopyOwner(){}.newWorkingCopy(name, entries, null, new NullProgressMonitor());
         unit.getBuffer().setContents(contents);
         CompletionProposalCollector collector = createCollector(filterCompletionName, ret, unit);
 

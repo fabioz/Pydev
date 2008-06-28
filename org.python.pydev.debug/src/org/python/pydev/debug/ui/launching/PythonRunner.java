@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
+import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
@@ -209,7 +210,8 @@ public class PythonRunner {
      * Actually creates the process (and create the encoding config file)
      */
     private static Process createProcess(ILaunch launch, String[] envp, String[] cmdLine, File workingDirectory) throws CoreException {
-        String encoding = launch.getAttribute(DebugPlugin.ATTR_CONSOLE_ENCODING);
+    	//Not using DebugPlugin.ATTR_CONSOLE_ENCODING to provide backward compatibility for eclipse 3.2
+        String encoding = launch.getAttribute(IDebugUIConstants.ATTR_CONSOLE_ENCODING);
         if(encoding != null && encoding.trim().length() > 0){
             String[] s = new String[envp.length+1];
             System.arraycopy(envp, 0, s, 0, envp.length);

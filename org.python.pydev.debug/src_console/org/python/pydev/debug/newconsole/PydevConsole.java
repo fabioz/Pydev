@@ -47,7 +47,9 @@ public class PydevConsole extends ScriptConsole implements IConsole {
     
     public PydevConsole(PydevConsoleInterpreter interpreter) {
         super(CONSOLE_NAME + " [" + getNextId() + "]", PydevConsoleConstants.CONSOLE_TYPE, interpreter);
-        setBackground(ColorManager.getPreferenceColor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR));
+        this.setPydevConsoleBackground(ColorManager.getPreferenceColor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR));
+        //Cannot be called directly because Eclipse 3.2does not support it.
+        //setBackground(ColorManager.getPreferenceColor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR));
     }
 
     

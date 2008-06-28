@@ -487,7 +487,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         super(parent, console);
 
         this.console = console;
-        this.getTextWidget().setBackground(console.getBackground());
+        this.getTextWidget().setBackground(console.getPydevConsoleBackground());
 
         
         ScriptConsoleViewer existingViewer = this.console.getViewer();

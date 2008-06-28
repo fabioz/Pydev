@@ -496,11 +496,12 @@ public class REF {
         return new Document(fileContents);
     }
 
+    
     /**
-     * @return null if it was unable to get the document from the path (this may happen if it was not refreshed).
-     * Or the document that represents the file
+     * @param path tha path we're interested in
+     * @return a file buffer to be used.
      */
-    public static IDocument getDocFromPath(IPath path) {
+    public static ITextFileBuffer getBufferFromPath(IPath path) {
         //TODO: make this better for 3.3/ 3.2 (and check if behaviour is correct now)
         try{
             try{
@@ -511,19 +512,21 @@ public class REF {
                     ITextFileBuffer textFileBuffer = textFileBufferManager.getTextFileBuffer(path, LocationKind.LOCATION);
                     
                     if(textFileBuffer != null){ //we don't have it when it is not properly refreshed
-                        return textFileBuffer.getDocument();
+                        return textFileBuffer;
                     }
                 }
                 
-            }catch(Throwable e){//NoSuchMethod/NoClassDef exception
-                if(e instanceof ClassNotFoundException || e instanceof LinkageError){
+            }catch(Throwable e){//NoSuchMethod/NoClassDef exception 
+                if(e instanceof ClassNotFoundException || e instanceof LinkageError || e instanceof NoSuchMethodException || 
+                		e instanceof NoSuchMethodError || e instanceof NoClassDefFoundError){
+                	
                     ITextFileBufferManager textFileBufferManager = FileBuffers.getTextFileBufferManager();
                     
                     if(textFileBufferManager != null){//we don't have it in tests
                         ITextFileBuffer textFileBuffer = textFileBufferManager.getTextFileBuffer(path);
                         
                         if(textFileBuffer != null){ //we don't have it when it is not properly refreshed
-                            return textFileBuffer.getDocument();
+                            return textFileBuffer;
                         }
                     }
                 }else{
@@ -541,7 +544,18 @@ public class REF {
                 Log.log("Unable to get doc from text file buffer");
             }
             return null; 
-        }
+        }    	
+    }
+    /**
+     * @return null if it was unable to get the document from the path (this may happen if it was not refreshed).
+     * Or the document that represents the file
+     */
+    public static IDocument getDocFromPath(IPath path) {
+    	ITextFileBuffer buffer = getBufferFromPath(path);
+    	if(buffer != null){
+    		return buffer.getDocument();
+    	}
+    	return null;
     }
 
     /**

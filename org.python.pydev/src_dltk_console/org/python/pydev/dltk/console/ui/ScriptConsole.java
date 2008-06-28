@@ -18,10 +18,12 @@ import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.console.IConsoleDocumentPartitioner;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsole;
 import org.eclipse.ui.part.IPageBookViewPage;
+import org.python.pydev.core.REF;
 import org.python.pydev.dltk.console.IScriptConsoleInterpreter;
 import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.dltk.console.ScriptConsoleHistory;
@@ -222,4 +224,35 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
      * @return the commands that should be initially set in the prompt.
      */
     public abstract String getInitialCommands();
+
+    
+    /**
+     * Used for backward compatibility because the setBackground/getBackground is not available for eclipse 3.2
+     */
+    private Color fPydevConsoleBackground;
+    
+    /**
+     * Used for backward compatibility because the setBackground/getBackground is not available for eclipse 3.2
+     */
+	public Color getPydevConsoleBackground() {
+		try{
+			Color ret = (Color) REF.invoke(this, "getBackground");
+			return ret;
+		}catch(Throwable e){
+			//not available in eclipse 3.2
+			return fPydevConsoleBackground;
+		}
+	}
+	
+	/**
+	 * Used for backward compatibility because the setBackground/getBackground is not available for eclipse 3.2
+	 */
+	public void setPydevConsoleBackground(Color color) {
+        try{
+        	REF.invoke(this, "setBackground", color);
+        }catch(Throwable e){
+        	//not available in eclipse 3.2
+        	fPydevConsoleBackground = color;
+        }
+	}
 }

@@ -170,41 +170,50 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
         Collections.sort(results, IPyCodeCompletion.PROPOSAL_COMPARATOR);
 
         
-        
-        //handling spelling... (we only want to show spelling fixes if a spell problem annotation is found at the current location).
-        //we'll only show some spelling proposal if there's some spelling problem (so, we don't have to check the preferences at this place,
-        //as no annotations on spelling will be here if the spelling is not enabled). 
-        ICompletionProposal[] spellProps = null;
-        
-        IAnnotationModel annotationModel = edit.getPySourceViewer().getAnnotationModel();
-        Iterator it = annotationModel.getAnnotationIterator();
-        while(it.hasNext()){
-            Object annotation = it.next();
-            if(annotation instanceof SpellingAnnotation){
-                SpellingAnnotation spellingAnnotation = (SpellingAnnotation) annotation;
-                SpellingProblem spellingProblem = spellingAnnotation.getSpellingProblem();
-                
-                int problemOffset = spellingProblem.getOffset();
-                int problemLen = spellingProblem.getLength();
-                if(problemOffset <= offset && problemOffset+problemLen >= offset){
-                    SpellingCorrectionProcessor spellingCorrectionProcessor = new SpellingCorrectionProcessor();
-                    spellProps = spellingCorrectionProcessor.computeQuickAssistProposals(invocationContext);
-                    break;
-                }
+        try{
+	        //handling spelling... (we only want to show spelling fixes if a spell problem annotation is found at the current location).
+	        //we'll only show some spelling proposal if there's some spelling problem (so, we don't have to check the preferences at this place,
+	        //as no annotations on spelling will be here if the spelling is not enabled). 
+	        ICompletionProposal[] spellProps = null;
+	        
+	        IAnnotationModel annotationModel = edit.getPySourceViewer().getAnnotationModel();
+	        Iterator it = annotationModel.getAnnotationIterator();
+	        while(it.hasNext()){
+	            Object annotation = it.next();
+	            if(annotation instanceof SpellingAnnotation){
+	                SpellingAnnotation spellingAnnotation = (SpellingAnnotation) annotation;
+	                SpellingProblem spellingProblem = spellingAnnotation.getSpellingProblem();
+	                
+	                int problemOffset = spellingProblem.getOffset();
+	                int problemLen = spellingProblem.getLength();
+	                if(problemOffset <= offset && problemOffset+problemLen >= offset){
+	                    SpellingCorrectionProcessor spellingCorrectionProcessor = new SpellingCorrectionProcessor();
+	                    spellProps = spellingCorrectionProcessor.computeQuickAssistProposals(invocationContext);
+	                    break;
+	                }
+	            }
+	        }
+	        
+	        
+	
+	        if(spellProps == null || (spellProps.length == 1 && spellProps[0] instanceof NoCompletionsProposal)){
+	            //no proposals from the spelling
+	            return (ICompletionProposal[]) results.toArray(new ICompletionProposal[results.size()]);
+	        }
+	        
+	        //ok, add the spell problems and return...
+	        ICompletionProposal[] ret = (ICompletionProposal[]) results.toArray(new ICompletionProposal[results.size()+spellProps.length]);
+	        System.arraycopy(spellProps, 0, ret, results.size(), spellProps.length);
+	        return ret;
+        }catch(Throwable e){ 
+            if(e instanceof ClassNotFoundException || e instanceof LinkageError || e instanceof NoSuchMethodException || 
+            		e instanceof NoSuchMethodError || e instanceof NoClassDefFoundError){
+            	//Eclipse 3.2 support
+            	return (ICompletionProposal[]) results.toArray(new ICompletionProposal[results.size()]);
             }
+            throw new RuntimeException(e);
         }
         
-        
-
-        if(spellProps == null || (spellProps.length == 1 && spellProps[0] instanceof NoCompletionsProposal)){
-            //no proposals from the spelling
-            return (ICompletionProposal[]) results.toArray(new ICompletionProposal[results.size()]);
-        }
-        
-        //ok, add the spell problems and return...
-        ICompletionProposal[] ret = (ICompletionProposal[]) results.toArray(new ICompletionProposal[results.size()+spellProps.length]);
-        System.arraycopy(spellProps, 0, ret, results.size(), spellProps.length);
-        return ret;
     }
 
     

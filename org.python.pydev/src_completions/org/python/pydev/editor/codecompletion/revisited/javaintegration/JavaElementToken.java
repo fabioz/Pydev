@@ -3,6 +3,7 @@ package org.python.pydev.editor.codecompletion.revisited.javaintegration;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.reflect.Method;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -14,6 +15,7 @@ import org.eclipse.jdt.ui.JavadocContentAccess;
 import org.eclipse.jdt.ui.text.java.CompletionProposalLabelProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
@@ -36,6 +38,21 @@ public class JavaElementToken extends CompiledToken {
 
     private char[] completionPropsoalSignature;
 
+    /**
+     * Used for backward compatibility to eclipse 3.2
+     */
+    static boolean HAS_ADDITIONAL_FLAGS = true;
+    static{
+    	try{
+    		Method m = REF.findMethod(CompletionProposal.class, "getAdditionalFlags");
+    		if(m == null){
+    			HAS_ADDITIONAL_FLAGS = false;
+    		}
+    	}catch(Throwable e){
+    		HAS_ADDITIONAL_FLAGS = false;
+    	}
+    }
+    
     protected JavaElementToken(String rep, String doc, String args, String parentPackage, int type, IJavaElement javaElement,
             int completionProposalKind, int completionProposalFlags, int completionProposalAdditionalFlags,
             char[] completionPropsoalSignature) {
@@ -49,8 +66,14 @@ public class JavaElementToken extends CompiledToken {
     
     public JavaElementToken(String rep, String doc, String args, String parentPackage, int type, IJavaElement javaElement,
             CompletionProposal completionProposal) {
-        this(rep, doc, args, parentPackage, type, javaElement, completionProposal.getKind(), completionProposal.getFlags(), 
-                completionProposal.getAdditionalFlags(), completionProposal.getSignature());
+    	super(rep, doc, args, parentPackage, type);
+    	this.javaElement = javaElement;
+    	this.completionProposalKind = completionProposal.getKind();
+    	this.completionProposalFlags = completionProposal.getFlags();
+    	if(HAS_ADDITIONAL_FLAGS){
+    		this.completionProposalAdditionalFlags = completionProposal.getAdditionalFlags();
+    	}
+    	this.completionPropsoalSignature = completionProposal.getSignature();
     }
     
     
@@ -60,7 +83,9 @@ public class JavaElementToken extends CompiledToken {
         CompletionProposalLabelProvider provider = new CompletionProposalLabelProvider();
         CompletionProposal generatedProposal = CompletionProposal.create(completionProposalKind, 0);
         generatedProposal.setFlags(completionProposalFlags);
-        generatedProposal.setAdditionalFlags(completionProposalAdditionalFlags);
+        if(HAS_ADDITIONAL_FLAGS){
+        	generatedProposal.setAdditionalFlags(completionProposalAdditionalFlags);
+        }
         generatedProposal.setDeclarationSignature(completionPropsoalSignature);
         generatedProposal.setSignature(completionPropsoalSignature);
 
