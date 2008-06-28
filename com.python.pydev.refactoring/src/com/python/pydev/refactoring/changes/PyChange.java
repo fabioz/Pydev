@@ -1,9 +1,7 @@
 package com.python.pydev.refactoring.changes;
 
-import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
-import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourceAttributes;
@@ -245,7 +243,15 @@ public abstract class PyChange extends Change {
     }
     
     private static ITextFileBuffer getBuffer(IFile file) {
-        ITextFileBufferManager manager= FileBuffers.getTextFileBufferManager();
-        return manager.getTextFileBuffer(file.getFullPath(), org.eclipse.core.filebuffers.LocationKind.IFILE);
+        try {
+			ITextFileBufferManager manager=ITextFileBufferManager.DEFAULT;
+			return manager.getTextFileBuffer(file.getFullPath(), org.eclipse.core.filebuffers.LocationKind.IFILE);
+        }catch(Throwable e){//NoSuchMethod/NoClassDef exception 
+            if(e instanceof ClassNotFoundException || e instanceof LinkageError || e instanceof NoSuchMethodException || 
+            		e instanceof NoSuchMethodError || e instanceof NoClassDefFoundError){
+            	return null; // that's ok -- not available in Eclipse 3.2
+            }
+			throw new RuntimeException(e);
+		}
     }
 }
