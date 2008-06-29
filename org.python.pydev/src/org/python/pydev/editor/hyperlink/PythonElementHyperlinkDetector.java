@@ -23,7 +23,7 @@ public class PythonElementHyperlinkDetector extends AbstractHyperlinkDetector {
      */
     public IHyperlink[] detectHyperlinks(ITextViewer textViewer, IRegion region, boolean canShowMultipleHyperlinks) {
         ITextEditor textEditor = (ITextEditor) getAdapter(ITextEditor.class);
-        if (region == null || canShowMultipleHyperlinks || !(textEditor instanceof PyEdit)) {
+        if (region == null || !(textEditor instanceof PyEdit)) {
             return null;
         }
 
