@@ -1,6 +1,9 @@
 '''
-    This module will set the default encoding for python so that it'll print things correctly to the console.
-    (and then will execute the user site customize -- if available)
+    This module will:
+    - set the default encoding for python so that it'll print things correctly to the console.
+    - change the input() and raw_input() commands to change \r\n or \r into \n
+    - execute the user site customize -- if available
+    - change raw_input() and input() to also remove any trailing \r
 '''
 
 DEBUG = 0 #0 or 1 because of jython
@@ -8,8 +11,6 @@ import os
 
 import sys
 encoding = None
-
-
 
 
 #----------------------------------------------------------------------------------------------------------------------- 
@@ -104,3 +105,40 @@ else:
     except ImportError:
         pass
         
+
+
+
+
+try:
+    #Redefine input and raw_input only after the original sitecustomize was executed
+    #(because otherwise, the original raw_input and input would still not be defined)
+    import __builtin__
+    original_raw_input = __builtin__.raw_input
+    original_input = __builtin__.input
+    
+    
+    def raw_input(prompt=''):
+        #the original raw_input would only remove a trailing \n, so, at
+        #this point if we had a \r\n the \r would remain (which is valid for eclipse)
+        #so, let's remove the remaining \r which python didn't expect.
+        ret = original_raw_input(prompt)
+            
+        if ret.endswith('\r'):
+            return ret[:-1]
+            
+        return ret
+    raw_input.__doc__ = original_raw_input.__doc__
+        
+    def input(prompt=''):
+        #input must also be rebinded for using the new raw_input defined
+        return eval(raw_input(prompt))
+    input.__doc__ = original_input.__doc__
+    
+    
+    __builtin__.raw_input = raw_input
+    __builtin__.input = input
+except:
+    #Don't report errors at this stage
+    if DEBUG:
+        import traceback;traceback.print_exc() #@Reimport
+

@@ -11,6 +11,7 @@ Pydev
 <li><strong>Ctr+/</strong>: Changed to toggle comment (instead of only comment) -- patch from Christoph Pickl</li>
 <li><strong>Eclipse 3.2</strong>: Interactive console working / fixed some incompatibilities</li>
 <li><strong>Eclipse 3.4</strong>: Hyperlinks working</li>
+<li><strong>raw_input() and input()</strong>: functions are now changed when a program is launched from eclipse to consider a trailing '\r'</li>
 </ul>
 
 after 1.3.17
