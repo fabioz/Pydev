@@ -157,18 +157,16 @@ public abstract class AbstractMessage implements IMessage{
 
     private String getShortMessageStr() {
         Object msg = getShortMessage();
-        String str;
         if(msg instanceof Object[]){
             Object[] msgs = (Object[]) msg;
             FastStringBuffer buffer = new FastStringBuffer();
             for (Object o : msgs) {
                 buffer.append(o.toString());
             }
-            str = buffer.toString();
+            return buffer.toString();
         }else{
-            str = msg.toString();
+            return msg.toString();
         }
-        return str;
     }
     
     /**

@@ -39,7 +39,7 @@ public class Message extends AbstractMessage {
             return false;
         }
         Message m = (Message) obj;
-        return this.getMessage().equals(m.getMessage());
+        return this.getType() == m.getType() && this.message.equals(m.message);
     }
     
     @Override

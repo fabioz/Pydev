@@ -367,7 +367,8 @@ public class MessagesManager {
                 //we add even ignore messages because they might be used later in actions dependent on code analysis
 
                 if(l.size() == 1){
-                    addAdditionalInfoToUnusedWildImport(message);
+//don't add additional info: not being used
+//                    addAdditionalInfoToUnusedWildImport(message);
                     addToResult(result, message);
                     
                 } else{
@@ -377,7 +378,9 @@ public class MessagesManager {
                     for(IMessage m : l){
                         compositeMessage.addMessage(m);
                     }
-                    addAdditionalInfoToUnusedWildImport(compositeMessage);
+
+//don't add additional info: not being used
+//                    addAdditionalInfoToUnusedWildImport(compositeMessage);
                     addToResult(result, compositeMessage);
                 }
             }
@@ -424,24 +427,26 @@ public class MessagesManager {
         result.add(message);
     }
 
-    /**
-     * @param message the message to which we will add additional info
-     */
-    private void addAdditionalInfoToUnusedWildImport(IMessage message) {
-        if(message.getType() == IAnalysisPreferences.TYPE_UNUSED_WILD_IMPORT){
-
-            //we have to add additional info on it, saying which tokens where used
-            if(AbstractVisitor.isWildImport(message.getGenerator())){
-
-                List<Tuple<String,Found>> usedItems = lastScope.getUsedItems();
-                for (Tuple<String, Found> tuple : usedItems) {
-                    if(tuple.o2.getSingle().generator == message.getGenerator()){
-                        message.addAdditionalInfo(tuple.o1);
-                    }
-                }
-            }
-        }
-    }
+    
+// Comented out: we're not using this info (so, let's save some memory until we really need that)
+//    /**
+//     * @param message the message to which we will add additional info
+//     */
+//    private void addAdditionalInfoToUnusedWildImport(IMessage message) {
+//        if(message.getType() == IAnalysisPreferences.TYPE_UNUSED_WILD_IMPORT){
+//
+//            //we have to add additional info on it, saying which tokens where used
+//            if(AbstractVisitor.isWildImport(message.getGenerator())){
+//
+//                List<Tuple<String,Found>> usedItems = lastScope.getUsedItems();
+//                for (Tuple<String, Found> tuple : usedItems) {
+//                    if(tuple.o2.getSingle().generator == message.getGenerator()){
+//                        message.addAdditionalInfo(tuple.o1);
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     /**
      * @return a map with the messages separated by type (keys are the type)

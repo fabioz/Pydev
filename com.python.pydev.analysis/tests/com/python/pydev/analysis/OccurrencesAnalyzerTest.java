@@ -21,6 +21,7 @@ import org.python.pydev.editor.TestIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 
+import com.python.pydev.analysis.messages.CompositeMessage;
 import com.python.pydev.analysis.messages.IMessage;
 
 public class OccurrencesAnalyzerTest extends AnalysisTestsBase { 
@@ -29,7 +30,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testScopes5a();
+            analyzer2.testUnusedImportsSupressed();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -85,7 +86,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals(1, msgs.length);
         assertEquals(IMarker.SEVERITY_WARNING, msgs[0].getSeverity());
         assertEquals("Unused in wild import: AnotherTest, GUITest, TestCaseAlias, anothertest, guitestcase, main, t, testcase", msgs[0].getMessage());
-        assertEquals("TestCase", msgs[0].getAdditionalInfo().get(0));
+//        assertEquals("TestCase", msgs[0].getAdditionalInfo().get(0));
         
         //-----------------
         prefs.severityForUnusedImport = IMarker.SEVERITY_INFO;
@@ -99,10 +100,27 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         //even in ignore mode, we get the message
         assertEquals(1, msgs.length);
         assertEquals("Unused in wild import: AnotherTest, GUITest, TestCaseAlias, anothertest, guitestcase, main, t", msgs[0].getMessage());
-        assertEquals("TestCase", msgs[0].getAdditionalInfo().get(0));
-        assertEquals("testcase", msgs[0].getAdditionalInfo().get(1));
+//        assertEquals("TestCase", msgs[0].getAdditionalInfo().get(0));
+//        assertEquals("testcase", msgs[0].getAdditionalInfo().get(1));
     }
     
+    
+    public void testUnusedImportsSupressed(){
+        int original = CompositeMessage.MAXIMUM_NUMBER_OF_INTERNAL_MESSAGES;
+        CompositeMessage.MAXIMUM_NUMBER_OF_INTERNAL_MESSAGES = 3;
+        try {
+            doc = new Document(
+                "from testlib.unittest import *\n"
+            );
+            analyzer = new OccurrencesAnalyzer();
+            msgs = analyzeDoc();
+            
+            printMessages(msgs,1);
+            assertTrue(msgs[0].getMessage().endsWith("... others suppressed"));
+        } finally {
+            CompositeMessage.MAXIMUM_NUMBER_OF_INTERNAL_MESSAGES = original;
+        }
+    }
     
     public void testSpacesAndTabsMix() throws Exception {
         doc = new Document(
@@ -417,9 +435,10 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         
         printMessages(msgs,1);
         assertContainsMsg("Unused in wild import: xml.dom, xml.dom.domreg", msgs);
-        assertEquals("xml", msgs[0].getAdditionalInfo().get(0)); //this is the used import
+//        assertEquals("xml", msgs[0].getAdditionalInfo().get(0)); //this is the used import
     }
- 
+    
+    
     public void testUnusedImports2a(){
     	
     	doc = new Document(
