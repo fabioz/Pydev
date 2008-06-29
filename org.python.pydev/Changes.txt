@@ -3,12 +3,13 @@ after 1.3.18
 Pydev Extensions
 <ul>
 <li><strong>Code Analysis</strong>: Not all unused imports are shown in the message anymore (could give problems saving workspace).</li>
+<li><strong>Code Analysis</strong>: Fixed problem on double cycle in list comprehension.</li>
 </ul>
 
 Pydev
 <ul>
 <li><strong>Ctr+/</strong>: Changed to toggle comment (instead of only comment) -- patch from Christoph Pickl</li>
-<li><strong>Eclipse 3.2</strong>: Readded support for Eclipse 3.2 (mostly for Aptana support)</li>
+<li><strong>Eclipse 3.2</strong>: Interactive console working / fixed some incompatibilities</li>
 <li><strong>Eclipse 3.4</strong>: Hyperlinks working</li>
 </ul>
 
