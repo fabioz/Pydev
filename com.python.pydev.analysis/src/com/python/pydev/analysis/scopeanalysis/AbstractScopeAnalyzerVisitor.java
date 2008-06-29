@@ -690,7 +690,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         if(node.elt instanceof ListComp){
             //print dict((day, index) for index, daysRep in enumeratedDays for day in daysRep)
             //note that the daysRep is actually generated and used later in the expression
-            visitListCompGenerators((ListComp)node, eltsToVisit);
+            visitListCompGenerators((ListComp)node.elt, eltsToVisit);
             for (exprType type2 : eltsToVisit) {
                 type2.accept(this);
             }

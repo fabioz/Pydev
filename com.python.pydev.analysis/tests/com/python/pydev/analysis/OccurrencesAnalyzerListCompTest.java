@@ -18,7 +18,7 @@ public class OccurrencesAnalyzerListCompTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerListCompTest analyzer2 = new OccurrencesAnalyzerListCompTest();
             analyzer2.setUp();
-            analyzer2.testListComprehension5();
+            analyzer2.testListComprehension6();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -111,6 +111,16 @@ public class OccurrencesAnalyzerListCompTest extends AnalysisTestsBase {
         doc = new Document(
             "data = [[1,2,3],[4,5,6]]\n" +
             "newdata = [[val * 2 for val in lst] for lst in data]\n"
+        );
+        checkNoError();
+    }
+    
+    
+    public void testListComprehension6() {
+        doc = new Document(
+                "def double_cycle():\n" +
+                "    print [[i ** j for i in range(10)] for j in range(5)]\n" +
+                "\n"
         );
         checkNoError();
     }
