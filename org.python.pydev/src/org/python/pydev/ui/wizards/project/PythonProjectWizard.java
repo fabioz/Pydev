@@ -61,7 +61,7 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
 
     WelcomePage welcomePage = new WelcomePage("Creating a new modelled Python Project");
 
-    CopiedWizardNewProjectNameAndLocationPage projectPage = new CopiedWizardNewProjectNameAndLocationPage("Setting project properties");
+    IWizardNewProjectNameAndLocationPage projectPage;
 
     WizardNewProjectReferencePage referencePage;
 
@@ -77,6 +77,14 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
         this.workbench = workbench;
         this.selection = currentSelection;
         initializeDefaultPageImageDescriptor();
+        projectPage = createProjectPage();
+    }
+
+    /**
+     * Creates the project page.
+     */
+    protected IWizardNewProjectNameAndLocationPage createProjectPage(){
+        return new CopiedWizardNewProjectNameAndLocationPage("Setting project properties");
     }
 
     /**
@@ -90,6 +98,13 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
             addPage(welcomePage);
         }
         addPage(projectPage);
+        addProjectReferencePage();
+    }
+
+    /**
+     * Adds the project references page to the wizard.
+     */
+    protected void addProjectReferencePage(){
         // only add page if there are already projects in the workspace
         if (ResourcesPlugin.getWorkspace().getRoot().getProjects().length > 0) {
             referencePage = new WizardNewProjectReferencePage("Reference Page");
@@ -97,7 +112,6 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
             referencePage.setDescription("Select referenced projects");
             this.addPage(referencePage);
         }
-
     }
 
     /**
@@ -148,7 +162,7 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
      * 
      * @return the created project resource, or <code>null</code> if the project was not created
      */
-    private IProject createNewProject() {
+    protected IProject createNewProject() {
         // get a project handle
         final IProject newProjectHandle = projectPage.getProjectHandle();
 

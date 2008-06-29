@@ -57,7 +57,9 @@ import org.python.pydev.ui.PyProjectPythonDetails;
  * Changed to add the details for the python project type 
  */
 
-public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implements SelectionListener {
+public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implements SelectionListener,
+        IWizardNewProjectNameAndLocationPage
+{
     // Whether to use default or custom project location
     private boolean useDefaults = true;
 
@@ -111,6 +113,8 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
      */
     public CopiedWizardNewProjectNameAndLocationPage(String pageName) {
         super(pageName);
+        setTitle("Pydev Project");
+        setDescription("Create a new Pydev Project.");
         setPageComplete(false);
         initialLocationFieldValue = Platform.getLocation();
         customLocationFieldValue = ""; //$NON-NLS-1$
@@ -304,7 +308,7 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
      * @return the project location path, its anticipated initial value, or <code>null</code>
      *   if no project location path is known
      */
-    /* package */IPath getLocationPath() {
+    public IPath getLocationPath() {
         if (useDefaults)
             return initialLocationFieldValue;
 
@@ -320,7 +324,7 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
      *
      * @return the new project resource handle
      */
-    /* package */IProject getProjectHandle() {
+    public IProject getProjectHandle() {
         return ResourcesPlugin.getWorkspace().getRoot().getProject(
                 getProjectName());
     }
