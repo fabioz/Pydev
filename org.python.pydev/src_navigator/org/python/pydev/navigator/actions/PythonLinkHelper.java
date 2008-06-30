@@ -5,6 +5,7 @@
 package org.python.pydev.navigator.actions;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.IEditorInput;
@@ -26,6 +27,14 @@ public class PythonLinkHelper implements ILinkHelper {
         if (anInput instanceof IFileEditorInput){
             return new StructuredSelection(((IFileEditorInput) anInput).getFile());
         }
+        if(anInput instanceof IAdaptable){
+            //handles org.eclipse.compare.CompareEditorInput without a specific reference to it
+            Object adapter = anInput.getAdapter(IFile.class);
+            if(adapter != null){
+                return new StructuredSelection(adapter);
+            }
+        }
+        
         return StructuredSelection.EMPTY;
     }
 

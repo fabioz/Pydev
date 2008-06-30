@@ -1359,7 +1359,8 @@
 				</or>
 			</selectionEnablement>
 			<editorInputEnablement>
-				<instanceof value="org.eclipse.ui.IFileEditorInput"/>
+				<!-- Not using org.eclipse.ui.IFileEditorInput so that we can match the CompareEditorInput -->
+				<instanceof value="org.eclipse.ui.IEditorInput"/>
 			</editorInputEnablement>
 		</linkHelper>
 	</extension>
