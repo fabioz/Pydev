@@ -55,7 +55,7 @@ public class FastDefinitionsParser {
     /**
      * The current column
      */
-    private int col = 1;
+    private int col;
     
     /**
      * The current row
@@ -89,6 +89,12 @@ public class FastDefinitionsParser {
     private final FastStringBuffer lineBuffer = new FastStringBuffer();
     
     /**
+     * Should we debug?
+     */
+    private final static boolean DEBUG = false;
+    
+    
+    /**
      * Constructor
      * 
      * @param cs array of chars that should be filled.
@@ -114,6 +120,9 @@ public class FastDefinitionsParser {
             
                 case '\'':
                 case '"': 
+                    if(DEBUG){
+                        System.out.println("literal");
+                    }
                     //go to the end of the literal
                     currIndex = ParsingUtils.getLiteralEnd(cs, currIndex, c);
                     break;
@@ -121,6 +130,9 @@ public class FastDefinitionsParser {
                     
                     
                 case '#': 
+                    if(DEBUG){
+                        System.out.println("comment");
+                    }
                     //go to the end of the comment
                     currIndex++;
                     OUT:
@@ -170,13 +182,20 @@ public class FastDefinitionsParser {
     }
     
     
+    /**
+     * Called when a new line is found. Tries to make the match of function and class definitions.
+     */
     private void handleNewLine() {
         if(currIndex >= length-1){
             return;
         }
         
-        col = 0;
+        col = 1;
         row ++;
+        if(DEBUG){
+            System.out.println("Handling new line:"+row);
+        }
+        
         lineBuffer.clear();
         char c = cs[currIndex];
         
@@ -201,6 +220,7 @@ public class FastDefinitionsParser {
             
             startMethod(getNextIdentifier(c), row, startMethodCol);
         }
+        currIndex --;
     }
 
 

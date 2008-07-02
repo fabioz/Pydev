@@ -26,7 +26,7 @@ public class FastDefinitionsParserTest extends TestCase {
         try {
             FastDefinitionsParserTest test = new FastDefinitionsParserTest();
             test.setUp();
-            test.testDefinitionsParser9();
+            test.testDefinitionsParser11();
 //            Timer timer = new Timer();
 //            test.parseFilesInDir(new File("D:/bin/Python251/Lib/site-packages/wx-2.8-msw-unicode"), true);
 //            test.parseFilesInDir(new File("D:/bin/Python251/Lib/"), false);
@@ -104,6 +104,7 @@ public class FastDefinitionsParserTest extends TestCase {
         );
         assertEquals(2, m.body.length);
         ClassDef classDef = (ClassDef)m.body[0];
+        
         assertEquals("Bar", ((NameTok)classDef.name).id);
         
         FunctionDef funcDef = (FunctionDef)classDef.body[0];
@@ -122,6 +123,9 @@ public class FastDefinitionsParserTest extends TestCase {
         );
         assertEquals(2, m.body.length);
         ClassDef classDefBar = (ClassDef)m.body[0];
+        assertEquals(1, classDefBar.beginColumn);
+        assertEquals(1, classDefBar.beginLine);
+
         assertEquals("Bar", ((NameTok)classDefBar.name).id);
         
         ClassDef classDefZoo = (ClassDef)classDefBar.body[0];
@@ -145,6 +149,9 @@ public class FastDefinitionsParserTest extends TestCase {
         assertEquals(2, m.body.length);
         
         ClassDef classDefBar = (ClassDef)m.body[0];
+        assertEquals(1, classDefBar.beginColumn);
+        assertEquals(1, classDefBar.beginLine);
+
         assertEquals("Bar", ((NameTok)classDefBar.name).id);
         ClassDef classDefZoo = (ClassDef)classDefBar.body[0];
         assertEquals("Zoo", ((NameTok)classDefZoo.name).id);
@@ -171,6 +178,9 @@ public class FastDefinitionsParserTest extends TestCase {
         );
         assertEquals(2, m.body.length);
         ClassDef classDefBar = (ClassDef)m.body[0];
+        assertEquals(1, classDefBar.beginColumn);
+        assertEquals(1, classDefBar.beginLine);
+
         assertEquals("Bar", ((NameTok)classDefBar.name).id);
         assertEquals("mGlobal", ((NameTok)((FunctionDef)m.body[1]).name).id);
         
@@ -194,6 +204,9 @@ public class FastDefinitionsParserTest extends TestCase {
         );
         assertEquals(2, m.body.length);
         ClassDef classDefBar = (ClassDef)m.body[0];
+        assertEquals(1, classDefBar.beginColumn);
+        assertEquals(1, classDefBar.beginLine);
+
         assertEquals("Bar", ((NameTok)classDefBar.name).id);
         assertEquals("mGlobal", ((NameTok)((FunctionDef)m.body[1]).name).id);
         
@@ -202,6 +215,41 @@ public class FastDefinitionsParserTest extends TestCase {
         
         assertEquals(2, classDefZoo.body.length);
         assertEquals("m1", ((NameTok)((FunctionDef)classDefZoo.body[0]).name).id);
+        
+    }
+    
+    
+    public void testDefinitionsParser11() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar(object):\n" +
+                "    class \tZoo\t(object):\n" +
+                "        def     m1(self):pass\n"+
+                "        def m2(self):pass\n"+
+                "            #def m3(self):pass\n"+
+                "            'string'\n"+
+                "def mGlobal(self):pass\n"
+        );
+        assertEquals(2, m.body.length);
+        ClassDef classDefBar = (ClassDef)m.body[0];
+        assertEquals(1, classDefBar.beginColumn);
+        assertEquals(1, classDefBar.beginLine);
+        
+        assertEquals("Bar", ((NameTok)classDefBar.name).id);
+        FunctionDef defGlobal = (FunctionDef)m.body[1];
+        assertEquals("mGlobal", ((NameTok)(defGlobal).name).id);
+        assertEquals(1, defGlobal.beginColumn);
+        assertEquals(7, defGlobal.beginLine);
+        
+        ClassDef classDefZoo = (ClassDef)classDefBar.body[0];
+        assertEquals("Zoo", ((NameTok)classDefZoo.name).id);
+        assertEquals(5, classDefZoo.beginColumn);
+        assertEquals(2, classDefZoo.beginLine);
+        
+        assertEquals(2, classDefZoo.body.length);
+        FunctionDef defM1 = (FunctionDef)classDefZoo.body[0];
+        assertEquals("m1", ((NameTok)(defM1).name).id);
+        assertEquals(9, defM1.beginColumn);
+        assertEquals(3, defM1.beginLine);
         
     }
     
