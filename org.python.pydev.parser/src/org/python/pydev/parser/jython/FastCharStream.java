@@ -4,7 +4,7 @@ import java.io.IOException;
 
 /**
  * An implementation of interface CharStream, where the data is read from a Reader. Completely recreated so that we can read data directly from a String, as the
- * initial implementation was highly inneficient when working only with a string (actually, if it was small, there would be no noticeable
+ * initial implementation was highly inefficient when working only with a string (actually, if it was small, there would be no noticeable
  * delays, but if it became big, then the improvement would be HUGE).
  * 
  * It keeps the same semantics for line and column stuff (and shares the previous approach of keeping a buffer for this info).
