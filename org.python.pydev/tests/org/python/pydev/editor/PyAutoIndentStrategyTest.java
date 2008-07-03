@@ -25,7 +25,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testCommentsIndent2();
+            s.testNoIndent();
             s.tearDown();
     		junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -839,6 +839,19 @@ public class PyAutoIndentStrategyTest extends TestCase {
         DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         String expected = "\n        ";
+        assertEquals(expected, docCmd.text);
+    }
+    
+    public void testNoIndent() {
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.smartIndentAfterPar = false;
+        strategy.setIndentPrefs(prefs);
+        
+        String doc = "" +
+        "def m1(): \n";
+        DocCmd docCmd = new DocCmd(0, 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n";
         assertEquals(expected, docCmd.text);
     }
     

@@ -563,7 +563,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             }
         }else{
         	PySelection selection = new PySelection(document, command.offset);
-        	if(selection.getCursorLineContents().trim().endsWith(":")){
+        	if(selection.getLineContentsToCursor().trim().endsWith(":")){
         		command.text += prefs.getIndentationString();
         	}
         }

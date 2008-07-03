@@ -13,6 +13,7 @@ Pydev
 <li><strong>Eclipse 3.4</strong>: Hyperlinks working</li>
 <li><strong>raw_input() and input()</strong>: functions are now changed when a program is launched from eclipse to consider a trailing '\r'</li>
 <li><strong>Pydev package explorer</strong>: Link working with compare editor</li>
+<li><strong>Auto-indent</strong>: Fixed problem when smart indent was turned off</li>
 </ul>
 
 after 1.3.17
