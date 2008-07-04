@@ -1,4 +1,5 @@
 - Check: Context insensitive info being created twice??? (create a test case for that)
+- Add shortcut for running unit-test
 
 - Context insensitive completions:
   - Organize imports should pass all the not defined vars and show the imports available for them
