@@ -26,42 +26,44 @@ class FrameNotFoundError(RuntimeError):pass
 
 #------------------------------------------------------------------------------------------------------ resolvers in map
 
-typeMap = {}
-try:
-    #jython does not have this types
-    try:
-        typeMap[BooleanType] = (BooleanType, BooleanType.__name__, None)
-    except NameError:
-        pass #early versions of python do not have it.
-    typeMap[BufferType] = (BufferType, BufferType.__name__, None)   
-    typeMap = {
-        NoneType : (NoneType, NoneType.__name__, None),
-        IntType : (IntType, IntType.__name__, None),
-        LongType : (LongType, LongType.__name__, None),
-        FloatType : (FloatType, FloatType.__name__, None),
-        ComplexType : (ComplexType, ComplexType.__name__, None),
-        StringType : (StringType, StringType.__name__, None),
-        UnicodeType : (UnicodeType, UnicodeType.__name__, None),
-        TupleType : (TupleType, TupleType.__name__, pydevd_resolver.tupleResolver),
-        ListType : (ListType, ListType.__name__, pydevd_resolver.tupleResolver),
-        DictType : (DictType, DictType.__name__, pydevd_resolver.dictResolver)
-    }
+if not sys.platform.startswith("java"):
+    typeMap = [
+        #None means that it should not be treated as a compound variable
+        
+        #isintance does not accept a tuple on some versions of python, so, we must declare it expanded
+        (NoneType, None,),
+        (IntType, None),
+        (LongType, None),
+        (FloatType, None),
+        (ComplexType, None),
+        (StringType, None),
+        (UnicodeType, None),
+        (TupleType, pydevd_resolver.tupleResolver),
+        (ListType, pydevd_resolver.tupleResolver),
+        (DictType, pydevd_resolver.dictResolver),
+    ]
     
-except:   
+    try:
+        typeMap.append(set, pydevd_resolver.setResolver)
+        typeMap.append(frozenset, pydevd_resolver.setResolver)
+    except:
+        pass #not available on all python versions
+    
+else: #platform is java   
     from org.python import core #@UnresolvedImport
-    typeMap = {
-        core.PyNone : ( core.PyNone, core.PyNone.__name__, None),
-        core.PyInteger : ( core.PyInteger, core.PyInteger.__name__, None),
-        core.PyLong : ( core.PyLong, core.PyLong.__name__, None),
-        core.PyFloat : ( core.PyFloat, core.PyFloat.__name__, None),
-        core.PyComplex : ( core.PyComplex, core.PyComplex.__name__, None),
-        core.PyString : ( core.PyString, core.PyString.__name__, None),       
-        core.PyTuple : ( core.PyTuple, core.PyTuple.__name__, pydevd_resolver.tupleResolver),
-        core.PyList : ( core.PyList, core.PyList.__name__, pydevd_resolver.tupleResolver),
-        core.PyDictionary: (core.PyDictionary, core.PyDictionary.__name__, pydevd_resolver.dictResolver),
-        core.PyJavaInstance: (core.PyJavaInstance, core.PyJavaInstance.__name__, pydevd_resolver.instanceResolver),
-        core.PyStringMap: (core.PyStringMap, core.PyStringMap.__name__, pydevd_resolver.dictResolver)       
-    }   
+    typeMap = [
+        (core.PyNone, None),
+        (core.PyInteger, None),
+        (core.PyLong, None),
+        (core.PyFloat, None),
+        (core.PyComplex, None),
+        (core.PyString, None),
+        (core.PyTuple, pydevd_resolver.tupleResolver),
+        (core.PyList, pydevd_resolver.tupleResolver),
+        (core.PyDictionary, pydevd_resolver.dictResolver),
+        (core.PyStringMap, pydevd_resolver.dictResolver),
+        (core.PyJavaInstance, pydevd_resolver.instanceResolver),
+    ]
 
 
 def getType(o):
@@ -73,27 +75,32 @@ def getType(o):
         All container objects should have a resolver.
     """    
     
+    try:
+        type_object = type(o)
+        type_name = type_object.__name__
+    except:
+        #This happens for org.python.core.InitModule
+        return 'Unable to get Type', 'Unable to get Type', None
+        
     try:        
-        if type(o).__name__=='org.python.core.PyJavaInstance':
-            return (type(o), type(o).__name__, pydevd_resolver.instanceResolver)
         
-        if type(o).__name__=='org.python.core.PyArray':
-            return (type(o), type(o).__name__, pydevd_resolver.jyArrayResolver)    
+        if type_name =='org.python.core.PyJavaInstance':
+            return (type_object, type_name, pydevd_resolver.instanceResolver)
         
-        for t in typeMap.keys():            
-            if isinstance(o, t):                
-                return typeMap[t]
+        if type_name =='org.python.core.PyArray':
+            return (type_object, type_name, pydevd_resolver.jyArrayResolver)    
+        
+        for t in typeMap:            
+            if isinstance(o, t[0]):                
+                return (type_object, type_name, t[1])
     except:
         traceback.print_exc()
-        print typeMap
-        print typeMap.__class__
-        print dir( typeMap )
         
     #no match return default        
-    return (type(o), type(o).__name__, pydevd_resolver.defaultResolver)
+    return (type_object, type_name, pydevd_resolver.defaultResolver)
 
 
-def makeValidXmlValue( s):
+def makeValidXmlValue(s):
     return s.replace('<', '&lt;').replace('>', '&gt;')
 
 
@@ -173,7 +180,7 @@ def frameVarsToXML(frame):
             xml += varToXML(v, str(k))
         except Exception, e:
             traceback.print_exc()
-            print >>sys.stderr,"unexpected error, recovered safely", str(e)
+            print >>sys.stderr, "unexpected error, recovered safely", str(e)
     return xml
 
 def iterFrames(initialFrame):
@@ -254,16 +261,16 @@ def resolveCompoundVariable(thread_id, frame_id, scope, attrs):
         var = frame.f_locals
 
     for k in attrList:
-        type, typeName, resolver = getType(var)              
+        type, _typeName, resolver = getType(var)              
         var = resolver.resolve(var, k)
     
     try:        
-        type, typeName, resolver = getType(var)        
+        type, _typeName, resolver = getType(var)        
         return resolver.getDictionary(var)
     except:
         traceback.print_exc()
     
-def evaluateExpression( thread_id, frame_id, expression, doExec ):
+def evaluateExpression(thread_id, frame_id, expression, doExec):
     '''returns the result of the evaluated expression
     @param doExec: determines if we should do an exec or an eval
     '''
@@ -278,19 +285,19 @@ def evaluateExpression( thread_id, frame_id, expression, doExec ):
         except:
             exec expression in frame.f_globals, frame.f_locals
         else:
-            result = eval( compiled, frame.f_globals, frame.f_locals )
+            result = eval(compiled, frame.f_globals, frame.f_locals)
             print result
         return 
     
     else:
         result = None    
         try:
-            result = eval( expression, frame.f_globals, frame.f_locals )
+            result = eval(expression, frame.f_globals, frame.f_locals)
         except Exception, e:
-            result = str( e )
+            result = str(e)
         return result
     
-def changeAttrExpression( thread_id, frame_id, attr, expression ):
+def changeAttrExpression(thread_id, frame_id, attr, expression):
     '''Changes some attribute in a given frame.
     @note: it will not (currently) work if we're not in the topmost frame (that's a python
     deficiency -- and it appears that there is no way of making it currently work --

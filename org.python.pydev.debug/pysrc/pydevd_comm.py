@@ -99,6 +99,9 @@ VERSION_STRING = "1.0"
 
 #--------------------------------------------------------------------------------------------------- UTILITIES
 
+#=======================================================================================================================
+# PydevdLog
+#=======================================================================================================================
 def PydevdLog(level, *args):
     """ levels are: 
         0 most serious warnings/errors
@@ -113,7 +116,7 @@ def PydevdLog(level, *args):
             pass
 
 #=======================================================================================================================
-# GlobacDbgHolder
+# GlobalDebuggerHolder
 #=======================================================================================================================
 class GlobalDebuggerHolder:
     '''
@@ -121,15 +124,24 @@ class GlobalDebuggerHolder:
     '''
     globalDbg = None
     
+#=======================================================================================================================
+# GetGlobalDebugger
+#=======================================================================================================================
 def GetGlobalDebugger():
     return GlobalDebuggerHolder.globalDbg
 
+#=======================================================================================================================
+# SetGlobalDebugger
+#=======================================================================================================================
 def SetGlobalDebugger(dbg):
     GlobalDebuggerHolder.globalDbg = dbg
 
 
 #------------------------------------------------------------------- ACTUAL COMM
 
+#=======================================================================================================================
+# PyDBDaemonThread
+#=======================================================================================================================
 class PyDBDaemonThread(threading.Thread):
 
     def __init__(self):
@@ -159,6 +171,9 @@ class PyDBDaemonThread(threading.Thread):
 #                #just ignore that
 #                pass
             
+#=======================================================================================================================
+# ReaderThread
+#=======================================================================================================================
 class ReaderThread(PyDBDaemonThread):
     """ reader thread reads and dispatches commands in an infinite loop """
     
@@ -190,6 +205,9 @@ class ReaderThread(PyDBDaemonThread):
 
 
 #----------------------------------------------------------------------------------- SOCKET UTILITIES - WRITER
+#=======================================================================================================================
+# WriterThread
+#=======================================================================================================================
 class WriterThread(PyDBDaemonThread):
     """ writer thread writes out the commands in an infinite loop """
     def __init__(self, sock):
@@ -235,6 +253,9 @@ class WriterThread(PyDBDaemonThread):
 
 #--------------------------------------------------- CREATING THE SOCKET THREADS
     
+#=======================================================================================================================
+# StartServer
+#=======================================================================================================================
 def StartServer(port):
     """ binds to a port, waits for the debugger to connect """
     s = socket(AF_INET, SOCK_STREAM)
@@ -243,6 +264,9 @@ def StartServer(port):
     newSock, _addr = s.accept()
     return newSock
 
+#=======================================================================================================================
+# StartClient
+#=======================================================================================================================
 def StartClient(host, port):
     """ connects to a host/port """
     PydevdLog(1, "Connecting to ", host, ":", str(port))
@@ -261,6 +285,9 @@ def StartClient(host, port):
     
 #------------------------------------------------------------------------------------ MANY COMMUNICATION STUFF
     
+#=======================================================================================================================
+# NetCommand
+#=======================================================================================================================
 class NetCommand:
     """ Commands received/sent over the network.
     
@@ -292,6 +319,9 @@ class NetCommand:
         encoded = urllib.quote(str(payload), '/<>_=" \t')
         return str(cmd) + '\t' + str(seq) + '\t' + encoded + "\n"
 
+#=======================================================================================================================
+# NetCommandFactory
+#=======================================================================================================================
 class NetCommandFactory:
     
     def __init_(self):
@@ -431,6 +461,9 @@ INTERNAL_TERMINATE_THREAD = 1
 INTERNAL_SUSPEND_THREAD = 2
 
 
+#=======================================================================================================================
+# InternalThreadCommand
+#=======================================================================================================================
 class InternalThreadCommand:
     """ internal commands are generated/executed by the debugger.
     
@@ -447,6 +480,9 @@ class InternalThreadCommand:
     def doIt(self, dbg):
         raise NotImplementedError("you have to override doIt")
 
+#=======================================================================================================================
+# InternalTerminateThread
+#=======================================================================================================================
 class InternalTerminateThread(InternalThreadCommand):
     def __init__(self, thread_id):
         self.thread_id = thread_id
@@ -462,6 +498,9 @@ class InternalTerminateThread(InternalThreadCommand):
         except:
             sys.exit(0)
 
+#=======================================================================================================================
+# InternalGetVariable
+#=======================================================================================================================
 class InternalGetVariable(InternalThreadCommand):
     """ gets the value of a variable """
     def __init__(self, seq, thread_id, frame_id, scope, attrs):
@@ -489,6 +528,9 @@ class InternalGetVariable(InternalThreadCommand):
             dbg.writer.addCommand(cmd)
 
 
+#=======================================================================================================================
+# InternalChangeVariable
+#=======================================================================================================================
 class InternalChangeVariable(InternalThreadCommand):
     """ changes the value of a variable """
     def __init__(self, seq, thread_id, frame_id, scope, attr, expression):
@@ -508,6 +550,9 @@ class InternalChangeVariable(InternalThreadCommand):
             dbg.writer.addCommand(cmd)
 
 
+#=======================================================================================================================
+# InternalGetFrame
+#=======================================================================================================================
 class InternalGetFrame(InternalThreadCommand):
     """ gets the value of a variable """
     def __init__(self, seq, thread_id, frame_id):
@@ -538,6 +583,9 @@ class InternalGetFrame(InternalThreadCommand):
            
 
            
+#=======================================================================================================================
+# InternalEvaluateExpression
+#=======================================================================================================================
 class InternalEvaluateExpression(InternalThreadCommand):
     """ gets the value of a variable """
 
@@ -564,6 +612,9 @@ class InternalEvaluateExpression(InternalThreadCommand):
             dbg.writer.addCommand(cmd)
 
 
+#=======================================================================================================================
+# PydevdFindThreadById
+#=======================================================================================================================
 def PydevdFindThreadById(thread_id):
     try:
         thread_id = long(thread_id)

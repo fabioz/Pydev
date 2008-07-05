@@ -7,7 +7,19 @@ except:
     import __builtin__
     __builtin__.True = 1
     __builtin__.False = 0
+    
+    
+        
+#=======================================================================================================================
+# UnableToResolveVariableException
+#=======================================================================================================================
+class UnableToResolveVariableException(Exception):
+    pass
+    
 
+#=======================================================================================================================
+# InspectStub
+#=======================================================================================================================
 class InspectStub:    
     def isbuiltin(self, _args):       
         return False
@@ -26,12 +38,51 @@ except:
 
 #types does not include a MethodWrapperType
 try:
-   MethodWrapperType = type([].__str__)   
+    MethodWrapperType = type([].__str__)   
 except:
-   MethodWrapperType = None
+    MethodWrapperType = None
 
 
-class Resolver:
+#=======================================================================================================================
+# AbstractResolver
+#=======================================================================================================================
+class AbstractResolver:
+    '''
+        This class exists only for documentation purposes to explain how to create a resolver.
+        
+        Some examples on how to resolve things:
+        - list: getDictionary could return a dict with index->item and use the index to resolve it later
+        - set: getDictionary could return a dict with id(object)->object and reiterate in that array to resolve it later
+        - arbitrary instance: getDictionary could return dict with attr_name->attr and use getattr to resolve it later
+    '''
+    
+    def resolve(self, var, attribute):
+        '''
+            In this method, we'll resolve some child item given the string representation of the item in the key
+            representing the previously asked dictionary.
+            
+            @param var: this is the actual variable to be resolved.
+            @param attribute: this is the string representation of a key previously returned in getDictionary.
+        '''
+        raise NotImplementedError
+        
+    def getDictionary(self, var):
+        '''
+            @param var: this is the variable that should have its children gotten.
+            
+            @return: a dictionary where each pair key, value should be shown to the user as children items
+            in the variables view for the given var.
+        '''
+        raise NotImplementedError
+
+
+#=======================================================================================================================
+# DefaultResolver
+#=======================================================================================================================
+class DefaultResolver:
+    '''
+        DefaultResolver is the class that'll actually resolve how to show some variable.
+    '''
 
     def resolve(self, var, attribute):
         return getattr(var, attribute)
@@ -96,8 +147,6 @@ class Resolver:
             #sometimes we're unable to do a dir
             pass
 
-        ret['type'] = type(obj).__name__
-        
         return ret
 
     def _getPyDictionary(self,var):
@@ -143,18 +192,57 @@ class Resolver:
                 
                 d[ n ] = attr        
 
-        d['type'] = type(var).__name__
         return d        
+               
                 
-class DictResolver(Resolver):
+#=======================================================================================================================
+# DictResolver
+#=======================================================================================================================
+class DictResolver:
+    
     def resolve(self, dict, key):
-        return dict[key]
+        if key == '__len__':
+            return None
+        
+        if '(' not in key:
+            #we have to treat that because the dict resolver is also used to directly resolve the global and local
+            #scopes (which already have the items directly) 
+            return dict[key]
+        
+        #ok, we have to iterate over the items to find the one that matches the id, because that's the only way
+        #to actually find the reference from the string we have before.
+        expected_id = int(key.split('(')[-1][:-1])
+        for key, val in dict.items():
+            if id(key) == expected_id:
+                return val
+                
+        raise UnableToResolveVariableException()
     
     def getDictionary(self, dict):
-        return dict
+        ret = {}
+        
+        for key, val in dict.items():
+            #we need to add the id because otherwise we cannot find the real object to get its contents later on.
+            key = '%s (%s)' % (key, id(key))
+            ret[key] = val
+            
+        ret['__len__'] = len(dict)
+        return ret
 
-class TupleResolver(Resolver): #to enumerate tuples and lists
+
+
+#=======================================================================================================================
+# TupleResolver
+#=======================================================================================================================
+class TupleResolver: #to enumerate tuples and lists
+
     def resolve(self, var, attribute):
+        '''
+            @param var: that's the original attribute
+            @param attribute: that's the key passed in the dict (as a string)
+        '''
+        if attribute == '__len__':
+            return None
         return var[int(attribute)]
     
     def getDictionary(self, var):
@@ -162,10 +250,44 @@ class TupleResolver(Resolver): #to enumerate tuples and lists
         # modified 'cause jython does not have enumerate support
         d = {}
         for i, item in zip(range(len(var)), var):
-            d[ i ] = item        
+            d[ i ] = item      
+        d['__len__'] = len(var)  
         return d
         
-class InstanceResolver(Resolver):
+
+        
+#=======================================================================================================================
+# SetResolver
+#=======================================================================================================================
+class SetResolver: 
+    '''
+        Resolves a set as dict id(object)->object
+    '''
+
+    def resolve(self, var, attribute):
+        if attribute == '__len__':
+            return None
+
+        attribute = int(attribute)
+        for v in var:
+            if id(v) == attribute:
+                return v
+                
+        raise UnableToResolveVariableException('Unable to resolve %s in %s' % (attribute, var))
+    
+    def getDictionary(self, var):
+        d = {}
+        for item in var:
+            d[ id(item) ] = item    
+        d['__len__'] = len(var)    
+        return d
+        
+        
+#=======================================================================================================================
+# InstanceResolver
+#=======================================================================================================================
+class InstanceResolver:
+    
     def resolve(self, var, attribute):        
         field = var.__class__.getDeclaredField( attribute )
         field.setAccessible( True )
@@ -183,30 +305,34 @@ class InstanceResolver(Resolver):
             except:
                 traceback.print_exc()
         
-        ret['type'] = type(obj).__name__        
         return ret
 
 
-class JyArrayResolver(Resolver):
-    def resolve(self, var, _attribute):
-        return var
+#=======================================================================================================================
+# JyArrayResolver
+#=======================================================================================================================
+class JyArrayResolver:
+    '''
+        This resolves a regular Object[] array from java
+    '''
+    
+    def resolve(self, var, attribute):
+        if attribute == '__len__':
+            return None
+        return var[int(attribute)]
     
     def getDictionary(self,obj):
         ret = {}       
         
         for i in range(len(obj)):
-            try:        
-                ret[ obj[i] ] = obj[i]
-            except:
-                traceback.print_exc()
-                # I don't know why I'm getting an exception
-                pass        
+            ret[ i ] = obj[i]
         
-        ret['type'] = type(obj).__name__        
+        ret['__len__'] = len(obj)
         return ret
 
-defaultResolver = Resolver()
+defaultResolver = DefaultResolver()
 dictResolver = DictResolver()
 tupleResolver = TupleResolver()
 instanceResolver = InstanceResolver()
 jyArrayResolver = JyArrayResolver()
+setResolver = SetResolver()
