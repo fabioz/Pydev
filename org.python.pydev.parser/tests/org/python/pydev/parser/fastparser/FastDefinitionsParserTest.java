@@ -71,6 +71,13 @@ public class FastDefinitionsParserTest extends TestCase {
         assertEquals("Bar", ((NameTok)((ClassDef)m.body[0]).name).id);
     }
     
+    
+    public void testDefinitionsAttributesParser() {
+        Module m = (Module) FastDefinitionsParser.parse("class Bar:pass");
+        assertEquals(1, m.body.length);
+        assertEquals("Bar", ((NameTok)((ClassDef)m.body[0]).name).id);
+    }
+    
     public void testDefinitionsParser2() {
         Module m = (Module) FastDefinitionsParser.parse("class Bar");
         assertEquals(1, m.body.length);
