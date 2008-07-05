@@ -17,7 +17,9 @@ public class ReturnVisitor extends VisitorBase{
         ReturnVisitor visitor = new ReturnVisitor();
         try {
             for(stmtType b:functionDef.body){
-                b.accept(visitor);
+                if(b != null){
+                    b.accept(visitor);
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

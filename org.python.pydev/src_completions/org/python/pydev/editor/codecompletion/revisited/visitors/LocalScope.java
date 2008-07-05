@@ -156,7 +156,11 @@ public class LocalScope implements ILocalScope {
                 try {
                     for (int i = 0; i < body.length; i++) {
                         GlobalModelVisitor visitor = new GlobalModelVisitor(GlobalModelVisitor.GLOBAL_TOKENS, "");
-                        body[i].accept(visitor);
+                        stmtType stmt = body[i];
+                        if(stmt == null){
+                            continue;
+                        }
+                        stmt.accept(visitor);
                         List<IToken> t = visitor.tokens;
                         for (Iterator<IToken> iterator = t.iterator(); iterator.hasNext();) {
                             SourceToken tok = (SourceToken) iterator.next();
@@ -228,8 +232,10 @@ public class LocalScope implements ILocalScope {
             if (element instanceof FunctionDef) {
                 FunctionDef f = (FunctionDef) element;
                 for (int i = 0; i < f.body.length; i++) {
-
-                    importedModules.addAll(GlobalModelVisitor.getTokens(f.body[i], GlobalModelVisitor.ALIAS_MODULES, moduleName, null));
+                    stmtType stmt = f.body[i];
+                    if(stmt != null){
+                        importedModules.addAll(GlobalModelVisitor.getTokens(stmt, GlobalModelVisitor.ALIAS_MODULES, moduleName, null));
+                    }
                 }
             }
         }

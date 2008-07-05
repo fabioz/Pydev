@@ -5,10 +5,12 @@ import java.io.File;
 import junit.framework.TestCase;
 
 import org.python.pydev.core.REF;
-import org.python.pydev.core.performanceeval.Timer;
+import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 
 public class FastDefinitionsParserTest extends TestCase {
@@ -27,6 +29,20 @@ public class FastDefinitionsParserTest extends TestCase {
             FastDefinitionsParserTest test = new FastDefinitionsParserTest();
             test.setUp();
             test.testDefinitionsParser11();
+            
+            
+            //only loading files
+            //java6: time elapsed: 0.593
+            //java5: time elapsed: 0.984
+            
+            //fast parser
+            //java6: time elapsed: 0.844
+            //java5: time elapsed: 1.375
+            
+            //regular parser
+            //java6: time elapsed: 9.25
+            //java5: time elapsed: 6.89
+            
 //            Timer timer = new Timer();
 //            test.parseFilesInDir(new File("D:/bin/Python251/Lib/site-packages/wx-2.8-msw-unicode"), true);
 //            test.parseFilesInDir(new File("D:/bin/Python251/Lib/"), false);
@@ -56,7 +72,12 @@ public class FastDefinitionsParserTest extends TestCase {
             File f = files[i];
             if(f.getAbsolutePath().toLowerCase().endsWith(".py")){
                 String fileContents = REF.getFileContents(f);
-                FastDefinitionsParser.parse(fileContents);
+                try{
+                    FastDefinitionsParser.parse(fileContents);
+                }catch(Exception e){
+                    System.out.println("Error parsing:"+f);
+//                    e.printStackTrace();
+                }
                 
             }else if(recursive && f.isDirectory()){
                 parseFilesInDir(f, recursive);
@@ -64,6 +85,158 @@ public class FastDefinitionsParserTest extends TestCase {
         }
     }
     
+    
+    public void testAttributes() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar:\n" +
+                "    ATTRIBUTE = 10\n" +
+                "\n" +
+                "");
+        assertEquals(1, m.body.length);
+        ClassDef classDef = ((ClassDef)m.body[0]);
+        assertEquals("Bar", ((NameTok)classDef.name).id);
+        assertEquals(1, classDef.body.length);
+        Assign assign = (Assign) classDef.body[0];
+        assertEquals(1, assign.targets.length);
+        Name name = (Name) assign.targets[0];
+        assertEquals("ATTRIBUTE", name.id);
+    }
+    
+    
+    public void testAttributes2() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar:\n" +
+                "    XXX.ATTRIBUTE = 10\n" + //we're assigning an attribute, that's not related to the class
+                "\n" +
+        "");
+        assertEquals(1, m.body.length);
+        ClassDef classDef = ((ClassDef)m.body[0]);
+        assertEquals("Bar", ((NameTok)classDef.name).id);
+        assertEquals(0, classDef.body.length); //no attribute
+    }
+    
+    
+    public void testAttributes3() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar:\n" +
+                "    def m1(self):\n" +
+                "        ATTRIBUTE = 10\n" + //local scope: don't get it
+                "\n" +
+        "");
+        assertEquals(1, m.body.length);
+        ClassDef classDef = ((ClassDef)m.body[0]);
+        assertEquals("Bar", ((NameTok)classDef.name).id);
+        assertEquals(1, classDef.body.length); //method
+        
+        FunctionDef funcDef = (FunctionDef)classDef.body[0];
+        assertEquals("m1", ((NameTok)funcDef.name).id);
+        assertNull(funcDef.body); 
+    }
+    
+
+    
+    public void testAttributes4() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar:\n" +
+                "    def m1(self):\n" +
+                "        self.ATTRIBUTE = 10\n" + //local scope: get it because of self.
+                "\n" +
+        "");
+        assertEquals(1, m.body.length);
+        ClassDef classDef = ((ClassDef)m.body[0]);
+        assertEquals("Bar", ((NameTok)classDef.name).id);
+        assertEquals(1, classDef.body.length); //method
+        
+        FunctionDef funcDef = (FunctionDef)classDef.body[0];
+        assertEquals("m1", ((NameTok)funcDef.name).id);
+        
+        assertNull(funcDef.body[1]);
+        Assign assign = (Assign) funcDef.body[0];
+        assertEquals(1, assign.targets.length);
+        Attribute attribute = (Attribute) assign.targets[0];
+        NameTok attr = (NameTok) attribute.attr;
+        assertEquals("ATTRIBUTE", attr.id.toString());
+    }
+    
+    public void testAttributes5() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar:\n" +
+                "    def m1(self):\n" +
+                "        self.ATTRIBUTE0 = 10\n" + //local scope: get it because of self.
+                "        self.ATTRIBUTE1 = 10\n" + //local scope: get it because of self.
+                "        self.ATTRIBUTE2 = 10\n" + //local scope: get it because of self.
+                "\n" +
+        "");
+        assertEquals(1, m.body.length);
+        ClassDef classDef = ((ClassDef)m.body[0]);
+        assertEquals("Bar", ((NameTok)classDef.name).id);
+        assertEquals(1, classDef.body.length); //method
+        
+        FunctionDef funcDef = (FunctionDef)classDef.body[0];
+        assertEquals("m1", ((NameTok)funcDef.name).id);
+        
+        for(int i=0;i<3;i++){
+            Assign assign = (Assign) funcDef.body[i];
+            assertEquals(1, assign.targets.length);
+            Attribute attribute = (Attribute) assign.targets[0];
+            NameTok attr = (NameTok) attribute.attr;
+            assertEquals("ATTRIBUTE"+i, attr.id.toString());
+        }
+        assertNull(funcDef.body[3]);
+    }
+    
+    
+    public void testAttributes6() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar:\n" +
+                "    def m1(self):\n" +
+                "        call(ATTRIBUTE = 10)\n" + //inside function call: don't get it
+                "\n" +
+        "");
+        assertEquals(1, m.body.length);
+        ClassDef classDef = ((ClassDef)m.body[0]);
+        assertEquals("Bar", ((NameTok)classDef.name).id);
+        assertEquals(1, classDef.body.length); //method
+        
+        FunctionDef funcDef = (FunctionDef)classDef.body[0];
+        assertEquals("m1", ((NameTok)funcDef.name).id);
+        assertNull(funcDef.body); 
+    }
+    
+    public void testAttributes7() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar:\n" +
+                "    call(ATTRIBUTE = 10)\n" + //inside function call: don't get it
+                "\n" +
+        "");
+        assertEquals(1, m.body.length);
+        ClassDef classDef = ((ClassDef)m.body[0]);
+        assertEquals("Bar", ((NameTok)classDef.name).id);
+        assertEquals(0, classDef.body.length); //method
+        
+    }
+    
+    public void testAttributes8() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar:\n" +
+                "    ATTRIBUTE = dict(\n" + //inside function call: don't get it
+                "       b=20,\n" +
+                "       c=30\n" +
+                "    )\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+        "");
+        assertEquals(1, m.body.length);
+        ClassDef classDef = ((ClassDef)m.body[0]);
+        assertEquals("Bar", ((NameTok)classDef.name).id);
+        assertEquals(1, classDef.body.length);
+        Assign assign = (Assign) classDef.body[0];
+        assertEquals(1, assign.targets.length);
+        Name name = (Name) assign.targets[0];
+        assertEquals("ATTRIBUTE", name.id);
+    }
     
     public void testDefinitionsParser() {
         Module m = (Module) FastDefinitionsParser.parse("class Bar:pass");
@@ -263,6 +436,15 @@ public class FastDefinitionsParserTest extends TestCase {
     
     public void testDefinitionsParser10() {
         Module m = (Module) FastDefinitionsParser.parse(
+                "" //empty
+        );
+        assertEquals(0, m.body.length);
+    }
+    
+    public void testEmpty() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "# This file was created automatically by SWIG 1.3.29.\n" +
+                "" +
                 "" //empty
         );
         assertEquals(0, m.body.length);

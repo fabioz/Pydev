@@ -56,9 +56,10 @@ public class StringUtils {
     public static int countPercS(String str) {
         int j = 0;
 
-        for (int i = 0; i < str.length(); i++) {
+        int len = str.length();
+        for (int i = 0; i < len; i++) {
             char c = str.charAt(i);
-            if (c == '%' && i + 1 < str.length()) {
+            if (c == '%' && i + 1 < len) {
                 char nextC = str.charAt(i + 1);
                 if (nextC == 's') {
                     j++;

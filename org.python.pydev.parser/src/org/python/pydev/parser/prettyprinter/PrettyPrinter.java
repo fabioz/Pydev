@@ -730,7 +730,9 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             }
             
             for(SimpleNode n: node.body){
-                n.accept(this);
+                if(n != null){
+                    n.accept(this);
+                }
             }
         
             dedent();

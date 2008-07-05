@@ -156,7 +156,7 @@ public class ParsingUtils implements IPythonPartitions{
             j++;
             
             if(c == '\'' || c == '"'){ //ignore comments or multiline comments...
-                j = ParsingUtils.eatLiterals( cs, null, j-1)+1;
+                j = ParsingUtils.eatLiterals(cs, null, j-1)+1;
                 
             }else if(c == '#'){
                 j = ParsingUtils.eatComments(cs, null, j-1)+1;

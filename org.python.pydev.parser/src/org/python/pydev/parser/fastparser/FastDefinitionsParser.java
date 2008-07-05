@@ -4,13 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 
 /**
@@ -26,7 +31,7 @@ import org.python.pydev.parser.jython.ast.stmtType;
  *
  * @author Fabio
  */
-public class FastDefinitionsParser {
+public final class FastDefinitionsParser {
     
     /**
      * Set and kept in the constructor
@@ -41,11 +46,6 @@ public class FastDefinitionsParser {
      * The length of the buffer we're iterating.
      */
     final private int length;
-    
-    /**
-     * Last char we found
-     */
-    private char lastChar = '\n';
     
     /**
      * Current iteration index
@@ -157,7 +157,13 @@ public class FastDefinitionsParser {
                     break;
                     
                     
-                    
+                case '{': 
+                case '[':
+                case '(':
+                    //starting some call, dict, list, tuple... those don't count on getting some actual definition
+                    currIndex = ParsingUtils.eatPar(cs, currIndex, null, c);
+                    break;
+                
                 case '\r': 
                     if(currIndex < length-1 && cs[currIndex+1] == '\n'){
                         currIndex++;
@@ -169,11 +175,52 @@ public class FastDefinitionsParser {
                     
                     break;
                     
+                
+                case '=':
+                    if(currIndex < length-1 && cs[currIndex+1] != '='){
+                        if(DEBUG){
+                            System.out.println("Found possible attribute:"+lineBuffer+" col:"+firstCharCol);
+                        }
+                        
+                        
+                        
+                        String lineContents = lineBuffer.toString().trim();
+                        boolean add=true;
+                        for(int i=0;i<lineContents.length();i++){
+                            char lineC = lineContents.charAt(i);
+                            //can only be made of valid java chars (no spaces or similar things)
+                            if(lineC != '.' && !Character.isJavaIdentifierPart(lineC)){
+                                add=false;
+                                break;
+                            }
+                        }
+                        if(add){
+                            //only add if it was something valid
+                            if(lineContents.indexOf('.') != -1){
+                                String[] dotSplit = StringUtils.dotSplit(lineContents);
+                                if(dotSplit.length == 2 && dotSplit[0].equals("self")){
+                                    Attribute attribute = new Attribute(new Name("self", Name.Load), new NameTok(dotSplit[1], NameTok.Attrib), Attribute.Load);
+                                    exprType[] targets = new exprType[]{attribute};
+                                    Assign assign = new Assign(targets, null);
+                                    
+                                    assign.beginColumn = this.col;
+                                    assign.beginLine = this.row;
+                                    addToPertinentScope(assign);
+                                }
+                                
+                            }else{
+                                Name name = new Name(lineContents, Name.Store);
+                                exprType[] targets = new exprType[]{name};
+                                Assign assign = new Assign(targets, null);
+                                assign.beginColumn = this.col;
+                                assign.beginLine = this.row;
+                                addToPertinentScope(assign);
+                            }
+                        }                        
+                    }
                 //No default
-                    
             }
             lineBuffer.append(c);
-            lastChar = c;
         }
         
         while(stack.size() > 0){
@@ -198,8 +245,10 @@ public class FastDefinitionsParser {
         
         lineBuffer.clear();
         char c = cs[currIndex];
+        boolean walkedIndex = false;
         
         while(currIndex < length-1 && Character.isWhitespace(c) && c != '\r' && c != '\n'){
+            walkedIndex = true;
             currIndex ++;
             col++;
             c = cs[currIndex];
@@ -220,7 +269,10 @@ public class FastDefinitionsParser {
             
             startMethod(getNextIdentifier(c), row, startMethodCol);
         }
-        currIndex --;
+        if(walkedIndex){
+            currIndex --;
+        }
+        firstCharCol = col;
     }
 
 
@@ -303,34 +355,74 @@ public class FastDefinitionsParser {
      * 
      * It'll find a correct scope based on the column it has to be added to.
      * 
-     * @param def the definition to be added
+     * @param newStmt the definition to be added
      */
-    private void addToPertinentScope(stmtType def) {
+    private void addToPertinentScope(stmtType newStmt) {
         //see where it should be added (global or class scope)
         while(stack.size() > 0){
             ClassDef parent = stack.peek();
-            if(parent.beginColumn < def.beginColumn){
+            if(parent.beginColumn < newStmt.beginColumn){
                 List<stmtType> peek = stackBody.peek();
                 
-                if(def instanceof FunctionDef){
+                if(newStmt instanceof FunctionDef){
                     int size = peek.size();
                     if(size > 0){
                         stmtType existing = peek.get(size-1);
-                        if(existing.beginColumn < def.beginColumn){
+                        if(existing.beginColumn < newStmt.beginColumn){
                             //we don't want to add a method inside a method at this point.
                             //all the items added should have the same column.
                             return;
                         }
                     }
+                }else if (newStmt instanceof Assign){
+                    Assign assign = (Assign) newStmt;
+                    
+                    //an assign could be in a method or in a class depending on where we're right now...
+                    int size = peek.size();
+                    if(size > 0){
+                        stmtType existing = peek.get(size-1);
+                        if(existing.beginColumn < newStmt.beginColumn){
+                            exprType target = assign.targets[0];
+                            //add the assign to the correct place
+                            if(existing instanceof FunctionDef){
+                                FunctionDef functionDef = (FunctionDef) existing;
+                                
+                                if(target instanceof Attribute){
+                                    //if it's an attribute at this point, it'll always start with self!
+                                    if(functionDef.body == null){
+                                        if(functionDef.specialsAfter == null){
+                                            functionDef.specialsAfter = new ArrayList<Object>();
+                                        }
+                                        functionDef.body = new stmtType[10];
+                                        functionDef.body[0] = newStmt;
+                                        functionDef.specialsAfter.add(1); //real len
+                                    }else{
+                                        //already exists... let's add it... as it's an array, we may have to reallocate it
+                                        Integer currLen = (Integer) functionDef.specialsAfter.get(0);
+                                        currLen += 1;
+                                        functionDef.specialsAfter.set(0, currLen);
+                                        if(functionDef.body.length < currLen){
+                                            stmtType[] newBody = new stmtType[functionDef.body.length*2];
+                                            System.arraycopy(functionDef.body, 0, newBody, 0, functionDef.body.length);
+                                            functionDef.body = newBody;
+                                        }
+                                        functionDef.body[currLen-1] = newStmt;
+                                    }
+                                }
+                                return;
+                            }
+                        }
+                    }
+                    
                 }
-                peek.add(def);
+                peek.add(newStmt);
                 return;
             }else{
                 endScope();
             }
         }
         //if it still hasn't returned, add it to the global
-        this.body.add(def);
+        this.body.add(newStmt);
     }
     
     
