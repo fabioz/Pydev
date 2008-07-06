@@ -112,6 +112,10 @@ public final class FastDefinitionsParser {
         if(currIndex < length){
             handleNewLine();
         }
+        //in the 1st attempt to handle the 1st line, if it had nothing we could actually go backward 1 char
+        if(currIndex < 0){
+            currIndex=0;
+        }
         
         for (;currIndex < length; currIndex++, col++) {
             char c = cs[currIndex];
@@ -151,7 +155,6 @@ public final class FastDefinitionsParser {
                     }
                     
                     //after a comment, we'll always be in a new line
-                    currIndex++;
                     handleNewLine();
                     
                     break;
@@ -203,7 +206,7 @@ public final class FastDefinitionsParser {
                                     exprType[] targets = new exprType[]{attribute};
                                     Assign assign = new Assign(targets, null);
                                     
-                                    assign.beginColumn = this.col;
+                                    assign.beginColumn = this.firstCharCol;
                                     assign.beginLine = this.row;
                                     addToPertinentScope(assign);
                                 }
@@ -212,7 +215,7 @@ public final class FastDefinitionsParser {
                                 Name name = new Name(lineContents, Name.Store);
                                 exprType[] targets = new exprType[]{name};
                                 Assign assign = new Assign(targets, null);
-                                assign.beginColumn = this.col;
+                                assign.beginColumn = this.firstCharCol;
                                 assign.beginLine = this.row;
                                 addToPertinentScope(assign);
                             }
@@ -245,10 +248,8 @@ public final class FastDefinitionsParser {
         
         lineBuffer.clear();
         char c = cs[currIndex];
-        boolean walkedIndex = false;
         
         while(currIndex < length-1 && Character.isWhitespace(c) && c != '\r' && c != '\n'){
-            walkedIndex = true;
             currIndex ++;
             col++;
             c = cs[currIndex];
@@ -269,9 +270,7 @@ public final class FastDefinitionsParser {
             
             startMethod(getNextIdentifier(c), row, startMethodCol);
         }
-        if(walkedIndex){
-            currIndex --;
-        }
+        currIndex --;
         firstCharCol = col;
     }
 
@@ -376,44 +375,29 @@ public final class FastDefinitionsParser {
                     }
                 }else if (newStmt instanceof Assign){
                     Assign assign = (Assign) newStmt;
+                    exprType target = assign.targets[0];
                     
                     //an assign could be in a method or in a class depending on where we're right now...
                     int size = peek.size();
                     if(size > 0){
                         stmtType existing = peek.get(size-1);
-                        if(existing.beginColumn < newStmt.beginColumn){
-                            exprType target = assign.targets[0];
+                        if(existing.beginColumn < assign.beginColumn){
                             //add the assign to the correct place
                             if(existing instanceof FunctionDef){
                                 FunctionDef functionDef = (FunctionDef) existing;
                                 
                                 if(target instanceof Attribute){
-                                    //if it's an attribute at this point, it'll always start with self!
-                                    if(functionDef.body == null){
-                                        if(functionDef.specialsAfter == null){
-                                            functionDef.specialsAfter = new ArrayList<Object>();
-                                        }
-                                        functionDef.body = new stmtType[10];
-                                        functionDef.body[0] = newStmt;
-                                        functionDef.specialsAfter.add(1); //real len
-                                    }else{
-                                        //already exists... let's add it... as it's an array, we may have to reallocate it
-                                        Integer currLen = (Integer) functionDef.specialsAfter.get(0);
-                                        currLen += 1;
-                                        functionDef.specialsAfter.set(0, currLen);
-                                        if(functionDef.body.length < currLen){
-                                            stmtType[] newBody = new stmtType[functionDef.body.length*2];
-                                            System.arraycopy(functionDef.body, 0, newBody, 0, functionDef.body.length);
-                                            functionDef.body = newBody;
-                                        }
-                                        functionDef.body[currLen-1] = newStmt;
-                                    }
+                                    addAssignToFunctionDef(assign, functionDef);
                                 }
                                 return;
                             }
                         }
                     }
                     
+                    //if it still hasn't returned and it's a name, add it to the global scope.
+                    if(target instanceof Name){
+                        
+                    }
                 }
                 peek.add(newStmt);
                 return;
@@ -423,6 +407,36 @@ public final class FastDefinitionsParser {
         }
         //if it still hasn't returned, add it to the global
         this.body.add(newStmt);
+    }
+
+
+    /**
+     * Adds an assign statement to the given function definition.
+     * 
+     * @param assign the assign to be added
+     * @param functionDef the function definition where it should be added
+     */
+    private void addAssignToFunctionDef(Assign assign, FunctionDef functionDef) {
+        //if it's an attribute at this point, it'll always start with self!
+        if(functionDef.body == null){
+            if(functionDef.specialsAfter == null){
+                functionDef.specialsAfter = new ArrayList<Object>();
+            }
+            functionDef.body = new stmtType[10];
+            functionDef.body[0] = assign;
+            functionDef.specialsAfter.add(1); //real len
+        }else{
+            //already exists... let's add it... as it's an array, we may have to reallocate it
+            Integer currLen = (Integer) functionDef.specialsAfter.get(0);
+            currLen += 1;
+            functionDef.specialsAfter.set(0, currLen);
+            if(functionDef.body.length < currLen){
+                stmtType[] newBody = new stmtType[functionDef.body.length*2];
+                System.arraycopy(functionDef.body, 0, newBody, 0, functionDef.body.length);
+                functionDef.body = newBody;
+            }
+            functionDef.body[currLen-1] = assign;
+        }
     }
     
     
