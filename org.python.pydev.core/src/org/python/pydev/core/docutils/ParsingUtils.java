@@ -13,25 +13,13 @@ import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 
-
+/**
+ * Helper class for parsing python code.
+ *
+ * @author Fabio
+ */
 public class ParsingUtils implements IPythonPartitions{
     
-    /**
-     * @param cs the char array we are parsing
-     * @param buf used to add the comments contents (out)
-     * @param i the position
-     * @return the : position
-     */
-    public static int eatToColon(char[] cs, FastStringBuffer buf, int i) {
-        while(i < cs.length && cs[i] != ':'){
-            buf.append(cs[i]);
-            i++;
-        }
-        if(i < cs.length)
-            buf.append(cs[i]);
-        
-        return i;
-    }
 
     /**
      * @param cs the char array we are parsing
@@ -41,14 +29,17 @@ public class ParsingUtils implements IPythonPartitions{
      * @return the end of the comments position (end of document or new line char)
      */
     public static int eatComments(Object cs, FastStringBuffer buf, int i) {
-        while(i < len(cs) && charAt(cs,i) != '\n' && charAt(cs,i) != '\r'){
+        int len = len(cs);
+        char c;
+        
+        while(i < len && (c = charAt(cs,i)) != '\n' && c != '\r'){
             if(buf != null){
-                buf.append(charAt(cs,i));
+                buf.append(c);
             }
             i++;
         }
         
-        if(i < len(cs)){
+        if(i < len){
             if(buf != null){
                 buf.append(charAt(cs,i));
             }
@@ -57,36 +48,6 @@ public class ParsingUtils implements IPythonPartitions{
         return i;
     }
     
-    /**
-     * @param cs the char array we are parsing
-     * @param buf used to add the comments contents (out)
-     * @param i the # position
-     * @return the end of the comments position (end of document or new line char)
-     */
-    public static int eatComments(char[] cs, int i) {
-        while(i < cs.length && cs[i] != '\n' && cs[i] != '\r'){
-            i++;
-        }
-        
-        return i;
-    }
-    
-    /**
-     * @param cs the char array we are parsing
-     * @param buf used to add the token contents (out)
-     * @param i the start of the token
-     * @return the end of the token position (end of document or new line char or whitespace)
-     */
-    public static int eatToken(char[] cs, FastStringBuffer buf, int i) {
-        while(i < cs.length && !Character.isWhitespace(cs[i])){
-            buf.append(cs[i]);
-            i++;
-        }
-        if(i < cs.length)
-            buf.append(cs[i]);
-        
-        return i;
-    }
 
     /**
      * @param cs the char array we are parsing
@@ -106,7 +67,8 @@ public class ParsingUtils implements IPythonPartitions{
         int j = getLiteralEnd(cs, i, curr);
         
         if(buf != null){
-            for (int k = i; k < len(cs) && k <= j; k++) {
+            int len = len(cs);
+            for (int k = i; k < len && k <= j; k++) {
                 buf.append(charAt(cs, k));
             }
         }
@@ -151,7 +113,8 @@ public class ParsingUtils implements IPythonPartitions{
         char closingPar = DocUtils.getPeer(par);
         
         int j = i+1;
-        while(j < len(cs) && (c = charAt(cs,j)) != closingPar){
+        int len = len(cs);
+        while(j < len && (c = charAt(cs,j)) != closingPar){
             
             j++;
             
@@ -179,7 +142,8 @@ public class ParsingUtils implements IPythonPartitions{
      */
     public static int findNextSingle(Object cs, int i, char curr) {
     	boolean ignoreNext = false;
-        while(i < len(cs)){
+        int len = len(cs);
+        while(i < len){
         	char c = charAt(cs,i);
         	
         	
@@ -204,7 +168,8 @@ public class ParsingUtils implements IPythonPartitions{
      * check the end of the multiline quote
      */
     public static int findNextMulti(Object cs, int i, char curr) {
-        while(i+2 < len(cs)){
+        int len = len(cs);
+        while(i+2 < len){
             char c = charAt(cs,i);
 			if (c == curr && charAt(cs,i+1) == curr && charAt(cs,i+2) == curr){
                 break;
@@ -214,8 +179,8 @@ public class ParsingUtils implements IPythonPartitions{
 				i++;
 			}
         }
-        if(len(cs) < i+2){
-            return len(cs);
+        if(len < i+2){
+            return len;
         }
         return i+2;
     }
@@ -270,7 +235,8 @@ public class ParsingUtils implements IPythonPartitions{
      * @return whether we are at the start of a multi line literal or not.
      */
     public static boolean isMultiLiteral(Object cs, int i, char curr){
-        if(len(cs) <= i + 2){
+        int len = len(cs);
+        if(len <= i + 2){
             return false;
         }
         if(charAt(cs, i+1) == curr && charAt(cs,i+2) == curr){
@@ -279,19 +245,6 @@ public class ParsingUtils implements IPythonPartitions{
         return false;
     }
 
-    public static int eatWhitespaces(char cs[], int i) {
-        while(i < cs.length && Character.isWhitespace(cs[i])){
-            i++;
-        }
-        return i;
-    }
-
-    public static int eatWhitespaces(FastStringBuffer buf, int i) {
-        while(i < buf.length() && Character.isWhitespace(buf.charAt(i))){
-            i++;
-        }
-        return i;
-    }
 
     public static void removeCommentsWhitespacesAndLiterals(FastStringBuffer buf) {
         removeCommentsWhitespacesAndLiterals(buf, true);
@@ -385,20 +338,6 @@ public class ParsingUtils implements IPythonPartitions{
             char ch = buf.charAt(i);
             if(Character.isWhitespace(ch)){
                 buf.deleteCharAt(i);
-            }
-        }
-    }
-
-    public static void removeToClosingPar(FastStringBuffer buf) {
-        int length = buf.length();
-        for (int i = length -1; i >= 0; i--) {
-            char ch = buf.charAt(i);
-            if(ch != ')'){
-                buf.deleteCharAt(i);
-            }else{
-                buf.deleteCharAt(i);
-                return;
-                
             }
         }
     }
@@ -538,21 +477,6 @@ public class ParsingUtils implements IPythonPartitions{
         return buffer.toString();
     }
 
-    public static String getLastLine(String code) {
-        int i = code.lastIndexOf('\r');
-        int j = code.lastIndexOf('\n');
-        if(i == -1 && j == -1){
-            return code;
-        }
-        
-        char toSplit = '\n';
-        if(i > j){
-            toSplit = '\r';
-        }
-        
-        String[] strings = StringUtils.split(code, toSplit);
-        return strings[strings.length-1];
-    }
 
     public static String removeComments(String line) {
         int i = line.indexOf('#');
