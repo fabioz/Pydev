@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 
 # A some of this code is take from Pythius -
 # Copyright (GPL) 2001 Jurgen Hermann <jh@web.de>

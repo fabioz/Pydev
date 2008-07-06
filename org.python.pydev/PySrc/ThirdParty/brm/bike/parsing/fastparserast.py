@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 from __future__ import generators
 from parserutils import generateLogicalLines, maskStringsAndComments, maskStringsAndRemoveComments
 import re

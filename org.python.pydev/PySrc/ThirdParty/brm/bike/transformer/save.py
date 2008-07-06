@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 from bike import log
 
 outputqueue = {}

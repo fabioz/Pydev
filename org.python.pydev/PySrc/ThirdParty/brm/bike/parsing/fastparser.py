@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 #!/usr/bin/env python
 from bike.parsing.fastparserast import *
 from bike.parsing.parserutils import *

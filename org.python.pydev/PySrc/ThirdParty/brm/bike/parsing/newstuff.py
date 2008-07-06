@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 from __future__ import generators 
 # Holding module for scaffolding needed to transition parsing package
 # into stateless design

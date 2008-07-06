@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 from __future__ import generators
 from bike.query.common import Match, globalScanForMatches, getScopeForLine, MatchFinder
 from getTypeOf import getTypeOf, getTypeOfExpr

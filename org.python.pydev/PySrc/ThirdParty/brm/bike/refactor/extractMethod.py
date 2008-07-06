@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 import re
 import compiler
 from bike.parsing import visitor

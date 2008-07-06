@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 from __future__ import generators
 from bike.globals import *
 from bike.parsing.fastparserast import getRoot, Function, Class, Module, getModule

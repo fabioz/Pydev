@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 from bike.transformer.WordRewriter import WordRewriter
 from bike.query.findReferences import findReferencesIncludingDefn
 from bike.transformer.save import save

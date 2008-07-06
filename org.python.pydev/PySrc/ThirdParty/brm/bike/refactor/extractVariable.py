@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 from bike.parsing.parserutils import maskStringsAndRemoveComments
 from bike.transformer.undo import getUndoStack
 from parser import ParserError

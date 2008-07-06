@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 from __future__ import generators
 from bike.query.common import Match, MatchFinder, \
      getScopeForLine, indexToCoordinates, \

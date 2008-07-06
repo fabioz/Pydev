@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 from bike.parsing.load import getSourceNode
 from bike.transformer.undo import getUndoStack
 from bike.transformer.save import queueFileToSave

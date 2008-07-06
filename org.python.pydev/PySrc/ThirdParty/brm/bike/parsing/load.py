@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 from bike.globals import *
 import os
 from bike.parsing.fastparser import fastparser

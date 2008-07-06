@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 from bike.query.findDefinition import findAllPossibleDefinitionsByCoords
 from bike.query.findReferences import findReferences
 from bike.parsing.parserutils import maskStringsAndRemoveComments, linecontinueRE

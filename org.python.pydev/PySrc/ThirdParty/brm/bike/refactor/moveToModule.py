@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 import bike.globals
 from bike.parsing.load import getSourceNode
 from bike.parsing.fastparserast import Module

@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 # getTypeOf(scope,fqn) and getTypeOfExpr(scope,ast)
 
 from bike.parsing.fastparserast import Class, Function, Module, Root, getRoot, Package, Instance, getModule

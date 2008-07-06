@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 import re
 
 def getLineSeperator(line):

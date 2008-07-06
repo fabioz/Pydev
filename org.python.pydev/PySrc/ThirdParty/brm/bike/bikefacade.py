@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 import os
 import sys
 import compiler

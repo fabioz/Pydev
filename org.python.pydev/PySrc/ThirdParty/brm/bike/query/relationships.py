@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 # queries to do with module/class/function relationships
 from __future__ import generators
 from bike.globals import *
