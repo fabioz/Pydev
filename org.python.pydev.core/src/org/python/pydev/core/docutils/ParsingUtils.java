@@ -18,9 +18,145 @@ import org.python.pydev.core.structure.FastStringBuffer;
  *
  * @author Fabio
  */
-public class ParsingUtils implements IPythonPartitions{
+public abstract class ParsingUtils implements IPythonPartitions{
     
 
+    /**
+     * Class that handles char[]
+     *
+     * @author Fabio
+     */
+    private static class CharArrayParsingUtils extends ParsingUtils{
+        private char[] cs;
+        public CharArrayParsingUtils(char[] cs) {
+            this.cs = cs;
+        }
+        public int len() {
+            return cs.length;
+        }
+        public char charAt(int i) {
+            return cs[i];
+        }
+    }
+    
+    
+    /**
+     * Class that handles FastStringBuffer
+     *
+     * @author Fabio
+     */
+    private static class FastStringBufferParsingUtils extends ParsingUtils{
+        private FastStringBuffer cs;
+        public FastStringBufferParsingUtils(FastStringBuffer cs) {
+            this.cs = cs;
+        }
+        public int len() {
+            return cs.length();
+        }
+        public char charAt(int i) {
+            return cs.charAt(i);
+        }
+    }
+    
+    /**
+     * Class that handles StringBuffer
+     *
+     * @author Fabio
+     */
+    private static class StringBufferParsingUtils extends ParsingUtils{
+        private StringBuffer cs;
+        public StringBufferParsingUtils(StringBuffer cs) {
+            this.cs = cs;
+        }
+        public int len() {
+            return cs.length();
+        }
+        public char charAt(int i) {
+            return cs.charAt(i);
+        }
+    }
+    
+    /**
+     * Class that handles String
+     *
+     * @author Fabio
+     */
+    private static class StringParsingUtils extends ParsingUtils{
+        private String cs;
+        public StringParsingUtils(String cs) {
+            this.cs = cs;
+        }
+        public int len() {
+            return cs.length();
+        }
+        public char charAt(int i) {
+            return cs.charAt(i);
+        }
+    }
+    
+    /**
+     * Class that handles String
+     *
+     * @author Fabio
+     */
+    private static class IDocumentParsingUtils extends ParsingUtils{
+        private IDocument cs;
+        public IDocumentParsingUtils(IDocument cs) {
+            this.cs = cs;
+        }
+        public int len() {
+            return cs.getLength();
+        }
+        public char charAt(int i) {
+            try {
+                return cs.getChar(i);
+            } catch (BadLocationException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+    
+    /**
+     * Factory method to create it.
+     */
+    public static ParsingUtils create(Object cs) {
+        if(cs instanceof char[]){
+            return new CharArrayParsingUtils((char[])cs);
+        }
+        if(cs instanceof FastStringBuffer){
+            return new FastStringBufferParsingUtils((FastStringBuffer)cs);
+        }
+        if(cs instanceof StringBuffer){
+            return new StringBufferParsingUtils((StringBuffer)cs);
+        }
+        if(cs instanceof String){
+            return new StringParsingUtils((String)cs);
+        }
+        if(cs instanceof IDocument){
+            return new IDocumentParsingUtils((IDocument)cs);
+        }
+        throw new RuntimeException("Don't know how to create instance for: "+cs.getClass());
+    }
+    
+    
+    //Abstract interfaces -------------------------------------------------------------
+
+    
+    /**
+     * @return the char at a given position of the object
+     */
+    public abstract char charAt(int i);
+    
+    
+    /**
+     * @return the length of the contained object
+     */
+    public abstract int len();
+    
+    
+    //API methods --------------------------------------------------------------------
+
+    
     /**
      * @param cs the char array we are parsing
      * @param buf used to add the comments contents (out) -- if it's null, it'll simply advance to the position and 
@@ -28,11 +164,11 @@ public class ParsingUtils implements IPythonPartitions{
      * @param i the # position
      * @return the end of the comments position (end of document or new line char)
      */
-    public static int eatComments(Object cs, FastStringBuffer buf, int i) {
-        int len = len(cs);
+    public int eatComments(FastStringBuffer buf, int i) {
+        int len = len();
         char c;
         
-        while(i < len && (c = charAt(cs,i)) != '\n' && c != '\r'){
+        while(i < len && (c = charAt(i)) != '\n' && c != '\r'){
             if(buf != null){
                 buf.append(c);
             }
@@ -41,7 +177,7 @@ public class ParsingUtils implements IPythonPartitions{
         
         if(i < len){
             if(buf != null){
-                buf.append(charAt(cs,i));
+                buf.append(charAt(i));
             }
         }
     
@@ -55,21 +191,21 @@ public class ParsingUtils implements IPythonPartitions{
      * @param i the ' or " position
      * @return the end of the literal position (or end of document)
      */
-    public static int eatLiterals(Object cs, FastStringBuffer buf, int i) {
+    public int eatLiterals(FastStringBuffer buf, int i) {
         //ok, current pos is ' or "
         //check if we're starting a single or multiline comment...
-        char curr = charAt(cs, i);
+        char curr = charAt(i);
         
         if(curr != '"' && curr != '\''){
             throw new RuntimeException("Wrong location to eat literals. Expecting ' or \" ");
         }
         
-        int j = getLiteralEnd(cs, i, curr);
+        int j = getLiteralEnd(i, curr);
         
         if(buf != null){
-            int len = len(cs);
+            int len = len();
             for (int k = i; k < len && k <= j; k++) {
-                buf.append(charAt(cs, k));
+                buf.append(charAt(k));
             }
         }
         return j;
@@ -82,14 +218,14 @@ public class ParsingUtils implements IPythonPartitions{
      * @param curr current char
      * @return the end of the multiline literal
      */
-    public static int getLiteralEnd(Object cs, int i, char curr) {
-        boolean multi = isMultiLiteral(cs, i, curr);
+    public int getLiteralEnd(int i, char curr) {
+        boolean multi = isMultiLiteral(i, curr);
         
         int j;
         if(multi){
-            j = findNextMulti(cs, i+3, curr);
+            j = findNextMulti(i+3, curr);
         }else{
-            j = findNextSingle(cs, i+1, curr);
+            j = findNextSingle(i+1, curr);
         }
         return j;
     }
@@ -100,32 +236,32 @@ public class ParsingUtils implements IPythonPartitions{
      * @param i the ' or " position
      * @return the end of the literal position (or end of document)
      */
-    public static int eatPar(Object cs, int i, FastStringBuffer buf) {
-        return eatPar(cs, i, buf, '(');
+    public int eatPar(int i, FastStringBuffer buf) {
+        return eatPar(i, buf, '(');
     }
     
     /**
      * @param buf if null, it'll simply advance without adding anything to the buffer.
      */
-    public static int eatPar(Object cs, int i, FastStringBuffer buf, char par) {
+    public int eatPar(int i, FastStringBuffer buf, char par) {
         char c = ' ';
         
         char closingPar = DocUtils.getPeer(par);
         
         int j = i+1;
-        int len = len(cs);
-        while(j < len && (c = charAt(cs,j)) != closingPar){
+        int len = len();
+        while(j < len && (c = charAt(j)) != closingPar){
             
             j++;
             
             if(c == '\'' || c == '"'){ //ignore comments or multiline comments...
-                j = ParsingUtils.eatLiterals(cs, null, j-1)+1;
+                j = eatLiterals(null, j-1)+1;
                 
             }else if(c == '#'){
-                j = ParsingUtils.eatComments(cs, null, j-1)+1;
+                j = eatComments(null, j-1)+1;
                 
             }else if( c == par){ //open another par.
-                j = eatPar(cs, j-1, null, par)+1;
+                j = eatPar(j-1, null, par)+1;
             
             }else{
                 if(buf != null){
@@ -140,11 +276,11 @@ public class ParsingUtils implements IPythonPartitions{
     /**
      * discover the position of the closing quote
      */
-    public static int findNextSingle(Object cs, int i, char curr) {
+    public int findNextSingle(int i, char curr) {
     	boolean ignoreNext = false;
-        int len = len(cs);
+        int len = len();
         while(i < len){
-        	char c = charAt(cs,i);
+        	char c = charAt(i);
         	
         	
 			if(!ignoreNext && c == curr){
@@ -167,11 +303,11 @@ public class ParsingUtils implements IPythonPartitions{
     /**
      * check the end of the multiline quote
      */
-    public static int findNextMulti(Object cs, int i, char curr) {
-        int len = len(cs);
+    public int findNextMulti(int i, char curr) {
+        int len = len();
         while(i+2 < len){
-            char c = charAt(cs,i);
-			if (c == curr && charAt(cs,i+1) == curr && charAt(cs,i+2) == curr){
+            char c = charAt(i);
+			if (c == curr && charAt(i+1) == curr && charAt(i+2) == curr){
                 break;
             }
 			i++;
@@ -185,47 +321,28 @@ public class ParsingUtils implements IPythonPartitions{
         return i+2;
     }
     
-    public static char charAt(Object o, int i){
-        if (o instanceof char[]) {
-            return ((char[]) o)[i];
-        }
-        if (o instanceof FastStringBuffer) {
-            return ((FastStringBuffer) o).charAt(i);
-        }
-        if (o instanceof StringBuffer) {
-            return ((StringBuffer) o).charAt(i);
-        }
-        if (o instanceof String) {
-            return ((String) o).charAt(i);
-        }
-        if (o instanceof IDocument) {
-            try {
-                return ((IDocument) o).getChar(i);
-            } catch (BadLocationException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        throw new RuntimeException("unable to get char at of "+o.getClass());
-    }
+
     
-    public static int len(Object o){
-        if (o instanceof char[]) {
-            return ((char[]) o).length;
-        }
-        if (o instanceof FastStringBuffer) {
-            return ((FastStringBuffer) o).length();
-        }
-        if (o instanceof StringBuffer) {
-            return ((StringBuffer) o).length();
-        }
-        if (o instanceof String) {
-            return ((String) o).length();
-        }
-        if (o instanceof IDocument) {
-            return ((IDocument) o).getLength();
-        }
-        throw new RuntimeException("unable to get len of "+o.getClass());
-    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    //STATIC INTERFACES FROM NOW ON ----------------------------------------------------------------
+    //STATIC INTERFACES FROM NOW ON ----------------------------------------------------------------
+    //STATIC INTERFACES FROM NOW ON ----------------------------------------------------------------
+    //STATIC INTERFACES FROM NOW ON ----------------------------------------------------------------
+    //STATIC INTERFACES FROM NOW ON ----------------------------------------------------------------
+
+    
+    
+    
+    
     
     /**
      * 
@@ -234,12 +351,12 @@ public class ParsingUtils implements IPythonPartitions{
      * @param curr the current char (' or ")
      * @return whether we are at the start of a multi line literal or not.
      */
-    public static boolean isMultiLiteral(Object cs, int i, char curr){
-        int len = len(cs);
+    public boolean isMultiLiteral(int i, char curr){
+        int len = len();
         if(len <= i + 2){
             return false;
         }
-        if(charAt(cs, i+1) == curr && charAt(cs,i+2) == curr){
+        if(charAt(i+1) == curr && charAt(i+2) == curr){
             return true;
         }
         return false;
@@ -249,6 +366,7 @@ public class ParsingUtils implements IPythonPartitions{
     public static void removeCommentsWhitespacesAndLiterals(FastStringBuffer buf) {
         removeCommentsWhitespacesAndLiterals(buf, true);
     }
+    
     /**
      * Removes all the comments, whitespaces and literals from a FastStringBuffer (might be useful when
      * just finding matches for something).
@@ -259,6 +377,7 @@ public class ParsingUtils implements IPythonPartitions{
      * @param whitespacesToo: are you sure about the whitespaces?
      */
     public static void removeCommentsWhitespacesAndLiterals(FastStringBuffer buf, boolean whitespacesToo) {
+        ParsingUtils parsingUtils = create(buf);
         for (int i = 0; i < buf.length(); i++) {
             char ch = buf.charAt(i);
             if(ch == '#'){
@@ -272,7 +391,7 @@ public class ParsingUtils implements IPythonPartitions{
             }
             
             if(ch == '\'' || ch == '"'){
-                int j = getLiteralEnd(buf, i, ch);
+                int j = parsingUtils.getLiteralEnd(i, ch);
                 if(whitespacesToo){
 	              	buf.delete(i, j+1);
                 }else{
@@ -294,6 +413,7 @@ public class ParsingUtils implements IPythonPartitions{
         }
     }
 	public static void removeLiterals(FastStringBuffer buf) {
+	    ParsingUtils parsingUtils = create(buf);
         for (int i = 0; i < buf.length(); i++) {
             char ch = buf.charAt(i);
             if(ch == '#'){
@@ -305,7 +425,7 @@ public class ParsingUtils implements IPythonPartitions{
             }
             
             if(ch == '\'' || ch == '"'){
-                int j = getLiteralEnd(buf, i, ch);
+                int j = parsingUtils.getLiteralEnd(i, ch);
                 for (int k = 0; i+k < j+1; k++) {
 					buf.replace(i+k, i+k+1, " ");
 				}
@@ -355,6 +475,7 @@ public class ParsingUtils implements IPythonPartitions{
      */
     public static String getContentType(String initial, int currPos) {
         FastStringBuffer buf = new FastStringBuffer(initial, 0);
+        ParsingUtils parsingUtils = create(initial);
         String curr = PY_DEFAULT;
         
         for (int i = 0; i < buf.length() && i < currPos; i++) {
@@ -380,7 +501,7 @@ public class ParsingUtils implements IPythonPartitions{
             	if(ch == '"'){
             		curr = PY_SINGLELINE_STRING2;
             	}
-                i = getLiteralEnd(buf, i, ch);
+                i = parsingUtils.getLiteralEnd(i, ch);
             }
         }
         return curr;

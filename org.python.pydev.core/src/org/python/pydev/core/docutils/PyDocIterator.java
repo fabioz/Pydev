@@ -131,11 +131,13 @@ public class PyDocIterator implements Iterator<String> {
 
         	char ch = 0;
         	
-			while(ch != '\r' && ch != '\n' && offset < doc.getLength()){
+			int docLen = doc.getLength();
+			ParsingUtils parsingUtils = ParsingUtils.create(doc);
+            while(ch != '\r' && ch != '\n' && offset < docLen){
 				ch = doc.getChar(offset);
 				if (ch == '#') {
 	
-					while (offset < doc.getLength() && ch != '\n' && ch != '\r') {
+					while (offset < docLen && ch != '\n' && ch != '\r') {
 						ch = doc.getChar(offset);
 						if(addComments && ch != '\n' && ch != '\r'){
 						    buf.append(ch);
@@ -146,7 +148,7 @@ public class PyDocIterator implements Iterator<String> {
 				}else if (ch == '\'' || ch == '"') {
                     if(returnNewLinesOnLiterals){
                         inLiteral = true;
-                        literalEnd = ParsingUtils.getLiteralEnd(doc, offset, ch);
+                        literalEnd = parsingUtils.getLiteralEnd(offset, ch);
                         String ret = nextInLiteral();
                         if(ret.length() > 0){
                             if(WordUtils.endsWith(ret, '\r') || WordUtils.endsWith(ret, '\n')){
@@ -163,7 +165,7 @@ public class PyDocIterator implements Iterator<String> {
                         if(this.changeLiteralsForSpaces){
                             throw new RuntimeException("Not supported in this case.");
                         }
-                        offset = ParsingUtils.getLiteralEnd(doc, offset, ch);
+                        offset = parsingUtils.getLiteralEnd(offset, ch);
                         offset++;
                     }
 					
@@ -182,7 +184,7 @@ public class PyDocIterator implements Iterator<String> {
 					buf.append(ch);
 				}
 				if(ch == '\r'){
-					if(offset < doc.getLength() && doc.getChar(offset) == '\n'){
+					if(offset < docLen && doc.getChar(offset) == '\n'){
 						offset++;
 						if(addNewLinesToRet){
 							buf.append('\n');

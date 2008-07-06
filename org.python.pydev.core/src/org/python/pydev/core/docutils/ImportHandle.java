@@ -137,7 +137,7 @@ public class ImportHandle {
                 char c = importedStr.charAt(i);
                 if(c == '#'){
                     comments = comments.clear();
-                    i = ParsingUtils.eatComments(importedStr, comments, i);
+                    i = ParsingUtils.create(importedStr).eatComments(comments, i);
                     addImportAlias(lst, importComments, alias, comments.toString());
                     alias = alias.clear();
                     
@@ -338,7 +338,7 @@ public class ImportHandle {
                 char c = importFound.charAt(i);
                 
                 if(c == '#'){
-                    i = ParsingUtils.eatComments(importFound, imp, i);
+                    i = ParsingUtils.create(importFound).eatComments(imp, i);
                     
                 }else if(c == ';'){
                     try {

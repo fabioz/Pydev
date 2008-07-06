@@ -109,17 +109,18 @@ public class PythonCodeReader {
 
     
 	private int readForwards() throws BadLocationException {
+	    ParsingUtils parsingUtils = ParsingUtils.create(fDocument);
 		while (fOffset < fEnd) {
 			char current= fDocument.getChar(fOffset++);
 			
 			switch (current) {
 				case '#':
-                    fOffset = ParsingUtils.eatComments(fDocument, null, fOffset);
+                    fOffset = parsingUtils.eatComments(null, fOffset);
 					return current;
 					
 				case '"':
 				case '\'':
-				    fOffset = ParsingUtils.eatLiterals(fDocument, null, fOffset-1)+1;
+				    fOffset = parsingUtils.eatLiterals(null, fOffset-1)+1;
 					continue;
 			}
 			

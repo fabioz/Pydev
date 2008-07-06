@@ -126,22 +126,23 @@ public class PyFormatStd extends PyAction implements IFormatter {
     public static String formatStr(String str, FormatStd std) {
         char[] cs = str.toCharArray();
         FastStringBuffer buf = new FastStringBuffer();
+        ParsingUtils parsingUtils = ParsingUtils.create(cs);
         char lastChar = '\0';
         for (int i = 0; i < cs.length; i++) {
             char c = cs[i];
 
             if (c == '\'' || c == '"') { //ignore comments or multiline comments...
-                i = ParsingUtils.eatLiterals(cs, buf, i);
+                i = parsingUtils.eatLiterals(buf, i);
 
             } else if (c == '#') {
-                i = ParsingUtils.eatComments(cs, buf, i);
+                i = parsingUtils.eatComments(buf, i);
 
             } else if (c == ',') {
                 i = formatForComma(std, cs, buf, i);
 
             } else if (c == '(') {
 
-                i = formatForPar(cs, i, std, buf);
+                i = formatForPar(parsingUtils, cs, i, std, buf);
 
             } else {
                 if (c == '\r' || c == '\n') {
@@ -160,7 +161,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @param cs
      * @param i
      */
-    private static int formatForPar(char[] cs, int i, FormatStd std, FastStringBuffer buf) {
+    private static int formatForPar(ParsingUtils parsingUtils, char[] cs, int i, FormatStd std, FastStringBuffer buf) {
         char c = ' ';
         FastStringBuffer locBuf = new FastStringBuffer();
 
@@ -170,13 +171,13 @@ public class PyFormatStd extends PyAction implements IFormatter {
             j++;
 
             if (c == '\'' || c == '"') { //ignore comments or multiline comments...
-                j = ParsingUtils.eatLiterals(cs, locBuf, j - 1) + 1;
+                j = parsingUtils.eatLiterals(locBuf, j - 1) + 1;
 
             } else if (c == '#') {
-                j = ParsingUtils.eatComments(cs, locBuf, j - 1) + 1;
+                j = parsingUtils.eatComments(locBuf, j - 1) + 1;
 
             } else if (c == '(') { //open another par.
-                j = formatForPar(cs, j - 1, std, locBuf) + 1;
+                j = formatForPar(parsingUtils, cs, j - 1, std, locBuf) + 1;
 
             } else {
 

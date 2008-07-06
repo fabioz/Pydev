@@ -150,23 +150,7 @@ public class DocUtils {
         widthToSpaceString.add(width, newStr);
         return newStr;
     }
-
-    public static char getPeer(char c){
-        for (int i = 0; i < BRACKETS.length; i++) {
-            if(c == BRACKETS[i]){
-                int mod = i % 2;
-                if(mod == 0){
-                	return BRACKETS[i + 1];
-                }else{
-                	return BRACKETS[i - 1];
-                }
-            }
-        }
-        
-        throw new NoPeerAvailableException("Unable to find peer for :"+c);
-        
-    }
-
+    
     /**
      * An array of Python pairs of characters that you will find in any Python code.
      * 
@@ -177,6 +161,20 @@ public class DocUtils {
      * </ul>
      */
     public static final char[] BRACKETS = { '{', '}', '(', ')', '[', ']' };
+
+    public static char getPeer(char c){
+        switch(c){
+            case '{':return '}';
+            case '}':return '{';
+            case '(':return ')';
+            case ')':return '(';
+            case '[':return ']';
+            case ']':return '[';
+        }
+        
+        throw new NoPeerAvailableException("Unable to find peer for :"+c);
+        
+    }
 
     public static boolean isClosingPeer(char lastChar) {
         return lastChar == '}' || lastChar == ')' || lastChar == ']';

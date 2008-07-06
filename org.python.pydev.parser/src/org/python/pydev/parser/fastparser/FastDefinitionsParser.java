@@ -116,6 +116,7 @@ public final class FastDefinitionsParser {
         if(currIndex < 0){
             currIndex=0;
         }
+        ParsingUtils parsingUtils = ParsingUtils.create(cs);
         
         for (;currIndex < length; currIndex++, col++) {
             char c = cs[currIndex];
@@ -128,7 +129,7 @@ public final class FastDefinitionsParser {
                         System.out.println("literal");
                     }
                     //go to the end of the literal
-                    currIndex = ParsingUtils.getLiteralEnd(cs, currIndex, c);
+                    currIndex = parsingUtils.getLiteralEnd(currIndex, c);
                     break;
                     
                     
@@ -164,7 +165,7 @@ public final class FastDefinitionsParser {
                 case '[':
                 case '(':
                     //starting some call, dict, list, tuple... those don't count on getting some actual definition
-                    currIndex = ParsingUtils.eatPar(cs, currIndex, null, c);
+                    currIndex = parsingUtils.eatPar(currIndex, null, c);
                     break;
                 
                 case '\r': 

@@ -216,6 +216,7 @@ public class PySelection {
         
         IDocument document = getDoc();
         int lines = document.getNumberOfLines();
+        ParsingUtils parsingUtils = ParsingUtils.create(document);
         for (int line = startingAtLine; line < lines; line++) {
             String str = getLine(line);
             if (str.startsWith("#")) {
@@ -239,7 +240,7 @@ public class PySelection {
 						} catch (BadLocationException e1) {
 							throw new RuntimeException(e1);
 						}
-                        int j = ParsingUtils.eatPar(document, lineOffset+i, null);
+                        int j = parsingUtils.eatPar(lineOffset+i, null);
                         try {
                             line = document.getLineOfOffset(j);
                         } catch (BadLocationException e) {
@@ -272,40 +273,42 @@ public class PySelection {
             IDocument d = getDoc();
             String strDoc = d.get(initialOffset, d.getLength() - initialOffset);
             
-            if(initialOffset > strDoc.length()-1){
+            int docLen = strDoc.length();
+            
+            if(initialOffset > docLen-1){
                 return new int[]{-1, -1};
             }
             
             char current = strDoc.charAt(initialOffset);
-            
+            ParsingUtils parsingUtils = ParsingUtils.create(strDoc);
             //for checking if it is global, it must be in the beggining of a line (must be right after a \r or \n).
             
-            while (current != '\'' && current != '"' && initialOffset < strDoc.length()-1) {
+            while (current != '\'' && current != '"' && initialOffset < docLen-1) {
             	
             	//if it is inside a parenthesis, we will not take it into consideration.
                 if(current == '('){
-                    initialOffset = ParsingUtils.eatPar(strDoc, initialOffset, buf);
+                    initialOffset = parsingUtils.eatPar(initialOffset, buf);
                 }
                 
                 
                 initialOffset += 1;
-                if(initialOffset < strDoc.length()-1){
+                if(initialOffset < docLen-1){
                     current = strDoc.charAt(initialOffset);
                 }
             }
 
             //either, we are at the end of the document or we found a literal
-            if(initialOffset < strDoc.length()-1){
+            if(initialOffset < docLen-1){
 
             	if(initialOffset == 0){ //first char of the document... this is ok
-	                int i = ParsingUtils.eatLiterals(strDoc, buf, initialOffset);
+	                int i = parsingUtils.eatLiterals(buf, initialOffset);
 	                return new int[]{initialOffset, i};
             	}
             	
             	char lastChar = strDoc.charAt(initialOffset-1);
             	//it is only global if after \r or \n
             	if(lastChar == '\r' || lastChar == '\n'){
-	                int i = ParsingUtils.eatLiterals(strDoc, buf, initialOffset);
+	                int i = parsingUtils.eatLiterals(buf, initialOffset);
 	                return new int[]{initialOffset, i};
             	}
             	
@@ -852,7 +855,7 @@ public class PySelection {
         int lineOffset = getStartLineOffset();
         String docContents = doc.get();
         int i = lineOffset + openParIndex;
-        int j = ParsingUtils.eatPar(docContents, i, null);
+        int j = ParsingUtils.create(docContents).eatPar(i, null);
         String insideParentesisTok = docContents.substring(i + 1, j);
 
         StringTokenizer tokenizer = new StringTokenizer(insideParentesisTok, ",");
@@ -1265,16 +1268,17 @@ public class PySelection {
      * @throws BadLocationException 
      */
     public static int getBeforeParentesisCall(Object doc, int calltipOffset) {
-        char c = ParsingUtils.charAt(doc, calltipOffset);
+        ParsingUtils parsingUtils = ParsingUtils.create(doc);
+        char c = parsingUtils.charAt(calltipOffset);
         
         while(calltipOffset > 0 && c != '('){
             calltipOffset --;
-            c = ParsingUtils.charAt(doc, calltipOffset);
+            c = parsingUtils.charAt(calltipOffset);
         }
         if(c == '('){
             while(calltipOffset > 0 && Character.isWhitespace(c)){
                 calltipOffset --;
-                c = ParsingUtils.charAt(doc, calltipOffset);
+                c = parsingUtils.charAt(calltipOffset);
             }
             return calltipOffset;
         }
