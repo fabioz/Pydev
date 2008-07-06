@@ -305,6 +305,8 @@ public abstract class AbstractAdditionalInterpreterInfo {
             node.accept(visitor);
             Iterator<ASTEntry> entries = visitor.getOutline();
 
+            FastStack<SimpleNode> tempStack = new FastStack<SimpleNode>();
+            
             while (entries.hasNext()) {
                 ASTEntry entry = entries.next();
                 
@@ -319,7 +321,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
                     if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
                         //ok, it has a parent, so, let's check to see if the path we got only has class definitions
                         //as the parent (and get that path)
-                        Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, false, false);
+                        Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, false, false, tempStack);
                         if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
                             //if the root is not valid, it is not only classes in the path (could be a method inside
                             //a method, or something similar).
@@ -327,7 +329,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
                         }
                     }else{
                         //it is an assign
-                        Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, true, false);
+                        Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, true, false, tempStack);
                         if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
                             addAssignTargets(entry, moduleName, generateDelta, INNER, pathToRoot.o1, pathToRoot.o2);
                         }
@@ -347,22 +349,27 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param lastMayBeMethod if true, it gets the path and accepts a method (if it is the last in the stack)
      * if false, null is returned if a method is found. 
      * 
+     * @param tempStack is a temporary stack object (which may be cleared)
+     * 
      * @return a tuple, where the first element is the path where the entry is located (may return null).
      * and the second element is a boolen that indicates if the last was actually a method or not.
      */
-    private Tuple<String, Boolean> getPathToRoot(ASTEntry entry, boolean lastMayBeMethod, boolean acceptAny) {
+    private Tuple<String, Boolean> getPathToRoot(ASTEntry entry, boolean lastMayBeMethod, boolean acceptAny, 
+            FastStack<SimpleNode> tempStack) {
         if(entry.parent == null){
             return null;
         }
+        //just to be sure that it's empty
+        tempStack.clear();
+        
         boolean lastIsMethod = false; 
         //if the last 'may be a method', in this case, we have to remember that it will actually be the first one 
         //to be analyzed.
         
         //let's get the stack
-        FastStack<SimpleNode> stack = new FastStack<SimpleNode>();
         while(entry.parent != null){
             if(entry.parent.node instanceof ClassDef){
-                stack.push(entry.parent.node);
+                tempStack.push(entry.parent.node);
                 
             }else if(entry.parent.node instanceof FunctionDef){
                 if(!acceptAny){
@@ -376,13 +383,13 @@ public abstract class AbstractAdditionalInterpreterInfo {
                     }
                     
                     //ok, the last one may be a method... (in this search, it MUST be the first one...)
-                    if(stack.size() != 0){
+                    if(tempStack.size() != 0){
                         return null; 
                     }
                 }
                 
                 //ok, there was a class, so, let's go and set it
-                stack.push(entry.parent.node);
+                tempStack.push(entry.parent.node);
                 lastIsMethod = true;
                 
             }else{
@@ -394,11 +401,11 @@ public abstract class AbstractAdditionalInterpreterInfo {
 
         //now that we have the stack, let's make it into a path...
         FastStringBuffer buf = new FastStringBuffer();
-        while(stack.size() > 0){
+        while(tempStack.size() > 0){
             if(buf.length() > 0){
                 buf.append(".");
             }
-            buf.append(NodeUtils.getRepresentationString(stack.pop()));
+            buf.append(NodeUtils.getRepresentationString(tempStack.pop()));
         }
         return new Tuple<String, Boolean>(buf.toString(), lastIsMethod);
     }

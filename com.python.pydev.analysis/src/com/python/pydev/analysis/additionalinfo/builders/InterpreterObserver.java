@@ -17,12 +17,10 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.performanceeval.Timer;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.ErrorDescription;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.fastparser.FastDefinitionsParser;
@@ -159,7 +157,7 @@ public class InterpreterObserver implements IInterpreterObserver {
 					        (isZipModule && PythonPathHelper.isValidSourceFile(modulesKeyForZip.zipModulePath))) {
 					    
 					    
-					    if(i % 7 == 0){
+					    if(i % 17 == 0){
 					        msgBuffer.clear();
                             msgBuffer.append("Creating ");
                             msgBuffer.append(additionalFeedback);

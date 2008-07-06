@@ -57,6 +57,7 @@ public class TabNannyDocIterator implements Iterator<Tuple3<String, Integer, Boo
             //System.out.println("buildNext");
             char c = '\0';
 
+            ParsingUtils parsingUtils = ParsingUtils.create(doc);
             int initial = -1; 
             while(true){
                 
@@ -98,11 +99,11 @@ public class TabNannyDocIterator implements Iterator<Tuple3<String, Integer, Boo
                 
                 if (c == '#'){ 
                     //comment (doesn't consider the escape char)
-                    offset = ParsingUtils.eatComments(doc, null, offset);
+                    offset = parsingUtils.eatComments(null, offset);
                     
                 } else if (c == '{' || c == '[' || c == '(') {
                     //starting some call, dict, list, tuple... we're at the same indentation until it is finished
-                    offset = ParsingUtils.eatPar(doc, offset, null, c);
+                    offset = parsingUtils.eatPar(offset, null, c);
     
                     
                 } else if (c == '\r'){
@@ -143,7 +144,7 @@ public class TabNannyDocIterator implements Iterator<Tuple3<String, Integer, Boo
                     
                 } else if (c == '\'' || c == '\"') {
                     //literal found... skip to the end of the literal
-                    offset = ParsingUtils.getLiteralEnd(doc, offset, c) + 1;
+                    offset = parsingUtils.getLiteralEnd(offset, c) + 1;
                     
                 } else {
                     // ok, a char is found... go to the end of the line and gather
