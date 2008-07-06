@@ -38,24 +38,24 @@ public abstract class AbstractInfo implements IInfo{
         if(!(obj instanceof IInfo)){
             return false;
         }
-        IInfo i = (IInfo) obj;
+        IInfo otherInfo = (IInfo) obj;
         
         
-        if(i.getType() != getType()){
+        if(otherInfo.getType() != getType()){
             return false;
         }
 
-        if(!i.getDeclaringModuleName().equals(getDeclaringModuleName())){
+        if(!otherInfo.getDeclaringModuleName().equals(getDeclaringModuleName())){
             return false;
         }
         
-        if(!i.getName().equals(getName())){
+        if(!otherInfo.getName().equals(getName())){
             return false;
         }
         
         //if one of them is null, the other must also be null...
-        if((i.getPath() == null || getPath() == null)){
-            if(i.getPath() != getPath()){
+        if((otherInfo.getPath() == null || getPath() == null)){
+            if(otherInfo.getPath() != getPath()){
                 //one of them is not null
                 return false;
             }
@@ -64,7 +64,7 @@ public abstract class AbstractInfo implements IInfo{
         }
         
         //they're not null
-        if(!i.getPath().equals(getPath())){
+        if(!otherInfo.getPath().equals(getPath())){
             return false;
         }
         

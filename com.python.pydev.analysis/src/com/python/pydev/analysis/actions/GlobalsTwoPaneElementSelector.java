@@ -14,8 +14,20 @@ import org.python.pydev.ui.UIConstants;
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.IInfo;
 
+/**
+ * This is the class that shows the globals browser.
+ * 
+ * It shows 2 panels, one with the labels for a token and the second with the path to that token
+ *
+ * @author Fabio
+ */
 public class GlobalsTwoPaneElementSelector extends TwoPaneElementSelector{
 
+    /**
+     * Provides the labels and images for the top panel
+     *
+     * @author Fabio
+     */
 	private static final class NameIInfoLabelProvider extends LabelProvider {
 		@Override
 		public String getText(Object element) {
@@ -30,17 +42,24 @@ public class GlobalsTwoPaneElementSelector extends TwoPaneElementSelector{
 		}
 	}
 
+	/**
+	 * Provides the labels and images for the bottom panel
+	 *
+	 * @author Fabio
+	 */
 	private static final class ModuleIInfoLabelProvider extends LabelProvider {
 		@Override
 		public String getText(Object element) {
 		    IInfo info = (IInfo) element;
 		    String path = info.getPath();
-            FastStringBuffer buf = new FastStringBuffer(info.getDeclaringModuleName(), 90);
-		    if(path != null && path.length() > 0){
+		    int pathLen;
+            if(path != null && (pathLen = path.length()) > 0){
+		        FastStringBuffer buf = new FastStringBuffer(info.getDeclaringModuleName(), pathLen+5);
 		        buf.append("/");
 		        buf.append(path);
+		        return buf.toString();
 		    }
-		    return buf.toString();
+		    return info.getDeclaringModuleName();
 		}
 
 		@Override
@@ -50,6 +69,7 @@ public class GlobalsTwoPaneElementSelector extends TwoPaneElementSelector{
 	}
 
 	private DialogMemento memento;
+	
 	/**
 	 * Constructor
 	 */

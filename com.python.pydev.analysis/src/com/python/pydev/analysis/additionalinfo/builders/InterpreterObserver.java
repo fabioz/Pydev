@@ -19,11 +19,13 @@ import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.performanceeval.Timer;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.ErrorDescription;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.parser.PyParser;
+import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -128,7 +130,7 @@ public class InterpreterObserver implements IInterpreterObserver {
             AbstractAdditionalInterpreterInfo info, PythonNature nature, int grammarVersion) {
         
         //TODO: Check if keeping a zip file open makes things faster...
-//        long startsAt = System.currentTimeMillis();
+        //Timer timer = new Timer();
         ModulesKey[] allModules = m.getOnlyDirectModules();
         int i = 0;
         
@@ -174,30 +176,42 @@ public class InterpreterObserver implements IInterpreterObserver {
                         try {
                             
                             //the code below works with the default parser (that has much more info... and is much slower)
-                            IDocument doc;
+                            Object doc;
                             if(isZipModule){
-                                doc = REF.getDocFromZip(modulesKeyForZip.file, modulesKeyForZip.zipModulePath);
+                                doc = REF.getCustomReturnFromZip(modulesKeyForZip.file, modulesKeyForZip.zipModulePath, null);
                                 
                             }else{
-                                doc = REF.getDocFromFile(key.file);
+                                doc = REF.getCustomReturnFromFile(key.file, true, null);
                             }
                             
+                            char [] charArray;
+                            if(doc instanceof IDocument){
+                                IDocument document = (IDocument) doc;
+                                charArray = document.get().toCharArray();
+                                
+                            }else if(doc instanceof FastStringBuffer){
+                                FastStringBuffer fastStringBuffer = (FastStringBuffer) doc;
+                                charArray = fastStringBuffer.toCharArray();
+                                
+                            }else if(doc instanceof String){
+                                String str = (String) doc;
+                                charArray = str.toCharArray();
+                                
+                            }else if(doc instanceof char[]){
+                                charArray = (char[]) doc;
+                                
+                            }else{
+                                throw new RuntimeException("Don't know how to handle: "+doc+" -- "+doc.getClass());
+                            }
                             
-                            PyParser.ParserInfo parserInfo = new PyParser.ParserInfo(doc, false, grammarVersion);
-                            Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(parserInfo);
-                            SimpleNode node = obj.o1;
-
-                            //maybe later we can change by this, if it becomes faster and more consistent
-                            //SimpleNode node = FastParser.reparseDocument(REF.getFileContents(key.file));
-
+                            SimpleNode node = FastDefinitionsParser.parse(charArray);
+                            
+                            
                             if (node != null) {
                                 info.addAstInfo(node, key.name, nature, false);
                             }else{
                                 String str = "Unable to generate ast -- using %s.\nError:%s";
                                 ErrorDescription errorDesc = null;
-                                if(obj.o2 != null){
-                                    errorDesc = PyEdit.createErrorDesc(obj.o2, parserInfo.document);
-                                }
                                 throw new RuntimeException(StringUtils.format(str, 
                                         PyParser.getGrammarVersionStr(grammarVersion),
                                         (errorDesc!=null && errorDesc.message!=null)?
@@ -213,10 +227,7 @@ public class InterpreterObserver implements IInterpreterObserver {
                 }
             }
         }
-//        double delta = System.currentTimeMillis()-startsAt;
-//        delta = delta/1000; // in secs
-//        System.out.println("Time to restore additional info in secs: "+delta);
-//        System.out.println("Time to restore additional info in mins: "+delta/60.0);
+        //timer.printDiff("Time to restore additional info");
         return info;
     }
 

@@ -130,6 +130,7 @@ public class PyGlobalsBrowser extends PyAction{
         for(AbstractAdditionalInterpreterInfo info:additionalInfo){
             lst.addAll(info.getAllTokens());
         }
+        
         dialog.setElements(lst.toArray());
         dialog.open();
         Object[] result = dialog.getResult();
