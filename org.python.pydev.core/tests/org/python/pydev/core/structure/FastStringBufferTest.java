@@ -37,6 +37,14 @@ public class FastStringBufferTest extends TestCase{
         assertEquals("xxx.22aabbcccdddddddddddddddddddddddddddddd$", fastString.toString());
         fastString.delete(0,1);
         assertEquals("xx.22aabbcccdddddddddddddddddddddddddddddd$", fastString.toString());
+        
+        char[] charArray = fastString.toString().toCharArray();
+        char[] charArray2 = fastString.toCharArray();
+        assertEquals(charArray.length, charArray2.length);
+        for (int i = 0; i < charArray2.length; i++) {
+            assertEquals(charArray[i], charArray2[i]);
+            
+        }
     }
     
     

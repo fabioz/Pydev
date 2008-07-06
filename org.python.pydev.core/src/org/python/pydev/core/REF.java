@@ -37,10 +37,10 @@ import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.filebuffers.LocationKind;
-import org.eclipse.core.internal.resources.ResourceException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -51,6 +51,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.osgi.service.environment.Constants;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 
 /**
@@ -58,6 +59,10 @@ import org.python.pydev.core.log.Log;
  */
 public class REF {
 
+    
+    /**
+     * @return true if the passed object has a field with the name passed.
+     */
     public static boolean hasAttr(Object o, String attr){
         try {
             o.getClass().getDeclaredField(attr);
@@ -69,7 +74,11 @@ public class REF {
         return true;
     }
     
-    public static Field getAttrFromClass(Class c, String attr){
+    
+    /**
+     * @return the field from a class that matches the passed attr name (or null if it couldn't be found)
+     */
+    public static Field getAttrFromClass(Class<? extends Object> c, String attr){
     	try {
     		return c.getDeclaredField(attr);
     	} catch (SecurityException e) {
@@ -78,6 +87,11 @@ public class REF {
     	return null;
     }
 
+    
+    /**
+     * @return the field from a class that matches the passed attr name (or null if it couldn't be found)
+     * @see #getAttrObj(Object, String) to get the actual value of the field.
+     */
     public static Field getAttr(Object o, String attr){
         try {
             return o.getClass().getDeclaredField(attr);
@@ -87,6 +101,10 @@ public class REF {
         return null;
     }
     
+    
+    /**
+     * @return the value of some attribute in the given object
+     */
     public static Object getAttrObj(Object o, String attr){
         try {
             Field field = REF.getAttr(o, attr);
@@ -108,7 +126,7 @@ public class REF {
         FileInputStream stream = null;
         try {
             stream = new FileInputStream(file);
-            return getStreamContents(stream, null, null);
+            return (String) getStreamContents(stream, null, null, String.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }finally{
@@ -118,12 +136,22 @@ public class REF {
 
     /**
      * Get the contents from a given stream.
+     * @param returnType the class that specifies the return type of this method. 
+     * If null, it'll return in the fastest possible way available.
+     * Valid options are:
+     *      String.class
+     *      IDocument.class
+     *      FastStringBuffer.class
+     *      
      */
-    public static String getStreamContents(InputStream contentStream, String encoding, IProgressMonitor monitor) throws IOException {
+    private static Object getStreamContents(InputStream contentStream, String encoding, IProgressMonitor monitor, 
+            Class<? extends Object> returnType) throws IOException {
+        
         Reader in= null;
         try{
             final int DEFAULT_FILE_SIZE= 15 * 1024;
     
+            //discover how to actually read the passed input stream.
             if (encoding == null){
                 in= new BufferedReader(new InputStreamReader(contentStream), DEFAULT_FILE_SIZE);
             }else{
@@ -136,22 +164,42 @@ public class REF {
                 }
             }
             
-            StringBuffer buffer= new StringBuffer(DEFAULT_FILE_SIZE);
+            //fill a buffer with the contents
+            FastStringBuffer buffer= new FastStringBuffer(DEFAULT_FILE_SIZE);
             char[] readBuffer= new char[2048];
             int n= in.read(readBuffer);
             while (n > 0) {
-                if (monitor != null && monitor.isCanceled())
+                if (monitor != null && monitor.isCanceled()){
                     return null;
+                }
     
                 buffer.append(readBuffer, 0, n);
-                n= in.read(readBuffer);
+                n = in.read(readBuffer);
             }
-            return buffer.toString();
+            
+            
+            //return it in the way specified by the user
+            if(returnType == null || returnType == FastStringBuffer.class){
+                return buffer;
+                
+            }else if(returnType == IDocument.class){
+                Document doc = new Document(buffer.toString());
+                return doc;
+                
+            }else if(returnType == String.class){
+                return buffer.toString();
+                
+            }else{
+                throw new RuntimeException("Don't know how to handle return type: "+returnType);
+            }
+
             
         }finally{
             try { if(in != null) in.close(); } catch (Exception e) {Log.log(e);}
         }
     }
+    
+    
     /**
      * @param o the object we want as a string
      * @return the string representing the object as base64
@@ -170,53 +218,64 @@ public class REF {
         return new String(encodeBase64(out));
     }
 
+    /**
+     * @return the contents of the passed ByteArrayOutputStream as a byte[] encoded with base64.
+     */
     public static byte[] encodeBase64(ByteArrayOutputStream out) {
         byte[] byteArray = out.toByteArray();
         return encodeBase64(byteArray);
     }
 
+    
+    /**
+     * @return the contents of the passed byteArray[] as a byte[] encoded with base64.
+     */
     public static byte[] encodeBase64(byte[] byteArray) {
         return Base64.encodeBase64(byteArray);
     }
     
+    
     /**
-     * 
      * @param persisted the base64 string that should be converted to an object.
-     * @param readFromFileMethod should be the calback from the plugin that is calling this function
+     * @param readFromFileMethod should be the calback from the plugin that is calling this function (this is needed
+     * because from one plugin we cannot load the contents of objects defined in another plugin)
      * 
      * 
      * The callback should be something as:
-
-        new ICallback<Object, ObjectInputStream>(){
-
-            public Object call(ObjectInputStream arg) {
-                try {
-                    return arg.readObject();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-            }};
-
+     *
+     *  new ICallback<Object, ObjectInputStream>(){
+     *
+     *      public Object call(ObjectInputStream arg) {
+     *          try {
+     *              return arg.readObject();
+     *          } catch (IOException e) {
+     *              throw new RuntimeException(e);
+     *          } catch (ClassNotFoundException e) {
+     *              throw new RuntimeException(e);
+     *          }
+     *      }};
      * 
-     * @return
-     * @throws IOException
-     * @throws ClassNotFoundException
+     * @return the object that was previously serialized in the passed base64 string.
      */
-    public static Object getStrAsObj(String persisted, ICallback<Object, ObjectInputStream> readFromFileMethod) throws IOException, ClassNotFoundException {
+    public static Object getStrAsObj(String persisted, ICallback<Object, ObjectInputStream> readFromFileMethod) 
+        throws IOException, ClassNotFoundException {
+        
         InputStream input = new ByteArrayInputStream(decodeBase64(persisted));
         Object o = readFromInputStreamAndCloseIt(readFromFileMethod, input);
         return o;
     }
 
     /**
-     * @param readFromFileMethod
-     * @param input
-     * @return
-     * @throws IOException
+     * This method loads the contents of an object that was serialized.
+     * 
+     * @param readFromFileMethod: see {@link #getStrAsObj(String, ICallback)}
+     * @param input is the input stream that contains the serialized object
+     * 
+     * @return the object that was previously serialized in the passed input stream.
      */
-    public static Object readFromInputStreamAndCloseIt(ICallback<Object, ObjectInputStream> readFromFileMethod, InputStream input) {
+    public static Object readFromInputStreamAndCloseIt(ICallback<Object, ObjectInputStream> readFromFileMethod, 
+            InputStream input) {
+        
         ObjectInputStream in = null;
         Object o = null;
         try {
@@ -235,14 +294,18 @@ public class REF {
         return o;
     }
 
+    
+    /**
+     * Decodes some string that was encoded as base64
+     */
     public static byte[] decodeBase64(String persisted) {
         return Base64.decodeBase64(persisted.getBytes());
     }
 
-    public static void writeStrToFile(String str, String file) {
-        writeStrToFile(str, new File(file));
-    }
     
+    /**
+     * Appends the contents of the passed string to the given file.
+     */
     public static void appendStrToFile(String str, String file) {
         try {
             FileOutputStream stream = new FileOutputStream(file, true);
@@ -258,6 +321,17 @@ public class REF {
         }
     }
     
+    /**
+     * Writes the contents of the passed string to the given file.
+     */
+    public static void writeStrToFile(String str, String file) {
+        writeStrToFile(str, new File(file));
+    }
+    
+    
+    /**
+     * Writes the contents of the passed string to the given file.
+     */
     public static void writeStrToFile(String str, File file) {
         try {
             FileOutputStream stream = new FileOutputStream(file);
@@ -275,8 +349,7 @@ public class REF {
     
 
     /**
-     * @param file
-     * @param astManager
+     * Writes the contents of the passed string to the given file.
      */
     public static void writeToFile(Object o, File file) {
         try {
@@ -288,10 +361,10 @@ public class REF {
     }
 
     /**
+     * Serializes some object to the given stream
+     * 
      * @param o the object to be written to some stream
      * @param out the output stream to be used
-     * 
-     * @throws IOException
      */
     public static void writeToStreamAndCloseIt(Object o, OutputStream out) throws IOException {
         //change: checks if we have a buffered output stream (if we don't, one will be provided)
@@ -316,7 +389,11 @@ public class REF {
     }
     
     /**
-     * Reads some object from a file
+     * Reads some object from a file (an object that was previously serialized)
+     * 
+     * Important: can only deserialize objects that are defined in this plugin -- 
+     * see {@link #getStrAsObj(String, ICallback)} if you want to deserialize objects defined in another plugin.
+     * 
      * @param file the file from where we should read
      * @return the object that was read (or null if some error happened while reading)
      */
@@ -341,14 +418,19 @@ public class REF {
     	
     }
 
-
+    /**
+     * Get the absolute path in the filesystem for the given file.
+     * 
+     * @param f the file we're interested in
+     * 
+     * @return the absolute (canonical) path to the file
+     */
     public static String getFileAbsolutePath(String f) {
         return getFileAbsolutePath(new File(f));
     }
 
     /**
-     * @param f the file we're interested in
-     * @return the absolute (canonical) path to the file
+     * @see #getFileAbsolutePath(String)
      */
     public static String getFileAbsolutePath(File f) {
         try {
@@ -358,6 +440,7 @@ public class REF {
         }
     }
 
+    
     /**
      * Calls a method for an object
      * 
@@ -365,6 +448,8 @@ public class REF {
      * @param name the method name
      * @param args the arguments received for the call
      * @return the return of the method
+     * 
+     * @throws RuntimeException if the object could not be invoked
      */
     public static Object invoke(Object obj, String name, Object... args) {
         //the args are not checked for the class because if a subclass is passed, the method is not correctly gotten
@@ -374,6 +459,9 @@ public class REF {
     }
 
     
+    /**
+     * @see #invoke(Object, String, Object...)
+     */
     public static Object invoke(Object obj, Method m, Object... args) {
         try {
             return m.invoke(obj, args);
@@ -382,20 +470,30 @@ public class REF {
         }
     }
     
+    
+    /**
+     * @return a method that has the given name and arguments
+     * @throws RuntimeException if the method could not be found
+     */
     public static Method findMethod(Object obj, String name, Object... args) {
         return findMethod(obj.getClass(), name, args);   
     }
+
     
-    public static Method findMethod(Class class_, String name, Object... args) {
+    /**
+     * @return a method that has the given name and arguments
+     * @throws RuntimeException if the method could not be found
+     */
+    public static Method findMethod(Class<? extends Object> class_, String name, Object... args) {
         try {
             Method[] methods = class_.getMethods();
             for (Method method : methods) {
 
-                Class[] parameterTypes = method.getParameterTypes();
+                Class<? extends Object>[] parameterTypes = method.getParameterTypes();
                 if(method.getName().equals(name) && parameterTypes.length == args.length){
                     //check the parameters
                     int i = 0;
-                    for (Class param : parameterTypes) {
+                    for (Class<? extends Object> param : parameterTypes) {
                         if(!param.isInstance(args[i])){
                             continue;
                         }
@@ -408,16 +506,27 @@ public class REF {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        throw new RuntimeException("The method with name: "+name+" was not found (or maybe it was found but the parameters didn't match).");
+        throw new RuntimeException("The method with name: "+name+
+                " was not found (or maybe it was found but the parameters didn't match).");
     }
 
+    /**
+     * Characters that files in the filesystem cannot have.
+     */
     public static char [] INVALID_FILESYSTEM_CHARS = {
         '!', '@', '#', '$', '%', '^', '&', '*', 
         '(', ')', '[', ']', '{', '}', '=', '+',
         '.', ' ', '`', '~', '\'', '"', ',', ';'};
     
+    /**
+     * Determines if we're in tests: When in tests, some warnings may be supressed.
+     */
     public static boolean IN_TESTS = false;
 
+    
+    /**
+     * @return a valid name for a project so that the returned name can be used to create a file in the filesystem
+     */
     public static String getValidProjectName(IProject project) {
         String name = project.getName();
         
@@ -429,7 +538,7 @@ public class REF {
     }
 
     /**
-     * Makes an equal comparisson taking into account that one of the parameters may be null.
+     * Makes an equal comparison taking into account that one of the parameters may be null.
      */
     public static boolean nullEq(Object o1, Object o2){
         if (o1 == null && o2 == null){
@@ -446,15 +555,40 @@ public class REF {
     }
 
     /**
+     * @return a string with the contents from a path within a zip file.
+     */
+    public static String getStringFromZip(File f, String pathInZip) throws Exception {
+        return (String) getCustomReturnFromZip(f, pathInZip, String.class);
+    }
+    
+    /**
      * @return a document with the contents from a path within a zip file.
      */
     public static IDocument getDocFromZip(File f, String pathInZip) throws Exception {
+        return (IDocument) getCustomReturnFromZip(f, pathInZip, IDocument.class);
+    }
+    
+    /**
+     * @param f the zip file that should be opened
+     * @param pathInZip the path within the zip file that should be gotten
+     * @param returnType the class that specifies the return type of this method. 
+     * If null, it'll return in the fastest possible way available.
+     * Valid options are:
+     *      String.class
+     *      IDocument.class
+     *      FastStringBuffer.class
+     * 
+     * @return an object with the contents from a path within a zip file, having the return type
+     * of the object specified by the parameter returnType.
+     */
+    public static Object getCustomReturnFromZip(File f, String pathInZip, Class<? extends Object> returnType) 
+        throws Exception {
+        
         ZipFile zipFile = new ZipFile(f, ZipFile.OPEN_READ);
         try {
             InputStream inputStream = zipFile.getInputStream(zipFile.getEntry(pathInZip));
             try {
-                Document doc = new Document(REF.getStreamContents(inputStream, null, null));
-                return doc;
+                return REF.getStreamContents(inputStream, null, null, returnType);
             } finally {
                 inputStream.close();
             }
@@ -462,45 +596,76 @@ public class REF {
             zipFile.close();
         }
     }
+    
+    
+    /**
+     * @return a string with the contents of the passed file
+     */
+    public static String getStringFromFile(java.io.File f, boolean loadIfNotInWorkspace) throws IOException {
+        return (String) getCustomReturnFromFile(f, loadIfNotInWorkspace, String.class);
+    }
+    
     /**
      * @return the document given its 'filesystem' file
-     * @throws IOException 
      */
     public static IDocument getDocFromFile(java.io.File f, boolean loadIfNotInWorkspace) throws IOException {
+        return (IDocument) getCustomReturnFromFile(f, loadIfNotInWorkspace, IDocument.class);
+    }
+    
+    /**
+     * @param f the file from where we want to get the contents
+     * @param returnType the class that specifies the return type of this method. 
+     * If null, it'll return in the fastest possible way available.
+     * Valid options are:
+     *      String.class
+     *      IDocument.class
+     *      FastStringBuffer.class
+     *      
+     * 
+     * @return an object with the contents from the file, having the return type
+     * of the object specified by the parameter returnType.
+     */
+    public static Object getCustomReturnFromFile(java.io.File f, boolean loadIfNotInWorkspace, 
+            Class<? extends Object> returnType) throws IOException {
+        
         IPath path = Path.fromOSString(getFileAbsolutePath(f));
         IDocument doc = getDocFromPath(path);
+        
+        if(doc != null){
+            if(returnType == null || returnType == IDocument.class){
+                return doc;
+                
+            }else if(returnType == String.class){
+                return doc.get();
+                
+            }else if(returnType == FastStringBuffer.class){
+                return new FastStringBuffer(doc.get(), 16);
+                
+            }else{
+                throw new RuntimeException("Don't know how to treat requested return type: "+returnType);
+            }
+        }
+
         if (doc == null && loadIfNotInWorkspace) {
-            return getPythonDocFromFile(f);
+            FileInputStream stream = new FileInputStream(f);
+            try {
+                String encoding = getPythonFileEncoding(f);
+                return getStreamContents(stream, encoding, null, returnType);
+            } finally {
+                try { if(stream != null) stream.close(); } catch (Exception e) {Log.log(e);}
+            }
         }
         return doc;
     }
 
-    /**
-     * @return the document given its 'filesystem' file (checks for the declared python encoding in the file)
-     * @throws IOException 
-     */
-    private static IDocument getPythonDocFromFile(java.io.File f) throws IOException {
-    	IDocument docFromPath = getDocFromPath(Path.fromOSString(getFileAbsolutePath(f)));
-    	if(docFromPath != null){
-    		return docFromPath;
-    	}
-    	
-        FileInputStream stream = new FileInputStream(f);
-        String fileContents = "";
-        try {
-            String encoding = getPythonFileEncoding(f);
-            fileContents = getStreamContents(stream, encoding, null);
-        } finally {
-            try { if(stream != null) stream.close(); } catch (Exception e) {Log.log(e);}
-        }
-        return new Document(fileContents);
-    }
+
 
     
     /**
      * @param path tha path we're interested in
      * @return a file buffer to be used.
      */
+    @SuppressWarnings("deprecation")
     public static ITextFileBuffer getBufferFromPath(IPath path) {
         //TODO: make this better for 3.3/ 3.2 (and check if behaviour is correct now)
         try{
@@ -562,6 +727,7 @@ public class REF {
      * Returns a document, created with the contents of a resource (first tries to get from the 'FileBuffers',
      * and if that fails, it creates one reading the file.
      */
+    @SuppressWarnings("restriction")
     public static IDocument getDocFromResource(IResource resource) {
         IProject project = resource.getProject();
         if (project != null && resource instanceof IFile && resource.exists()) {
@@ -577,18 +743,10 @@ public class REF {
                 IDocument doc = getDocFromPath(path);
                 if(doc == null){
                     //can this actually happen?... yeap, it can
-                    InputStream contents = file.getContents();
-                    try {
-						int i = contents.available();
-						byte b[] = new byte[i];
-						contents.read(b);
-						doc = new Document(new String(b));
-					} finally{
-						contents.close();
-					}
+                    doc = (IDocument) REF.getStreamContents(file.getContents(), null, null, IDocument.class);
                 }
                 return doc;
-            }catch(ResourceException e){
+            }catch(CoreException e){
             	//it may stop existing from the initial exists check to the getContents call
             	return null;
             } catch (Exception e) {
@@ -632,9 +790,12 @@ public class REF {
      * -- may return null
      * 
      * Will close the reader.
-     * @param fileLocation the file we want to get the encoding from (just passed for giving a better message if it fails -- may be null).
+     * @param fileLocation the file we want to get the encoding from (just passed for giving a better message 
+     * if it fails -- may be null).
      */
-    public static String getPythonFileEncoding(Reader inputStreamReader, String fileLocation) throws IllegalCharsetNameException{
+    public static String getPythonFileEncoding(Reader inputStreamReader, String fileLocation) 
+        throws IllegalCharsetNameException{
+        
         String ret = null;
         BufferedReader reader = new BufferedReader(inputStreamReader);
         try{
@@ -673,7 +834,7 @@ public class REF {
                             lEnc = lEnc.substring(1);
                         }
         
-                        StringBuffer buffer = new StringBuffer();
+                        FastStringBuffer buffer = new FastStringBuffer();
                         while(lEnc.length() > 0 && ((c = lEnc.charAt(0)) != ' ' || c == '-' || c == '*')) {
                             
                             buffer.append(c);

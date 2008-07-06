@@ -180,13 +180,23 @@ public final class FastStringBuffer{
     }
 
     /**
-     * @return a new stringt with the contents of this buffer.
+     * @return a new string with the contents of this buffer.
      */
     @Override
     public String toString() {
         return new String(value, 0, count);
     }
 
+    /**
+     * @return a new char array with the contents of this buffer. 
+     */
+    public char[] toCharArray() {
+        char[] v = new char[count];
+        System.arraycopy(value, 0, v, 0, count);
+        return v;
+    }
+    
+    
     /**
      * Erases the last char in this buffer
      */
@@ -310,6 +320,7 @@ public final class FastStringBuffer{
     public char lastChar() {
         return this.value[this.count-1];
     }
+
 
     
 }
