@@ -267,7 +267,11 @@ public class PydevExtensionNotifier extends Thread{
                     sleep( seconds * 1000L);
                 }
                 
-                boolean validated = PydevPlugin.getDefault().isValidated();
+                PydevPlugin plugin = PydevPlugin.getDefault();
+                if(plugin == null){
+                    continue;
+                }
+                boolean validated = plugin.isValidated();
                 if(!validated){
                     seconds = MIN_TIME;
                     final Display disp = Display.getDefault();
