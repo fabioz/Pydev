@@ -81,5 +81,21 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
         assertEquals(">>> c()", doc.get());
         doc.replace(doc.getLength(), 0, ")");
         assertEquals(">>> c())", doc.get());
+        
+        doc.replace(doc.getLength()-4, 4, "");
+        assertEquals(">>> ", doc.get());
+        
+        doc.replace(doc.getLength(), 0, "tttbbb");
+        assertEquals(">>> tttbbb", doc.get());
+        
+        doc.replace(doc.getLength()-3, 0, "(");
+        assertEquals(">>> ttt(bbb", doc.get());
+        
+        doc.replace(doc.getLength()-4, 1, "");
+        assertEquals(">>> tttbbb", doc.get());
+        
+        doc.replace(doc.getLength(), 0, "(");
+        assertEquals(">>> tttbbb()", doc.get());
+        
     }
 }

@@ -413,12 +413,13 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         boolean shiftsCaret = true;
         String newText = text.substring(start, text.length());
         if(addedParen){
-            Document parenDoc = new Document(getCommandLine()+"(");
-            int currentOffset = parenDoc.getLength();
+            String cmdLine = getCommandLine();
+            Document parenDoc = new Document(cmdLine+newText);
+            int currentOffset = cmdLine.length()+1;
             DocCmd docCmd = new DocCmd(currentOffset, 0, "(");
             docCmd.shiftsCaret = true;
             strategy.customizeParenthesis(parenDoc, docCmd);
-            newText = docCmd.text;
+            newText = docCmd.text+newText.substring(1);
             if(!docCmd.shiftsCaret){
                 shiftsCaret = false;
                 setCaretOffset(offset + (docCmd.caretOffset-currentOffset));
