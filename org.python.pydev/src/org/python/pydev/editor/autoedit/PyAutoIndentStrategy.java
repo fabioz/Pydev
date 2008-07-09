@@ -494,10 +494,10 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                 boolean hasClass = line.indexOf("class ") != -1;
                 boolean hasClassMethodDef = line.indexOf(" def ") != -1 || line.indexOf("\tdef ") != -1;
                 boolean hasMethodDef = line.indexOf("def ") != -1;
-                boolean hasNoDoublePoint = line.indexOf(":") == -1;
+                boolean hasDoublePoint = line.indexOf(":") != -1;
 
                 command.shiftsCaret = false;
-                if (hasNoDoublePoint && (hasClass || hasClassMethodDef || hasMethodDef)) {
+                if (!hasDoublePoint && (hasClass || hasClassMethodDef || hasMethodDef)) {
                     if (hasClass) {
                         //command.text = "(object):"; //TODO: put some option in the interface for that
                         //command.caretOffset = command.offset + 7;
