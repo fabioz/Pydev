@@ -240,6 +240,52 @@ public abstract class ParsingUtils implements IPythonPartitions{
         return eatPar(i, buf, '(');
     }
     
+    
+    /**
+     * @param i the index where we should start getting chars
+     * @param buf the buffer that should be filled with the contents gotten (if null, they're ignored)
+     * @return the index where the parsing stopped
+     */
+    public int getFullFlattenedLine(int i, FastStringBuffer buf) {
+        char c = this.charAt(i);
+        int len = len();
+        boolean ignoreNextNewLine = false;
+        while(i < len){
+            c = charAt(i);
+            
+            i++;
+            
+            if(c == '\'' || c == '"'){ //ignore comments or multiline comments...
+                i = eatLiterals(null, i-1)+1;
+                
+            }else if(c == '#'){
+                i = eatComments(null, i-1)+1;
+                break;
+                
+            }else if( c == '(' || c == '[' || c == '{'){ //open par.
+                i = eatPar(i-1, null, c)+1;
+            
+            }else if( c == '\r' || c == '\n' ){
+                if(!ignoreNextNewLine){
+                    break;
+                }
+                
+            }else if( c == '\\' || c == '\\' ){
+                ignoreNextNewLine = true;
+                continue;
+                
+            }else{
+                if(buf != null){
+                    buf.append(c);
+                }
+            }
+            
+            ignoreNextNewLine = false;
+        }
+        return i;
+    }
+
+
     /**
      * @param buf if null, it'll simply advance without adding anything to the buffer.
      */
@@ -606,7 +652,6 @@ public abstract class ParsingUtils implements IPythonPartitions{
         }
         return line;
     }
-
 
 
 }

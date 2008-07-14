@@ -16,7 +16,7 @@ public class ParsingUtilsTest extends TestCase {
     	try {
 			ParsingUtilsTest test = new ParsingUtilsTest();
 			test.setUp();
-			test.testMakeParseable();
+			test.testGetFlattenedLine2();
 			test.tearDown();
 			junit.textui.TestRunner.run(ParsingUtilsTest.class);
 		} catch (Throwable e) {
@@ -58,6 +58,41 @@ public class ParsingUtilsTest extends TestCase {
     	assertEquals("pass\n",it.next());
     	assertEquals(false,it.hasNext());
 	}
+    
+    public void testGetFlattenedLine() throws Exception {
+        String str = "" +
+        "line #c\n" +
+        "start =\\\n" +
+        "10 \\\n" +
+        "30\n" +
+        "call(\n" +
+        "   ttt,\n" +
+        ")\n";
+        ParsingUtils parsing = ParsingUtils.create(str);
+        FastStringBuffer buf = new FastStringBuffer();
+        assertEquals(8, parsing.getFullFlattenedLine(0, buf.clear()));
+        assertEquals("line ", buf.toString());
+        
+        parsing.getFullFlattenedLine(1, buf.clear());
+        assertEquals("ine ", buf.toString());
+        
+        assertEquals(25, parsing.getFullFlattenedLine(8, buf.clear()));
+        assertEquals("start =10 30", buf.toString());
+        
+        assertEquals(41, parsing.getFullFlattenedLine(25, buf.clear()));
+        assertEquals("call", buf.toString());
+    }
+    
+    public void testGetFlattenedLine2() throws Exception {
+        String str = "" +
+        "line = '''\n" +
+        "bla bla bla''' = xxx\n" +
+        "what";
+        ParsingUtils parsing = ParsingUtils.create(str);
+        FastStringBuffer buf = new FastStringBuffer();
+        assertEquals(32, parsing.getFullFlattenedLine(0, buf.clear()));
+        assertEquals("line =  = xxx", buf.toString());
+    }
     
     public void testIterator2() throws Exception {
     	String str = "" +

@@ -28,7 +28,8 @@ public class FastDefinitionsParserTest extends TestCase {
         try {
             FastDefinitionsParserTest test = new FastDefinitionsParserTest();
             test.setUp();
-//            test.NotestGlobalAttributesWX();
+            test.testGlobalAttributes5();
+            test.NotestGlobalAttributesWX();
             
             
             //only loading files
@@ -102,6 +103,24 @@ public class FastDefinitionsParserTest extends TestCase {
         assertEquals("ATTRIBUTE", name.id);
     }
     
+    public void testMultipleAssignAttributes() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar:\n" +
+                "    ATTRIBUTE1 = ATTRIBUTE2 = 10\n" +
+                "\n" +
+        "");
+        assertEquals(1, m.body.length);
+        ClassDef classDef = ((ClassDef)m.body[0]);
+        assertEquals("Bar", ((NameTok)classDef.name).id);
+        assertEquals(1, classDef.body.length);
+        Assign assign = (Assign) classDef.body[0];
+        assertEquals(2, assign.targets.length);
+        Name name = (Name) assign.targets[0];
+        assertEquals("ATTRIBUTE1", name.id);
+        name = (Name) assign.targets[1];
+        assertEquals("ATTRIBUTE2", name.id);
+    }
+    
     
     public void testAttributes2() {
         Module m = (Module) FastDefinitionsParser.parse(
@@ -164,7 +183,7 @@ public class FastDefinitionsParserTest extends TestCase {
                 "    def m1(self):\n" +
                 "        self.ATTRIBUTE0 = 10\n" + //local scope: get it because of self.
                 "        self.ATTRIBUTE1 = 10\n" + //local scope: get it because of self.
-                "        self.ATTRIBUTE2 = 10\n" + //local scope: get it because of self.
+                "        self.ATTRIBUTE2 = = 10\n" + //local scope: get it because of self.
                 "\n" +
         "");
         assertEquals(1, m.body.length);
@@ -246,6 +265,19 @@ public class FastDefinitionsParserTest extends TestCase {
         assertEquals(1, m.body.length);
         Assign assign = ((Assign)m.body[0]);
         assertEquals("GLOBAL_ATTRIBUTE", ((Name)assign.targets[0]).id);
+    }
+    
+    public void testGlobalAttributes5() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "GLOBAL_ATTRIBUTE = 10\n" +
+                "GLOBAL_ATTRIBUTE2 = 10\n" +
+                "\n" +
+        "");
+        assertEquals(2, m.body.length);
+        Assign assign = ((Assign)m.body[0]);
+        assertEquals("GLOBAL_ATTRIBUTE", ((Name)assign.targets[0]).id);
+        assign = ((Assign)m.body[1]);
+        assertEquals("GLOBAL_ATTRIBUTE2", ((Name)assign.targets[0]).id);
     }
     
     public void testGlobalAttributes2() {
@@ -493,10 +525,16 @@ public class FastDefinitionsParserTest extends TestCase {
             "    def _setCallbackInfo(*args, **kwargs):\n" +
             "        '''_setCallbackInfo(self, PyObject self, PyObject _class)'''\n" +
             "        return _xrc.XmlSubclassFactory__setCallbackInfo(*args, **kwargs)\n" +
+            "    Parent = property(GetParent,doc=\"See `GetParent`\") \n" +
+            "    ParentAsWindow = property(GetParentAsWindow,doc=\"See `GetParentAsWindow`\") \n" +
+            "    Resource = property(GetResource,doc=\"See `GetResource`\") \n" +
             "_xrc.XmlSubclassFactory_swigregister(XmlSubclassFactory)\n" +
             "#---------------------------------------------------------------------------\n" +
             "XML_ELEMENT_NODE = _xrc.XML_ELEMENT_NODE\n" +
             "XML_ATTRIBUTE_NODE = _xrc.XML_ATTRIBUTE_NODE\n" +
+            "_xrc.XmlResourceHandler_swigregister(XmlResourceHandler)\n" +
+            "\n" +
+            "\n" +
             "\n" +
             "\n" +
             "\n" +

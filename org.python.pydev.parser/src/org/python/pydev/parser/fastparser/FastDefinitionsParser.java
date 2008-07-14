@@ -181,46 +181,61 @@ public final class FastDefinitionsParser {
                     
                 
                 case '=':
-                    if(currIndex < length-1 && cs[currIndex+1] != '='){
+                    if(currIndex < length-1 && cs[currIndex+1] != '='){ 
+                        //should not be ==
+                        //other cases such as !=, +=, -= are already treated because they don't constitute valid
+                        //chars for an identifier.
+                        
                         if(DEBUG){
                             System.out.println("Found possible attribute:"+lineBuffer+" col:"+firstCharCol);
                         }
                         
+                        //if we've an '=', let's get the whole line contents to analyze...
+                        currIndex = parsingUtils.getFullFlattenedLine(currIndex, lineBuffer);
+                        currIndex--; //step one back to get the new line and handle it correctly
                         
+                        String equalsLine = lineBuffer.toString().trim();
+                        lineBuffer.clear();
                         
-                        String lineContents = lineBuffer.toString().trim();
-                        boolean add=true;
-                        for(int i=0;i<lineContents.length();i++){
-                            char lineC = lineContents.charAt(i);
-                            //can only be made of valid java chars (no spaces or similar things)
-                            if(lineC != '.' && !Character.isJavaIdentifierPart(lineC)){
-                                add=false;
-                                break;
+                        String[] splitted = StringUtils.split(equalsLine, '=');
+                        ArrayList<exprType> targets = new ArrayList<exprType>();
+                        
+                        for(int j=0; j< splitted.length-1; j++){ //we don't want to get the last one.
+                            String lineContents = splitted[j].trim(); 
+                            if(lineContents.length() == 0){
+                                continue;
                             }
-                        }
-                        if(add){
-                            //only add if it was something valid
-                            if(lineContents.indexOf('.') != -1){
-                                String[] dotSplit = StringUtils.dotSplit(lineContents);
-                                if(dotSplit.length == 2 && dotSplit[0].equals("self")){
-                                    Attribute attribute = new Attribute(new Name("self", Name.Load), new NameTok(dotSplit[1], NameTok.Attrib), Attribute.Load);
-                                    exprType[] targets = new exprType[]{attribute};
-                                    Assign assign = new Assign(targets, null);
-                                    
-                                    assign.beginColumn = this.firstCharCol;
-                                    assign.beginLine = this.row;
-                                    addToPertinentScope(assign);
+                            boolean add=true;
+                            for(int i=0;i<lineContents.length();i++){
+                                char lineC = lineContents.charAt(i);
+                                //can only be made of valid java chars (no spaces or similar things)
+                                if(lineC != '.' && !Character.isJavaIdentifierPart(lineC)){
+                                    add=false;
+                                    break;
                                 }
-                                
-                            }else{
-                                Name name = new Name(lineContents, Name.Store);
-                                exprType[] targets = new exprType[]{name};
-                                Assign assign = new Assign(targets, null);
-                                assign.beginColumn = this.firstCharCol;
-                                assign.beginLine = this.row;
-                                addToPertinentScope(assign);
                             }
-                        }                        
+                            if(add){
+                                //only add if it was something valid
+                                if(lineContents.indexOf('.') != -1){
+                                    String[] dotSplit = StringUtils.dotSplit(lineContents);
+                                    if(dotSplit.length == 2 && dotSplit[0].equals("self")){
+                                        Attribute attribute = new Attribute(new Name("self", Name.Load), new NameTok(dotSplit[1], NameTok.Attrib), Attribute.Load);
+                                        targets.add(attribute);
+                                    }
+                                    
+                                }else{
+                                    Name name = new Name(lineContents, Name.Store);
+                                    targets.add(name);
+                                }
+                            }                        
+                        }
+                        
+                        if(targets.size() > 0){
+                            Assign assign = new Assign(targets.toArray(new exprType[targets.size()]), null);
+                            assign.beginColumn = this.firstCharCol;
+                            assign.beginLine = this.row;
+                            addToPertinentScope(assign);
+                        }
                     }
                 //No default
             }
