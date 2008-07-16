@@ -13,7 +13,6 @@ http://pydev.sourceforge.net
 
 from org.eclipse.jface.action import Action #@UnresolvedImport
 import re
-from java.lang import StringBuffer
 from org.eclipse.jface.dialogs import MessageDialog #@UnresolvedImport
 from org.python.pydev.core.docutils import PySelection #@UnresolvedImport
 from org.python.pydev.editor.actions import PyAction #@UnresolvedImport
@@ -138,6 +137,8 @@ class AssignToAttribsOfSelf(Action):
         iInsertAfterLine = iClosingParLine
         sIndent = self._indent(oSelection) + PyAction.getStaticIndentationString(self.editor)
         
+        parsingUtils = ParsingUtils.create(oDocument)
+        
         # Is there a docstring? In that case we need to skip past it.
         sDocstrFirstLine = oSelection.getLine(iClosingParLine + 1)
         sDocstrStart = sDocstrFirstLine.strip()[:2]
@@ -148,8 +149,7 @@ class AssignToAttribsOfSelf(Action):
             li = [sDocstrFirstLine.find(s) for s in ['"', "'"]]
             iDocstrStartCol = min([i for i in li if i >= 0])
             iDocstrStart = iDocstrLineOffset + iDocstrStartCol
-            oDummy = StringBuffer()
-            iDocstrEnd = ParsingUtils.eatLiterals(oDocument, oDummy, iDocstrStart)
+            iDocstrEnd = parsingUtils.eatLiterals(None, iDocstrStart)
             iInsertAfterLine = oSelection.getLineOfOffset(iDocstrEnd)
             sIndent = PySelection.getIndentationFromLine(sDocstrFirstLine)
 
@@ -159,7 +159,7 @@ class AssignToAttribsOfSelf(Action):
         # terminated.
         iDocLength = oDocument.getLength()
         iLastLine = oSelection.getLineOfOffset(iDocLength)
-        sLastChar = str(ParsingUtils.charAt(oDocument, iDocLength - 1))
+        sLastChar = str(parsingUtils.charAt(iDocLength - 1))
         if (iInsertAfterLine == iLastLine
             and not self.getNewLineDelim().endswith(sLastChar)):
             oDocument.replace(iDocLength, 0, self.getNewLineDelim())
