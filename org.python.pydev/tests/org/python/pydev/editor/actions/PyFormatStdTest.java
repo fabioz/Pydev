@@ -7,6 +7,7 @@ package org.python.pydev.editor.actions;
 
 import junit.framework.TestCase;
 
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 
 /**
@@ -20,7 +21,7 @@ public class PyFormatStdTest extends TestCase {
         try {
 	        PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
-            n.testNoFormatCommaOnNewLine();
+            n.testFormatNotLinesOnlyWithParentesis();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -51,7 +52,7 @@ public class PyFormatStdTest extends TestCase {
 "def a(a, b):\n"+
 "    pass   \n";
         
-        assertEquals(s1, PyFormatStd.formatStr(s, std));
+        checkFormatResults(s, s1);
     
         std.spaceAfterComma = false;
 
@@ -59,7 +60,7 @@ public class PyFormatStdTest extends TestCase {
 "def a(a,b):\n"+
 "    pass   \n";
         
-        assertEquals(s2, PyFormatStd.formatStr(s, std));
+        checkFormatResults(s, s2);
     
     }
     
@@ -77,7 +78,7 @@ public class PyFormatStdTest extends TestCase {
     	"      b):\n"+
     	"    pass\n";
     	
-    	assertEquals(s1, PyFormatStd.formatStr(s, std));
+    	checkFormatResults(s, s1);
     }
 
     public void testFormatEscapedQuotes(){
@@ -87,11 +88,11 @@ public class PyFormatStdTest extends TestCase {
     	String s = ""+
     	"foo(bar(\"\\\"\"))";
     	
-    	assertEquals(s, PyFormatStd.formatStr(s, std));
+    	checkFormatResults(s);
     	
     	s = ""+
     	"foo(bar('''\\''''))";
-    	assertEquals(s, PyFormatStd.formatStr(s, std));
+    	checkFormatResults(s);
     }
     
 
@@ -107,7 +108,7 @@ public class PyFormatStdTest extends TestCase {
 "def a():\n"+
 "    pass   \n";
         
-        assertEquals(s1, PyFormatStd.formatStr(s, std));
+        checkFormatResults(s, s1);
     }
 
 
@@ -123,7 +124,7 @@ public class PyFormatStdTest extends TestCase {
 "def a(a, b):\n"+
 "    pass   \n";
         
-        assertEquals(s1, PyFormatStd.formatStr(s, std));
+        checkFormatResults(s, s1);
     
         std.spaceAfterComma = false;
 
@@ -131,7 +132,7 @@ public class PyFormatStdTest extends TestCase {
 "def a(a,b):\n"+
 "    pass   \n";
         
-        assertEquals(s2, PyFormatStd.formatStr(s, std));
+        checkFormatResults(s, s2);
     }
 
     
@@ -148,7 +149,7 @@ public class PyFormatStdTest extends TestCase {
 "def a( a, b ):\n"+
 "    pass   \n";
         
-        assertEquals(s1, PyFormatStd.formatStr(s, std));
+        checkFormatResults(s, s1);
     
         std.spaceAfterComma = false;
 
@@ -156,7 +157,7 @@ public class PyFormatStdTest extends TestCase {
 "def a( a,b ):\n"+
 "    pass   \n";
         
-        assertEquals(s2, PyFormatStd.formatStr(s, std));
+        checkFormatResults(s, s2);
     }
 
     public void testFormatInnerParams(){
@@ -171,7 +172,7 @@ public class PyFormatStdTest extends TestCase {
 "def a(a, b):\n"+
 "    return ((a+b) + (a+b))   \n";
         
-        assertEquals(s1, PyFormatStd.formatStr(s, std));
+        checkFormatResults(s, s1);
     
 
         std.parametersWithSpace = true;
@@ -179,7 +180,7 @@ public class PyFormatStdTest extends TestCase {
 "def a( a, b ):\n"+
 "    return ( ( a+b ) + ( a+b ) )   \n";
         
-        assertEquals(s2, PyFormatStd.formatStr(s, std));
+        checkFormatResults(s, s2);
     }
 
     public void testFormatInnerParams2(){
@@ -194,7 +195,7 @@ public class PyFormatStdTest extends TestCase {
 "def a( a, b ):\n"+
 "    return ( callA() + callB( b+b ) )   \n";
         
-        assertEquals(s1, PyFormatStd.formatStr(s, std));
+        checkFormatResults(s, s1);
     }
 
     
@@ -207,28 +208,28 @@ public class PyFormatStdTest extends TestCase {
 "nothing changes() ((aa) )\n"+
 "'''";
         
-        assertEquals(s, PyFormatStd.formatStr(s, std));
+        checkFormatResults(s);
 
         s = ""+
 "a = ''' test()\n"+
 "nothing changes() ((aa) )\n"+
 "";
         
-        assertEquals(s, PyFormatStd.formatStr(s, std));
+        checkFormatResults(s);
 
         s = ""+
 "a = ' test()'\n"+
 "'nothing changes() ((aa) )'\n"+
 "";
         
-        assertEquals(s, PyFormatStd.formatStr(s, std));
+        checkFormatResults(s);
 
         s = ""+
 "a = ' test()'\n"+
 "'nothing changes() ((aa) )\n"+
 "";
         
-        assertEquals(s, PyFormatStd.formatStr(s, std));
+        checkFormatResults(s);
     }
 
     
@@ -241,7 +242,7 @@ public class PyFormatStdTest extends TestCase {
 "#nothing changes() ((aa) )\n"+
 "#'''";
         
-        assertEquals(s, PyFormatStd.formatStr(s, std));
+        checkFormatResults(s);
     }
 
     public void testFormatNotInsideComments5(){
@@ -260,7 +261,7 @@ public class PyFormatStdTest extends TestCase {
 "'''\n" +
 "thisChanges( a+b + ( a+b ) )";
         
-        assertEquals(s2, PyFormatStd.formatStr(s, std));
+        checkFormatResults(s, s2);
         
         //unfinished comment
         s = ""+
@@ -269,7 +270,7 @@ public class PyFormatStdTest extends TestCase {
 "''\n" +
 "thisDoesNotChange()";
         
-        assertEquals(s, PyFormatStd.formatStr(s, std));
+        checkFormatResults(s);
 
         //unfinished comment at end of string
         s = ""+
@@ -277,7 +278,7 @@ public class PyFormatStdTest extends TestCase {
 "nothing 'changes() ((aa) )\n"+
 "''";
         
-        assertEquals(s, PyFormatStd.formatStr(s, std));
+        checkFormatResults(s);
     }
 
     public void testFormatNotInsideComments2(){
@@ -286,7 +287,7 @@ public class PyFormatStdTest extends TestCase {
 
         String s = "methodname.split( '(' )";
         
-        assertEquals(s, PyFormatStd.formatStr(s, std));
+        checkFormatResults(s);
     }
 
     public void testFormatNotInsideComments3(){
@@ -296,8 +297,7 @@ public class PyFormatStdTest extends TestCase {
         String s = "methodname.split( #'(' \n" +
         		" )";
         
-        String formatStr = PyFormatStd.formatStr(s, std);
-        assertEquals(s, formatStr);
+        checkFormatResults(s);
     }
 
     public void testFormatNotInsideStrings2(){
@@ -307,8 +307,7 @@ public class PyFormatStdTest extends TestCase {
         String s = "r = re.compile( \"(?P<latitude>\\d*\\.\\d*)\" )";
 
         
-        String formatStr = PyFormatStd.formatStr(s, std);
-        assertEquals(s, formatStr);
+        checkFormatResults(s);
     }
 
     public void testFormatNotLinesOnlyWithParentesis(){
@@ -321,8 +320,57 @@ public class PyFormatStdTest extends TestCase {
 		"           ) ";
 
         
-        String formatStr = PyFormatStd.formatStr(s, std);
-        assertEquals(s, formatStr);
+        checkFormatResults(s);
+    }
+
+    
+    public void testCommaOnParens(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        
+        String s = "" +
+        "methodCall(a,b,c))\n";
+        
+        
+        checkFormatResults(s, "methodCall(a, b, c))\n");
+    }
+    
+
+    /**
+     * Checks the results with the default passed and then with '\r' and '\n' considering
+     * that the result of formatting the input string will be the same as the input.
+     * 
+     * @param s the string to be checked (and also the expected output)
+     */
+    private void checkFormatResults(String s) {
+        checkFormatResults(s, s);
+    }
+    
+    
+    /**
+     * Checks the results with the default passed and then with '\r' and '\n'
+     * @param s the string to be checked
+     * @param expected the result of making the formatting in the string
+     */
+    private void checkFormatResults(String s, String expected) {
+        //default check (defined with \n)
+        String formatStr = new PyFormatStd().formatStr(s, std);
+        assertEquals(expected, formatStr);
+        
+        //second check (defined with \r)
+        s = s.replace('\n', '\r');
+        expected = expected.replace('\n', '\r');
+        
+        formatStr = new PyFormatStd().formatStr(s, std);
+        assertEquals(expected, formatStr);
+        
+        //third check (defined with \r\n)
+        s = StringUtils.replaceAll(s, "\r", "\r\n");
+        expected = StringUtils.replaceAll(expected, "\r", "\r\n");
+        
+        formatStr = new PyFormatStd().formatStr(s, std);
+        assertEquals(expected, formatStr);
+        
     }
 
     
