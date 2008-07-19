@@ -16,13 +16,29 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
  */
 public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
+    //a, b, c
     public static final String USE_SPACE_AFTER_COMMA = "USE_SPACE_AFTER_COMMA";
 
     public static final boolean DEFAULT_USE_SPACE_AFTER_COMMA = true;
 
+    
+    //call( a )
     public static final String USE_SPACE_FOR_PARENTESIS = "USE_SPACE_FOR_PARENTESIS";
 
     public static final boolean DEFAULT_USE_SPACE_FOR_PARENTESIS = false;
+    
+    
+    //call(a = 1)
+    public static final String USE_ASSIGN_WITH_PACES_INSIDER_PARENTESIS = "USE_ASSIGN_WITH_PACES_INSIDER_PARENTESIS";
+    
+    public static final boolean DEFAULT_USE_ASSIGN_WITH_PACES_INSIDE_PARENTESIS = false;
+    
+    
+    //operators =, !=, <, >, //, etc.
+    public static final String USE_OPERATORS_WITH_SPACE = "USE_OPERATORS_WITH_SPACE";
+    
+    public static final boolean DEFAULT_USE_OPERATORS_WITH_SPACE = true;
+    
 
     public PyCodeFormatterPage() {
         super(GRID);
@@ -38,6 +54,10 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
         addField(new BooleanFieldEditor(USE_SPACE_AFTER_COMMA, "Use space after commas?", p));
 
         addField(new BooleanFieldEditor(USE_SPACE_FOR_PARENTESIS, "Use space before and after parenthesis?", p));
+        
+        addField(new BooleanFieldEditor(USE_ASSIGN_WITH_PACES_INSIDER_PARENTESIS, "Use space before and after assign for keyword arguments?", p));
+        
+        addField(new BooleanFieldEditor(USE_OPERATORS_WITH_SPACE, "Use space before and after operators? (+, -, /, *, //, **, etc.)", p));
     }
 
     /**
@@ -52,6 +72,14 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
 
     public static boolean useSpaceForParentesis() {
         return PydevPrefs.getPreferences().getBoolean(USE_SPACE_FOR_PARENTESIS);
+    }
+
+    public static boolean useAssignWithSpacesInsideParenthesis() {
+        return PydevPrefs.getPreferences().getBoolean(USE_ASSIGN_WITH_PACES_INSIDER_PARENTESIS);
+    }
+
+    public static boolean useOperatorsWithSpace() {
+        return PydevPrefs.getPreferences().getBoolean(USE_OPERATORS_WITH_SPACE);
     }
 
 }

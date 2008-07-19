@@ -43,6 +43,55 @@ public class ParsingUtilsTest extends TestCase {
         assertEquals(ParsingUtils.PY_DEFAULT, ParsingUtils.getContentType(str, 17));
     }
     
+    public void testEatComments() {
+        String str = "" +
+        "#comm1\n" +
+        "pass\n" +
+        "";
+        ParsingUtils parsingUtils = ParsingUtils.create(str);
+        int i = parsingUtils.eatComments(null, 0);
+        assertEquals('\n', parsingUtils.charAt(i));
+    }
+    
+    public void testEatLiterals() {
+        String str = "" +
+        "'''\n" +
+        "pass\n" +
+        "'''" +
+        "w" +
+        "";
+        ParsingUtils parsingUtils = ParsingUtils.create(str);
+        int i = parsingUtils.eatLiterals(null, 0);
+        assertEquals(11, i);
+        assertEquals('\'', parsingUtils.charAt(i));
+    }
+    
+    public void testEatWhitespaces() {
+        String str = "" +
+        "    #comm\n" +
+        "pass\n" +
+        "";
+        ParsingUtils parsingUtils = ParsingUtils.create(str);
+        FastStringBuffer buf = new FastStringBuffer();
+        int i = parsingUtils.eatWhitespaces(buf, 0);
+        assertEquals(3, i);
+        assertEquals("    ", buf.toString());
+        assertEquals(' ', parsingUtils.charAt(i));
+    }
+    
+    
+    public void testEatWhitespaces2() {
+        String str = "" +
+        "    ";
+        ParsingUtils parsingUtils = ParsingUtils.create(str);
+        FastStringBuffer buf = new FastStringBuffer();
+        int i = parsingUtils.eatWhitespaces(buf, 0);
+        assertEquals("    ", buf.toString());
+        assertEquals(' ', parsingUtils.charAt(i));
+        assertEquals(3, i);
+    }
+    
+    
     public void testIterator() throws Exception {
     	String str = "" +
     	"#c\n" +
@@ -50,7 +99,7 @@ public class ParsingUtilsTest extends TestCase {
     	"pass\n" +
     	"";
     	Document d = new Document(str);
-    	Iterator it = ParsingUtils.getNoLiteralsOrCommentsIterator(d);
+    	Iterator<String> it = ParsingUtils.getNoLiteralsOrCommentsIterator(d);
     	assertEquals("\n",it.next());
     	assertEquals(true,it.hasNext());
     	assertEquals("\n",it.next());

@@ -162,7 +162,8 @@ public abstract class ParsingUtils implements IPythonPartitions{
      * @param buf used to add the comments contents (out) -- if it's null, it'll simply advance to the position and 
      * return it.
      * @param i the # position
-     * @return the end of the comments position (end of document or new line char)
+     * @return the end of the comments position (end of document or new line char) 
+     * @note the new line char (\r or \n) will be added as a part of the comment.
      */
     public int eatComments(FastStringBuffer buf, int i) {
         int len = len();
@@ -185,11 +186,42 @@ public abstract class ParsingUtils implements IPythonPartitions{
     }
     
 
+
+    
+    /**
+     * @param cs the char array we are parsing
+     * @param buf used to add the spaces (out) -- if it's null, it'll simply advance to the position and 
+     * return it.
+     * @param i the first ' ' position
+     * @return the position of the last space found
+     */
+    public int eatWhitespaces(FastStringBuffer buf, int i) {
+        int len = len();
+        char c;
+        
+        while(i < len && (c = charAt(i)) == ' '){
+            if(buf != null){
+                buf.append(c);
+            }
+            i++;
+        }
+        
+        //go back to the last space found
+        i--;
+        
+        return i;
+    }
+    
+    
+    
+
+    
+    
     /**
      * @param cs the char array we are parsing
      * @param buf used to add the literal contents (out)
      * @param i the ' or " position
-     * @return the end of the literal position (or end of document)
+     * @return the end of the literal position (or end of document) -- so, the final char is the ' or " position
      */
     public int eatLiterals(FastStringBuffer buf, int i) {
         //ok, current pos is ' or "
@@ -652,6 +684,8 @@ public abstract class ParsingUtils implements IPythonPartitions{
         }
         return line;
     }
+
+
 
 
 }

@@ -16,6 +16,8 @@ Pydev
 <li><strong>Auto-indent</strong>: Fixed problem when smart indent was turned off</li>
 <li><strong>Debugger</strong>: Better inspection of internal variables for dict, list, tuple, set and frozenset</li>
 <li><strong>Console</strong>: When a parenthesis was being entered, the text to the end of the line was being deleted</li>
+<li>Improved code formatter to deal with operators (+, -, *, etc)</li>
+<li>Improved code formatter to handle '=' differently inside function calls / keyword args</li>
 </ul>
 
 after 1.3.17
