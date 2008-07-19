@@ -51,9 +51,6 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
         @SuppressWarnings("unchecked")
         private Map fAddAnnotations;
 
-        /** Lock object for modifying the annotations. */
-        private Object fLockObject;
-
         /**
          * Initializes this collector with the given annotation model.
          *
@@ -62,10 +59,6 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
         public SpellingProblemCollector(IAnnotationModel annotationModel) {
             Assert.isLegal(annotationModel != null);
             fAnnotationModel = annotationModel;
-            if (fAnnotationModel instanceof ISynchronizable)
-                fLockObject = ((ISynchronizable) fAnnotationModel).getLockObject();
-            else
-                fLockObject = fAnnotationModel;
         }
 
         /*
@@ -91,6 +84,13 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
         public void endCollecting() {
 
             List toRemove = new ArrayList();
+
+            Object fLockObject;
+            if (fAnnotationModel instanceof ISynchronizable){
+                fLockObject = ((ISynchronizable) fAnnotationModel).getLockObject();
+            }else{
+                fLockObject = new Object();
+            }
 
             synchronized (fLockObject) {
                 Iterator iter = fAnnotationModel.getAnnotationIterator();
