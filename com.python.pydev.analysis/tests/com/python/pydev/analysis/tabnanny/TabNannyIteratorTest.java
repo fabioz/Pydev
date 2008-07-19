@@ -85,6 +85,19 @@ public class TabNannyIteratorTest extends TestCase {
         assertEquals("    ",it.next().o1);
         assertTrue(!it.hasNext()); 
     }
+    
+    public void testIterator6a() throws Exception {
+        String str = 
+            "    #comment   what's happening\r\n" + 
+            "    #comment   what's happening2\r\n" + 
+            "    pass\r\n";
+        Document d = new Document(str);
+        TabNannyDocIterator it = new TabNannyDocIterator(d);
+        assertEquals("    ",it.next().o1);
+        assertEquals("    ",it.next().o1);
+        assertEquals("    ",it.next().o1);
+        assertTrue(!it.hasNext()); 
+    }
    
     
     public void testIterator7() throws Exception {
