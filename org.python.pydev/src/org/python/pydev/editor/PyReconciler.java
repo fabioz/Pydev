@@ -2,6 +2,7 @@ package org.python.pydev.editor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -84,37 +85,58 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
         public void endCollecting() {
 
             List toRemove = new ArrayList();
-
+            
             Object fLockObject;
             if (fAnnotationModel instanceof ISynchronizable){
                 fLockObject = ((ISynchronizable) fAnnotationModel).getLockObject();
             }else{
                 fLockObject = new Object();
             }
-
-            synchronized (fLockObject) {
-                Iterator iter = fAnnotationModel.getAnnotationIterator();
-                while (iter.hasNext()) {
-                    Object n = iter.next();
-                    if (n instanceof SpellingAnnotation) {
-                        toRemove.add(n);
+            
+            //let other threads execute before getting the lock on the annotation model
+            Thread.yield();
+            
+            Thread thread = Thread.currentThread();
+            int initiaThreadlPriority = thread.getPriority();
+            try{
+                //before getting the lock, let's execute with normal priority, to optimize the time that we'll 
+                //retain that object locked (the annotation model is used on lots of places, so, retaining the lock
+                //on it on a minimum priority thread is not a good thing.
+                thread.setPriority(Thread.NORM_PRIORITY);
+                Iterator iter;
+                
+                synchronized (fLockObject) {
+                    iter = fAnnotationModel.getAnnotationIterator();
+                    while (iter.hasNext()) {
+                        Object n = iter.next();
+                        if (n instanceof SpellingAnnotation) {
+                            toRemove.add(n);
+                        }
                     }
+                    iter = null;
                 }
+                
                 Annotation[] annotationsToRemove = (Annotation[]) toRemove.toArray(new Annotation[toRemove.size()]);
 
-                if (fAnnotationModel instanceof IAnnotationModelExtension) {
-                    ((IAnnotationModelExtension) fAnnotationModel).replaceAnnotations(annotationsToRemove, fAddAnnotations);
-                } else {
-                    for (int i = 0; i < annotationsToRemove.length; i++) {
-                        fAnnotationModel.removeAnnotation(annotationsToRemove[i]);
-                    }
-                    for (iter = fAddAnnotations.keySet().iterator(); iter.hasNext();) {
-                        Annotation annotation = (Annotation) iter.next();
-                        fAnnotationModel.addAnnotation(annotation, (Position) fAddAnnotations.get(annotation));
+                //let other threads execute before getting the lock (again) on the annotation model
+                Thread.yield();
+                synchronized (fLockObject) {
+                    if (fAnnotationModel instanceof IAnnotationModelExtension) {
+                        ((IAnnotationModelExtension) fAnnotationModel).replaceAnnotations(annotationsToRemove, fAddAnnotations);
+                    } else {
+                        for (int i = 0; i < annotationsToRemove.length; i++) {
+                            fAnnotationModel.removeAnnotation(annotationsToRemove[i]);
+                        }
+                        for (iter = fAddAnnotations.keySet().iterator(); iter.hasNext();) {
+                            Annotation annotation = (Annotation) iter.next();
+                            fAnnotationModel.addAnnotation(annotation, (Position) fAddAnnotations.get(annotation));
+                        }
                     }
                 }
+                
+            }finally{
+                thread.setPriority(initiaThreadlPriority);
             }
-
             fAddAnnotations = null;
         }
     }
@@ -130,11 +152,20 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
 
     private SpellingService fSpellingService;
 
-    private ISpellingProblemCollector fSpellingProblemCollector;
-
     /** The spelling context containing the Java source content type. */
     private SpellingContext fSpellingContext;
 
+    
+    /**
+     * Set containing the models that are being checked at the current moment (this is used
+     * so that when there are multiple editors binded to the same model, we only make the check in one of those
+     * models -- the others don't need to do anything, as it's based on the annotation model that's shared
+     * among them)
+     * 
+     * It's static so that we can share it among threads.
+     */
+    private static HashSet<IAnnotationModel> modelBeingChecked = new HashSet<IAnnotationModel>();
+    
     /**
      * Creates a new comment reconcile strategy.
      * 
@@ -149,6 +180,7 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
         fSpellingContext = new SpellingContext();
         fSpellingContext.setContentType(getContentType());
     }
+    
 
     /*
      * @see org.eclipse.jface.text.reconciler.IReconcilingStrategyExtension#initialReconcile()
@@ -175,8 +207,20 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
      * @see org.eclipse.jface.text.reconciler.IReconcilingStrategy#reconcile(org.eclipse.jface.text.IRegion)
      */
     public void reconcile(IRegion region) {
-        if (fViewer.getAnnotationModel() == null || fSpellingProblemCollector == null) {
+        IAnnotationModel annotationModel = fViewer.getAnnotationModel();
+        
+        if (annotationModel == null) {
             return;
+        }
+
+        //Bug: https://sourceforge.net/tracker/index.php?func=detail&aid=2013310&group_id=85796&atid=577329
+        //When having multiple editors for the same document, only one of the reconcilers actually needs to
+        //work (because the others are binded to the same annotation model, so, having one do the work is enough)
+        synchronized (modelBeingChecked) {
+            if(modelBeingChecked.contains(annotationModel)){
+                return;
+            }
+            modelBeingChecked.add(annotationModel);
         }
 
         try {
@@ -187,8 +231,9 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
 
             ArrayList<IRegion> regions = new ArrayList<IRegion>();
             for (ITypedRegion partition : partitions) {
-                if (fProgressMonitor != null && fProgressMonitor.isCanceled())
+                if (fProgressMonitor != null && fProgressMonitor.isCanceled()){
                     return;
+                }
 
                 String type = partition.getType();
 
@@ -200,12 +245,19 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
 
             int size = regions.size();
             if (size > 0) {
-                fSpellingService.check(fDocument, regions.toArray(new IRegion[size]), fSpellingContext, fSpellingProblemCollector,
+                //only create the collector when actually needed for the current model
+                ISpellingProblemCollector spellingProblemCollector = new SpellingProblemCollector(annotationModel);
+                fSpellingService.check(fDocument, regions.toArray(new IRegion[size]), fSpellingContext, spellingProblemCollector,
                         fProgressMonitor);
             }
 
         } catch (Exception e) {
             PydevPlugin.log(e);
+            
+        }finally{
+            synchronized (modelBeingChecked) {
+                modelBeingChecked.remove(annotationModel);
+            }
         }
     }
 
@@ -225,12 +277,8 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
     public void setDocument(IDocument document) {
         fDocument = document;
 
-        IAnnotationModel model = fViewer.getAnnotationModel();
-        if (model == null) {
-            fSpellingProblemCollector = null;
-        } else {
-            fSpellingProblemCollector = new SpellingProblemCollector(model);
-        }
+        //Note: if we have multiple editors for the same doc, the document and the annotation model will be the same 
+        //for multiple reconcilers
     }
 
     /*
