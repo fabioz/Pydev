@@ -235,61 +235,75 @@ public class MarkOccurrencesJob extends Job{
 	 * @return true if the annotations were removed and added without any problems and false otherwise
      */
     private synchronized boolean addAnnotations(final PyEdit pyEdit, IAnnotationModel annotationModel, final RefactoringRequest req, PyRenameEntryPoint processor) throws BadLocationException {
-        //add the annotations
-        synchronized (getLockObject(annotationModel)) {
-            HashSet<ASTEntry> occurrences = processor.getOccurrences();
-            if(occurrences != null){
-            	Map<String, Object> cache = pyEdit.cache;
-            	if(cache == null){
-            		return false;
-            	}
-            	
-                IDocument doc = pyEdit.getDocument();
-                ArrayList<Annotation> annotations = new ArrayList<Annotation>();
-                Map<Annotation, Position> toAddAsMap = new HashMap<Annotation, Position>();                
-                boolean markOccurrencesInStrings = MarkOccurrencesPreferencesPage.useMarkOccurrencesInStrings();
-                
-                
-                for (ASTEntry entry : occurrences) {
-                	if(!markOccurrencesInStrings){
-	                	if(entry.node instanceof Name){
-							Name name = (Name) entry.node;
-							if(name.ctx == Name.Artificial){
-								continue;
-							}
-	                	}
-                	}
-                	
-                	SimpleNode node = entry.getNameNode();
-                    IRegion lineInformation = doc.getLineInformation(node.beginLine-1);
-                    
-                    try {
-                        Annotation annotation = new Annotation(PydevPlugin.OCCURRENCE_ANNOTATION_TYPE, false, "occurrence");
-                        Position position = new Position(lineInformation.getOffset() + node.beginColumn - 1, req.initialName.length());
-                        toAddAsMap.put(annotation, position);
-                        annotations.add(annotation);
-						
-                    } catch (Exception e) {
-                        Log.log(e);
+        HashSet<ASTEntry> occurrences = processor.getOccurrences();
+        if(occurrences == null){
+            if(DEBUG){
+                System.out.println("Occurrences == null");
+            }
+            return false;
+        }
+        
+        Map<String, Object> cache = pyEdit.cache;
+        if(cache == null){
+            return false;
+        }
+            
+        IDocument doc = pyEdit.getDocument();
+        ArrayList<Annotation> annotations = new ArrayList<Annotation>();
+        Map<Annotation, Position> toAddAsMap = new HashMap<Annotation, Position>();                
+        boolean markOccurrencesInStrings = MarkOccurrencesPreferencesPage.useMarkOccurrencesInStrings();
+        
+        //get the annotations to add
+        for (ASTEntry entry : occurrences) {
+            if(!markOccurrencesInStrings){
+                if(entry.node instanceof Name){
+                    Name name = (Name) entry.node;
+                    if(name.ctx == Name.Artificial){
+                        continue;
                     }
                 }
+            }
+            
+            SimpleNode node = entry.getNameNode();
+            IRegion lineInformation = doc.getLineInformation(node.beginLine-1);
+            
+            try {
+                Annotation annotation = new Annotation(PydevPlugin.OCCURRENCE_ANNOTATION_TYPE, false, "occurrence");
+                Position position = new Position(lineInformation.getOffset() + node.beginColumn - 1, req.initialName.length());
+                toAddAsMap.put(annotation, position);
+                annotations.add(annotation);
                 
-                //get the ones to remove
-                List<Annotation> toRemove = PydevPlugin.getOccurrenceAnnotationsInPyEdit(pyEdit);
-                
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
+        
+        //get the ones to remove
+        List<Annotation> toRemove = PydevPlugin.getOccurrenceAnnotationsInPyEdit(pyEdit);
+
+        //let other threads execute before getting the lock on the annotation model
+        Thread.yield();
+        
+        Thread thread = Thread.currentThread();
+        int initiaThreadlPriority = thread.getPriority();
+        try{
+            //before getting the lock, let's execute with normal priority, to optimize the time that we'll 
+            //retain that object locked (the annotation model is used on lots of places, so, retaining the lock
+            //on it on a minimum priority thread is not a good thing.
+            thread.setPriority(Thread.NORM_PRIORITY);
+
+            synchronized (getLockObject(annotationModel)) {
                 //replace them
                 IAnnotationModelExtension ext = (IAnnotationModelExtension) annotationModel;
                 ext.replaceAnnotations(toRemove.toArray(new Annotation[0]), toAddAsMap);
-
-                //put them in the pyEdit
-				cache.put(PydevPlugin.ANNOTATIONS_CACHE_KEY, annotations);
-            }else{
-                if(DEBUG){
-                    System.out.println("Occurrences == null");
-                }
-                return false;
             }
+        
+        }finally{
+            thread.setPriority(initiaThreadlPriority);
         }
+        
+        //put them in the pyEdit
+        cache.put(PydevPlugin.ANNOTATIONS_CACHE_KEY, annotations);
         return true;
     }
 
@@ -344,19 +358,42 @@ public class MarkOccurrencesJob extends Job{
     @SuppressWarnings("unchecked")
 	private synchronized void removeOccurenceAnnotations(IAnnotationModel annotationModel, PyEdit pyEdit) {
         //remove the annotations
-        synchronized(getLockObject(annotationModel)){
-        	Map<String, Object> cache = pyEdit.cache;
-        	if(cache == null){
-        		return;
-        	}
-        	
-            Iterator<Annotation> annotationIterator = PydevPlugin.getOccurrenceAnnotationsInPyEdit(pyEdit).iterator();
-            while(annotationIterator.hasNext()){
-                annotationModel.removeAnnotation(annotationIterator.next());
-            }
-			cache.put(PydevPlugin.ANNOTATIONS_CACHE_KEY, null);
+        Map<String, Object> cache = pyEdit.cache;
+        if(cache == null){
+            return;
         }
-        //end remove the annotations
+
+        //let other threads execute before getting the lock on the annotation model
+        Thread.yield();
+        
+        Thread thread = Thread.currentThread();
+        int initiaThreadlPriority = thread.getPriority();
+        //before getting the lock, let's execute with normal priority, to optimize the time that we'll 
+        //retain that object locked (the annotation model is used on lots of places, so, retaining the lock
+        //on it on a minimum priority thread is not a good thing.
+        thread.setPriority(Thread.NORM_PRIORITY);
+
+        try {
+            synchronized(getLockObject(annotationModel)){
+                List<Annotation> annotationsToRemove = PydevPlugin.getOccurrenceAnnotationsInPyEdit(pyEdit);
+                
+                if (annotationModel instanceof IAnnotationModelExtension) {
+                    //replace those 
+                    ((IAnnotationModelExtension) annotationModel).replaceAnnotations(annotationsToRemove.toArray(
+                            new Annotation[annotationsToRemove.size()]), new HashMap());
+                }else{
+                    Iterator<Annotation> annotationIterator = annotationsToRemove.iterator();
+                    
+                    while(annotationIterator.hasNext()){
+                        annotationModel.removeAnnotation(annotationIterator.next());
+                    }
+                }
+            	cache.put(PydevPlugin.ANNOTATIONS_CACHE_KEY, null);
+            }
+            //end remove the annotations
+        } finally {
+            thread.setPriority(initiaThreadlPriority);
+        }
     }
 
     
