@@ -20,6 +20,7 @@ Pydev
 <li>Improved code formatter to handle '=' differently inside function calls / keyword args</li>
 <li>Applied patch that fixes race condition in PythonNatureStore (thanks to Radim Kubacki)</li>
 <li>Fixed bug related to having multiple editors with the same file (while having the spell service on)</li>
+<li>Applying a template could have the wrong end line delimiter applied</li>
 </ul>
 
 after 1.3.17
