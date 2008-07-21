@@ -43,5 +43,24 @@ public class PyDocumentTemplateContextTest extends TestCase {
         assertEquals("if a\n        print 'a:    '", buffer.getString());
         
         
+        //let's check if we have a template with \n and a document with \r\n (it should be applied with \r\n)
+        doc = new Document("" +
+        		"\r\n    " +
+        "");
+        context = new PyDocumentTemplateContext(new TemplateContextType(), doc, doc.getLength(), 0, "    ", new TestIndentPrefs(true, 4));
+        template = new Template("", "", "", "if a\n\tprint 'a:    '", true);
+        buffer = context.evaluate(template);
+        assertEquals("if a\r\n        print 'a:    '", buffer.getString());
+        
+        //let's check if we have a template with \r\n and a document with \r (it should be applied with \r)
+        doc = new Document("" +
+        		"\r    " +
+        "");
+        context = new PyDocumentTemplateContext(new TemplateContextType(), doc, doc.getLength(), 0, "    ", new TestIndentPrefs(true, 4));
+        template = new Template("", "", "", "if a\r\n\tprint 'a:    '", true);
+        buffer = context.evaluate(template);
+        assertEquals("if a\r        print 'a:    '", buffer.getString());
+        
+        
     }
 }

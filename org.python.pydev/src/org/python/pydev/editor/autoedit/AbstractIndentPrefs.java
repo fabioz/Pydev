@@ -39,6 +39,9 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
             return "\t";
     }
 
+    /**
+     * Converts spaces to tabs or vice-versa depending on the user preferences
+     */
 	public void convertToStd(IDocument document, DocumentCommand command){
 		try {
             if (getUseSpaces()) {
@@ -128,10 +131,22 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
 	}
 
 
+	/**
+	 * Checks if the string is solely composed of spaces 
+	 * 
+	 * @param s the string analyzed
+	 * @return true if it's only composed of spaces and false otherwise.
+	 */
 	private boolean isWhitespace(String s) {
-		for (int i = s.length() - 1; i > -1 ; i--)
-			if (!Character.isWhitespace(s.charAt(i)))
+		int len = s.length();
+		
+		//it's done backwards because the chance of finding a non-whitespace char is higher at the end of the string
+		//than at the beggining
+		for (int i = len - 1; i > -1 ; i--){
+			if (!Character.isWhitespace(s.charAt(i))){
 				return false;
+			}
+		}
 		return true;
 	}
 	

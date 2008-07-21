@@ -15,6 +15,7 @@ import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateException;
 import org.eclipse.jface.text.templates.TemplateTranslator;
 import org.python.pydev.core.docutils.DocUtils;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
@@ -116,15 +117,40 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContext {
             splitted = StringUtils.splitInLines(pattern);
         }
         
-        if(splitted.size() > 1 && indentTo != null && indentTo.length() > 0){
-            FastStringBuffer buffer = new FastStringBuffer(splitted.get(0), 128);
-            for (int i=1; i<splitted.size();i++) { //we don't want to get the first line
-                buffer.append(indentTo);
-                buffer.append(splitted.get(i));
+        String indentToStr = indentTo != null?indentTo:"";
+        String endLineDelim = PySelection.getDelimiter(this.getDocument());
+        
+        int size = splitted.size();
+        if(size > 0){
+        	
+            FastStringBuffer buffer = new FastStringBuffer("", (pattern.length()+(size*2))+((size+1)*indentToStr.length()));
+            for (int i=0; i<size;i++) { //we don't want to get the first line
+            	
+            	if(i != 0){
+            		//the 1st line is not indented (that's where the user requested the completion -- others should be indented to it)
+            		buffer.append(indentToStr);
+            	}
+            	
+                String str = splitted.get(i);
+                
+                //we have to make the new line delimiter correct:
+                //https://sourceforge.net/tracker/index.php?func=detail&aid=2019419&group_id=85796&atid=577329
+                boolean hasNewLine = false;
+                if(str.endsWith("\r") || str.endsWith("\n")){
+                	hasNewLine = true;
+                	if(str.endsWith("\r\n")){
+                		str = str.substring(0, str.length()-2);
+                	}else{
+                		str = str.substring(0, str.length()-1);
+                	}
+                }
+				buffer.append(str);
+				if(hasNewLine){
+					buffer.append(endLineDelim);
+				}
             }
             //just to change the pattern...
             template = createNewTemplate(template, buffer.toString());
-            
         }
         
         TemplateTranslator translator= new TemplateTranslator();

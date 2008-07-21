@@ -9,7 +9,11 @@ import org.python.pydev.core.cache.PyPreferencesCache;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 
+/**
+ * Provides indentation preferences from the preferences set in the preferences pages within eclipse.
+ */
 public class DefaultIndentPrefs extends AbstractIndentPrefs {
+	
     /** 
      * Cache for indentation string 
      */
@@ -21,8 +25,14 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
     
 	private static PyPreferencesCache cache;
 
+	/**
+	 * Singleton instance for the preferences
+	 */
     private static IIndentPrefs indentPrefs;
     
+    /**
+     * @return the indentation preferences to be used
+     */
     public synchronized static IIndentPrefs get() {
         if(indentPrefs == null){
             indentPrefs = new DefaultIndentPrefs();
@@ -30,6 +40,9 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
         return indentPrefs;
     }
 	
+    /**
+     * @return a cache for the preferences.
+     */
 	private PyPreferencesCache getCache(){
     	if(cache == null){
     		cache = new PyPreferencesCache(PydevPlugin.getDefault().getPreferenceStore());
