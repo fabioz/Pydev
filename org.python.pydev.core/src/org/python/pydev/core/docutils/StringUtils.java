@@ -192,6 +192,8 @@ public class StringUtils {
      * 
      * @param string string to be splitted.
      * @return list of strings where each string is a line.
+     * 
+     * @note the new line characters are also added to the returned string.
      */
     public static List<String> splitInLines(String string) {
         ArrayList<String> ret = new ArrayList<String>();
