@@ -1,1 +1,0 @@
-clean layout: http://www.lca.ic.unicamp.br/~augusto/

@@ -1,5 +1,0 @@
-pricing:
-
-price	30%disc.	renewal
-42.5	12.75		29.75
-700     210         490
