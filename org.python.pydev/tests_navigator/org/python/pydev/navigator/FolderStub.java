@@ -29,14 +29,23 @@ public class FolderStub implements IFolder{
 
     private File folder;
     private ProjectStub project;
+    private IContainer parent;
 
     public FolderStub(ProjectStub stub, File parentFile) {
-        Assert.isTrue(parentFile.exists() && parentFile.isDirectory());
-        this.project = stub;
-        this.folder = parentFile;
+        this(stub, null, parentFile);
+    }
+    
+    public FolderStub(ProjectStub stub, IContainer parent, File parentFile) {
+    	Assert.isTrue(parentFile.exists() && parentFile.isDirectory());
+    	this.project = stub;
+    	this.folder = parentFile;
+    	this.parent = parent;
     }
     
     public IContainer getParent() {
+    	if(parent != null){
+    		return parent;
+    	}
         return project.getFolder(this.folder.getParentFile());
     }
     

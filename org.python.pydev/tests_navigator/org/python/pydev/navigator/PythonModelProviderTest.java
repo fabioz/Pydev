@@ -14,8 +14,10 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.ui.navigator.PipelinedShapeModification;
 import org.eclipse.ui.navigator.PipelinedViewerUpdate;
 import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.navigator.elements.IWrappedResource;
+import org.python.pydev.navigator.elements.PythonFolder;
 import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -27,10 +29,11 @@ public class PythonModelProviderTest extends TestCase {
         try {
             PythonModelProviderTest test = new PythonModelProviderTest();
             test.setUp();
-            test.testProjectIsRoot2();
+            test.testFolderToSourceFolder2();
             test.tearDown();
+            System.out.println("OK");
             
-            junit.textui.TestRunner.run(PythonModelProviderTest.class);
+//            junit.textui.TestRunner.run(PythonModelProviderTest.class);
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -347,6 +350,174 @@ public class PythonModelProviderTest extends TestCase {
         provider.getPipelinedChildren(projectSourceFolder, currentChildren);
         
         assertEquals(1, currentChildren.size());
+    }
+    
+    
+    public void testAddSourceFolderToSourceFolder() throws Exception {
+        final HashSet<String> pythonPathSet = new HashSet<String>();
+        pythonPathSet.add(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot/source");
+        String source2Folder = TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot/source2";
+        
+        File f = new File(source2Folder);
+        if(f.exists()){
+        	f.delete();
+        }
+        
+		pythonPathSet.add(source2Folder); //still not created!
+    	PythonNature nature = createNature(pythonPathSet);
+    	
+		project = new ProjectStub(new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot"), nature, false);
+    	provider = new PythonModelProvider();
+		Object[] children1 = provider.getChildren(project);
+		assertEquals(1, children1.length);
+		assertTrue(children1[0] instanceof PythonSourceFolder);
+
+		Set set = new HashSet();
+		
+		f.mkdir();
+		try {
+			FolderStub source2FolderFile = new FolderStub(project, f);
+			set.add(source2FolderFile);
+			provider.interceptAdd(new PipelinedShapeModification(project, set));
+
+			assertEquals(1, set.size());
+			assertTrue(set.iterator().next() instanceof PythonSourceFolder);
+		} finally {
+			f.delete();
+		}
+	}
+    
+    public void testFolderToSourceFolder() throws Exception {
+    	final HashSet<String> pythonPathSet = new HashSet<String>();
+    	pythonPathSet.add(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot/source");
+    	String source2Folder = TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot/source2";
+    	
+    	File f = new File(source2Folder);
+    	File f1 = new File(f, "childFolder");
+    	
+    	if(f1.exists()){
+    		f1.delete();
+    	}
+    	if(f.exists()){
+    		f.delete();
+    	}
+    	
+    	pythonPathSet.add(source2Folder); //still not created!
+    	PythonNature nature = createNature(pythonPathSet);
+    	
+    	project = new ProjectStub(new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot"), nature, false);
+    	provider = new PythonModelProvider();
+    	Object[] children1 = provider.getChildren(project);
+    	assertEquals(1, children1.length);
+    	assertTrue(children1[0] instanceof PythonSourceFolder);
+    	
+    	
+    	f.mkdir();
+    	f1.mkdir();
+    	try {
+    		FolderStub source2FolderFile = new FolderStub(project, f);
+    		FolderStub source2FolderChild = new FolderStub(project, source2FolderFile, f1);
+    		
+    		Set set = new HashSet();
+    		set.add(source2FolderChild);
+    		provider.interceptAdd(new PipelinedShapeModification(source2FolderFile, set));
+    		
+    		assertEquals(1, set.size());
+			PythonFolder c = (PythonFolder) set.iterator().next();
+			PythonSourceFolder sourceFolder = c.getSourceFolder();
+			assertTrue(sourceFolder instanceof PythonSourceFolder);
+
+			set.clear();
+			set.add(source2FolderChild);
+			provider.interceptAdd(new PipelinedShapeModification(source2FolderFile, set));
+    	} finally {
+    		f1.delete();
+    		f.delete();
+    	}
+    }
+    
+    public void testFolderToSourceFolder2() throws Exception {
+    	final HashSet<String> pythonPathSet = new HashSet<String>();
+    	pythonPathSet.add(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot/source");
+    	String source2Folder = TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot/source2";
+    	
+    	File f = new File(source2Folder);
+    	File f1 = new File(f, "childFolder");
+    	File f2 = new File(f1, "rechildFolder");
+    	
+    	if(f2.exists()){
+    		f2.delete();
+    	}
+    	
+    	if(f1.exists()){
+    		f1.delete();
+    	}
+    	if(f.exists()){
+    		f.delete();
+    	}
+    	
+    	pythonPathSet.add(source2Folder); //still not created!
+    	PythonNature nature = createNature(pythonPathSet);
+    	
+    	project = new ProjectStub(new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot"), nature, false);
+    	provider = new PythonModelProvider();
+    	Object[] children1 = provider.getChildren(project);
+    	assertEquals(1, children1.length);
+    	assertTrue(children1[0] instanceof PythonSourceFolder);
+    	
+    	
+    	f.mkdir();
+    	f1.mkdir();
+    	f2.mkdir();
+    	try {
+    		FolderStub source2FolderFile = new FolderStub(project, f);
+    		FolderStub source2FolderChild = new FolderStub(project, source2FolderFile, f1);
+    		FolderStub source2FolderReChild = new FolderStub(project, source2FolderChild, f2);
+    		
+    		Set set = new HashSet();
+    		set.add(source2FolderReChild);
+    		provider.interceptAdd(new PipelinedShapeModification(source2FolderChild, set));
+    		
+    		assertEquals(1, set.size());
+    		PythonFolder c = (PythonFolder) set.iterator().next();
+    		PythonSourceFolder sourceFolder = c.getSourceFolder();
+    		assertTrue(sourceFolder instanceof PythonSourceFolder);
+    		
+    		set.clear();
+    		set.add(source2FolderChild);
+    		provider.interceptRemove(new PipelinedShapeModification(source2FolderFile, set));
+    		assertTrue(set.iterator().next() instanceof PythonFolder);
+//    		System.out.println(set);
+    		
+    		set.clear();
+    		set.add(source2FolderReChild);
+    		provider.interceptAdd(new PipelinedShapeModification(source2FolderChild, set));
+    		assertTrue(set.iterator().next() instanceof PythonFolder);
+//    		System.out.println(set);
+    		
+    		
+    		set.clear();
+    		set.add(source2FolderChild);
+    		provider.interceptRemove(new PipelinedShapeModification(source2FolderFile, set));
+    		assertTrue(set.iterator().next() instanceof PythonFolder);
+//    		System.out.println(set);
+    		
+    		
+    		set.clear();
+    		set.add(source2FolderReChild);
+    		provider.interceptAdd(new PipelinedShapeModification(source2FolderChild, set));
+    		assertTrue(set.iterator().next() instanceof PythonFolder);
+//    		System.out.println(set);
+    		
+    		
+    		
+    		
+    		
+    	} finally {
+    		f2.delete();
+    		f1.delete();
+    		f.delete();
+    	}
     }
     
 }

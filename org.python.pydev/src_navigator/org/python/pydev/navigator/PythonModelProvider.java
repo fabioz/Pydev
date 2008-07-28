@@ -553,6 +553,29 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
                             childrenItr.remove();
                             convertedChildren.add(new PythonResource(parent, (IResource) child, parent.getSourceFolder()));
                         }
+                        
+                    }else if(res instanceof IFolder){
+                    	//ok, still not in the model... could it be a PythonSourceFolder
+                        IFolder folder = (IFolder) res;
+                        IProject project = folder.getProject();
+                        if(project == null){
+                        	continue;
+                        }
+						PythonNature nature = PythonNature.getPythonNature(project);
+                        if(nature== null){
+                            continue;
+                        }
+                        Set<String> sourcePathSet = new HashSet<String>();
+                        try {
+                            sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet();
+                        } catch (CoreException e) {
+                            PydevPlugin.log(e);
+                        }        
+                        PythonSourceFolder wrapped = tryWrapSourceFolder(p, folder, sourcePathSet);
+                        if(wrapped != null){
+                        	childrenItr.remove();
+                        	convertedChildren.add(wrapped);
+                        }
                     }
                 }
                 
