@@ -61,22 +61,27 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @author Fabio
      */
     protected class RebuildPythonNatureModules extends Job {
-        private String paths;
+        private String submittedPaths;
+        private String submittedInterpreter;
 
-        private String defaultSelectedInterpreter;
-
-        private PythonNature nature;
-
-        protected RebuildPythonNatureModules(String name, String paths, String defaultSelectedInterpreter, PythonNature nature) {
-            super(name);
-            this.paths = paths;
-            this.defaultSelectedInterpreter = defaultSelectedInterpreter;
-            this.nature = nature;
+        protected RebuildPythonNatureModules() {
+          super("Python Nature: rebuilding modules");
+        }
+    
+        public synchronized void setParams(String paths, String defaultSelectedInterpreter) {
+            submittedPaths = paths;
+            submittedInterpreter = defaultSelectedInterpreter;
         }
 
         @SuppressWarnings("unchecked")
         protected IStatus run(IProgressMonitor monitorArg) {
 
+            String paths, defaultSelectedInterpreter;
+            synchronized (this) {
+              paths = submittedPaths;
+              defaultSelectedInterpreter = submittedInterpreter;
+            }
+            
             try {
                 JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Rebuilding modules", IProgressMonitor.UNKNOWN, this);
                 try {
@@ -95,7 +100,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                         List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
                         for (IInterpreterObserver observer : participants) {
                             try {
-                                observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator, defaultSelectedInterpreter);
+                                observer.notifyProjectPythonpathRestored(PythonNature.this, jobProgressComunicator, defaultSelectedInterpreter);
                             } catch (Exception e) {
                             	//let's keep it safe
                                 PydevPlugin.log(e);
@@ -107,13 +112,11 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 }
 
                 initializationFinished = true;
-                PythonNatureListenersManager.notifyPythonPathRebuilt(project, nature.pythonPathNature.getCompleteProjectPythonPath(null)); //default
+                PythonNatureListenersManager.notifyPythonPathRebuilt(project, PythonNature.this.pythonPathNature.getCompleteProjectPythonPath(null)); //default
                 //end task
                 jobProgressComunicator.done();
             }catch (Exception e) {
                 Log.log(e);
-            } finally {
-                rebuildJob = null;
             }
             return Status.OK_STATUS;
         }
@@ -469,19 +472,17 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 	}
 
 
-    private volatile Job rebuildJob;
+    private RebuildPythonNatureModules rebuildJob = new RebuildPythonNatureModules();
     
     /**
      * This method is called whenever the pythonpath for the project with this nature is changed. 
      */
     private synchronized void rebuildPath(final String defaultSelectedInterpreter, final String paths) {
-        if(rebuildJob != null){
-            return;//already in rebuild
-        }
-        final PythonNature nature = this;
-        rebuildJob = new RebuildPythonNatureModules("Python Nature: rebuilding modules", paths, defaultSelectedInterpreter, nature);
-        rebuildJob.schedule();
+        rebuildJob.cancel();
+        rebuildJob.setParams(paths, defaultSelectedInterpreter);
+        rebuildJob.schedule(20L);
     }
+        
     
     /**
      * @return Returns the completionsCache.
