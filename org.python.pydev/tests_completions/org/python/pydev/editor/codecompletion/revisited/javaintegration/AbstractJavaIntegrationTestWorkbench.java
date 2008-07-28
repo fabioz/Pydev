@@ -298,14 +298,25 @@ public class AbstractJavaIntegrationTestWorkbench extends TestCase{
         return javaProject;
     }
 
-
+    
     /**
      * Creates a source folder and configures the project to use it and the junit.jar
      */
     protected IFolder createSourceFolder(IProgressMonitor monitor, IProject project) throws CoreException {
+    	return createSourceFolder(monitor, project, true);
+    }
+
+    /**
+     * Creates a source folder and configures the project to use it and the junit.jar
+     * 
+     * @param addNature if false, no nature will be initially added to the project (if true, the nature will be added)
+     */
+    protected IFolder createSourceFolder(IProgressMonitor monitor, IProject project, boolean addNature) throws CoreException {
         IFolder sourceFolder = project.getFolder(new Path("src"));
         sourceFolder.create(true, true, monitor);
-        PythonNature.addNature(project, monitor, PythonNature.JYTHON_VERSION_2_1, "/pydev_unit_test_project/src|/pydev_unit_test_project/junit.jar");
+        if(addNature){
+        	PythonNature.addNature(project, monitor, PythonNature.JYTHON_VERSION_2_1, "/pydev_unit_test_project/src|/pydev_unit_test_project/junit.jar");
+        }
         return sourceFolder;
     }
 

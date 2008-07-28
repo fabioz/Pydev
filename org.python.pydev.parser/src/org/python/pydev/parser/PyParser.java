@@ -183,8 +183,27 @@ public class PyParser implements IPyParser {
      * @param editorView
      */
     public PyParser(IPyEdit editorView) {
-        this(editorView.getPythonNature());
+        this(getGrammarProviderFromEdit(editorView));
     }
+
+    /**
+     * @param editorView this is the editor that we're getting in the parser
+     * @return a provider signaling the grammar to be used for the parser.
+     */
+	private static IGrammarVersionProvider getGrammarProviderFromEdit(IPyEdit editorView) {
+		try {
+			return editorView.getPythonNature();
+		} catch (RuntimeException e) {
+			//let's treat that correctly even if we do not have a default grammar (just log it)
+			return new IGrammarVersionProvider(){
+
+				@Override
+				public int getGrammarVersion() {
+					return IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
+				}
+			};
+		}
+	}
 
 
     /**

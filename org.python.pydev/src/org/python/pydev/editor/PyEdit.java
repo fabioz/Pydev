@@ -1123,6 +1123,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         }
     }
 
+    
     /**
      * @return the python nature associated with this editor.
      */
@@ -1132,18 +1133,27 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
             return null;
         }
         IPythonNature pythonNature = PythonNature.getPythonNature(project);
-        if(pythonNature == null){
-            Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
-            if(infoForFile == null){
-                NotConfiguredInterpreterException e = new NotConfiguredInterpreterException();
-                ErrorDialog.openError(PyAction.getShell(), 
-                        "Error: no interpreter configured", "Interpreter not configured\n(Please, Configure it under window->preferences->PyDev)", 
-                        PydevPlugin.makeStatus(IStatus.ERROR, e.getMessage(), e));
-                throw e;
-                
-            }
-            pythonNature = infoForFile.o1;
+        if(pythonNature != null){
+        	return pythonNature;
         }
+        	
+		//if it's an external file, there's the possibility that it won't be added even here.
+		pythonNature = PythonNature.addNature(this.getEditorInput());
+    	
+    	if(pythonNature != null){
+    		return pythonNature;
+    	}
+    	
+    	Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
+    	if(infoForFile == null){
+    		NotConfiguredInterpreterException e = new NotConfiguredInterpreterException();
+    		ErrorDialog.openError(PyAction.getShell(), 
+    				"Error: no interpreter configured", "Interpreter not configured\n(Please, Configure it under window->preferences->PyDev)", 
+    				PydevPlugin.makeStatus(IStatus.ERROR, e.getMessage(), e));
+    		throw e;
+    		
+    	}
+    	pythonNature = infoForFile.o1;
         return pythonNature;
     }
 

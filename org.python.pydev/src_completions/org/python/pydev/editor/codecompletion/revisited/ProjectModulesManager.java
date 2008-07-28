@@ -40,6 +40,7 @@ import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesK
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.ui.NotConfiguredInterpreterException;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
@@ -188,7 +189,11 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     	}
         IInterpreterManager iMan = PydevPlugin.getInterpreterManager(nature);
         if(defaultSelectedInterpreter == null){
-        	defaultSelectedInterpreter = iMan.getDefaultInterpreter();
+        	try {
+				defaultSelectedInterpreter = iMan.getDefaultInterpreter();
+			} catch (NotConfiguredInterpreterException e) {
+				return null; //not configured
+			}
         }
         InterpreterInfo info = (InterpreterInfo) iMan.getInterpreterInfo(defaultSelectedInterpreter, new NullProgressMonitor());
         if(info == null){
@@ -413,7 +418,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         ISystemModulesManager systemModulesManager = getSystemModulesManager(null);
         if(systemModulesManager == null){
         	//may happen in initialization
-        	PydevPlugin.log("System modules manager still not available (still initializing).");
+//        	PydevPlugin.log("System modules manager still not available (still initializing or not set).");
         	return new IModulesManager[]{};
         }
         
