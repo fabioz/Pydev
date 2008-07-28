@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.actions.MoveResourceAction;
 
@@ -62,6 +63,11 @@ public class PyMoveResourceAction extends MoveResourceAction{
     @Override
     protected List getSelectedResources() {
         return selected;
+    }
+    
+    @Override
+    public IStructuredSelection getStructuredSelection() {
+    	return new StructuredSelection(selected);
     }
     
     /*

@@ -11,6 +11,7 @@ Pydev
 <li><strong>Ctr+/</strong>: Changed to toggle comment (instead of only comment) -- patch from Christoph Pickl</li>
 <li><strong>Eclipse 3.2</strong>: Interactive console working / fixed some incompatibilities</li>
 <li><strong>Eclipse 3.4</strong>: Hyperlinks working</li>
+<li><strong>Eclipse 3.4</strong>: Move / rename working</li>
 <li><strong>raw_input() and input()</strong>: functions are now changed when a program is launched from eclipse to consider a trailing '\r'</li>
 <li><strong>Pydev package explorer</strong>: Link working with compare editor</li>
 <li><strong>Auto-indent</strong>: Fixed problem when smart indent was turned off</li>
@@ -22,6 +23,7 @@ Pydev
 <li>Applied patch that fixes race condition in PythonNature (thanks to Radim Kubacki)</li>
 <li>Fixed bug related to having multiple editors with the same file (while having the spell service on)</li>
 <li>Applying a template could have the wrong end line delimiter applied</li>
+<li>Fixed NPE when creating editor with no interpreter configured</li>
 </ul>
 
 after 1.3.17

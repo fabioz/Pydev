@@ -71,20 +71,17 @@ public class PyDeleteResourceAction extends DeleteResourceAction {
     }
     
 
-	@Override
-	public IStructuredSelection getStructuredSelection() {
-		ISelection selection = provider.getSelection();
-		if (!selection.isEmpty()) {
-			IStructuredSelection sSelection = (IStructuredSelection) selection;
-			return sSelection;
-		}
-		return new StructuredSelection();
-	}
 	
     @Override
     protected List getSelectedResources() {
         return selected;
     }
+    
+    @Override
+    public IStructuredSelection getStructuredSelection() {
+    	return new StructuredSelection(selected);
+    }
+    
     
     /*
      * (non-Javadoc) Method declared on IAction.

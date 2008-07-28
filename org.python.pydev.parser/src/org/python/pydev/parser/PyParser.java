@@ -197,7 +197,6 @@ public class PyParser implements IPyParser {
 			//let's treat that correctly even if we do not have a default grammar (just log it)
 			return new IGrammarVersionProvider(){
 
-				@Override
 				public int getGrammarVersion() {
 					return IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
 				}
