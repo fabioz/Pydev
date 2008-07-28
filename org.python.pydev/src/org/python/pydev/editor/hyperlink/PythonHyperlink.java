@@ -3,6 +3,8 @@ package org.python.pydev.editor.hyperlink;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
@@ -47,6 +49,16 @@ public class PythonHyperlink implements IHyperlink {
      */
     public void open() {
         IPyRefactoring pyRefactoring = PyRefactoring.getPyRefactoring();
+        
+        //saves the dirty editors so that hyperlink is correct.
+        IWorkbench workbench = PlatformUI.getWorkbench();
+        if(workbench != null){
+			IWorkbenchWindow workbenchWindow = workbench.getActiveWorkbenchWindow();
+	        if(workbenchWindow != null){
+	        	workbenchWindow.getActivePage().saveAllEditors(false);
+	        }
+        }
+        
         RefactoringRequest refactoringRequest = PyRefactorAction.createRefactoringRequest(null, this.fEditor, new PySelection(this.fEditor));
         try{
             ItemPointer[] pointers = pyRefactoring.findDefinition(refactoringRequest);
@@ -54,7 +66,7 @@ public class PythonHyperlink implements IHyperlink {
             if (pointers.length > 0){
                 PyGoToDefinition.openDefinition(pointers, fEditor, fEditor.getSite().getShell());
             }else{
-                PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
+                workbench.getActiveWorkbenchWindow().getShell().getDisplay().beep();
             }
         }catch(Throwable t){
             PydevPlugin.log(t);
