@@ -55,7 +55,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 	        String moduleName = getModuleName(resource, nature);
 	        boolean force = false;
 	        if(nature != null && moduleName != null){
-	        	AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
+	        	AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
 	        	if(!info.hasInfoOn(moduleName)){
 	        		force = true;
 	        	}
@@ -128,7 +128,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     @Override
     public void visitingWillStart(IProgressMonitor monitor, boolean isFullBuild, IPythonNature nature) {
     	if(isFullBuild){
-	    	AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
+	    	AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
 	    	info.clearAllInfo();
     	}
     }
@@ -140,7 +140,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
      */
     public static void fillDependenciesAndRemoveInfo(String moduleName, PythonNature nature, boolean analyzeDependent, IProgressMonitor monitor, boolean isFullBuild) {
         if(moduleName != null && nature != null){
-            AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
+            AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
             boolean generateDelta;
             if(isFullBuild){
                 generateDelta = false;

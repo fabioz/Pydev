@@ -6,6 +6,7 @@ import junit.framework.TestSuite;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaClassModuleTestWorkbench;
 import org.python.pydev.editor.codecompletion.revisited.jython.JythonCompletionWithBuiltinsTestWorkbench;
 import org.python.pydev.editor.codecompletion.revisited.jython.JythonFindDefinitionTestWorkbench;
+import org.python.pydev.plugin.nature.ProjectImportedHasAstManagerTestWorkbench;
 import org.python.pydev.plugin.nature.SaveFileWithoutNatureTestWorkbench;
 
 import com.python.pydev.codecompletion.JavaIntegrationPydevComTestWorkbench;
@@ -17,6 +18,7 @@ public class AllWorkbenchTests {
         
         //Must be 1st (no nature or interpreter configured)
         suite.addTestSuite(SaveFileWithoutNatureTestWorkbench.class); 
+        suite.addTestSuite(ProjectImportedHasAstManagerTestWorkbench.class); 
         
         suite.addTestSuite(JythonCompletionWithBuiltinsTestWorkbench.class);
         suite.addTestSuite(JythonFindDefinitionTestWorkbench.class);

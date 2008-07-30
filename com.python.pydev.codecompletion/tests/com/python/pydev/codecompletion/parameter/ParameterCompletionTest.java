@@ -67,7 +67,7 @@ public class ParameterCompletionTest extends AdditionalInfoTestsBase {
     // ------------------------------------------------------------------------------------------------- tests
     
     public void testSetup() {
-        AbstractAdditionalInterpreterInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
+        AbstractAdditionalInterpreterInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
         assertTrue(additionalInfo.getAllTokens().size() > 0);
         List<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("existingM", AbstractAdditionalInterpreterInfo.INNER);
         assertTrue(tokensStartingWith.size() == 1);

@@ -105,7 +105,7 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
      */
     protected void addModuleToNature(final SimpleNode ast, String modName, PythonNature natureToAdd) {
         //this is to add the info from the module that we just created...
-        AbstractAdditionalInterpreterInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(natureToAdd.getProject());
+        AbstractAdditionalInterpreterInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(natureToAdd);
         additionalInfo.addAstInfo(ast, modName, natureToAdd, false);
         ModulesManager modulesManager = (ModulesManager) natureToAdd.getAstManager().getModulesManager();
         SourceModule mod = (SourceModule) AbstractModule.createModule(ast, null, modName);

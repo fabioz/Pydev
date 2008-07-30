@@ -63,7 +63,7 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
     }
     
     public void testSetup2() throws CoreException, BadLocationException {
-        AbstractAdditionalInterpreterInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
+        AbstractAdditionalInterpreterInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
         assertTrue(additionalInfo.getAllTokens().size() > 0);
         List<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("MyInvalidClassInInvalidFil", AbstractAdditionalInterpreterInfo.TOP_LEVEL);
         assertEquals("Expecting no tokens. Found: "+tokensStartingWith, 0, tokensStartingWith.size());

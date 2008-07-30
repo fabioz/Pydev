@@ -81,7 +81,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
         if(getSystem){
             additionalInfoForProject = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(PydevPlugin.getInterpreterManager(nature));
         }else{
-            additionalInfoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
+            additionalInfoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
         }
         
         List<IInfo> tokensStartingWith = additionalInfoForProject.getTokensStartingWith(

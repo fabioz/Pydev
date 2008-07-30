@@ -102,7 +102,7 @@ public class PyGlobalsBrowser extends PyAction{
         
         List<IPythonNature> natures = PythonNature.getPythonNaturesRelatedTo(useManager.getRelatedId());
         for (IPythonNature nature : natures) {
-            AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
+            AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
             if(info != null){
                 additionalInfo.add(info);
             }

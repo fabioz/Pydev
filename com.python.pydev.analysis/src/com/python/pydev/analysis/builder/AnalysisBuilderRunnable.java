@@ -214,7 +214,7 @@ public class AnalysisBuilderRunnable implements Runnable{
     	if(resource == null){
     		return;
     	}
-        AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
+        AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
         if(info == null){
         	return;
         }

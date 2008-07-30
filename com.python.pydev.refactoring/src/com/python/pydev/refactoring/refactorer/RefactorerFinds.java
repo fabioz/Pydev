@@ -104,7 +104,7 @@ public class RefactorerFinds {
     
     private void findChildren(RefactoringRequest request, HierarchyNodeModel initialModel, HashMap<HierarchyNodeModel, HierarchyNodeModel> allFound) {
         //and now the children...
-        List<AbstractAdditionalDependencyInfo> infoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProjectAndReferencing(request.nature.getProject());
+        List<AbstractAdditionalDependencyInfo> infoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProjectAndReferencing(request.nature);
         for (AbstractAdditionalDependencyInfo info : infoForProject) {
             info.completeIndex.startGrowAsNeeded(2000); //let's stop the cache misses while we're in this process
         }

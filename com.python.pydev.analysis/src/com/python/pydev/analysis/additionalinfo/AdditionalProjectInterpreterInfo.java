@@ -190,8 +190,8 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
         AdditionalProjectInterpreterInfo.setAdditionalInfoForProject(project, this);
     }
 
-    public static void saveAdditionalInfoForProject(IProject project) {
-        AbstractAdditionalInterpreterInfo info = getAdditionalInfoForProject(project);
+    public static void saveAdditionalInfoForProject(IPythonNature nature) {
+        AbstractAdditionalInterpreterInfo info = getAdditionalInfoForProject(nature);
         info.save();
     }
 
@@ -221,17 +221,17 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
     
         //get for the current project
         if(project != null){
-	        AbstractAdditionalInterpreterInfo additionalInfoForProject = getAdditionalInfoForProject(project);
+	        AbstractAdditionalInterpreterInfo additionalInfoForProject = getAdditionalInfoForProject(nature);
 	        if(additionalInfoForProject != null){
 	            ret.add(additionalInfoForProject);
-	            natures.add(PythonNature.getPythonNature(project));
+	            natures.add(nature);
 	        }
 	        
 	        try {
 	            //get for the referenced projects
 	            IProject[] referencedProjects = project.getReferencedProjects();
 	            for (IProject refProject : referencedProjects) {
-	                additionalInfoForProject = getAdditionalInfoForProject(refProject);
+	                additionalInfoForProject = getAdditionalInfoForProject(PythonNature.getPythonNature(refProject));
 	                if(additionalInfoForProject != null){
 	                    ret.add(additionalInfoForProject);
 	                    natures.add(PythonNature.getPythonNature(refProject));
@@ -241,7 +241,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
                 if(addReferencingProjects){
                     IProject[] referencingProjects = project.getReferencingProjects();
                     for (IProject refProject : referencingProjects) {
-                        additionalInfoForProject = getAdditionalInfoForProject(refProject);
+                        additionalInfoForProject = getAdditionalInfoForProject(PythonNature.getPythonNature(refProject));
                         if(additionalInfoForProject != null){
                             ret.add(additionalInfoForProject);
                             natures.add(PythonNature.getPythonNature(refProject));
@@ -260,14 +260,19 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
      * @param project the project we want to get info on
      * @return the additional info for a given project (gotten from the cache with its name)
      */
-    public static AbstractAdditionalDependencyInfo getAdditionalInfoForProject(IProject project) {
+    public static AbstractAdditionalDependencyInfo getAdditionalInfoForProject(IPythonNature nature) {
+    	if(nature == null){
+    		return null;
+    	}
+    	IProject project = nature.getProject();
+    	if(project == null){
+    		return null;
+    	}
         String name = REF.getValidProjectName(project);
         AbstractAdditionalDependencyInfo info = additionalNatureInfo.get(name);
         if(info == null){
-            if(PythonNature.getPythonNature(project) != null){
-                info = new AdditionalProjectInterpreterInfo(project);
-                additionalNatureInfo.put(name, info);
-            }
+            info = new AdditionalProjectInterpreterInfo(project);
+            additionalNatureInfo.put(name, info);
         }
         return info;
     }
@@ -281,8 +286,8 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
         additionalNatureInfo.put(REF.getValidProjectName(project), info);
     }
 
-    public static boolean loadAdditionalInfoForProject(IProject project) {
-        AbstractAdditionalDependencyInfo info = getAdditionalInfoForProject(project);
+    public static boolean loadAdditionalInfoForProject(IPythonNature nature) {
+        AbstractAdditionalDependencyInfo info = getAdditionalInfoForProject(nature);
         return info.load();
     }
 
@@ -311,13 +316,14 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
      * @param project the project we want to get info on
      * @return a list of the additional info for the project + referencing projects
      */
-    public static List<AbstractAdditionalDependencyInfo> getAdditionalInfoForProjectAndReferencing(IProject project) {
+    public static List<AbstractAdditionalDependencyInfo> getAdditionalInfoForProjectAndReferencing(IPythonNature nature) {
         List<AbstractAdditionalDependencyInfo> ret = new ArrayList<AbstractAdditionalDependencyInfo>();
-        ret.add(getAdditionalInfoForProject(project));
+        ret.add(getAdditionalInfoForProject(nature));
         
+        IProject project = nature.getProject();
         IProject[] referencingProjects = project.getReferencingProjects();
         for (IProject p : referencingProjects) {
-            AbstractAdditionalDependencyInfo info2 = getAdditionalInfoForProject(p);
+            AbstractAdditionalDependencyInfo info2 = getAdditionalInfoForProject(PythonNature.getPythonNature(p));
             if(info2 != null){
                 ret.add(info2);
             }

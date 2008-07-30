@@ -18,7 +18,6 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.performanceeval.Timer;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.ErrorDescription;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
@@ -235,7 +234,7 @@ public class InterpreterObserver implements IInterpreterObserver {
 			IModulesManager m = nature.getAstManager().getModulesManager();
 			IProject project = nature.getProject();
             
-            AbstractAdditionalDependencyInfo currInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(project);
+            AbstractAdditionalDependencyInfo currInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
             if(currInfo != null){
                 currInfo.clearAllInfo();
             }
@@ -249,7 +248,7 @@ public class InterpreterObserver implements IInterpreterObserver {
 				if (info != null) {
 					//ok, set it and save it
 					AdditionalProjectInterpreterInfo.setAdditionalInfoForProject(project, info);
-					AdditionalProjectInterpreterInfo.saveAdditionalInfoForProject(project);
+					AdditionalProjectInterpreterInfo.saveAdditionalInfoForProject(nature);
 				}
 			}
 		} catch (Exception e) {
@@ -259,7 +258,7 @@ public class InterpreterObserver implements IInterpreterObserver {
     }
 
     public void notifyNatureRecreated(final PythonNature nature, IProgressMonitor monitor) {
-        if(!AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature.getProject())){
+        if(!AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature)){
             if(DEBUG_INTERPRETER_OBSERVER){
                 System.out.println("Unable to load the info correctly... restoring info from the pythonpath");
             }
