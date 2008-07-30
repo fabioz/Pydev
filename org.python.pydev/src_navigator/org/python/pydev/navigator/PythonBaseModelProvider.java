@@ -99,6 +99,9 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
      * Notification received when the pythonpath has been changed or rebuilt.
      */
     public void notifyPythonPathRebuilt(IProject project, List<String> projectPythonpath) {
+    	if(project == null){
+    		return;
+    	}
     	internalDoNotifyPythonPathRebuilt(project, projectPythonpath);
     }
 

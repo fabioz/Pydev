@@ -86,7 +86,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     }
     
     
-	public abstract void setProject(IProject project, boolean restoreDeltas) ;
+	public abstract void setProject(IProject project, IPythonNature nature, boolean restoreDeltas) ;
 
 	public abstract void rebuildModule(File file, IDocument doc, IProject project, IProgressMonitor monitor, IPythonNature nature) ;
 

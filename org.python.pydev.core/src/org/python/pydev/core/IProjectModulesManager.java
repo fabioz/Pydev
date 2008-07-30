@@ -19,7 +19,7 @@ public interface IProjectModulesManager extends IModulesManager {
      * @param project the project related to this manager
      * @param restoreDeltas says whether deltas should be restored (if they are not, they should be discarded)
      */
-    public abstract void setProject(IProject project, boolean restoreDeltas);
+    public abstract void setProject(IProject project, IPythonNature nature, boolean restoreDeltas);
 
     public abstract void processUpdate(ModulesKey data);
 

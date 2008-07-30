@@ -41,8 +41,8 @@ public class ASTManager extends AbstractASTManager implements ICodeCompletionAST
     /**
      * Set the project this ast manager works with.
      */
-    public void setProject(IProject project, boolean restoreDeltas){
-        getProjectModulesManager().setProject(project, restoreDeltas);
+    public void setProject(IProject project, IPythonNature nature, boolean restoreDeltas){
+        getProjectModulesManager().setProject(project, nature, restoreDeltas);
     }
 
     public IModulesManager getModulesManager(){

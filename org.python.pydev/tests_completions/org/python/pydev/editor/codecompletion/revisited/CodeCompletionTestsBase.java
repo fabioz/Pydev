@@ -207,7 +207,7 @@ public class CodeCompletionTestsBase extends TestCase {
         
         ASTManager astManager = ((ASTManager)pNature.getAstManager());
         astManager.setNature(pNature);
-        astManager.setProject(projectStub, false);
+        astManager.setProject(projectStub, pNature, false);
         astManager.changePythonPath(path, projectStub, getProgressMonitor(),null);
     }
 

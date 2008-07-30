@@ -269,6 +269,9 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
         if(DEBUG_GET_MODULE){
             System.out.println("Trying to get module in java project modules manager: "+name);
         }
+        if(name.startsWith(".")){ //this happens when looking for a relative import
+        	return null;
+        }
         try {
             IJavaElement javaElement = this.javaProject.findType(name);
             if(javaElement == null){
@@ -381,7 +384,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
         throw new RuntimeException("Not implemented");
     }
     
-    public void setProject(IProject project, boolean restoreDeltas) {
+    public void setProject(IProject project, IPythonNature nature, boolean restoreDeltas) {
         throw new RuntimeException("Not implemented");
     }
 

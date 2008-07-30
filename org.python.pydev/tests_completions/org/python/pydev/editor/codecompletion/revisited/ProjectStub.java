@@ -258,7 +258,7 @@ public class ProjectStub implements IProject {
     }
 
     public IPath getFullPath() {
-        throw new RuntimeException("not impl");
+        return null;
     }
 
     public long getLocalTimeStamp() {

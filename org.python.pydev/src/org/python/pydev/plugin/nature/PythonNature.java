@@ -91,7 +91,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                     }
                     synchronized(tempAstManager){
                     	astManager = tempAstManager;
-                    	tempAstManager.setProject(getProject(), false); //it is a new manager, so, remove all deltas
+                    	tempAstManager.setProject(getProject(), PythonNature.this, false); //it is a new manager, so, remove all deltas
 
                         //begins task automatically
                     	tempAstManager.changePythonPath(paths, project, jobProgressComunicator, defaultSelectedInterpreter);
@@ -210,7 +210,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      */
     public void setProject(IProject project) {
     	this.getStore().setProject(project);
-        this.pythonPathNature.setProject(project);
+        this.pythonPathNature.setProject(project, this);
         this.project = project;
     }
 
@@ -250,7 +250,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         
         try {
             //we have to remove the project from the pythonpath nature too...
-            nature.pythonPathNature.setProject(null);
+            nature.pythonPathNature.setProject(null, null);
         } catch (Exception e) {
             PydevPlugin.log(e);
         }
@@ -321,7 +321,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             project.setDescription(desc, monitor);
         }
 
-        IProjectNature n = project.getNature(PYTHON_NATURE_ID);
+        IProjectNature n = getPythonNature(project);
         if (n instanceof PythonNature) {
             PythonNature nature = (PythonNature) n;
             //call initialize always - let it do the control.
@@ -378,50 +378,52 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             }
             
             final PythonNature nature = this;
-            if (initializationStarted == false) {
-                initializationStarted = true;
-                
-                //Change: 1.3.10: no longer in a Job... should already be called in a job if that's needed.
+            synchronized (nature) {
+				if(initializationStarted){
+					return;
+				}
+				initializationStarted = true;
+			}
+            //Change: 1.3.10: no longer in a Job... should already be called in a job if that's needed.
     
+            try {
+				astManager = (ICodeCompletionASTManager) ASTManager.loadFromFile(getAstOutputFile());
+				if (astManager != null) {
+					synchronized (astManager) {
+						astManager.setProject(getProject(), this, true); // this is the project related to it, restore the deltas (we may have some crash)
+
+						//just a little validation so that we restore the needed info if we did not get the modules
+						if (astManager.getModulesManager().getOnlyDirectModules().length < 5) {
+							astManager = null;
+						}
+
+						if (astManager != null) {
+							List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+							for (IInterpreterObserver observer : participants) {
+								try {
+									observer.notifyNatureRecreated(nature, monitor);
+								} catch (Exception e) {
+									//let's not fail because of other plugins
+									PydevPlugin.log(e);
+								}
+							}
+						}
+					}
+				}
+			} catch (Exception e) {
+				PydevPlugin.log(e);
+				astManager = null;
+			}
+            
+            //errors can happen when restoring it
+            if(astManager == null){
                 try {
-    				astManager = (ICodeCompletionASTManager) ASTManager.loadFromFile(getAstOutputFile());
-    				if (astManager != null) {
-    					synchronized (astManager) {
-    						astManager.setProject(getProject(), true); // this is the project related to it, restore the deltas (we may have some crash)
-    
-    						//just a little validation so that we restore the needed info if we did not get the modules
-    						if (astManager.getModulesManager().getOnlyDirectModules().length < 5) {
-    							astManager = null;
-    						}
-    
-    						if (astManager != null) {
-    							List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
-    							for (IInterpreterObserver observer : participants) {
-    								try {
-    									observer.notifyNatureRecreated(nature, monitor);
-    								} catch (Exception e) {
-    									//let's not fail because of other plugins
-    									PydevPlugin.log(e);
-    								}
-    							}
-    						}
-    					}
-    				}
-    			} catch (Exception e) {
-    				PydevPlugin.log(e);
-    				astManager = null;
-    			}
-                
-                //errors can happen when restoring it
-                if(astManager == null){
-                    try {
-                        rebuildPath(null, monitor);
-                    } catch (Exception e) {
-                        PydevPlugin.log(e);
-                    }
+                    rebuildPath(null, monitor);
+                } catch (Exception e) {
+                    PydevPlugin.log(e);
                 }
-                initializationFinished = true;
             }
+            initializationFinished = true;
         }
     }
 
@@ -545,8 +547,9 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     		return null;
     	}
     	return getPythonNature(resource.getProject());
-    	
     }
+    
+    
     /**
      * @param project the project we want to know about (if it is null, null is returned)
      * @return the python nature for a project (or null if it does not exist for the project)

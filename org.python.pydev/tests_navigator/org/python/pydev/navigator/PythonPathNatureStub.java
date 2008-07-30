@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 
 public class PythonPathNatureStub implements IPythonPathNature{
@@ -40,7 +41,7 @@ public class PythonPathNatureStub implements IPythonPathNature{
         return projectSourcePathSet;
     }
 
-    public void setProject(IProject project) {
+    public void setProject(IProject project, IPythonNature nature) {
         throw new RuntimeException("Not impl");
         
     }

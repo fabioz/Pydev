@@ -4,6 +4,7 @@ Pydev Extensions
 <ul>
 <li><strong>Code Analysis</strong>: Not all unused imports are shown in the message anymore (could give problems saving workspace).</li>
 <li><strong>Code Analysis</strong>: Fixed problem on double cycle in list comprehension.</li>
+<li><strong>Interpreter config</strong>: The initial parse of the modules is much faster.</li>
 </ul>
 
 Pydev

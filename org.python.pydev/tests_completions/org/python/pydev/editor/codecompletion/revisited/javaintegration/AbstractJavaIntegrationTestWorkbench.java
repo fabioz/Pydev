@@ -136,10 +136,16 @@ public class AbstractJavaIntegrationTestWorkbench extends TestCase{
     
     
     
+    protected void goToManual() {
+    	goToManual(-1);
+    }
+    
     /**
      * Goes to 'manual' mode to allow the interaction with the opened eclipse instance.
      */
-    protected void goToManual() {
+    protected void goToManual(long millis) {
+    	long finishAt = System.currentTimeMillis()+millis;
+    	
         System.out.println("going to manual...");
         Display display = Display.getCurrent();
         if(display == null){
@@ -149,6 +155,9 @@ public class AbstractJavaIntegrationTestWorkbench extends TestCase{
         while (!shell.isDisposed()) {
             if (!display.readAndDispatch()){
                 display.sleep();
+            }
+            if(millis > 0 && finishAt<System.currentTimeMillis()){
+            	break;
             }
         }
         System.out.println("finishing...");

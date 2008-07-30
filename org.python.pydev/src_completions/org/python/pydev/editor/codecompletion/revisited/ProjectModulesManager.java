@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.ICallback;
@@ -35,6 +36,7 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaProjectModulesManagerCreator;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesKeyForJava;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -69,9 +71,9 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#setProject(org.eclipse.core.resources.IProject, boolean)
      */
-    public void setProject(IProject project, boolean restoreDeltas){
+    public void setProject(IProject project, IPythonNature nature, boolean restoreDeltas){
         this.project = project;
-        this.nature = PythonNature.getPythonNature(project);
+        this.nature = nature;
         this.deltaSaver = new DeltaSaver<ModulesKey>(this.nature.getCompletionsCacheDir(), "astdelta", new ICallback<Object, ObjectInputStream>(){
 
             public ModulesKey call(ObjectInputStream arg) {
@@ -494,6 +496,8 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
 	                if(projectModulesManager != null){
 	                    list.add((IModulesManager) projectModulesManager);
 	                }
+	            }else{
+	            	Log.log(IStatus.WARNING, "No ast manager configured for :"+project.getName(), null);
 	            }
             }
 	        IModulesManager javaModulesManagerForProject = JavaProjectModulesManagerCreator.createJavaProjectModulesManagerIfPossible(project);

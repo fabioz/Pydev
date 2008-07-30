@@ -1,0 +1,137 @@
+package org.python.pydev.plugin.nature;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.jobs.IJobManager;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
+import org.python.pydev.core.REF;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaIntegrationTestWorkbench;
+
+public class ProjectImportedHasAstManagerTestWorkbench  extends AbstractJavaIntegrationTestWorkbench{
+	
+    protected void setUp() throws Exception {
+    	//no setup (because we won't have the nature in this test)
+    }
+    
+
+    
+    public void testEditWithNoNature() throws Exception {
+    	NullProgressMonitor monitor = new NullProgressMonitor();
+    	
+        IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+        IPath workspaceLoc = root.getRawLocation();
+		IProject project = root.getProject("pydev_nature_pre_configured");
+        if(project.exists()){
+            project.delete(true, monitor);
+        }
+
+        //let's create its structure
+        IPath projectLoc = workspaceLoc.append("pydev_nature_pre_configured");
+		projectLoc.toFile().mkdir();
+
+        
+        writeProjectFile(projectLoc.append(".project"));
+        
+        writePydevProjectFile(projectLoc.append(".pydevproject"));
+        File srcLocFile = projectLoc.append("src").toFile();
+		srcLocFile.mkdir();
+
+        assertTrue(!project.exists());
+        project.create(monitor);
+        project.open(monitor);
+        project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+        IJobManager jobManager = Job.getJobManager();
+        jobManager.resume();
+        PythonNature nature = (PythonNature) PythonNature.addNature(project, null, null, null);
+        
+
+        //Let's give it some time to run the jobs that restore the nature
+    	long finishAt = System.currentTimeMillis()+5000; //5 secs is the max tie
+    	
+        Display display = Display.getCurrent();
+        if(display == null){
+            display = Display.getDefault();
+        }
+        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()){
+                display.sleep();
+            }
+            if(finishAt<System.currentTimeMillis()){
+            	break;
+            }
+            if(nature != null){
+            	if(nature.getAstManager() != null){
+            		break;
+            	}
+            }
+        }
+
+        
+        assertTrue(nature != null);
+        assertTrue(nature.getAstManager() != null);
+        PythonPathHelper pythonPathHelper = (PythonPathHelper) nature.getAstManager().getModulesManager().getPythonPathHelper();
+        List<String> lst = new ArrayList<String>();
+        lst.add(REF.getFileAbsolutePath(srcLocFile));
+		assertEquals(lst, pythonPathHelper.getPythonpath());
+
+        
+	}
+
+
+
+	private void writePydevProjectFile(IPath path) {
+		String str = "" +
+				"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
+				"<?eclipse-pydev version=\"1.0\"?>\n" +
+				"<pydev_project>\n" +
+				"<pydev_pathproperty name=\"org.python.pydev.PROJECT_SOURCE_PATH\">\n" +
+				"<path>/pydev_nature_pre_configured/src</path>\n" +
+				"</pydev_pathproperty>\n" +
+				"<pydev_property name=\"org.python.pydev.PYTHON_PROJECT_VERSION\">python 2.4</pydev_property>\n" +
+				"</pydev_project>\n" +
+				"";
+		
+		REF.writeStrToFile(str, path.toFile());
+	}
+
+
+
+	private void writeProjectFile(IPath path) {
+		String str = "" +
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+				"<projectDescription>\n" +
+				"	<name>test_python</name>\n" +
+				"	<comment></comment>\n" +
+				"	<projects>\n" +
+				"		<project>4DLM</project>\n" +
+				"	</projects>\n" +
+				"	<buildSpec>\n" +
+				"		<buildCommand>\n" +
+				"			<name>org.python.pydev.PyDevBuilder</name>\n" +
+				"			<arguments>\n" +
+				"			</arguments>\n" +
+				"		</buildCommand>\n" +
+				"	</buildSpec>\n" +
+				"	<natures>\n" +
+				"		<nature>org.python.pydev.pythonNature</nature>\n" +
+				"	</natures>\n" +
+				"</projectDescription>\n" +
+				"";
+		
+		REF.writeStrToFile(str, path.toFile());
+	}
+
+}

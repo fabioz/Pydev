@@ -8,6 +8,7 @@ package org.python.pydev.plugin.nature;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,12 +33,14 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
@@ -111,6 +114,8 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
     private volatile long modStamp = IFile.NULL_STAMP;
     
+    private volatile String lastLoadedContents = null;
+    
     private volatile int onIgnoreRefresh = 0;
 
     private final Object saveLock = new Object();
@@ -135,6 +140,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     private volatile Document document = null;
     
     private static final boolean TRACE_PYTHON_NATURE_STORE = false;
+    
     private StringBuffer indent = new StringBuffer();
 
     private volatile boolean inInit;  
@@ -180,7 +186,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         	        this.project = project;
         	        this.xmlFile = project.getFile(STORE_FILE_NAME);
         	        try {
-        	            loadFromFile();
+        	            loadFromFile(false);
         	        } catch (CoreException e) {
         	            throw new RuntimeException("Error loading project: "+project, e);
         	        }
@@ -237,7 +243,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      * @return true if some change has actually happened in the file and false otherwise
      * @throws CoreException
      */
-    private synchronized boolean loadFromFile() throws CoreException {
+    private synchronized boolean loadFromFile(boolean refresh) throws CoreException {
         if(this.project == null){
             return false; //deconfigured...
         }
@@ -246,13 +252,22 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         boolean ret;
             try {
                 DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                try{
-                    onIgnoreRefresh++;
-                    xmlFile.refreshLocal(IResource.DEPTH_ZERO, null);
-                }finally{
-                    onIgnoreRefresh--;
+                if(refresh && !xmlFile.isSynchronized(IResource.DEPTH_ZERO)){
+	                try{
+	                    onIgnoreRefresh++;
+	                    xmlFile.refreshLocal(IResource.DEPTH_ZERO, null);
+	                }finally{
+	                    onIgnoreRefresh--;
+	                }
                 }
-                if (!xmlFile.exists()) {
+                
+                IPath rawLocation = xmlFile.getRawLocation();
+				File file = null;
+				if(rawLocation != null){
+					file = rawLocation.toFile();
+            	}
+                
+                if (file == null || !file.exists()) {
                     if (document != null) {
                         // Someone removed the project descriptor, store it from the memory model
                         doStore();
@@ -272,15 +287,22 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                         ret = true;
                     }
                 } else {
-                	try{
-                	    onIgnoreRefresh++;
-                		xmlFile.refreshLocal(0, new NullProgressMonitor());
-                	}catch(Exception e){
-                		PydevPlugin.log(e);
-                	}finally{
-                        onIgnoreRefresh--;   
-                    }
-                    document = parser.parse(xmlFile.getContents());
+                	if(refresh && !xmlFile.isSynchronized(IResource.DEPTH_ZERO)){
+	                	try{
+	                	    onIgnoreRefresh++;
+	                		xmlFile.refreshLocal(IResource.DEPTH_ZERO, null);
+	                	}catch(Exception e){
+	                		PydevPlugin.log(e);
+	                	}finally{
+	                        onIgnoreRefresh--;   
+	                    }
+                	}
+                	String fileContents = REF.getFileContents(file);
+                	if(lastLoadedContents != null && fileContents.equals(lastLoadedContents)){
+                		return false;
+                	}
+                	lastLoadedContents = fileContents;
+                    document = parser.parse(new ByteArrayInputStream(fileContents.getBytes()));
                     modStamp = xmlFile.getModificationStamp();
                     ret = true;
                 }
@@ -770,7 +792,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         if (delta != null) {
             if (xmlFile.getModificationStamp() != modStamp) {
                 try {
-                    if (loadFromFile()) {
+                    if (loadFromFile(true)) {
                         doRebuild = true;
                     }
                 } catch (CoreException e) {

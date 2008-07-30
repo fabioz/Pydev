@@ -19,12 +19,15 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
@@ -35,6 +38,7 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 public class PythonPathNature implements IPythonPathNature {
 
     private IProject project;
+    private PythonNature nature;
 
 
     /**
@@ -59,8 +63,9 @@ public class PythonPathNature implements IPythonPathNature {
     }
 
 
-    public void setProject(IProject project){
+    public void setProject(IProject project, IPythonNature nature){
         this.project = project;
+        this.nature = (PythonNature) nature;
         if(project == null){
             this.projectSourcePathSet = null;//empty
         }
@@ -85,8 +90,6 @@ public class PythonPathNature implements IPythonPathNature {
         if(project == null){
             return null;
         }
-        PythonNature nature = PythonNature.getPythonNature(project);
-        
         if(nature == null) {
             return null;
         }
@@ -149,8 +152,14 @@ public class PythonPathNature implements IPythonPathNature {
                 
                 }else{
 	                //not in workspace?... maybe it was removed, so, do nothing, but let the user know about it
-	                PydevPlugin.log("Unable to find the path "+strings[i]+" in the project were it's \n" +
-	                        "added as a source folder for pydev (project: "+project.getName()+") member:"+r);
+	                Log.log(IStatus.WARNING, "Unable to find the path "+strings[i]+" in the project were it's \n" +
+	                        "added as a source folder for pydev (project: "+project.getName()+") member:"+r, null);
+	                
+	                IPath rootLocation = root.getRawLocation();
+	                //still, let's add it there (this'll be cached for later use)
+	                buf.append(REF.getFileAbsolutePath(rootLocation.append(strings[i].trim()).toFile()));
+	                buf.append("|");
+	                
                 }
             }
         }
@@ -191,14 +200,12 @@ public class PythonPathNature implements IPythonPathNature {
     public void setProjectSourcePath(String newSourcePath) throws CoreException {
         synchronized(project){
             projectSourcePathSet = null;
-            PythonNature nature = PythonNature.getPythonNature(project);
             nature.getStore().setPathProperty(PythonPathNature.getProjectSourcePathQualifiedName(), newSourcePath);
         }
     }
 
     public void setProjectExternalSourcePath(String newExternalSourcePath) throws CoreException {
         synchronized(project){
-        	PythonNature nature = PythonNature.getPythonNature(project);
             nature.getStore().setPathProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName(), newExternalSourcePath);
         }
     }
@@ -226,7 +233,6 @@ public class PythonPathNature implements IPythonPathNature {
         }
         synchronized(project){
             boolean restore = false;
-            PythonNature nature = PythonNature.getPythonNature(project);
             String projectSourcePath = nature.getStore().getPathProperty(PythonPathNature.getProjectSourcePathQualifiedName());
             if(projectSourcePath == null){
             	//has not been set
@@ -243,7 +249,7 @@ public class PythonPathNature implements IPythonPathNature {
                         continue; //go to the next...
                     }
                     IPath projectPath = project.getFullPath();
-                    if(!projectPath.isPrefixOf(p)){
+                    if(projectPath != null && !projectPath.isPrefixOf(p)){
                         p = p.removeFirstSegments(1);
                         p = projectPath.append(p);
                         restore = true;
@@ -274,7 +280,6 @@ public class PythonPathNature implements IPythonPathNature {
         }
         synchronized(project){
             //no need to validate because those are always 'file-system' related
-            PythonNature nature = PythonNature.getPythonNature(project);
         	String extPath = nature.getStore().getPathProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName());
             if(extPath == null){
             	extPath = "";

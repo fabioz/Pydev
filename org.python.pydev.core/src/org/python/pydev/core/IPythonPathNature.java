@@ -21,7 +21,7 @@ public interface IPythonPathNature {
      * Sets the project this python path nature is associated with
      * @param project
      */
-    public void setProject(IProject project);
+    public void setProject(IProject project, IPythonNature nature);
 
     /**
      * @param interpreter: this is the interpreter that should be used for getting the pythonpathString interpreter

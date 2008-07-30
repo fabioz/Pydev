@@ -16,6 +16,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
@@ -46,6 +47,8 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.NotConfiguredInterpreterException;
 
 /**
  * @author Dmoore
@@ -103,9 +106,12 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             
             //list of Object[], IToken or ICompletionProposal
             List<Object> tokensList = new ArrayList<Object>();
-            lazyStartShell(request);
-
-            String trimmed = request.activationToken.replace('.', ' ').trim();
+            try {
+				lazyStartShell(request);
+			} catch (NotConfiguredInterpreterException e) {
+				Log.log(IStatus.WARNING, "Warning: unable to get code-completion for builtins: No interpreter configured.", null);
+			}
+			String trimmed = request.activationToken.replace('.', ' ').trim();
 
             ImportInfo importsTipper = getImportsTipperStr(request);
 
@@ -326,6 +332,8 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             if(DEBUG_CODE_COMPLETION){
                 Log.toLogFile(this,"END AbstractShell.getServerShell");
             }
+        } catch (RuntimeException e) {
+        	throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

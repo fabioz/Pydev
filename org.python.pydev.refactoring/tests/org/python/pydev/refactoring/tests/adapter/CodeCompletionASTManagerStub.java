@@ -139,7 +139,7 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
 		throw new RuntimeException("Not implemented");
 	}
 
-	public void setProject(IProject project, boolean restoreDeltas) {
+	public void setProject(IProject project, IPythonNature nature, boolean restoreDeltas) {
 		throw new RuntimeException("Not implemented");
 	}
 
