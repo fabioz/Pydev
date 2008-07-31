@@ -58,7 +58,9 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences{
 
 
     public void clearCaches() {
-        severityTypeMapCache = null;
+    	synchronized(lock){
+    		severityTypeMapCache = null;
+    	}
     }
     
     HashMap<Integer, Integer> severityTypeMapCache = null;
