@@ -107,7 +107,7 @@ public class IProcessFactory {
 		        }else{
 		        	throw new RuntimeException("Expected interpreter manager to be python or jython related.");
 		        }
-		        process = Runtime.getRuntime().exec(commandLine, env, null);
+		        process = SimpleRunner.createProcess(commandLine, env, null);
 		        PydevSpawnedInterpreterProcess spawnedInterpreterProcess = 
 		        	new PydevSpawnedInterpreterProcess(process, launch);
 		        

@@ -46,6 +46,11 @@ import org.python.pydev.parser.visitors.NodeUtils;
 
 public abstract class AbstractASTManager implements ICodeCompletionASTManager, Serializable {
 
+	/**
+	 * changed to 10L on release 1.3.19
+	 */
+    protected static final long serialVersionUID = 10L;
+    
 	private static final IToken[] EMPTY_ITOKEN_ARRAY = new IToken[0];
     
 	private static final boolean DEBUG_CACHE = false;

@@ -37,10 +37,33 @@ public abstract class SimpleRunner {
      * Passes the commands directly to Runtime.exec (with a null envp)
      */
     public static Process createProcess(String[] cmdarray, File workingDir) throws IOException {
-        return Runtime.getRuntime().exec(cmdarray, null, workingDir);
+        return Runtime.getRuntime().exec(getWithoutEmptyParams(cmdarray), null, workingDir);
+    }
+    
+    /**
+     * Passes the commands directly to Runtime.exec (with a null envp)
+     */
+    public static Process createProcess(String[] cmdarray, String[] envp, File workingDir) throws IOException {
+    	return Runtime.getRuntime().exec(getWithoutEmptyParams(cmdarray), getWithoutEmptyParams(envp), workingDir);
     }
 
     /**
+     * @return a new array without any null/empty elements originally contained in the array.
+     */
+    private static String[] getWithoutEmptyParams(String[] cmdarray) {
+    	if(cmdarray == null){
+    		return null;
+    	}
+    	ArrayList<String> list = new ArrayList<String>();
+    	for (String string : cmdarray) {
+    		if(string != null && string.length() > 0){
+    			list.add(string);
+    		}
+		}
+		return list.toArray(new String[list.size()]);
+	}
+
+	/**
      * THIS CODE IS COPIED FROM org.eclipse.debug.internal.core.LaunchManager
      * 
      * changed so that we always set the PYTHONPATH in the environment
@@ -305,7 +328,7 @@ public abstract class SimpleRunner {
                     throw new RuntimeException(StringUtils.format("Working dir must be an existing directory (received: %s)", workingDir));
                 }
             }
-            process = Runtime.getRuntime().exec(cmdarray, envp, workingDir);
+            process = createProcess(cmdarray, envp, workingDir);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

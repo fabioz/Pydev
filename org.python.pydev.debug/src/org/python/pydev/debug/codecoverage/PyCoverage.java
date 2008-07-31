@@ -18,6 +18,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.utils.PyFileListing;
 import org.python.pydev.utils.PyFileListing.PyFileListingInfo;
 
@@ -255,10 +256,7 @@ public class PyCoverage {
      * @throws IOException
      */
     private Process execute(String[] cmdLine) throws IOException {
-        Process p;
-
-        p = Runtime.getRuntime().exec(cmdLine, null);
-        return p;
+        return SimpleRunner.createProcess(cmdLine, null);
     }
 
 
