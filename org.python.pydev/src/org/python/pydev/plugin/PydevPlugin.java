@@ -189,30 +189,30 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         setPythonInterpreterManager(new PythonInterpreterManager(preferences));
         setJythonInterpreterManager(new JythonInterpreterManager(preferences));
 
-        //restore the nature for all python projects
-        new Job("PyDev: Restoring projects python nature"){
-
-            protected IStatus run(IProgressMonitor monitor) {
-            	try{
-	            	
-	                IProject[] projects = getWorkspace().getRoot().getProjects();
-	                for (int i = 0; i < projects.length; i++) {
-	                    IProject project = projects[i];
-	                    try {
-	                        if (project.isOpen() && project.hasNature(PythonNature.PYTHON_NATURE_ID)) {
-	                            PythonNature.addNature(project, monitor, null, null);
-	                        }
-	                    } catch (Exception e) {
-	                        PydevPlugin.log(e);
-	                    }
-	                }
-            	}catch(Throwable t){
-            		t.printStackTrace();
-            	}
-                return Status.OK_STATUS;
-            }
-            
-        }.schedule();
+        //restore the nature for all python projects -- that's done when the project is set now.
+//        new Job("PyDev: Restoring projects python nature"){
+//
+//            protected IStatus run(IProgressMonitor monitor) {
+//            	try{
+//	            	
+//	                IProject[] projects = getWorkspace().getRoot().getProjects();
+//	                for (int i = 0; i < projects.length; i++) {
+//	                    IProject project = projects[i];
+//	                    try {
+//	                        if (project.isOpen() && project.hasNature(PythonNature.PYTHON_NATURE_ID)) {
+//	                            PythonNature.addNature(project, monitor, null, null);
+//	                        }
+//	                    } catch (Exception e) {
+//	                        PydevPlugin.log(e);
+//	                    }
+//	                }
+//            	}catch(Throwable t){
+//            		t.printStackTrace();
+//            	}
+//                return Status.OK_STATUS;
+//            }
+//            
+//        }.schedule();
         
     }
     

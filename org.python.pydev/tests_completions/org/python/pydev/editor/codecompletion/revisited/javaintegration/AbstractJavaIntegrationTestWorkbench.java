@@ -117,6 +117,38 @@ public class AbstractJavaIntegrationTestWorkbench extends TestCase{
             //create the contents and open the editor
             String mod1Contents = "import java.lang.Class\njava.lang.Class";
             mod1.create(new ByteArrayInputStream(mod1Contents.getBytes()), true, monitor);
+            
+            
+            
+            PythonNature nature = PythonNature.getPythonNature(project);
+            
+            //Let's give it some time to run the jobs that restore the nature
+        	long finishAt = System.currentTimeMillis()+5000; //5 secs is the max tie
+        	
+            Display display = Display.getCurrent();
+            if(display == null){
+                display = Display.getDefault();
+            }
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+            while (!shell.isDisposed()) {
+                if (!display.readAndDispatch()){
+                    display.sleep();
+                }
+                if(finishAt<System.currentTimeMillis()){
+                	break;
+                }
+                if(nature != null){
+                	if(nature.getAstManager() != null){
+                		break;
+                	}
+                }
+            }
+
+            
+            assertTrue(nature != null);
+            assertTrue(nature.getAstManager() != null);
+            
+            
             editor = (PyEdit) PydevPlugin.doOpenEditor(mod1, true);
         }
     }

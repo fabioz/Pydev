@@ -11,8 +11,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -26,7 +24,6 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
@@ -34,12 +31,9 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -62,39 +56,7 @@ import org.w3c.dom.ProcessingInstruction;
  */
 class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
-    /**
-     * This is the class that does the store job.
-     * 
-     * @author Fabio
-     */
-    private final class PythonNatureStoreJob extends Job {
 
-        private PythonNatureStoreJob(String name) {
-            super(name);
-        }
-
-        @Override
-        protected IStatus run(IProgressMonitor monitor) {
-            synchronized(saveLock){
-                ByteArrayInputStream is = (ByteArrayInputStream)pydevprojectStreams.remove(0); // remove() when it becomes queue
-                try{
-                    onIgnoreRefresh++;
-                    if (!xmlFile.exists()) {
-                        xmlFile.create(is, true, monitor);
-                    } else {
-                        xmlFile.setContents(is, true, false, monitor);
-                    }
-                    modStamp = xmlFile.getModificationStamp();
-                    xmlFile.refreshLocal(IResource.DEPTH_ZERO, monitor);
-                }catch(Exception e){
-                    PydevPlugin.log(e);
-                }finally{
-                    onIgnoreRefresh--;
-                }
-            }
-            return Status.OK_STATUS;
-        }
-    }
 
     private final static String STORE_FILE_NAME = ".pydevproject";
 
@@ -110,25 +72,14 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
     private volatile IProject project = null;
 
+    /**
+     * We have an IFile, but the access is mostly through the actual File (because we don't want to deal with any refresh
+     * from eclipse and its caching mechanism)
+     */
     private volatile IFile xmlFile = null;
 
-    private volatile long modStamp = IFile.NULL_STAMP;
-    
     private volatile String lastLoadedContents = null;
     
-    private volatile int onIgnoreRefresh = 0;
-
-    private final Object saveLock = new Object();
-    
-    // use Queue and ConcurrentLinkedQueue with 1.5
-    private final List<ByteArrayInputStream> pydevprojectStreams = 
-        Collections.synchronizedList(new LinkedList<ByteArrayInputStream>());
-
-    /**
-     * 0 means we're not in a store job
-     */
-    private volatile int onStoreJob = 0;
-
     /**
      * Whether the file has already been loaded
      */
@@ -186,7 +137,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         	        this.project = project;
         	        this.xmlFile = project.getFile(STORE_FILE_NAME);
         	        try {
-        	            loadFromFile(false);
+        	            loadFromFile();
         	        } catch (CoreException e) {
         	            throw new RuntimeException("Error loading project: "+project, e);
         	        }
@@ -205,11 +156,9 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      * @param function the function that is checking for load
      */
     private synchronized void checkLoad(String function) {
-        traceFunc("checkLoad");
-        	if(!loaded){
-                PydevPlugin.log(new RuntimeException(StringUtils.format("%s still not loaded and '%s' already called.", xmlFile, function)));
-            }
-        traceFunc("END checkLoad");
+    	if(!loaded){
+            PydevPlugin.log(new RuntimeException(StringUtils.format("%s still not loaded and '%s' already called.", xmlFile, function)));
+        }
     }
     
     /* (non-Javadoc)
@@ -219,21 +168,18 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         if(this.project == null){
             return "";
         }
-        traceFunc("getPathProperty - ", key);
-        	checkLoad("getPathProperty");
-            String ret = getPathStringFromArray(getPathPropertyFromXml(key));
-            traceFunc("END getPathProperty - ", ret);
-            return ret;
+    	checkLoad("getPathProperty");
+        String ret = getPathStringFromArray(getPathPropertyFromXml(key));
+        traceFunc("END getPathProperty - ", key, ret);
+        return ret;
     }
 
 	/* (non-Javadoc)
      * @see org.python.pydev.plugin.nature.IPythonNatureStore#setPathProperty(org.eclipse.core.runtime.QualifiedName, java.lang.String)
      */
     public synchronized void setPathProperty(QualifiedName key, String value) throws CoreException {
-        traceFunc("setPathProperty");
-        	checkLoad("setPathProperty");
-            setPathPropertyToXml(key, getArrayFromPathString(value), true);
-        traceFunc("END setPathProperty");
+    	checkLoad("setPathProperty");
+        setPathPropertyToXml(key, getArrayFromPathString(value), true);
     }
 
     /**
@@ -243,78 +189,66 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      * @return true if some change has actually happened in the file and false otherwise
      * @throws CoreException
      */
-    private synchronized boolean loadFromFile(boolean refresh) throws CoreException {
+    private synchronized boolean loadFromFile() throws CoreException {
         if(this.project == null){
-            return false; //deconfigured...
+            return false; //not configured...
         }
         
         traceFunc("loadFromFile");
-        boolean ret;
-            try {
-                DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                if(refresh && !xmlFile.isSynchronized(IResource.DEPTH_ZERO)){
-	                try{
-	                    onIgnoreRefresh++;
-	                    xmlFile.refreshLocal(IResource.DEPTH_ZERO, null);
-	                }finally{
-	                    onIgnoreRefresh--;
-	                }
-                }
-                
-                IPath rawLocation = xmlFile.getRawLocation();
-				File file = null;
-				if(rawLocation != null){
-					file = rawLocation.toFile();
-            	}
-                
-                if (file == null || !file.exists()) {
-                    if (document != null) {
-                        // Someone removed the project descriptor, store it from the memory model
-                        doStore();
-                        ret = true;
-                    } else {
-                        // The document never existed
-                        document = parser.newDocument();
-                        ProcessingInstruction version = document.createProcessingInstruction("eclipse-pydev", "version=\"1.0\""); //$NON-NLS-1$ //$NON-NLS-2$
-                        document.appendChild(version);
-                        Element configRootElement = document.createElement(PYDEV_PROJECT_DESCRIPTION);
-                        document.appendChild(configRootElement);
-    
-                        migrateProperty(PythonNature.getPythonProjectVersionQualifiedName());
-                        migratePath(PythonPathNature.getProjectSourcePathQualifiedName());
-                        migratePath(PythonPathNature.getProjectExternalSourcePathQualifiedName());
-                        doStore();
-                        ret = true;
-                    }
-                } else {
-                	if(refresh && !xmlFile.isSynchronized(IResource.DEPTH_ZERO)){
-	                	try{
-	                	    onIgnoreRefresh++;
-	                		xmlFile.refreshLocal(IResource.DEPTH_ZERO, null);
-	                	}catch(Exception e){
-	                		PydevPlugin.log(e);
-	                	}finally{
-	                        onIgnoreRefresh--;   
-	                    }
-                	}
-                	String fileContents = REF.getFileContents(file);
-                	if(lastLoadedContents != null && fileContents.equals(lastLoadedContents)){
-                		return false;
-                	}
-                	lastLoadedContents = fileContents;
-                    document = parser.parse(new ByteArrayInputStream(fileContents.getBytes()));
-                    modStamp = xmlFile.getModificationStamp();
-                    ret = true;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                IStatus status = new Status(IStatus.ERROR, "PythonNatureStore", -1, e.toString(), e);
-                throw new CoreException(status);
-            }
         
+        try {
+            DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            
+            File file = getRawXmlFileLocation();
+            
+            if (file == null || !file.exists()) {
+                if (document != null) {
+                    // Someone removed the project descriptor, store it from the memory model
+                    doStore();
+                    return true;
+                } else {
+                    // The document never existed (create the default)
+                    document = parser.newDocument();
+                    ProcessingInstruction version = document.createProcessingInstruction("eclipse-pydev", "version=\"1.0\""); //$NON-NLS-1$ //$NON-NLS-2$
+                    document.appendChild(version);
+                    Element configRootElement = document.createElement(PYDEV_PROJECT_DESCRIPTION);
+                    document.appendChild(configRootElement);
+
+                    migrateProperty(PythonNature.getPythonProjectVersionQualifiedName());
+                    migratePath(PythonPathNature.getProjectSourcePathQualifiedName());
+                    migratePath(PythonPathNature.getProjectExternalSourcePathQualifiedName());
+                    doStore();
+                    return true;
+                }
+            } else {
+            	String fileContents = REF.getFileContents(file);
+            	if(lastLoadedContents != null && fileContents.equals(lastLoadedContents)){
+            		return false;
+            	}
+            	lastLoadedContents = fileContents;
+                document = parser.parse(new ByteArrayInputStream(fileContents.getBytes()));
+                return true;
+            }
+        } catch (Exception e) {
+        	PydevPlugin.log("Error loading contents from .pydevproject", e);
+        }
+    
         traceFunc("END loadFromFile");
-        return ret;
+        return false;
     }
+
+
+    /**
+     * @return the actual file from the IFile we have
+     */
+	private File getRawXmlFileLocation() {
+		IPath rawLocation = xmlFile.getRawLocation();
+		File file = null;
+		if(rawLocation != null){
+			file = rawLocation.toFile();
+		}
+		return file;
+	}
 
     private synchronized void migrateProperty(QualifiedName key) throws CoreException {
         traceFunc("migrateProperty");
@@ -331,14 +265,14 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
     private synchronized void migratePath(QualifiedName key) throws CoreException {
         traceFunc("migratePath");
-            // Try to migrate from persistent property
-            String[] propertyVal = getArrayFromPathString(project.getPersistentProperty(key));
-            if (propertyVal != null) {
-                // set in the xml
-                setPathPropertyToXml(key, propertyVal, false);
-                // and remove from the project
-                project.setPersistentProperty(key, (String) null);
-            }
+        // Try to migrate from persistent property
+        String[] propertyVal = getArrayFromPathString(project.getPersistentProperty(key));
+        if (propertyVal != null) {
+            // set in the xml
+            setPathPropertyToXml(key, propertyVal, false);
+            // and remove from the project
+            project.setPersistentProperty(key, (String) null);
+        }
         traceFunc("END migratePath");
     }
 
@@ -350,19 +284,19 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      */
     private synchronized Node getRootNodeInXml() {
         traceFunc("getRootNodeInXml");
-        	Assert.isNotNull(document);
-            NodeList nodeList = document.getElementsByTagName(PYDEV_PROJECT_DESCRIPTION);
-            Node ret = null;
-            if (nodeList != null && nodeList.getLength() > 0) {
-                ret = nodeList.item(0);
-            }
-            
-            traceFunc("END getRootNodeInXml -- ", ret);
-            if(ret != null){
-                return ret;
-            }
-            throw new RuntimeException(StringUtils.format("Error. Unable to get the %s tag by its name. Project: %s", PYDEV_PROJECT_DESCRIPTION, project));
+    	Assert.isNotNull(document);
+        NodeList nodeList = document.getElementsByTagName(PYDEV_PROJECT_DESCRIPTION);
+        Node ret = null;
+        if (nodeList != null && nodeList.getLength() > 0) {
+            ret = nodeList.item(0);
         }
+        
+        traceFunc("END getRootNodeInXml -- ", ret);
+        if(ret != null){
+            return ret;
+        }
+        throw new RuntimeException(StringUtils.format("Error. Unable to get the %s tag by its name. Project: %s", PYDEV_PROJECT_DESCRIPTION, project));
+    }
 
     /**
      * Assemble a string representation of a QualifiedName typed key
@@ -372,11 +306,11 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      */
     private synchronized String getKeyString(QualifiedName key) {
         traceFunc("getKeyString");
-            String keyString = key.getQualifier() != null ? key.getQualifier() : "";
-            String ret = keyString + "." + key.getLocalName();
-            traceFunc("END getKeyString");
-            return ret;
-        }
+        String keyString = key.getQualifier() != null ? key.getQualifier() : "";
+        String ret = keyString + "." + key.getLocalName();
+        traceFunc("END getKeyString");
+        return ret;
+    }
 
     /**
      * Finds a property node as a direct child of the root node with the specified type and key.
@@ -388,27 +322,27 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      */
     private synchronized Node findPropertyNodeInXml(String type, QualifiedName key) {
         traceFunc("findPropertyNodeInXml");
-            Node root = getRootNodeInXml();
-            NodeList childNodes = root.getChildNodes();
-            if (childNodes != null && childNodes.getLength() > 0) {
-                String keyString = getKeyString(key);
-                for (int i = 0; i < childNodes.getLength(); i++) {
-                    Node child = childNodes.item(i);
-                    if (child.getNodeName().equals(type)) {
-                        NamedNodeMap attrs = child.getAttributes();
-                        if (attrs != null && attrs.getLength() > 0) {
-                            String name = attrs.getNamedItem(PYDEV_NATURE_PROPERTY_NAME).getNodeValue();
-                            if (name != null && name.equals(keyString)) {
-                                traceFunc("END findPropertyNodeInXml - ", child);
-                                return child;
-                            }
+        Node root = getRootNodeInXml();
+        NodeList childNodes = root.getChildNodes();
+        if (childNodes != null && childNodes.getLength() > 0) {
+            String keyString = getKeyString(key);
+            for (int i = 0; i < childNodes.getLength(); i++) {
+                Node child = childNodes.item(i);
+                if (child.getNodeName().equals(type)) {
+                    NamedNodeMap attrs = child.getAttributes();
+                    if (attrs != null && attrs.getLength() > 0) {
+                        String name = attrs.getNamedItem(PYDEV_NATURE_PROPERTY_NAME).getNodeValue();
+                        if (name != null && name.equals(keyString)) {
+                            traceFunc("END findPropertyNodeInXml - ", child);
+                            return child;
                         }
                     }
                 }
             }
-            traceFunc("END findPropertyNodeInXml (null)");
-            return null;
         }
+        traceFunc("END findPropertyNodeInXml (null)");
+        return null;
+    }
 
     /**
      * Returns the text contents of a nodes' children. The children shall have the specified type.
@@ -419,22 +353,22 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      */
     private String[] getChildValuesWithType(Node node, String type) {
         traceFunc("getChildValuesWithType");
-            NodeList childNodes = node.getChildNodes();
-            if (childNodes != null && childNodes.getLength() > 0) {
-                List<String> result = new ArrayList<String>();
-                for (int i = 0; i < childNodes.getLength(); i++) {
-                    Node child = childNodes.item(i);
-                    if (child.getNodeName().equals(type)) {
-                        result.add(getTextContent(child));
-                    }
+        NodeList childNodes = node.getChildNodes();
+        if (childNodes != null && childNodes.getLength() > 0) {
+            List<String> result = new ArrayList<String>();
+            for (int i = 0; i < childNodes.getLength(); i++) {
+                Node child = childNodes.item(i);
+                if (child.getNodeName().equals(type)) {
+                    result.add(getTextContent(child));
                 }
-                String[] retval = new String[result.size()];
-                traceFunc("END getChildValuesWithType");
-                return result.toArray(retval);
             }
-            traceFunc("END getChildValuesWithType (null)");
-            return null;
+            String[] retval = new String[result.size()];
+            traceFunc("END getChildValuesWithType");
+            return result.toArray(retval);
         }
+        traceFunc("END getChildValuesWithType (null)");
+        return null;
+    }
 
     /**
      * Add children to a node with specified type and text contents. For each values array element a new child is created.
@@ -445,14 +379,14 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      */
     private void addChildValuesWithType(Node node, String type, String[] values) {
         traceFunc("addChildValuesWithType");
-            assert (node != null);
-            assert (values != null);
-            assert (type != null);
-            for (int i = 0; i < values.length; i++) {
-                Node child = document.createElement(type);
-                setTextContent(values[i], child);
-                node.appendChild(child);
-            }
+        assert (node != null);
+        assert (values != null);
+        assert (type != null);
+        for (int i = 0; i < values.length; i++) {
+            Node child = document.createElement(type);
+            setTextContent(values[i], child);
+            node.appendChild(child);
+        }
         traceFunc("END addChildValuesWithType");
     }
 
@@ -464,19 +398,19 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      */
     private String getPathStringFromArray(String[] pathArray) {
         traceFunc("getPathStringFromArray");
-            if (pathArray != null) {
-                FastStringBuffer s = new FastStringBuffer();
-                for (int i = 0; i < pathArray.length; i++) {
-                    if (i > 0) {
-                        s.append('|');
-                    }
-                    s.append(pathArray[i]);
+        if (pathArray != null) {
+            FastStringBuffer s = new FastStringBuffer();
+            for (int i = 0; i < pathArray.length; i++) {
+                if (i > 0) {
+                    s.append('|');
                 }
-                traceFunc("END getPathStringFromArray");
-                return s.toString();
+                s.append(pathArray[i]);
             }
-            traceFunc("END getPathStringFromArray (null)");
-            return null;
+            traceFunc("END getPathStringFromArray");
+            return s.toString();
+        }
+        traceFunc("END getPathStringFromArray (null)");
+        return null;
     }
 
     /**
@@ -544,7 +478,6 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                     } else {
                         setTextContent(value, child);
                     }
-                    doStore();
                 } else if (value != null) {
                     // The property is not in the file and we need to set it
                     Node property = document.createElement(PYDEV_NATURE_PROPERTY);
@@ -554,11 +487,14 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                     setTextContent(value, property);
                     getRootNodeInXml().appendChild(property);
     
-                    if (store) {
-                        doStore();
-                    }
+                }else{
+                	store = false;
                 }
     
+                if (store) {
+                	doStore();
+                }
+                
             } catch (Exception e) {
                 traceFunc("END setPropertyToXml (EXCEPTION)");
                 IStatus status = new Status(IStatus.ERROR, "PythonNatureStore", -1, e.toString(), e);
@@ -574,43 +510,43 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      */
     private void setTextContent(String textContent, Node self) throws DOMException {
         traceFunc("setTextContent");
-            // get rid of any existing children
-            Node child;
-            while ((child = self.getFirstChild()) != null) {
-                self.removeChild(child);
-            }
-            // create a Text node to hold the given content
-            if (textContent != null && textContent.length() != 0) {
-                self.appendChild(document.createTextNode(textContent));
-            }
+        // get rid of any existing children
+        Node child;
+        while ((child = self.getFirstChild()) != null) {
+            self.removeChild(child);
+        }
+        // create a Text node to hold the given content
+        if (textContent != null && textContent.length() != 0) {
+            self.appendChild(document.createTextNode(textContent));
+        }
         traceFunc("END setTextContent");
     }
     
     
     private String getTextContent(Node self) throws DOMException {
         traceFunc("getTextContent");
-            FastStringBuffer fBufferStr = new FastStringBuffer();
-            Node child = self.getFirstChild();
-            if (child != null) {
-                Node next = child.getNextSibling();
-                if (next == null) {
-                    if(hasTextContent(child)){
-                        String nodeValue = child.getNodeValue();
-                        if(nodeValue != null){
-                            traceFunc("END getTextContent - ", nodeValue);
-                            return nodeValue;
-                        }
+        FastStringBuffer fBufferStr = new FastStringBuffer();
+        Node child = self.getFirstChild();
+        if (child != null) {
+            Node next = child.getNextSibling();
+            if (next == null) {
+                if(hasTextContent(child)){
+                    String nodeValue = child.getNodeValue();
+                    if(nodeValue != null){
+                        traceFunc("END getTextContent - ", nodeValue);
+                        return nodeValue;
                     }
-                    traceFunc("END getTextContent - EMPTY");
-                    return "";
                 }
-                fBufferStr.clear();
-                getTextContent(fBufferStr, self);
-                traceFunc("END getTextContent - ", fBufferStr);
-                return fBufferStr.toString();
+                traceFunc("END getTextContent - EMPTY");
+                return "";
             }
-            traceFunc("END getTextContent - EMPTY");
-            return "";
+            fBufferStr.clear();
+            getTextContent(fBufferStr, self);
+            traceFunc("END getTextContent - ", fBufferStr);
+            return fBufferStr.toString();
+        }
+        traceFunc("END getTextContent - EMPTY");
+        return "";
     }
 
     
@@ -632,10 +568,12 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     // internal method returning whether to take the given node's text content
     private boolean hasTextContent(Node child) {
         traceFunc("hasTextContent");
-            boolean ret = child.getNodeType() != Node.COMMENT_NODE &&
-                            child.getNodeType() != Node.PROCESSING_INSTRUCTION_NODE;
-            traceFunc("END hasTextContent ", ret);
-            return ret;
+        
+        boolean ret = child.getNodeType() != Node.COMMENT_NODE && 
+        			  child.getNodeType() != Node.PROCESSING_INSTRUCTION_NODE;
+        
+        traceFunc("END hasTextContent ", ret);
+        return ret;
     }
 
 
@@ -682,7 +620,6 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                 Node oldChild = findPropertyNodeInXml(PYDEV_NATURE_PATH_PROPERTY, key);
                 if (oldChild != null && paths == null) {
                     getRootNodeInXml().removeChild(oldChild);
-                    doStore();
                 } else if (paths != null) {
                     // The property is not in the file and we need to set it
                     Node property = document.createElement(PYDEV_NATURE_PATH_PROPERTY);
@@ -695,9 +632,12 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                     } else {
                         getRootNodeInXml().replaceChild(property, oldChild);
                     }
-                    if (store) {
-                        doStore();
-                    }
+                }else{
+                	store = false;
+                }
+                
+                if (store) {
+                	doStore();
                 }
     
             } catch (Exception e) {
@@ -737,22 +677,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         }
     }
 
-    /**
-     * Stores the internal Xml representation as a project resource.
-     * 
-     */
-    private synchronized void doStore() {
-        traceFunc("doStore");
-        synchronized (this) {
-            try {
-                doStore(new NullProgressMonitor());
-            } catch (Exception e) {
-                throw new RuntimeException("Error storing pydev project descriptor:"+project, e);
-            }
-        }
-        traceFunc("END doStore");
-    }
-
+    
     public void resourceChanged(IResourceChangeEvent event) {
         if(project == null){
             return;
@@ -765,18 +690,6 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         
         //not synched -- called when a file is changed
         boolean doRebuild = false;
-        if (onIgnoreRefresh != 0) {
-            traceFunc("END resourceChanged (on ignore refresh)");
-            return; 
-        }
-        
-        if (onStoreJob != 0) {
-            traceFunc("END resourceChanged (on store)");
-            return; // we're on a store job from the store itself, this means that we must
-            // call the rebuildPath programatically (and that the resource change
-            // is actually already reflected in our document and file)
-        }
-        
         if(!project.isOpen()){
             traceFunc("END resourceChanged (!open)");
             return; // project closed... no need to do anything if the project is closed
@@ -790,15 +703,13 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         
         IResourceDelta delta = eventDelta.findMember(xmlFile.getFullPath());
         if (delta != null) {
-            if (xmlFile.getModificationStamp() != modStamp) {
-                try {
-                    if (loadFromFile(true)) {
-                        doRebuild = true;
-                    }
-                } catch (CoreException e) {
-                    traceFunc("END resourceChanged (EXCEPTION)");
-                    throw new RuntimeException(e);
+            try {
+                if (loadFromFile()) { //it'll only return true if the contents really changed.
+                    doRebuild = true;
                 }
+            } catch (CoreException e) {
+                traceFunc("END resourceChanged (EXCEPTION)");
+                throw new RuntimeException(e);
             }
         }
         if(doRebuild){
@@ -813,7 +724,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     /**
      * This is the function that actually stores the contents of the xml into the file with the configurations.
      */
-    private synchronized IStatus doStore(IProgressMonitor monitor) throws IOException, TransformerException, CoreException {
+    private synchronized IStatus doStore() {
         if(this.project == null){
             return Status.OK_STATUS;
         }
@@ -824,34 +735,33 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
             return Status.OK_STATUS;
         }
         synchronized (this) {
-            try {
-                // that's because while we're in a store job, we don't want to listen to resource changes (we just
-                // want resource changes from the user).
-                if (onStoreJob != 0) {
-                    traceFunc("END doStore (already in store)");
-                    return Status.OK_STATUS;
-                }
-    
-                onStoreJob++;
-                if (document == null) {
-                    traceFunc("END doStore (document == null)");
-                    return new Status(Status.ERROR, "PythonNatureStore.doStore", -2, "document == null", new RuntimeException("document == null"));
-                }
-    
-                pydevprojectStreams.add(new ByteArrayInputStream(serializeDocument(document)));
-    
-                PythonNatureStoreJob job = new PythonNatureStoreJob("Save .pydevproject");
-                
-                if (ProjectModulesManager.IN_TESTS){
-                    job.run(new NullProgressMonitor());
-                }else{
-                    job.schedule();
-                }
-                traceFunc("END doStore");
-                return Status.OK_STATUS;
-            } finally {
-                onStoreJob--;
+            if (document == null) {
+                traceFunc("END doStore (document == null)");
+                return new Status(Status.ERROR, "PythonNatureStore.doStore", -2, "document == null", new RuntimeException("document == null"));
             }
+
+        	File file = getRawXmlFileLocation();
+        	if(file == null){
+        		//that's ok... in tests
+        		return Status.OK_STATUS;
+        	}
+        	try {
+        		//Ok, we may receive multiple requests at once (e.g.: when updating the version and the pythonpath together), but
+        		//as the file is pretty small, there should be no problems in writing it directly (if that proves a problem later on, we
+        		//could have a *very* simple mechanism for saving it after some millis)
+				
+        		String str = new String(serializeDocument(document));
+        		lastLoadedContents = str;
+				if(TRACE_PYTHON_NATURE_STORE){
+					System.out.println("Writing to file: "+file+" "+str);
+				}
+				REF.writeStrToFile(str, file);
+			} catch (Exception e) {
+				PydevPlugin.log("Unable to write contents of file: "+file, e);
+			}
+            
+            traceFunc("END doStore");
+            return Status.OK_STATUS;
         }
     }
 

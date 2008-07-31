@@ -125,6 +125,14 @@ public class PythonPathNature implements IPythonPathNature {
         for (int i = 0; i < strings.length; i++) {
             if(strings[i].trim().length()>0){
                 IPath p = new Path(strings[i]);
+                
+                if(ResourcesPlugin.getPlugin() == null){
+                	//in tests
+                	buf.append(strings[i]);
+                	buf.append("|");
+                	continue;
+                }
+                
                 IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
                 
                 //try to get relative to the workspace 
@@ -151,9 +159,12 @@ public class PythonPathNature implements IPythonPathNature {
                 	}
                 
                 }else{
-	                //not in workspace?... maybe it was removed, so, do nothing, but let the user know about it
-	                Log.log(IStatus.WARNING, "Unable to find the path "+strings[i]+" in the project were it's \n" +
-	                        "added as a source folder for pydev (project: "+project.getName()+") member:"+r, null);
+                	if(root.isSynchronized(IResource.DEPTH_INFINITE)){
+                		//if it's synchronized, it really doesn't exist (let's warn about it)
+		                //not in workspace?... maybe it was removed, so, do nothing, but let the user know about it
+		                Log.log(IStatus.WARNING, "Unable to find the path "+strings[i]+" in the project were it's \n" +
+		                        "added as a source folder for pydev (project: "+project.getName()+") member:"+r, null);
+                	}
 	                
 	                IPath rootLocation = root.getRawLocation();
 	                //still, let's add it there (this'll be cached for later use)
