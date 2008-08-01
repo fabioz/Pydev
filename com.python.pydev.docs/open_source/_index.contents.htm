@@ -31,6 +31,30 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 
 <h4>Major highlights:</h4>
 
+
+<ul>
+<li><strong>Eclipse 3.2</strong>: Interactive console working</li>
+<li><strong>Eclipse 3.4</strong>: Hyperlinks working</li>
+<li><strong>Eclipse 3.4</strong>: Move / rename working</li>
+<li><strong>raw_input() and input()</strong>: functions are now changed when a program is launched from eclipse to consider a trailing '\r'</li>
+<li><strong>Ctr+/</strong>: Changed to toggle comment (instead of only comment) -- patch from Christoph Pickl</li>
+<li><strong>Pydev package explorer</strong>: Link working with compare editor</li>
+<li><strong>Auto-indent</strong>: Fixed problem when smart indent was turned off</li>
+<li><strong>Debugger</strong>: Better inspection of internal variables for dict, list, tuple, set and frozenset</li>
+<li><strong>Console</strong>: When a parenthesis is entered, the text to the end of the line is no longer deleted</li>
+<li><strong>Code Formatter</strong>: can deal with operators (+, -, *, etc)</li>
+<li><strong>Code Formatter</strong>: can handle '=' differently inside function calls / keyword args</li>
+<li>Problem while navigating pydev package explorer fixed</li>
+<li>Race condition fixed in PythonNatureStore/PythonNature (thanks to Radim Kubacki)</li>
+<li>Halt fixed while having multiple editors with the same file (with the spell service on)</li>
+<li>Pythonpath is no longer lost on closed/imported projects</li>
+<li>Applying a template uses the correct line delimiter</li>
+<li>NPE fixed when creating editor with no interpreter configured</li>
+<li>Hyperlink works in the same way that F3 (saves file before search)</li>
+</ul>
+
+
+<h3>Previous: 1.3.18</h3>
 <ul>
 <li><strong>Executing external programs</strong>: Using Runtime.exec(String[] cmdargs) instead of a string with the generated command (fixes problems regarding having spaces in the installation).</li>
 <li><strong>Organize Imports (ctrl+shift+O)</strong>: Imports can be grouped.</li>
@@ -79,52 +103,6 @@ Patches from Felix Schwarz:
 <li>Previous/next method could match 'class' and 'def' on invalid location</li>
 <li>Outline: Assign with multiple targets is recognized</li>
 <li>Bug fix for pydev package explorer when refreshed element parent was null</li>
-</ul>
-
-
-
-
-<h3>Previous: 1.3.15</h3>
-<ul>
-<li><strong>Files without extension</strong>: If a file that does not have an extension is found in the root of the pythonpath, code-completion and breakpoints work with it.</li>
-<li><strong>Extract method</strong>: comma not removed when found after a tuple and before a keyword argument.</li>
-<li><strong>Console Encoding</strong>: print u"\xF6" works (console encoding correctly customized in python -- see <a href="http://sourceforge.net/tracker/index.php?func=detail&aid=1580766&group_id=85796&atid=577329">http://sourceforge.net/tracker/index.php?func=detail&aid=1580766&group_id=85796&atid=577329</a> for details).</li>
-<li><strong>Debugger</strong>: Context of breakpoint correctly defined when comments are present in the end of the module.</li>
-<li>from __future__ import (xxx, with_statement): works.</li>
-<li><strong><a href="console.html">Interactive Console View</a></strong>, featuring:</li>
-	<ul>
-		<li><strong>Code Completion</strong></li>
-		<ul>
-			<li>Context sensitive with shell completions</li>
-			<li>Qualifier matches as case insensitive</li>
-			<li>Templates</li>
-			<li>Repeating the activation changes from templates to default completions</li>
-		</ul>
-			
-		<li><strong>Console Configurations</strong></li>
-		<ul>
-			<li>Initial commands for starting the console</li>
-			<li>Colors for the console</li>
-			<li>Vmargs can be specified for jython</li>
-		</ul>
-		
-		<li><strong>Auto-indent</strong></li>
-		<li><strong>Auto-edits</strong></li>
-		<li><strong>Context info on hover</strong></li>
-		<li><strong>Up / Down Arrows</strong> cycles through the history (and uses the current text to match for the start of the history command)</li>
-		<li><strong>Page Up</strong>: shows dialog with console history (where lines to be re-executed can be selected)</li>
-		<li><strong>Esc</strong>: clears current line</li>
-		<li><strong>ctrl+1</strong> works for assign quick-assist</li>
-		<li><strong>Hyperlinks</strong> addedd to tracebacks in the console</li>
-		<li>Paste added directly to the command line</li>
-		<li>Cut will only cut from the command line</li>
-		<li>Copy does not get the prompt chars</li>
-		<li>Home goes to: first text char / prompt end / line start (and cycles again)</li>
-		<li>Cursor automatically moved to command line on key events</li>
-		<li>Multiple views of the same console can be created</li>
-		
-		<li>Limitation: Output is not asynchonous (stdout and stderr are only shown after a new command is sent to the console)</li>
-	</ul>
 </ul>
 
 
