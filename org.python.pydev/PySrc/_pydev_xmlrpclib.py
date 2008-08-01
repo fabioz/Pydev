@@ -2,7 +2,6 @@
 
 #
 # XML-RPC CLIENT LIBRARY
-# $Id: _pydev_xmlrpclib.py,v 1.3 2008-03-19 02:22:30 fabioz Exp $
 #
 # an XML-RPC client interface for Python.
 #
