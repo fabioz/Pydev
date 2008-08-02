@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -66,7 +67,7 @@ public class PycRemoverBuilderVisitor extends PyDevBuilderVisitor{
             //the .py has just been removed, so, remove the .pyc if it exists
             try {
                 File file = new File(loc);
-                IFile[] files = PydevPlugin.getWorkspaceFiles(file);
+                IFile[] files = PySourceLocatorBase.getWorkspaceFiles(file);
                 
                 if(files == null){
                     return ;

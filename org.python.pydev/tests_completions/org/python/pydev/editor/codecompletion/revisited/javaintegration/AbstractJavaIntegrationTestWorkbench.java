@@ -39,6 +39,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
+import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
@@ -149,7 +150,7 @@ public class AbstractJavaIntegrationTestWorkbench extends TestCase{
             assertTrue(nature.getAstManager() != null);
             
             
-            editor = (PyEdit) PydevPlugin.doOpenEditor(mod1, true);
+            editor = (PyEdit) PyOpenEditor.doOpenEditor(mod1);
         }
     }
 

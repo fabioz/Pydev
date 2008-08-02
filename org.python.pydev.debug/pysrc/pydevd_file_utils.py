@@ -41,7 +41,15 @@ from pydevd_constants import * #@UnusedWildImport
 import os.path
 import sys
 normcase = os.path.normcase
+basename = os.path.basename
 
+try:
+    rPath = os.path.realpath #@UndefinedVariable
+except:
+    # jython does not support os.path.realpath
+    # realpath is a no-op on systems without islink support
+    rPath = os.path.abspath 
+  
 #defined as a list of tuples where the 1st element of the tuple is the path in the client machine
 #and the 2nd element is the path in the server machine.
 #see module docstring for more details.
@@ -65,13 +73,7 @@ def _NormFile(filename):
     try:
         return NORM_FILENAME_CONTAINER[filename]
     except KeyError:
-        try:
-            rPath = os.path.realpath #@UndefinedVariable
-        except:
-            # jython does not support os.path.realpath
-            # realpath is a no-op on systems without islink support
-            rPath = os.path.abspath   
-        r = os.path.normcase(rPath(filename))
+        r = normcase(rPath(filename))
         #cache it for fast access later
         NORM_FILENAME_CONTAINER[filename] = r
         return r
@@ -139,6 +141,6 @@ def GetFilenameAndBase(frame):
         return NORM_FILENAME_AND_BASE_CONTAINER[f]
     except KeyError:
         filename = _NormFile(f)
-        base = os.path.basename(filename)
+        base = basename(filename)
         NORM_FILENAME_AND_BASE_CONTAINER[f] = filename, base
         return filename, base

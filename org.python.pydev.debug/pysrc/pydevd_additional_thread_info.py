@@ -50,33 +50,42 @@ class PyDBAdditionalThreadInfoWithoutCurrentFramesSupport(AbstractPyDBAdditional
         #and is only disposed when some other frame is removed.
         #A better way would be if we could get the topmost frame for each thread, but that's 
         #not possible (until python 2.5 -- which is the PyDBAdditionalThreadInfoWithCurrentFramesSupport version)
+        #Or if the user compiled threadframe (from http://www.majid.info/mylos/stories/2004/06/10/threadframe.html)
         
         #NOT RLock!! (could deadlock if it was)
         self.lock = threading.Lock()
+        self._acquire_lock = self.lock.acquire
+        self._release_lock = self.lock.release
         
         #collection with the refs
-        self.pydev_existing_frames = {}
+        d = {}
+        self.pydev_existing_frames = d
+        try:
+            self._iter_frames = d.iterkeys
+        except AttributeError:
+            self._iter_frames = d.keys
+            
         
     def _OnDbFrameCollected(self, ref):
         '''
             Callback to be called when a given reference is garbage-collected.
         '''
-        self.lock.acquire()
+        self._acquire_lock()
         try:
             del self.pydev_existing_frames[ref]
         finally:
-            self.lock.release()
+            self._release_lock()
         
     
     def _AddDbFrame(self, db_frame):
-        self.lock.acquire()
+        self._acquire_lock()
         try:
             #create the db frame with a callback to remove it from the dict when it's garbage-collected
             #(could be a set, but that's not available on all versions we want to target).
             r = weakref.ref(db_frame, self._OnDbFrameCollected)
             self.pydev_existing_frames[r] = r
         finally:
-            self.lock.release()
+            self._release_lock()
     
         
     def CreateDbFrame(self, mainDebugger, filename, additionalInfo, t, frame):
@@ -90,22 +99,21 @@ class PyDBAdditionalThreadInfoWithoutCurrentFramesSupport(AbstractPyDBAdditional
         self._AddDbFrame(db_frame)
         return db_frame
     
+    
     def IterFrames(self):
-        #we may not have yield, so, lets create a list for the iteration
-        self.lock.acquire()
+        #We cannot use yield (because of the lock)
+        self._acquire_lock()
         try:
             ret = []
             
-            weak_db_frames = self.pydev_existing_frames.keys()
-            
-            for weak_db_frame in weak_db_frames:
+            for weak_db_frame in self._iter_frames():
                 try:
                     ret.append(weak_db_frame().frame)
                 except AttributeError:
                     pass #ok, garbage-collected already
             return ret
         finally:
-            self.lock.release()
+            self._release_lock()
 
     def __str__(self):
         return 'State:%s Stop:%s Cmd: %s Kill:%s Frames:%s' % (self.pydev_state, self.pydev_step_stop, self.pydev_step_cmd, self.pydev_notify_kill, len(self.IterFrames()))
@@ -116,9 +124,15 @@ class PyDBAdditionalThreadInfoWithoutCurrentFramesSupport(AbstractPyDBAdditional
 # from version 2.5 onwards, we can use sys._current_frames to get a dict with the threads
 # and frames, but to support other versions, we can't rely on that.
 #=======================================================================================================================
-try:
-    sys._current_frames #@UndefinedVariable
+if hasattr(sys, '_current_frames'):
     PyDBAdditionalThreadInfo = PyDBAdditionalThreadInfoWithCurrentFramesSupport
-except AttributeError:
-    PyDBAdditionalThreadInfo = PyDBAdditionalThreadInfoWithoutCurrentFramesSupport
+else:
+    try:
+        import threadframe
+        sys._current_frames = threadframe.dict
+        assert sys._current_frames is threadframe.dict #Just check if it was correctly set
+        PyDBAdditionalThreadInfo = PyDBAdditionalThreadInfoWithCurrentFramesSupport
+    except:
+        #If all fails, let's use the support without frames
+        PyDBAdditionalThreadInfo = PyDBAdditionalThreadInfoWithoutCurrentFramesSupport
     

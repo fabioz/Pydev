@@ -11,6 +11,7 @@ import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.ui.ISourcePresentation;
 import org.eclipse.ui.IEditorInput;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -31,7 +32,7 @@ public class PySourceLocator implements ISourceLocator, ISourcePresentation {
 			IPath path = ((PyStackFrame)element).getPath();			
             
 			if (path != null && !path.toString().startsWith("<")){								
-		        edInput = PydevPlugin.createEditorInput(path);                
+		        edInput = PySourceLocatorBase.createEditorInput(path);                
 			}
             
 		}

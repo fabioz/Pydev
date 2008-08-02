@@ -9,7 +9,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaIntegrationTestWorkbench;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.editorinput.PyOpenEditor;
 
 public class SaveFileWithoutNatureTestWorkbench extends AbstractJavaIntegrationTestWorkbench{
 	
@@ -31,7 +31,7 @@ public class SaveFileWithoutNatureTestWorkbench extends AbstractJavaIntegrationT
         myFile.create(new ByteArrayInputStream(contents.getBytes()), true, monitor);
         project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
         try {
-			editor = (PyEdit) PydevPlugin.doOpenEditor(myFile, true);
+			editor = (PyEdit) PyOpenEditor.doOpenEditor(myFile);
 			editor.getDocument().set(newContents);
 			editor.doSave(monitor);
 		} finally {

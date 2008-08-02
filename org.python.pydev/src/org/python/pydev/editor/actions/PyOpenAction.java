@@ -21,6 +21,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
+import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -60,20 +61,20 @@ public class PyOpenAction extends Action {
         
         if(zipFilePath != null){
             //currently, only open zip file 
-            editor = PydevPlugin.doOpenEditor((File)file, zipFilePath, true);
+            editor = PyOpenEditor.doOpenEditor((File)file, zipFilePath);
             
         } else if (file instanceof IFile) {
         	IFile f = (IFile) file;
-            editor = PydevPlugin.doOpenEditor(f, true);
+            editor = PyOpenEditor.doOpenEditor(f);
 
         } else if (file instanceof IPath) {
             IPath path = (IPath) file;
-            editor = PydevPlugin.doOpenEditor(path, true);
+            editor = PyOpenEditor.doOpenEditor(path);
 
         } else if (file instanceof File) {
             String absPath = REF.getFileAbsolutePath((File) file);
 			IPath path = Path.fromOSString(absPath);
-            editor = PydevPlugin.doOpenEditor(path, true);
+            editor = PyOpenEditor.doOpenEditor(path);
         }
 
         if (editor instanceof ITextEditor && p.start.line >= 0) {

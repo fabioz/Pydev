@@ -25,7 +25,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.editorinput.PyOpenEditor;
 
 /**
  * Provides decoration for model elements in the debugger interface.
@@ -172,7 +172,7 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 			String file = ((PyBreakpoint) element).getFile();
             if(file != null){
     			IPath path = new Path(file);
-    			IEditorPart part = PydevPlugin.doOpenEditor(path, false);
+    			IEditorPart part = PyOpenEditor.doOpenEditor(path);
     			return part.getEditorInput();
             }
 		}

@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
@@ -21,35 +19,19 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
-import org.eclipse.jface.window.Window;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
 import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
-import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.osgi.framework.Bundle;
@@ -62,20 +44,13 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.BundleInfo;
 import org.python.pydev.core.bundle.IBundleInfo;
 import org.python.pydev.core.bundle.ImageCache;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.dltk.console.ui.ScriptConsoleUIConstants;
-import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.templates.PyContextType;
-import org.python.pydev.editorinput.PydevFileEditorInput;
-import org.python.pydev.editorinput.PydevZipFileEditorInput;
-import org.python.pydev.editorinput.PydevZipFileStorage;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.pyunit.ITestRunListener;
 import org.python.pydev.pyunit.PyUnitTestRunner;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 
@@ -373,289 +348,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         PydevPlugin.log(e);
         return e;
     }
-
-    public static IEditorPart doOpenEditor(IFile f, boolean activate) {
-    	if (f == null)
-    		return null;
-    	
-    	try {
-    		FileEditorInput file = new FileEditorInput(f);
-    		return openEditorInput(file);
-    		
-    	} catch (Exception e) {
-    		log(IStatus.ERROR, "Unexpected error opening path " + f.toString(), e);
-    		return null;
-    	}
-    }
-    
-    /**
-     * Utility function that opens an editor on a given path within a zip file.
-     * 
-     * @return part that is the editor
-     */
-    public static IEditorPart doOpenEditor(File zipFile, String zipFilePath, boolean activate) {
-        if (zipFile == null || zipFilePath == null){
-            return null;
-        }
-        
-        try {
-            IEditorInput file = new PydevZipFileEditorInput(new PydevZipFileStorage(zipFile, zipFilePath));
-            return openEditorInput(file);
-            
-        } catch (Exception e) {
-            log(IStatus.ERROR, "Unexpected error opening zip file " + zipFile.getAbsolutePath()+ " - "+zipFilePath, e);
-            return null;
-        }
-    }
-    
-    /**
-     * Utility function that opens an editor on a given path.
-     * 
-     * @return part that is the editor
-     */
-    public static IEditorPart doOpenEditor(IPath path, boolean activate) {
-        if (path == null){
-            return null;
-        }
-
-        try {
-    		IEditorInput file = createEditorInput(path);
-	        return openEditorInput(file);
-            
-        } catch (Exception e) {
-            log(IStatus.ERROR, "Unexpected error opening path " + path.toString(), e);
-            return null;
-        }
-    }
-    
-    
-	private static IEditorPart openEditorInput(IEditorInput file) throws PartInitException {
-		final IWorkbench workbench = plugin.getWorkbench();
-		if(workbench == null){
-			throw new RuntimeException("workbench cannot be null");
-		}
-
-		IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
-		if(activeWorkbenchWindow == null){
-			throw new RuntimeException("activeWorkbenchWindow cannot be null (we have to be in a ui thread for this to work)");
-		}
-		
-		IWorkbenchPage wp = activeWorkbenchWindow.getActivePage();
-      
-		// File is inside the workspace
-		return IDE.openEditor(wp, file, PyEdit.EDITOR_ID);
-	}
-
-    
-    
-    
-
-//  =====================
-//  ===================== ALL BELOW IS COPIED FROM org.eclipse.ui.internal.editors.text.OpenExternalFileAction
-//  =====================
-
-    public static IEditorInput createEditorInput(IPath path) {
-        return createEditorInput(path, true);
-    }
-    /**
-     * @param path
-     * @return
-     */
-    private static IEditorInput createEditorInput(IPath path, boolean askIfDoesNotExist) {
-        IEditorInput edInput = null;
-        IWorkspace w = ResourcesPlugin.getWorkspace();      
-
-        //let's start with the 'easy' way
-    	IFile fileForLocation = w.getRoot().getFileForLocation(path);
-    	if(fileForLocation != null){
-    		return new FileEditorInput(fileForLocation);
-    	}
-
-        
-        
-        IFile files[] = w.getRoot().findFilesForLocation(path);
-        if (files == null  || files.length == 0 || !files[0].exists()){
-            //it is probably an external file
-            File systemFile = path.toFile();
-            if(systemFile.exists()){
-                edInput = createEditorInput(systemFile);
-                
-            }else if(askIfDoesNotExist){
-                //this is the last resort... First we'll try to check for a 'good' match,
-                //and if there's more than one we'll ask it to the user
-                List<IFile> likelyFiles = getLikelyFiles(path, w);
-                IFile iFile = selectWorkspaceFile(likelyFiles.toArray(new IFile[0]));
-                if(iFile != null){
-                    return new FileEditorInput(iFile);
-                }
-                
-                //ok, ask the user for any file in the computer
-                IEditorInput input = selectFilesystemFileForPath(path);
-                if(input != null){
-                    return input;
-                }
-            }
-        }else{ //file exists
-            edInput = doFileEditorInput(selectWorkspaceFile(files));
-        }
-        return edInput;
-    }
-
-    private static IEditorInput doFileEditorInput(IFile file) {
-        if(file == null){
-            return null;
-        }
-        return new FileEditorInput(file);
-    }
-    /**
-     * This is the last resort... pointing to some filesystem file to get the editor for some path.
-     */
-    private static IEditorInput selectFilesystemFileForPath(final IPath path) {
-        final List<String> l = new ArrayList<String>();
-        Runnable r = new Runnable(){
-
-            public void run() {
-                Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-                FileDialog dialog = new FileDialog(shell);
-                dialog.setText(path+" - select correspondent filesystem file.");
-                dialog.setFilterExtensions(FileTypesPreferencesPage.getWildcardValidSourceFiles());
-                String string = dialog.open();
-                if(string != null){
-                    l.add(string);
-                }
-            }
-        };
-        if(Display.getCurrent() == null){ //not ui-thread
-            Display.getDefault().syncExec(r);
-        }else{
-            r.run();
-        }
-        if(l.size() > 0){
-            String fileAbsolutePath = REF.getFileAbsolutePath(l.get(0));
-            return new PydevFileEditorInput(new File(fileAbsolutePath));
-        }
-        return null;
-    }
-    
-    /**
-     * This method will pass all the files in the workspace and check if there's a file that might
-     * be a match to some path (use only as an almost 'last-resort').
-     */
-    private static List<IFile> getLikelyFiles(IPath path, IWorkspace w) {
-        List<IFile> ret = new ArrayList<IFile>();
-        try {
-            IResource[] resources = w.getRoot().members();
-            getLikelyFiles(path, ret, resources);
-        } catch (CoreException e) {
-            Log.log(e);
-        }
-        return ret;
-    }
-    
-    /**
-     * Used to recursively get the likely files given the first set of containers
-     */
-    private static void getLikelyFiles(IPath path, List<IFile> ret, IResource[] resources) throws CoreException {
-        String strPath = path.removeFileExtension().lastSegment().toLowerCase(); //this will return something as 'foo'
-        
-        for (IResource resource : resources) {
-            if(resource instanceof IFile){
-                IFile f = (IFile) resource;
-                
-                if(PythonPathHelper.isValidSourceFile(f)){
-                    if(resource.getFullPath().removeFileExtension().lastSegment().toLowerCase().equals(strPath)){ 
-                        ret.add((IFile) resource);
-                    }
-                }
-            }else if(resource instanceof IContainer){
-                getLikelyFiles(path, ret, ((IContainer)resource).members());
-            }
-        }
-    }
-    
-    private static IEditorInput createEditorInput(File file) {
-        IFile[] workspaceFile= getWorkspaceFiles(file);
-        if (workspaceFile != null && workspaceFile.length > 0){
-            IFile file2 = selectWorkspaceFile(workspaceFile);
-            if(file2 != null){
-                return new FileEditorInput(file2);
-            }else{
-                return new FileEditorInput(workspaceFile[0]);
-            }
-        }
-        return new PydevFileEditorInput(file);
-    }
-
-    
-    public static IFile getWorkspaceFile(File file) {
-        IFile[] files = getWorkspaceFiles(file);
-        return selectWorkspaceFile(files);
-    }
-    
-    public static IFile[] getWorkspaceFiles(File file) {
-        IWorkspace workspace= ResourcesPlugin.getWorkspace();
-        IPath location= Path.fromOSString(file.getAbsolutePath());
-        IFile[] files= workspace.getRoot().findFilesForLocation(location);
-        files= filterNonExistentFiles(files);
-        if (files == null || files.length == 0){
-            return null;
-        }
-        
-        return files;
-    }
-    
-
-    private static IFile[] filterNonExistentFiles(IFile[] files){
-        if (files == null)
-            return null;
-
-        int length= files.length;
-        ArrayList<IFile> existentFiles= new ArrayList<IFile>(length);
-        for (int i= 0; i < length; i++) {
-            if (files[i].exists())
-                existentFiles.add(files[i]);
-        }
-        return (IFile[])existentFiles.toArray(new IFile[existentFiles.size()]);
-    }
-    
-    private static IFile selectWorkspaceFile(final IFile[] files) {
-        if(files == null || files.length == 0){
-            return null;
-        }
-        if(files.length == 1){
-            return files[0];
-        }
-        final List<IFile> selected = new ArrayList<IFile>();
-        
-        Runnable r = new Runnable(){
-            public void run() {
-                Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-                ElementListSelectionDialog dialog= new ElementListSelectionDialog(shell, new PyFileLabelProvider());
-                dialog.setElements(files);
-                dialog.setTitle("Select Workspace File");
-                dialog.setMessage("File may be matched to multiple files in the workspace.");
-                if (dialog.open() == Window.OK){
-                    selected.add((IFile) dialog.getFirstResult());
-                }
-            }
-            
-        };
-        if(Display.getCurrent() == null){ //not ui-thread
-            Display.getDefault().syncExec(r);
-        }else{
-            r.run();
-        }
-        if(selected.size() > 0){
-            return selected.get(0);
-        }
-        return null;
-    }
-
-    
-//  =====================
-//  ===================== END COPY FROM org.eclipse.ui.internal.editors.text.OpenExternalFileAction
-//  =====================
-
 
     /**
 	 * Returns this plug-in's template store.
