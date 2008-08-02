@@ -15,6 +15,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSour
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.PydevPlugin;
@@ -122,7 +123,7 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                 //now, let's make the mapping from the filesystem to the Eclipse workspace
                 IFile workspaceFile = null; 
                 try{
-                    workspaceFile = PydevPlugin.getWorkspaceFile(moduleToFind.getFile());
+                    workspaceFile = PySourceLocatorBase.getWorkspaceFile(moduleToFind.getFile());
                     if(workspaceFile == null){
                         status.addFatalError(StringUtils.format("Error. Unable to resolve the file:\n" +
                                 "%s\n" +
