@@ -58,8 +58,23 @@ public class PythonLinkHelper implements ILinkHelper {
         
         //and now, if it is really a file...
         if (firstElement instanceof IFile) {
-            IEditorInput fileInput = new FileEditorInput((IFile) firstElement);
+            
+            //ok, let's check if the active editor is already the selection, because although the findEditor(editorInput) method
+            //may return an editor for the correct file, we may have multiple editors for the same file, and if the current
+        	//editor is already correct, we don't want to change it
+        	//@see bug: https://sourceforge.net/tracker/?func=detail&atid=577329&aid=2037682&group_id=85796
+            IEditorPart activeEditor = aPage.getActiveEditor();
+            if(activeEditor != null){
+            	IEditorInput editorInput = activeEditor.getEditorInput();
+            	IFile currFile = (IFile) editorInput.getAdapter(IFile.class);
+            	if(currFile != null && currFile.equals(firstElement)){
+            		return; //the current editor is already the active editor.
+            	}
+            }
+            
+            //if we got here, the active editor is not a match, so, let's find one and show it.
             IEditorPart editor = null;
+            IEditorInput fileInput = new FileEditorInput((IFile) firstElement);
             if ((editor = aPage.findEditor(fileInput)) != null){
                 aPage.bringToTop(editor);
             }

@@ -6,6 +6,7 @@ import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.ui.UIConstants;
 
 /**
@@ -33,11 +34,13 @@ public class OutlineHideImportsAction extends AbstractOutlineFilterAction {
             public boolean select(Viewer viewer, Object parentElement, Object element) {
                 if (element instanceof ParsedItem) {
                     ParsedItem item = (ParsedItem) element;
-                    SimpleNode n = item.getAstThis().node;
-                    if (n instanceof ImportFrom || n instanceof Import) {
-                        return false;
+                    ASTEntryWithChildren astThis = item.getAstThis();
+                    if(astThis != null){
+						SimpleNode n = astThis.node;
+	                    if (n instanceof ImportFrom || n instanceof Import) {
+	                        return false;
+	                    }
                     }
-
                 }
                 return true;
             }
