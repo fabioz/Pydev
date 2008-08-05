@@ -44,8 +44,8 @@ if not sys.platform.startswith("java"):
     ]
     
     try:
-        typeMap.append(set, pydevd_resolver.setResolver)
-        typeMap.append(frozenset, pydevd_resolver.setResolver)
+        typeMap.append((set, pydevd_resolver.setResolver))
+        typeMap.append((frozenset, pydevd_resolver.setResolver))
     except:
         pass #not available on all python versions
     
