@@ -96,6 +96,10 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
     private volatile boolean inInit;  
     
+    public String getLastLoadedContents(){
+    	return lastLoadedContents;
+    }
+    
     private void traceFunc(String func, Object ... args){
         if(TRACE_PYTHON_NATURE_STORE){
             FastStringBuffer buf = new FastStringBuffer(func, 128);
@@ -741,17 +745,22 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
             }
 
         	File file = getRawXmlFileLocation();
-        	if(file == null){
-        		//that's ok... in tests
-        		return Status.OK_STATUS;
-        	}
+        	
         	try {
         		//Ok, we may receive multiple requests at once (e.g.: when updating the version and the pythonpath together), but
         		//as the file is pretty small, there should be no problems in writing it directly (if that proves a problem later on, we
         		//could have a *very* simple mechanism for saving it after some millis)
-				
         		String str = new String(serializeDocument(document));
         		lastLoadedContents = str;
+        		
+        		if(file == null){
+        			if (!ProjectModulesManager.IN_TESTS) {
+        				//if we're not in tests, let's log this, as it'd be an error.
+        				PydevPlugin.log("Error: xml file should only be null in tests (when no workspace is available)");
+        			}
+        			return Status.OK_STATUS;
+        		}
+				
 				if(TRACE_PYTHON_NATURE_STORE){
 					System.out.println("Writing to file: "+file+" "+str);
 				}

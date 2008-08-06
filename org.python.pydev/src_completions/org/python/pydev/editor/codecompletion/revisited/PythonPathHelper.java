@@ -24,8 +24,10 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.IPythonPathHelper;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.utils.PyFileListing;
+import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
 /**
  * This is not a singleton because we may have a different pythonpath for each project (even though
@@ -33,7 +35,7 @@ import org.python.pydev.utils.PyFileListing;
  * 
  * @author Fabio Zadrozny
  */
-public class PythonPathHelper implements Serializable {
+public class PythonPathHelper implements IPythonPathHelper, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -56,13 +58,15 @@ public class PythonPathHelper implements Serializable {
         return StringUtils.replaceAllSlashes(str.trim());
     }
 
+    public PythonPathHelper() {}
+
     /**
      * This method returns all modules that can be obtained from a root File.
      * @param monitor keep track of progress (and cancel)
      * @return the listing with valid module files considering that root is a root path in the pythonpath.
      * May return null if the passed file does not exist or is not a directory (e.g.: zip file)
      */
-    public PyFileListing.PyFileListingInfo getModulesBelow(File root, IProgressMonitor monitor) {
+    public PyFileListing getModulesBelow(File root, IProgressMonitor monitor) {
         if (!root.exists()) {
             return null;
         }
@@ -92,7 +96,7 @@ public class PythonPathHelper implements Serializable {
      * @param monitor the monitor, to keep track of what is happening
      * @return a list with the name of the found modules in the jar
      */
-    private static ModulesFoundStructure.ZipContents getFromJar(File root, IProgressMonitor monitor) {
+    protected static ModulesFoundStructure.ZipContents getFromJar(File root, IProgressMonitor monitor) {
 
         String fileName = root.getName();
         if (root.isFile() && FileTypesPreferencesPage.isValidZipFile(fileName)) { //ok, it may be a jar file, so let's get its contents and get the available modules
@@ -233,11 +237,9 @@ public class PythonPathHelper implements Serializable {
 
         final File moduleFile = new File(fullPath);
 
-        if (requireFileToExist) {
-            if (moduleFile.exists() == false) {
+        if (requireFileToExist && !moduleFile.exists()) {
                 return null;
             }
-        }
 
         boolean isFile = moduleFile.isFile();
 
@@ -332,7 +334,7 @@ public class PythonPathHelper implements Serializable {
             }
             //ok, it was not found in any existing way, so, if we don't require the file to exist, let's just do some simpler search and get the 
             //first match (if any)... this is useful if the file we are looking for has just been deleted
-            if (requireFileToExist == false) {
+            if (!requireFileToExist) {
                 //we have to remove the last part (.py, .pyc, .pyw)
                 for (String element : pythonpath) {
                     element = getDefaultPathStr(element);
@@ -370,7 +372,7 @@ public class PythonPathHelper implements Serializable {
      * @param root this is the folder we're checking
      * @return true if it is a folder with an __init__ python file
      */
-    private boolean isFileOrFolderWithInit(File root) {
+    protected boolean isFileOrFolderWithInit(File root) {
         //check for an __init__ in a dir (we do not check if it is a file, becase if it is, it should return null)
         String[] items = root.list(new FilenameFilter() {
 
@@ -401,7 +403,7 @@ public class PythonPathHelper implements Serializable {
      * @param s
      * @return
      */
-    private boolean isValidModule(String s) {
+    protected static boolean isValidModule(String s) {
         return s.indexOf("-") == -1 && s.indexOf(" ") == -1 && s.indexOf(".") == -1;
     }
 
@@ -409,11 +411,10 @@ public class PythonPathHelper implements Serializable {
      * @param string with paths separated by |
      * @return
      */
-    public List<String> setPythonPath(String string) {
+    public void setPythonPath(String string) {
         synchronized (pythonpath) {
             pythonpath.clear();
-            getPythonPathFromStr(string, pythonpath);
-            return new ArrayList<String>(pythonpath);
+            parsePythonPathFromStr(string, pythonpath);
         }
     }
 
@@ -421,7 +422,7 @@ public class PythonPathHelper implements Serializable {
      * @param string this is the string that has the pythonpath (separated by |)
      * @param lPath OUT: this list is filled with the pythonpath.
      */
-    public static void getPythonPathFromStr(String string, List<String> lPath) {
+    private static void parsePythonPathFromStr(String string, List<String> lPath) {
         String[] strings = string.split("\\|");
         for (int i = 0; i < strings.length; i++) {
             String defaultPathStr = getDefaultPathStr(strings[i]);
@@ -437,38 +438,45 @@ public class PythonPathHelper implements Serializable {
     }
 
     public List<String> getPythonpath() {
-        return new ArrayList<String>(this.pythonpath);
+      synchronized (pythonpath) {
+        return new ArrayList<String>(pythonpath);
+      }
     }
 
     /**
      * This method should traverse the pythonpath passed and return a structure with the info that could be collected
      * about the files that are related to python modules.
      */
-    public ModulesFoundStructure getModulesFoundStructure(List<String> pythonpathList, IProgressMonitor monitor) {
+    public ModulesFoundStructure getModulesFoundStructure(IProgressMonitor monitor) {
+        List<String> pythonpathList = getPythonpath();
+        
         ModulesFoundStructure ret = new ModulesFoundStructure();
 
-        for (Iterator<String> iter = pythonpathList.iterator(); iter.hasNext() && monitor.isCanceled() == false;) {
+        for (Iterator<String> iter = pythonpathList.iterator(); iter.hasNext();) {
             String element = iter.next();
+
+            if (monitor.isCanceled()) {
+              break;
+            }
 
             //the slow part is getting the files... not much we can do (I think).
             File root = new File(element);
-            PyFileListing.PyFileListingInfo below = getModulesBelow(root, monitor);
+            PyFileListing below = getModulesBelow(root, monitor);
             if (below != null) {
 
-                Iterator<File> e1 = below.filesFound.iterator();
-                Iterator<String> e2 = below.fileParentPathNamesRelativeToRoot.iterator();
-                //both must have the same size... so, just check hasNext in one of those
+                Iterator<PyFileInfo> e1 = below.getFoundPyFileInfos().iterator();
                 while (e1.hasNext()) {
-                    File o1 = e1.next();
-                    String o2 = e2.next();
+                    PyFileInfo pyFileInfo = e1.next();
+                    File file = pyFileInfo.getFile();
+                    String scannedModuleName = pyFileInfo.getModuleName();
 
                     String modName;
-                    if (o2.length() != 0) {
-                        modName = new StringBuffer(o2).append(".").append(stripExtension(o1.getName())).toString();
+                    if (scannedModuleName.length() != 0) {
+                        modName = new StringBuffer(scannedModuleName).append('.').append(stripExtension(file.getName())).toString();
                     } else {
-                        modName = stripExtension(o1.getName());
+                        modName = stripExtension(file.getName());
                     }
-                    ret.regularModules.put(o1, modName);
+                    ret.regularModules.put(file, modName);
                 }
 
             } else { //ok, it was null, so, maybe this is not a folder, but zip file with java classes...

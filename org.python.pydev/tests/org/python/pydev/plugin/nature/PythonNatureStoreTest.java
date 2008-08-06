@@ -61,15 +61,14 @@ public class PythonNatureStoreTest extends TestCase {
 
 
     public void testLoad() throws Exception {
-        IPythonNatureStore store = new PythonNatureStore();
+    	PythonNatureStore store = new PythonNatureStore();
         ProjectStub2 projectStub2 = new ProjectStub2("test");
         
         //when setting the project, a side-effect must be that we create the xml file if it still does not exist
         store.setProject(projectStub2);
 
         //check the contents
-        assertEquals(true, projectStub2.fileStub.created);
-        String strContents = projectStub2.fileStub.getStrContents();
+        String strContents = store.getLastLoadedContents();
         PySelectionTest.checkStrEquals(contents1, strContents.replaceFirst(" standalone=\"no\"", "")); //depending on the java version, standalone="no" may be generated
             
         //in ProjectStub2, the initial setting is /test (see the getPersistentProperty)
@@ -77,7 +76,7 @@ public class PythonNatureStoreTest extends TestCase {
         store.setPathProperty(PythonPathNature.getProjectSourcePathQualifiedName(), "/test/foo|/bar/kkk");
         assertEquals("/test/foo|/bar/kkk", store.getPathProperty(PythonPathNature.getProjectSourcePathQualifiedName()));
         
-        strContents = projectStub2.fileStub.getStrContents();
+        strContents = store.getLastLoadedContents();
         PySelectionTest.checkStrEquals(contents2, strContents.replaceFirst(" standalone=\"no\"", "")); //depending on the java version, standalone="no" may be generated
         assertEquals("", store.getPathProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName()));
     }

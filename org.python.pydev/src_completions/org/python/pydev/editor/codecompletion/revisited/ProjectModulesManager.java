@@ -68,6 +68,8 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
      */
     private transient DeltaSaver<ModulesKey> deltaSaver;
     
+    public ProjectModulesManager() {}
+    
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#setProject(org.eclipse.core.resources.IProject, boolean)
      */
@@ -361,13 +363,6 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     }
 
     
-    /** 
-     * @see org.python.pydev.core.IProjectModulesManager#changePythonPath(java.lang.String, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
-     */
-    public void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor, String defaultSelectedInterpreter) {
-        super.changePythonPath(pythonpath, project, monitor, defaultSelectedInterpreter);
-    }
-
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#getSize(boolean)
      */

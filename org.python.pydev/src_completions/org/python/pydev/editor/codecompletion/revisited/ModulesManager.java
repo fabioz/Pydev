@@ -147,6 +147,13 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         return pythonPathHelper;
     }
 
+    public void setPythonPathHelper(Object pathHelper) {
+        if (!(pathHelper instanceof PythonPathHelper)) {
+          throw new IllegalArgumentException();
+        }
+        pythonPathHelper = (PythonPathHelper)pathHelper;
+    }
+    
     /**
      * The version for deserialization
      */
@@ -221,8 +228,8 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * @param defaultSelectedInterpreter: may be null
      */
     public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor, String defaultSelectedInterpreter) {
-        List<String> pythonpathList = pythonPathHelper.setPythonPath(pythonpath);
-        ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(pythonpathList, monitor);
+        pythonPathHelper.setPythonPath(pythonpath);
+        ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(monitor);
 
         //now, on to actually filling the module keys
         ModulesKeyTreeMap<ModulesKey, ModulesKey> keys = new ModulesKeyTreeMap<ModulesKey, ModulesKey>();

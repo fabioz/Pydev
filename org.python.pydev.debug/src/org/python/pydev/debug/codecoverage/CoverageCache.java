@@ -6,6 +6,9 @@
 package org.python.pydev.debug.codecoverage;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -155,16 +158,25 @@ public class CoverageCache {
      * @param list
      */
     private void recursivelyFillList(FolderNode folderNode, ArrayList<Object> list) {
-        //add its files
-        for (Iterator<Object> it = folderNode.files.values().iterator(); it.hasNext();) {
-            list.add(it.next());
-        }
+        list.addAll(sortCollectionWithToString(folderNode.files.values()));
         
         //get its sub folders
-        for (Iterator<Object> it = folderNode.subFolders.values().iterator(); it.hasNext();) {
+        for (Iterator<Object> it = sortCollectionWithToString(folderNode.subFolders.values()).iterator(); it.hasNext();) {
             recursivelyFillList((FolderNode) it.next(), list);
         }
     }
+
+	private List<Object> sortCollectionWithToString(Collection<Object> collection) {
+		List<Object> vals = new ArrayList<Object>(collection);
+    	Collections.sort(vals, new Comparator<Object>(){
+
+			@Override
+			public int compare(Object o1, Object o2) {
+				return o1.toString().compareTo(o2.toString());
+			}}
+    	);
+		return vals;
+	}
 
     
     /**
@@ -195,8 +207,7 @@ public class CoverageCache {
             int totalExecuted = 0;
             int totalStmts = 0;
             
-            for (Iterator<Object> it = list.iterator(); it.hasNext();) {
-                Object element = it.next();
+            for (Object element:list) {
                 buffer.append(element.toString()).append("\n");
                 if(element instanceof FileNode){ //it may have been an error node...
 	                totalExecuted += ((FileNode)element).exec;

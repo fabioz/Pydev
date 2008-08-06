@@ -239,6 +239,10 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
         return null;
     }
 
+    public void setPythonPathHelper(Object helper) {
+      return; // noop
+  }
+
     public IModule getRelativeModule(String name, IPythonNature nature) {
         return this.getModuleInDirectManager(name, nature, true);
     }

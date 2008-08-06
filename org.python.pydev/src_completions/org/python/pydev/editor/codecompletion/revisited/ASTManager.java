@@ -10,14 +10,20 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.editor.codecompletion.IASTManagerObserver;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.ui.interpreters.IInterpreterObserver;
 
 
 /**
@@ -38,11 +44,22 @@ public class ASTManager extends AbstractASTManager implements ICodeCompletionAST
 	 */
     protected static final long serialVersionUID = 10L;
     
+    public ASTManager() {}
+    
     /**
      * Set the project this ast manager works with.
      */
     public void setProject(IProject project, IPythonNature nature, boolean restoreDeltas){
         getProjectModulesManager().setProject(project, nature, restoreDeltas);
+        List<IASTManagerObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_MANAGER_OBSERVER);
+        for (IASTManagerObserver observer : participants) {
+            try {
+                observer.notifyASTManagerAttached(this);
+            } catch (Exception e) {
+                //let's keep it safe
+                PydevPlugin.log(e);
+            }
+        }
     }
 
     public IModulesManager getModulesManager(){

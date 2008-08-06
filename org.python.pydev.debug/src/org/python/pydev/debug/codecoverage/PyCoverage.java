@@ -20,7 +20,7 @@ import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.utils.PyFileListing;
-import org.python.pydev.utils.PyFileListing.PyFileListingInfo;
+import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
 /**
  * This class is used to make the code coverage.
@@ -49,23 +49,23 @@ public class PyCoverage {
             return;
         }
         try {
-            if (file.isDirectory() == false) {
+            if (!file.isDirectory()) {
                 throw new RuntimeException("We can only get information on a dir.");
             }
 
-            PyFileListingInfo pyFilesBelow = new PyFileListingInfo();
+            PyFileListing pyFilesBelow = new PyFileListing();
 
             if (file.exists()) {
                 pyFilesBelow = PyFileListing.getPyFilesBelow(file, monitor, true, false);
             }
 
-            if (pyFilesBelow.filesFound.size() == 0) { //no files
+            if (pyFilesBelow.getFoundPyFileInfos().size() == 0) { //no files
                 return;
             }
 
             //add the folders to the cache
             boolean added = false;
-            for (Iterator<File> it = pyFilesBelow.foldersFound.iterator(); it.hasNext();) {
+            for (Iterator<File> it = pyFilesBelow.getFoundFolders().iterator(); it.hasNext();) {
                 File f = it.next();
                 if (!added) {
                     cache.addFolder(f);
@@ -116,8 +116,8 @@ public class PyCoverage {
 
                 String files = "";
 
-                for (Iterator<File> iter = pyFilesBelow.filesFound.iterator(); iter.hasNext();) {
-                    String fStr = iter.next().toString();
+                for (Iterator<PyFileInfo> iter = pyFilesBelow.getFoundPyFileInfos().iterator(); iter.hasNext();) {
+                    String fStr = iter.next().getFile().toString();
                     files += fStr + "|";
                 }
                 files += "\r";
@@ -219,12 +219,13 @@ public class PyCoverage {
 
     /**
      * @param strings
-     * @return
+     * @return string concatenating all but first elements from passed argument 
+     * separated by space
      */
     private String getError(String[] strings) {
         StringBuffer ret = new StringBuffer();
         for (int i = 1; i < strings.length; i++) {
-            ret.append(strings[i]+" ");
+            ret.append(strings[i]).append(' ');
         }
         return ret.toString();
     }

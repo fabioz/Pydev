@@ -3,6 +3,7 @@ package org.python.pydev.utils;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,53 +25,41 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
  */
 public class PyFileListing {
     
-    /**
-     * Class containing the information we discovered when searching for valid files beneath some folder.
-     * 
-     * @author Fabio
-     */
-    public static class PyFileListingInfo{
-        
-        /**
-         * The files we found as being valid for the given filter
-         */
-        public List<File> filesFound = new ArrayList<File>();
-        
-        /**
-         * The folders we found as being valid for the given filter
-         */
-        public List<File> foldersFound = new ArrayList<File>();
-        
-        /**
-         * The relative path (composed with the parent folder names) where the file was found 
-         * (from the root passed) -- we should be able to determine the name of the module
-         * of the corresponding file in the filesFound from this info. 
-         * 
-         * For each file found a string should be added in this list (so, the same path will be added 
-         * multiple times for different files).
-         */
-        public List<String> fileParentPathNamesRelativeToRoot = new ArrayList<String>();
-        
-        /**
-         * Add the info from the passed listing to this one.
-         */
-        public void extendWith(PyFileListingInfo other) {
-            filesFound.addAll(other.filesFound);
-            foldersFound.addAll(other.foldersFound);
-            
-            fileParentPathNamesRelativeToRoot.addAll(other.fileParentPathNamesRelativeToRoot);
-        };
-    }
+	/**
+	 * Information about a python file found (the actual file and the way it was resolved as a python module)
+	 */
+    public static final class PyFileInfo {
+
+		private final String relPath;
+
+		private final File file;
+
+		public PyFileInfo(File file, String relPath) {
+			this.file = file;
+			this.relPath = relPath;
+		}
+
+		/** File object. */
+		public File getFile() {
+			return file;
+		}
+
+		/** Returns fully qualified name of module. */
+		public String getModuleName() {
+			return relPath;
+		}
+	}
 
     /**
-     * Returns the directories and python files in a list.
-     * 
-     * @param file
-     * @param addSubFolders: indicates if sub-folders should be added
-     * @return tuple with files in pos 0 and folders in pos 1
-     */
+	 * Returns the directories and python files in a list.
+	 * 
+	 * @param file
+	 * @param addSubFolders
+	 *            indicates if sub-folders should be added
+	 * @return tuple with files in pos 0 and folders in pos 1
+	 */
     @SuppressWarnings("unchecked")
-    public static PyFileListingInfo getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders, 
+    private static PyFileListing getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders, 
             int level, boolean checkHasInit, String currModuleRep) {
         
 
@@ -78,7 +67,7 @@ public class PyFileListing {
             monitor = new NullProgressMonitor();
         }
         
-        PyFileListingInfo ret = new PyFileListingInfo();
+        PyFileListing ret = new PyFileListing();
     
         if (file != null && file.exists()) {
             //only check files that actually exist
@@ -109,8 +98,7 @@ public class PyFileListing {
                     File file2 = files[i];
                     
                     if(file2.isFile()){
-                        ret.filesFound.add(file2);
-                        ret.fileParentPathNamesRelativeToRoot.add(currModuleRep);
+                        ret.addPyFileInfo(new PyFileInfo(file2, currModuleRep));
 
                         monitor.worked(1);
                         monitor.setTaskName("Found:" + file2.toString());
@@ -144,8 +132,7 @@ public class PyFileListing {
     
                 
             } else if (file.isFile()) {
-                ret.fileParentPathNamesRelativeToRoot.add(currModuleRep);
-                ret.filesFound.add(file);
+                ret.addPyFileInfo(new PyFileInfo(file, currModuleRep));
                 
             } else{
                 throw new RuntimeException("Not dir nor file... what is it?");
@@ -155,11 +142,11 @@ public class PyFileListing {
         return ret;
     }
 
-    public static PyFileListingInfo getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders, boolean checkHasInit) {
+    private static PyFileListing getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders, boolean checkHasInit) {
         return getPyFilesBelow(file, filter, monitor, addSubFolders, 0, checkHasInit, "");
     }
 
-    public static PyFileListingInfo getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean checkHasInit) {
+    public static PyFileListing getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean checkHasInit) {
         return getPyFilesBelow(file, filter, monitor, true, checkHasInit);
     }
 
@@ -199,7 +186,7 @@ public class PyFileListing {
      * @param file
      * @return tuple with files in pos 0 and folders in pos 1
      */
-    public static PyFileListingInfo getPyFilesBelow(File file, IProgressMonitor monitor, final boolean includeDirs, boolean checkHasInit) {
+    public static PyFileListing getPyFilesBelow(File file, IProgressMonitor monitor, final boolean includeDirs, boolean checkHasInit) {
         FileFilter filter = getPyFilesFileFilter(includeDirs);
         return getPyFilesBelow(file, filter, monitor, true, checkHasInit);
     }
@@ -227,4 +214,36 @@ public class PyFileListing {
     	return ret;
     }
 
+    /**
+     * The files we found as being valid for the given filter
+     */
+    private final List<PyFileInfo> pyFileInfos = new ArrayList<PyFileInfo>();
+    
+    /**
+     * The folders we found as being valid for the given filter
+     */
+    private List<File> foldersFound = new ArrayList<File>();
+    
+    public PyFileListing() {
+    }
+    
+    public Collection<PyFileInfo> getFoundPyFileInfos() {
+      return pyFileInfos;
+    }
+    
+    public Collection<File> getFoundFolders() {
+      return foldersFound;
+    }
+    
+    private void addPyFileInfo(PyFileInfo info) {
+      pyFileInfos.add(info);
+    }
+    
+    /**
+     * Add the info from the passed listing to this one.
+     */
+    private void extendWith(PyFileListing other) {
+        pyFileInfos.addAll(other.pyFileInfos);
+        foldersFound.addAll(other.foldersFound);
+    }
 }

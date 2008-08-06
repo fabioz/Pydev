@@ -22,7 +22,7 @@ public interface IInterpreterObserver {
     /**
      * Notifies observers that the given interpreter manager has just been recreated (this is due to restarting the plugin)
      *  
-     * @param manager the manager that has just been recreated
+     * @param interpreterManager the manager that has just been recreated
      */
     void notifyInterpreterManagerRecreated(IInterpreterManager interpreterManager);
 

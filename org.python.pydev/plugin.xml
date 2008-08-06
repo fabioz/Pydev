@@ -1002,6 +1002,7 @@
    <extension-point id="pydev_globals_browser" name="Pydev Globals Browser" schema="schema/pydev_globals_browser.exsd"/>
    <extension-point id="pydev_debug_preferences_page" name="Pydev Debug Preferences Page" schema="schema/pydev_debug_preferences_page.exsd"/>
    <extension-point id="pydev_pythonpath_contrib" name="Python Path Contributor" schema="schema/pydev_pythonpath_contrib.exsd"/>
+   <extension-point id="pydev_manager_observer" name="Pydev code completion manager observer" schema="schema/pydev_manager_observer.exsd"/>
 <!-- wizards -->
    <extension point="org.eclipse.ui.newWizards">
       <category
