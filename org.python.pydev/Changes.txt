@@ -4,6 +4,7 @@ Pydev
 <ul>
 <li><strong>Pydev Package Explorer</strong>: Editor-link does not remove focus from current editor if it's already a match (bug when compare editor was opened)</li>
 <li><strong>Pydev debugger</strong>: showing set and frozenset contents</li>
+<li><strong>Pydev debugger</strong>: watch working in eclipse 3.4</li>
 </ul>
 
 

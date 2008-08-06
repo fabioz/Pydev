@@ -13,6 +13,7 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
+import org.eclipse.debug.internal.ui.viewers.model.provisional.IElementContentProvider;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
@@ -147,6 +148,12 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
 		// so I print them out as errors
 		if(adapter.equals(IDeferredWorkbenchAdapter.class)){
 			return new DeferredWorkbenchAdapter(this);
+		}
+		
+		//cannot check for the actual interface because it may not be available on eclipse 3.2 (it's only available
+		//from 3.3 onwards... and this is only a hack for it to work with eclipse 3.4)
+		if(adapter.toString().endsWith("org.eclipse.debug.internal.ui.viewers.model.provisional.IElementContentProvider")){
+			return new PyVariableContentProviderHack();
 		}
 		AdapterDebug.printDontKnow(this, adapter);
 		return super.getAdapter(adapter);

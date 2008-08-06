@@ -170,7 +170,6 @@ public class CoverageCache {
 		List<Object> vals = new ArrayList<Object>(collection);
     	Collections.sort(vals, new Comparator<Object>(){
 
-			@Override
 			public int compare(Object o1, Object o2) {
 				return o1.toString().compareTo(o2.toString());
 			}}
