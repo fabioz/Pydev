@@ -3,6 +3,7 @@ package com.python.pydev.analysis.additionalinfo;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListResourceBundle;
@@ -21,6 +22,7 @@ import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
 import com.python.pydev.util.UIUtils;
 
@@ -60,8 +62,9 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
         for (String string : pythonpath) {
             File file = new File(string);
             if(file.exists()){
-                List<File> modulesBelow = pythonPathHelper.getModulesBelow(file, monitor).filesFound;
-                for (File moduleFile : modulesBelow) {
+                Collection<PyFileInfo> modulesBelow = pythonPathHelper.getModulesBelow(file, monitor).getFoundPyFileInfos();
+                for (PyFileInfo fileInfo : modulesBelow) {
+                	File moduleFile = fileInfo.getFile();
                     String modName = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(moduleFile), true);
                     if(modName != null){
                         existingModuleNames.add(new ModulesKey(modName, moduleFile));

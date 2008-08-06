@@ -6,6 +6,7 @@ package com.python.pydev.refactoring.refactorer.refactorings.rename;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,6 +37,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.PyFileListing;
+import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -73,7 +75,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     /**
      * The list of python files contained in the refactoring pysrc project
      */
-    protected static List<File> filesInRefactoringProject;
+    protected static Collection<PyFileInfo> filesInRefactoringProject;
     
     public static final String CURRENT_MODULE_IN_REFERENCES = "__current_module__";
 
@@ -90,10 +92,11 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
         super.setUp();
         if (filesInRefactoringProject == null){
             filesInRefactoringProject = PyFileListing.getPyFilesBelow(new File(TestDependentRefactoring.TEST_PYSRC_LOC_REFACTORING), 
-                    new NullProgressMonitor(), true, false).filesFound;
+                    new NullProgressMonitor(), true, false).getFoundPyFileInfos();
             
             ArrayList<IFile> iFiles = new ArrayList<IFile>();
-            for (File f : filesInRefactoringProject) {
+            for (PyFileInfo info: filesInRefactoringProject) {
+            	File f = info.getFile();
                 iFiles.add(new FileResourceStub(f, natureRefactoring.getProject()));
                 
                 String modName = natureRefactoring.resolveModule(f);
