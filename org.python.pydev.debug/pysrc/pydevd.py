@@ -403,6 +403,12 @@ class PyDB:
                     file, line, condition = text.split('\t', 2)
                     if condition.startswith('**FUNC**'):
                         func_name, condition = condition.split('\t', 1)
+                        
+                        #We must restore new lines and tabs as done in 
+                        #AbstractDebugTarget.breakpointAdded
+                        condition = condition.replace("@_@NEW_LINE_CHAR@_@", '\n').\
+                            replace("@_@TAB_CHAR@_@", '\t').strip()
+                            
                         func_name = func_name[8:]
                     else:
                         func_name = ''

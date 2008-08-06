@@ -35,6 +35,7 @@ import org.eclipse.ui.internal.console.IOConsolePartition;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.IConsoleInputListener;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -206,7 +207,10 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 			if (breakpoint instanceof PyBreakpoint) {
 				PyBreakpoint b = (PyBreakpoint)breakpoint;
 				if (b.isEnabled() && !shouldSkipBreakpoints()) {
-					SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, b.getFile(), b.getLine(), b.getCondition(), b.getFunctionName());
+					String condition = b.getCondition();
+					condition = StringUtils.replaceAll(condition, "\n", "@_@NEW_LINE_CHAR@_@");
+					condition = StringUtils.replaceAll(condition, "\t", "@_@TAB_CHAR@_@");
+					SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, b.getFile(), b.getLine(), condition, b.getFunctionName());
 					debugger.postCommand(cmd);
 				}
 			}
