@@ -72,7 +72,15 @@ public class XmlRpcTest extends TestCase{
     private WebServer webServer;
     
     public static void main(String[] args) throws MalformedURLException, XmlRpcException {
-        junit.textui.TestRunner.run(XmlRpcTest.class);
+        try{
+        	XmlRpcTest xmlRpcTest = new XmlRpcTest();
+        	xmlRpcTest.setUp();
+        	xmlRpcTest.testXmlRpcServerPython();
+        	xmlRpcTest.tearDown();
+        	junit.textui.TestRunner.run(XmlRpcTest.class);
+        }catch(Throwable e){
+        	e.printStackTrace();
+        }
     }
     
     @Override
@@ -145,6 +153,12 @@ public class XmlRpcTest extends TestCase{
             }
         }
         
+        try{
+        	int exitValue = process.exitValue();
+        	fail("Already exited with val: "+exitValue);
+        }catch(IllegalThreadStateException e){
+        	//that's ok
+        }
         
         try {
             ThreadStreamReader stdErr = new ThreadStreamReader(process.getErrorStream());
@@ -224,7 +238,8 @@ public class XmlRpcTest extends TestCase{
                     }
                     if(expected.equals("Console already exited with value: 0 while waiting for an answer.|exceptions.SystemExit:0")){
                         if(found.equals("Console already exited with value: 0 while waiting for an answer.") || 
-                                found.equals("exceptions.SystemExit:0")){
+                                found.equals("exceptions.SystemExit:0") ||
+                                found.equals("Failed to create input stream: Connection refused")){
                             return;
                         }
                     }
