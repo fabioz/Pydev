@@ -208,8 +208,10 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 				PyBreakpoint b = (PyBreakpoint)breakpoint;
 				if (b.isEnabled() && !shouldSkipBreakpoints()) {
 					String condition = b.getCondition();
-					condition = StringUtils.replaceAll(condition, "\n", "@_@NEW_LINE_CHAR@_@");
-					condition = StringUtils.replaceAll(condition, "\t", "@_@TAB_CHAR@_@");
+					if(condition != null){
+						condition = StringUtils.replaceAll(condition, "\n", "@_@NEW_LINE_CHAR@_@");
+						condition = StringUtils.replaceAll(condition, "\t", "@_@TAB_CHAR@_@");
+					}
 					SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, b.getFile(), b.getLine(), condition, b.getFunctionName());
 					debugger.postCommand(cmd);
 				}
