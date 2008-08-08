@@ -295,6 +295,7 @@
                menubarPath="org.python.pydev.editor.actions.sourceMenu/editGroup"
                id="org.python.pydev.editor.actions.firstChar">
          </action>
+         <!-- Backspace now handled in VerifyKey (incremental find integration)
          <action
                definitionId="org.python.pydev.editor.actions.pybackspace"
                label="Python Backspace (considers indentation)"
@@ -302,6 +303,7 @@
                menubarPath="org.python.pydev.editor.actions.sourceMenu/editGroup"
                id="org.python.pydev.editor.actions.pybackspace">
          </action>
+         -->
          <action
                definitionId="org.python.pydev.editor.actions.convertSpaceToTab"
                label="Convert space-tabs to tabs"
@@ -555,13 +557,14 @@
             name="First char">
       </command>
 <!-- command: backspace considering indentation-->
+<!-- Backspace now handled in VerifyKey (incremental find integration)
       <command
             description="Backspace considering indentation for Python."
             id="org.python.pydev.editor.actions.pybackspace"
             categoryId="org.python.pydev.ui.category.source"
             name="Python Backspace (with indentation)">
       </command>
-
+-->
 <!-- command: next method / class-->
       <command
             name="Next Method or Class"
@@ -745,12 +748,14 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <!--TODO: guessing at name "BACKSPACE, needs verification -->
+      <!-- Backspace now handled in VerifyKey (incremental find integration)
       <key
             sequence="BACKSPACE"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.pybackspace"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
+      -->
       <key
             sequence="Ctrl+Shift+Arrow_Up"
             contextId="org.python.pydev.ui.editor.scope"

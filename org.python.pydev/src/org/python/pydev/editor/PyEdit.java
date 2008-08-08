@@ -36,10 +36,12 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Composite;
@@ -69,6 +71,7 @@ import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.IIndentPrefs;
@@ -76,6 +79,7 @@ import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codefolding.CodeFoldingSetter;
 import org.python.pydev.editor.codefolding.PyEditProjection;
+import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.editor.scripting.PyEditScripting;
 import org.python.pydev.editorinput.PydevFileEditorInput;
@@ -278,17 +282,35 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     }
 
     /**
-     * Overriden so that we can set up the cursor listener (notifies changes in the cursor position)
+     * Overridden so that we can:
+     * - Set up the cursor listener (notifies changes in the cursor position)
+     * - Make the backspace handling in a way that the incremental find works (note: having the listener in the
+     * textWidget does not work for that, as the event used in the IncrementalFindTarget is not the same event
+     * that goes to the textWidget).
      */
     @Override
     protected ISourceViewer createSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
-        ISourceViewer viewer = super.createSourceViewer(parent, ruler, styles);
+        PySourceViewer viewer = (PySourceViewer) super.createSourceViewer(parent, ruler, styles);
         //add a cursor listener
         StyledText textWidget = viewer.getTextWidget();
         PyEditCursorListener cursorListener = new PyEditCursorListener();
         textWidget.addMouseListener(cursorListener);
         textWidget.addKeyListener(cursorListener);
         
+        VerifyKeyListener verifyKeyListener = new VerifyKeyListener(){
+        	
+        	public void verifyKey(VerifyEvent event) {
+        		if((event.doit && event.character == SWT.BS && event.stateMask == 0)){ //isBackspace
+        			PyBackspace pyBackspace = new PyBackspace();
+        			pyBackspace.setEditor(PyEdit.this);
+        			pyBackspace.perform(new PySelection(PyEdit.this));
+        			event.doit = false;
+        		}
+        	}
+        };
+        
+		viewer.appendVerifyKeyListener(verifyKeyListener);
+		
         return viewer;
     }
     

@@ -6,6 +6,7 @@ Pydev
 <li><strong>Pydev debugger</strong>: showing set and frozenset contents</li>
 <li><strong>Pydev debugger</strong>: watch working in eclipse 3.4</li>
 <li><strong>Pydev debugger</strong>: breakpoint properties accept new lines and tabs</li>
+<li><strong>Incremental find</strong>: backspace works correctly</li>
 </ul>
 
 
