@@ -13,7 +13,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         	DEBUG = true;
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameParamDocs();
+//            test.testRenameParam9();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -878,6 +878,29 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     	"";
     	
     	checkRename(str, 3, 24, "bar", false, true);
+    }
+    
+    
+    public void testRenameParam9() throws Exception {
+    	String str = "" +
+    	"def foo(%s):\n"+
+    	"    foo(%s = 1)\n"+
+    	"";
+    	
+    	//expecting to fail (not done) -- see ScopeAnalysis.getLocalOccurrences
+    	checkRename(str, 0, 9, "days", false, true);
+    }
+    
+    
+    
+    public void testRenameParam10() throws Exception {
+    	String str = "" +
+    	"def foo():\n" +
+    	"    %s=10\n"+
+    	"    foo(days = %s)\n"+
+    	"";
+    	
+    	checkRename(str, 1, 5, "days", false, true);
     }
     
     

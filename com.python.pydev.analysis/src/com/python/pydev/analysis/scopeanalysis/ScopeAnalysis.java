@@ -244,6 +244,15 @@ public class ScopeAnalysis {
 	    Iterator<ASTEntry> iterator = visitor.getNamesIterator();
 	    while(iterator.hasNext()){
 	        ASTEntry entry = iterator.next();
+	        //SimpleNode nameNode = entry.getNameNode();
+	        //if(!occurencesFor.isParamRename){
+		    //    if(nameNode instanceof NameTok){
+		    //    	NameTok name = (NameTok) nameNode;
+			//		if(name.ctx == NameTok.KeywordName){
+			//			continue;
+			//		}
+		     //   }
+	        //}
 	        if (occurencesFor.equals(entry.getName())){
 	            ret.add(entry);
 	        }
