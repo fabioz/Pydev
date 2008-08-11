@@ -23,7 +23,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testPathFound2();
+            analyzer2.testErrorNotShownOnDynamicClass8();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -105,6 +105,22 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                 "print WithGetAttr2.anything\n"
         );
         checkNoError();
+    }
+    
+    public void testErrorNotShownOnDynamicClass7() {
+    	doc = new Document(
+    			"from extendable.noerr.importer import Struct\n"+
+    			"print Struct.anything\n"
+    	);
+    	checkNoError();
+    }
+    
+    public void testErrorNotShownOnDynamicClass8() {
+    	doc = new Document(
+    			"from extendable.noerr.importer import StructSub\n"+
+    			"print StructSub.anything\n"
+    	);
+    	checkNoError();
     }
     
     public void testErrorShownOnInitialSetClass() {
