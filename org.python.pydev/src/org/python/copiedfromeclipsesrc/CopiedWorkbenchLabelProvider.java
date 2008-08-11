@@ -11,6 +11,10 @@ package org.python.copiedfromeclipsesrc;
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.jface.resource.ColorDescriptor;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -31,9 +35,9 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.internal.util.Util;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipse.ui.model.IWorkbenchAdapter2;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Provides basic labels for adaptable objects that have the
@@ -125,6 +129,61 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
     	super.dispose();
     }
     
+    
+    /**
+     * Copied from Util.getAdapter (from eclipse 3.3: not available in eclipse 3.2)
+     * 
+     * If it is possible to adapt the given object to the given type, this
+     * returns the adapter. Performs the following checks:
+     * 
+     * <ol>
+     * <li>Returns <code>sourceObject</code> if it is an instance of the
+     * adapter type.</li>
+     * <li>If sourceObject implements IAdaptable, it is queried for adapters.</li>
+     * <li>If sourceObject is not an instance of PlatformObject (which would have
+     * already done so), the adapter manager is queried for adapters</li>
+     * </ol>
+     * 
+     * Otherwise returns null.
+     * 
+     * @param sourceObject
+     *            object to adapt, or null
+     * @param adapterType
+     *            type to adapt to
+     * @return a representation of sourceObject that is assignable to the
+     *         adapter type, or null if no such representation exists
+     */
+    public static Object utilGetAdapter(Object sourceObject, Class adapterType) {
+    	Assert.isNotNull(adapterType);
+        if (sourceObject == null) {
+            return null;
+        }
+        if (adapterType.isInstance(sourceObject)) {
+            return sourceObject;
+        }
+
+        if (sourceObject instanceof IAdaptable) {
+            IAdaptable adaptable = (IAdaptable) sourceObject;
+
+            Object result = adaptable.getAdapter(adapterType);
+            if (result != null) {
+                // Sanity-check
+                Assert.isTrue(adapterType.isInstance(result));
+                return result;
+            }
+        } 
+        
+        if (!(sourceObject instanceof PlatformObject)) {
+            Object result = Platform.getAdapterManager().getAdapter(sourceObject, adapterType);
+            if (result != null) {
+                return result;
+            }
+        }
+
+        return null;
+    }
+
+    
     /**
      * Returns the implementation of IWorkbenchAdapter for the given
      * object.  
@@ -133,7 +192,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
      * object is not adaptable. 
      */
     protected final IWorkbenchAdapter getAdapter(Object o) {
-        return (IWorkbenchAdapter)Util.getAdapter(o, IWorkbenchAdapter.class);
+        return (IWorkbenchAdapter)utilGetAdapter(o, IWorkbenchAdapter.class);
     }
 
     /**
@@ -144,7 +203,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
      * object is not adaptable. 
      */
     protected final IWorkbenchAdapter2 getAdapter2(Object o) {
-        return (IWorkbenchAdapter2)Util.getAdapter(o, IWorkbenchAdapter2.class);
+        return (IWorkbenchAdapter2)utilGetAdapter(o, IWorkbenchAdapter2.class);
     }
 
     /* (non-Javadoc)
@@ -164,7 +223,12 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
         //add any annotations to the image descriptor
         descriptor = decorateImage(descriptor, element);
 
-        return resourceManager.createImage(descriptor);
+        try {
+			return resourceManager.createImage(descriptor);
+		} catch (Exception e) {
+			PydevPlugin.log(e);
+			return null;
+		}
     }
 
     /* (non-Javadoc)
@@ -210,7 +274,13 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
             return null;
         }
 
-        return resourceManager.createFont(FontDescriptor.createFrom(descriptor));
+        try{
+        	return resourceManager.createFont(FontDescriptor.createFrom(descriptor));
+		} catch (Exception e) {
+			PydevPlugin.log(e);
+			return null;
+		}
+
     }
 
     private Color getColor(Object element, boolean forground) {
@@ -224,6 +294,12 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
             return null;
         }
 
-        return resourceManager.createColor(ColorDescriptor.createFrom(descriptor));
+        try{
+        	return resourceManager.createColor(ColorDescriptor.createFrom(descriptor));
+		} catch (Exception e) {
+			PydevPlugin.log(e);
+			return null;
+		}
+
     }
 }

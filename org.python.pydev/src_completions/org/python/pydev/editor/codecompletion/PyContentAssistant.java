@@ -43,7 +43,11 @@ public class PyContentAssistant extends ContentAssistant{
             PydevPlugin.log(e);
         }
         
-        setRepeatedInvocationTrigger(KeyBindingHelper.getContentAssistProposalBinding());
+        try{
+        	setRepeatedInvocationTrigger(KeyBindingHelper.getContentAssistProposalBinding());
+        }catch(Exception e){
+        	PydevPlugin.log(e);
+        }
         
         try{
             setStatusLineVisible(true);
