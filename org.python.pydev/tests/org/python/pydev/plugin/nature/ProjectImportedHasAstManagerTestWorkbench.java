@@ -17,9 +17,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaIntegrationTestWorkbench;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 
-public class ProjectImportedHasAstManagerTestWorkbench  extends AbstractJavaIntegrationTestWorkbench{
+public class ProjectImportedHasAstManagerTestWorkbench  extends AbstractWorkbenchTestCase{
 	
     protected void setUp() throws Exception {
     	//no setup (because we won't have the nature in this test)

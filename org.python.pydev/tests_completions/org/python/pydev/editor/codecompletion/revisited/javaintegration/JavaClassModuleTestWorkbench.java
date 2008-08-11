@@ -9,7 +9,7 @@ import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
  * 
  * @author Fabio
  */
-public class JavaClassModuleTestWorkbench extends AbstractJavaIntegrationTestWorkbench {
+public class JavaClassModuleTestWorkbench extends AbstractWorkbenchTestCase {
 
     
     /**

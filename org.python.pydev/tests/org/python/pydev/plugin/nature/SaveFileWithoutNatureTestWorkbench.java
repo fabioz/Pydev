@@ -8,10 +8,10 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaIntegrationTestWorkbench;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.editorinput.PyOpenEditor;
 
-public class SaveFileWithoutNatureTestWorkbench extends AbstractJavaIntegrationTestWorkbench{
+public class SaveFileWithoutNatureTestWorkbench extends AbstractWorkbenchTestCase{
 	
     protected void setUp() throws Exception {
     	//no setup (because we won't have the nature in this test)

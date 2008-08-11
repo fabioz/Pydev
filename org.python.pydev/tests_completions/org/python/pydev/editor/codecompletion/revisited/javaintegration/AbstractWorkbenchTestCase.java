@@ -29,6 +29,8 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IInterpreterManager;
@@ -52,7 +54,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
  *
  * @author Fabio
  */
-public class AbstractJavaIntegrationTestWorkbench extends TestCase{
+public class AbstractWorkbenchTestCase extends TestCase{
     
     /**
      * This is the module that's opened in a PyEdit editor.
@@ -87,6 +89,8 @@ public class AbstractJavaIntegrationTestWorkbench extends TestCase{
      */
     @Override
     protected void setUp() throws Exception {
+		closeWelcomeView();
+
         if(editor == null){
             InterpreterInfo.configurePathsCallback = new ICallback<Boolean, Tuple<List<String>, List<String>>>(){
                 public Boolean call(Tuple<List<String>, List<String>> arg) {
@@ -415,5 +419,17 @@ public class AbstractJavaIntegrationTestWorkbench extends TestCase{
     }
 
 
+    /**
+     * Closes the welcome view (if being shown)
+     */
+	public void closeWelcomeView() {
+		IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		IViewReference[] viewReferences = workbenchWindow.getActivePage().getViewReferences();
+		for(IViewReference ref:viewReferences){
+			if(ref.getPartName().equals("Welcome")){
+				workbenchWindow.getActivePage().hideView(ref);
+			}
+		}
+	}
 
 }
