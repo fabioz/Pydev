@@ -894,13 +894,18 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     
     
     public void testRenameParam10() throws Exception {
+    	//CURRENTLY EXPECTED TO FAIL (NOT FINISHED)
     	String str = "" +
     	"def foo():\n" +
     	"    %s=10\n"+
     	"    foo(days = %s)\n"+
     	"";
     	
-    	checkRename(str, 1, 5, "days", false, true);
+    	try{
+    		checkRename(str, 1, 5, "days", false, true);
+    	}catch(Throwable e){
+    		fail("Expected to fail!");
+    	}
     }
     
     
