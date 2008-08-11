@@ -54,7 +54,7 @@ public class AssistOverride implements IAssistProps {
         ICompletionState state = new CompletionState(ps.getStartLineIndex(), ps.getAbsoluteCursorOffset() - ps.getStartLine().getOffset(), null, nature,"");
         CompletionRequest request = new CompletionRequest(file, nature, ps.getDoc(), "self", ps.getAbsoluteCursorOffset(), 0, new PyCodeCompletion(), "");
         List<IToken> selfCompletions = new ArrayList<IToken>();
-        PyCodeCompletion.getSelfOrClsCompletions(request, selfCompletions, state, true);
+        PyCodeCompletion.getSelfOrClsCompletions(request, selfCompletions, state, true, false, "self");
 
         
         FastStringBuffer buffer = new FastStringBuffer();

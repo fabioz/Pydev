@@ -34,6 +34,7 @@ import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.AssignAnalysis;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
@@ -44,6 +45,7 @@ import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -274,16 +276,18 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         
         char[] toks = new char[]{'.', ' '};
         List<Object> completions = new ArrayList<Object>();
+        
+        boolean lookInGlobals = true;
+        
         if (trimmed.equals("self") || FullRepIterable.getFirstPart(trimmed, toks).equals("self")) {
-            state.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
-            getSelfOrClsCompletions(request, tokensList, state, false);
+            lookInGlobals = !getSelfOrClsCompletions(request, tokensList, state, false, true, "self");
             
         }else if (trimmed.equals("cls") || FullRepIterable.getFirstPart(trimmed, toks).equals("cls")) { 
-            state.setLookingFor(ICompletionState.LOOKING_FOR_CLASSMETHOD_VARIABLE);
-            getSelfOrClsCompletions(request, tokensList, state, false);
+            lookInGlobals = !getSelfOrClsCompletions(request, tokensList, state, false, true, "cls");
 
-        } else {
-
+        } 
+        
+        if(lookInGlobals){
             state.setActivationToken(request.activationToken);
 
             //Ok, looking for a token in globals.
@@ -359,25 +363,54 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * @param request this is the request for the completion
      * @param theList OUT - returned completions are added here. (IToken instances)
      * @param getOnlySupers whether we should only get things from super classes (in this case, we won't get things from the current class)
-     * @return the same tokens added in theList
+     * @param checkIfInCorrectScope if true, we'll first check if we're in a scope that actually has a method with 'self' or 'cls'
+     * 
+     * @return true if we actually tried to get the completions for self or cls.
      */
-    public static void getSelfOrClsCompletions(CompletionRequest request, List theList, ICompletionState state, boolean getOnlySupers) {
+    @SuppressWarnings("unchecked")
+	public static boolean getSelfOrClsCompletions(CompletionRequest request, List theList, ICompletionState state, 
+			boolean getOnlySupers, boolean checkIfInCorrectScope, String lookForRep) {
+    	
         SimpleNode s = PyParser.reparseDocument(new PyParser.ParserInfo(request.doc, true, request.nature, state.getLine())).o1;
-        getSelfOrClsCompletions(request, theList, state, getOnlySupers, s);
+        if(s != null){
+		    FindScopeVisitor visitor = new FindScopeVisitor(state.getLine(), 0);
+		    try {
+		        s.accept(visitor);
+		        if(checkIfInCorrectScope){
+		        	boolean scopeCorrect = false;
+		        	
+			        FastStack<SimpleNode> scopeStack = visitor.scope.getScopeStack();
+			        for(Iterator<SimpleNode> it=scopeStack.topDownIterator();scopeCorrect == false && it.hasNext();){
+			        	SimpleNode node = it.next();
+			        	if (node instanceof FunctionDef) {
+							FunctionDef funcDef = (FunctionDef) node;
+							if(funcDef.args != null && funcDef.args.args != null || funcDef.args.args.length > 0){
+								//ok, we have some arg, let's check for self or cls
+								String rep = NodeUtils.getRepresentationString(funcDef.args.args[0]);
+								if(rep != null && (rep.equals("self") || rep.equals("cls"))){
+									scopeCorrect = true;
+								}
+							}
+						}
+			        }
+			        if(!scopeCorrect){
+			        	return false;
+			        }
+		        }
+		        if(lookForRep.equals("self")){
+		        	state.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+		        }else{
+		        	state.setLookingFor(ICompletionState.LOOKING_FOR_CLASSMETHOD_VARIABLE);
+		        }
+		        getSelfOrClsCompletions(visitor.scope, request, theList, state, getOnlySupers);
+		    } catch (Exception e1) {
+		        PydevPlugin.log(e1);
+		    }
+		    return true;
+		}
+        return false;
     }
 
-    public static void getSelfOrClsCompletions(CompletionRequest request, List theList, ICompletionState state, boolean getOnlySupers, SimpleNode s) {
-        if(s != null){
-            FindScopeVisitor visitor = new FindScopeVisitor(state.getLine(), 0);
-            try {
-                s.accept(visitor);
-                getSelfOrClsCompletions(visitor.scope, request, theList, state, getOnlySupers);
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-        }
-    }
-    
     /**
      * Get self completions when you already have a scope
      */

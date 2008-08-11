@@ -40,7 +40,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testRelativeImportWithSubclass();
+	      test.testClsCompletion();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -1083,8 +1083,11 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             "    class Foo:\n" +
             "        pass\n" +
             "    F"; //request at the Bar context
-        
-        requestCompl(s, new String[] {"Foo"});
+        try{
+        	requestCompl(s, new String[] {"Foo"});
+    	}catch(Throwable e){
+    		fail("Expected to fail!");
+    	}
     }
     
     
@@ -1098,6 +1101,18 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             "    F"; //request at the Bar context
         
         requestCompl(s, new String[] {"Foo"});
+    }
+    
+    
+    public void testClsCompletion() throws Exception {
+    	String s = 
+    		"class myclass(object):\n" +
+    		"    def mymethod(self, hello):\n" +
+    		"        print hello\n" +
+    		"cls = myclass()\n" +
+    		"cls.m";
+    	
+    	requestCompl(s, new String[] {"mymethod(hello)"});
     }
     
     
