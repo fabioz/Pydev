@@ -66,6 +66,11 @@ public class AbstractWorkbenchTestCase extends TestCase{
      */
     protected static PyEdit editor;
 
+    /**
+     * Init file under pack1.pack2.__init__.py
+     */
+	protected static IFile initFile;
+
 
     /**
      * Create a project with the structure:
@@ -91,6 +96,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
     protected void setUp() throws Exception {
 		closeWelcomeView();
 
+		String mod1Contents = "import java.lang.Class\njava.lang.Class";
         if(editor == null){
             InterpreterInfo.configurePathsCallback = new ICallback<Boolean, Tuple<List<String>, List<String>>>(){
                 public Boolean call(Tuple<List<String>, List<String>> arg) {
@@ -113,22 +119,20 @@ public class AbstractWorkbenchTestCase extends TestCase{
             
             IFolder sourceFolder = createSourceFolder(monitor, project);
             
-            IFile initFile = createPackageStructure(sourceFolder, "pack1.pack2", monitor);
+            initFile = createPackageStructure(sourceFolder, "pack1.pack2", monitor);
             
             mod1 = initFile.getParent().getFile(new Path("mod1.py"));
             
             //OK, structure created, now, let's open mod1.py with a PyEdit so that the tests can begin...
             
             //create the contents and open the editor
-            String mod1Contents = "import java.lang.Class\njava.lang.Class";
             mod1.create(new ByteArrayInputStream(mod1Contents.getBytes()), true, monitor);
-            
             
             
             PythonNature nature = PythonNature.getPythonNature(project);
             
             //Let's give it some time to run the jobs that restore the nature
-        	long finishAt = System.currentTimeMillis()+5000; //5 secs is the max tie
+        	long finishAt = System.currentTimeMillis()+5000; //5 secs is the max time
         	
             Display display = Display.getCurrent();
             if(display == null){
@@ -155,6 +159,8 @@ public class AbstractWorkbenchTestCase extends TestCase{
             
             
             editor = (PyEdit) PyOpenEditor.doOpenEditor(mod1);
+        }else{
+        	setFileContents(mod1Contents);//just make sure that the contents of mod1 are correct.
         }
     }
 
@@ -177,10 +183,13 @@ public class AbstractWorkbenchTestCase extends TestCase{
     	goToManual(-1);
     }
     
+    protected void goToManual(long millis) {
+    	goToManual(millis, null);
+    }
     /**
      * Goes to 'manual' mode to allow the interaction with the opened eclipse instance.
      */
-    protected void goToManual(long millis) {
+    protected void goToManual(long millis, ICallback<Boolean, Object> condition) {
     	long finishAt = System.currentTimeMillis()+millis;
     	
         System.out.println("going to manual...");
@@ -194,6 +203,9 @@ public class AbstractWorkbenchTestCase extends TestCase{
                 display.sleep();
             }
             if(millis > 0 && finishAt<System.currentTimeMillis()){
+            	break;
+            }
+            if(condition != null && condition.call(null)){
             	break;
             }
         }
@@ -359,7 +371,9 @@ public class AbstractWorkbenchTestCase extends TestCase{
      */
     protected IFolder createSourceFolder(IProgressMonitor monitor, IProject project, boolean addNature) throws CoreException {
         IFolder sourceFolder = project.getFolder(new Path("src"));
-        sourceFolder.create(true, true, monitor);
+        if(!sourceFolder.exists()){
+        	sourceFolder.create(true, true, monitor);
+        }
         if(addNature){
         	PythonNature.addNature(project, monitor, PythonNature.JYTHON_VERSION_2_1, "/pydev_unit_test_project/src|/pydev_unit_test_project/junit.jar");
         }

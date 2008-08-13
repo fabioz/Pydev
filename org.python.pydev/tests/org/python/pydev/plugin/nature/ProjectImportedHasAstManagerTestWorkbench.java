@@ -23,6 +23,7 @@ public class ProjectImportedHasAstManagerTestWorkbench  extends AbstractWorkbenc
 	
     protected void setUp() throws Exception {
     	//no setup (because we won't have the nature in this test)
+    	closeWelcomeView();
     }
     
 
