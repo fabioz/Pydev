@@ -98,7 +98,7 @@ try:
             if not exists(ret):
                 #We must actually go on and check if we can find it as if it was a relative path for some of the paths in the pythonpath
                 for path in sys.path:
-                    ret = join(path, filename)
+                    ret = initial_norm_file(join(path, filename))
                     if exists(ret):
                         break
                 else:
