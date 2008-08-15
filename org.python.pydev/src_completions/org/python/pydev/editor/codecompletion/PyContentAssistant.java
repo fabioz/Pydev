@@ -16,7 +16,6 @@ import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyInformationPresenter;
 import org.python.pydev.plugin.KeyBindingHelper;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * @author Fabio Zadrozny
@@ -40,19 +39,19 @@ public class PyContentAssistant extends ContentAssistant{
         try{
             setRepeatedInvocationMode(true);
         }catch(Exception e){
-            PydevPlugin.log(e);
+            //no need to log
         }
         
         try{
         	setRepeatedInvocationTrigger(KeyBindingHelper.getContentAssistProposalBinding());
         }catch(Exception e){
-        	PydevPlugin.log(e);
+        	//no need to log
         }
         
         try{
             setStatusLineVisible(true);
         }catch(Exception e){
-            PydevPlugin.log(e);
+        	//no need to log
         }
     }
     

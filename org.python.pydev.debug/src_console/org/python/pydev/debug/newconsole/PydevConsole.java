@@ -11,12 +11,14 @@ import org.eclipse.debug.ui.console.IConsoleHyperlink;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.IOConsoleOutputStream;
+import org.eclipse.ui.console.IPatternMatchListener;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.debug.ui.PythonConsoleLineTracker;
@@ -33,7 +35,7 @@ import org.python.pydev.plugin.PydevPlugin;
  *
  * @author Fabio
  */
-public class PydevConsole extends ScriptConsole implements IConsole {
+public class PydevConsole extends ScriptConsole  {
 
     public static final String CONSOLE_NAME = "Pydev Console";
 
@@ -137,7 +139,44 @@ public class PydevConsole extends ScriptConsole implements IConsole {
     public List<IConsoleLineTracker> getLineTrackers() {
         List<IConsoleLineTracker> lineTrackers = new ArrayList<IConsoleLineTracker>();
         PythonConsoleLineTracker lineTracker = new PythonConsoleLineTracker();
-        lineTracker.init(this);
+
+        //The IConsole we implement in this class is not the same IConsole that's needed in the
+        //lineTracker, so, let's create a wrapper for this with the interfaces requested.
+        lineTracker.init(new IConsole(){
+
+        	//IMPLEMENTATIONS FORWARDED TO OUTER CLASS
+			public void addLink(IConsoleHyperlink link, int offset, int length) {
+				PydevConsole.this.addLink(link, offset, length);
+			}
+			public void addLink(IHyperlink link, int offset, int length) {
+				PydevConsole.this.addLink(link, offset, length);
+			}
+			public void addPatternMatchListener(
+					IPatternMatchListener matchListener) {
+				PydevConsole.this.addPatternMatchListener(matchListener);
+			}
+			public IDocument getDocument() {
+				return PydevConsole.this.getDocument();
+			}
+			public IRegion getRegion(IConsoleHyperlink link) {
+				return PydevConsole.this.getRegion(link);
+			}
+			public IRegion getRegion(IHyperlink link) {
+				return PydevConsole.this.getRegion(link);
+			}
+			public void removePatternMatchListener(
+					IPatternMatchListener matchListener) {
+				PydevConsole.this.removePatternMatchListener(matchListener);
+			}
+			
+			//IMPLEMENTATIONS THAT AREN'T REALLY AVAILABLE IN THE PYDEV CONSOLE
+			public void connect(IStreamsProxy streamsProxy) {/**EMPTY**/}
+			public void connect(IStreamMonitor streamMonitor, String streamIdentifer) {/**EMPTY**/}
+			public IProcess getProcess() {return null;/**EMPTY**/}
+			public IOConsoleOutputStream getStream(String streamIdentifier) {return null;/**EMPTY**/}
+        });
+        
+        
         lineTrackers.add(lineTracker);
         return lineTrackers;
     }
@@ -169,29 +208,5 @@ public class PydevConsole extends ScriptConsole implements IConsole {
         }
     }
 
-    
-    //required by the IConsole interface -- because of hyperlinks (but not actually used)
-    public void connect(IStreamsProxy streamsProxy) {
-        throw new RuntimeException("Not implemented");
-    }
 
-    //required by the IConsole interface -- because of hyperlinks (but not actually used)
-    public void connect(IStreamMonitor streamMonitor, String streamIdentifer) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    //required by the IConsole interface -- because of hyperlinks (but not actually used)
-    public IProcess getProcess() {
-        throw new RuntimeException("Not implemented");
-    }
-
-    //required by the IConsole interface -- because of hyperlinks (but not actually used)
-    public IRegion getRegion(IConsoleHyperlink link) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    //required by the IConsole interface -- because of hyperlinks (but not actually used)
-    public IOConsoleOutputStream getStream(String streamIdentifier) {
-        throw new RuntimeException("Not implemented");
-    }
 }
