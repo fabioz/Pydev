@@ -40,8 +40,12 @@
 from pydevd_constants import * #@UnusedWildImport
 import os.path
 import sys
+import traceback
+
 normcase = os.path.normcase
 basename = os.path.basename
+exists = os.path.exists
+join = os.path.join
 
 try:
     rPath = os.path.realpath #@UndefinedVariable
@@ -77,6 +81,34 @@ def _NormFile(filename):
         #cache it for fast access later
         NORM_FILENAME_CONTAINER[filename] = r
         return r
+    
+#Now, let's do a quick test to see if we're working with a version of python that has no problems
+#related to the names generated...
+try:
+    if not exists(_NormFile(rPath.func_code.co_filename)):
+        print >> sys.stderr, '-------------------------------------------------------------------------------'
+        print >> sys.stderr, 'pydev debugger: CRITICAL WARNING: This version of python seems to be incorrectly compiled (internal generated filenames are not absolute)'
+        print >> sys.stderr, 'pydev debugger: The debugger may still function, but it will work slower and may miss breakpoints.'
+        print >> sys.stderr, 'pydev debugger: Related bug: http://bugs.python.org/issue1666807'
+        print >> sys.stderr, '-------------------------------------------------------------------------------'
+        
+        initial_norm_file = _NormFile
+        def _NormFile(filename): #Let's redefine _NormFile to work with paths that may be incorrect
+            ret = initial_norm_file(filename)
+            if not exists(ret):
+                #We must actually go on and check if we can find it as if it was a relative path for some of the paths in the pythonpath
+                for path in sys.path:
+                    ret = join(path, filename)
+                    if exists(ret):
+                        break
+                else:
+                    print >> sys.stderr, 'pydev debugger: Unable to find real location for: %s' % filename
+                    ret = filename
+                
+            return ret
+except:
+    #Don't fail if there's something not correct here -- but at least print it to the user so that we can correct that
+    traceback.print_exc()
 
 
 if PATHS_FROM_CLIENT_TO_SERVER:

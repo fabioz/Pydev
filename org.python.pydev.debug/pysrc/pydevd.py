@@ -634,7 +634,7 @@ class PyDB:
                 sys.exc_clear() #don't keep the traceback (let's keep it clear for when we go to the point of executing client code)
                 
             if not sys.platform.startswith("java"):
-                print >> sys.stderr, 'pydev debugger: warning: psyco not available for debugger speedups'
+                print >> sys.stderr, "pydev debugger: warning: psyco not available for speedups (the debugger will still work correctly, but a bit slower)"
             
 
     def run(self, file, globals=None, locals=None):
