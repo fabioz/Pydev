@@ -30,7 +30,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testUnusedImportsSupressed();
+            analyzer2.testNotDefinedInAlll();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2558,6 +2558,24 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	msgs = analyzeDoc();
     	
     	printMessages(msgs, 0);
+    }
+    
+    
+    
+    public void testNotDefinedInAlll() {
+    	String s = 
+    		"from extendable.all_check import *\n" +
+    		"print ThisDoesnt\n" +
+    		"print ThisGoes\n" +
+    		"print ThisGoesToo\n" +
+    		"";
+    	
+    	doc = new Document(s);
+    	analyzer = new OccurrencesAnalyzer();
+    	msgs = analyzeDoc();
+    	
+    	printMessages(msgs, 1);
+    	assertEquals("Undefined variable: ThisDoesnt", msgs[0].toString());
     }
     
 }
