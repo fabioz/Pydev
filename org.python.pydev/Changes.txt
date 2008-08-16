@@ -18,6 +18,7 @@ Pydev
 <li><strong>Interactive console</strong>Fixed console integration problem with other plugins because of interfaces not properly implemented</li>
 <li><strong>Incremental find</strong>: backspace works correctly</li>
 <li><strong>Launch icons</strong>: Transparent background (thanks to Radim Kubacki)</li>
+<li><strong>Code Formatter</strong>: Exponentials handled correctly</li>
 </ul>
 
 

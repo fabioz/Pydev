@@ -230,6 +230,39 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     
                 case '+':
                 case '-':
+                	
+                	if(c == '-' || c == '+'){ // could also be *
+                		
+                		//handle exponentials correctly: e.g.: 1e-6 cannot have a space
+	                	FastStringBuffer localBufToCheckNumber = new FastStringBuffer();
+	                    for(int j=buf.length()-1;j>=0;j--){
+	                        char localC = buf.charAt(j);
+	                        if(Character.isJavaIdentifierPart(localC)){
+	                        	localBufToCheckNumber.append(localC);
+	                        }else{
+	                        	break;
+	                        }
+	                    }
+	                    boolean isExponential = true;;
+						String partialNumber = localBufToCheckNumber.reverse().toString();
+						int partialLen = partialNumber.length();
+						if(partialLen < 2 || !Character.isDigit(partialNumber.charAt(0))){
+							//at least 2 chars: the number and the 'e'
+							isExponential = false;
+						}else{
+							//first char checked... now, if the last is an 'e', we must leave it together no matter what
+							if(partialNumber.charAt(partialLen-1) != 'e'){
+								isExponential = false;
+								break;
+							}
+						}
+						if(isExponential){
+							buf.append(c);
+							break;
+						}
+						//Otherwise, FALLTHROUGH
+                	}
+                    
                 case '/':
                 case '%':
                 case '<':

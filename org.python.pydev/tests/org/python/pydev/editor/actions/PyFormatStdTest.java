@@ -24,7 +24,7 @@ public class PyFormatStdTest extends TestCase {
 	        PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
 //            DEBUG = true;
-            n.testDontDisturbWildImport();
+            n.testCorrectExponentials();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -500,6 +500,31 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(s, s1);
     }
 
+    
+    public void testCorrectExponentials(){
+    	std.spaceAfterComma = true;
+    	std.parametersWithSpace = false;
+    	std.operatorsWithSpace = true;
+    	
+    	
+    	String s = "" +
+    	"a = 1e-6\n" + //operators should not have space
+    	"b = 1e+6\n" +
+    	"c = 1e3 + 6\n" +
+    	"d = 1e-3 - 6\n" +
+    	"e = 1+3 - 6\n" +
+    	"";
+    	
+    	String s1 = "" +
+    	"a = 1e-6\n" + //operators should not have space
+    	"b = 1e+6\n" +
+    	"c = 1e3 + 6\n" +
+    	"d = 1e-3 - 6\n" +
+    	"e = 1 + 3 - 6\n" +
+    	"";
+    	
+    	checkFormatResults(s, s1);
+    }
     
     public void testEqualsWithSpace(){
         std.spaceAfterComma = true;
