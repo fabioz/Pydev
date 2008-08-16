@@ -242,7 +242,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                       GlobalModelVisitor.WILD_MODULES | GlobalModelVisitor.MODULE_DOCSTRING;
             
             //we request all and put it into the cache (partitioned), because that's faster than making multiple runs through it
-            List<IToken> ret = GlobalModelVisitor.getTokens(ast, all, name, state);
+            List<IToken> ret = GlobalModelVisitor.getTokens(ast, all, name, state, true);
             
             
             if(DEBUG_INTERNAL_GLOBALS_CACHE){
@@ -482,7 +482,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @return
      */
     public List<IToken> getClassToks(ICompletionState initialState, ICodeCompletionASTManager manager, SimpleNode ast) {
-        List<IToken> modToks = GlobalModelVisitor.getTokens(ast, GlobalModelVisitor.INNER_DEFS, name, initialState);//name = moduleName
+        List<IToken> modToks = GlobalModelVisitor.getTokens(ast, GlobalModelVisitor.INNER_DEFS, name, initialState, false);//name = moduleName
         
         try {
             //COMPLETION: get the completions for the whole hierarchy if this is a class!!

@@ -621,7 +621,8 @@ public class ProjectStub implements IProject, IWorkbenchAdapter{
 		}
 		ArrayList<Object> ret = new ArrayList<Object>();
 		for(File file:folder.listFiles()){
-			if(file.getName().toLowerCase().equals("cvs")){
+			String lower = file.getName().toLowerCase();
+			if(lower.equals("cvs") || lower.equals(".svn")){
 				continue;
 			}
 			if(file.isDirectory()){

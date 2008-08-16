@@ -54,10 +54,11 @@ public abstract class AbstractVisitor extends VisitorBase{
      * 
      * @param node
      */
-    protected void addToken(SimpleNode node) {
+    protected SourceToken addToken(SimpleNode node) {
         //add the token
         SourceToken t = makeToken(node, moduleName);
         this.tokens.add(t);
+        return t;
     }
 
 
@@ -229,15 +230,18 @@ public abstract class AbstractVisitor extends VisitorBase{
      * @param which
      * @param state 
      * @param name
+     * @param onlyAllowTokensIn__all__: only used when checking global tokens: if true, if a token named __all__ is available,
+     * only the classes that have strings that match in __all__ are available.
      * @return
      * @throws Exception
      */
-    public static List<IToken> getTokens(SimpleNode ast, int which, String moduleName, ICompletionState state) {
+    public static List<IToken> getTokens(SimpleNode ast, int which, String moduleName, ICompletionState state, 
+    		boolean onlyAllowTokensIn__all__) {
         AbstractVisitor modelVisitor;
         if(which == INNER_DEFS){
             modelVisitor = new InnerModelVisitor(moduleName, state);
         }else{
-            modelVisitor = new GlobalModelVisitor(which, moduleName);
+            modelVisitor = new GlobalModelVisitor(which, moduleName, onlyAllowTokensIn__all__);
         }
         
         if (ast != null){
@@ -246,11 +250,21 @@ public abstract class AbstractVisitor extends VisitorBase{
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+            modelVisitor.finishVisit();
             return modelVisitor.tokens;
         }else{
             return new ArrayList<IToken>();
         }
     }
+
+
+    /**
+     * This method is available so that subclasses can do some post-processing before the tokens are actually
+     * returned.
+     */
+	protected void finishVisit() {
+		/**Empty**/
+	}
 
 
 

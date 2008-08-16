@@ -5,6 +5,10 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
+import java.util.HashSet;
+import java.util.Iterator;
+
+import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -12,8 +16,10 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.List;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.exprType;
 
 /**
  * This class visits only the global context. Other visitors should visit contexts inside of this one.
@@ -23,15 +29,19 @@ import org.python.pydev.parser.jython.ast.Str;
 public class GlobalModelVisitor extends AbstractVisitor {
 
     private int visitWhat;
+    private SourceToken __all__;
+    private Assign __all__Assign;
+    private Assign lastAssign;
+	private boolean onlyAllowTokensIn__all__;
 
     /**
      * @param moduleName
      * @param global_tokens2
      */
-    public GlobalModelVisitor(int visitWhat, String moduleName) {
+    public GlobalModelVisitor(int visitWhat, String moduleName, boolean onlyAllowTokensIn__all__) {
         this.visitWhat = visitWhat;
         this.moduleName = moduleName;
-        
+        this.onlyAllowTokensIn__all__ = onlyAllowTokensIn__all__;
         if(moduleName != null && moduleName.endsWith("__init__")){
             this.tokens.add(new SourceToken(new Name("__path__", Name.Load), "__path__", "", "", moduleName));
         }
@@ -67,6 +77,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
     public Object visitAssign(Assign node) throws Exception {
+    	lastAssign = node;
         node.traverse(this);
         return null;
     }
@@ -80,7 +91,11 @@ public class GlobalModelVisitor extends AbstractVisitor {
         //when visiting the global namespace, we don't go into any inner scope.
         if ((this.visitWhat & GLOBAL_TOKENS) != 0) {
             if (node.ctx == Name.Store) {
-                addToken(node);
+                SourceToken added = addToken(node);
+                if(onlyAllowTokensIn__all__ && added.getRepresentation().equals("__all__")){
+                	__all__ = added;
+                	__all__Assign = lastAssign;
+                }
             }
         }
         return null;
@@ -123,5 +138,41 @@ public class GlobalModelVisitor extends AbstractVisitor {
             this.tokens.add(new SourceToken(node, node.s, "", "", moduleName));
         }
         return null;
+    }
+    
+    
+    /**
+     * Overridden to check __all__
+     */
+    @Override
+    protected void finishVisit() {
+    	if(__all__ != null){
+    		SimpleNode ast = __all__.getAst();
+    		//just checking it
+    		if(__all__Assign.targets != null && __all__Assign.targets.length == 1 && __all__Assign.targets[0] == ast){
+    			HashSet<String> validTokensInAll = new HashSet<String>();
+    			exprType value = __all__Assign.value;
+    			if(value instanceof List){
+					List valueList = (List) value;
+					if(valueList.elts != null){
+						for(exprType elt:valueList.elts){
+							if(elt instanceof Str){
+								Str str = (Str) elt;
+								validTokensInAll.add(str.s);
+							}
+						}
+					}
+    			}
+    			
+    			if(validTokensInAll.size() > 0){
+    				for(Iterator<IToken> it = tokens.iterator();it.hasNext();){
+    					IToken tok = it.next();
+    					if(!validTokensInAll.contains(tok.getRepresentation())){
+    						it.remove();
+    					}
+    				}
+    			}
+    		}
+    	}
     }
 }

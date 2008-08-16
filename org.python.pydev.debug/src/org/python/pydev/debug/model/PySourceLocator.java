@@ -12,7 +12,6 @@ import org.eclipse.debug.ui.ISourcePresentation;
 import org.eclipse.ui.IEditorInput;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editorinput.PySourceLocatorBase;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Locates source files from stack elements

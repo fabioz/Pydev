@@ -155,7 +155,7 @@ public class LocalScope implements ILocalScope {
             if(body != null){
                 try {
                     for (int i = 0; i < body.length; i++) {
-                        GlobalModelVisitor visitor = new GlobalModelVisitor(GlobalModelVisitor.GLOBAL_TOKENS, "");
+                        GlobalModelVisitor visitor = new GlobalModelVisitor(GlobalModelVisitor.GLOBAL_TOKENS, "", false);
                         stmtType stmt = body[i];
                         if(stmt == null){
                             continue;
@@ -234,7 +234,7 @@ public class LocalScope implements ILocalScope {
                 for (int i = 0; i < f.body.length; i++) {
                     stmtType stmt = f.body[i];
                     if(stmt != null){
-                        importedModules.addAll(GlobalModelVisitor.getTokens(stmt, GlobalModelVisitor.ALIAS_MODULES, moduleName, null));
+                        importedModules.addAll(GlobalModelVisitor.getTokens(stmt, GlobalModelVisitor.ALIAS_MODULES, moduleName, null, false));
                     }
                 }
             }
