@@ -5,8 +5,6 @@
  */
 package org.python.pydev.editor.model;
 
-import java.io.File;
-
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.jython.SimpleNode;
 
@@ -18,12 +16,32 @@ import org.python.pydev.parser.jython.SimpleNode;
  */
 public class ItemPointer {
 
-	public Object file;	// IFile or File object
-	public Location start; // (first character)
-	public Location end;   // (last character)
-    public Definition definition; //the definition that originated this ItemPointer (it might be null).
-    public String zipFilePath; //the path within the zip file for this pointer (null if we're not dealing with a zip file)
+	/**
+	 * IFile or File object (may be null)
+	 */
+	public final Object file;
 	
+	/**
+	 * Position of the 1st character 
+	 */
+	public final Location start; 
+	
+	/**
+	 * Position of the last character
+	 */
+	public final Location end;
+	
+	/**
+	 * The definition that originated this ItemPointer (good chance of being null).
+	 */
+    public final Definition definition;
+    
+    /**
+     * The path within the zip file for this pointer (null if we're not dealing with a zip file)
+     */
+    public final String zipFilePath;
+	
+    
 	public ItemPointer(Object file) {
 		this(file, new Location(), new Location());
 	}
@@ -35,16 +53,18 @@ public class ItemPointer {
         this.file = file;
         this.start = new Location(line-1, col-1);
         this.end = new Location(line-1, col-1);
+        this.definition = null;
+        this.zipFilePath = null;
     }
     
 	public ItemPointer(Object file, Location start, Location end) {
-		this.file = file;
-		this.start = start;
-		this.end = end;
+		this(file, start, end, null, null);
 	}
     
-    public ItemPointer(File file2, Location location, Location location2, Definition definition, String zipFilePath) {
-        this(file2, location, location2);
+    public ItemPointer(Object file, Location start, Location end, Definition definition, String zipFilePath) {
+    	this.file = file;
+    	this.start = start;
+    	this.end = end;
         this.definition = definition;
         this.zipFilePath = zipFilePath;
     }
@@ -83,10 +103,11 @@ public class ItemPointer {
     
     @Override
     public int hashCode() {
+    	int colLineBasedHash = (this.end.column + this.start.line + 7) * 3;
         if(this.file != null){
-            return this.file.hashCode() * 17;
+            return this.file.hashCode() + colLineBasedHash;
         }else{
-            return (this.end.column+1) * (this.start.line+2) * 9;
+            return colLineBasedHash;
         }
     }
 }
