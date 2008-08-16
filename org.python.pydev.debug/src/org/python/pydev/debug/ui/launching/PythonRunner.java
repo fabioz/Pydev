@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -234,7 +235,7 @@ public class PythonRunner {
 	private static IProcess registerWithDebugPlugin(PythonRunnerConfig config, ILaunch launch, Process p) throws JDTNotAvailableException {
 		HashMap<Object, Object> processAttributes = new HashMap<Object, Object>();
 		processAttributes.put(IProcess.ATTR_CMDLINE, config.getCommandLineAsString());
-		return registerWithDebugPlugin(config.resource.lastSegment(), launch,p, processAttributes);
+		return registerWithDebugPlugin(config.getRunningName(), launch,p, processAttributes);
 	}
 
     

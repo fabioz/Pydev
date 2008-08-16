@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.dialogs.PythonModulePickerDialog;
@@ -244,16 +245,36 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
             IStringVariableManager stringVariableManager = VariablesPlugin.getDefault().getStringVariableManager();
     		String location = fMainModuleText.getText();
 			try {
-	            String expandedLocation = stringVariableManager.performStringSubstitution(location);
-	            File file = new File(expandedLocation);
-	            if(!file.exists()){
-	                setErrorMessage("The file in the location does not exist.");
-	        		result = false;
+	            
+	            String identifier = launchConfig.getType().getIdentifier();
+				if(identifier.equals(Constants.ID_PYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE) || 
+					identifier.equals(Constants.ID_JYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE) ||
+					identifier.equals(Constants.ID_PYTHON_COVERAGE_LAUNCH_CONFIGURATION_TYPE)){
+					
+	            	//may have  multiple files selected for the run for unitest and code-coverage
+	            	for(String loc:StringUtils.split(location, '|')){
+	            		String expandedLocation = stringVariableManager.performStringSubstitution(loc);
+	            		File file = new File(expandedLocation);
+	            		if(!file.exists()){
+	            			setErrorMessage(StringUtils.format("The file \"%s\" does not exist.", file));
+	            			result = false;
+	            			break;
+	            		}
+	            		
+	            	}
+	            }else{
+		            String expandedLocation = stringVariableManager.performStringSubstitution(location);
+		            File file = new File(expandedLocation);
+		            if(!file.exists()){
+		                setErrorMessage(StringUtils.format("The file \"%s\" does not exist.", file));
+		        		result = false;
+		        		
+		            }else if(!file.isFile()) {
+		                setErrorMessage(StringUtils.format("The file \"%s\" does not actually map to a file.", file));
+		        		result = false;
+		            }
 	            }
-	            else if(!file.isFile()) {
-	                setErrorMessage("The file in the location is not actually a file.");
-	        		result = false;
-	            }
+	            
 			} catch (CoreException e) {
 				setErrorMessage("Unable to resolve location");
 	    		result = false;

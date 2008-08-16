@@ -47,6 +47,7 @@ import org.python.pydev.debug.model.remote.RunCommand;
 import org.python.pydev.debug.model.remote.SetBreakpointCommand;
 import org.python.pydev.debug.model.remote.ThreadListCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
+import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -59,7 +60,7 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
     /**
      * Path pointing to the file that started the debug (e.g.: file with __name__ == '__main__') 
      */
-	protected IPath file;
+	protected IPath[] file;
 	
 	/**
 	 * The threads found in the debugger.
@@ -126,7 +127,7 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 	
 	public String getName() throws DebugException {
 		if (file != null)
-			return file.lastSegment();
+			return PythonRunnerConfig.getRunningName(file);
 		else
 			return "unknown";
 	}
@@ -618,7 +619,7 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
         }else if (adapter.equals(IResource.class)) {
 			// used by Variable ContextManager, and Project:Properties menu item
 			if( file!=null ) {
-				IFile[] files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocation(file);
+				IFile[] files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocation(file[0]);
                 
 				if (files != null && files.length > 0){
 					return files[0];

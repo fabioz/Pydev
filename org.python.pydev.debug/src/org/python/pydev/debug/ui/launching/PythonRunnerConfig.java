@@ -31,6 +31,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -58,7 +59,7 @@ public class PythonRunnerConfig {
     public static final String RUN_JYTHON   = "jython regular run";
         
     public IProject project;
-	public IPath resource;
+	public IPath[] resource;
 	public IPath interpreter;
 	public String interpreterLocation;
 	private String arguments;
@@ -104,17 +105,25 @@ public class PythonRunnerConfig {
      * resolved location does not point to an existing file in the local file
      * system
      */
-    public static IPath getLocation(ILaunchConfiguration configuration) throws CoreException {
-        String location = configuration.getAttribute(Constants.ATTR_LOCATION, (String) null);
-        if (location == null) {
+    public static IPath[] getLocation(ILaunchConfiguration configuration) throws CoreException {
+        String locationsStr = configuration.getAttribute(Constants.ATTR_LOCATION, (String) null);
+        
+        if (locationsStr == null) {
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get location for run", null));
         } else {
-            String expandedLocation = getStringVariableManager().performStringSubstitution(location);
-            if (expandedLocation == null || expandedLocation.length() == 0) {
-                throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get expanded location for run", null));
-            } else {
-                return new Path(expandedLocation);
-            }
+        	String[] locations = StringUtils.split(locationsStr, '|');
+        	Path[] ret = new Path[locations.length];
+        	int i=0;
+        	for(String location:locations){
+	            String expandedLocation = getStringVariableManager().performStringSubstitution(location);
+	            if (expandedLocation == null || expandedLocation.length() == 0) {
+	                throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get expanded location for run", null));
+	            } else {
+	                ret[i] = new Path(expandedLocation);
+	            }
+	            i++;
+        	}
+            return ret;
         }
     }
     
@@ -430,8 +439,21 @@ public class PythonRunnerConfig {
 	}
 
 
+    public static String getRunningName(IPath[] paths) {
+    	FastStringBuffer buf = new FastStringBuffer(20*paths.length);
+    	for(IPath p:paths){
+    		if(buf.length() > 0){
+    			buf.append(" - ");
+    		}
+    		buf.append(p.lastSegment());
+    	}
+    	return buf.toString();
+    	
+    }
+    
+    
 	public String getRunningName() {
-		return resource.lastSegment();
+		return getRunningName(resource);
 	}
 
 	/**
@@ -580,7 +602,9 @@ public class PythonRunnerConfig {
     		}
         }
         
-        cmdArgs.add(resource.toOSString());
+        for(IPath p:resource){
+        	cmdArgs.add(p.toOSString());
+        }
         
         String runArguments[] = null;
         if (makeVariableSubstitution && arguments != null) {

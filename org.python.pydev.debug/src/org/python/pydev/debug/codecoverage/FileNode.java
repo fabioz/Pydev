@@ -93,17 +93,21 @@ public class FileNode {
     }
 
     /**
-     * 
+     * @return an iterator with the lines that were not executed
      */
     public Iterator<Object> notExecutedIterator() {
         List<Object> l = new ArrayList<Object>();
         
         String[] toks = notExecuted.replaceAll(" ", "").split(",");
         for (int i = 0; i < toks.length; i++) {
-            if(toks[i].indexOf("-") == -1){
-                l.add(new Integer(toks[i]));
+            String tok = toks[i].trim();
+            if(tok.length() == 0){
+            	continue;
+            }
+			if(tok.indexOf("-") == -1){
+                l.add(new Integer(tok));
             }else{
-                String[] begEnd = toks[i].split("-");
+                String[] begEnd = tok.split("-");
                 for (int j = Integer.parseInt(begEnd[0]) ; j <= Integer.parseInt(begEnd[1]); j++){
                     l.add(new Integer(j));
                 }

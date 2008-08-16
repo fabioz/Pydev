@@ -38,6 +38,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.plugin.PydevPlugin;
@@ -338,10 +339,16 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
     }
 
     private static String makeFileRelativeToWorkspace(IResource[] resource, IStringVariableManager varManager) {
-        String moduleFile;
-        moduleFile = resource[0].getFullPath().makeRelative().toString();
-        moduleFile = varManager.generateVariableExpression("workspace_loc", moduleFile);
-        return moduleFile;
+        FastStringBuffer moduleFile = new FastStringBuffer(80*resource.length);
+        for(IResource r:resource){
+	        String m = r.getFullPath().makeRelative().toString();
+	        m = varManager.generateVariableExpression("workspace_loc", m);
+	        if(moduleFile.length() > 0){
+	        	moduleFile.append("|");
+	        }
+	        moduleFile.append(m);
+        }
+        return moduleFile.toString();
     }
 
     /**

@@ -231,7 +231,6 @@
         <contextualLaunch>
            <enablement>
               <with variable="selection">
-                 <count value="1"/>
            		 <iterate>
            		 	<or>
                		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>

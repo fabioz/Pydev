@@ -19,6 +19,8 @@ Pydev
 <li><strong>Incremental find</strong>: backspace works correctly</li>
 <li><strong>Launch icons</strong>: Transparent background (thanks to Radim Kubacki)</li>
 <li><strong>Code Formatter</strong>: Exponentials handled correctly</li>
+<li><strong>Launching</strong>: Unit-test and code-coverage may launch multiple folders/files at once</li>
+<li><strong>Code coverage</strong>: Number format exception no longer given when trying to show lines not executed in the editor and all lines are executed</li>
 </ul>
 
 
