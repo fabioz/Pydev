@@ -91,7 +91,6 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -893,6 +892,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         sourceViewer.revealRange(offset, length);
     }
 
+    
+    /**
+     * Selects more than one node, making a selection from the 1st node to the last node passed.
+     */
     public void revealModelNodes(SimpleNode[] nodes) {
         if (nodes == null){
             return; // nothing to see here
@@ -927,6 +930,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         }
     }
 
+    
+    /**
+     * Shows some node in the editor.
+     * @param node the node to be shown.
+     */
     public void revealModelNode(SimpleNode node) {
         if (node == null){
             return; // nothing to see here
@@ -952,32 +960,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         }
         
     }
-    /**
-     * Selects & reveals the model node
-     */
-    public void revealModelNode(ASTEntry entry) {
-        if (entry == null){
-            return; // nothing to see here
-        }
-        
-        IDocument document = getDocumentProvider().getDocument(getEditorInput());
-        if(document == null){
-        	return;
-        }
-        
-        int offset, length, endOffset;
-
-        try {
-            PySelection selection = new PySelection(this);
-            offset = selection.getLineOffset(entry.node.beginLine-1) + entry.node.beginColumn-1;
-            
-            endOffset = selection.getLineOffset(entry.endLine-1) + entry.endCol-1;
-            length = endOffset - offset;
-            setSelection(offset, length);
-        } catch (Exception e) {
-            PydevPlugin.log(e);
-        }
-    }
+    
 
     /**
      * this event comes when document was parsed without errors

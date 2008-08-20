@@ -24,6 +24,12 @@ import org.python.pydev.ui.UIConstants;
  * This action keeps the outline synched with the text selected in the text
  * editor.
  * 
+ * Design notes:
+ * It's linked on the constructor and unlinked in the destructor.
+ * 
+ * It considers that it's always linked, even if the action is inactive, but before executing it, a
+ * check is done to see if it's active or not.
+ * 
  * @author Fabio
  */
 public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction implements IPyEditListener, IPyEditListener2 {
@@ -39,6 +45,9 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
         relink();
     }
     
+    /**
+     * When called, it STOPS hearing notifications to update the outline when the cursor changes positions.
+     */
 	public void unlink() {
 		PyEdit edit = pyEdit.get();
 		if(edit != null){
@@ -46,6 +55,9 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
 		}
 	}
 	
+	/**
+	 * When called, it STARTS hearing notifications to update the outline when the cursor changes positions.
+	 */
 	public void relink() {
 		PyEdit edit = pyEdit.get();
 		if(edit != null){
@@ -157,6 +169,9 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
     }
 
     
+    /**
+     * @return The parsed item that should be selected given the startLine passed.
+     */
     private ParsedItem findSel(ParsedItem r, int startLine) {
         ParsedItem prev = null;
 

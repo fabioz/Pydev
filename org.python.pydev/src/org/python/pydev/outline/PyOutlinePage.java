@@ -261,6 +261,8 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
 	                    if(sel.size() == 1) { // only sync the editing view if it is a single-selection
 	                        ParsedItem firstElement = (ParsedItem) sel.getFirstElement();
 	                        ErrorDescription errorDesc = firstElement.getErrorDesc();
+	                        
+	                        //select the error
                             if(errorDesc != null && errorDesc.message != null){
 	                            int len = errorDesc.errorEnd-errorDesc.errorStart;
 	                            editorView.setSelection(errorDesc.errorStart, len);
@@ -298,17 +300,41 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
     	super.selectionChanged(event);
     }
     
+    /**
+     * Used to hold a link level to know when it should be unlinked or relinked, as calls can be 'cascaded'
+     */
+    private volatile Integer linkLevel = 1;
+    
+    /**
+     * Stops listening to changes (the linkLevel is used so that multiple unlinks can be called and later
+     * multiple relinks should be used)
+     */
 	void unlinkAll() {
-		removeSelectionChangedListener(selectionListener);
-		if(linkWithEditor != null){
-			linkWithEditor.unlink();
+		synchronized (linkLevel) {
+			linkLevel--;
+			if(linkLevel == 0){
+				removeSelectionChangedListener(selectionListener);
+				if(linkWithEditor != null){
+					linkWithEditor.unlink();
+				}
+			}
 		}
 	}
 
+	/**
+	 * Starts listening to changes again if the number of relinks matches the number of unlinks
+	 */
 	void relinkAll() {
-		addSelectionChangedListener(selectionListener);
-		if(linkWithEditor != null){
-			linkWithEditor.relink();
+		synchronized (linkLevel) {
+			linkLevel++;
+			if(linkLevel == 1){
+				addSelectionChangedListener(selectionListener);
+				if(linkWithEditor != null){
+					linkWithEditor.relink();
+				}
+			}else if(linkLevel > 1){
+				throw new RuntimeException("Error: relinking without unlinking 1st");
+			}
 		}
 	}
 
