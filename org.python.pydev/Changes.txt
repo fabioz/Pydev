@@ -9,13 +9,13 @@ Pydev Extensions
 Pydev
 <ul>
 <li><strong>Pydev Package Explorer</strong>: Editor-link does not remove focus from current editor if it's already a match (bug when compare editor was opened)</li>
-<li><strong>Pydev debugger</strong>: showing set and frozenset contents</li>
-<li><strong>Pydev debugger</strong>: watch working in eclipse 3.4</li>
-<li><strong>Pydev debugger</strong>: breakpoint properties accept new lines and tabs</li>
-<li><strong>Pydev debugger</strong>Workaround for python bug when filenames don't have absolute paths correctly generated</li>
+<li><strong>Pydev debugger</strong>: Showing set and frozenset contents</li>
+<li><strong>Pydev debugger</strong>: Watch working in eclipse 3.4</li>
+<li><strong>Pydev debugger</strong>: Breakpoint properties accept new lines and tabs</li>
+<li><strong>Pydev debugger</strong>: Workaround for python bug when filenames don't have absolute paths correctly generated</li>
 <li><strong>Pydev code-completion</strong>Wild import will only show tokens defined in __all__ (if it's available)</li>
 <li><strong>Interactive console</strong>: Fixed problem when more attempts to connect were needed</li>
-<li><strong>Interactive console</strong>Fixed console integration problem with other plugins because of interfaces not properly implemented</li>
+<li><strong>Interactive console</strong>: Fixed console integration problem with other plugins because of interfaces not properly implemented</li>
 <li><strong>Incremental find</strong>: backspace works correctly</li>
 <li><strong>Launch icons</strong>: Transparent background (thanks to Radim Kubacki)</li>
 <li><strong>Code Formatter</strong>: Exponentials handled correctly</li>

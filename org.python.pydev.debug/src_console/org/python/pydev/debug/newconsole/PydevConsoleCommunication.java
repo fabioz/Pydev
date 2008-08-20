@@ -250,9 +250,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                             executed = exec();
                             
                             //executed.o1 is not null only if we had an error
-                            if(executed.o1 != null && (
-                            	executed.o1.indexOf("Connection refused: connect") != -1 ||
-                            	executed.o1.indexOf("Failed to read servers response: Connection refused") != -1)){
+                            if(executed.o1 != null && executed.o1.indexOf("refused") != -1){
                                 if(firstCommWorked){
                                     break;
                                 }else{
