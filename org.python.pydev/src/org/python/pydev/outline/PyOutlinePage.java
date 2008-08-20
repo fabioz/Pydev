@@ -258,6 +258,8 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
                     try{
                     	unlinkAll();
 	    				StructuredSelection sel = (StructuredSelection)event.getSelection();
+	    				
+	    				boolean alreadySelected = false;
 	                    if(sel.size() == 1) { // only sync the editing view if it is a single-selection
 	                        ParsedItem firstElement = (ParsedItem) sel.getFirstElement();
 	                        ErrorDescription errorDesc = firstElement.getErrorDesc();
@@ -266,11 +268,13 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
                             if(errorDesc != null && errorDesc.message != null){
 	                            int len = errorDesc.errorEnd-errorDesc.errorStart;
 	                            editorView.setSelection(errorDesc.errorStart, len);
-	                            return;
+	                            alreadySelected = true;
 	                        }
 	                    }
-	    				SimpleNode[] node = model.getSelectionPosition(sel);
-	    				editorView.revealModelNodes(node);
+	                    if(!alreadySelected){
+		    				SimpleNode[] node = model.getSelectionPosition(sel);
+		    				editorView.revealModelNodes(node);
+	                    }
                     }finally{
                     	relinkAll();
                     }
