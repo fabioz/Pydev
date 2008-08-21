@@ -1,7 +1,6 @@
 package com.python.pydev.refactoring.search;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
@@ -11,7 +10,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.search.internal.ui.text.FileMatch;
 import org.eclipse.search.ui.ISearchResult;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
@@ -24,6 +22,7 @@ import com.python.pydev.refactoring.IPyRefactoring2;
 import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
 import com.python.pydev.refactoring.wizards.rename.AbstractRenameRefactorProcess;
+import com.python.pydev.ui.search.FileMatch;
 
 public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
 

@@ -15,6 +15,8 @@ import org.eclipse.search.ui.text.FileTextSearchScope;
 import org.eclipse.search.ui.text.Match;
 import org.python.pydev.core.docutils.StringUtils;
 
+import com.python.pydev.ui.search.FileMatch;
+
 /**
  * Based on the org.eclipse.search.internal.ui.text.FileSearchQuery
  */
