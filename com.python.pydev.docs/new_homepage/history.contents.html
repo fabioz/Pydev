@@ -4,6 +4,28 @@
 <h3>Releases History</h3>
 	<ul>
 
+
+		<ul>
+			<li><h4>Release 1.3.14</h4></li>
+			<ul>
+				<li><strong>Local renames</strong>: scoping issues.</li>
+				<li><strong>Local renames</strong>: comments/strings only renamed in local scope for local variable.</li>
+				<li><strong>False positive: undefined variable</strong>: a base-class could be flagged as undefined if used in a method scope.</li>
+				<li><strong>Remote Debugger</strong>: easier way to specify path translations between a remote machine and a local machine 
+				(constant must be set in org.python.pydev.debug/pysrc/pydevd_file_utils.py -- see comments on module) .</li>
+			</ul>
+		</ul>
+		
+		<ul>
+			<li><h4>Release 1.3.13</h4></li>
+			<ul>
+				<li><strong>Debug Console</strong>: will print exceptions raised during the evaluation.</li>
+				<li><strong>Debug Console</strong>: will print the result of the evaluation if a valid statement is sent (so, 'print' is not needed for simple evaluations anymore).</li>
+			</ul>
+		</ul>
+		
+
+
 		<li><h4>Release 1.3.12</h4></li>
 		<ul>
 			<li><strong>Mark occurrences</strong>: only requested on mouse-clicks and cursor changes.</li>

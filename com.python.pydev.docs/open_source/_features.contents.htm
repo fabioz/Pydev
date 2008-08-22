@@ -1,24 +1,21 @@
 <h2>New on: LAST_VERSION_TAG</h2>
 
+
 <ul>
-<li><strong>Eclipse 3.2</strong>: Interactive console working</li>
-<li><strong>Eclipse 3.4</strong>: Hyperlinks working</li>
-<li><strong>Eclipse 3.4</strong>: Move / rename working</li>
-<li><strong>raw_input() and input()</strong>: functions are now changed when a program is launched from eclipse to consider a trailing '\r'</li>
-<li><strong>Ctr+/</strong>: Changed to toggle comment (instead of only comment) -- patch from Christoph Pickl</li>
-<li><strong>Pydev package explorer</strong>: Link working with compare editor</li>
-<li><strong>Auto-indent</strong>: Fixed problem when smart indent was turned off</li>
-<li><strong>Debugger</strong>: Better inspection of internal variables for dict, list, tuple, set and frozenset</li>
-<li><strong>Console</strong>: When a parenthesis is entered, the text to the end of the line is no longer deleted</li>
-<li><strong>Code Formatter</strong>: can deal with operators (+, -, *, etc)</li>
-<li><strong>Code Formatter</strong>: can handle '=' differently inside function calls / keyword args</li>
-<li>Problem while navigating pydev package explorer fixed</li>
-<li>Race condition fixed in PythonNatureStore/PythonNature (thanks to Radim Kubacki)</li>
-<li>Halt fixed while having multiple editors with the same file (with the spell service on)</li>
-<li>Pythonpath is no longer lost on closed/imported projects</li>
-<li>Applying a template uses the correct line delimiter</li>
-<li>NPE fixed when creating editor with no interpreter configured</li>
-<li>Hyperlink works in the same way that F3 (saves file before search)</li>
+<li><strong>Pydev Package Explorer</strong>: Editor-link does not remove focus from current editor if it's already a match (bug when compare editor was opened)</li>
+<li><strong>Pydev debugger</strong>: Showing set and frozenset contents</li>
+<li><strong>Pydev debugger</strong>: Watch working in eclipse 3.4</li>
+<li><strong>Pydev debugger</strong>: Breakpoint properties accept new lines and tabs</li>
+<li><strong>Pydev debugger</strong>: Workaround for python bug when filenames don't have absolute paths correctly generated</li>
+<li><strong>Pydev code-completion</strong>: Wild import will only show tokens defined in __all__ (if it's available)</li>
+<li><strong>Interactive console</strong>: Fixed problem when more attempts to connect were needed</li>
+<li><strong>Interactive console</strong>: Fixed console integration problem with other plugins because of interfaces not properly implemented</li>
+<li><strong>Incremental find</strong>: Backspace works correctly</li>
+<li><strong>Launch icons</strong>: Transparent background (thanks to Radim Kubacki)</li>
+<li><strong>Code Formatter</strong>: Exponentials handled correctly</li>
+<li><strong>Launching</strong>: Unit-test and code-coverage may launch multiple folders/files at once</li>
+<li><strong>Code coverage</strong>: Number format exception no longer given when trying to show lines not executed in the editor and all lines are executed</li>
+<li><strong>Auto-indent</strong>: Fixed issue when using tabs which could result in spaces being added</li>
 </ul>
 
 
@@ -124,6 +121,30 @@
 <h2>Features History</h2>
 
 
+
+<h3>New on: 1.3.19</h3>
+
+
+<ul>
+<li><strong>Eclipse 3.2</strong>: Interactive console working</li>
+<li><strong>Eclipse 3.4</strong>: Hyperlinks working</li>
+<li><strong>Eclipse 3.4</strong>: Move / rename working</li>
+<li><strong>raw_input() and input()</strong>: functions are now changed when a program is launched from eclipse to consider a trailing '\r'</li>
+<li><strong>Ctr+/</strong>: Changed to toggle comment (instead of only comment) -- patch from Christoph Pickl</li>
+<li><strong>Pydev package explorer</strong>: Link working with compare editor</li>
+<li><strong>Auto-indent</strong>: Fixed problem when smart indent was turned off</li>
+<li><strong>Debugger</strong>: Better inspection of internal variables for dict, list, tuple, set and frozenset</li>
+<li><strong>Console</strong>: When a parenthesis is entered, the text to the end of the line is no longer deleted</li>
+<li><strong>Code Formatter</strong>: can deal with operators (+, -, *, etc)</li>
+<li><strong>Code Formatter</strong>: can handle '=' differently inside function calls / keyword args</li>
+<li>Problem while navigating pydev package explorer fixed</li>
+<li>Race condition fixed in PythonNatureStore/PythonNature (thanks to Radim Kubacki)</li>
+<li>Halt fixed while having multiple editors with the same file (with the spell service on)</li>
+<li>Pythonpath is no longer lost on closed/imported projects</li>
+<li>Applying a template uses the correct line delimiter</li>
+<li>NPE fixed when creating editor with no interpreter configured</li>
+<li>Hyperlink works in the same way that F3 (saves file before search)</li>
+</ul>
 
 <h3>New on: 1.3.18</h3>
 

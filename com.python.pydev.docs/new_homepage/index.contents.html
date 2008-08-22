@@ -14,7 +14,16 @@ It works with <a class="a_link" href="http://www.eclipse.org/">Eclipse</a> and t
 <h3>Release Changes</h3>
 
 	<ul>
-		<li><h4>Release 1.3.19 <IMG src="images/new.png" border="0" /></h4></li>
+		<li><h4>Release 1.3.20 <IMG src="images/new.png" border="0" /></h4></li>
+		<ul>
+			<li><strong>Code Analysis</strong>: Show error if using token not defined in __all__ in wild import.</li>
+			<li><strong>Search</strong>: Working with eclipse 3.4.</li>
+		</ul>
+	</ul>
+
+
+	<ul>
+		<li><h4>Release 1.3.19</h4></li>
 		<ul>
 			<li><strong>Code Analysis</strong>: Not all unused imports are shown in the message anymore (could give problems saving workspace).</li>
 			<li><strong>Code Analysis</strong>: Fixed problem on double cycle in list comprehension.</li>
@@ -65,28 +74,6 @@ It works with <a class="a_link" href="http://www.eclipse.org/">Eclipse</a> and t
 			</ul>
 		</ul>
 	</ul>
-	
-	<ul>
-		<li><h4>Release 1.3.14</h4></li>
-		<ul>
-			<li><strong>Local renames</strong>: scoping issues.</li>
-			<li><strong>Local renames</strong>: comments/strings only renamed in local scope for local variable.</li>
-			<li><strong>False positive: undefined variable</strong>: a base-class could be flagged as undefined if used in a method scope.</li>
-			<li><strong>Remote Debugger</strong>: easier way to specify path translations between a remote machine and a local machine 
-			(constant must be set in org.python.pydev.debug/pysrc/pydevd_file_utils.py -- see comments on module) .</li>
-		</ul>
-	</ul>
-	
-	<ul>
-		<li><h4>Release 1.3.13</h4></li>
-		<ul>
-			<li><strong>Debug Console</strong>: will print exceptions raised during the evaluation.</li>
-			<li><strong>Debug Console</strong>: will print the result of the evaluation if a valid statement is sent (so, 'print' is not needed for simple evaluations anymore).</li>
-		</ul>
-	</ul>
-	
-
-
 	
 	Check the <a href="history.html">Releases History</a> for info on previous versions.
 
