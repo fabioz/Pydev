@@ -307,14 +307,19 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
     /**
      * Used to hold a link level to know when it should be unlinked or relinked, as calls can be 'cascaded'
      */
-    private volatile Integer linkLevel = 1;
+    private int linkLevel = 1;
+    
+    /**
+     * Used for locking link/unlink access.
+     */
+    private Object lock = new Object();
     
     /**
      * Stops listening to changes (the linkLevel is used so that multiple unlinks can be called and later
      * multiple relinks should be used)
      */
 	void unlinkAll() {
-		synchronized (linkLevel) {
+		synchronized (lock) {
 			linkLevel--;
 			if(linkLevel == 0){
 				removeSelectionChangedListener(selectionListener);
@@ -329,7 +334,7 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
 	 * Starts listening to changes again if the number of relinks matches the number of unlinks
 	 */
 	void relinkAll() {
-		synchronized (linkLevel) {
+		synchronized (lock) {
 			linkLevel++;
 			if(linkLevel == 1){
 				addSelectionChangedListener(selectionListener);
