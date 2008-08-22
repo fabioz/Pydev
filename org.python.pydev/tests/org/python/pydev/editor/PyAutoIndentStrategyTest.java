@@ -25,7 +25,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testNoIndent();
+            s.testTab3();
             s.tearDown();
     		junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -135,6 +135,16 @@ public class PyAutoIndentStrategyTest extends TestCase {
         strategy.customizeDocumentCommand(document, docCmd);
         assertEquals("    ", docCmd.text); 
         assertEquals(str, document.get()); //as we already have a selection, nothing should be deleted
+    }
+    
+    public void testTab3() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(false, 4));
+    	String str = "\tprint 'foo'";
+    	DocCmd docCmd = new DocCmd(1, 0, "\t");
+    	Document document = new Document(str);
+    	strategy.customizeDocumentCommand(document, docCmd);
+    	assertEquals("\t", docCmd.text); 
+    	assertEquals(str, document.get()); //as we already have a selection, nothing should be deleted
     }
     
     public void testSpaces() {

@@ -575,10 +575,16 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
      * @param lineContentsToCursorLen the current cursor position at the current line
      */
 	private void applyDefaultForTab(DocumentCommand command, int lineContentsToCursorLen) {
-		int tabWidth = getIndentPrefs().getTabWidth();
+		IIndentPrefs prefs = getIndentPrefs();
+		if(prefs.getUseSpaces()){
+			int tabWidth = getIndentPrefs().getTabWidth();
+			
+			int mod = (lineContentsToCursorLen+tabWidth) % tabWidth;
+			command.text = DocUtils.createSpaceString(tabWidth-mod);
+		}else{
+			//do nothing (a tab is already a tab)
+		}
 		
-		int mod = (lineContentsToCursorLen+tabWidth) % tabWidth;
-		command.text = DocUtils.createSpaceString(tabWidth-mod);
 	}
 
     /**
