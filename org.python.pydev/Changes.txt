@@ -4,6 +4,7 @@ Pydev Extensions
 
 <ul>
 <li><strong>Code Analysis</strong>: Show error if using token not defined in __all__ in wild import.</li>
+<li><strong>Search</strong>: Working with eclipse 3.4.</li>
 </ul>
 
 Pydev
@@ -13,14 +14,15 @@ Pydev
 <li><strong>Pydev debugger</strong>: Watch working in eclipse 3.4</li>
 <li><strong>Pydev debugger</strong>: Breakpoint properties accept new lines and tabs</li>
 <li><strong>Pydev debugger</strong>: Workaround for python bug when filenames don't have absolute paths correctly generated</li>
-<li><strong>Pydev code-completion</strong>Wild import will only show tokens defined in __all__ (if it's available)</li>
+<li><strong>Pydev code-completion</strong>: Wild import will only show tokens defined in __all__ (if it's available)</li>
 <li><strong>Interactive console</strong>: Fixed problem when more attempts to connect were needed</li>
 <li><strong>Interactive console</strong>: Fixed console integration problem with other plugins because of interfaces not properly implemented</li>
-<li><strong>Incremental find</strong>: backspace works correctly</li>
+<li><strong>Incremental find</strong>: Backspace works correctly</li>
 <li><strong>Launch icons</strong>: Transparent background (thanks to Radim Kubacki)</li>
 <li><strong>Code Formatter</strong>: Exponentials handled correctly</li>
 <li><strong>Launching</strong>: Unit-test and code-coverage may launch multiple folders/files at once</li>
 <li><strong>Code coverage</strong>: Number format exception no longer given when trying to show lines not executed in the editor and all lines are executed</li>
+<li><strong>Auto-indent</strong>: Fixed issue when using tabs which could result in spaces being added</li>
 </ul>
 
 
