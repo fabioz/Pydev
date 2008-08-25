@@ -114,6 +114,21 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * The object may be a SourceToken or a List<SourceToken>
      */
     private HashMap<Integer, TreeMap<String, Object>> tokensCache = new HashMap<Integer, TreeMap<String,Object>>();
+    
+    /**
+     * Set when the visiting is done (can hold some metadata, such as __all__ token assign)
+     */
+    private GlobalModelVisitor globalModelVisitorCache = null;
+    
+    /**
+     * 
+     * @return the visitor that was used to generate the internal tokens for this module (if any).
+     * 
+     * May be null
+     */
+    public GlobalModelVisitor getGlobalModelVisitorCache() {
+		return globalModelVisitorCache;
+	}
 
     /**
      * @return a reference to all the modules that are imported from this one in the global context as a from xxx import *
@@ -122,7 +137,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * its tokens.
      */
     public IToken[] getWildImportedModules() {
-        return getTokens(GlobalModelVisitor.WILD_MODULES, null);
+        return getTokens(GlobalModelVisitor.WILD_MODULES, null, null);
     }
 
     /**
@@ -135,7 +150,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @return an array of references to the modules that are imported from this one in the global context.
      */
     public IToken[] getTokenImportedModules() {
-        return getTokens(GlobalModelVisitor.ALIAS_MODULES, null);
+        return getTokens(GlobalModelVisitor.ALIAS_MODULES, null, null);
     }
 
     /**
@@ -152,14 +167,14 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * The tokens can be class definitions, method definitions and attributes.
      */
     public IToken[] getGlobalTokens() {
-        return getTokens(GlobalModelVisitor.GLOBAL_TOKENS, null);
+        return getTokens(GlobalModelVisitor.GLOBAL_TOKENS, null, null);
     }
 
     /**
      * @return a string representing the module docstring.
      */
     public String getDocString() {
-        IToken[] l = getTokens(GlobalModelVisitor.MODULE_DOCSTRING, null);
+        IToken[] l = getTokens(GlobalModelVisitor.MODULE_DOCSTRING, null, null);
         if (l.length > 0) {
             SimpleNode a = ((SourceToken) l[0]).getAst();
 
@@ -209,12 +224,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 		return ret; 
 	}
 
-    
-	private IToken[] getTokens(int which, ICompletionState state) {
-        return getTokens(which, state, null);
-    }
-    
-    /**
+    	
+	/**
      * @param lookOnlyForNameStartingWith: if not null, well only get from the cache tokens starting with the given representation
      * @return a list of IToken
      */
@@ -242,7 +253,11 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                       GlobalModelVisitor.WILD_MODULES | GlobalModelVisitor.MODULE_DOCSTRING;
             
             //we request all and put it into the cache (partitioned), because that's faster than making multiple runs through it
-            List<IToken> ret = GlobalModelVisitor.getTokens(ast, all, name, state, true);
+            GlobalModelVisitor globalModelVisitor = GlobalModelVisitor.getGlobalModuleVisitorWithTokens(ast, all, name, state, false);
+            
+            this.globalModelVisitorCache = globalModelVisitor;
+            
+            List<IToken> ret = globalModelVisitor.getTokens();
             
             
             if(DEBUG_INTERNAL_GLOBALS_CACHE){

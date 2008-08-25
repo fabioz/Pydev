@@ -1124,6 +1124,12 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     	requestCompl(s, new String[] {"ThisGoes", "ThisGoesToo"});
     }
     
+    public void testRegularImportWithAll() throws Exception {
+    	String s = "from extendable.all_check import This";
+    	
+    	requestCompl(s, new String[] {"ThisGoes", "ThisGoesToo", "ThisDoesnt"});
+    }
+    
     
 }
 

@@ -256,6 +256,29 @@ public abstract class AbstractVisitor extends VisitorBase{
             return new ArrayList<IToken>();
         }
     }
+    
+    /**
+     * This method traverses the ast and returns a model visitor that has the list of found tokens (and other related info, such as __all__, etc.)
+     */
+    public static GlobalModelVisitor getGlobalModuleVisitorWithTokens(SimpleNode ast, int which, String moduleName, ICompletionState state, 
+    		boolean onlyAllowTokensIn__all__) {
+    	if(which == INNER_DEFS){
+    		throw new RuntimeException("Only globals for getting the GlobalModelVisitor");
+    	}
+		GlobalModelVisitor modelVisitor = new GlobalModelVisitor(which, moduleName, onlyAllowTokensIn__all__);
+    	
+    	if (ast != null){
+    		try {
+    			ast.accept(modelVisitor);
+    		} catch (Exception e) {
+    			throw new RuntimeException(e);
+    		}
+    		modelVisitor.finishVisit();
+    		return modelVisitor;
+    	}else{
+    		return modelVisitor;
+    	}
+    }
 
 
     /**

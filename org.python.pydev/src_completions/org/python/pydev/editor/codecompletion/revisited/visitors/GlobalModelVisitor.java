@@ -92,7 +92,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
         if ((this.visitWhat & GLOBAL_TOKENS) != 0) {
             if (node.ctx == Name.Store) {
                 SourceToken added = addToken(node);
-                if(onlyAllowTokensIn__all__ && added.getRepresentation().equals("__all__")){
+                if(added.getRepresentation().equals("__all__")){
                 	__all__ = added;
                 	__all__Assign = lastAssign;
                 }
@@ -146,7 +146,19 @@ public class GlobalModelVisitor extends AbstractVisitor {
      */
     @Override
     protected void finishVisit() {
-    	if(__all__ != null){
+    	if(onlyAllowTokensIn__all__){
+    		filterAll(this.tokens);
+    	}
+    }
+
+    
+    /**
+     * This method will filter the passed tokens given the __all__ that was found when visiting.
+     * 
+     * @param tokens the tokens to be filtered (IN and OUT parameter)
+     */
+	public void filterAll(java.util.List<IToken> tokens) {
+		if(__all__ != null){
     		SimpleNode ast = __all__.getAst();
     		//just checking it
     		if(__all__Assign.targets != null && __all__Assign.targets.length == 1 && __all__Assign.targets[0] == ast){
@@ -174,5 +186,5 @@ public class GlobalModelVisitor extends AbstractVisitor {
     			}
     		}
     	}
-    }
+	}
 }

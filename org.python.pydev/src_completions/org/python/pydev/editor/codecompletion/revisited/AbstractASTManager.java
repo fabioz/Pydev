@@ -37,7 +37,9 @@ import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.editor.codecompletion.revisited.visitors.GlobalModelVisitor;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ImportFrom;
@@ -413,15 +415,28 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     @SuppressWarnings("unchecked")
     public IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods, 
             boolean lookForArgumentCompletion) throws CompletionRecursionException{
+    	return getCompletionsForModule(module, state, searchSameLevelMods, lookForArgumentCompletion, false);
+    }
+    	
+	/** 
+	 * @see #getCompletionsForModule(IModule, ICompletionState, boolean, boolean)
+	 * 
+	 * Same thing but may handle things as if it was a wild import (in which case, the tokens starting with '_' are
+	 * removed and if __all__ is available, only the tokens contained in __all__ are returned)
+	 */
+	@SuppressWarnings("unchecked")
+	public IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods, 
+			boolean lookForArgumentCompletion, boolean handleAsWildImport) throws CompletionRecursionException{
         String name = module.getName();
         Object key = new TupleN("getCompletionsForModule", name!=null?name:"", state.getActivationToken(), searchSameLevelMods, 
-                lookForArgumentCompletion, state.getBuiltinsGotten(), state.getLocalImportsGotten());
+                lookForArgumentCompletion, state.getBuiltinsGotten(), state.getLocalImportsGotten(), handleAsWildImport);
         
         IToken[] ret = (IToken[]) state.getObj(key);
         if(ret != null){
             if(DEBUG_CACHE){
                 System.out.println("Checking if cache is correct for: "+key);
                 IToken[] internal = internalGenerateGetCompletionsForModule(module, state, searchSameLevelMods, lookForArgumentCompletion);
+                internal = filterForWildImport(module, handleAsWildImport, internal);
                 //the new request may actually have no tokens if a completion exception occurred.
                 if(internal.length != 0 && ret.length != internal.length){
                     throw new RuntimeException("This can't happen... it should always return the same completions!");
@@ -430,10 +445,43 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             return ret;
         }
         
-        IToken[] tokens = internalGenerateGetCompletionsForModule(module, state, searchSameLevelMods, lookForArgumentCompletion);
-        state.add(key, tokens);
-        return tokens;
+        IToken[] completionsForModule = internalGenerateGetCompletionsForModule(module, state, searchSameLevelMods, lookForArgumentCompletion);
+        completionsForModule = filterForWildImport(module, handleAsWildImport, completionsForModule);
+        
+    	state.add(key, completionsForModule);
+        return completionsForModule;
     }
+	
+	
+	/**
+	 * Filters the tokens according to the wild import rules:
+	 * - the tokens starting with '_' are removed 
+	 * - if __all__ is available, only the tokens contained in __all__ are returned)
+	 */
+	private IToken[] filterForWildImport(IModule module, boolean handleAsWildImport, IToken[] completionsForModule){
+        if(module != null && handleAsWildImport){
+        	ArrayList<IToken> ret = new ArrayList<IToken>();
+        	
+	        for (int j = 0; j < completionsForModule.length; j++) {
+	            IToken token = completionsForModule[j];
+	            //on wild imports we don't get names that start with '_'
+	            if(!token.getRepresentation().startsWith("_")){
+	                ret.add(token);
+	            }
+	        }
+	        
+	        if(module instanceof SourceModule){
+				SourceModule sourceModule = (SourceModule) module;
+				GlobalModelVisitor globalModelVisitorCache = sourceModule.getGlobalModelVisitorCache();
+				if(globalModelVisitorCache != null){
+					globalModelVisitorCache.filterAll(ret);
+				}
+	        }
+	        return ret.toArray(new IToken[ret.size()]);
+        }else{
+        	return completionsForModule;
+        }
+	}
 
     /**
      * This method should only be accessed from the public getCompletionsForModule (which caches the result).
@@ -478,6 +526,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
             //get the tokens (global, imported and wild imported)
             IToken[] globalTokens = module.getGlobalTokens();
+            
             List<IToken> tokenImportedModules = Arrays.asList(module.getTokenImportedModules());
             importedModules.addAll(tokenImportedModules);
             state.setTokenImportedModules(importedModules);
@@ -504,7 +553,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
 	        if (state.getActivationToken().length() == 0) {
 
-		        List<IToken> completions = getGlobalCompletions(globalTokens, importedModules.toArray(EMPTY_ITOKEN_ARRAY), wildImportedModules, state, module);
+		        List<IToken> completions = getGlobalCompletions(globalTokens, 
+		        		importedModules.toArray(EMPTY_ITOKEN_ARRAY), wildImportedModules, state, module);
 		        
 		        //now find the locals for the module
 		        if (line >= 0){
@@ -513,7 +563,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                         completions.add(localTokens[i]); 
                     }
 		        }
-		        completions.addAll(initial); //just addd all that are in the same level if it was an __init__
+		        completions.addAll(initial); //just add all that are in the same level if it was an __init__
 
                 return completions.toArray(EMPTY_ITOKEN_ARRAY);
                 
@@ -533,6 +583,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 	                }
                 }
 
+	        	//for wild imports, we must get the global completions with __all__ filtered
                 //wild imports: recursively go and get those completions and see if any matches it.
                 for (int i = 0; i < wildImportedModules.length; i++) {
 
@@ -759,6 +810,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         //wild imports: recursively go and get those completions.
         for (int i = 0; i < wildImportedModules.length; i++) {
 
+        	//for wild imports, we must get the global completions with __all__ filtered
             IToken name = wildImportedModules[i];
             getCompletionsForWildImport(state, current, completions, name);
         }
@@ -907,7 +959,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     /* (non-Javadoc)
      * @see ICodeCompletionASTManager#getCompletionsForWildImport(ICompletionState, IModule, List, IToken)
      */
-    public List<IToken> getCompletionsForWildImport(ICompletionState state, IModule current, List<IToken> completions, IToken name) {
+    public boolean getCompletionsForWildImport(ICompletionState state, IModule current, List<IToken> completions, 
+    		IToken name) {
         try {
         	//this one is an exception... even though we are getting the name as a relative import, we say it
         	//is not because we want to get the module considering __init__
@@ -924,21 +977,18 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
             if (mod != null) {
                 state.checkWildImportInMemory(current, mod);
-                IToken[] completionsForModule = getCompletionsForModule(mod, state);
-                for (int j = 0; j < completionsForModule.length; j++) {
-                    IToken token = completionsForModule[j];
-                    //on wild imports we don't get names that start with '_'
-                    if(!token.getRepresentation().startsWith("_")){
-                        completions.add(token);
-                    }
-                }
+                IToken[] completionsForModule = getCompletionsForModule(mod, state, true, false, true);
+                for (IToken token : completionsForModule) {
+                	completions.add(token);
+				}
+                return true;
             } else {
                 //"Module not found:" + name.getRepresentation()
             }
         } catch (CompletionRecursionException e) {
             //probably found a recursion... let's return the tokens we have so far
         }
-        return completions;
+        return false;
     }
 
     public IToken[] findTokensOnImportedMods( IToken[] importedModules, ICompletionState state, IModule current) throws CompletionRecursionException {
