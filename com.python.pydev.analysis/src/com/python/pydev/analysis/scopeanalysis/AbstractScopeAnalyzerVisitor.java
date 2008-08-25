@@ -365,8 +365,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 
                 ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature, this.completionCache);
                 state.setBuiltinsGotten (true); //we don't want any builtins
-                List<IToken> completionsForWildImport = nature.getAstManager().getCompletionsForWildImport(state, current, new ArrayList<IToken>(), wildImport);
-                scope.addImportTokens(completionsForWildImport, wildImport, this.completionCache);
+                List<IToken> completionsForWildImport = new ArrayList<IToken>();
+                if(nature.getAstManager().getCompletionsForWildImport(state, current, completionsForWildImport, wildImport)){
+                	scope.addImportTokens(completionsForWildImport, wildImport, this.completionCache);
+                }
             }else{
                 List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
                 scope.addImportTokens(list, null, this.completionCache);
