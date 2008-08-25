@@ -10,7 +10,7 @@ def _topicDefault():
 <tr>
 
 <td bgcolor="#CCD0C6" align="center" valign="middle" >
-<IMG src="images/pydev_logo6.gif" border="0" >
+<a href="http://aptana.com"><IMG src="images/pydev_banner.gif" border="0" ></a>
 
 </td>
 </tr>
