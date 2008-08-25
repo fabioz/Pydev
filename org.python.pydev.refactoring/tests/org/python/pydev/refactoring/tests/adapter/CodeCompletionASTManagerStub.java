@@ -90,7 +90,7 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
 		throw new RuntimeException("Not implemented");
 	}
 
-	public List<IToken> getCompletionsForWildImport(ICompletionState state,
+	public boolean getCompletionsForWildImport(ICompletionState state,
 			IModule current, List<IToken> completions, IToken wildImport) {
 		throw new RuntimeException("Not implemented");
 	}
