@@ -55,7 +55,7 @@ REM Copying open source homepage
 
 REM rsync --exclude "*.db" -r /cygdrive/d/bin/aptana_workspace/com.python.pydev.docs/new_homepage/final/ \\ironman\users\fabioz\www\pydev\
 
-rsync -h --exclude "*.db" -r /cygdrive/d/bin/aptana_workspace/com.python.pydev.docs/open_source/final/ fabioz@shell.sourceforge.net:/home/groups/p/py/pydev/htdocs/
+rsync -h --exclude "*.db" -r /cygdrive/e/fabioz/workspace332/com.python.pydev.docs/open_source/final/ fabioz@shell.sourceforge.net:/home/groups/p/py/pydev/htdocs/
 
 
 
