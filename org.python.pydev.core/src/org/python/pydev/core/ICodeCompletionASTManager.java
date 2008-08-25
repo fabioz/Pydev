@@ -194,8 +194,10 @@ public interface ICodeCompletionASTManager {
      * @param current this is the current module
      * @param completions OUT this is were completions are added.
      * @param wildImport this is the token identifying the wild import
+     * 
+     * @return true if it was able to find the module and get its completions and false otherwise
      */
-    public List<IToken> getCompletionsForWildImport(ICompletionState state, IModule current, List<IToken> completions, IToken wildImport);
+    public boolean getCompletionsForWildImport(ICompletionState state, IModule current, List<IToken> completions, IToken wildImport);
 
     /**
      * This method returns the python builtins as completions
