@@ -32,8 +32,8 @@ set RETROWEAVER_HOME=E:\fabioz\retroweaver-all\retroweaver
 set PDE_BUILD_SCRIPTS=\plugins\org.eclipse.pde.build_3.3.2.v20071019\scripts
 E:\fabioz\workspace332
 
-set PYDEV_VERSION=1.3.20
-set BUILD_ID=1_3_20
+set PYDEV_VERSION=1.3.21
+set BUILD_ID=1_3_21
 
 cd %EC_WORKSPACE%\org.python.pydev.releng 
 %EC_HOME%\eclipsec.exe -application org.eclipse.ant.core.antRunner -buildfile build.xml -Dconfigs="*,*,*" -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -DbaseLocation=%EC_HOME% -DjavacFailOnError=true -DEC_HOME=%EC_HOME% -DEC_WORKSPACE=%EC_WORKSPACE% -DPYDEV_VERSION=%PYDEV_VERSION% -DBUILD_ID=%BUILD_ID%  -DRETROWEAVER_HOME=%RETROWEAVER_HOME% -DdontFetchAnything=True -DcleanAfter=True -DPDE_BUILD_SCRIPTS=%PDE_BUILD_SCRIPTS%
