@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Writer writes debugger commands to the network. Use postCommand to put new
@@ -19,12 +20,21 @@ public class DebuggerWriter implements Runnable {
     /**
      * a list of RemoteDebuggerCommands
      */
-    private ArrayList cmdQueue = new ArrayList();
+    private List<AbstractDebuggerCommand> cmdQueue = new ArrayList<AbstractDebuggerCommand>();
 
     private OutputStreamWriter out;
 
-    private boolean done = false;
+    /**
+     * Volatile, as multiple threads may ask it to be 'done'
+     */
+    private volatile boolean done = false;
 
+    /**
+     * Lock object for sleeping.
+     */
+    private Object lock = new Object();
+
+    
     public DebuggerWriter(Socket s) throws IOException {
         socket = s;
         out = new OutputStreamWriter(s.getOutputStream());
@@ -50,8 +60,9 @@ public class DebuggerWriter implements Runnable {
         while (!done) {
             AbstractDebuggerCommand cmd = null;
             synchronized (cmdQueue) {
-                if (cmdQueue.size() > 0)
+                if (cmdQueue.size() > 0){
                     cmd = (AbstractDebuggerCommand) cmdQueue.remove(0);
+                }
             }
             try {
                 if (cmd != null) {
@@ -60,7 +71,7 @@ public class DebuggerWriter implements Runnable {
                     out.write("\n");
                     out.flush();
                 }
-                synchronized (this) {
+                synchronized (lock) {
                     Thread.sleep(100);
                 }
             } catch (InterruptedException e) {

@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.URLDecoder;
+import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.eclipse.core.runtime.IStatus;
@@ -28,14 +29,19 @@ public class DebuggerReader implements Runnable {
     private Socket socket;
     
     /**
-     * means that we are done
+     * Volatile, as multiple threads may ask it to be 'done'
      */
-	private boolean done = false;
+    private volatile boolean done = false;
+    
+    /**
+     * Lock object for sleeping.
+     */
+    private Object lock = new Object();
     
     /**
      * commands waiting for response. Their keys are the sequence ids
      */
-	private Hashtable responseQueue = new Hashtable();
+	private Dictionary<Integer, AbstractDebuggerCommand> responseQueue = new Hashtable<Integer, AbstractDebuggerCommand>();
     
     /**
      * we read from this
@@ -74,7 +80,9 @@ public class DebuggerReader implements Runnable {
      */
 	public void addToResponseQueue(AbstractDebuggerCommand cmd) {
 		int sequence = cmd.getSequence();
-		responseQueue.put(new Integer(sequence), cmd);
+		synchronized (responseQueue) {
+			responseQueue.put(new Integer(sequence), cmd);
+		}
 	}
 	
 	/**
@@ -89,7 +97,10 @@ public class DebuggerReader implements Runnable {
 
             
             // is there a response waiting
-            AbstractDebuggerCommand cmd = (AbstractDebuggerCommand) responseQueue.remove(new Integer(seqCode));
+            AbstractDebuggerCommand cmd;
+            synchronized (responseQueue) {
+            	cmd = (AbstractDebuggerCommand) responseQueue.remove(new Integer(seqCode));
+			}
             
             if (cmd == null){
                 if ( remote.getTarget() != null){
@@ -119,7 +130,7 @@ public class DebuggerReader implements Runnable {
                 if(cmdLine != null){                	
 					processCommand(cmdLine);
 				}
-                synchronized (this) {
+                synchronized(lock) {
                 	Thread.sleep(50);
 				}
 			} catch (Exception e1) {
