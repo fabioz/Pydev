@@ -40,7 +40,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-	      test.testWildImportWithAll();
+	      test.testWildImportWithAll2();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -1128,6 +1128,13 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     	String s = "from extendable.all_check import This";
     	
     	requestCompl(s, new String[] {"ThisGoes", "ThisGoesToo", "ThisDoesnt"});
+    }
+    
+    public void testWildImportWithAll2() throws Exception {
+    	String s = "from extendable.all_check2 import *\n" +
+    			"This";
+    	
+    	requestCompl(s, -1, new String[] {"ThisGoes", "ThisGoesToo"});
     }
     
     

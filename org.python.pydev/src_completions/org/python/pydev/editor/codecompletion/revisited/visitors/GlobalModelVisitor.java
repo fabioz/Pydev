@@ -31,6 +31,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
     private int visitWhat;
     private SourceToken __all__;
     private Assign __all__Assign;
+    private exprType[] __all__AssignTargets;
     private Assign lastAssign;
 	private boolean onlyAllowTokensIn__all__;
 
@@ -92,10 +93,17 @@ public class GlobalModelVisitor extends AbstractVisitor {
         if ((this.visitWhat & GLOBAL_TOKENS) != 0) {
             if (node.ctx == Name.Store) {
                 SourceToken added = addToken(node);
-                if(added.getRepresentation().equals("__all__")){
+                if(added.getRepresentation().equals("__all__") && __all__Assign == null){
                 	__all__ = added;
                 	__all__Assign = lastAssign;
+                	__all__AssignTargets = lastAssign.targets;
                 }
+            }else if(node.ctx == Name.Load){
+            	if(node.id.equals("__all__")){
+            		//if we find __all__ more than once, let's clear it (we can only have __all__ = list of strings... if later
+            		//an append, extend, etc is done in it, we have to skip this heuristic).
+            		__all__AssignTargets = null;
+            	}
             }
         }
         return null;
@@ -161,7 +169,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
 		if(__all__ != null){
     		SimpleNode ast = __all__.getAst();
     		//just checking it
-    		if(__all__Assign.targets != null && __all__Assign.targets.length == 1 && __all__Assign.targets[0] == ast){
+    		if(__all__AssignTargets != null && __all__AssignTargets.length == 1 && __all__AssignTargets[0] == ast){
     			HashSet<String> validTokensInAll = new HashSet<String>();
     			exprType value = __all__Assign.value;
     			if(value instanceof List){

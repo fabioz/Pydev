@@ -471,6 +471,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 	        }
 	        
 	        if(module instanceof SourceModule){
+	        	//Support for __all__: filter things if __all__ is available.
 				SourceModule sourceModule = (SourceModule) module;
 				GlobalModelVisitor globalModelVisitorCache = sourceModule.getGlobalModelVisitorCache();
 				if(globalModelVisitorCache != null){

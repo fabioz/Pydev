@@ -1,3 +1,11 @@
+after 1.3.20
+
+Pydev
+<ul>
+<li><strong>Editor</strong>: Cursor settings no longer overridden</li>
+<li><strong>Code-completion</strong>: If __all__ is defined with runtime elements (and not only in a single assign statement), it's ignored for code-completion purposes</li>
+</ul>
+
 after 1.3.19
 
 Pydev Extensions
