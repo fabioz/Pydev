@@ -46,8 +46,6 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         node.putBoolean(PydevPrefs.SUBSTITUTE_TABS, PydevPrefs.DEFAULT_SUBSTITUTE_TABS);
         node.putBoolean(PydevPrefs.AUTO_ADD_SELF, PydevPrefs.DEFAULT_AUTO_ADD_SELF);
         node.putBoolean(PydevPrefs.GUESS_TAB_SUBSTITUTION, PydevPrefs.DEFAULT_GUESS_TAB_SUBSTITUTION);
-        node.put(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_USE_CUSTOM_CARETS, StringConverter.asString(PydevPrefs.DEFAULT_EDITOR_USE_CUSTOM_CARETS));
-        node.put(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_WIDE_CARET, StringConverter.asString(PydevPrefs.DEFAULT_EDITOR_WIDE_CARET));
         
         //matching
         node.putBoolean(PydevPrefs.USE_MATCHING_BRACKETS, PydevPrefs.DEFAULT_USE_MATCHING_BRACKETS);
