@@ -673,7 +673,11 @@ class PyDB:
             del sys.path[0]
         
         #now, the local directory has to be added to the pythonpath
-        sys.path.insert(0, os.getcwd())
+        #sys.path.insert(0, os.getcwd())
+        #Changed: it's not the local directory, but the directory of the file launched
+        #The file being run ust be in the pythonpath (even if it was not before)
+        sys.path.insert(0, os.path.split(file)[0])
+        
         # for completness, we'll register the pydevd.reader & pydevd.writer threads
         net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.reader" id="-1"/></xml>')
         self.writer.addCommand(net)
