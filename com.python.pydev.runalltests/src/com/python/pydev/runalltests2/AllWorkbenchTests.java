@@ -4,6 +4,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.python.pydev.debug.ui.DebuggerTestWorkbench;
+import org.python.pydev.debug.ui.launching.PythonRunnerConfigTestWorkbench;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaClassModuleTestWorkbench;
 import org.python.pydev.editor.codecompletion.revisited.jython.JythonCompletionWithBuiltinsTestWorkbench;
 import org.python.pydev.editor.codecompletion.revisited.jython.JythonFindDefinitionTestWorkbench;
@@ -25,6 +26,7 @@ public class AllWorkbenchTests {
         suite.addTestSuite(JythonFindDefinitionTestWorkbench.class);
         suite.addTestSuite(JavaClassModuleTestWorkbench.class); 
         suite.addTestSuite(JavaIntegrationPydevComTestWorkbench.class); 
+        suite.addTestSuite(PythonRunnerConfigTestWorkbench.class); 
         
         suite.addTestSuite(DebuggerTestWorkbench.class); 
         
