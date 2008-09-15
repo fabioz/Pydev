@@ -58,22 +58,25 @@ public class PythonRunnerConfig {
     public static final String RUN_JYTHON_UNITTEST = "jython unittest run";
     public static final String RUN_JYTHON   = "jython regular run";
         
-    public IProject project;
-	public IPath[] resource;
-	public IPath interpreter;
-	public String interpreterLocation;
-	private String arguments;
-	public File workingDirectory;
+    public final IProject project;
+	public final IPath[] resource;
+	public final IPath interpreter;
+	public final String interpreterLocation;
+	private final String arguments;
+	public final File workingDirectory;
 	public String pythonpathUsed;
 	// debugging
-	public boolean isDebug;
-	public boolean isInteractive;
+	public final boolean isDebug;
+	public final boolean isInteractive;
 	private int debugPort = 0;  // use getDebugPort
 	public int acceptTimeout = 5000; // miliseconds
 	public String[] envp = null;
 
-    private String run;
-    private ILaunchConfiguration configuration;
+	private final boolean useUnittestWrapper;
+
+	/** One of RUN_ enums */
+    private final String run;
+    private final ILaunchConfiguration configuration;
 
     public boolean isCoverage(){
         return this.run.equals(RUN_COVERAGE);
@@ -93,39 +96,41 @@ public class PythonRunnerConfig {
     }
     
     
-    /**
-     * Expands and returns the location attribute of the given launch
-     * configuration. The location is
-     * verified to point to an existing file, in the local file system.
-     * 
-     * @param configuration launch configuration
-     * @return an absolute path to a file in the local file system  
-     * @throws CoreException if unable to retrieve the associated launch
-     * configuration attribute, if unable to resolve any variables, or if the
-     * resolved location does not point to an existing file in the local file
-     * system
-     */
-    public static IPath[] getLocation(ILaunchConfiguration configuration) throws CoreException {
-        String locationsStr = configuration.getAttribute(Constants.ATTR_LOCATION, (String) null);
-        
-        if (locationsStr == null) {
-            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get location for run", null));
-        } else {
-        	String[] locations = StringUtils.split(locationsStr, '|');
-        	Path[] ret = new Path[locations.length];
-        	int i=0;
-        	for(String location:locations){
-	            String expandedLocation = getStringVariableManager().performStringSubstitution(location);
-	            if (expandedLocation == null || expandedLocation.length() == 0) {
-	                throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get expanded location for run", null));
-	            } else {
-	                ret[i] = new Path(expandedLocation);
-	            }
-	            i++;
-        	}
-            return ret;
-        }
-    }
+    /*
+	 * Expands and returns the location attribute of the given launch configuration. The location is verified to point
+	 * to an existing file, in the local file system.
+	 * 
+	 * @param configuration launch configuration
+	 * 
+	 * @return an absolute path to a file in the local file system
+	 * 
+	 * @throws CoreException if unable to retrieve the associated launch configuration attribute, if unable to resolve
+	 * any variables, or if the resolved location does not point to an existing file in the local file system
+	 */
+	public static IPath[] getLocation(ILaunchConfiguration configuration) throws CoreException {
+		String locationsStr = configuration.getAttribute(Constants.ATTR_ALTERNATE_LOCATION, (String) null);
+		if (locationsStr == null) {
+			locationsStr = configuration.getAttribute(Constants.ATTR_LOCATION, (String) null);
+		}
+		if (locationsStr == null) {
+			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get location for run", null));
+		}
+
+		String[] locations = StringUtils.split(locationsStr, '|');
+		Path[] ret = new Path[locations.length];
+		int i = 0;
+		for (String location : locations) {
+			String expandedLocation = getStringVariableManager().performStringSubstitution(location);
+			if (expandedLocation == null || expandedLocation.length() == 0) {
+				throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,
+						"Unable to get expanded location for run", null));
+			} else {
+				ret[i] = new Path(expandedLocation);
+			}
+			i++;
+		}
+		return ret;
+	}
     
     /**
      * Expands and returns the arguments attribute of the given launch
@@ -304,8 +309,7 @@ public class PythonRunnerConfig {
         project = getProjectFromConfiguration(conf);
         
         if(project == null){ //Ok, we could not find it out
-            CoreException e = PydevPlugin.log("Could not get project for resource: "+resource);
-            throw e;
+            throw PydevPlugin.log("Could not get project for configuration: " + conf);
         }
 
         // We need the project to find out the default interpreter from the InterpreterManager.
@@ -314,8 +318,6 @@ public class PythonRunnerConfig {
             CoreException e = PydevPlugin.log("No python nature for project: " + project.getName());
             throw e;
         }
-        
-        
         
         if(pythonNature.isJython()){
             if(!run.equals(RUN_JYTHON) && !run.equals(RUN_JYTHON_UNITTEST)){
@@ -340,6 +342,8 @@ public class PythonRunnerConfig {
         this.run = run;
 		isDebug = mode.equals(ILaunchManager.DEBUG_MODE);
 		isInteractive = mode.equals("interactive");
+		useUnittestWrapper = !run.equals(RUN_UNITTEST) || 
+		    !conf.getAttribute(Constants.ATTR_NO_UNITTEST_WRAPPER, false);
 		
         resource = getLocation(conf);
 		arguments = getArguments(conf, makeArgumentsVariableSubstitution);
@@ -400,34 +404,30 @@ public class PythonRunnerConfig {
 	}
 	
     /**
-     * @param envMap
-     * @return
-     */
-    private boolean specifiedPythonpath(Map<String, String> envMap) {
-        if(envMap == null){
-            return false;
-            
-        }else{
-    		boolean win32= Platform.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32);
+	 * Check if map contains PYTHONPATH key.
+	 * 
+	 * Variables names are considered not case sensitive on Windows.
+	 * 
+	 * @param envMap mapping of env variables and their values
+	 * @return {@code true} if passed map contain PYTHONPATH key.
+	 */
+	private boolean specifiedPythonpath(Map<String, String> envMap) {
+		if (envMap == null) {
+			return false;
+		}
+		boolean win32 = Platform.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32);
+		if (!win32) {
+			return envMap.containsKey("PYTHONPATH");
+		}
 
-            for (Iterator<String> iter = envMap.keySet().iterator(); iter.hasNext();) {
-                String s = iter.next();
-
-                if(win32){
-                    if(s.toUpperCase().equals("PYTHONPATH")){
-                        return true;
-                    }
-                }else{
-                    if(s.equals("PYTHONPATH")){
-                        return true;
-                    }
-                }
-                
-            }
-        }
-        
-        return false;
-    }
+		for (Iterator<String> iter = envMap.keySet().iterator(); iter.hasNext();) {
+			String s = iter.next();
+			if (s.toUpperCase().equals("PYTHONPATH")) {
+				return true;
+			}
+		}
+		return false;
+	}
 
     public int getDebugPort() throws CoreException {
 		if (debugPort == 0) {
@@ -477,10 +477,6 @@ public class PythonRunnerConfig {
         return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("coverage.py"));
     }
 
-    public static String getUnitTestScript() throws CoreException {
-        return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("SocketTestRunner.py"));
-    }
-
     /** 
 	 * gets location of jpydaemon.py
 	 */
@@ -488,7 +484,7 @@ public class PythonRunnerConfig {
 	    return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("pydevd.py"));
 	}
 
-    private String getRunFilesScript() throws CoreException {
+    public static String getRunFilesScript() throws CoreException {
         return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("runfiles.py"));
     }
     
@@ -531,33 +527,12 @@ public class PythonRunnerConfig {
             	cmdArgs.add("-Dpython.security.respectJavaAccessibility=false"); //TODO: the user should configure this -- we use it so that 
             																	 //we can access the variables during debugging. 
             	cmdArgs.add("org.python.util.jython");
-
-            	cmdArgs.add(getDebugScript());
-                cmdArgs.add("--vm_type");
-                cmdArgs.add("jython");
-                cmdArgs.add("--client");
-                cmdArgs.add("localhost");
-                cmdArgs.add("--port");
-                cmdArgs.add(Integer.toString(debugPort));
-                cmdArgs.add("--file");
-
+            	addDebugArgs(cmdArgs, "jython");
             }else{
             	cmdArgs.add("org.python.util.jython");
-            	
             }
             
-            
-            if(isUnittest()){
-                cmdArgs.add(getRunFilesScript());
-                cmdArgs.add("--verbosity");
-                cmdArgs.add( PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_VERBOSITY) );
-                
-                String filter = PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_TEST_FILTER);
-                if (filter.length() > 0) {
-                    cmdArgs.add("--filter");
-                    cmdArgs.add( filter );
-                }
-            }
+            addUnittestArgs(cmdArgs);
 
         }else{
         
@@ -567,16 +542,7 @@ public class PythonRunnerConfig {
         
             addVmArgs(cmdArgs);
             
-    		if (isDebug) {
-    			cmdArgs.add(getDebugScript());
-                cmdArgs.add("--vm_type");
-                cmdArgs.add("python");
-    			cmdArgs.add("--client");
-    			cmdArgs.add("localhost");
-    			cmdArgs.add("--port");
-    			cmdArgs.add(Integer.toString(debugPort));
-    			cmdArgs.add("--file");
-    		}
+            addDebugArgs(cmdArgs, "python");
     		
     		if(isCoverage()){
     			cmdArgs.add(getCoverageScript());
@@ -589,17 +555,7 @@ public class PythonRunnerConfig {
                 }
     		}
     
-    		if(isUnittest()){
-                cmdArgs.add(getRunFilesScript());
-                cmdArgs.add("--verbosity");
-                cmdArgs.add( PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_VERBOSITY) );
-                
-                String filter = PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_TEST_FILTER);
-                if (filter.length() > 0) {
-	                cmdArgs.add("--filter");
-	                cmdArgs.add( filter );
-                }
-    		}
+            addUnittestArgs(cmdArgs);
         }
         
         for(IPath p:resource){
@@ -619,6 +575,39 @@ public class PythonRunnerConfig {
 		String[] retVal = new String[cmdArgs.size()];
 		cmdArgs.toArray(retVal);
 		return retVal;
+	}
+
+    /**
+	 * Adds a set of arguments used to wrap executed file with unittest runner.
+	 */
+	private void addUnittestArgs(List<String> cmdArgs) throws CoreException {
+		if (isUnittest() && useUnittestWrapper) {
+			cmdArgs.add(getRunFilesScript());
+			cmdArgs.add("--verbosity");
+			cmdArgs.add(PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_VERBOSITY));
+
+			String filter = PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_TEST_FILTER);
+			if (filter.length() > 0) {
+				cmdArgs.add("--filter");
+				cmdArgs.add(filter);
+			}
+		}
+	}
+
+	/**
+	 * Adds a set of arguments needed for debugging.
+	 */
+	private void addDebugArgs(List<String> cmdArgs, String vmType) throws CoreException {
+		if (isDebug) {
+			cmdArgs.add(getDebugScript());
+			cmdArgs.add("--vm_type");
+			cmdArgs.add(vmType);
+			cmdArgs.add("--client");
+			cmdArgs.add("localhost");
+			cmdArgs.add("--port");
+			cmdArgs.add(Integer.toString(debugPort));
+			cmdArgs.add("--file");
+		}
 	}
 
     /**

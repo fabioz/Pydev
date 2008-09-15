@@ -34,6 +34,10 @@ public interface Constants {
 // LaunchConfiguration properties
 // ATTR_* are copied from IExternalToolConstants, replicated since I have no access to originals
 	static final String ATTR_LOCATION = "org.eclipse.ui.externaltools" + ".ATTR_LOCATION";
+    /** Attribute holding alternate location that is used to actually run the resource. */
+    static final String ATTR_ALTERNATE_LOCATION = "org.python.pydev.debug.core" + ".ATTR_ALTERNATE_LOCATION";
+    /** Attribute to control if a wrapper for test runner should be used. */
+    static final String ATTR_NO_UNITTEST_WRAPPER = "org.python.pydev.debug.core" + ".ATTR_NO_UNITTEST_WRAPPER";
 	static final String ATTR_WORKING_DIRECTORY = "org.eclipse.ui.externaltools" + ".ATTR_WORKING_DIRECTORY";
 	static final String ATTR_OTHER_WORKING_DIRECTORY = "org.eclipse.ui.externaltools" + ".ATTR_OTHER_WORKING_DIRECTORY";
 	static final String ATTR_PROGRAM_ARGUMENTS = "org.eclipse.ui.externaltools" + ".ATTR_TOOL_ARGUMENTS";
