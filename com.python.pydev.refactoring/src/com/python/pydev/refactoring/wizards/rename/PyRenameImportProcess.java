@@ -123,7 +123,7 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                 //now, let's make the mapping from the filesystem to the Eclipse workspace
                 IFile workspaceFile = null; 
                 try{
-                    workspaceFile = PySourceLocatorBase.getWorkspaceFile(moduleToFind.getFile());
+                    workspaceFile = new PySourceLocatorBase().getWorkspaceFile(moduleToFind.getFile());
                     if(workspaceFile == null){
                         status.addFatalError(StringUtils.format("Error. Unable to resolve the file:\n" +
                                 "%s\n" +
