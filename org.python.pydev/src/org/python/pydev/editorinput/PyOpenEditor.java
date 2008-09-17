@@ -81,7 +81,7 @@ public class PyOpenEditor {
 	    }
 	
 	    try {
-			IEditorInput file = PySourceLocatorBase.createEditorInput(path);
+			IEditorInput file = new PySourceLocatorBase().createEditorInput(path);
 	        return openEditorInput(file);
 	        
 	    } catch (Exception e) {

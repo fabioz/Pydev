@@ -53,7 +53,7 @@ public class PySourceLocatorBase {
 	 * @param path
 	 * @return
 	 */
-    public static IEditorInput createEditorInput(IPath path) {
+    public IEditorInput createEditorInput(IPath path) {
         return createEditorInput(path, true);
     }
 
@@ -62,7 +62,7 @@ public class PySourceLocatorBase {
      * @param file the file we want to get in the workspace
      * @return a workspace file that matches the given file.
      */
-    public static IFile getWorkspaceFile(File file) {
+    public IFile getWorkspaceFile(File file) {
         IFile[] files = getWorkspaceFiles(file);
         return selectWorkspaceFile(files);
     }
@@ -72,7 +72,7 @@ public class PySourceLocatorBase {
      * @param file the file we want to get in the workspace
      * @return a workspace file that matches the given file.
      */
-    public static IFile[] getWorkspaceFiles(File file) {
+    public IFile[] getWorkspaceFiles(File file) {
         IWorkspace workspace= ResourcesPlugin.getWorkspace();
         IPath location= Path.fromOSString(file.getAbsolutePath());
         IFile[] files= workspace.getRoot().findFilesForLocation(location);
@@ -97,17 +97,26 @@ public class PySourceLocatorBase {
      * 
      * @return the editor input found or none if None was available for the given path
      */
-    private static IEditorInput createEditorInput(IPath path, boolean askIfDoesNotExist) {
+    private IEditorInput createEditorInput(IPath path, boolean askIfDoesNotExist) {
+    	String pathTranslation = PySourceLocatorPrefs.getPathTranslation(path);
+    	if(pathTranslation != null){
+    		if(!pathTranslation.equals(PySourceLocatorPrefs.DONTASK)){
+    			//change it for the registered translation
+    			path = Path.fromOSString(pathTranslation);
+    		}else{
+    			//DONTASK!!
+    			askIfDoesNotExist = false;
+    		}
+    	}
+    	
         IEditorInput edInput = null;
         IWorkspace w = ResourcesPlugin.getWorkspace();      
-
+        
         //let's start with the 'easy' way
     	IFile fileForLocation = w.getRoot().getFileForLocation(path);
     	if(fileForLocation != null && fileForLocation.exists()){
     		return new FileEditorInput(fileForLocation);
     	}
-
-        
         
         IFile files[] = w.getRoot().findFilesForLocation(path);
         if (files == null  || files.length == 0 || !files[0].exists()){
@@ -130,14 +139,19 @@ public class PySourceLocatorBase {
                 List<IFile> likelyFiles = getLikelyFiles(path, w);
                 IFile iFile = selectWorkspaceFile(likelyFiles.toArray(new IFile[0]));
                 if(iFile != null){
+                	PySourceLocatorPrefs.addPathTranslation(path, iFile.getLocation());
                     return new FileEditorInput(iFile);
                 }
                 
                 //ok, ask the user for any file in the computer
-                input = selectFilesystemFileForPath(path);
+                PydevFileEditorInput pydevFileEditorInput = selectFilesystemFileForPath(path);
+                input = pydevFileEditorInput;
                 if(input != null){
+                	PySourceLocatorPrefs.addPathTranslation(path, pydevFileEditorInput.getPath());
                     return input;
                 }
+                
+                PySourceLocatorPrefs.setIgnorePathTranslation(path);
             }
         }else{ //file exists
             IFile workspaceFile = selectWorkspaceFile(files);
@@ -153,7 +167,7 @@ public class PySourceLocatorBase {
      * @param matchName the name to match in the editor
      * @return an editor input from an existing editor available
      */
-    private static IEditorInput getEditorInputFromExistingEditors(final String matchName) {
+    private IEditorInput getEditorInputFromExistingEditors(final String matchName) {
     	final Tuple<IWorkbenchWindow, IEditorInput> workbenchAndReturn = new Tuple<IWorkbenchWindow, IEditorInput>(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), null);
     	
         Runnable r = new Runnable(){
@@ -222,7 +236,7 @@ public class PySourceLocatorBase {
     /**
      * This is the last resort... pointing to some filesystem file to get the editor for some path.
      */
-    private static IEditorInput selectFilesystemFileForPath(final IPath path) {
+    protected PydevFileEditorInput selectFilesystemFileForPath(final IPath path) {
         final List<String> l = new ArrayList<String>();
         Runnable r = new Runnable(){
 
@@ -253,7 +267,7 @@ public class PySourceLocatorBase {
      * This method will pass all the files in the workspace and check if there's a file that might
      * be a match to some path (use only as an almost 'last-resort').
      */
-    private static List<IFile> getLikelyFiles(IPath path, IWorkspace w) {
+    private List<IFile> getLikelyFiles(IPath path, IWorkspace w) {
         List<IFile> ret = new ArrayList<IFile>();
         try {
             IResource[] resources = w.getRoot().members();
@@ -267,7 +281,7 @@ public class PySourceLocatorBase {
     /**
      * Used to recursively get the likely files given the first set of containers
      */
-    private static void getLikelyFiles(IPath path, List<IFile> ret, IResource[] resources) throws CoreException {
+    private void getLikelyFiles(IPath path, List<IFile> ret, IResource[] resources) throws CoreException {
         String strPath = path.removeFileExtension().lastSegment().toLowerCase(); //this will return something as 'foo'
         
         for (IResource resource : resources) {
@@ -290,7 +304,7 @@ public class PySourceLocatorBase {
      * @param file the file for which an editor input should be created
      * @return the editor input that'll open the passed file.
      */
-    private static IEditorInput createEditorInput(File file) {
+    private IEditorInput createEditorInput(File file) {
         IFile[] workspaceFile= getWorkspaceFiles(file);
         if (workspaceFile != null && workspaceFile.length > 0){
             IFile file2 = selectWorkspaceFile(workspaceFile);
@@ -308,7 +322,7 @@ public class PySourceLocatorBase {
      * @param files the files that should be filtered
      * @return a new array of IFile with only the files that actually exist.
      */
-    private static IFile[] filterNonExistentFiles(IFile[] files){
+    private IFile[] filterNonExistentFiles(IFile[] files){
         if (files == null)
             return null;
 
@@ -329,7 +343,7 @@ public class PySourceLocatorBase {
      * @return the selected file (from the files passed) or null if there was no file available for
      * selection or if the user cancelled it.
      */
-    private static IFile selectWorkspaceFile(final IFile[] files) {
+    private IFile selectWorkspaceFile(final IFile[] files) {
         if(files == null || files.length == 0){
             return null;
         }

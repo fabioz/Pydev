@@ -20,7 +20,21 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 public class PycRemoverBuilderVisitor extends PyDevBuilderVisitor{
+	
+	PySourceLocatorBase locator;
 
+	@Override
+	public void visitingWillStart(IProgressMonitor monitor, boolean isFullBuild, IPythonNature nature) {
+		locator = new PySourceLocatorBase();
+		super.visitingWillStart(monitor, isFullBuild, nature);
+	}
+	
+	@Override
+	public void visitingEnded(IProgressMonitor monitor) {
+		super.visitingEnded(monitor);
+		locator = null;
+	}
+	
     @Override
     public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
         String loc = resource.getLocation().toOSString();
@@ -67,7 +81,7 @@ public class PycRemoverBuilderVisitor extends PyDevBuilderVisitor{
             //the .py has just been removed, so, remove the .pyc if it exists
             try {
                 File file = new File(loc);
-                IFile[] files = PySourceLocatorBase.getWorkspaceFiles(file);
+				IFile[] files = locator.getWorkspaceFiles(file);
                 
                 if(files == null){
                     return ;

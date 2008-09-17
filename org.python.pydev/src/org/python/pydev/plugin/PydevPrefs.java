@@ -25,15 +25,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 
 
 /**
  * The preference page for setting the editor options.
  * <p>
  * This class is internal and not intended to be used by clients.</p>
- * 
- * @since 2.1
  */
 public class PydevPrefs extends AbstractPydevPrefs {
 

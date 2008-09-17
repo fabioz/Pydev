@@ -67,6 +67,12 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final String SMART_INDENT_PAR = "SMART_INDENT_PAR";
     public static final boolean DEFAULT_SMART_INDENT_PAR = true;
     
+	/**
+	 * Edition of translation paths.
+	 */
+	public static final String SOURCE_LOCATION_PATHS = "SOURCE_LOCATION_PATHS";
+
+    
     /**
      * fields for automatically replacing a colon
      * @see  

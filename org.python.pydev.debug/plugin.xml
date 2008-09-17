@@ -480,6 +480,15 @@
       </page>
 </extension>
 
+<extension point="org.eclipse.ui.preferencePages">
+      <page
+            name="Source locator"
+            category="org.python.pydev.prefs.debugPage"
+            class="org.python.pydev.debug.ui.SourceLocatorPrefsPage"
+            id="org.python.pydev.prefs.debugPage.SourceLocatorPrefsPage">
+      </page>
+</extension>
+
 <extension point="org.python.pydev.pydev_pyedit_listener">
 	<pyedit_listener_participant class="org.python.pydev.debug.ui.PyEditBreakpointSync"/>
 </extension>
