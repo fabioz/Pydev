@@ -2,6 +2,7 @@ package org.python.pydev.editorinput;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -30,20 +31,16 @@ public class PySourceLocatorPrefs {
 	 * @param translation the translation path entered by the user
 	 * @return null if it's valid or the error message to be shown to the user
 	 */
-	public static String isValid(String translation) {
-		String[] splitted = StringUtils.split(translation, ',');
-		if(splitted.length != 2){
-			return "Input must have 1 comma as the path separator.";
+	public static String isValid(String[] translation) {
+		if(translation.length != 2){
+			return "Input must have 2 elements.";
 		}
 		
-		splitted[0] = splitted[0].trim();
-		splitted[1] = splitted[1].trim();
-		
-		if(splitted[1].equals("DONTASK")){
+		if(translation[1].equals(DONTASK)){
 			return null;
 		}
-		if(!new File(splitted[1]).exists()){
-			return StringUtils.format("The file: %s does not exist.", splitted[1]);
+		if(!new File(translation[1]).exists()){
+			return StringUtils.format("The file: %s does not exist and doesn't match 'DONTASK'.", translation[1]);
 		}
 		
 		return null;
@@ -54,7 +51,7 @@ public class PySourceLocatorPrefs {
 	 * @see #addPathTranslation(String) -- with toOSString for each path and a comma separator
 	 */
 	public static void addPathTranslation(IPath path, IPath location) {
-		addPathTranslation(path.toOSString()+","+location.toOSString());
+		addPathTranslation(new String[]{path.toOSString(), location.toOSString()});
 	}
 	
 	
@@ -63,7 +60,7 @@ public class PySourceLocatorPrefs {
 	 * @param path the path that should have the translation ignored (silently)
 	 */
 	public static void setIgnorePathTranslation(IPath path) {
-		addPathTranslation(path.toOSString()+",DONTASK");
+		addPathTranslation(new String[]{path.toOSString(), DONTASK});
 	}
 
 	
@@ -79,33 +76,34 @@ public class PySourceLocatorPrefs {
 	 * c:\foo\c.py,c:\temp\c.py
 	 * c:\foo\c.py,DONTASK
 	 */
-	public static void addPathTranslation(String translation){
+	private static void addPathTranslation(String[] translation){
 		String valid = isValid(translation);
 		if(valid != null){
 			throw new RuntimeException(valid);
 		}
 		IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
 		String available = store.getString(PydevPrefs.SOURCE_LOCATION_PATHS);
+		
 		if(available == null || available.trim().length() == 0){
-			available = translation;
+			available = StringUtils.join(",", translation);
 		}else{
-			String pathAsked = StringUtils.split(translation, ',')[0].trim();
+			String pathAsked = translation[0].trim();
 			
 			String existent = getPathTranslation(pathAsked);
 			if(existent != null){
-				String[] splitted = StringUtils.split(available, ',');
+				String[] splitted = StringUtils.split(available, '\n');
 				for(int i=0;i<splitted.length;i++){
 					String s = splitted[i];
 					String initialPart = StringUtils.split(s, ',')[0].trim();
 					if(initialPart.equals(pathAsked)){
-						splitted[i] = translation;
+						splitted[i] = StringUtils.join(",", translation);
 						break;
 					}
 				}
-				available = wordsAsString(splitted);
+				available = StringUtils.join("\n", splitted);
 			}else{
 				available += "\n";
-				available += translation;
+				available += StringUtils.join(",", translation);
 			}
 		}
 		store.putValue(PydevPrefs.SOURCE_LOCATION_PATHS, available);
@@ -136,8 +134,10 @@ public class PySourceLocatorPrefs {
 			String[] splitted = StringUtils.split(available, '\n');
 			for (String string : splitted) {
 				String[] translation = StringUtils.split(string, ',');
-				if(translation.length == 2 && translation[0].trim().equals(pathToTranslate)){
-					return translation[1].trim();
+				if(translation.length == 2){
+					if(translation[0].trim().equals(pathToTranslate)){
+						return translation[1].trim();
+					}
 				}
 			}
 		}
@@ -149,11 +149,13 @@ public class PySourceLocatorPrefs {
      * @param words words to be gotten as string
      * @return a string with all the passed words separated by '\n'
      */
-    public static String wordsAsString(String [] words){
+    public static String wordsAsString(List<String[]> words){
         StringBuffer buf = new StringBuffer();
-        for (String string : words) {
-            buf.append(string);
-            buf.append("\n");
+        for (String[] string : words) {
+            buf.append(string[0].trim());
+            buf.append(',');
+            buf.append(string[1].trim());
+            buf.append('\n');
         }
         return buf.toString();
     }
@@ -163,11 +165,12 @@ public class PySourceLocatorPrefs {
      * @param string the string that has to be returned as a list of strings
      * @return an array of strings from the passed string (reverse logic from wordsAsString)
      */
-    public static String[] stringAsWords(String string){
-        ArrayList<String> strs = new ArrayList<String>();
+    public static List<String[]> stringAsWords(String string){
+        ArrayList<String[]> strs = new ArrayList<String[]>();
         for(String str: StringUtils.split(string, '\n')){
-            strs.add(str);
+            strs.add(StringUtils.split(str, ','));
         }
-        return strs.toArray(new String[strs.size()]);
+        return strs;
     }
+    
 }

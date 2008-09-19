@@ -1,15 +1,17 @@
 package org.python.pydev.debug.ui;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.jface.preference.ListEditor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editorinput.PySourceLocatorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
@@ -43,39 +45,45 @@ public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements
 	@SuppressWarnings("unchecked")
     protected void createFieldEditors() {
 		Composite p = getFieldEditorParent();
-		
-        addField(new ListEditor(PydevPrefs.SOURCE_LOCATION_PATHS, "Translation paths to use:", p){
+        addField(new TableEditor(PydevPrefs.SOURCE_LOCATION_PATHS, "Translation paths to use:", p){
 
             @Override
-            protected String createList(String[] items) {
+            protected String createTable(List<String[]> items) {
                 return PySourceLocatorPrefs.wordsAsString(items);
             }
 
             @Override
-            protected String getNewInputObject() {
-                InputDialog d = new InputDialog(getShell(), "New entry", "Add the entry in the format 'path': 'new path' or 'path' : DONTASK.", "", new IInputValidator(){
-
-                    public String isValid(String newText) {
-                        return PySourceLocatorPrefs.isValid(newText);
-                    }});
+            protected String[] getNewInputObject() {
+                InputDialog d = new InputDialog(getShell(), "New entry", 
+                	"Add the entry in the format path_to_replace,new_path or path,DONTASK.", "", 
+                	new IInputValidator(){
+		            	public String isValid(String newText) {
+		            		String[] splitted = StringUtils.split(newText, ',');
+		            		if(splitted.length != 2){
+		            			return "Input must have 2 paths separated by a comma.";
+		            		}
+							return PySourceLocatorPrefs.isValid(splitted);
+		            	}
+            		}
+                );
 
                 int retCode = d.open();
                 if (retCode == InputDialog.OK) {
-                    return d.getValue();
+                    return StringUtils.split(d.getValue(), ',');
                 }
                 return null;
             }
 
             @Override
-            protected String[] parseString(String stringList) {
+            protected List<String[]> parseString(String stringList) {
                 return PySourceLocatorPrefs.stringAsWords(stringList);
             }
             
             @Override
             protected void doFillIntoGrid(Composite parent, int numColumns) {
                 super.doFillIntoGrid(parent, numColumns);
-                List listControl = getListControl(parent);
-                GridData layoutData = (GridData) listControl.getLayoutData();
+                Table table = getTableControl(parent);
+                GridData layoutData = (GridData) table.getLayoutData();
                 layoutData.heightHint = 300;
             }
         });

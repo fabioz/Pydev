@@ -482,7 +482,7 @@
 
 <extension point="org.eclipse.ui.preferencePages">
       <page
-            name="Source locator"
+            name="Source Locator"
             category="org.python.pydev.prefs.debugPage"
             class="org.python.pydev.debug.ui.SourceLocatorPrefsPage"
             id="org.python.pydev.prefs.debugPage.SourceLocatorPrefsPage">
