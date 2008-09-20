@@ -4,8 +4,9 @@ Pydev
 <ul>
 <li><strong>Editor</strong>: Cursor settings no longer overridden</li>
 <li><strong>Code-completion</strong>: If __all__ is defined with runtime elements (and not only in a single assign statement), it's ignored for code-completion purposes</li>
-<li><strong>Debugger</strong>: Pythonpath the same in debug and regular modes (could be different if file run was outside of PYTHONPATH)</li>
+<li><strong>Debugger</strong>: Pythonpath the same in debug and regular modes (sys.path[0] is the same directory as the file run)</li>
 <li><strong>Debugger</strong>: Persist choices done in the debugger when files from the debugger are not found</li>
+<li><strong>Interpreter config</strong>: "email" automatically added to the "forced builtins"</li>
 </ul>
 
 after 1.3.19

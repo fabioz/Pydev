@@ -30,10 +30,7 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Yield;
-import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.ImportFrom;
-import org.python.pydev.parser.jython.ast.NameTok;
-import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Node;
@@ -1044,9 +1041,8 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
 {
     //we need to set the  <IMPORT> {this.addSpecialToken(" import ");} in both otherwise the lookahead will not work as we want it to work
     //because it confuses the import with the dotted name
-    (LOOKAHEAD(3)  
-        ("." {this.addSpecialToken(".");level++;} ("." {this.addSpecialToken(".");level++;} )*  <IMPORT> {this.addSpecialToken(" import ");} )
-        |  ("." {this.addSpecialToken(".");level++;} )* fromName=dotted_name()  <IMPORT> {this.addSpecialToken(" import ");} ) 
+     (("." {this.addSpecialToken(".");level++;} )* (fromName=dotted_name())? )  {if(fromName==null && level==0){throw new ParseException("Expecting to find '.' or name in import.");}}
+     <IMPORT> {this.addSpecialToken(" import ");} 
     
     (
         //from xxx import *

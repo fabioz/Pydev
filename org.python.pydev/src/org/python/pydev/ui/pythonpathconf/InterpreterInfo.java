@@ -383,6 +383,7 @@ public class InterpreterInfo implements IInterpreterInfo{
         //as it is a set, there is no problem to add it twice
 	    forcedLibs.add("__builtin__"); //jython bug: __builtin__ is not added
 	    forcedLibs.add("sys"); //jython bug: sys is not added
+	    forcedLibs.add("email"); //email has some lazy imports that pydev cannot handle through the source
         
 
         if(isJythonInfo()){

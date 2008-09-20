@@ -23,7 +23,7 @@ public class PyParser25Test extends PyParserTestBase{
         try {
             PyParser25Test test = new PyParser25Test();
             test.setUp();
-            test.testNewWithStmt4();
+            test.testImportFails();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser25Test.class);
@@ -108,6 +108,21 @@ public class PyParser25Test extends PyParserTestBase{
         ImportFrom f = (ImportFrom) mod.body[0];
         assertEquals(3, f.level);
         assertEquals("", ((NameTok)f.module).id);
+    }
+    
+    public void testNewRelativeImport4(){
+    	setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
+    	String str = "from ...bar import foo\n";
+    	Module mod = (Module) parseLegalDocStr(str);
+    	ImportFrom f = (ImportFrom) mod.body[0];
+    	assertEquals(3, f.level);
+    	assertEquals("bar", ((NameTok)f.module).id);
+    }
+    
+    public void testImportFails(){
+    	setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
+    	String str = "from import foo\n";
+    	parseILegalDoc(new Document(str));
     }
     
     public void testNewWithStmt(){
