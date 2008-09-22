@@ -16,6 +16,8 @@ import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.PyParser.ParserInfo;
 import org.python.pydev.parser.jython.SimpleNode;
 
+import com.python.pydev.analysis.builder.AnalysisRunner;
+
 /**
  * This test is used to see if the code-analysis is correctly requested on a refresh of some file.
  * 
@@ -24,7 +26,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 
 	private List<Tuple3<SimpleNode, Throwable, ParserInfo>> parsesDone = new ArrayList<Tuple3<SimpleNode,Throwable,ParserInfo>>();
-	private String invalidMod1Contents = "import java.lang.Class\njava.lang.Class\nkkk invalid kkk";
+	private String invalidMod1Contents = "import java.lang.Class\njava.lang.Class\nkkk invalid kkk\nprint kkk";
 	private String validMod1Contents = "import java.lang.Class\njava.lang.Class";
 	private ICallback<Object, Tuple3<SimpleNode, Throwable, ParserInfo>> addParsesToListListener;
 	
@@ -40,6 +42,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 		super.tearDown();
 		PyParser.successfulParseListeners.remove(addParsesToListListener);
 	}
+	
 	
 	
 	public void testRefreshAnalyzesFiles() throws Exception {
@@ -63,6 +66,9 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 	}
 
 
+	/**
+	 * @return a condition that'll check if all the needed modules were already checked 
+	 */
 	private ICallback<Boolean, Object> getInitialParsesCondition() {
 		return new ICallback<Boolean, Object>(){
 
@@ -79,25 +85,33 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 	}
 
 	
+	/**
+	 * Will add the arguments received in a parse to the 'parsesDone' list
+	 * 
+	 * @return null
+	 */
 	private ICallback<Object, Tuple3<SimpleNode, Throwable, ParserInfo>> getAddParsesToListListener() {
 		return new ICallback<Object, Tuple3<SimpleNode,Throwable,ParserInfo>>(){
 			
 			public Object call(Tuple3<SimpleNode, Throwable, ParserInfo> arg) {
-				if(arg.o3.initial.trim().length() == 0){
-					System.out.println("Parsed file with no contents");
-				}else{
-					System.out.println("Parsed:");
-					System.out.println(arg.o3.moduleName);
-					System.out.println(arg.o3.file);
-					System.out.println(arg.o3.document.get());
-					System.out.println("\n\n-------------------");
-				}
+//				if(arg.o3.initial.trim().length() == 0){
+//					System.out.println("Parsed file with no contents");
+//				}else{
+//					System.out.println("Parsed:");
+//					System.out.println(arg.o3.moduleName);
+//					System.out.println(arg.o3.file);
+//					System.out.println(arg.o3.document.get());
+//					System.out.println("\n\n-------------------");
+//				}
 				parsesDone.add(arg);
 				return null;
 			}};
 	}
 
 
+	/**
+	 * Callback that'll check if there are error markers in the mod1.py resource
+	 */
 	private ICallback<Boolean, Object> getHasErrorMarkersCondition() {
 		return new ICallback<Boolean, Object>(){
 
@@ -105,7 +119,14 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 			public Boolean call(Object arg) {
 				try {
 					IMarker[] markers = mod1.findMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
-					return markers.length > 0;
+					if(markers.length == 0){
+						return false;
+					}
+					markers = mod1.findMarkers(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+					if(markers.length == 0){
+						return false;
+					}
+					return true;
 				} catch (CoreException e) {
 					throw new RuntimeException(e);
 				}
@@ -115,6 +136,9 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 	}
 
 
+	/**
+	 * Callback that'll check if there are NO error markers in the mod1.py resource
+	 */
 	private ICallback<Boolean, Object> getNoErrorMarkersCondition() {
 		return new ICallback<Boolean, Object>(){
 			
@@ -122,7 +146,14 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 			public Boolean call(Object arg) {
 				try {
 					IMarker[] markers = mod1.findMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
-					return markers.length == 0;
+					if(markers.length != 0){
+						return false;
+					}
+					markers = mod1.findMarkers(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+					if(markers.length != 0){
+						return false;
+					}
+					return true;
 				} catch (CoreException e) {
 					throw new RuntimeException(e);
 				}
