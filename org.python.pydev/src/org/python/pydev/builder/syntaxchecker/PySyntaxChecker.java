@@ -24,10 +24,10 @@ public class PySyntaxChecker extends PyDevBuilderVisitor{
     		return;
     	}
 
-    	System.out.println("PySyntaxChecker: visit resource:"+resource);
+//    	System.out.println("PySyntaxChecker: visit resource:"+resource);
     	SourceModule mod = getSourceModule(resource, document, nature);
-    	System.out.println("PySyntaxChecker: end visit resource:"+resource);
-    	System.out.println("\n\n\n\n\n");
+//    	System.out.println("PySyntaxChecker: end visit resource:"+resource);
+//    	System.out.println("\n\n\n\n\n");
     	Throwable parseError = mod.parseError;
     	try {
     		PyParser.deleteErrorMarkers(resource);
