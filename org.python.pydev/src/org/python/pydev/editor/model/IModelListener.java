@@ -5,7 +5,7 @@
  */
 package org.python.pydev.editor.model;
 
-import org.python.pydev.editor.ErrorDescription;
+import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.jython.SimpleNode;
 
 /**

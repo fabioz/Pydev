@@ -44,7 +44,7 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 		Module astModule = VisitorFactory.getRootNode(doc);
 		String name = getFile().getName();
 		name = name.substring(0, name.length()-4);
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, new SourceModule(name, getFile(), astModule), new PythonNatureStub());
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, new SourceModule(name, getFile(), astModule, null), new PythonNatureStub());
 
 		ITextSelection selection = new TextSelection(doc, config.getOffset(), config.getSelectionLength());
 

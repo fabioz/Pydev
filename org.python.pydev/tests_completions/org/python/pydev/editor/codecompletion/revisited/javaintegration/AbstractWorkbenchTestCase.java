@@ -179,6 +179,45 @@ public class AbstractWorkbenchTestCase extends TestCase{
     
     
     
+    /**
+     * @see #goToIdleLoopUntilCondition(ICallback, long)
+     */
+    protected void goToIdleLoopUntilCondition(final ICallback<Boolean, Object> callback) {
+    	goToIdleLoopUntilCondition(callback, 50000000000000L);//default with 5 secs
+    }
+
+    /**
+     * 
+     * @param callback a callback that'll receive null as a parameter and should return true if the condition seeked was
+     * reached and false otherwise.
+     * @param deltaToElapse the number of seconds that can be elapsed until the function returns if the condition
+     * has not been satisfied.
+     * 
+     * @throws AssertionError if the condition was not satisfied in the available amount of time
+     */
+	protected void goToIdleLoopUntilCondition(final ICallback<Boolean, Object> callback, long deltaToElapse) {
+		//make the delta the absolute time
+		deltaToElapse = System.currentTimeMillis() + deltaToElapse;
+        Display display = Display.getCurrent();
+        if(display == null){
+            display = Display.getDefault();
+        }
+        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()){
+                display.sleep();
+            }
+            if(deltaToElapse<System.currentTimeMillis()){
+            	break;
+            }
+            if(callback.call(null)){
+            	return;
+            }
+        }
+        fail("The condition requested was not satisfied in the available amount of time");
+	}
+
+    
     protected void goToManual() {
     	goToManual(-1);
     }

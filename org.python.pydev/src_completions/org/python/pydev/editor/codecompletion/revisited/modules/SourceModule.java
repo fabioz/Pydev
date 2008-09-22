@@ -101,6 +101,13 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      */
     public String zipFilePath;
     
+    
+    /**
+     * This is a parse error that was found when parsing the code that generated this module
+     */
+    public final Throwable parseError;
+    
+    
     public String getZipFilePath(){
         return zipFilePath;
     }
@@ -346,12 +353,14 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @param f
      * @param n
      */
-    public SourceModule(String name, File f, SimpleNode n) {
+    public SourceModule(String name, File f, SimpleNode n, Throwable parseError) {
         super(name);
         this.ast = n;
         this.file = f;
-        if(f != null)
+        this.parseError = parseError;
+        if(f != null){
             this.lastModified = f.lastModified();
+        }
     }
 
     

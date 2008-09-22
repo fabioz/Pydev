@@ -9,7 +9,6 @@ import java.util.ListResourceBundle;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
@@ -58,7 +57,6 @@ import org.eclipse.ui.texteditor.DefaultRangeIndicator;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
-import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
@@ -84,12 +82,11 @@ import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.editor.scripting.PyEditScripting;
 import org.python.pydev.editorinput.PydevFileEditorInput;
 import org.python.pydev.outline.PyOutlinePage;
+import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.PyParserManager;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.Token;
-import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
@@ -866,7 +863,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     /**
      * @return an outline view
      */
-    public Object getAdapter(Class adapter) {
+    @SuppressWarnings("unchecked")
+	public Object getAdapter(Class adapter) {
         if (OfflineActionTarget.class.equals(adapter)) {
             if (fOfflineActionTarget == null) {
                 IStatusLineManager manager= getStatusLineManager();
@@ -981,33 +979,15 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     }
 
     /**
-     * this event comes when parse ended in an error
+     * This event comes when parse ended in an error
      * 
-     * generates an error marker on the document
+     * Generates an error marker on the document
      */
     public void parserError(Throwable error, IAdaptable original, IDocument doc) {
         ErrorDescription errDesc = null;
         
         try {
-            if(original == null){
-                return;
-            }
-            IResource fileAdapter = (IResource) original.getAdapter(IResource.class);
-            if(fileAdapter == null){
-                return;
-            }
-
-            errDesc = createErrorDesc(error, doc);
-            
-            Map<String, Object> map = new HashMap<String, Object>();
-            
-            map.put(IMarker.MESSAGE, errDesc.message);
-            map.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-            map.put(IMarker.LINE_NUMBER, errDesc.errorLine);
-            map.put(IMarker.CHAR_START, errDesc.errorStart);
-            map.put(IMarker.CHAR_END, errDesc.errorEnd);
-            map.put(IMarker.TRANSIENT, true);
-            MarkerUtilities.createMarker(fileAdapter, map, IMarker.PROBLEM);
+            errDesc = PyParser.createParserErrorMarkers(error, original, doc);
 
         } catch (CoreException e1) {
             // Whatever, could not create a marker. Swallow this one
@@ -1025,61 +1005,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         }
     }
 
-    public static ErrorDescription createErrorDesc(Throwable error, IDocument doc) throws BadLocationException {
-        int errorStart = -1;
-        int errorEnd = -1;
-        int errorLine = -1;
-        String message = null;
-        if (error instanceof ParseException) {
-            ParseException parseErr = (ParseException) error;
-            
-            // Figure out where the error is in the document, and create a
-            // marker for it
-            if(parseErr.currentToken == null){
-            	IRegion endLine = doc.getLineInformationOfOffset(doc.getLength());
-            	errorStart = endLine.getOffset();
-            	errorEnd = endLine.getOffset() + endLine.getLength();
-
-            }else{
-            	Token errorToken = parseErr.currentToken.next != null ? parseErr.currentToken.next : parseErr.currentToken;
-                IRegion startLine = doc.getLineInformation(errorToken.beginLine - 1);
-                IRegion endLine;
-                if (errorToken.endLine == 0){
-                    endLine = startLine;
-                }else{
-                    endLine = doc.getLineInformation(errorToken.endLine - 1);
-                }
-                errorStart = startLine.getOffset() + errorToken.beginColumn - 1;
-                errorEnd = endLine.getOffset() + errorToken.endColumn;
-            }
-            message = parseErr.getMessage();
-
-        } else if(error instanceof TokenMgrError){
-            TokenMgrError tokenErr = (TokenMgrError) error;
-            IRegion startLine = doc.getLineInformation(tokenErr.errorLine - 1);
-            errorStart = startLine.getOffset();
-            errorEnd = startLine.getOffset() + tokenErr.errorColumn;
-            message = tokenErr.getMessage();
-        } else{
-            PydevPlugin.log("Error, expecting ParseException or TokenMgrError. Received: "+error);
-            return new ErrorDescription(null, 0, 0, 0);
-        }
-        errorLine = doc.getLineOfOffset(errorStart); 
-
-        // map.put(IMarker.LOCATION, "Whassup?"); this is the location field
-        // in task manager
-        if (message != null) { // prettyprint
-            message = message.replaceAll("\\r\\n", " ");
-            message = message.replaceAll("\\r", " ");
-            message = message.replaceAll("\\n", " ");
-        }
-        
-        
-        return new ErrorDescription(message, errorLine, errorStart, errorEnd);
-    }
-
-
-    /** stock listener implementation */
+	/** stock listener implementation */
     public void addModelListener(IModelListener listener) {
         Assert.isNotNull(listener);
         if (!modelListeners.contains(listener)){

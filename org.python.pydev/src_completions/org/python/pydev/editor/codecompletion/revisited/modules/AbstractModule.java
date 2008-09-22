@@ -255,12 +255,12 @@ public abstract class AbstractModule implements IModule {
         
         if(f != null){
 	        if(!checkForPath || PythonPathHelper.isValidSourceFile(REF.getFileAbsolutePath(f))){
-                Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, nature, currLine));
-		        return new SourceModule(name, f, obj.o1);
+                Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, nature, currLine, name, f));
+		        return new SourceModule(name, f, obj.o1, obj.o2);
 	        }
         } else {
-            Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, nature, currLine));
-	        return new SourceModule(name, f, obj.o1);
+            Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, nature, currLine, name, f));
+	        return new SourceModule(name, f, obj.o1, obj.o2);
         }
         return null;
     }
@@ -287,7 +287,7 @@ public abstract class AbstractModule implements IModule {
      * @return the module
      */
     public static IModule createModule(SimpleNode n) {
-        return new SourceModule(null, null, n);
+        return new SourceModule(null, null, n, null);
     }
     
     /**
@@ -300,7 +300,7 @@ public abstract class AbstractModule implements IModule {
      * @return the module
      */
     public static IModule createModule(SimpleNode n, File file, String moduleName) {
-        return new SourceModule(moduleName, file, n);
+        return new SourceModule(moduleName, file, n, null);
     }
     
     /**

@@ -7,6 +7,7 @@ Pydev
 <li><strong>Debugger</strong>: Pythonpath the same in debug and regular modes (sys.path[0] is the same directory as the file run)</li>
 <li><strong>Debugger</strong>: Persist choices done in the debugger when files from the debugger are not found</li>
 <li><strong>Interpreter config</strong>: "email" automatically added to the "forced builtins"</li>
+<li><strong>Parser</strong>: Correctly recognizing absolute import with 3 or more levels</li>
 </ul>
 
 after 1.3.19

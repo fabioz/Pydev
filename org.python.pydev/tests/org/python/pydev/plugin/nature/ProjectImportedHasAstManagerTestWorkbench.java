@@ -12,9 +12,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
@@ -55,33 +53,25 @@ public class ProjectImportedHasAstManagerTestWorkbench  extends AbstractWorkbenc
         project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
         IJobManager jobManager = Job.getJobManager();
         jobManager.resume();
-        PythonNature nature = (PythonNature) PythonNature.addNature(project, null, null, null);
+        final PythonNature nature = (PythonNature) PythonNature.addNature(project, null, null, null);
+        assertTrue(nature != null);
         
 
         //Let's give it some time to run the jobs that restore the nature
-    	long finishAt = System.currentTimeMillis()+5000; //5 secs is the max tie
-    	
-        Display display = Display.getCurrent();
-        if(display == null){
-            display = Display.getDefault();
-        }
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()){
-                display.sleep();
-            }
-            if(finishAt<System.currentTimeMillis()){
-            	break;
-            }
-            if(nature != null){
-            	if(nature.getAstManager() != null){
-            		break;
-            	}
-            }
-        }
+    	goToIdleLoopUntilCondition(new ICallback<Boolean, Object>(){
 
-        
-        assertTrue(nature != null);
+			@Override
+			public Boolean call(Object arg) {
+				if(nature != null){
+	            	if(nature.getAstManager() != null){
+	            		return true;
+	            	}
+	            }
+				return false;
+			}}
+    	);
+    	
+    	
         assertTrue(nature.getAstManager() != null);
         PythonPathHelper pythonPathHelper = (PythonPathHelper) nature.getAstManager().getModulesManager().getPythonPathHelper();
         List<String> lst = new ArrayList<String>();
@@ -90,6 +80,7 @@ public class ProjectImportedHasAstManagerTestWorkbench  extends AbstractWorkbenc
 
         
 	}
+
 
 
 

@@ -23,6 +23,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**
@@ -123,8 +124,8 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * @param document the document with the resource contents
      * @return the module that is created by the given resource
      */
-    protected IModule getSourceModule(IResource resource, IDocument document, IPythonNature nature) {
-        IModule module = (IModule) memo.get(MODULE_CACHE);
+    protected SourceModule getSourceModule(IResource resource, IDocument document, IPythonNature nature) {
+    	SourceModule module = (SourceModule) memo.get(MODULE_CACHE);
         if(module == null){
             module = createSoureModule(resource, document, getModuleName(resource, nature));
             setModuleInCache(module);
@@ -137,12 +138,12 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * @param document
      * @return
      */
-    public static IModule createSoureModule(IResource resource, IDocument document, String moduleName) {
-        IModule module;
+    private static SourceModule createSoureModule(IResource resource, IDocument document, String moduleName) {
+    	SourceModule module;
         PythonNature nature = PythonNature.getPythonNature(resource.getProject());
         IFile f = (IFile) resource;
         String file = f.getRawLocation().toOSString();
-        module = AbstractModule.createModuleFromDoc(moduleName, new File(file), document, nature, 0);
+        module = (SourceModule)AbstractModule.createModuleFromDoc(moduleName, new File(file), document, nature, 0);
         return module;
     }
 
