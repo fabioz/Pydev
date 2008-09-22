@@ -183,7 +183,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
      * @see #goToIdleLoopUntilCondition(ICallback, long)
      */
     protected void goToIdleLoopUntilCondition(final ICallback<Boolean, Object> callback) {
-    	goToIdleLoopUntilCondition(callback, 5000);//default with 5 secs
+    	goToIdleLoopUntilCondition(callback, 5000L);//default with 5 secs
     }
 
     /**

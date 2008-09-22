@@ -154,6 +154,12 @@ public class PyParser implements IPyParser {
         documentListener = new IDocumentListener() {
 
             public void documentChanged(DocumentEvent event) {
+            	if(useAnalysisOnlyOnDocSave){
+            		//if we're doing analysis only on doc change, the parser will not give any changes
+            		//to the scheduler, so, we won't have any parse events to respond to
+            		return;
+            		
+            	}
                 String text = event.getText();
                 
                 boolean parseNow = true;
@@ -170,13 +176,9 @@ public class PyParser implements IPyParser {
                 if(!parseNow){
                     // carriage return in changed text means parse now, anything
                     // else means parse later
-                    if(!useAnalysisOnlyOnDocSave){
-                        scheduler.parseLater();
-                    }
+                    scheduler.parseLater();
                 } else {
-                    if(!useAnalysisOnlyOnDocSave){
-                        scheduler.parseNow();
-                    }
+                    scheduler.parseNow();
                 }
             }
 
