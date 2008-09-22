@@ -6,9 +6,9 @@ package com.python.pydev.analysis.builder;
 import java.io.File;
 import java.util.HashMap;
 
-import org.eclipse.core.internal.resources.ResourceException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
@@ -78,7 +78,7 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver2
 	        	if(!nature.isResourceInPythonpath(fileAdapter)){
 	        		try {
 						fileAdapter.deleteMarkers(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
-	        		} catch (ResourceException e) {
+	        		} catch (CoreException e) {
 	        		    //ok, if it is a resource exception, it may have happened because the resource does not exist anymore
 	        		    //so, there is no need to log this failure
 	        		    if(fileAdapter.exists()){
