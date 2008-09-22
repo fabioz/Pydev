@@ -27,11 +27,17 @@ import org.python.pydev.plugin.nature.PythonNature;
 import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.IAnalysisPreferences;
 
+/**
+ * Observes changes to the parser and when OK, it'll ask for the analysis of the module reparsed.
+ * 
+ * @author Fabio
+ */
 public class AnalysisParserObserver implements IParserObserver, IParserObserver2{
 
 
 	public static final String ANALYSIS_PARSER_OBSERVER_FORCE = "AnalysisParserObserver:force";
 
+	@SuppressWarnings("unchecked")
 	public void parserChanged(ISimpleNode iroot, IAdaptable resource, IDocument doc, Object... argsToReparse) {
         SimpleNode root = (SimpleNode) iroot;
 		//don't analyze it if we're still not 'all set'
@@ -106,13 +112,17 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver2
         }
 	}
 
+	
     public void parserChanged(ISimpleNode root, IAdaptable resource, IDocument doc) {
+    	throw new RuntimeException("As it uses IParserObserver2, this interface should not be asked for.");
     }
 
+    
     public void parserError(Throwable error, IAdaptable file, IDocument doc) {
         //ignore errors...
     }
 
+    
 	public void parserError(Throwable error, IAdaptable file, IDocument doc, Object... argsToReparse) {
 		//ignore
 	}

@@ -15,7 +15,10 @@ import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.PyParser.ParserInfo;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.plugin.nature.PythonNature;
 
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.builder.AnalysisRunner;
 
 /**
@@ -48,6 +51,10 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 	public void testRefreshAnalyzesFiles() throws Exception {
 		editor.close(false);
 		goToIdleLoopUntilCondition(getInitialParsesCondition()); //just to have any parse events consumed
+		
+		PythonNature nature = PythonNature.getPythonNature(mod1);
+		AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+		assertTrue(info.hasInfoOn("pack1.pack2.mod1"));
 		
 		try {
 			parsesDone.clear();
@@ -94,6 +101,9 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 		return new ICallback<Object, Tuple3<SimpleNode,Throwable,ParserInfo>>(){
 			
 			public Object call(Tuple3<SimpleNode, Throwable, ParserInfo> arg) {
+//				if(arg.o3.moduleName == null){
+//					System.out.println("null");
+//				}
 //				if(arg.o3.initial.trim().length() == 0){
 //					System.out.println("Parsed file with no contents");
 //				}else{

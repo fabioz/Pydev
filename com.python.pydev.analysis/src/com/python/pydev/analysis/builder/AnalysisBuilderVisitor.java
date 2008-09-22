@@ -15,10 +15,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.plugin.nature.PythonNature;
 
-import com.python.pydev.analysis.AnalysisPreferences;
-import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 
 public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
@@ -52,27 +49,38 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     		return;
     	}
     	try{
-	        String moduleName = getModuleName(resource, nature);
-	        boolean force = false;
-	        if(nature != null && moduleName != null){
-	        	AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
-	        	if(!info.hasInfoOn(moduleName)){
-	        		force = true;
-	        	}
-	        }
-	
-	        boolean fullBuild = isFullBuild();
-	        if(fullBuild || force ||
-	           AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze() == IAnalysisPreferences.ANALYZE_ON_SAVE){
-	            
-	            boolean analyzeDependent;
-	            if(fullBuild){
-	                analyzeDependent = false;
-	            }else{
-	                analyzeDependent = true;
-	            }
-	            doVisitChangedResource(nature, resource, document, null, analyzeDependent, monitor);
-        }
+    		
+    		
+    		//For now, always analyze the files, because otherwise we could end up with files not analyzed
+    		//when it was edited outside and refreshed... A different approach must be considered so that we
+    		//don't analyze the file twice when editing/saving it.
+    		
+//	        String moduleName = getModuleName(resource, nature);
+//	        boolean force = false;
+//	        if(nature != null && moduleName != null){
+//	        	AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+//	        	if(!info.hasInfoOn(moduleName)){
+//	        		force = true;
+//	        	}
+//	        }
+//	
+//	        boolean fullBuild = isFullBuild();
+//	        if(fullBuild || force ||
+//	           AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze() == IAnalysisPreferences.ANALYZE_ON_SAVE){
+//	         
+//          
+    		
+    		//change: always analyze the file, being only on save or not
+            boolean analyzeDependent;
+            if(isFullBuild()){
+                analyzeDependent = false;
+            }else{
+                analyzeDependent = true;
+            }
+            doVisitChangedResource(nature, resource, document, null, analyzeDependent, monitor);
+            
+            
+//	        }
     	}finally{
     		nature.endRequests();
     	}

@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -21,6 +22,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
@@ -104,6 +106,8 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     protected TreeMap<String, List<IInfo>> innerInitialsToInfo = new TreeMap<String, List<IInfo>>();
     
+    protected Set<String> modulesAnalyzed = new HashSet<String>();
+    
 
     /**
      * Should be used before re-creating the info, so that we have enough memory. 
@@ -115,6 +119,9 @@ public abstract class AbstractAdditionalInterpreterInfo {
         	}
         	if(innerInitialsToInfo != null){
         		innerInitialsToInfo.clear();
+        	}
+        	if(modulesAnalyzed != null){
+        		modulesAnalyzed.clear();
         	}
         }
     }
@@ -245,7 +252,6 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     protected void addAttribute(String def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
         synchronized (lock) {
-            
             AttrInfo info = AttrInfo.fromAssign(def, moduleDeclared, path, pool);
             add(info, generateDelta, doOn);
         }
@@ -307,36 +313,41 @@ public abstract class AbstractAdditionalInterpreterInfo {
 
             FastStack<SimpleNode> tempStack = new FastStack<SimpleNode>();
             
-            while (entries.hasNext()) {
-                ASTEntry entry = entries.next();
-                
-                if(entry.parent == null){ //we only want those that are in the global scope
-                    if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
-                        addClassOrFunc(entry.node, moduleName, generateDelta, TOP_LEVEL, null);
-                    }else{
-                        //it is an assign
-                        addAssignTargets(entry, moduleName, generateDelta, TOP_LEVEL, null, false);
-                    }
-                }else{
-                    if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
-                        //ok, it has a parent, so, let's check to see if the path we got only has class definitions
-                        //as the parent (and get that path)
-                        Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, false, false, tempStack);
-                        if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
-                            //if the root is not valid, it is not only classes in the path (could be a method inside
-                            //a method, or something similar).
-                            addClassOrFunc(entry.node, moduleName, generateDelta, INNER, pathToRoot.o1);
-                        }
-                    }else{
-                        //it is an assign
-                        Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, true, false, tempStack);
-                        if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
-                            addAssignTargets(entry, moduleName, generateDelta, INNER, pathToRoot.o1, pathToRoot.o2);
-                        }
-                    }
-                }
-            }
-            
+            synchronized (lock) {
+            	if(moduleName != null){
+            		this.modulesAnalyzed.add(moduleName);
+            	}
+
+	            while (entries.hasNext()) {
+	                ASTEntry entry = entries.next();
+	                
+	                if(entry.parent == null){ //we only want those that are in the global scope
+	                    if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
+	                        addClassOrFunc(entry.node, moduleName, generateDelta, TOP_LEVEL, null);
+	                    }else{
+	                        //it is an assign
+	                        addAssignTargets(entry, moduleName, generateDelta, TOP_LEVEL, null, false);
+	                    }
+	                }else{
+	                    if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
+	                        //ok, it has a parent, so, let's check to see if the path we got only has class definitions
+	                        //as the parent (and get that path)
+	                        Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, false, false, tempStack);
+	                        if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
+	                            //if the root is not valid, it is not only classes in the path (could be a method inside
+	                            //a method, or something similar).
+	                            addClassOrFunc(entry.node, moduleName, generateDelta, INNER, pathToRoot.o1);
+	                        }
+	                    }else{
+	                        //it is an assign
+	                        Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, true, false, tempStack);
+	                        if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
+	                            addAssignTargets(entry, moduleName, generateDelta, INNER, pathToRoot.o1, pathToRoot.o2);
+	                        }
+	                    }
+	                }
+	            }
+            }            
         } catch (Exception e) {
             PydevPlugin.log(e);
         }
@@ -416,6 +427,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     public void removeInfoFromModule(String moduleName, boolean generateDelta) {
         synchronized (lock) {
+        	modulesAnalyzed.remove(moduleName);
             removeInfoFromMap(moduleName, topLevelInitialsToInfo);
             removeInfoFromMap(moduleName, innerInitialsToInfo);
         }
@@ -449,23 +461,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
 	public boolean hasInfoOn(String moduleName) {
 		synchronized (lock) {
-			//we just check the top level (it is not possible to have info on an inner structure without
-			//having it in the top level too).
-	        Iterator<List<IInfo>> itListOfInfo = topLevelInitialsToInfo.values().iterator();
-	        while (itListOfInfo.hasNext()) {
-	
-	            Iterator<IInfo> it = itListOfInfo.next().iterator();
-	            while (it.hasNext()) {
-	
-	                IInfo info = it.next();
-	                if(info != null && info.getDeclaringModuleName() != null){
-	                    if(info.getDeclaringModuleName().equals(moduleName)){
-	                        return true;
-	                    }
-	                }
-	            }
-	        }
-			return false;
+			return this.modulesAnalyzed.contains(moduleName);
 		}
 	}
 	
@@ -600,7 +596,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     @SuppressWarnings("unchecked")
     protected Object getInfoToSave(){
-        return new Tuple(this.topLevelInitialsToInfo, this.innerInitialsToInfo);
+        return new Tuple3(this.topLevelInitialsToInfo, this.innerInitialsToInfo, this.modulesAnalyzed);
     }
     
     /**
@@ -624,20 +620,48 @@ public abstract class AbstractAdditionalInterpreterInfo {
     }
 
     /**
-     * Restores the saved info in the object (if overriden, getInfoToSave should be overriden too)
+     * Restores the saved info in the object (if overridden, getInfoToSave should be overridden too)
      * @param o the read object from the file
      */
     @SuppressWarnings("unchecked")
     protected void restoreSavedInfo(Object o){
         synchronized (lock) {
-	        Tuple readFromFile = (Tuple) o;
-	        this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
-	        this.innerInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o2;
+        	if(o instanceof Tuple){
+        		Tuple readFromFile = (Tuple) o;
+        		this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
+        		this.innerInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o2;
+        		
+        		//backward compatibility: if the modules analyzed info is not available, we've to generate it from
+        		//what we have
+        		this.modulesAnalyzed = new HashSet<String>();
+        		
+				//we just check the top level (it is not possible to have info on an inner structure without
+				//having it in the top level too).
+		        Iterator<List<IInfo>> itListOfInfo = topLevelInitialsToInfo.values().iterator();
+		        while (itListOfInfo.hasNext()) {
+		
+		            Iterator<IInfo> it = itListOfInfo.next().iterator();
+		            while (it.hasNext()) {
+		
+		                IInfo info = it.next();
+		                if(info != null && info.getDeclaringModuleName() != null){
+		                	this.modulesAnalyzed.add(info.getDeclaringModuleName());
+		                }
+		            }
+		        }
+
+        		
+        	}else if(o instanceof Tuple3){
+        		Tuple3 readFromFile = (Tuple3) o;
+        		this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
+        		this.innerInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o2;
+        		this.modulesAnalyzed = (Set<String>) readFromFile.o3;
+        	}
         }
     }
 
     /**
-     * this method should be overriden so that the info sets itself as the default info given the info it holds
+     * this method should be overridden so that the info sets itself as the default info given the info it holds
      * (e.g. default for a project, default for python interpreter, etc.)
      */
     protected abstract void setAsDefaultInfo();
