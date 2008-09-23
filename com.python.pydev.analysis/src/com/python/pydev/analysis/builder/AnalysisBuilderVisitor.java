@@ -55,21 +55,6 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     		//when it was edited outside and refreshed... A different approach must be considered so that we
     		//don't analyze the file twice when editing/saving it.
     		
-//	        String moduleName = getModuleName(resource, nature);
-//	        boolean force = false;
-//	        if(nature != null && moduleName != null){
-//	        	AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
-//	        	if(!info.hasInfoOn(moduleName)){
-//	        		force = true;
-//	        	}
-//	        }
-//	
-//	        boolean fullBuild = isFullBuild();
-//	        if(fullBuild || force ||
-//	           AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze() == IAnalysisPreferences.ANALYZE_ON_SAVE){
-//	         
-//          
-    		
     		//change: always analyze the file, being only on save or not
             boolean analyzeDependent;
             if(isFullBuild()){
@@ -77,10 +62,8 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
             }else{
                 analyzeDependent = true;
             }
-            doVisitChangedResource(nature, resource, document, null, analyzeDependent, monitor);
+            doVisitChangedResource(nature, resource, document, null, analyzeDependent, monitor, false);
             
-            
-//	        }
     	}finally{
     		nature.endRequests();
     	}
@@ -91,7 +74,9 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     /**
      * here we have to detect errors / warnings from the code analysis
      */
-    public void doVisitChangedResource(IPythonNature nature, IResource resource, IDocument document, IModule module, boolean analyzeDependent, IProgressMonitor monitor) {
+    public void doVisitChangedResource(IPythonNature nature, IResource resource, IDocument document, 
+    		IModule module, boolean analyzeDependent, IProgressMonitor monitor, boolean forceAnalysis) {
+    	
         if(module == null){
             module = getSourceModule(resource, document, nature);
         }else{
@@ -99,7 +84,9 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
             setModuleInCache(module);
         }
         final String moduleName = getModuleName(resource, nature);
-        final AnalysisBuilderRunnable runnable = AnalysisBuilderRunnable.createRunnable(document, resource, module, analyzeDependent, monitor, isFullBuild(), moduleName);
+        final AnalysisBuilderRunnable runnable = AnalysisBuilderRunnable.createRunnable(
+        		document, resource, module, analyzeDependent, monitor, isFullBuild(), moduleName, forceAnalysis);
+        
         if(isFullBuild()){
         	runnable.run();
         }else{

@@ -4,8 +4,12 @@
 package com.python.pydev.analysis.builder;
 
 import java.lang.ref.WeakReference;
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
@@ -14,6 +18,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.plugin.PydevPlugin;
@@ -38,6 +43,13 @@ public class AnalysisBuilderRunnable implements Runnable{
      * Field that should know all the threads.
      */
     private volatile static Map<String, AnalysisBuilderRunnable> availableThreads;
+    
+    
+    /**
+     * These are the callbacks called whenever there's a run to be done in this class.
+     */
+    public static final List<ICallback<Object, IResource>> analysisBuilderListeners = new ArrayList<ICallback<Object,IResource>>();
+    
     
     /**
      * @return Returns the availableThreads.
@@ -67,7 +79,10 @@ public class AnalysisBuilderRunnable implements Runnable{
      * @param moduleName the name of the module
      * @return a builder thread.
      */
-    public static synchronized AnalysisBuilderRunnable createRunnable(IDocument document, IResource resource, IModule module, boolean analyzeDependent, IProgressMonitor monitor, boolean isFullBuild, String moduleName){
+    public static synchronized AnalysisBuilderRunnable createRunnable(IDocument document, IResource resource, 
+    		IModule module, boolean analyzeDependent, IProgressMonitor monitor, boolean isFullBuild, 
+    		String moduleName, boolean forceAnalysis){
+    	
         Map<String, AnalysisBuilderRunnable> available = getAvailableThreads();
         synchronized(available){
             AnalysisBuilderRunnable analysisBuilderThread = available.get(moduleName);
@@ -75,7 +90,9 @@ public class AnalysisBuilderRunnable implements Runnable{
                 //there is some existing thread that we have to stop to create the new one
                 analysisBuilderThread.stopAnalysis();
             }
-            analysisBuilderThread = new AnalysisBuilderRunnable(document, resource, module, analyzeDependent, monitor, isFullBuild, moduleName);
+            analysisBuilderThread = new AnalysisBuilderRunnable(document, resource, module, analyzeDependent, 
+            		monitor, isFullBuild, moduleName, forceAnalysis);
+            
             available.put(moduleName, analysisBuilderThread);
             return analysisBuilderThread;
         }
@@ -91,11 +108,13 @@ public class AnalysisBuilderRunnable implements Runnable{
     private IProgressMonitor internalCancelMonitor;
     private boolean isFullBuild;
     private String moduleName;
+    private boolean forceAnalysis;
     
     // ---------------------------------------------------------------------------------------- END ATTRIBUTES
     
     
-    public AnalysisBuilderRunnable(IDocument document, IResource resource, IModule module, boolean analyzeDependent, IProgressMonitor monitor, boolean isFullBuild, String moduleName) {
+    public AnalysisBuilderRunnable(IDocument document, IResource resource, IModule module, boolean analyzeDependent, 
+    		IProgressMonitor monitor, boolean isFullBuild, String moduleName, boolean forceAnalysis) {
         this.document = document;
         this.resource = new WeakReference<IResource>(resource);
         this.module = module;
@@ -104,6 +123,7 @@ public class AnalysisBuilderRunnable implements Runnable{
         this.isFullBuild = isFullBuild;
         this.moduleName = moduleName;
         this.internalCancelMonitor = new NullProgressMonitor();
+        this.forceAnalysis = forceAnalysis;
     }
 
     private void dispose() {
@@ -161,17 +181,53 @@ public class AnalysisBuilderRunnable implements Runnable{
             checkStop();
             PythonNature nature = PythonNature.getPythonNature(r);
 
+            
+        	if(r == null){
+        		return;
+        	}
+            AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+            if(info == null){
+            	return;
+            }
+            
+            //Note that if this becomes something slow, we could use: http://www.twmacinta.com/myjava/fast_md5.php as an option.
+            MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+            digest.update(document.get().getBytes());
+            byte[] hash = digest.digest();
+            
             //remove dependency information (and anything else that was already generated), but first, gather the modules dependent on this one.
             if(!isFullBuild){
-            	//if it is a full build, that info is already removed
+
+            	if(!forceAnalysis){
+            		//if the analysis is not forced, we can decide to stop the process of analyzing it if the hash is still the same
+	            	if(Arrays.equals(hash, info.getLastModificationHash(moduleName))){
+	            		return; //nothing changed
+	            	}
+            	}
+
+            	
+            	//if it is a full build, that info is already removed -- as well as the time
             	AnalysisBuilderVisitor.fillDependenciesAndRemoveInfo(moduleName, nature, analyzeDependent, monitor, isFullBuild);
+            	
             }
-            recreateCtxInsensitiveInfo(r, document, module, nature);
+
+            //set the new time
+            info.setLastModificationHash(moduleName, hash);
+
+            //we'll get a false if the last version is still the same from the last time the file was analyzed
+            recreateCtxInsensitiveInfo(info, module, nature, r);
             
             
             //let's see if we should continue with the process
             if(!makeAnalysis){
                 return;
+            }
+            
+            //if there are callbacks registered, call them (mostly for tests)
+            if(analysisBuilderListeners.size() > 0){
+            	for(ICallback<Object, IResource> callback:analysisBuilderListeners){
+            		callback.call(r);
+            	}
             }
 
             //monitor.setTaskName("Analyzing module: " + moduleName);
@@ -210,15 +266,12 @@ public class AnalysisBuilderRunnable implements Runnable{
     }
 
     
-    private void recreateCtxInsensitiveInfo(IResource resource, IDocument document, IModule sourceModule, PythonNature nature) {
-    	if(resource == null){
-    		return;
-    	}
-        AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
-        if(info == null){
-        	return;
-        }
-        
+    /**
+     * @return false if there's no modification among the current version of the file and the last version analyzed.
+     */
+    private void recreateCtxInsensitiveInfo(AbstractAdditionalInterpreterInfo info, IModule sourceModule, 
+    		PythonNature nature, IResource r) {
+    	
         //info.removeInfoFromModule(sourceModule.getName()); -- does not remove info from the module because this should be already
         //done once it gets here (the AnalysisBuilder, that also makes dependency info should take care of this).
         boolean generateDelta;

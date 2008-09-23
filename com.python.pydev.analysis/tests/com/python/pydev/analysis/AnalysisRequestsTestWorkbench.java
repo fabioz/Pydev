@@ -17,8 +17,11 @@ import org.python.pydev.parser.PyParser.ParserInfo;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.nature.PythonNature;
 
+import com.python.pydev.analysis.actions.AnalyzeOnRequestSetter;
+import com.python.pydev.analysis.actions.AnalyzeOnRequestSetter.AnalyzeOnRequestAction;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
+import com.python.pydev.analysis.builder.AnalysisBuilderRunnable;
 import com.python.pydev.analysis.builder.AnalysisRunner;
 
 /**
@@ -50,28 +53,54 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 	
 	public void testRefreshAnalyzesFiles() throws Exception {
 		editor.close(false);
+		
 		goToIdleLoopUntilCondition(getInitialParsesCondition()); //just to have any parse events consumed
 		
 		PythonNature nature = PythonNature.getPythonNature(mod1);
 		AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
-		assertTrue(info.hasInfoOn("pack1.pack2.mod1"));
+		assertTrue(info.getLastModificationHash("pack1.pack2.mod1") != null);
+		
+		parsesDone.clear();
+		setFileContents(invalidMod1Contents);
+		goToIdleLoopUntilCondition(getHasErrorMarkersCondition());
+		
+		parsesDone.clear();
+		setFileContents(validMod1Contents);
+		goToIdleLoopUntilCondition(getNoErrorMarkersCondition());
+		assertEquals(1, parsesDone.size());
+		
+		
+		ICallback<Object, IResource> analysisCallback = getAnalysisCallback();
+		AnalysisBuilderRunnable.analysisBuilderListeners.add(analysisCallback);
 		
 		try {
-			parsesDone.clear();
-			setFileContents(invalidMod1Contents);
-			goToIdleLoopUntilCondition(getHasErrorMarkersCondition());
+			//ok, now, let's check
+			editor = (PyEdit) PyOpenEditor.doOpenEditor(mod1);
+			goToManual(3000L); //in 3 seconds, no analysis should happen
+			assertEquals(0, resourcesAnalyzed.size());
 			
-			parsesDone.clear();
-			setFileContents(validMod1Contents);
-			goToIdleLoopUntilCondition(getNoErrorMarkersCondition());
-			assertEquals(1, parsesDone.size());
+			AnalyzeOnRequestAction analyzeOnRequestAction = new AnalyzeOnRequestSetter.AnalyzeOnRequestAction(editor);
+			analyzeOnRequestAction.run();
+			goToManual(1000L); //in 1 seconds, 1 analysis should happen
+			
+			assertEquals(1, resourcesAnalyzed.size());
 			
 		} finally {
-			//leave the editor open for other tests
-			editor = (PyEdit) PyOpenEditor.doOpenEditor(mod1);
+			AnalysisBuilderRunnable.analysisBuilderListeners.remove(analysisCallback);
 		}
 	}
 
+
+	private List<IResource> resourcesAnalyzed = new ArrayList<IResource>();
+	private ICallback<Object, IResource> getAnalysisCallback() {
+		return new ICallback<Object, IResource>(){
+
+			@Override
+			public Object call(IResource arg) {
+				resourcesAnalyzed.add(arg);
+				return null;
+			}};
+	}
 
 	/**
 	 * @return a condition that'll check if all the needed modules were already checked 

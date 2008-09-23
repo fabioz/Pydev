@@ -9,9 +9,10 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -106,7 +107,10 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     protected TreeMap<String, List<IInfo>> innerInitialsToInfo = new TreeMap<String, List<IInfo>>();
     
-    protected Set<String> modulesAnalyzed = new HashSet<String>();
+    /**
+     * Map with the name of the module -> hash of the document that was parsed.
+     */
+    protected volatile Map<String, byte[]> modulesAnalyzed = new HashMap<String, byte[]>();
     
 
     /**
@@ -314,9 +318,6 @@ public abstract class AbstractAdditionalInterpreterInfo {
             FastStack<SimpleNode> tempStack = new FastStack<SimpleNode>();
             
             synchronized (lock) {
-            	if(moduleName != null){
-            		this.modulesAnalyzed.add(moduleName);
-            	}
 
 	            while (entries.hasNext()) {
 	                ASTEntry entry = entries.next();
@@ -454,17 +455,31 @@ public abstract class AbstractAdditionalInterpreterInfo {
             }
         }
     }
-
-
+    
+    
     /**
-     * Checks if there is some available info on the given module
+     * @param name the name of the module
+     * @return the hash that was used in the last analysis of the module (or null if not available)
      */
-	public boolean hasInfoOn(String moduleName) {
-		synchronized (lock) {
-			return this.modulesAnalyzed.contains(moduleName);
+	public byte[] getLastModificationHash(String name) {
+		synchronized (lock){
+			return this.modulesAnalyzed.get(name);
 		}
 	}
-	
+
+	/**
+	 * Sets the hash used for some module
+	 * @param name the name of the module
+	 * @param hash the hash set for it
+	 */
+	public void setLastModificationHash(String name, byte[] hash) {
+		synchronized (lock){
+			this.modulesAnalyzed.put(name, hash);
+		}
+	}
+
+
+
 	/**
      * This is the function for which we are most optimized!
      * 
@@ -633,11 +648,13 @@ public abstract class AbstractAdditionalInterpreterInfo {
         		
         		//backward compatibility: if the modules analyzed info is not available, we've to generate it from
         		//what we have
-        		this.modulesAnalyzed = new HashSet<String>();
+        		this.modulesAnalyzed = new HashMap<String, byte[]>();
         		
 				//we just check the top level (it is not possible to have info on an inner structure without
 				//having it in the top level too).
 		        Iterator<List<IInfo>> itListOfInfo = topLevelInitialsToInfo.values().iterator();
+		        
+		        byte[] empty = new byte[0];
 		        while (itListOfInfo.hasNext()) {
 		
 		            Iterator<IInfo> it = itListOfInfo.next().iterator();
@@ -645,7 +662,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
 		
 		                IInfo info = it.next();
 		                if(info != null && info.getDeclaringModuleName() != null){
-		                	this.modulesAnalyzed.add(info.getDeclaringModuleName());
+		                	this.modulesAnalyzed.put(info.getDeclaringModuleName(), empty);
 		                }
 		            }
 		        }
@@ -655,7 +672,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
         		Tuple3 readFromFile = (Tuple3) o;
         		this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
         		this.innerInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o2;
-        		this.modulesAnalyzed = (Set<String>) readFromFile.o3;
+        		this.modulesAnalyzed = (HashMap<String, byte[]>) readFromFile.o3;
         	}
         }
     }
