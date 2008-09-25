@@ -3,16 +3,23 @@
  */
 package com.python.pydev.analysis.builder;
 
+import java.io.File;
+
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
@@ -62,7 +69,19 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
             }else{
                 analyzeDependent = true;
             }
-            doVisitChangedResource(nature, resource, document, null, analyzeDependent, monitor, false);
+            IModule module;
+            if(PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
+            	System.out.println("AnalysisBuilderVisitor: PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
+            	IFile f = (IFile) resource;
+                String file = f.getRawLocation().toOSString();
+            	String moduleName = getModuleName(resource, nature);
+				module = new SourceModule(moduleName, new File(file), 
+            			FastDefinitionsParser.parse(document.get(), moduleName), null);
+            }else{
+            	module = getSourceModule(resource, document, nature);
+            }
+			doVisitChangedResource(nature, resource, document, module, analyzeDependent, monitor, false, 
+            		AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER);
             
     	}finally{
     		nature.endRequests();
@@ -75,17 +94,15 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
      * here we have to detect errors / warnings from the code analysis
      */
     public void doVisitChangedResource(IPythonNature nature, IResource resource, IDocument document, 
-    		IModule module, boolean analyzeDependent, IProgressMonitor monitor, boolean forceAnalysis) {
+    		IModule module, boolean analyzeDependent, IProgressMonitor monitor, boolean forceAnalysis,
+    		int analysisCause) {
     	
-        if(module == null){
-            module = getSourceModule(resource, document, nature);
-        }else{
-            //this may happen if we are not in the regular visiting but in some parser changed (the module is passed, so we don't have to recreate it from the doc)
-            setModuleInCache(module);
-        }
+        Assert.isNotNull(module);
+        setModuleInCache(module);
+        
         final String moduleName = getModuleName(resource, nature);
         final AnalysisBuilderRunnable runnable = AnalysisBuilderRunnable.createRunnable(
-        		document, resource, module, analyzeDependent, monitor, isFullBuild(), moduleName, forceAnalysis);
+        		document, resource, module, analyzeDependent, monitor, isFullBuild(), moduleName, forceAnalysis, analysisCause);
         
         if(isFullBuild()){
         	runnable.run();

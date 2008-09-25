@@ -64,14 +64,17 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver2
         	if(argsToReparse[0] instanceof Tuple){
         		Tuple t = (Tuple) argsToReparse[0];
         		if (t.o1 instanceof String && t.o2 instanceof Boolean){
-        			if (t.o1.equals(ANALYSIS_PARSER_OBSERVER_FORCE)){ //if this message is passed, it will decide whether we will force the analysis or not
+        			if (t.o1.equals(ANALYSIS_PARSER_OBSERVER_FORCE)){ 
+        				//if this message is passed, it will decide whether we will force the analysis or not
         				force = (Boolean)t.o2;
         			}
         		}
         	}
         }
 
-        if(AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze() == IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE || force){
+        if(AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze() ==	IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE
+        		|| force){
+        	
             //create the module
         	IPythonNature nature = PythonNature.getPythonNature(fileAdapter);
         	if(nature == null){
@@ -104,7 +107,9 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver2
 	            AnalysisBuilderVisitor visitor = new AnalysisBuilderVisitor();
 	            visitor.memo = new HashMap<String, Object>();
 	            visitor.visitingWillStart(new NullProgressMonitor(), false, null);
-	            visitor.doVisitChangedResource(nature, fileAdapter, doc, module, true, new NullProgressMonitor(), force); //also analyze dependencies
+	            visitor.doVisitChangedResource(nature, fileAdapter, doc, module, true, new NullProgressMonitor(), force, 
+	            		AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER); 
+	            
 	            visitor.visitingEnded(new NullProgressMonitor());
         	}finally{
         		nature.endRequests();

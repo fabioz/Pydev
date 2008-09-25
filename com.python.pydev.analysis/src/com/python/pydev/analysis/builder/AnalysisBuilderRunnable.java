@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IModule;
@@ -81,7 +82,7 @@ public class AnalysisBuilderRunnable implements Runnable{
      */
     public static synchronized AnalysisBuilderRunnable createRunnable(IDocument document, IResource resource, 
     		IModule module, boolean analyzeDependent, IProgressMonitor monitor, boolean isFullBuild, 
-    		String moduleName, boolean forceAnalysis){
+    		String moduleName, boolean forceAnalysis, int analysisCause){
     	
         Map<String, AnalysisBuilderRunnable> available = getAvailableThreads();
         synchronized(available){
@@ -91,7 +92,7 @@ public class AnalysisBuilderRunnable implements Runnable{
                 analysisBuilderThread.stopAnalysis();
             }
             analysisBuilderThread = new AnalysisBuilderRunnable(document, resource, module, analyzeDependent, 
-            		monitor, isFullBuild, moduleName, forceAnalysis);
+            		monitor, isFullBuild, moduleName, forceAnalysis, analysisCause);
             
             available.put(moduleName, analysisBuilderThread);
             return analysisBuilderThread;
@@ -110,11 +111,15 @@ public class AnalysisBuilderRunnable implements Runnable{
     private String moduleName;
     private boolean forceAnalysis;
     
+    public static final int ANALYSIS_CAUSE_BUILDER = 1;
+    public static final int ANALYSIS_CAUSE_PARSER = 2;
+    private int analysisCause;
+    
     // ---------------------------------------------------------------------------------------- END ATTRIBUTES
     
     
-    public AnalysisBuilderRunnable(IDocument document, IResource resource, IModule module, boolean analyzeDependent, 
-    		IProgressMonitor monitor, boolean isFullBuild, String moduleName, boolean forceAnalysis) {
+    private AnalysisBuilderRunnable(IDocument document, IResource resource, IModule module, boolean analyzeDependent, 
+    		IProgressMonitor monitor, boolean isFullBuild, String moduleName, boolean forceAnalysis, int analysisCause) {
         this.document = document;
         this.resource = new WeakReference<IResource>(resource);
         this.module = module;
@@ -124,6 +129,7 @@ public class AnalysisBuilderRunnable implements Runnable{
         this.moduleName = moduleName;
         this.internalCancelMonitor = new NullProgressMonitor();
         this.forceAnalysis = forceAnalysis;
+        this.analysisCause = analysisCause;
     }
 
     private void dispose() {
@@ -169,9 +175,15 @@ public class AnalysisBuilderRunnable implements Runnable{
             analysisPreferences.clearCaches();
 
             boolean makeAnalysis = true;
-            if (!runner.canDoAnalysis(document) || !PyDevBuilderVisitor.isInPythonPath(r) || //just get problems in resources that are in the pythonpath
-                    analysisPreferences.makeCodeAnalysis() == false //let's see if we should do code analysis
+            if (!runner.canDoAnalysis(document) || 
+            		!PyDevBuilderVisitor.isInPythonPath(r) || //just get problems in resources that are in the pythonpath
+                    analysisPreferences.makeCodeAnalysis() == false ||
+                    (analysisCause == ANALYSIS_CAUSE_BUILDER && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor())
+                    //let's see if we should do code analysis
             ) {
+            	if(analysisCause == ANALYSIS_CAUSE_BUILDER && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
+            		System.out.println("No analysis: analysisCause == ANALYSIS_CAUSE_BUILDER && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
+            	}
                 synchronized(r){
                     runner.deleteMarkers(r);
                 }
@@ -214,9 +226,10 @@ public class AnalysisBuilderRunnable implements Runnable{
             //set the new time
             info.setLastModificationHash(moduleName, hash);
 
-            //we'll get a false if the last version is still the same from the last time the file was analyzed
+            //recreate the ctx insensitive info
             recreateCtxInsensitiveInfo(info, module, nature, r);
             
+            System.out.println("AnalysisBuilderRunnable: makeAnalysis:"+makeAnalysis+" analysisCause:"+analysisCause);
             
             //let's see if we should continue with the process
             if(!makeAnalysis){
@@ -224,11 +237,9 @@ public class AnalysisBuilderRunnable implements Runnable{
             }
             
             //if there are callbacks registered, call them (mostly for tests)
-            if(analysisBuilderListeners.size() > 0){
-            	for(ICallback<Object, IResource> callback:analysisBuilderListeners){
-            		callback.call(r);
-            	}
-            }
+        	for(ICallback<Object, IResource> callback:analysisBuilderListeners){
+        		callback.call(r);
+        	}
 
             //monitor.setTaskName("Analyzing module: " + moduleName);
             monitor.worked(1);
