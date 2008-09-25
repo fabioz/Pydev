@@ -11,7 +11,7 @@ public class ParserScheduler {
     /**
      * used to do parsings in a thread - is null when not doing parsings
      */
-    public ParsingThread parsingThread; 
+    public volatile ParsingThread parsingThread; 
     
     /**
      * indicates that currently nothing is happening
@@ -24,7 +24,7 @@ public class ParserScheduler {
     public static final int STATE_PARSE_LATER = 1; 
 
     /**
-     * indicates if a thread is currently waiting for an elapse cicle to end
+     * indicates if a thread is currently waiting for an elapse cycle to end
      */
     public static final int STATE_WAITING_FOR_ELAPSE = 2;
     
@@ -102,10 +102,12 @@ public class ParserScheduler {
      * @return whether we really created the thread (returns false if the thread already exists)
      */
     private boolean checkCreateAndStartParsingThread() {
-        if(parsingThread == null){
-            parsingThread = new ParsingThread(this);
-            parsingThread.setPriority(Thread.MIN_PRIORITY); //parsing is low priority
-            parsingThread.start();
+    	ParsingThread p = parsingThread;
+        if(p == null){
+            p = new ParsingThread(this);
+            p.setPriority(Thread.MIN_PRIORITY); //parsing is low priority
+            p.start();
+            parsingThread = p;
             return true;
         }
         return false;
@@ -143,8 +145,20 @@ public class ParserScheduler {
      * The argsToReparse will be passed to the IParserObserver2
      */
     public void reparseDocument(Object ... argsToReparse) {
-        parser.reparseDocument(argsToReparse);
+    	PyParser p = parser;
+    	if(p != null){
+    		p.reparseDocument(argsToReparse);
+    	}
     }
+
+
+	public void dispose() {
+		ParsingThread p = this.parsingThread;
+		if(p != null){
+			p.dispose();
+		}
+		this.parser = null;
+	}
 
 
 }

@@ -9,6 +9,7 @@ import java.util.ListResourceBundle;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
@@ -58,6 +59,7 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
@@ -757,6 +759,17 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 	        if(this.resourceManager != null){
 	        	this.resourceManager.dispose();
 	        	this.resourceManager = null;
+	        }
+	        
+	        
+	        //remove the markers if we want problems only in the active editor.
+	        if(PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
+		        IEditorInput input = this.getEditorInput();
+		        IFile relatedFile = (IFile) input.getAdapter(IFile.class);
+		        if(relatedFile != null){
+		        	//when disposing, remove all markers
+		        	relatedFile.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO);
+		        }
 	        }
     	}catch (Throwable e) {
 			PydevPlugin.log(e);

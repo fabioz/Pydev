@@ -3,6 +3,8 @@ package org.python.pydev.parser.fastparser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.core.ICallback;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStack;
@@ -479,14 +481,20 @@ public final class FastDefinitionsParser {
         return (this.cs[currIndex+1] == 'e' && this.cs[currIndex+2] == 'f' && Character.isWhitespace(this.cs[currIndex+3]));
     }
 
+    /**
+     * Callbacks called just before returning a parsed object. Used for tests
+     */
+    public static List<ICallback<Object, Tuple<String, SimpleNode>>> parseCallbacks = 
+    	new ArrayList<ICallback<Object, Tuple<String, SimpleNode>>>();
+    
     
     /**
      * Convenience method for parse(s.toCharArray())
      * @param s the string to be parsed
      * @return a Module node with the structure found
      */
-    public static SimpleNode parse(String s) {
-        return parse(s.toCharArray());
+    public static SimpleNode parse(String s, String moduleName) {
+        return parse(s.toCharArray(), moduleName);
     }
     
     
@@ -495,11 +503,24 @@ public final class FastDefinitionsParser {
      * @param cs the char array to be parsed
      * @return a Module node with the structure found
      */
-    public static SimpleNode parse(char[] cs) {
+    public static SimpleNode parse(char[] cs, String moduleName) {
         FastDefinitionsParser parser = new FastDefinitionsParser(cs);
         parser.extractBody();
         List<stmtType> body = parser.body;
-        return new Module(body.toArray(new stmtType[body.size()]));
+        Module ret = new Module(body.toArray(new stmtType[body.size()]));
+        if(parseCallbacks.size() > 0){
+        	Tuple<String, SimpleNode> arg = new Tuple<String, SimpleNode>(moduleName, ret);
+        	for(ICallback<Object, Tuple<String, SimpleNode>> c:parseCallbacks){
+        		c.call(arg);
+        	}
+        }
+		return ret;
     }
+
+
+    
+	public static SimpleNode parse(String s) {
+		return parse(s.toCharArray(), null);
+	}
 
 }

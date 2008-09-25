@@ -123,6 +123,11 @@ public class PyParser implements IPyParser {
      */
     private IGrammarVersionProvider grammarVersionProvider;
 
+    /**
+     * Identifies whether this parser is disposed.
+     */
+	private volatile boolean disposed = false;
+
     
     public static String getGrammarVersionStr(int grammarVersion){
         if(grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4){
@@ -220,6 +225,9 @@ public class PyParser implements IPyParser {
      * should be called when the editor is disposed
      */
     public void dispose() {
+    	this.disposed = true;
+    	this.scheduler.dispose();
+    	
         // remove the listeners
         if (document != null){
             document.removeDocumentListener(documentListener);
@@ -239,6 +247,9 @@ public class PyParser implements IPyParser {
     }
     
     public void forceReparse(Object ... argsToReparse){
+    	if(disposed){
+    		return;
+    	}
     	scheduler.parseNow(true, argsToReparse);
     }
     
@@ -402,6 +413,13 @@ public class PyParser implements IPyParser {
         	}
         }
         //end delete the markers
+        
+        
+        if(disposed){
+        	//if it was disposed in this time, don't fire any notification nor return anything valid.
+        	return new Tuple<SimpleNode, Throwable>(null, null);
+        }
+
         
         if(obj.o1 != null){
             //ok, reparse succesful, lets erase the markers that are in the editor we just parsed
@@ -735,7 +753,6 @@ public class PyParser implements IPyParser {
         
         } 
         
-
         return returnVar;
     }
 

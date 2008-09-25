@@ -5,6 +5,7 @@
  */
 package org.python.pydev.builder;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
@@ -30,13 +31,16 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
     public static final int DEFAULT_PYDEV_ELAPSE_BEFORE_ANALYSIS = 3000;
     public static final String PYDEV_ELAPSE_BEFORE_ANALYSIS = PyParserManager.PYDEV_ELAPSE_BEFORE_ANALYSIS;
 
+	public static final String ANALYZE_ONLY_ACTIVE_EDITOR = "ANALYZE_ONLY_ACTIVE_EDITOR";
+	public static final boolean DEFAULT_ANALYZE_ONLY_ACTIVE_EDITOR = true;
+
     /**
      * @param style
      */
     public PyDevBuilderPrefPage() {
         super(GRID);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
-        setDescription("PyDev builders");
+        setDescription("Pydev builders");
     }
 
     /**
@@ -46,7 +50,7 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
         Composite p = getFieldEditorParent();
         
         String s = "WARNING: \n\n" +
-        		"PyDev builders are required for many features \n" +
+        		"Pydev builders are required for many features \n" +
         		"provided by Pydev such as:\n" +
         		"\n" +
         		"- Code completion\n" +
@@ -59,8 +63,18 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
         
         addField(new LabelFieldEditor("LabelFieldEditor", s, p));
         addField(new BooleanFieldEditor(USE_PYDEV_BUILDERS, "Use builders?", p));
-        addField(new BooleanFieldEditor(PyParserManager.USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE, "Build only on save?", p));
-        addField(new IntegerFieldEditor(PyParserManager.PYDEV_ELAPSE_BEFORE_ANALYSIS, "Time to elapse before analyzing changed file (millis)", p));
+        
+        
+        //Analysis only on save means that we'll not have parse notifications (so, things will be analyzed only on save)
+        addField(new BooleanFieldEditor(PyParserManager.USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE, "Disable parser notifications?", p));
+        addField(new IntegerFieldEditor(PyParserManager.PYDEV_ELAPSE_BEFORE_ANALYSIS, "Time to elapse before reparsing changed file (millis)", p));
+        
+        s = "If only open editors are analyzed, markers will only be added\n" +
+    		"to the opened Pydev editors and will be removed upon close.\n" +
+    		"(note that a full rebuild may be needed to remove existing markers)";
+        addField(new LabelFieldEditor("ActiveBufferLabelFieldEditor", s, p));
+        
+        addField(new BooleanFieldEditor(ANALYZE_ONLY_ACTIVE_EDITOR, "Only analyze open editors?", p));
     }
 
     /**
@@ -75,6 +89,14 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
     
     public static boolean useAnalysisOnlyOnDocSave() {
         return PyParserManager.getPyParserManager(PydevPrefs.getPreferences()).useAnalysisOnlyOnDocSave();
+    }
+    
+    public static boolean getAnalyzeOnlyActiveEditor() {
+    	return PydevPrefs.getPreferences().getBoolean(ANALYZE_ONLY_ACTIVE_EDITOR);
+    }
+    
+    public static void setAnalyzeOnlyActiveEditor(boolean b) {
+    	PydevPrefs.getPreferences().setValue(ANALYZE_ONLY_ACTIVE_EDITOR, b);
     }
     
     public static int getElapseMillisBeforeAnalysis() {

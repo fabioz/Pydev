@@ -69,7 +69,8 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      * 
      * @see org.eclipse.core.internal.events InternalBuilder#build(int, java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
      */
-    protected IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
+    @SuppressWarnings("unchecked")
+	protected IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
 
         if (PyDevBuilderPrefPage.usePydevBuilders() == false)
             return null;
@@ -225,7 +226,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      * @param monitor
      * @param visitors
      */
-    public void buildResources(List<IFile> resourcesToParse, IProgressMonitor monitor, List visitors) {
+    public void buildResources(List<IFile> resourcesToParse, IProgressMonitor monitor, List<PyDevBuilderVisitor> visitors) {
 
         // we have 100 units here
         double inc = (visitors.size() * 100) / (double) resourcesToParse.size();
@@ -257,9 +258,9 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 	            memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, true); //mark it as full build
 	            
 	            if(doc != null){ //might be out of synch
-	                for (Iterator it = visitors.iterator(); it.hasNext() && monitor.isCanceled() == false;) {
+	                for (Iterator<PyDevBuilderVisitor> it = visitors.iterator(); it.hasNext() && monitor.isCanceled() == false;) {
 	
-	                    PyDevBuilderVisitor visitor = (PyDevBuilderVisitor) it.next();
+	                    PyDevBuilderVisitor visitor = it.next();
 	                    visitor.memo = memo; //setting the memo must be the first thing.
 	    
 	                    communicateProgress(monitor, totalResources, i, r, visitor, bufferToCreateString);

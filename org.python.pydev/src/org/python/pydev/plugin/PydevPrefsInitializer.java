@@ -4,18 +4,17 @@
 package org.python.pydev.plugin;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
+import org.eclipse.core.runtime.preferences.DefaultScope;
+import org.eclipse.jface.resource.StringConverter;
+import org.osgi.service.prefs.Preferences;
+import org.python.pydev.builder.PyDevBuilderPrefPage;
+import org.python.pydev.builder.todo.PyTodoPrefPage;
 import org.python.pydev.editor.codefolding.PyDevCodeFoldingPrefPage;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
 import org.python.pydev.parser.PyParserManager;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
-import org.eclipse.core.runtime.preferences.DefaultScope;
-import org.eclipse.jface.resource.StringConverter;
-import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
-import org.osgi.service.prefs.Preferences;
-import org.python.pydev.builder.PyDevBuilderPrefPage;
-import org.python.pydev.builder.todo.PyTodoPrefPage;
 
 public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
 
@@ -88,6 +87,7 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         node.putBoolean(PyDevBuilderPrefPage.USE_PYDEV_BUILDERS, PyDevBuilderPrefPage.DEFAULT_USE_PYDEV_BUILDERS);
         node.putBoolean(PyParserManager.USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE, PyDevBuilderPrefPage.DEFAULT_USE_PYDEV_ONLY_ON_DOC_SAVE);
         node.putInt(PyParserManager.PYDEV_ELAPSE_BEFORE_ANALYSIS, PyDevBuilderPrefPage.DEFAULT_PYDEV_ELAPSE_BEFORE_ANALYSIS);
+        node.putBoolean(PyDevBuilderPrefPage.ANALYZE_ONLY_ACTIVE_EDITOR, PyDevBuilderPrefPage.DEFAULT_ANALYZE_ONLY_ACTIVE_EDITOR);
         
         //code folding 
         node.putBoolean(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING, PyDevCodeFoldingPrefPage.DEFAULT_USE_CODE_FOLDING);

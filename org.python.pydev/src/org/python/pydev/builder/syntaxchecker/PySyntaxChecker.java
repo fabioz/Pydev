@@ -4,6 +4,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.PyParser;
@@ -17,23 +18,33 @@ import org.python.pydev.plugin.nature.PythonNature;
  */
 public class PySyntaxChecker extends PyDevBuilderVisitor{
 
+
 	@Override
 	public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
+		try {
+			PyParser.deleteErrorMarkers(resource);
+		} catch (CoreException e) {
+			PydevPlugin.log(e);
+		}
+		
+		
+		
     	PythonNature nature = getPythonNature(resource);
     	if(nature == null){
     		return;
     	}
 
+    	if(PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
+    		System.out.println("PySyntaxChecker: PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
+    		return; //not analyzed with this builder... always from parser changes.
+    	}
+    	System.out.println("PySyntaxChecker: Checking!");
+    	
 //    	System.out.println("PySyntaxChecker: visit resource:"+resource);
     	SourceModule mod = getSourceModule(resource, document, nature);
 //    	System.out.println("PySyntaxChecker: end visit resource:"+resource);
 //    	System.out.println("\n\n\n\n\n");
     	Throwable parseError = mod.parseError;
-    	try {
-    		PyParser.deleteErrorMarkers(resource);
-    	} catch (CoreException e) {
-    		PydevPlugin.log(e);
-    	}
     	
 		if(parseError != null){
 			try {

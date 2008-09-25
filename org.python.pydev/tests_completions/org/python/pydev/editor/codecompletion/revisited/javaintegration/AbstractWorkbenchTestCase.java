@@ -179,11 +179,16 @@ public class AbstractWorkbenchTestCase extends TestCase{
     
     
     
+    protected void goToIdleLoopUntilCondition(final ICallback<Boolean, Object> callback, 
+    		final ICallback<String, Object> errorMessageCallback ) {
+    	goToIdleLoopUntilCondition(callback, 10000L, errorMessageCallback);
+    }
+    
     /**
      * @see #goToIdleLoopUntilCondition(ICallback, long)
      */
     protected void goToIdleLoopUntilCondition(final ICallback<Boolean, Object> callback) {
-    	goToIdleLoopUntilCondition(callback, 10000L);//default with 10 secs (more than enough for any action to be executed)
+    	goToIdleLoopUntilCondition(callback, 10000L, null);//default with 10 secs (more than enough for any action to be executed)
     }
 
     /**
@@ -195,7 +200,8 @@ public class AbstractWorkbenchTestCase extends TestCase{
      * 
      * @throws AssertionError if the condition was not satisfied in the available amount of time
      */
-	protected void goToIdleLoopUntilCondition(final ICallback<Boolean, Object> callback, long deltaToElapse) {
+	protected void goToIdleLoopUntilCondition(final ICallback<Boolean, Object> callback, long deltaToElapse, 
+			final ICallback<String, Object> errorMessageCallback) {
 		//make the delta the absolute time
 		deltaToElapse = System.currentTimeMillis() + deltaToElapse;
         Display display = Display.getCurrent();
@@ -213,6 +219,10 @@ public class AbstractWorkbenchTestCase extends TestCase{
             if(callback.call(null)){
             	return;
             }
+        }
+        if(errorMessageCallback != null){
+        	fail("The condition requested was not satisfied in the available amount of time:\n"+
+        			errorMessageCallback.call(null));
         }
         fail("The condition requested was not satisfied in the available amount of time");
 	}
