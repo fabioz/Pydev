@@ -1,12 +1,22 @@
 package com.python.pydev.analysis;
 
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.WorkbenchPage;
+import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.REF;
@@ -19,6 +29,7 @@ import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.PyParser.ParserInfo;
 import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.plugin.DebugSettings;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.actions.AnalyzeOnRequestSetter;
@@ -38,9 +49,14 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 	private List<Tuple3<SimpleNode, Throwable, ParserInfo>> parsesDone = new ArrayList<Tuple3<SimpleNode,Throwable,ParserInfo>>();
 	private List<Tuple<String, SimpleNode>> fastParsesDone = new ArrayList<Tuple<String, SimpleNode>>();
 	
+	//gives both, a syntax and analysis error!
 	private String invalidMod1Contents = "import java.lang.Class\njava.lang.Class\nkkk invalid kkk\nprint kkk";
 	private String validMod1Contents = "import java.lang.Class\njava.lang.Class";
 	private ICallback<Object, Tuple3<SimpleNode, Throwable, ParserInfo>> addParsesToListListener;
+	private IFile mod2;
+	private PyEdit editor2;
+	
+	public static final int TIME_FOR_ANALYSIS = 1500;
 	
 	@Override
 	protected void setUp() throws Exception {
@@ -55,6 +71,12 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 	
 	@Override
 	protected void tearDown() throws Exception {
+		if(mod2 != null){
+			mod2.delete(true, null);
+		}
+		if(editor2 != null){
+			editor2.close(false);
+		}
 		super.tearDown();
 		PyParser.successfulParseListeners.remove(addParsesToListListener);
 		//analyze only files open in the editor
@@ -63,40 +85,64 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 	}
 	
 	
+	private void print(String ... msg) {
+	    if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+    		for (String string : msg) {
+    			System.out.println(string);
+    		}
+	    }
+	}
 	
 	public void testRefreshAnalyzesFiles() throws Exception {
+		MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+		digest.update(validMod1Contents.getBytes());
+		byte[] hashValidMod1Contents = digest.digest();
+		digest.update(invalidMod1Contents.getBytes());
+		byte[] hashInvalidMod1Contents = digest.digest();
 		
 		editor.close(false);
 		goToIdleLoopUntilCondition(getInitialParsesCondition()); //just to have any parse events consumed
+		goToManual(TIME_FOR_ANALYSIS); //give it a bit more time...
 		
 		PythonNature nature = PythonNature.getPythonNature(mod1);
 		AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
-		assertTrue(info.getLastModificationHash("pack1.pack2.mod1") != null);
-		
-		
-		parsesDone.clear();
-		setFileContents(invalidMod1Contents);
-		goToIdleLoopUntilCondition(getHasErrorMarkersCondition(), getMarkers());
-		
-		parsesDone.clear();
-		setFileContents(validMod1Contents);
-		goToIdleLoopUntilCondition(getNoErrorMarkersCondition(), getMarkers());
-		assertEquals(1, parsesDone.size());
-		
-		
+		assertTrue(Arrays.equals(info.getLastModificationHash("pack1.pack2.mod1"), hashValidMod1Contents));
 		ICallback<Object, IResource> analysisCallback = getAnalysisCallback();
 		AnalysisBuilderRunnable.analysisBuilderListeners.add(analysisCallback);
 		
+		
 		try {
-			//ok, now, let's check
-			goToManual(1000L); //in 1 seconds, no analysis should happen
-			assertEquals(0, resourcesAnalyzed.size());
+			print("------------- Setting INvalid contents -------------");
+			resourcesAnalyzed.clear();
+			parsesDone.clear();
+			setFileContents(invalidMod1Contents);
+			goToManual(TIME_FOR_ANALYSIS); //in 1 seconds, only 1 parse/analysis should happen
+			goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
+			goToIdleLoopUntilCondition(getHasBothErrorMarkersCondition(), getMarkers());
+			assertTrue(Arrays.equals(info.getLastModificationHash("pack1.pack2.mod1"), hashInvalidMod1Contents));
+			assertEquals(1, parsesDone.size());
 			
+
+			
+			print("-------- Setting valid contents -------------");
+			resourcesAnalyzed.clear();
+			parsesDone.clear();
+			setFileContents(validMod1Contents);
+			goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
+			goToIdleLoopUntilCondition(getNoErrorMarkersCondition(), getMarkers());
+			goToManual(TIME_FOR_ANALYSIS); //in 1 seconds, only 1 parse/analysis should happen
+			assertTrue(Arrays.equals(info.getLastModificationHash("pack1.pack2.mod1"), hashValidMod1Contents));
+			assertEquals(1, parsesDone.size());
+			
+			
+			
+			resourcesAnalyzed.clear();
 			ICallback<Object, IResource> analysisErrorCallback = getAnalysisErrorCallback();
 			AnalysisBuilderRunnable.analysisBuilderListeners.add(analysisErrorCallback);
 			try{
+				print("-------- Opening editor ----------");
 				editor = (PyEdit) PyOpenEditor.doOpenEditor(mod1);
-				goToManual(3000L); //in 3 seconds, no analysis should happen
+				goToManual(TIME_FOR_ANALYSIS); //in 3 seconds, no analysis should happen
 				assertEquals("Expected no resources analyzed. Found: "+resourcesAnalyzed, 0, resourcesAnalyzed.size());
 			}finally{
 				AnalysisBuilderRunnable.analysisBuilderListeners.remove(analysisErrorCallback);
@@ -104,7 +150,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 			
 			AnalyzeOnRequestAction analyzeOnRequestAction = new AnalyzeOnRequestSetter.AnalyzeOnRequestAction(editor);
 			analyzeOnRequestAction.run();
-			goToManual(1000L); //in 1 seconds, 1 analysis should happen
+			goToManual(TIME_FOR_ANALYSIS); //in 1 seconds, 1 analysis should happen
 			
 			assertEquals(1, resourcesAnalyzed.size());
 			
@@ -116,13 +162,35 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 	}
 	
 	
+	private ICallback<String, Object> getResourcesAnalyzed() {
+		return new ICallback<String, Object>(){
+
+			@Override
+			public String call(Object arg) {
+				return resourcesAnalyzed.toString();
+			}
+			
+		};
+	}
+
+	private ICallback<Boolean, Object> get1ResourceAnalyzed() {
+		return new ICallback<Boolean, Object>(){
+
+			@Override
+			public Boolean call(Object arg) {
+				return resourcesAnalyzed.size() == 1;
+			}
+			
+		};
+	}
+
 	/**
 	 * Checks what happens now if the user wants to hear only notifications on opened editors.
 	 * 
 	 * @throws Exception
 	 */
 	public void CheckRefreshAnalyzesFilesOnlyOnActiveEditor() throws Exception {
-		System.out.println("----------- CheckRefreshAnalyzesFilesOnlyOnActiveEditor ---------");
+		print("----------- CheckRefreshAnalyzesFilesOnlyOnActiveEditor ---------");
 		//analyze all files
 		PyDevBuilderPrefPage.setAnalyzeOnlyActiveEditor(true);
 		
@@ -134,7 +202,6 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 		
 		try{
 			editor.close(false);
-			goToIdleLoopUntilCondition(getInitialParsesCondition()); //just to have any parse events consumed
 			
 			PythonNature nature = PythonNature.getPythonNature(mod1);
 			AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
@@ -142,16 +209,18 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 			
 			
 			fastParsesDone.clear();
+			
+			print("----------- Setting invalid contents ---------");
 			setFileContents(invalidMod1Contents);
 			goToIdleLoopUntilCondition(getFastModulesParsedCondition("pack1.pack2.mod1"));
-			goToManual(2000); //2 seconds would be enough for errors to appear
+			goToManual(TIME_FOR_ANALYSIS); //2 seconds would be enough for errors to appear
 			goToIdleLoopUntilCondition(getNoErrorMarkersCondition(), getMarkers());
 			
-			System.out.println("Ok, no markers at this point!!!");
-			
 			fastParsesDone.clear();
+			
+			print("----------- Setting valid contents ---------");
 			setFileContents(validMod1Contents);
-			goToManual(2000); //2 seconds would be enough for errors to appear
+			goToManual(TIME_FOR_ANALYSIS); //2 seconds would be enough for errors to appear
 			goToIdleLoopUntilCondition(getNoErrorMarkersCondition(), getMarkers());
 			assertEquals(1, fastParsesDone.size());
 		}finally{
@@ -164,21 +233,78 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 		
 		try {
 			//ok, now, let's check it
+			print("----------- Opening editor ---------");
+			resourcesAnalyzed.clear();
 			editor = (PyEdit) PyOpenEditor.doOpenEditor(mod1);
 			//in 3 seconds, 1 analysis should happen (because we've just opened the editor and the markers are only
 			//computed when it's opened)
-			goToManual(3000L);  
+			goToManual(TIME_FOR_ANALYSIS);  
+			assertEquals("Expected 1 resource analyzed. Found: "+resourcesAnalyzed, 1, resourcesAnalyzed.size());
+			
+			print("----------- Setting invalid contents ---------");
+			setFileContents(invalidMod1Contents);
+			goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
+			goToManual(TIME_FOR_ANALYSIS);  
+			goToIdleLoopUntilCondition(getHasBothErrorMarkersCondition(), getMarkers());
+			
+			resourcesAnalyzed.clear();
+			print("------------- Requesting analysis -------------");
+			AnalyzeOnRequestAction analyzeOnRequestAction = new AnalyzeOnRequestSetter.AnalyzeOnRequestAction(editor);
+			analyzeOnRequestAction.run();
+			goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
+			
 			assertEquals(1, resourcesAnalyzed.size());
 			
-			setFileContents(invalidMod1Contents);
-			goToManual(3000L);  
-			goToIdleLoopUntilCondition(getHasErrorMarkersCondition(), getMarkers());
 			
-//			AnalyzeOnRequestAction analyzeOnRequestAction = new AnalyzeOnRequestSetter.AnalyzeOnRequestAction(editor);
-//			analyzeOnRequestAction.run();
-//			goToManual(1000L); //in 1 seconds, 1 analysis should happen
-//			
-//			assertEquals(1, resourcesAnalyzed.size());
+			print("----------- Reopening editor ---------");
+			resourcesAnalyzed.clear();
+			editor.close(false);
+			//removes the markers when the editor is closed
+			goToManual(TIME_FOR_ANALYSIS);
+			goToIdleLoopUntilCondition(getNoErrorMarkersCondition(), getMarkers());
+			editor = (PyEdit) PyOpenEditor.doOpenEditor(mod1);
+			goToManual(TIME_FOR_ANALYSIS);
+			goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
+			goToIdleLoopUntilCondition(getHasBothErrorMarkersCondition(), getMarkers());
+			
+			
+			print("----------- Changing editor contents and saving ---------");
+			resourcesAnalyzed.clear();
+			editor.getDocument().set(invalidMod1Contents+"\n");
+			editor.doSave(null);
+			goToManual(TIME_FOR_ANALYSIS);
+			goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
+			goToIdleLoopUntilCondition(getHasBothErrorMarkersCondition(), getMarkers());
+			
+			print("----------- Changing editor input ---------");
+			IPath mod2Path = mod1.getFullPath().removeLastSegments(1).append("mod2.py");
+			mod1.copy(mod2Path, true, null);
+			mod2 = (IFile) ResourcesPlugin.getWorkspace().getRoot().findMember(mod2Path);
+			editor.setInput(new FileEditorInput(mod2));
+			
+			//give it some time
+			goToManual(TIME_FOR_ANALYSIS);
+			goToIdleLoopUntilCondition(getNoErrorMarkersCondition(), getMarkers());
+			goToIdleLoopUntilCondition(getHasBothErrorMarkersCondition(mod2), getMarkers());
+			
+			
+			print("----------- Create new editor with same input ---------");
+			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			IWorkbenchPage page = window.getActivePage();
+			editor2 = (PyEdit) ((WorkbenchPage) page).openEditor(editor.getEditorInput(), editor.getSite().getId(), 
+					true, IWorkbenchPage.MATCH_NONE);
+			
+			//give it some time
+			goToManual(TIME_FOR_ANALYSIS);
+			goToIdleLoopUntilCondition(getHasBothErrorMarkersCondition(mod2), getMarkers());
+			editor2.close(false);
+			editor2 = null;
+			
+			goToIdleLoopUntilCondition(getHasBothErrorMarkersCondition(mod2), getMarkers());
+			editor.close(false);
+			goToManual(TIME_FOR_ANALYSIS);
+			goToIdleLoopUntilCondition(getNoErrorMarkersCondition(mod2), getMarkers());
+			editor = (PyEdit) PyOpenEditor.doOpenEditor(mod1); //leave it open
 			
 		} finally {
 			AnalysisBuilderRunnable.analysisBuilderListeners.remove(analysisCallback);
@@ -319,41 +445,44 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 			
 			public Object call(Tuple3<SimpleNode, Throwable, ParserInfo> arg) {
 //				if(arg.o3.moduleName == null){
-//					System.out.println("null");
+//					print("null");
 //				}
 //				if(arg.o3.initial.trim().length() == 0){
-//					System.out.println("Parsed file with no contents");
+//					print("Parsed file with no contents");
 //				}else{
-//					System.out.println("Parsed:");
-//					System.out.println(arg.o3.moduleName);
-//					System.out.println(arg.o3.file);
-//					System.out.println(arg.o3.document.get());
-//					System.out.println("\n\n-------------------");
+//					print("Parsed:");
+//					print(arg.o3.moduleName);
+//					print(arg.o3.file);
+//					print(arg.o3.document.get());
+//					print("\n\n-------------------");
 //				}
 				parsesDone.add(arg);
 				return null;
 			}};
 	}
 
+	private ICallback<Boolean, Object> getHasBothErrorMarkersCondition() {
+		return getHasBothErrorMarkersCondition(mod1);
+	}
 
 	/**
 	 * Callback that'll check if there are error markers in the mod1.py resource
 	 */
-	private ICallback<Boolean, Object> getHasErrorMarkersCondition() {
+	private ICallback<Boolean, Object> getHasBothErrorMarkersCondition(final IFile file) {
 		return new ICallback<Boolean, Object>(){
 
 			@Override
 			public Boolean call(Object arg) {
 				try {
-					IMarker[] markers = mod1.findMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
-					if(markers.length == 0){
-						return false;
+					//must have both problems: syntax and analysis error!!
+					IMarker[] markers = file.findMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
+					if(markers.length > 0){
+						markers = file.findMarkers(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+						if(markers.length > 0){
+							return true;
+						}
 					}
-					markers = mod1.findMarkers(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
-					if(markers.length == 0){
-						return false;
-					}
-					return true;
+					return false;
 				} catch (CoreException e) {
 					throw new RuntimeException(e);
 				}
@@ -362,21 +491,24 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 		};
 	}
 
+	private ICallback<Boolean, Object> getNoErrorMarkersCondition() {
+		return getNoErrorMarkersCondition(mod1);
+	}
 
 	/**
 	 * Callback that'll check if there are NO error markers in the mod1.py resource
 	 */
-	private ICallback<Boolean, Object> getNoErrorMarkersCondition() {
+	private ICallback<Boolean, Object> getNoErrorMarkersCondition(final IFile file) {
 		return new ICallback<Boolean, Object>(){
 			
 			@Override
 			public Boolean call(Object arg) {
 				try {
-					IMarker[] markers = mod1.findMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
+					IMarker[] markers = file.findMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
 					if(markers.length != 0){
 						return false;
 					}
-					markers = mod1.findMarkers(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+					markers = file.findMarkers(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
 					if(markers.length != 0){
 						return false;
 					}

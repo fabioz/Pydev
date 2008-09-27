@@ -22,6 +22,7 @@ import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.plugin.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -161,6 +162,9 @@ public class AnalysisBuilderRunnable implements Runnable{
     
     public void doAnalysis(){
         try {
+        	if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+        		System.out.println("AnalysisBuilderRunnable: doAnalysis()");
+        	}
             //if the resource is not open, there's not much we can do...
             IResource r = resource.get();
             if(r == null || !r.getProject().isOpen()){
@@ -174,18 +178,15 @@ public class AnalysisBuilderRunnable implements Runnable{
             //update the severities, etc.
             analysisPreferences.clearCaches();
 
-            boolean makeAnalysis = true;
-            if (!runner.canDoAnalysis(document) || 
-            		!PyDevBuilderVisitor.isInPythonPath(r) || //just get problems in resources that are in the pythonpath
-                    analysisPreferences.makeCodeAnalysis() == false ||
-                    (analysisCause == ANALYSIS_CAUSE_BUILDER && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor())
-                    //let's see if we should do code analysis
-            ) {
-            	if(analysisCause == ANALYSIS_CAUSE_BUILDER && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
-            		System.out.println("No analysis: analysisCause == ANALYSIS_CAUSE_BUILDER && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
-            	}
+            boolean makeAnalysis = runner.canDoAnalysis(document) && 
+	    		PyDevBuilderVisitor.isInPythonPath(r) && //just get problems in resources that are in the pythonpath
+	            analysisPreferences.makeCodeAnalysis();
+            
+            
+            if (!makeAnalysis) {
+            	//let's see if we should do code analysis
                 synchronized(r){
-                    runner.deleteMarkers(r);
+                    AnalysisRunner.deleteMarkers(r);
                 }
                 makeAnalysis = false;
             }
@@ -213,6 +214,9 @@ public class AnalysisBuilderRunnable implements Runnable{
             	if(!forceAnalysis){
             		//if the analysis is not forced, we can decide to stop the process of analyzing it if the hash is still the same
 	            	if(Arrays.equals(hash, info.getLastModificationHash(moduleName))){
+	            		if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+	            			System.out.println("Skipping: hash is still the same for: "+moduleName);
+	            		}
 	            		return; //nothing changed
 	            	}
             	}
@@ -220,20 +224,32 @@ public class AnalysisBuilderRunnable implements Runnable{
             	
             	//if it is a full build, that info is already removed -- as well as the time
             	AnalysisBuilderVisitor.fillDependenciesAndRemoveInfo(moduleName, nature, analyzeDependent, monitor, isFullBuild);
-            	
             }
 
-            //set the new time
-            info.setLastModificationHash(moduleName, hash);
 
             //recreate the ctx insensitive info
             recreateCtxInsensitiveInfo(info, module, nature, r);
             
-            System.out.println("AnalysisBuilderRunnable: makeAnalysis:"+makeAnalysis+" analysisCause:"+analysisCause);
+        	if(analysisCause == ANALYSIS_CAUSE_BUILDER && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
+        		if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+        			System.out.println("Skipping: analysisCause == ANALYSIS_CAUSE_BUILDER && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
+        		}
+        		return;
+        	}
             
             //let's see if we should continue with the process
             if(!makeAnalysis){
+            	if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+            		System.out.println("Skipping: !makeAnalysis");
+            	}
                 return;
+            }
+            
+            //set the new time only if the analysis will actually be done!
+            info.setLastModificationHash(moduleName, hash);
+            
+            if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+            	System.out.println("AnalysisBuilderRunnable: makeAnalysis:"+makeAnalysis+" analysisCause:"+analysisCause);
             }
             
             //if there are callbacks registered, call them (mostly for tests)

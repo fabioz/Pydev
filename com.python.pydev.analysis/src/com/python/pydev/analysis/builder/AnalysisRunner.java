@@ -56,15 +56,23 @@ public class AnalysisRunner {
     /**
      * @param resource the resource that should have the markers deleted
      */
-    public void deleteMarkers(IResource resource) {
+    public static void deleteMarkers(IResource resource) {
     	if(resource == null){
     		return;
     	}
-        try {
-            resource.deleteMarkers(PYDEV_ANALYSIS_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
-        } catch (CoreException e3) {
-            Log.log(e3);
-        }
+        
+		try {
+			resource.deleteMarkers(PYDEV_ANALYSIS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
+		} catch (CoreException e) {
+		    //ok, if it is a resource exception, it may have happened because the resource does not exist anymore
+		    //so, there is no need to log this failure
+		    if(resource.exists()){
+		        Log.log(e);
+		    }
+		} catch (Exception e) {
+            Log.log(e);
+		}
+
     }
     
 

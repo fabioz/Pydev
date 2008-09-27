@@ -463,7 +463,11 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
 	public byte[] getLastModificationHash(String name) {
 		synchronized (lock){
-			return this.modulesAnalyzed.get(name);
+			byte[] ret = this.modulesAnalyzed.get(name);
+			if(ret == null){
+				return new byte[0];
+			}
+			return ret;
 		}
 	}
 

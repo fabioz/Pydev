@@ -7,15 +7,12 @@ import java.io.File;
 import java.util.HashMap;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.core.parser.IParserObserver2;
 import org.python.pydev.core.parser.ISimpleNode;
@@ -85,17 +82,7 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver2
         	}
         	try{
 	        	if(!nature.isResourceInPythonpath(fileAdapter)){
-	        		try {
-						fileAdapter.deleteMarkers(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
-	        		} catch (CoreException e) {
-	        		    //ok, if it is a resource exception, it may have happened because the resource does not exist anymore
-	        		    //so, there is no need to log this failure
-	        		    if(fileAdapter.exists()){
-	        		        Log.log(e);
-	        		    }
-					} catch (Exception e) {
-	                    Log.log(e);
-					}
+	        		AnalysisRunner.deleteMarkers(fileAdapter);
 	            	return; // we only analyze resources that are in the pythonpath
 	            }
 	
