@@ -14,22 +14,22 @@ import org.python.pydev.core.structure.FastStringBuffer;
 // e = modulus of the public key( in the client side )
 
 public class ClientEncryption {
-	private static ClientEncryption encryption;
-	private BigInteger e;
-	private BigInteger N;
-	
-	public ClientEncryption() {
-		e = new BigInteger("65537",10);
-		N = new BigInteger("115177032176946546558269068827440200244040503869596632334637862913980482577252368423165152466486515398576152630074226512838661350005676884681271881673730676993314466894521803768688453811901029052598776873607299993786360160003193977375556220882426365859708520873206921482917525578030271496655309864011180862013",10);
-	}
-	
-	public static ClientEncryption getInstance(){
-		if( encryption==null ) {
-			return encryption = new ClientEncryption();
-		} else {
-			return encryption;
-		}
-	}
+    private static ClientEncryption encryption;
+    private BigInteger e;
+    private BigInteger N;
+    
+    public ClientEncryption() {
+        e = new BigInteger("65537",10);
+        N = new BigInteger("115177032176946546558269068827440200244040503869596632334637862913980482577252368423165152466486515398576152630074226512838661350005676884681271881673730676993314466894521803768688453811901029052598776873607299993786360160003193977375556220882426365859708520873206921482917525578030271496655309864011180862013",10);
+    }
+    
+    public static ClientEncryption getInstance(){
+        if( encryption==null ) {
+            return encryption = new ClientEncryption();
+        } else {
+            return encryption;
+        }
+    }
 
     protected String[] getChunks(String data) {
         ArrayList<String> strs = new ArrayList<String>();
@@ -43,7 +43,7 @@ public class ClientEncryption {
         return strs.toArray(new String[0]);
     }
     
-	public String encrypt(String data) {
+    public String encrypt(String data) {
         String[] chunks = getChunks(data);
         FastStringBuffer buf = new FastStringBuffer();
         for (String string : chunks) {
@@ -54,9 +54,9 @@ public class ClientEncryption {
         }
         return buf.toString();
 
-	}
+    }
 
-	public String decrypt(String data) {
+    public String decrypt(String data) {
         String[] strings = data.split("@");
         FastStringBuffer buf = new FastStringBuffer();
         for (String string : strings) {
@@ -65,5 +65,5 @@ public class ClientEncryption {
             buf.append(new String(decrypted.toByteArray()));
         }
         return buf.toString();
-	}	
+    }    
 }

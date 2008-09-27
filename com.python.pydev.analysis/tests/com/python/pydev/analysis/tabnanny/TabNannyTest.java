@@ -37,12 +37,12 @@ public class TabNannyTest extends TestCase {
 
     public void testTabErrors1() throws Exception {
         Document doc = new Document("" +
-        		"aaa\n" +
-        		"\t\n" +
-        		"    \n" +
-        		"    \t\n" +
-        		"ccc\n" +
-        		""
+                "aaa\n" +
+                "\t\n" +
+                "    \n" +
+                "    \t\n" +
+                "ccc\n" +
+                ""
                 );
         
         List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4));

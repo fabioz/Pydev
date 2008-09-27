@@ -118,26 +118,26 @@ public class Scope implements Iterable<ScopeItems>{
      * - imports such as import os.path (one token is created for os and one for os.path) 
      */
     public void addImportTokens(List<IToken> list, IToken generator, ICompletionCache completionCache) {
-    	ScopeItems.TryExceptInfo withinExceptNode = scope.peek().getTryExceptImportError();
-    	
-    	//only report undefined imports if we're not inside a try..except ImportError.
-    	boolean reportUndefinedImports = withinExceptNode == null;
-    	
-    	boolean requireTokensToBeImports = false;
-    	ImportInfo importInfo = null;
-    	if(generator != null ){
-    		//it will only enter here if it is a wild import (for other imports, the generator is equal to the
-    		//import)
-    		if(!generator.isImport() ){
-    			throw new RuntimeException("Only imports should generate multiple tokens " +
-    			"(it may be null for imports in the form import foo.bar, but then all its tokens must be imports).");
-    		}
+        ScopeItems.TryExceptInfo withinExceptNode = scope.peek().getTryExceptImportError();
+        
+        //only report undefined imports if we're not inside a try..except ImportError.
+        boolean reportUndefinedImports = withinExceptNode == null;
+        
+        boolean requireTokensToBeImports = false;
+        ImportInfo importInfo = null;
+        if(generator != null ){
+            //it will only enter here if it is a wild import (for other imports, the generator is equal to the
+            //import)
+            if(!generator.isImport() ){
+                throw new RuntimeException("Only imports should generate multiple tokens " +
+                "(it may be null for imports in the form import foo.bar, but then all its tokens must be imports).");
+            }
             importInfo = importChecker.visitImportToken(generator, reportUndefinedImports, completionCache);
 
-    	}else{
-    		requireTokensToBeImports = true;
-    	}
-    	
+        }else{
+            requireTokensToBeImports = true;
+        }
+        
         ScopeItems m = scope.peek();
         for (Iterator<IToken> iter = list.iterator(); iter.hasNext();) {
             IToken o = iter.next();
@@ -150,14 +150,14 @@ public class Scope implements Iterable<ScopeItems>{
             //the token that we find here is either an import (in the case of some from xxx import yyy or import aa.bb)
             //or a Name, ClassDef, MethodDef, etc. (in the case of wild imports)
             if(requireTokensToBeImports){
-            	if(!o.isImport()){
-            		throw new RuntimeException("Expecting import token");
-            	}
-            	importInfo = importChecker.visitImportToken(o, reportUndefinedImports, completionCache);
+                if(!o.isImport()){
+                    throw new RuntimeException("Expecting import token");
+                }
+                importInfo = importChecker.visitImportToken(o, reportUndefinedImports, completionCache);
             }
             //can be either the one resolved in the wild import or in this token (if it is not a wild import)
-        	found.importInfo = importInfo;
-        	visitor.onImportInfoSetOnFound(found);
+            found.importInfo = importInfo;
+            visitor.onImportInfoSetOnFound(found);
         }
     }
 
@@ -217,10 +217,10 @@ public class Scope implements Iterable<ScopeItems>{
                     }
                     
                 } else if (!(m.getScopeType() == Scope.SCOPE_TYPE_METHOD && found.getSingle().scopeFound.getScopeType() == Scope.SCOPE_TYPE_CLASS)){
-                	//if it was found but in a class scope (and we're now in a method scope), we will have to create a new Found.
-                	
+                    //if it was found but in a class scope (and we're now in a method scope), we will have to create a new Found.
+                    
                     //found... may have been or not used, (if we're in an if scope, that does not matter, because
-                	//we have to group things toghether for generating messages for all the occurences in the if)
+                    //we have to group things toghether for generating messages for all the occurences in the if)
                     found.addGeneratorToFound(generator,o, getCurrScopeId(), getCurrScopeItems());
                     
                     //ok, it was added, so, let's call this over because we've appended it to another found,
@@ -298,21 +298,21 @@ public class Scope implements Iterable<ScopeItems>{
 
 
     public Found findFirst(String name, boolean setUsed) {
-    	return findFirst(name, setUsed, ACCEPTED_ALL_SCOPES);
+        return findFirst(name, setUsed, ACCEPTED_ALL_SCOPES);
     }
     
     public Found findFirst(String name, boolean setUsed, int acceptedScopes) {
         Iterator<ScopeItems> topDown = scope.topDownIterator();
         while (topDown.hasNext()) {
-        	ScopeItems m = topDown.next();
+            ScopeItems m = topDown.next();
             if((m.getScopeType() & acceptedScopes) != 0){
-	            Found f = m.getLastAppearance(name);
-	            if(f != null){
-	                if(setUsed){
-	                    f.setUsed(true);
-	                }
-	                return f;
-	            }
+                Found f = m.getLastAppearance(name);
+                if(f != null){
+                    if(setUsed){
+                        f.setUsed(true);
+                    }
+                    return f;
+                }
             }
         }
         return null;
@@ -332,11 +332,11 @@ public class Scope implements Iterable<ScopeItems>{
     }
 
     public void addTryExceptSubScope(TryExcept node) {
-    	scope.peek().addTryExceptSubScope(node);
+        scope.peek().addTryExceptSubScope(node);
     }
     
     public void removeTryExceptSubScope() {
-    	scope.peek().removeTryExceptSubScope();
+        scope.peek().removeTryExceptSubScope();
     }
     
     public ScopeItems currentScope() {
@@ -362,11 +362,11 @@ public class Scope implements Iterable<ScopeItems>{
         return scope.getFirst();
     }
 
-	public Iterator<ScopeItems> iterator() {
-		return this.scope.iterator();
-	}
+    public Iterator<ScopeItems> iterator() {
+        return this.scope.iterator();
+    }
 
-	
+    
     /**
      * find out if an item is in the names to ignore given its full representation
      */
@@ -389,18 +389,18 @@ public class Scope implements Iterable<ScopeItems>{
      * checks if there is some token in the names that are defined (but should be ignored)
      */
     public Tuple<IToken, Found> isInNamesToIgnore(String rep) {
-    	int currScopeType = getCurrScopeItems().getScopeType();
-    	
+        int currScopeType = getCurrScopeItems().getScopeType();
+        
         for(ScopeItems s : this.scope){
-        	//ok, if we are in a scope method, we may not get things that were defined in a class scope.
-        	if(currScopeType == SCOPE_TYPE_METHOD && s.getScopeType() == SCOPE_TYPE_CLASS){
-    			continue;
-        	}
-        	
-        	Map<String,Tuple<IToken, Found>> m = s.namesToIgnore;
+            //ok, if we are in a scope method, we may not get things that were defined in a class scope.
+            if(currScopeType == SCOPE_TYPE_METHOD && s.getScopeType() == SCOPE_TYPE_CLASS){
+                continue;
+            }
+            
+            Map<String,Tuple<IToken, Found>> m = s.namesToIgnore;
             Tuple<IToken, Found> found = findInNamesToIgnore(rep, m);
-			if(found != null){
-			    return found;
+            if(found != null){
+                return found;
             }
         }
         return null;

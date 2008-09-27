@@ -29,39 +29,39 @@ public class AttributeReferencesVisitor extends EasyAstIteratorBase{
         this.accept = accept;
     }
 
-	private int inAttr = 0;
-	
-	protected Object unhandled_node(SimpleNode node) throws Exception {
+    private int inAttr = 0;
+    
+    protected Object unhandled_node(SimpleNode node) throws Exception {
         //System.out.println("unhandled_node:"+node);
-		if(inAttr > 0 || (accept & ACCEPT_IN_CLASS_DECL) != 0 && isInClassDecl()){
-			if(node instanceof Name || (node instanceof NameTok && ((NameTok)node).ctx != NameTok.ClassName)){
-				atomic(node);
-			}
-		}
-			
-    	return super.unhandled_node(node);
+        if(inAttr > 0 || (accept & ACCEPT_IN_CLASS_DECL) != 0 && isInClassDecl()){
+            if(node instanceof Name || (node instanceof NameTok && ((NameTok)node).ctx != NameTok.ClassName)){
+                atomic(node);
+            }
+        }
+            
+        return super.unhandled_node(node);
     }
-	
-	@Override
-	public Object visitAttribute(Attribute node) throws Exception {
-	    //we don't want to visit the 1st part (only the others)
-	    List<SimpleNode> attributeParts = NodeUtils.getAttributeParts(node);
-	    Iterator<SimpleNode> it = attributeParts.iterator();
-	    SimpleNode firstPart = it.next();
-	    firstPart.accept(this);
-	    
-	    Object ret = null;
-		inAttr += 1;
+    
+    @Override
+    public Object visitAttribute(Attribute node) throws Exception {
+        //we don't want to visit the 1st part (only the others)
+        List<SimpleNode> attributeParts = NodeUtils.getAttributeParts(node);
+        Iterator<SimpleNode> it = attributeParts.iterator();
+        SimpleNode firstPart = it.next();
+        firstPart.accept(this);
+        
+        Object ret = null;
+        inAttr += 1;
         try{
             while(it.hasNext()) {
                 it.next().accept(this);
             }
 
-        }finally{    		
+        }finally{            
             inAttr -= 1;
         }
-		return ret;
-	}
+        return ret;
+    }
     
     @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
@@ -77,7 +77,7 @@ public class AttributeReferencesVisitor extends EasyAstIteratorBase{
         return super.visitClassDef(node);
     }
 
-	
+    
 
     /**
      * Creates the iterator and transverses the passed root so that the results can be gotten.

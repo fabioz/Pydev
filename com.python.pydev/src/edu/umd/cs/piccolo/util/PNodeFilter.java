@@ -41,14 +41,14 @@ import edu.umd.cs.piccolo.PNode;
  */
 public interface PNodeFilter {
 
-	/**
-	 * Return true if the filter should accept the given node.
-	 */ 
-	public boolean accept(PNode aNode); 
-	
-	/**
-	 * Return true if the filter should test the children of
-	 * the given node for acceptance.
-	 */
-	public boolean acceptChildrenOf(PNode aNode);
+    /**
+     * Return true if the filter should accept the given node.
+     */ 
+    public boolean accept(PNode aNode); 
+    
+    /**
+     * Return true if the filter should test the children of
+     * the given node for acceptance.
+     */
+    public boolean acceptChildrenOf(PNode aNode);
 }

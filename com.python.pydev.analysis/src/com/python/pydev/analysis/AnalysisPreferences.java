@@ -58,26 +58,26 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences{
 
 
     public void clearCaches() {
-    	synchronized(lock){
-    		severityTypeMapCache = null;
-    	}
+        synchronized(lock){
+            severityTypeMapCache = null;
+        }
     }
     
     HashMap<Integer, Integer> severityTypeMapCache = null;
     
     private Map<Integer, Integer> getSeverityTypeMap() {
-    	synchronized(lock){
-	        if(severityTypeMapCache == null){
-	            severityTypeMapCache = new HashMap<Integer, Integer>();
-	            Preferences pluginPreferences = AnalysisPlugin.getDefault().getPluginPreferences();
-	    
-	            for (int i = 0; i < completeSeverityMap.length; i++) {
-	                Object[] s = completeSeverityMap[i];
-	                severityTypeMapCache.put((Integer)s[0], pluginPreferences.getInt((String)s[1]));
-	            }
-	        }        
-	        return severityTypeMapCache;
-    	}
+        synchronized(lock){
+            if(severityTypeMapCache == null){
+                severityTypeMapCache = new HashMap<Integer, Integer>();
+                Preferences pluginPreferences = AnalysisPlugin.getDefault().getPluginPreferences();
+        
+                for (int i = 0; i < completeSeverityMap.length; i++) {
+                    Object[] s = completeSeverityMap[i];
+                    severityTypeMapCache.put((Integer)s[0], pluginPreferences.getInt((String)s[1]));
+                }
+            }        
+            return severityTypeMapCache;
+        }
     }
     
     /**
@@ -86,14 +86,14 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences{
      * @see com.python.pydev.analysis.IAnalysisPreferences#getSeverityForType(int)
      */
     public int getSeverityForType(int type) {
-    	synchronized(lock){
-	        Map<Integer, Integer> severityTypeMap = getSeverityTypeMap();
-	        Integer sev = severityTypeMap.get(type);
-	        if(sev == null){
-	            throw new RuntimeException("Unable to get severity for: "+type);
-	        }
-	        return sev;
-    	}
+        synchronized(lock){
+            Map<Integer, Integer> severityTypeMap = getSeverityTypeMap();
+            Integer sev = severityTypeMap.get(type);
+            if(sev == null){
+                throw new RuntimeException("Unable to get severity for: "+type);
+            }
+            return sev;
+        }
     }
 
     /**
@@ -102,10 +102,10 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences{
      * @see com.python.pydev.analysis.IAnalysisPreferences#makeCodeAnalysis()
      */
     public boolean makeCodeAnalysis() {
-    	synchronized(lock){
-	        Preferences pluginPreferences = AnalysisPlugin.getDefault().getPluginPreferences();
-	        return pluginPreferences.getBoolean(AnalysisPreferenceInitializer.DO_CODE_ANALYSIS);
-    	}
+        synchronized(lock){
+            Preferences pluginPreferences = AnalysisPlugin.getDefault().getPluginPreferences();
+            return pluginPreferences.getBoolean(AnalysisPreferenceInitializer.DO_CODE_ANALYSIS);
+        }
     }
 
     /**
@@ -116,7 +116,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences{
     }
     
     public Set<String> getTokensAlwaysInGlobals() {
-    	return getSetOfNames(AnalysisPreferenceInitializer.NAMES_TO_CONSIDER_GLOBALS);
+        return getSetOfNames(AnalysisPreferenceInitializer.NAMES_TO_CONSIDER_GLOBALS);
     }
 
     /**

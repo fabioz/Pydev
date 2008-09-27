@@ -50,25 +50,25 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
     /**
      * @param definition this is the definition we're interested in.
      */
-	public PyRenameImportProcess(Definition definition) {
-		super(definition);
+    public PyRenameImportProcess(Definition definition) {
+        super(definition);
         if(definition.ast == null){
             this.type = TYPE_RENAME_MODULE;
         }else{
             this.type = TYPE_RENAME_UNRESOLVED_IMPORT;
         }
-	}
-	
+    }
+    
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
-		List<ASTEntry> oc = getOccurrencesWithScopeAnalyzer(request);
-		SimpleNode root = request.getAST();
-		if(oc.size() > 0){
-			//only add comments and strings if there's at least some other occurrence
-	        oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
-	        oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
-		}
-		
-		addOccurrences(request, oc);
+        List<ASTEntry> oc = getOccurrencesWithScopeAnalyzer(request);
+        SimpleNode root = request.getAST();
+        if(oc.size() > 0){
+            //only add comments and strings if there's at least some other occurrence
+            oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
+            oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
+        }
+        
+        addOccurrences(request, oc);
     }
 
     @Override
@@ -89,17 +89,17 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                 throw new RuntimeException("Expecting import info from the found entry.");
             }
             if(found.importInfo.wasResolved){
-            	Definition d = found.importInfo.getModuleDefinitionFromImportInfo(request.nature, new CompletionCache());
-            	if(d == null || d.module == null){
-            		status.addFatalError(StringUtils.format("Unable to find the definition for the module."));
-            		return;
-            	}
-            	if(!(d.module instanceof SourceModule)){
-            		status.addFatalError(StringUtils.format("Only source modules may be renamed (the module %s was found as a %s module)", d.module.getName(), d.module.getClass()));
-            		return;
-            	}
-            	
-            	this.moduleToFind = (SourceModule) d.module;
+                Definition d = found.importInfo.getModuleDefinitionFromImportInfo(request.nature, new CompletionCache());
+                if(d == null || d.module == null){
+                    status.addFatalError(StringUtils.format("Unable to find the definition for the module."));
+                    return;
+                }
+                if(!(d.module instanceof SourceModule)){
+                    status.addFatalError(StringUtils.format("Only source modules may be renamed (the module %s was found as a %s module)", d.module.getName(), d.module.getClass()));
+                    return;
+                }
+                
+                this.moduleToFind = (SourceModule) d.module;
                 wasResolved = true;
                 
                 //it cannot be a compiled extension
@@ -162,13 +162,13 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                     module, new NullProgressMonitor(), request.ps.getCurrToken().o1, request.ps.getActivationTokenAndQual(true), moduleToFind);
             
             SimpleNode root = module.getAst();
-			root.accept(visitor);
+            root.accept(visitor);
             entryOccurrences = visitor.getEntryOccurrences();
-    		if(entryOccurrences.size() > 0){
-    			//only add comments and strings if there's at least some other occurrence
-	            entryOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
-	            entryOccurrences.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
-    		}
+            if(entryOccurrences.size() > 0){
+                //only add comments and strings if there's at least some other occurrence
+                entryOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
+                entryOccurrences.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
+            }
         } catch (Exception e) {
             Log.log(e);
         }

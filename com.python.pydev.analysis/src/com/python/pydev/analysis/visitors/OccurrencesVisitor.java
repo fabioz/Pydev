@@ -189,18 +189,18 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
     
     @Override
     public Object visitCall(Call node) throws Exception {
-    	isInTestScope+=1;
-    	Object r = super.visitCall(node);
-    	isInTestScope-=1;
-    	return r;
+        isInTestScope+=1;
+        Object r = super.visitCall(node);
+        isInTestScope-=1;
+        return r;
     }
     
     @Override
     public Object visitReturn(Return node) throws Exception {
-    	isInTestScope+=1;
-    	Object r = super.visitReturn(node);
-    	isInTestScope-=1;
-    	return r;
+        isInTestScope+=1;
+        Object r = super.visitReturn(node);
+        isInTestScope-=1;
+        return r;
     }
     
     public void traverse(SimpleNode node) throws Exception {
@@ -259,10 +259,10 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
     protected void onAfterEndScope(SimpleNode node, ScopeItems m) {
         boolean reportUnused = true;
         if(node != null && node instanceof FunctionDef){
-        	reportUnused = !isVirtual((FunctionDef) node);
+            reportUnused = !isVirtual((FunctionDef) node);
         }
         
-		if(reportUnused){
+        if(reportUnused){
             //so, now, we clear the unused
             int scopeType = m.getScopeType();
             for (Found f : m.values()) {
@@ -297,28 +297,28 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
     }
 
     @Override
-	protected void onAfterStartScope(int newScopeType, SimpleNode node) {
-		if(newScopeType == Scope.SCOPE_TYPE_CLASS){
-	        duplicationChecker.beforeClassDef((ClassDef) node);
-	        noSelfChecker.beforeClassDef((ClassDef) node);
-	        
+    protected void onAfterStartScope(int newScopeType, SimpleNode node) {
+        if(newScopeType == Scope.SCOPE_TYPE_CLASS){
+            duplicationChecker.beforeClassDef((ClassDef) node);
+            noSelfChecker.beforeClassDef((ClassDef) node);
+            
         }else if(newScopeType == Scope.SCOPE_TYPE_METHOD){
-	        duplicationChecker.beforeFunctionDef((FunctionDef) node); //duplication checker
-	        noSelfChecker.beforeFunctionDef((FunctionDef) node);
+            duplicationChecker.beforeFunctionDef((FunctionDef) node); //duplication checker
+            noSelfChecker.beforeFunctionDef((FunctionDef) node);
         }
-	}
+    }
     
-	@Override
-	protected void onBeforeEndScope(SimpleNode node) {
-		if(node instanceof ClassDef){
-	        noSelfChecker.afterClassDef((ClassDef) node);
-	        duplicationChecker.afterClassDef((ClassDef) node);
-	        
-    	} else if(node instanceof FunctionDef){
+    @Override
+    protected void onBeforeEndScope(SimpleNode node) {
+        if(node instanceof ClassDef){
+            noSelfChecker.afterClassDef((ClassDef) node);
+            duplicationChecker.afterClassDef((ClassDef) node);
+            
+        } else if(node instanceof FunctionDef){
             duplicationChecker.afterFunctionDef((FunctionDef) node);//duplication checker
             noSelfChecker.afterFunctionDef((FunctionDef) node);
-    	}
-	}
+        }
+    }
 
     @Override
     public void onAddUnusedMessage(SimpleNode node, Found found) {
@@ -346,8 +346,8 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
    }
 
 
-	@Override
-	protected void onAfterVisitAssign(Assign node) {
+    @Override
+    protected void onAfterVisitAssign(Assign node) {
         noSelfChecker.visitAssign(node);
-	}
+    }
 }

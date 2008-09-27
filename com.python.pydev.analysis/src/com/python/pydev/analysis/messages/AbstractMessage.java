@@ -95,26 +95,26 @@ public abstract class AbstractMessage implements IMessage{
 
     int startLine = -1;
     public int getStartLine(IDocument doc) {
-    	if(startLine < 0){
-    		startLine = getStartLine(generator, doc);
-    	}
-    	return startLine;
+        if(startLine < 0){
+            startLine = getStartLine(generator, doc);
+        }
+        return startLine;
     }
 
     /**
      * @return the starting line fro the given token (starting at 1)
      */
     public static int getStartLine(IToken generator, IDocument doc) {
-    	return getStartLine(generator, doc, generator.getRepresentation());
+        return getStartLine(generator, doc, generator.getRepresentation());
     }
     
     public static int getStartLine(IToken generator, IDocument doc, String shortMessage) {
-    	return getStartLine(generator, doc, shortMessage, false);
-    	
+        return getStartLine(generator, doc, shortMessage, false);
+        
     }
     public static int getStartLine(IToken generator, IDocument doc, String shortMessage, boolean returnAsName) {
         if(!generator.isImport()){
-        	return generator.getLineDefinition();
+            return generator.getLineDefinition();
         }
         
         //ok, it is an import... (can only be a source token)
@@ -128,7 +128,7 @@ public abstract class AbstractMessage implements IMessage{
                 return i.module.beginLine;
             }else{
                 //no wild import, let's check the 'as name'
-            	return getNameForRepresentation(i, shortMessage, returnAsName).beginLine;
+                return getNameForRepresentation(i, shortMessage, returnAsName).beginLine;
             }
             
         }else if(ast instanceof Import){
@@ -146,12 +146,12 @@ public abstract class AbstractMessage implements IMessage{
      * @see com.python.pydev.analysis.messages.IMessage#getStartCol(org.eclipse.jface.text.IDocument)
      */
     public int getStartCol(IDocument doc) {
-    	if(startCol >= 0){
-    		return startCol;
-    	}
-    	startCol = getStartCol(generator, doc, getShortMessageStr());
-    	return startCol;
-    	
+        if(startCol >= 0){
+            return startCol;
+        }
+        startCol = getStartCol(generator, doc, getShortMessageStr());
+        return startCol;
+        
     }
 
 
@@ -173,15 +173,15 @@ public abstract class AbstractMessage implements IMessage{
      * @return the starting column for the given token (1-based)
      */
     public static int getStartCol(IToken generator, IDocument doc) {
-    	return getStartCol(generator, doc, generator.getRepresentation());
+        return getStartCol(generator, doc, generator.getRepresentation());
     }
     
     /**
      * @return the starting column for the given token (1-based)
      */
     public static int getStartCol(IToken generator, IDocument doc, String shortMessage) {
-    	return getStartCol(generator, doc, shortMessage, false);
-    	
+        return getStartCol(generator, doc, shortMessage, false);
+        
     }
     
     /**
@@ -205,7 +205,7 @@ public abstract class AbstractMessage implements IMessage{
                 return i.module.beginColumn;
             }else{
                 //no wild import, let's check the 'as name'
-            	return getNameForRepresentation(i, shortMessage, returnAsName).beginColumn;
+                return getNameForRepresentation(i, shortMessage, returnAsName).beginColumn;
             }
             
         }else if(ast instanceof Import){
@@ -225,7 +225,7 @@ public abstract class AbstractMessage implements IMessage{
      * @return the name tok for the representation in a given import
      */
     private static NameTok getNameForRepresentation(SimpleNode imp, String rep, boolean returnAsName){
-	    	
+            
         aliasType[] names;
         if(imp instanceof Import){
             names = ((Import)imp).names;
@@ -246,16 +246,16 @@ public abstract class AbstractMessage implements IMessage{
                 }
             }else{ //let's check for the name
 
-            	String fullRepNameId = ((NameTok)alias.name).id;
-            	
-            	//we have to get all representations, since an import such as import os.path would 
-            	//have to match os and os.path
-            	for(String repId : new FullRepIterable(fullRepNameId)){
-	
-					if(repId.equals(rep)){
-	            		return (NameTok) alias.name;
-	            	}
-            	}
+                String fullRepNameId = ((NameTok)alias.name).id;
+                
+                //we have to get all representations, since an import such as import os.path would 
+                //have to match os and os.path
+                for(String repId : new FullRepIterable(fullRepNameId)){
+    
+                    if(repId.equals(rep)){
+                        return (NameTok) alias.name;
+                    }
+                }
             }
         }
         return null;
@@ -267,39 +267,39 @@ public abstract class AbstractMessage implements IMessage{
      */
     int endLine = -1;
     public int getEndLine(IDocument doc) {
-    	return getEndLine(doc, true);
+        return getEndLine(doc, true);
     }
     public int getEndLine(IDocument doc, boolean getOnlyToFirstDot) {
-    	if(endLine < 0){
-			endLine = getEndLine(generator, doc, getOnlyToFirstDot);
-    	}
-    	return endLine;
-    	
+        if(endLine < 0){
+            endLine = getEndLine(generator, doc, getOnlyToFirstDot);
+        }
+        return endLine;
+        
     }
     public static int getEndLine(IToken generator, IDocument doc, boolean getOnlyToFirstDot) {
-    	if(generator instanceof SourceToken){
-    		if(!generator.isImport()){
-    			return ((SourceToken)generator).getLineEnd(getOnlyToFirstDot);
-    		}
-    		return getStartLine(generator, doc); //for an import, the endline == startline
+        if(generator instanceof SourceToken){
+            if(!generator.isImport()){
+                return ((SourceToken)generator).getLineEnd(getOnlyToFirstDot);
+            }
+            return getStartLine(generator, doc); //for an import, the endline == startline
 
-    	}else{
-    		return -1;
-    	}
+        }else{
+            return -1;
+        }
     }
 
 
     int endCol = -1;
     public int getEndCol(IDocument doc) {
-    	return getEndCol(doc, true);
+        return getEndCol(doc, true);
     }
     public int getEndCol(IDocument doc, boolean getOnlyToFirstDot) {
-    	if(endCol >= 0){
-    		return endCol;
-    	}
-    	endCol = getEndCol(generator, doc, getShortMessageStr(), getOnlyToFirstDot);
-    	return endCol;
-    	
+        if(endCol >= 0){
+            return endCol;
+        }
+        endCol = getEndCol(generator, doc, getShortMessageStr(), getOnlyToFirstDot);
+        return endCol;
+        
     }
     /**
      * @param generator is the token that generated this message
@@ -311,7 +311,7 @@ public abstract class AbstractMessage implements IMessage{
      * @see com.python.pydev.analysis.messages.IMessage#getEndCol(org.eclipse.jface.text.IDocument)
      */
     public static int getEndCol(IToken generator, IDocument doc, String shortMessage, boolean getOnlyToFirstDot) {
-    	int endCol = -1;
+        int endCol = -1;
         if(generator.isImport()){
             //ok, it is an import... (can only be a source token)
             SourceToken s = (SourceToken) generator;
@@ -323,8 +323,8 @@ public abstract class AbstractMessage implements IMessage{
                 //ok, now, this depends on the name
                 NameTok it = getNameForRepresentation(i, shortMessage, true);
                 if(it != null){
-                	endCol = it.beginColumn + shortMessage.length();
-                	return endCol;
+                    endCol = it.beginColumn + shortMessage.length();
+                    return endCol;
                 }
                 
                 //if still not returned, it is a wild import... find the '*'
@@ -338,7 +338,7 @@ public abstract class AbstractMessage implements IMessage{
                     int absoluteCol = absolute +1; //1 for the *
                     IRegion region = doc.getLineInformationOfOffset(absoluteCol);
                     endCol = absoluteCol - region.getOffset() +1 ; //1 because we should return as if starting in 1 and not 0
-					return endCol;
+                    return endCol;
                 } catch (BadLocationException e) {
                     throw new RuntimeException(e);
                 }
@@ -377,10 +377,10 @@ public abstract class AbstractMessage implements IMessage{
 
     String message=null;
     public String getMessage() {
-    	if(message != null){
-    		return message;
-    	}
-    	
+        if(message != null){
+            return message;
+        }
+        
         String typeStr = getTypeStr();
         if(typeStr == null){
             throw new AssertionError("Unable to get message for type: "+getType());

@@ -56,9 +56,9 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
     }
     
     public void testFindHierarchy() {
-    	final int line = 1;
-    	final int col = 9;
-    	
+        final int line = 1;
+        final int col = 9;
+        
         RefactoringRequest request = setUpFooModule(line, col);
         
         HierarchyNodeModel node = refactorer.findClassHierarchy(request);
@@ -70,127 +70,127 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
     }
 
     public void testFindHierarchy2() {
-    	final int line = 3;
-    	final int col = 9;
-    	
-    	RefactoringRequest request = setUpFooModule(line, col);
-    	
-    	HierarchyNodeModel node = refactorer.findClassHierarchy(request);
-    	assertEquals("Foo", node.name);
-    	assertEquals("foo", node.moduleName);
-    	
-    	HierarchyNodeModel model = assertIsIn("Bar", "foo", node.parents);
-    	assertIsIn("Pickler", "pickle", model.parents);
-    	
+        final int line = 3;
+        final int col = 9;
+        
+        RefactoringRequest request = setUpFooModule(line, col);
+        
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        assertEquals("Foo", node.name);
+        assertEquals("foo", node.moduleName);
+        
+        HierarchyNodeModel model = assertIsIn("Bar", "foo", node.parents);
+        assertIsIn("Pickler", "pickle", model.parents);
+        
     }
     
     public void testFindHierarchy3() {
-    	String str ="" +
-    	"import pickle             \n" +
-    	"class Bar:\n" +
-    	"    pass                  \n" +
-    	"class Foo(Bar, pickle.Pickler):\n" +
-    	"    pass                  \n" +
-    	"\n" +
-    	"";
-    	final int line = 3;
-    	final int col = 9;
-    	
-    	RefactoringRequest request = setUpFooModule(line, col, str);
-    	
-    	HierarchyNodeModel node = refactorer.findClassHierarchy(request);
-    	assertEquals("Foo", node.name);
-    	assertEquals("foo", node.moduleName);
-    	
-    	assertIsIn("Bar", "foo", node.parents);
-    	assertIsIn("Pickler", "pickle", node.parents);
-    	
+        String str ="" +
+        "import pickle             \n" +
+        "class Bar:\n" +
+        "    pass                  \n" +
+        "class Foo(Bar, pickle.Pickler):\n" +
+        "    pass                  \n" +
+        "\n" +
+        "";
+        final int line = 3;
+        final int col = 9;
+        
+        RefactoringRequest request = setUpFooModule(line, col, str);
+        
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        assertEquals("Foo", node.name);
+        assertEquals("foo", node.moduleName);
+        
+        assertIsIn("Bar", "foo", node.parents);
+        assertIsIn("Pickler", "pickle", node.parents);
+        
     }
     
     public void testFindHierarchy4() {
-    	String str ="" +
-    	"class Bar:                \n" +
-    	"    pass                  \n" +
-    	"class Foo(Bar):           \n" +
-    	"    pass                  \n" +
-    	"class Foo1(Foo):          \n" +
-    	"    pass                  \n" +
-    	"\n" +
-    	"";
-    	final int line = 0;
-    	final int col = 8;
-    	
-    	RefactoringRequest request = setUpFooModule(line, col, str);
-    	
-    	HierarchyNodeModel node = refactorer.findClassHierarchy(request);
-    	assertEquals("Bar", node.name);
-    	assertEquals("foo", node.moduleName);
-    	
-    	node = assertIsIn("Foo", "foo", node.children);
-    	assertIsIn("Foo1", "foo", node.children);
-    	
+        String str ="" +
+        "class Bar:                \n" +
+        "    pass                  \n" +
+        "class Foo(Bar):           \n" +
+        "    pass                  \n" +
+        "class Foo1(Foo):          \n" +
+        "    pass                  \n" +
+        "\n" +
+        "";
+        final int line = 0;
+        final int col = 8;
+        
+        RefactoringRequest request = setUpFooModule(line, col, str);
+        
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        assertEquals("Bar", node.name);
+        assertEquals("foo", node.moduleName);
+        
+        node = assertIsIn("Foo", "foo", node.children);
+        assertIsIn("Foo1", "foo", node.children);
+        
     }
     
     
     public void testFindHierarchy5() {
-    	String str ="" +
-    	"class Root(object):\n" +
-    	"    pass\n" +
-    	"class Mid1(Root):\n" +
-    	"    pass\n" +
-    	"class Mid2(Root):\n" +
-    	"    pass\n" +
-    	"class Leaf(Mid1, Mid2):\n" +
-    	"    pass\n" +
-    	"\n" +
-    	"";
-    	
-    	final int line = 6;
-    	final int col = 8;
-    	
-    	RefactoringRequest request = setUpFooModule(line, col, str);
-    	
-    	HierarchyNodeModel node = refactorer.findClassHierarchy(request);
-    	assertEquals("Leaf", node.name);
-    	assertEquals("foo", node.moduleName);
-    	
-    	HierarchyNodeModel mid1 = assertIsIn("Mid1", "foo", node.parents);
-    	HierarchyNodeModel mid2 = assertIsIn("Mid2", "foo", node.parents);
-    	assertIsIn("Root", "foo", mid1.parents);
-    	HierarchyNodeModel root = assertIsIn("Root", "foo", mid2.parents);
-    	assertIsIn("object", null, root.parents);
-    	
+        String str ="" +
+        "class Root(object):\n" +
+        "    pass\n" +
+        "class Mid1(Root):\n" +
+        "    pass\n" +
+        "class Mid2(Root):\n" +
+        "    pass\n" +
+        "class Leaf(Mid1, Mid2):\n" +
+        "    pass\n" +
+        "\n" +
+        "";
+        
+        final int line = 6;
+        final int col = 8;
+        
+        RefactoringRequest request = setUpFooModule(line, col, str);
+        
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        assertEquals("Leaf", node.name);
+        assertEquals("foo", node.moduleName);
+        
+        HierarchyNodeModel mid1 = assertIsIn("Mid1", "foo", node.parents);
+        HierarchyNodeModel mid2 = assertIsIn("Mid2", "foo", node.parents);
+        assertIsIn("Root", "foo", mid1.parents);
+        HierarchyNodeModel root = assertIsIn("Root", "foo", mid2.parents);
+        assertIsIn("object", null, root.parents);
+        
     }
     
     public void testFindHierarchy6() {
-    	String str ="" +
-    	"class Root(object):\n" +
-    	"    pass\n" +
-    	"class Mid1(Root):\n" +
-    	"    pass\n" +
-    	"class Mid2(Root):\n" +
-    	"    pass\n" +
-    	"class Leaf(Mid1, Mid2):\n" +
-    	"    pass\n" +
-    	"import pickle\n" +
-    	"class Bla(Leaf, Foo):\n" +
-    	"    pass\n" +
-    	"class Foo:\n" +
-    	"    pass\n" +
-    	"";
-    	
-    	final int line = 9;
-    	final int col = 8;
-    	
-    	RefactoringRequest request = setUpFooModule(line, col, str);
-    	
-    	HierarchyNodeModel node = refactorer.findClassHierarchy(request);
-    	assertEquals("Bla", node.name);
-    	assertEquals("foo", node.moduleName);
-    	
-    	HierarchyNodeModel foo = assertIsIn("Foo", "foo", node.parents);
-    	assertEquals(0, foo.parents.size());
-    	
+        String str ="" +
+        "class Root(object):\n" +
+        "    pass\n" +
+        "class Mid1(Root):\n" +
+        "    pass\n" +
+        "class Mid2(Root):\n" +
+        "    pass\n" +
+        "class Leaf(Mid1, Mid2):\n" +
+        "    pass\n" +
+        "import pickle\n" +
+        "class Bla(Leaf, Foo):\n" +
+        "    pass\n" +
+        "class Foo:\n" +
+        "    pass\n" +
+        "";
+        
+        final int line = 9;
+        final int col = 8;
+        
+        RefactoringRequest request = setUpFooModule(line, col, str);
+        
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        assertEquals("Bla", node.name);
+        assertEquals("foo", node.moduleName);
+        
+        HierarchyNodeModel foo = assertIsIn("Foo", "foo", node.parents);
+        assertEquals(0, foo.parents.size());
+        
     }
     
     public void testFindHierarchy8() {
@@ -213,33 +213,33 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
     }
 
     private RefactoringRequest setUpFooModule(final int line, final int col) {
-    	String str ="" +
-    	"import pickle\n" +
-    	"class Bar(pickle.Pickler):\n" +
-    	"    pass\n" +
-    	"class Foo(Bar):\n" +
-    	"    pass\n" +
-    	"\n" +
-    	"";
-    	return setUpFooModule(line, col, str);
+        String str ="" +
+        "import pickle\n" +
+        "class Bar(pickle.Pickler):\n" +
+        "    pass\n" +
+        "class Foo(Bar):\n" +
+        "    pass\n" +
+        "\n" +
+        "";
+        return setUpFooModule(line, col, str);
     }
     
-	private RefactoringRequest setUpFooModule(final int line, final int col, String str) {
-	    String modName = "foo";
-	    PythonNature natureToAdd = nature;
+    private RefactoringRequest setUpFooModule(final int line, final int col, String str) {
+        String modName = "foo";
+        PythonNature natureToAdd = nature;
         return setUpModule(line, col, str, modName, natureToAdd);
-	}
+    }
 
     private RefactoringRequest setUpModule(final int line, final int col, String str, String modName, PythonNature natureToAdd) {
         Document doc = new Document(str);
-		PySelection ps = new PySelection(doc, line, col);
+        PySelection ps = new PySelection(doc, line, col);
         
         RefactoringRequest request = new RefactoringRequest(null, ps, natureToAdd);
         request.moduleName = modName;
         final SimpleNode ast = request.getAST();
         
         addModuleToNature(ast, modName, natureToAdd);
-		return request;
+        return request;
     }
 
 
@@ -249,11 +249,11 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         for (HierarchyNodeModel model : parents) {
             available.append(model.name).append(" - ").append(model.moduleName);
             if(model.name.equals(name)){
-            	if(modName == null){
-            		return model;
-            	}else if(model.moduleName.equals(modName)){
-            		return model;
-            	}
+                if(modName == null){
+                    return model;
+                }else if(model.moduleName.equals(modName)){
+                    return model;
+                }
             }
         }
         fail("Unable to find node with name:"+name+" mod:"+modName+ "\nAvailable:"+available);

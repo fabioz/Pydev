@@ -38,39 +38,39 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     public static final String version = "REPLACE_VERSION";
 
-	//The shared instance.
-	private static PydevPlugin plugin;
-	private PydevExtensionNotifier notifier;
-	private boolean validated;
+    //The shared instance.
+    private static PydevPlugin plugin;
+    private PydevExtensionNotifier notifier;
+    private boolean validated;
     public static final String ANNOTATIONS_CACHE_KEY = "MarkOccurrencesJob Annotations";
     public static final String OCCURRENCE_ANNOTATION_TYPE = "com.python.pydev.occurrences";
-	
-	/**
-	 * The constructor.
-	 */
-	public PydevPlugin() {
-		plugin = this;
-	}
+    
+    /**
+     * The constructor.
+     */
+    public PydevPlugin() {
+        plugin = this;
+    }
 
-	/**
-	 * This method is called upon plug-in activation
-	 */
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
-		
-		if(!version.equals(org.python.pydev.plugin.PydevPlugin.version)){
-			String msg = StringUtils.format("Error: the pydev com plugin version (%s) differs from the org plugin version (%s)", version, org.python.pydev.plugin.PydevPlugin.version);
-			org.python.pydev.plugin.PydevPlugin.log(msg);
-		}
-		checkValid();
-	}
+    /**
+     * This method is called upon plug-in activation
+     */
+    public void start(BundleContext context) throws Exception {
+        super.start(context);
+        
+        if(!version.equals(org.python.pydev.plugin.PydevPlugin.version)){
+            String msg = StringUtils.format("Error: the pydev com plugin version (%s) differs from the org plugin version (%s)", version, org.python.pydev.plugin.PydevPlugin.version);
+            org.python.pydev.plugin.PydevPlugin.log(msg);
+        }
+        checkValid();
+    }
 
     public boolean isValidated(){
         return validated;
     }
     
-	public String checkValidStr() {
-	    String result = loadLicense();
+    public String checkValidStr() {
+        String result = loadLicense();
         if(notifier == null){
             notifier = new PydevExtensionNotifier();
             notifier.start();
@@ -80,90 +80,90 @@ public class PydevPlugin extends AbstractUIPlugin {
     }
     
     private boolean checkedValidOnce = false;
-	public boolean checkValid() {
+    public boolean checkValid() {
         if(!checkedValidOnce){
             checkValidStr();
             checkedValidOnce = true;
         }
-	    return validated;
-	}
-
-	/**
-	 * This method is called when the plug-in is stopped
-	 */
-	public void stop(BundleContext context) throws Exception {
-		super.stop(context);
-		plugin = null;
-	}
-
-	/**
-	 * Returns the shared instance.
-	 */
-	public static PydevPlugin getDefault() {
-		return plugin;
-	}
-
-	/**
-	 * Returns an image descriptor for the image file at the given
-	 * plug-in relative path.
-	 *
-	 * @param path the path
-	 * @return the image descriptor
-	 */
-	public static ImageDescriptor getImageDescriptor(String path) {
-		return AbstractUIPlugin.imageDescriptorFromPlugin("com.python.pydev", path);
-	}
-	
-	
-	public void saveLicense( String data ) {	
-		Bundle bundle = Platform.getBundle("com.python.pydev");
-		IPath path = Platform.getStateLocation( bundle );		
-    	path = path.addTrailingSeparator();
-    	path = path.append("license");
-    	try {
-			FileOutputStream file = new FileOutputStream(path.toFile());
-			file.write( data.getBytes() );
-			file.close();
-		} catch (FileNotFoundException e) {		
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}   			
+        return validated;
     }
-	
-	private String loadLicense() {
+
+    /**
+     * This method is called when the plug-in is stopped
+     */
+    public void stop(BundleContext context) throws Exception {
+        super.stop(context);
+        plugin = null;
+    }
+
+    /**
+     * Returns the shared instance.
+     */
+    public static PydevPlugin getDefault() {
+        return plugin;
+    }
+
+    /**
+     * Returns an image descriptor for the image file at the given
+     * plug-in relative path.
+     *
+     * @param path the path
+     * @return the image descriptor
+     */
+    public static ImageDescriptor getImageDescriptor(String path) {
+        return AbstractUIPlugin.imageDescriptorFromPlugin("com.python.pydev", path);
+    }
+    
+    
+    public void saveLicense( String data ) {    
+        Bundle bundle = Platform.getBundle("com.python.pydev");
+        IPath path = Platform.getStateLocation( bundle );        
+        path = path.addTrailingSeparator();
+        path = path.append("license");
+        try {
+            FileOutputStream file = new FileOutputStream(path.toFile());
+            file.write( data.getBytes() );
+            file.close();
+        } catch (FileNotFoundException e) {        
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }               
+    }
+    
+    private String loadLicense() {
         if(loadFromPluginLocation()){
             return null;
         }
         
         
-    	Bundle bundle = Platform.getBundle("com.python.pydev");
-    	IPath path = Platform.getStateLocation( bundle );		
-    	path = path.addTrailingSeparator();
-    	path = path.append("license");
-    	try {
+        Bundle bundle = Platform.getBundle("com.python.pydev");
+        IPath path = Platform.getStateLocation( bundle );        
+        path = path.addTrailingSeparator();
+        path = path.append("license");
+        try {
             File f = path.toFile();
             if(!f.exists()){
                 throw new FileNotFoundException("File not found.");
             }
             
             String encLicense = REF.getFileContents(f);
-			if( isLicenseValid(encLicense) ) {
-				validated = true;
-			} else {
-				validated = false;
-			}
-		} catch (FileNotFoundException e) {
-			validated = false;
-			String ret = "The license file: "+path.toOSString()+" was not found.";
+            if( isLicenseValid(encLicense) ) {
+                validated = true;
+            } else {
+                validated = false;
+            }
+        } catch (FileNotFoundException e) {
+            validated = false;
+            String ret = "The license file: "+path.toOSString()+" was not found.";
             return ret;
             
-		} catch (Exception e) {
-		    validated = false;
+        } catch (Exception e) {
+            validated = false;
             return e.getMessage();
-		}
+        }
         return null;
-	}
+    }
 
     private boolean loadFromPluginLocation() {
         try{
@@ -259,24 +259,24 @@ public class PydevPlugin extends AbstractUIPlugin {
      */
     @SuppressWarnings("unchecked")
     public static final List<Annotation> getOccurrenceAnnotationsInPyEdit(final PyEdit pyEdit) {
-    	List<Annotation> toRemove = new ArrayList<Annotation>();
-    	final Map<String, Object> cache = pyEdit.cache;
-    	
-    	if(cache == null){
-    		return toRemove;
-    	}
-    	
-    	List<Annotation> inEdit = (List<Annotation>) cache.get(ANNOTATIONS_CACHE_KEY);
-    	if(inEdit != null){
-    	    Iterator<Annotation> annotationIterator = inEdit.iterator();
-    	    while(annotationIterator.hasNext()){
-    	        Annotation annotation = annotationIterator.next();
-    	        if(annotation.getType().equals(OCCURRENCE_ANNOTATION_TYPE)){
-    	            toRemove.add(annotation);
-    	        }
-    	    }
-    	}
-    	return toRemove;
+        List<Annotation> toRemove = new ArrayList<Annotation>();
+        final Map<String, Object> cache = pyEdit.cache;
+        
+        if(cache == null){
+            return toRemove;
+        }
+        
+        List<Annotation> inEdit = (List<Annotation>) cache.get(ANNOTATIONS_CACHE_KEY);
+        if(inEdit != null){
+            Iterator<Annotation> annotationIterator = inEdit.iterator();
+            while(annotationIterator.hasNext()){
+                Annotation annotation = annotationIterator.next();
+                if(annotation.getType().equals(OCCURRENCE_ANNOTATION_TYPE)){
+                    toRemove.add(annotation);
+                }
+            }
+        }
+        return toRemove;
     }
 
     public static Calendar getExpTime(String time) {

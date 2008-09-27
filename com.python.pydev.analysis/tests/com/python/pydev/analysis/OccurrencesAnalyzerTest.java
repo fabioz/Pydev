@@ -125,8 +125,8 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testSpacesAndTabsMix() throws Exception {
         doc = new Document(
                 "def a():\n" +
-        		"        print 'a'\n" +
-        		"\tprint 'b'\n"); //this is valid in python, but not usually wanted...
+                "        print 'a'\n" +
+                "\tprint 'b'\n"); //this is valid in python, but not usually wanted...
         checkError(1);
     }
     
@@ -148,13 +148,13 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testMetaclass(){
-    	doc = new Document(
-    			"class MyMetaclass(type):\n"+
-    			"    def __init__(cls, name, bases, dict): #@UnusedVariable\n"+
-    			"        pass\n"+
-    			"\n"
-    	);
-    	checkNoError();
+        doc = new Document(
+                "class MyMetaclass(type):\n"+
+                "    def __init__(cls, name, bases, dict): #@UnusedVariable\n"+
+                "        pass\n"+
+                "\n"
+        );
+        checkNoError();
     }
     
     public void testBuiltinsWithoutImport(){
@@ -207,56 +207,56 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testDelete(){
-    	doc = new Document(
-    			"def m1():\n"+
-    			"    del foo\n"
-    	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs,1);
-    	
+        doc = new Document(
+                "def m1():\n"+
+                "    del foo\n"
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs,1);
+        
     }
     
     public void testAugAssign(){
-    	
-    	doc = new Document(
-    			"def m1():\n"+
-    			"    foo|=1\n"
-    	);
-    	checkAug(1);
-    	
-    	doc = new Document(
-    			"def m1():\n"+
-    			"    foo+=1\n"
-    	);
-    	checkAug(1);
-    	
-    	doc = new Document(
-    			"def m1():\n"+
-    			"    foo*=1\n"
-    	);
-    	checkAug(1);
-    	
-    	doc = new Document(
-    			"def m1():\n"+
-    			"    print foo|1\n"
-    	);
-    	checkAug(1);
-    	
-    	doc = new Document(
-    			"def m1():\n"+
-    			"    foo = 10\n" +
-    			"    foo += 20"
-    	);
-    	checkAug(0);
+        
+        doc = new Document(
+                "def m1():\n"+
+                "    foo|=1\n"
+        );
+        checkAug(1);
+        
+        doc = new Document(
+                "def m1():\n"+
+                "    foo+=1\n"
+        );
+        checkAug(1);
+        
+        doc = new Document(
+                "def m1():\n"+
+                "    foo*=1\n"
+        );
+        checkAug(1);
+        
+        doc = new Document(
+                "def m1():\n"+
+                "    print foo|1\n"
+        );
+        checkAug(1);
+        
+        doc = new Document(
+                "def m1():\n"+
+                "    foo = 10\n" +
+                "    foo += 20"
+        );
+        checkAug(0);
     }
 
     private void checkAug(int errors){
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs,errors);
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs,errors);
     }
     
     public void testFromFutureImport(){
@@ -276,14 +276,14 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testFromFutureImport2(){
-    	doc = new Document(
-    			"from __future__ import generators\n"
-    	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc2();
-    	
-    	printMessages(msgs,0);
-    	
+        doc = new Document(
+                "from __future__ import generators\n"
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc2();
+        
+        printMessages(msgs,0);
+        
     }
 
     private IMessage[] analyzeDoc2() {
@@ -292,20 +292,20 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testWrongLine(){
-    	doc = new Document(
-    			"ExportMethodTransient(True,\n" +
-    			"                      0,\n" +
-    			"                      1).DoExport()\n"+
-    			"\n"
-    	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc2();
-    	
-    	printMessages(msgs,1);
-    	assertEquals(1, msgs[0].getStartLine(doc));
-    	assertEquals(1, msgs[0].getEndLine(doc));
-    	assertEquals(1, msgs[0].getStartCol(doc));
-    	assertEquals(22, msgs[0].getEndCol(doc));
+        doc = new Document(
+                "ExportMethodTransient(True,\n" +
+                "                      0,\n" +
+                "                      1).DoExport()\n"+
+                "\n"
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc2();
+        
+        printMessages(msgs,1);
+        assertEquals(1, msgs[0].getStartLine(doc));
+        assertEquals(1, msgs[0].getEndLine(doc));
+        assertEquals(1, msgs[0].getStartCol(doc));
+        assertEquals(22, msgs[0].getEndCol(doc));
     }
     
 
@@ -328,27 +328,27 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     
     
     public void testImportWithTryExcept(){
-    	doc = new Document(
-    			"try:\n"+
-    			"    import foo\n"+
-    			"except ImportError:\n"+
-    			"    foo = None\n"
-    	);
-    	checkNoError();
+        doc = new Document(
+                "try:\n"+
+                "    import foo\n"+
+                "except ImportError:\n"+
+                "    foo = None\n"
+        );
+        checkNoError();
     }
     
     public void testImportWithTryExcept2(){
-    	doc = new Document(
-    			"try:\n"+
-    			"    import foo\n"+
-    			"except:\n"+
-    			"    foo = None\n"
-    	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs,1);
-    	assertEquals("Unresolved import: foo", msgs[0].getMessage());
+        doc = new Document(
+                "try:\n"+
+                "    import foo\n"+
+                "except:\n"+
+                "    foo = None\n"
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs,1);
+        assertEquals("Unresolved import: foo", msgs[0].getMessage());
     }
     
     public void testClsInNew(){
@@ -394,11 +394,11 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testConsiderAsGlobals(){
-    	doc = new Document(
-			"print considerGlobal"
-    	);
-    	checkNoError();
-    	
+        doc = new Document(
+            "print considerGlobal"
+        );
+        checkNoError();
+        
     }
     
     public void testConsiderAsGlobalsWithAttributeAccess(){
@@ -440,38 +440,38 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     
     
     public void testUnusedImports2a(){
-    	
-    	doc = new Document(
-			"import os.path"
-    	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs,2);
-    	
-    	IMessage message = assertContainsMsg("Unused import: os", msgs);
-    	assertEquals(8, message.getStartCol(doc));
-    	assertEquals(10, message.getEndCol(doc));
+        
+        doc = new Document(
+            "import os.path"
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs,2);
+        
+        IMessage message = assertContainsMsg("Unused import: os", msgs);
+        assertEquals(8, message.getStartCol(doc));
+        assertEquals(10, message.getEndCol(doc));
 
-    	message = assertContainsMsg("Unused import: os.path", msgs);
-    	assertEquals(8, message.getStartCol(doc));
-    	assertEquals(15, message.getEndCol(doc));
-    	
+        message = assertContainsMsg("Unused import: os.path", msgs);
+        assertEquals(8, message.getStartCol(doc));
+        assertEquals(15, message.getEndCol(doc));
+        
     }
     
     public void testUnusedImports2b(){
-    	
-    	doc = new Document(
-			"\n\nfrom testlib.unittest import *"
-    	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs,1);
-    	
-    	assertEquals(6, msgs[0].getStartCol(doc));
-    	assertEquals(31, msgs[0].getEndCol(doc));
-    	
+        
+        doc = new Document(
+            "\n\nfrom testlib.unittest import *"
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs,1);
+        
+        assertEquals(6, msgs[0].getStartCol(doc));
+        assertEquals(31, msgs[0].getEndCol(doc));
+        
     }
     
     public void testUnusedImports3(){
@@ -558,51 +558,51 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testGlu(){
-    	if(TestDependent.HAS_GLU_INSTALLED){
-    		doc = new Document(
-    				"from OpenGL.GL import glPushMatrix\n" +
-    				"print glPushMatrix\n" +
-    				""
-    		);
-    		checkNoError();
-    	}
-    	
+        if(TestDependent.HAS_GLU_INSTALLED){
+            doc = new Document(
+                    "from OpenGL.GL import glPushMatrix\n" +
+                    "print glPushMatrix\n" +
+                    ""
+            );
+            checkNoError();
+        }
+        
     }
     
     public void testGlu2(){
-    	if(TestDependent.HAS_GLU_INSTALLED){
-    		doc = new Document(
-    				"from OpenGL.GL import * #@UnusedWildImport\n" +
-    				"print glPushMatrix\n" +
-    				""
-    		);
-    		checkNoError();
-    	}
-    	
+        if(TestDependent.HAS_GLU_INSTALLED){
+            doc = new Document(
+                    "from OpenGL.GL import * #@UnusedWildImport\n" +
+                    "print glPushMatrix\n" +
+                    ""
+            );
+            checkNoError();
+        }
+        
     }
     
     public void testGlu3(){
-    	if(TestDependent.HAS_GLU_INSTALLED){
-    		doc = new Document(
-    				"from OpenGL.GL import glRotatef\n" +
-    				"print glRotatef\n" +
-    				""
-    		);
-    		checkNoError();
-    	}
-    	
+        if(TestDependent.HAS_GLU_INSTALLED){
+            doc = new Document(
+                    "from OpenGL.GL import glRotatef\n" +
+                    "print glRotatef\n" +
+                    ""
+            );
+            checkNoError();
+        }
+        
     }
     
     public void testGlu4(){
-    	if(TestDependent.HAS_GLU_INSTALLED){
-    		doc = new Document(
-    				"from OpenGL.GLU import gluLookAt\n" +
-    				"print gluLookAt" +
-    				""
-    		);
-    		checkNoError();
-    	}
-    	
+        if(TestDependent.HAS_GLU_INSTALLED){
+            doc = new Document(
+                    "from OpenGL.GLU import gluLookAt\n" +
+                    "print gluLookAt" +
+                    ""
+            );
+            checkNoError();
+        }
+        
     }
     
     public void testCompiledUnusedImports5(){
@@ -621,16 +621,16 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testCompiledWx(){
-    	
-    	if(TestDependent.HAS_WXPYTHON_INSTALLED){
-//    		CompiledModule.TRACE_COMPILED_MODULES = true;
-    		doc = new Document(
-				"from wx import glcanvas\n" +
-				"print glcanvas.GLCanvas\n" +
-				""
-    		);
-    		checkNoError();
-    	}
+        
+        if(TestDependent.HAS_WXPYTHON_INSTALLED){
+//            CompiledModule.TRACE_COMPILED_MODULES = true;
+            doc = new Document(
+                "from wx import glcanvas\n" +
+                "print glcanvas.GLCanvas\n" +
+                ""
+            );
+            checkNoError();
+        }
     }
     
     public void testImportNotFound(){
@@ -693,31 +693,31 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testMultilineImport(){
-    	
-    	doc = new Document(
-    			"from os import (pathNotDef1,\n" +
-    			"                notDefined)\n" +
-    			""
-    	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	IMessage message;
-    	
-    	printMessages(msgs,4);
-    	
-    	message = assertContainsMsg("Unresolved import: pathNotDef1", msgs);
-    	assertEquals(1, message.getStartLine(doc));
-    	
-    	message = assertContainsMsg("Unresolved import: notDefined", msgs);
-    	assertEquals(2, message.getStartLine(doc));
-    	assertEquals(2, message.getEndLine(doc));
-    	
-    	assertEquals(17, message.getStartCol(doc));
-    	assertEquals(27, message.getEndCol(doc));
-    	
-    	assertContainsMsg("Unused import: notDefined", msgs);
-    	assertContainsMsg("Unused import: pathNotDef1", msgs);
+        
+        doc = new Document(
+                "from os import (pathNotDef1,\n" +
+                "                notDefined)\n" +
+                ""
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        IMessage message;
+        
+        printMessages(msgs,4);
+        
+        message = assertContainsMsg("Unresolved import: pathNotDef1", msgs);
+        assertEquals(1, message.getStartLine(doc));
+        
+        message = assertContainsMsg("Unresolved import: notDefined", msgs);
+        assertEquals(2, message.getStartLine(doc));
+        assertEquals(2, message.getEndLine(doc));
+        
+        assertEquals(17, message.getStartCol(doc));
+        assertEquals(27, message.getEndCol(doc));
+        
+        assertContainsMsg("Unused import: notDefined", msgs);
+        assertContainsMsg("Unused import: pathNotDef1", msgs);
     }
     
     public void testImportNotFound4(){
@@ -876,17 +876,17 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testLambda2(){
-    	
-    	doc = new Document(
-    			"a = lambda c,*b: callit(c, *b)\n"+
-    			"\n"+
-    			""
-    	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs, 1);
-    	assertContainsMsg("Undefined variable: callit", msgs);
+        
+        doc = new Document(
+                "a = lambda c,*b: callit(c, *b)\n"+
+                "\n"+
+                ""
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 1);
+        assertContainsMsg("Undefined variable: callit", msgs);
     }
     
     public void testReimport(){
@@ -1140,26 +1140,26 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testNotUnusedVariable7() {
-    	doc = new Document(
-    			"def m(a, b):                 \n"+  
-    			"    raise RuntimeError('err')\n"+       
-    			""      
-    	);
-    	checkNoError();
-    	assertEquals(0, msgs.length);
-    	
+        doc = new Document(
+                "def m(a, b):                 \n"+  
+                "    raise RuntimeError('err')\n"+       
+                ""      
+        );
+        checkNoError();
+        assertEquals(0, msgs.length);
+        
     }
     
     public void testNotUnusedVariable8() {
-    	doc = new Document(
-    			"def m(a, b):                 \n"+  
-    			"    '''test'''               \n"+  
-    			"    raise RuntimeError('err')\n"+       
-    			""      
-    	);
-    	checkNoError();
-    	assertEquals(0, msgs.length);
-    	
+        doc = new Document(
+                "def m(a, b):                 \n"+  
+                "    '''test'''               \n"+  
+                "    raise RuntimeError('err')\n"+       
+                ""      
+        );
+        checkNoError();
+        assertEquals(0, msgs.length);
+        
     }
     
     public void testUnusedVariable8() {
@@ -1392,64 +1392,64 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testScopes7() {
-    	doc = new Document(
-    			"def ok():          \n"+
-    			"    def call():    \n"+
-    			"        call2()    \n"+
-    			"    \n"+
-    			"    def call2():   \n"+
-    			"        pass\n"+
-    			""   
-    	);
-    	checkNoError();
+        doc = new Document(
+                "def ok():          \n"+
+                "    def call():    \n"+
+                "        call2()    \n"+
+                "    \n"+
+                "    def call2():   \n"+
+                "        pass\n"+
+                ""   
+        );
+        checkNoError();
     }
     
     
     public void testScopes8() {
-    	doc = new Document(
-			"def m1():                      \n"+
-			"    print (str(undef)).lower() \n"+
-			"    \n"+
-			""   
-    	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs, 1);
+        doc = new Document(
+            "def m1():                      \n"+
+            "    print (str(undef)).lower() \n"+
+            "    \n"+
+            ""   
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 1);
         assertContainsMsg("Undefined variable: undef", msgs, 2);
 
     }
     
     public void testScopes9() {
-    	doc = new Document(
-    			"def m1():                      \n"+
-    			"    undef = 10                 \n"+
-    			"    print (str(undef)).lower() \n"+
-    			"    \n"+
-    			""   
-    	);
-    	checkNoError();
-    	
+        doc = new Document(
+                "def m1():                      \n"+
+                "    undef = 10                 \n"+
+                "    print (str(undef)).lower() \n"+
+                "    \n"+
+                ""   
+        );
+        checkNoError();
+        
     }
     
     public void testScopes10() {
-    	doc = new Document(
-			"class C:\n"+
-			"    def m1(self):\n"+
-			"        print m2\n"+ //should give error, as we are inside the method (and not in the class scope)
-			"    def m2(self):\n"+
-			"        print m1\n"+ //should give error, as we are inside the method (and not in the class scope)
-			"\n"+
-			"\n"+
-			"\n"+
-			"\n"+
-			""   
-    	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs, 2);
-    	
+        doc = new Document(
+            "class C:\n"+
+            "    def m1(self):\n"+
+            "        print m2\n"+ //should give error, as we are inside the method (and not in the class scope)
+            "    def m2(self):\n"+
+            "        print m1\n"+ //should give error, as we are inside the method (and not in the class scope)
+            "\n"+
+            "\n"+
+            "\n"+
+            "\n"+
+            ""   
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 2);
+        
     }
     
     
@@ -2074,15 +2074,15 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     
     public void testUnusedInFor() {
-    	doc = new Document(
-    			"def test():\n" +
-    			"    for a in range(10):\n" + //a is unused
-    			"        pass" 
-    	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs, 1);
+        doc = new Document(
+                "def test():\n" +
+                "    for a in range(10):\n" + //a is unused
+                "        pass" 
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 1);
     }
     
     public void testUnusedInFor2() {
@@ -2135,33 +2135,33 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testClassMethodCls2() {
-    	doc = new Document(
-    			"class C:\n" +
-    			"    def m(cls):\n" +
-    			"        print cls\n" +
-    			"    m = classmethod(m)" +
-    			"\n" +
-    			"\n" +
-    			"" 
-    	);
-    	checkNoError();
+        doc = new Document(
+                "class C:\n" +
+                "    def m(cls):\n" +
+                "        print cls\n" +
+                "    m = classmethod(m)" +
+                "\n" +
+                "\n" +
+                "" 
+        );
+        checkNoError();
     }
     
     public void testClassMethodCls3() {
-    	doc = new Document(
-    			"class C:\n" +
-    			"    def m():\n" +
-    			"        pass\n" +
-    			"    m = classmethod(m)" +
-    			"\n" +
-    			"\n" +
-    			"" 
-    	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs, 1);
-    	assertEquals("Method 'm' should have cls as first parameter", msgs[0].toString());
+        doc = new Document(
+                "class C:\n" +
+                "    def m():\n" +
+                "        pass\n" +
+                "    m = classmethod(m)" +
+                "\n" +
+                "\n" +
+                "" 
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 1);
+        assertEquals("Method 'm' should have cls as first parameter", msgs[0].toString());
     }
     
     public void testStaticNoSelf2() {
@@ -2251,23 +2251,23 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testUnusedVar() {
-    	doc = new Document(
-			"def test(data):\n"+
-			"    return str(data)[0].strip()\n"+
-			"\n"
-    	);
-    	checkNoError();
+        doc = new Document(
+            "def test(data):\n"+
+            "    return str(data)[0].strip()\n"+
+            "\n"
+        );
+        checkNoError();
     }
     
     public void testUndefinedVar1() {
-    	doc = new Document(
-    			"return (data)[0].strip()"
-    	);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs, 1);
-    	assertEquals("Undefined variable: data", msgs[0].getMessage());
+        doc = new Document(
+                "return (data)[0].strip()"
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 1);
+        assertEquals("Undefined variable: data", msgs[0].getMessage());
     }
     
     public void testNotUnusedParameter() {
@@ -2314,88 +2314,88 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testEmptyDict() {
-    	doc = new Document(
-    			"for k,v in {}.iteritmes(): print k,v"
-    	);
-    	checkNoError();
+        doc = new Document(
+                "for k,v in {}.iteritmes(): print k,v"
+        );
+        checkNoError();
     }
     
     
     public void testDirectDictAccess() {
-    	doc = new Document(
-			"def Load(self):\n"+
-			"    #Is giving Unused variable: i\n"+
-			"    for i in xrange(10):    \n"+
-			"        coerce(dict[i].text.strip())\n"
-    	);
-    	checkNoError();
+        doc = new Document(
+            "def Load(self):\n"+
+            "    #Is giving Unused variable: i\n"+
+            "    for i in xrange(10):    \n"+
+            "        coerce(dict[i].text.strip())\n"
+        );
+        checkNoError();
     }
     
     public void testDefinedInClassAndInLocal() {
-    	doc = new Document(
-    			"class MyClass(object):\n"+
-    			"    foo = 10\n"+
-    			"    \n"+
-    			"    def mystery(self):\n"+
-    			"        for foo in range(12):\n"+
-    			"            print foo\n"+
-    			"\n"
-    	);
-    	checkNoError();
+        doc = new Document(
+                "class MyClass(object):\n"+
+                "    foo = 10\n"+
+                "    \n"+
+                "    def mystery(self):\n"+
+                "        for foo in range(12):\n"+
+                "            print foo\n"+
+                "\n"
+        );
+        checkNoError();
     }
     
     public void testDefinedInClassAndInLocal2() {
-    	doc = new Document(
-    			"class MyClass(object):\n"+
-    			"    options = [i for i in range(10)]\n"+
-    			"    \n"+
-    			"    def mystery(self):\n"+
-    			"        for i in range(12):\n"+
-    			"            print i #should not be undefined!\n"+
-    			"\n"
-    	);
-    	checkNoError();
+        doc = new Document(
+                "class MyClass(object):\n"+
+                "    options = [i for i in range(10)]\n"+
+                "    \n"+
+                "    def mystery(self):\n"+
+                "        for i in range(12):\n"+
+                "            print i #should not be undefined!\n"+
+                "\n"
+        );
+        checkNoError();
     }
     
     public void testColError() {
-    	doc = new Document("print function()[0].strip()");
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs, 1);
-    	assertEquals("Undefined variable: function", msgs[0].getMessage());
-    	assertEquals(7, msgs[0].getStartCol(doc));
+        doc = new Document("print function()[0].strip()");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 1);
+        assertEquals("Undefined variable: function", msgs[0].getMessage());
+        assertEquals(7, msgs[0].getStartCol(doc));
     }
     
     public void testColError2() {
-    	doc = new Document("" +
-    			"class Foo(object):\n" +
-    			"    def  m1(self):\n" +
-    			"        pass\n" +
-    			"    def  m1(self):\n" +
-    			"        pass\n" +
-    			"");
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs, 1);
-    	assertEquals("Duplicated signature: m1", msgs[0].getMessage());
-    	assertEquals(10, msgs[0].getStartCol(doc));
+        doc = new Document("" +
+                "class Foo(object):\n" +
+                "    def  m1(self):\n" +
+                "        pass\n" +
+                "    def  m1(self):\n" +
+                "        pass\n" +
+                "");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 1);
+        assertEquals("Duplicated signature: m1", msgs[0].getMessage());
+        assertEquals(10, msgs[0].getStartCol(doc));
     }
     
     public void testColError3() {
-    	doc = new Document("" +
-    			"class  Foo(object):\n" +
-    			"    pass\n" +
-    			"class  Foo(object):\n" +
-    			"    pass\n" +
-    	"");
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs, 1);
-    	assertEquals("Duplicated signature: Foo", msgs[0].getMessage());
-    	assertEquals(8, msgs[0].getStartCol(doc));
+        doc = new Document("" +
+                "class  Foo(object):\n" +
+                "    pass\n" +
+                "class  Foo(object):\n" +
+                "    pass\n" +
+        "");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 1);
+        assertEquals("Duplicated signature: Foo", msgs[0].getMessage());
+        assertEquals(8, msgs[0].getStartCol(doc));
     }
     
     public void testDupl2() {
@@ -2412,28 +2412,28 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testNoEffect() {
-    	doc = new Document("" +
-    			"2 == 1\n" + //has no effect
-    			"if 2 == 1: pass\n" + //has effect
-    	"");
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs, 1);
-    	assertEquals("Statement apppears to have no effect", msgs[0].getMessage());
+        doc = new Document("" +
+                "2 == 1\n" + //has no effect
+                "if 2 == 1: pass\n" + //has effect
+        "");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 1);
+        assertEquals("Statement apppears to have no effect", msgs[0].getMessage());
     }
     
     public void testNoEffect2() {
-    	doc = new Document("" +
-    			"a = 5\n" +
-    			"a == 1\n" + //has no effect
-    			"if a == 1: pass\n" + //has effect
-    	"");
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs, 1);
-    	assertEquals("Statement apppears to have no effect", msgs[0].getMessage());
+        doc = new Document("" +
+                "a = 5\n" +
+                "a == 1\n" + //has no effect
+                "if a == 1: pass\n" + //has effect
+        "");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 1);
+        assertEquals("Statement apppears to have no effect", msgs[0].getMessage());
     }
     
     public void testNoEffect3() {
@@ -2493,26 +2493,26 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testNoEffectOk5() {
-    	doc = new Document("" +
-    			"def check():\n" +
-    			"    pass\n" +
-    			"check(1 in [1,2])\n" +
-    	"");
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs, 0);
+        doc = new Document("" +
+                "def check():\n" +
+                "    pass\n" +
+                "check(1 in [1,2])\n" +
+        "");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 0);
     }
     
     public void testNoEffectOk6() {
-    	doc = new Document("" +
-    			"def check():\n" +
-    			"    return 1 == 2\n" +
-    	"");
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs, 0);
+        doc = new Document("" +
+                "def check():\n" +
+                "    return 1 == 2\n" +
+        "");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 0);
     }
     
     public void testNoEffectOk7() {
@@ -2528,54 +2528,54 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     
     
     public void testInternalClassDefinition() {
-    	doc = new Document("" +
-    			"class Container:\n" +
-    			"    \n" +
-    			"    def Method(self):\n" +
-    			"        \n" +
-    			"        class ClassSuper:\n" +
-    			"            pass\n" +
-    			"        class ClassSub(ClassSuper):\n" +
-    			"            pass\n" +
-    			"    \n" +
-    	"");
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs, 0);
+        doc = new Document("" +
+                "class Container:\n" +
+                "    \n" +
+                "    def Method(self):\n" +
+                "        \n" +
+                "        class ClassSuper:\n" +
+                "            pass\n" +
+                "        class ClassSub(ClassSuper):\n" +
+                "            pass\n" +
+                "    \n" +
+        "");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 0);
     }
     
     public void testInternalClassDefinition2() {
-    	doc = new Document("" +
-    			"class Obj:\n" +
-    			"    \n" +
-    			"    class EmptyObj:\n" +
-    			"        pass\n" +
-    			"\n"+
-    			"    EmptyObj\n" +
-    	"");
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs, 0);
+        doc = new Document("" +
+                "class Obj:\n" +
+                "    \n" +
+                "    class EmptyObj:\n" +
+                "        pass\n" +
+                "\n"+
+                "    EmptyObj\n" +
+        "");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 0);
     }
     
     
     
     public void testNotDefinedInAlll() {
-    	String s = 
-    		"from extendable.all_check import *\n" +
-    		"print ThisDoesnt\n" +
-    		"print ThisGoes\n" +
-    		"print ThisGoesToo\n" +
-    		"";
-    	
-    	doc = new Document(s);
-    	analyzer = new OccurrencesAnalyzer();
-    	msgs = analyzeDoc();
-    	
-    	printMessages(msgs, 1);
-    	assertEquals("Undefined variable: ThisDoesnt", msgs[0].toString());
+        String s = 
+            "from extendable.all_check import *\n" +
+            "print ThisDoesnt\n" +
+            "print ThisGoes\n" +
+            "print ThisGoesToo\n" +
+            "";
+        
+        doc = new Document(s);
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 1);
+        assertEquals("Undefined variable: ThisDoesnt", msgs[0].toString());
     }
     
 }

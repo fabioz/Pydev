@@ -65,22 +65,22 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
         final String paths = getSystemPythonpathPaths();
         String lower = paths.toLowerCase();
         lower = StringUtils.replaceAllSlashes(lower);
-		final Set<String> s = new HashSet<String>(Arrays.asList(lower.split("\\|")));
+        final Set<String> s = new HashSet<String>(Arrays.asList(lower.split("\\|")));
         InterpreterInfo.configurePathsCallback = new ICallback<Boolean, Tuple<List<String>, List<String>>>(){
-        	
-        	public Boolean call(Tuple<List<String>, List<String>> arg) {
-        		List<String> toAsk = arg.o1;
-        		List<String> l = arg.o2;
-        		
-        		for(String t:toAsk){
-        			if(s.contains(StringUtils.replaceAllSlashes(t.toLowerCase()))){
-        				l.add(t);
-        				//System.out.println("Added:"+t);
-        			}
-        		}
-        		return Boolean.TRUE;
-        	}
-        	
+            
+            public Boolean call(Tuple<List<String>, List<String>> arg) {
+                List<String> toAsk = arg.o1;
+                List<String> l = arg.o2;
+                
+                for(String t:toAsk){
+                    if(s.contains(StringUtils.replaceAllSlashes(t.toLowerCase()))){
+                        l.add(t);
+                        //System.out.println("Added:"+t);
+                    }
+                }
+                return Boolean.TRUE;
+            }
+            
         };
         
         restorePythonPath(paths, false);
@@ -92,7 +92,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
     protected String getSystemPythonpathPaths() {
         final String paths;
         if(TestDependent.HAS_WXPYTHON_INSTALLED){
-        	paths = TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES+"|"+TestDependent.PYTHON_WXPYTHON_PACKAGES;
+            paths = TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES+"|"+TestDependent.PYTHON_WXPYTHON_PACKAGES;
         }else{
             paths = TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES;
         }

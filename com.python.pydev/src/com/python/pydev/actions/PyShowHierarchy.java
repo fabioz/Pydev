@@ -41,8 +41,8 @@ public class PyShowHierarchy extends PyRefactorAction{
     private PyHierarchyView view;
     private HierarchyNodeModel model;
 
-	@Override
-	protected String perform(IAction action, String name, IProgressMonitor monitor) throws Exception {
+    @Override
+    protected String perform(IAction action, String name, IProgressMonitor monitor) throws Exception {
         Runnable r = new Runnable() {
             public void run() {
                 IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
@@ -56,15 +56,15 @@ public class PyShowHierarchy extends PyRefactorAction{
             }
         };
         
-		Display.getDefault().syncExec(r); //sync it here, so that we can check it later...
-		if(view != null){
-		    //set whatever is needed for the hierarchy
-		    IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
-		    if(pyRefactoring instanceof IPyRefactoring2){
-		        RefactoringRequest refactoringRequest = getRefactoringRequest(monitor);
-		        IPyRefactoring2 r2 = (IPyRefactoring2) pyRefactoring;
-		        model = r2.findClassHierarchy(refactoringRequest);
-		    }
+        Display.getDefault().syncExec(r); //sync it here, so that we can check it later...
+        if(view != null){
+            //set whatever is needed for the hierarchy
+            IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
+            if(pyRefactoring instanceof IPyRefactoring2){
+                RefactoringRequest refactoringRequest = getRefactoringRequest(monitor);
+                IPyRefactoring2 r2 = (IPyRefactoring2) pyRefactoring;
+                model = r2.findClassHierarchy(refactoringRequest);
+            }
             if(model != null){
                 
                 r = new Runnable() {
@@ -74,13 +74,13 @@ public class PyShowHierarchy extends PyRefactorAction{
                 };
                 Display.getDefault().asyncExec(r); //this can be 'not synched'
             }
-		}
-		return "";
-	}
+        }
+        return "";
+    }
 
-	@Override
-	protected String getInputMessage() {
-		return null;
-	}
+    @Override
+    protected String getInputMessage() {
+        return null;
+    }
 
 }

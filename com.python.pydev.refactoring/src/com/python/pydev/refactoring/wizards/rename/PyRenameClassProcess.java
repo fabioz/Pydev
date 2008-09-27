@@ -68,7 +68,7 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
         SimpleNode root = request.getAST();
         List<ASTEntry> oc = new ArrayList<ASTEntry>();
         
-		//in the local scope for a class, we'll only have at least one reference
+        //in the local scope for a class, we'll only have at least one reference
         oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
         oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
         int currLine = request.ps.getCursorLine();
@@ -123,7 +123,7 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
             oc.addAll(attributeReferences);
         }
 
-		addOccurrences(request, oc);
+        addOccurrences(request, oc);
     }
 
 
@@ -156,11 +156,11 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
         List<ASTEntry> entryOccurrences = ScopeAnalysis.getLocalOccurrences(initialName, root);
         entryOccurrences.addAll(ScopeAnalysis.getAttributeReferences(initialName, root));
         
-		if(entryOccurrences.size() > 0){
-			//only add comments and strings if there's at least some other occurrence
-	        entryOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
-	        entryOccurrences.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
-		}
+        if(entryOccurrences.size() > 0){
+            //only add comments and strings if there's at least some other occurrence
+            entryOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
+            entryOccurrences.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
+        }
         return entryOccurrences;
     }
     

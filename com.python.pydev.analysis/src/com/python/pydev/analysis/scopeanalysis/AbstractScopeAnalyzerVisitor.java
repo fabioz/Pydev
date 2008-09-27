@@ -139,9 +139,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         }
         
         for(IToken t : builtinCompletions){
-        	Found found = makeFound(t);
-        	org.python.pydev.core.Tuple<IToken, Found> tup = new org.python.pydev.core.Tuple<IToken, Found>(t, found);
-        	addToNamesToIgnore(t, scope.getCurrScopeItems(), tup);
+            Found found = makeFound(t);
+            org.python.pydev.core.Tuple<IToken, Found> tup = new org.python.pydev.core.Tuple<IToken, Found>(t, found);
+            addToNamesToIgnore(t, scope.getCurrScopeItems(), tup);
         }
     }
     
@@ -182,22 +182,22 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         //we want to visit the bases before actually starting the class scope (as it's as if they're attribute
         //accesses).
         if (node.bases != null) {
-        	for (int i = 0; i < node.bases.length; i++) {
-        		if (node.bases[i] != null)
-        			node.bases[i].accept(visitor);
-        	}
+            for (int i = 0; i < node.bases.length; i++) {
+                if (node.bases[i] != null)
+                    node.bases[i].accept(visitor);
+            }
         }
 
         startScope(Scope.SCOPE_TYPE_CLASS, node);
         
         if (node.name != null){
-        	node.name.accept(visitor);
+            node.name.accept(visitor);
         }
         
         if (node.body != null) {
             for (int i = 0; i < node.body.length; i++) {
                 if (node.body[i] != null)
-                	node.body[i].accept(visitor);
+                    node.body[i].accept(visitor);
             }
         }
         
@@ -217,8 +217,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         SourceToken token = AbstractVisitor.makeToken(node, "");
         ScopeItems currScopeItems = scope.getCurrScopeItems();
         
-    	Found found = new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
-    	org.python.pydev.core.Tuple<IToken, Found> tup = new org.python.pydev.core.Tuple<IToken, Found>(token, found);
+        Found found = new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
+        org.python.pydev.core.Tuple<IToken, Found> tup = new org.python.pydev.core.Tuple<IToken, Found>(token, found);
         addToNamesToIgnore(token, currScopeItems, tup);
         
         //after adding it to the names to ignore, let's see if there is someone waiting for this declaration
@@ -251,12 +251,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
 
 
     protected void addToNamesToIgnore(IToken token, ScopeItems currScopeItems, org.python.pydev.core.Tuple<IToken, Found> tup) {
-		currScopeItems.namesToIgnore.put(token.getRepresentation(), tup);
-		onAfterAddToNamesToIgnore(currScopeItems, tup);
-	}
+        currScopeItems.namesToIgnore.put(token.getRepresentation(), tup);
+        onAfterAddToNamesToIgnore(currScopeItems, tup);
+    }
 
 
-	/**
+    /**
      * we are starting a new scope when visiting a function 
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitFunctionDef(org.python.pydev.parser.jython.ast.FunctionDef)
      */
@@ -367,7 +367,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 state.setBuiltinsGotten (true); //we don't want any builtins
                 List<IToken> completionsForWildImport = new ArrayList<IToken>();
                 if(nature.getAstManager().getCompletionsForWildImport(state, current, completionsForWildImport, wildImport)){
-                	scope.addImportTokens(completionsForWildImport, wildImport, this.completionCache);
+                    scope.addImportTokens(completionsForWildImport, wildImport, this.completionCache);
                 }
             }else{
                 List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
@@ -416,10 +416,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      * @param rep the representation we're looking for
      * @return whether the representation is in the names to ignore
      */
-	protected boolean doCheckIsInNamesToIgnore(String rep, IToken token) {
-		org.python.pydev.core.Tuple<IToken, Found> found = scope.isInNamesToIgnore(rep);
-		return found != null;
-	}
+    protected boolean doCheckIsInNamesToIgnore(String rep, IToken token) {
+        org.python.pydev.core.Tuple<IToken, Found> found = scope.isInNamesToIgnore(rep);
+        return found != null;
+    }
     
     
     
@@ -448,7 +448,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         boolean doReturn = visitNeededAttributeParts(node, this);
         
         if(doReturn){
-        	return null;
+            return null;
         }
 
         SourceToken token = AbstractVisitor.makeFullNameToken(node, moduleName);
@@ -496,17 +496,17 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      * @return true if there's no need to keep visiting other stuff in the attribute
      * @throws Exception
      */
-	public static boolean visitNeededAttributeParts(final Attribute node, VisitorBase base) throws Exception {
-		exprType value = node.value;
-		boolean valueVisited = false;
-		boolean doReturn = false;
+    public static boolean visitNeededAttributeParts(final Attribute node, VisitorBase base) throws Exception {
+        exprType value = node.value;
+        boolean valueVisited = false;
+        boolean doReturn = false;
         if(value instanceof Subscript){
             Subscript subs = (Subscript) value;
             base.traverse(subs.slice);
             if(subs.value instanceof Name){
                 base.visitName((Name) subs.value);
             }else{
-            	base.traverse(subs.value);
+                base.traverse(subs.value);
             }
             //No need to keep visiting. Reason:
             //Let's take the example:
@@ -520,24 +520,24 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             doReturn = true;
             
         } else if(value instanceof Call){
-        	visitCallAttr((Call) value, base);
+            visitCallAttr((Call) value, base);
             valueVisited = true;
             
         }else if(value instanceof Tuple){
-        	base.visitTuple((Tuple) value);
+            base.visitTuple((Tuple) value);
             valueVisited = true;
             
         }else if(value instanceof Dict){
-        	base.visitDict((Dict) value);
+            base.visitDict((Dict) value);
             doReturn = true;
         }
         if(!doReturn && !valueVisited){
             if(visitNeededValues(value, base)){
-            	doReturn = true;
+                doReturn = true;
             }
         }
-		return doReturn;
-	}
+        return doReturn;
+    }
 
     protected static boolean visitNeededValues(exprType value, VisitorBase base) throws Exception {
         if(value instanceof Name){
@@ -555,7 +555,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     protected static void visitCallAttr(Call c, VisitorBase base) throws Exception {
         //now, visit all inside it but the func itself 
-    	VisitorBase visitor = base;
+        VisitorBase visitor = base;
         if(c.func instanceof Attribute){
             base.visitAttribute((Attribute) c.func);
         }
@@ -609,7 +609,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     }
     
 
-	/**
+    /**
      * overriden because we need to know about if scopes
      */
     public Object visitIf(If node) throws Exception {
@@ -735,8 +735,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      * when we have an abstract method)
      */
     protected void endScope(SimpleNode node) {
-    	onBeforeEndScope(node);
-    	
+        onBeforeEndScope(node);
+        
         ScopeItems m = scope.endScope(); //clear the last scope
         for(Iterator<Found> it = probablyNotDefined.iterator(); it.hasNext();){
             Found n = it.next();
@@ -1015,8 +1015,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     }
 
     protected Found makeFound(IToken token) {
-		return new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
-	}
+        return new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
+    }
 
 
     protected IToken findNameTok(IToken token, String tokToCheck) {
@@ -1045,9 +1045,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     //on those cases
     protected abstract void onAfterVisitAssign(Assign node);
 
-	protected abstract void onAfterStartScope(int newScopeType, SimpleNode node);
+    protected abstract void onAfterStartScope(int newScopeType, SimpleNode node);
 
-	protected abstract void onBeforeEndScope(SimpleNode node);
+    protected abstract void onBeforeEndScope(SimpleNode node);
 
     protected abstract void onAfterEndScope(SimpleNode node, ScopeItems m);
 
@@ -1081,18 +1081,18 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     /**
      * This one is not abstract, but is provided as a hook, as the others.
      */
-	protected void onAfterAddToNamesToIgnore(ScopeItems currScopeItems, org.python.pydev.core.Tuple<IToken, Found> tup) {
-	}
-	/**
-	 * This one is not abstract, but is provided as a hook, as the others.
-	 */
+    protected void onAfterAddToNamesToIgnore(ScopeItems currScopeItems, org.python.pydev.core.Tuple<IToken, Found> tup) {
+    }
+    /**
+     * This one is not abstract, but is provided as a hook, as the others.
+     */
     protected void onFoundUnresolvedImportPart(IToken token, String rep, Found foundAs) {
     }
     /**
      * This one is not abstract, but is provided as a hook, as the others.
      */
-	public void onImportInfoSetOnFound(Found found) {
-	}
+    public void onImportInfoSetOnFound(Found found) {
+    }
 
 
 }

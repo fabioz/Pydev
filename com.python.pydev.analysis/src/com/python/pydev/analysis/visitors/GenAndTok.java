@@ -59,23 +59,23 @@ public class GenAndTok{
         buffer.append(") ");
         
         if(references.size() > 0){
-	        buffer.append(" (references:");
-	        for (IToken ref : references) {
-				buffer.append(ref.getRepresentation());
-				buffer.append(",");
-			}
-	        buffer.deleteLast(); //remove the last comma
-	        buffer.append(") ");
+            buffer.append(" (references:");
+            for (IToken ref : references) {
+                buffer.append(ref.getRepresentation());
+                buffer.append(",");
+            }
+            buffer.deleteLast(); //remove the last comma
+            buffer.append(") ");
         }
         
         buffer.append("]");
         return buffer.toString();
     }
 
-	public List<IToken> getAllTokens() {
-		ArrayList<IToken> ret = new ArrayList<IToken>();
-		ret.add(generator);
-		ret.addAll(references);
-		return ret;
-	}
+    public List<IToken> getAllTokens() {
+        ArrayList<IToken> ret = new ArrayList<IToken>();
+        ret.add(generator);
+        ret.addAll(references);
+        return ret;
+    }
 }

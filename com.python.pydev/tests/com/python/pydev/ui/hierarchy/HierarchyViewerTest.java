@@ -54,23 +54,23 @@ public class HierarchyViewerTest extends TestCase {
         
         super1.parents.add(super2);
         super2.parents.add(par1pac1);
-		par1.parents.add(super1);
-		par1.parents.add(super2);
-		par2.parents.add(super1);
-		par3.parents.add(super2);
-		
-		curr.parents.add(par1);
-		curr.parents.add(par2);
-		curr.parents.add(par3);
-		
+        par1.parents.add(super1);
+        par1.parents.add(super2);
+        par2.parents.add(super1);
+        par3.parents.add(super2);
+        
+        curr.parents.add(par1);
+        curr.parents.add(par2);
+        curr.parents.add(par3);
+        
         curr.parents.add(new HierarchyNodeModel("par4"));
         
         final HierarchyNodeModel c1 = new HierarchyNodeModel("child1");
-		curr.children.add(c1);
+        curr.children.add(c1);
         curr.children.add(new HierarchyNodeModel("child2"));
         final HierarchyNodeModel c3 = new HierarchyNodeModel("child3");
         c3.parents.add(par3); //does not show (we go straight to the top or to the bottom)
-		curr.children.add(c3);
+        curr.children.add(c3);
         
         c1.children.add(new HierarchyNodeModel("sub1"));
         

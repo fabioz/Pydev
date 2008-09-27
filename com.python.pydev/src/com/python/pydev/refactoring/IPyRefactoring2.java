@@ -22,10 +22,10 @@ import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
  * (used to populate the hierarchy view)
  */
 public interface IPyRefactoring2  {
-	
-	/**
-	 * @return the class hierarchy for some request.
-	 */
+    
+    /**
+     * @return the class hierarchy for some request.
+     */
     public HierarchyNodeModel findClassHierarchy(RefactoringRequest request);
     
     /**

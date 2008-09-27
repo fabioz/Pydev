@@ -152,12 +152,12 @@ public class InterpreterObserver implements IInterpreterObserver {
                         }
                     }
                     
-					if (PythonPathHelper.isValidSourceFile(key.file.getName()) || 
-					        (isZipModule && PythonPathHelper.isValidSourceFile(modulesKeyForZip.zipModulePath))) {
-					    
-					    
-					    if(i % 17 == 0){
-					        msgBuffer.clear();
+                    if (PythonPathHelper.isValidSourceFile(key.file.getName()) || 
+                            (isZipModule && PythonPathHelper.isValidSourceFile(modulesKeyForZip.zipModulePath))) {
+                        
+                        
+                        if(i % 17 == 0){
+                            msgBuffer.clear();
                             msgBuffer.append("Creating ");
                             msgBuffer.append(additionalFeedback);
                             msgBuffer.append(" additional info (" );
@@ -168,7 +168,7 @@ public class InterpreterObserver implements IInterpreterObserver {
                             msgBuffer.append(key.file.getName());
                             monitor.setTaskName(msgBuffer.toString());
                             monitor.worked(1);
-					    }
+                        }
 
                         try {
                             
@@ -231,30 +231,30 @@ public class InterpreterObserver implements IInterpreterObserver {
 
     public void notifyProjectPythonpathRestored(final PythonNature nature, IProgressMonitor monitor, final String defaultSelectedInterpreter) {
         try {
-			IModulesManager m = nature.getAstManager().getModulesManager();
-			IProject project = nature.getProject();
+            IModulesManager m = nature.getAstManager().getModulesManager();
+            IProject project = nature.getProject();
             
             AbstractAdditionalDependencyInfo currInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
             if(currInfo != null){
                 currInfo.clearAllInfo();
             }
             
-			AdditionalProjectInterpreterInfo newProjectInfo = new AdditionalProjectInterpreterInfo(project);
-			String feedback = "(project:" + project.getName() + ")";
-			synchronized(m){
-				AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) restoreInfoForModuleManager(
-						monitor, m, feedback, newProjectInfo, nature, nature.getGrammarVersion());
-	
-				if (info != null) {
-					//ok, set it and save it
-					AdditionalProjectInterpreterInfo.setAdditionalInfoForProject(project, info);
-					AdditionalProjectInterpreterInfo.saveAdditionalInfoForProject(nature);
-				}
-			}
-		} catch (Exception e) {
-			PydevPlugin.log(e);
-			throw new RuntimeException(e);
-		}
+            AdditionalProjectInterpreterInfo newProjectInfo = new AdditionalProjectInterpreterInfo(project);
+            String feedback = "(project:" + project.getName() + ")";
+            synchronized(m){
+                AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) restoreInfoForModuleManager(
+                        monitor, m, feedback, newProjectInfo, nature, nature.getGrammarVersion());
+    
+                if (info != null) {
+                    //ok, set it and save it
+                    AdditionalProjectInterpreterInfo.setAdditionalInfoForProject(project, info);
+                    AdditionalProjectInterpreterInfo.saveAdditionalInfoForProject(nature);
+                }
+            }
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+            throw new RuntimeException(e);
+        }
     }
 
     public void notifyNatureRecreated(final PythonNature nature, IProgressMonitor monitor) {

@@ -9,51 +9,51 @@ import org.osgi.framework.BundleContext;
  */
 public class CodecompletionPlugin extends AbstractUIPlugin {
 
-	//The shared instance.
-	private static CodecompletionPlugin plugin;
+    //The shared instance.
+    private static CodecompletionPlugin plugin;
 
     
     
-	/**
-	 * The constructor.
-	 */
-	public CodecompletionPlugin() {
-		plugin = this;
-	}
+    /**
+     * The constructor.
+     */
+    public CodecompletionPlugin() {
+        plugin = this;
+    }
 
-	/**
-	 * This method is called upon plug-in activation
-	 */
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
-		com.python.pydev.PydevPlugin.getDefault().checkValid();
-	}
+    /**
+     * This method is called upon plug-in activation
+     */
+    public void start(BundleContext context) throws Exception {
+        super.start(context);
+        com.python.pydev.PydevPlugin.getDefault().checkValid();
+    }
 
-	/**
-	 * This method is called when the plug-in is stopped
-	 */
-	public void stop(BundleContext context) throws Exception {
-		super.stop(context);
-		plugin = null;
-	}
+    /**
+     * This method is called when the plug-in is stopped
+     */
+    public void stop(BundleContext context) throws Exception {
+        super.stop(context);
+        plugin = null;
+    }
 
-	/**
-	 * Returns the shared instance.
-	 */
-	public static CodecompletionPlugin getDefault() {
-		return plugin;
-	}
+    /**
+     * Returns the shared instance.
+     */
+    public static CodecompletionPlugin getDefault() {
+        return plugin;
+    }
 
-	/**
-	 * Returns an image descriptor for the image file at the given
-	 * plug-in relative path.
-	 *
-	 * @param path the path
-	 * @return the image descriptor
-	 */
-	public static ImageDescriptor getImageDescriptor(String path) {
-		return AbstractUIPlugin.imageDescriptorFromPlugin("com.python.pydev.codecompletion", path);
-	}
+    /**
+     * Returns an image descriptor for the image file at the given
+     * plug-in relative path.
+     *
+     * @param path the path
+     * @return the image descriptor
+     */
+    public static ImageDescriptor getImageDescriptor(String path) {
+        return AbstractUIPlugin.imageDescriptorFromPlugin("com.python.pydev.codecompletion", path);
+    }
 
 
 }

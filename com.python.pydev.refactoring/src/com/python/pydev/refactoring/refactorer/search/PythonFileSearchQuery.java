@@ -21,82 +21,82 @@ import com.python.pydev.ui.search.FileMatch;
  * Based on the org.eclipse.search.internal.ui.text.FileSearchQuery
  */
 public class PythonFileSearchQuery extends AbstractPythonSearchQuery implements ISearchQuery {
-	
-	private final static class TextSearchResultCollector extends TextSearchRequestor {
-		
-		private final AbstractTextSearchResult fResult;
-		private final boolean fIsFileSearchOnly;
-		private final boolean fSearchInBinaries;
-		private ArrayList<Match> fCachedMatches;
-		
-		private TextSearchResultCollector(AbstractTextSearchResult result, boolean isFileSearchOnly, boolean searchInBinaries) {
-			fResult= result;
-			fIsFileSearchOnly= isFileSearchOnly;
-			fSearchInBinaries= searchInBinaries;
-			
-		}
-		
-		public boolean acceptFile(IFile file) throws CoreException {
-			if (fIsFileSearchOnly) {
-				fResult.addMatch(new FileMatch(file, 0, 0));
-			}
-			flushMatches();
-			return true;
-		}
-		
-		/* (non-Javadoc)
-		 * @see org.eclipse.search.core.text.TextSearchRequestor#reportBinaryFile(org.eclipse.core.resources.IFile)
-		 */
-		public boolean reportBinaryFile(IFile file) {
-			return fSearchInBinaries;
-		}
+    
+    private final static class TextSearchResultCollector extends TextSearchRequestor {
+        
+        private final AbstractTextSearchResult fResult;
+        private final boolean fIsFileSearchOnly;
+        private final boolean fSearchInBinaries;
+        private ArrayList<Match> fCachedMatches;
+        
+        private TextSearchResultCollector(AbstractTextSearchResult result, boolean isFileSearchOnly, boolean searchInBinaries) {
+            fResult= result;
+            fIsFileSearchOnly= isFileSearchOnly;
+            fSearchInBinaries= searchInBinaries;
+            
+        }
+        
+        public boolean acceptFile(IFile file) throws CoreException {
+            if (fIsFileSearchOnly) {
+                fResult.addMatch(new FileMatch(file, 0, 0));
+            }
+            flushMatches();
+            return true;
+        }
+        
+        /* (non-Javadoc)
+         * @see org.eclipse.search.core.text.TextSearchRequestor#reportBinaryFile(org.eclipse.core.resources.IFile)
+         */
+        public boolean reportBinaryFile(IFile file) {
+            return fSearchInBinaries;
+        }
 
-		@SuppressWarnings("unchecked")
+        @SuppressWarnings("unchecked")
         public boolean acceptPatternMatch(TextSearchMatchAccess matchRequestor) throws CoreException {
-			fCachedMatches.add(new FileMatch(matchRequestor.getFile(), matchRequestor.getMatchOffset(), matchRequestor.getMatchLength()));
-			return true;
-		}
+            fCachedMatches.add(new FileMatch(matchRequestor.getFile(), matchRequestor.getMatchOffset(), matchRequestor.getMatchLength()));
+            return true;
+        }
 
-		public void beginReporting() {
-			fCachedMatches= new ArrayList<Match>();
-		}
-		
-		public void endReporting() {
-			flushMatches();
-			fCachedMatches= null;
-		}
+        public void beginReporting() {
+            fCachedMatches= new ArrayList<Match>();
+        }
+        
+        public void endReporting() {
+            flushMatches();
+            fCachedMatches= null;
+        }
 
-		private void flushMatches() {
-			if (!fCachedMatches.isEmpty()) {
-				fResult.addMatches(fCachedMatches.toArray(new Match[fCachedMatches.size()]));
-				fCachedMatches.clear();
-			}
-		}
-	}
-	
-	private final FileTextSearchScope fScope;
-	private PythonFileSearchResult fResult;
-	
-	public PythonFileSearchQuery(String searchText, FileTextSearchScope scope) {
-		super(searchText);
-		fScope= scope;
-	}
-	
-	public FileTextSearchScope getSearchScope() {
-		return fScope;
-	}
+        private void flushMatches() {
+            if (!fCachedMatches.isEmpty()) {
+                fResult.addMatches(fCachedMatches.toArray(new Match[fCachedMatches.size()]));
+                fCachedMatches.clear();
+            }
+        }
+    }
+    
+    private final FileTextSearchScope fScope;
+    private PythonFileSearchResult fResult;
+    
+    public PythonFileSearchQuery(String searchText, FileTextSearchScope scope) {
+        super(searchText);
+        fScope= scope;
+    }
+    
+    public FileTextSearchScope getSearchScope() {
+        return fScope;
+    }
 
-	public IStatus run(final IProgressMonitor monitor) {
-		AbstractTextSearchResult textResult= (AbstractTextSearchResult) getSearchResult();
-		textResult.removeAll();
-		
-		boolean searchInBinaries= !isScopeAllFileTypes();
-		
-		TextSearchResultCollector collector= new TextSearchResultCollector(textResult, false, searchInBinaries);
-		return new PythonTextSearchVisitor(collector, getSearchString()).search(fScope, monitor);
-	}
+    public IStatus run(final IProgressMonitor monitor) {
+        AbstractTextSearchResult textResult= (AbstractTextSearchResult) getSearchResult();
+        textResult.removeAll();
+        
+        boolean searchInBinaries= !isScopeAllFileTypes();
+        
+        TextSearchResultCollector collector= new TextSearchResultCollector(textResult, false, searchInBinaries);
+        return new PythonTextSearchVisitor(collector, getSearchString()).search(fScope, monitor);
+    }
 
-	
+    
     public String getResultLabel(int nMatches) {
         String searchString= getSearchString();
         if (searchString.length() > 0) {
@@ -131,11 +131,11 @@ public class PythonFileSearchQuery extends AbstractPythonSearchQuery implements 
     }
 
 
-	public ISearchResult getSearchResult() {
-		if (fResult == null) {
-			fResult= new PythonFileSearchResult(this);
-			new PythonSearchResultUpdater(fResult);
-		}
-		return fResult;
-	}
+    public ISearchResult getSearchResult() {
+        if (fResult == null) {
+            fResult= new PythonFileSearchResult(this);
+            new PythonSearchResultUpdater(fResult);
+        }
+        return fResult;
+    }
 }

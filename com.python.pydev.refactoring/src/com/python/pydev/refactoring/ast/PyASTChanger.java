@@ -44,9 +44,9 @@ public class PyASTChanger extends AbstractPyASTChanger {
      * @param attr the attribute (that must be an array of stmtType) where the change will be done
      * @param pos the position of the array where the change should be done
      */
-	public void delStmtFromNode(SimpleNode node, String attr, int pos) {
-		changes.add(new DelStmtChange(node, attr, pos));
-	}
+    public void delStmtFromNode(SimpleNode node, String attr, int pos) {
+        changes.add(new DelStmtChange(node, attr, pos));
+    }
 
     /**
      * Adds a delete statement change

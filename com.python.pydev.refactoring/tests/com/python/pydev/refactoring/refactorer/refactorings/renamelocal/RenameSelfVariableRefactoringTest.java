@@ -88,32 +88,32 @@ public class RenameSelfVariableRefactoringTest extends RefactoringLocalTestBase{
     }
 
     public void testClassMethodRename4() throws Exception {
-    	String str ="" +
-    	"class Foo( object ):\n" +
-    	"    def __init__(self):\n" +
-    	"        self.%s = None\n" + //selected
-    	"    def SetData(self):\n" +
-    	"        self.%s.met1()\n" +
-    	"\n" +
-    	"";
-    	int line = 2;
-    	int col = 14;
-    	checkRename(str, line, col, "blaa", false, true);
+        String str ="" +
+        "class Foo( object ):\n" +
+        "    def __init__(self):\n" +
+        "        self.%s = None\n" + //selected
+        "    def SetData(self):\n" +
+        "        self.%s.met1()\n" +
+        "\n" +
+        "";
+        int line = 2;
+        int col = 14;
+        checkRename(str, line, col, "blaa", false, true);
     }
     
     public void testClassMethodRename5() throws Exception {
-    	String str ="" +
-    	"class Foo( object ):\n" +
-    	"    def __init__(self):\n" +
-    	"        self.%s = None\n" + //selected
-    	"    def SetData(self):\n" +
-    	"        self.%s.met.ff\n" +
-    	"        self.%s.met.ftt()\n" +
-    	"\n" +
-    	"";
-    	int line = 2;
-    	int col = 14;
-    	checkRename(str, line, col, "blaa", false, true);
+        String str ="" +
+        "class Foo( object ):\n" +
+        "    def __init__(self):\n" +
+        "        self.%s = None\n" + //selected
+        "    def SetData(self):\n" +
+        "        self.%s.met.ff\n" +
+        "        self.%s.met.ftt()\n" +
+        "\n" +
+        "";
+        int line = 2;
+        int col = 14;
+        checkRename(str, line, col, "blaa", false, true);
     }
     
     public void testDontRename() throws Exception {
@@ -143,16 +143,16 @@ public class RenameSelfVariableRefactoringTest extends RefactoringLocalTestBase{
     }
     
     public void testRename() throws Exception {
-    	String str ="" +
-    	"class Foo:\n"+
-		"    def _riskMaps(self):\n"+
-		"        for a in self.%s().items():\n"+
-		"            pass\n"+
-		"    def %s(self):\n"+
-		"        pass\n";
-    	int line = 2;
-    	int col = 23;
-    	checkRename(str, line, col, "riskMapNames", false, true);
+        String str ="" +
+        "class Foo:\n"+
+        "    def _riskMaps(self):\n"+
+        "        for a in self.%s().items():\n"+
+        "            pass\n"+
+        "    def %s(self):\n"+
+        "        pass\n";
+        int line = 2;
+        int col = 23;
+        checkRename(str, line, col, "riskMapNames", false, true);
     }
     
     

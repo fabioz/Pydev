@@ -43,26 +43,26 @@ import edu.umd.cs.piccolo.PNode;
  * @author Jesse Grosjean
  */
 public class PNodeLocator extends PLocator {
-	
-	protected PNode node;
+    
+    protected PNode node;
 
-	public PNodeLocator(PNode node) {
-		setNode(node);
-	}
+    public PNodeLocator(PNode node) {
+        setNode(node);
+    }
 
-	public PNode getNode() {
-		return node;
-	}
-	
-	public void setNode(PNode node) {
-		this.node = node;
-	}
+    public PNode getNode() {
+        return node;
+    }
+    
+    public void setNode(PNode node) {
+        this.node = node;
+    }
 
-	public double locateX() {
-		return node.getBoundsReference().getCenterX();
-	}
+    public double locateX() {
+        return node.getBoundsReference().getCenterX();
+    }
 
-	public double locateY() {
-		return node.getBoundsReference().getCenterY();
-	}
+    public double locateY() {
+        return node.getBoundsReference().getCenterY();
+    }
 }

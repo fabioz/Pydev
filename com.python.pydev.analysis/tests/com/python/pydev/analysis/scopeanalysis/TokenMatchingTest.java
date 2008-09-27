@@ -15,7 +15,7 @@ public class TokenMatchingTest extends TestCase {
 
     public void testSearch() throws Exception {
         
-    	TokenMatching s = new TokenMatching("foo");
+        TokenMatching s = new TokenMatching("foo");
         assertTrue(s.hasMatch("foo"));
         assertTrue(s.hasMatch(" foo"));
         assertTrue(s.hasMatch("foo "));
@@ -33,26 +33,26 @@ public class TokenMatchingTest extends TestCase {
     }
     
     public void testMatches() throws Exception {
-    	final ArrayList<Integer> offsets = new ArrayList<Integer>();
-		TextSearchRequestor textSearchRequestor = new TextSearchRequestor(){
-			@Override
-			public boolean acceptPatternMatch(TextSearchMatchAccess matchAccess) throws CoreException {
-				offsets.add(matchAccess.getMatchOffset());
-				return true;
-			}
-		};
-		TokenMatching matching = new TokenMatching(textSearchRequestor, "foo");
-		matching.collectMatches(null, "foo , foo fooba, afoo, foo)a", new NullProgressMonitor(), false);
-		compare(new Integer[]{0, 6, 23}, offsets);
-		
-		compare(new Integer[]{0, 6, 23}, TokenMatching.getMatchOffsets("foo", "foo , foo fooba, afoo, foo)a"));
-	}
+        final ArrayList<Integer> offsets = new ArrayList<Integer>();
+        TextSearchRequestor textSearchRequestor = new TextSearchRequestor(){
+            @Override
+            public boolean acceptPatternMatch(TextSearchMatchAccess matchAccess) throws CoreException {
+                offsets.add(matchAccess.getMatchOffset());
+                return true;
+            }
+        };
+        TokenMatching matching = new TokenMatching(textSearchRequestor, "foo");
+        matching.collectMatches(null, "foo , foo fooba, afoo, foo)a", new NullProgressMonitor(), false);
+        compare(new Integer[]{0, 6, 23}, offsets);
+        
+        compare(new Integer[]{0, 6, 23}, TokenMatching.getMatchOffsets("foo", "foo , foo fooba, afoo, foo)a"));
+    }
 
-	private void compare(Integer[] is, ArrayList<Integer> offsets) {
-		for(int i=0;i<is.length;i++){
-			if(!is[i].equals(offsets.get(i))){
-				fail(StringUtils.format("%s != %s (%s)", is[i], offsets.get(i), Arrays.deepToString(is)+" differs from "+offsets));
-			}
-		}
-	}
+    private void compare(Integer[] is, ArrayList<Integer> offsets) {
+        for(int i=0;i<is.length;i++){
+            if(!is[i].equals(offsets.get(i))){
+                fail(StringUtils.format("%s != %s (%s)", is[i], offsets.get(i), Arrays.deepToString(is)+" differs from "+offsets));
+            }
+        }
+    }
 }

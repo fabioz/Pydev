@@ -35,57 +35,57 @@ import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PPickPath;
 
 public class PStickyHandleManager extends PNode {
-	
-	private PNode target;
-	private PCamera camera;
-	private boolean isResizing;
-		
-	public PStickyHandleManager(PCamera newCamera, PNode newTarget) {		
-		setCameraTarget(newCamera, newTarget);		
-		PBoundsHandle.addBoundsHandlesTo(this);
-	}
+    
+    private PNode target;
+    private PCamera camera;
+    private boolean isResizing;
+        
+    public PStickyHandleManager(PCamera newCamera, PNode newTarget) {        
+        setCameraTarget(newCamera, newTarget);        
+        PBoundsHandle.addBoundsHandlesTo(this);
+    }
 
-	public void setCameraTarget(PCamera newCamera, PNode newTarget) {
-		camera = newCamera;
-		camera.addChild(this);
-		target = newTarget;
-	}
-	
-	public boolean setBounds(double x, double y, double width, double height) {
-		PBounds b = new PBounds(x, y, width, height);
-		camera.localToGlobal(b);
-		camera.localToView(b);
-		target.globalToLocal(b);
-		target.setBounds(b);
-		return super.setBounds(x, y, width, height);
-	}
-	
-	protected boolean getBoundsVolatile() {
-		return true;
-	}
+    public void setCameraTarget(PCamera newCamera, PNode newTarget) {
+        camera = newCamera;
+        camera.addChild(this);
+        target = newTarget;
+    }
+    
+    public boolean setBounds(double x, double y, double width, double height) {
+        PBounds b = new PBounds(x, y, width, height);
+        camera.localToGlobal(b);
+        camera.localToView(b);
+        target.globalToLocal(b);
+        target.setBounds(b);
+        return super.setBounds(x, y, width, height);
+    }
+    
+    protected boolean getBoundsVolatile() {
+        return true;
+    }
 
-	public PBounds getBoundsReference() {
-		PBounds targetBounds = target.getFullBounds();
-		camera.viewToLocal(targetBounds);
-		camera.globalToLocal(targetBounds);
-		PBounds bounds = super.getBoundsReference();
-		bounds.setRect(targetBounds);
-		return super.getBoundsReference();
-	}
+    public PBounds getBoundsReference() {
+        PBounds targetBounds = target.getFullBounds();
+        camera.viewToLocal(targetBounds);
+        camera.globalToLocal(targetBounds);
+        PBounds bounds = super.getBoundsReference();
+        bounds.setRect(targetBounds);
+        return super.getBoundsReference();
+    }
 
-	public void startResizeBounds() {
-		super.startResizeBounds();
-		target.startResizeBounds();
-		isResizing = true;
-	}
+    public void startResizeBounds() {
+        super.startResizeBounds();
+        target.startResizeBounds();
+        isResizing = true;
+    }
 
-	public void endResizeBounds() {
-		super.endResizeBounds();
-		target.endResizeBounds();
-		isResizing = false;
-	}
+    public void endResizeBounds() {
+        super.endResizeBounds();
+        target.endResizeBounds();
+        isResizing = false;
+    }
 
-	public boolean pickAfterChildren(PPickPath pickPath) {
-		return false;
-	}
+    public boolean pickAfterChildren(PPickPath pickPath) {
+        return false;
+    }
 }

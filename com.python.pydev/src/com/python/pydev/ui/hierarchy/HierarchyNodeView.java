@@ -30,11 +30,11 @@ import edu.umd.cs.piccolox.swt.PSWTText;
 public class HierarchyNodeView {
     public PSWTPath node;
     public HierarchyNodeModel model;
-	public Color initialColor;
-	public List<HierarchyNodeViewListener> listeners = new ArrayList<HierarchyNodeViewListener>();
+    public Color initialColor;
+    public List<HierarchyNodeViewListener> listeners = new ArrayList<HierarchyNodeViewListener>();
     
     public HierarchyNodeView(PSWTCanvas canvas, HierarchyNodeModel model, double x, double y) {
-    	this(canvas, model, x, y, Color.WHITE);
+        this(canvas, model, x, y, Color.WHITE);
     }
 
     protected void onClick(PInputEvent event) {
@@ -51,8 +51,8 @@ public class HierarchyNodeView {
      * Creates the node based on its starting position.
      */
     public HierarchyNodeView(PSWTCanvas canvas, HierarchyNodeModel model, double x, double y, Color initialColor) {
-    	this.model = model;
-    	this.initialColor = initialColor;
+        this.model = model;
+        this.initialColor = initialColor;
         Image classImg = PydevPlugin.getImageCache().get(UIConstants.CLASS_ICON);
         final PSWTImage img = new PSWTImage(canvas, classImg, false); //do not dispose it.
         img.translate(0+x, 5+y);
@@ -70,8 +70,8 @@ public class HierarchyNodeView {
         rect.addInputEventListener(new PBasicInputEventHandler(){
             @Override
             public void mouseEntered(PInputEvent event) {
-            	Color c = HierarchyNodeView.this.initialColor;
-            	Color c1 = new Color(c.getRed()-20, c.getBlue()-20, c.getGreen()-20);
+                Color c = HierarchyNodeView.this.initialColor;
+                Color c1 = new Color(c.getRed()-20, c.getBlue()-20, c.getGreen()-20);
                 rect.setPaint(c1);
             }
             @Override
@@ -99,16 +99,16 @@ public class HierarchyNodeView {
     
     @Override
     public String toString() {
-    	return "Node View["+model.name+"]";
+        return "Node View["+model.name+"]";
     }
     
     @Override
     public int hashCode() {
-    	return model.hashCode();
+        return model.hashCode();
     }
     
     @Override
     public boolean equals(Object obj) {
-    	return model.equals(((HierarchyNodeView)obj).model);
+        return model.equals(((HierarchyNodeView)obj).model);
     }
 }

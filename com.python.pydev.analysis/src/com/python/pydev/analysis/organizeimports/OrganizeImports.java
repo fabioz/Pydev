@@ -205,7 +205,7 @@ public class OrganizeImports implements IOrganizeImports{
      * @return the markers representing undefined variables found in the editor.
      */
     @SuppressWarnings("unchecked")
-	private ArrayList<IMarker> getUndefinedVariableMarkers(final PyEdit edit) {
+    private ArrayList<IMarker> getUndefinedVariableMarkers(final PyEdit edit) {
         PySourceViewer s = edit.getPySourceViewer();
         
         ArrayList<IMarker> undefinedVariablesMarkers = new ArrayList<IMarker>();
@@ -214,12 +214,12 @@ public class OrganizeImports implements IOrganizeImports{
         
         //get the markers we are interested in (undefined variables)
         while(it.hasNext()){
-        	Object ann=it.next();
-        	if(!(ann instanceof MarkerAnnotation)){
-        		continue;
-        	}
-			MarkerAnnotation markerAnnotation = (MarkerAnnotation) ann;
-			IMarker marker = markerAnnotation.getMarker();
+            Object ann=it.next();
+            if(!(ann instanceof MarkerAnnotation)){
+                continue;
+            }
+            MarkerAnnotation markerAnnotation = (MarkerAnnotation) ann;
+            IMarker marker = markerAnnotation.getMarker();
             try {
                 String type = marker.getType();
                 if(type != null && type.equals(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER)){

@@ -6,7 +6,7 @@ import org.eclipse.search.ui.ISearchQuery;
 public abstract class AbstractPythonSearchQuery extends FileSearchQuery implements ISearchQuery{
 
     public AbstractPythonSearchQuery(String searchText) {
-    	super(searchText, false, true, null);
+        super(searchText, false, true, null);
     }
     public boolean canRerun() {
         return false;

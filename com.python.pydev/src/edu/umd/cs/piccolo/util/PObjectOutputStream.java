@@ -64,58 +64,58 @@ import java.util.HashMap;
  */
 public class PObjectOutputStream extends ObjectOutputStream {
 
-	private boolean writingRoot;
-	private HashMap unconditionallyWritten;
+    private boolean writingRoot;
+    private HashMap unconditionallyWritten;
 
-	public static byte[] toByteArray(Object aRoot) throws IOException {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		PObjectOutputStream zout = new PObjectOutputStream(out);
-		zout.writeObjectTree(aRoot);
-		return out.toByteArray();
-	}
-	
-	public PObjectOutputStream(OutputStream out) throws IOException {
-		super(out);
-		unconditionallyWritten = new HashMap();
-	}
+    public static byte[] toByteArray(Object aRoot) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PObjectOutputStream zout = new PObjectOutputStream(out);
+        zout.writeObjectTree(aRoot);
+        return out.toByteArray();
+    }
+    
+    public PObjectOutputStream(OutputStream out) throws IOException {
+        super(out);
+        unconditionallyWritten = new HashMap();
+    }
 
-	public void writeObjectTree(Object aRoot) throws IOException {
-		writingRoot = true;
-		recordUnconditionallyWritten(aRoot); // record pass
-		writeObject(aRoot); 				 // write pass
-		writingRoot = false;
-	}
+    public void writeObjectTree(Object aRoot) throws IOException {
+        writingRoot = true;
+        recordUnconditionallyWritten(aRoot); // record pass
+        writeObject(aRoot);                  // write pass
+        writingRoot = false;
+    }
 
-	public void writeConditionalObject(Object object) throws IOException {
-		if (!writingRoot) {
-			throw new RuntimeException("writeConditionalObject() may only be called when a root object has been written.");
-		}
-		
-		if (unconditionallyWritten.containsKey(object)) {
-			writeObject(object);
-		} else {
-			writeObject(null);
-		}
-	}
+    public void writeConditionalObject(Object object) throws IOException {
+        if (!writingRoot) {
+            throw new RuntimeException("writeConditionalObject() may only be called when a root object has been written.");
+        }
+        
+        if (unconditionallyWritten.containsKey(object)) {
+            writeObject(object);
+        } else {
+            writeObject(null);
+        }
+    }
 
-	public void reset() throws IOException {
-		super.reset();
-		unconditionallyWritten.clear();
-	}
+    public void reset() throws IOException {
+        super.reset();
+        unconditionallyWritten.clear();
+    }
 
-	protected void recordUnconditionallyWritten(Object aRoot) throws IOException {
-		class ZMarkObjectOutputStream extends PObjectOutputStream {
-			public ZMarkObjectOutputStream() throws IOException {
-				super(PUtil.NULL_OUTPUT_STREAM);
-				enableReplaceObject(true);
-			}
-			public Object replaceObject(Object object) {
-				PObjectOutputStream.this.unconditionallyWritten.put(object, Boolean.TRUE);
-				return object;
-			}	
-			public void writeConditionalObject(Object object) throws IOException {
-			}				
-		}
-		new ZMarkObjectOutputStream().writeObject(aRoot);
-	}
+    protected void recordUnconditionallyWritten(Object aRoot) throws IOException {
+        class ZMarkObjectOutputStream extends PObjectOutputStream {
+            public ZMarkObjectOutputStream() throws IOException {
+                super(PUtil.NULL_OUTPUT_STREAM);
+                enableReplaceObject(true);
+            }
+            public Object replaceObject(Object object) {
+                PObjectOutputStream.this.unconditionallyWritten.put(object, Boolean.TRUE);
+                return object;
+            }    
+            public void writeConditionalObject(Object object) throws IOException {
+            }                
+        }
+        new ZMarkObjectOutputStream().writeObject(aRoot);
+    }
 }

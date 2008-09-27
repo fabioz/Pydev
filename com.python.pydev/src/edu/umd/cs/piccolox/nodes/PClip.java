@@ -49,69 +49,69 @@ import edu.umd.cs.piccolo.util.PPickPath;
  */
 public class PClip extends PPath {
 
-	public PBounds computeFullBounds(PBounds dstBounds) {
-		if (dstBounds == null) dstBounds = new PBounds();
-		dstBounds.reset();
-		dstBounds.add(getBoundsReference());
-		localToParent(dstBounds);
-		return dstBounds;
-	}
+    public PBounds computeFullBounds(PBounds dstBounds) {
+        if (dstBounds == null) dstBounds = new PBounds();
+        dstBounds.reset();
+        dstBounds.add(getBoundsReference());
+        localToParent(dstBounds);
+        return dstBounds;
+    }
 
-	public void repaintFrom(PBounds localBounds, PNode childOrThis) {
-		if (childOrThis != this) {
-			Rectangle2D.intersect(getBoundsReference(), localBounds, localBounds);
-			super.repaintFrom(localBounds, childOrThis);
-		} else {
-			super.repaintFrom(localBounds, childOrThis);
-		}
-	}
+    public void repaintFrom(PBounds localBounds, PNode childOrThis) {
+        if (childOrThis != this) {
+            Rectangle2D.intersect(getBoundsReference(), localBounds, localBounds);
+            super.repaintFrom(localBounds, childOrThis);
+        } else {
+            super.repaintFrom(localBounds, childOrThis);
+        }
+    }
 
-	protected void paint(PPaintContext paintContext) {
-		Paint p = getPaint();			
-		if (p != null) {
-			Graphics2D g2 = paintContext.getGraphics();
-			g2.setPaint(p);
-			g2.fill(getPathReference());
-		}
-		paintContext.pushClip(getPathReference());
-	}
-	
-	protected void paintAfterChildren(PPaintContext paintContext) {
-		paintContext.popClip(getPathReference());
-		if (getStroke() != null && getStrokePaint() != null) {
-			Graphics2D g2 = paintContext.getGraphics();
-			g2.setPaint(getStrokePaint());
-			g2.setStroke(getStroke());
-			g2.draw(getPathReference());
-		}		
-	}
-	
-	public boolean fullPick(PPickPath pickPath) {
-		if (getPickable() && fullIntersects(pickPath.getPickBounds())) {
-			pickPath.pushNode(this);
-			pickPath.pushTransform(getTransformReference(false));
-			
-			if (pick(pickPath)) {
-				return true;
-			}
-			
-			if (getChildrenPickable() && getPathReference().intersects(pickPath.getPickBounds())) { 		
-				int count = getChildrenCount();
-				for (int i = count - 1; i >= 0; i--) {
-					PNode each = getChild(i);
-					if (each.fullPick(pickPath))
-						return true;
-				}				
-			}
+    protected void paint(PPaintContext paintContext) {
+        Paint p = getPaint();            
+        if (p != null) {
+            Graphics2D g2 = paintContext.getGraphics();
+            g2.setPaint(p);
+            g2.fill(getPathReference());
+        }
+        paintContext.pushClip(getPathReference());
+    }
+    
+    protected void paintAfterChildren(PPaintContext paintContext) {
+        paintContext.popClip(getPathReference());
+        if (getStroke() != null && getStrokePaint() != null) {
+            Graphics2D g2 = paintContext.getGraphics();
+            g2.setPaint(getStrokePaint());
+            g2.setStroke(getStroke());
+            g2.draw(getPathReference());
+        }        
+    }
+    
+    public boolean fullPick(PPickPath pickPath) {
+        if (getPickable() && fullIntersects(pickPath.getPickBounds())) {
+            pickPath.pushNode(this);
+            pickPath.pushTransform(getTransformReference(false));
+            
+            if (pick(pickPath)) {
+                return true;
+            }
+            
+            if (getChildrenPickable() && getPathReference().intersects(pickPath.getPickBounds())) {         
+                int count = getChildrenCount();
+                for (int i = count - 1; i >= 0; i--) {
+                    PNode each = getChild(i);
+                    if (each.fullPick(pickPath))
+                        return true;
+                }                
+            }
 
-			if (pickAfterChildren(pickPath)) {
-				return true;
-			}
+            if (pickAfterChildren(pickPath)) {
+                return true;
+            }
 
-			pickPath.popTransform(getTransformReference(false));
-			pickPath.popNode(this);
-		}
+            pickPath.popTransform(getTransformReference(false));
+            pickPath.popNode(this);
+        }
 
-		return false;
-	}	
+        return false;
+    }    
 }

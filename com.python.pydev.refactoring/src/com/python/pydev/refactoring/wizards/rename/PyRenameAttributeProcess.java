@@ -21,7 +21,7 @@ public class PyRenameAttributeProcess extends AbstractRenameWorkspaceRefactorPro
     /**
      * Target is the full name. E.g.: foo.bar (and the initialName would be just 'bar')
      */
-	private String target;
+    private String target;
 
     public PyRenameAttributeProcess(Definition definition, String target) {
         super(definition);
@@ -31,16 +31,16 @@ public class PyRenameAttributeProcess extends AbstractRenameWorkspaceRefactorPro
 
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         SimpleNode ast = request.getAST();
-		
+        
         List<ASTEntry> attributeOccurrences = new ArrayList<ASTEntry>(); 
         attributeOccurrences.addAll(ScopeAnalysis.getAttributeOccurrences(this.target, ast));
-		attributeOccurrences.addAll(ScopeAnalysis.getAttributeReferences(this.target, ast));
-		if(attributeOccurrences.size() > 0){
-			//only add comments and strings if there's at least some other occurrence
-	        attributeOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, ast));
-	        attributeOccurrences.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, ast));
-		}
-		addOccurrences(request, attributeOccurrences);
+        attributeOccurrences.addAll(ScopeAnalysis.getAttributeReferences(this.target, ast));
+        if(attributeOccurrences.size() > 0){
+            //only add comments and strings if there's at least some other occurrence
+            attributeOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, ast));
+            attributeOccurrences.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, ast));
+        }
+        addOccurrences(request, attributeOccurrences);
     }
 
 

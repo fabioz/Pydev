@@ -29,10 +29,10 @@ import com.python.pydev.analysis.additionalinfo.IInfo;
 
 public class PyGlobalsBrowser extends PyAction{
 
-	public void run(IAction action) {
-		//check org.eclipse.jdt.internal.ui.dialogs.OpenTypeSelectionDialog2 (this is the class that does it for java)
+    public void run(IAction action) {
+        //check org.eclipse.jdt.internal.ui.dialogs.OpenTypeSelectionDialog2 (this is the class that does it for java)
         
-		IPythonNature pythonNature = getPyEdit().getPythonNature();
+        IPythonNature pythonNature = getPyEdit().getPythonNature();
         PySelection ps = new PySelection(this.getPyEdit());
         String selectedText = ps.getSelectedText();
 
@@ -46,7 +46,7 @@ public class PyGlobalsBrowser extends PyAction{
         }
         
 
-	}
+    }
 
     /**
      * @param selectedText the text that should be selected in the begginning (may be null)
@@ -143,7 +143,7 @@ public class PyGlobalsBrowser extends PyAction{
                 //try to find in one of the natures...
                 ICodeCompletionASTManager astManager = pythonNature.getAstManager();
                 if(astManager == null){
-                	continue;
+                    continue;
                 }
                 AnalysisPlugin.getDefinitionFromIInfo(pointers, astManager, pythonNature, entry, completionCache);
                 if(pointers.size() > 0){

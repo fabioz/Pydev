@@ -244,14 +244,14 @@ public abstract class PyChange extends Change {
     
     private static ITextFileBuffer getBuffer(IFile file) {
         try {
-			ITextFileBufferManager manager=ITextFileBufferManager.DEFAULT;
-			return manager.getTextFileBuffer(file.getFullPath(), org.eclipse.core.filebuffers.LocationKind.IFILE);
+            ITextFileBufferManager manager=ITextFileBufferManager.DEFAULT;
+            return manager.getTextFileBuffer(file.getFullPath(), org.eclipse.core.filebuffers.LocationKind.IFILE);
         }catch(Throwable e){//NoSuchMethod/NoClassDef exception 
             if(e instanceof ClassNotFoundException || e instanceof LinkageError || e instanceof NoSuchMethodException || 
-            		e instanceof NoSuchMethodError || e instanceof NoClassDefFoundError){
-            	return null; // that's ok -- not available in Eclipse 3.2
+                    e instanceof NoSuchMethodError || e instanceof NoClassDefFoundError){
+                return null; // that's ok -- not available in Eclipse 3.2
             }
-			throw new RuntimeException(e);
-		}
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -16,62 +16,62 @@ import org.eclipse.search.ui.text.Match;
 import org.python.pydev.plugin.PydevPlugin;
 
 public class PythonSearchResultUpdater implements IResourceChangeListener, IQueryListener {
-	private AbstractTextSearchResult fResult;
+    private AbstractTextSearchResult fResult;
 
-	public PythonSearchResultUpdater(AbstractTextSearchResult result) {
-		fResult= result;
-		NewSearchUI.addQueryListener(this);
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
-	}
+    public PythonSearchResultUpdater(AbstractTextSearchResult result) {
+        fResult= result;
+        NewSearchUI.addQueryListener(this);
+        ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
+    }
 
-	public void resourceChanged(IResourceChangeEvent event) {
-		IResourceDelta delta= event.getDelta();
-		if (delta != null)
-			handleDelta(delta);
-	}
+    public void resourceChanged(IResourceChangeEvent event) {
+        IResourceDelta delta= event.getDelta();
+        if (delta != null)
+            handleDelta(delta);
+    }
 
-	private void handleDelta(IResourceDelta d) {
-		try {
-			d.accept(new IResourceDeltaVisitor() {
-				public boolean visit(IResourceDelta delta) throws CoreException {
-					switch (delta.getKind()) {
-						case IResourceDelta.ADDED :
-							return false;
-						case IResourceDelta.REMOVED :
-							IResource res= delta.getResource();
-							if (res instanceof IFile) {
-								Match[] matches= fResult.getMatches(res);
-								fResult.removeMatches(matches);
-							}
-							break;
-						case IResourceDelta.CHANGED :
-							// handle changed resource
-							break;
-					}
-					return true;
-				}
-			});
-		} catch (CoreException e) {
-			PydevPlugin.log(e);
-		}
-	}
+    private void handleDelta(IResourceDelta d) {
+        try {
+            d.accept(new IResourceDeltaVisitor() {
+                public boolean visit(IResourceDelta delta) throws CoreException {
+                    switch (delta.getKind()) {
+                        case IResourceDelta.ADDED :
+                            return false;
+                        case IResourceDelta.REMOVED :
+                            IResource res= delta.getResource();
+                            if (res instanceof IFile) {
+                                Match[] matches= fResult.getMatches(res);
+                                fResult.removeMatches(matches);
+                            }
+                            break;
+                        case IResourceDelta.CHANGED :
+                            // handle changed resource
+                            break;
+                    }
+                    return true;
+                }
+            });
+        } catch (CoreException e) {
+            PydevPlugin.log(e);
+        }
+    }
 
-	public void queryAdded(ISearchQuery query) {
-		// don't care
-	}
+    public void queryAdded(ISearchQuery query) {
+        // don't care
+    }
 
-	public void queryRemoved(ISearchQuery query) {
-		if (fResult.equals(query.getSearchResult())) {
-			ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
-			NewSearchUI.removeQueryListener(this);
-		}
-	}
-	
-	public void queryStarting(ISearchQuery query) {
-		// don't care
-	}
+    public void queryRemoved(ISearchQuery query) {
+        if (fResult.equals(query.getSearchResult())) {
+            ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
+            NewSearchUI.removeQueryListener(this);
+        }
+    }
+    
+    public void queryStarting(ISearchQuery query) {
+        // don't care
+    }
 
-	public void queryFinished(ISearchQuery query) {
-		// don't care
-	}
+    public void queryFinished(ISearchQuery query) {
+        // don't care
+    }
 }

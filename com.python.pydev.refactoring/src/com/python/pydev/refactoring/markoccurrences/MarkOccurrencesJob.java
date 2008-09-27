@@ -82,11 +82,11 @@ public class MarkOccurrencesJob extends Job{
     private PySelection ps;
     
     private MarkOccurrencesJob(WeakReference<PyEdit> editor, PySelection ps) {
-    	super("MarkOccurrencesJob");
-    	setPriority(Job.BUILD);
-    	setSystem(true);
-    	this.editor = editor;
-    	this.ps = ps;
+        super("MarkOccurrencesJob");
+        setPriority(Job.BUILD);
+        setSystem(true);
+        this.editor = editor;
+        this.ps = ps;
         currRequestTime = System.currentTimeMillis();
     }
 
@@ -111,21 +111,21 @@ public class MarkOccurrencesJob extends Job{
                 return Status.OK_STATUS;
             }
             try{
-	            IDocumentProvider documentProvider = pyEdit.getDocumentProvider();
-	            if(documentProvider == null || monitor.isCanceled()){
-	            	return Status.OK_STATUS;
-	            }
-	            
-	            IAnnotationModel annotationModel= documentProvider.getAnnotationModel(pyEdit.getEditorInput());
-	            if(annotationModel == null || monitor.isCanceled()){
-	            	return Status.OK_STATUS;
-	            }
-	            
+                IDocumentProvider documentProvider = pyEdit.getDocumentProvider();
+                if(documentProvider == null || monitor.isCanceled()){
+                    return Status.OK_STATUS;
+                }
+                
+                IAnnotationModel annotationModel= documentProvider.getAnnotationModel(pyEdit.getEditorInput());
+                if(annotationModel == null || monitor.isCanceled()){
+                    return Status.OK_STATUS;
+                }
+                
 
-	            Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean> ret = checkAnnotations(pyEdit, documentProvider, monitor);
-	            if(pyEdit.cache == null || monitor.isCanceled()){ //disposed (cannot add or remove annotations)
-	            	return Status.OK_STATUS;
-	            }
+                Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean> ret = checkAnnotations(pyEdit, documentProvider, monitor);
+                if(pyEdit.cache == null || monitor.isCanceled()){ //disposed (cannot add or remove annotations)
+                    return Status.OK_STATUS;
+                }
                 
                 PySourceViewer viewer = pyEdit.getPySourceViewer();
                 if(viewer == null || monitor.isCanceled()){
@@ -135,14 +135,14 @@ public class MarkOccurrencesJob extends Job{
                     return Status.OK_STATUS;
                 }
                 
-	            if(ret.o3){
-	            	if(!addAnnotations(pyEdit, annotationModel, ret.o1, ret.o2)){
-	            		//something went wrong, so, let's remove the occurrences
-	            		removeOccurenceAnnotations(annotationModel, pyEdit);
-	            	}
-	            }else{
-	            	removeOccurenceAnnotations(annotationModel, pyEdit);
-	            }
+                if(ret.o3){
+                    if(!addAnnotations(pyEdit, annotationModel, ret.o1, ret.o2)){
+                        //something went wrong, so, let's remove the occurrences
+                        removeOccurenceAnnotations(annotationModel, pyEdit);
+                    }
+                }else{
+                    removeOccurenceAnnotations(annotationModel, pyEdit);
+                }
             } catch (OperationCanceledException e) {
                 throw e;//rethrow this error...
             } catch (AssertionFailedException e) {
@@ -164,8 +164,8 @@ public class MarkOccurrencesJob extends Job{
 //                if(e instanceof BadLocationException){
 //                    //ignore (may have changed during the analysis)
 //                }else{
-//                	Log.log(initialE);
-//                	Log.log("Error while analyzing the file:"+pyEdit.getIFile());
+//                    Log.log(initialE);
+//                    Log.log("Error while analyzing the file:"+pyEdit.getIFile());
 //                }
             }
             
@@ -179,23 +179,23 @@ public class MarkOccurrencesJob extends Job{
      * @return a tuple with the refactoring request, the processor and a boolean indicating if all pre-conditions succedded.
      */
     private Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean> checkAnnotations(PyEdit pyEdit, 
-    		IDocumentProvider documentProvider, IProgressMonitor monitor) throws BadLocationException, OperationCanceledException, CoreException {
+            IDocumentProvider documentProvider, IProgressMonitor monitor) throws BadLocationException, OperationCanceledException, CoreException {
         if(!MarkOccurrencesPreferencesPage.useMarkOccurrences()){
-        	return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(null,null,false);
+            return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(null,null,false);
         }
 
         //now, let's see if the editor still has a document (so that we still can add stuff to it)
         IEditorInput editorInput = pyEdit.getEditorInput();
         if(editorInput == null){
-        	return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(null,null,false);
+            return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(null,null,false);
         }
         
         if(documentProvider.getDocument(editorInput) == null){
-        	return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(null,null,false);
+            return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(null,null,false);
         }
         
         if(pyEdit.getSelectionProvider() == null){
-        	return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(null,null,false);
+            return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(null,null,false);
         }
         
         //ok, the editor is still there wit ha document... move on
@@ -204,35 +204,35 @@ public class MarkOccurrencesJob extends Job{
         final RefactoringRequest req = getRefactoringRequest(pyEdit, pyRefactorAction, this.ps);
         
         if(req == null || !req.nature.getRelatedInterpreterManager().isConfigured()){ //we check if it's configured because it may still be a stub...
-        	return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(null,null,false);
+            return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(null,null,false);
         }
         
         PyRenameEntryPoint processor = new PyRenameEntryPoint(req);
         //to see if a new request was not created in the meantime (in which case this one will be cancelled)
         if (currRequestTime != lastRequestTime || monitor.isCanceled()) {
-        	return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(null,null,false);
+            return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(null,null,false);
         }
         
         try{
-	        processor.checkInitialConditions(monitor);
-	        if (currRequestTime != lastRequestTime || monitor.isCanceled()) {
-	        	return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(null,null,false);
-	        }
-	        
-	        processor.checkFinalConditions(monitor, null);
-	        if (currRequestTime != lastRequestTime || monitor.isCanceled()) {
-	        	return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(null,null,false);
-	        }
-	        
-	        //ok, pre-conditions suceeded
-			return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(req,processor,true);
+            processor.checkInitialConditions(monitor);
+            if (currRequestTime != lastRequestTime || monitor.isCanceled()) {
+                return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(null,null,false);
+            }
+            
+            processor.checkFinalConditions(monitor, null);
+            if (currRequestTime != lastRequestTime || monitor.isCanceled()) {
+                return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(null,null,false);
+            }
+            
+            //ok, pre-conditions suceeded
+            return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(req,processor,true);
         }catch(Throwable e){
-        	throw new RuntimeException("Error in occurrences while analyzing modName:"+req.moduleName+" initialName:"+req.initialName+" line (start at 0):"+req.ps.getCursorLine(), e);
+            throw new RuntimeException("Error in occurrences while analyzing modName:"+req.moduleName+" initialName:"+req.initialName+" line (start at 0):"+req.ps.getCursorLine(), e);
         }
-	}
+    }
 
-	/**
-	 * @return true if the annotations were removed and added without any problems and false otherwise
+    /**
+     * @return true if the annotations were removed and added without any problems and false otherwise
      */
     private synchronized boolean addAnnotations(final PyEdit pyEdit, IAnnotationModel annotationModel, final RefactoringRequest req, PyRenameEntryPoint processor) throws BadLocationException {
         HashSet<ASTEntry> occurrences = processor.getOccurrences();
@@ -315,7 +315,7 @@ public class MarkOccurrencesJob extends Job{
      * @return a refactoring request suitable for finding the locals in the file
      * @throws BadLocationException
      */
-	public static RefactoringRequest getRefactoringRequest(final PyEdit pyEdit, PyRefactorAction pyRefactorAction, PySelection ps) throws BadLocationException {
+    public static RefactoringRequest getRefactoringRequest(final PyEdit pyEdit, PyRefactorAction pyRefactorAction, PySelection ps) throws BadLocationException {
         final RefactoringRequest req = pyRefactorAction.getRefactoringRequest();
         req.ps = ps;
         req.fillInitialNameAndOffset();
@@ -356,7 +356,7 @@ public class MarkOccurrencesJob extends Job{
      * @param annotationModel
      */
     @SuppressWarnings("unchecked")
-	private synchronized void removeOccurenceAnnotations(IAnnotationModel annotationModel, PyEdit pyEdit) {
+    private synchronized void removeOccurenceAnnotations(IAnnotationModel annotationModel, PyEdit pyEdit) {
         //remove the annotations
         Map<String, Object> cache = pyEdit.cache;
         if(cache == null){
@@ -388,7 +388,7 @@ public class MarkOccurrencesJob extends Job{
                         annotationModel.removeAnnotation(annotationIterator.next());
                     }
                 }
-            	cache.put(PydevPlugin.ANNOTATIONS_CACHE_KEY, null);
+                cache.put(PydevPlugin.ANNOTATIONS_CACHE_KEY, null);
             }
             //end remove the annotations
         } finally {
@@ -414,10 +414,10 @@ public class MarkOccurrencesJob extends Job{
     public static synchronized void scheduleRequest(WeakReference<PyEdit> editor2, PySelection ps) {
         MarkOccurrencesJob j = singleton;
         if(j != null){
-        	synchronized (j) {
-        		j.cancel();
-        		singleton = null;
-			}
+            synchronized (j) {
+                j.cancel();
+                singleton = null;
+            }
         }
         singleton = new MarkOccurrencesJob(editor2, ps);
         singleton.schedule(750);

@@ -17,48 +17,48 @@ import com.python.pydev.debug.ui.launching.PydevdServerLaunchShortcut;
  * @see IWorkbenchWindowActionDelegate
  */
 public class StartDebugServer implements IWorkbenchWindowActionDelegate {
-	/**
-	 * The constructor.
-	 */
-	public StartDebugServer() {
-	}
+    /**
+     * The constructor.
+     */
+    public StartDebugServer() {
+    }
 
-	/**
-	 * The action has been activated. The argument of the
-	 * method represents the 'real' action sitting
-	 * in the workbench UI.
-	 * @see IWorkbenchWindowActionDelegate#run
-	 */
-	public void run(IAction action) {
-		PydevdServerLaunchShortcut s = new PydevdServerLaunchShortcut();
-		s.launch(null,"run","");
-		
-		RemoteDebuggerServer.getInstance(); //doing that, it will automatically start it
-	}
+    /**
+     * The action has been activated. The argument of the
+     * method represents the 'real' action sitting
+     * in the workbench UI.
+     * @see IWorkbenchWindowActionDelegate#run
+     */
+    public void run(IAction action) {
+        PydevdServerLaunchShortcut s = new PydevdServerLaunchShortcut();
+        s.launch(null,"run","");
+        
+        RemoteDebuggerServer.getInstance(); //doing that, it will automatically start it
+    }
 
-	/**
-	 * Selection in the workbench has been changed. We 
-	 * can change the state of the 'real' action here
-	 * if we want, but this can only happen after 
-	 * the delegate has been created.
-	 * @see IWorkbenchWindowActionDelegate#selectionChanged
-	 */
-	public void selectionChanged(IAction action, ISelection selection) {
-	}
+    /**
+     * Selection in the workbench has been changed. We 
+     * can change the state of the 'real' action here
+     * if we want, but this can only happen after 
+     * the delegate has been created.
+     * @see IWorkbenchWindowActionDelegate#selectionChanged
+     */
+    public void selectionChanged(IAction action, ISelection selection) {
+    }
 
-	/**
-	 * We can use this method to dispose of any system
-	 * resources we previously allocated.
-	 * @see IWorkbenchWindowActionDelegate#dispose
-	 */
-	public void dispose() {
-	}
+    /**
+     * We can use this method to dispose of any system
+     * resources we previously allocated.
+     * @see IWorkbenchWindowActionDelegate#dispose
+     */
+    public void dispose() {
+    }
 
-	/**
-	 * We will cache window object in order to
-	 * be able to provide parent shell for the message dialog.
-	 * @see IWorkbenchWindowActionDelegate#init
-	 */
-	public void init(IWorkbenchWindow window) {
-	}
+    /**
+     * We will cache window object in order to
+     * be able to provide parent shell for the message dialog.
+     * @see IWorkbenchWindowActionDelegate#init
+     */
+    public void init(IWorkbenchWindow window) {
+    }
 }

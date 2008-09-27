@@ -11,15 +11,15 @@ import org.eclipse.swt.widgets.Display;
  * @author Lance Good
  */
 public class SWTTimer extends Timer {
-	
-	private boolean notify = false;
+    
+    private boolean notify = false;
 
     int     initialDelay, delay;
     boolean repeats = true, coalesce = true;
 
     Runnable doPostEvent = null;
 
-	Display display = null;
+    Display display = null;
 
     // These fields are maintained by TimerQueue.
     // eventQueued can also be reset by the TimerQueue, but will only ever
@@ -52,19 +52,19 @@ public class SWTTimer extends Timer {
         }
     }
 
-	/**
-	 * Constructor for SWTTimer.
-	 * @param delay
-	 * @param listener
-	 */
-	public SWTTimer(Display display, int delay, ActionListener listener) {
-		super(delay, listener);
+    /**
+     * Constructor for SWTTimer.
+     * @param delay
+     * @param listener
+     */
+    public SWTTimer(Display display, int delay, ActionListener listener) {
+        super(delay, listener);
         this.delay = delay;
         this.initialDelay = delay;
 
         doPostEvent = new SWTDoPostEvent();
         this.display = display;
-	}
+    }
 
     /**
      * Notifies all listeners that have registered interest for
@@ -284,8 +284,8 @@ public class SWTTimer extends Timer {
     synchronized void postOverride() {
         if (notify == false || !coalesce) {
             notify = true;
-			display.asyncExec(doPostEvent);
+            display.asyncExec(doPostEvent);
         }
     }
-		
+        
 }

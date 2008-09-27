@@ -39,25 +39,25 @@ import java.util.ArrayList;
  * @author Jesse Grosjean
  */
 public class PStack extends ArrayList {
-	
-	public PStack() {
-	}
-	
-	public void push(Object o) {
-		add(o);
-	}
-	
-	public Object peek() {
-		int s = size();
-		if (s == 0) {
-			return null;
-		} else {
-			return get(s - 1);
-		}
-	}
-	
-	public Object pop() {
-		return remove(size() - 1);
-	}	
+    
+    public PStack() {
+    }
+    
+    public void push(Object o) {
+        add(o);
+    }
+    
+    public Object peek() {
+        int s = size();
+        if (s == 0) {
+            return null;
+        } else {
+            return get(s - 1);
+        }
+    }
+    
+    public Object pop() {
+        return remove(size() - 1);
+    }    
 }
 

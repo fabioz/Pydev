@@ -23,10 +23,10 @@ import com.python.pydev.refactoring.wizards.rename.PyRenameSelfAttributeProcess;
 
 public class RefactorProcessFactory {
 
-	/**
-	 * Decides which process should take care of the request.
-	 * @param nature 
-	 */
+    /**
+     * Decides which process should take care of the request.
+     * @param nature 
+     */
     public static IRefactorRenameProcess getProcess(Definition definition, IPythonNature nature) {
         if(definition instanceof AssignDefinition){
             AssignDefinition d = (AssignDefinition) definition;
@@ -40,10 +40,10 @@ public class RefactorProcessFactory {
                 
             }else{
                 if(definition.scope != null){
-                	//classvar
-                	if(definition.scope.isLastClassDef()){
-                		return new PyRenameAttributeProcess(definition, d.target);
-                	}
+                    //classvar
+                    if(definition.scope.isLastClassDef()){
+                        return new PyRenameAttributeProcess(definition, d.target);
+                    }
                 }
                 return new PyRenameLocalProcess(definition);
             }
@@ -54,14 +54,14 @@ public class RefactorProcessFactory {
             }
             
             if(definition.ast instanceof Name){
-            	Name n = (Name) definition.ast;
-            	if(n.ctx == Name.Param){
-            		return new PyRenameParameterProcess(definition);
-            	}
+                Name n = (Name) definition.ast;
+                if(n.ctx == Name.Param){
+                    return new PyRenameParameterProcess(definition);
+                }
             }
             
             if(definition instanceof KeywordParameterDefinition){
-				return new PyRenameParameterProcess((KeywordParameterDefinition)definition, nature);
+                return new PyRenameParameterProcess((KeywordParameterDefinition)definition, nature);
             }
             
             if(definition.ast instanceof FunctionDef){
@@ -70,25 +70,25 @@ public class RefactorProcessFactory {
             if(NodeUtils.isImport(definition.ast)){
                 //this means that we found an import and we cannot actually map that import to a definition
                 //(so, it is an unresolved import)
-            	return new PyRenameImportProcess(definition);
+                return new PyRenameImportProcess(definition);
             }
         }else{
-        	//the definition ast is null. This should mean that it was actually an import
-        	//and pointed to some module
-        	return new PyRenameImportProcess(definition);
-        	
+            //the definition ast is null. This should mean that it was actually an import
+            //and pointed to some module
+            return new PyRenameImportProcess(definition);
+            
         }
         if(definition.scope != null){
-        	//classvar
-        	if(definition.scope.isLastClassDef()){
-        		return new PyRenameAttributeProcess(definition, definition.value);
-        	}
+            //classvar
+            if(definition.scope.isLastClassDef()){
+                return new PyRenameAttributeProcess(definition, definition.value);
+            }
         }
         return new PyRenameLocalProcess(definition);
     }
 
-	public static IRefactorRenameProcess getRenameAnyProcess() {
-		return new PyRenameAnyLocalProcess();
-	}
+    public static IRefactorRenameProcess getRenameAnyProcess() {
+        return new PyRenameAnyLocalProcess();
+    }
 
 }

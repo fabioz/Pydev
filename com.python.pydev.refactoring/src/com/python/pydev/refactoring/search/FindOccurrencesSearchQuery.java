@@ -45,7 +45,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
 
     public IStatus run(IProgressMonitor monitor) throws OperationCanceledException {
         try {
-        	req.pushMonitor(monitor);
+            req.pushMonitor(monitor);
             Map<Tuple<String, IFile>, HashSet<ASTEntry>> occurrences;
             occurrences = pyRefactoring.findAllOccurrences(req);
             if(occurrences == null){
@@ -56,26 +56,26 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
             
             HashSet<Integer> foundOffsets = new HashSet<Integer>();
             for (Map.Entry<Tuple<String, IFile>, HashSet<ASTEntry>> o : occurrences.entrySet()) {
-            	
-            	foundOffsets.clear();
+                
+                foundOffsets.clear();
                 IFile file = o.getKey().o2;
                 IDocument doc = REF.getDocFromResource(file);
                 
                 for(ASTEntry entry:o.getValue()){
                     int offset = AbstractRenameRefactorProcess.getOffset(doc, entry);
                     if(!foundOffsets.contains(offset)){
-                    	foundOffsets.add(offset);
-                    	if(PyFindAllOccurrences.DEBUG_FIND_REFERENCES){
-                    		System.out.println("Adding match:"+file);
-                    	}
-	                    findOccurrencesSearchResult.addMatch(new FileMatch(file, offset, length));
+                        foundOffsets.add(offset);
+                        if(PyFindAllOccurrences.DEBUG_FIND_REFERENCES){
+                            System.out.println("Adding match:"+file);
+                        }
+                        findOccurrencesSearchResult.addMatch(new FileMatch(file, offset, length));
                     }
                 }
             }
         } catch (CoreException e) {
             PydevPlugin.log(e);
         }finally{
-        	req.popMonitor();
+            req.popMonitor();
         }
         return Status.OK_STATUS;
     }

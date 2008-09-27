@@ -24,10 +24,10 @@ public class TabNannyIteratorTest extends TestCase {
 
     public void testIterator() throws Exception {
         Document doc = new Document("" +
-        		"aaa\\\n" +
-        		"bbbb\n" +
-        		"ccc\n" +
-        		""
+                "aaa\\\n" +
+                "bbbb\n" +
+                "ccc\n" +
+                ""
                 );
         
         TabNannyDocIterator iterator = new TabNannyDocIterator(doc);
@@ -78,7 +78,7 @@ public class TabNannyIteratorTest extends TestCase {
     public void testIterator6() throws Exception {
         String str = 
                 "    #comment   what's happening\\\n" + //escape is in comment... (so, it's not considered the same line)
-        		"    pass";
+                "    pass";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d);
         assertEquals("    ",it.next().o1);

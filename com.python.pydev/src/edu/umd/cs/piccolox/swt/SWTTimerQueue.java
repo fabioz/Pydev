@@ -6,9 +6,9 @@ import org.eclipse.swt.widgets.Display;
  * @author Lance Good
  */
 public class SWTTimerQueue implements Runnable {
-	static SWTTimerQueue instance;
+    static SWTTimerQueue instance;
 
-	Display display = null;
+    Display display = null;
 
     SWTTimer   firstTimer;
     boolean running;
@@ -19,7 +19,7 @@ public class SWTTimerQueue implements Runnable {
     public SWTTimerQueue(Display display) {
         super();
 
-		this.display = display;
+        this.display = display;
 
         // Now start the TimerQueue thread.
         start();
@@ -27,8 +27,8 @@ public class SWTTimerQueue implements Runnable {
 
 
     public static SWTTimerQueue sharedInstance(Display display) {
-    	if (instance == null) {
-        	instance = new SWTTimerQueue(display);
+        if (instance == null) {
+            instance = new SWTTimerQueue(display);
         }
         return instance;
     }
@@ -40,7 +40,7 @@ public class SWTTimerQueue implements Runnable {
                                        "that is already running");
         }
         else {
-			Display.getDefault().asyncExec(new Runnable() {
+            Display.getDefault().asyncExec(new Runnable() {
                 public void run() {
                     Thread timerThread = new Thread(SWTTimerQueue.this,
                                                     "TimerQueue");
@@ -212,7 +212,7 @@ public class SWTTimerQueue implements Runnable {
                 timer.cancelEventOverride();
                 timer = timer.nextTimer;
             }
-			display.asyncExec(new SWTTimerQueueRestart(display));
+            display.asyncExec(new SWTTimerQueueRestart(display));
             throw td;
         }
     }
@@ -235,7 +235,7 @@ public class SWTTimerQueue implements Runnable {
 
         buf.append(")");
         return buf.toString();
-    }	
+    }    
     
 
     /**
@@ -243,26 +243,26 @@ public class SWTTimerQueue implements Runnable {
      * to restart.
      */
     protected static class SWTTimerQueueRestart implements Runnable {
-		boolean attemptedStart;
-	
-		Display display = null;
-	
-		public SWTTimerQueueRestart(Display display) {
-			this.display = display;	
-		}
-	
-		public synchronized void run() {
-		    // Only try and restart the q once.
-		    if(!attemptedStart) {
-				SWTTimerQueue q = SWTTimerQueue.sharedInstance(display);
-		
-				synchronized(q) {
-				    if(!q.running)
-						q.start();
-				}
-				attemptedStart = true;
-		    }
-		}
+        boolean attemptedStart;
+    
+        Display display = null;
+    
+        public SWTTimerQueueRestart(Display display) {
+            this.display = display;    
+        }
+    
+        public synchronized void run() {
+            // Only try and restart the q once.
+            if(!attemptedStart) {
+                SWTTimerQueue q = SWTTimerQueue.sharedInstance(display);
+        
+                synchronized(q) {
+                    if(!q.running)
+                        q.start();
+                }
+                attemptedStart = true;
+            }
+        }
     }
     
 }

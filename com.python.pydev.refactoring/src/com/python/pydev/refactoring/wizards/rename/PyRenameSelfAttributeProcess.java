@@ -21,32 +21,32 @@ public class PyRenameSelfAttributeProcess extends AbstractRenameWorkspaceRefacto
      */
     private String target;
 
-	public PyRenameSelfAttributeProcess(Definition definition, String target) {
+    public PyRenameSelfAttributeProcess(Definition definition, String target) {
         super(definition);
         this.target = target;
     }
 
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         SimpleNode root = request.getAST();
-		List<ASTEntry> oc = ScopeAnalysis.getAttributeReferences(request.initialName, root);
-		if(oc.size() > 0){
-			//only add comments and strings if there's at least some other occurrence
-	        oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
-	        oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
-		}
-		addOccurrences(request, oc);
+        List<ASTEntry> oc = ScopeAnalysis.getAttributeReferences(request.initialName, root);
+        if(oc.size() > 0){
+            //only add comments and strings if there's at least some other occurrence
+            oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
+            oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
+        }
+        addOccurrences(request, oc);
     }
 
     @Override
     protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName, SourceModule module) {
         SimpleNode root = module.getAst();
-		List<ASTEntry> oc = ScopeAnalysis.getAttributeReferences(initialName, root);
-		if(oc.size() > 0){
-			//only add comments and strings if there's at least some other occurrence
-			oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
-			oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
-		}
-		return oc; //will get the self.xxx occurrences
+        List<ASTEntry> oc = ScopeAnalysis.getAttributeReferences(initialName, root);
+        if(oc.size() > 0){
+            //only add comments and strings if there's at least some other occurrence
+            oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
+            oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
+        }
+        return oc; //will get the self.xxx occurrences
     }
     
     @Override

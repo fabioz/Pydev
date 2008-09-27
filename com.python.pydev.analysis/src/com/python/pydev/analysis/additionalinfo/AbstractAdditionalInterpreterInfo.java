@@ -118,15 +118,15 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     public void clearAllInfo() {
         synchronized (lock) {
-        	if(topLevelInitialsToInfo != null){
-        		topLevelInitialsToInfo.clear();
-        	}
-        	if(innerInitialsToInfo != null){
-        		innerInitialsToInfo.clear();
-        	}
-        	if(modulesAnalyzed != null){
-        		modulesAnalyzed.clear();
-        	}
+            if(topLevelInitialsToInfo != null){
+                topLevelInitialsToInfo.clear();
+            }
+            if(innerInitialsToInfo != null){
+                innerInitialsToInfo.clear();
+            }
+            if(modulesAnalyzed != null){
+                modulesAnalyzed.clear();
+            }
         }
     }
         
@@ -150,7 +150,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
             return doCompare(qualifier, info.getName());
         }
         public boolean doCompare(String qualifier, String infoName) {
-        	return infoName.equals(qualifier);
+            return infoName.equals(qualifier);
         }
     };
 
@@ -163,7 +163,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
             return doCompare(lowerCaseQual, info.getName());
         }
         public boolean doCompare(String qualifier, String infoName) {
-        	return infoName.toLowerCase().startsWith(qualifier);
+            return infoName.toLowerCase().startsWith(qualifier);
         }
         
     };
@@ -234,8 +234,8 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     protected void addMethod(FunctionDef def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
         synchronized (lock) {
-	        FuncInfo info2 = FuncInfo.fromFunctionDef(def, moduleDeclared, path, pool);
-	        add(info2, generateDelta, doOn);
+            FuncInfo info2 = FuncInfo.fromFunctionDef(def, moduleDeclared, path, pool);
+            add(info2, generateDelta, doOn);
         }
     }
     
@@ -244,10 +244,10 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param doOn 
      */
     protected void addClass(ClassDef def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
-    	synchronized (lock) {
-	        ClassInfo info = ClassInfo.fromClassDef(def, moduleDeclared, path, pool);
-	        add(info, generateDelta, doOn);
-    	}
+        synchronized (lock) {
+            ClassInfo info = ClassInfo.fromClassDef(def, moduleDeclared, path, pool);
+            add(info, generateDelta, doOn);
+        }
     }
     
     
@@ -306,10 +306,10 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param node the ast root
      */
     public void addAstInfo(SimpleNode node, String moduleName, PythonNature nature, boolean generateDelta) {
-    	if(node == null || moduleName == null){
-    		return;
-    	}
-    	
+        if(node == null || moduleName == null){
+            return;
+        }
+        
         try {
             DefinitionsASTIteratorVisitor visitor = new DefinitionsASTIteratorVisitor();
             node.accept(visitor);
@@ -319,35 +319,35 @@ public abstract class AbstractAdditionalInterpreterInfo {
             
             synchronized (lock) {
 
-	            while (entries.hasNext()) {
-	                ASTEntry entry = entries.next();
-	                
-	                if(entry.parent == null){ //we only want those that are in the global scope
-	                    if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
-	                        addClassOrFunc(entry.node, moduleName, generateDelta, TOP_LEVEL, null);
-	                    }else{
-	                        //it is an assign
-	                        addAssignTargets(entry, moduleName, generateDelta, TOP_LEVEL, null, false);
-	                    }
-	                }else{
-	                    if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
-	                        //ok, it has a parent, so, let's check to see if the path we got only has class definitions
-	                        //as the parent (and get that path)
-	                        Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, false, false, tempStack);
-	                        if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
-	                            //if the root is not valid, it is not only classes in the path (could be a method inside
-	                            //a method, or something similar).
-	                            addClassOrFunc(entry.node, moduleName, generateDelta, INNER, pathToRoot.o1);
-	                        }
-	                    }else{
-	                        //it is an assign
-	                        Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, true, false, tempStack);
-	                        if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
-	                            addAssignTargets(entry, moduleName, generateDelta, INNER, pathToRoot.o1, pathToRoot.o2);
-	                        }
-	                    }
-	                }
-	            }
+                while (entries.hasNext()) {
+                    ASTEntry entry = entries.next();
+                    
+                    if(entry.parent == null){ //we only want those that are in the global scope
+                        if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
+                            addClassOrFunc(entry.node, moduleName, generateDelta, TOP_LEVEL, null);
+                        }else{
+                            //it is an assign
+                            addAssignTargets(entry, moduleName, generateDelta, TOP_LEVEL, null, false);
+                        }
+                    }else{
+                        if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
+                            //ok, it has a parent, so, let's check to see if the path we got only has class definitions
+                            //as the parent (and get that path)
+                            Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, false, false, tempStack);
+                            if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
+                                //if the root is not valid, it is not only classes in the path (could be a method inside
+                                //a method, or something similar).
+                                addClassOrFunc(entry.node, moduleName, generateDelta, INNER, pathToRoot.o1);
+                            }
+                        }else{
+                            //it is an assign
+                            Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, true, false, tempStack);
+                            if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
+                                addAssignTargets(entry, moduleName, generateDelta, INNER, pathToRoot.o1, pathToRoot.o2);
+                            }
+                        }
+                    }
+                }
             }            
         } catch (Exception e) {
             PydevPlugin.log(e);
@@ -428,7 +428,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     public void removeInfoFromModule(String moduleName, boolean generateDelta) {
         synchronized (lock) {
-        	modulesAnalyzed.remove(moduleName);
+            modulesAnalyzed.remove(moduleName);
             removeInfoFromMap(moduleName, topLevelInitialsToInfo);
             removeInfoFromMap(moduleName, innerInitialsToInfo);
         }
@@ -461,30 +461,30 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param name the name of the module
      * @return the hash that was used in the last analysis of the module (or null if not available)
      */
-	public byte[] getLastModificationHash(String name) {
-		synchronized (lock){
-			byte[] ret = this.modulesAnalyzed.get(name);
-			if(ret == null){
-				return new byte[0];
-			}
-			return ret;
-		}
-	}
+    public byte[] getLastModificationHash(String name) {
+        synchronized (lock){
+            byte[] ret = this.modulesAnalyzed.get(name);
+            if(ret == null){
+                return new byte[0];
+            }
+            return ret;
+        }
+    }
 
-	/**
-	 * Sets the hash used for some module
-	 * @param name the name of the module
-	 * @param hash the hash set for it
-	 */
-	public void setLastModificationHash(String name, byte[] hash) {
-		synchronized (lock){
-			this.modulesAnalyzed.put(name, hash);
-		}
-	}
+    /**
+     * Sets the hash used for some module
+     * @param name the name of the module
+     * @param hash the hash set for it
+     */
+    public void setLastModificationHash(String name, byte[] hash) {
+        synchronized (lock){
+            this.modulesAnalyzed.put(name, hash);
+        }
+    }
 
 
 
-	/**
+    /**
      * This is the function for which we are most optimized!
      * 
      * @param qualifier the tokens returned have to start with the given qualifier
@@ -492,7 +492,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     public List<IInfo> getTokensStartingWith(String qualifier, int getWhat) {
         synchronized (lock) {
-	        return getWithFilter(qualifier, getWhat, startingWithFilter, true);
+            return getWithFilter(qualifier, getWhat, startingWithFilter, true);
         }
     }
 
@@ -504,19 +504,19 @@ public abstract class AbstractAdditionalInterpreterInfo {
     }
     
     protected List<IInfo> getWithFilter(String qualifier, int getWhat, Filter filter, boolean useLowerCaseQual) {
-    	synchronized (lock) {
-	        ArrayList<IInfo> toks = new ArrayList<IInfo>();
-	        
-	        if((getWhat & TOP_LEVEL) != 0){
-	            getWithFilter(qualifier, topLevelInitialsToInfo, toks, filter, useLowerCaseQual);
-	        }
-	        if((getWhat & INNER) != 0){
-	            getWithFilter(qualifier, innerInitialsToInfo, toks, filter, useLowerCaseQual);
-	        }
-	        return toks;
-    	}
+        synchronized (lock) {
+            ArrayList<IInfo> toks = new ArrayList<IInfo>();
+            
+            if((getWhat & TOP_LEVEL) != 0){
+                getWithFilter(qualifier, topLevelInitialsToInfo, toks, filter, useLowerCaseQual);
+            }
+            if((getWhat & INNER) != 0){
+                getWithFilter(qualifier, innerInitialsToInfo, toks, filter, useLowerCaseQual);
+            }
+            return toks;
+        }
     }
-    	
+        
     
 
     /**
@@ -551,22 +551,22 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     public Collection<IInfo> getAllTokens(){
         synchronized (lock) {
-	        Collection<List<IInfo>> lInfo = this.topLevelInitialsToInfo.values();
-	        
-	        ArrayList<IInfo> toks = new ArrayList<IInfo>();
-	        for (List<IInfo> list : lInfo) {
-	            for (IInfo info : list) {
-	                toks.add(info);
-	            }
-	        }
+            Collection<List<IInfo>> lInfo = this.topLevelInitialsToInfo.values();
+            
+            ArrayList<IInfo> toks = new ArrayList<IInfo>();
+            for (List<IInfo> list : lInfo) {
+                for (IInfo info : list) {
+                    toks.add(info);
+                }
+            }
 
             lInfo = this.innerInitialsToInfo.values();
-	        for (List<IInfo> list : lInfo) {
-	            for (IInfo info : list) {
-	                toks.add(info);
-	            }
-	        }
-	        return toks;
+            for (List<IInfo> list : lInfo) {
+                for (IInfo info : list) {
+                    toks.add(info);
+                }
+            }
+            return toks;
         }
     }
     
@@ -603,10 +603,10 @@ public abstract class AbstractAdditionalInterpreterInfo {
 
     private void saveTo(File pathToSave) {
         synchronized (lock) {
-	        if(DEBUG_ADDITIONAL_INFO){
-	            System.out.println("Saving info "+this.getClass().getName()+" to file (size = "+getAllTokens().size()+") "+pathToSave);
-	        }
-	        REF.writeToFile(getInfoToSave(), pathToSave);
+            if(DEBUG_ADDITIONAL_INFO){
+                System.out.println("Saving info "+this.getClass().getName()+" to file (size = "+getAllTokens().size()+") "+pathToSave);
+            }
+            REF.writeToFile(getInfoToSave(), pathToSave);
         }
     }
 
@@ -624,16 +624,16 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     protected boolean load() {
         synchronized (lock) {
-	        File file = getPersistingLocation();
-	        if(file.exists() && file.isFile()){
-	            try {
-	                restoreSavedInfo(IOUtils.readFromFile(file));
-	                setAsDefaultInfo();
-	                return true;
-	            } catch (Throwable e) {
-	                PydevPlugin.log("Unable to restore previous info... new info should be restored in a thread.",e);
-	            }
-	        }
+            File file = getPersistingLocation();
+            if(file.exists() && file.isFile()){
+                try {
+                    restoreSavedInfo(IOUtils.readFromFile(file));
+                    setAsDefaultInfo();
+                    return true;
+                } catch (Throwable e) {
+                    PydevPlugin.log("Unable to restore previous info... new info should be restored in a thread.",e);
+                }
+            }
         }
         return false;
     }
@@ -645,39 +645,39 @@ public abstract class AbstractAdditionalInterpreterInfo {
     @SuppressWarnings("unchecked")
     protected void restoreSavedInfo(Object o){
         synchronized (lock) {
-        	if(o instanceof Tuple){
-        		Tuple readFromFile = (Tuple) o;
-        		this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
-        		this.innerInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o2;
-        		
-        		//backward compatibility: if the modules analyzed info is not available, we've to generate it from
-        		//what we have
-        		this.modulesAnalyzed = new HashMap<String, byte[]>();
-        		
-				//we just check the top level (it is not possible to have info on an inner structure without
-				//having it in the top level too).
-		        Iterator<List<IInfo>> itListOfInfo = topLevelInitialsToInfo.values().iterator();
-		        
-		        byte[] empty = new byte[0];
-		        while (itListOfInfo.hasNext()) {
-		
-		            Iterator<IInfo> it = itListOfInfo.next().iterator();
-		            while (it.hasNext()) {
-		
-		                IInfo info = it.next();
-		                if(info != null && info.getDeclaringModuleName() != null){
-		                	this.modulesAnalyzed.put(info.getDeclaringModuleName(), empty);
-		                }
-		            }
-		        }
+            if(o instanceof Tuple){
+                Tuple readFromFile = (Tuple) o;
+                this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
+                this.innerInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o2;
+                
+                //backward compatibility: if the modules analyzed info is not available, we've to generate it from
+                //what we have
+                this.modulesAnalyzed = new HashMap<String, byte[]>();
+                
+                //we just check the top level (it is not possible to have info on an inner structure without
+                //having it in the top level too).
+                Iterator<List<IInfo>> itListOfInfo = topLevelInitialsToInfo.values().iterator();
+                
+                byte[] empty = new byte[0];
+                while (itListOfInfo.hasNext()) {
+        
+                    Iterator<IInfo> it = itListOfInfo.next().iterator();
+                    while (it.hasNext()) {
+        
+                        IInfo info = it.next();
+                        if(info != null && info.getDeclaringModuleName() != null){
+                            this.modulesAnalyzed.put(info.getDeclaringModuleName(), empty);
+                        }
+                    }
+                }
 
-        		
-        	}else if(o instanceof Tuple3){
-        		Tuple3 readFromFile = (Tuple3) o;
-        		this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
-        		this.innerInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o2;
-        		this.modulesAnalyzed = (HashMap<String, byte[]>) readFromFile.o3;
-        	}
+                
+            }else if(o instanceof Tuple3){
+                Tuple3 readFromFile = (Tuple3) o;
+                this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
+                this.innerInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o2;
+                this.modulesAnalyzed = (HashMap<String, byte[]>) readFromFile.o3;
+            }
         }
     }
 
@@ -692,17 +692,17 @@ public abstract class AbstractAdditionalInterpreterInfo {
     public String toString() {
         synchronized (lock) {
             FastStringBuffer buffer = new FastStringBuffer();
-	    	buffer.append("AdditionalInfo{");
-	
-	    	buffer.append("topLevel=[");
-	    	entrySetToString(buffer, this.topLevelInitialsToInfo.entrySet());
-	    	buffer.append("]\n");
-	    	buffer.append("inner=[");
-	    	entrySetToString(buffer, this.innerInitialsToInfo.entrySet());
-	    	buffer.append("]");
-	
-	        buffer.append("}");
-	    	return buffer.toString();
+            buffer.append("AdditionalInfo{");
+    
+            buffer.append("topLevel=[");
+            entrySetToString(buffer, this.topLevelInitialsToInfo.entrySet());
+            buffer.append("]\n");
+            buffer.append("inner=[");
+            entrySetToString(buffer, this.innerInitialsToInfo.entrySet());
+            buffer.append("]");
+    
+            buffer.append("}");
+            return buffer.toString();
         }
     }
 
@@ -712,13 +712,13 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     private void entrySetToString(FastStringBuffer buffer, Set<Entry<String, List<IInfo>>> name) {
         synchronized (lock) {
-	        for (Entry<String, List<IInfo>> entry : name) {
-				List<IInfo> value = entry.getValue();
-				for (IInfo info : value) {
-					buffer.append(info.toString());
-					buffer.append("\n");
-				}
-			}
+            for (Entry<String, List<IInfo>> entry : name) {
+                List<IInfo> value = entry.getValue();
+                for (IInfo info : value) {
+                    buffer.append(info.toString());
+                    buffer.append("\n");
+                }
+            }
         }
     }
 

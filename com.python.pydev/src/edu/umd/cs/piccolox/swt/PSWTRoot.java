@@ -26,31 +26,31 @@ import edu.umd.cs.piccolo.PRoot;
  */
 public class PSWTRoot extends PRoot {
 
-	private Composite composite;
-	
-	public PSWTRoot(Composite composite) {
-		this.composite = composite;
-	}
+    private Composite composite;
+    
+    public PSWTRoot(Composite composite) {
+        this.composite = composite;
+    }
 
-	public Timer createTimer(int delay, ActionListener listener) {
-		return new SWTTimer(composite.getDisplay(),delay,listener);
-	}
+    public Timer createTimer(int delay, ActionListener listener) {
+        return new SWTTimer(composite.getDisplay(),delay,listener);
+    }
 
-	public void scheduleProcessInputsIfNeeded() {
-		if (!Thread.currentThread().equals(composite.getDisplay().getThread())) {
-			return;
-		}
+    public void scheduleProcessInputsIfNeeded() {
+        if (!Thread.currentThread().equals(composite.getDisplay().getThread())) {
+            return;
+        }
 
-		if (!processInputsScheduled && !processingInputs &&
-			(getFullBoundsInvalid() || getChildBoundsInvalid() || getPaintInvalid() || getChildPaintInvalid())) {
+        if (!processInputsScheduled && !processingInputs &&
+            (getFullBoundsInvalid() || getChildBoundsInvalid() || getPaintInvalid() || getChildPaintInvalid())) {
 
-			processInputsScheduled = true;
-			composite.getDisplay().asyncExec(new Runnable() {
-				public void run() {
-					processInputs();
-					processInputsScheduled = false;
-				}
-			});
-		}
-	}
+            processInputsScheduled = true;
+            composite.getDisplay().asyncExec(new Runnable() {
+                public void run() {
+                    processInputs();
+                    processInputsScheduled = false;
+                }
+            });
+        }
+    }
 }

@@ -43,7 +43,7 @@ import java.util.EventListener;
  * @author Jesse Grosjean
  */
 public interface PInputEventListener extends EventListener {
-	
-	public void processEvent(PInputEvent aEvent, int type);
+    
+    public void processEvent(PInputEvent aEvent, int type);
 
 }

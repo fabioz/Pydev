@@ -24,7 +24,7 @@ public class Found implements Iterable<GenAndTok>{
     /**
      * If this is an import, it may be resolved to some module and some token within that module...
      */
-	public ImportInfo importInfo;
+    public ImportInfo importInfo;
     
     public Found(IToken tok, IToken generator, int scopeId, ScopeItems scopeFound){
         this.found.add(new GenAndTok(generator, tok, scopeId, scopeFound));
@@ -61,9 +61,9 @@ public class Found implements Iterable<GenAndTok>{
         return found.get(found.size() -1); //always returns the last (this is the one that is binded at the current place in the scope)
     }
     
-	public List<GenAndTok> getAll() {
-		return found;
-	}
+    public List<GenAndTok> getAll() {
+        return found;
+    }
 
     public boolean isImport() {
         return getSingle().generator.isImport();
@@ -84,9 +84,9 @@ public class Found implements Iterable<GenAndTok>{
         return buffer.toString();
     }
 
-	public boolean isWildImport() {
-		return getSingle().generator.isWildImport();
-	}
+    public boolean isWildImport() {
+        return getSingle().generator.isWildImport();
+    }
 
 
 }

@@ -28,12 +28,12 @@ import edu.umd.cs.piccolo.event.PInputEvent;
 
 public class PyHierarchyView extends ViewPart implements HierarchyNodeViewListener {
 
-	private static HierarchyViewer viewer;
+    private static HierarchyViewer viewer;
     private MouseListener treeMouseListener;
     private Tree tree;
 
-	@Override
-	public void createPartControl(Composite parent) {
+    @Override
+    public void createPartControl(Composite parent) {
         GridLayout layout = new GridLayout();
         layout.numColumns = 1;
         layout.verticalSpacing = 2;
@@ -54,10 +54,10 @@ public class PyHierarchyView extends ViewPart implements HierarchyNodeViewListen
         
         tree = new Tree(parent, 0);
         treeMouseListener = new TreeMouseListener(tree);
-	}
+    }
 
-	public void setHierarchy(HierarchyNodeModel model) {
-		viewer.setHierarchy(model);
+    public void setHierarchy(HierarchyNodeModel model) {
+        viewer.setHierarchy(model);
         HierarchyNodeView initial = null;
         for (HierarchyNodeView v:viewer.allAdded){
             //we want to listen to clicks
@@ -69,16 +69,16 @@ public class PyHierarchyView extends ViewPart implements HierarchyNodeViewListen
         if(initial != null){
             onClick(initial, null);
         }
-	}
+    }
 
-	@Override
-	public void setFocus() {
-	}
-	
-	@Override
-	public void dispose() {
-		super.dispose();
-	}
+    @Override
+    public void setFocus() {
+    }
+    
+    @Override
+    public void dispose() {
+        super.dispose();
+    }
 
     public void onClick(final HierarchyNodeView view, final PInputEvent event) {
         if(event != null && event.getClickCount() == 2){

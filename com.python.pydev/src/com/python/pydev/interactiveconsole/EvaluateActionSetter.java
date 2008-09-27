@@ -41,15 +41,15 @@ import org.python.pydev.runners.SimpleRunner;
 public class EvaluateActionSetter implements IPyEditListener{
     
     private class EvaluateAction extends Action {
-		private final PyEdit edit;
+        private final PyEdit edit;
 
-		private EvaluateAction(PyEdit edit) {
-			super();
-			this.edit = edit;
-		}
+        private EvaluateAction(PyEdit edit) {
+            super();
+            this.edit = edit;
+        }
 
-		public  void run(){
-		    try {
+        public  void run(){
+            try {
                 PySelection selection = new PySelection(edit);
                 
                 ScriptConsole console = getActiveScriptConsole(PydevConsoleConstants.CONSOLE_TYPE);
@@ -91,12 +91,12 @@ public class EvaluateActionSetter implements IPyEditListener{
             } catch (Exception e) {
                 Log.log(e);
             }
-		}
-	}
+        }
+    }
 
-	private static final String EVALUATE_ACTION_ID = "org.python.pydev.interactiveconsole.evaluateActionSetter";
+    private static final String EVALUATE_ACTION_ID = "org.python.pydev.interactiveconsole.evaluateActionSetter";
 
-	
+    
 
     /**
      * @param consoleType the console type we're searching for
@@ -182,14 +182,14 @@ public class EvaluateActionSetter implements IPyEditListener{
         final EvaluateAction evaluateAction = new EvaluateAction(edit);
         evaluateAction.setActionDefinitionId(EVALUATE_ACTION_ID);
         evaluateAction.setId(EVALUATE_ACTION_ID);
-		Runnable runnable = new Runnable() {
-			public void run() {
-				if(!edit.isDisposed()){
-					edit.setAction(EVALUATE_ACTION_ID, evaluateAction);
-				}
-			}
-		};
-		Display.getDefault().syncExec(runnable);
+        Runnable runnable = new Runnable() {
+            public void run() {
+                if(!edit.isDisposed()){
+                    edit.setAction(EVALUATE_ACTION_ID, evaluateAction);
+                }
+            }
+        };
+        Display.getDefault().syncExec(runnable);
     }
 
     

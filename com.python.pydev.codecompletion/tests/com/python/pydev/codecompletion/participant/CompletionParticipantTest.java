@@ -30,17 +30,17 @@ import com.python.pydev.codecompletion.ctxinsensitive.CtxParticipant;
 public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
     public static void main(String[] args) {
-    	CompletionParticipantTest test = new CompletionParticipantTest();
-    	try {
-			test.setUp();
-			test.testImportCompletionFromZip();
-			test.tearDown();
-			
-			junit.textui.TestRunner.run(CompletionParticipantTest.class);
-		} catch (Throwable e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        CompletionParticipantTest test = new CompletionParticipantTest();
+        try {
+            test.setUp();
+            test.testImportCompletionFromZip();
+            test.tearDown();
+            
+            junit.textui.TestRunner.run(CompletionParticipantTest.class);
+        } catch (Throwable e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
 
@@ -59,11 +59,11 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
     
 
     public void testImportCompletion() throws CoreException, BadLocationException {
-    	participant = new ImportsCompletionParticipant();
-    	
-    	//check simple
-    	ICompletionProposal[] proposals = requestCompl("unittest", new String[]{"unittest", "unittest - testlib"}); //the unittest module and testlib.unittest
-    	
+        participant = new ImportsCompletionParticipant();
+        
+        //check simple
+        ICompletionProposal[] proposals = requestCompl("unittest", new String[]{"unittest", "unittest - testlib"}); //the unittest module and testlib.unittest
+        
         Document document = new Document("unittest");
         ((CtxInsensitiveImportComplProposal)proposals[0]).indentString = "    ";
         ((CtxInsensitiveImportComplProposal)proposals[0]).apply(document, ' ', 0, 8);
@@ -122,13 +122,13 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
     }
     
     public void testImportCompletion2() throws CoreException, BadLocationException {
-    	participant = new CtxParticipant();
-    	ICompletionProposal[] proposals = requestCompl("xml", -1, -1, new String[]{});
-    	assertNotContains("xml - xmlrpclib", proposals);
+        participant = new CtxParticipant();
+        ICompletionProposal[] proposals = requestCompl("xml", -1, -1, new String[]{});
+        assertNotContains("xml - xmlrpclib", proposals);
         
-    	requestCompl(new File(TestDependent.TEST_PYSRC_LOC+"/testlib/unittest/guitestcase.py"),"guite", -1, 0, new String[]{});
-    	
-    	
+        requestCompl(new File(TestDependent.TEST_PYSRC_LOC+"/testlib/unittest/guitestcase.py"),"guite", -1, 0, new String[]{});
+        
+        
         //the behavior changes for tokens on modules
         AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = true;
         try {

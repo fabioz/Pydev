@@ -148,17 +148,17 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
             boolean addAutoImport) {
         
         ArrayList<CtxInsensitiveImportComplProposal> completions = new ArrayList<CtxInsensitiveImportComplProposal>();
-    	if(request.isInCalltip){
-    	    return completions;
-    	}
+        if(request.isInCalltip){
+            return completions;
+        }
         
         HashSet<String> importedNames = getImportedNames(state);
         
-    	String qual = request.qualifier;
-    	if(qual.length() >= 3){ //at least n characters required...
-	        String lowerQual = qual.toLowerCase();
-	        
-	        String initialModule = request.resolveModule();
+        String qual = request.qualifier;
+        if(qual.length() >= 3){ //at least n characters required...
+            String lowerQual = qual.toLowerCase();
+            
+            String initialModule = request.resolveModule();
         
             List<IInfo> tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, request.nature, 
                     AbstractAdditionalInterpreterInfo.TOP_LEVEL);
@@ -172,13 +172,13 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
                 String declaringModuleName = info.getDeclaringModuleName();
                 if(initialModule != null && declaringModuleName != null){
                     if(initialModule.equals(declaringModuleName)){
-                    	continue;
+                        continue;
                     }
                 }
                 boolean hasInit = false;
                 if(declaringModuleName.endsWith(".__init__")){
-                	declaringModuleName = declaringModuleName.substring(0, declaringModuleName.length()-9);//remove the .__init__
-                	hasInit = true;
+                    declaringModuleName = declaringModuleName.substring(0, declaringModuleName.length()-9);//remove the .__init__
+                    hasInit = true;
                 }
                 
                 String rep = info.getName();
@@ -200,7 +200,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
                 displayString.append(" - ");
                 displayString.append(declaringModuleName);
                 if(hasInit){
-                	displayString.append(".__init__");
+                    displayString.append(".__init__");
                 }
 
                 CtxInsensitiveImportComplProposal  proposal = new CtxInsensitiveImportComplProposal (

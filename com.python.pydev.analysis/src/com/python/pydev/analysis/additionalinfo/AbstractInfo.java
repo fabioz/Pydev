@@ -78,6 +78,6 @@ public abstract class AbstractInfo implements IInfo{
     
     @Override
     public String toString() {
-    	return getName()+ " ("+getDeclaringModuleName()+") - Path:"+getPath();
+        return getName()+ " ("+getDeclaringModuleName()+") - Path:"+getPath();
     }
 }

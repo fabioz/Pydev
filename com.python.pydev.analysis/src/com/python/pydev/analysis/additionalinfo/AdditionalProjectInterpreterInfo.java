@@ -117,31 +117,31 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
     }
 
     public void processDelete(Object data) {
-    	synchronized (lock) {
-	        //the moduleName is generated on delete
-	        this.removeInfoFromModule((String) data, false);
-    	}
+        synchronized (lock) {
+            //the moduleName is generated on delete
+            this.removeInfoFromModule((String) data, false);
+        }
     }
-    	
+        
 
     public void processInsert(Object data) {
         synchronized (lock) {
-	        //the IInfo token is generated on insert
-	        IInfo info = (IInfo) data;
-	        if(info.getPath() == null || info.getPath().length() == 0){
-	            this.add(info, false, TOP_LEVEL);
-	            
-	        }else{
-	            this.add(info, false, INNER);
-	            
-	        }
+            //the IInfo token is generated on insert
+            IInfo info = (IInfo) data;
+            if(info.getPath() == null || info.getPath().length() == 0){
+                this.add(info, false, TOP_LEVEL);
+                
+            }else{
+                this.add(info, false, INNER);
+                
+            }
         }
     }
 
     public void endProcessing() {
         //save it when the processing is finished
         synchronized (lock) {
-        	this.save();
+            this.save();
         }
     }
     
@@ -157,10 +157,10 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
      */
     private void checkDeltaSize() {
         synchronized (lock) {
-	        if(deltaSaver.availableDeltas() > MAXIMUN_NUMBER_OF_DELTAS){
-	            this.save();
-	            deltaSaver.clearAll();
-	        }
+            if(deltaSaver.availableDeltas() > MAXIMUN_NUMBER_OF_DELTAS){
+                this.save();
+                deltaSaver.clearAll();
+            }
         }
     }
 
@@ -196,7 +196,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
     }
 
     public static List<AbstractAdditionalInterpreterInfo> getAdditionalInfo(IPythonNature nature) {
-    	return getAdditionalInfo(nature, true, false);
+        return getAdditionalInfo(nature, true, false);
     }
     
     /**
@@ -204,10 +204,10 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
      * @return all the additional info that is bounded with some nature (including related projects)
      */
     public static List<AbstractAdditionalInterpreterInfo> getAdditionalInfo(IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects) {
-    	return getAdditionalInfoAndNature(nature, addSystemInfo, addReferencingProjects).o1;
+        return getAdditionalInfoAndNature(nature, addSystemInfo, addReferencingProjects).o1;
     }
     
-	public static Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>> getAdditionalInfoAndNature(IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects) {
+    public static Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>> getAdditionalInfoAndNature(IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects) {
         List<AbstractAdditionalInterpreterInfo> ret = new ArrayList<AbstractAdditionalInterpreterInfo>();
         List<IPythonNature> natures = new ArrayList<IPythonNature>();
         
@@ -215,28 +215,28 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
         
         //get for the system info
         if(addSystemInfo){
-	        AbstractAdditionalInterpreterInfo systemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(PydevPlugin.getInterpreterManager(nature));
-	        ret.add(systemInfo);
+            AbstractAdditionalInterpreterInfo systemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(PydevPlugin.getInterpreterManager(nature));
+            ret.add(systemInfo);
         }
     
         //get for the current project
         if(project != null){
-	        AbstractAdditionalInterpreterInfo additionalInfoForProject = getAdditionalInfoForProject(nature);
-	        if(additionalInfoForProject != null){
-	            ret.add(additionalInfoForProject);
-	            natures.add(nature);
-	        }
-	        
-	        try {
-	            //get for the referenced projects
-	            IProject[] referencedProjects = project.getReferencedProjects();
-	            for (IProject refProject : referencedProjects) {
-	                additionalInfoForProject = getAdditionalInfoForProject(PythonNature.getPythonNature(refProject));
-	                if(additionalInfoForProject != null){
-	                    ret.add(additionalInfoForProject);
-	                    natures.add(PythonNature.getPythonNature(refProject));
-	                }
-	            }
+            AbstractAdditionalInterpreterInfo additionalInfoForProject = getAdditionalInfoForProject(nature);
+            if(additionalInfoForProject != null){
+                ret.add(additionalInfoForProject);
+                natures.add(nature);
+            }
+            
+            try {
+                //get for the referenced projects
+                IProject[] referencedProjects = project.getReferencedProjects();
+                for (IProject refProject : referencedProjects) {
+                    additionalInfoForProject = getAdditionalInfoForProject(PythonNature.getPythonNature(refProject));
+                    if(additionalInfoForProject != null){
+                        ret.add(additionalInfoForProject);
+                        natures.add(PythonNature.getPythonNature(refProject));
+                    }
+                }
 
                 if(addReferencingProjects){
                     IProject[] referencingProjects = project.getReferencingProjects();
@@ -248,12 +248,12 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
                         }
                     }
                 }
-		    } catch (CoreException e) {
-		        PydevPlugin.log(e);
-		    }
+            } catch (CoreException e) {
+                PydevPlugin.log(e);
+            }
             
         }
-		return new Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>>(ret, natures);
+        return new Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>>(ret, natures);
     }
 
     /**
@@ -261,13 +261,13 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
      * @return the additional info for a given project (gotten from the cache with its name)
      */
     public static AbstractAdditionalDependencyInfo getAdditionalInfoForProject(IPythonNature nature) {
-    	if(nature == null){
-    		return null;
-    	}
-    	IProject project = nature.getProject();
-    	if(project == null){
-    		return null;
-    	}
+        if(nature == null){
+            return null;
+        }
+        IProject project = nature.getProject();
+        if(project == null){
+            return null;
+        }
         String name = REF.getValidProjectName(project);
         AbstractAdditionalDependencyInfo info = additionalNatureInfo.get(name);
         if(info == null){

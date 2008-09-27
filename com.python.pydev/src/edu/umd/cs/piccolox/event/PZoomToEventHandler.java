@@ -47,25 +47,25 @@ import edu.umd.cs.piccolo.util.PBounds;
  */
 public class PZoomToEventHandler extends PBasicInputEventHandler {
 
-	public PZoomToEventHandler() {
-		setEventFilter(new PInputEventFilter(InputEvent.BUTTON1_MASK));
-	}
+    public PZoomToEventHandler() {
+        setEventFilter(new PInputEventFilter(InputEvent.BUTTON1_MASK));
+    }
 
-	public void mousePressed(PInputEvent aEvent) {
-		zoomTo(aEvent); 	
-	}
+    public void mousePressed(PInputEvent aEvent) {
+        zoomTo(aEvent);     
+    }
 
-	protected void zoomTo(final PInputEvent aEvent) {
-		PBounds zoomToBounds;
-		PNode picked = aEvent.getPickedNode();
-		
-		if (picked instanceof PCamera) {
-			PCamera c = (PCamera) picked;
-			zoomToBounds = c.getUnionOfLayerFullBounds();
-		} else {
-			zoomToBounds = picked.getGlobalFullBounds();
-		}
-		
-		aEvent.getCamera().animateViewToCenterBounds(zoomToBounds, true, 500);
-	}	
+    protected void zoomTo(final PInputEvent aEvent) {
+        PBounds zoomToBounds;
+        PNode picked = aEvent.getPickedNode();
+        
+        if (picked instanceof PCamera) {
+            PCamera c = (PCamera) picked;
+            zoomToBounds = c.getUnionOfLayerFullBounds();
+        } else {
+            zoomToBounds = picked.getGlobalFullBounds();
+        }
+        
+        aEvent.getCamera().animateViewToCenterBounds(zoomToBounds, true, 500);
+    }    
 }

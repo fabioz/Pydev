@@ -41,14 +41,14 @@ import edu.umd.cs.piccolo.util.PBounds;
  * @author Lance Good
  */
 public interface PComponent {
-		
-	public void repaint(PBounds bounds);
-	
-	public void paintImmediately();
-	
-	public void pushCursor(Cursor cursor);
-	
-	public void popCursor();
+        
+    public void repaint(PBounds bounds);
+    
+    public void paintImmediately();
+    
+    public void pushCursor(Cursor cursor);
+    
+    public void popCursor();
 
-	public void setInteracting(boolean interacting);		
+    public void setInteracting(boolean interacting);        
 }

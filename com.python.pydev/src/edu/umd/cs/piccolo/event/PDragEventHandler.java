@@ -43,77 +43,77 @@ import edu.umd.cs.piccolo.util.PDimension;
  */
 public class PDragEventHandler extends PDragSequenceEventHandler {
 
-	private PNode draggedNode;
-	private boolean moveToFrontOnPress = false;
-	
-	public PDragEventHandler() {
-		super();
-		setEventFilter(new PInputEventFilter(InputEvent.BUTTON1_MASK));
-	}
-	
-	protected PNode getDraggedNode() {
-		return draggedNode;
-	}
-	
-	protected void setDraggedNode(PNode draggedNode) {
-		this.draggedNode = draggedNode;
-	}
-		
-	protected boolean shouldStartDragInteraction(PInputEvent event) {
-		if (super.shouldStartDragInteraction(event)) {
-			return event.getPickedNode() != event.getTopCamera();
-		}
-		return false;
-	}
+    private PNode draggedNode;
+    private boolean moveToFrontOnPress = false;
+    
+    public PDragEventHandler() {
+        super();
+        setEventFilter(new PInputEventFilter(InputEvent.BUTTON1_MASK));
+    }
+    
+    protected PNode getDraggedNode() {
+        return draggedNode;
+    }
+    
+    protected void setDraggedNode(PNode draggedNode) {
+        this.draggedNode = draggedNode;
+    }
+        
+    protected boolean shouldStartDragInteraction(PInputEvent event) {
+        if (super.shouldStartDragInteraction(event)) {
+            return event.getPickedNode() != event.getTopCamera();
+        }
+        return false;
+    }
 
-	protected void startDrag(PInputEvent event) {
-		super.startDrag(event); 	
-		draggedNode = event.getPickedNode();
-		if (moveToFrontOnPress) {
-			draggedNode.moveToFront();
-		}
-	}
+    protected void startDrag(PInputEvent event) {
+        super.startDrag(event);     
+        draggedNode = event.getPickedNode();
+        if (moveToFrontOnPress) {
+            draggedNode.moveToFront();
+        }
+    }
 
-	protected void drag(PInputEvent event) {
-		super.drag(event);
-		PDimension d = event.getDeltaRelativeTo(draggedNode);		
-		draggedNode.localToParent(d);
-		draggedNode.offset(d.getWidth(), d.getHeight());
-	}
+    protected void drag(PInputEvent event) {
+        super.drag(event);
+        PDimension d = event.getDeltaRelativeTo(draggedNode);        
+        draggedNode.localToParent(d);
+        draggedNode.offset(d.getWidth(), d.getHeight());
+    }
 
-	protected void endDrag(PInputEvent event) {
-		super.endDrag(event);
-		draggedNode = null;
-	}	
+    protected void endDrag(PInputEvent event) {
+        super.endDrag(event);
+        draggedNode = null;
+    }    
 
-	public boolean getMoveToFrontOnPress() {
-		return moveToFrontOnPress;
-	}
+    public boolean getMoveToFrontOnPress() {
+        return moveToFrontOnPress;
+    }
 
-	public void setMoveToFrontOnPress(boolean moveToFrontOnPress) {
-		this.moveToFrontOnPress = moveToFrontOnPress;
-	}
-	
-	//****************************************************************
-	// Debugging - methods for debugging
-	//****************************************************************
+    public void setMoveToFrontOnPress(boolean moveToFrontOnPress) {
+        this.moveToFrontOnPress = moveToFrontOnPress;
+    }
+    
+    //****************************************************************
+    // Debugging - methods for debugging
+    //****************************************************************
 
-	/**
-	 * Returns a string representing the state of this node. This method is
-	 * intended to be used only for debugging purposes, and the content and
-	 * format of the returned string may vary between implementations. The
-	 * returned string may be empty but may not be <code>null</code>.
-	 *
-	 * @return  a string representation of this node's state
-	 */
-	protected String paramString() {
-		StringBuffer result = new StringBuffer();
+    /**
+     * Returns a string representing the state of this node. This method is
+     * intended to be used only for debugging purposes, and the content and
+     * format of the returned string may vary between implementations. The
+     * returned string may be empty but may not be <code>null</code>.
+     *
+     * @return  a string representation of this node's state
+     */
+    protected String paramString() {
+        StringBuffer result = new StringBuffer();
 
-		result.append("draggedNode=" + draggedNode == null ? "null" : draggedNode.toString());
-		if (moveToFrontOnPress) result.append(",moveToFrontOnPress");
-		result.append(',');
-		result.append(super.paramString());
+        result.append("draggedNode=" + draggedNode == null ? "null" : draggedNode.toString());
+        if (moveToFrontOnPress) result.append(",moveToFrontOnPress");
+        result.append(',');
+        result.append(super.paramString());
 
-		return result.toString();
-	}	
+        return result.toString();
+    }    
 }

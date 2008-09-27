@@ -108,19 +108,19 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     }
     
     public void testErrorNotShownOnDynamicClass7() {
-    	doc = new Document(
-    			"from extendable.noerr.importer import Struct\n"+
-    			"print Struct.anything\n"
-    	);
-    	checkNoError();
+        doc = new Document(
+                "from extendable.noerr.importer import Struct\n"+
+                "print Struct.anything\n"
+        );
+        checkNoError();
     }
     
     public void testErrorNotShownOnDynamicClass8() {
-    	doc = new Document(
-    			"from extendable.noerr.importer import StructSub\n"+
-    			"print StructSub.anything\n"
-    	);
-    	checkNoError();
+        doc = new Document(
+                "from extendable.noerr.importer import StructSub\n"+
+                "print StructSub.anything\n"
+        );
+        checkNoError();
     }
     
     public void testErrorShownOnInitialSetClass() {

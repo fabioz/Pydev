@@ -58,63 +58,63 @@ import edu.umd.cs.piccolo.util.PPickPath;
  * @author Jesse Grosjean
  */
 public class PNodeCache extends PNode {
-	
-	private transient Image imageCache;
-	private boolean validatingCache;
-	
-	/**
-	 * Override this method to customize the image cache creation process. For
-	 * example if you want to create a shadow effect you would do that here. Fill
-	 * in the cacheOffsetRef if needed to make your image cache line up with the
-	 * nodes children.
-	 */
-	public Image createImageCache(Dimension2D cacheOffsetRef) {
-		return toImage();		
-	}
-	
-	public Image getImageCache() {
-		if (imageCache == null) {			
-			PDimension cacheOffsetRef = new PDimension();
-			validatingCache = true;
-			resetBounds();
-			imageCache = createImageCache(cacheOffsetRef);
-			PBounds b = getFullBoundsReference();
-			setBounds(b.getX() + cacheOffsetRef.getWidth(),
-					  b.getY() + cacheOffsetRef.getHeight(),
-					  imageCache.getWidth(null), 
-					  imageCache.getHeight(null));
-			validatingCache = false;
-		}
-		return imageCache;
-	}
-	
-	public void invalidateCache() {
-		imageCache = null;
-	}	
-	
-	public void invalidatePaint() {
-		if (!validatingCache) {
-			super.invalidatePaint();
-		}
-	}
-	
-	public void repaintFrom(PBounds localBounds, PNode childOrThis) {
-		if (!validatingCache) {
-			super.repaintFrom(localBounds, childOrThis);
-			invalidateCache();
-		}
-	}	
-	
-	public void fullPaint(PPaintContext paintContext) {		
-		if (validatingCache) {
-			super.fullPaint(paintContext);
-		} else {
-			Graphics2D g2 = paintContext.getGraphics();
-			g2.drawImage(getImageCache(), (int) getX(), (int) getY(), null);
-		}
-	}
-	
-	protected boolean pickAfterChildren(PPickPath pickPath) {
-		return false;
-	}
+    
+    private transient Image imageCache;
+    private boolean validatingCache;
+    
+    /**
+     * Override this method to customize the image cache creation process. For
+     * example if you want to create a shadow effect you would do that here. Fill
+     * in the cacheOffsetRef if needed to make your image cache line up with the
+     * nodes children.
+     */
+    public Image createImageCache(Dimension2D cacheOffsetRef) {
+        return toImage();        
+    }
+    
+    public Image getImageCache() {
+        if (imageCache == null) {            
+            PDimension cacheOffsetRef = new PDimension();
+            validatingCache = true;
+            resetBounds();
+            imageCache = createImageCache(cacheOffsetRef);
+            PBounds b = getFullBoundsReference();
+            setBounds(b.getX() + cacheOffsetRef.getWidth(),
+                      b.getY() + cacheOffsetRef.getHeight(),
+                      imageCache.getWidth(null), 
+                      imageCache.getHeight(null));
+            validatingCache = false;
+        }
+        return imageCache;
+    }
+    
+    public void invalidateCache() {
+        imageCache = null;
+    }    
+    
+    public void invalidatePaint() {
+        if (!validatingCache) {
+            super.invalidatePaint();
+        }
+    }
+    
+    public void repaintFrom(PBounds localBounds, PNode childOrThis) {
+        if (!validatingCache) {
+            super.repaintFrom(localBounds, childOrThis);
+            invalidateCache();
+        }
+    }    
+    
+    public void fullPaint(PPaintContext paintContext) {        
+        if (validatingCache) {
+            super.fullPaint(paintContext);
+        } else {
+            Graphics2D g2 = paintContext.getGraphics();
+            g2.drawImage(getImageCache(), (int) getX(), (int) getY(), null);
+        }
+    }
+    
+    protected boolean pickAfterChildren(PPickPath pickPath) {
+        return false;
+    }
 }

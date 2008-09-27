@@ -15,14 +15,14 @@ import edu.umd.cs.piccolox.nodes.PCacheCamera;
  */
 public class PCacheCanvas extends PCanvas {
     protected PCamera createDefaultCamera() {
-		PRoot r = new PRoot();
-		PLayer l = new PLayer();
-		PCamera c = new PCacheCamera();
-		
-		r.addChild(c); 
-		r.addChild(l); 
-		c.addLayer(l);
-		
-		return c;		
+        PRoot r = new PRoot();
+        PLayer l = new PLayer();
+        PCamera c = new PCacheCamera();
+        
+        r.addChild(c); 
+        r.addChild(l); 
+        c.addLayer(l);
+        
+        return c;        
     }
 }

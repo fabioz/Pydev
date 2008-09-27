@@ -20,29 +20,29 @@ import com.python.pydev.ui.dialogs.TreeSelectionDialog;
 public class PyShowOutline extends PyAction{
 
     public void run(IAction action) {
-    	final DialogMemento memento = new DialogMemento(getShell(),"com.python.pydev.actions.PyShowOutline");
-    	
+        final DialogMemento memento = new DialogMemento(getShell(),"com.python.pydev.actions.PyShowOutline");
+        
         PyEdit pyEdit = getPyEdit();
         SimpleNode ast = pyEdit.getAST();
         
         TreeSelectionDialog dialog = new TreeSelectionDialog(getShell(), new ShowOutlineLabelProvider(), new ShowOutlineTreeContentProvider()){
-	     	public boolean close() {
-	     		memento.writeSettings(getShell());
-	     		return super.close();
-	     	}
-	     
-	     	public Control createDialogArea(Composite parent) {
-	     		memento.readSettings();
-	     		return super.createDialogArea(parent);
-	     	}
-	     
-	        protected Point getInitialSize() {
-	      	  return memento.getInitialSize(super.getInitialSize(), getShell());
-	        }
-	     
-	     	protected Point getInitialLocation(Point initialSize) {
-	     	    return memento.getInitialLocation(initialSize, super.getInitialLocation(initialSize), getShell());
-	        }
+             public boolean close() {
+                 memento.writeSettings(getShell());
+                 return super.close();
+             }
+         
+             public Control createDialogArea(Composite parent) {
+                 memento.readSettings();
+                 return super.createDialogArea(parent);
+             }
+         
+            protected Point getInitialSize() {
+                return memento.getInitialSize(super.getInitialSize(), getShell());
+            }
+         
+             protected Point getInitialLocation(Point initialSize) {
+                 return memento.getInitialLocation(initialSize, super.getInitialLocation(initialSize), getShell());
+            }
 
         };
 

@@ -38,9 +38,9 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
     }
     
     //-------------------------------------------- things we currently cannot do
-	public boolean canExtract() {
-		return false;
-	}
+    public boolean canExtract() {
+        return false;
+    }
     public boolean canRename() {
         return true;
     }
@@ -62,7 +62,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
         return null;
     }
 
-	
+    
     /**
      * Renames something... 
      * 
@@ -70,7 +70,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
      * 
      * @see org.python.pydev.editor.refactoring.IPyRefactoring#rename(org.python.pydev.editor.refactoring.RefactoringRequest)
      */
-	public String rename(RefactoringRequest request) {
+    public String rename(RefactoringRequest request) {
         try {
             RenameRefactoring renameRefactoring = new RenameRefactoring(new PyRenameEntryPoint(request));
             request.fillInitialNameAndOffset();
@@ -85,27 +85,27 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
             PydevPlugin.log(e);
         }
         return null;
-	}
+    }
     
     public ItemPointer[] findDefinition(RefactoringRequest request) throws TooManyMatchesException {
         return new RefactorerFindDefinition().findDefinition(request);
     }
-	
-	public String inlineLocalVariable(RefactoringRequest request) {
-		return null;
-	}
-	
-	public String extractLocalVariable(RefactoringRequest request) {
-		return null;
-	}
+    
+    public String inlineLocalVariable(RefactoringRequest request) {
+        return null;
+    }
+    
+    public String extractLocalVariable(RefactoringRequest request) {
+        return null;
+    }
 
-	public void restartShell() {
-		//no shell
-	}
+    public void restartShell() {
+        //no shell
+    }
 
-	public void killShell() {
-		//no shell
-	}
+    public void killShell() {
+        //no shell
+    }
 
     public void checkAvailableForRefactoring(RefactoringRequest request) {
         //can always do it (does not depend upon the project)

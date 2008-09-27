@@ -41,13 +41,13 @@ import com.python.pydev.refactoring.refactorer.RefactorerFindDefinition;
 public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRenameRefactorProcess{
 
     public static final boolean DEBUG_FILTERED_MODULES = false || PyFindAllOccurrences.DEBUG_FIND_REFERENCES;
-	private RefactorerFindDefinition refactorerFindDefinition = new RefactorerFindDefinition();
+    private RefactorerFindDefinition refactorerFindDefinition = new RefactorerFindDefinition();
     
     /**
      * May be used by subclasses
      */
     protected AbstractRenameWorkspaceRefactorProcess() {
-    	
+        
     }
     public AbstractRenameWorkspaceRefactorProcess(Definition definition) {
         super(definition);
@@ -63,7 +63,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
      * @return a list with the references that point to the definition we're renaming. 
      */
     protected List<ASTEntry> getOccurrencesInOtherModule(RefactoringStatus status, String initialName, SourceModule module, PythonNature nature) {
-    	CompletionCache completionCache = new CompletionCache();
+        CompletionCache completionCache = new CompletionCache();
         List<ASTEntry> entryOccurrences = findReferencesOnOtherModule(status, initialName, module);
 
         if(getRecheckWhereDefinitionWasFound()){
@@ -72,25 +72,25 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
                 int line = entry.node.beginLine;
                 int col = entry.node.beginColumn;
                 try {
-                	ArrayList<IDefinition> definitions = new ArrayList<IDefinition>();
-					refactorerFindDefinition.findActualDefinition(request, module, initialName, definitions, line, col, nature, completionCache);
-					//Definition[] definitions = module.findDefinition(new CompletionState(line-1, col-1, initialName, nature, ""), line, col, nature, null);
+                    ArrayList<IDefinition> definitions = new ArrayList<IDefinition>();
+                    refactorerFindDefinition.findActualDefinition(request, module, initialName, definitions, line, col, nature, completionCache);
+                    //Definition[] definitions = module.findDefinition(new CompletionState(line-1, col-1, initialName, nature, ""), line, col, nature, null);
                     for (IDefinition def : definitions) {
-                    	if(def instanceof Definition){
-	                        Definition localDefinition = (Definition) def;
-							//if within one module any of the definitions pointed to some class in some other module,
-	                        //that means that the tokens in this module actually point to some other class 
-	                        //(with the same name), and we can't actually rename them.
-	                        String foundModName = localDefinition.module.getName();
-	                        if(foundModName != null && !foundModName.equals(this.definition.module.getName())){
-	                            if(DEBUG_FILTERED_MODULES){
-	                                System.out.println("The entries found on module:"+module.getName()+" had the definition found on module:"+
-	                                        foundModName+" and were removed from the elements to be renamed.");
-	                                
-	                            }
-	                            return new ArrayList<ASTEntry>();
-	                        }
-                    	}
+                        if(def instanceof Definition){
+                            Definition localDefinition = (Definition) def;
+                            //if within one module any of the definitions pointed to some class in some other module,
+                            //that means that the tokens in this module actually point to some other class 
+                            //(with the same name), and we can't actually rename them.
+                            String foundModName = localDefinition.module.getName();
+                            if(foundModName != null && !foundModName.equals(this.definition.module.getName())){
+                                if(DEBUG_FILTERED_MODULES){
+                                    System.out.println("The entries found on module:"+module.getName()+" had the definition found on module:"+
+                                            foundModName+" and were removed from the elements to be renamed.");
+                                    
+                                }
+                                return new ArrayList<ASTEntry>();
+                            }
+                        }
                     }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -152,35 +152,35 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
                 IProject project = file.getProject();
                 PythonNature nature = PythonNature.getPythonNature(project);
                 if(nature != null){
-                	if(!nature.startRequests()){
-                		continue;
-                	}
-                	try{
-	                    IProjectModulesManager modulesManager = (IProjectModulesManager) nature.getAstManager().getModulesManager();
-	                    
-	                    request.checkCancelled();
-	                    String modName = modulesManager.resolveModuleInDirectManager(file);
-	                    
-	                    if(modName != null){
-	                        if(!request.moduleName.equals(modName)){
-	                            //we've already checked the module from the request...
-	                            
-	                            request.checkCancelled();
-	                            IModule module = nature.getAstManager().getModule(modName, nature, true, false);
-	                            
-	                            if(module instanceof SourceModule){
-	                                
-	                                request.checkCancelled();
-	                                List<ASTEntry> entryOccurrences = getOccurrencesInOtherModule(status, request.initialName, (SourceModule) module, nature);
-	                                
-	                                if(entryOccurrences.size() > 0){
-	                                    addOccurrences(entryOccurrences, file, modName);
-	                                }
-	                            }
-	                        }
+                    if(!nature.startRequests()){
+                        continue;
+                    }
+                    try{
+                        IProjectModulesManager modulesManager = (IProjectModulesManager) nature.getAstManager().getModulesManager();
+                        
+                        request.checkCancelled();
+                        String modName = modulesManager.resolveModuleInDirectManager(file);
+                        
+                        if(modName != null){
+                            if(!request.moduleName.equals(modName)){
+                                //we've already checked the module from the request...
+                                
+                                request.checkCancelled();
+                                IModule module = nature.getAstManager().getModule(modName, nature, true, false);
+                                
+                                if(module instanceof SourceModule){
+                                    
+                                    request.checkCancelled();
+                                    List<ASTEntry> entryOccurrences = getOccurrencesInOtherModule(status, request.initialName, (SourceModule) module, nature);
+                                    
+                                    if(entryOccurrences.size() > 0){
+                                        addOccurrences(entryOccurrences, file, modName);
+                                    }
+                                }
+                            }
                         }
                     }finally{
-                    	nature.endRequests();
+                        nature.endRequests();
                     }
                 }
             }

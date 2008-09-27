@@ -96,7 +96,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             
             ArrayList<IFile> iFiles = new ArrayList<IFile>();
             for (PyFileInfo info: filesInRefactoringProject) {
-            	File f = info.getFile();
+                File f = info.getFile();
                 iFiles.add(new FileResourceStub(f, natureRefactoring.getProject()));
                 
                 String modName = natureRefactoring.resolveModule(f);
@@ -126,7 +126,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             
             for(IRefactorRenameProcess p:processes){
                 assertTrue( StringUtils.format("Expected %s. Received:%s", getProcessUnderTest(), p.getClass()),
-                			getProcessUnderTest().isInstance(p)); //we should only activate the rename class process in this test case
+                            getProcessUnderTest().isInstance(p)); //we should only activate the rename class process in this test case
             }
         }
     }
@@ -261,9 +261,9 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     
             PyRenameEntryPoint processor = new PyRenameEntryPoint(request);
             NullProgressMonitor nullProgressMonitor = new NullProgressMonitor();
-			checkStatus(processor.checkInitialConditions(nullProgressMonitor), expectError);
-			lastProcessorUsed = processor;
-	        checkProcessors();
+            checkStatus(processor.checkInitialConditions(nullProgressMonitor), expectError);
+            lastProcessorUsed = processor;
+            checkProcessors();
 
             checkStatus(processor.checkFinalConditions(nullProgressMonitor, null, false), expectError);
             occurrencesToReturn = processor.getOccurrencesInOtherFiles();

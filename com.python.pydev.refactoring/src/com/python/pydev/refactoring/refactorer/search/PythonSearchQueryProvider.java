@@ -8,10 +8,10 @@ import com.python.pydev.refactoring.refactorer.RefactorerFindReferences.PyTextSe
 
 public class PythonSearchQueryProvider {
 
-	public static ISearchQuery createQuery(PyTextSearchInput input) {
-		FileTextSearchScope scope= input.getScope();
-		String text= input.getSearchText();
-		return new PythonFileSearchQuery(text, scope);
-	}
+    public static ISearchQuery createQuery(PyTextSearchInput input) {
+        FileTextSearchScope scope= input.getScope();
+        String text= input.getSearchText();
+        return new PythonFileSearchQuery(text, scope);
+    }
 
 }

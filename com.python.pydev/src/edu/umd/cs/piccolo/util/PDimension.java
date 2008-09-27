@@ -42,52 +42,52 @@ import java.io.Serializable;
  */
 public class PDimension extends Dimension2D implements Serializable {
 
-	public double width;
-	public double height;
+    public double width;
+    public double height;
 
-	public PDimension() {
-		super();
-	}
+    public PDimension() {
+        super();
+    }
 
-	public PDimension(Dimension2D aDimension) {
-		this(aDimension.getWidth(), aDimension.getHeight());
-	}
-	
-	public PDimension(double aWidth, double aHeight) {
-		super();
-		width = aWidth;
-		height = aHeight;
-	}
+    public PDimension(Dimension2D aDimension) {
+        this(aDimension.getWidth(), aDimension.getHeight());
+    }
+    
+    public PDimension(double aWidth, double aHeight) {
+        super();
+        width = aWidth;
+        height = aHeight;
+    }
 
-	public PDimension(Point2D p1, Point2D p2) {
-		width = p2.getX() - p1.getX();
-		height = p2.getY() - p1.getY();
-	}
+    public PDimension(Point2D p1, Point2D p2) {
+        width = p2.getX() - p1.getX();
+        height = p2.getY() - p1.getY();
+    }
 
-	public double getHeight() {
-		return height;
-	}
+    public double getHeight() {
+        return height;
+    }
 
-	public double getWidth() {
-		return width;
-	}
+    public double getWidth() {
+        return width;
+    }
 
-	public void setSize(double aWidth, double aHeight) {
-		width = aWidth;
-		height = aHeight;
-	}
-	
-	public String toString() {
-		StringBuffer result = new StringBuffer();
+    public void setSize(double aWidth, double aHeight) {
+        width = aWidth;
+        height = aHeight;
+    }
+    
+    public String toString() {
+        StringBuffer result = new StringBuffer();
 
-		result.append(super.toString().replaceAll(".*\\.", ""));
-		result.append('[');
-		result.append("width=");
-		result.append(width);
-		result.append(",height=");
-		result.append(height);
-		result.append(']');
+        result.append(super.toString().replaceAll(".*\\.", ""));
+        result.append('[');
+        result.append("width=");
+        result.append(width);
+        result.append(",height=");
+        result.append(height);
+        result.append(']');
 
-		return result.toString();
-	}	
+        return result.toString();
+    }    
 }

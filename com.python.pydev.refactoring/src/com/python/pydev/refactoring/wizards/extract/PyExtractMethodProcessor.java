@@ -29,57 +29,57 @@ import com.python.pydev.refactoring.ast.PyASTFactory;
 public class PyExtractMethodProcessor extends RefactoringProcessor{
 
     private RefactoringRequest request;
-	private CompositeChange fChange;
+    private CompositeChange fChange;
     private List<SimpleNode> selectedStmt;
 
-	public PyExtractMethodProcessor (RefactoringRequest request) {
+    public PyExtractMethodProcessor (RefactoringRequest request) {
         this.request = request;
     }
 
-	@Override
-	public Object[] getElements() {
+    @Override
+    public Object[] getElements() {
         return new Object[] { this.request };
-	}
+    }
 
     public static final String IDENTIFIER = "org.python.pydev.pyExtractMethod";
     
-	@Override
-	public String getIdentifier() {
-		return IDENTIFIER;
-	}
+    @Override
+    public String getIdentifier() {
+        return IDENTIFIER;
+    }
 
-	@Override
-	public String getProcessorName() {
-		return "Pydev PyExtractMethodProcessor";
-	}
+    @Override
+    public String getProcessorName() {
+        return "Pydev PyExtractMethodProcessor";
+    }
 
-	@Override
-	public boolean isApplicable() throws CoreException {
-		return true;
-	}
+    @Override
+    public boolean isApplicable() throws CoreException {
+        return true;
+    }
 
-	@Override
-	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+    @Override
+    public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
         RefactoringStatus status = new RefactoringStatus();
         
         this.selectedStmt = getSelectedStmt();
         System.out.println("selectedStmt:"+selectedStmt);
         
-		return status;
-	}
+        return status;
+    }
 
-	private List<SimpleNode> getSelectedStmt() {
-		GetSelectedStmtsVisitor visitor = new GetSelectedStmtsVisitor(request.ps);
-		try {
-			request.getAST().accept(visitor);
-			return visitor.getSelectedStmts();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+    private List<SimpleNode> getSelectedStmt() {
+        GetSelectedStmtsVisitor visitor = new GetSelectedStmtsVisitor(request.ps);
+        try {
+            request.getAST().accept(visitor);
+            return visitor.getSelectedStmts();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	@Override
-	public RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context) throws CoreException, OperationCanceledException {
+    @Override
+    public RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context) throws CoreException, OperationCanceledException {
         RefactoringStatus status = new RefactoringStatus();
         fChange = new CompositeChange("ExtractMethodChange: "+request.inputName);
         
@@ -107,17 +107,17 @@ public class PyExtractMethodProcessor extends RefactoringProcessor{
         
         fChange.add(docChange);
         
-		return status;
-	}
+        return status;
+    }
 
-	@Override
-	public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-		return fChange; 
-	}
+    @Override
+    public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+        return fChange; 
+    }
 
-	@Override
-	public RefactoringParticipant[] loadParticipants(RefactoringStatus status, SharableParticipants sharedParticipants) throws CoreException {
-		return null; // no participants are loaded
-	}
+    @Override
+    public RefactoringParticipant[] loadParticipants(RefactoringStatus status, SharableParticipants sharedParticipants) throws CoreException {
+        return null; // no participants are loaded
+    }
 
 }

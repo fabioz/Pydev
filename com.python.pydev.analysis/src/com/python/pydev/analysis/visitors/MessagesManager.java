@@ -57,7 +57,7 @@ public class MessagesManager {
     /**
      * This is the document
      */
-	private IDocument document;
+    private IDocument document;
 
     public MessagesManager(IAnalysisPreferences prefs, String moduleName, IDocument doc) {
         this.prefs = prefs;
@@ -160,45 +160,45 @@ public class MessagesManager {
     }
 
     public void addUndefinedMessage(IToken token) {
-    	addUndefinedMessage(token, null);
+        addUndefinedMessage(token, null);
     }
     
     /**
      * @param token adds a message saying that a token is not defined
      */
     public void addUndefinedMessage(IToken token, String rep) {
-    	Tuple<Boolean, String> undef = isActuallyUndefined(token, rep);
+        Tuple<Boolean, String> undef = isActuallyUndefined(token, rep);
         if(undef.o1){
-        	addMessage(IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE, token, undef.o2 );
+            addMessage(IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE, token, undef.o2 );
         }
     }
 
     /**
      * @param token adds a message saying that a token gathered from an import is not defined
      */
-	public void addUndefinedVarInImportMessage(IToken token, String rep) {
-    	Tuple<Boolean, String> undef = isActuallyUndefined(token, rep);
+    public void addUndefinedVarInImportMessage(IToken token, String rep) {
+        Tuple<Boolean, String> undef = isActuallyUndefined(token, rep);
         if(undef.o1){
-        	addMessage(IAnalysisPreferences.TYPE_UNDEFINED_IMPORT_VARIABLE, token, undef.o2 );
+            addMessage(IAnalysisPreferences.TYPE_UNDEFINED_IMPORT_VARIABLE, token, undef.o2 );
         }
-	}
+    }
     
     /**
      * Checks if some token is actually undefined and changes its representation if needed
      * @return a tuple indicating if it really is undefined and the representation that should be used.
      */
     protected Tuple<Boolean, String> isActuallyUndefined(IToken token, String rep){
-    	String tokenRepresentation = token.getRepresentation();
-    	if(tokenRepresentation != null){
-    	    String firstPart = FullRepIterable.getFirstPart(tokenRepresentation);
+        String tokenRepresentation = token.getRepresentation();
+        if(tokenRepresentation != null){
+            String firstPart = FullRepIterable.getFirstPart(tokenRepresentation);
             if(this.prefs.getTokensAlwaysInGlobals().contains(firstPart)){
                 return new Tuple<Boolean, String>(false, firstPart); //ok firstPart in not really undefined... 
-        	}
-    	}
+            }
+        }
         
-    	boolean isActuallyUndefined = true;
+        boolean isActuallyUndefined = true;
         if(rep == null){
-        	rep = tokenRepresentation;
+            rep = tokenRepresentation;
         }
         
         int i;
@@ -208,7 +208,7 @@ public class MessagesManager {
 
         String builtinType = NodeUtils.getBuiltinType(rep);
         if(builtinType != null){
-        	isActuallyUndefined = false; //this is a builtin, so, it is defined after all
+            isActuallyUndefined = false; //this is a builtin, so, it is defined after all
         }
         return new Tuple<Boolean, String>(isActuallyUndefined, rep);
     }

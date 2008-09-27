@@ -18,9 +18,9 @@ import org.python.pydev.parser.visitors.NodeUtils;
  */
 public class HierarchyNodeModel {
 
-	/**
-	 * Its name (cannot be null)
-	 */
+    /**
+     * Its name (cannot be null)
+     */
     public String name;
     
     public List<HierarchyNodeModel> parents = new ArrayList<HierarchyNodeModel>();
@@ -29,27 +29,27 @@ public class HierarchyNodeModel {
     /**
      * The module where it was defined (might be null)
      */
-	public String moduleName;
-	
-	/**
-	 * The classdef definition (might be null)
-	 */
-	public ClassDef ast;
+    public String moduleName;
+    
+    /**
+     * The classdef definition (might be null)
+     */
+    public ClassDef ast;
 
     /**
      * The module where this node is defined (might be null)
      */
     public IModule module;
     
-	public HierarchyNodeModel(String name) {
-		this(name, "default", null);
-	}
-	public HierarchyNodeModel(String pack, ClassDef ast) {
-		this(NodeUtils.getRepresentationString(ast), pack, ast);
-	}
-	
+    public HierarchyNodeModel(String name) {
+        this(name, "default", null);
+    }
+    public HierarchyNodeModel(String pack, ClassDef ast) {
+        this(NodeUtils.getRepresentationString(ast), pack, ast);
+    }
+    
     public HierarchyNodeModel(String name, String pack, ClassDef ast) {
-    	Assert.isNotNull(name);
+        Assert.isNotNull(name);
         this.name = name;
         this.moduleName = pack;
         this.ast = ast;
@@ -68,11 +68,11 @@ public class HierarchyNodeModel {
     @Override
     public boolean equals(Object obj) {
         final HierarchyNodeModel h = (HierarchyNodeModel)obj;
-		return name.equals(h.name) && moduleName.equals(h.moduleName);
+        return name.equals(h.name) && moduleName.equals(h.moduleName);
     }
     
     @Override
     public String toString() {
-    	return "HierarchyNodeModel["+name+" - "+moduleName+"]";
+        return "HierarchyNodeModel["+name+" - "+moduleName+"]";
     }
 }

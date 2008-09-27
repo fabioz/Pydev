@@ -17,10 +17,10 @@ public class ExtractMethodTest extends RefactoringLocalTestBase {
             "";
         
         String expected = ""+
-    		"m1()\n" +
-    		"def m1():\n" +
-    		"    a=1\n" +
-    		"";
+            "m1()\n" +
+            "def m1():\n" +
+            "    a=1\n" +
+            "";
         
         checkExtract(initial, expected, 0,0,3, false, "m1");
     }

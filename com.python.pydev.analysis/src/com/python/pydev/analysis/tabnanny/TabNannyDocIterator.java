@@ -67,11 +67,11 @@ public class TabNannyDocIterator implements Iterator<Tuple3<String, Integer, Boo
                 }else{
                     if(initial == offset){
                         PydevPlugin.log("Error: TabNannyDocIterator didn't walk.\n" +
-                        		"Curr char:"+c+"\n" +
-                        		"Curr char (as int):"+(int)c+"\n" +
-                        		"Offset:"+offset+"\n" +
-                				"DocLen:"+docLen+"\n"
-                				);
+                                "Curr char:"+c+"\n" +
+                                "Curr char (as int):"+(int)c+"\n" +
+                                "Offset:"+offset+"\n" +
+                                "DocLen:"+docLen+"\n"
+                                );
                         offset++;
                         return true;
                     }else{

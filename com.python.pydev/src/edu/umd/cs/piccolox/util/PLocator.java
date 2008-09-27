@@ -42,18 +42,18 @@ import java.io.Serializable;
  */
 public abstract class PLocator implements Serializable {
 
-	public PLocator() {
-	}
+    public PLocator() {
+    }
 
-	public Point2D locatePoint(Point2D aDstPoint) {
-		if (aDstPoint == null) {
-			aDstPoint = new Point2D.Double();
-		}
-		aDstPoint.setLocation(locateX(), locateY());
-		return aDstPoint;
-	}
+    public Point2D locatePoint(Point2D aDstPoint) {
+        if (aDstPoint == null) {
+            aDstPoint = new Point2D.Double();
+        }
+        aDstPoint.setLocation(locateX(), locateY());
+        return aDstPoint;
+    }
 
-	public abstract double locateX();
+    public abstract double locateX();
 
-	public abstract double locateY();
+    public abstract double locateY();
 }

@@ -14,10 +14,10 @@ import org.eclipse.swt.graphics.Rectangle;
  */
 public class SWTShapeManager {
 
-	static AffineTransform IDENTITY_XFORM = new AffineTransform();
-	static Point2D aPoint = new Point2D.Double();
-	static ArrayList segList = new ArrayList();
-	static double[] pts = new double[8];
+    static AffineTransform IDENTITY_XFORM = new AffineTransform();
+    static Point2D aPoint = new Point2D.Double();
+    static ArrayList segList = new ArrayList();
+    static double[] pts = new double[8];
 
 
     /**
@@ -60,53 +60,53 @@ public class SWTShapeManager {
         rect.setRect(minX, minY, maxX - minX, maxY - minY);
     }
 
-	public static void awtToSWT(Rectangle2D aRect, Rectangle sRect) {
-		sRect.x = (int)(aRect.getX()+0.5);
-		sRect.y = (int)(aRect.getY()+0.5);
-		sRect.width = (int)(aRect.getWidth()+0.5);
-		sRect.height = (int)(aRect.getHeight()+0.5);
-	}
-	
-	public static double[] shapeToPolyline(Shape s) {
-		segList.clear();
-		aPoint.setLocation(0,0);
-		
-		PathIterator pi = s.getPathIterator(IDENTITY_XFORM,0.000000001);
-		while (!pi.isDone()) {
-			int segType = pi.currentSegment(pts);
-			switch (segType) {
-				case PathIterator.SEG_MOVETO:
-					aPoint.setLocation(pts[0],pts[1]);
-					segList.add(new Point2D.Double(pts[0],pts[1]));
-					break;
-				case PathIterator.SEG_LINETO:
-					segList.add(new Point2D.Double(pts[0],pts[1]));					
-					break;
-				case PathIterator.SEG_CLOSE:
-					segList.add(new Point2D.Double(aPoint.getX(),aPoint.getY()));
-					break;
-			}
-			pi.next();
-		}
-		
-		double[] polyObj = new double[2*segList.size()];
-		for(int i=0; i<segList.size(); i++) {
-			Point2D p2 = (Point2D)segList.get(i);
-			polyObj[2*i] = (int)(p2.getX()+0.5);
-			polyObj[2*i+1] = (int)(p2.getY()+0.5);
-		}
-		
-		return polyObj;
-	}
-	
-	public static int[] transform(double[] pts, AffineTransform at) {
-		int[] intPts = new int[pts.length];
-		for(int i=0; i<pts.length/2; i++) {
-			aPoint.setLocation(pts[2*i],pts[2*i+1]);
-			at.transform(aPoint,aPoint);
-			intPts[2*i] = (int)(aPoint.getX()+0.5);
-			intPts[2*i+1] = (int)(aPoint.getY()+0.5);
-		}
-		return intPts;
-	}	
+    public static void awtToSWT(Rectangle2D aRect, Rectangle sRect) {
+        sRect.x = (int)(aRect.getX()+0.5);
+        sRect.y = (int)(aRect.getY()+0.5);
+        sRect.width = (int)(aRect.getWidth()+0.5);
+        sRect.height = (int)(aRect.getHeight()+0.5);
+    }
+    
+    public static double[] shapeToPolyline(Shape s) {
+        segList.clear();
+        aPoint.setLocation(0,0);
+        
+        PathIterator pi = s.getPathIterator(IDENTITY_XFORM,0.000000001);
+        while (!pi.isDone()) {
+            int segType = pi.currentSegment(pts);
+            switch (segType) {
+                case PathIterator.SEG_MOVETO:
+                    aPoint.setLocation(pts[0],pts[1]);
+                    segList.add(new Point2D.Double(pts[0],pts[1]));
+                    break;
+                case PathIterator.SEG_LINETO:
+                    segList.add(new Point2D.Double(pts[0],pts[1]));                    
+                    break;
+                case PathIterator.SEG_CLOSE:
+                    segList.add(new Point2D.Double(aPoint.getX(),aPoint.getY()));
+                    break;
+            }
+            pi.next();
+        }
+        
+        double[] polyObj = new double[2*segList.size()];
+        for(int i=0; i<segList.size(); i++) {
+            Point2D p2 = (Point2D)segList.get(i);
+            polyObj[2*i] = (int)(p2.getX()+0.5);
+            polyObj[2*i+1] = (int)(p2.getY()+0.5);
+        }
+        
+        return polyObj;
+    }
+    
+    public static int[] transform(double[] pts, AffineTransform at) {
+        int[] intPts = new int[pts.length];
+        for(int i=0; i<pts.length/2; i++) {
+            aPoint.setLocation(pts[2*i],pts[2*i+1]);
+            at.transform(aPoint,aPoint);
+            intPts[2*i] = (int)(aPoint.getX()+0.5);
+            intPts[2*i+1] = (int)(aPoint.getY()+0.5);
+        }
+        return intPts;
+    }    
 }

@@ -29,38 +29,38 @@ public class DelStmtChange extends AbstractStmtChange{
         this.applyAt = node;
         this.attr = attr;
         this.pos = pos;
-	}
+    }
 
-	public DelStmtChange(SimpleNode node) {
-	    makeChangesToParent = false;
+    public DelStmtChange(SimpleNode node) {
+        makeChangesToParent = false;
         this.applyAt = node;
     }
 
     public Change getChange(IDocument doc) throws Throwable {
-    	Tuple<DocumentChange, MultiTextEdit> tup = getDocChange(doc);
+        Tuple<DocumentChange, MultiTextEdit> tup = getDocChange(doc);
         return getDocChange(doc, tup);
-	}
+    }
 
     public Change getDocChange(IDocument doc, Tuple<DocumentChange, MultiTextEdit> tup) throws BadLocationException {
         if(makeChangesToParent){
             stmtType[] attrObj = (stmtType[]) REF.getAttrObj(applyAt, attr);
     
             if(attrObj == null || attrObj.length == 0){
-            	return tup.o1;
+                return tup.o1;
             }
             
             //this is the statement we should remove
             stmtType next = null;
             if(attrObj.length > pos+1){
-            	next = attrObj[pos+1];
+                next = attrObj[pos+1];
             }
             
             SimpleNode stmt = attrObj[pos];
             int offsetStart = getOffsetFromNodeBegin(stmt, doc);
-    		int offsetEnd = getStmtOffsetEnd(stmt, next, doc, getPrefs(doc));
+            int offsetEnd = getStmtOffsetEnd(stmt, next, doc, getPrefs(doc));
             DeleteEdit delEdit = new DeleteEdit(offsetStart, offsetEnd - offsetStart);
             addTextEdit("Del Stmt Change", tup, delEdit);
-    		return tup.o1;
+            return tup.o1;
         }else{
             throw new RuntimeException("Not Impl");
         }

@@ -14,61 +14,61 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 
 public class PythonFileSearchResult extends FileSearchResult implements IEditorMatchAdapter, IFileMatchAdapter {
-	private final Match[] EMPTY_ARR= new Match[0];
-	
-	private AbstractPythonSearchQuery fQuery;
+    private final Match[] EMPTY_ARR= new Match[0];
+    
+    private AbstractPythonSearchQuery fQuery;
 
-	public PythonFileSearchResult(AbstractPythonSearchQuery query) {
+    public PythonFileSearchResult(AbstractPythonSearchQuery query) {
         super(null);
-		fQuery= query;
-	}
-	public ImageDescriptor getImageDescriptor() {
-		return SearchPluginImages.DESC_OBJ_TSEARCH_DPDN;
-	}
-	public String getLabel() {
-		return fQuery.getResultLabel(getMatchCount());
-	}
-	public String getTooltip() {
-		return getLabel();
-	}
+        fQuery= query;
+    }
+    public ImageDescriptor getImageDescriptor() {
+        return SearchPluginImages.DESC_OBJ_TSEARCH_DPDN;
+    }
+    public String getLabel() {
+        return fQuery.getResultLabel(getMatchCount());
+    }
+    public String getTooltip() {
+        return getLabel();
+    }
 
-	public Match[] computeContainedMatches(AbstractTextSearchResult result, IFile file) {
-		return getMatches(file);
-	}
+    public Match[] computeContainedMatches(AbstractTextSearchResult result, IFile file) {
+        return getMatches(file);
+    }
 
-	public IFile getFile(Object element) {
-		if (element instanceof IFile)
-			return (IFile)element;
-		return null;
-	}
+    public IFile getFile(Object element) {
+        if (element instanceof IFile)
+            return (IFile)element;
+        return null;
+    }
 
-	public boolean isShownInEditor(Match match, IEditorPart editor) {
-		IEditorInput ei= editor.getEditorInput();
-		if (ei instanceof IFileEditorInput) {
-			IFileEditorInput fi= (IFileEditorInput) ei;
-			return match.getElement().equals(fi.getFile());
-		}
-		return false;
-	}
-	
-	public Match[] computeContainedMatches(AbstractTextSearchResult result, IEditorPart editor) {
-		IEditorInput ei= editor.getEditorInput();
-		if (ei instanceof IFileEditorInput) {
-			IFileEditorInput fi= (IFileEditorInput) ei;
-			return getMatches(fi.getFile());
-		}
-		return EMPTY_ARR;
-	}
+    public boolean isShownInEditor(Match match, IEditorPart editor) {
+        IEditorInput ei= editor.getEditorInput();
+        if (ei instanceof IFileEditorInput) {
+            IFileEditorInput fi= (IFileEditorInput) ei;
+            return match.getElement().equals(fi.getFile());
+        }
+        return false;
+    }
+    
+    public Match[] computeContainedMatches(AbstractTextSearchResult result, IEditorPart editor) {
+        IEditorInput ei= editor.getEditorInput();
+        if (ei instanceof IFileEditorInput) {
+            IFileEditorInput fi= (IFileEditorInput) ei;
+            return getMatches(fi.getFile());
+        }
+        return EMPTY_ARR;
+    }
 
-	public ISearchQuery getQuery() {
-		return fQuery;
-	}
-	
-	public IFileMatchAdapter getFileMatchAdapter() {
-		return this;
-	}
-	
-	public IEditorMatchAdapter getEditorMatchAdapter() {
-		return this;
-	}
+    public ISearchQuery getQuery() {
+        return fQuery;
+    }
+    
+    public IFileMatchAdapter getFileMatchAdapter() {
+        return this;
+    }
+    
+    public IEditorMatchAdapter getEditorMatchAdapter() {
+        return this;
+    }
 }

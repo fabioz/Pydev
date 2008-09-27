@@ -16,47 +16,47 @@ import com.python.pydev.debug.remote.RemoteDebuggerServer;
  * @see IWorkbenchWindowActionDelegate
  */
 public class EndDebugServer implements IWorkbenchWindowActionDelegate {
-	private IWorkbenchWindow window;
-	/**
-	 * The constructor.
-	 */
-	public EndDebugServer() {
-	}
+    private IWorkbenchWindow window;
+    /**
+     * The constructor.
+     */
+    public EndDebugServer() {
+    }
 
-	/**
-	 * The action has been activated. The argument of the
-	 * method represents the 'real' action sitting
-	 * in the workbench UI.
-	 * @see IWorkbenchWindowActionDelegate#run
-	 */
-	public void run(IAction action) {
-		RemoteDebuggerServer.getInstance().stopListening();
-	}
+    /**
+     * The action has been activated. The argument of the
+     * method represents the 'real' action sitting
+     * in the workbench UI.
+     * @see IWorkbenchWindowActionDelegate#run
+     */
+    public void run(IAction action) {
+        RemoteDebuggerServer.getInstance().stopListening();
+    }
 
-	/**
-	 * Selection in the workbench has been changed. We 
-	 * can change the state of the 'real' action here
-	 * if we want, but this can only happen after 
-	 * the delegate has been created.
-	 * @see IWorkbenchWindowActionDelegate#selectionChanged
-	 */
-	public void selectionChanged(IAction action, ISelection selection) {
-	}
+    /**
+     * Selection in the workbench has been changed. We 
+     * can change the state of the 'real' action here
+     * if we want, but this can only happen after 
+     * the delegate has been created.
+     * @see IWorkbenchWindowActionDelegate#selectionChanged
+     */
+    public void selectionChanged(IAction action, ISelection selection) {
+    }
 
-	/**
-	 * We can use this method to dispose of any system
-	 * resources we previously allocated.
-	 * @see IWorkbenchWindowActionDelegate#dispose
-	 */
-	public void dispose() {
-	}
+    /**
+     * We can use this method to dispose of any system
+     * resources we previously allocated.
+     * @see IWorkbenchWindowActionDelegate#dispose
+     */
+    public void dispose() {
+    }
 
-	/**
-	 * We will cache window object in order to
-	 * be able to provide parent shell for the message dialog.
-	 * @see IWorkbenchWindowActionDelegate#init
-	 */
-	public void init(IWorkbenchWindow window) {
-		this.window = window;
-	}
+    /**
+     * We will cache window object in order to
+     * be able to provide parent shell for the message dialog.
+     * @see IWorkbenchWindowActionDelegate#init
+     */
+    public void init(IWorkbenchWindow window) {
+        this.window = window;
+    }
 }

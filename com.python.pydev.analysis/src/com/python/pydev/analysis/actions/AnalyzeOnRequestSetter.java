@@ -13,31 +13,31 @@ import com.python.pydev.analysis.builder.AnalysisParserObserver;
 
 public class AnalyzeOnRequestSetter implements IPyEditListener{
 
-	public static class AnalyzeOnRequestAction extends Action {
+    public static class AnalyzeOnRequestAction extends Action {
 
-		private PyEdit edit;
+        private PyEdit edit;
 
-		public AnalyzeOnRequestAction(PyEdit edit) {
-			this.edit = edit;
-		}
-		public  void run(){
-			//just send a reparse
-			edit.getParser().forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
-		}
-	}
-	
-	public void onSave(PyEdit edit, IProgressMonitor monitor) {
-	}
+        public AnalyzeOnRequestAction(PyEdit edit) {
+            this.edit = edit;
+        }
+        public  void run(){
+            //just send a reparse
+            edit.getParser().forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
+        }
+    }
+    
+    public void onSave(PyEdit edit, IProgressMonitor monitor) {
+    }
 
-	public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
-		AnalyzeOnRequestAction action = new AnalyzeOnRequestAction(edit);
-		edit.addOfflineActionListener("c", action, "Code-analysis on request", false);
-	}
+    public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
+        AnalyzeOnRequestAction action = new AnalyzeOnRequestAction(edit);
+        edit.addOfflineActionListener("c", action, "Code-analysis on request", false);
+    }
 
-	public void onDispose(PyEdit edit, IProgressMonitor monitor) {
-	}
+    public void onDispose(PyEdit edit, IProgressMonitor monitor) {
+    }
 
-	public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
-	}
+    public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
+    }
 
 }

@@ -19,36 +19,36 @@ import com.python.pydev.analysis.builder.AnalysisRunner;
 
 public class DontAnalyzeFileMarkerParticipant implements IAssistProps {
 
-	private Image annotationImage;
-	public DontAnalyzeFileMarkerParticipant(){
+    private Image annotationImage;
+    public DontAnalyzeFileMarkerParticipant(){
         ImageCache analysisImageCache = AnalysisPlugin.getDefault().getImageCache();
         annotationImage = analysisImageCache.get("icons/annotation_obj.gif");
-	}
+    }
 
 
-	public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offset) throws BadLocationException {
-		List<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
-		if(ps.getCursorLine() == 0){
-	        IgnoreCompletionProposal proposal = new IgnoreCompletionProposal(
-	                AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE+ps.getEndLineDelim(),
-	                0, 
-	                0,
-	                AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE.length()+ps.getEndLineDelim().length(),
-	                annotationImage,
-	                AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE.substring(1),
-	                null,
-	                null,
-	                PyCompletionProposal.PRIORITY_DEFAULT,
-	                edit
-	                );
-	        props.add(proposal);
+    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offset) throws BadLocationException {
+        List<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
+        if(ps.getCursorLine() == 0){
+            IgnoreCompletionProposal proposal = new IgnoreCompletionProposal(
+                    AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE+ps.getEndLineDelim(),
+                    0, 
+                    0,
+                    AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE.length()+ps.getEndLineDelim().length(),
+                    annotationImage,
+                    AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE.substring(1),
+                    null,
+                    null,
+                    PyCompletionProposal.PRIORITY_DEFAULT,
+                    edit
+                    );
+            props.add(proposal);
 
-		}
-		return props;
-	}
+        }
+        return props;
+    }
 
-	public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
-		return ps.getCursorLine() == 0 && ps.getCursorLineContents().indexOf(AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE) == -1;
-	}
+    public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
+        return ps.getCursorLine() == 0 && ps.getCursorLineContents().indexOf(AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE) == -1;
+    }
 
 }

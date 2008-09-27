@@ -35,8 +35,8 @@ import com.python.pydev.ui.MainExtensionsPreferencesPage;
 final class DialogNotifier extends Dialog{
     
     private static final int NUMBER_OF_SECS_TO_ENABLE_BUTTON = 2;
-	private static final int BOLD_COLS = 120;
-	private Label label;
+    private static final int BOLD_COLS = 120;
+    private Label label;
 
     public DialogNotifier(Shell shell) {
         super(shell);
@@ -45,8 +45,8 @@ final class DialogNotifier extends Dialog{
 
     @Override
     public boolean close() {
-    	//do nothing
-    	return false;
+        //do nothing
+        return false;
     }
     
     @Override
@@ -91,55 +91,55 @@ final class DialogNotifier extends Dialog{
             "<a href=\"index.html\"><strong>Pydev Extensions Main Page</strong></a><br/><br/>" +
             
             "</body></html>";
-    		ToolBar navBar = new ToolBar(composite, SWT.NONE);
-    		//this is the place where it might fail
-    		final Browser browser = new Browser(composite, SWT.BORDER);
-    		browser.setText(html);
-    		gridData = new GridData(GridData.FILL_BOTH);
-    		browser.setLayoutData(gridData);
+            ToolBar navBar = new ToolBar(composite, SWT.NONE);
+            //this is the place where it might fail
+            final Browser browser = new Browser(composite, SWT.BORDER);
+            browser.setText(html);
+            gridData = new GridData(GridData.FILL_BOTH);
+            browser.setLayoutData(gridData);
 
-    		final ToolItem back = new ToolItem(navBar, SWT.PUSH);
-    		back.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.BACK));
-    		
-    		final ToolItem forward = new ToolItem(navBar, SWT.PUSH);
-    		forward.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.FORWARD));
-    		
-    		final ToolItem stop = new ToolItem(navBar, SWT.PUSH);
-    		stop.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.STOP));
-    		
-    		final ToolItem refresh = new ToolItem(navBar, SWT.PUSH);
-    		refresh.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.REFRESH));
+            final ToolItem back = new ToolItem(navBar, SWT.PUSH);
+            back.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.BACK));
+            
+            final ToolItem forward = new ToolItem(navBar, SWT.PUSH);
+            forward.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.FORWARD));
+            
+            final ToolItem stop = new ToolItem(navBar, SWT.PUSH);
+            stop.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.STOP));
+            
+            final ToolItem refresh = new ToolItem(navBar, SWT.PUSH);
+            refresh.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.REFRESH));
 
-    		final ToolItem home = new ToolItem(navBar, SWT.PUSH);
-    		home.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.HOME));
-    		
-    		back.addListener(SWT.Selection, new Listener() {
-    			public void handleEvent(Event event) {
-    				browser.back();
-    			}
-    		});
-    		forward.addListener(SWT.Selection, new Listener() {
-    			public void handleEvent(Event event) {
-    				browser.forward();
-    			}
-    		});
-    		stop.addListener(SWT.Selection, new Listener() {
-    			public void handleEvent(Event event) {
-    				browser.stop();
-    			}
-    		});
-    		refresh.addListener(SWT.Selection, new Listener() {
-    			public void handleEvent(Event event) {
-    				browser.refresh();
-    			}
-    		});
-    		home.addListener(SWT.Selection, new Listener() {
-    			public void handleEvent(Event event) {
-    				browser.setText(html);
-    			}
-    		});
+            final ToolItem home = new ToolItem(navBar, SWT.PUSH);
+            home.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.HOME));
+            
+            back.addListener(SWT.Selection, new Listener() {
+                public void handleEvent(Event event) {
+                    browser.back();
+                }
+            });
+            forward.addListener(SWT.Selection, new Listener() {
+                public void handleEvent(Event event) {
+                    browser.forward();
+                }
+            });
+            stop.addListener(SWT.Selection, new Listener() {
+                public void handleEvent(Event event) {
+                    browser.stop();
+                }
+            });
+            refresh.addListener(SWT.Selection, new Listener() {
+                public void handleEvent(Event event) {
+                    browser.refresh();
+                }
+            });
+            home.addListener(SWT.Selection, new Listener() {
+                public void handleEvent(Event event) {
+                    browser.setText(html);
+                }
+            });
 
-    		
+            
         } catch (Throwable e) {
             //some error might happen creating it according to the docs, so, let's put another text into the widget
             String msg2 = "Thank you for evaluating Pydev Extensions.\n\n" +
@@ -156,58 +156,58 @@ final class DialogNotifier extends Dialog{
         }
 
         //set the counter to enable the button.
-    	new CounterThread(new ICallback(){
+        new CounterThread(new ICallback(){
 
-			public Object call(Object args) {
-				final int call = (Integer) args;
-					
+            public Object call(Object args) {
+                final int call = (Integer) args;
+                    
                 final Display disp = Display.getDefault();
                 if(disp != null){
                     disp.asyncExec(new Runnable(){
                         public void run() {
-							try {
-								if(call == NUMBER_OF_SECS_TO_ENABLE_BUTTON-1){
-									Button button = getButton(IDialogConstants.OK_ID);
-									if(button != null){
-										button.setEnabled(true);
-									}
-									label.setText("");
-								}else{
-									label.setText("Enabling button in..."+ (NUMBER_OF_SECS_TO_ENABLE_BUTTON - call-1));
-								}
-							} catch (Exception e) {
-								Log.log(e);
-							}
+                            try {
+                                if(call == NUMBER_OF_SECS_TO_ENABLE_BUTTON-1){
+                                    Button button = getButton(IDialogConstants.OK_ID);
+                                    if(button != null){
+                                        button.setEnabled(true);
+                                    }
+                                    label.setText("");
+                                }else{
+                                    label.setText("Enabling button in..."+ (NUMBER_OF_SECS_TO_ENABLE_BUTTON - call-1));
+                                }
+                            } catch (Exception e) {
+                                Log.log(e);
+                            }
                         }
                     });
-				}else{
-					//let's close it, otherwise we might be with it forever...(altought this should never happen).
-					doClose();
-				}
-				return null;
-			}
-    		
-    	}, 1000, NUMBER_OF_SECS_TO_ENABLE_BUTTON).start();
+                }else{
+                    //let's close it, otherwise we might be with it forever...(altought this should never happen).
+                    doClose();
+                }
+                return null;
+            }
+            
+        }, 1000, NUMBER_OF_SECS_TO_ENABLE_BUTTON).start();
         return composite;
     }
     
     public boolean doClose(){
-    	return super.close();
+        return super.close();
     }
     
     protected void createButtonsForButtonBar(Composite parent) {
         // create OK and Cancel buttons by default
-    	label = createLabel(parent, "Enabling button in..."+NUMBER_OF_SECS_TO_ENABLE_BUTTON, 1);
+        label = createLabel(parent, "Enabling button in..."+NUMBER_OF_SECS_TO_ENABLE_BUTTON, 1);
         Button button = createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
         button.addSelectionListener(new SelectionListener(){
 
-			public void widgetSelected(SelectionEvent e) {
-				doClose();
-			}
+            public void widgetSelected(SelectionEvent e) {
+                doClose();
+            }
 
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-        	
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+            
         });
         button.setEnabled(false);
     }
@@ -242,8 +242,8 @@ final class DialogNotifier extends Dialog{
 }
 public class PydevExtensionNotifier extends Thread{
     
-	//all times here are in secs
-	private static final int FIRST_TIME = 60*30;
+    //all times here are in secs
+    private static final int FIRST_TIME = 60*30;
     private static final int VALIDATED_TIME = 60 * 120;
     private static final int MIN_TIME = 60 * 120;
     private boolean inMessageBox = false;
@@ -251,10 +251,10 @@ public class PydevExtensionNotifier extends Thread{
     public PydevExtensionNotifier() {
         setName("Looping");
         setDaemon(true);
-	}
-	
-	@Override
-	public void run() {	
+    }
+    
+    @Override
+    public void run() {    
         boolean firstTime = true;
 
         int seconds = MIN_TIME;
@@ -307,6 +307,6 @@ public class PydevExtensionNotifier extends Thread{
             }
         }
         
-	}
-	
+    }
+    
 }

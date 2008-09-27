@@ -29,35 +29,35 @@ import com.python.pydev.analysis.additionalinfo.IInfo;
  */
 public class AnalysisPlugin extends AbstractUIPlugin {
 
-	//The shared instance.
-	private static AnalysisPlugin plugin;
+    //The shared instance.
+    private static AnalysisPlugin plugin;
     private static ImageCache imageCache;
-	
-	/**
-	 * The constructor.
-	 */
-	public AnalysisPlugin() {
-		plugin = this;
-	}
+    
+    /**
+     * The constructor.
+     */
+    public AnalysisPlugin() {
+        plugin = this;
+    }
 
-	/**
-	 * This method is called upon plug-in activation
-	 */
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
-		PydevPlugin.getDefault().checkValid();
-	}
+    /**
+     * This method is called upon plug-in activation
+     */
+    public void start(BundleContext context) throws Exception {
+        super.start(context);
+        PydevPlugin.getDefault().checkValid();
+    }
 
-	/**
-	 * This method is called when the plug-in is stopped
-	 */
-	public void stop(BundleContext context) throws Exception {
-		super.stop(context);
-		plugin = null;
-	}
+    /**
+     * This method is called when the plug-in is stopped
+     */
+    public void stop(BundleContext context) throws Exception {
+        super.stop(context);
+        plugin = null;
+    }
 
 
-	/**
+    /**
      * @param pointers the list where the pointers will be added
      * @param manager the manager to be used to get the definition
      * @param nature the nature to be used
@@ -122,22 +122,22 @@ public class AnalysisPlugin extends AbstractUIPlugin {
     }
 
     /**
-	 * Returns the shared instance.
-	 */
-	public static AnalysisPlugin getDefault() {
-		return plugin;
-	}
+     * Returns the shared instance.
+     */
+    public static AnalysisPlugin getDefault() {
+        return plugin;
+    }
 
-	/**
-	 * Returns an image descriptor for the image file at the given
-	 * plug-in relative path.
-	 *
-	 * @param path the path
-	 * @return the image descriptor
-	 */
-	public static ImageDescriptor getImageDescriptor(String path) {
-		return AbstractUIPlugin.imageDescriptorFromPlugin("com.python.pydev.analysis", path);
-	}
+    /**
+     * Returns an image descriptor for the image file at the given
+     * plug-in relative path.
+     *
+     * @param path the path
+     * @return the image descriptor
+     */
+    public static ImageDescriptor getImageDescriptor(String path) {
+        return AbstractUIPlugin.imageDescriptorFromPlugin("com.python.pydev.analysis", path);
+    }
 
 
     public static ImageCache getImageCache() {

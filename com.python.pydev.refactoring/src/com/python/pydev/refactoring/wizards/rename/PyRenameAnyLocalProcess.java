@@ -14,13 +14,13 @@ import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 
 public class PyRenameAnyLocalProcess extends AbstractRenameRefactorProcess{
 
-	/**
-	 * No definition (will look for the name)
-	 */
-	public PyRenameAnyLocalProcess() {
-		super(null);
-	}
-	
+    /**
+     * No definition (will look for the name)
+     */
+    public PyRenameAnyLocalProcess() {
+        super(null);
+    }
+    
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         String[] tokenAndQual = request.ps.getActivationTokenAndQual(true);
         String completeNameToFind = tokenAndQual[0]+tokenAndQual[1];
@@ -29,24 +29,24 @@ public class PyRenameAnyLocalProcess extends AbstractRenameRefactorProcess{
         List<ASTEntry> oc = new ArrayList<ASTEntry>();
         SimpleNode root = request.getAST();
 
-		if (!attributeSearch){
+        if (!attributeSearch){
             List<ASTEntry> occurrencesWithScopeAnalyzer = getOccurrencesWithScopeAnalyzer(request);
             oc.addAll(occurrencesWithScopeAnalyzer);
             
             if(occurrencesWithScopeAnalyzer.size() == 0){
-            	oc.addAll(ScopeAnalysis.getLocalOccurrences(request.initialName, root, false));
+                oc.addAll(ScopeAnalysis.getLocalOccurrences(request.initialName, root, false));
             }
             
         }else{
             //attribute search
             oc.addAll(ScopeAnalysis.getAttributeReferences(request.initialName, root));
         }
-		if(oc.size() > 0){
-			//only add comments and strings if there's at least some other occurrence
-			oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
-			oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
-		}
-		addOccurrences(request, oc); 
+        if(oc.size() > 0){
+            //only add comments and strings if there's at least some other occurrence
+            oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
+            oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
+        }
+        addOccurrences(request, oc); 
     }
     
     @Override

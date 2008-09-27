@@ -187,7 +187,7 @@ public class PSWTText extends PNode {
      * Returns the current background color.
      */
     public Color getBackgroundColor() {
-    	return (Color)getPaint();
+        return (Color)getPaint();
     }
 
     /**
@@ -195,7 +195,7 @@ public class PSWTText extends PNode {
      * @param color use this color.
      */
     public void setBackgroundColor(Color color) {
-		super.setPaint(color);
+        super.setPaint(color);
     }
 
     /**
@@ -256,7 +256,7 @@ public class PSWTText extends PNode {
     public void setFont(Font aFont) {
         font = aFont;
 
-		recomputeBounds();
+        recomputeBounds();
     }
 
     /**
@@ -280,7 +280,7 @@ public class PSWTText extends PNode {
             }
         } while (!done);
 
-		recomputeBounds();
+        recomputeBounds();
     }
 
     /**
@@ -324,7 +324,7 @@ public class PSWTText extends PNode {
         translateX = x;
         translateY = y;
 
-		recomputeBounds();
+        recomputeBounds();
     }
 
     /**
@@ -406,9 +406,9 @@ public class PSWTText extends PNode {
      * @param ppc The graphics context to paint into.
      */
     public void paintAsText(PPaintContext ppc) {
-		SWTGraphics2D sg2 = (SWTGraphics2D)ppc.getGraphics();
-		
-		if (getPaint() != null) {
+        SWTGraphics2D sg2 = (SWTGraphics2D)ppc.getGraphics();
+        
+        if (getPaint() != null) {
             sg2.setBackground((Color)getPaint());
             Rectangle2D rect = new Rectangle2D.Double(0.0, 0.0, getWidth(), getHeight());
             sg2.fillRect(rect.getX(),rect.getY(),rect.getWidth(),rect.getHeight());
@@ -420,13 +420,13 @@ public class PSWTText extends PNode {
         double scale = Math.min(sg2.getTransform().getScaleX(),sg2.getTransform().getScaleY());
         double dSize = scale*font.getSize();
         double fixupScale = Math.floor(dSize)/dSize;
-		
+        
         // This moves the text size down to the next closest integer size - to help it stay in
         // it's alloted bounds.  This is because SWT only supports integer font metrics
         sg2.scale(fixupScale,fixupScale);
         
         
-								// Render each line of text
+                                // Render each line of text
                                 // Note that the entire text gets rendered so that it's upper left corner
                                 // appears at the origin of this local object.
         sg2.setColor(penColor);
@@ -436,14 +436,14 @@ public class PSWTText extends PNode {
         String line;
         double y;
 
-		FontMetrics metrics = sg2.getSWTFontMetrics();
+        FontMetrics metrics = sg2.getSWTFontMetrics();
 
         for (Iterator i = lines.iterator() ; i.hasNext() ; ) {
             line = (String)i.next();
 
-		    // ADDED BY LEG ON 2/25/03 - BUG CAUSING PROBLEMS AT CERTAIN
-		    // SCALES WHEN LINE WAS EMPTY
-		    line = (line.equals("")) ? " " : line;
+            // ADDED BY LEG ON 2/25/03 - BUG CAUSING PROBLEMS AT CERTAIN
+            // SCALES WHEN LINE WAS EMPTY
+            line = (line.equals("")) ? " " : line;
 
             y = (lineNum * metrics.getHeight());
 
@@ -462,23 +462,23 @@ public class PSWTText extends PNode {
      * should update its notion of its bounding box.
      */
     protected void recomputeBounds() {
-		Point bds;
+        Point bds;
         double lineWidth;
         double maxWidth = 0.0;
         double height;
 
-       	height = 0.0;
+           height = 0.0;
 
         boolean hasText = true;
         if ((lines.size() == 1) && (((String)lines.get(0)).equals(""))) {
             hasText = false;
         }
 
-		GC gc = new GC(Display.getDefault());
-		SWTGraphics2D g2 = new SWTGraphics2D(gc,Display.getDefault());
-		g2.setFont(font);		
-		FontMetrics fm = g2.getSWTFontMetrics();
-		
+        GC gc = new GC(Display.getDefault());
+        SWTGraphics2D g2 = new SWTGraphics2D(gc,Display.getDefault());
+        g2.setFont(font);        
+        FontMetrics fm = g2.getSWTFontMetrics();
+        
         if (!lines.isEmpty() && hasText) {
             String line;
             int lineNum = 0;
@@ -487,8 +487,8 @@ public class PSWTText extends PNode {
 
 
                             // Find the longest line in the text
-				bds = gc.stringExtent(line);
-				lineWidth = bds.x;
+                bds = gc.stringExtent(line);
+                lineWidth = bds.x;
 
                 if (lineWidth > maxWidth) {
                     maxWidth = lineWidth;
@@ -505,19 +505,19 @@ public class PSWTText extends PNode {
         } else {
                             // If no text, then we want to have the bounds of a space character,
                             // so get those bounds here
-			bds = gc.stringExtent(" ");
+            bds = gc.stringExtent(" ");
             maxWidth = bds.x;
             height = bds.y;
         }
 
-		gc.dispose();
+        gc.dispose();
 
                                 // Finally, set the bounds of this text
         setBounds(translateX,translateY,maxWidth+2*DEFAULT_PADDING,height+2*DEFAULT_PADDING);
     }
 
-	protected void internalUpdateBounds(double x, double y, double width, double height) {
-		recomputeBounds();
-	}
+    protected void internalUpdateBounds(double x, double y, double width, double height) {
+        recomputeBounds();
+    }
     
 }

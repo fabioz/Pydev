@@ -44,28 +44,28 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
 
     public static final String SEVERITY_NO_SELF = "SEVERITY_NO_SELF";
     public static final int DEFAULT_SEVERITY_NO_SELF = IMarker.SEVERITY_ERROR;
-	
-    public static final String SEVERITY_UNUSED_WILD_IMPORT = "SEVERITY_UNUSED_WILD_IMPORT";
-	public static final int DEFAULT_SEVERITY_UNUSED_WILD_IMPORT = IMarker.SEVERITY_WARNING;
-	
-	public static final String SEVERITY_UNDEFINED_IMPORT_VARIABLE = "SEVERITY_UNDEFINED_IMPORT_VARIABLE";
-	public static final int DEFAULT_SEVERITY_UNDEFINED_IMPORT_VARIABLE = IMarker.SEVERITY_ERROR;
     
-	public static final String DO_CODE_ANALYSIS = "DO_CODE_ANALYSIS";
-	public static final boolean DEFAULT_DO_CODE_ANALYSIS = true;
-	
-	public static final String NAMES_TO_CONSIDER_GLOBALS = "NAMES_TO_CONSIDER_GLOBALS";
-	public static final String DEFAULT_NAMES_TO_CONSIDER_GLOBALS = "_,tr";
-	
-	public static final String SEVERITY_NO_EFFECT_STMT = "SEVERITY_NO_EFFECT_STMT";
-	public static final int DEFAULT_SEVERITY_NO_EFFECT_STMT = IMarker.SEVERITY_WARNING;
-	
-	public static final String SEVERITY_INDENTATION_PROBLEM = "SEVERITY_INDENTATION_PROBLEM";
-	public static final int DEFAULT_SEVERITY_INDENTATION_PROBLEM = IMarker.SEVERITY_WARNING;
-	
+    public static final String SEVERITY_UNUSED_WILD_IMPORT = "SEVERITY_UNUSED_WILD_IMPORT";
+    public static final int DEFAULT_SEVERITY_UNUSED_WILD_IMPORT = IMarker.SEVERITY_WARNING;
+    
+    public static final String SEVERITY_UNDEFINED_IMPORT_VARIABLE = "SEVERITY_UNDEFINED_IMPORT_VARIABLE";
+    public static final int DEFAULT_SEVERITY_UNDEFINED_IMPORT_VARIABLE = IMarker.SEVERITY_ERROR;
+    
+    public static final String DO_CODE_ANALYSIS = "DO_CODE_ANALYSIS";
+    public static final boolean DEFAULT_DO_CODE_ANALYSIS = true;
+    
+    public static final String NAMES_TO_CONSIDER_GLOBALS = "NAMES_TO_CONSIDER_GLOBALS";
+    public static final String DEFAULT_NAMES_TO_CONSIDER_GLOBALS = "_,tr";
+    
+    public static final String SEVERITY_NO_EFFECT_STMT = "SEVERITY_NO_EFFECT_STMT";
+    public static final int DEFAULT_SEVERITY_NO_EFFECT_STMT = IMarker.SEVERITY_WARNING;
+    
+    public static final String SEVERITY_INDENTATION_PROBLEM = "SEVERITY_INDENTATION_PROBLEM";
+    public static final int DEFAULT_SEVERITY_INDENTATION_PROBLEM = IMarker.SEVERITY_WARNING;
+    
     public static final String DO_AUTO_IMPORT = "DO_AUTO_IMPORT";
     public static final boolean DEFAULT_DO_AUT_IMPORT = true;
-	
+    
     public static final String DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS = "DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS";
     public static final boolean DEFAULT_DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS = true;
     

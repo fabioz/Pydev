@@ -17,16 +17,16 @@ public class PyASTChangerTest extends TestCase {
     private static final boolean DEBUG = true;
 
     public static void main(String[] args) {
-    	try {
-			PyASTChangerTest test = new PyASTChangerTest();
-			test.setUp();
-			test.test4();
-			test.tearDown();
-			
-			junit.textui.TestRunner.run(PyASTChangerTest.class);
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
+        try {
+            PyASTChangerTest test = new PyASTChangerTest();
+            test.setUp();
+            test.test4();
+            test.tearDown();
+            
+            junit.textui.TestRunner.run(PyASTChangerTest.class);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     protected void setUp() throws Exception {
@@ -78,47 +78,47 @@ public class PyASTChangerTest extends TestCase {
     }
     
     public void test3() throws Exception {
-    	Document doc = new Document("" +
-    			"class C1:pass\n" +
-    			"class C2:pass\n" +
-    			"");
-    	PyASTChanger changer = new PyASTChanger(doc, IPythonNature.LATEST_GRAMMAR_VERSION);
-    	SimpleNode ast = changer.getAST();
-    	Module m = (Module) ast;
-    	assertEquals(2, m.body.length);
-    	
-    	ClassDef classDef = PyASTFactory.makePassClassDef("test");
-    	
-    	changer.addStmtToNode(m, "body", 1, classDef, true);
-    	changer.apply(new NullProgressMonitor());
-    	
-    	String result = doc.get();
-    	if(DEBUG){
-    		System.out.println(result);
-    	}
-    	assertEquals("class C1:pass\nclass test:\n    pass\nclass C2:pass\n", result);
-    	
+        Document doc = new Document("" +
+                "class C1:pass\n" +
+                "class C2:pass\n" +
+                "");
+        PyASTChanger changer = new PyASTChanger(doc, IPythonNature.LATEST_GRAMMAR_VERSION);
+        SimpleNode ast = changer.getAST();
+        Module m = (Module) ast;
+        assertEquals(2, m.body.length);
+        
+        ClassDef classDef = PyASTFactory.makePassClassDef("test");
+        
+        changer.addStmtToNode(m, "body", 1, classDef, true);
+        changer.apply(new NullProgressMonitor());
+        
+        String result = doc.get();
+        if(DEBUG){
+            System.out.println(result);
+        }
+        assertEquals("class C1:pass\nclass test:\n    pass\nclass C2:pass\n", result);
+        
     }
     
     public void test4() throws Exception {
-    	Document doc = new Document("" +
-    			"class C1:pass\n" +
-    			"class C2:pass\n" +
-    	"");
-    	PyASTChanger changer = new PyASTChanger(doc, IPythonNature.LATEST_GRAMMAR_VERSION);
-    	SimpleNode ast = changer.getAST();
-    	Module m = (Module) ast;
-    	assertEquals(2, m.body.length);
-    	
-    	changer.delStmtFromNode(m, "body", 1);
-    	changer.apply(new NullProgressMonitor());
-    	
-    	String result = doc.get();
-    	if(DEBUG){
-    		System.out.println(result);
-    	}
-    	assertEquals("class C1:pass\n", result);
-    	
+        Document doc = new Document("" +
+                "class C1:pass\n" +
+                "class C2:pass\n" +
+        "");
+        PyASTChanger changer = new PyASTChanger(doc, IPythonNature.LATEST_GRAMMAR_VERSION);
+        SimpleNode ast = changer.getAST();
+        Module m = (Module) ast;
+        assertEquals(2, m.body.length);
+        
+        changer.delStmtFromNode(m, "body", 1);
+        changer.apply(new NullProgressMonitor());
+        
+        String result = doc.get();
+        if(DEBUG){
+            System.out.println(result);
+        }
+        assertEquals("class C1:pass\n", result);
+        
     }
     
 

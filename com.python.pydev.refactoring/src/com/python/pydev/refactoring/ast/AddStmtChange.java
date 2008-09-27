@@ -46,8 +46,8 @@ public class AddStmtChange extends AbstractStmtChange{
      * @see com.python.pydev.refactoring.ast.IChanges#getChange(org.eclipse.jface.text.IDocument)
      */
     public Change getChange(IDocument doc) throws Throwable {
-    	Tuple<DocumentChange, MultiTextEdit> tup = getDocChange(doc);
-    	
+        Tuple<DocumentChange, MultiTextEdit> tup = getDocChange(doc);
+        
         return getDocChange(doc, tup);
     }
 
@@ -59,17 +59,17 @@ public class AddStmtChange extends AbstractStmtChange{
         
         PrettyPrinterPrefs prefs = getPrefs(doc);
         if(attrObj == null || attrObj.length == 0){
-        	//if had no stmts, ignore the passed position
+            //if had no stmts, ignore the passed position
             attrObj = new stmtType[]{stmt}; 
             
         }else if(pos == 0){
-        	stmtType[] newAttrObj = new stmtType[attrObj.length+1];
-        	System.arraycopy(attrObj, 0, newAttrObj, 1, attrObj.length);
-        	newAttrObj[pos] = stmt;
-        	attrObj = newAttrObj;
-        	
+            stmtType[] newAttrObj = new stmtType[attrObj.length+1];
+            System.arraycopy(attrObj, 0, newAttrObj, 1, attrObj.length);
+            newAttrObj[pos] = stmt;
+            attrObj = newAttrObj;
+            
         }else if(attrObj.length == pos){
-        	//if it is the last position, add it there
+            //if it is the last position, add it there
             stmtType[] newAttrObj = new stmtType[attrObj.length+1];
             System.arraycopy(attrObj, 0, newAttrObj, 0, attrObj.length);
             newAttrObj[pos] = stmt;
@@ -77,15 +77,15 @@ public class AddStmtChange extends AbstractStmtChange{
             prevStmtPos = getStmtOffsetEnd(newAttrObj[pos-1], null, doc, prefs);
             
         }else{
-        	//if is some insertion in the middle
-        	List<stmtType> lst = new ArrayList<stmtType>(Arrays.asList(attrObj));
-        	lst.add(pos, stmt);
-        	attrObj = lst.toArray(new stmtType[lst.size()]);
-        	prevStmtPos = getStmtOffsetEnd(attrObj[pos-1], attrObj[pos+1], doc, prefs);
+            //if is some insertion in the middle
+            List<stmtType> lst = new ArrayList<stmtType>(Arrays.asList(attrObj));
+            lst.add(pos, stmt);
+            attrObj = lst.toArray(new stmtType[lst.size()]);
+            prevStmtPos = getStmtOffsetEnd(attrObj[pos-1], attrObj[pos+1], doc, prefs);
         }
         
         WriterEraser writerEraser = new WriterEraser();
-		PrettyPrinter printer = new PrettyPrinter(prefs, writerEraser, !addNewLineAfterStmt); //as it is a single statement, we won't add new lines when ending it
+        PrettyPrinter printer = new PrettyPrinter(prefs, writerEraser, !addNewLineAfterStmt); //as it is a single statement, we won't add new lines when ending it
         stmt.accept(printer);
         StringBuffer buffer = writerEraser.getBuffer();
         

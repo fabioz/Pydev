@@ -20,7 +20,7 @@ public class AnalysisRunner {
 
     public static final String PYDEV_CODE_ANALYSIS_IGNORE = "#@PydevCodeAnalysisIgnore";
 
-	/**
+    /**
      * Indicates the type of the message given the constants in com.python.pydev.analysis.IAnalysisPreferences (unused import, 
      * undefined variable...)
      */
@@ -39,16 +39,16 @@ public class AnalysisRunner {
     /**
      * do we want to debug this class?
      */
-	private static final boolean DEBUG_ANALYSIS_RUNNER = false;
+    private static final boolean DEBUG_ANALYSIS_RUNNER = false;
 
     /**
      * @param document the document we want to check
      * @return true if we can analyze it and false if there is some flag saying that we shouldn't
      */
     public boolean canDoAnalysis(IDocument document) {
-    	if(document == null){
-    		return false;
-    	}
+        if(document == null){
+            return false;
+        }
         return document.get().indexOf(PYDEV_CODE_ANALYSIS_IGNORE) == -1;
     }
 
@@ -57,21 +57,21 @@ public class AnalysisRunner {
      * @param resource the resource that should have the markers deleted
      */
     public static void deleteMarkers(IResource resource) {
-    	if(resource == null){
-    		return;
-    	}
+        if(resource == null){
+            return;
+        }
         
-		try {
-			resource.deleteMarkers(PYDEV_ANALYSIS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
-		} catch (CoreException e) {
-		    //ok, if it is a resource exception, it may have happened because the resource does not exist anymore
-		    //so, there is no need to log this failure
-		    if(resource.exists()){
-		        Log.log(e);
-		    }
-		} catch (Exception e) {
+        try {
+            resource.deleteMarkers(PYDEV_ANALYSIS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
+        } catch (CoreException e) {
+            //ok, if it is a resource exception, it may have happened because the resource does not exist anymore
+            //so, there is no need to log this failure
+            if(resource.exists()){
+                Log.log(e);
+            }
+        } catch (Exception e) {
             Log.log(e);
-		}
+        }
 
     }
     
@@ -86,9 +86,9 @@ public class AnalysisRunner {
      * should be removed.
      */
     public void setMarkers(IResource resource, IDocument document, IMessage[] messages) {
-    	if(resource == null){
-    		return;
-    	}
+        if(resource == null){
+            return;
+        }
         try {
             //Timer timer = new Timer();
             //System.out.println("Start creating markers");
@@ -113,7 +113,7 @@ public class AnalysisRunner {
                 
                 String msg = m.getMessage();
                 if(DEBUG_ANALYSIS_RUNNER){
-                	System.out.printf("\nAdding at start:%s end:%s line:%s message:%s " , startCol, endCol, startLine, msg);
+                    System.out.printf("\nAdding at start:%s end:%s line:%s message:%s " , startCol, endCol, startLine, msg);
                 }
                 
                 

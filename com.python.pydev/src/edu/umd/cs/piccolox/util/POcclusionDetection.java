@@ -40,46 +40,46 @@ import edu.umd.cs.piccolo.util.PPickPath;
  */
 public class POcclusionDetection {
 
-	/**
-	 * Traverse from the bottom right of the scene graph (top visible node)
-	 * up the tree determining which parent nodes are occluded by their children
-	 * nodes. Note that this is only detecting a subset of occlusions (parent, child), 
-	 * others such as overlapping siblings or cousins are not detected.
-	 */
-	public void detectOccusions(PNode n, PBounds parentBounds) {
-		detectOcclusions(n, new PPickPath(null, parentBounds));
-	}
+    /**
+     * Traverse from the bottom right of the scene graph (top visible node)
+     * up the tree determining which parent nodes are occluded by their children
+     * nodes. Note that this is only detecting a subset of occlusions (parent, child), 
+     * others such as overlapping siblings or cousins are not detected.
+     */
+    public void detectOccusions(PNode n, PBounds parentBounds) {
+        detectOcclusions(n, new PPickPath(null, parentBounds));
+    }
 
-	public void detectOcclusions(PNode n, PPickPath pickPath) {
-		if (n.fullIntersects(pickPath.getPickBounds())) {
-			pickPath.pushTransform(n.getTransformReference(false));
-		
-			int count = n.getChildrenCount();
-			for (int i = count - 1; i >= 0; i--) {
-				PNode each = (PNode) n.getChild(i);
-				if (n.getOccluded()) {
-					// if n has been occuded by a previous decendent then
-					// this child must also be occuded
-					each.setOccluded(true);
-				} else {
-					// see if child each occludes n
-					detectOcclusions(each, pickPath);
-				}
-			}
+    public void detectOcclusions(PNode n, PPickPath pickPath) {
+        if (n.fullIntersects(pickPath.getPickBounds())) {
+            pickPath.pushTransform(n.getTransformReference(false));
+        
+            int count = n.getChildrenCount();
+            for (int i = count - 1; i >= 0; i--) {
+                PNode each = (PNode) n.getChild(i);
+                if (n.getOccluded()) {
+                    // if n has been occuded by a previous decendent then
+                    // this child must also be occuded
+                    each.setOccluded(true);
+                } else {
+                    // see if child each occludes n
+                    detectOcclusions(each, pickPath);
+                }
+            }
 
-			// see if n occudes it's parents		
-			if (!n.getOccluded()) {
-				if (n.intersects(pickPath.getPickBounds())) {
-					if (n.isOpaque(pickPath.getPickBounds())) {
-						PNode p = n.getParent();
-						while (p != null && !p.getOccluded()) {
-							p.setOccluded(true);
-						}
-					}
-				}
-			}
-	
-			pickPath.popTransform(n.getTransformReference(false));
-		}				
-	}
+            // see if n occudes it's parents        
+            if (!n.getOccluded()) {
+                if (n.intersects(pickPath.getPickBounds())) {
+                    if (n.isOpaque(pickPath.getPickBounds())) {
+                        PNode p = n.getParent();
+                        while (p != null && !p.getOccluded()) {
+                            p.setOccluded(true);
+                        }
+                    }
+                }
+            }
+    
+            pickPath.popTransform(n.getTransformReference(false));
+        }                
+    }
 }

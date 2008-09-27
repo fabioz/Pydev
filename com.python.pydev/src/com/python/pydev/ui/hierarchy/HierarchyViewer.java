@@ -36,13 +36,13 @@ public class HierarchyViewer extends PSWTCanvas{
      * Sets the hierarchy initializing on the 'node of interest', that is the initial node here.
      */
     public void setHierarchy(HierarchyNodeModel initialNode){
-    	this.getLayer().setTransform(new AffineTransform()); //default transform
-    	this.getLayer().removeAllChildren(); //clear all, as we're setting from the beggining
-    	allAdded.clear();
-    	if(initialNode == null){
-    		initialNode = new HierarchyNodeModel("Invalid");
-    	}
-    	
+        this.getLayer().setTransform(new AffineTransform()); //default transform
+        this.getLayer().removeAllChildren(); //clear all, as we're setting from the beggining
+        allAdded.clear();
+        if(initialNode == null){
+            initialNode = new HierarchyNodeModel("Invalid");
+        }
+        
         Set<HierarchyNodeModel> nodesAdded = new HashSet<HierarchyNodeModel>();
         double y = 10;
         double x = 10;
@@ -64,82 +64,82 @@ public class HierarchyViewer extends PSWTCanvas{
         this.getLayer().translate(0, -lastY-deltaY-y);
     }
 
-	private double addWithDelta(double y, double initialX, List<HierarchyNodeView> nodesToAdd, double yDelta, boolean addChildren) {
-		List<HierarchyNodeView> newRound;
-		do{
-			double x = initialX;
-        	newRound  = new ArrayList<HierarchyNodeView>();
-	        for(HierarchyNodeView v : nodesToAdd){
-	        	Tuple<List<HierarchyNodeView>, Double> tup = addNodesFor(v, addChildren ? v.model.children : v.model.parents, y, x, addChildren);
-	        	for(HierarchyNodeView added : tup.o1){
-	        		if(!newRound.contains(added)){
-	        			newRound.add(added);
-	        		}
-	        	}
-				x = tup.o2;
-	        }
-	        nodesToAdd = newRound;
-			y += yDelta;
-			
+    private double addWithDelta(double y, double initialX, List<HierarchyNodeView> nodesToAdd, double yDelta, boolean addChildren) {
+        List<HierarchyNodeView> newRound;
+        do{
+            double x = initialX;
+            newRound  = new ArrayList<HierarchyNodeView>();
+            for(HierarchyNodeView v : nodesToAdd){
+                Tuple<List<HierarchyNodeView>, Double> tup = addNodesFor(v, addChildren ? v.model.children : v.model.parents, y, x, addChildren);
+                for(HierarchyNodeView added : tup.o1){
+                    if(!newRound.contains(added)){
+                        newRound.add(added);
+                    }
+                }
+                x = tup.o2;
+            }
+            nodesToAdd = newRound;
+            y += yDelta;
+            
         }while(newRound.size() > 0);
-		return y;
-	}
+        return y;
+    }
 
-	private Tuple<List<HierarchyNodeView>, Double> addNodesFor(HierarchyNodeView initial, List<HierarchyNodeModel> toAdd, double y, double x, boolean addChildren) {
-		ArrayList<HierarchyNodeView> ret = new ArrayList<HierarchyNodeView>();
-		HierarchyNodeView view;
-		for(HierarchyNodeModel node: toAdd){
+    private Tuple<List<HierarchyNodeView>, Double> addNodesFor(HierarchyNodeView initial, List<HierarchyNodeModel> toAdd, double y, double x, boolean addChildren) {
+        ArrayList<HierarchyNodeView> ret = new ArrayList<HierarchyNodeView>();
+        HierarchyNodeView view;
+        for(HierarchyNodeModel node: toAdd){
             view = new HierarchyNodeView(this, node, x,y);
             if(!allAdded.contains(view)){
-	            PBounds bounds = addNode(initial, view, addChildren);
-	            
-	            x = bounds.x+bounds.width+10;
-	            getLayer().addChild(view.node);
-	            ret.add(view);
-	            allAdded.add(view);
+                PBounds bounds = addNode(initial, view, addChildren);
+                
+                x = bounds.x+bounds.width+10;
+                getLayer().addChild(view.node);
+                ret.add(view);
+                allAdded.add(view);
             }else{
-            	for(HierarchyNodeView added : allAdded){
-            		if(added.equals(view)){
-            			//we have to get this way because the equals is only from the model point...
-            			//which means that we have to get the position of that one now
-            			addNode(initial, added, addChildren);
-            			break;
-            		}
-            	}
+                for(HierarchyNodeView added : allAdded){
+                    if(added.equals(view)){
+                        //we have to get this way because the equals is only from the model point...
+                        //which means that we have to get the position of that one now
+                        addNode(initial, added, addChildren);
+                        break;
+                    }
+                }
             }
         }
-		return new Tuple<List<HierarchyNodeView>, Double>(ret, x);
-	}
+        return new Tuple<List<HierarchyNodeView>, Double>(ret, x);
+    }
 
-	private PBounds addNode(HierarchyNodeView from, HierarchyNodeView toNode, boolean addChildren) {
-		PBounds bounds = toNode.node.getBounds();
-		
-		final PSWTPath path = new PSWTPath();
-		Point2D to = toNode.node.getCenter();
-		Point2D fromP = from.node.getCenter();
-		if(!addChildren){
-			fromP.setLocation(fromP.getX(), fromP.getY() - (from.node.getHeight()/2.0));
-			to.setLocation(to.getX(), to.getY() + (toNode.node.getHeight()/2.0));
-		}else{
-			fromP.setLocation(fromP.getX(), fromP.getY() + (from.node.getHeight()/2.0));
-			to.setLocation(to.getX(), to.getY() - (toNode.node.getHeight()/2.0));
-		}
-		
-		path.setPathToPolyline(new Point2D[]{fromP, to});
-		getLayer().addChild(path);
-		path.moveToBack();
-		path.addInputEventListener(new PBasicInputEventHandler(){
-			@Override
-			public void mouseEntered(PInputEvent event) {
-				path.setStrokeColor(Color.LIGHT_GRAY);
-			}
-			@Override
-			public void mouseExited(PInputEvent event) {
-				path.setStrokeColor(Color.BLACK);
-			}
-		});
-		return bounds;
-	}
+    private PBounds addNode(HierarchyNodeView from, HierarchyNodeView toNode, boolean addChildren) {
+        PBounds bounds = toNode.node.getBounds();
+        
+        final PSWTPath path = new PSWTPath();
+        Point2D to = toNode.node.getCenter();
+        Point2D fromP = from.node.getCenter();
+        if(!addChildren){
+            fromP.setLocation(fromP.getX(), fromP.getY() - (from.node.getHeight()/2.0));
+            to.setLocation(to.getX(), to.getY() + (toNode.node.getHeight()/2.0));
+        }else{
+            fromP.setLocation(fromP.getX(), fromP.getY() + (from.node.getHeight()/2.0));
+            to.setLocation(to.getX(), to.getY() - (toNode.node.getHeight()/2.0));
+        }
+        
+        path.setPathToPolyline(new Point2D[]{fromP, to});
+        getLayer().addChild(path);
+        path.moveToBack();
+        path.addInputEventListener(new PBasicInputEventHandler(){
+            @Override
+            public void mouseEntered(PInputEvent event) {
+                path.setStrokeColor(Color.LIGHT_GRAY);
+            }
+            @Override
+            public void mouseExited(PInputEvent event) {
+                path.setStrokeColor(Color.BLACK);
+            }
+        });
+        return bounds;
+    }
 }
 
 

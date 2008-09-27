@@ -64,7 +64,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
             if(file.exists()){
                 Collection<PyFileInfo> modulesBelow = pythonPathHelper.getModulesBelow(file, monitor).getFoundPyFileInfos();
                 for (PyFileInfo fileInfo : modulesBelow) {
-                	File moduleFile = fileInfo.getFile();
+                    File moduleFile = fileInfo.getFile();
                     String modName = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(moduleFile), true);
                     if(modName != null){
                         existingModuleNames.add(new ModulesKey(modName, moduleFile));

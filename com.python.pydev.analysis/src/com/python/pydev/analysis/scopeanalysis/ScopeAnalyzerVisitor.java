@@ -211,57 +211,57 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
         }
     }
 
-	/**
-	 * This method finds entries for found tokens that are the same import, but that may still not be there
-	 * because they are either in some other scope or are in the module part of an ImportFrom
-	 */
-	@SuppressWarnings("unchecked")
+    /**
+     * This method finds entries for found tokens that are the same import, but that may still not be there
+     * because they are either in some other scope or are in the module part of an ImportFrom
+     */
+    @SuppressWarnings("unchecked")
     private Tuple getImportEntries(Tuple3<Found, Integer, ASTEntry> found, Set<IToken> f) {
         List<Tuple4<IToken, Integer, ASTEntry, Found>> fromModuleRet = new ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>>();
         List<Tuple4<IToken, Integer, ASTEntry, Found>> fromImportsRet = new ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>>();
-		if(found.o1.isImport()){
-			//now, as it is an import, we have to check if there are more matching imports found
-			String key = UNRESOLVED_MOD_NAME;
-			if(found.o1.importInfo.mod != null){
-				key = found.o1.importInfo.mod.getName();
-			}
-			List<Tuple3<Found, Integer, ASTEntry>> fromModule = importsFoundFromModuleName.get(key);
-			List<Tuple3<Found, Integer, ASTEntry>> fromImports = importsFound.get(key);
-			
-			checkImportEntries(fromModuleRet, f, fromModule, found.o2);
-			checkImportEntries(fromImportsRet, f, fromImports, found.o2);
-			
-		}
+        if(found.o1.isImport()){
+            //now, as it is an import, we have to check if there are more matching imports found
+            String key = UNRESOLVED_MOD_NAME;
+            if(found.o1.importInfo.mod != null){
+                key = found.o1.importInfo.mod.getName();
+            }
+            List<Tuple3<Found, Integer, ASTEntry>> fromModule = importsFoundFromModuleName.get(key);
+            List<Tuple3<Found, Integer, ASTEntry>> fromImports = importsFound.get(key);
+            
+            checkImportEntries(fromModuleRet, f, fromModule, found.o2);
+            checkImportEntries(fromImportsRet, f, fromImports, found.o2);
+            
+        }
         return new Tuple(fromModuleRet, fromImportsRet);
-	}
+    }
 
     /**
      * Checks the import entries for imports that are the same as the one that should be already found.
      */
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     private void checkImportEntries(
             List<Tuple4<IToken, Integer, ASTEntry, Found>> ret, 
             Set<IToken> f, 
             List<Tuple3<Found, Integer, ASTEntry>> importEntries,
             int colDelta) {
-		
-		if(importEntries != null){
-			for (Tuple3<Found, Integer, ASTEntry> foundInFromModule : importEntries) {
-				IToken generator = foundInFromModule.o1.getSingle().generator;
+        
+        if(importEntries != null){
+            for (Tuple3<Found, Integer, ASTEntry> foundInFromModule : importEntries) {
+                IToken generator = foundInFromModule.o1.getSingle().generator;
                 
-				Tuple4<IToken, Integer, ASTEntry, Found> tup3 = new Tuple4(generator, 
+                Tuple4<IToken, Integer, ASTEntry, Found> tup3 = new Tuple4(generator, 
                         colDelta > foundInFromModule.o2?colDelta:foundInFromModule.o2, 
                                 foundInFromModule.o3, 
                                 foundInFromModule.o1);
-				
-				if(!f.contains(generator)){
-					f.add(generator);
-					ret.add(tup3);
-				}
-			}
-		}
-	}
-	
-	
-	
+                
+                if(!f.contains(generator)){
+                    f.add(generator);
+                    ret.add(tup3);
+                }
+            }
+        }
+    }
+    
+    
+    
 }

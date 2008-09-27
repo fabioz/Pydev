@@ -47,10 +47,10 @@ public class ScopeAnalyzerVisitorForImports extends ScopeAnalyzerVisitor {
         if (info != null && info.wasResolved) {
             if(info.rep.length() != 0 && info.token.isImport()){
                 //we only actually had a match with a module if the representation found is empty
-            	Definition definition = info.getModuleDefinitionFromImportInfo(nature, this.completionCache);
-            	if(definition != null && definition.module.getName().equals(this.moduleToFind.getName())){
-            		return true;
-            	}
+                Definition definition = info.getModuleDefinitionFromImportInfo(nature, this.completionCache);
+                if(definition != null && definition.module.getName().equals(this.moduleToFind.getName())){
+                    return true;
+                }
                 
             }else if(info.mod.getName().equals(this.moduleToFind.getName())){
                 //ok, exact (and direct) match

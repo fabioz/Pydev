@@ -147,24 +147,24 @@ public class ScopeItems {
     }
 
     public void addTryExceptSubScope(TryExcept node) {
-    	tryExceptSubScope.push(new TryExceptInfo(node));
+        tryExceptSubScope.push(new TryExceptInfo(node));
     }
     
     public void removeTryExceptSubScope() {
-    	tryExceptSubScope.pop();
+        tryExceptSubScope.pop();
     }
     
-	public FastStack<TryExceptInfo> getCurrTryExceptNodes() {
-		return tryExceptSubScope;
-	}
+    public FastStack<TryExceptInfo> getCurrTryExceptNodes() {
+        return tryExceptSubScope;
+    }
 
-	public boolean getIsInSubSubScope() {
-		return ifSubScope != 0 || tryExceptSubScope.size() != 0;
-	}
-	
-	public boolean getIsInIfSubScope() {
-	    return ifSubScope != 0;
-	}
+    public boolean getIsInSubSubScope() {
+        return ifSubScope != 0 || tryExceptSubScope.size() != 0;
+    }
+    
+    public boolean getIsInIfSubScope() {
+        return ifSubScope != 0;
+    }
 
     /**
      * @return Returns the scopeId.

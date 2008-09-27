@@ -144,10 +144,10 @@ public class RefactorerFindDefinition {
                 ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
                 
                 int beginLine = request.getBeginLine();
-				int beginCol = request.getBeginCol()+1;
-				IPythonNature pythonNature = request.nature;
+                int beginCol = request.getBeginCol()+1;
+                IPythonNature pythonNature = request.nature;
 
-				findActualDefinition(request, mod, tok, selected, beginLine, beginCol, pythonNature, completionCache);
+                findActualDefinition(request, mod, tok, selected, beginLine, beginCol, pythonNature, completionCache);
                 AnalysisPlugin.getAsPointers(pointers, selected.toArray(new Definition[0]));
                 
             } catch (OperationCanceledException e) {
@@ -200,25 +200,25 @@ public class RefactorerFindDefinition {
      * 
      * @throws Exception
      */
-	public void findActualDefinition(RefactoringRequest request, IModule mod, String tok, ArrayList<IDefinition> selected, 
-	        int beginLine, int beginCol, IPythonNature pythonNature, ICompletionCache completionCache) throws Exception {
-	    
-		IDefinition[] definitions = mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, pythonNature, 
-		        beginLine-1, beginCol-1, completionCache), beginLine, beginCol, pythonNature);
-		
-		request.communicateWork("Found:"+definitions.length+ " definitions");
-		for (IDefinition definition : definitions) {
-		    boolean doAdd = true;
-		    if(definition instanceof Definition){
-		        Definition d = (Definition) definition;
-		        doAdd = !findActualTokenFromImportFromDefinition(pythonNature, tok, selected, d, completionCache);
-		    }
-		    request.checkCancelled();
-		    if(doAdd){
-		        selected.add(definition);
-		    }
-		}
-	}
+    public void findActualDefinition(RefactoringRequest request, IModule mod, String tok, ArrayList<IDefinition> selected, 
+            int beginLine, int beginCol, IPythonNature pythonNature, ICompletionCache completionCache) throws Exception {
+        
+        IDefinition[] definitions = mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, pythonNature, 
+                beginLine-1, beginCol-1, completionCache), beginLine, beginCol, pythonNature);
+        
+        request.communicateWork("Found:"+definitions.length+ " definitions");
+        for (IDefinition definition : definitions) {
+            boolean doAdd = true;
+            if(definition instanceof Definition){
+                Definition d = (Definition) definition;
+                doAdd = !findActualTokenFromImportFromDefinition(pythonNature, tok, selected, d, completionCache);
+            }
+            request.checkCancelled();
+            if(doAdd){
+                selected.add(definition);
+            }
+        }
+    }
     
     /** 
      * Given some definition, find its actual token (if that's possible)

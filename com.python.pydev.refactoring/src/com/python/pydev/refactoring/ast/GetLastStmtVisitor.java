@@ -5,20 +5,20 @@ import org.python.pydev.parser.jython.ast.VisitorBase;
 
 public class GetLastStmtVisitor extends VisitorBase {
 
-	private SimpleNode lastNode;
+    private SimpleNode lastNode;
 
-	@Override
-	protected Object unhandled_node(SimpleNode node) throws Exception {
-		this.lastNode = node;
-		return null;
-	}
+    @Override
+    protected Object unhandled_node(SimpleNode node) throws Exception {
+        this.lastNode = node;
+        return null;
+    }
 
-	@Override
-	public void traverse(SimpleNode node) throws Exception {
-		node.traverse(this);
-	}
-	
-	public SimpleNode getLastNode(){
-		return lastNode;
-	}
+    @Override
+    public void traverse(SimpleNode node) throws Exception {
+        node.traverse(this);
+    }
+    
+    public SimpleNode getLastNode(){
+        return lastNode;
+    }
 }

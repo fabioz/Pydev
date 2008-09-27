@@ -81,7 +81,7 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
      * @return the created stub
      */
     @SuppressWarnings("unchecked")
-	protected MarkerStub createMarkerStub(int start, int end, int type) {
+    protected MarkerStub createMarkerStub(int start, int end, int type) {
         HashMap attrs = new HashMap();
 
         attrs.put(AnalysisRunner.PYDEV_ANALYSIS_TYPE, type);
@@ -92,11 +92,11 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
         return marker;
     }
     
-	protected void addFooModule(final SimpleNode ast) {
-	    String modName = "foo";
-	    PythonNature natureToAdd = nature;
-		addModuleToNature(ast, modName, natureToAdd);
-	}
+    protected void addFooModule(final SimpleNode ast) {
+        String modName = "foo";
+        PythonNature natureToAdd = nature;
+        addModuleToNature(ast, modName, natureToAdd);
+    }
 
     /**
      * @param ast the ast that defines the module

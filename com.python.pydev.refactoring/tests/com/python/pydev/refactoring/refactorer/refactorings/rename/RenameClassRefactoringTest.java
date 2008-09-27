@@ -90,12 +90,12 @@ public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
     
     
     public void testRename3() throws Exception {
-    	Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass2.defuser", 2, 8);
-    	assertTrue(references.containsKey("reflib.renameclass2.defuser") == false); //the current module does not have a separated key here
-    	assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
-    	assertTrue(references.containsKey("reflib.renameclass2.sub1.__init__"));
-    	assertTrue(references.containsKey("reflib.renameclass2.sub1.defmod"));
-    	assertTrue(references.containsKey("reflib.renameclass2.defuser2"));
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass2.defuser", 2, 8);
+        assertTrue(references.containsKey("reflib.renameclass2.defuser") == false); //the current module does not have a separated key here
+        assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
+        assertTrue(references.containsKey("reflib.renameclass2.sub1.__init__"));
+        assertTrue(references.containsKey("reflib.renameclass2.sub1.defmod"));
+        assertTrue(references.containsKey("reflib.renameclass2.defuser2"));
     }
     
     

@@ -53,40 +53,40 @@ import java.util.Map;
  * @author Jesse Grosjean
  */
 public class PNotification {
-	
-	protected String name;
-	protected Object source;
-	protected Map properties;
+    
+    protected String name;
+    protected Object source;
+    protected Map properties;
 
-	public PNotification(String name, Object source, Map properties) {
-		this.name = name;
-		this.source = source;
-		this.properties = properties;
-	}
+    public PNotification(String name, Object source, Map properties) {
+        this.name = name;
+        this.source = source;
+        this.properties = properties;
+    }
 
-	/**
-	 * Return the name of the notification. This is the same as the name used to
-	 * register with the notfication center.
-	 */
-	public String getName() {
-		return name;
-	}
+    /**
+     * Return the name of the notification. This is the same as the name used to
+     * register with the notfication center.
+     */
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * Return the object associated with this notification. This is most often
-	 * the same object that posted the notfication. It may be null.
-	 */
-	public Object getObject() {
-		return source;
-	}
+    /**
+     * Return the object associated with this notification. This is most often
+     * the same object that posted the notfication. It may be null.
+     */
+    public Object getObject() {
+        return source;
+    }
 
-	/**
-	 * Return a property associated with the notfication.
-	 */
-	public Object getProperty(Object key) {
-		if (properties != null) {
-			return properties.get(key);
-		}
-		return null;
-	}
+    /**
+     * Return a property associated with the notfication.
+     */
+    public Object getProperty(Object key) {
+        if (properties != null) {
+            return properties.get(key);
+        }
+        return null;
+    }
 }

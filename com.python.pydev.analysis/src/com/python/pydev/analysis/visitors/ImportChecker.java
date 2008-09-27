@@ -47,26 +47,26 @@ public class ImportChecker {
         /**
          * This is the module where this info was found
          */
-    	public IModule mod;
+        public IModule mod;
         /**
          * This is the token that relates to this import info (in the module it was found)
          */
-    	public IToken token;
-    	/**
+        public IToken token;
+        /**
          * This is the representation where it was found 
-    	 */
-    	public String rep;
+         */
+        public String rep;
         /**
          * Determines whether it was resolved or not (if not resolved, the other attributes may be null)
          */
-    	public boolean wasResolved;
-	    	
-    	public ImportInfo(IModule mod, String rep, IToken token, boolean wasResolved){
-    		this.mod = mod;
-    		this.rep = rep;
+        public boolean wasResolved;
+            
+        public ImportInfo(IModule mod, String rep, IToken token, boolean wasResolved){
+            this.mod = mod;
+            this.rep = rep;
             this.token = token;
-    		this.wasResolved = wasResolved;
-    	}
+            this.wasResolved = wasResolved;
+        }
         
         @Override
         public String toString() {
@@ -87,7 +87,7 @@ public class ImportChecker {
         /**
          * @return the definition that matches this
          */
-		public Definition getModuleDefinitionFromImportInfo(IPythonNature nature, ICompletionCache completionCache) {
+        public Definition getModuleDefinitionFromImportInfo(IPythonNature nature, ICompletionCache completionCache) {
             try {
                 IDefinition[] definitions = this.mod.findDefinition(
                         CompletionStateFactory.getEmptyCompletionState(this.rep, nature, completionCache), -1, -1, nature);
@@ -105,7 +105,7 @@ public class ImportChecker {
                 throw new RuntimeException(e);
             }
             return null;
-		}
+        }
     }
     
     /**
@@ -140,46 +140,46 @@ public class ImportChecker {
         //try to find it as a relative import
         boolean wasResolved = false;
         Tuple3<IModule, String, IToken> modTok = null;
-		if(token instanceof SourceToken){
-        	
-        	ICodeCompletionASTManager astManager = nature.getAstManager();
-        	ICompletionState state = CompletionStateFactory.getEmptyCompletionState(
-        	        token.getRepresentation(), nature, completionCache);
-        	
+        if(token instanceof SourceToken){
+            
+            ICodeCompletionASTManager astManager = nature.getAstManager();
+            ICompletionState state = CompletionStateFactory.getEmptyCompletionState(
+                    token.getRepresentation(), nature, completionCache);
+            
             try {
-				modTok = astManager.findOnImportedMods(new IToken[]{token}, state, moduleName);
-			} catch (CompletionRecursionException e1) {
-				modTok = null;//unable to resolve it
-			}
-        	if(modTok != null && modTok.o1 != null){
+                modTok = astManager.findOnImportedMods(new IToken[]{token}, state, moduleName);
+            } catch (CompletionRecursionException e1) {
+                modTok = null;//unable to resolve it
+            }
+            if(modTok != null && modTok.o1 != null){
 
-        		if(modTok.o2.length() == 0){
-        		    wasResolved = true;
+                if(modTok.o2.length() == 0){
+                    wasResolved = true;
                     
-        		} else{
-        			try {
-						if( astManager.getRepInModule(modTok.o1, modTok.o2, nature) != null){
-							wasResolved = true;
-						}
-					} catch (CompletionRecursionException e) {
-						//not resolved...
-					}
+                } else{
+                    try {
+                        if( astManager.getRepInModule(modTok.o1, modTok.o2, nature) != null){
+                            wasResolved = true;
+                        }
+                    } catch (CompletionRecursionException e) {
+                        //not resolved...
+                    }
                 }
-        	}
-        	
+            }
+            
             
             //if it got here, it was not resolved
-        	if(!wasResolved && reportUndefinedImports){
+            if(!wasResolved && reportUndefinedImports){
                 visitor.onAddUnresolvedImport(token);
-        	}
+            }
             
         }
         
         //might still return a modTok, even if the token we were looking for was not found.
         if(modTok != null){
-        	return new ImportInfo(modTok.o1, modTok.o2, modTok.o3, wasResolved);
+            return new ImportInfo(modTok.o1, modTok.o2, modTok.o3, wasResolved);
         }else{
-        	return new ImportInfo(null, null, null, wasResolved);
+            return new ImportInfo(null, null, null, wasResolved);
         }
     }
 

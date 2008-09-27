@@ -56,97 +56,97 @@ public class PSWTSelectionEventHandler extends PSelectionEventHandler {
     Point2D canvasPressPt;
     
     /**
-	 * Creates a selection event handler.
-	 * @param marqueeParent The node to which the event handler dynamically adds a marquee
-	 * (temporarily) to represent the area being selected.
-	 * @param selectableParent The node whose children will be selected
-	 * by this event handler.
-	 */
-	public PSWTSelectionEventHandler(PNode marqueeParent, PNode selectableParent) {
-	    super(new PNode(),selectableParent);
-	    this.marqueeParent = marqueeParent;
-	}
+     * Creates a selection event handler.
+     * @param marqueeParent The node to which the event handler dynamically adds a marquee
+     * (temporarily) to represent the area being selected.
+     * @param selectableParent The node whose children will be selected
+     * by this event handler.
+     */
+    public PSWTSelectionEventHandler(PNode marqueeParent, PNode selectableParent) {
+        super(new PNode(),selectableParent);
+        this.marqueeParent = marqueeParent;
+    }
 
-	/**
-	 * Creates a selection event handler.
-	 * @param marqueeParent The node to which the event handler dynamically adds a marquee
-	 * (temporarily) to represent the area being selected.
-	 * @param selectableParents A list of nodes whose children will be selected
-	 * by this event handler.
-	 */
-	public PSWTSelectionEventHandler(PNode marqueeParent, List selectableParents) {
-	    super(new PNode(),selectableParents);
-	    this.marqueeParent = marqueeParent;
-	}
+    /**
+     * Creates a selection event handler.
+     * @param marqueeParent The node to which the event handler dynamically adds a marquee
+     * (temporarily) to represent the area being selected.
+     * @param selectableParents A list of nodes whose children will be selected
+     * by this event handler.
+     */
+    public PSWTSelectionEventHandler(PNode marqueeParent, List selectableParents) {
+        super(new PNode(),selectableParents);
+        this.marqueeParent = marqueeParent;
+    }
 
-	public void decorateSelectedNode(PNode node) {	    
-		PSWTBoundsHandle.addBoundsHandlesTo(node);
-	}
+    public void decorateSelectedNode(PNode node) {        
+        PSWTBoundsHandle.addBoundsHandlesTo(node);
+    }
 
-	public void undecorateSelectedNode(PNode node) {
-		PSWTBoundsHandle.removeBoundsHandlesFrom(node);
-	}
+    public void undecorateSelectedNode(PNode node) {
+        PSWTBoundsHandle.removeBoundsHandlesFrom(node);
+    }
 
-	protected void initializeSelection(PInputEvent pie) {
-	    super.initializeSelection(pie);
-	    pressPt = pie.getPosition();
-		canvasPressPt = pie.getCanvasPosition();
-	}
-	
-	protected void initializeMarquee(PInputEvent e) {
-	    super.initializeMarquee(e);
-	    
-	    marquee = new PSWTPath(new Rectangle2D.Float((float)pressPt.getX(), (float)pressPt.getY(), 0, 0)) {
+    protected void initializeSelection(PInputEvent pie) {
+        super.initializeSelection(pie);
+        pressPt = pie.getPosition();
+        canvasPressPt = pie.getCanvasPosition();
+    }
+    
+    protected void initializeMarquee(PInputEvent e) {
+        super.initializeMarquee(e);
+        
+        marquee = new PSWTPath(new Rectangle2D.Float((float)pressPt.getX(), (float)pressPt.getY(), 0, 0)) {
             protected void paint(PPaintContext paintContext) {
                 SWTGraphics2D s2g = (SWTGraphics2D)paintContext.getGraphics();
                 s2g.gc.setLineStyle(SWT.LINE_DASH);
                 super.paint(paintContext);
                 s2g.gc.setLineStyle(SWT.LINE_SOLID);
             }
-	    };
-		marquee.setStrokeColor(Color.black);
-		marquee.setPaint(null);
-		marqueeParent.addChild(marquee);
-	}
+        };
+        marquee.setStrokeColor(Color.black);
+        marquee.setPaint(null);
+        marqueeParent.addChild(marquee);
+    }
 
-	protected void updateMarquee(PInputEvent pie) {
-		super.updateMarquee(pie);
-	    
-	    PBounds b = new PBounds();
+    protected void updateMarquee(PInputEvent pie) {
+        super.updateMarquee(pie);
+        
+        PBounds b = new PBounds();
 
-		if (marqueeParent instanceof PCamera) {
-			b.add(canvasPressPt);
-			b.add(pie.getCanvasPosition());
-		}
-		else {
-			b.add(pressPt);
-			b.add(pie.getPosition());
-		}
+        if (marqueeParent instanceof PCamera) {
+            b.add(canvasPressPt);
+            b.add(pie.getCanvasPosition());
+        }
+        else {
+            b.add(pressPt);
+            b.add(pie.getPosition());
+        }
 
-		marquee.setPathToRectangle((float) b.x, (float) b.y, (float) b.width, (float) b.height);				
-		b.reset();
-		b.add(pressPt);
-		b.add(pie.getPosition());
-	}
+        marquee.setPathToRectangle((float) b.x, (float) b.y, (float) b.width, (float) b.height);                
+        b.reset();
+        b.add(pressPt);
+        b.add(pie.getPosition());
+    }
 
-	protected PBounds getMarqueeBounds() {
-		if (marquee != null) {
-			return marquee.getBounds();
-		}	
-		return new PBounds();
-	}
+    protected PBounds getMarqueeBounds() {
+        if (marquee != null) {
+            return marquee.getBounds();
+        }    
+        return new PBounds();
+    }
 
-	protected void endMarqueeSelection(PInputEvent e) {
-	    super.endMarqueeSelection(e);
-	    
-	    // Remove marquee
-		marquee.removeFromParent();
-		marquee = null; 				
-	}
+    protected void endMarqueeSelection(PInputEvent e) {
+        super.endMarqueeSelection(e);
+        
+        // Remove marquee
+        marquee.removeFromParent();
+        marquee = null;                 
+    }
 
-	/**
-	 * This gets called continuously during the drag, and is used to animate the marquee
-	 */
-	protected void dragActivityStep(PInputEvent aEvent) {
-	}
+    /**
+     * This gets called continuously during the drag, and is used to animate the marquee
+     */
+    protected void dragActivityStep(PInputEvent aEvent) {
+    }
 }

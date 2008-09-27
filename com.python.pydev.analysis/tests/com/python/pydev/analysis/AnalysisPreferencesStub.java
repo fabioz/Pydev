@@ -63,7 +63,7 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
             return severityForUnusedWildImport;
         }
         if (type == TYPE_UNDEFINED_IMPORT_VARIABLE){
-        	return severityForUndefinedImportVariable;
+            return severityForUndefinedImportVariable;
         }
         if (type == TYPE_UNUSED_PARAMETER){
             return severityForUnusedParameter;
@@ -97,9 +97,9 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
     }
 
     public Set<String> getTokensAlwaysInGlobals() {
-    	Set<String> names = new HashSet<String>();
-    	names.add("considerGlobal");
-    	return names;
+        Set<String> names = new HashSet<String>();
+        names.add("considerGlobal");
+        return names;
     }
     
     public void clearCaches() {

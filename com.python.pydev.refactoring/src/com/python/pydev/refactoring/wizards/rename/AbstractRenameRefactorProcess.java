@@ -71,7 +71,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * May be used by subclasses
      */
     public AbstractRenameRefactorProcess(){
-    	
+        
     }
     
     /**
@@ -104,9 +104,9 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
         Tuple<String, IFile> key = new Tuple<String, IFile>(modName, file);
         Set<ASTEntry> existent = fileOccurrences.get(key);
         if(existent == null){
-        	fileOccurrences.put(key, new HashSet<ASTEntry>(oc));
+            fileOccurrences.put(key, new HashSet<ASTEntry>(oc));
         }else{
-        	existent.addAll(oc);
+            existent.addAll(oc);
         }
     }
 
@@ -119,8 +119,8 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
             node = def.name;
         }
         if(node instanceof FunctionDef){
-        	FunctionDef def = (FunctionDef) node;
-        	node = def.name;
+            FunctionDef def = (FunctionDef) node;
+            node = def.name;
         }
         if(node instanceof Attribute){
             exprType value = ((Attribute)node).value;
@@ -245,23 +245,23 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * 
      * It is always based on a single scope and bases itself on a refactoring request.
      */
-	protected List<ASTEntry> getOccurrencesWithScopeAnalyzer(RefactoringRequest request) {
-		List<ASTEntry> entryOccurrences = new ArrayList<ASTEntry>();
-    	
+    protected List<ASTEntry> getOccurrencesWithScopeAnalyzer(RefactoringRequest request) {
+        List<ASTEntry> entryOccurrences = new ArrayList<ASTEntry>();
+        
         IModule module = request.getModule();
         try {
             ScopeAnalyzerVisitor visitor = new ScopeAnalyzerVisitor(request.nature, request.moduleName, 
                     module, new NullProgressMonitor(), request.ps);
             
-			request.getAST().accept(visitor);
-			entryOccurrences = visitor.getEntryOccurrences();
+            request.getAST().accept(visitor);
+            entryOccurrences = visitor.getEntryOccurrences();
         } catch (BadLocationException e) {
             //don't log
-		} catch (Exception e) {
-			Log.log(e);
-		}
-		return entryOccurrences;
-	}
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        return entryOccurrences;
+    }
     
     /**
      * This functions tries to find the modules that may have matches for a given request.

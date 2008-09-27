@@ -34,26 +34,26 @@ public class RenameClassRefactoringTest extends RefactoringLocalTestBase {
     }
     
     public void testRenameClassVar() throws CoreException {
-    	String str = "" +
-    	"class Foo:\n" +
-    	"    %s = 10\n" +
-    	"    def m1(self):\n" +
-    	"        print self.%s\n" +
-    	"\n" +
-    	"\n" +
-    	"\n";
-    	checkRename(str, 1, 5, "bla", false, true);
+        String str = "" +
+        "class Foo:\n" +
+        "    %s = 10\n" +
+        "    def m1(self):\n" +
+        "        print self.%s\n" +
+        "\n" +
+        "\n" +
+        "\n";
+        checkRename(str, 1, 5, "bla", false, true);
     }
     
     public void testRenameClassCall() throws CoreException {
-    	String str = "" +
-    	"class Foo:\n" +
-    	"    def DoBar(self):\n" +
-    	"        %s(1,2)\n" +
-    	"class %s(object):\n" +
-    	"    pass\n" +
-    	"\n";
-    	checkRename(str, 2, 9, "Bar", false, true);
+        String str = "" +
+        "class Foo:\n" +
+        "    def DoBar(self):\n" +
+        "        %s(1,2)\n" +
+        "class %s(object):\n" +
+        "    pass\n" +
+        "\n";
+        checkRename(str, 2, 9, "Bar", false, true);
     }
     
     public void testRenameClassFromComments() throws CoreException {
@@ -75,21 +75,21 @@ public class RenameClassRefactoringTest extends RefactoringLocalTestBase {
     }
     
     public void testRenameClassComments() throws CoreException {
-    	String str = "" +
-    	"#===================================================================================================\n" +
-    	"# Cache\n" +
-    	"#===================================================================================================\n" +
-    	"class Cache(object):\n" +
-    	"    def ClearCaches(self):\n" +
-    	"        self.calc_cache.clear()\n" +
-    	"#===================================================================================================\n" +
-    	"# %s\n" +
-    	"#===================================================================================================\n" +
-    	"class %s(object):\n" +
-    	"    def __init__(self, info):\n" +
-    	"        self.info = info\n" +
-    	"\n";
-    	checkRename(str, 9, 7, "ExportMethodCalcBase", false, true);
+        String str = "" +
+        "#===================================================================================================\n" +
+        "# Cache\n" +
+        "#===================================================================================================\n" +
+        "class Cache(object):\n" +
+        "    def ClearCaches(self):\n" +
+        "        self.calc_cache.clear()\n" +
+        "#===================================================================================================\n" +
+        "# %s\n" +
+        "#===================================================================================================\n" +
+        "class %s(object):\n" +
+        "    def __init__(self, info):\n" +
+        "        self.info = info\n" +
+        "\n";
+        checkRename(str, 9, 7, "ExportMethodCalcBase", false, true);
     }
 
 }

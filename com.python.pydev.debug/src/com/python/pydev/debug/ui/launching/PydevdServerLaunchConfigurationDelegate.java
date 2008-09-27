@@ -16,36 +16,36 @@ import com.python.pydev.debug.model.ProcessServer;
 import com.python.pydev.debug.remote.RemoteDebuggerServer;
 
 public class PydevdServerLaunchConfigurationDelegate extends AbstractLaunchConfigurationDelegate {
-	
-	/**
-	 * Launches the python process.
-	 * 
-	 * Modelled after Ant & Java runners
-	 * see WorkbenchLaunchConfigurationDelegate::launch
-	 */
-	@SuppressWarnings("unchecked")
-    public void launch(ILaunchConfiguration conf, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {		
-		if (monitor == null){
-			monitor = new NullProgressMonitor();
+    
+    /**
+     * Launches the python process.
+     * 
+     * Modelled after Ant & Java runners
+     * see WorkbenchLaunchConfigurationDelegate::launch
+     */
+    @SuppressWarnings("unchecked")
+    public void launch(ILaunchConfiguration conf, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {        
+        if (monitor == null){
+            monitor = new NullProgressMonitor();
         }
         
-		monitor.beginTask("Preparing configuration", 1);		
-		monitor.worked(1);
-		
-		ProcessServer p = new ProcessServer();
-		String label = "Debug Server";
-		HashMap processAttributes = new HashMap();
-		processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
+        monitor.beginTask("Preparing configuration", 1);        
+        monitor.worked(1);
+        
+        ProcessServer p = new ProcessServer();
+        String label = "Debug Server";
+        HashMap processAttributes = new HashMap();
+        processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
         processAttributes.put(IProcess.ATTR_PROCESS_LABEL, label);
         processAttributes.put(DebugPlugin.ATTR_CAPTURE_OUTPUT, "true");
-		        
-		IProcess pro = DebugPlugin.newProcess( launch, p, label, processAttributes );
-		
-		RemoteDebuggerServer.getInstance().setLaunch(launch, p, pro);
-	}
-		
-	@Override
-	protected String getRunnerConfigRun() {	
-		return "RUN_SERVER";
-	}	
+                
+        IProcess pro = DebugPlugin.newProcess( launch, p, label, processAttributes );
+        
+        RemoteDebuggerServer.getInstance().setLaunch(launch, p, pro);
+    }
+        
+    @Override
+    protected String getRunnerConfigRun() {    
+        return "RUN_SERVER";
+    }    
 }

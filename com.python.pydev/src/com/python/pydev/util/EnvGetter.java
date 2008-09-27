@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class EnvGetter {
-	
+    
 
     /**
      * @param properties
@@ -18,8 +18,8 @@ public class EnvGetter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-		return out.toString();
+        return out.toString();
     }
-	
+    
     
 }

@@ -35,35 +35,35 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 
     @Override
     protected int getPriority() {
-    	return PyCodeCompletionVisitor.PRIORITY_CODE_COMPLETION+1; //just after the code-completion priority
+        return PyCodeCompletionVisitor.PRIORITY_CODE_COMPLETION+1; //just after the code-completion priority
     }
 
     
     
     @Override
     public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
-    	if(document == null){
-    		return;
-    	}
-    	
-    	//we may need to 'force' the analysis when a module is renamed, because the first message we receive is
-    	//a 'delete' and after that an 'add' -- which is later mapped to this method, so, if we don't have info
-    	//on the module we should analyze it because it is 'probably' a rename.
-    	PythonNature nature = getPythonNature(resource);
-    	if(nature == null){
-    		return;
-    	}
-    	if(!nature.startRequests()){
-    		return;
-    	}
-    	try{
-    		
-    		
-    		//For now, always analyze the files, because otherwise we could end up with files not analyzed
-    		//when it was edited outside and refreshed... A different approach must be considered so that we
-    		//don't analyze the file twice when editing/saving it.
-    		
-    		//change: always analyze the file, being only on save or not
+        if(document == null){
+            return;
+        }
+        
+        //we may need to 'force' the analysis when a module is renamed, because the first message we receive is
+        //a 'delete' and after that an 'add' -- which is later mapped to this method, so, if we don't have info
+        //on the module we should analyze it because it is 'probably' a rename.
+        PythonNature nature = getPythonNature(resource);
+        if(nature == null){
+            return;
+        }
+        if(!nature.startRequests()){
+            return;
+        }
+        try{
+            
+            
+            //For now, always analyze the files, because otherwise we could end up with files not analyzed
+            //when it was edited outside and refreshed... A different approach must be considered so that we
+            //don't analyze the file twice when editing/saving it.
+            
+            //change: always analyze the file, being only on save or not
             boolean analyzeDependent;
             if(isFullBuild()){
                 analyzeDependent = false;
@@ -72,23 +72,23 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
             }
             IModule module;
             if(PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
-            	if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-            		System.out.println("AnalysisBuilderVisitor: PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
-            	}
-            	IFile f = (IFile) resource;
+                if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+                    System.out.println("AnalysisBuilderVisitor: PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
+                }
+                IFile f = (IFile) resource;
                 String file = f.getRawLocation().toOSString();
-            	String moduleName = getModuleName(resource, nature);
-				module = new SourceModule(moduleName, new File(file), 
-            			FastDefinitionsParser.parse(document.get(), moduleName), null);
+                String moduleName = getModuleName(resource, nature);
+                module = new SourceModule(moduleName, new File(file), 
+                        FastDefinitionsParser.parse(document.get(), moduleName), null);
             }else{
-            	module = getSourceModule(resource, document, nature);
+                module = getSourceModule(resource, document, nature);
             }
-			doVisitChangedResource(nature, resource, document, module, analyzeDependent, monitor, false, 
-            		AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER);
+            doVisitChangedResource(nature, resource, document, module, analyzeDependent, monitor, false, 
+                    AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER);
             
-    	}finally{
-    		nature.endRequests();
-    	}
+        }finally{
+            nature.endRequests();
+        }
     }
     
 
@@ -97,18 +97,18 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
      * here we have to detect errors / warnings from the code analysis
      */
     public void doVisitChangedResource(IPythonNature nature, IResource resource, IDocument document, 
-    		IModule module, boolean analyzeDependent, IProgressMonitor monitor, boolean forceAnalysis,
-    		int analysisCause) {
-    	
+            IModule module, boolean analyzeDependent, IProgressMonitor monitor, boolean forceAnalysis,
+            int analysisCause) {
+        
         Assert.isNotNull(module);
         setModuleInCache(module);
         
         final String moduleName = getModuleName(resource, nature);
         final AnalysisBuilderRunnable runnable = AnalysisBuilderRunnable.createRunnable(
-        		document, resource, module, analyzeDependent, monitor, isFullBuild(), moduleName, forceAnalysis, analysisCause);
+                document, resource, module, analyzeDependent, monitor, isFullBuild(), moduleName, forceAnalysis, analysisCause);
         
         if(isFullBuild()){
-        	runnable.run();
+            runnable.run();
         }else{
             Job workbenchJob = new Job("") {
             
@@ -131,10 +131,10 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 
     @Override
     public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
-    	PythonNature nature = getPythonNature(resource);
-    	if(nature == null){
-    		return;
-    	}
+        PythonNature nature = getPythonNature(resource);
+        if(nature == null){
+            return;
+        }
         String moduleName = getModuleName(resource, nature);
         fillDependenciesAndRemoveInfo(moduleName, nature, true, monitor, isFullBuild());
     }
@@ -142,10 +142,10 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 
     @Override
     public void visitingWillStart(IProgressMonitor monitor, boolean isFullBuild, IPythonNature nature) {
-    	if(isFullBuild){
-	    	AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
-	    	info.clearAllInfo();
-    	}
+        if(isFullBuild){
+            AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+            info.clearAllInfo();
+        }
     }
     
     /**

@@ -56,288 +56,288 @@ import edu.umd.cs.piccolox.util.PBoundsLocator;
  * @author Jesse Grosjean
  */
 public class PBoundsHandle extends PHandle {
-	
-	private transient PBasicInputEventHandler handleCursorHandler;
-	
-	public static void addBoundsHandlesTo(PNode aNode) {
-		aNode.addChild(new PBoundsHandle(PBoundsLocator.createEastLocator(aNode))); 
-		aNode.addChild(new PBoundsHandle(PBoundsLocator.createWestLocator(aNode))); 
-		aNode.addChild(new PBoundsHandle(PBoundsLocator.createNorthLocator(aNode))); 
-		aNode.addChild(new PBoundsHandle(PBoundsLocator.createSouthLocator(aNode)));
-		aNode.addChild(new PBoundsHandle(PBoundsLocator.createNorthEastLocator(aNode))); 
-		aNode.addChild(new PBoundsHandle(PBoundsLocator.createNorthWestLocator(aNode))); 
-		aNode.addChild(new PBoundsHandle(PBoundsLocator.createSouthEastLocator(aNode))); 
-		aNode.addChild(new PBoundsHandle(PBoundsLocator.createSouthWestLocator(aNode))); 	
-	}
+    
+    private transient PBasicInputEventHandler handleCursorHandler;
+    
+    public static void addBoundsHandlesTo(PNode aNode) {
+        aNode.addChild(new PBoundsHandle(PBoundsLocator.createEastLocator(aNode))); 
+        aNode.addChild(new PBoundsHandle(PBoundsLocator.createWestLocator(aNode))); 
+        aNode.addChild(new PBoundsHandle(PBoundsLocator.createNorthLocator(aNode))); 
+        aNode.addChild(new PBoundsHandle(PBoundsLocator.createSouthLocator(aNode)));
+        aNode.addChild(new PBoundsHandle(PBoundsLocator.createNorthEastLocator(aNode))); 
+        aNode.addChild(new PBoundsHandle(PBoundsLocator.createNorthWestLocator(aNode))); 
+        aNode.addChild(new PBoundsHandle(PBoundsLocator.createSouthEastLocator(aNode))); 
+        aNode.addChild(new PBoundsHandle(PBoundsLocator.createSouthWestLocator(aNode)));     
+    }
 
-	public static void addStickyBoundsHandlesTo(PNode aNode, PCamera camera) {
-		camera.addChild(new PBoundsHandle(PBoundsLocator.createEastLocator(aNode)));
-		camera.addChild(new PBoundsHandle(PBoundsLocator.createWestLocator(aNode)));
-		camera.addChild(new PBoundsHandle(PBoundsLocator.createNorthLocator(aNode)));
-		camera.addChild(new PBoundsHandle(PBoundsLocator.createSouthLocator(aNode)));
-		camera.addChild(new PBoundsHandle(PBoundsLocator.createNorthEastLocator(aNode)));
-		camera.addChild(new PBoundsHandle(PBoundsLocator.createNorthWestLocator(aNode)));
-		camera.addChild(new PBoundsHandle(PBoundsLocator.createSouthEastLocator(aNode)));
-		camera.addChild(new PBoundsHandle(PBoundsLocator.createSouthWestLocator(aNode)));
-	}
-	
-	public static void removeBoundsHandlesFrom(PNode aNode) {
-		ArrayList handles = new ArrayList();
+    public static void addStickyBoundsHandlesTo(PNode aNode, PCamera camera) {
+        camera.addChild(new PBoundsHandle(PBoundsLocator.createEastLocator(aNode)));
+        camera.addChild(new PBoundsHandle(PBoundsLocator.createWestLocator(aNode)));
+        camera.addChild(new PBoundsHandle(PBoundsLocator.createNorthLocator(aNode)));
+        camera.addChild(new PBoundsHandle(PBoundsLocator.createSouthLocator(aNode)));
+        camera.addChild(new PBoundsHandle(PBoundsLocator.createNorthEastLocator(aNode)));
+        camera.addChild(new PBoundsHandle(PBoundsLocator.createNorthWestLocator(aNode)));
+        camera.addChild(new PBoundsHandle(PBoundsLocator.createSouthEastLocator(aNode)));
+        camera.addChild(new PBoundsHandle(PBoundsLocator.createSouthWestLocator(aNode)));
+    }
+    
+    public static void removeBoundsHandlesFrom(PNode aNode) {
+        ArrayList handles = new ArrayList();
 
-		Iterator i = aNode.getChildrenIterator();
-		while (i.hasNext()) {
-			PNode each = (PNode) i.next();
-			if (each instanceof PBoundsHandle) {
-				handles.add(each);
-			}
-		}
-		aNode.removeChildren(handles);		
-	}
-	
-	public PBoundsHandle(PBoundsLocator aLocator) {
-		super(aLocator);
-	}
-	
-	protected void installHandleEventHandlers() {
-		super.installHandleEventHandlers();
-		handleCursorHandler = new PBasicInputEventHandler() {
-			boolean cursorPushed = false;			
-			public void mouseEntered(PInputEvent aEvent) {
-				if (!cursorPushed) {
-					aEvent.pushCursor(getCursorFor(((PBoundsLocator)getLocator()).getSide()));
-					cursorPushed = true;
-				}
-			}
-			public void mouseExited(PInputEvent aEvent) {
-				PPickPath focus = aEvent.getInputManager().getMouseFocus();
-				if (cursorPushed) {
-					if (focus == null || focus.getPickedNode() != PBoundsHandle.this) {
-						aEvent.popCursor();
-						cursorPushed = false;
-					}
-				}
-			}
-			public void mouseReleased(PInputEvent event) {
-				if (cursorPushed) {
-					event.popCursor();
-					cursorPushed = false;
-				}
-			}
-		};
-		addInputEventListener(handleCursorHandler);
-	}	
+        Iterator i = aNode.getChildrenIterator();
+        while (i.hasNext()) {
+            PNode each = (PNode) i.next();
+            if (each instanceof PBoundsHandle) {
+                handles.add(each);
+            }
+        }
+        aNode.removeChildren(handles);        
+    }
+    
+    public PBoundsHandle(PBoundsLocator aLocator) {
+        super(aLocator);
+    }
+    
+    protected void installHandleEventHandlers() {
+        super.installHandleEventHandlers();
+        handleCursorHandler = new PBasicInputEventHandler() {
+            boolean cursorPushed = false;            
+            public void mouseEntered(PInputEvent aEvent) {
+                if (!cursorPushed) {
+                    aEvent.pushCursor(getCursorFor(((PBoundsLocator)getLocator()).getSide()));
+                    cursorPushed = true;
+                }
+            }
+            public void mouseExited(PInputEvent aEvent) {
+                PPickPath focus = aEvent.getInputManager().getMouseFocus();
+                if (cursorPushed) {
+                    if (focus == null || focus.getPickedNode() != PBoundsHandle.this) {
+                        aEvent.popCursor();
+                        cursorPushed = false;
+                    }
+                }
+            }
+            public void mouseReleased(PInputEvent event) {
+                if (cursorPushed) {
+                    event.popCursor();
+                    cursorPushed = false;
+                }
+            }
+        };
+        addInputEventListener(handleCursorHandler);
+    }    
 
-	/**
-	 * Return the event handler that is responsible for setting the mouse
-	 * cursor when it enters/exits this handle.
-	 */
-	public PBasicInputEventHandler getHandleCursorEventHandler() {
-		return handleCursorHandler;
-	}
+    /**
+     * Return the event handler that is responsible for setting the mouse
+     * cursor when it enters/exits this handle.
+     */
+    public PBasicInputEventHandler getHandleCursorEventHandler() {
+        return handleCursorHandler;
+    }
 
-	public void startHandleDrag(Point2D aLocalPoint, PInputEvent aEvent) {
-		PBoundsLocator l = (PBoundsLocator) getLocator();
-		l.getNode().startResizeBounds();
-	}
-	
-	public void dragHandle(PDimension aLocalDimension, PInputEvent aEvent) {
-		PBoundsLocator l = (PBoundsLocator) getLocator();
-				
-		PNode n = l.getNode();
-		PBounds b = n.getBounds();
+    public void startHandleDrag(Point2D aLocalPoint, PInputEvent aEvent) {
+        PBoundsLocator l = (PBoundsLocator) getLocator();
+        l.getNode().startResizeBounds();
+    }
+    
+    public void dragHandle(PDimension aLocalDimension, PInputEvent aEvent) {
+        PBoundsLocator l = (PBoundsLocator) getLocator();
+                
+        PNode n = l.getNode();
+        PBounds b = n.getBounds();
 
-		PNode parent = getParent();
-		if (parent != n && parent instanceof PCamera) {
-			((PCamera)parent).localToView(aLocalDimension);
-		}
+        PNode parent = getParent();
+        if (parent != n && parent instanceof PCamera) {
+            ((PCamera)parent).localToView(aLocalDimension);
+        }
 
-		localToGlobal(aLocalDimension);
-		n.globalToLocal(aLocalDimension);
-		
-		double dx = aLocalDimension.getWidth();
-		double dy = aLocalDimension.getHeight();
-			
-		switch (l.getSide()) {
-			case SwingConstants.NORTH:
-				b.setRect(b.x, b.y + dy, b.width, b.height - dy);
-				break;
-			
-			case SwingConstants.SOUTH:
-				b.setRect(b.x, b.y, b.width, b.height + dy);
-				break;
-			
-			case SwingConstants.EAST:
-				b.setRect(b.x, b.y, b.width + dx, b.height);
-				break;
-			
-			case SwingConstants.WEST:
-				b.setRect(b.x + dx, b.y, b.width - dx, b.height);
-				break;
-			
-			case SwingConstants.NORTH_WEST:
-				b.setRect(b.x + dx, b.y + dy, b.width - dx, b.height - dy);
-				break;
-			
-			case SwingConstants.SOUTH_WEST:
-				b.setRect(b.x + dx, b.y, b.width - dx, b.height + dy);
-				break;
-			
-			case SwingConstants.NORTH_EAST:
-				b.setRect(b.x, b.y + dy, b.width + dx, b.height - dy);
-				break;
-			
-			case SwingConstants.SOUTH_EAST:
-				b.setRect(b.x, b.y, b.width + dx, b.height + dy);
-				break;
-		}
+        localToGlobal(aLocalDimension);
+        n.globalToLocal(aLocalDimension);
+        
+        double dx = aLocalDimension.getWidth();
+        double dy = aLocalDimension.getHeight();
+            
+        switch (l.getSide()) {
+            case SwingConstants.NORTH:
+                b.setRect(b.x, b.y + dy, b.width, b.height - dy);
+                break;
+            
+            case SwingConstants.SOUTH:
+                b.setRect(b.x, b.y, b.width, b.height + dy);
+                break;
+            
+            case SwingConstants.EAST:
+                b.setRect(b.x, b.y, b.width + dx, b.height);
+                break;
+            
+            case SwingConstants.WEST:
+                b.setRect(b.x + dx, b.y, b.width - dx, b.height);
+                break;
+            
+            case SwingConstants.NORTH_WEST:
+                b.setRect(b.x + dx, b.y + dy, b.width - dx, b.height - dy);
+                break;
+            
+            case SwingConstants.SOUTH_WEST:
+                b.setRect(b.x + dx, b.y, b.width - dx, b.height + dy);
+                break;
+            
+            case SwingConstants.NORTH_EAST:
+                b.setRect(b.x, b.y + dy, b.width + dx, b.height - dy);
+                break;
+            
+            case SwingConstants.SOUTH_EAST:
+                b.setRect(b.x, b.y, b.width + dx, b.height + dy);
+                break;
+        }
 
-		boolean flipX = false;
-		boolean flipY = false;
-		
-		if (b.width < 0) {
-			flipX = true;
-			b.width = -b.width;
-			b.x -= b.width;
-		}
-		
-		if (b.height < 0) {
-			flipY = true;
-			b.height = -b.height;
-			b.y -= b.height;
-		}
-		
-		if (flipX || flipY) {
-			flipSiblingBoundsHandles(flipX, flipY);
-		}
-		
-		n.setBounds(b);
-	}
-	
-	public void endHandleDrag(Point2D aLocalPoint, PInputEvent aEvent) {
-		PBoundsLocator l = (PBoundsLocator) getLocator();
-		l.getNode().endResizeBounds();
-	}	
-	
-	public void flipSiblingBoundsHandles(boolean flipX, boolean flipY) {
-		Iterator i = getParent().getChildrenIterator();
-		while (i.hasNext()) {
-			Object each = i.next();
-			if (each instanceof PBoundsHandle) {
-				((PBoundsHandle)each).flipHandleIfNeeded(flipX, flipY);
-			}
-		}
-	}
-	
-	public void flipHandleIfNeeded(boolean flipX, boolean flipY) {		
-		PBoundsLocator l = (PBoundsLocator) getLocator();	
-		
-		if (flipX || flipY) {		
-			switch (l.getSide()) {
-				case SwingConstants.NORTH: {
-					if (flipY) {
-						l.setSide(SwingConstants.SOUTH);
-					}					
-					break;
-				}
-				
-				case SwingConstants.SOUTH: {
-					if (flipY) {
-						l.setSide(SwingConstants.NORTH);
-					}					
-					break;
-				}
-				
-				case SwingConstants.EAST: {
-					if (flipX) {
-						l.setSide(SwingConstants.WEST);
-					}					
-					break;
-				}
-				
-				case SwingConstants.WEST: {
-					if (flipX) {
-						l.setSide(SwingConstants.EAST);
-					}					
-					break;
-				}
-								
-				case SwingConstants.NORTH_WEST: {
-					if (flipX && flipY) {
-						l.setSide(SwingConstants.SOUTH_EAST);
-					} else if (flipX) {
-						l.setSide(SwingConstants.NORTH_EAST);
-					} else if (flipY) {
-						l.setSide(SwingConstants.SOUTH_WEST);
-					}
-					
-					break;
-				}
-				
-				case SwingConstants.SOUTH_WEST: {
-					if (flipX && flipY) {
-						l.setSide(SwingConstants.NORTH_EAST);
-					} else if (flipX) {
-						l.setSide(SwingConstants.SOUTH_EAST);
-					} else if (flipY) {
-						l.setSide(SwingConstants.NORTH_WEST);
-					}
-					break;
-				}
-				
-				case SwingConstants.NORTH_EAST: {
-					if (flipX && flipY) {
-						l.setSide(SwingConstants.SOUTH_WEST);
-					} else if (flipX) {
-						l.setSide(SwingConstants.NORTH_WEST);
-					} else if (flipY) {
-						l.setSide(SwingConstants.SOUTH_EAST);
-					}
-					break;
-				}
-				
-				case SwingConstants.SOUTH_EAST: {
-					if (flipX && flipY) {
-						l.setSide(SwingConstants.NORTH_WEST);
-					} else if (flipX) {
-						l.setSide(SwingConstants.SOUTH_WEST);
-					} else if (flipY) {
-						l.setSide(SwingConstants.NORTH_EAST);
-					}
-					break;
-				}
-			}
-		}
-		
-		// reset locator to update layout
-		setLocator(l);
-	}
-	
-	public Cursor getCursorFor(int side) {
-		switch (side) {
-			case SwingConstants.NORTH:
-				return new Cursor(Cursor.N_RESIZE_CURSOR);
+        boolean flipX = false;
+        boolean flipY = false;
+        
+        if (b.width < 0) {
+            flipX = true;
+            b.width = -b.width;
+            b.x -= b.width;
+        }
+        
+        if (b.height < 0) {
+            flipY = true;
+            b.height = -b.height;
+            b.y -= b.height;
+        }
+        
+        if (flipX || flipY) {
+            flipSiblingBoundsHandles(flipX, flipY);
+        }
+        
+        n.setBounds(b);
+    }
+    
+    public void endHandleDrag(Point2D aLocalPoint, PInputEvent aEvent) {
+        PBoundsLocator l = (PBoundsLocator) getLocator();
+        l.getNode().endResizeBounds();
+    }    
+    
+    public void flipSiblingBoundsHandles(boolean flipX, boolean flipY) {
+        Iterator i = getParent().getChildrenIterator();
+        while (i.hasNext()) {
+            Object each = i.next();
+            if (each instanceof PBoundsHandle) {
+                ((PBoundsHandle)each).flipHandleIfNeeded(flipX, flipY);
+            }
+        }
+    }
+    
+    public void flipHandleIfNeeded(boolean flipX, boolean flipY) {        
+        PBoundsLocator l = (PBoundsLocator) getLocator();    
+        
+        if (flipX || flipY) {        
+            switch (l.getSide()) {
+                case SwingConstants.NORTH: {
+                    if (flipY) {
+                        l.setSide(SwingConstants.SOUTH);
+                    }                    
+                    break;
+                }
+                
+                case SwingConstants.SOUTH: {
+                    if (flipY) {
+                        l.setSide(SwingConstants.NORTH);
+                    }                    
+                    break;
+                }
+                
+                case SwingConstants.EAST: {
+                    if (flipX) {
+                        l.setSide(SwingConstants.WEST);
+                    }                    
+                    break;
+                }
+                
+                case SwingConstants.WEST: {
+                    if (flipX) {
+                        l.setSide(SwingConstants.EAST);
+                    }                    
+                    break;
+                }
+                                
+                case SwingConstants.NORTH_WEST: {
+                    if (flipX && flipY) {
+                        l.setSide(SwingConstants.SOUTH_EAST);
+                    } else if (flipX) {
+                        l.setSide(SwingConstants.NORTH_EAST);
+                    } else if (flipY) {
+                        l.setSide(SwingConstants.SOUTH_WEST);
+                    }
+                    
+                    break;
+                }
+                
+                case SwingConstants.SOUTH_WEST: {
+                    if (flipX && flipY) {
+                        l.setSide(SwingConstants.NORTH_EAST);
+                    } else if (flipX) {
+                        l.setSide(SwingConstants.SOUTH_EAST);
+                    } else if (flipY) {
+                        l.setSide(SwingConstants.NORTH_WEST);
+                    }
+                    break;
+                }
+                
+                case SwingConstants.NORTH_EAST: {
+                    if (flipX && flipY) {
+                        l.setSide(SwingConstants.SOUTH_WEST);
+                    } else if (flipX) {
+                        l.setSide(SwingConstants.NORTH_WEST);
+                    } else if (flipY) {
+                        l.setSide(SwingConstants.SOUTH_EAST);
+                    }
+                    break;
+                }
+                
+                case SwingConstants.SOUTH_EAST: {
+                    if (flipX && flipY) {
+                        l.setSide(SwingConstants.NORTH_WEST);
+                    } else if (flipX) {
+                        l.setSide(SwingConstants.SOUTH_WEST);
+                    } else if (flipY) {
+                        l.setSide(SwingConstants.NORTH_EAST);
+                    }
+                    break;
+                }
+            }
+        }
+        
+        // reset locator to update layout
+        setLocator(l);
+    }
+    
+    public Cursor getCursorFor(int side) {
+        switch (side) {
+            case SwingConstants.NORTH:
+                return new Cursor(Cursor.N_RESIZE_CURSOR);
 
-			case SwingConstants.SOUTH:
-				return new Cursor(Cursor.S_RESIZE_CURSOR);
-				
-			case SwingConstants.EAST:
-				return new Cursor(Cursor.E_RESIZE_CURSOR);
-				
-			case SwingConstants.WEST:
-				return new Cursor(Cursor.W_RESIZE_CURSOR);
-				
-			case SwingConstants.NORTH_WEST:
-				return new Cursor(Cursor.NW_RESIZE_CURSOR);
-				
-			case SwingConstants.SOUTH_WEST:
-				return new Cursor(Cursor.SW_RESIZE_CURSOR);
-				
-			case SwingConstants.NORTH_EAST:
-				return new Cursor(Cursor.NE_RESIZE_CURSOR);
-				
-			case SwingConstants.SOUTH_EAST:
-				return new Cursor(Cursor.SE_RESIZE_CURSOR);
-		}
-		return null;
-	}
+            case SwingConstants.SOUTH:
+                return new Cursor(Cursor.S_RESIZE_CURSOR);
+                
+            case SwingConstants.EAST:
+                return new Cursor(Cursor.E_RESIZE_CURSOR);
+                
+            case SwingConstants.WEST:
+                return new Cursor(Cursor.W_RESIZE_CURSOR);
+                
+            case SwingConstants.NORTH_WEST:
+                return new Cursor(Cursor.NW_RESIZE_CURSOR);
+                
+            case SwingConstants.SOUTH_WEST:
+                return new Cursor(Cursor.SW_RESIZE_CURSOR);
+                
+            case SwingConstants.NORTH_EAST:
+                return new Cursor(Cursor.NE_RESIZE_CURSOR);
+                
+            case SwingConstants.SOUTH_EAST:
+                return new Cursor(Cursor.SE_RESIZE_CURSOR);
+        }
+        return null;
+    }
 }
