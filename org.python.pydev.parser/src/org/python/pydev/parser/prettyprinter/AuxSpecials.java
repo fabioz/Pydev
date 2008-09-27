@@ -44,10 +44,10 @@ public class AuxSpecials {
                     state.write(prefs.getReplacement(str));
                 }
             }else if(c instanceof SpecialStr){
-            	SpecialStr s = (SpecialStr) c;
-            	String str = s.str;
-            	if(canWrite(str, ignore, write)){
-            	    state.write(prefs.getReplacement(str));
+                SpecialStr s = (SpecialStr) c;
+                String str = s.str;
+                if(canWrite(str, ignore, write)){
+                    state.write(prefs.getReplacement(str));
                 }
             }else{
                 throw new RuntimeException("Unexpected special: "+node);
@@ -80,41 +80,41 @@ public class AuxSpecials {
     }
 
     public void writeSpecialsAfter(SimpleNode node) throws IOException {
-    	writeSpecialsAfter(node, true);
+        writeSpecialsAfter(node, true);
     }
     
     public void writeSpecialsAfter(SimpleNode node, boolean isNewScope) throws IOException {
-    	int line = node.beginLine;
+        int line = node.beginLine;
         
-    	if(node.specialsAfter == null){
-    	    return;   
+        if(node.specialsAfter == null){
+            return;   
         }
         
         for (Object o : node.specialsAfter){
             if(o instanceof commentType){
                 commentType c = (commentType)o;
                 if(c.beginLine > line){
-                	if(state.writeNewLine(false)){
-                    	if(isNewScope){
-                    		state.writeIndent(1);
-                    	}else{
-                    		state.writeIndent();
-                    	}
+                    if(state.writeNewLine(false)){
+                        if(isNewScope){
+                            state.writeIndent(1);
+                        }else{
+                            state.writeIndent();
+                        }
                     }
                 }else{
                     state.writeSpacesBeforeComment();
                 }
-				state.write(c.id);
+                state.write(c.id);
                 state.writeNewLine();
                 line = c.beginLine + 1;
                 
                 state.writeIndent();
                 
             }else if(o instanceof SpecialStr){
-            	SpecialStr s = (SpecialStr) o;
-            	state.write(prefs.getReplacement(s.str));
-            	line = s.beginLine;
-            	
+                SpecialStr s = (SpecialStr) o;
+                state.write(prefs.getReplacement(s.str));
+                line = s.beginLine;
+                
             }else if(o instanceof String){
                 state.write(prefs.getReplacement((String)o));
             }else{
@@ -131,7 +131,7 @@ public class AuxSpecials {
             if(o instanceof String){
                 state.write(prefs.getReplacement((String)o));
             }else if(o instanceof SpecialStr){
-            	state.write(prefs.getReplacement(o.toString()));
+                state.write(prefs.getReplacement(o.toString()));
             }
         }
     }

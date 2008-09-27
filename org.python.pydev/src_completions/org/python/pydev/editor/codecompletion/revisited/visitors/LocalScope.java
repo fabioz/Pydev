@@ -245,25 +245,25 @@ public class LocalScope implements ILocalScope {
     /** 
      * @see org.python.pydev.core.ILocalScope#getClassDef()
      */
-	public ClassDef getClassDef() {
-		for(Iterator<SimpleNode> it = this.scope.topDownIterator(); it.hasNext();){
+    public ClassDef getClassDef() {
+        for(Iterator<SimpleNode> it = this.scope.topDownIterator(); it.hasNext();){
             SimpleNode node = it.next();
-			if(node instanceof ClassDef){
-				return (ClassDef) node;
-			}
-		}
-		return null;
-	}
+            if(node instanceof ClassDef){
+                return (ClassDef) node;
+            }
+        }
+        return null;
+    }
 
-	/** 
+    /** 
      * @see org.python.pydev.core.ILocalScope#isLastClassDef()
      */
-	public boolean isLastClassDef() {
-		if(this.scope.size() > 0 && this.scope.peek() instanceof ClassDef){
-			return true;
-		}
-		return false;
-	}
+    public boolean isLastClassDef() {
+        if(this.scope.size() > 0 && this.scope.peek() instanceof ClassDef){
+            return true;
+        }
+        return false;
+    }
 
     @SuppressWarnings("unchecked")
     public Iterator iterator() {

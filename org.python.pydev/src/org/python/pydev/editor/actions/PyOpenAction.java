@@ -44,13 +44,13 @@ public class PyOpenAction extends Action {
             TextSelection sel = new TextSelection(s, e - s);
             textEdit.getSelectionProvider().setSelection(sel);
         } catch (BadLocationException e1) {
-        	if(textEdit instanceof PyEdit){
-        		PyEdit p = (PyEdit) textEdit;
-        		PydevPlugin.log(IStatus.ERROR, "Error setting selection:"+start+" - "+end+" - "+p.getEditorFile(), e1);
-        		
-        	}else{
-        		PydevPlugin.log(IStatus.ERROR, "Error setting selection:"+start+" - "+end, e1);
-        	}
+            if(textEdit instanceof PyEdit){
+                PyEdit p = (PyEdit) textEdit;
+                PydevPlugin.log(IStatus.ERROR, "Error setting selection:"+start+" - "+end+" - "+p.getEditorFile(), e1);
+                
+            }else{
+                PydevPlugin.log(IStatus.ERROR, "Error setting selection:"+start+" - "+end, e1);
+            }
         }
     }
 
@@ -64,7 +64,7 @@ public class PyOpenAction extends Action {
             editor = PyOpenEditor.doOpenEditor((File)file, zipFilePath);
             
         } else if (file instanceof IFile) {
-        	IFile f = (IFile) file;
+            IFile f = (IFile) file;
             editor = PyOpenEditor.doOpenEditor(f);
 
         } else if (file instanceof IPath) {
@@ -73,7 +73,7 @@ public class PyOpenAction extends Action {
 
         } else if (file instanceof File) {
             String absPath = REF.getFileAbsolutePath((File) file);
-			IPath path = Path.fromOSString(absPath);
+            IPath path = Path.fromOSString(absPath);
             editor = PyOpenEditor.doOpenEditor(path);
         }
 

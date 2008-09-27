@@ -23,47 +23,47 @@ public class ReaderCharStreamTest extends TestCase {
     }
     
     public void testIt2() throws Exception {
-    	String s = new String(new char[]{'\n',34,34,34,'\n',97,'\n',34,34,34});
+        String s = new String(new char[]{'\n',34,34,34,'\n',97,'\n',34,34,34});
         //
         //"""
         //a
         //"""
-    	
-    	StringReader inString = new StringReader(s);
-    	CharStream in = new ReaderCharStream(inString);
-    	checkCvsStream(in);
-    	
-    	in = new FastCharStream(s.toCharArray());
-    	checkCvsStream(in);
-    	
-    	
+        
+        StringReader inString = new StringReader(s);
+        CharStream in = new ReaderCharStream(inString);
+        checkCvsStream(in);
+        
+        in = new FastCharStream(s.toCharArray());
+        checkCvsStream(in);
+        
+        
     }
 
-	private void checkCvsStream(CharStream in) throws IOException {
-		assertEquals(10,in.BeginToken());
-		in.backup(0);
-		assertEquals("\n",new String(in.GetSuffix(1)));
-		in.backup(1);
-		
-		assertEquals(10,in.readChar());
-    	assertEquals(34,in.readChar());
-    	assertEquals(34,in.readChar());
-    	assertEquals(34,in.readChar());
-    	assertEquals(10,in.readChar());
-    	
-    	assertEquals(97,in.readChar());
-    	
-    	assertEquals(10,in.readChar());
-    	assertEquals(34,in.readChar());
-    	assertEquals(34,in.readChar());
-    	assertEquals(34,in.readChar());
-    	try {
-			in.readChar();
-			fail("Expectend end");
-		} catch (IOException e) {
-			// expected
-		}
-	}
+    private void checkCvsStream(CharStream in) throws IOException {
+        assertEquals(10,in.BeginToken());
+        in.backup(0);
+        assertEquals("\n",new String(in.GetSuffix(1)));
+        in.backup(1);
+        
+        assertEquals(10,in.readChar());
+        assertEquals(34,in.readChar());
+        assertEquals(34,in.readChar());
+        assertEquals(34,in.readChar());
+        assertEquals(10,in.readChar());
+        
+        assertEquals(97,in.readChar());
+        
+        assertEquals(10,in.readChar());
+        assertEquals(34,in.readChar());
+        assertEquals(34,in.readChar());
+        assertEquals(34,in.readChar());
+        try {
+            in.readChar();
+            fail("Expectend end");
+        } catch (IOException e) {
+            // expected
+        }
+    }
     public void testIt() throws Exception {
         String initialDoc = 
             "a\n" +
@@ -84,32 +84,32 @@ public class ReaderCharStreamTest extends TestCase {
     }
 
     private void doTests2(CharStream in) throws IOException {
-		assertEquals('a', in.readChar());
-		assertEquals("a", in.GetImage());
-		
-    	assertEquals('\n',in.BeginToken());
-    	assertEquals('b', in.readChar());
-    	assertEquals("\nb", in.GetImage());
-    	
-    	in.backup(1);
-    	assertEquals("\n", in.GetImage());
-    	
-    	assertEquals('b',in.BeginToken());
-    	assertEquals("b", in.GetImage());
-    	
-    	assertEquals('c',in.BeginToken());
-    	assertEquals("c", in.GetImage());
-    	
-    	assertEquals('\n',in.BeginToken());
-    	assertEquals("\n", in.GetImage());
-    	
-    	try {
-			in.BeginToken();
-			fail("expected exception");
-		} catch (IOException e) {
-			// expected
-		}
-    	assertEquals("\n", in.GetImage());
+        assertEquals('a', in.readChar());
+        assertEquals("a", in.GetImage());
+        
+        assertEquals('\n',in.BeginToken());
+        assertEquals('b', in.readChar());
+        assertEquals("\nb", in.GetImage());
+        
+        in.backup(1);
+        assertEquals("\n", in.GetImage());
+        
+        assertEquals('b',in.BeginToken());
+        assertEquals("b", in.GetImage());
+        
+        assertEquals('c',in.BeginToken());
+        assertEquals("c", in.GetImage());
+        
+        assertEquals('\n',in.BeginToken());
+        assertEquals("\n", in.GetImage());
+        
+        try {
+            in.BeginToken();
+            fail("expected exception");
+        } catch (IOException e) {
+            // expected
+        }
+        assertEquals("\n", in.GetImage());
     }
     /**
      * @param in
@@ -188,7 +188,7 @@ public class ReaderCharStreamTest extends TestCase {
         cs[4] = 'c';
         cs[5] = '\n';
         final String suf = new String(in.GetSuffix(6));
-		assertEquals(new String(cs), suf);
+        assertEquals(new String(cs), suf);
         in.backup(4);
         
         assertEquals("a", in.GetImage());

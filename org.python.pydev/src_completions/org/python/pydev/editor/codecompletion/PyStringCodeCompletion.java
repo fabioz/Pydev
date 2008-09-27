@@ -34,8 +34,8 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion{
      * Epydoc fields (after @)
      */
     public static String[] EPYDOC_FIELDS = new String[]{
-    	//function or method
-    	"param", "param ${param}: ${cursor}", "A description of the parameter for a function or method.",
+        //function or method
+        "param", "param ${param}: ${cursor}", "A description of the parameter for a function or method.",
         "type", "type ${param}: ${cursor}", "The expected type for the parameter, var or property",
         "return", "return: ", "The return value for a function or method.",
         "rtype", "rtype: ", "The type of the return value for a function or method.",
@@ -110,40 +110,40 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion{
     private void fillWithParams(ITextViewer viewer, CompletionRequest request, ArrayList<ICompletionProposal> ret) {
         PySelection ps = new PySelection(request.doc, request.documentOffset);
         try {
-			String lineContentsToCursor = ps.getLineContentsToCursor();
-			String trimmed = lineContentsToCursor.trim();
-			
-			//only add params on param and type tags
-			if(!trimmed.startsWith("@param") && !trimmed.startsWith("@type")){
-				return;
-			}
-			
-			//for params, we never have an activation token (just a qualifier)
-			if(request.activationToken.trim().length() != 0){
-				return;
-			}
-			
-			String initial = request.qualifier;
+            String lineContentsToCursor = ps.getLineContentsToCursor();
+            String trimmed = lineContentsToCursor.trim();
+            
+            //only add params on param and type tags
+            if(!trimmed.startsWith("@param") && !trimmed.startsWith("@type")){
+                return;
+            }
+            
+            //for params, we never have an activation token (just a qualifier)
+            if(request.activationToken.trim().length() != 0){
+                return;
+            }
+            
+            String initial = request.qualifier;
         
-			DocIterator iterator = new DocIterator(false, ps);
-	        while(iterator.hasNext()){
-	        	String line = iterator.next().trim();
-	        	if(line.startsWith("def ")){
-	        		int currentLine = iterator.getCurrentLine() + 1;
-	        		PySelection selection = new PySelection(request.doc, currentLine, 0);
-	        		if(selection.isInFunctionLine()){
-	        			Tuple<List<String>,Integer> insideParentesisToks = selection.getInsideParentesisToks(false);
-	        			for (String str : insideParentesisToks.o1) {
-	        				if(str.startsWith(initial)){
-	        					ret.add(new PyLinkedModeCompletionProposal(str, request.documentOffset - request.qlen, request.qlen, str.length(), 
-	                                    PyCodeCompletionImages.getImageForType(IToken.TYPE_PARAM), null, null, "", 0, PyCompletionProposal.ON_APPLY_DEFAULT, ""));
-	        				}
-						}
-	        			return;
-	        		}
-	        	}
-	        }
-	        
+            DocIterator iterator = new DocIterator(false, ps);
+            while(iterator.hasNext()){
+                String line = iterator.next().trim();
+                if(line.startsWith("def ")){
+                    int currentLine = iterator.getCurrentLine() + 1;
+                    PySelection selection = new PySelection(request.doc, currentLine, 0);
+                    if(selection.isInFunctionLine()){
+                        Tuple<List<String>,Integer> insideParentesisToks = selection.getInsideParentesisToks(false);
+                        for (String str : insideParentesisToks.o1) {
+                            if(str.startsWith(initial)){
+                                ret.add(new PyLinkedModeCompletionProposal(str, request.documentOffset - request.qlen, request.qlen, str.length(), 
+                                        PyCodeCompletionImages.getImageForType(IToken.TYPE_PARAM), null, null, "", 0, PyCompletionProposal.ON_APPLY_DEFAULT, ""));
+                            }
+                        }
+                        return;
+                    }
+                }
+            }
+            
         } catch (BadLocationException e) {
         }
     }
@@ -151,30 +151,30 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion{
     /**
      * @param ret OUT: this is where the completions are stored
      */
-	private void fillWithEpydocFields(ITextViewer viewer, CompletionRequest request, ArrayList<ICompletionProposal> ret) {
-		try{
-        	Region region = new Region(request.documentOffset - request.qlen, request.qlen);
-        	Image image = PyCodeCompletionImages.getImageForType(IToken.TYPE_EPYDOC);
-        	TemplateContext context = createContext(viewer, region, request.doc);
-        	
+    private void fillWithEpydocFields(ITextViewer viewer, CompletionRequest request, ArrayList<ICompletionProposal> ret) {
+        try{
+            Region region = new Region(request.documentOffset - request.qlen, request.qlen);
+            Image image = PyCodeCompletionImages.getImageForType(IToken.TYPE_EPYDOC);
+            TemplateContext context = createContext(viewer, region, request.doc);
+            
             char c = request.doc.getChar(request.documentOffset - request.qualifier.length() -1);
             if(c == '@'){
                 //ok, looking for epydoc filters
-            	for (int i = 0; i < EPYDOC_FIELDS.length; i++) {
-            		String f = EPYDOC_FIELDS[i];
+                for (int i = 0; i < EPYDOC_FIELDS.length; i++) {
+                    String f = EPYDOC_FIELDS[i];
                     if(f.startsWith(request.qualifier)){
                         Template t = new Template(f, EPYDOC_FIELDS[i+2], "", EPYDOC_FIELDS[i+1], false);
                         ret.add(new TemplateProposal(t, context, region, image, 5){
-                        	@Override
-                        	public String getDisplayString() {
-                        		try{
-                        			return super.getDisplayString();
-                        		}catch(NoClassDefFoundError e){
-                        			//just for tests
-                        			return this.getPrefixCompletionText(null, 0).toString();
-                        		}
-                        		
-                        	}
+                            @Override
+                            public String getDisplayString() {
+                                try{
+                                    return super.getDisplayString();
+                                }catch(NoClassDefFoundError e){
+                                    //just for tests
+                                    return this.getPrefixCompletionText(null, 0).toString();
+                                }
+                                
+                            }
                         });
                     }
                     i+=2;
@@ -183,9 +183,9 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion{
         }catch (BadLocationException e) {
             //just ignore it
         }
-	}
-	
-	
+    }
+    
+    
     
     /**
      * @return completions added from contributors

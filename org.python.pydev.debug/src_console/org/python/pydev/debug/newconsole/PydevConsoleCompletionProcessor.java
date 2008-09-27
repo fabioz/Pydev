@@ -47,7 +47,7 @@ public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessor
 
     public char[] getCompletionProposalAutoActivationCharacters() {
         return SimpleAssistProcessor.getStaticAutoActivationCharacters(
-        		PythonCompletionProcessor.getStaticCompletionProposalAutoActivationCharacters(), 0);
+                PythonCompletionProcessor.getStaticCompletionProposalAutoActivationCharacters(), 0);
     }
 
     /**

@@ -13,17 +13,17 @@ import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
 
 public class FunctionDefAdapterTestSuite extends AbstractIOTestSuite {
 
-	public static Test suite() {
-		TESTDIR = "tests" + File.separator + "python" + File.separator + "adapter" + File.separator + "functiondef";
-		FunctionDefAdapterTestSuite testSuite = new FunctionDefAdapterTestSuite();
+    public static Test suite() {
+        TESTDIR = "tests" + File.separator + "python" + File.separator + "adapter" + File.separator + "functiondef";
+        FunctionDefAdapterTestSuite testSuite = new FunctionDefAdapterTestSuite();
 
-		testSuite.createTests();
+        testSuite.createTests();
 
-		return testSuite;
-	}
+        return testSuite;
+    }
 
-	@Override
-	protected IInputOutputTestCase createTestCase(String testCaseName) {
-		return new FunctionDefAdapterTestCase(testCaseName);
-	}
+    @Override
+    protected IInputOutputTestCase createTestCase(String testCaseName) {
+        return new FunctionDefAdapterTestCase(testCaseName);
+    }
 }

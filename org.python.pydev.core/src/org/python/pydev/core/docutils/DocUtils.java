@@ -22,7 +22,7 @@ import org.python.pydev.core.cache.LRUCache;
  * @author Fabio
  */
 public class DocUtils {
-	
+    
     /**
      * Field representing an empty string.
      */
@@ -95,17 +95,17 @@ public class DocUtils {
                 }
                 
                 if(tokSpaces != null && tokSpaces.length() > spaces.length()){
-	                if(src.indexOf('(') != -1){
-	                    src = src.substring(0, src.indexOf('('))+Character.toString(':');
-	                }else{
-	                    src = "class COMPLETION_HELPER_CLASS:";
-	                }
+                    if(src.indexOf('(') != -1){
+                        src = src.substring(0, src.indexOf('('))+Character.toString(':');
+                    }else{
+                        src = "class COMPLETION_HELPER_CLASS:";
+                    }
                 }else{
-	                if(src.indexOf('(') != -1){
-	                    src = src.substring(0, src.indexOf('('))+":pass";
-	                }else{
-	                    src = "class COMPLETION_HELPER_CLASS:pass";
-	                }
+                    if(src.indexOf('(') != -1){
+                        src = src.substring(0, src.indexOf('('))+":pass";
+                    }else{
+                        src = "class COMPLETION_HELPER_CLASS:pass";
+                    }
                 }
                 
                 
@@ -138,10 +138,10 @@ public class DocUtils {
      * @return the created string
      */
     public static String createSpaceString(int width) {
-    	String existing = widthToSpaceString.getObj(width);
-    	if(existing != null){
-    		return existing;
-    	}
+        String existing = widthToSpaceString.getObj(width);
+        if(existing != null){
+            return existing;
+        }
         StringBuffer b = new StringBuffer(width);
         while (width-- > 0){
             b.append(' ');
@@ -181,13 +181,13 @@ public class DocUtils {
     }
 
 
-	public static boolean hasOpeningBracket(String trimmedLine) {
-		return trimmedLine.indexOf('{') != -1 || trimmedLine.indexOf('(') != -1 || trimmedLine.indexOf('[') != -1;
-	}
-	
-	public static boolean hasClosingBracket(String trimmedLine) {
-		return trimmedLine.indexOf('}') != -1 || trimmedLine.indexOf(')') != -1 || trimmedLine.indexOf(']') != -1;
-	}
+    public static boolean hasOpeningBracket(String trimmedLine) {
+        return trimmedLine.indexOf('{') != -1 || trimmedLine.indexOf('(') != -1 || trimmedLine.indexOf('[') != -1;
+    }
+    
+    public static boolean hasClosingBracket(String trimmedLine) {
+        return trimmedLine.indexOf('}') != -1 || trimmedLine.indexOf(')') != -1 || trimmedLine.indexOf(']') != -1;
+    }
     
     /**
      * Tests whether each character in the given

@@ -32,10 +32,10 @@ import org.python.pydev.debug.ui.blocks.WorkingDirectoryBlock;
  */
 public class ArgumentsTab extends AbstractLaunchConfigurationTab {
 
-	// Widget blocks
-	private WorkingDirectoryBlock workingDirectoryBlock;
-	private VMArgumentsBlock      vmArgumentsBlock;
-	private ProgramArgumentsBlock programArgumentsBlock;
+    // Widget blocks
+    private WorkingDirectoryBlock workingDirectoryBlock;
+    private VMArgumentsBlock      vmArgumentsBlock;
+    private ProgramArgumentsBlock programArgumentsBlock;
 
     public ArgumentsTab() {
         programArgumentsBlock = new ProgramArgumentsBlock();
@@ -43,9 +43,9 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         workingDirectoryBlock = new WorkingDirectoryBlock();
     }
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#createControl(Composite)
-	 */
+    /* (non-Javadoc)
+     * @see org.eclipse.debug.ui.ILaunchConfigurationTab#createControl(Composite)
+     */
     public void createControl(Composite parent) {
         Composite comp = new Composite(parent, SWT.NONE);
         setControl(comp);
@@ -57,7 +57,7 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         workingDirectoryBlock.createControl(comp);
     }
     
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#isValid(org.eclipse.debug.core.ILaunchConfiguration)
      */
     public boolean isValid(ILaunchConfiguration launchConfig) {
@@ -65,28 +65,28 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         setMessage(null);
 
         if (!programArgumentsBlock.isValid(launchConfig)) {
-        	return false;
+            return false;
         }
         
         if (!vmArgumentsBlock.isValid(launchConfig)) {
-        	return false;
+            return false;
         }
 
         if (!workingDirectoryBlock.isValid(launchConfig)) {
-        	return false;
-    	}
+            return false;
+        }
         
         return true;
     }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#getName()
      */
     public String getName() {
         return "Arguments";
     }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#getImage()
      */
     public Image getImage() {
@@ -97,16 +97,16 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#setDefaults(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
      */
     public void setDefaults(ILaunchConfigurationWorkingCopy arg0) {
-    	// No defaults to set 
+        // No defaults to set 
     }
 
     /* (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#initializeFrom(org.eclipse.debug.core.ILaunchConfiguration)
      */
     public void initializeFrom(ILaunchConfiguration configuration) {
-    	programArgumentsBlock.initializeFrom(configuration);
-    	vmArgumentsBlock.initializeFrom(configuration);
-    	workingDirectoryBlock.initializeFrom(configuration);
+        programArgumentsBlock.initializeFrom(configuration);
+        vmArgumentsBlock.initializeFrom(configuration);
+        workingDirectoryBlock.initializeFrom(configuration);
     }
     
     /* (non-Javadoc)
@@ -119,58 +119,58 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
     }
     
     /* (non-Javadoc)
-	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#setLaunchConfigurationDialog(ILaunchConfigurationDialog)
-	 */
-	public void setLaunchConfigurationDialog(ILaunchConfigurationDialog dialog) {
-		super.setLaunchConfigurationDialog(dialog);
-		programArgumentsBlock.setLaunchConfigurationDialog(dialog);
-		workingDirectoryBlock.setLaunchConfigurationDialog(dialog);
-		vmArgumentsBlock.setLaunchConfigurationDialog(dialog);
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.debug.ui.AbstractLaunchConfigurationTab#getErrorMessage()
-	 */
-	@Override
-	public String getErrorMessage() {
-		String result = super.getErrorMessage();
-		
-		if (result == null) {
-			result = programArgumentsBlock.getErrorMessage();
-		}
-		
-		if (result == null) {
-			result = workingDirectoryBlock.getErrorMessage();
-		}
-		
-		if (result == null) {
-			result = vmArgumentsBlock.getErrorMessage();
-		}
-		
-		return result;
-	}
+     * @see org.eclipse.debug.ui.ILaunchConfigurationTab#setLaunchConfigurationDialog(ILaunchConfigurationDialog)
+     */
+    public void setLaunchConfigurationDialog(ILaunchConfigurationDialog dialog) {
+        super.setLaunchConfigurationDialog(dialog);
+        programArgumentsBlock.setLaunchConfigurationDialog(dialog);
+        workingDirectoryBlock.setLaunchConfigurationDialog(dialog);
+        vmArgumentsBlock.setLaunchConfigurationDialog(dialog);
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.eclipse.debug.ui.AbstractLaunchConfigurationTab#getErrorMessage()
+     */
+    @Override
+    public String getErrorMessage() {
+        String result = super.getErrorMessage();
+        
+        if (result == null) {
+            result = programArgumentsBlock.getErrorMessage();
+        }
+        
+        if (result == null) {
+            result = workingDirectoryBlock.getErrorMessage();
+        }
+        
+        if (result == null) {
+            result = vmArgumentsBlock.getErrorMessage();
+        }
+        
+        return result;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.debug.ui.AbstractLaunchConfigurationTab#getMessage()
-	 */
-	@Override
-	public String getMessage() {
-		String result = super.getMessage();
-		
-		if (result == null) {
-			result = programArgumentsBlock.getMessage();
-		}
-		
-		if (result == null) {
-			result = workingDirectoryBlock.getMessage();
-		}
-		
-		if (result == null) {
-			result = vmArgumentsBlock.getMessage();
-		}
-		
-		return result;
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.eclipse.debug.ui.AbstractLaunchConfigurationTab#getMessage()
+     */
+    @Override
+    public String getMessage() {
+        String result = super.getMessage();
+        
+        if (result == null) {
+            result = programArgumentsBlock.getMessage();
+        }
+        
+        if (result == null) {
+            result = workingDirectoryBlock.getMessage();
+        }
+        
+        if (result == null) {
+            result = vmArgumentsBlock.getMessage();
+        }
+        
+        return result;
+    }
 }

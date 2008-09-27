@@ -45,7 +45,7 @@ public class SimplePythonRunner extends SimpleRunner {
      * @return a string with the output of the process (stdout)
      */
     public Tuple<String,String> runAndGetOutputFromPythonScript(String script, String[] args, File workingDir, IProject project) {
-    	String[] parameters = addInterpreterToArgs(script, args);
+        String[] parameters = addInterpreterToArgs(script, args);
         return runAndGetOutput(parameters, workingDir, project, new NullProgressMonitor());
     }
 
@@ -63,10 +63,10 @@ public class SimplePythonRunner extends SimpleRunner {
         return asList.toArray(new String[0]);
     }
 
-	private static String[] addInterpreterToArgs(String script, String[] args) {
-		String interpreter = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
-		return preparePythonCallParameters(interpreter, script, args);
-	}
+    private static String[] addInterpreterToArgs(String script, String[] args) {
+        String interpreter = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
+        return preparePythonCallParameters(interpreter, script, args);
+    }
 
     /**
      * Execute the string and format for windows if we have spaces...
@@ -102,18 +102,18 @@ public class SimplePythonRunner extends SimpleRunner {
      * @param args additional arguments to pass to python
      * @return the created array
      */
-	private static String[] preparePythonCallParameters(String interpreter, String script, String[] args) {
-		if (args == null) {
-			args = new String[0];
-		}
-		
-		String[] s = new String[3 + args.length];
+    private static String[] preparePythonCallParameters(String interpreter, String script, String[] args) {
+        if (args == null) {
+            args = new String[0];
+        }
+        
+        String[] s = new String[3 + args.length];
         s[0] = interpreter;
         s[1] = "-u";
         s[2] = script;
         System.arraycopy(args, 0, s, 3, args.length);
-		return s;
-	}
+        return s;
+    }
 
 
 

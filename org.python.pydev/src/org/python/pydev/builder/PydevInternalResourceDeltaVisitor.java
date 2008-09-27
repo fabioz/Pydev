@@ -122,21 +122,21 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
         return true;
     }
     
-	protected boolean chooseVisit(IResourceDelta delta, IResource resource, boolean isAddOrChange) {
-		switch (delta.getKind()) {
-		    case IResourceDelta.ADDED :
-		        visitAddedResource(resource, REF.getDocFromResource(resource), monitor);
-		        isAddOrChange = true;
-		        break;
-		    case IResourceDelta.CHANGED:
-		        visitChangedResource(resource, REF.getDocFromResource(resource), monitor);
-		        isAddOrChange = true;
-		        break;
-		    case IResourceDelta.REMOVED:
-		        visitRemovedResource(resource, null, monitor);
-		        break;
-		}
-		return isAddOrChange;
-	}
+    protected boolean chooseVisit(IResourceDelta delta, IResource resource, boolean isAddOrChange) {
+        switch (delta.getKind()) {
+            case IResourceDelta.ADDED :
+                visitAddedResource(resource, REF.getDocFromResource(resource), monitor);
+                isAddOrChange = true;
+                break;
+            case IResourceDelta.CHANGED:
+                visitChangedResource(resource, REF.getDocFromResource(resource), monitor);
+                isAddOrChange = true;
+                break;
+            case IResourceDelta.REMOVED:
+                visitRemovedResource(resource, null, monitor);
+                break;
+        }
+        return isAddOrChange;
+    }
 
 }

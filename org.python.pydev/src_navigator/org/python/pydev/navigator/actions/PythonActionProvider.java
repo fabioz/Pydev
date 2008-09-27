@@ -28,7 +28,7 @@ public class PythonActionProvider extends CommonActionProvider{
     private Clipboard clipboard;
     private PyPasteAction pasteAction;
     private PyMoveResourceAction moveResourceAction;
-	private ISelectionProvider selectionProvider;
+    private ISelectionProvider selectionProvider;
 
     @Override
     public void init(ICommonActionExtensionSite aSite) {

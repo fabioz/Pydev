@@ -60,10 +60,10 @@ public class Definition implements IDefinition {
     public boolean foundAsLocal;
 
     /**
-	 * The line and col are defined starting at 1 (and not 0)
-	 */
+     * The line and col are defined starting at 1 (and not 0)
+     */
     public Definition(int line, int col, String value, SimpleNode ast, ILocalScope scope, IModule module){
-    	this(line, col, value, ast, scope, module, false);
+        this(line, col, value, ast, scope, module, false);
     }
     /**
      * The ast and scope may be null if the definition points to the module (and not some token defined
@@ -72,8 +72,8 @@ public class Definition implements IDefinition {
      * The line and col are defined starting at 1 (and not 0)
      */
     public Definition(int line, int col, String value, SimpleNode ast, ILocalScope scope, IModule module, boolean foundAsLocal){
-    	Assert.isNotNull(value, "Invalid value.");
-    	Assert.isNotNull(module, "Invalid Module.");
+        Assert.isNotNull(value, "Invalid value.");
+        Assert.isNotNull(module, "Invalid Module.");
 
         this.line = line;
         this.col = col;
@@ -86,24 +86,24 @@ public class Definition implements IDefinition {
     
     
     public Definition(org.python.pydev.core.IToken tok, ILocalScope scope, IModule module){
-    	this(tok, scope, module, false);
+        this(tok, scope, module, false);
     }
     
     public Definition(org.python.pydev.core.IToken tok, ILocalScope scope, IModule module, boolean foundAsLocal){
-    	Assert.isNotNull(tok, "Invalid value.");
-    	Assert.isNotNull(module, "Invalid Module.");
-    	
-    	this.line = tok.getLineDefinition();
-    	this.col = tok.getColDefinition();
-    	this.value = tok.getRepresentation();
-    	if(tok instanceof SourceToken){
-    		this.ast = ((SourceToken)tok).getAst();
-    	}
-    	this.scope = scope;
-    	this.module = module;
+        Assert.isNotNull(tok, "Invalid value.");
+        Assert.isNotNull(module, "Invalid Module.");
+        
+        this.line = tok.getLineDefinition();
+        this.col = tok.getColDefinition();
+        this.value = tok.getRepresentation();
+        if(tok instanceof SourceToken){
+            this.ast = ((SourceToken)tok).getAst();
+        }
+        this.scope = scope;
+        this.module = module;
     }
     
-	/** 
+    /** 
      * @see java.lang.Object#toString()
      */
     public String toString() {
@@ -139,10 +139,10 @@ public class Definition implements IDefinition {
         }
 
         if(scope == d.scope){
-        	return true;
+            return true;
         }
         if(scope == null || d.scope == null){
-        	return false;
+            return false;
         }
         
         if(!scope.equals(d.scope)){

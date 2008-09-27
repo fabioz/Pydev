@@ -259,7 +259,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                                         executed.o1 = stdErrReader.getAndClearContents();
                                         continue;
                                     }else{
-                                    	break;
+                                        break;
                                     }
                                 }
                                 
@@ -346,8 +346,8 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                     }
                     
 //                    ret.add(new PyCompletionProposal(name,
-//                    		offset-length, length, name.length(), 
-//                    		PyCodeCompletionImages.getImageForType(type), name, null, docStr, priority));
+//                            offset-length, length, name.length(), 
+//                            PyCodeCompletionImages.getImageForType(type), name, null, docStr, priority));
                     
                     int cursorPos = name.length();
                     if(args.length() > 1){

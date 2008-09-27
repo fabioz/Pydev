@@ -75,23 +75,23 @@ public class WriteState implements IWriterEraser {
         
     }
 
-	public void pushInStmt(SimpleNode node) {
-		stmtStack.push(node);
-	}
+    public void pushInStmt(SimpleNode node) {
+        stmtStack.push(node);
+    }
 
-	public SimpleNode popInStmt() {
-		return stmtStack.pop();
-	}
+    public SimpleNode popInStmt() {
+        return stmtStack.pop();
+    }
 
-	public boolean inStmt() {
-		return stmtStack.size() > 0;
-	}
+    public boolean inStmt() {
+        return stmtStack.size() > 0;
+    }
 
-	public void eraseIndent() {
-		if(indentation.toString().length() > 0){
-			writer.erase(prefs.getIndent());
-		}
-	}
+    public void eraseIndent() {
+        if(indentation.toString().length() > 0){
+            writer.erase(prefs.getIndent());
+        }
+    }
 
     public void write(String o) {
         lastState = LAST_STATE_WRITE;

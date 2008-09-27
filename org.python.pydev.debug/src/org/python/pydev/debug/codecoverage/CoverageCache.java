@@ -166,16 +166,16 @@ public class CoverageCache {
         }
     }
 
-	private List<Object> sortCollectionWithToString(Collection<Object> collection) {
-		List<Object> vals = new ArrayList<Object>(collection);
-    	Collections.sort(vals, new Comparator<Object>(){
+    private List<Object> sortCollectionWithToString(Collection<Object> collection) {
+        List<Object> vals = new ArrayList<Object>(collection);
+        Collections.sort(vals, new Comparator<Object>(){
 
-			public int compare(Object o1, Object o2) {
-				return o1.toString().compareTo(o2.toString());
-			}}
-    	);
-		return vals;
-	}
+            public int compare(Object o1, Object o2) {
+                return o1.toString().compareTo(o2.toString());
+            }}
+        );
+        return vals;
+    }
 
     
     /**
@@ -209,8 +209,8 @@ public class CoverageCache {
             for (Object element:list) {
                 buffer.append(element.toString()).append("\n");
                 if(element instanceof FileNode){ //it may have been an error node...
-	                totalExecuted += ((FileNode)element).exec;
-	                totalStmts += ((FileNode)element).stmts;
+                    totalExecuted += ((FileNode)element).exec;
+                    totalStmts += ((FileNode)element).stmts;
                 }
             }
             

@@ -132,10 +132,10 @@ public abstract class PyRefactorAction extends PyAction {
     }
     
     public RefactoringRequest getRefactoringRequest(){
-    	return getRefactoringRequest(null, null);
+        return getRefactoringRequest(null, null);
     }
     public RefactoringRequest getRefactoringRequest(IProgressMonitor monitor){
-    	return getRefactoringRequest(null, monitor);
+        return getRefactoringRequest(null, monitor);
     }
     
     /**
@@ -150,11 +150,11 @@ public abstract class PyRefactorAction extends PyAction {
         if(request == null){
             //testing first with whole lines.
             PyEdit pyEdit = getPyEdit(); //may not be available in tests, that's why it is important to be able to operate without it
-    		request = createRefactoringRequest(monitor, pyEdit, ps);
+            request = createRefactoringRequest(monitor, pyEdit, ps);
         }
         request.pushMonitor(monitor);
         request.inputName = name;
-		return request;
+        return request;
     }
 
     /**

@@ -7,8 +7,8 @@ import org.python.pydev.core.ExtensionHelper;
  */
 public class PyShowBrowser extends PyShowOutline{
 
-	@Override
-	protected String getExtensionName() {
-		return ExtensionHelper.PYDEV_GLOBALS_BROWSER;
-	}
+    @Override
+    protected String getExtensionName() {
+        return ExtensionHelper.PYDEV_GLOBALS_BROWSER;
+    }
 }

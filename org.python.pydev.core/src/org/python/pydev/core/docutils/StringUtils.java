@@ -354,15 +354,15 @@ public class StringUtils {
     /**
      * Same as Python join: Go through all the paths in the string and join them with the passed delimiter.
      */
-	public static String join(String delimiter, String[] splitted) {
-		FastStringBuffer buf = new FastStringBuffer(splitted.length*100);
-		for (String string : splitted) {
-			if(buf.length() > 0){
-				buf.append(delimiter);
-			}
-			buf.append(string);
-		}
-		return buf.toString();
-	}
+    public static String join(String delimiter, String[] splitted) {
+        FastStringBuffer buf = new FastStringBuffer(splitted.length*100);
+        for (String string : splitted) {
+            if(buf.length() > 0){
+                buf.append(delimiter);
+            }
+            buf.append(string);
+        }
+        return buf.toString();
+    }
 
 }

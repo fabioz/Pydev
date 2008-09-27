@@ -20,67 +20,67 @@ import org.python.pydev.debug.model.remote.RemoteDebugger;
  * Breakpoint updating.
  */
 public class PyDebugTarget extends AbstractDebugTarget {
-	//private ILaunch launch;
-	private IProcess process;		
+    //private ILaunch launch;
+    private IProcess process;        
 
-	public PyDebugTarget(ILaunch launch, IProcess process, IPath[] file, RemoteDebugger debugger) {
-		this.launch = launch;
-		this.process = process;
-		this.file = file;
-		this.debugger = debugger;
-		this.threads = new PyThread[0];
-		launch.addDebugTarget(this);
-		debugger.setTarget(this);
-		IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
-		breakpointManager.addBreakpointListener(this);
-		// we have to know when we get removed, so that we can shut off the debugger
-		DebugPlugin.getDefault().getLaunchManager().addLaunchListener(this);
-	}		
+    public PyDebugTarget(ILaunch launch, IProcess process, IPath[] file, RemoteDebugger debugger) {
+        this.launch = launch;
+        this.process = process;
+        this.file = file;
+        this.debugger = debugger;
+        this.threads = new PyThread[0];
+        launch.addDebugTarget(this);
+        debugger.setTarget(this);
+        IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
+        breakpointManager.addBreakpointListener(this);
+        // we have to know when we get removed, so that we can shut off the debugger
+        DebugPlugin.getDefault().getLaunchManager().addLaunchListener(this);
+    }        
 
-	public void launchRemoved(ILaunch launch) {
-		// shut down the remote debugger when parent launch
-		if (launch == this.launch) {
-			IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
-			breakpointManager.removeBreakpointListener(this);
-			debugger.dispose();
-			debugger = null;
-		}
-	}	
-
-	public IProcess getProcess() {
-		return process;
-	}
-
-	public boolean canTerminate() {
-		// We can always terminate, it does no harm
-	    if(process == null){
-	        return false;
+    public void launchRemoved(ILaunch launch) {
+        // shut down the remote debugger when parent launch
+        if (launch == this.launch) {
+            IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
+            breakpointManager.removeBreakpointListener(this);
+            debugger.dispose();
+            debugger = null;
         }
-		return true;
-	}
+    }    
 
-	public boolean isTerminated() {
+    public IProcess getProcess() {
+        return process;
+    }
+
+    public boolean canTerminate() {
+        // We can always terminate, it does no harm
+        if(process == null){
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isTerminated() {
         if(process == null){
             return true;
         }
-		return process.isTerminated();
-	}
+        return process.isTerminated();
+    }
 
-	public void terminate() throws DebugException {
-		if (debugger != null){
-			debugger.disconnect();
+    public void terminate() throws DebugException {
+        if (debugger != null){
+            debugger.disconnect();
         }
         
-		threads = new PyThread[0];
-		if(process != null){
-			process.terminate();
-			process = null;
-		}
-		fireEvent(new DebugEvent(this, DebugEvent.TERMINATE));
-	}		
-	
-	//From IDebugElement
-	public ILaunch getLaunch() {
-		return launch;
-	}	
+        threads = new PyThread[0];
+        if(process != null){
+            process.terminate();
+            process = null;
+        }
+        fireEvent(new DebugEvent(this, DebugEvent.TERMINATE));
+    }        
+    
+    //From IDebugElement
+    public ILaunch getLaunch() {
+        return launch;
+    }    
 }

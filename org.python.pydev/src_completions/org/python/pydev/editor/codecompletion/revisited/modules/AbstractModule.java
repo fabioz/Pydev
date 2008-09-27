@@ -37,14 +37,14 @@ import org.python.pydev.parser.jython.SimpleNode;
  */
 public abstract class AbstractModule implements IModule {
 
-	private static final IToken[] EMPTY_TOKEN_ARRAY = new IToken[0];
+    private static final IToken[] EMPTY_TOKEN_ARRAY = new IToken[0];
     
     /**
-	 * May be changed for tests
-	 */
+     * May be changed for tests
+     */
     public static String MODULE_NAME_WHEN_FILE_IS_UNDEFINED = "";
 
-	/** 
+    /** 
      * @see org.python.pydev.core.IModule#getWildImportedModules()
      */
     public abstract IToken[] getWildImportedModules();
@@ -90,7 +90,7 @@ public abstract class AbstractModule implements IModule {
      * @see org.python.pydev.core.IModule#isInGlobalTokens(java.lang.String, org.python.pydev.plugin.nature.PythonNature)
      */
     public boolean isInGlobalTokens(String tok, IPythonNature nature, ICompletionCache completionCache) throws CompletionRecursionException{
-    	return isInGlobalTokens(tok, nature, true, completionCache);
+        return isInGlobalTokens(tok, nature, true, completionCache);
     }
     
     /** 
@@ -108,9 +108,9 @@ public abstract class AbstractModule implements IModule {
         
         //it's worth checking it if it is not dotted... (much faster as it's in a map already)
         if(tok.indexOf(".") == -1){
-        	if(isInDirectGlobalTokens(tok, completionCache)){
-        		return IModule.FOUND_TOKEN;
-        	}
+            if(isInDirectGlobalTokens(tok, completionCache)){
+                return IModule.FOUND_TOKEN;
+            }
         }
         
         String[] headAndTail = FullRepIterable.headAndTail(tok);
@@ -230,12 +230,12 @@ public abstract class AbstractModule implements IModule {
     public static AbstractModule createModule(String name, File f, IPythonNature nature, int currLine) throws IOException {
         String path = REF.getFileAbsolutePath(f);
         if(PythonPathHelper.isValidFileMod(path)){
-	        if(PythonPathHelper.isValidSourceFile(path)){
+            if(PythonPathHelper.isValidSourceFile(path)){
                 return createModuleFromDoc(name, f, REF.getDocFromFile(f), nature, currLine);
-	
-	        }else{ //this should be a compiled extension... we have to get completions from the python shell.
-	            return new CompiledModule(name, nature.getAstManager());
-	        }
+    
+            }else{ //this should be a compiled extension... we have to get completions from the python shell.
+                return new CompiledModule(name, nature.getAstManager());
+            }
         }
         
         //if we are here, return null...
@@ -254,13 +254,13 @@ public abstract class AbstractModule implements IModule {
         //for doc, we are only interested in python files.
         
         if(f != null){
-	        if(!checkForPath || PythonPathHelper.isValidSourceFile(REF.getFileAbsolutePath(f))){
+            if(!checkForPath || PythonPathHelper.isValidSourceFile(REF.getFileAbsolutePath(f))){
                 Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, nature, currLine, name, f));
-		        return new SourceModule(name, f, obj.o1, obj.o2);
-	        }
+                return new SourceModule(name, f, obj.o1, obj.o2);
+            }
         } else {
             Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, nature, currLine, name, f));
-	        return new SourceModule(name, f, obj.o1, obj.o2);
+            return new SourceModule(name, f, obj.o1, obj.o2);
         }
         return null;
     }
@@ -268,17 +268,17 @@ public abstract class AbstractModule implements IModule {
     /**
      * This function creates a module and resolves the module name (use this function if only the file is available).
      */
-	public static IModule createModuleFromDoc(File file, IDocument doc, IPythonNature pythonNature, int line, IModulesManager projModulesManager) {
-		String moduleName = null;
-	    if(file != null){
-			moduleName = projModulesManager.resolveModule(REF.getFileAbsolutePath(file));
-	    }
-	    if(moduleName == null){
-	        moduleName = MODULE_NAME_WHEN_FILE_IS_UNDEFINED;
-	    }
-		IModule module = createModuleFromDoc(moduleName, file, doc, pythonNature, line, false);
-	    return module;
-	}
+    public static IModule createModuleFromDoc(File file, IDocument doc, IPythonNature pythonNature, int line, IModulesManager projModulesManager) {
+        String moduleName = null;
+        if(file != null){
+            moduleName = projModulesManager.resolveModule(REF.getFileAbsolutePath(file));
+        }
+        if(moduleName == null){
+            moduleName = MODULE_NAME_WHEN_FILE_IS_UNDEFINED;
+        }
+        IModule module = createModuleFromDoc(moduleName, file, doc, pythonNature, line, false);
+        return module;
+    }
 
 
     /**
@@ -313,14 +313,14 @@ public abstract class AbstractModule implements IModule {
      * @return the module
      */
     public static IModule createModule(SimpleNode n, File file, IModulesManager projModulesManager) {
-		String moduleName = null;
-	    if(file != null){
-			moduleName = projModulesManager.resolveModule(REF.getFileAbsolutePath(file));
-	    }
-	    if(moduleName == null){
-	        moduleName = MODULE_NAME_WHEN_FILE_IS_UNDEFINED;
-	    }
-    	return createModule(n, file, moduleName);
+        String moduleName = null;
+        if(file != null){
+            moduleName = projModulesManager.resolveModule(REF.getFileAbsolutePath(file));
+        }
+        if(moduleName == null){
+            moduleName = MODULE_NAME_WHEN_FILE_IS_UNDEFINED;
+        }
+        return createModule(n, file, moduleName);
     }
     
     /**
@@ -345,9 +345,9 @@ public abstract class AbstractModule implements IModule {
      */
     @Override
     public String toString() {
-    	String n2 = this.getClass().getName();
-    	String n = n2.substring(n2.lastIndexOf('.')+1);
-		return this.getName()+" ("+n+")";
+        String n2 = this.getClass().getName();
+        String n = n2.substring(n2.lastIndexOf('.')+1);
+        return this.getName()+" ("+n+")";
     }
     
     

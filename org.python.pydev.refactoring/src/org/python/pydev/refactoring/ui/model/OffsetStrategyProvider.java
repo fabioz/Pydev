@@ -19,73 +19,73 @@ import org.python.pydev.refactoring.messages.Messages;
 
 public class OffsetStrategyProvider implements IStructuredContentProvider {
 
-	private List<OffsetStrategyModel> strategies;
+    private List<OffsetStrategyModel> strategies;
 
-	private String initLabel;
+    private String initLabel;
 
-	private String beginLabel;
+    private String beginLabel;
 
-	private String endLabel;
+    private String endLabel;
 
-	public OffsetStrategyProvider(int strategyOption) {
-		strategies = new ArrayList<OffsetStrategyModel>();
-		initLabel();
-		initStrategies(strategyOption);
-	}
+    public OffsetStrategyProvider(int strategyOption) {
+        strategies = new ArrayList<OffsetStrategyModel>();
+        initLabel();
+        initStrategies(strategyOption);
+    }
 
-	public OffsetStrategyProvider(AbstractScopeNode<?> scopeAdapter, int strategyOption) {
-		strategies = new ArrayList<OffsetStrategyModel>();
-		strategyOption = updateLabel(scopeAdapter, strategyOption);
-		initStrategies(strategyOption);
-	}
+    public OffsetStrategyProvider(AbstractScopeNode<?> scopeAdapter, int strategyOption) {
+        strategies = new ArrayList<OffsetStrategyModel>();
+        strategyOption = updateLabel(scopeAdapter, strategyOption);
+        initStrategies(strategyOption);
+    }
 
-	private void initLabel() {
-		initLabel = Messages.offsetStrategyAfterInit;
-		beginLabel = Messages.offsetStrategyBegin;
-		endLabel = Messages.offsetStrategyEnd;
-	}
+    private void initLabel() {
+        initLabel = Messages.offsetStrategyAfterInit;
+        beginLabel = Messages.offsetStrategyBegin;
+        endLabel = Messages.offsetStrategyEnd;
+    }
 
-	private int updateLabel(AbstractScopeNode<?> scopeAdapter, int strategyOption) {
-		if (scopeAdapter != null) {
+    private int updateLabel(AbstractScopeNode<?> scopeAdapter, int strategyOption) {
+        if (scopeAdapter != null) {
 
-			if (scopeAdapter.getNodeBodyIndent() == 0) {
-				beginLabel = Messages.offsetStrategyBeginModule;
-				endLabel = Messages.offsetStrategyEndModule;
-				if ((strategyOption & IOffsetStrategy.AFTERINIT) == IOffsetStrategy.AFTERINIT) {
-					strategyOption &= ~IOffsetStrategy.AFTERINIT;
-				}
-			} else
-				initLabel();
-		}
-		return strategyOption;
-	}
+            if (scopeAdapter.getNodeBodyIndent() == 0) {
+                beginLabel = Messages.offsetStrategyBeginModule;
+                endLabel = Messages.offsetStrategyEndModule;
+                if ((strategyOption & IOffsetStrategy.AFTERINIT) == IOffsetStrategy.AFTERINIT) {
+                    strategyOption &= ~IOffsetStrategy.AFTERINIT;
+                }
+            } else
+                initLabel();
+        }
+        return strategyOption;
+    }
 
-	private void initStrategies(int strategyOption) {
-		setStrategy(strategyOption, IOffsetStrategy.AFTERINIT, initLabel);
-		setStrategy(strategyOption, IOffsetStrategy.BEGIN, beginLabel);
-		setStrategy(strategyOption, IOffsetStrategy.END, endLabel);
-	}
+    private void initStrategies(int strategyOption) {
+        setStrategy(strategyOption, IOffsetStrategy.AFTERINIT, initLabel);
+        setStrategy(strategyOption, IOffsetStrategy.BEGIN, beginLabel);
+        setStrategy(strategyOption, IOffsetStrategy.END, endLabel);
+    }
 
-	private void setStrategy(int strategyOption, int id, String label) {
-		if ((strategyOption & id) == id) {
-			strategies.add(new OffsetStrategyModel(id, label));
-		}
-	}
+    private void setStrategy(int strategyOption, int id, String label) {
+        if ((strategyOption & id) == id) {
+            strategies.add(new OffsetStrategyModel(id, label));
+        }
+    }
 
-	public OffsetStrategyModel get(int i) {
-		return this.strategies.get(i);
-	}
+    public OffsetStrategyModel get(int i) {
+        return this.strategies.get(i);
+    }
 
-	public Object[] getElements(Object inputElement) {
+    public Object[] getElements(Object inputElement) {
 
-		return strategies.toArray();
-	}
+        return strategies.toArray();
+    }
 
-	public void dispose() {
-		this.strategies = null;
-	}
+    public void dispose() {
+        this.strategies = null;
+    }
 
-	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-	}
+    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+    }
 
 }

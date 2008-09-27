@@ -84,7 +84,7 @@ public class AssistDocString implements IAssistProps {
      *      java.lang.String)
      */
     public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
-    	return ps.isInFunctionLine() || ps.isInClassLine();
+        return ps.isInFunctionLine() || ps.isInClassLine();
     }
     
 }

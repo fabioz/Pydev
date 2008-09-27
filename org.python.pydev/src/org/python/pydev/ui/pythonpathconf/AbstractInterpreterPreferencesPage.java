@@ -29,26 +29,26 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
     protected AbstractInterpreterEditor pathEditor;
 
     /**
-	 * Initializer sets the preference store
-	 */
-	public AbstractInterpreterPreferencesPage() {
-		super(GRID);
-		setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
+     * Initializer sets the preference store
+     */
+    public AbstractInterpreterPreferencesPage() {
+        super(GRID);
+        setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
         changed = false;
-	}
+    }
 
     protected abstract AbstractInterpreterEditor getInterpreterEditor(Composite p);
     
     /**
      * @return whether this page has changed
-	 */
-	protected boolean hasChanged(){
-	    return changed || isEditorChanged();
-	}
-	
+     */
+    protected boolean hasChanged(){
+        return changed || isEditorChanged();
+    }
+    
     public void init(IWorkbench workbench) {
-	}
-	
+    }
+    
     /**
      * Applies changes (if any) 
      * @see org.eclipse.jface.preference.PreferencePage#performApply()

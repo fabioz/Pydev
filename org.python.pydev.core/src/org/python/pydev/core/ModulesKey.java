@@ -74,7 +74,7 @@ public class ModulesKey implements Comparable<ModulesKey>, Serializable{
     public int hashCode() {
         return this.name.hashCode();
     }
-	
+    
     @Override
     public String toString() {
         if(file != null){

@@ -114,7 +114,7 @@ public class PyRenameResourceAction extends RenameResourceAction{
     
     @Override
     public IStructuredSelection getStructuredSelection() {
-    	return new StructuredSelection(selected);
+        return new StructuredSelection(selected);
     }
     
     /*

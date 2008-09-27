@@ -15,41 +15,41 @@ import org.python.pydev.refactoring.ui.PepticImageCache;
 
 public class TreeLabelProvider implements ILabelProvider {
 
-	private PepticImageCache cache;
+    private PepticImageCache cache;
 
-	public TreeLabelProvider() {
-		cache = new PepticImageCache();
-	}
+    public TreeLabelProvider() {
+        cache = new PepticImageCache();
+    }
 
-	public Image getImage(Object element) {
-		Image image = null;
-		ITreeNode node = (ITreeNode) element;
-		image = cache.get(node.getImageName());
+    public Image getImage(Object element) {
+        Image image = null;
+        ITreeNode node = (ITreeNode) element;
+        image = cache.get(node.getImageName());
 
-		return image;
-	}
+        return image;
+    }
 
-	public String getText(Object element) {
-		if (element instanceof ITreeNode) {
-			return ((ITreeNode) element).getLabel();
-		}
+    public String getText(Object element) {
+        if (element instanceof ITreeNode) {
+            return ((ITreeNode) element).getLabel();
+        }
 
-		return "";
-	}
+        return "";
+    }
 
-	public void addListener(ILabelProviderListener listener) {
-	}
+    public void addListener(ILabelProviderListener listener) {
+    }
 
-	public void dispose() {
-		cache.dispose();
-		cache = null;
-	}
+    public void dispose() {
+        cache.dispose();
+        cache = null;
+    }
 
-	public boolean isLabelProperty(Object element, String property) {
-		return false;
-	}
+    public boolean isLabelProperty(Object element, String property) {
+        return false;
+    }
 
-	public void removeListener(ILabelProviderListener listener) {
-	}
+    public void removeListener(ILabelProviderListener listener) {
+    }
 
 }

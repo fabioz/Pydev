@@ -57,45 +57,45 @@ public class CodeCompletionTestsBase extends TestCase {
      * We want to keep it initialized among runs from the same class.
      * Check the restorePythonPath function.
      */
-	public static PythonNature nature;
-	
-	/**
-	 * Nature for the second project. 
+    public static PythonNature nature;
+    
+    /**
+     * Nature for the second project. 
      * 
      * This nature has the other nature as a dependency.
-	 */
-	public static PythonNature nature2;
-	
+     */
+    public static PythonNature nature2;
+    
     /**
      * A map with the name of the project pointing to the last class that restored the
      * nature. This is done in this way because we don't want the nature to be recreated
      * all the time among tests from the same test case.
      */
-	public static Map<String, Class> restoredClass = new HashMap<String, Class>();
-	
+    public static Map<String, Class> restoredClass = new HashMap<String, Class>();
+    
     /**
      * Serves the same purpose that the restoredClass serves, but for the system 
      * python nature.
      */
-	public static Class restoredSystem;
-	private Preferences preferences;
+    public static Class restoredSystem;
+    private Preferences preferences;
 
-	public Preferences getPreferences(){
-	    if(this.preferences == null){
-	        this.preferences = new Preferences();
-	    }
-	    return this.preferences;
-	}
-	
-	protected boolean ADD_MX_TO_FORCED_BUILTINS = true;
-	protected boolean ADD_NUMPY_TO_FORCED_BUILTINS = true;
+    public Preferences getPreferences(){
+        if(this.preferences == null){
+            this.preferences = new Preferences();
+        }
+        return this.preferences;
+    }
+    
+    protected boolean ADD_MX_TO_FORCED_BUILTINS = true;
+    protected boolean ADD_NUMPY_TO_FORCED_BUILTINS = true;
     
     /**
      * Whether we want to debug problems in this class.
      */
     protected static boolean DEBUG_TESTS_BASE = false;
 
-	/*
+    /*
      * @see TestCase#setUp()
      */
     public void setUp() throws Exception {
@@ -161,19 +161,19 @@ public class CodeCompletionTestsBase extends TestCase {
     protected boolean restoreProjectPythonPath2(boolean force, String path, String name){
         PythonNature n = checkNewNature(name, force);
         if(n != null){
-    		nature2 = n;
+            nature2 = n;
             
-    		ProjectStub projectFromNature1 = (ProjectStub) nature.getProject();
+            ProjectStub projectFromNature1 = (ProjectStub) nature.getProject();
             //create a new project referencing the first one
             ProjectStub projectFromNature2 = new ProjectStub(name, path, new IProject[]{projectFromNature1}, new IProject[0]);
             
             //as we're adding a reference, we also have to set the referencing...
             projectFromNature1.referencingProjects = new IProject[]{projectFromNature2};
             
-			setAstManager(path, projectFromNature2, nature2);
-    		return true;
-    	}
-    	return false;
+            setAstManager(path, projectFromNature2, nature2);
+            return true;
+        }
+        return false;
     }
     
     /**
@@ -257,7 +257,7 @@ public class CodeCompletionTestsBase extends TestCase {
             InterpreterInfo info = getDefaultInterpreterInfo();
             info.restoreCompiledLibs(getProgressMonitor());
             if(ADD_MX_TO_FORCED_BUILTINS){
-            	info.addForcedLib("mx");
+                info.addForcedLib("mx");
             }
             if(ADD_NUMPY_TO_FORCED_BUILTINS){
                 info.addForcedLib("numpy");
@@ -376,11 +376,11 @@ public class CodeCompletionTestsBase extends TestCase {
         
         int size = ((ASTManager)nature.getAstManager()).getSize();
         assertTrue("Interpreter size:"+info.getModulesManager().getSize(true)+" should be smaller than project size:"+size+" " +
-        		"(because it contains system+project info)" , info.getModulesManager().getSize(true) < size );
+                "(because it contains system+project info)" , info.getModulesManager().getSize(true) < size );
         
         size = ((ASTManager)nature2.getAstManager()).getSize();
         assertTrue("Interpreter size:"+info.getModulesManager().getSize(true)+" should be smaller than project size:"+size+" " +
-        		"(because it contains system+project info)" , info.getModulesManager().getSize(true) < size );
+                "(because it contains system+project info)" , info.getModulesManager().getSize(true) < size );
     }
    
 
@@ -402,10 +402,10 @@ public class CodeCompletionTestsBase extends TestCase {
     public IPyCodeCompletion codeCompletion;
     
     public ICompletionProposal[] requestCompl(String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
-    	return requestCompl(strDoc, documentOffset, returned, retCompl, nature);
+        return requestCompl(strDoc, documentOffset, returned, retCompl, nature);
     }
     public ICompletionProposal[] requestCompl(String strDoc, int documentOffset, int returned, String []retCompl, PythonNature nature) throws CoreException, BadLocationException{
-    	return requestCompl(null, strDoc, documentOffset, returned, retCompl, nature);
+        return requestCompl(null, strDoc, documentOffset, returned, retCompl, nature);
     }
     
     public ICompletionProposal[] requestCompl(File file, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
@@ -414,7 +414,7 @@ public class CodeCompletionTestsBase extends TestCase {
     }
     
     public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
-    	return requestCompl(file, strDoc, documentOffset, returned, retCompl, nature);
+        return requestCompl(file, strDoc, documentOffset, returned, retCompl, nature);
     }
     
     /**
@@ -480,12 +480,12 @@ public class CodeCompletionTestsBase extends TestCase {
      * @param codeCompletionProposals the proposals found
      */
     protected void assertNotContains(String string, ICompletionProposal[] codeCompletionProposals) {
-    	for (int i = 0; i < codeCompletionProposals.length; i++) {
-    		ICompletionProposal completionProposal = codeCompletionProposals[i];
-    		if(checkIfEquals(string, completionProposal)){
-    			fail("The string >>"+string+"<< was found in the returned completions (was not expected to be found).");
-    		}
-    	}
+        for (int i = 0; i < codeCompletionProposals.length; i++) {
+            ICompletionProposal completionProposal = codeCompletionProposals[i];
+            if(checkIfEquals(string, completionProposal)){
+                fail("The string >>"+string+"<< was found in the returned completions (was not expected to be found).");
+            }
+        }
     }
 
     /**

@@ -69,7 +69,7 @@ public class PyPasteAction extends PasteAction{
     
     @Override
     public IStructuredSelection getStructuredSelection() {
-    	return new StructuredSelection(selected);
+        return new StructuredSelection(selected);
     }
     
     

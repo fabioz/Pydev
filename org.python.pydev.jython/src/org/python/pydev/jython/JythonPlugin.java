@@ -38,13 +38,13 @@ import org.python.util.PythonInterpreter;
  */
 public class JythonPlugin extends AbstractUIPlugin {
     
-	private static final boolean DEBUG = false;
-	public static boolean DEBUG_RELOAD = true;
+    private static final boolean DEBUG = false;
+    public static boolean DEBUG_RELOAD = true;
     
     /**
      * While in tests, errors are thrown even if we don't have a shared instance for JythonPlugin
      */
-	public static boolean IN_TESTS = false;
+    public static boolean IN_TESTS = false;
     
     private static String LOAD_FILE_SCRIPT = "" +
         "print '--->  reloading', r'%s'\n" + 
@@ -70,7 +70,7 @@ public class JythonPlugin extends AbstractUIPlugin {
         }
     }
     
-	// ----------------- SINGLETON THINGS -----------------------------
+    // ----------------- SINGLETON THINGS -----------------------------
     public static IBundleInfo info;
     public static IBundleInfo getBundleInfo(){
         if(JythonPlugin.info == null){
@@ -83,118 +83,118 @@ public class JythonPlugin extends AbstractUIPlugin {
     }
     // ----------------- END BUNDLE INFO THINGS --------------------------
 
-	//The shared instance.
-	private static JythonPlugin plugin;
-	
-	/**
-	 * The constructor.
-	 */
-	public JythonPlugin() {
-		plugin = this;
-	}
+    //The shared instance.
+    private static JythonPlugin plugin;
+    
+    /**
+     * The constructor.
+     */
+    public JythonPlugin() {
+        plugin = this;
+    }
 
-	
-	
-	
-	// ------------------------------------------
-	/**
-	 * Classloader that knows about all the bundles...
-	 */
-	public static class AllBundleClassLoader extends ClassLoader {
+    
+    
+    
+    // ------------------------------------------
+    /**
+     * Classloader that knows about all the bundles...
+     */
+    public static class AllBundleClassLoader extends ClassLoader {
 
-		private Bundle[] bundles;
+        private Bundle[] bundles;
 
-		public AllBundleClassLoader(Bundle[] bundles, ClassLoader parent) {
-			super(parent);
-			this.bundles = bundles;
-			setPackageNames(bundles);
-		}
+        public AllBundleClassLoader(Bundle[] bundles, ClassLoader parent) {
+            super(parent);
+            this.bundles = bundles;
+            setPackageNames(bundles);
+        }
 
-		@SuppressWarnings("unchecked")
-		public Class loadClass(String className) throws ClassNotFoundException {
-			try {
-				return super.loadClass(className);
-			} catch (ClassNotFoundException e) {
-				// Look for the class from the bundles.
-				for (int i = 0; i < bundles.length; ++i) {
-					try {
+        @SuppressWarnings("unchecked")
+        public Class loadClass(String className) throws ClassNotFoundException {
+            try {
+                return super.loadClass(className);
+            } catch (ClassNotFoundException e) {
+                // Look for the class from the bundles.
+                for (int i = 0; i < bundles.length; ++i) {
+                    try {
                         if(bundles[i].getState() == Bundle.ACTIVE){ 
                             return bundles[i].loadClass(className);
                         }
-					} catch (Throwable e2) {
-					}
-				}
-				// Didn't find the class anywhere, rethrow e.
-				throw e;
-			}
-		}
-		
-		
-		/**
-		 * The package names the bundles provide
-		 */
-		private String[] packageNames;
-		
-		/**
-		 * Set the package names available given the bundles that we can access
-		 */
-		private void setPackageNames(Bundle[] bundles) {
-			List<String> names = new ArrayList<String>();
-			for (int i = 0; i < bundles.length; ++i) {
-				String packages = (String) bundles[i].getHeaders().get("Provide-Package");
-				if (packages != null) {
-					String[] pnames = packages.split(",");
-					for (int j = 0; j < pnames.length; ++j) {
-						names.add(pnames[j].trim());
-					}
-				}
-				packages = (String) bundles[i].getHeaders().get("Export-Package");
-				if (packages != null) {
-					String[] pnames = packages.split(",");
-					for (int j = 0; j < pnames.length; ++j) {
-						names.add(pnames[j].trim());
-					}
-				}
-			}
-			packageNames = (String[]) names.toArray(new String[names.size()]);
-		}
-		
-		/**
-		 * @return the package names available for the passed bundles
-		 */
-		public String[] getPackageNames() {
-			return packageNames;
-		}
-	}	
+                    } catch (Throwable e2) {
+                    }
+                }
+                // Didn't find the class anywhere, rethrow e.
+                throw e;
+            }
+        }
+        
+        
+        /**
+         * The package names the bundles provide
+         */
+        private String[] packageNames;
+        
+        /**
+         * Set the package names available given the bundles that we can access
+         */
+        private void setPackageNames(Bundle[] bundles) {
+            List<String> names = new ArrayList<String>();
+            for (int i = 0; i < bundles.length; ++i) {
+                String packages = (String) bundles[i].getHeaders().get("Provide-Package");
+                if (packages != null) {
+                    String[] pnames = packages.split(",");
+                    for (int j = 0; j < pnames.length; ++j) {
+                        names.add(pnames[j].trim());
+                    }
+                }
+                packages = (String) bundles[i].getHeaders().get("Export-Package");
+                if (packages != null) {
+                    String[] pnames = packages.split(",");
+                    for (int j = 0; j < pnames.length; ++j) {
+                        names.add(pnames[j].trim());
+                    }
+                }
+            }
+            packageNames = (String[]) names.toArray(new String[names.size()]);
+        }
+        
+        /**
+         * @return the package names available for the passed bundles
+         */
+        public String[] getPackageNames() {
+            return packageNames;
+        }
+    }    
 
-	//------------------------------------------
-	AllBundleClassLoader allBundleClassLoader;
-	/**
-	 * This method is called upon plug-in activation
-	 */
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
-		//initialize the Jython runtime
-		Properties prop2 = new Properties();
-		prop2.put("python.home", REF.getFileAbsolutePath(getPluginRootDir()));
-		prop2.put("python.path", REF.getFileAbsolutePath(getJySrcDirFile()));
-		prop2.put("python.security.respectJavaAccessibility", "false"); //don't respect java accessibility, so that we can access protected members on subclasses
-		
-		try {
-			allBundleClassLoader = new AllBundleClassLoader(context.getBundles(), this.getClass().getClassLoader());
-			PySystemState.initialize(System.getProperties(), prop2, new String[0], allBundleClassLoader);
-			String[] packageNames = getDefault().allBundleClassLoader.getPackageNames();
-			for (int i = 0; i < packageNames.length; ++i) {
-				PySystemState.add_package(packageNames[i]);
-			}
-		} catch (Exception e) {
-			Log.log(e);
-		}
+    //------------------------------------------
+    AllBundleClassLoader allBundleClassLoader;
+    /**
+     * This method is called upon plug-in activation
+     */
+    public void start(BundleContext context) throws Exception {
+        super.start(context);
+        //initialize the Jython runtime
+        Properties prop2 = new Properties();
+        prop2.put("python.home", REF.getFileAbsolutePath(getPluginRootDir()));
+        prop2.put("python.path", REF.getFileAbsolutePath(getJySrcDirFile()));
+        prop2.put("python.security.respectJavaAccessibility", "false"); //don't respect java accessibility, so that we can access protected members on subclasses
+        
+        try {
+            allBundleClassLoader = new AllBundleClassLoader(context.getBundles(), this.getClass().getClassLoader());
+            PySystemState.initialize(System.getProperties(), prop2, new String[0], allBundleClassLoader);
+            String[] packageNames = getDefault().allBundleClassLoader.getPackageNames();
+            for (int i = 0; i < packageNames.length; ++i) {
+                PySystemState.add_package(packageNames[i]);
+            }
+        } catch (Exception e) {
+            Log.log(e);
+        }
         
 
-	}
+    }
 
-	private File getPluginRootDir() {
+    private File getPluginRootDir() {
         try {
             IPath relative = new Path(".");
             return getBundleInfo().getRelativePath(relative);
@@ -203,83 +203,83 @@ public class JythonPlugin extends AbstractUIPlugin {
         }
     }
     /**
-	 * This method is called when the plug-in is stopped
-	 */
-	public void stop(BundleContext context) throws Exception {
-		super.stop(context);
-		plugin = null;
-	}
+     * This method is called when the plug-in is stopped
+     */
+    public void stop(BundleContext context) throws Exception {
+        super.stop(context);
+        plugin = null;
+    }
 
-	/**
-	 * Returns the shared instance.
-	 */
-	public static JythonPlugin getDefault() {
-		return plugin;
-	}
-	
-	public static File getJythonLibDir(){
-	    try {
-	        IPath relative = new Path("Lib");
-	        return getBundleInfo().getRelativePath(relative);
-	    } catch (Exception e) {
-	        throw new RuntimeException(e);
-	    }
-	}
-	public static File getFileWithinJySrc(String f){
+    /**
+     * Returns the shared instance.
+     */
+    public static JythonPlugin getDefault() {
+        return plugin;
+    }
+    
+    public static File getJythonLibDir(){
+        try {
+            IPath relative = new Path("Lib");
+            return getBundleInfo().getRelativePath(relative);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static File getFileWithinJySrc(String f){
         try {
             IPath relative = new Path("jysrc").addTrailingSeparator().append(f);
             return getBundleInfo().getRelativePath(relative);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-	}
-	
-	/**
-	 * @return the jysrc (org.python.pydev.jython/jysrc) directory
-	 */
-	public static File getJySrcDirFile() {
-		try {
-			IPath relative = new Path("jysrc");
-			return getBundleInfo().getRelativePath(relative);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+    }
+    
+    /**
+     * @return the jysrc (org.python.pydev.jython/jysrc) directory
+     */
+    public static File getJySrcDirFile() {
+        try {
+            IPath relative = new Path("jysrc");
+            return getBundleInfo().getRelativePath(relative);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
-	/**
-	 * This is a helper for:
-	 * - Loading a file from the filesystem with jython code
-	 * - Compiling it to a code object (that will remain in the 'code' local for the interpreter)
-	 * - Making a call to exec that code
-	 * - Returning the local in the interpreter regarded as jythonResult
-	 * 
-	 * Additional notes:
-	 * - The code object will be regenerated only if:
-	 * 		- It still didn't exist (dought!!)
-	 * 		- The timestamp of the file changed
-	 * 
-	 * @param locals Those are the locals that should be added to the interpreter before calling the actual code
-	 * @param fileToExec the file that should be executed (relative to the JythonPlugin jysrc folder)
-	 * @param interpreter the interpreter that should be used to execute the code
-	 *         
-	 # @note If further info is needed (after the run), the interpreter itself should be checked for return values
-	 * @return any error that happened while executing the script
-	 * 
-	 */
-	public static Throwable exec(HashMap<String, Object> locals, String fileToExec, IPythonInterpreter interpreter) {
-		File fileWithinJySrc = JythonPlugin.getFileWithinJySrc(fileToExec);
-    	return exec(locals, interpreter, fileWithinJySrc, new File[]{fileWithinJySrc.getParentFile()});
-	}
-	
-	public static List<Throwable> execAll(HashMap<String, Object> locals, final String startingWith, IPythonInterpreter interpreter) {
-		//exec files beneath jysrc in org.python.pydev.jython
-		File jySrc = JythonPlugin.getJySrcDirFile();
-		File additionalScriptingLocation = JyScriptingPreferencesPage.getAdditionalScriptingLocation();
+    /**
+     * This is a helper for:
+     * - Loading a file from the filesystem with jython code
+     * - Compiling it to a code object (that will remain in the 'code' local for the interpreter)
+     * - Making a call to exec that code
+     * - Returning the local in the interpreter regarded as jythonResult
+     * 
+     * Additional notes:
+     * - The code object will be regenerated only if:
+     *         - It still didn't exist (dought!!)
+     *         - The timestamp of the file changed
+     * 
+     * @param locals Those are the locals that should be added to the interpreter before calling the actual code
+     * @param fileToExec the file that should be executed (relative to the JythonPlugin jysrc folder)
+     * @param interpreter the interpreter that should be used to execute the code
+     *         
+     # @note If further info is needed (after the run), the interpreter itself should be checked for return values
+     * @return any error that happened while executing the script
+     * 
+     */
+    public static Throwable exec(HashMap<String, Object> locals, String fileToExec, IPythonInterpreter interpreter) {
+        File fileWithinJySrc = JythonPlugin.getFileWithinJySrc(fileToExec);
+        return exec(locals, interpreter, fileWithinJySrc, new File[]{fileWithinJySrc.getParentFile()});
+    }
+    
+    public static List<Throwable> execAll(HashMap<String, Object> locals, final String startingWith, IPythonInterpreter interpreter) {
+        //exec files beneath jysrc in org.python.pydev.jython
+        File jySrc = JythonPlugin.getJySrcDirFile();
+        File additionalScriptingLocation = JyScriptingPreferencesPage.getAdditionalScriptingLocation();
         
-		return execAll(locals, startingWith, interpreter, new File[]{jySrc, additionalScriptingLocation});
-		
-	}
+        return execAll(locals, startingWith, interpreter, new File[]{jySrc, additionalScriptingLocation});
+        
+    }
     
     /**
      * Executes all the scripts beneath some folders
@@ -309,90 +309,90 @@ public class JythonPlugin extends AbstractUIPlugin {
         }
         return errors;
     }
-	/**
-	 * List all the 'target' scripts available beneath some folder.
-	 */
-	public static File[] getFilesBeneathFolder(final String startingWith, File jySrc) {
-		File[] files = jySrc.listFiles(new FileFilter(){
+    /**
+     * List all the 'target' scripts available beneath some folder.
+     */
+    public static File[] getFilesBeneathFolder(final String startingWith, File jySrc) {
+        File[] files = jySrc.listFiles(new FileFilter(){
 
-			public boolean accept(File pathname) {
-				String name = pathname.getName();
+            public boolean accept(File pathname) {
+                String name = pathname.getName();
                 if(name.startsWith(startingWith) && name.endsWith(".py")){
-					return true;
-				}
-				return false;
-			}
-			
-		});
-		return files;
-	}
+                    return true;
+                }
+                return false;
+            }
+            
+        });
+        return files;
+    }
 
 
-	/**
-	 * Holds a cache with the name of the created code to a tuple with the file timestamp and the Code Object
-	 * that was generated with the contents of that timestamp.
-	 */
-	private static Map<File, Tuple<Long, Object>> codeCache = new HashMap<File,Tuple<Long, Object>>();
-	
-	/**
-	 * @param pythonpathFolders folders that should be in the pythonpath when executing the script
-	 * @see JythonPlugin#exec(HashMap, String, PythonInterpreter)
-	 * Same as before but the file to execute is passed as a parameter
-	 */
-	public static synchronized Throwable exec(HashMap<String, Object> locals, IPythonInterpreter interpreter, File fileToExec, File[] pythonpathFolders) {
+    /**
+     * Holds a cache with the name of the created code to a tuple with the file timestamp and the Code Object
+     * that was generated with the contents of that timestamp.
+     */
+    private static Map<File, Tuple<Long, Object>> codeCache = new HashMap<File,Tuple<Long, Object>>();
+    
+    /**
+     * @param pythonpathFolders folders that should be in the pythonpath when executing the script
+     * @see JythonPlugin#exec(HashMap, String, PythonInterpreter)
+     * Same as before but the file to execute is passed as a parameter
+     */
+    public static synchronized Throwable exec(HashMap<String, Object> locals, IPythonInterpreter interpreter, File fileToExec, File[] pythonpathFolders) {
         if(locals == null){
             locals = new HashMap<String, Object>();
         }
-		synchronized (codeCache) { //hold on there... one at a time... please?
-			try {
-			    String fileName = fileToExec.getName();
-	            if(!fileName.endsWith(".py")){
-	                throw new RuntimeException("The script to be executed must be a python file. Name:"+fileName);
-	            }
-	            String codeObjName = "code"+fileName.substring(0, fileName.indexOf('.'));
-	            final String codeObjTimestampName = codeObjName+"Timestamp";
-	            
-				for (Map.Entry<String, Object> entry : locals.entrySet()) {
-					interpreter.set(entry.getKey(), entry.getValue());
-				}
-				
-				boolean regenerate = false;
-				Tuple<Long, Object> timestamp = codeCache.get(fileToExec);
-				final long lastModified = fileToExec.lastModified();
-				if(timestamp == null || timestamp.o1 != lastModified){
-					//the file timestamp changed, so, we have to regenerate it
-					regenerate = true;
-				}
-				
-				if(!regenerate){
-					//if the 'code' object does not exist or if it's timestamp is outdated, we have to re-set it. 
-					PyObject obj = interpreter.get(codeObjName);
-					PyObject pyTime = interpreter.get(codeObjTimestampName);
-					if (obj == null || pyTime == null || !pyTime.__tojava__(Long.class).equals(timestamp.o1)){
-						if(DEBUG){
-							System.out.println("Resetting object: "+codeObjName);
-						}
-						interpreter.set(codeObjName, timestamp.o2);
-						interpreter.set(codeObjTimestampName, timestamp.o1);
-					}
-				}
-				
-				if(regenerate){
-					if(DEBUG){
-						System.out.println("Regenerating: "+codeObjName);
-					}
-					String path = REF.getFileAbsolutePath(fileToExec);
-	                
-	                StringBuffer strPythonPathFolders = new StringBuffer();
-	                strPythonPathFolders.append("[");
-	                for (File file : pythonpathFolders) {
-                        if (file != null){
-    	                    strPythonPathFolders.append("r'");
-    	                    strPythonPathFolders.append(REF.getFileAbsolutePath(file));
-    	                    strPythonPathFolders.append("',");
+        synchronized (codeCache) { //hold on there... one at a time... please?
+            try {
+                String fileName = fileToExec.getName();
+                if(!fileName.endsWith(".py")){
+                    throw new RuntimeException("The script to be executed must be a python file. Name:"+fileName);
+                }
+                String codeObjName = "code"+fileName.substring(0, fileName.indexOf('.'));
+                final String codeObjTimestampName = codeObjName+"Timestamp";
+                
+                for (Map.Entry<String, Object> entry : locals.entrySet()) {
+                    interpreter.set(entry.getKey(), entry.getValue());
+                }
+                
+                boolean regenerate = false;
+                Tuple<Long, Object> timestamp = codeCache.get(fileToExec);
+                final long lastModified = fileToExec.lastModified();
+                if(timestamp == null || timestamp.o1 != lastModified){
+                    //the file timestamp changed, so, we have to regenerate it
+                    regenerate = true;
+                }
+                
+                if(!regenerate){
+                    //if the 'code' object does not exist or if it's timestamp is outdated, we have to re-set it. 
+                    PyObject obj = interpreter.get(codeObjName);
+                    PyObject pyTime = interpreter.get(codeObjTimestampName);
+                    if (obj == null || pyTime == null || !pyTime.__tojava__(Long.class).equals(timestamp.o1)){
+                        if(DEBUG){
+                            System.out.println("Resetting object: "+codeObjName);
                         }
-	                }
-	                strPythonPathFolders.append("]");
+                        interpreter.set(codeObjName, timestamp.o2);
+                        interpreter.set(codeObjTimestampName, timestamp.o1);
+                    }
+                }
+                
+                if(regenerate){
+                    if(DEBUG){
+                        System.out.println("Regenerating: "+codeObjName);
+                    }
+                    String path = REF.getFileAbsolutePath(fileToExec);
+                    
+                    StringBuffer strPythonPathFolders = new StringBuffer();
+                    strPythonPathFolders.append("[");
+                    for (File file : pythonpathFolders) {
+                        if (file != null){
+                            strPythonPathFolders.append("r'");
+                            strPythonPathFolders.append(REF.getFileAbsolutePath(file));
+                            strPythonPathFolders.append("',");
+                        }
+                    }
+                    strPythonPathFolders.append("]");
                     
                     StringBuffer addToSysPath = new StringBuffer();
                     
@@ -409,46 +409,46 @@ public class JythonPlugin extends AbstractUIPlugin {
                     addToSysPath.append(strPythonPathFolders);
                     addToSysPath.append("\n");
                     
-	                String toExec = StringUtils.format(LOAD_FILE_SCRIPT, path, path, addToSysPath.toString());
-	                interpreter.exec(toExec);
-					String exec = StringUtils.format("%s = compile(toExec, r'%s', 'exec')", codeObjName, path);
-					interpreter.exec(exec);
-					//set its timestamp
-					interpreter.set(codeObjTimestampName, lastModified);
-					
-					Object codeObj = interpreter.get(codeObjName);
-					codeCache.put(fileToExec, new Tuple<Long, Object>(lastModified, codeObj));
-				}
-				
-				interpreter.exec(StringUtils.format("exec(%s)" , codeObjName));
-			} catch (Throwable e) {
+                    String toExec = StringUtils.format(LOAD_FILE_SCRIPT, path, path, addToSysPath.toString());
+                    interpreter.exec(toExec);
+                    String exec = StringUtils.format("%s = compile(toExec, r'%s', 'exec')", codeObjName, path);
+                    interpreter.exec(exec);
+                    //set its timestamp
+                    interpreter.set(codeObjTimestampName, lastModified);
+                    
+                    Object codeObj = interpreter.get(codeObjName);
+                    codeCache.put(fileToExec, new Tuple<Long, Object>(lastModified, codeObj));
+                }
+                
+                interpreter.exec(StringUtils.format("exec(%s)" , codeObjName));
+            } catch (Throwable e) {
                 if(!IN_TESTS && JythonPlugin.getDefault() == null){
                     //it is already disposed
                     return null;
                 }
-				//the user requested it to exit
-				if(e instanceof ExitScriptException){
-					return null;
-				}
-				//actually, this is more likely to happen when raising an exception in jython
-				if(e instanceof PyException){
-					PyException pE = (PyException) e;
-					if (pE.type instanceof PyJavaClass){
-						PyJavaClass t = (PyJavaClass) pE.type;
-						if(t.__name__ != null && t.__name__.equals("org.python.pydev.jython.ExitScriptException")){
-							return null;
-						}
-					}
-				}
-				
-				if(JyScriptingPreferencesPage.getShowScriptingOutput()){
-					Log.log(IStatus.ERROR, "Error while executing:"+fileToExec, e);
-				}
+                //the user requested it to exit
+                if(e instanceof ExitScriptException){
+                    return null;
+                }
+                //actually, this is more likely to happen when raising an exception in jython
+                if(e instanceof PyException){
+                    PyException pE = (PyException) e;
+                    if (pE.type instanceof PyJavaClass){
+                        PyJavaClass t = (PyJavaClass) pE.type;
+                        if(t.__name__ != null && t.__name__.equals("org.python.pydev.jython.ExitScriptException")){
+                            return null;
+                        }
+                    }
+                }
+                
+                if(JyScriptingPreferencesPage.getShowScriptingOutput()){
+                    Log.log(IStatus.ERROR, "Error while executing:"+fileToExec, e);
+                }
                 return e;
-			}
-		}
+            }
+        }
         return null;
-	}
+    }
 
 
     
@@ -481,66 +481,66 @@ public class JythonPlugin extends AbstractUIPlugin {
     /**
      * Creates a new Python interpreter (with jython) and returns it.
      */
-	public static IPythonInterpreter newPythonInterpreter(boolean redirect) {
-		PythonInterpreterWrapper interpreter = new PythonInterpreterWrapper();
+    public static IPythonInterpreter newPythonInterpreter(boolean redirect) {
+        PythonInterpreterWrapper interpreter = new PythonInterpreterWrapper();
         if(redirect){
-    		interpreter.setOut(new ScriptOutput(getBlack(), getConsole()));
-    		interpreter.setErr(new ScriptOutput(getRed(), getConsole()));
+            interpreter.setOut(new ScriptOutput(getBlack(), getConsole()));
+            interpreter.setErr(new ScriptOutput(getRed(), getConsole()));
         }
-		interpreter.set("False", 0);
-		interpreter.set("True", 1);
-		return interpreter;
-	}
-	
-	static Color red;
-	static Color black;
+        interpreter.set("False", 0);
+        interpreter.set("True", 1);
+        return interpreter;
+    }
+    
+    static Color red;
+    static Color black;
     static Color green;
     
     
-	public static Color getRed() {
-		if(red == null){
-			synchronized (Display.getDefault()) {
-				Display.getDefault().syncExec(new Runnable(){
-					
-					public void run() {
-						red = Display.getDefault().getSystemColor(SWT.COLOR_RED);
-					}
-				});
-			}
-		}
-		return red;
-	}
-	
-	public static Color getBlack() {
-		if(black == null){
-			synchronized (Display.getDefault()) {
-				Display.getDefault().syncExec(new Runnable(){
+    public static Color getRed() {
+        if(red == null){
+            synchronized (Display.getDefault()) {
+                Display.getDefault().syncExec(new Runnable(){
+                    
+                    public void run() {
+                        red = Display.getDefault().getSystemColor(SWT.COLOR_RED);
+                    }
+                });
+            }
+        }
+        return red;
+    }
+    
+    public static Color getBlack() {
+        if(black == null){
+            synchronized (Display.getDefault()) {
+                Display.getDefault().syncExec(new Runnable(){
 
-					public void run() {
-						black = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
-					}
-				});
-			}
-		}
-		return black;
-	}
-	public static Color getGreen() {
-	    if(green == null){
-	        synchronized (Display.getDefault()) {
-	            Display.getDefault().syncExec(new Runnable(){
-	                
-	                public void run() {
+                    public void run() {
+                        black = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
+                    }
+                });
+            }
+        }
+        return black;
+    }
+    public static Color getGreen() {
+        if(green == null){
+            synchronized (Display.getDefault()) {
+                Display.getDefault().syncExec(new Runnable(){
+                    
+                    public void run() {
                         green = new Color(Display.getDefault(), 0, 200, 125);
-	                }
-	            });
-	        }
-	    }
-	    return green;
-	}
+                    }
+                });
+            }
+        }
+        return green;
+    }
     
     public static IInteractiveConsole newInteractiveConsole() {
         return new InteractiveConsoleWrapper();
     }
-	
+    
 
 }

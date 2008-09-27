@@ -170,55 +170,55 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     /**
      * This is the scripting engine that is binded to this interpreter.
      */
-	private PyEditScripting pyEditScripting;
+    private PyEditScripting pyEditScripting;
 
-	/**
-	 * Lock for initialization sync
-	 */
-	private Object lock = new Object();
+    /**
+     * Lock for initialization sync
+     */
+    private Object lock = new Object();
     
     public void addPyeditListener(IPyEditListener listener){
-    	synchronized (registeredEditListeners) {
-    		registeredEditListeners.add(listener);
-		}
+        synchronized (registeredEditListeners) {
+            registeredEditListeners.add(listener);
+        }
     }
     
     public void removePyeditListener(IPyEditListener listener){
-    	synchronized (registeredEditListeners) {
-    		registeredEditListeners.remove(listener);
-    	}
+        synchronized (registeredEditListeners) {
+            registeredEditListeners.remove(listener);
+        }
     }
 
     
 
     public List<IPyEditListener> getAllListeners() {
-    	while (initFinished == false){
-    		synchronized(getLock()){
-    			try {
-    			    if(initFinished == false){
-    			        getLock().wait();
-    			    }
-				} catch (Exception e) {
-					//ignore
-					e.printStackTrace();
-				}
-    		}
-    	}
+        while (initFinished == false){
+            synchronized(getLock()){
+                try {
+                    if(initFinished == false){
+                        getLock().wait();
+                    }
+                } catch (Exception e) {
+                    //ignore
+                    e.printStackTrace();
+                }
+            }
+        }
         ArrayList<IPyEditListener> listeners = new ArrayList<IPyEditListener>();
         if(editListeners != null){
             listeners.addAll(editListeners); //no need to sync because editListeners is read-only
         }
-    	synchronized (registeredEditListeners) {
-    		listeners.addAll(registeredEditListeners);
-    	}
+        synchronized (registeredEditListeners) {
+            listeners.addAll(registeredEditListeners);
+        }
         return listeners;
     }
 
     private Object getLock() {
-		return lock;
-	}
+        return lock;
+    }
 
-	/**
+    /**
      * This map may be used by clients to store info regarding this editor.
      * 
      * Clients should be careful so that this key is unique and does not conflict with other
@@ -238,43 +238,43 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     /**
      * Indicates whether the init was already finished
      */
-	protected boolean initFinished = false;
+    protected boolean initFinished = false;
 
-	private PyEditNotifier notifier;
+    private PyEditNotifier notifier;
 
-	private boolean disposed = false;
-	public boolean isDisposed() {
-		return disposed;
-	}
+    private boolean disposed = false;
+    public boolean isDisposed() {
+        return disposed;
+    }
     
     // ---------------------------- end listeners stuff
     
     @SuppressWarnings("unchecked")
-	public PyEdit() {
+    public PyEdit() {
         super();
         try{
-	        //initialize the 'save' listeners of PyEdit
-	        if (editListeners == null){
-	        	editListeners = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PYEDIT_LISTENER);
-	        }
-	        
-	        modelListeners = new ArrayList<IModelListener>();
-	        colorCache = new ColorCache(PydevPlugin.getChainedPrefStore());
-	        
-	        editConfiguration = new PyEditConfiguration(colorCache, this, PydevPlugin.getChainedPrefStore());
-	        setSourceViewerConfiguration(editConfiguration);
-	        indentStrategy = editConfiguration.getPyAutoIndentStrategy();
-	        setRangeIndicator(new DefaultRangeIndicator()); // enables standard
-	        // vertical ruler
-	
-	        //Added to set the code folding.
-	        CodeFoldingSetter codeFoldingSetter = new CodeFoldingSetter(this);
-	        this.addModelListener(codeFoldingSetter);
-	        this.addPropertyListener(codeFoldingSetter);
+            //initialize the 'save' listeners of PyEdit
+            if (editListeners == null){
+                editListeners = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PYEDIT_LISTENER);
+            }
+            
+            modelListeners = new ArrayList<IModelListener>();
+            colorCache = new ColorCache(PydevPlugin.getChainedPrefStore());
+            
+            editConfiguration = new PyEditConfiguration(colorCache, this, PydevPlugin.getChainedPrefStore());
+            setSourceViewerConfiguration(editConfiguration);
+            indentStrategy = editConfiguration.getPyAutoIndentStrategy();
+            setRangeIndicator(new DefaultRangeIndicator()); // enables standard
+            // vertical ruler
+    
+            //Added to set the code folding.
+            CodeFoldingSetter codeFoldingSetter = new CodeFoldingSetter(this);
+            this.addModelListener(codeFoldingSetter);
+            this.addPropertyListener(codeFoldingSetter);
 
         }catch (Throwable e) {
-			PydevPlugin.log(e);
-		}
+            PydevPlugin.log(e);
+        }
     }
 
     /**
@@ -294,19 +294,19 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         textWidget.addKeyListener(cursorListener);
         
         VerifyKeyListener verifyKeyListener = new VerifyKeyListener(){
-        	
-        	public void verifyKey(VerifyEvent event) {
-        		if((event.doit && event.character == SWT.BS && event.stateMask == 0)){ //isBackspace
-        			PyBackspace pyBackspace = new PyBackspace();
-        			pyBackspace.setEditor(PyEdit.this);
-        			pyBackspace.perform(new PySelection(PyEdit.this));
-        			event.doit = false;
-        		}
-        	}
+            
+            public void verifyKey(VerifyEvent event) {
+                if((event.doit && event.character == SWT.BS && event.stateMask == 0)){ //isBackspace
+                    PyBackspace pyBackspace = new PyBackspace();
+                    pyBackspace.setEditor(PyEdit.this);
+                    pyBackspace.perform(new PySelection(PyEdit.this));
+                    event.doit = false;
+                }
+            }
         };
         
-		viewer.appendVerifyKeyListener(verifyKeyListener);
-		
+        viewer.appendVerifyKeyListener(verifyKeyListener);
+        
         return viewer;
     }
     
@@ -470,96 +470,96 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      *  
      */
     public void init(final IEditorSite site, final IEditorInput input) throws PartInitException {
-    	try{
-	    	notifier = new PyEditNotifier(this);
-	        super.init(site, input);
-	
-	        final IDocument document = getDocument(input);
-	        
-	        // check the document partitioner (sanity check / fix)
-	        PyPartitionScanner.checkPartitionScanner(document);
-	
-	        // Also adds Python nature to the project.
-	    	// The reason this is done here is because I want to assign python
-	    	// nature automatically to any project that has active python files.
-	        final IPythonNature nature = PythonNature.addNature(input);
-	        
-	        //we also want to initialize our shells...
-	        //we use 2: one for refactoring and one for code completion.
-	        Thread thread2 = new Thread() {
-	            public void run() {
-	                try {
-	                    try {
-	                        AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
-	                    } catch (RuntimeException e1) {
-	                    }
-	                } catch (Exception e) {
-	                }
-	
-	            }
-	        };
-	        thread2.setName("Shell starter");
-	        thread2.start();
-	
-	        
-	        // listen to changes in TAB_WIDTH preference
-	        prefListener = new Preferences.IPropertyChangeListener() {
-	            public void propertyChange(Preferences.PropertyChangeEvent event) {
-	                String property = event.getProperty();
-	                //tab width
-	                if (property.equals(PydevPrefs.TAB_WIDTH)) {
-	                    ISourceViewer sourceViewer = getSourceViewer();
-	                    if (sourceViewer == null){
-	                        return;
-	                    }
-	                    getIndentPrefs().regenerateIndentString();
-	                    sourceViewer.getTextWidget().setTabs(DefaultIndentPrefs.getStaticTabWidth());
-	                    
-	                }else if (property.equals(PydevPrefs.SUBSTITUTE_TABS)) {
-	                	getIndentPrefs().regenerateIndentString();
-	                   
-	                //auto adjust for file tabs
-	                } else if (property.equals(PydevPrefs.GUESS_TAB_SUBSTITUTION)) {
-	                    resetForceTabs();
-	                    
-	                //colors and styles
-	                } else if (property.equals(PydevPrefs.CODE_COLOR) || property.equals(PydevPrefs.DECORATOR_COLOR) || property.equals(PydevPrefs.NUMBER_COLOR)
-	                        || property.equals(PydevPrefs.KEYWORD_COLOR) || property.equals(PydevPrefs.SELF_COLOR) || property.equals(PydevPrefs.COMMENT_COLOR) 
-	                        || property.equals(PydevPrefs.STRING_COLOR) || property.equals(PydevPrefs.CLASS_NAME_COLOR) || property.equals(PydevPrefs.FUNC_NAME_COLOR)
-	                        || property.equals(PydevPrefs.DEFAULT_BACKQUOTES_COLOR)
-	                        || property.endsWith("_STYLE")
-	                        ) {
-	                    colorCache.reloadNamedColor(property); //all reference this cache
-	                    editConfiguration.updateSyntaxColorAndStyle(); //the style needs no reloading
-	                    getSourceViewer().invalidateTextPresentation();
-	                } 
-	            }
-	        };
-	        resetForceTabs();
-	        PydevPrefs.getPreferences().addPropertyChangeListener(prefListener);
-	        
-	    
-	        Runnable runnable = new Runnable(){
-	
-				public void run() {
-					//let's do that in a thread, so that we don't have any delays in setting up the editor
-					pyEditScripting = new PyEditScripting();
-					addPyeditListener(pyEditScripting);
-					
-					initFinished = true;
-					synchronized(getLock()){
-						getLock().notifyAll();
-					}
-				}
-	        };
-	        Thread thread = new Thread(runnable);
-	        thread.setPriority(Thread.MIN_PRIORITY);
-	        thread.setName("PyEdit initializer");
-	        thread.start();
-    	}catch (Throwable e) {
-    		//never fail in the init
-			PydevPlugin.log(e);
-		}
+        try{
+            notifier = new PyEditNotifier(this);
+            super.init(site, input);
+    
+            final IDocument document = getDocument(input);
+            
+            // check the document partitioner (sanity check / fix)
+            PyPartitionScanner.checkPartitionScanner(document);
+    
+            // Also adds Python nature to the project.
+            // The reason this is done here is because I want to assign python
+            // nature automatically to any project that has active python files.
+            final IPythonNature nature = PythonNature.addNature(input);
+            
+            //we also want to initialize our shells...
+            //we use 2: one for refactoring and one for code completion.
+            Thread thread2 = new Thread() {
+                public void run() {
+                    try {
+                        try {
+                            AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
+                        } catch (RuntimeException e1) {
+                        }
+                    } catch (Exception e) {
+                    }
+    
+                }
+            };
+            thread2.setName("Shell starter");
+            thread2.start();
+    
+            
+            // listen to changes in TAB_WIDTH preference
+            prefListener = new Preferences.IPropertyChangeListener() {
+                public void propertyChange(Preferences.PropertyChangeEvent event) {
+                    String property = event.getProperty();
+                    //tab width
+                    if (property.equals(PydevPrefs.TAB_WIDTH)) {
+                        ISourceViewer sourceViewer = getSourceViewer();
+                        if (sourceViewer == null){
+                            return;
+                        }
+                        getIndentPrefs().regenerateIndentString();
+                        sourceViewer.getTextWidget().setTabs(DefaultIndentPrefs.getStaticTabWidth());
+                        
+                    }else if (property.equals(PydevPrefs.SUBSTITUTE_TABS)) {
+                        getIndentPrefs().regenerateIndentString();
+                       
+                    //auto adjust for file tabs
+                    } else if (property.equals(PydevPrefs.GUESS_TAB_SUBSTITUTION)) {
+                        resetForceTabs();
+                        
+                    //colors and styles
+                    } else if (property.equals(PydevPrefs.CODE_COLOR) || property.equals(PydevPrefs.DECORATOR_COLOR) || property.equals(PydevPrefs.NUMBER_COLOR)
+                            || property.equals(PydevPrefs.KEYWORD_COLOR) || property.equals(PydevPrefs.SELF_COLOR) || property.equals(PydevPrefs.COMMENT_COLOR) 
+                            || property.equals(PydevPrefs.STRING_COLOR) || property.equals(PydevPrefs.CLASS_NAME_COLOR) || property.equals(PydevPrefs.FUNC_NAME_COLOR)
+                            || property.equals(PydevPrefs.DEFAULT_BACKQUOTES_COLOR)
+                            || property.endsWith("_STYLE")
+                            ) {
+                        colorCache.reloadNamedColor(property); //all reference this cache
+                        editConfiguration.updateSyntaxColorAndStyle(); //the style needs no reloading
+                        getSourceViewer().invalidateTextPresentation();
+                    } 
+                }
+            };
+            resetForceTabs();
+            PydevPrefs.getPreferences().addPropertyChangeListener(prefListener);
+            
+        
+            Runnable runnable = new Runnable(){
+    
+                public void run() {
+                    //let's do that in a thread, so that we don't have any delays in setting up the editor
+                    pyEditScripting = new PyEditScripting();
+                    addPyeditListener(pyEditScripting);
+                    
+                    initFinished = true;
+                    synchronized(getLock()){
+                        getLock().notifyAll();
+                    }
+                }
+            };
+            Thread thread = new Thread(runnable);
+            thread.setPriority(Thread.MIN_PRIORITY);
+            thread.setName("PyEdit initializer");
+            thread.start();
+        }catch (Throwable e) {
+            //never fail in the init
+            PydevPlugin.log(e);
+        }
     }
     
     
@@ -579,22 +579,22 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      */
     @Override
     protected void doSetInput(IEditorInput input) throws CoreException {
-    	IEditorInput oldInput = this.getEditorInput();
+        IEditorInput oldInput = this.getEditorInput();
         super.doSetInput(input);
         try{
-	        IDocument document = getDocument(input);
-	        //see if we have to change the encoding of the file on load
-	        fixEncoding(input, document);
-	
+            IDocument document = getDocument(input);
+            //see if we have to change the encoding of the file on load
+            fixEncoding(input, document);
+    
             PyParserManager.getPyParserManager(PydevPrefs.getPreferences()).attachParserTo(this);
-	        if(document != null){
-	            PyPartitionScanner.checkPartitionScanner(document);
-	        }
-	        notifier.notifyInputChanged(oldInput, input);
-	        notifier.notifyOnSetDocument(document);
+            if(document != null){
+                PyPartitionScanner.checkPartitionScanner(document);
+            }
+            notifier.notifyInputChanged(oldInput, input);
+            notifier.notifyOnSetDocument(document);
         }catch (Throwable e) {
-			PydevPlugin.log(e);
-		}
+            PydevPlugin.log(e);
+        }
     }
     
     /**
@@ -734,42 +734,42 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
             f = path.toFile();
         
         }else if (editorInput instanceof PydevFileEditorInput) {
-        	PydevFileEditorInput pyEditorInput = (PydevFileEditorInput) editorInput;
-        	f = pyEditorInput.getPath().toFile();
-        	
+            PydevFileEditorInput pyEditorInput = (PydevFileEditorInput) editorInput;
+            f = pyEditorInput.getPath().toFile();
+            
         }else{
-        	try {
-				IPath path = (IPath) REF.invoke(editorInput, "getPath", new Object[0]);
-				f = path.toFile();
-			} catch (Exception e) {
-				//ok, it has no getPath
-			}
+            try {
+                IPath path = (IPath) REF.invoke(editorInput, "getPath", new Object[0]);
+                f = path.toFile();
+            } catch (Exception e) {
+                //ok, it has no getPath
+            }
         }
         return f;
     }
 
     // cleanup
     public void dispose() {
-    	this.disposed = true;
-    	try{
-	    	notifier.notifyOnDispose();
-	
-	        PydevPrefs.getPreferences().removePropertyChangeListener(prefListener);
+        this.disposed = true;
+        try{
+            notifier.notifyOnDispose();
+    
+            PydevPrefs.getPreferences().removePropertyChangeListener(prefListener);
             PyParserManager.getPyParserManager(null).notifyEditorDisposed(this);
             
-	        colorCache.dispose();
-	        pyEditScripting = null;
-	        cache.clear();
-	        cache = null;
-	        
-	        if(this.resourceManager != null){
-	        	this.resourceManager.dispose();
-	        	this.resourceManager = null;
-	        }
-	        
-    	}catch (Throwable e) {
-			PydevPlugin.log(e);
-		}
+            colorCache.dispose();
+            pyEditScripting = null;
+            cache.clear();
+            cache = null;
+            
+            if(this.resourceManager != null){
+                this.resourceManager.dispose();
+                this.resourceManager = null;
+            }
+            
+        }catch (Throwable e) {
+            PydevPlugin.log(e);
+        }
         super.dispose();
         
     }
@@ -795,39 +795,39 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     protected void createActions() {
         super.createActions();
         try{
-	        MyResources resources = new MyResources();
-	        IAction action;
-	
-	        //Quick-Assist: it's added to the platform as of Eclipse 3.2, so, we do not have to put the binding here
-	        
-	        
-	        // -------------------------------------------------------------------------------------
-	        // This action will fire a CONTENTASSIST_PROPOSALS operation
-	        // when executed
-	        action = new ContentAssistAction(resources, "ContentAssistProposal.", this);
-	        action.setActionDefinitionId(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS);
-	        setAction("ContentAssistProposal", action); 
-	        markAsStateDependentAction("ContentAssistProposal", true); 
-	
-	        
-	        // ----------------------------------------------------------------------------------------
-	        //open action
-	        IAction openAction = new PyOpenAction();
-	        setAction(ACTION_OPEN, openAction);
-	        
-	        
-	        // ----------------------------------------------------------------------------------------
-	        // Offline action
-	        action = new OfflineAction(resources, "Pyedit.ScriptEngine.", this); 
-	        action.setActionDefinitionId("org.python.pydev.editor.actions.scriptEngine");
-	        action.setId("org.python.pydev.editor.actions.scriptEngine");
-	        setAction("PydevScriptEngine", action);
-	        
-	        
-	        notifier.notifyOnCreateActions(resources);
+            MyResources resources = new MyResources();
+            IAction action;
+    
+            //Quick-Assist: it's added to the platform as of Eclipse 3.2, so, we do not have to put the binding here
+            
+            
+            // -------------------------------------------------------------------------------------
+            // This action will fire a CONTENTASSIST_PROPOSALS operation
+            // when executed
+            action = new ContentAssistAction(resources, "ContentAssistProposal.", this);
+            action.setActionDefinitionId(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS);
+            setAction("ContentAssistProposal", action); 
+            markAsStateDependentAction("ContentAssistProposal", true); 
+    
+            
+            // ----------------------------------------------------------------------------------------
+            //open action
+            IAction openAction = new PyOpenAction();
+            setAction(ACTION_OPEN, openAction);
+            
+            
+            // ----------------------------------------------------------------------------------------
+            // Offline action
+            action = new OfflineAction(resources, "Pyedit.ScriptEngine.", this); 
+            action.setActionDefinitionId("org.python.pydev.editor.actions.scriptEngine");
+            action.setId("org.python.pydev.editor.actions.scriptEngine");
+            setAction("PydevScriptEngine", action);
+            
+            
+            notifier.notifyOnCreateActions(resources);
         }catch (Throwable e) {
-			PydevPlugin.log(e);
-		}
+            PydevPlugin.log(e);
+        }
     }
 
 
@@ -873,7 +873,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * @return an outline view
      */
     @SuppressWarnings("unchecked")
-	public Object getAdapter(Class adapter) {
+    public Object getAdapter(Class adapter) {
         if (OfflineActionTarget.class.equals(adapter)) {
             if (fOfflineActionTarget == null) {
                 IStatusLineManager manager= getStatusLineManager();
@@ -1003,7 +1003,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
             PydevPlugin.log(e1);
         } catch (BadLocationException e2) {
             // Whatever, could not create a marker. Swallow this one
-        	//PydevPlugin.log(e2);
+            //PydevPlugin.log(e2);
         }finally{
             try {
                 errorDescription = errDesc;
@@ -1014,7 +1014,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         }
     }
 
-	/** stock listener implementation */
+    /** stock listener implementation */
     public void addModelListener(IModelListener listener) {
         Assert.isNotNull(listener);
         if (!modelListeners.contains(listener)){
@@ -1032,10 +1032,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * stock listener implementation event is fired whenever we get a new root
      */
     protected void fireModelChanged(SimpleNode root) {
-    	//create a copy, to avoid concurrent modifications
+        //create a copy, to avoid concurrent modifications
         for (IModelListener listener : new ArrayList<IModelListener>(modelListeners)) {
-        	listener.modelChanged(root);
-		}
+            listener.modelChanged(root);
+        }
     }
     
 
@@ -1074,38 +1074,38 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         }
         IPythonNature pythonNature = PythonNature.getPythonNature(project);
         if(pythonNature != null){
-        	return pythonNature;
+            return pythonNature;
         }
-        	
-		//if it's an external file, there's the possibility that it won't be added even here.
-		pythonNature = PythonNature.addNature(this.getEditorInput());
-    	
-    	if(pythonNature != null){
-    		return pythonNature;
-    	}
-    	
-    	Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
-    	if(infoForFile == null){
-    		NotConfiguredInterpreterException e = new NotConfiguredInterpreterException();
-    		ErrorDialog.openError(PyAction.getShell(), 
-    				"Error: no interpreter configured", "Interpreter not configured\n(Please, Configure it under window->preferences->PyDev)", 
-    				PydevPlugin.makeStatus(IStatus.ERROR, e.getMessage(), e));
-    		throw e;
-    		
-    	}
-    	pythonNature = infoForFile.o1;
+            
+        //if it's an external file, there's the possibility that it won't be added even here.
+        pythonNature = PythonNature.addNature(this.getEditorInput());
+        
+        if(pythonNature != null){
+            return pythonNature;
+        }
+        
+        Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
+        if(infoForFile == null){
+            NotConfiguredInterpreterException e = new NotConfiguredInterpreterException();
+            ErrorDialog.openError(PyAction.getShell(), 
+                    "Error: no interpreter configured", "Interpreter not configured\n(Please, Configure it under window->preferences->PyDev)", 
+                    PydevPlugin.makeStatus(IStatus.ERROR, e.getMessage(), e));
+            throw e;
+            
+        }
+        pythonNature = infoForFile.o1;
         return pythonNature;
     }
 
     protected void initializeEditor() {
         super.initializeEditor();
         try{
-	        IPreferenceStore prefStore = PydevPlugin.getChainedPrefStore();
-	        this.setPreferenceStore(prefStore);
-	        setEditorContextMenuId(PY_EDIT_CONTEXT);
+            IPreferenceStore prefStore = PydevPlugin.getChainedPrefStore();
+            this.setPreferenceStore(prefStore);
+            setEditorContextMenuId(PY_EDIT_CONTEXT);
         }catch (Throwable e) {
-			PydevPlugin.log(e);
-		}
+            PydevPlugin.log(e);
+        }
     }
 
     
@@ -1120,33 +1120,33 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     }
     public void addOfflineActionListener(String key, IAction action, String description, boolean needsEnter) {
         offlineActionsManager.addOfflineActionListener(key, action, description, needsEnter);
-	}
+    }
     public boolean activatesAutomaticallyOn(String key){
         return offlineActionsManager.activatesAutomaticallyOn(key);
     }
     /**
      * @return if an action was binded and was successfully executed
      */
-	public boolean onOfflineAction(String requestedStr, OfflineActionTarget target) {
-	    return offlineActionsManager.onOfflineAction(requestedStr, target);
-	}
+    public boolean onOfflineAction(String requestedStr, OfflineActionTarget target) {
+        return offlineActionsManager.onOfflineAction(requestedStr, target);
+    }
     
-	private LocalResourceManager resourceManager;
-	
-	public LocalResourceManager getResourceManager() {
-		if(resourceManager == null){
-			resourceManager = new LocalResourceManager(JFaceResources.getResources());
-		}
-		return resourceManager;
-	}
-	
-	/**
+    private LocalResourceManager resourceManager;
+    
+    public LocalResourceManager getResourceManager() {
+        if(resourceManager == null){
+            resourceManager = new LocalResourceManager(JFaceResources.getResources());
+        }
+        return resourceManager;
+    }
+    
+    /**
      * Used in the script pyedit_list_bindings.py
      */
-	public Font getFont(FontData descriptor) {
-		Font font = getResourceManager().createFont(FontDescriptor.createFrom(descriptor));
-		
-//		Old implementation (for Eclipse 3.3)
+    public Font getFont(FontData descriptor) {
+        Font font = getResourceManager().createFont(FontDescriptor.createFrom(descriptor));
+        
+//        Old implementation (for Eclipse 3.3)
 //        Font font = (Font) SWTResourceUtil.getFontTable().get(descriptor);
 //        if (font == null) {
 //            font = new Font(Display.getCurrent(), descriptor);
@@ -1154,7 +1154,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 //        }
         return font;
     }
-	//--------------------------------------------------------------------- END: actions that are activated after Ctrl+2
+    //--------------------------------------------------------------------- END: actions that are activated after Ctrl+2
 
 
 

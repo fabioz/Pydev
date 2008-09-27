@@ -52,7 +52,7 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
     public static String getDefaultPathStr(String str) {
         //this check is no longer done... could result in other problems
         // if(acceptPoint == false && str.indexOf(".") == 0){ //cannot start with a dot
-        // 		throw new RuntimeException("The pythonpath can only have absolute paths (cannot start with '.', therefore, the path: '"+str+"' is not valid.");
+        //         throw new RuntimeException("The pythonpath can only have absolute paths (cannot start with '.', therefore, the path: '"+str+"' is not valid.");
         // }
         return StringUtils.replaceAllSlashes(str.trim());
     }
@@ -244,7 +244,7 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
 
         List<String> pythonPathCopy = getPythonpath();
         //go through our pythonpath and check the beggining
-    	for(String pathEntry : pythonPathCopy) {
+        for(String pathEntry : pythonPathCopy) {
 
             String element = getDefaultPathStr(pathEntry);
             if (fullPath.startsWith(element)) {
@@ -440,16 +440,16 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
      * @note returns a copy and not a reference to the internal list.
      */
     public List<String> getPythonpath() {
-		synchronized (pythonpath) {
-			return new ArrayList<String>(pythonpath);
-		}
-	}
+        synchronized (pythonpath) {
+            return new ArrayList<String>(pythonpath);
+        }
+    }
 
     /**
-	 * This method should traverse the pythonpath passed and return a structure
-	 * with the info that could be collected about the files that are related to
-	 * python modules.
-	 */
+     * This method should traverse the pythonpath passed and return a structure
+     * with the info that could be collected about the files that are related to
+     * python modules.
+     */
     public ModulesFoundStructure getModulesFoundStructure(IProgressMonitor monitor) {
         List<String> pythonpathList = getPythonpath();
         

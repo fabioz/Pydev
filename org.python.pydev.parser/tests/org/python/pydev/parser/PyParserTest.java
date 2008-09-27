@@ -48,8 +48,8 @@ public class PyParserTest extends PyParserTestBase{
 
     @Override
     protected void setUp() throws Exception {
-    	super.setUp();
-    	PyParser.USE_FAST_STREAM = true;
+        super.setUp();
+        PyParser.USE_FAST_STREAM = true;
     }
     
     
@@ -140,39 +140,39 @@ public class PyParserTest extends PyParserTestBase{
     }
     
     public void testMultilineStr() {
-    	String s = "" +
-    	"a = '''\n" +
-    	"really really big string\n"+
-    	"really really big string\n"+
-    	"really really big string\n"+
-    	"really really big string\n"+
-    	"really really big string\n"+
-    	"really really big string\n"+
-    	"really really big string\n"+
-    	"really really big string\n"+
-    	"really really big string\n"+
-    	"really really big string\n"+
-    	"really really big string\n"+
-    	"really really big string\n"+
-    	"really really big string\n"+
-    	"really really big string\n"+
-    	"really really big string\n"+
-    	"really really big string\n"+
-    	"really really big string\n"+
-    	"really really big string\n"+
-    	"really really big string\n"+
-    	"really really big string\n" +
-    	"really really big string\n" +
-    	"really really big string\n" +
-    	"'''";
-    	parseLegalDocStr(s);
+        String s = "" +
+        "a = '''\n" +
+        "really really big string\n"+
+        "really really big string\n"+
+        "really really big string\n"+
+        "really really big string\n"+
+        "really really big string\n"+
+        "really really big string\n"+
+        "really really big string\n"+
+        "really really big string\n"+
+        "really really big string\n"+
+        "really really big string\n"+
+        "really really big string\n"+
+        "really really big string\n"+
+        "really really big string\n"+
+        "really really big string\n"+
+        "really really big string\n"+
+        "really really big string\n"+
+        "really really big string\n"+
+        "really really big string\n"+
+        "really really big string\n"+
+        "really really big string\n" +
+        "really really big string\n" +
+        "really really big string\n" +
+        "'''";
+        parseLegalDocStr(s);
     }
     
     public void testErr() {
-    	String s = "" +
-    	"def m():\n" +
-    	"    call(a,";
-    	parseILegalDoc(new Document(s));
+        String s = "" +
+        "def m():\n" +
+        "    call(a,";
+        parseILegalDoc(new Document(s));
     }
     
     
@@ -213,13 +213,13 @@ public class PyParserTest extends PyParserTestBase{
     
     public void testYield2() {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_4);
-    	String s = "" +
-    	"class Generator:\n" +
-    	"    def __iter__(self): \n" +
-    	"        for a in range(10):\n" +
-    	"            yield foo(a)\n" +
-    	"";
-    	parseLegalDocStr(s);
+        String s = "" +
+        "class Generator:\n" +
+        "    def __iter__(self): \n" +
+        "        for a in range(10):\n" +
+        "            yield foo(a)\n" +
+        "";
+        parseLegalDocStr(s);
     }
 
     
@@ -337,15 +337,15 @@ public class PyParserTest extends PyParserTestBase{
     
 //    not removed completely because we may still want to debug it later...
 //    public void testOnCsv() {
-//    	PyParser.USE_FAST_STREAM = false;
-//    	String loc = TestDependent.PYTHON_LIB+"csv.py";
-//    	String s = REF.getFileContents(new File(loc));
-//    	parseLegalDocStr(s);
-//    	
-//    	PyParser.USE_FAST_STREAM = true;
-//    	loc = TestDependent.PYTHON_LIB+"csv.py";
-//    	s = REF.getFileContents(new File(loc));
-//    	parseLegalDocStr(s);
+//        PyParser.USE_FAST_STREAM = false;
+//        String loc = TestDependent.PYTHON_LIB+"csv.py";
+//        String s = REF.getFileContents(new File(loc));
+//        parseLegalDocStr(s);
+//        
+//        PyParser.USE_FAST_STREAM = true;
+//        loc = TestDependent.PYTHON_LIB+"csv.py";
+//        s = REF.getFileContents(new File(loc));
+//        parseLegalDocStr(s);
 //    }
     
     
@@ -379,9 +379,9 @@ public class PyParserTest extends PyParserTestBase{
     
     public void testOnTestContextLib() {
         if(TestDependent.HAS_PYTHON_TESTS){
-        	String loc = TestDependent.PYTHON_LIB+"test/test_contextlib.py";
-	        String s = REF.getFileContents(new File(loc));
-	        parseLegalDocStr(s,"(file: test_contextlib.py)");
+            String loc = TestDependent.PYTHON_LIB+"test/test_contextlib.py";
+            String s = REF.getFileContents(new File(loc));
+            parseLegalDocStr(s,"(file: test_contextlib.py)");
         }
     }
     
@@ -543,13 +543,13 @@ public class PyParserTest extends PyParserTestBase{
      * expected beginCols at: 7 and 17
      */
     public void testParser10() {
-    	String s = "" +
-    	"l = [ \"encode\", \"decode\" ] \n"+
-    	"\n";        
-    	SimpleNode node = parseLegalDocStr(s);
-    	List<ASTEntry> strs = SequencialASTIteratorVisitor.create(node).getAsList(new Class[]{Str.class});
-    	assertEquals(7, strs.get(0).node.beginColumn);
-    	assertEquals(17, strs.get(1).node.beginColumn);
+        String s = "" +
+        "l = [ \"encode\", \"decode\" ] \n"+
+        "\n";        
+        SimpleNode node = parseLegalDocStr(s);
+        List<ASTEntry> strs = SequencialASTIteratorVisitor.create(node).getAsList(new Class[]{Str.class});
+        assertEquals(7, strs.get(0).node.beginColumn);
+        assertEquals(17, strs.get(1).node.beginColumn);
     }
     
     

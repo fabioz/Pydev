@@ -65,14 +65,14 @@ public class PyGoToDefinition extends PyRefactorAction {
             IPyRefactoring pyRefactoring = getPyRefactoring();
             pyRefactoring.checkAvailableForRefactoring(request);
         } catch (Exception e) {
-        	e.printStackTrace();
+            e.printStackTrace();
             ErrorDialog.openError(null, "Error", "Unable to do requested action", 
                     new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, e.getMessage(), null));
             return false;
         }
 
         if (request.pyEdit.isDirty())
-        	request.pyEdit.doSave(null);
+            request.pyEdit.doSave(null);
 
         return true;
     }
@@ -87,7 +87,7 @@ public class PyGoToDefinition extends PyRefactorAction {
     }
     
     public ItemPointer[] findDefinitionsAndOpen(boolean doOpenDefinition) {
-    	request = null;
+        request = null;
         final Shell shell = getShell();
         try {
 
@@ -102,7 +102,7 @@ public class PyGoToDefinition extends PyRefactorAction {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        	PydevPlugin.log(e);
+            PydevPlugin.log(e);
             String msg = e.getMessage();
             if(msg == null){
                 msg = "Unable to get error msg";

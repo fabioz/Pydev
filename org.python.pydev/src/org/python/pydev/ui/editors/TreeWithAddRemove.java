@@ -46,29 +46,29 @@ public class TreeWithAddRemove extends Composite{
             initialItems = "";
         }
         
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 2;
-		this.setLayout(layout);
+        GridLayout layout = new GridLayout();
+        layout.numColumns = 2;
+        this.setLayout(layout);
 
-		GridData data= new GridData(GridData.FILL_BOTH);
+        GridData data= new GridData(GridData.FILL_BOTH);
 
-	    this.project = project;
-	    
-	    tree = new Tree(this, SWT.BORDER );
-		data.grabExcessHorizontalSpace = true;
-		data.grabExcessVerticalSpace = true;
-		tree.setLayoutData(data);
+        this.project = project;
+        
+        tree = new Tree(this, SWT.BORDER );
+        data.grabExcessHorizontalSpace = true;
+        data.grabExcessVerticalSpace = true;
+        tree.setLayoutData(data);
 
-		Composite buttonsSourceFolders= new Composite(this, SWT.NONE);
-		buttonsSourceFolders.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_BEGINNING));
-		
-		layout = new GridLayout();
-		layout.marginHeight= 0;
-		layout.marginWidth= 0;
-		buttonsSourceFolders.setLayout(layout);
-		
-		Button buttonAddSourceFolder = new Button(buttonsSourceFolders, SWT.PUSH);
-		customizeAddSourceFolderButton(buttonAddSourceFolder, true);
+        Composite buttonsSourceFolders= new Composite(this, SWT.NONE);
+        buttonsSourceFolders.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_BEGINNING));
+        
+        layout = new GridLayout();
+        layout.marginHeight= 0;
+        layout.marginWidth= 0;
+        buttonsSourceFolders.setLayout(layout);
+        
+        Button buttonAddSourceFolder = new Button(buttonsSourceFolders, SWT.PUSH);
+        customizeAddSourceFolderButton(buttonAddSourceFolder, true);
         buttonAddSourceFolder.setText(getButtonAddText());
         data = new GridData ();
         data.horizontalAlignment = GridData.FILL;
@@ -83,8 +83,8 @@ public class TreeWithAddRemove extends Composite{
         data.grabExcessHorizontalSpace = true;
         buttonAddZip.setLayoutData(data);
         
-		Button buttonRemSourceFolder = new Button(buttonsSourceFolders, SWT.PUSH);
-		customizeRemSourceFolderButton(buttonRemSourceFolder);
+        Button buttonRemSourceFolder = new Button(buttonsSourceFolders, SWT.PUSH);
+        customizeRemSourceFolderButton(buttonRemSourceFolder);
         data = new GridData ();
         data.horizontalAlignment = GridData.FILL;
         data.grabExcessHorizontalSpace = true;
@@ -99,9 +99,9 @@ public class TreeWithAddRemove extends Composite{
 
     
 
-	/**
-	 * Remove is almost always default
-	 * 
+    /**
+     * Remove is almost always default
+     * 
      * @param buttonRemSourceFolder
      */
     protected void customizeRemSourceFolderButton(Button buttonRem) {
@@ -161,9 +161,9 @@ public class TreeWithAddRemove extends Composite{
                     
                 }else if(d instanceof SelectionDialog){
                     SelectionDialog dialog = (SelectionDialog) d;
-	                dialog.open();
-	                Object[] objects = dialog.getResult();
-	                if (objects != null) { 
+                    dialog.open();
+                    Object[] objects = dialog.getResult();
+                    if (objects != null) { 
                         for (int i = 0; i < objects.length; i++) {
                             Object object = objects[i];
                             if (object instanceof IPath) {
@@ -173,8 +173,8 @@ public class TreeWithAddRemove extends Composite{
                                 String pathAsString = getPathAsString(p);
                                 addTreeItem(pathAsString);
                             }else if(object instanceof IFile){
-                            	//IMPORTANT: get it relative to the workspace root, and not to the project!!
-                            	//(historical reasons)
+                                //IMPORTANT: get it relative to the workspace root, and not to the project!!
+                                //(historical reasons)
                                 IFile p = (IFile) object;
                                 String pathAsString = getPathAsString(p.getProjectRelativePath());
                                 pathAsString = "/"+p.getProject().getName()+pathAsString;
@@ -183,7 +183,7 @@ public class TreeWithAddRemove extends Composite{
                                 }
                             }
                         }
-	                }
+                    }
                 }else{
                     throw new RuntimeException("Dont know how to treat dialog: "+d.getClass());
                 }
@@ -258,9 +258,9 @@ public class TreeWithAddRemove extends Composite{
      */
     private void addTreeItem(String pathAsString) {
         if(pathAsString != null && pathAsString.trim().length() > 0){
-	        TreeItem item = new TreeItem(tree, 0);
-	        item.setText(pathAsString);
-	        item.setImage(PydevPlugin.getImageCache().get(getImageConstant()));
+            TreeItem item = new TreeItem(tree, 0);
+            item.setText(pathAsString);
+            item.setImage(PydevPlugin.getImageCache().get(getImageConstant()));
         }
     }
 
@@ -270,8 +270,8 @@ public class TreeWithAddRemove extends Composite{
         for (int i = 0; i < items.length; i++) {
             String text = items[i].getText();
             if(text != null && text.trim().length() > 0){
-	            ret.append(text);
-	            ret.append("|");
+                ret.append(text);
+                ret.append("|");
             }
         }
         return ret.toString();

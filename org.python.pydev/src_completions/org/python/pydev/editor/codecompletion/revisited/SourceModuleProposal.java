@@ -63,21 +63,21 @@
 //        if(doc == null){ //doc can be preset
 //            
 //            //if not preset, let's find it.
-//	        if(module.getFile() == null){ //its same
-//	            doc = dummy;
-//	            
-//	        }else{//another
-//		        IPath path = new Path(REF.getFileAbsolutePath(module.getFile()));
-//		        IEditorPart part = PyOpenEditor.doOpenEditor(path);
-//		
-//		        if(part instanceof PyEdit){
-//		            edit = (PyEdit) part;
-//		            doc = edit.getDocumentProvider().getDocument(edit.getEditorInput());
-//		        }else{
-//		            String contents = REF.getFileContents(module.getFile());
-//		            doc = new Document(contents);
-//		        }
-//	        }        
+//            if(module.getFile() == null){ //its same
+//                doc = dummy;
+//                
+//            }else{//another
+//                IPath path = new Path(REF.getFileAbsolutePath(module.getFile()));
+//                IEditorPart part = PyOpenEditor.doOpenEditor(path);
+//        
+//                if(part instanceof PyEdit){
+//                    edit = (PyEdit) part;
+//                    doc = edit.getDocumentProvider().getDocument(edit.getEditorInput());
+//                }else{
+//                    String contents = REF.getFileContents(module.getFile());
+//                    doc = new Document(contents);
+//                }
+//            }        
 //        }
 //        
 //        fReplacementOffset = getReplacementOffset();
@@ -108,7 +108,7 @@
 //        }
 //
 //        //return original...
-//	    return fReplacementOffset; 
+//        return fReplacementOffset; 
 //    }
 //
 //    /**

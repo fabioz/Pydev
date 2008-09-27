@@ -89,8 +89,8 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
                         }
                         modelT = (ProjectionAnnotationModel) editor.getAdapter(ProjectionAnnotationModel.class);
                         if (modelT != null) {
-                        	addMarksToModel(root2, modelT);
-                        	break;
+                            addMarksToModel(root2, modelT);
+                            break;
                         }
                     }
                 }
@@ -173,18 +173,18 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
             int offset = document.getLineOffset(start);
             int endOffset = offset; 
             try {
-				endOffset = document.getLineOffset(end);
-			} catch (Exception e) {
-				//sometimes when we are at the last line, the command above will not work very well
-				IRegion lineInformation = document.getLineInformation(end);
-				endOffset = lineInformation.getOffset()+lineInformation.getLength();
-			}
+                endOffset = document.getLineOffset(end);
+            } catch (Exception e) {
+                //sometimes when we are at the last line, the command above will not work very well
+                IRegion lineInformation = document.getLineInformation(end);
+                endOffset = lineInformation.getOffset()+lineInformation.getLength();
+            }
             Position position = new Position(offset, endOffset - offset);
 
             return getAnnotationToAdd(position, node, model, existing);
 
         } catch (BadLocationException x) {
-        	//this could happen
+            //this could happen
         }
         return null;
     }
@@ -238,33 +238,33 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
         Preferences prefs = getPreferences();
         
         if(prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_IMPORTS)){
-        	elementList.add(Import.class);
-        	elementList.add(ImportFrom.class);
+            elementList.add(Import.class);
+            elementList.add(ImportFrom.class);
         }
         if(prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_CLASSDEF)){
-        	elementList.add(ClassDef.class);
+            elementList.add(ClassDef.class);
         }
         if(prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_FUNCTIONDEF)){
-        	elementList.add(FunctionDef.class);
+            elementList.add(FunctionDef.class);
         }
         if(prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_STRINGS)){
-        	elementList.add(Str.class);
+            elementList.add(Str.class);
         }
         if(prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_WHILE)){
-        	elementList.add(While.class);
+            elementList.add(While.class);
         }
         if(prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_IF)){
-        	elementList.add(If.class);
+            elementList.add(If.class);
         }
         if(prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_FOR)){
-        	elementList.add(For.class);
+            elementList.add(For.class);
         }
         if(prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_WITH)){
-        	elementList.add(With.class);
+            elementList.add(With.class);
         }
         if(prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_TRY)){
-        	elementList.add(TryExcept.class);
-        	elementList.add(TryFinally.class);
+            elementList.add(TryExcept.class);
+            elementList.add(TryFinally.class);
         }
         
         List<ASTEntry> nodes = visitor.getAsList(elementList.toArray(new Class[elementList.size()]));   
@@ -275,7 +275,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
         
         //and at last, get the comments
         if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_COMMENTS)){
-        	DocIterator it = new PySelection.DocIterator(true, new PySelection(doc,0));
+            DocIterator it = new PySelection.DocIterator(true, new PySelection(doc,0));
             while(it.hasNext()){
                 String string = it.next();
                 if(string.trim().startsWith("#")){
@@ -457,7 +457,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
     }
     
     
-	private static void addFoldingEntry(List<FoldingEntry> ret, FoldingEntry foldingEntry) {
+    private static void addFoldingEntry(List<FoldingEntry> ret, FoldingEntry foldingEntry) {
         //we only group comments and imports
         if(ret.size() > 0 && (foldingEntry.type == FoldingEntry.TYPE_COMMENT || foldingEntry.type == FoldingEntry.TYPE_IMPORT)){
             FoldingEntry prev = ret.get(ret.size()-1);

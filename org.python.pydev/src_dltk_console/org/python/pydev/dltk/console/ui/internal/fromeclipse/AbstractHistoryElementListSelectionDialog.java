@@ -81,8 +81,8 @@ public abstract class AbstractHistoryElementListSelectionDialog extends
      */
     protected void handleDefaultSelected() {
         if (validateCurrentSelection()) {
-			buttonPressed(IDialogConstants.OK_ID);
-		}
+            buttonPressed(IDialogConstants.OK_ID);
+        }
     }
 
     /**
@@ -177,10 +177,10 @@ public abstract class AbstractHistoryElementListSelectionDialog extends
      */
     public void setFilter(String filter) {
         if (fFilterText == null) {
-			fFilter = filter;
-		} else {
-			fFilterText.setText(filter);
-		}
+            fFilter = filter;
+        } else {
+            fFilterText.setText(filter);
+        }
     }
 
     /**
@@ -189,10 +189,10 @@ public abstract class AbstractHistoryElementListSelectionDialog extends
      */
     public String getFilter() {
         if (fFilteredList == null) {
-			return fFilter;
-		} else {
-			return fFilteredList.getFilter();
-		}
+            return fFilter;
+        } else {
+            return fFilteredList.getFilter();
+        }
     }
 
     /**
@@ -346,7 +346,7 @@ public abstract class AbstractHistoryElementListSelectionDialog extends
         data.verticalAlignment = GridData.FILL;
         list.setLayoutData(data);
         list.setFont(parent.getFont());
-        list.setFilter((fFilter == null ? "" : fFilter)); //$NON-NLS-1$		
+        list.setFilter((fFilter == null ? "" : fFilter)); //$NON-NLS-1$        
 
         list.addSelectionListener(new SelectionListener() {
             public void widgetDefaultSelected(SelectionEvent e) {
@@ -363,7 +363,7 @@ public abstract class AbstractHistoryElementListSelectionDialog extends
         return list;
     }
 
-    // 3515	
+    // 3515    
     private void handleWidgetSelected() {
         Object[] newSelection = fFilteredList.getSelection();
 
@@ -404,8 +404,8 @@ public abstract class AbstractHistoryElementListSelectionDialog extends
         text.addKeyListener(new KeyListener() {
             public void keyPressed(KeyEvent e) {
                 if (e.keyCode == SWT.ARROW_UP) {
-					fFilteredList.setFocus();
-				}
+                    fFilteredList.setFocus();
+                }
             }
 
             public void keyReleased(KeyEvent e) {
@@ -472,7 +472,7 @@ public abstract class AbstractHistoryElementListSelectionDialog extends
     protected void updateOkState() {
         Button okButton = getOkButton();
         if (okButton != null) {
-			okButton.setEnabled(getSelectedElements().length != 0);
-		}
+            okButton.setEnabled(getSelectedElements().length != 0);
+        }
     }
 }

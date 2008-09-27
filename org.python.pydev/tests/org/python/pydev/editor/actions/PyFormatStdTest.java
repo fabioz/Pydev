@@ -21,7 +21,7 @@ public class PyFormatStdTest extends TestCase {
 
     public static void main(String[] args) {
         try {
-	        PyFormatStdTest n = new PyFormatStdTest();
+            PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
 //            DEBUG = true;
             n.testCorrectExponentials();
@@ -126,34 +126,34 @@ public class PyFormatStdTest extends TestCase {
     }
     
     public void testNoFormatCommaOnNewLine(){
-    	std.spaceAfterComma = true;
-    	std.parametersWithSpace = false;
-    	
-    	String s = ""+
-    	"def a(a,\n" +
-    	"      b):\n"+
-    	"    pass\n";
-    	
-    	String s1 = ""+
-    	"def a(a,\n" +
-    	"      b):\n"+
-    	"    pass\n";
-    	
-    	checkFormatResults(s, s1);
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        
+        String s = ""+
+        "def a(a,\n" +
+        "      b):\n"+
+        "    pass\n";
+        
+        String s1 = ""+
+        "def a(a,\n" +
+        "      b):\n"+
+        "    pass\n";
+        
+        checkFormatResults(s, s1);
     }
 
     public void testFormatEscapedQuotes(){
-    	std.spaceAfterComma = false;
-    	std.parametersWithSpace = false;
-    	
-    	String s = ""+
-    	"foo(bar(\"\\\"\"))";
-    	
-    	checkFormatResults(s);
-    	
-    	s = ""+
-    	"foo(bar('''\\''''))";
-    	checkFormatResults(s);
+        std.spaceAfterComma = false;
+        std.parametersWithSpace = false;
+        
+        String s = ""+
+        "foo(bar(\"\\\"\"))";
+        
+        checkFormatResults(s);
+        
+        s = ""+
+        "foo(bar('''\\''''))";
+        checkFormatResults(s);
     }
     
 
@@ -359,7 +359,7 @@ public class PyFormatStdTest extends TestCase {
         std.parametersWithSpace = true;
 
         String s = "methodname.split( #'(' \n" +
-        		" )";
+                " )";
         
         checkFormatResults(s);
     }
@@ -379,9 +379,9 @@ public class PyFormatStdTest extends TestCase {
         std.parametersWithSpace = true;
 
         String s = "" +
-		"methodCall( a,\n"+
-		"            b \n"+
-		"           ) ";
+        "methodCall( a,\n"+
+        "            b \n"+
+        "           ) ";
 
         
         checkFormatResults(s);
@@ -502,28 +502,28 @@ public class PyFormatStdTest extends TestCase {
 
     
     public void testCorrectExponentials(){
-    	std.spaceAfterComma = true;
-    	std.parametersWithSpace = false;
-    	std.operatorsWithSpace = true;
-    	
-    	
-    	String s = "" +
-    	"a = 1e-6\n" + //operators should not have space
-    	"b = 1e+6\n" +
-    	"c = 1e3 + 6\n" +
-    	"d = 1e-3 - 6\n" +
-    	"e = 1+3 - 6\n" +
-    	"";
-    	
-    	String s1 = "" +
-    	"a = 1e-6\n" + //operators should not have space
-    	"b = 1e+6\n" +
-    	"c = 1e3 + 6\n" +
-    	"d = 1e-3 - 6\n" +
-    	"e = 1 + 3 - 6\n" +
-    	"";
-    	
-    	checkFormatResults(s, s1);
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        std.operatorsWithSpace = true;
+        
+        
+        String s = "" +
+        "a = 1e-6\n" + //operators should not have space
+        "b = 1e+6\n" +
+        "c = 1e3 + 6\n" +
+        "d = 1e-3 - 6\n" +
+        "e = 1+3 - 6\n" +
+        "";
+        
+        String s1 = "" +
+        "a = 1e-6\n" + //operators should not have space
+        "b = 1e+6\n" +
+        "c = 1e3 + 6\n" +
+        "d = 1e-3 - 6\n" +
+        "e = 1 + 3 - 6\n" +
+        "";
+        
+        checkFormatResults(s, s1);
     }
     
     public void testEqualsWithSpace(){

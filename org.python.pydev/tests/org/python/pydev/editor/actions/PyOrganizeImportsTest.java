@@ -64,7 +64,7 @@ String result = ""+
 "import b\n"+
 "\n";
 
-		assertEquals(result, doc.get());
+        assertEquals(result, doc.get());
 
     }
     
@@ -296,7 +296,7 @@ String result = ""+header+
 "import b\n"+
 "\n";
 
-		assertEquals(result, doc.get());
+        assertEquals(result, doc.get());
 
     }
 
@@ -327,7 +327,7 @@ String result = ""+header+
 "import b\n"+
 "\n";
 
-		assertEquals(result, doc.get());
+        assertEquals(result, doc.get());
 
     }
 
@@ -356,7 +356,7 @@ String result = ""+header+
 "import b\n"+
 "\n";
 
-		assertEquals(result, doc.get());
+        assertEquals(result, doc.get());
 
     }
     
@@ -382,24 +382,24 @@ String result = ""+header+
     }
     
     public void testPerform7() {
-    	
-    	
-    	String d = ""+
-    	"import sys\n"+
-    	"from os import pipe,\\\n"+
-    	"path\n"+
-    	"import time\n";
-    	
-    	Document doc = new Document(d);
-    	PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
-    	
-    	String result = ""+
-    	"from os import pipe,\\\n"+
-    	"path\n"+
-    	"import sys\n"+
-    	"import time\n";
-    	assertEquals(result, doc.get());
-    	
+        
+        
+        String d = ""+
+        "import sys\n"+
+        "from os import pipe,\\\n"+
+        "path\n"+
+        "import time\n";
+        
+        Document doc = new Document(d);
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        
+        String result = ""+
+        "from os import pipe,\\\n"+
+        "path\n"+
+        "import sys\n"+
+        "import time\n";
+        assertEquals(result, doc.get());
+        
     }
     
     public void testPerform6() {
@@ -434,7 +434,7 @@ String result = ""+header+
         Document doc = new Document(s);
         PyOrganizeImports.performSimpleSort(doc, "\n",0,2);
 
-		assertEquals(result, doc.get());
+        assertEquals(result, doc.get());
     }
     
     

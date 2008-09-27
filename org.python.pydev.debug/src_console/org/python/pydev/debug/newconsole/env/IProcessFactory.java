@@ -62,7 +62,7 @@ public class IProcessFactory {
      */
     public Tuple3<Launch, Process, Integer> createInteractiveLaunch()
             throws UserCanceledException, Exception {
-    	
+        
         IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
         IWorkbenchPage activePage = workbenchWindow.getActivePage();
         IEditorPart activeEditor = activePage.getActiveEditor();
@@ -75,46 +75,46 @@ public class IProcessFactory {
         
         ChooseProcessTypeDialog dialog = new ChooseProcessTypeDialog(getShell(), edit);
         if(dialog.open() == ChooseProcessTypeDialog.OK){
-	        
-        	Collection<String> pythonpath = dialog.getPythonpath();
-        	IInterpreterManager interpreterManager = dialog.getInterpreterManager();
-        	
-			if(pythonpath != null && interpreterManager != null){
-			    naturesUsed = dialog.getNatures();
-		        int port = SocketUtil.findUnusedLocalPort();
-		        int clientPort = SocketUtil.findUnusedLocalPort();
-		        
-		        final Launch launch = new Launch(null, "interactive", null);
-		        launch.setAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT, "false");
-		        launch.setAttribute(INTERACTIVE_LAUNCH_PORT, ""+port);
-		        
-		        String pythonpathEnv = SimpleRunner.makePythonPathEnvFromPaths(pythonpath);
-		        String[] env = SimpleRunner.createEnvWithPythonpath(pythonpathEnv);
-		
-		        File scriptWithinPySrc = PydevPlugin.getScriptWithinPySrc("pydevconsole.py");
-		        String[] commandLine;
-		        if(interpreterManager.isPython()){
-		        	commandLine = SimplePythonRunner.makeExecutableCommandStr(scriptWithinPySrc.getAbsolutePath(), 
-		        			new String[]{String.valueOf(port), String.valueOf(clientPort)});
-		        	
-		        }else if(interpreterManager.isJython()){
-		            String vmArgs = PydevDebugPlugin.getDefault().getPreferenceStore().
-		                getString(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS);
-		            
-		        	commandLine = SimpleJythonRunner.makeExecutableCommandStrWithVMArgs(scriptWithinPySrc.getAbsolutePath(), 
-		        			pythonpathEnv, vmArgs, new String[]{String.valueOf(port), String.valueOf(clientPort)});
-		        	
-		        }else{
-		        	throw new RuntimeException("Expected interpreter manager to be python or jython related.");
-		        }
-		        process = SimpleRunner.createProcess(commandLine, env, null);
-		        PydevSpawnedInterpreterProcess spawnedInterpreterProcess = 
-		        	new PydevSpawnedInterpreterProcess(process, launch);
-		        
-		        launch.addProcess(spawnedInterpreterProcess);
-		        
-		        return new Tuple3<Launch, Process, Integer>(launch, process, clientPort);
-        	}
+            
+            Collection<String> pythonpath = dialog.getPythonpath();
+            IInterpreterManager interpreterManager = dialog.getInterpreterManager();
+            
+            if(pythonpath != null && interpreterManager != null){
+                naturesUsed = dialog.getNatures();
+                int port = SocketUtil.findUnusedLocalPort();
+                int clientPort = SocketUtil.findUnusedLocalPort();
+                
+                final Launch launch = new Launch(null, "interactive", null);
+                launch.setAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT, "false");
+                launch.setAttribute(INTERACTIVE_LAUNCH_PORT, ""+port);
+                
+                String pythonpathEnv = SimpleRunner.makePythonPathEnvFromPaths(pythonpath);
+                String[] env = SimpleRunner.createEnvWithPythonpath(pythonpathEnv);
+        
+                File scriptWithinPySrc = PydevPlugin.getScriptWithinPySrc("pydevconsole.py");
+                String[] commandLine;
+                if(interpreterManager.isPython()){
+                    commandLine = SimplePythonRunner.makeExecutableCommandStr(scriptWithinPySrc.getAbsolutePath(), 
+                            new String[]{String.valueOf(port), String.valueOf(clientPort)});
+                    
+                }else if(interpreterManager.isJython()){
+                    String vmArgs = PydevDebugPlugin.getDefault().getPreferenceStore().
+                        getString(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS);
+                    
+                    commandLine = SimpleJythonRunner.makeExecutableCommandStrWithVMArgs(scriptWithinPySrc.getAbsolutePath(), 
+                            pythonpathEnv, vmArgs, new String[]{String.valueOf(port), String.valueOf(clientPort)});
+                    
+                }else{
+                    throw new RuntimeException("Expected interpreter manager to be python or jython related.");
+                }
+                process = SimpleRunner.createProcess(commandLine, env, null);
+                PydevSpawnedInterpreterProcess spawnedInterpreterProcess = 
+                    new PydevSpawnedInterpreterProcess(process, launch);
+                
+                launch.addProcess(spawnedInterpreterProcess);
+                
+                return new Tuple3<Launch, Process, Integer>(launch, process, clientPort);
+            }
         }
         return null;
     }

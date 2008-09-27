@@ -14,40 +14,40 @@ import org.eclipse.swt.widgets.Table;
 
 public class ButtonActivationListener implements Listener {
 
-	private Table table;
+    private Table table;
 
-	private Button upButton;
+    private Button upButton;
 
-	private Button downButton;
+    private Button downButton;
 
-	private Button editButton;
+    private Button editButton;
 
-	public ButtonActivationListener(Table table, Button upButton, Button downButton, Button editButton) {
-		this.table = table;
-		this.upButton = upButton;
-		this.downButton = downButton;
-		this.editButton = editButton;
-	}
+    public ButtonActivationListener(Table table, Button upButton, Button downButton, Button editButton) {
+        this.table = table;
+        this.upButton = upButton;
+        this.downButton = downButton;
+        this.editButton = editButton;
+    }
 
-	public void handleEvent(Event event) {
-		updateButtonState();
-	}
+    public void handleEvent(Event event) {
+        updateButtonState();
+    }
 
-	private void updateButtonState() {
-		editButton.setEnabled(false);
-		upButton.setEnabled(true);
-		downButton.setEnabled(true);
-		if (table.getSelectionCount() == 1) {
-			editButton.setEnabled(true);
-			if (table.getSelectionIndex() == table.getItemCount() - 1) {
-				downButton.setEnabled(false);
-			}
+    private void updateButtonState() {
+        editButton.setEnabled(false);
+        upButton.setEnabled(true);
+        downButton.setEnabled(true);
+        if (table.getSelectionCount() == 1) {
+            editButton.setEnabled(true);
+            if (table.getSelectionIndex() == table.getItemCount() - 1) {
+                downButton.setEnabled(false);
+            }
 
-			if (table.getSelectionIndex() == 0) {
-				upButton.setEnabled(false);
-			}
-		}
+            if (table.getSelectionIndex() == 0) {
+                upButton.setEnabled(false);
+            }
+        }
 
-	}
+    }
 
 }

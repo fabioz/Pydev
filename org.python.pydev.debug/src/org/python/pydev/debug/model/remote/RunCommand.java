@@ -10,11 +10,11 @@ package org.python.pydev.debug.model.remote;
  */
 public class RunCommand extends AbstractDebuggerCommand {
 
-	public RunCommand(AbstractRemoteDebugger debugger) {
-		super(debugger);
-	}
+    public RunCommand(AbstractRemoteDebugger debugger) {
+        super(debugger);
+    }
 
-	public String getOutgoing() {
-		return makeCommand(CMD_RUN, sequence, "");
-	}
+    public String getOutgoing() {
+        return makeCommand(CMD_RUN, sequence, "");
+    }
 }

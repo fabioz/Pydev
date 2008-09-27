@@ -49,7 +49,7 @@ public class FindScopeVisitor extends AbstractVisitor {
      * Only for subclasses
      */
     protected FindScopeVisitor(){
-    	
+        
     }
     
     /**
@@ -67,16 +67,16 @@ public class FindScopeVisitor extends AbstractVisitor {
      * @see org.python.pydev.parser.jython.ast.VisitorBase#unhandled_node(org.python.pydev.parser.jython.SimpleNode)
      */
     @SuppressWarnings("unchecked")
-	protected Object unhandled_node(SimpleNode node) throws Exception {
+    protected Object unhandled_node(SimpleNode node) throws Exception {
         //the line passed in starts at 1 and the lines for the visitor nodes start at 0
         if(! found && !(node instanceof Module)){
-	        if(line <= node.beginLine ){
-	            //scope is locked at this time.
-	            found = true;
-	            int original = scope.getIfMainLine();
-	            scope = new LocalScope((FastStack<SimpleNode>) this.stackScope.createCopy());
-	            scope.setIfMainLine(original);
-	        }
+            if(line <= node.beginLine ){
+                //scope is locked at this time.
+                found = true;
+                int original = scope.getIfMainLine();
+                scope = new LocalScope((FastStack<SimpleNode>) this.stackScope.createCopy());
+                scope.setIfMainLine(original);
+            }
         }else{
             if(scope.getScopeEndLine() == -1 && line < node.beginLine && col >= node.beginColumn){
                 scope.setScopeEndLine(node.beginLine); 
@@ -96,19 +96,19 @@ public class FindScopeVisitor extends AbstractVisitor {
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitIf(org.python.pydev.parser.jython.ast.If)
      */
     public Object visitIf(If node) throws Exception {
-    	checkIfMainNode(node);
+        checkIfMainNode(node);
         return super.visitIf(node);
     }
 
     /**
      * Checks if we found an 'if' main node
      */
-	protected void checkIfMainNode(If node) {
-		boolean isIfMainNode = NodeUtils.isIfMAinNode(node);
+    protected void checkIfMainNode(If node) {
+        boolean isIfMainNode = NodeUtils.isIfMAinNode(node);
         if(isIfMainNode){
             scope.setIfMainLine(node.beginLine);
         }
-	}
+    }
 
     
     /**
@@ -116,9 +116,9 @@ public class FindScopeVisitor extends AbstractVisitor {
      */
     public Object visitClassDef(ClassDef node) throws Exception {
         if(!found){
-	        stackScope.push(node);
-	        node.traverse(this);
-	        stackScope.pop();
+            stackScope.push(node);
+            node.traverse(this);
+            stackScope.pop();
         }
         return super.visitClassDef(node);
     }
@@ -128,9 +128,9 @@ public class FindScopeVisitor extends AbstractVisitor {
      */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         if(!found){
-	        stackScope.push(node);
-	        node.traverse(this);
-	        stackScope.pop();
+            stackScope.push(node);
+            node.traverse(this);
+            stackScope.pop();
         }
         return super.visitFunctionDef(node);
     }

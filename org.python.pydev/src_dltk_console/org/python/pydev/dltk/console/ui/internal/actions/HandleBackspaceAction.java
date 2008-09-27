@@ -12,14 +12,14 @@ import org.python.pydev.editor.actions.PyBackspace;
  */
 public class HandleBackspaceAction {
 
-	public void execute(IDocument doc, ITextSelection selection, int commandLineOffset) {
+    public void execute(IDocument doc, ITextSelection selection, int commandLineOffset) {
 
-		
-		PyBackspace pyBackspace = new PyBackspace();
+        
+        PyBackspace pyBackspace = new PyBackspace();
         pyBackspace.setDontEraseMoreThan(commandLineOffset);
         PySelection ps = new PySelection(doc, selection);
         
-		pyBackspace.perform(ps);
-	}
+        pyBackspace.perform(ps);
+    }
 
 }

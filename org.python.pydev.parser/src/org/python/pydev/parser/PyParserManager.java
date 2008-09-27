@@ -87,12 +87,12 @@ public class PyParserManager {
             public void propertyChange(PropertyChangeEvent event) {
                 String property = event.getProperty();
                 if(property.equals(USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE) || property.equals(PYDEV_ELAPSE_BEFORE_ANALYSIS)){
-                	//reset the caches
-                	millisBeforeAnalysis = PyParserManager.this.prefs.getInt(PYDEV_ELAPSE_BEFORE_ANALYSIS);
-                	useOnlyOnSave = PyParserManager.this.prefs.getBoolean(USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE);
-                	
-                	
-                	//and set the needed parsers
+                    //reset the caches
+                    millisBeforeAnalysis = PyParserManager.this.prefs.getInt(PYDEV_ELAPSE_BEFORE_ANALYSIS);
+                    useOnlyOnSave = PyParserManager.this.prefs.getBoolean(USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE);
+                    
+                    
+                    //and set the needed parsers
                     boolean useAnalysisOnlyOnDocSave = useAnalysisOnlyOnDocSave();
                     
                     synchronized(lock){

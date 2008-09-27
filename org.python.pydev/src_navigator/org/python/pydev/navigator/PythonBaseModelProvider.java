@@ -99,10 +99,10 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
      * Notification received when the pythonpath has been changed or rebuilt.
      */
     public void notifyPythonPathRebuilt(IProject project, List<String> projectPythonpath) {
-    	if(project == null){
-    		return;
-    	}
-    	internalDoNotifyPythonPathRebuilt(project, projectPythonpath);
+        if(project == null){
+            return;
+        }
+        internalDoNotifyPythonPathRebuilt(project, projectPythonpath);
     }
 
     /**
@@ -113,36 +113,36 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
     public IResource internalDoNotifyPythonPathRebuilt(IProject project, List<String> projectPythonpath) {
         IResource refreshObject = project;
         if(DEBUG){
-    		System.out.println("\n\nRebuilding pythonpath: "+project+" - "+projectPythonpath);
-    	}
-    	HashSet<Path> projectPythonpathSet = new HashSet<Path>();
-    	for (String string : projectPythonpath) {
-    		Path newPath = new Path(string);
-    		if(project.getLocation().equals(newPath)){
-    		    refreshObject = project.getParent();
-    		}
+            System.out.println("\n\nRebuilding pythonpath: "+project+" - "+projectPythonpath);
+        }
+        HashSet<Path> projectPythonpathSet = new HashSet<Path>();
+        for (String string : projectPythonpath) {
+            Path newPath = new Path(string);
+            if(project.getLocation().equals(newPath)){
+                refreshObject = project.getParent();
+            }
             projectPythonpathSet.add(newPath);
-		}
+        }
 
         Map<IProject, Set<PythonSourceFolder>> p = projectToSourceFolders;
         if(p != null){
-        	Set<PythonSourceFolder> existingSourceFolders = p.get(project);
-        	
-        	if(existingSourceFolders != null){
-            	//iterate in a copy
-            	for (PythonSourceFolder pythonSourceFolder : new HashSet<PythonSourceFolder>(existingSourceFolders)) {
-    				IPath fullPath = pythonSourceFolder.container.getLocation();
-    				if(!projectPythonpathSet.contains(fullPath)){
-    				    if(pythonSourceFolder instanceof PythonProjectSourceFolder){
-    				        refreshObject = project.getParent();
-    				    }
-    					existingSourceFolders.remove(pythonSourceFolder);//it's not a valid source folder anymore...
-    					if(DEBUG){
-    						System.out.println("Removing:"+pythonSourceFolder+" - "+fullPath);
-    					}
-    				}
-            	}
-			}
+            Set<PythonSourceFolder> existingSourceFolders = p.get(project);
+            
+            if(existingSourceFolders != null){
+                //iterate in a copy
+                for (PythonSourceFolder pythonSourceFolder : new HashSet<PythonSourceFolder>(existingSourceFolders)) {
+                    IPath fullPath = pythonSourceFolder.container.getLocation();
+                    if(!projectPythonpathSet.contains(fullPath)){
+                        if(pythonSourceFolder instanceof PythonProjectSourceFolder){
+                            refreshObject = project.getParent();
+                        }
+                        existingSourceFolders.remove(pythonSourceFolder);//it's not a valid source folder anymore...
+                        if(DEBUG){
+                            System.out.println("Removing:"+pythonSourceFolder+" - "+fullPath);
+                        }
+                    }
+                }
+            }
         }
         
         
@@ -544,39 +544,39 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
      * (non-Javadoc) Method declared on IContentProvider.
      */
     public void dispose() {
-    	try{
-	        this.projectToSourceFolders = null;
-	        if (viewer != null) {
-	            IWorkspace[] workspace = null;
-	            Object obj = viewer.getInput();
-	            if (obj instanceof IWorkspace) {
-	                workspace = new IWorkspace[]{(IWorkspace) obj};
-	            } else if (obj instanceof IContainer) {
-	                workspace = new IWorkspace[]{((IContainer) obj).getWorkspace()};
-	            } else if (obj instanceof IWorkingSet) {
-	                IWorkingSet newWorkingSet = (IWorkingSet) obj;
-	                workspace = getWorkspaces(newWorkingSet);
-	            }
-	            
-	            if (workspace != null) {
-	                for (IWorkspace w : workspace) {
-	                    w.removeResourceChangeListener(this);
-	                }
-	            }
-	        }
-	        
-	        PythonNatureListenersManager.removePythonNatureListener(this);
-    	}catch (Exception e) {
-			PydevPlugin.log(e);
-    	}
-    	
-    	try{
-	        super.dispose();
-    	}catch (Exception e) {
-    		PydevPlugin.log(e);
-		}
+        try{
+            this.projectToSourceFolders = null;
+            if (viewer != null) {
+                IWorkspace[] workspace = null;
+                Object obj = viewer.getInput();
+                if (obj instanceof IWorkspace) {
+                    workspace = new IWorkspace[]{(IWorkspace) obj};
+                } else if (obj instanceof IContainer) {
+                    workspace = new IWorkspace[]{((IContainer) obj).getWorkspace()};
+                } else if (obj instanceof IWorkingSet) {
+                    IWorkingSet newWorkingSet = (IWorkingSet) obj;
+                    workspace = getWorkspaces(newWorkingSet);
+                }
+                
+                if (workspace != null) {
+                    for (IWorkspace w : workspace) {
+                        w.removeResourceChangeListener(this);
+                    }
+                }
+            }
+            
+            PythonNatureListenersManager.removePythonNatureListener(this);
+        }catch (Exception e) {
+            PydevPlugin.log(e);
+        }
+        
+        try{
+            super.dispose();
+        }catch (Exception e) {
+            PydevPlugin.log(e);
+        }
     }
-    	
+        
 
     /*
      * (non-Javadoc) Method declared on IContentProvider.
@@ -668,10 +668,10 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
      * @param runnables
      */
     private void processRunnables(final Collection<Runnable> runnables) {
-    	if(viewer == null){
-    		return;
-    	}
-    	
+        if(viewer == null){
+            return;
+        }
+        
         Control ctrl = viewer.getControl();
         if (ctrl == null || ctrl.isDisposed()) {
             return;
@@ -712,7 +712,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
         Iterator<Runnable> runnableIterator = runnables.iterator();
         while (runnableIterator.hasNext()) {
             Runnable runnable = runnableIterator.next();
-			runnable.run();
+            runnable.run();
         }
     }
 

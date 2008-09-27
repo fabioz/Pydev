@@ -7,5 +7,5 @@ package org.python.pydev.plugin;
  */
 public class DebugSettings {
 
-	public final static boolean DEBUG_ANALYSIS_REQUESTS = false;
+    public final static boolean DEBUG_ANALYSIS_REQUESTS = false;
 }

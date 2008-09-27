@@ -52,32 +52,32 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * 
      * Higher priorities are minor numbers (and vice-versa).
      */
-	public static final int PRIORITY_DEFAULT = 5;
+    public static final int PRIORITY_DEFAULT = 5;
 
-	/**
-	 * Maximum priority is 0
-	 */
-	public static final int PRIORITY_MAX = 0;
-	
-	/**
-	 * Minimum priority is 10
-	 */
-	public static final int PRIORITY_MIN = 10;
-	
-	/**
-	 * Compares them by priority (they are ordered before visiting by priority, so, this can
-	 * be useful if some visitor needs to run only after some other visitor was executed).
-	 */
+    /**
+     * Maximum priority is 0
+     */
+    public static final int PRIORITY_MAX = 0;
+    
+    /**
+     * Minimum priority is 10
+     */
+    public static final int PRIORITY_MIN = 10;
+    
+    /**
+     * Compares them by priority (they are ordered before visiting by priority, so, this can
+     * be useful if some visitor needs to run only after some other visitor was executed).
+     */
     public int compareTo(PyDevBuilderVisitor o) {
-    	int priority = getPriority();
-    	int otherPriority = o.getPriority();
-    	if(priority < otherPriority){
-    		return -1;
-    	}
-    	if(otherPriority < priority){
-    		return 1;
-    	}
-    	return 0; //equal
+        int priority = getPriority();
+        int otherPriority = o.getPriority();
+        if(priority < otherPriority){
+            return -1;
+        }
+        if(otherPriority < priority){
+            return 1;
+        }
+        return 0; //equal
     }
     
     /**
@@ -85,10 +85,10 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * lower numbers -- are visited before)
      */
     protected int getPriority() {
-    	return PRIORITY_DEFAULT;
-	}
+        return PRIORITY_DEFAULT;
+    }
 
-	/**
+    /**
      * This field acts like a memory. 
      * 
      * It is set before a given resource is visited, and is maintained 
@@ -125,7 +125,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * @return the module that is created by the given resource
      */
     protected SourceModule getSourceModule(IResource resource, IDocument document, IPythonNature nature) {
-    	SourceModule module = (SourceModule) memo.get(MODULE_CACHE);
+        SourceModule module = (SourceModule) memo.get(MODULE_CACHE);
         if(module == null){
             module = createSoureModule(resource, document, getModuleName(resource, nature));
             setModuleInCache(module);
@@ -139,7 +139,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * @return
      */
     private static SourceModule createSoureModule(IResource resource, IDocument document, String moduleName) {
-    	SourceModule module;
+        SourceModule module;
         PythonNature nature = PythonNature.getPythonNature(resource.getProject());
         IFile f = (IFile) resource;
         String file = f.getRawLocation().toOSString();
@@ -174,7 +174,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
             if(moduleName != null){
                 setModuleNameInCache(moduleName);
             }else{
-            	throw new RuntimeException("Unable to resolve module for:"+resource);
+                throw new RuntimeException("Unable to resolve module for:"+resource);
             }
         }
         return moduleName;
@@ -204,9 +204,9 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * @return true if it is in the pythonpath
      */
     public static boolean isInPythonPath(IResource resource){
-    	if(resource == null){
-    		return false;
-    	}
+        if(resource == null){
+            return false;
+        }
         IProject project = resource.getProject();
         PythonNature nature = PythonNature.getPythonNature(project);
         if(project != null && nature != null){
@@ -238,7 +238,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
         }
     }
     
-	/**
+    /**
      * @param toRet
      * @param parent
      * @throws CoreException
@@ -257,15 +257,15 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
 
 
 
-	/**
-	 * 
-	 * @return the maximun number of resources that it is allowed to visit (if this
-	 * number is higher than the number of resources changed, this visitor is not called).
+    /**
+     * 
+     * @return the maximun number of resources that it is allowed to visit (if this
+     * number is higher than the number of resources changed, this visitor is not called).
      */
     public int maxResourcesToVisit() {
         return MAX_TO_VISIT_INFINITE;
     }
-	
+    
     /**
      * if all the files below a folder that has an __init__.py just added or removed should 
      * be visited, this method should return true, otherwise it should return false 

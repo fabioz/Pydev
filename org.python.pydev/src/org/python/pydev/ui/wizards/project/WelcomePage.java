@@ -29,9 +29,9 @@ public class WelcomePage extends WizardPage {
     }
     
     public void createControl(Composite parent) {
-    	            
+                    
         setDescription("Python project creation requirements");
-    	
+        
         mainContainer=new Composite(parent, SWT.NONE);
         GridData data=new GridData(GridData.FILL_BOTH);
         mainContainer.setLayoutData(data);

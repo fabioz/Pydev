@@ -18,66 +18,66 @@ import org.python.pydev.core.docutils.DocUtils;
  */
 public class PyDoubleClickStrategy implements ITextDoubleClickStrategy {
 
-	protected PythonPairMatcher fPairMatcher = new PythonPairMatcher(DocUtils.BRACKETS);
+    protected PythonPairMatcher fPairMatcher = new PythonPairMatcher(DocUtils.BRACKETS);
 
-	/**
-	 * @see ITextDoubleClickStrategy#doubleClicked
-	 */
-	public void doubleClicked(ITextViewer textViewer) {
+    /**
+     * @see ITextDoubleClickStrategy#doubleClicked
+     */
+    public void doubleClicked(ITextViewer textViewer) {
 
-		int offset = textViewer.getSelectedRange().x;
+        int offset = textViewer.getSelectedRange().x;
 
-		if (offset < 0)
-			return;
+        if (offset < 0)
+            return;
 
-		IDocument document = textViewer.getDocument();
+        IDocument document = textViewer.getDocument();
 
-		IRegion region = fPairMatcher.match(document, offset);
-		if (region != null && region.getLength() >= 2){
-			textViewer.setSelectedRange(region.getOffset() + 1, region.getLength() - 2);
-		}else{
-			selectWord(textViewer, document, offset);
-		}
-	}
+        IRegion region = fPairMatcher.match(document, offset);
+        if (region != null && region.getLength() >= 2){
+            textViewer.setSelectedRange(region.getOffset() + 1, region.getLength() - 2);
+        }else{
+            selectWord(textViewer, document, offset);
+        }
+    }
 
-	protected void selectWord(ITextViewer textViewer, IDocument document, int anchor) {
+    protected void selectWord(ITextViewer textViewer, IDocument document, int anchor) {
 
-		try {
+        try {
 
-			int offset = anchor;
-			char c;
+            int offset = anchor;
+            char c;
 
-			while (offset >= 0) {
-				c = document.getChar(offset);
-				if (!Character.isJavaIdentifierPart(c)){
-					break;
-				}
-					
-				--offset;
-			}
+            while (offset >= 0) {
+                c = document.getChar(offset);
+                if (!Character.isJavaIdentifierPart(c)){
+                    break;
+                }
+                    
+                --offset;
+            }
 
-			int start = offset;
+            int start = offset;
 
-			offset = anchor;
-			int length = document.getLength();
+            offset = anchor;
+            int length = document.getLength();
 
-			while (offset < length) {
-				c = document.getChar(offset);
-				if (!Character.isJavaIdentifierPart(c)){
-					break;
-				}
-				++offset;
-			}
+            while (offset < length) {
+                c = document.getChar(offset);
+                if (!Character.isJavaIdentifierPart(c)){
+                    break;
+                }
+                ++offset;
+            }
 
-			int end = offset;
+            int end = offset;
 
-			if (start == end){
-				textViewer.setSelectedRange(start, 0);
-			}else{
-				textViewer.setSelectedRange(start + 1, end - start - 1);
-			}
+            if (start == end){
+                textViewer.setSelectedRange(start, 0);
+            }else{
+                textViewer.setSelectedRange(start + 1, end - start - 1);
+            }
 
-		} catch (BadLocationException x) {
-		}
-	}
+        } catch (BadLocationException x) {
+        }
+    }
 }

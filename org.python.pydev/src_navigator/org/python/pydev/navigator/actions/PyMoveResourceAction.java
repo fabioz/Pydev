@@ -67,7 +67,7 @@ public class PyMoveResourceAction extends MoveResourceAction{
     
     @Override
     public IStructuredSelection getStructuredSelection() {
-    	return new StructuredSelection(selected);
+        return new StructuredSelection(selected);
     }
     
     /*

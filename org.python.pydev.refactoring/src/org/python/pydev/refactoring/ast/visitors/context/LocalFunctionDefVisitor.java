@@ -13,15 +13,15 @@ import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 
 public class LocalFunctionDefVisitor extends GlobalFunctionDefVisitor {
 
-	public LocalFunctionDefVisitor(ModuleAdapter module, AbstractScopeNode<?> parent) {
-		super(module, parent);
-	}
+    public LocalFunctionDefVisitor(ModuleAdapter module, AbstractScopeNode<?> parent) {
+        super(module, parent);
+    }
 
-	@Override
-	public void visit(SimpleNode node) throws Exception {
-		if (nodeHelper.isClassDef(node)) {
-			return;
-		}
-		super.visit(node);
-	}
+    @Override
+    public void visit(SimpleNode node) throws Exception {
+        if (nodeHelper.isClassDef(node)) {
+            return;
+        }
+        super.visit(node);
+    }
 }

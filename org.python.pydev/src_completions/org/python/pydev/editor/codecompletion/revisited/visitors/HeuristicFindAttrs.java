@@ -101,27 +101,27 @@ public class HeuristicFindAttrs extends AbstractVisitor {
      */
     public Object visitCall(Call node) throws Exception {
         if(entryPointCorrect == false && methodCall.length() > 0){
-	        entryPointCorrect = true;
-	        String[] c = StringUtils.dotSplit(methodCall);
-	        
-	        
-	        
-	        if (node.func instanceof Attribute){
-		        Attribute func = (Attribute)node.func;
-		        if(((NameTok)func.attr).id.equals(c[1])){
-		        
-			        if(func.value instanceof Name){
-			            Name name = (Name) func.value;
-			            if(name.id.equals(c[0])){
-			                for (int i=0; i<node.keywords.length; i++){
-			                    addToken(node.keywords[i]);
-			                }
-			            }
-			        }
-		        }
-	        }
-	        
-	        entryPointCorrect = false;
+            entryPointCorrect = true;
+            String[] c = StringUtils.dotSplit(methodCall);
+            
+            
+            
+            if (node.func instanceof Attribute){
+                Attribute func = (Attribute)node.func;
+                if(((NameTok)func.attr).id.equals(c[1])){
+                
+                    if(func.value instanceof Name){
+                        Name name = (Name) func.value;
+                        if(name.id.equals(c[0])){
+                            for (int i=0; i<node.keywords.length; i++){
+                                addToken(node.keywords[i]);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            entryPointCorrect = false;
         }
         return null;
     }
@@ -132,17 +132,17 @@ public class HeuristicFindAttrs extends AbstractVisitor {
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         stack.push(node);
         if(entryPointCorrect == false){
-	        entryPointCorrect = true;
-	        inFuncDef = true;
-	        
-	        if(where == WHITIN_ANY){
-	            node.traverse(this);
-	        
-	        } else if(where == WHITIN_INIT && node.name.equals("__init__")){
-	            node.traverse(this);
-	        }
-	        entryPointCorrect = false;
-	        inFuncDef = false;
+            entryPointCorrect = true;
+            inFuncDef = true;
+            
+            if(where == WHITIN_ANY){
+                node.traverse(this);
+            
+            } else if(where == WHITIN_INIT && node.name.equals("__init__")){
+                node.traverse(this);
+            }
+            entryPointCorrect = false;
+            inFuncDef = false;
         } 
         stack.pop();
         
@@ -180,17 +180,17 @@ public class HeuristicFindAttrs extends AbstractVisitor {
                     }
                     
                 }else if(node.targets[i] instanceof Tuple && inFuncDef == false){
-                	//that's for finding the definition: a,b,c = range(3) inside a class definition
-                	Tuple tuple = (Tuple) node.targets[i];
-                	for(exprType t :tuple.elts){
-                		if(t instanceof Name){
-                			String id = ((Name)t).id;
-                			if(id != null){
-                				addToken(t);
-                			}
-                		}
-                	}
-                	
+                    //that's for finding the definition: a,b,c = range(3) inside a class definition
+                    Tuple tuple = (Tuple) node.targets[i];
+                    for(exprType t :tuple.elts){
+                        if(t instanceof Name){
+                            String id = ((Name)t).id;
+                            if(id != null){
+                                addToken(t);
+                            }
+                        }
+                    }
+                    
                 }
             }
             

@@ -6,9 +6,9 @@ import org.python.pydev.editor.actions.PyAction;
 
 public class RunEditorAsPython extends PyAction{
 
-	public void run(IAction action) {
-		LaunchShortcut shortcut = new LaunchShortcut();
-		shortcut.launch(getPyEdit(), "run");
-	}
+    public void run(IAction action) {
+        LaunchShortcut shortcut = new LaunchShortcut();
+        shortcut.launch(getPyEdit(), "run");
+    }
 
 }

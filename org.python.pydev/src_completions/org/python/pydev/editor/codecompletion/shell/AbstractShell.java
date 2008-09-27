@@ -129,26 +129,26 @@ public abstract class AbstractShell {
      *
      */
     public synchronized static void shutdownAllShells(){
-    	synchronized(shells){
-	        for (Iterator<Map<Integer, AbstractShell>> iter = shells.values().iterator(); iter.hasNext();) {
-	            finishedForGood = true;  //we may no longer restart shells
-	            
-	            Map<Integer,AbstractShell> rel = (Map<Integer, AbstractShell>) iter.next();
-	            if(rel != null){
-	                for (Iterator iter2 = rel.values().iterator(); iter2.hasNext();) {
-	                    AbstractShell element = (AbstractShell) iter2.next();
-	                    if(element != null){
-	                        try {
-	                            element.shutdown(); //shutdown
-	                        } catch (Exception e) {
-	                            PydevPlugin.log(e); //let's log it... this should not happen
-	                        }
-	                    }
-	                }
-	            }
-	        }
-	        shells.clear();
-    	}
+        synchronized(shells){
+            for (Iterator<Map<Integer, AbstractShell>> iter = shells.values().iterator(); iter.hasNext();) {
+                finishedForGood = true;  //we may no longer restart shells
+                
+                Map<Integer,AbstractShell> rel = (Map<Integer, AbstractShell>) iter.next();
+                if(rel != null){
+                    for (Iterator iter2 = rel.values().iterator(); iter2.hasNext();) {
+                        AbstractShell element = (AbstractShell) iter2.next();
+                        if(element != null){
+                            try {
+                                element.shutdown(); //shutdown
+                            } catch (Exception e) {
+                                PydevPlugin.log(e); //let's log it... this should not happen
+                            }
+                        }
+                    }
+                }
+            }
+            shells.clear();
+        }
     }
 
     /**
@@ -156,15 +156,15 @@ public abstract class AbstractShell {
      * @return a map with the type of the shell mapping to the shell itself
      */
     private synchronized static Map<Integer, AbstractShell> getTypeToShellFromId(int relatedId) {
-    	synchronized(shells){
-	        Map<Integer, AbstractShell> typeToShell = shells.get(relatedId);
-	        
-	        if (typeToShell == null) {
-	            typeToShell = new HashMap<Integer, AbstractShell>();
-	            shells.put(relatedId, typeToShell);
-	        }
-	        return typeToShell;
-    	}
+        synchronized(shells){
+            Map<Integer, AbstractShell> typeToShell = shells.get(relatedId);
+            
+            if (typeToShell == null) {
+                typeToShell = new HashMap<Integer, AbstractShell>();
+                shells.put(relatedId, typeToShell);
+            }
+            return typeToShell;
+        }
     }
 
     /**
@@ -205,44 +205,44 @@ public abstract class AbstractShell {
      * @throws IOException
      */
     public synchronized static AbstractShell getServerShell(int relatedId, int id) throws IOException, JDTNotAvailableException, CoreException {
-    	AbstractShell pythonShell = null;
-    	synchronized(shells){
-    	    if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
-    	        Log.toLogFile("Synchronizing on shells...", AbstractShell.class);
-    	    }
+        AbstractShell pythonShell = null;
+        synchronized(shells){
+            if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+                Log.toLogFile("Synchronizing on shells...", AbstractShell.class);
+            }
             if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
                 Log.toLogFile( "Getting shell relatedId:"+relatedId+" id:"+id, AbstractShell.class);
             }
-	        Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(relatedId);
-	        pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
-	        
-	        if(pythonShell == null){
+            Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(relatedId);
+            pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
+            
+            if(pythonShell == null){
                 if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
                     Log.toLogFile("pythonShell == null", AbstractShell.class);
                 }
-	            if(relatedId == IPythonNature.PYTHON_RELATED){
-	                pythonShell = new PythonShell();
-	            }else if(relatedId == IPythonNature.JYTHON_RELATED){
-	                pythonShell = new JythonShell();
-	            }else{
-	                throw new RuntimeException("unknown related id");
-	            }
+                if(relatedId == IPythonNature.PYTHON_RELATED){
+                    pythonShell = new PythonShell();
+                }else if(relatedId == IPythonNature.JYTHON_RELATED){
+                    pythonShell = new JythonShell();
+                }else{
+                    throw new RuntimeException("unknown related id");
+                }
                 if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
                     Log.toLogFile("pythonShell.startIt()", AbstractShell.class);
                     Log.addLogLevel();
                 }
-            	pythonShell.startIt(); //first start it
-            	if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
-            	    Log.remLogLevel();
-            	    Log.toLogFile("Finished pythonShell.startIt()", AbstractShell.class);
-            	}
-	            
-	            //then make it accessible
-	            typeToShell.put(new Integer(id), pythonShell);
-	        }
+                pythonShell.startIt(); //first start it
+                if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+                    Log.remLogLevel();
+                    Log.toLogFile("Finished pythonShell.startIt()", AbstractShell.class);
+                }
+                
+                //then make it accessible
+                typeToShell.put(new Integer(id), pythonShell);
+            }
             
-    	}
-    	return pythonShell;
+        }
+        return pythonShell;
     }
 
     /**
@@ -308,9 +308,9 @@ public abstract class AbstractShell {
      * @throws CoreException
      */
     public synchronized void startIt() throws IOException, JDTNotAvailableException, CoreException {
-    	synchronized(this){
-    		this.startIt(AbstractShell.DEFAULT_SLEEP_BETWEEN_ATTEMPTS);
-    	}
+        synchronized(this){
+            this.startIt(AbstractShell.DEFAULT_SLEEP_BETWEEN_ATTEMPTS);
+        }
     }
 
 
@@ -325,139 +325,139 @@ public abstract class AbstractShell {
      * @throws CoreException
      */
     protected synchronized void startIt(int milisSleep) throws IOException, JDTNotAvailableException, CoreException {
-    	if(inStart || isConnected){
-    		//it is already in the process of starting, so, if we are in another thread, just forget about it.
-    		return;
-    	}
-    	inStart = true;
+        if(inStart || isConnected){
+            //it is already in the process of starting, so, if we are in another thread, just forget about it.
+            return;
+        }
+        inStart = true;
         try {
-			if (finishedForGood) {
-				throw new RuntimeException(
-						"Shells are already finished for good, so, it is an invalid state to try to restart it.");
-			}
+            if (finishedForGood) {
+                throw new RuntimeException(
+                        "Shells are already finished for good, so, it is an invalid state to try to restart it.");
+            }
 
-			try {
+            try {
 
-				int pWrite = SocketUtil.findUnusedLocalPort();
-				int pRead = SocketUtil.findUnusedLocalPort();
+                int pWrite = SocketUtil.findUnusedLocalPort();
+                int pRead = SocketUtil.findUnusedLocalPort();
 
-				if (process != null) {
-					endIt(); //end the current process
-				}
+                if (process != null) {
+                    endIt(); //end the current process
+                }
 
-				String execMsg = createServerProcess(pWrite, pRead);
-				dbg("executing " + execMsg,1);
+                String execMsg = createServerProcess(pWrite, pRead);
+                dbg("executing " + execMsg,1);
 
-				sleepALittle(200);
-				String osName = System.getProperty("os.name");
-				if (process == null) {
-					String msg = "Error creating python process - got null process(" + execMsg + ") - os:" + osName;
+                sleepALittle(200);
+                String osName = System.getProperty("os.name");
+                if (process == null) {
+                    String msg = "Error creating python process - got null process(" + execMsg + ") - os:" + osName;
                     dbg(msg, 1);
                     PydevPlugin.log(msg);
-					throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
-				}
-				try {
-					int exitVal = process.exitValue(); //should throw exception saying that it still is not terminated...
-					String msg = "Error creating python process - exited before creating sockets - exitValue = ("+ exitVal + ")(" + execMsg + ") - os:" + osName;
-					dbg(msg, 1);
-					PydevPlugin.log(msg);
-					throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
-				} catch (IllegalThreadStateException e2) { //this is ok
-				}
+                    throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
+                }
+                try {
+                    int exitVal = process.exitValue(); //should throw exception saying that it still is not terminated...
+                    String msg = "Error creating python process - exited before creating sockets - exitValue = ("+ exitVal + ")(" + execMsg + ") - os:" + osName;
+                    dbg(msg, 1);
+                    PydevPlugin.log(msg);
+                    throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
+                } catch (IllegalThreadStateException e2) { //this is ok
+                }
 
-				dbg("afterCreateProcess ",1);
-				//ok, process validated, so, let's get its output and store it for further use.
-				afterCreateProcess();
+                dbg("afterCreateProcess ",1);
+                //ok, process validated, so, let's get its output and store it for further use.
+                afterCreateProcess();
 
-				boolean connected = false;
-				int attempts = 0;
+                boolean connected = false;
+                int attempts = 0;
 
-				dbg("connecting... ",1);
-				sleepALittle(milisSleep);
-				socketToWrite = null;
-				serverSocket = new ServerSocket(pRead); //read in this port
-				int maxAttempts = PyCodeCompletionPreferencesPage.getNumberOfConnectionAttempts();
-				while (!connected && attempts < maxAttempts && !finishedForGood) {
-					attempts += 1;
-					dbg("connecting attept..."+attempts,1);
-					try {
-						if (socketToWrite == null || socketToWrite.isConnected() == false) {
-							socketToWrite = new Socket("127.0.0.1", pWrite); //we should write in this port
-						}
+                dbg("connecting... ",1);
+                sleepALittle(milisSleep);
+                socketToWrite = null;
+                serverSocket = new ServerSocket(pRead); //read in this port
+                int maxAttempts = PyCodeCompletionPreferencesPage.getNumberOfConnectionAttempts();
+                while (!connected && attempts < maxAttempts && !finishedForGood) {
+                    attempts += 1;
+                    dbg("connecting attept..."+attempts,1);
+                    try {
+                        if (socketToWrite == null || socketToWrite.isConnected() == false) {
+                            socketToWrite = new Socket("127.0.0.1", pWrite); //we should write in this port
+                        }
 
-						if (socketToWrite != null || socketToWrite.isConnected()) {
-							serverSocket.setSoTimeout(milisSleep * 2); //let's give it a higher timeout, as we're already half - connected
-							try {
-								socketToRead = serverSocket.accept();
+                        if (socketToWrite != null || socketToWrite.isConnected()) {
+                            serverSocket.setSoTimeout(milisSleep * 2); //let's give it a higher timeout, as we're already half - connected
+                            try {
+                                socketToRead = serverSocket.accept();
                                 socketToRead.setSoTimeout(5000);
-								connected = true;
-								dbg("connected! ",1);
-							} catch (SocketTimeoutException e) {
-								//that's ok, timeout for waiting connection expired, let's check it again in the next loop
-							}
-						}
-					} catch (IOException e1) {
-						if (socketToWrite != null && socketToWrite.isConnected() == true) {
-							String msg = "Attempt: " + attempts + " of " + maxAttempts + 
+                                connected = true;
+                                dbg("connected! ",1);
+                            } catch (SocketTimeoutException e) {
+                                //that's ok, timeout for waiting connection expired, let's check it again in the next loop
+                            }
+                        }
+                    } catch (IOException e1) {
+                        if (socketToWrite != null && socketToWrite.isConnected() == true) {
+                            String msg = "Attempt: " + attempts + " of " + maxAttempts + 
                             " failed, trying again...(socketToWrite already binded)";
                             
-							dbg(msg,1);
+                            dbg(msg,1);
                             PydevPlugin.log(IStatus.ERROR, msg, e1);
-						}
-						if (socketToWrite != null && !socketToWrite.isConnected() == true) {
-						    String msg = "Attempt: " + attempts + " of " + maxAttempts +
+                        }
+                        if (socketToWrite != null && !socketToWrite.isConnected() == true) {
+                            String msg = "Attempt: " + attempts + " of " + maxAttempts +
                             " failed, trying again...(socketToWrite still not binded)";
                             
-						    dbg(msg,1);
+                            dbg(msg,1);
                             PydevPlugin.log(IStatus.ERROR, msg, e1);
-						}
-					}
+                        }
+                    }
 
-					//if not connected, let's sleep a little for another attempt
-					if (!connected) {
-						sleepALittle(milisSleep);
-					}
-				}
+                    //if not connected, let's sleep a little for another attempt
+                    if (!connected) {
+                        sleepALittle(milisSleep);
+                    }
+                }
 
-				if (!connected && !finishedForGood) {
-					dbg("NOT connected ",1);
+                if (!connected && !finishedForGood) {
+                    dbg("NOT connected ",1);
 
-					//what, after all this trouble we are still not connected????!?!?!?!
-					//let's communicate this to the user...
-					String isAlive;
-					try {
-						int exitVal = process.exitValue(); //should throw exception saying that it still is not terminated...
-						isAlive = " - the process in NOT ALIVE anymore (output=" + exitVal + ") - ";
-					} catch (IllegalThreadStateException e2) { //this is ok
-						isAlive = " - the process in still alive (killing it now)- ";
-						process.destroy();
-					}
+                    //what, after all this trouble we are still not connected????!?!?!?!
+                    //let's communicate this to the user...
+                    String isAlive;
+                    try {
+                        int exitVal = process.exitValue(); //should throw exception saying that it still is not terminated...
+                        isAlive = " - the process in NOT ALIVE anymore (output=" + exitVal + ") - ";
+                    } catch (IllegalThreadStateException e2) { //this is ok
+                        isAlive = " - the process in still alive (killing it now)- ";
+                        process.destroy();
+                    }
 
-					String output = getProcessOutput();
-					String msg = "Error connecting to python process (" + execMsg + ") " +
+                    String output = getProcessOutput();
+                    String msg = "Error connecting to python process (" + execMsg + ") " +
                     isAlive + " the output of the process is: " + output;
                     
                     RuntimeException exception = new RuntimeException(msg);
                     dbg(msg, 1);
                     PydevPlugin.log(exception);
-					throw exception;
-				}
+                    throw exception;
+                }
 
-			} catch (IOException e) {
+            } catch (IOException e) {
 
-				if (process != null) {
-					process.destroy();
-					process = null;
-				}
-				throw e;
-			}
-		} finally {
-			this.inStart = false;
-		}
-		
-		
-		//if it got here, everything went ok (otherwise we would have gotten an exception).
-		isConnected = true;
+                if (process != null) {
+                    process.destroy();
+                    process = null;
+                }
+                throw e;
+            }
+        } finally {
+            this.inStart = false;
+        }
+        
+        
+        //if it got here, everything went ok (otherwise we would have gotten an exception).
+        isConnected = true;
     }
 
 
@@ -513,18 +513,18 @@ public abstract class AbstractShell {
     }
 
     public synchronized void clearSocket() throws IOException {
-    	while(true){ //clear until we get no message...
-	        byte[] b = new byte[AbstractShell.BUFFER_SIZE];
+        while(true){ //clear until we get no message...
+            byte[] b = new byte[AbstractShell.BUFFER_SIZE];
             if(this.socketToRead != null){
-    	        this.socketToRead.getInputStream().read(b);
-    	
-    	        String s = new String(b);
-    	        s = s.replaceAll((char)0+"",""); //python sends this char as payload.
-    	        if(s.length() == 0){
-    	        	return;
-    	        }
+                this.socketToRead.getInputStream().read(b);
+        
+                String s = new String(b);
+                s = s.replaceAll((char)0+"",""); //python sends this char as payload.
+                if(s.length() == 0){
+                    return;
+                }
             }
-    	}        
+        }        
     }
 
     /**
@@ -805,9 +805,9 @@ public abstract class AbstractShell {
             return getInvalidCompletion();
             
         } catch (Exception e) {
-        	if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
-        		PydevPlugin.log(IStatus.ERROR, "ERROR getting completions.", e);
-        	}
+            if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+                PydevPlugin.log(IStatus.ERROR, "ERROR getting completions.", e);
+            }
             
             restartShell();
             return getInvalidCompletion();

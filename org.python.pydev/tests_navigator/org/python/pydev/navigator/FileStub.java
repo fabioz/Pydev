@@ -41,31 +41,31 @@ public class FileStub implements IFile{
     }
 
     @Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((file == null) ? 0 : file.hashCode());
-		return result;
-	}
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((file == null) ? 0 : file.hashCode());
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		final FileStub other = (FileStub) obj;
-		if (file == null) {
-			if (other.file != null)
-				return false;
-		} else if (!file.equals(other.file))
-			return false;
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final FileStub other = (FileStub) obj;
+        if (file == null) {
+            if (other.file != null)
+                return false;
+        } else if (!file.equals(other.file))
+            return false;
+        return true;
+    }
 
-	@Override
+    @Override
     public String toString() {
         return "FileStub:"+this.file;
     }
@@ -487,29 +487,29 @@ public class FileStub implements IFile{
         throw new RuntimeException("Not implemented");
     }
 
-	public Map getPersistentProperties() throws CoreException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Map getPersistentProperties() throws CoreException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public Map getSessionProperties() throws CoreException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Map getSessionProperties() throws CoreException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public boolean isDerived(int options) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    public boolean isDerived(int options) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	public boolean isHidden() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    public boolean isHidden() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	public void setHidden(boolean isHidden) throws CoreException {
-		// TODO Auto-generated method stub
-		
-	}
+    public void setHidden(boolean isHidden) throws CoreException {
+        // TODO Auto-generated method stub
+        
+    }
 
 }

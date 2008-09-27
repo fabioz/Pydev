@@ -14,20 +14,20 @@ import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
 public abstract class AbstractReplaceEdit extends AbstractTextEdit {
 
-	public AbstractReplaceEdit(IRefactoringRequest req) {
-		super(req);
-	}
+    public AbstractReplaceEdit(IRefactoringRequest req) {
+        super(req);
+    }
 
-	@Override
-	public TextEdit getEdit() {
-		return new ReplaceEdit(getOffset(), getReplaceLength(), getFormatedNode());
-	}
+    @Override
+    public TextEdit getEdit() {
+        return new ReplaceEdit(getOffset(), getReplaceLength(), getFormatedNode());
+    }
 
-	protected String getFormatedNode() {
-		String source = RewriterVisitor.createSourceFromAST(getEditNode(), newLineDelim);
-		return source.trim();
-	}
+    protected String getFormatedNode() {
+        String source = RewriterVisitor.createSourceFromAST(getEditNode(), newLineDelim);
+        return source.trim();
+    }
 
-	protected abstract int getReplaceLength();
+    protected abstract int getReplaceLength();
 
 }

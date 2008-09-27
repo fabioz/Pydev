@@ -53,7 +53,7 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor{
      * @see org.eclipse.jface.text.templates.TemplateCompletionProcessor#getImage(org.eclipse.jface.text.templates.Template)
      */
     protected Image getImage(Template template) {
-    	return PydevPlugin.getImageCache().get(UIConstants.COMPLETION_TEMPLATE);
+        return PydevPlugin.getImageCache().get(UIConstants.COMPLETION_TEMPLATE);
     }
 
     /**

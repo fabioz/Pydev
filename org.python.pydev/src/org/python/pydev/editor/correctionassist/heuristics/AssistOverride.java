@@ -66,10 +66,10 @@ public class AssistOverride implements IAssistProps {
                 buffer.append(rep);
 
                 String args = token.getArgs();
-	            if(args.equals("()")){
-	                args = "( self )";
-	            }
-		        buffer.append(args);
+                if(args.equals("()")){
+                    args = "( self )";
+                }
+                buffer.append(args);
                 
                 buffer.append(":");
                 buffer.append(delimiter);
@@ -81,7 +81,7 @@ public class AssistOverride implements IAssistProps {
 
                 buffer.append(indStart);
                 buffer.append(indentation);
-		        buffer.append("@see super method: "+rep);
+                buffer.append("@see super method: "+rep);
                 buffer.append(delimiter);
 
                 buffer.append(indStart);

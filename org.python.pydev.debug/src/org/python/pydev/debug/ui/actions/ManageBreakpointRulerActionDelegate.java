@@ -14,9 +14,9 @@ import org.eclipse.ui.texteditor.ITextEditor;
  * Breakpoints delegate
  */
 public class ManageBreakpointRulerActionDelegate
-	extends AbstractRulerActionDelegate {
+    extends AbstractRulerActionDelegate {
 
-	protected IAction createAction(ITextEditor editor, IVerticalRulerInfo rulerInfo) {
-		return new BreakpointRulerAction(editor, rulerInfo);
-	}
+    protected IAction createAction(ITextEditor editor, IVerticalRulerInfo rulerInfo) {
+        return new BreakpointRulerAction(editor, rulerInfo);
+    }
 }

@@ -11,7 +11,7 @@ import org.eclipse.ui.navigator.ICommonViewerSite;
 import org.eclipse.ui.navigator.ICommonViewerWorkbenchSite;
 
 public class PythonRefactorActionProvider extends CommonActionProvider{
-	
+    
     private PyRenameResourceAction renameResourceAction;
 
     @Override

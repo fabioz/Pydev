@@ -25,39 +25,39 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
  */
 public class PyFileListing {
     
-	/**
-	 * Information about a python file found (the actual file and the way it was resolved as a python module)
-	 */
+    /**
+     * Information about a python file found (the actual file and the way it was resolved as a python module)
+     */
     public static final class PyFileInfo {
 
-		private final String relPath;
+        private final String relPath;
 
-		private final File file;
+        private final File file;
 
-		public PyFileInfo(File file, String relPath) {
-			this.file = file;
-			this.relPath = relPath;
-		}
+        public PyFileInfo(File file, String relPath) {
+            this.file = file;
+            this.relPath = relPath;
+        }
 
-		/** File object. */
-		public File getFile() {
-			return file;
-		}
+        /** File object. */
+        public File getFile() {
+            return file;
+        }
 
-		/** Returns fully qualified name of module. */
-		public String getModuleName() {
-			return relPath;
-		}
-	}
+        /** Returns fully qualified name of module. */
+        public String getModuleName() {
+            return relPath;
+        }
+    }
 
     /**
-	 * Returns the directories and python files in a list.
-	 * 
-	 * @param file
-	 * @param addSubFolders
-	 *            indicates if sub-folders should be added
-	 * @return tuple with files in pos 0 and folders in pos 1
-	 */
+     * Returns the directories and python files in a list.
+     * 
+     * @param file
+     * @param addSubFolders
+     *            indicates if sub-folders should be added
+     * @return tuple with files in pos 0 and folders in pos 1
+     */
     @SuppressWarnings("unchecked")
     private static PyFileListing getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders, 
             int level, boolean checkHasInit, String currModuleRep) {
@@ -105,9 +105,9 @@ public class PyFileListing {
                         
                         if (checkHasInit && hasInit == false){
                             //only check if it has __init__ if really needed
-    	                    if(PythonPathHelper.isValidInitFile(file2.getName())){
-    	                        hasInit = true;
-    	                    }
+                            if(PythonPathHelper.isValidInitFile(file2.getName())){
+                                hasInit = true;
+                            }
                         }
                         
                     }else{
@@ -122,10 +122,10 @@ public class PyFileListing {
                         File file2 = (File) iter.next();
                         if(file2.isDirectory() && addSubFolders){
                             
-    	                    ret.extendWith(getPyFilesBelow(file2, filter, monitor, addSubFolders, level+1, 
-    	                            checkHasInit, currModuleRep));
-    	                    
-    	                    monitor.worked(1);
+                            ret.extendWith(getPyFilesBelow(file2, filter, monitor, addSubFolders, level+1, 
+                                    checkHasInit, currModuleRep));
+                            
+                            monitor.worked(1);
                         }
                     }
                 }
@@ -155,25 +155,25 @@ public class PyFileListing {
      * @return a file filter only for python files (and other dirs if specified)
      */
     public static FileFilter getPyFilesFileFilter(final boolean includeDirs) {
-    	return new FileFilter() {
+        return new FileFilter() {
     
             public boolean accept(File pathname) {
                 if (includeDirs){
-                	if(pathname.isDirectory()){
-                		return true;
-                	}
-                	if(PythonPathHelper.isValidSourceFile(pathname.toString())){
-                		return true;
-                	}
-                	return false;
+                    if(pathname.isDirectory()){
+                        return true;
+                    }
+                    if(PythonPathHelper.isValidSourceFile(pathname.toString())){
+                        return true;
+                    }
+                    return false;
                 }else{
-                	if(pathname.isDirectory()){
-                		return false;
-                	}
-                	if(PythonPathHelper.isValidSourceFile(pathname.toString())){
-                		return true;
-                	}
-                	return false;
+                    if(pathname.isDirectory()){
+                        return false;
+                    }
+                    if(PythonPathHelper.isValidSourceFile(pathname.toString())){
+                        return true;
+                    }
+                    return false;
                 }
             }
     
@@ -195,23 +195,23 @@ public class PyFileListing {
      * @return All the IFiles below the current folder that are python files (does not check if it has an __init__ path)
      */
     public static List<IFile> getAllIFilesBelow(IFolder member) {
-    	final ArrayList<IFile> ret = new ArrayList<IFile>();
-    	try {
-    		member.accept(new IResourceVisitor(){
+        final ArrayList<IFile> ret = new ArrayList<IFile>();
+        try {
+            member.accept(new IResourceVisitor(){
     
-    			public boolean visit(IResource resource) {
-    				if(resource instanceof IFile){
-    					ret.add((IFile) resource);
-    					return false; //has no members
-    				}
-    				return true;
-    			}
-    			
-    		});
-    	} catch (CoreException e) {
-    		throw new RuntimeException(e);
-    	}
-    	return ret;
+                public boolean visit(IResource resource) {
+                    if(resource instanceof IFile){
+                        ret.add((IFile) resource);
+                        return false; //has no members
+                    }
+                    return true;
+                }
+                
+            });
+        } catch (CoreException e) {
+            throw new RuntimeException(e);
+        }
+        return ret;
     }
 
     /**

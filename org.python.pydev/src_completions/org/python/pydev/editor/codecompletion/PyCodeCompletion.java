@@ -78,10 +78,10 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * @see org.python.pydev.editor.codecompletion.IPyCodeCompletion#getCodeCompletionProposals(org.eclipse.jface.text.ITextViewer, org.python.pydev.editor.codecompletion.CompletionRequest)
      */
     public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException {
-    	if(request.getPySelection().getCursorLineContents().trim().startsWith("#")){
-    		//this may happen if the context is still not correctly computed in python
-    		return new PyStringCodeCompletion().getCodeCompletionProposals(viewer, request);
-    	}
+        if(request.getPySelection().getCursorLineContents().trim().startsWith("#")){
+            //this may happen if the context is still not correctly computed in python
+            return new PyStringCodeCompletion().getCodeCompletionProposals(viewer, request);
+        }
         if(DEBUG_CODE_COMPLETION){
             Log.toLogFile(this,"Starting getCodeCompletionProposals");
             Log.addLogLevel();
@@ -109,11 +109,11 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             //list of Object[], IToken or ICompletionProposal
             List<Object> tokensList = new ArrayList<Object>();
             try {
-				lazyStartShell(request);
-			} catch (NotConfiguredInterpreterException e) {
-				Log.log(IStatus.WARNING, "Warning: unable to get code-completion for builtins: No interpreter configured.", null);
-			}
-			String trimmed = request.activationToken.replace('.', ' ').trim();
+                lazyStartShell(request);
+            } catch (NotConfiguredInterpreterException e) {
+                Log.log(IStatus.WARNING, "Warning: unable to get code-completion for builtins: No interpreter configured.", null);
+            }
+            String trimmed = request.activationToken.replace('.', ' ').trim();
 
             ImportInfo importsTipper = getImportsTipperStr(request);
 
@@ -189,12 +189,12 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                         break;
                                     }
                                     if(token2 == null || 
-                                    	   (token2.equals(token) && 
-                                    		token2.getArgs().equals(token.getArgs()) && 
-                                    		token2.getParentPackage().equals(token.getParentPackage()))){
-                                    	
-                                    	token2.equals(token);
-                                    	break;
+                                           (token2.equals(token) && 
+                                            token2.getArgs().equals(token.getArgs()) && 
+                                            token2.getParentPackage().equals(token.getParentPackage()))){
+                                        
+                                        token2.equals(token);
+                                        break;
                                     }
                                     token = token2;
                                 }else{
@@ -214,12 +214,12 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             tokensList.addAll(alreadyChecked.values());
             changeItokenToCompletionPropostal(viewer, request, ret, tokensList, importsTip, state);
         } catch (CompletionRecursionException e) {
-        	if(onCompletionRecursionException != null){
-        		onCompletionRecursionException.call(e);
-        	}
-        	if(DEBUG_CODE_COMPLETION){
-        		Log.toLogFile(e);
-        	}
+            if(onCompletionRecursionException != null){
+                onCompletionRecursionException.call(e);
+            }
+            if(DEBUG_CODE_COMPLETION){
+                Log.toLogFile(e);
+            }
             //PydevPlugin.log(e);
             //ret.add(new CompletionProposal("",request.documentOffset,0,0,null,e.getMessage(), null,null));
         }
@@ -337,7 +337,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 Log.toLogFile(this,"END AbstractShell.getServerShell");
             }
         } catch (RuntimeException e) {
-        	throw e;
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -368,46 +368,46 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * @return true if we actually tried to get the completions for self or cls.
      */
     @SuppressWarnings("unchecked")
-	public static boolean getSelfOrClsCompletions(CompletionRequest request, List theList, ICompletionState state, 
-			boolean getOnlySupers, boolean checkIfInCorrectScope, String lookForRep) {
-    	
+    public static boolean getSelfOrClsCompletions(CompletionRequest request, List theList, ICompletionState state, 
+            boolean getOnlySupers, boolean checkIfInCorrectScope, String lookForRep) {
+        
         SimpleNode s = PyParser.reparseDocument(new PyParser.ParserInfo(request.doc, true, request.nature, state.getLine())).o1;
         if(s != null){
-		    FindScopeVisitor visitor = new FindScopeVisitor(state.getLine(), 0);
-		    try {
-		        s.accept(visitor);
-		        if(checkIfInCorrectScope){
-		        	boolean scopeCorrect = false;
-		        	
-			        FastStack<SimpleNode> scopeStack = visitor.scope.getScopeStack();
-			        for(Iterator<SimpleNode> it=scopeStack.topDownIterator();scopeCorrect == false && it.hasNext();){
-			        	SimpleNode node = it.next();
-			        	if (node instanceof FunctionDef) {
-							FunctionDef funcDef = (FunctionDef) node;
-							if(funcDef.args != null && funcDef.args.args != null || funcDef.args.args.length > 0){
-								//ok, we have some arg, let's check for self or cls
-								String rep = NodeUtils.getRepresentationString(funcDef.args.args[0]);
-								if(rep != null && (rep.equals("self") || rep.equals("cls"))){
-									scopeCorrect = true;
-								}
-							}
-						}
-			        }
-			        if(!scopeCorrect){
-			        	return false;
-			        }
-		        }
-		        if(lookForRep.equals("self")){
-		        	state.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
-		        }else{
-		        	state.setLookingFor(ICompletionState.LOOKING_FOR_CLASSMETHOD_VARIABLE);
-		        }
-		        getSelfOrClsCompletions(visitor.scope, request, theList, state, getOnlySupers);
-		    } catch (Exception e1) {
-		        PydevPlugin.log(e1);
-		    }
-		    return true;
-		}
+            FindScopeVisitor visitor = new FindScopeVisitor(state.getLine(), 0);
+            try {
+                s.accept(visitor);
+                if(checkIfInCorrectScope){
+                    boolean scopeCorrect = false;
+                    
+                    FastStack<SimpleNode> scopeStack = visitor.scope.getScopeStack();
+                    for(Iterator<SimpleNode> it=scopeStack.topDownIterator();scopeCorrect == false && it.hasNext();){
+                        SimpleNode node = it.next();
+                        if (node instanceof FunctionDef) {
+                            FunctionDef funcDef = (FunctionDef) node;
+                            if(funcDef.args != null && funcDef.args.args != null || funcDef.args.args.length > 0){
+                                //ok, we have some arg, let's check for self or cls
+                                String rep = NodeUtils.getRepresentationString(funcDef.args.args[0]);
+                                if(rep != null && (rep.equals("self") || rep.equals("cls"))){
+                                    scopeCorrect = true;
+                                }
+                            }
+                        }
+                    }
+                    if(!scopeCorrect){
+                        return false;
+                    }
+                }
+                if(lookForRep.equals("self")){
+                    state.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+                }else{
+                    state.setLookingFor(ICompletionState.LOOKING_FOR_CLASSMETHOD_VARIABLE);
+                }
+                getSelfOrClsCompletions(visitor.scope, request, theList, state, getOnlySupers);
+            } catch (Exception e1) {
+                PydevPlugin.log(e1);
+            }
+            return true;
+        }
         return false;
     }
 
@@ -426,14 +426,14 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                     for (int i = 0; i < d.bases.length; i++) {
                         if(d.bases[i] instanceof Name){
                             Name n = (Name) d.bases[i];
-	                        state.setActivationToken(n.id);
-	        	            IToken[] completions;
-							try {
-								completions = request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state);
-								gottenComps.addAll(Arrays.asList(completions));
-							} catch (CompletionRecursionException e) {
-								//ok...
-							}
+                            state.setActivationToken(n.id);
+                            IToken[] completions;
+                            try {
+                                completions = request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state);
+                                gottenComps.addAll(Arrays.asList(completions));
+                            } catch (CompletionRecursionException e) {
+                                //ok...
+                            }
                         }
                     }
                     theList.addAll(gottenComps);
@@ -451,12 +451,12 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                     if(actTokStrs.length == 1){
                         //ok, it's just really self, let's get on to get the completions
                         state.setActivationToken(NodeUtils.getNameFromNameTok((NameTok) d.name));
-        	            try {
+                        try {
                             theList.addAll(Arrays.asList(request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state)));
-						} catch (CompletionRecursionException e) {
-							//ok
-						}
-        	            
+                        } catch (CompletionRecursionException e) {
+                            //ok
+                        }
+                        
                     }else{
                         //it's not only self, so, first we have to get the definition of the token
                         //the first one is self, so, just discard it, and go on, token by token to know what is the last 

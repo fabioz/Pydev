@@ -11,5 +11,5 @@ package org.python.pydev.debug.model.remote;
  * This interface, if specified, is called when command completes.
  */
 public interface ICommandResponseListener {
-	public void commandComplete(AbstractDebuggerCommand cmd);
+    public void commandComplete(AbstractDebuggerCommand cmd);
 }

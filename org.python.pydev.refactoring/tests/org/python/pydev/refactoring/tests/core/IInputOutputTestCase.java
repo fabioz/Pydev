@@ -13,19 +13,19 @@ import junit.framework.Test;
  */
 public interface IInputOutputTestCase extends Test {
 
-	void setSource(String line);
+    void setSource(String line);
 
-	void setResult(String line);
+    void setResult(String line);
 
-	void setConfig(String line);
+    void setConfig(String line);
 
-	String getSource();
+    String getSource();
 
-	String getResult();
+    String getResult();
 
-	void setTestGenerated(String string);
+    void setTestGenerated(String string);
 
-	void setFile(File file);
+    void setFile(File file);
 
-	File getFile();
+    File getFile();
 }

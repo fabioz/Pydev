@@ -15,11 +15,11 @@ import org.python.pydev.parser.jython.ast.Call;
  */
 public class KeywordParameterDefinition extends Definition{
 
-	public Call call;
+    public Call call;
 
-	public KeywordParameterDefinition(int line, int col, String value, SimpleNode ast, ILocalScope scope, IModule module, Call call) {
-		super(line, col, value, ast, scope, module, false);
-		this.call = call;
-	}
+    public KeywordParameterDefinition(int line, int col, String value, SimpleNode ast, ILocalScope scope, IModule module, Call call) {
+        super(line, col, value, ast, scope, module, false);
+        this.call = call;
+    }
 
 }

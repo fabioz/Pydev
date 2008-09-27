@@ -71,16 +71,16 @@ public class CompletionState implements ICompletionState {
      */
     static class Memo<E>{
         
-    	private int max;
+        private int max;
 
-		public Memo(){
-    		this.max = MAX_NUMBER_OF_OCURRENCES;
-    	}
-    	
-		public Memo(int max){
-    		this.max = max;
-    	}
-    	
+        public Memo(){
+            this.max = MAX_NUMBER_OF_OCURRENCES;
+        }
+        
+        public Memo(int max){
+            this.max = max;
+        }
+        
         /**
          * if more than this number of ocurrences is found, we are in a recursion
          */
@@ -199,12 +199,12 @@ public class CompletionState implements ICompletionState {
         
     }
 
-	public void checkFindDefinitionMemory(IModule mod, String tok) throws CompletionRecursionException {
-		if(this.findDefinitionMemory.isInRecursion(mod, tok)){
-			throw new CompletionRecursionException("Possible recursion found -- probably programming error --  (module: "+mod.getName()+", value: "+tok+") - stopping analysis.");
-		}
-	}
-	
+    public void checkFindDefinitionMemory(IModule mod, String tok) throws CompletionRecursionException {
+        if(this.findDefinitionMemory.isInRecursion(mod, tok)){
+            throw new CompletionRecursionException("Possible recursion found -- probably programming error --  (module: "+mod.getName()+", value: "+tok+") - stopping analysis.");
+        }
+    }
+    
     /**
      * @param module
      * @param base
@@ -253,10 +253,10 @@ public class CompletionState implements ICompletionState {
      * @param module
      * @param base
      */
-	public void checkFindModuleCompletionsMemory(IModule mod, String tok) throws CompletionRecursionException{
-    	if(this.findModuleCompletionsMemory.isInRecursion(mod, tok)){
-    		throw new CompletionRecursionException("Possible recursion found -- probably programming error --  (module: "+mod.getName()+", token: "+tok+") - stopping analysis.");
-    	}
+    public void checkFindModuleCompletionsMemory(IModule mod, String tok) throws CompletionRecursionException{
+        if(this.findModuleCompletionsMemory.isInRecursion(mod, tok)){
+            throw new CompletionRecursionException("Possible recursion found -- probably programming error --  (module: "+mod.getName()+", token: "+tok+") - stopping analysis.");
+        }
     }
 
     public String getActivationToken() {
@@ -309,11 +309,11 @@ public class CompletionState implements ICompletionState {
         return builtinsGotten;
     }
 
-	public void raiseNFindTokensOnImportedModsCalled(IModule mod, String tok) throws CompletionRecursionException {
-		if(this.importedModsCalled.isInRecursion(mod, tok)){
-			throw new CompletionRecursionException("Possible recursion found (mod: "+mod.getName()+", tok: "+ tok +" ) - stopping analysis.");
-		}
-	}
+    public void raiseNFindTokensOnImportedModsCalled(IModule mod, String tok) throws CompletionRecursionException {
+        if(this.importedModsCalled.isInRecursion(mod, tok)){
+            throw new CompletionRecursionException("Possible recursion found (mod: "+mod.getName()+", tok: "+ tok +" ) - stopping analysis.");
+        }
+    }
 
     public boolean getIsInCalltip() {
         return isInCalltip;

@@ -68,7 +68,7 @@ public class PyCopyResourceAction extends CopyAction{
     
     @Override
     public IStructuredSelection getStructuredSelection() {
-    	return new StructuredSelection(selected);
+        return new StructuredSelection(selected);
     }
     
     /*

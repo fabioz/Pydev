@@ -36,10 +36,10 @@ public class OutlineHideImportsAction extends AbstractOutlineFilterAction {
                     ParsedItem item = (ParsedItem) element;
                     ASTEntryWithChildren astThis = item.getAstThis();
                     if(astThis != null){
-						SimpleNode n = astThis.node;
-	                    if (n instanceof ImportFrom || n instanceof Import) {
-	                        return false;
-	                    }
+                        SimpleNode n = astThis.node;
+                        if (n instanceof ImportFrom || n instanceof Import) {
+                            return false;
+                        }
                     }
                 }
                 return true;

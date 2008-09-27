@@ -17,16 +17,16 @@ import org.python.pydev.refactoring.messages.Messages;
 
 public class ConstructorFieldChangeProcessor extends AbstractFileChangeProcessor<ConstructorFieldRequest> {
 
-	public ConstructorFieldChangeProcessor(String name, RefactoringInfo info, IRequestProcessor<ConstructorFieldRequest> requestProvider) {
-		super(name, info, requestProvider);
-	}
+    public ConstructorFieldChangeProcessor(String name, RefactoringInfo info, IRequestProcessor<ConstructorFieldRequest> requestProvider) {
+        super(name, info, requestProvider);
+    }
 
-	@Override
-	protected void processEdit() {
-		for (ConstructorFieldRequest req : requestProcessor.getRefactoringRequests()) {
-			ConstructorMethodEdit constructorEdit = new ConstructorMethodEdit(req);
+    @Override
+    protected void processEdit() {
+        for (ConstructorFieldRequest req : requestProcessor.getRefactoringRequests()) {
+            ConstructorMethodEdit constructorEdit = new ConstructorMethodEdit(req);
 
-			registerEdit(constructorEdit, Messages.constructorFieldConstructor);
-		}
-	}
+            registerEdit(constructorEdit, Messages.constructorFieldConstructor);
+        }
+    }
 }

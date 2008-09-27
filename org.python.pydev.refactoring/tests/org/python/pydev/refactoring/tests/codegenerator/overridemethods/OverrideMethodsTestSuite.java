@@ -13,17 +13,17 @@ import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
 
 public class OverrideMethodsTestSuite extends AbstractIOTestSuite {
 
-	public static Test suite() {
-		TESTDIR = "tests" + File.separator + "python" + File.separator + "codegenerator" + File.separator + "overridemethods";
-		OverrideMethodsTestSuite testSuite = new OverrideMethodsTestSuite();
+    public static Test suite() {
+        TESTDIR = "tests" + File.separator + "python" + File.separator + "codegenerator" + File.separator + "overridemethods";
+        OverrideMethodsTestSuite testSuite = new OverrideMethodsTestSuite();
 
-		testSuite.createTests();
+        testSuite.createTests();
 
-		return testSuite;
-	}
+        return testSuite;
+    }
 
-	@Override
-	protected IInputOutputTestCase createTestCase(String testCaseName) {
-		return new OverrideMethodsTestCase(testCaseName);
-	}
+    @Override
+    protected IInputOutputTestCase createTestCase(String testCaseName) {
+        return new OverrideMethodsTestCase(testCaseName);
+    }
 }

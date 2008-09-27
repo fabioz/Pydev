@@ -30,16 +30,16 @@ public class PyEditScripting implements IPyEditListener {
     }
     
 
-	private void doExec(HashMap<String, Object> locals) {
-		JythonPlugin.execAll(locals, "pyedit", interpreter); //execute all the files that start with 'pyedit' that are located beneath
-        													 //the org.python.pydev.jython/jysrc directory and some user specified dir (if any).
-	}
+    private void doExec(HashMap<String, Object> locals) {
+        JythonPlugin.execAll(locals, "pyedit", interpreter); //execute all the files that start with 'pyedit' that are located beneath
+                                                             //the org.python.pydev.jython/jysrc directory and some user specified dir (if any).
+    }
 
-	public void onSave(PyEdit edit, IProgressMonitor monitor) {
-    	HashMap<String, Object> locals = new HashMap<String, Object>();
-    	locals.put("cmd", "onSave");
-    	locals.put("editor", edit);
-    	doExec(locals); 
+    public void onSave(PyEdit edit, IProgressMonitor monitor) {
+        HashMap<String, Object> locals = new HashMap<String, Object>();
+        locals.put("cmd", "onSave");
+        locals.put("editor", edit);
+        doExec(locals); 
     }
 
     public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
@@ -50,21 +50,21 @@ public class PyEditScripting implements IPyEditListener {
     }
 
     public void onDispose(PyEdit edit, IProgressMonitor monitor) {
-    	HashMap<String, Object> locals = new HashMap<String, Object>();
-    	locals.put("cmd", "onDispose");
-    	locals.put("editor", edit);
-    	doExec(locals);
-    	
-    	interpreter.cleanup();
+        HashMap<String, Object> locals = new HashMap<String, Object>();
+        locals.put("cmd", "onDispose");
+        locals.put("editor", edit);
+        doExec(locals);
+        
+        interpreter.cleanup();
         interpreter = null;
     }
 
     public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
-    	HashMap<String, Object> locals = new HashMap<String, Object>();
-    	locals.put("cmd", "onSetDocument");
-    	locals.put("document", document);
-    	locals.put("editor", edit);
-    	doExec(locals);
+        HashMap<String, Object> locals = new HashMap<String, Object>();
+        locals.put("cmd", "onSetDocument");
+        locals.put("document", document);
+        locals.put("editor", edit);
+        doExec(locals);
     }
 
 }

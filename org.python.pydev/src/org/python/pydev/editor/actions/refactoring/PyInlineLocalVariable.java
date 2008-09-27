@@ -20,8 +20,8 @@ public class PyInlineLocalVariable extends PyRefactorAction {
     /**
      * we need:
      * 
-	 *  def inlineLocalVariable(self,filename_path, line, col)
-	 * 
+     *  def inlineLocalVariable(self,filename_path, line, col)
+     * 
      * @throws BadLocationException
      * @throws CoreException
      */

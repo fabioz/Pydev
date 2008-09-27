@@ -73,7 +73,7 @@ public class EasyASTIteratorVisitor extends EasyAstIteratorBase{
                         //it is an instance variable attribute
                         Name n = (Name) a.value;
                         if (n.id.equals("self")){
-		                    atomic(t);
+                            atomic(t);
                         }
                     }
                 }

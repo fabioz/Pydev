@@ -36,52 +36,52 @@ import org.python.pydev.editorinput.PydevFileEditorInput;
 
 public abstract class AbstractBreakpointRulerAction extends Action implements IUpdate {
 
-	protected IVerticalRulerInfo fInfo;
-	protected ITextEditor fTextEditor;
-	private IBreakpoint fBreakpoint;
+    protected IVerticalRulerInfo fInfo;
+    protected ITextEditor fTextEditor;
+    private IBreakpoint fBreakpoint;
 
-	protected IBreakpoint getBreakpoint() {
-		return fBreakpoint;
-	}
+    protected IBreakpoint getBreakpoint() {
+        return fBreakpoint;
+    }
 
-	protected void setBreakpoint(IBreakpoint breakpoint) {
-		fBreakpoint = breakpoint;
-	}
+    protected void setBreakpoint(IBreakpoint breakpoint) {
+        fBreakpoint = breakpoint;
+    }
 
-	protected ITextEditor getTextEditor() {
-		return fTextEditor;
-	}
+    protected ITextEditor getTextEditor() {
+        return fTextEditor;
+    }
 
-	protected void setTextEditor(ITextEditor textEditor) {
-		fTextEditor = textEditor;
-	}
+    protected void setTextEditor(ITextEditor textEditor) {
+        fTextEditor = textEditor;
+    }
 
-	protected IVerticalRulerInfo getInfo() {
-		return fInfo;
-	}
+    protected IVerticalRulerInfo getInfo() {
+        return fInfo;
+    }
 
-	protected void setInfo(IVerticalRulerInfo info) {
-		fInfo = info;
-	}
+    protected void setInfo(IVerticalRulerInfo info) {
+        fInfo = info;
+    }
 
-	protected IBreakpoint determineBreakpoint() {
-		IBreakpoint[] breakpoints= DebugPlugin.getDefault().getBreakpointManager().getBreakpoints(PyDebugModelPresentation.PY_DEBUG_MODEL_ID);
-		for (int i= 0; i < breakpoints.length; i++) {
-			IBreakpoint breakpoint= breakpoints[i];
-			if (breakpoint instanceof PyBreakpoint ) {
-				PyBreakpoint pyBreakpoint= (PyBreakpoint)breakpoint;
-				try {
-					if (breakpointAtRulerLine(pyBreakpoint, getPydevFileEditorInput())) {
-						return pyBreakpoint;
-					}
-				} catch (CoreException ce) {
-					PydevDebugPlugin.log(IStatus.ERROR,ce.getLocalizedMessage(),ce);
-					continue;
-				}
-			}
-		}
-		return null;
-	}
+    protected IBreakpoint determineBreakpoint() {
+        IBreakpoint[] breakpoints= DebugPlugin.getDefault().getBreakpointManager().getBreakpoints(PyDebugModelPresentation.PY_DEBUG_MODEL_ID);
+        for (int i= 0; i < breakpoints.length; i++) {
+            IBreakpoint breakpoint= breakpoints[i];
+            if (breakpoint instanceof PyBreakpoint ) {
+                PyBreakpoint pyBreakpoint= (PyBreakpoint)breakpoint;
+                try {
+                    if (breakpointAtRulerLine(pyBreakpoint, getPydevFileEditorInput())) {
+                        return pyBreakpoint;
+                    }
+                } catch (CoreException ce) {
+                    PydevDebugPlugin.log(IStatus.ERROR,ce.getLocalizedMessage(),ce);
+                    continue;
+                }
+            }
+        }
+        return null;
+    }
 
     /**
      * @return the document of the editor's input
@@ -91,13 +91,13 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
         return provider.getDocument(fTextEditor.getEditorInput());
     }
 
-	protected boolean breakpointAtRulerLine(PyBreakpoint pyBreakpoint, PydevFileEditorInput pydevFileEditorInput) throws CoreException {
+    protected boolean breakpointAtRulerLine(PyBreakpoint pyBreakpoint, PydevFileEditorInput pydevFileEditorInput) throws CoreException {
         IDocument doc = getDocument();
-		IMarker marker = pyBreakpoint.getMarker();
+        IMarker marker = pyBreakpoint.getMarker();
         Position position= getMarkerPosition(doc, marker);
-		if (position != null) {
-			try {
-				int markerLineNumber= doc.getLineOfOffset(position.getOffset());
+        if (position != null) {
+            try {
+                int markerLineNumber= doc.getLineOfOffset(position.getOffset());
                 if(getResourceForDebugMarkers() instanceof IFile){
                     //workspace file
                     int rulerLine= getInfo().getLineOfLastMouseButtonActivity();
@@ -110,23 +110,23 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
                 }else if(isInSameExternalEditor(marker, pydevFileEditorInput)){
                     return true;
                 }
-			} catch (BadLocationException x) {
-			}
-		}
-		
-		return false;
-	}
-	
-	protected IResource getResourceForDebugMarkers() {
-	    return getResourceForDebugMarkers(fTextEditor);
-	}
-
-	public boolean isExternalFileEditor() {
-	    return isExternalFileEditor(fTextEditor);
-	}
+            } catch (BadLocationException x) {
+            }
+        }
+        
+        return false;
+    }
     
-	public PydevFileEditorInput getPydevFileEditorInput() {
-	    return getPydevFileEditorInput(fTextEditor);
+    protected IResource getResourceForDebugMarkers() {
+        return getResourceForDebugMarkers(fTextEditor);
+    }
+
+    public boolean isExternalFileEditor() {
+        return isExternalFileEditor(fTextEditor);
+    }
+    
+    public PydevFileEditorInput getPydevFileEditorInput() {
+        return getPydevFileEditorInput(fTextEditor);
     }
     
     // utilities -------------------------------------------------------------------------------------------------------
@@ -135,36 +135,36 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
     // utilities -------------------------------------------------------------------------------------------------------
     // utilities -------------------------------------------------------------------------------------------------------
     
-	
-	/**
-	 * @return whether we're in an external editor or not.
-	 */
-	public static boolean isExternalFileEditor(ITextEditor editor) {
-	    PydevFileEditorInput pydevFileEditorInput = getPydevFileEditorInput(editor);
-	    if(pydevFileEditorInput != null){
-	        return true;
-	    }
-	    return false;
-	}
-	
-	
-	
-	/**
-	 * @return the PydevFileEditorInput if we're dealing with an external file (or null otherwise)
-	 */
-	public static PydevFileEditorInput getPydevFileEditorInput(ITextEditor editor) {
-	    IEditorInput input = editor.getEditorInput();
-	    PydevFileEditorInput pydevFileEditorInput = null;
+    
+    /**
+     * @return whether we're in an external editor or not.
+     */
+    public static boolean isExternalFileEditor(ITextEditor editor) {
+        PydevFileEditorInput pydevFileEditorInput = getPydevFileEditorInput(editor);
+        if(pydevFileEditorInput != null){
+            return true;
+        }
+        return false;
+    }
+    
+    
+    
+    /**
+     * @return the PydevFileEditorInput if we're dealing with an external file (or null otherwise)
+     */
+    public static PydevFileEditorInput getPydevFileEditorInput(ITextEditor editor) {
+        IEditorInput input = editor.getEditorInput();
+        PydevFileEditorInput pydevFileEditorInput = null;
         
-	    //only return not null if it's an external file (FileEditorInput marks a workspace file) 
+        //only return not null if it's an external file (FileEditorInput marks a workspace file) 
         if(input instanceof FileEditorInput){
             return null;
         }
         
-	    if (input instanceof PydevFileEditorInput) {
-	        pydevFileEditorInput = (PydevFileEditorInput) input;
+        if (input instanceof PydevFileEditorInput) {
+            pydevFileEditorInput = (PydevFileEditorInput) input;
             
-	    } else {
+        } else {
             if(input instanceof IPathEditorInput && !(input instanceof FileEditorInput)){
                 IPathEditorInput pathEditorInput = (IPathEditorInput) input;
                 IPath path = pathEditorInput.getPath();
@@ -173,9 +173,9 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
                     pydevFileEditorInput = new PydevFileEditorInput(file);
                 }
             }
-	    }
-	    return pydevFileEditorInput;
-	}
+        }
+        return pydevFileEditorInput;
+    }
     
     
     /**
@@ -183,21 +183,21 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
      * is in this same editor.
      */
     protected static boolean isInSameExternalEditor(IMarker marker, PydevFileEditorInput pydevFileEditorInput) throws CoreException {
-    	if(marker == null || pydevFileEditorInput == null){
-    		return false;
-    	}
-    	
+        if(marker == null || pydevFileEditorInput == null){
+            return false;
+        }
+        
         String attribute = (String) marker.getAttribute(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID);
         if(attribute != null){
             File file = pydevFileEditorInput.getFile();
             if(file == null){
-            	return false;
+                return false;
             }
-			if(attribute.equals(REF.getFileAbsolutePath(file))){
+            if(attribute.equals(REF.getFileAbsolutePath(file))){
                 return true;
             }
         }
-    	return false;
+        return false;
     }
 
 
@@ -233,23 +233,23 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
     }
 
     
-	/** 
-	 * @return the resource for which to create the marker or <code>null</code>
+    /** 
+     * @return the resource for which to create the marker or <code>null</code>
      * 
      * If the editor maps to a workspace file, it will return that file. Otherwise, it will return the 
      * workspace root (so, markers from external files will be created in the workspace root).
-	 */
-	public static IResource getResourceForDebugMarkers(ITextEditor textEditor) {
-		IEditorInput input= textEditor.getEditorInput();
-		IResource resource= (IResource) input.getAdapter(IFile.class);
-		if (resource == null) {
-			resource= (IResource) input.getAdapter(IResource.class);
-		}		
+     */
+    public static IResource getResourceForDebugMarkers(ITextEditor textEditor) {
+        IEditorInput input= textEditor.getEditorInput();
+        IResource resource= (IResource) input.getAdapter(IFile.class);
+        if (resource == null) {
+            resource= (IResource) input.getAdapter(IResource.class);
+        }        
         if(resource == null){
             resource = ResourcesPlugin.getWorkspace().getRoot();
         }
-		return resource;
-	}
+        return resource;
+    }
 
     
 
@@ -308,9 +308,9 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
 
             IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
             for (IMarker marker : markers) {
-            	if(marker == null){
-            		continue;
-            	}
+                if(marker == null){
+                    continue;
+                }
                 IBreakpoint breakpoint = breakpointManager.getBreakpoint(marker);
                 if (breakpoint != null && breakpointManager.isRegistered(breakpoint)) {
                     Position pos = getMarkerPosition(document, marker);

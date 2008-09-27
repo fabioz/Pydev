@@ -12,14 +12,14 @@ package org.python.pydev.debug.model.remote;
  */
 public class ThreadSuspendCommand extends AbstractDebuggerCommand {
 
-	String thread;
-	
-	public ThreadSuspendCommand(AbstractRemoteDebugger debugger, String thread) {
-		super(debugger);
-		this.thread = thread;
-	}
+    String thread;
+    
+    public ThreadSuspendCommand(AbstractRemoteDebugger debugger, String thread) {
+        super(debugger);
+        this.thread = thread;
+    }
 
-	public String getOutgoing() {
-		return makeCommand(CMD_THREAD_SUSPEND, sequence, thread);
-	}
+    public String getOutgoing() {
+        return makeCommand(CMD_THREAD_SUSPEND, sequence, thread);
+    }
 }

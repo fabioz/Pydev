@@ -18,36 +18,36 @@ import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
 public class ConstructorFieldRequest implements IRefactoringRequest {
 
-	private IClassDefAdapter classAdapter;
+    private IClassDefAdapter classAdapter;
 
-	private List<INodeAdapter> attributeAdapters;
+    private List<INodeAdapter> attributeAdapters;
 
-	private int offsetStrategy;
+    private int offsetStrategy;
 
     private String newLineDelim;
 
-	public ConstructorFieldRequest(IClassDefAdapter classAdapter, List<INodeAdapter> attributeAdapters, int offsetStrategy, String newLineDelim) {
-		this.classAdapter = classAdapter;
-		this.attributeAdapters = attributeAdapters;
-		this.offsetStrategy = offsetStrategy;
+    public ConstructorFieldRequest(IClassDefAdapter classAdapter, List<INodeAdapter> attributeAdapters, int offsetStrategy, String newLineDelim) {
+        this.classAdapter = classAdapter;
+        this.attributeAdapters = attributeAdapters;
+        this.offsetStrategy = offsetStrategy;
         this.newLineDelim = newLineDelim;
-	}
+    }
 
-	public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
-		return classAdapter;
-	}
+    public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
+        return classAdapter;
+    }
 
-	public List<INodeAdapter> getAttributeAdapters() {
-		return attributeAdapters;
-	}
+    public List<INodeAdapter> getAttributeAdapters() {
+        return attributeAdapters;
+    }
 
-	public IClassDefAdapter getClassAdapter() {
-		return classAdapter;
-	}
+    public IClassDefAdapter getClassAdapter() {
+        return classAdapter;
+    }
 
-	public int getOffsetStrategy() {
-		return offsetStrategy;
-	}
+    public int getOffsetStrategy() {
+        return offsetStrategy;
+    }
 
     public String getNewLineDelim() {
         return newLineDelim;

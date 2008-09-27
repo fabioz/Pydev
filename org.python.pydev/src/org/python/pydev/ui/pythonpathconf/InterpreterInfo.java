@@ -129,7 +129,7 @@ public class InterpreterInfo implements IInterpreterInfo{
         this.executableOrJar = exe;
         this.version = version;
         //deprecated (keep it cleared)
-	    dllLibs.clear();
+        dllLibs.clear();
 
         setModulesManager(new SystemModulesManager());
         libs.addAll(libs0);
@@ -189,7 +189,7 @@ public class InterpreterInfo implements IInterpreterInfo{
         if(received.toLowerCase().indexOf("executable") == -1){
             throw new RuntimeException("Unable to recreate the Interpreter info (Its format changed. Please, re-create your Interpreter information).Contents found:"+received);
         }
-    	received = received.replaceAll("\n", "").replaceAll("\r", "");
+        received = received.replaceAll("\n", "").replaceAll("\r", "");
         String[] forcedSplit = received.split("\\$");
         String[] libsSplit = forcedSplit[0].split("\\@");
         String exeAndLibs = libsSplit[0];
@@ -237,82 +237,82 @@ public class InterpreterInfo implements IInterpreterInfo{
 
         final Boolean[] result = new Boolean[]{true}; //true == OK, false == CANCELLED
         if(ProjectModulesManager.IN_TESTS){
-        	if(InterpreterInfo.configurePathsCallback != null){
-        		InterpreterInfo.configurePathsCallback.call(new Tuple<List<String>, List<String>>(toAsk, l));
-        	}
+            if(InterpreterInfo.configurePathsCallback != null){
+                InterpreterInfo.configurePathsCallback.call(new Tuple<List<String>, List<String>>(toAsk, l));
+            }
         }else{
-	        if(toAsk.size() > 0){
-	            Runnable runnable = new Runnable(){
-	
-	                public void run() {
-	                    ListSelectionDialog dialog = new ListSelectionDialog(Display.getDefault().getActiveShell(), toAsk, 
-	                            new IStructuredContentProvider(){
-	
-	                                @SuppressWarnings("unchecked")
-	                                public Object[] getElements(Object inputElement) {
-	                                    List<String> elements = (List<String>) inputElement;
-	                                    return elements.toArray(new String[0]);
-	                                }
-	
-	                                public void dispose() {
-	                                }
-	
-	                                public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-	                                }},
-	                                
-	                                
-	                                new ILabelProvider(){
-	
-	                                public Image getImage(Object element) {
-	                                    return PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM);
-	                                }
-	
-	                                public String getText(Object element) {
-	                                    return element.toString();
-	                                }
-	
-	                                public void addListener(ILabelProviderListener listener) {
-	                                }
-	
-	                                public void dispose() {
-	                                }
-	
-	                                public boolean isLabelProperty(Object element, String property) {
-	                                    return true;
-	                                }
-	
-	                                public void removeListener(ILabelProviderListener listener) {
-	                                }}, 
-	                                
-	                            "Select the folders to be added to the SYSTEM pythonpath!\n" +
-	                            "\n" +
-	                            "IMPORTANT: The folders for your PROJECTS should NOT be added here, but in your project configuration.\n\n" +
-	                            "Check:http://fabioz.com/pydev/manual_101_interpreter.html for more details.");
-	                    dialog.setInitialSelections(l.toArray(new String[0]));
-	                    int i = dialog.open();
+            if(toAsk.size() > 0){
+                Runnable runnable = new Runnable(){
+    
+                    public void run() {
+                        ListSelectionDialog dialog = new ListSelectionDialog(Display.getDefault().getActiveShell(), toAsk, 
+                                new IStructuredContentProvider(){
+    
+                                    @SuppressWarnings("unchecked")
+                                    public Object[] getElements(Object inputElement) {
+                                        List<String> elements = (List<String>) inputElement;
+                                        return elements.toArray(new String[0]);
+                                    }
+    
+                                    public void dispose() {
+                                    }
+    
+                                    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+                                    }},
+                                    
+                                    
+                                    new ILabelProvider(){
+    
+                                    public Image getImage(Object element) {
+                                        return PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM);
+                                    }
+    
+                                    public String getText(Object element) {
+                                        return element.toString();
+                                    }
+    
+                                    public void addListener(ILabelProviderListener listener) {
+                                    }
+    
+                                    public void dispose() {
+                                    }
+    
+                                    public boolean isLabelProperty(Object element, String property) {
+                                        return true;
+                                    }
+    
+                                    public void removeListener(ILabelProviderListener listener) {
+                                    }}, 
+                                    
+                                "Select the folders to be added to the SYSTEM pythonpath!\n" +
+                                "\n" +
+                                "IMPORTANT: The folders for your PROJECTS should NOT be added here, but in your project configuration.\n\n" +
+                                "Check:http://fabioz.com/pydev/manual_101_interpreter.html for more details.");
+                        dialog.setInitialSelections(l.toArray(new String[0]));
+                        int i = dialog.open();
                         if(i == Window.OK){
                             result[0] = true;
-    	                    Object[] result = dialog.getResult();
-    	                    l.clear();
-    	                    for (Object string : result) {
-    	                        l.add((String) string);
-    	                    }
+                            Object[] result = dialog.getResult();
+                            l.clear();
+                            for (Object string : result) {
+                                l.add((String) string);
+                            }
                         }else{
                             result[0] = false;
                             
                         }
-	                    
-	                }
-	                
-	            };
-	            try{
-	                RunInUiThread.sync(runnable);
-	            }catch(NoClassDefFoundError e){
-	            }catch(UnsatisfiedLinkError e){
-	                //this means that we're running unit-tests, so, we don't have to do anything about it
-	                //as 'l' is already ok.
-	            }
-	        }
+                        
+                    }
+                    
+                };
+                try{
+                    RunInUiThread.sync(runnable);
+                }catch(NoClassDefFoundError e){
+                }catch(UnsatisfiedLinkError e){
+                    //this means that we're running unit-tests, so, we don't have to do anything about it
+                    //as 'l' is already ok.
+                }
+            }
         }
 
         if(result[0] == false){
@@ -322,29 +322,29 @@ public class InterpreterInfo implements IInterpreterInfo{
         
         ArrayList<String> l1 = new ArrayList<String>();
         if(libsSplit.length > 1){
-	        String dllLibs = libsSplit[1];
-	        String[] dllLibs1 = dllLibs.split("\\|");
-	        for (int i = 0; i < dllLibs1.length; i++) {
-	            String trimmed = dllLibs1[i].trim();
-	            if(trimmed.length() > 0){
-	                l1.add(trimmed);
-	            }
-	        }
+            String dllLibs = libsSplit[1];
+            String[] dllLibs1 = dllLibs.split("\\|");
+            for (int i = 0; i < dllLibs1.length; i++) {
+                String trimmed = dllLibs1[i].trim();
+                if(trimmed.length() > 0){
+                    l1.add(trimmed);
+                }
+            }
         }
-	        
+            
         ArrayList<String> l2 = new ArrayList<String>();
         if(forcedSplit.length > 1){
-	        String forcedLibs = forcedSplit[1];
-	        String[] forcedLibs1 = forcedLibs.split("\\|");
-	        for (int i = 0; i < forcedLibs1.length; i++) {
-	            String trimmed = forcedLibs1[i].trim();
-	            if(trimmed.length() > 0){
-	                l2.add(trimmed);
-	            }
-	        }
-        }	            
+            String forcedLibs = forcedSplit[1];
+            String[] forcedLibs1 = forcedLibs.split("\\|");
+            for (int i = 0; i < forcedLibs1.length; i++) {
+                String trimmed = forcedLibs1[i].trim();
+                if(trimmed.length() > 0){
+                    l2.add(trimmed);
+                }
+            }
+        }                
         return new InterpreterInfo(version, executable, l, l1, l2);
-	        
+            
     }
     
     /**
@@ -364,10 +364,10 @@ public class InterpreterInfo implements IInterpreterInfo{
         
         buffer.append("$");
         if(forcedLibs.size() > 0){
-	        for (Iterator<String> iter = forcedLibs.iterator(); iter.hasNext();) {
-	            buffer.append("|");
-	            buffer.append(iter.next().toString());
-	        }
+            for (Iterator<String> iter = forcedLibs.iterator(); iter.hasNext();) {
+                buffer.append("|");
+                buffer.append(iter.next().toString());
+            }
         }
         
         return buffer.toString();
@@ -377,13 +377,13 @@ public class InterpreterInfo implements IInterpreterInfo{
      * Adds the compiled libs (dlls)
      */
     public void restoreCompiledLibs(IProgressMonitor monitor) {
-	    //the compiled with the interpreter should be already gotten.
-	    forcedLibs.add("os"); //we have it in source, but want to interpret it, source info (ast) does not give us much
+        //the compiled with the interpreter should be already gotten.
+        forcedLibs.add("os"); //we have it in source, but want to interpret it, source info (ast) does not give us much
         
         //as it is a set, there is no problem to add it twice
-	    forcedLibs.add("__builtin__"); //jython bug: __builtin__ is not added
-	    forcedLibs.add("sys"); //jython bug: sys is not added
-	    forcedLibs.add("email"); //email has some lazy imports that pydev cannot handle through the source
+        forcedLibs.add("__builtin__"); //jython bug: __builtin__ is not added
+        forcedLibs.add("sys"); //jython bug: sys is not added
+        forcedLibs.add("email"); //email has some lazy imports that pydev cannot handle through the source
         
 
         if(isJythonInfo()){

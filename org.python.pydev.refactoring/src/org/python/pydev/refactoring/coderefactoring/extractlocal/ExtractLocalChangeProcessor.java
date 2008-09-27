@@ -17,22 +17,22 @@ import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.messages.Messages;
 
 public class ExtractLocalChangeProcessor extends AbstractFileChangeProcessor<ExtractLocalRequest> {
-	public ExtractLocalChangeProcessor(String name, RefactoringInfo info, IRequestProcessor<ExtractLocalRequest> requestProcessor) {
-		super(name, info, requestProcessor);
-	}
+    public ExtractLocalChangeProcessor(String name, RefactoringInfo info, IRequestProcessor<ExtractLocalRequest> requestProcessor) {
+        super(name, info, requestProcessor);
+    }
 
-	@Override
-	protected void processEdit() {
-		for (ExtractLocalRequest req : requestProcessor.getRefactoringRequests()) {
-			processExtraction(req);
-		}
-	}
+    @Override
+    protected void processEdit() {
+        for (ExtractLocalRequest req : requestProcessor.getRefactoringRequests()) {
+            processExtraction(req);
+        }
+    }
 
-	private void processExtraction(ExtractLocalRequest req) {
-		CreateLocalVariableEdit createLocalVariableEdit = new CreateLocalVariableEdit(req);
-		ReplaceWithVariableEdit replaceWithVariableEdit = new ReplaceWithVariableEdit(req);
-		
-		registerEdit(createLocalVariableEdit, Messages.extractLocalCreateLocalVariable);
-		registerEdit(replaceWithVariableEdit, Messages.extractLocalReplaceWithVariable);
-	}
+    private void processExtraction(ExtractLocalRequest req) {
+        CreateLocalVariableEdit createLocalVariableEdit = new CreateLocalVariableEdit(req);
+        ReplaceWithVariableEdit replaceWithVariableEdit = new ReplaceWithVariableEdit(req);
+        
+        registerEdit(createLocalVariableEdit, Messages.extractLocalCreateLocalVariable);
+        registerEdit(replaceWithVariableEdit, Messages.extractLocalReplaceWithVariable);
+    }
 }

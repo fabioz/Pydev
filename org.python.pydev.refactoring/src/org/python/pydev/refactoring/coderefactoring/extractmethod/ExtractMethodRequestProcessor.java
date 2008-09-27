@@ -22,87 +22,87 @@ import org.python.pydev.refactoring.core.request.IRequestProcessor;
 
 public class ExtractMethodRequestProcessor implements IRequestProcessor<ExtractMethodRequest> {
 
-	private int offsetStrategy;
+    private int offsetStrategy;
 
-	private String methodName;
+    private String methodName;
 
-	private AbstractScopeNode<?> scopeAdapter;
+    private AbstractScopeNode<?> scopeAdapter;
 
-	private ModuleAdapter parsedSelection;
+    private ModuleAdapter parsedSelection;
 
-	private ParameterReturnDeduce deducer;
+    private ParameterReturnDeduce deducer;
 
-	private Map<String, String> renameMap;
+    private Map<String, String> renameMap;
 
-	private List<String> parameterOrder;
+    private List<String> parameterOrder;
 
-	private ITextSelection selection;
+    private ITextSelection selection;
 
     private String endLineDelim;
 
-	public ExtractMethodRequestProcessor(AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection, ModuleAdapter module, ITextSelection selection) {
-		initProcessor(scopeAdapter, parsedSelection, module, selection);
-	}
+    public ExtractMethodRequestProcessor(AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection, ModuleAdapter module, ITextSelection selection) {
+        initProcessor(scopeAdapter, parsedSelection, module, selection);
+    }
 
-	public void initProcessor(AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection, ModuleAdapter module, ITextSelection selection) {
-		this.methodName = "pepticMethod";
-		this.scopeAdapter = scopeAdapter;
-		this.selection = selection;
-		this.parsedSelection = parsedSelection;
-		this.deducer = new ParameterReturnDeduce(this.scopeAdapter, selection, module);
-		this.parameterOrder = new ArrayList<String>();
-		parameterOrder.addAll(deducer.getParameters());
-		this.renameMap = new TreeMap<String, String>();
-		initRenamedMap();
+    public void initProcessor(AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection, ModuleAdapter module, ITextSelection selection) {
+        this.methodName = "pepticMethod";
+        this.scopeAdapter = scopeAdapter;
+        this.selection = selection;
+        this.parsedSelection = parsedSelection;
+        this.deducer = new ParameterReturnDeduce(this.scopeAdapter, selection, module);
+        this.parameterOrder = new ArrayList<String>();
+        parameterOrder.addAll(deducer.getParameters());
+        this.renameMap = new TreeMap<String, String>();
+        initRenamedMap();
         this.endLineDelim = module.getEndLineDelimiter();
 
-		offsetStrategy = IOffsetStrategy.AFTERINIT;
-	}
+        offsetStrategy = IOffsetStrategy.AFTERINIT;
+    }
 
-	private void initRenamedMap() {
-		for (String variable : deducer.getParameters()) {
-			this.renameMap.put(variable, variable);
-		}
+    private void initRenamedMap() {
+        for (String variable : deducer.getParameters()) {
+            this.renameMap.put(variable, variable);
+        }
 
-	}
+    }
 
-	public AbstractScopeNode<?> getScopeAdapter() {
-		return scopeAdapter;
-	}
+    public AbstractScopeNode<?> getScopeAdapter() {
+        return scopeAdapter;
+    }
 
-	public String getMethodName() {
-		return methodName;
-	}
+    public String getMethodName() {
+        return methodName;
+    }
 
-	public void setMethodName(String methodName) {
-		this.methodName = methodName;
-	}
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
 
-	public int getOffsetStrategy() {
-		return offsetStrategy;
-	}
+    public int getOffsetStrategy() {
+        return offsetStrategy;
+    }
 
-	public void setOffsetStrategy(int offsetStrategy) {
-		this.offsetStrategy = offsetStrategy;
-	}
+    public void setOffsetStrategy(int offsetStrategy) {
+        this.offsetStrategy = offsetStrategy;
+    }
 
-	public List<ExtractMethodRequest> getRefactoringRequests() {
-		List<ExtractMethodRequest> requests = new ArrayList<ExtractMethodRequest>();
-		requests.add(new ExtractMethodRequest(this.methodName, this.selection, this.scopeAdapter, this.parsedSelection, parameterOrder,
-				deducer.getReturns(), this.renameMap, this.offsetStrategy, this.endLineDelim));
-		return requests;
-	}
+    public List<ExtractMethodRequest> getRefactoringRequests() {
+        List<ExtractMethodRequest> requests = new ArrayList<ExtractMethodRequest>();
+        requests.add(new ExtractMethodRequest(this.methodName, this.selection, this.scopeAdapter, this.parsedSelection, parameterOrder,
+                deducer.getReturns(), this.renameMap, this.offsetStrategy, this.endLineDelim));
+        return requests;
+    }
 
-	public ParameterReturnDeduce getDeducer() {
-		return deducer;
-	}
+    public ParameterReturnDeduce getDeducer() {
+        return deducer;
+    }
 
-	public void setParameterMap(Map<String, String> renameMap) {
-		this.renameMap = renameMap;
-	}
+    public void setParameterMap(Map<String, String> renameMap) {
+        this.renameMap = renameMap;
+    }
 
-	public void setParameterOrder(List<String> parameterOrder) {
-		this.parameterOrder = parameterOrder;
-	}
+    public void setParameterOrder(List<String> parameterOrder) {
+        this.parameterOrder = parameterOrder;
+    }
 
 }

@@ -23,17 +23,17 @@ import org.python.pydev.parser.jython.ast.stmtType;
  */
 public abstract class PyMethodNavigation extends PyAction {
 
-	/**
-	 * This method will search for the next/previous function (depending on the abstract methods)
-	 * and will go to the position in the document that corresponds to the name of the class/function definiton.
-	 */
-	public void run(IAction action) {
-		PyEdit pyEdit = getPyEdit();
-		IDocument doc = pyEdit.getDocumentProvider().getDocument(pyEdit.getEditorInput());
-		ITextSelection selection = (ITextSelection) pyEdit.getSelectionProvider().getSelection();
+    /**
+     * This method will search for the next/previous function (depending on the abstract methods)
+     * and will go to the position in the document that corresponds to the name of the class/function definiton.
+     */
+    public void run(IAction action) {
+        PyEdit pyEdit = getPyEdit();
+        IDocument doc = pyEdit.getDocumentProvider().getDocument(pyEdit.getEditorInput());
+        ITextSelection selection = (ITextSelection) pyEdit.getSelectionProvider().getSelection();
 
-		boolean searchForward = getSearchForward();
-		
+        boolean searchForward = getSearchForward();
+        
         int startLine = selection.getStartLine();
         
         //we want to start searching in the line before/after the line we're in.
@@ -43,7 +43,7 @@ public abstract class PyMethodNavigation extends PyAction {
             startLine -=1;
         }
         stmtType goHere = FastParser.firstClassOrFunction(doc, startLine, searchForward);
-		
+        
         NameTok node = getNameNode(goHere);
         if(node != null){
             //ok, somewhere to go
@@ -58,19 +58,19 @@ public abstract class PyMethodNavigation extends PyAction {
                 pyEdit.selectAndReveal(0, 0);
             }
         }
-	}
+    }
 
-	/**
-	 * @return true if the search should be forward (next method) and false if it should be backward (previous method)
-	 */
-	protected abstract boolean getSearchForward();
+    /**
+     * @return true if the search should be forward (next method) and false if it should be backward (previous method)
+     */
+    protected abstract boolean getSearchForward();
 
-	/**
-	 * @param defNode the ClassDef or FunctionDef from where we want to get the name
-	 * @return the name of the given statement
-	 */
+    /**
+     * @param defNode the ClassDef or FunctionDef from where we want to get the name
+     * @return the name of the given statement
+     */
     protected NameTok getNameNode(stmtType defNode) {
-		NameTok node = null;
+        NameTok node = null;
         if(defNode != null){
             if(defNode instanceof ClassDef){
                 ClassDef def = (ClassDef) defNode;
@@ -81,8 +81,8 @@ public abstract class PyMethodNavigation extends PyAction {
                 node = (NameTok) def.name;
             }
         }
-		return node;
-	}
+        return node;
+    }
 
 
 }

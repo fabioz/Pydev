@@ -47,35 +47,35 @@ public class PythonSourceFolder implements IWrappedResource, IAdaptable, IContri
 //        System.out.println("Created PythonSourceFolder:"+this+" - "+folder+" parent:"+parentElement);
     }
 
-	public Object getParentElement() {
-		return parentElement;
-	}
+    public Object getParentElement() {
+        return parentElement;
+    }
 
-	public IResource getActualObject() {
-		return container;
-	}
+    public IResource getActualObject() {
+        return container;
+    }
 
-	public PythonSourceFolder getSourceFolder() {
-		return this;
-	}
-	
-	public void addChild(IWrappedResource child){
-		IResource actualObject = (IResource) child.getActualObject();
-		
-		Object p = child.getParentElement();
-		if(p != null && p instanceof IWrappedResource){
-			IWrappedResource pWrapped = (IWrappedResource) p;
-			if(pWrapped.getActualObject().equals(actualObject)){
-				PydevPlugin.log("Trying to add an element that has itself as parent: "+actualObject);
-			}
-		}
-		
-		//if there was already a child to the given object, remove it before adding this one.
-		IWrappedResource existing = children.get(actualObject);
-		if(existing != null){
-			removeChild(actualObject);
-		}
-		
+    public PythonSourceFolder getSourceFolder() {
+        return this;
+    }
+    
+    public void addChild(IWrappedResource child){
+        IResource actualObject = (IResource) child.getActualObject();
+        
+        Object p = child.getParentElement();
+        if(p != null && p instanceof IWrappedResource){
+            IWrappedResource pWrapped = (IWrappedResource) p;
+            if(pWrapped.getActualObject().equals(actualObject)){
+                PydevPlugin.log("Trying to add an element that has itself as parent: "+actualObject);
+            }
+        }
+        
+        //if there was already a child to the given object, remove it before adding this one.
+        IWrappedResource existing = children.get(actualObject);
+        if(existing != null){
+            removeChild(actualObject);
+        }
+        
         children.put(actualObject, child);
         
         IContainer container = actualObject.getParent();
@@ -86,10 +86,10 @@ public class PythonSourceFolder implements IWrappedResource, IAdaptable, IContri
             childrenForContainer.put(container, l);
         }
         l.add(child);
-	}
-	
-	public void removeChild(IResource actualObject){
-	    //System.out.println("Removing child:"+actualObject);
+    }
+    
+    public void removeChild(IResource actualObject){
+        //System.out.println("Removing child:"+actualObject);
         children.remove(actualObject);
         if(actualObject instanceof IContainer){
             List<IWrappedResource> l = childrenForContainer.get(actualObject);
@@ -100,25 +100,25 @@ public class PythonSourceFolder implements IWrappedResource, IAdaptable, IContri
                 childrenForContainer.remove(actualObject);
             }
         }
-	}
-	
-	public Object getChild(IResource actualObject){
-		if(actualObject == null){
-			return null;
-		}
-		if(this.getActualObject().equals(actualObject)){
-			return this;
-		}
-		IWrappedResource ret = children.get(actualObject);
-		//System.out.println("Gotten child:"+ret+" for resource:"+actualObject);
+    }
+    
+    public Object getChild(IResource actualObject){
+        if(actualObject == null){
+            return null;
+        }
+        if(this.getActualObject().equals(actualObject)){
+            return this;
+        }
+        IWrappedResource ret = children.get(actualObject);
+        //System.out.println("Gotten child:"+ret+" for resource:"+actualObject);
         return ret;
-	}
+    }
     
     
-	
-	public int getRank() {
-	    return IWrappedResource.RANK_SOURCE_FOLDER;
-	}
+    
+    public int getRank() {
+        return IWrappedResource.RANK_SOURCE_FOLDER;
+    }
     
 
     public IResource getAdaptedResource(IAdaptable adaptable) {

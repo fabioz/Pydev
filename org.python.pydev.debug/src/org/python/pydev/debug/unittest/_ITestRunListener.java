@@ -14,9 +14,9 @@ package org.python.pydev.debug.unittest;
 // * Window - Preferences - Java - Code Style - Code Templates
 // */
 //public interface ITestRunListener {
-//	void testsStarted(int testCount, String testFile);
-//	void testsFinished(String summary);
-//	void testStarted(String klass, String method);
-//	void testOK(String klass, String method);
-//	void testFailed(String klass, String method, String failureType, String trace);
+//    void testsStarted(int testCount, String testFile);
+//    void testsFinished(String summary);
+//    void testStarted(String klass, String method);
+//    void testOK(String klass, String method);
+//    void testFailed(String klass, String method, String failureType, String trace);
 //}

@@ -157,88 +157,88 @@ public class FullRepIterable implements Iterable<String>{
     /**
      * @return the name of the parent module of the module represented by currentModuleName
      */
-	public static String getParentModule(String currentModuleName) {
-		return headAndTail(currentModuleName, true)[0];
-	}
+    public static String getParentModule(String currentModuleName) {
+        return headAndTail(currentModuleName, true)[0];
+    }
 
-	/**
-	 * @return All that is after the last dot (or the whole string if there is no dot)
-	 */
-	public static String getLastPart(String tokToCheck) {
-		int i = tokToCheck.lastIndexOf('.');
-		if(i == -1){
-			return tokToCheck;
-		}
-		return tokToCheck.substring(i+1);
-	}
+    /**
+     * @return All that is after the last dot (or the whole string if there is no dot)
+     */
+    public static String getLastPart(String tokToCheck) {
+        int i = tokToCheck.lastIndexOf('.');
+        if(i == -1){
+            return tokToCheck;
+        }
+        return tokToCheck.substring(i+1);
+    }
 
-	/**
-	 * @return All that is before the first dot (or the whole string if there is no dot)
-	 */
-	public static String getFirstPart(String tokToCheck) {
-		int i = tokToCheck.indexOf('.');
-		if(i == -1){
-			return tokToCheck;
-		}
-		return tokToCheck.substring(0, i);
-	}
-	
-	/**
-	 * @return All that is before the first dot (or the whole string if there is no dot)
-	 */
-	public static String getFirstPart(String tokToCheck, char[] toks) {
+    /**
+     * @return All that is before the first dot (or the whole string if there is no dot)
+     */
+    public static String getFirstPart(String tokToCheck) {
+        int i = tokToCheck.indexOf('.');
+        if(i == -1){
+            return tokToCheck;
+        }
+        return tokToCheck.substring(0, i);
+    }
+    
+    /**
+     * @return All that is before the first dot (or the whole string if there is no dot)
+     */
+    public static String getFirstPart(String tokToCheck, char[] toks) {
         String ret = tokToCheck;
         for(char c: toks){
-    	    int i = tokToCheck.indexOf(c);
-    	    if(i != -1){
+            int i = tokToCheck.indexOf(c);
+            if(i != -1){
                 String s = tokToCheck.substring(0, i);
                 if(s.length() < ret.length()){
                     ret = s;
                 }
-    	    }
+            }
         }
-	    return ret;
-	}
-	
-	/**
-	 * @return All that is before the last dot (or an empty string if there is no dot)
-	 */
-	public static String getWithoutLastPart(String currentModuleName) {
-		int i = currentModuleName.lastIndexOf('.');
-		if(i == -1){
-			return "";
-		}
-		return currentModuleName.substring(0, i);
-	}
-
-    
-	public static String joinParts(String[] actToks, int parts) {
-	    StringBuffer buffer = new StringBuffer();
-	    for (int i = 0; i < parts; i++) {
-	        if(i > 0){
-	            buffer.append('.');
-	        }
-	        buffer.append(actToks[i]);
-	    }
-	    return buffer.toString();
+        return ret;
     }
     
-	public static String joinFirstParts(String[] actToks) {
-        return joinParts(actToks, actToks.length-1);
-	}
+    /**
+     * @return All that is before the last dot (or an empty string if there is no dot)
+     */
+    public static String getWithoutLastPart(String currentModuleName) {
+        int i = currentModuleName.lastIndexOf('.');
+        if(i == -1){
+            return "";
+        }
+        return currentModuleName.substring(0, i);
+    }
 
-	/**
-	 * @return whether the foundRep contains some part with the nameToFind
-	 */
-	public static boolean containsPart(String foundRep, String nameToFind) {
-		String[] strings = StringUtils.dotSplit(foundRep);
-		for (String string : strings) {
-			if(string.equals(nameToFind)){
-				return true;
-			}
-		}
-		return false;
-	}
-	
+    
+    public static String joinParts(String[] actToks, int parts) {
+        StringBuffer buffer = new StringBuffer();
+        for (int i = 0; i < parts; i++) {
+            if(i > 0){
+                buffer.append('.');
+            }
+            buffer.append(actToks[i]);
+        }
+        return buffer.toString();
+    }
+    
+    public static String joinFirstParts(String[] actToks) {
+        return joinParts(actToks, actToks.length-1);
+    }
+
+    /**
+     * @return whether the foundRep contains some part with the nameToFind
+     */
+    public static boolean containsPart(String foundRep, String nameToFind) {
+        String[] strings = StringUtils.dotSplit(foundRep);
+        for (String string : strings) {
+            if(string.equals(nameToFind)){
+                return true;
+            }
+        }
+        return false;
+    }
+    
 
 }

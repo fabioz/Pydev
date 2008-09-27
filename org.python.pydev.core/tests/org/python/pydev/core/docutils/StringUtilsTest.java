@@ -27,12 +27,12 @@ public class StringUtilsTest extends TestCase {
     
     
     public void testReplaceAllSlashes() throws Exception {
-    	assertEquals("foo", StringUtils.replaceAllSlashes("foo"));
-    	assertEquals("foo/", StringUtils.replaceAllSlashes("foo\\"));
-    	assertEquals("/foo/", StringUtils.replaceAllSlashes("\\foo\\"));
-    	assertEquals("/foo///", StringUtils.replaceAllSlashes("\\foo\\\\\\"));
-		
-	}
+        assertEquals("foo", StringUtils.replaceAllSlashes("foo"));
+        assertEquals("foo/", StringUtils.replaceAllSlashes("foo\\"));
+        assertEquals("/foo/", StringUtils.replaceAllSlashes("\\foo\\"));
+        assertEquals("/foo///", StringUtils.replaceAllSlashes("\\foo\\\\\\"));
+        
+    }
     
     public void testReplaceAll() throws Exception {
         assertEquals("foo", StringUtils.replaceAll("fjj", "j", "o"));

@@ -9,6 +9,6 @@ import java.util.List;
 
 public class ModuleAdapterTestConfig {
 
-	List<String> resolveNames = new ArrayList<String>();
+    List<String> resolveNames = new ArrayList<String>();
 
 }

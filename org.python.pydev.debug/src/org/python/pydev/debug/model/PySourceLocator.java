@@ -19,31 +19,31 @@ import org.python.pydev.editorinput.PySourceLocatorBase;
  */
 public class PySourceLocator implements ISourceLocator, ISourcePresentation {
 
-	private PySourceLocatorBase locatorBase  = new PySourceLocatorBase();
-	
-	public Object getSourceElement(IStackFrame stackFrame) {
-		return stackFrame;
-	}
+    private PySourceLocatorBase locatorBase  = new PySourceLocatorBase();
+    
+    public Object getSourceElement(IStackFrame stackFrame) {
+        return stackFrame;
+    }
 
-	// Returns the file
-	public IEditorInput getEditorInput(Object element) {
-		IEditorInput edInput = null;
-		if (element instanceof PyStackFrame) {
+    // Returns the file
+    public IEditorInput getEditorInput(Object element) {
+        IEditorInput edInput = null;
+        if (element instanceof PyStackFrame) {
             
-			IPath path = ((PyStackFrame)element).getPath();			
+            IPath path = ((PyStackFrame)element).getPath();            
             
-			if (path != null && !path.toString().startsWith("<")){								
-		        edInput = locatorBase.createEditorInput(path);                
-			}
+            if (path != null && !path.toString().startsWith("<")){                                
+                edInput = locatorBase.createEditorInput(path);                
+            }
             
-		}
-		return edInput;
-	}
+        }
+        return edInput;
+    }
 
 
-	public String getEditorId(IEditorInput input, Object element) {
-		return PyEdit.EDITOR_ID;
-	}
+    public String getEditorId(IEditorInput input, Object element) {
+        return PyEdit.EDITOR_ID;
+    }
 
     
 

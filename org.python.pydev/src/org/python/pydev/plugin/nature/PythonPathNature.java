@@ -127,10 +127,10 @@ public class PythonPathNature implements IPythonPathNature {
                 IPath p = new Path(strings[i]);
                 
                 if(ResourcesPlugin.getPlugin() == null){
-                	//in tests
-                	buf.append(strings[i]);
-                	buf.append("|");
-                	continue;
+                    //in tests
+                    buf.append(strings[i]);
+                    buf.append("|");
+                    continue;
                 }
                 
                 IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
@@ -149,28 +149,28 @@ public class PythonPathNature implements IPythonPathNature {
                     buf.append("|");
                 
                 }else if(r instanceof IFile){ //zip/jar/egg file
-                	String extension = r.getFileExtension();
-                	if(extension == null || FileTypesPreferencesPage.isValidZipFile("."+extension) == false){
-                		PydevPlugin.log("Error: the path "+strings[i]+" is a file but is not a recognized zip file.");
-                		
-                	}else{
-	                	buf.append(REF.getFileAbsolutePath(r.getLocation().toFile()));
-	                	buf.append("|");
-                	}
+                    String extension = r.getFileExtension();
+                    if(extension == null || FileTypesPreferencesPage.isValidZipFile("."+extension) == false){
+                        PydevPlugin.log("Error: the path "+strings[i]+" is a file but is not a recognized zip file.");
+                        
+                    }else{
+                        buf.append(REF.getFileAbsolutePath(r.getLocation().toFile()));
+                        buf.append("|");
+                    }
                 
                 }else{
-                	if(root.isSynchronized(IResource.DEPTH_INFINITE)){
-                		//if it's synchronized, it really doesn't exist (let's warn about it)
-		                //not in workspace?... maybe it was removed, so, do nothing, but let the user know about it
-		                Log.log(IStatus.WARNING, "Unable to find the path "+strings[i]+" in the project were it's \n" +
-		                        "added as a source folder for pydev (project: "+project.getName()+") member:"+r, null);
-                	}
-	                
-	                IPath rootLocation = root.getRawLocation();
-	                //still, let's add it there (this'll be cached for later use)
-	                buf.append(REF.getFileAbsolutePath(rootLocation.append(strings[i].trim()).toFile()));
-	                buf.append("|");
-	                
+                    if(root.isSynchronized(IResource.DEPTH_INFINITE)){
+                        //if it's synchronized, it really doesn't exist (let's warn about it)
+                        //not in workspace?... maybe it was removed, so, do nothing, but let the user know about it
+                        Log.log(IStatus.WARNING, "Unable to find the path "+strings[i]+" in the project were it's \n" +
+                                "added as a source folder for pydev (project: "+project.getName()+") member:"+r, null);
+                    }
+                    
+                    IPath rootLocation = root.getRawLocation();
+                    //still, let's add it there (this'll be cached for later use)
+                    buf.append(REF.getFileAbsolutePath(rootLocation.append(strings[i].trim()).toFile()));
+                    buf.append("|");
+                    
                 }
             }
         }
@@ -246,8 +246,8 @@ public class PythonPathNature implements IPythonPathNature {
             boolean restore = false;
             String projectSourcePath = nature.getStore().getPathProperty(PythonPathNature.getProjectSourcePathQualifiedName());
             if(projectSourcePath == null){
-            	//has not been set
-            	return "";
+                //has not been set
+                return "";
             }
             //we have to validate it, because as we store the values relative to the workspace, and not to the 
             //project, the path may become invalid (in which case we have to make it compatible again).
@@ -291,11 +291,11 @@ public class PythonPathNature implements IPythonPathNature {
         }
         synchronized(project){
             //no need to validate because those are always 'file-system' related
-        	String extPath = nature.getStore().getPathProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName());
+            String extPath = nature.getStore().getPathProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName());
             if(extPath == null){
-            	extPath = "";
+                extPath = "";
             }
-			return extPath;
+            return extPath;
         }
     }
 

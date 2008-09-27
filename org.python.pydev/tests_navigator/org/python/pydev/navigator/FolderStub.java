@@ -36,16 +36,16 @@ public class FolderStub implements IFolder{
     }
     
     public FolderStub(ProjectStub stub, IContainer parent, File parentFile) {
-    	Assert.isTrue(parentFile.exists() && parentFile.isDirectory());
-    	this.project = stub;
-    	this.folder = parentFile;
-    	this.parent = parent;
+        Assert.isTrue(parentFile.exists() && parentFile.isDirectory());
+        this.project = stub;
+        this.folder = parentFile;
+        this.parent = parent;
     }
     
     public IContainer getParent() {
-    	if(parent != null){
-    		return parent;
-    	}
+        if(parent != null){
+            return parent;
+        }
         return project.getFolder(this.folder.getParentFile());
     }
     
@@ -55,31 +55,31 @@ public class FolderStub implements IFolder{
     }
 
     @Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((folder == null) ? 0 : folder.hashCode());
-		return result;
-	}
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((folder == null) ? 0 : folder.hashCode());
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		final FolderStub other = (FolderStub) obj;
-		if (folder == null) {
-			if (other.folder != null)
-				return false;
-		} else if (!folder.equals(other.folder))
-			return false;
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final FolderStub other = (FolderStub) obj;
+        if (folder == null) {
+            if (other.folder != null)
+                return false;
+        } else if (!folder.equals(other.folder))
+            return false;
+        return true;
+    }
 
-	public void create(boolean force, boolean local, IProgressMonitor monitor) throws CoreException {
+    public void create(boolean force, boolean local, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not impl");
         
     }
@@ -502,29 +502,29 @@ public class FolderStub implements IFolder{
         throw new RuntimeException("Not implemented");
     }
 
-	public Map getPersistentProperties() throws CoreException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Map getPersistentProperties() throws CoreException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public Map getSessionProperties() throws CoreException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Map getSessionProperties() throws CoreException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public boolean isDerived(int options) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    public boolean isDerived(int options) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	public boolean isHidden() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    public boolean isHidden() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	public void setHidden(boolean isHidden) throws CoreException {
-		// TODO Auto-generated method stub
-		
-	}
+    public void setHidden(boolean isHidden) throws CoreException {
+        // TODO Auto-generated method stub
+        
+    }
 
 }

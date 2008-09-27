@@ -7,19 +7,19 @@ import org.eclipse.jface.viewers.ViewerFilter;
 
 public class DotStartFilter extends ViewerFilter{
 
-	@Override
-	public boolean select(Viewer viewer, Object parentElement, Object element) {
-		if(element instanceof IAdaptable){
-			IAdaptable adaptable = (IAdaptable) element;
-			Object adapted = adaptable.getAdapter(IResource.class);
-			if(adapted instanceof IResource){
-				IResource resource = (IResource) adapted;
-				if(resource.getName().startsWith(".")){
-					return false;
-				}
-			}
-		}
-		return true;
-	}
+    @Override
+    public boolean select(Viewer viewer, Object parentElement, Object element) {
+        if(element instanceof IAdaptable){
+            IAdaptable adaptable = (IAdaptable) element;
+            Object adapted = adaptable.getAdapter(IResource.class);
+            if(adapted instanceof IResource){
+                IResource resource = (IResource) adapted;
+                if(resource.getName().startsWith(".")){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
 }

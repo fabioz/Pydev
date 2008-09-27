@@ -81,13 +81,13 @@ public abstract class AbstractPyRefactoring implements IPyRefactoring{
      */
     public synchronized static IPyRefactoring getPyRefactoring(){
         if (AbstractPyRefactoring.pyRefactoring == null){
-        	IPyRefactoring r = (IPyRefactoring) ExtensionHelper.getParticipant(ExtensionHelper.PYDEV_REFACTORING);
-        	if(r != null){
-        		AbstractPyRefactoring.pyRefactoring = r;
-        	}else{
-        		//default one (provided by BRM)
+            IPyRefactoring r = (IPyRefactoring) ExtensionHelper.getParticipant(ExtensionHelper.PYDEV_REFACTORING);
+            if(r != null){
+                AbstractPyRefactoring.pyRefactoring = r;
+            }else{
+                //default one (provided by BRM)
                 AbstractPyRefactoring.pyRefactoring = getDefaultPyRefactoring();
-        	}
+            }
         }
         return AbstractPyRefactoring.pyRefactoring;
     }
@@ -121,7 +121,7 @@ public abstract class AbstractPyRefactoring implements IPyRefactoring{
 
 
     public void addPropertyListener(IPropertyListener l) {
-    	propChangeListeners.add(l);
+        propChangeListeners.add(l);
     }
 
 

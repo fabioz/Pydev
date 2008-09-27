@@ -13,18 +13,18 @@ import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
 
 public class ClassDefAdapterTestSuite extends AbstractIOTestSuite {
 
-	public static Test suite() {
-		TESTDIR = "tests" + File.separator + "python" + File.separator + "adapter" + File.separator + "classdef";
-		ClassDefAdapterTestSuite testSuite = new ClassDefAdapterTestSuite();
+    public static Test suite() {
+        TESTDIR = "tests" + File.separator + "python" + File.separator + "adapter" + File.separator + "classdef";
+        ClassDefAdapterTestSuite testSuite = new ClassDefAdapterTestSuite();
 
-		testSuite.createTests();
+        testSuite.createTests();
         testSuite.addTest(new HierarchyTestCase("testHierarchyWithBuiltins"));
 
-		return testSuite;
-	}
+        return testSuite;
+    }
 
-	@Override
-	protected IInputOutputTestCase createTestCase(String testCaseName) {
-		return new ClassDefAdapterTestCase(testCaseName);
-	}
+    @Override
+    protected IInputOutputTestCase createTestCase(String testCaseName) {
+        return new ClassDefAdapterTestCase(testCaseName);
+    }
 }

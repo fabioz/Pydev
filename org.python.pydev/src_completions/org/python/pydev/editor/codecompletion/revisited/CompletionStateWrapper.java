@@ -168,10 +168,10 @@ public class CompletionStateWrapper implements ICompletionState {
     @Override
     public String toString() {
         FastStringBuffer buf = new FastStringBuffer();
-    	buf.append("CompletionStateWrapper[ ");
-    	buf.append(this.activationToken);
-    	buf.append(" ]");
-    	return buf.toString();
+        buf.append("CompletionStateWrapper[ ");
+        buf.append(this.activationToken);
+        buf.append(" ]");
+        return buf.toString();
     }
 
     public void add(Object key, Object n) {

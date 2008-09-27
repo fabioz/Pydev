@@ -25,50 +25,50 @@ import org.python.pydev.refactoring.ui.pages.ConstructorFieldPage;
 
 public class ConstructorFieldRefactoring extends AbstractPythonRefactoring {
 
-	private ConstructorFieldRequestProcessor requestProcessor;
+    private ConstructorFieldRequestProcessor requestProcessor;
 
-	private IChangeProcessor changeProcessor;
+    private IChangeProcessor changeProcessor;
 
-	public ConstructorFieldRefactoring(RefactoringInfo req) {
-		super(req);
-		try {
-			initWizard();
-		} catch (Throwable e) {
-			status.addInfo(Messages.infoFixCode);
-		}
-	}
+    public ConstructorFieldRefactoring(RefactoringInfo req) {
+        super(req);
+        try {
+            initWizard();
+        } catch (Throwable e) {
+            status.addInfo(Messages.infoFixCode);
+        }
+    }
 
-	private void initWizard() throws Throwable {
-		ClassFieldTreeProvider provider = new ClassFieldTreeProvider(info.getScopeClass());
-		this.requestProcessor = new ConstructorFieldRequestProcessor(this.info.getNewLineDelim());
-		this.changeProcessor = new ConstructorFieldChangeProcessor(getName(), this.info, this.requestProcessor);
-		this.pages.add(new ConstructorFieldPage(getName(), provider, requestProcessor));
-	}
+    private void initWizard() throws Throwable {
+        ClassFieldTreeProvider provider = new ClassFieldTreeProvider(info.getScopeClass());
+        this.requestProcessor = new ConstructorFieldRequestProcessor(this.info.getNewLineDelim());
+        this.changeProcessor = new ConstructorFieldChangeProcessor(getName(), this.info, this.requestProcessor);
+        this.pages.add(new ConstructorFieldPage(getName(), provider, requestProcessor));
+    }
 
-	@Override
-	protected List<IChangeProcessor> getChangeProcessors() {
-		List<IChangeProcessor> processors = new ArrayList<IChangeProcessor>();
-		processors.add(changeProcessor);
-		return processors;
-	}
+    @Override
+    protected List<IChangeProcessor> getChangeProcessors() {
+        List<IChangeProcessor> processors = new ArrayList<IChangeProcessor>();
+        processors.add(changeProcessor);
+        return processors;
+    }
 
-	@Override
-	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-		IClassDefAdapter rootClass = this.info.getScopeClass();
+    @Override
+    public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+        IClassDefAdapter rootClass = this.info.getScopeClass();
 
-		if (rootClass != null) {
-			if (rootClass.getAttributes().size() > 0) {
-				return status;
-			}
-		}
+        if (rootClass != null) {
+            if (rootClass.getAttributes().size() > 0) {
+                return status;
+            }
+        }
 
-		status.addFatalError(Messages.constructorFieldUnavailable);
+        status.addFatalError(Messages.constructorFieldUnavailable);
 
-		return status;
-	}
+        return status;
+    }
 
-	@Override
-	public String getName() {
-		return Messages.constructorFieldLabel;
-	}
+    @Override
+    public String getName() {
+        return Messages.constructorFieldLabel;
+    }
 }

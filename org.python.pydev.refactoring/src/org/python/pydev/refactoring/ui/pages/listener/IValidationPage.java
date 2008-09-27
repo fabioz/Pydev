@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.Listener;
 
 public interface IValidationPage extends IWizardPage, Listener {
 
-	public void setErrorMessage(String error);
+    public void setErrorMessage(String error);
 
-	public void validate();
+    public void validate();
 }

@@ -41,9 +41,9 @@ public class PydevConsoleFactory implements IConsoleFactory {
         try {
             PydevConsoleInterpreter interpreter = createDefaultPydevInterpreter();
             if(interpreter != null){
-	            PydevConsole console = new PydevConsole(interpreter);
-	            manager.add(console, true);
-	            return console;
+                PydevConsole console = new PydevConsole(interpreter);
+                manager.add(console, true);
+                return console;
             }
         } catch (Exception e) {
             PydevPlugin.log(e);

@@ -18,13 +18,13 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
  */
 public interface IScriptConsoleCommunication {
     
-	/**
-	 * Executes a given command in the interpreter (push a line)
-	 * 
-	 * @param command the command to be executed
-	 * @return the response from the interpreter (contains the stdout, stderr, etc).
-	 * @throws Exception
-	 */
+    /**
+     * Executes a given command in the interpreter (push a line)
+     * 
+     * @param command the command to be executed
+     * @return the response from the interpreter (contains the stdout, stderr, etc).
+     * @throws Exception
+     */
     InterpreterResponse execInterpreter(String command) throws Exception;
 
     /**

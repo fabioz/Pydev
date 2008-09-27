@@ -21,55 +21,55 @@ import org.python.pydev.refactoring.ui.validator.NameValidator;
 
 public class ExtractLocalComposite extends Composite {
 
-	private LabeledEdit variableNameEdit;
+    private LabeledEdit variableNameEdit;
 
-	private AbstractScopeNode<?> scopeAdapter;
+    private AbstractScopeNode<?> scopeAdapter;
 
-	private IValidationPage page;
+    private IValidationPage page;
 
-	public ExtractLocalComposite(IValidationPage page, Composite parent, AbstractScopeNode<?> scope) {
-		super(parent, SWT.NONE);
-		this.page = page;
-		this.scopeAdapter = scope;
+    public ExtractLocalComposite(IValidationPage page, Composite parent, AbstractScopeNode<?> scope) {
+        super(parent, SWT.NONE);
+        this.page = page;
+        this.scopeAdapter = scope;
 
-		createComposite();
-	}
+        createComposite();
+    }
 
-	public void createComposite() {
-		setLayout(new GridLayout());
+    public void createComposite() {
+        setLayout(new GridLayout());
 
-		createVariableName(this);
+        createVariableName(this);
 
-		pack();
-	}
+        pack();
+    }
 
-	private void createVariableName(Composite control) {
-		Composite variableNameComposite = new Composite(control, SWT.NONE);
-		FillLayout compositeLayout = new FillLayout(SWT.HORIZONTAL);
-		GridData gridData = new GridData();
-		gridData.horizontalAlignment = GridData.FILL;
-		variableNameComposite.setLayoutData(gridData);
-		variableNameComposite.setLayout(compositeLayout);
-		variableNameEdit = new LabeledEdit(variableNameComposite, Messages.extractLocalVariableTitle);
-	}
+    private void createVariableName(Composite control) {
+        Composite variableNameComposite = new Composite(control, SWT.NONE);
+        FillLayout compositeLayout = new FillLayout(SWT.HORIZONTAL);
+        GridData gridData = new GridData();
+        gridData.horizontalAlignment = GridData.FILL;
+        variableNameComposite.setLayoutData(gridData);
+        variableNameComposite.setLayout(compositeLayout);
+        variableNameEdit = new LabeledEdit(variableNameComposite, Messages.extractLocalVariableTitle);
+    }
 
-	public void registerListeners(final IValidationPage page) {
-		variableNameEdit.getEdit().addListener(SWT.Modify, page);
-	}
+    public void registerListeners(final IValidationPage page) {
+        variableNameEdit.getEdit().addListener(SWT.Modify, page);
+    }
 
-	public String getVariableName() {
-		return variableNameEdit.getEdit().getText();
-	}
+    public String getVariableName() {
+        return variableNameEdit.getEdit().getText();
+    }
 
-	public boolean validate() {
-		NameValidator nameValidator = new NameValidator(scopeAdapter);
-		try {
-			nameValidator.validateVariableName(getVariableName());
-			nameValidator.validateUniqueVariable(getVariableName());
-		} catch (Throwable e) {
-			page.setErrorMessage(e.getMessage());
-		}
+    public boolean validate() {
+        NameValidator nameValidator = new NameValidator(scopeAdapter);
+        try {
+            nameValidator.validateVariableName(getVariableName());
+            nameValidator.validateUniqueVariable(getVariableName());
+        } catch (Throwable e) {
+            page.setErrorMessage(e.getMessage());
+        }
 
-		return page.getErrorMessage() == null;
-	}
+        return page.getErrorMessage() == null;
+    }
 }

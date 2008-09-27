@@ -13,8 +13,8 @@ public class ThreadStreamReader extends Thread {
     public FastStringBuffer contents;
 
     public ThreadStreamReader(InputStream is) {
-    	this.setName("ThreadStreamReader");
-    	this.setDaemon(true);
+        this.setName("ThreadStreamReader");
+        this.setDaemon(true);
         contents = new FastStringBuffer();
         this.is = is;
     }

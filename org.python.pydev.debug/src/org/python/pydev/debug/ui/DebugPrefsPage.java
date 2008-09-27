@@ -25,32 +25,32 @@ import org.python.pydev.plugin.PydevPrefs;
  * <p>Prefeernce constants are defined in Constants.java
  */
 public class DebugPrefsPage extends FieldEditorPreferencePage 
-	implements IWorkbenchPreferencePage{
+    implements IWorkbenchPreferencePage{
 
 
-	/**
-	 * Initializer sets the preference store
-	 */
-	public DebugPrefsPage() {
-		super("Debug", GRID);
-		setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
-	}
+    /**
+     * Initializer sets the preference store
+     */
+    public DebugPrefsPage() {
+        super("Debug", GRID);
+        setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
+    }
 
-	public void init(IWorkbench workbench) {
-	}
-	
-	/**
-	 * Creates the editors
-	 */
-	@SuppressWarnings("unchecked")
+    public void init(IWorkbench workbench) {
+    }
+    
+    /**
+     * Creates the editors
+     */
+    @SuppressWarnings("unchecked")
     protected void createFieldEditors() {
-		Composite p = getFieldEditorParent();
-		addField(new IntegerFieldEditor(PydevPrefs.CONNECT_TIMEOUT, "Connect timeout for debugger (ms)", p, 10));
+        Composite p = getFieldEditorParent();
+        addField(new IntegerFieldEditor(PydevPrefs.CONNECT_TIMEOUT, "Connect timeout for debugger (ms)", p, 10));
         List<IDebugPreferencesPageParticipant> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_DEBUG_PREFERENCES_PAGE);
         for (IDebugPreferencesPageParticipant participant : participants) {
             participant.createFieldEditors(this, p);
         }
-	}
+    }
 
     /**
      * Make it available for extensions
@@ -59,11 +59,11 @@ public class DebugPrefsPage extends FieldEditorPreferencePage
     public void addField(FieldEditor editor) {
         super.addField(editor);
     }
-	
+    
 
-	/**
-	 * Sets default preference values
-	 */
-	protected void initializeDefaultPreferences(Preferences prefs) {
-	}
+    /**
+     * Sets default preference values
+     */
+    protected void initializeDefaultPreferences(Preferences prefs) {
+    }
 }

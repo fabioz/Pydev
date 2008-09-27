@@ -39,52 +39,52 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
      * @param monitor 
      */
     private void visitWith(String name, boolean isAddOrChange, IResource resource, IDocument document, IProgressMonitor monitor){
-    	if(monitor.isCanceled()){
-    		return; //it's already cancelled
-    	}
-    	IPythonNature nature = PythonNature.getPythonNature(resource);
-    	if(nature == null){
-    		return;
-    	}
-    	if(!nature.startRequests()){
-    		return;
-    	}
-    	
-    	FastStringBuffer bufferToCreateString = new FastStringBuffer();
-    	
-    	try{
-	        if(!nature.isResourceInPythonpath(resource)){
-	        	return; // we only analyze resources that are in the pythonpath
-	        }
-	        HashMap<String, Object> memo = new HashMap<String, Object>();
-	        memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false); //mark it as a delta build
-	        
-	        for (PyDevBuilderVisitor visitor : visitors) {
-	            // some visitors cannot visit too many elements because they do a lot of processing
-	            if (visitor.maxResourcesToVisit() == PyDevBuilderVisitor.MAX_TO_VISIT_INFINITE || visitor.maxResourcesToVisit() >= totalResources) {
-	                visitor.memo = memo; //setting the memo must be the first thing.
-	                try {
+        if(monitor.isCanceled()){
+            return; //it's already cancelled
+        }
+        IPythonNature nature = PythonNature.getPythonNature(resource);
+        if(nature == null){
+            return;
+        }
+        if(!nature.startRequests()){
+            return;
+        }
+        
+        FastStringBuffer bufferToCreateString = new FastStringBuffer();
+        
+        try{
+            if(!nature.isResourceInPythonpath(resource)){
+                return; // we only analyze resources that are in the pythonpath
+            }
+            HashMap<String, Object> memo = new HashMap<String, Object>();
+            memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false); //mark it as a delta build
+            
+            for (PyDevBuilderVisitor visitor : visitors) {
+                // some visitors cannot visit too many elements because they do a lot of processing
+                if (visitor.maxResourcesToVisit() == PyDevBuilderVisitor.MAX_TO_VISIT_INFINITE || visitor.maxResourcesToVisit() >= totalResources) {
+                    visitor.memo = memo; //setting the memo must be the first thing.
+                    try {
                         //communicate progress for each visitor
-	                    PyDevBuilder.communicateProgress(monitor, totalResources, currentResourcesVisited, resource, visitor, bufferToCreateString);
-	                    REF.invoke(visitor, name, resource, document, monitor);
-	                    
-	                    //ok, standard visiting ended... now, we have to check if we should visit the other
-	                    //resources if it was an __init__.py file that changed
-	                    if(isAddOrChange && visitor.shouldVisitInitDependency() && isInitFile(resource)){
-	                        IResource[] initDependents = getInitDependents(resource);
-	                        
-	                        for (int i = 0; i < initDependents.length; i++) {
-	                            IDocument doc = REF.getDocFromResource(initDependents[i]);
-								REF.invoke(visitor, name, initDependents[i], doc, monitor);
-	                        }
-	                    }
-	                } catch (Exception e) {
-	                    Log.log(e);
-	                }
-	            }
+                        PyDevBuilder.communicateProgress(monitor, totalResources, currentResourcesVisited, resource, visitor, bufferToCreateString);
+                        REF.invoke(visitor, name, resource, document, monitor);
+                        
+                        //ok, standard visiting ended... now, we have to check if we should visit the other
+                        //resources if it was an __init__.py file that changed
+                        if(isAddOrChange && visitor.shouldVisitInitDependency() && isInitFile(resource)){
+                            IResource[] initDependents = getInitDependents(resource);
+                            
+                            for (int i = 0; i < initDependents.length; i++) {
+                                IDocument doc = REF.getDocFromResource(initDependents[i]);
+                                REF.invoke(visitor, name, initDependents[i], doc, monitor);
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.log(e);
+                    }
+                }
             }
         }finally{
-        	nature.endRequests();
+            nature.endRequests();
         }
         
     }

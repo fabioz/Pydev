@@ -116,7 +116,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                         
                         //if we had an enter with the shift pressed and we're in a completion, we must stop it
                         if(inCompletion && (event.stateMask & SWT.SHIFT) != 0){
-                        	((PyContentAssistant)ScriptConsoleViewer.this.fContentAssistant).hide();
+                            ((PyContentAssistant)ScriptConsoleViewer.this.fContentAssistant).hide();
                         }
                         
                         if(!inCompletion){
@@ -129,28 +129,28 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                     }
                     
                     if (event.character == SWT.ESC) {
-                    	if(!inCompletion){
-                    		//while in a completion, esc won't clear the line (just stop the completion)
-                    		listener.setCommandLine("");
-                    	}
-                    	return;
+                        if(!inCompletion){
+                            //while in a completion, esc won't clear the line (just stop the completion)
+                            listener.setCommandLine("");
+                        }
+                        return;
                     }
                 }else{ //not printable char
                     if (isCaretInEditableRange()) {
-                    	if(!inCompletion && event.keyCode == SWT.PAGE_UP){
-                    		event.doit = false;
-                    		List<String> commands = history.getAsList();
-                    		List<String> commandsToExecute = ScriptConsoleHistorySelector.select(commands);
-                    		if(commandsToExecute != null){
-                    		    //remove the current command (substituted by the one gotten from page up)
-                    		    listener.setCommandLine("");
-                    		    for(String s:commandsToExecute){
-                    		        IDocument d = getDocument();
-                    		        d.replace(d.getLength(), 0, s+"\n");
-                    		    }
-                    		}
-                    		return;
-                    	}
+                        if(!inCompletion && event.keyCode == SWT.PAGE_UP){
+                            event.doit = false;
+                            List<String> commands = history.getAsList();
+                            List<String> commandsToExecute = ScriptConsoleHistorySelector.select(commands);
+                            if(commandsToExecute != null){
+                                //remove the current command (substituted by the one gotten from page up)
+                                listener.setCommandLine("");
+                                for(String s:commandsToExecute){
+                                    IDocument d = getDocument();
+                                    d.replace(d.getLength(), 0, s+"\n");
+                                }
+                            }
+                            return;
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -202,7 +202,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
          * @param parent parent for the styled text
          * @param style style to be used
          */
-		public ScriptConsoleStyledText(Composite parent, int style) {
+        public ScriptConsoleStyledText(Composite parent, int style) {
             super(parent, style);
             
             /**
@@ -214,9 +214,9 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
              */
             addVerifyListener(new VerifyListener(){
 
-    			public void verifyText(VerifyEvent e) {
-    				internalCaretSet = -1;
-    			}}
+                public void verifyText(VerifyEvent e) {
+                    internalCaretSet = -1;
+                }}
             );
 
             /**
@@ -224,15 +224,15 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
              */
             addExtendedModifyListener(new ExtendedModifyListener(){
 
-    			public void modifyText(ExtendedModifyEvent event) {
+                public void modifyText(ExtendedModifyEvent event) {
 
-    				if(internalCaretSet != -1){
-    					if(internalCaretSet != getCaretOffset()){
-    						setCaretOffset(internalCaretSet);
-    					}
-    					internalCaretSet = -1;
-    				}
-    			}}
+                    if(internalCaretSet != -1){
+                        if(internalCaretSet != getCaretOffset()){
+                            setCaretOffset(internalCaretSet);
+                        }
+                        internalCaretSet = -1;
+                    }
+                }}
             );
             
             handleBackspaceAction = new HandleBackspaceAction();
@@ -240,20 +240,20 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             handleLineStartAction = new HandleLineStartAction();
         }
 
-		/**
-		 * Overridden to keep track of changes in the caret.
-		 */
-		@Override
-		public void setCaretOffset(int offset) {
-			internalCaretSet = offset;
-			super.setCaretOffset(offset);
-		}
-		
-		/**
-		 * Execute some action.
-		 */
-		public void invokeAction(int action) {
-		    //some actions have a different scope (not in selected range / out of selected range)
+        /**
+         * Overridden to keep track of changes in the caret.
+         */
+        @Override
+        public void setCaretOffset(int offset) {
+            internalCaretSet = offset;
+            super.setCaretOffset(offset);
+        }
+        
+        /**
+         * Execute some action.
+         */
+        public void invokeAction(int action) {
+            //some actions have a different scope (not in selected range / out of selected range)
             switch (action) {
                 case ST.LINE_START:
                     if(handleLineStartAction.execute(getDocument(), getCaretOffset(), 
@@ -269,7 +269,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             if (isSelectedRangeEditable()) {
                 try {
                     int historyChange = 0;
-					switch (action) {
+                    switch (action) {
                     case ST.LINE_UP:
                         historyChange = 1;
                         break;
@@ -283,34 +283,34 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                         return;
 
                     case ST.DELETE_WORD_PREVIOUS:
-                    	handleDeletePreviousWord.execute(getDocument(), getCaretOffset(), getCommandLineOffset());
+                        handleDeletePreviousWord.execute(getDocument(), getCaretOffset(), getCommandLineOffset());
                         return;
                     }
-					
-					if(historyChange != 0){
-					    if(changedAfterLastHistoryRequest){
-					        //only set a new match if it didn't change since the last time we did an UP/DOWN
-					        history.setMatchStart(getCommandLine());
-					    }
-					    boolean didChange;
-					    if(historyChange == 1){
-					        didChange = history.prev();
-					    }else{
-					        didChange = history.next();
-					    }
-					    
-					    if(didChange){
-    					    inHistoryRequests += 1;
+                    
+                    if(historyChange != 0){
+                        if(changedAfterLastHistoryRequest){
+                            //only set a new match if it didn't change since the last time we did an UP/DOWN
+                            history.setMatchStart(getCommandLine());
+                        }
+                        boolean didChange;
+                        if(historyChange == 1){
+                            didChange = history.prev();
+                        }else{
+                            didChange = history.next();
+                        }
+                        
+                        if(didChange){
+                            inHistoryRequests += 1;
                             try {
                                 listener.setCommandLine(history.get());
                                 setCaretOffset(getDocument().getLength());
                             } finally {
                                 inHistoryRequests -= 1;
                             }
-					    }
+                        }
                         changedAfterLastHistoryRequest = false;
                         return;
-					}
+                    }
 
 
                 } catch (BadLocationException e) {
@@ -419,18 +419,18 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     public void setCaretOffset(final int offset, boolean async) {
         final StyledText textWidget = getTextWidget();
         if(textWidget != null){
-        	if(async){
-        		Display display = textWidget.getDisplay();
-        		if(display != null){
-        			display.asyncExec(new Runnable() {
-        				public void run() {
-        					textWidget.setCaretOffset(offset);
-        				}
-        			});
-        		}
-        	}else{
-        		textWidget.setCaretOffset(offset);
-        	}
+            if(async){
+                Display display = textWidget.getDisplay();
+                if(display != null){
+                    display.asyncExec(new Runnable() {
+                        public void run() {
+                            textWidget.setCaretOffset(offset);
+                        }
+                    });
+                }
+            }else{
+                textWidget.setCaretOffset(offset);
+            }
         }
     }
 
@@ -541,9 +541,9 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
         styledText.addFocusListener(new FocusListener() {
 
-        	/**
-        	 * When the initial focus is gained, set the caret position to the last position (just after the prompt)
-        	 */
+            /**
+             * When the initial focus is gained, set the caret position to the last position (just after the prompt)
+             */
             public void focusGained(FocusEvent e) {
                 setCaretOffset(getDocument().getLength(), true);
                 //just a 1-time listener
@@ -575,14 +575,14 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         //execute the content assist
         styledText.addKeyListener(new KeyListener() {
             public void keyPressed(KeyEvent e) {
-            	if (getCaretOffset() >= getCommandLineOffset()){
-	                if (KeyBindingHelper.matchesContentAssistKeybinding(e)) {
-	                    contentHandler.contentAssistRequired();
-	                    
-	                }else if (KeyBindingHelper.matchesQuickAssistKeybinding(e)) {
-	                    contentHandler.quickAssistRequired();
+                if (getCaretOffset() >= getCommandLineOffset()){
+                    if (KeyBindingHelper.matchesContentAssistKeybinding(e)) {
+                        contentHandler.contentAssistRequired();
+                        
+                    }else if (KeyBindingHelper.matchesQuickAssistKeybinding(e)) {
+                        contentHandler.quickAssistRequired();
                     }
-            	}
+                }
             }
 
             public void keyReleased(KeyEvent e) {
@@ -597,32 +597,32 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
      */
     @Override
     public void configure(SourceViewerConfiguration configuration) {
-    	super.configure(configuration);
-    	ICompletionListener completionListener = new ICompletionListener(){
-    	    
-    	    public void assistSessionStarted(ContentAssistEvent event) {
-    	        inCompletion = true;
-    	    }
-    	    
-    	    public void assistSessionEnded(ContentAssistEvent event) {
-    	        inCompletion = false;
-    	    }
-    	    
-    	    public void selectionChanged(ICompletionProposal proposal, boolean smartToggle) {
-    	    }
-	    };
-	    
-    	if(fContentAssistant != null){
+        super.configure(configuration);
+        ICompletionListener completionListener = new ICompletionListener(){
+            
+            public void assistSessionStarted(ContentAssistEvent event) {
+                inCompletion = true;
+            }
+            
+            public void assistSessionEnded(ContentAssistEvent event) {
+                inCompletion = false;
+            }
+            
+            public void selectionChanged(ICompletionProposal proposal, boolean smartToggle) {
+            }
+        };
+        
+        if(fContentAssistant != null){
             ((IContentAssistantExtension2)fContentAssistant).addCompletionListener(completionListener);
-    	}
-    	
-    	if(fQuickAssistAssistant != null){
-    	    fQuickAssistAssistant.addCompletionListener(completionListener);
-    	}
-    	
-    	if(isMainViewer){
-    	    clear(true);
-    	}
+        }
+        
+        if(fQuickAssistAssistant != null){
+            fQuickAssistAssistant.addCompletionListener(completionListener);
+        }
+        
+        if(isMainViewer){
+            clear(true);
+        }
     }
     
     

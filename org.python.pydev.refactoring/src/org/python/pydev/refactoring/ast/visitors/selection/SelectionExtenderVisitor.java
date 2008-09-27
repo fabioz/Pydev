@@ -36,311 +36,311 @@ import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 
 public class SelectionExtenderVisitor extends VisitorBase {
 
-	private ModuleAdapter module;
+    private ModuleAdapter module;
 
-	private ITextSelection selection;
+    private ITextSelection selection;
 
-	private FastStack<SimpleNode> stmtExprStack;
+    private FastStack<SimpleNode> stmtExprStack;
 
-	private SimpleNode extendNodeInSelection;
+    private SimpleNode extendNodeInSelection;
 
-	public SelectionExtenderVisitor(ModuleAdapter module, ITextSelection selection) {
-		this.module = module;
-		this.selection = selection;
-		this.stmtExprStack = new FastStack<SimpleNode>();
-		this.extendNodeInSelection = null;
-	}
+    public SelectionExtenderVisitor(ModuleAdapter module, ITextSelection selection) {
+        this.module = module;
+        this.selection = selection;
+        this.stmtExprStack = new FastStack<SimpleNode>();
+        this.extendNodeInSelection = null;
+    }
 
-	@Override
-	public void traverse(SimpleNode node) throws Exception {
-		if (node != null) {
-			updateSelection(node);
-			node.traverse(this);
-		}
-	}
+    @Override
+    public void traverse(SimpleNode node) throws Exception {
+        if (node != null) {
+            updateSelection(node);
+            node.traverse(this);
+        }
+    }
 
-	@Override
-	protected Object unhandled_node(SimpleNode node) throws Exception {
-		return null;
-	}
+    @Override
+    protected Object unhandled_node(SimpleNode node) throws Exception {
+        return null;
+    }
 
-	private void updateSelection(SimpleNode node) {
-		extendSelection(node);
-		if (node.beginLine <= selection.getEndLine() + 1) {
-			updateStack(node);
-			checkAndExtend(node, node);
-		} else if (node.beginLine >= selection.getEndLine() + 1) {
-			if (!stmtExprStack.isEmpty()) {
-				this.extendNodeInSelection = stmtExprStack.peek();
-			}
-		}
-	}
+    private void updateSelection(SimpleNode node) {
+        extendSelection(node);
+        if (node.beginLine <= selection.getEndLine() + 1) {
+            updateStack(node);
+            checkAndExtend(node, node);
+        } else if (node.beginLine >= selection.getEndLine() + 1) {
+            if (!stmtExprStack.isEmpty()) {
+                this.extendNodeInSelection = stmtExprStack.peek();
+            }
+        }
+    }
 
-	protected SimpleNode visit(SimpleNode node) throws Exception {
-		if (node == null)
-			return null;
+    protected SimpleNode visit(SimpleNode node) throws Exception {
+        if (node == null)
+            return null;
 
-		updateSelection(node);
+        updateSelection(node);
 
-		if (node instanceof suiteType) {
-			visitSuiteType((suiteType) node);
-		} else if (node instanceof excepthandlerType) {
-			visitExceptionHandler((excepthandlerType) node);
-		} else if (node instanceof decoratorsType) {
-			visitDecoratorsType((decoratorsType) node);
-		} else if (node instanceof keywordType) {
-			visitKeywordType((keywordType) node);
-		} else if (node instanceof argumentsType) {
-			visitArgumentsType((argumentsType) node);
-		} else if (node instanceof aliasType) {
-			visitAliasType((aliasType) node);
-		} else {
-			node.accept(this);
-		}
+        if (node instanceof suiteType) {
+            visitSuiteType((suiteType) node);
+        } else if (node instanceof excepthandlerType) {
+            visitExceptionHandler((excepthandlerType) node);
+        } else if (node instanceof decoratorsType) {
+            visitDecoratorsType((decoratorsType) node);
+        } else if (node instanceof keywordType) {
+            visitKeywordType((keywordType) node);
+        } else if (node instanceof argumentsType) {
+            visitArgumentsType((argumentsType) node);
+        } else if (node instanceof aliasType) {
+            visitAliasType((aliasType) node);
+        } else {
+            node.accept(this);
+        }
 
-		if (hasSpecialInSelection(node, node.getSpecialsBefore())) {
-			this.extendNodeInSelection = node;
-		}
+        if (hasSpecialInSelection(node, node.getSpecialsBefore())) {
+            this.extendNodeInSelection = node;
+        }
 
-		if (hasSpecialInSelection(node, node.getSpecialsAfter())) {
-			this.extendNodeInSelection = node;
-		}
+        if (hasSpecialInSelection(node, node.getSpecialsAfter())) {
+            this.extendNodeInSelection = node;
+        }
 
-		return node;
-	}
+        return node;
+    }
 
-	private boolean hasSpecialInSelection(SimpleNode node, List<Object> specials) {
-		for (Object o : specials) {
-			Str strNode = convertSpecialToStr(o);
-			if (strNode != null) {
-				if (module.isNodeInSelection(selection, strNode)) {
-					return true;
-				}
-			}
+    private boolean hasSpecialInSelection(SimpleNode node, List<Object> specials) {
+        for (Object o : specials) {
+            Str strNode = convertSpecialToStr(o);
+            if (strNode != null) {
+                if (module.isNodeInSelection(selection, strNode)) {
+                    return true;
+                }
+            }
 
-		}
-		return false;
-	}
+        }
+        return false;
+    }
 
-	private Str convertSpecialToStr(Object o) {
-		Str stringNode = null;
-		if (o instanceof SpecialStr) {
-			SpecialStr special = (SpecialStr) o;
-			stringNode = new Str(special.str, Str.SingleDouble, false, false);
-			stringNode.beginLine = special.beginLine;
-			stringNode.beginColumn = special.beginCol;
-		}
-		return stringNode;
-	}
+    private Str convertSpecialToStr(Object o) {
+        Str stringNode = null;
+        if (o instanceof SpecialStr) {
+            SpecialStr special = (SpecialStr) o;
+            stringNode = new Str(special.str, Str.SingleDouble, false, false);
+            stringNode.beginLine = special.beginLine;
+            stringNode.beginColumn = special.beginCol;
+        }
+        return stringNode;
+    }
 
-	private void extendSelection(SimpleNode node) {
-		if (extendNodeInSelection != null && isExtendable(node) && node != extendNodeInSelection) {
+    private void extendSelection(SimpleNode node) {
+        if (extendNodeInSelection != null && isExtendable(node) && node != extendNodeInSelection) {
 
-			node = resolveExtendNode(node);
+            node = resolveExtendNode(node);
 
-			this.selection = this.module.extendSelection(selection, extendNodeInSelection, node);
-			this.extendNodeInSelection = null;
-			this.stmtExprStack.clear();
-		}
-	}
+            this.selection = this.module.extendSelection(selection, extendNodeInSelection, node);
+            this.extendNodeInSelection = null;
+            this.stmtExprStack.clear();
+        }
+    }
 
-	private boolean isExtendable(SimpleNode node) {
-		return (node instanceof stmtType || node instanceof excepthandlerType || node instanceof suiteType);
-	}
+    private boolean isExtendable(SimpleNode node) {
+        return (node instanceof stmtType || node instanceof excepthandlerType || node instanceof suiteType);
+    }
 
-	private SimpleNode resolveExtendNode(SimpleNode node) {
-		if (extendNodeInSelection instanceof exprType) {
-			while (!(stmtExprStack.isEmpty()) && !(isExtendable(stmtExprStack.peek()))) {
-				stmtExprStack.pop();
-			}
-			if (!(stmtExprStack.isEmpty())) {
-				SimpleNode stmtBefore = stmtExprStack.peek();
-				node = checkSpecials(stmtBefore, stmtBefore.getSpecialsAfter());
-			}
-		}
-		node = checkSpecials(node, node.getSpecialsBefore());
+    private SimpleNode resolveExtendNode(SimpleNode node) {
+        if (extendNodeInSelection instanceof exprType) {
+            while (!(stmtExprStack.isEmpty()) && !(isExtendable(stmtExprStack.peek()))) {
+                stmtExprStack.pop();
+            }
+            if (!(stmtExprStack.isEmpty())) {
+                SimpleNode stmtBefore = stmtExprStack.peek();
+                node = checkSpecials(stmtBefore, stmtBefore.getSpecialsAfter());
+            }
+        }
+        node = checkSpecials(node, node.getSpecialsBefore());
 
-		return node;
-	}
+        return node;
+    }
 
-	private SimpleNode checkSpecials(SimpleNode node, List<Object> specials) {
-		if (specials.size() > 0) {
-			for (Object o : specials) {
-				if (o instanceof SpecialStr) {
-					SpecialStr str = (SpecialStr) o;
-					if (str.beginLine >= extendNodeInSelection.beginLine) {
-						return convertSpecialToStr(o);
-					}
-				}
-			}
-		}
-		return node;
-	}
+    private SimpleNode checkSpecials(SimpleNode node, List<Object> specials) {
+        if (specials.size() > 0) {
+            for (Object o : specials) {
+                if (o instanceof SpecialStr) {
+                    SpecialStr str = (SpecialStr) o;
+                    if (str.beginLine >= extendNodeInSelection.beginLine) {
+                        return convertSpecialToStr(o);
+                    }
+                }
+            }
+        }
+        return node;
+    }
 
-	private void checkAndExtend(SimpleNode extendNode, SimpleNode checkNode) {
-		if (module.isNodeInSelection(selection, checkNode)) {
-			extendNodeInSelection = extendNode;
-		}
-	}
+    private void checkAndExtend(SimpleNode extendNode, SimpleNode checkNode) {
+        if (module.isNodeInSelection(selection, checkNode)) {
+            extendNodeInSelection = extendNode;
+        }
+    }
 
-	public Object visitCall(Call node) throws Exception {
-		traverse(node);
-		checkAndExtend(node, node.func);
+    public Object visitCall(Call node) throws Exception {
+        traverse(node);
+        checkAndExtend(node, node.func);
 
-		return null;
+        return null;
 
-	}
+    }
 
-	@Override
-	public Object visitAttribute(Attribute node) throws Exception {
-		visit(node.value);
-		visit(node.attr);
-		checkAndExtend(node, node.value);
-		checkAndExtend(node, node.attr);
-		return null;
-	}
+    @Override
+    public Object visitAttribute(Attribute node) throws Exception {
+        visit(node.value);
+        visit(node.attr);
+        checkAndExtend(node, node.value);
+        checkAndExtend(node, node.attr);
+        return null;
+    }
 
-	@Override
-	public Object visitFor(For node) throws Exception {
-		visit(node.target);
-		visit(node.iter);
-		visit(node.body);
-		visit(node.orelse);
-		return null;
-	}
+    @Override
+    public Object visitFor(For node) throws Exception {
+        visit(node.target);
+        visit(node.iter);
+        visit(node.body);
+        visit(node.orelse);
+        return null;
+    }
 
-	@Override
-	public Object visitWhile(While node) throws Exception {
-		visit(node.test);
-		visit(node.body);
-		visit(node.orelse);
-		return null;
-	}
+    @Override
+    public Object visitWhile(While node) throws Exception {
+        visit(node.test);
+        visit(node.body);
+        visit(node.orelse);
+        return null;
+    }
 
-	@Override
-	public Object visitIf(If node) throws Exception {
-		visit(node.test);
-		visit(node.body);
-		if (node.orelse != null) {
-			if (this.extendNodeInSelection instanceof exprType) {
-				extendSelection(node);
-			}
-			visit(node.orelse);
-		}
+    @Override
+    public Object visitIf(If node) throws Exception {
+        visit(node.test);
+        visit(node.body);
+        if (node.orelse != null) {
+            if (this.extendNodeInSelection instanceof exprType) {
+                extendSelection(node);
+            }
+            visit(node.orelse);
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Object visitTryExcept(TryExcept node) throws Exception {
-		visit(node.body);
-		visit(node.handlers);
-		visit(node.orelse);
-		if (node.orelse != null) {
-			if (this.extendNodeInSelection instanceof exprType) {
-				extendSelection(node);
-			}
-			visit(node.orelse);
-		}
-		return null;
-	}
+    @Override
+    public Object visitTryExcept(TryExcept node) throws Exception {
+        visit(node.body);
+        visit(node.handlers);
+        visit(node.orelse);
+        if (node.orelse != null) {
+            if (this.extendNodeInSelection instanceof exprType) {
+                extendSelection(node);
+            }
+            visit(node.orelse);
+        }
+        return null;
+    }
 
-	private Object visitSuiteType(suiteType node) throws Exception {
-		visit(node.body);
-		return null;
-	}
+    private Object visitSuiteType(suiteType node) throws Exception {
+        visit(node.body);
+        return null;
+    }
 
-	private Object visitExceptionHandler(excepthandlerType node) throws Exception {
-		visit(node.type);
-		visit(node.name);
-		visit(node.body);
-		return null;
-	}
+    private Object visitExceptionHandler(excepthandlerType node) throws Exception {
+        visit(node.type);
+        visit(node.name);
+        visit(node.body);
+        return null;
+    }
 
-	private Object visitDecoratorsType(decoratorsType node) throws Exception {
-		visit(node.func);
-		visit(node.args);
-		visit(node.keywords);
-		visit(node.starargs);
-		visit(node.kwargs);
-		return null;
-	}
+    private Object visitDecoratorsType(decoratorsType node) throws Exception {
+        visit(node.func);
+        visit(node.args);
+        visit(node.keywords);
+        visit(node.starargs);
+        visit(node.kwargs);
+        return null;
+    }
 
-	private Object visitKeywordType(keywordType node) throws Exception {
-		visit(node.arg);
-		visit(node.value);
-		return null;
-	}
+    private Object visitKeywordType(keywordType node) throws Exception {
+        visit(node.arg);
+        visit(node.value);
+        return null;
+    }
 
-	private Object visitArgumentsType(argumentsType node) throws Exception {
-		visit(node.args);
-		visit(node.defaults);
-		visit(node.vararg);
-		visit(node.kwarg);
-		return null;
-	}
+    private Object visitArgumentsType(argumentsType node) throws Exception {
+        visit(node.args);
+        visit(node.defaults);
+        visit(node.vararg);
+        visit(node.kwarg);
+        return null;
+    }
 
-	private Object visitAliasType(aliasType node) throws Exception {
-		visit(node.name);
-		visit(node.asname);
-		return null;
-	}
+    private Object visitAliasType(aliasType node) throws Exception {
+        visit(node.name);
+        visit(node.asname);
+        return null;
+    }
 
-	@Override
-	public Object visitFunctionDef(FunctionDef node) throws Exception {
-		visit(node.name);
-		visit(node.args);
-		visit(node.body);
-		extendLast(node);
+    @Override
+    public Object visitFunctionDef(FunctionDef node) throws Exception {
+        visit(node.name);
+        visit(node.args);
+        visit(node.body);
+        extendLast(node);
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Object visitClassDef(ClassDef node) throws Exception {
-		visit(node.name);
-		visit(node.bases);
-		visit(node.body);
-		extendLast(node);
+    @Override
+    public Object visitClassDef(ClassDef node) throws Exception {
+        visit(node.name);
+        visit(node.bases);
+        visit(node.body);
+        extendLast(node);
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Object visitModule(Module node) throws Exception {
-		visit(node.body);
-		extendLast(node);
+    @Override
+    public Object visitModule(Module node) throws Exception {
+        visit(node.body);
+        extendLast(node);
 
-		return null;
-	}
+        return null;
+    }
 
-	private void extendLast(SimpleNode node) {
-		if (extendNodeInSelection != null) {
-			selection = module.extendSelectionToEnd(selection, node);
-		}
-		if (!stmtExprStack.isEmpty()) {
-			selection = module.extendSelection(selection, stmtExprStack.peek());
-		}
-	}
+    private void extendLast(SimpleNode node) {
+        if (extendNodeInSelection != null) {
+            selection = module.extendSelectionToEnd(selection, node);
+        }
+        if (!stmtExprStack.isEmpty()) {
+            selection = module.extendSelection(selection, stmtExprStack.peek());
+        }
+    }
 
-	private void visit(SimpleNode[] body) throws Exception {
-		for (SimpleNode node : body) {
-			visit(node);
-		}
-	}
+    private void visit(SimpleNode[] body) throws Exception {
+        for (SimpleNode node : body) {
+            visit(node);
+        }
+    }
 
-	private void updateStack(SimpleNode node) {
-		if (!stmtExprStack.isEmpty()) {
-			if (node == stmtExprStack.peek())
-				return;
-		}
-		if (node instanceof stmtType || node instanceof exprType) {
-			stmtExprStack.push(node);
-		}
-	}
+    private void updateStack(SimpleNode node) {
+        if (!stmtExprStack.isEmpty()) {
+            if (node == stmtExprStack.peek())
+                return;
+        }
+        if (node instanceof stmtType || node instanceof exprType) {
+            stmtExprStack.push(node);
+        }
+    }
 
-	public ITextSelection getSelection() {
-		return selection;
-	}
+    public ITextSelection getSelection() {
+        return selection;
+    }
 
 }

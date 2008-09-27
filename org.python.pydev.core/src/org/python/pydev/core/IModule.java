@@ -49,7 +49,7 @@ public interface IModule {
      */
     public abstract IToken[] getLocalTokens(int line, int col, ILocalScope localScope);
     
-	public abstract boolean isInDirectGlobalTokens(String tok, ICompletionCache completionCache);
+    public abstract boolean isInDirectGlobalTokens(String tok, ICompletionCache completionCache);
 
     public abstract boolean isInGlobalTokens(String tok, IPythonNature nature, ICompletionCache completionCache) throws CompletionRecursionException;
 

@@ -10,14 +10,14 @@ package org.python.pydev.debug.model.remote;
  */
 public class ThreadRunCommand extends AbstractDebuggerCommand {
 
-	String thread;
-	
-	public ThreadRunCommand(AbstractRemoteDebugger debugger, String thread) {
-		super(debugger);
-		this.thread = thread;
-	}
+    String thread;
+    
+    public ThreadRunCommand(AbstractRemoteDebugger debugger, String thread) {
+        super(debugger);
+        this.thread = thread;
+    }
 
-	public String getOutgoing() {
-		return makeCommand(CMD_THREAD_RUN, sequence, thread);
-	}
+    public String getOutgoing() {
+        return makeCommand(CMD_THREAD_RUN, sequence, thread);
+    }
 }

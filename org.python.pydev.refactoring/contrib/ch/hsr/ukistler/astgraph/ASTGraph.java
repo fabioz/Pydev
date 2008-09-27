@@ -26,31 +26,31 @@ import org.python.pydev.parser.jython.SimpleNode;
  */
 public class ASTGraph {
 
-	public Tuple<SimpleNode, Throwable> parseFile(String fileName) throws FileNotFoundException, IOException, Throwable {
-		File pythonSource = new File(fileName);
-		BufferedReader in = new BufferedReader(new FileReader(pythonSource));
+    public Tuple<SimpleNode, Throwable> parseFile(String fileName) throws FileNotFoundException, IOException, Throwable {
+        File pythonSource = new File(fileName);
+        BufferedReader in = new BufferedReader(new FileReader(pythonSource));
 
-		String line = "";
-		StringBuilder source = new StringBuilder();
-		while ((line = in.readLine()) != null) {
-			source.append(line);
-			source.append("\n");
-		}
+        String line = "";
+        StringBuilder source = new StringBuilder();
+        while ((line = in.readLine()) != null) {
+            source.append(line);
+            source.append("\n");
+        }
 
-		IDocument doc = new Document(source.toString());
-		Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, false,
-				IPythonNature.LATEST_GRAMMAR_VERSION));
-		if (objects.o2 != null)
-			throw objects.o2;
-		return objects;
-	}
+        IDocument doc = new Document(source.toString());
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, false,
+                IPythonNature.LATEST_GRAMMAR_VERSION));
+        if (objects.o2 != null)
+            throw objects.o2;
+        return objects;
+    }
 
-	public DefaultGraphCell[] generateTree(SimpleNode node) throws IOException, Exception {
-		GraphVisitor visitor = new GraphVisitor();
-		node.accept(visitor);
-		DefaultGraphCell[] cells = visitor.getCells();
+    public DefaultGraphCell[] generateTree(SimpleNode node) throws IOException, Exception {
+        GraphVisitor visitor = new GraphVisitor();
+        node.accept(visitor);
+        DefaultGraphCell[] cells = visitor.getCells();
 
-		return cells;
-	}
+        return cells;
+    }
 
 }

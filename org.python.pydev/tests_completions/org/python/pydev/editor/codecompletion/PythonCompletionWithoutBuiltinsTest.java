@@ -39,17 +39,17 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
       try {
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
-	      test.setUp();
-	      test.testWildImportWithAll2();
-	      test.tearDown();
+          test.setUp();
+          test.testWildImportWithAll2();
+          test.tearDown();
           System.out.println("Finished");
 
           junit.textui.TestRunner.run(PythonCompletionWithoutBuiltinsTest.class);
-	  } catch (Exception e) {
-	      e.printStackTrace();
-	  } catch(Error e){
-	      e.printStackTrace();
-	  }
+      } catch (Exception e) {
+          e.printStackTrace();
+      } catch(Error e){
+          e.printStackTrace();
+      }
     }
 
     /*
@@ -63,10 +63,10 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         codeCompletion = new PyCodeCompletion();
         PyCodeCompletion.onCompletionRecursionException = new ICallback<Object, CompletionRecursionException>(){
 
-			public Object call(CompletionRecursionException e) {
-				throw new RuntimeException("Recursion error:"+Log.getExceptionStr(e));
-			}
-        	
+            public Object call(CompletionRecursionException e) {
+                throw new RuntimeException("Recursion error:"+Log.getExceptionStr(e));
+            }
+            
         };
     }
 
@@ -81,53 +81,53 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
 
     
-	public void testCompleteImportCompletion() throws CoreException, BadLocationException{
-	    requestCompl("from testl"                          , "testlib");
-	    requestCompl("import testl"                        , "testlib");
-	    requestCompl("from testlib import "                , new String[]{"__init__", "unittest", "__path__"});
-	    requestCompl("from testlib import unittest, __in"  , new String[]{"__init__"});
-	    requestCompl("from testlib import unittest,__in"   , new String[]{"__init__"});
-	    requestCompl("from testlib import unittest ,__in"  , new String[]{"__init__"});
-	    requestCompl("from testlib import unittest , __in" , new String[]{"__init__"});
-	    requestCompl("from testlib import unittest , "     , new String[]{"__init__", "unittest", "__path__"});
-	    
-	    requestCompl("from testlib.unittest import  ", getTestLibUnittestTokens());
+    public void testCompleteImportCompletion() throws CoreException, BadLocationException{
+        requestCompl("from testl"                          , "testlib");
+        requestCompl("import testl"                        , "testlib");
+        requestCompl("from testlib import "                , new String[]{"__init__", "unittest", "__path__"});
+        requestCompl("from testlib import unittest, __in"  , new String[]{"__init__"});
+        requestCompl("from testlib import unittest,__in"   , new String[]{"__init__"});
+        requestCompl("from testlib import unittest ,__in"  , new String[]{"__init__"});
+        requestCompl("from testlib import unittest , __in" , new String[]{"__init__"});
+        requestCompl("from testlib import unittest , "     , new String[]{"__init__", "unittest", "__path__"});
+        
+        requestCompl("from testlib.unittest import  ", getTestLibUnittestTokens());
 
-	    requestCompl("from testlib.unittest.testcase.TestCase import  assertImagesNotE", new String[]{"assertImagesNotEqual"});
-	    requestCompl("from testlib.unittest.testcase.TestCase import  assertBM", new String[]{"assertBMPsNotEqual","assertBMPsEqual"});
+        requestCompl("from testlib.unittest.testcase.TestCase import  assertImagesNotE", new String[]{"assertImagesNotEqual"});
+        requestCompl("from testlib.unittest.testcase.TestCase import  assertBM", new String[]{"assertBMPsNotEqual","assertBMPsEqual"});
     }
-	
-	/**
-	 * This test checks the code-completion for adaptation and factory methods, provided that the 
-	 * class expected is passed as one of the parameters.
-	 * 
-	 * This is done in AssignAnalysis
-	 */
-	public void testProtocolsAdaptation() throws CoreException, BadLocationException{
-	    String s = 
-	        "import protocols\n" +
-	        "class InterfM1(protocols.Interface):\n" +
-	        "    def m1(self):\n" +
-	        "        pass\n" +
-	        " \n" +
-	        "class Bar(object):\n" +
-	        "    protocols.advise(instancesProvide=[InterfM1])\n" +
-	        "if __name__ == '__main__':\n" +
-	        "    a = protocols.adapt(Bar(), InterfM1)\n" +
-	        "    a.";
-	    
-	    requestCompl(s, s.length(), -1, new String[]{"m1()"});
-	}
     
-	/**
-	 * Check if some assert for an instance is enough to get the type of some variable. This should
-	 * be configurable so that the user can do something as assert IsInterfaceDeclared(obj, Class) or 
-	 * AssertImplements(obj, Class), with the assert or not, providing some way for the user to configure that.
-	 * 
-	 * This is done in ILocalScope#getPossibleClassesForActivationToken
-	 */
-	public void testAssertDeterminesClass() throws CoreException, BadLocationException{
-	    String s = 
+    /**
+     * This test checks the code-completion for adaptation and factory methods, provided that the 
+     * class expected is passed as one of the parameters.
+     * 
+     * This is done in AssignAnalysis
+     */
+    public void testProtocolsAdaptation() throws CoreException, BadLocationException{
+        String s = 
+            "import protocols\n" +
+            "class InterfM1(protocols.Interface):\n" +
+            "    def m1(self):\n" +
+            "        pass\n" +
+            " \n" +
+            "class Bar(object):\n" +
+            "    protocols.advise(instancesProvide=[InterfM1])\n" +
+            "if __name__ == '__main__':\n" +
+            "    a = protocols.adapt(Bar(), InterfM1)\n" +
+            "    a.";
+        
+        requestCompl(s, s.length(), -1, new String[]{"m1()"});
+    }
+    
+    /**
+     * Check if some assert for an instance is enough to get the type of some variable. This should
+     * be configurable so that the user can do something as assert IsInterfaceDeclared(obj, Class) or 
+     * AssertImplements(obj, Class), with the assert or not, providing some way for the user to configure that.
+     * 
+     * This is done in ILocalScope#getPossibleClassesForActivationToken
+     */
+    public void testAssertDeterminesClass() throws CoreException, BadLocationException{
+        String s = 
             "def m1(a):\n" +
             "    import xmllib\n" +
             "    assert isinstance(a, xmllib.XMLParser)\n" +
@@ -136,87 +136,87 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, s.length(), -1, new String[]{"handle_data(data)"});
         
     }
-	
-	public void testAssertDeterminesClass2() throws CoreException, BadLocationException{
-	    String s = 
-	        "def m1(a):\n" +
-	        "    import xmllib\n" +
-	        "    assert isinstance(a.bar, xmllib.XMLParser)\n" +
-	        "    a.bar.";
-	    
-	    requestCompl(s, s.length(), -1, new String[]{"handle_data(data)"});
-	    
-	}
-	
-	public void testAssertDeterminesClass3() throws CoreException, BadLocationException{
-	    String s = 
-	        "class InterfM1:\n" +
-	        "    def m1(self):\n" +
-	        "        pass\n" +
-	        "\n" +
-	        "" +
-	        "def m1(a):\n" +
-	        "    assert isinstance(a, InterfM1)\n" +
-	        "    a.";
-	    
-	    requestCompl(s, s.length(), -1, new String[]{"m1()"});
-	    
-	}
-	
-	public void testAssertDeterminesClass4() throws CoreException, BadLocationException{
-	    String s = 
-	        "class InterfM1:\n" +
-	        "    def m1(self):\n" +
-	        "        pass\n" +
-	        "\n" +
-	        "class InterfM2:\n" +
-	        "    def m2(self):\n" +
-	        "        pass\n" +
-	        "\n" +
-	        "" +
-	        "def m1(a):\n" +
-	        "    assert isinstance(a, (InterfM1, InterfM2))\n" +
-	        "    a.";
-	    
-	    requestCompl(s, s.length(), -1, new String[]{"m1()", "m2()"});
-	    
-	}
-	
-	public void testAssertDeterminesClass5() throws CoreException, BadLocationException{
-	    String s = 
-	        "class InterfM1:\n" +
-	        "    def m1(self):\n" +
-	        "        pass\n" +
-	        "\n" +
-	        "" +
-	        "def m1(a):\n" +
-	        "    assert InterfM1.implementedBy(a)\n" +
-	        "    a.";
-	    
-	    requestCompl(s, s.length(), -1, new String[]{"m1()"});
-	    
-	}
-	public void testAssertDeterminesClass6() throws CoreException, BadLocationException{
-	    String s = 
-	        "class InterfM1:\n" +
-	        "    def m1(self):\n" +
-	        "        pass\n" +
-	        "\n" +
-	        "" +
-	        "def m1(a):\n" +
-	        "    assert InterfM1.implementedBy()\n" + //should give no error
-	        "    a.";
-	    
-	    requestCompl(s, s.length(), -1, new String[]{});
-	    
-	}
-	
-	public void testMultilineImportCompletion() throws CoreException, BadLocationException{
-	    String s = "from testlib import (\n";
-	    
-	    requestCompl(s, new String[]{"__init__", "unittest", "__path__"});
-	    
-	}
+    
+    public void testAssertDeterminesClass2() throws CoreException, BadLocationException{
+        String s = 
+            "def m1(a):\n" +
+            "    import xmllib\n" +
+            "    assert isinstance(a.bar, xmllib.XMLParser)\n" +
+            "    a.bar.";
+        
+        requestCompl(s, s.length(), -1, new String[]{"handle_data(data)"});
+        
+    }
+    
+    public void testAssertDeterminesClass3() throws CoreException, BadLocationException{
+        String s = 
+            "class InterfM1:\n" +
+            "    def m1(self):\n" +
+            "        pass\n" +
+            "\n" +
+            "" +
+            "def m1(a):\n" +
+            "    assert isinstance(a, InterfM1)\n" +
+            "    a.";
+        
+        requestCompl(s, s.length(), -1, new String[]{"m1()"});
+        
+    }
+    
+    public void testAssertDeterminesClass4() throws CoreException, BadLocationException{
+        String s = 
+            "class InterfM1:\n" +
+            "    def m1(self):\n" +
+            "        pass\n" +
+            "\n" +
+            "class InterfM2:\n" +
+            "    def m2(self):\n" +
+            "        pass\n" +
+            "\n" +
+            "" +
+            "def m1(a):\n" +
+            "    assert isinstance(a, (InterfM1, InterfM2))\n" +
+            "    a.";
+        
+        requestCompl(s, s.length(), -1, new String[]{"m1()", "m2()"});
+        
+    }
+    
+    public void testAssertDeterminesClass5() throws CoreException, BadLocationException{
+        String s = 
+            "class InterfM1:\n" +
+            "    def m1(self):\n" +
+            "        pass\n" +
+            "\n" +
+            "" +
+            "def m1(a):\n" +
+            "    assert InterfM1.implementedBy(a)\n" +
+            "    a.";
+        
+        requestCompl(s, s.length(), -1, new String[]{"m1()"});
+        
+    }
+    public void testAssertDeterminesClass6() throws CoreException, BadLocationException{
+        String s = 
+            "class InterfM1:\n" +
+            "    def m1(self):\n" +
+            "        pass\n" +
+            "\n" +
+            "" +
+            "def m1(a):\n" +
+            "    assert InterfM1.implementedBy()\n" + //should give no error
+            "    a.";
+        
+        requestCompl(s, s.length(), -1, new String[]{});
+        
+    }
+    
+    public void testMultilineImportCompletion() throws CoreException, BadLocationException{
+        String s = "from testlib import (\n";
+        
+        requestCompl(s, new String[]{"__init__", "unittest", "__path__"});
+        
+    }
 
     /**
      * @return
@@ -238,95 +238,95 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         };
     }
 
-	
-	public void testSelfReference() throws CoreException, BadLocationException{
+    
+    public void testSelfReference() throws CoreException, BadLocationException{
         String s;
         s = "class C:            \n" +
-			"    def met1(self): \n" +
-			"        pass        \n" +
-			"                    \n" +
-			"class B:            \n" +
-			"    def met2(self): \n" +
-			"        self.c = C()\n" +
-			"                    \n" +
-			"    def met3(self): \n" +
-			"        self.c.";
+            "    def met1(self): \n" +
+            "        pass        \n" +
+            "                    \n" +
+            "class B:            \n" +
+            "    def met2(self): \n" +
+            "        self.c = C()\n" +
+            "                    \n" +
+            "    def met3(self): \n" +
+            "        self.c.";
         requestCompl(s, s.length(), -1, new String[] { "met1()"});
-	}
-	
-	public void testProj2() throws CoreException, BadLocationException{
-		String s;
-		s = ""+
-		"import proj2root\n" +
-		"print proj2root.";
-		requestCompl(s, s.length(), -1, new String[] { "Proj2Root"}, nature2);
-	}
-	
-	public void testProj2Global() throws CoreException, BadLocationException{
-		String s;
-		s = ""+
-		"import ";
-		requestCompl(s, s.length(), -1, new String[] { "proj2root", "testlib"}, nature2);
-	}
-	
-	public void testPIL() throws CoreException, BadLocationException{
-		if(TestDependent.HAS_PIL){
-			String s;
-			s = ""+
-			"import Image\n" +
-			"Image." +
-			"";
-			requestCompl(s, s.length(), -1, new String[] { "RASTERIZE"});
-		}
-	}
-	
-	public void testClassAttrs() throws CoreException, BadLocationException{
-		String s;
-		s = ""+
-		"class A:\n" +
-		"    aa, bb, cc = range(3)\n" + //the heuristic to find the attrs (class HeuristicFindAttrs) was not getting this
-		"    dd = 1\n" +
-		"    def m1(self):\n" +
-		"        self.";
-		requestCompl(s, s.length(), -1, new String[] { "aa", "bb", "cc", "dd"});
-	}
+    }
+    
+    public void testProj2() throws CoreException, BadLocationException{
+        String s;
+        s = ""+
+        "import proj2root\n" +
+        "print proj2root.";
+        requestCompl(s, s.length(), -1, new String[] { "Proj2Root"}, nature2);
+    }
+    
+    public void testProj2Global() throws CoreException, BadLocationException{
+        String s;
+        s = ""+
+        "import ";
+        requestCompl(s, s.length(), -1, new String[] { "proj2root", "testlib"}, nature2);
+    }
+    
+    public void testPIL() throws CoreException, BadLocationException{
+        if(TestDependent.HAS_PIL){
+            String s;
+            s = ""+
+            "import Image\n" +
+            "Image." +
+            "";
+            requestCompl(s, s.length(), -1, new String[] { "RASTERIZE"});
+        }
+    }
+    
+    public void testClassAttrs() throws CoreException, BadLocationException{
+        String s;
+        s = ""+
+        "class A:\n" +
+        "    aa, bb, cc = range(3)\n" + //the heuristic to find the attrs (class HeuristicFindAttrs) was not getting this
+        "    dd = 1\n" +
+        "    def m1(self):\n" +
+        "        self.";
+        requestCompl(s, s.length(), -1, new String[] { "aa", "bb", "cc", "dd"});
+    }
 
-	public void testFromImport() throws CoreException, BadLocationException{
-	    //TODO: see AbstractASTManager.resolveImport
-		String s;
-		s = ""+
-		"from testOtherImports.f3 import test\n" +
-		"tes";
-		ICompletionProposal[] p = requestCompl(s, s.length(), -1, new String[] { "test(a, b, c)"}, nature);
-		assertEquals(p[0].getAdditionalProposalInfo(), "This is a docstring");
-	}
-	
-	public void testFromImportAs() throws CoreException, BadLocationException{
-		String s;
-		s = ""+
-		"from testOtherImports.f3 import test as AnotherTest\n" +
-		"t = AnotherTes";
-		ICompletionProposal[] p = requestCompl(s, s.length(), -1, new String[] { "AnotherTest(a, b, c)"}, nature);
-		assertEquals("This is a docstring", p[0].getAdditionalProposalInfo());
-	}
-	
-	
-	public void testFromImportAs2() throws CoreException, BadLocationException{
-	    String s;
-	    s = ""+
-	    "from testOtherImports.f3 import Foo\n" +
-	    "t = Fo";
-	    ICompletionProposal[] p = requestCompl(s, s.length(), -1, new String[] { "Foo(a, b)"}, nature);
-	    assertEquals("SomeOtherTest", p[0].getAdditionalProposalInfo());
-	}
-	
-	public void testInnerImport() throws CoreException, BadLocationException{
-	    String s;
-	    s = "" +
+    public void testFromImport() throws CoreException, BadLocationException{
+        //TODO: see AbstractASTManager.resolveImport
+        String s;
+        s = ""+
+        "from testOtherImports.f3 import test\n" +
+        "tes";
+        ICompletionProposal[] p = requestCompl(s, s.length(), -1, new String[] { "test(a, b, c)"}, nature);
+        assertEquals(p[0].getAdditionalProposalInfo(), "This is a docstring");
+    }
+    
+    public void testFromImportAs() throws CoreException, BadLocationException{
+        String s;
+        s = ""+
+        "from testOtherImports.f3 import test as AnotherTest\n" +
+        "t = AnotherTes";
+        ICompletionProposal[] p = requestCompl(s, s.length(), -1, new String[] { "AnotherTest(a, b, c)"}, nature);
+        assertEquals("This is a docstring", p[0].getAdditionalProposalInfo());
+    }
+    
+    
+    public void testFromImportAs2() throws CoreException, BadLocationException{
+        String s;
+        s = ""+
+        "from testOtherImports.f3 import Foo\n" +
+        "t = Fo";
+        ICompletionProposal[] p = requestCompl(s, s.length(), -1, new String[] { "Foo(a, b)"}, nature);
+        assertEquals("SomeOtherTest", p[0].getAdditionalProposalInfo());
+    }
+    
+    public void testInnerImport() throws CoreException, BadLocationException{
+        String s;
+        s = "" +
         "def m1():\n" +
         "    from testlib import unittest\n" +
         "    unittest.";
-	    requestCompl(s, s.length(), -1, new String[]{
+        requestCompl(s, s.length(), -1, new String[]{
             "AnotherTest"
             , "GUITest"
             , "main"
@@ -339,217 +339,217 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             , "guitestcase"
             , "testcase"
             });
-	}
-	
-	
-	public void testSelfReferenceWithTabs() throws CoreException, BadLocationException{
-	    String s;
-	    s = "class C:\n" +
-	    "    def met1(self):\n" +
-	    "        pass\n" +
-	    "        \n" +
-	    "class B:\n" +
-	    "    def met2(self):\n" +
-	    "        self.c = C()\n" +
-	    "        \n" +
-	    "    def met3(self):\n" +
-	    "        self.c.";
+    }
+    
+    
+    public void testSelfReferenceWithTabs() throws CoreException, BadLocationException{
+        String s;
+        s = "class C:\n" +
+        "    def met1(self):\n" +
+        "        pass\n" +
+        "        \n" +
+        "class B:\n" +
+        "    def met2(self):\n" +
+        "        self.c = C()\n" +
+        "        \n" +
+        "    def met3(self):\n" +
+        "        self.c.";
         s = s.replaceAll("\\ \\ \\ \\ ", "\t");
-	    requestCompl(s, s.length(), -1, new String[] { "met1()"});
-	}
+        requestCompl(s, s.length(), -1, new String[] { "met1()"});
+    }
 
-	
-	public void testClassCompl() throws CoreException, BadLocationException{
-	    String s;
-	    s = "" +
-	    "class Test:\n" +
+    
+    public void testClassCompl() throws CoreException, BadLocationException{
+        String s;
+        s = "" +
+        "class Test:\n" +
         "    classVar = 1\n"+
-	    "    def findIt(self):\n"+
-	    "        self.";
-	    requestCompl(s, s.length(), -1, new String[] { "classVar"});
-	}
-	
-	public void testInnerCtxt() throws CoreException, BadLocationException{
-		String s;
-		s = "" +
-		"class Test:\n"+
-		"    def findIt(self):\n"+
-		"        pass\n"+
-		"    \n"+
-		"def m1():\n"+
-		"    s = Test()\n"+
-		"    s.";
-		requestCompl(s, s.length(), -1, new String[] { "findIt()"});
-	}
-	
-	
-	public void testDeepNested() throws CoreException, BadLocationException{
-	    String s;
-	    s = "" +
-    	    "from extendable.nested2 import hub\n"+
-    	    "hub.c1.a.";
-	    requestCompl(s, s.length(), -1, new String[] { "fun()"});
-	}
-	
-	public void testDeepNested2() throws CoreException, BadLocationException{
-	    String s;
-	    s = "" +
-	    "from extendable.nested2 import hub\n"+
-	    "hub.c1.b.";
-	    requestCompl(s, s.length(), -1, new String[] { "another()"});
-	}
-	
-	public void testDeepNested3() throws CoreException, BadLocationException{
-	    String s;
-	    s = "" +
-	    "from extendable.nested2 import hub\n"+
-	    "hub.c1.c.";
-	    requestCompl(s, s.length(), -1, new String[] { "another()"});
-	}
-	
-	public void testDeepNested4() throws CoreException, BadLocationException{
-	    String s;
-	    s = "" +
-	    "from extendable.nested2 import hub\n"+
-	    "hub.c1.d.";
-	    requestCompl(s, s.length(), -1, new String[] { "AnotherTest"});
-	}
-	
-	public void testDeepNested5() throws CoreException, BadLocationException{
-	    String s;
-	    s = "" +
-	    "from extendable.nested2 import hub\n"+
-	    "hub.c1.e.";
-	    requestCompl(s, s.length(), -1, new String[] { "assertBMPsNotEqual"});
-	}
-	
-	public void testDeepNested6() throws CoreException, BadLocationException{
-		String s;
-		s = "" +
-		"from extendable.nested2 import mod2\n"+
-		"mod2.c1.a.";
-		requestCompl(s, s.length(), -1, new String[] { "fun()"});
-	}
-	
-	
-	public void testSelfReferenceWithTabs2() throws CoreException, BadLocationException{
-	    String s;
-	    s = "" +
+        "    def findIt(self):\n"+
+        "        self.";
+        requestCompl(s, s.length(), -1, new String[] { "classVar"});
+    }
+    
+    public void testInnerCtxt() throws CoreException, BadLocationException{
+        String s;
+        s = "" +
+        "class Test:\n"+
+        "    def findIt(self):\n"+
+        "        pass\n"+
+        "    \n"+
+        "def m1():\n"+
+        "    s = Test()\n"+
+        "    s.";
+        requestCompl(s, s.length(), -1, new String[] { "findIt()"});
+    }
+    
+    
+    public void testDeepNested() throws CoreException, BadLocationException{
+        String s;
+        s = "" +
+            "from extendable.nested2 import hub\n"+
+            "hub.c1.a.";
+        requestCompl(s, s.length(), -1, new String[] { "fun()"});
+    }
+    
+    public void testDeepNested2() throws CoreException, BadLocationException{
+        String s;
+        s = "" +
+        "from extendable.nested2 import hub\n"+
+        "hub.c1.b.";
+        requestCompl(s, s.length(), -1, new String[] { "another()"});
+    }
+    
+    public void testDeepNested3() throws CoreException, BadLocationException{
+        String s;
+        s = "" +
+        "from extendable.nested2 import hub\n"+
+        "hub.c1.c.";
+        requestCompl(s, s.length(), -1, new String[] { "another()"});
+    }
+    
+    public void testDeepNested4() throws CoreException, BadLocationException{
+        String s;
+        s = "" +
+        "from extendable.nested2 import hub\n"+
+        "hub.c1.d.";
+        requestCompl(s, s.length(), -1, new String[] { "AnotherTest"});
+    }
+    
+    public void testDeepNested5() throws CoreException, BadLocationException{
+        String s;
+        s = "" +
+        "from extendable.nested2 import hub\n"+
+        "hub.c1.e.";
+        requestCompl(s, s.length(), -1, new String[] { "assertBMPsNotEqual"});
+    }
+    
+    public void testDeepNested6() throws CoreException, BadLocationException{
+        String s;
+        s = "" +
+        "from extendable.nested2 import mod2\n"+
+        "mod2.c1.a.";
+        requestCompl(s, s.length(), -1, new String[] { "fun()"});
+    }
+    
+    
+    public void testSelfReferenceWithTabs2() throws CoreException, BadLocationException{
+        String s;
+        s = "" +
         "class C:\n" +
         "    def met3(self):\n" +
         "        self.COMPLETE_HERE\n" +
         "                    \n" +
-	    "    def met1(self): \n" +
-	    "        pass        \n" +
+        "    def met1(self): \n" +
+        "        pass        \n" +
         "";
-	    s = s.replaceAll("\\ \\ \\ \\ ", "\t");
+        s = s.replaceAll("\\ \\ \\ \\ ", "\t");
         int iComp = s.indexOf("COMPLETE_HERE");
         s = s.replaceAll("COMPLETE_HERE", "");
-	    requestCompl(s, iComp, -1, new String[] { "met1()"});
-	}
-	
-	public void testRelativeImport() throws FileNotFoundException, CoreException, BadLocationException{
+        requestCompl(s, iComp, -1, new String[] { "met1()"});
+    }
+    
+    public void testRelativeImport() throws FileNotFoundException, CoreException, BadLocationException{
         String file = TestDependent.TEST_PYSRC_LOC+"testlib/unittest/relative/testrelative.py";
         String strDoc = "from toimport import ";
         requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[]{"Test1", "Test2"});   
     }
 
-	public void testInModuleWithoutExtension() throws FileNotFoundException, CoreException, BadLocationException{
-	    String file = TestDependent.TEST_PYSRC_LOC+"mod_without_extension";
-	    String strDoc = REF.getFileContents(new File(file));
-	    requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[]{"ClassInModWithoutExtension"});   
-	}
-	
-	public void testRelativeImportWithSubclass() throws FileNotFoundException, CoreException, BadLocationException{
-	    String file = TestDependent.TEST_PYSRC_LOC+"extendable/relative_with_sub/bb.py";
-	    String strDoc = REF.getFileContents(new File(file));
-	    requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[]{"yyy()"});   
-	}
-	
-	public void testWildImportRecursive() throws BadLocationException, IOException, Exception{
+    public void testInModuleWithoutExtension() throws FileNotFoundException, CoreException, BadLocationException{
+        String file = TestDependent.TEST_PYSRC_LOC+"mod_without_extension";
+        String strDoc = REF.getFileContents(new File(file));
+        requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[]{"ClassInModWithoutExtension"});   
+    }
+    
+    public void testRelativeImportWithSubclass() throws FileNotFoundException, CoreException, BadLocationException{
+        String file = TestDependent.TEST_PYSRC_LOC+"extendable/relative_with_sub/bb.py";
+        String strDoc = REF.getFileContents(new File(file));
+        requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[]{"yyy()"});   
+    }
+    
+    public void testWildImportRecursive() throws BadLocationException, IOException, Exception{
         String s;
         s = "from testrecwild import *\n" +
             "";
         requestCompl(s, -1, -1, new String[] { "Class1"});
-	}
-	
-	public void testWildImportRecursive2() throws BadLocationException, IOException, Exception{
-	    String s;
-	    s = "from testrecwild2 import *\n" +
-	    "";
-	    requestCompl(s, -1, -1, new String[] { "Class2"});
-	}
-	
-	public void testWildImportRecursive3() throws BadLocationException, IOException, Exception{
-	    String s;
-	    s = "from testrec2 import *\n" +
-	    "";
-	    requestCompl(s, -1, -1, new String[] { "Leaf"});
-	}
-	
-	public void testProperties() throws BadLocationException, IOException, Exception{
-		String s;
-		s = 
-		"class C:\n" +
-		"    \n" +
-		"    properties.create(test = 0)\n" +
-		"    \n" +
-		"c = C.";
-		requestCompl(s, -1, -1, new String[] { "test"});
-	}
-	
-	public void testImportMultipleFromImport() throws BadLocationException, IOException, Exception{
-	    String s;
-	    s = "import testlib.unittest.relative\n" +
-	    "";
-	    requestCompl(s, -1, -1, new String[] { "testlib","testlib.unittest","testlib.unittest.relative"});
     }
-	
-	public void testImportMultipleFromImport2() throws BadLocationException, IOException, Exception{
-	    String s;
-	    s = "import testlib.unittest.relative\n" +
-	    "testlib.";
-	    requestCompl(s, -1, -1, new String[] {"__path__"});
-	}
-	
-	
-	public void testNestedImports() throws BadLocationException, IOException, Exception{
-		String s;
-		s = "from extendable import nested\n"+ 
-		"print nested.NestedClass.";   
-		requestCompl(s, -1, 1, new String[] { "nestedMethod(self)" });
-	}
-	
-	
-	public void testSameName() throws BadLocationException, IOException, Exception{
-		String s;
-		s = "from extendable.namecheck import samename\n"+ 
-		"print samename.";   
-		requestCompl(s, -1, 1, new String[] { "method1(self)" });
-	}
-	
-	
-	public void testSameName2() throws BadLocationException, IOException, Exception{
-		String s;
-		s = "from extendable import namecheck\n"+ 
-		"print namecheck.samename.";   
-		requestCompl(s, -1, 1, new String[] { "method1(self)" });
-	}
-	
-	public void testCompositeImport() throws BadLocationException, IOException, Exception{
-		String s;
-		s = "import xml.sax\n"+ 
-		"print xml.sax.";   
-		requestCompl(s, -1, -1, new String[] { "default_parser_list" });
-	}
-	
-	public void testIsInGlobalTokens() throws BadLocationException, IOException, Exception{
-		IModule module = nature.getAstManager().getModule("testAssist.__init__", nature, true);
-		assertTrue(module.isInGlobalTokens("assist.ExistingClass.existingMethod", nature, new CompletionCache()));
-	}
-	
-	
-	
+    
+    public void testWildImportRecursive2() throws BadLocationException, IOException, Exception{
+        String s;
+        s = "from testrecwild2 import *\n" +
+        "";
+        requestCompl(s, -1, -1, new String[] { "Class2"});
+    }
+    
+    public void testWildImportRecursive3() throws BadLocationException, IOException, Exception{
+        String s;
+        s = "from testrec2 import *\n" +
+        "";
+        requestCompl(s, -1, -1, new String[] { "Leaf"});
+    }
+    
+    public void testProperties() throws BadLocationException, IOException, Exception{
+        String s;
+        s = 
+        "class C:\n" +
+        "    \n" +
+        "    properties.create(test = 0)\n" +
+        "    \n" +
+        "c = C.";
+        requestCompl(s, -1, -1, new String[] { "test"});
+    }
+    
+    public void testImportMultipleFromImport() throws BadLocationException, IOException, Exception{
+        String s;
+        s = "import testlib.unittest.relative\n" +
+        "";
+        requestCompl(s, -1, -1, new String[] { "testlib","testlib.unittest","testlib.unittest.relative"});
+    }
+    
+    public void testImportMultipleFromImport2() throws BadLocationException, IOException, Exception{
+        String s;
+        s = "import testlib.unittest.relative\n" +
+        "testlib.";
+        requestCompl(s, -1, -1, new String[] {"__path__"});
+    }
+    
+    
+    public void testNestedImports() throws BadLocationException, IOException, Exception{
+        String s;
+        s = "from extendable import nested\n"+ 
+        "print nested.NestedClass.";   
+        requestCompl(s, -1, 1, new String[] { "nestedMethod(self)" });
+    }
+    
+    
+    public void testSameName() throws BadLocationException, IOException, Exception{
+        String s;
+        s = "from extendable.namecheck import samename\n"+ 
+        "print samename.";   
+        requestCompl(s, -1, 1, new String[] { "method1(self)" });
+    }
+    
+    
+    public void testSameName2() throws BadLocationException, IOException, Exception{
+        String s;
+        s = "from extendable import namecheck\n"+ 
+        "print namecheck.samename.";   
+        requestCompl(s, -1, 1, new String[] { "method1(self)" });
+    }
+    
+    public void testCompositeImport() throws BadLocationException, IOException, Exception{
+        String s;
+        s = "import xml.sax\n"+ 
+        "print xml.sax.";   
+        requestCompl(s, -1, -1, new String[] { "default_parser_list" });
+    }
+    
+    public void testIsInGlobalTokens() throws BadLocationException, IOException, Exception{
+        IModule module = nature.getAstManager().getModule("testAssist.__init__", nature, true);
+        assertTrue(module.isInGlobalTokens("assist.ExistingClass.existingMethod", nature, new CompletionCache()));
+    }
+    
+    
+    
     public void testGetActTok(){
         String strs[];
         
@@ -683,10 +683,10 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     public void testFor() throws CoreException, BadLocationException {
         String s;
         s = "" +
-    		"for event in a:   \n" +
-    		"    print event   \n" +
-    		"                  \n" +
-			"event.";
+            "for event in a:   \n" +
+            "    print event   \n" +
+            "                  \n" +
+            "event.";
         try {
             requestCompl(s, s.length(), -1, new String[] {});
         } catch (StackOverflowError e) {
@@ -1056,22 +1056,22 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
     
     public void testRecursion1() throws Exception {
-    	String s = 
-    		"from testrec5.messages import foonotexistent\n" +
-    		"foonotexistent.";
-    	
-    	requestCompl(s, new String[] {});
+        String s = 
+            "from testrec5.messages import foonotexistent\n" +
+            "foonotexistent.";
+        
+        requestCompl(s, new String[] {});
     }
     
     public void testAssignErr() throws Exception {
-    	String s = 
-    		"class ScalarBarManager:\n" +
-    		"    pass\n" +
-    		"manager = ScalarBarManager()\n" +
-    		"manager._scalar_bars[1].props\n" +
-    		"manager.";
-    	
-    	requestCompl(s, new String[] {"_scalar_bars"});
+        String s = 
+            "class ScalarBarManager:\n" +
+            "    pass\n" +
+            "manager = ScalarBarManager()\n" +
+            "manager._scalar_bars[1].props\n" +
+            "manager.";
+        
+        requestCompl(s, new String[] {"_scalar_bars"});
     }
 
     public void testInnerDefinition() throws Exception {
@@ -1084,10 +1084,10 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             "        pass\n" +
             "    F"; //request at the Bar context
         try{
-        	requestCompl(s, new String[] {"Foo"});
-    	}catch(Throwable e){
-    		fail("Expected to fail!");
-    	}
+            requestCompl(s, new String[] {"Foo"});
+        }catch(Throwable e){
+            fail("Expected to fail!");
+        }
     }
     
     
@@ -1105,36 +1105,36 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     
     
     public void testClsCompletion() throws Exception {
-    	String s = 
-    		"class myclass(object):\n" +
-    		"    def mymethod(self, hello):\n" +
-    		"        print hello\n" +
-    		"cls = myclass()\n" +
-    		"cls.m";
-    	
-    	requestCompl(s, new String[] {"mymethod(hello)"});
+        String s = 
+            "class myclass(object):\n" +
+            "    def mymethod(self, hello):\n" +
+            "        print hello\n" +
+            "cls = myclass()\n" +
+            "cls.m";
+        
+        requestCompl(s, new String[] {"mymethod(hello)"});
     }
     
     
     public void testWildImportWithAll() throws Exception {
-    	String s = 
-    		"from extendable.all_check import *\n" +
-    		"This";
-    	
-    	requestCompl(s, new String[] {"ThisGoes", "ThisGoesToo"});
+        String s = 
+            "from extendable.all_check import *\n" +
+            "This";
+        
+        requestCompl(s, new String[] {"ThisGoes", "ThisGoesToo"});
     }
     
     public void testRegularImportWithAll() throws Exception {
-    	String s = "from extendable.all_check import This";
-    	
-    	requestCompl(s, new String[] {"ThisGoes", "ThisGoesToo", "ThisDoesnt"});
+        String s = "from extendable.all_check import This";
+        
+        requestCompl(s, new String[] {"ThisGoes", "ThisGoesToo", "ThisDoesnt"});
     }
     
     public void testWildImportWithAll2() throws Exception {
-    	String s = "from extendable.all_check2 import *\n" +
-    			"This";
-    	
-    	requestCompl(s, -1, new String[] {"ThisGoes", "ThisGoesToo"});
+        String s = "from extendable.all_check2 import *\n" +
+                "This";
+        
+        requestCompl(s, -1, new String[] {"ThisGoes", "ThisGoesToo"});
     }
     
     

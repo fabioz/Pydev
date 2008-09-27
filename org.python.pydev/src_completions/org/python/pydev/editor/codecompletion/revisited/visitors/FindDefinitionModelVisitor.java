@@ -70,9 +70,9 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
      */
     public String moduleImported;
 
-	private int line;
+    private int line;
 
-	private int col;
+    private int col;
     
     private boolean foundAsDefinition = false;
     
@@ -81,7 +81,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     /**
      * Call is stored for the context for a keyword parameter
      */
-	private Stack<Call> call = new Stack<Call>();
+    private Stack<Call> call = new Stack<Call>();
     
     /**
      * Constructor
@@ -100,35 +100,35 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     
     @Override
     public Object visitImportFrom(ImportFrom node) throws Exception {
-    	String modRep = NodeUtils.getRepresentationString(node.module);
-		if( NodeUtils.isWithin(line, col, node.module) ){
-    		//it is a token in the definition of a module
-    		int startingCol = node.module.beginColumn;
-			int endingCol = startingCol;
-    		while(endingCol < this.col){
-    			endingCol++;
-    		}
-    		int lastChar = endingCol-startingCol;
-    		moduleImported = modRep.substring(0, lastChar);
-    		int i = lastChar;
-    		while(i < modRep.length()){
-    			if(Character.isJavaIdentifierPart(modRep.charAt(i))){
-    				i++;
-    			}else{
-    				break;
-    			}
-    		}
-    		moduleImported += modRep.substring(lastChar, i);
-    	}else{
-    		//it was not the module, so, we have to check for each name alias imported
-    		for (aliasType alias: node.names){
-    			//we do not check the 'as' because if it is some 'as', it will be gotten as a global in the module
-    			if( NodeUtils.isWithin(line, col, alias.name) ){
-    				moduleImported = modRep + "." + NodeUtils.getRepresentationString(alias.name);
-    			}
-    		}
-    	}
-    	return super.visitImportFrom(node);
+        String modRep = NodeUtils.getRepresentationString(node.module);
+        if( NodeUtils.isWithin(line, col, node.module) ){
+            //it is a token in the definition of a module
+            int startingCol = node.module.beginColumn;
+            int endingCol = startingCol;
+            while(endingCol < this.col){
+                endingCol++;
+            }
+            int lastChar = endingCol-startingCol;
+            moduleImported = modRep.substring(0, lastChar);
+            int i = lastChar;
+            while(i < modRep.length()){
+                if(Character.isJavaIdentifierPart(modRep.charAt(i))){
+                    i++;
+                }else{
+                    break;
+                }
+            }
+            moduleImported += modRep.substring(lastChar, i);
+        }else{
+            //it was not the module, so, we have to check for each name alias imported
+            for (aliasType alias: node.names){
+                //we do not check the 'as' because if it is some 'as', it will be gotten as a global in the module
+                if( NodeUtils.isWithin(line, col, alias.name) ){
+                    moduleImported = modRep + "." + NodeUtils.getRepresentationString(alias.name);
+                }
+            }
+        }
+        return super.visitImportFrom(node);
     }
 
     /**
@@ -169,11 +169,11 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
         defsStack.push(node);
         
         if(node.args != null && node.args.args != null){
-	        for(exprType arg:node.args.args){
-	        	if(arg instanceof Name){
-	        		checkParam((Name) arg);
-	        	}
-	        }
+            for(exprType arg:node.args.args){
+                if(arg instanceof Name){
+                    checkParam((Name) arg);
+                }
+            }
         }
         node.traverse(this);
         
@@ -189,59 +189,59 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
      * @param name the token that represents the name of that declaration
      */
     private void checkParam(Name name) {
-    	String rep = NodeUtils.getRepresentationString(name);
-    	if(rep.equals(tokenToFind) && line == name.beginLine && col >= name.beginColumn && col <= name.beginColumn+rep.length()){
-    		foundAsDefinition = true;
-    		// if it is found as a definition it is an 'exact' match, so, erase all the others.
-    		ILocalScope scope = new LocalScope(this.defsStack);
-    		for (Iterator<Definition> it = definitions.iterator(); it.hasNext();) {
-    			Definition d = it.next();
-    			if(!d.scope.equals(scope)){
-    				it.remove();
-    			}
-    		}
-    		
-    		
-    		definitionFound = new Definition(line, name.beginColumn, rep, name, scope, module.get());
-    		definitions.add(definitionFound);
-    	}
+        String rep = NodeUtils.getRepresentationString(name);
+        if(rep.equals(tokenToFind) && line == name.beginLine && col >= name.beginColumn && col <= name.beginColumn+rep.length()){
+            foundAsDefinition = true;
+            // if it is found as a definition it is an 'exact' match, so, erase all the others.
+            ILocalScope scope = new LocalScope(this.defsStack);
+            for (Iterator<Definition> it = definitions.iterator(); it.hasNext();) {
+                Definition d = it.next();
+                if(!d.scope.equals(scope)){
+                    it.remove();
+                }
+            }
+            
+            
+            definitionFound = new Definition(line, name.beginColumn, rep, name, scope, module.get());
+            definitions.add(definitionFound);
+        }
     }
     
     @Override
     public Object visitCall(Call node) throws Exception {
-    	this.call.push(node);
-    	Object r = super.visitCall(node);
-    	this.call.pop();
-		return r;
+        this.call.push(node);
+        Object r = super.visitCall(node);
+        this.call.pop();
+        return r;
     }
     
     
     @Override
     public Object visitNameTok(NameTok node) throws Exception {
-    	if(node.ctx == NameTok.KeywordName){
-    		if(this.line == node.beginLine){
-    			String rep = NodeUtils.getRepresentationString(node);
+        if(node.ctx == NameTok.KeywordName){
+            if(this.line == node.beginLine){
+                String rep = NodeUtils.getRepresentationString(node);
 
-    			if(PySelection.isInside(col, node.beginColumn, rep.length())){
-    	    		foundAsDefinition = true;
-    	    		// if it is found as a definition it is an 'exact' match, so, erase all the others.
-    	    		ILocalScope scope = new LocalScope(this.defsStack);
-    	    		for (Iterator<Definition> it = definitions.iterator(); it.hasNext();) {
-    	    			Definition d = it.next();
-    	    			if(!d.scope.equals(scope)){
-    	    				it.remove();
-    	    			}
-    	    		}
-    	    		
-    	    		definitions.clear();
-    	    		
-					definitionFound = new KeywordParameterDefinition(line, node.beginColumn, rep, node, scope, module.get(), this.call.peek());
-    	    		definitions.add(definitionFound);
-    	    		throw new StopVisitingException();
-    			}
-    		}
-    	}
-    	return null;
+                if(PySelection.isInside(col, node.beginColumn, rep.length())){
+                    foundAsDefinition = true;
+                    // if it is found as a definition it is an 'exact' match, so, erase all the others.
+                    ILocalScope scope = new LocalScope(this.defsStack);
+                    for (Iterator<Definition> it = definitions.iterator(); it.hasNext();) {
+                        Definition d = it.next();
+                        if(!d.scope.equals(scope)){
+                            it.remove();
+                        }
+                    }
+                    
+                    definitions.clear();
+                    
+                    definitionFound = new KeywordParameterDefinition(line, node.beginColumn, rep, node, scope, module.get(), this.call.peek());
+                    definitions.add(definitionFound);
+                    throw new StopVisitingException();
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -295,29 +295,29 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
                 continue; //assigning to an element and not the variable itself. E.g.: mydict[1] = 10 (instead of mydict = 10)
             }
             String rep = NodeUtils.getFullRepresentationString(target);
-	        
+            
             if(tokenToFind.equals(rep)){ //note, order of equals is important (because one side may be null).
-	            exprType nodeValue = node.value;
+                exprType nodeValue = node.value;
                 String value = NodeUtils.getFullRepresentationString(nodeValue);
                 if(value == null){
                     value = "";
                 }
-	            
-                //get the line and column correspondent to the target
-	            int line = NodeUtils.getLineDefinition(target);
-	            int col = NodeUtils.getColDefinition(target);
-
-	            AssignDefinition definition = new AssignDefinition(value, rep, i, node, line, col, scope, module.get());
                 
-	            //mark it as global (if it was found as global in some of the previous contexts).
+                //get the line and column correspondent to the target
+                int line = NodeUtils.getLineDefinition(target);
+                int col = NodeUtils.getColDefinition(target);
+
+                AssignDefinition definition = new AssignDefinition(value, rep, i, node, line, col, scope, module.get());
+                
+                //mark it as global (if it was found as global in some of the previous contexts).
                 for(Set<String> globals: globalDeclarationsStack){
                     if(globals.contains(rep)){
                         definition.foundAsGlobal = true;
                     }
                 }
                 
-	            definitions.add(definition);
-	        }
+                definitions.add(definition);
+            }
         }
         
         return null;

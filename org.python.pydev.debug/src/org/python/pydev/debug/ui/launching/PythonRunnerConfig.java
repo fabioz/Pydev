@@ -59,22 +59,22 @@ public class PythonRunnerConfig {
     public static final String RUN_JYTHON   = "jython regular run";
         
     public final IProject project;
-	public final IPath[] resource;
-	public final IPath interpreter;
-	public final String interpreterLocation;
-	private final String arguments;
-	public final File workingDirectory;
-	public String pythonpathUsed;
-	// debugging
-	public final boolean isDebug;
-	public final boolean isInteractive;
-	private int debugPort = 0;  // use getDebugPort
-	public int acceptTimeout = 5000; // miliseconds
-	public String[] envp = null;
+    public final IPath[] resource;
+    public final IPath interpreter;
+    public final String interpreterLocation;
+    private final String arguments;
+    public final File workingDirectory;
+    public String pythonpathUsed;
+    // debugging
+    public final boolean isDebug;
+    public final boolean isInteractive;
+    private int debugPort = 0;  // use getDebugPort
+    public int acceptTimeout = 5000; // miliseconds
+    public String[] envp = null;
 
-	private final boolean useUnittestWrapper;
+    private final boolean useUnittestWrapper;
 
-	/** One of RUN_ enums */
+    /** One of RUN_ enums */
     private final String run;
     private final ILaunchConfiguration configuration;
 
@@ -97,40 +97,40 @@ public class PythonRunnerConfig {
     
     
     /*
-	 * Expands and returns the location attribute of the given launch configuration. The location is verified to point
-	 * to an existing file, in the local file system.
-	 * 
-	 * @param configuration launch configuration
-	 * 
-	 * @return an absolute path to a file in the local file system
-	 * 
-	 * @throws CoreException if unable to retrieve the associated launch configuration attribute, if unable to resolve
-	 * any variables, or if the resolved location does not point to an existing file in the local file system
-	 */
-	public static IPath[] getLocation(ILaunchConfiguration configuration) throws CoreException {
-		String locationsStr = configuration.getAttribute(Constants.ATTR_ALTERNATE_LOCATION, (String) null);
-		if (locationsStr == null) {
-			locationsStr = configuration.getAttribute(Constants.ATTR_LOCATION, (String) null);
-		}
-		if (locationsStr == null) {
-			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get location for run", null));
-		}
+     * Expands and returns the location attribute of the given launch configuration. The location is verified to point
+     * to an existing file, in the local file system.
+     * 
+     * @param configuration launch configuration
+     * 
+     * @return an absolute path to a file in the local file system
+     * 
+     * @throws CoreException if unable to retrieve the associated launch configuration attribute, if unable to resolve
+     * any variables, or if the resolved location does not point to an existing file in the local file system
+     */
+    public static IPath[] getLocation(ILaunchConfiguration configuration) throws CoreException {
+        String locationsStr = configuration.getAttribute(Constants.ATTR_ALTERNATE_LOCATION, (String) null);
+        if (locationsStr == null) {
+            locationsStr = configuration.getAttribute(Constants.ATTR_LOCATION, (String) null);
+        }
+        if (locationsStr == null) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get location for run", null));
+        }
 
-		String[] locations = StringUtils.split(locationsStr, '|');
-		Path[] ret = new Path[locations.length];
-		int i = 0;
-		for (String location : locations) {
-			String expandedLocation = getStringVariableManager().performStringSubstitution(location);
-			if (expandedLocation == null || expandedLocation.length() == 0) {
-				throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,
-						"Unable to get expanded location for run", null));
-			} else {
-				ret[i] = new Path(expandedLocation);
-			}
-			i++;
-		}
-		return ret;
-	}
+        String[] locations = StringUtils.split(locationsStr, '|');
+        Path[] ret = new Path[locations.length];
+        int i = 0;
+        for (String location : locations) {
+            String expandedLocation = getStringVariableManager().performStringSubstitution(location);
+            if (expandedLocation == null || expandedLocation.length() == 0) {
+                throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,
+                        "Unable to get expanded location for run", null));
+            } else {
+                ret[i] = new Path(expandedLocation);
+            }
+            i++;
+        }
+        return ret;
+    }
     
     /**
      * Expands and returns the arguments attribute of the given launch
@@ -145,8 +145,8 @@ public class PythonRunnerConfig {
     public static String getArguments(ILaunchConfiguration configuration, boolean makeArgumentsVariableSubstitution) throws CoreException {
         String arguments = configuration.getAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, "");
         if(makeArgumentsVariableSubstitution){
-    		return VariablesPlugin.getDefault().getStringVariableManager()
-    				.performStringSubstitution(arguments);
+            return VariablesPlugin.getDefault().getStringVariableManager()
+                    .performStringSubstitution(arguments);
         }else{
             return arguments;
         }
@@ -211,23 +211,23 @@ public class PythonRunnerConfig {
      * resolve the default interpreter.
      */
     public static String getInterpreterLocation(ILaunchConfiguration conf, IPythonNature nature) throws InvalidRunException, CoreException {
-		IInterpreterManager interpreterManager = PydevPlugin.getInterpreterManager(nature);
+        IInterpreterManager interpreterManager = PydevPlugin.getInterpreterManager(nature);
         String location = conf.getAttribute(Constants.ATTR_INTERPRETER, Constants.ATTR_INTERPRETER_DEFAULT);
         
-		if (location != null && location.equals(Constants.ATTR_INTERPRETER_DEFAULT)){
-			location = interpreterManager.getDefaultInterpreter();
+        if (location != null && location.equals(Constants.ATTR_INTERPRETER_DEFAULT)){
+            location = interpreterManager.getDefaultInterpreter();
             
-		}else if(interpreterManager.hasInfoOnInterpreter(location) == false){
-		    File file = new File(location);
-		    if(!file.exists()){
-		        throw new InvalidRunException("Error. The interprer: "+location+" does not exist");
-		        
-		    }else{
-		        throw new InvalidRunException("Error. The interprer: "+location+" is not configured in the pydev preferences as a valid '"+nature.getVersion()+"' interpreter.");
-		    }
+        }else if(interpreterManager.hasInfoOnInterpreter(location) == false){
+            File file = new File(location);
+            if(!file.exists()){
+                throw new InvalidRunException("Error. The interprer: "+location+" does not exist");
+                
+            }else{
+                throw new InvalidRunException("Error. The interprer: "+location+" is not configured in the pydev preferences as a valid '"+nature.getVersion()+"' interpreter.");
+            }
         }
-		return location;
-	}
+        return location;
+    }
     
     
     /**
@@ -299,13 +299,13 @@ public class PythonRunnerConfig {
         this(conf, mode, run, true);
     }
     
-	/**
-	 * Sets defaults.
-	 * @throws InvalidRunException 
-	 */
-	@SuppressWarnings("unchecked")
+    /**
+     * Sets defaults.
+     * @throws InvalidRunException 
+     */
+    @SuppressWarnings("unchecked")
     public PythonRunnerConfig(ILaunchConfiguration conf, String mode, String run, boolean makeArgumentsVariableSubstitution) throws CoreException, InvalidRunException {
-	    //1st thing, see if this is a valid run.
+        //1st thing, see if this is a valid run.
         project = getProjectFromConfiguration(conf);
         
         if(project == null){ //Ok, we could not find it out
@@ -335,27 +335,27 @@ public class PythonRunnerConfig {
             }
         }
 
-	    
-	    
-	    //now, go on configuring other things
-	    this.configuration = conf;
+        
+        
+        //now, go on configuring other things
+        this.configuration = conf;
         this.run = run;
-		isDebug = mode.equals(ILaunchManager.DEBUG_MODE);
-		isInteractive = mode.equals("interactive");
-		useUnittestWrapper = !run.equals(RUN_UNITTEST) || 
-		    !conf.getAttribute(Constants.ATTR_NO_UNITTEST_WRAPPER, false);
-		
+        isDebug = mode.equals(ILaunchManager.DEBUG_MODE);
+        isInteractive = mode.equals("interactive");
+        useUnittestWrapper = !run.equals(RUN_UNITTEST) || 
+            !conf.getAttribute(Constants.ATTR_NO_UNITTEST_WRAPPER, false);
+        
         resource = getLocation(conf);
-		arguments = getArguments(conf, makeArgumentsVariableSubstitution);
-		IPath workingPath = getWorkingDirectory(conf);
-		workingDirectory = workingPath == null ? null : workingPath.toFile();
-		acceptTimeout = PydevPrefs.getPreferences().getInt(PydevPrefs.CONNECT_TIMEOUT);
+        arguments = getArguments(conf, makeArgumentsVariableSubstitution);
+        IPath workingPath = getWorkingDirectory(conf);
+        workingDirectory = workingPath == null ? null : workingPath.toFile();
+        acceptTimeout = PydevPrefs.getPreferences().getInt(PydevPrefs.CONNECT_TIMEOUT);
         
         interpreterLocation = getInterpreterLocation(conf, pythonNature);
-		interpreter = getInterpreter(conf, pythonNature);
+        interpreter = getInterpreter(conf, pythonNature);
         
         //make the environment
-		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+        ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
         envp = launchManager.getEnvironment(conf);
         
         if(envp == null){
@@ -364,139 +364,139 @@ public class PythonRunnerConfig {
             envp = new SimplePythonRunner().getEnvironment(pythonNature, interpreterLocation);
             pythonpathUsed = SimpleRunner.makePythonPathEnvString(pythonNature, interpreterLocation);
         }else{
-    		boolean win32= Platform.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32);
+            boolean win32= Platform.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32);
 
-    		//ok, the user has done something to configure it, so, just add the pythonpath to the
+            //ok, the user has done something to configure it, so, just add the pythonpath to the
             //current env (if he still didn't do so)
-    		Map envMap = conf.getAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, (Map)null);
+            Map envMap = conf.getAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, (Map)null);
 
-    		if(!specifiedPythonpath(envMap)){
-	    		
-	            String pythonpath = SimpleRunner.makePythonPathEnvString(pythonNature, interpreterLocation);
+            if(!specifiedPythonpath(envMap)){
+                
+                String pythonpath = SimpleRunner.makePythonPathEnvString(pythonNature, interpreterLocation);
                 pythonpathUsed = pythonpath; 
-	            //override it if it was the ambient pythonpath
-	            for (int i = 0; i < envp.length; i++) {
-	                if(win32){
+                //override it if it was the ambient pythonpath
+                for (int i = 0; i < envp.length; i++) {
+                    if(win32){
                         //case insensitive
-		                if(envp[i].toUpperCase().startsWith("PYTHONPATH")){
-		                    //OK, finish it.
-				            envp[i] = "PYTHONPATH="+pythonpath;
-		                    return;
-		                }
-	                }else{
-		                if(envp[i].startsWith("PYTHONPATH")){
-		                    //OK, finish it.
-				            envp[i] = "PYTHONPATH="+pythonpath;
-		                    return;
-		                }
-	                }
-	                
-	            }
-	            
-	            //there was no pythonpath, let's set it
-	            String[] s = new String[envp.length+1];
-	            System.arraycopy(envp, 0, s, 0, envp.length);
-	            s[s.length-1] = "PYTHONPATH="+pythonpath;
-	            envp = s;
-		            
-    		}
+                        if(envp[i].toUpperCase().startsWith("PYTHONPATH")){
+                            //OK, finish it.
+                            envp[i] = "PYTHONPATH="+pythonpath;
+                            return;
+                        }
+                    }else{
+                        if(envp[i].startsWith("PYTHONPATH")){
+                            //OK, finish it.
+                            envp[i] = "PYTHONPATH="+pythonpath;
+                            return;
+                        }
+                    }
+                    
+                }
+                
+                //there was no pythonpath, let's set it
+                String[] s = new String[envp.length+1];
+                System.arraycopy(envp, 0, s, 0, envp.length);
+                s[s.length-1] = "PYTHONPATH="+pythonpath;
+                envp = s;
+                    
+            }
         }
-	}
-	
+    }
+    
     /**
-	 * Check if map contains PYTHONPATH key.
-	 * 
-	 * Variables names are considered not case sensitive on Windows.
-	 * 
-	 * @param envMap mapping of env variables and their values
-	 * @return {@code true} if passed map contain PYTHONPATH key.
-	 */
-	private boolean specifiedPythonpath(Map<String, String> envMap) {
-		if (envMap == null) {
-			return false;
-		}
-		boolean win32 = Platform.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32);
-		if (!win32) {
-			return envMap.containsKey("PYTHONPATH");
-		}
+     * Check if map contains PYTHONPATH key.
+     * 
+     * Variables names are considered not case sensitive on Windows.
+     * 
+     * @param envMap mapping of env variables and their values
+     * @return {@code true} if passed map contain PYTHONPATH key.
+     */
+    private boolean specifiedPythonpath(Map<String, String> envMap) {
+        if (envMap == null) {
+            return false;
+        }
+        boolean win32 = Platform.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32);
+        if (!win32) {
+            return envMap.containsKey("PYTHONPATH");
+        }
 
-		for (Iterator<String> iter = envMap.keySet().iterator(); iter.hasNext();) {
-			String s = iter.next();
-			if (s.toUpperCase().equals("PYTHONPATH")) {
-				return true;
-			}
-		}
-		return false;
-	}
+        for (Iterator<String> iter = envMap.keySet().iterator(); iter.hasNext();) {
+            String s = iter.next();
+            if (s.toUpperCase().equals("PYTHONPATH")) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public int getDebugPort() throws CoreException {
-		if (debugPort == 0) {
-			debugPort= SocketUtil.findUnusedLocalPort();
-			if (debugPort == -1)
-				throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not find a free socket for debugger", null));
-		}
-		return debugPort;		
-	}
+        if (debugPort == 0) {
+            debugPort= SocketUtil.findUnusedLocalPort();
+            if (debugPort == -1)
+                throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not find a free socket for debugger", null));
+        }
+        return debugPort;        
+    }
 
 
     public static String getRunningName(IPath[] paths) {
-    	FastStringBuffer buf = new FastStringBuffer(20*paths.length);
-    	for(IPath p:paths){
-    		if(buf.length() > 0){
-    			buf.append(" - ");
-    		}
-    		buf.append(p.lastSegment());
-    	}
-    	return buf.toString();
-    	
+        FastStringBuffer buf = new FastStringBuffer(20*paths.length);
+        for(IPath p:paths){
+            if(buf.length() > 0){
+                buf.append(" - ");
+            }
+            buf.append(p.lastSegment());
+        }
+        return buf.toString();
+        
     }
     
     
-	public String getRunningName() {
-		return getRunningName(resource);
-	}
+    public String getRunningName() {
+        return getRunningName(resource);
+    }
 
-	/**
-	 * @throws CoreException if arguments are inconsistent
-	 */
-	public void verify() throws CoreException {
-		if (resource == null || interpreter == null){
-		    throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Invalid PythonRunnerConfig",null));
+    /**
+     * @throws CoreException if arguments are inconsistent
+     */
+    public void verify() throws CoreException {
+        if (resource == null || interpreter == null){
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Invalid PythonRunnerConfig",null));
         }
         
-		if (isDebug && ( acceptTimeout < 0|| debugPort < 0) ){
-		    throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Invalid PythonRunnerConfig",null));
+        if (isDebug && ( acceptTimeout < 0|| debugPort < 0) ){
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Invalid PythonRunnerConfig",null));
         }
-	}
+    }
 
-	/**
+    /**
      * @return
-	 * @throws CoreException
+     * @throws CoreException
      */
     public static String getCoverageScript() throws CoreException {
         return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("coverage.py"));
     }
 
     /** 
-	 * gets location of jpydaemon.py
-	 */
-	public static String getDebugScript() throws CoreException {
-	    return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("pydevd.py"));
-	}
+     * gets location of jpydaemon.py
+     */
+    public static String getDebugScript() throws CoreException {
+        return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("pydevd.py"));
+    }
 
     public static String getRunFilesScript() throws CoreException {
         return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("runfiles.py"));
     }
     
     
-	/**
-	 * Create a command line for launching.
-	 * @return command line ready to be exec'd
-	 * @throws CoreException 
-	 * @throws JDTNotAvailableException 
-	 */
-	public String[] getCommandLine(boolean makeVariableSubstitution) throws CoreException, JDTNotAvailableException {
-		List<String> cmdArgs = new ArrayList<String>();
+    /**
+     * Create a command line for launching.
+     * @return command line ready to be exec'd
+     * @throws CoreException 
+     * @throws JDTNotAvailableException 
+     */
+    public String[] getCommandLine(boolean makeVariableSubstitution) throws CoreException, JDTNotAvailableException {
+        List<String> cmdArgs = new ArrayList<String>();
         
         if(isJython()){
             //"java.exe" -classpath "C:\bin\jython21\jython.jar" org.python.util.jython script %ARGS%
@@ -514,52 +514,52 @@ public class PythonRunnerConfig {
             //classpath specified in the java project instead of the pythonpath itself
             
 //            if (project.getNature(Constants.JAVA_NATURE) != null){
-//            	cpath  = getClasspath(JavaCore.create(project));
+//                cpath  = getClasspath(JavaCore.create(project));
 //            } else {
-            	cpath = interpreter + SimpleRunner.getPythonPathSeparator() + pythonpathUsed;
+                cpath = interpreter + SimpleRunner.getPythonPathSeparator() + pythonpathUsed;
 //            }
             cmdArgs.add(cpath);
             cmdArgs.add("-Dpython.path="+pythonpathUsed); //will be added to the env variables in the run (check if this works on all platforms...)
             
-           	addVmArgs(cmdArgs);
-            	
+               addVmArgs(cmdArgs);
+                
             if (isDebug) {
-            	cmdArgs.add("-Dpython.security.respectJavaAccessibility=false"); //TODO: the user should configure this -- we use it so that 
-            																	 //we can access the variables during debugging. 
-            	cmdArgs.add("org.python.util.jython");
-            	addDebugArgs(cmdArgs, "jython");
+                cmdArgs.add("-Dpython.security.respectJavaAccessibility=false"); //TODO: the user should configure this -- we use it so that 
+                                                                                 //we can access the variables during debugging. 
+                cmdArgs.add("org.python.util.jython");
+                addDebugArgs(cmdArgs, "jython");
             }else{
-            	cmdArgs.add("org.python.util.jython");
+                cmdArgs.add("org.python.util.jython");
             }
             
             addUnittestArgs(cmdArgs);
 
         }else{
         
-    		cmdArgs.add(interpreter.toOSString());
-    		// Next option is for unbuffered stdout, otherwise Eclipse will not see any output until done
+            cmdArgs.add(interpreter.toOSString());
+            // Next option is for unbuffered stdout, otherwise Eclipse will not see any output until done
             cmdArgs.add("-u");
         
             addVmArgs(cmdArgs);
             
             addDebugArgs(cmdArgs, "python");
-    		
-    		if(isCoverage()){
-    			cmdArgs.add(getCoverageScript());
-    			String coverageFileLocation = PyCoverage.getCoverageFileLocation();
+            
+            if(isCoverage()){
+                cmdArgs.add(getCoverageScript());
+                String coverageFileLocation = PyCoverage.getCoverageFileLocation();
                 cmdArgs.add(coverageFileLocation);
-    			cmdArgs.add("-x");
-    			if (!isFile()){
-    			    //run all testcases
+                cmdArgs.add("-x");
+                if (!isFile()){
+                    //run all testcases
                     cmdArgs.add(getRunFilesScript());
                 }
-    		}
+            }
     
             addUnittestArgs(cmdArgs);
         }
         
         for(IPath p:resource){
-        	cmdArgs.add(p.toOSString());
+            cmdArgs.add(p.toOSString());
         }
         
         String runArguments[] = null;
@@ -572,43 +572,43 @@ public class PythonRunnerConfig {
             cmdArgs.add(runArguments[i]);
         }
         
-		String[] retVal = new String[cmdArgs.size()];
-		cmdArgs.toArray(retVal);
-		return retVal;
-	}
+        String[] retVal = new String[cmdArgs.size()];
+        cmdArgs.toArray(retVal);
+        return retVal;
+    }
 
     /**
-	 * Adds a set of arguments used to wrap executed file with unittest runner.
-	 */
-	private void addUnittestArgs(List<String> cmdArgs) throws CoreException {
-		if (isUnittest() && useUnittestWrapper) {
-			cmdArgs.add(getRunFilesScript());
-			cmdArgs.add("--verbosity");
-			cmdArgs.add(PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_VERBOSITY));
+     * Adds a set of arguments used to wrap executed file with unittest runner.
+     */
+    private void addUnittestArgs(List<String> cmdArgs) throws CoreException {
+        if (isUnittest() && useUnittestWrapper) {
+            cmdArgs.add(getRunFilesScript());
+            cmdArgs.add("--verbosity");
+            cmdArgs.add(PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_VERBOSITY));
 
-			String filter = PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_TEST_FILTER);
-			if (filter.length() > 0) {
-				cmdArgs.add("--filter");
-				cmdArgs.add(filter);
-			}
-		}
-	}
+            String filter = PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_TEST_FILTER);
+            if (filter.length() > 0) {
+                cmdArgs.add("--filter");
+                cmdArgs.add(filter);
+            }
+        }
+    }
 
-	/**
-	 * Adds a set of arguments needed for debugging.
-	 */
-	private void addDebugArgs(List<String> cmdArgs, String vmType) throws CoreException {
-		if (isDebug) {
-			cmdArgs.add(getDebugScript());
-			cmdArgs.add("--vm_type");
-			cmdArgs.add(vmType);
-			cmdArgs.add("--client");
-			cmdArgs.add("localhost");
-			cmdArgs.add("--port");
-			cmdArgs.add(Integer.toString(debugPort));
-			cmdArgs.add("--file");
-		}
-	}
+    /**
+     * Adds a set of arguments needed for debugging.
+     */
+    private void addDebugArgs(List<String> cmdArgs, String vmType) throws CoreException {
+        if (isDebug) {
+            cmdArgs.add(getDebugScript());
+            cmdArgs.add("--vm_type");
+            cmdArgs.add(vmType);
+            cmdArgs.add("--client");
+            cmdArgs.add("localhost");
+            cmdArgs.add("--port");
+            cmdArgs.add(Integer.toString(debugPort));
+            cmdArgs.add("--file");
+        }
+    }
 
     /**
      * @param cmdArgs
@@ -618,38 +618,38 @@ public class PythonRunnerConfig {
         String[] vmArguments = getVMArguments(configuration);
         if(vmArguments != null){
             for (int i = 0; i < vmArguments.length; i++){
-            	cmdArgs.add(vmArguments[i]);
+                cmdArgs.add(vmArguments[i]);
             }
         }
     }
 
-	
-	/**
-	 * @return an array with the vm arguments in the given configuration.
-	 * @throws CoreException
-	 */
+    
+    /**
+     * @return an array with the vm arguments in the given configuration.
+     * @throws CoreException
+     */
     private String[] getVMArguments(ILaunchConfiguration configuration) throws CoreException {
-    	String args = configuration.getAttribute(Constants.ATTR_VM_ARGUMENTS, (String) null);
+        String args = configuration.getAttribute(Constants.ATTR_VM_ARGUMENTS, (String) null);
         if (args != null && args.trim().length() > 0) {
             String expanded = getStringVariableManager().performStringSubstitution(args);
             return parseStringIntoList(expanded);
        }
        return null;
-	}
+    }
 
     /**
      * @return A command line to be shown to the user. Note that this command line should not actually be used for
      * an execution (only String[] should be passed to Runtie.exec)
      * @throws JDTNotAvailableException
      */
-	public String getCommandLineAsString() throws JDTNotAvailableException {
-		String[] args;
+    public String getCommandLineAsString() throws JDTNotAvailableException {
+        String[] args;
         try {
             args = getCommandLine(false);
             return SimpleRunner.getArgumentsAsStr(args);
         } catch (CoreException e) {
             throw new RuntimeException(e);
         }
-	}
+    }
 
 }

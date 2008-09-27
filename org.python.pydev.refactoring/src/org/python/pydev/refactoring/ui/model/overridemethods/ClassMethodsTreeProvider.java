@@ -18,39 +18,39 @@ import org.python.pydev.refactoring.ui.model.tree.ITreeNode;
 
 public class ClassMethodsTreeProvider implements ITreeContentProvider {
 
-	private List<IClassDefAdapter> classes;
+    private List<IClassDefAdapter> classes;
 
-	public ClassMethodsTreeProvider(List<IClassDefAdapter> adapters) {
-		this.classes = adapters;
-	}
+    public ClassMethodsTreeProvider(List<IClassDefAdapter> adapters) {
+        this.classes = adapters;
+    }
 
-	public Object[] getChildren(Object parentElement) {
-		return ((ITreeNode) parentElement).getChildren();
-	}
+    public Object[] getChildren(Object parentElement) {
+        return ((ITreeNode) parentElement).getChildren();
+    }
 
-	public Object getParent(Object element) {
-		return ((ITreeNode) element).getParent();
-	}
+    public Object getParent(Object element) {
+        return ((ITreeNode) element).getParent();
+    }
 
-	public boolean hasChildren(Object element) {
-		ITreeNode node = (ITreeNode) element;
-		return node.hasChildren();
-	}
+    public boolean hasChildren(Object element) {
+        ITreeNode node = (ITreeNode) element;
+        return node.hasChildren();
+    }
 
-	public Object[] getElements(Object inputElement) {
-		Collection<ClassTreeNode> elements = new ArrayList<ClassTreeNode>();
-		for (IClassDefAdapter elem : classes) {
-			if (elem.hasFunctionsInitFiltered()) {
-				elements.add(new ClassTreeNode(elem));
-			}
-		}
-		return elements.toArray();
-	}
+    public Object[] getElements(Object inputElement) {
+        Collection<ClassTreeNode> elements = new ArrayList<ClassTreeNode>();
+        for (IClassDefAdapter elem : classes) {
+            if (elem.hasFunctionsInitFiltered()) {
+                elements.add(new ClassTreeNode(elem));
+            }
+        }
+        return elements.toArray();
+    }
 
-	public void dispose() {
-	}
+    public void dispose() {
+    }
 
-	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-	}
+    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+    }
 
 }

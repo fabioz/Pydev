@@ -25,56 +25,56 @@ import org.python.pydev.refactoring.core.edit.AbstractInsertEdit;
 
 public class SetterMethodEdit extends AbstractInsertEdit {
 
-	private static final String SET = "set";
+    private static final String SET = "set";
 
-	private static final String VALUE = "value";
+    private static final String VALUE = "value";
 
-	private String attributeName;
+    private String attributeName;
 
-	private int offsetStrategy;
+    private int offsetStrategy;
 
-	public SetterMethodEdit(GeneratePropertiesRequest req) {
-		super(req);
-		this.attributeName = nodeHelper.getPublicAttr(req.getAttributeName());
-		this.offsetStrategy = req.getMethodOffsetStrategy();
-	}
+    public SetterMethodEdit(GeneratePropertiesRequest req) {
+        super(req);
+        this.attributeName = nodeHelper.getPublicAttr(req.getAttributeName());
+        this.offsetStrategy = req.getMethodOffsetStrategy();
+    }
 
-	@Override
-	protected SimpleNode getEditNode() {
-		argumentsType args = initArguments();
-		Assign assign = initSetAssignment();
-		List<stmtType> body = initBody(assign);
+    @Override
+    protected SimpleNode getEditNode() {
+        argumentsType args = initArguments();
+        Assign assign = initSetAssignment();
+        List<stmtType> body = initBody(assign);
 
-		return new FunctionDef(new NameTok(SET + getCapitalString(attributeName), NameTok.FunctionName), args, body
-				.toArray(new stmtType[0]), null);
-	}
+        return new FunctionDef(new NameTok(SET + getCapitalString(attributeName), NameTok.FunctionName), args, body
+                .toArray(new stmtType[0]), null);
+    }
 
-	private List<stmtType> initBody(Assign assign) {
-		List<stmtType> body = new ArrayList<stmtType>();
-		body.add(assign);
-		return body;
-	}
+    private List<stmtType> initBody(Assign assign) {
+        List<stmtType> body = new ArrayList<stmtType>();
+        body.add(assign);
+        return body;
+    }
 
-	private Assign initSetAssignment() {
-		exprType[] targets = new exprType[1];
-		targets[0] = new Attribute(new Name(NodeHelper.KEYWORD_SELF, Name.Load), new NameTok(nodeHelper.getPrivateAttr(attributeName),
-				NameTok.Attrib), Attribute.Store);
+    private Assign initSetAssignment() {
+        exprType[] targets = new exprType[1];
+        targets[0] = new Attribute(new Name(NodeHelper.KEYWORD_SELF, Name.Load), new NameTok(nodeHelper.getPrivateAttr(attributeName),
+                NameTok.Attrib), Attribute.Store);
 
-		Assign assign = new Assign(targets, new Name(VALUE, Name.Load));
-		return assign;
-	}
+        Assign assign = new Assign(targets, new Name(VALUE, Name.Load));
+        return assign;
+    }
 
-	private argumentsType initArguments() {
-		exprType[] params = new exprType[2];
-		params[0] = (new Name(NodeHelper.KEYWORD_SELF, Name.Param));
-		params[1] = (new Name(VALUE, Name.Param));
-		argumentsType args = new argumentsType(params, null, null, null);
-		return args;
-	}
+    private argumentsType initArguments() {
+        exprType[] params = new exprType[2];
+        params[0] = (new Name(NodeHelper.KEYWORD_SELF, Name.Param));
+        params[1] = (new Name(VALUE, Name.Param));
+        argumentsType args = new argumentsType(params, null, null, null);
+        return args;
+    }
 
-	@Override
-	public int getOffsetStrategy() {
-		return offsetStrategy;
-	}
+    @Override
+    public int getOffsetStrategy() {
+        return offsetStrategy;
+    }
 
 }

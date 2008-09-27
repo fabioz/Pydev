@@ -104,19 +104,19 @@ public class ParsedItem implements Comparable<Object>{
 
     private static int qualifierFromName(String name) {
         if (   (name.startsWith("__")) 
-            	&& (name.endsWith("__"))) {
-        	return QUALIFIER_MAGIC;
+                && (name.endsWith("__"))) {
+            return QUALIFIER_MAGIC;
         }
         else if (name.startsWith("__")) {
-        	return QUALIFIER_PRIVATE;
+            return QUALIFIER_PRIVATE;
         }
         else if (name.startsWith("_")) {
-        	return QUALIFIER_PROTECTED;
+            return QUALIFIER_PROTECTED;
         }
         else {
-        	return QUALIFIER_PUBLIC;
+            return QUALIFIER_PUBLIC;
         }
-    	
+        
     }
     
     private static final int DECORATOR_NONE   = 0;
@@ -132,70 +132,70 @@ public class ParsedItem implements Comparable<Object>{
         
         SimpleNode token = astThis.node;
         if (token instanceof ClassDef) {
-        	String className = NodeUtils.getNameFromNameTok((NameTok) ((ClassDef)token).name);
-        	switch (qualifierFromName(className)) {
-        	case QUALIFIER_PROTECTED:
+            String className = NodeUtils.getNameFromNameTok((NameTok) ((ClassDef)token).name);
+            switch (qualifierFromName(className)) {
+            case QUALIFIER_PROTECTED:
                 return imageCache.get(UIConstants.PROTECTED_CLASS_ICON);
-        	case QUALIFIER_PRIVATE:
+            case QUALIFIER_PRIVATE:
                 return imageCache.get(UIConstants.PRIVATE_CLASS_ICON);
             default:
                 return imageCache.get(UIConstants.CLASS_ICON);
-        	}
+            }
         }
         else if (token instanceof FunctionDef) {
-        	int decoratorType = DECORATOR_NONE;
+            int decoratorType = DECORATOR_NONE;
 
-        	FunctionDef functionDefToken = (FunctionDef) token;
-        	for (decoratorsType decorator : functionDefToken.decs) {
-        		if (decorator.func instanceof Name) {
-        			Name decoratorFuncName = (Name) decorator.func;
-        			if (decoratorFuncName.id.equals("staticmethod")) {
-        				decoratorType = DECORATOR_STATIC;
-        			}
-        			else if (decoratorFuncName.id.equals("classmethod")) {
-        				decoratorType = DECORATOR_CLASS;
-        			}
-        		}
-			}
-        	String methodName = NodeUtils.getNameFromNameTok((NameTok) ((FunctionDef)token).name);
-        	switch (qualifierFromName(methodName)) {
-        	case QUALIFIER_MAGIC:
-        		switch(decoratorType) {
-        		case DECORATOR_CLASS:
+            FunctionDef functionDefToken = (FunctionDef) token;
+            for (decoratorsType decorator : functionDefToken.decs) {
+                if (decorator.func instanceof Name) {
+                    Name decoratorFuncName = (Name) decorator.func;
+                    if (decoratorFuncName.id.equals("staticmethod")) {
+                        decoratorType = DECORATOR_STATIC;
+                    }
+                    else if (decoratorFuncName.id.equals("classmethod")) {
+                        decoratorType = DECORATOR_CLASS;
+                    }
+                }
+            }
+            String methodName = NodeUtils.getNameFromNameTok((NameTok) ((FunctionDef)token).name);
+            switch (qualifierFromName(methodName)) {
+            case QUALIFIER_MAGIC:
+                switch(decoratorType) {
+                case DECORATOR_CLASS:
                     return imageCache.get(UIConstants.MAGIC_CLASS_METHOD_ICON);
-        		case DECORATOR_STATIC:
+                case DECORATOR_STATIC:
                     return imageCache.get(UIConstants.MAGIC_STATIC_METHOD_ICON);
                 default:
                     return imageCache.get(UIConstants.MAGIC_METHOD_ICON);
-            	}
-        	case QUALIFIER_PRIVATE: 
-        		switch (decoratorType) {
-        		case DECORATOR_CLASS:
+                }
+            case QUALIFIER_PRIVATE: 
+                switch (decoratorType) {
+                case DECORATOR_CLASS:
                     return imageCache.get(UIConstants.PRIVATE_CLASS_METHOD_ICON);
-        		case DECORATOR_STATIC:
+                case DECORATOR_STATIC:
                     return imageCache.get(UIConstants.PRIVATE_STATIC_METHOD_ICON);
                 default:
                     return imageCache.get(UIConstants.PRIVATE_METHOD_ICON);
-            	}
-        	case QUALIFIER_PROTECTED:
-        		switch (decoratorType) {
-        		case DECORATOR_CLASS:
+                }
+            case QUALIFIER_PROTECTED:
+                switch (decoratorType) {
+                case DECORATOR_CLASS:
                     return imageCache.get(UIConstants.PROTECTED_CLASS_METHOD_ICON);
-        		case DECORATOR_STATIC:
+                case DECORATOR_STATIC:
                     return imageCache.get(UIConstants.PROTECTED_STATIC_METHOD_ICON);
                 default:
                     return imageCache.get(UIConstants.PROTECTED_METHOD_ICON);
-            	}
+                }
             default:
-            	switch(decoratorType) {
-        		case DECORATOR_CLASS:
+                switch(decoratorType) {
+                case DECORATOR_CLASS:
                     return imageCache.get(UIConstants.PUBLIC_CLASS_METHOD_ICON);
-        		case DECORATOR_STATIC:
+                case DECORATOR_STATIC:
                     return imageCache.get(UIConstants.PUBLIC_STATIC_METHOD_ICON);
                 default:
                     return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
-            	}
-        	}
+                }
+            }
         }
         else if (token instanceof Import) {
             return imageCache.get(UIConstants.IMPORT_ICON);
@@ -207,22 +207,22 @@ public class ParsedItem implements Comparable<Object>{
             return imageCache.get(UIConstants.COMMENT);
         }
         else if (token instanceof Attribute || token instanceof Name || token instanceof NameTok) {
-        	String name = null;
+            String name = null;
             if (token instanceof Attribute) {
-            	Attribute attributeToken = (Attribute) token;
-            	name = NodeUtils.getNameFromNameTok((NameTok) (attributeToken).attr);
+                Attribute attributeToken = (Attribute) token;
+                name = NodeUtils.getNameFromNameTok((NameTok) (attributeToken).attr);
             }
             else if (token instanceof Name) {
-            	Name nameToken = (Name) token;
-            	name = nameToken.id;
+                Name nameToken = (Name) token;
+                name = nameToken.id;
             }
             else {
-            	NameTok nameTokToken = (NameTok) token;
-            	name = NodeUtils.getNameFromNameTok(nameTokToken);
+                NameTok nameTokToken = (NameTok) token;
+                name = NodeUtils.getNameFromNameTok(nameTokToken);
             }
             
             if (   (name.startsWith("__")) 
-                	&& (name.endsWith("__"))) {
+                    && (name.endsWith("__"))) {
                 return imageCache.get(UIConstants.MAGIC_FIELD_ICON);
             }
             else if (name.startsWith("__")) {

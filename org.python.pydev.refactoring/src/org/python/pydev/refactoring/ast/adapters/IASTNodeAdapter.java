@@ -12,24 +12,24 @@ import org.python.pydev.parser.jython.SimpleNode;
 
 public interface IASTNodeAdapter<T extends SimpleNode> extends INodeAdapter {
 
-	public abstract T getASTNode();
+    public abstract T getASTNode();
 
-	public abstract SimpleNode getASTParent();
+    public abstract SimpleNode getASTParent();
 
-	public abstract int getNodeBodyIndent();
+    public abstract int getNodeBodyIndent();
 
-	public abstract int getNodeFirstLine();
+    public abstract int getNodeFirstLine();
 
-	public abstract int getNodeIndent();
+    public abstract int getNodeIndent();
 
-	public abstract int getNodeLastLine();
+    public abstract int getNodeLastLine();
 
-	public abstract AbstractNodeAdapter<? extends SimpleNode> getParent();
+    public abstract AbstractNodeAdapter<? extends SimpleNode> getParent();
 
-	public abstract SimpleNode getParentNode();
+    public abstract SimpleNode getParentNode();
 
-	public abstract boolean isModule();
+    public abstract boolean isModule();
 
-	public ModuleAdapter getModule();
+    public ModuleAdapter getModule();
 
 }

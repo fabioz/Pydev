@@ -95,52 +95,52 @@ public class FullRepIterableTest extends TestCase {
     }
     
     public void testGetWithoutLastPart() throws Exception {
-		assertEquals("",FullRepIterable.getWithoutLastPart("test"));
-		assertEquals("test",FullRepIterable.getWithoutLastPart("test.__init__"));
-		assertEquals("test.test",FullRepIterable.getWithoutLastPart("test.test.__init__"));
-	}
+        assertEquals("",FullRepIterable.getWithoutLastPart("test"));
+        assertEquals("test",FullRepIterable.getWithoutLastPart("test.__init__"));
+        assertEquals("test.test",FullRepIterable.getWithoutLastPart("test.test.__init__"));
+    }
     
     public void testGetLastPart() throws Exception {
-    	assertEquals("test",FullRepIterable.getLastPart("test"));
-    	assertEquals("__init__",FullRepIterable.getLastPart("test.__init__"));
-    	assertEquals("__init__",FullRepIterable.getLastPart("test.test.__init__"));
+        assertEquals("test",FullRepIterable.getLastPart("test"));
+        assertEquals("__init__",FullRepIterable.getLastPart("test.__init__"));
+        assertEquals("__init__",FullRepIterable.getLastPart("test.test.__init__"));
     }
     
     
     public void testDotSplit() throws Exception {
-    	String[] strings = StringUtils.dotSplit("foo.bar.f");
-    	assertEquals(3, strings.length);
-    	assertEquals("foo", strings[0]);
-    	assertEquals("bar", strings[1]);
-    	assertEquals("f", strings[2]);
-		
-    	strings = StringUtils.dotSplit("foo.bar.");
-    	assertEquals(2, strings.length);
-    	assertEquals("foo", strings[0]);
-    	assertEquals("bar", strings[1]);
-    	
-    	assertEquals(0, "...".split("\\.").length);
-    	strings = StringUtils.dotSplit("...");
-    	assertEquals(0, strings.length);
-    	
-    	strings = StringUtils.dotSplit("");
-    	assertEquals(0, strings.length);
-    	
-    	strings = StringUtils.dotSplit("foo");
-    	assertEquals(1, strings.length);
-    	assertEquals("foo", strings[0]);
-    	
-    	strings = StringUtils.dotSplit("f.bu");
-    	assertEquals(2, strings.length);
-    	assertEquals("f", strings[0]);
-    	assertEquals("bu", strings[1]);
-    	
-    	strings = StringUtils.dotSplit("..f.b...u..");
-    	assertEquals(3, strings.length);
-    	assertEquals("f", strings[0]);
-    	assertEquals("b", strings[1]);
-    	assertEquals("u", strings[2]);
-    	
-	}
+        String[] strings = StringUtils.dotSplit("foo.bar.f");
+        assertEquals(3, strings.length);
+        assertEquals("foo", strings[0]);
+        assertEquals("bar", strings[1]);
+        assertEquals("f", strings[2]);
+        
+        strings = StringUtils.dotSplit("foo.bar.");
+        assertEquals(2, strings.length);
+        assertEquals("foo", strings[0]);
+        assertEquals("bar", strings[1]);
+        
+        assertEquals(0, "...".split("\\.").length);
+        strings = StringUtils.dotSplit("...");
+        assertEquals(0, strings.length);
+        
+        strings = StringUtils.dotSplit("");
+        assertEquals(0, strings.length);
+        
+        strings = StringUtils.dotSplit("foo");
+        assertEquals(1, strings.length);
+        assertEquals("foo", strings[0]);
+        
+        strings = StringUtils.dotSplit("f.bu");
+        assertEquals(2, strings.length);
+        assertEquals("f", strings[0]);
+        assertEquals("bu", strings[1]);
+        
+        strings = StringUtils.dotSplit("..f.b...u..");
+        assertEquals(3, strings.length);
+        assertEquals("f", strings[0]);
+        assertEquals("b", strings[1]);
+        assertEquals("u", strings[2]);
+        
+    }
 
 }

@@ -126,33 +126,33 @@ public class SourceToken extends AbstractToken{
     int[] colLineEndToFirstDot;
     int[] colLineEndComplete;
     public int getLineEnd(boolean getOnlyToFirstDot){
-    	if(getOnlyToFirstDot){
-    		if(colLineEndToFirstDot == null){
-    			colLineEndToFirstDot = NodeUtils.getColLineEnd(getRepresentationNode(), getOnlyToFirstDot);
-    		}
-    		return colLineEndToFirstDot[0];
-    		
-    	}else{
-    		if(colLineEndComplete == null){
-    			colLineEndComplete = NodeUtils.getColLineEnd(getRepresentationNode(), getOnlyToFirstDot);
-    		}
-    		return colLineEndComplete[0];
-    	}
+        if(getOnlyToFirstDot){
+            if(colLineEndToFirstDot == null){
+                colLineEndToFirstDot = NodeUtils.getColLineEnd(getRepresentationNode(), getOnlyToFirstDot);
+            }
+            return colLineEndToFirstDot[0];
+            
+        }else{
+            if(colLineEndComplete == null){
+                colLineEndComplete = NodeUtils.getColLineEnd(getRepresentationNode(), getOnlyToFirstDot);
+            }
+            return colLineEndComplete[0];
+        }
     }
     
     public int getColEnd(boolean getOnlyToFirstDot){
-    	if(getOnlyToFirstDot){
-    		if(colLineEndToFirstDot == null){
-    			colLineEndToFirstDot = NodeUtils.getColLineEnd(getRepresentationNode(), getOnlyToFirstDot);
-    		}
-    		return colLineEndToFirstDot[1];
-    		
-    	}else{
-    		if(colLineEndComplete == null){
-    			colLineEndComplete = NodeUtils.getColLineEnd(getRepresentationNode(), getOnlyToFirstDot);
-    		}
-    		return colLineEndComplete[1];
-    	}
+        if(getOnlyToFirstDot){
+            if(colLineEndToFirstDot == null){
+                colLineEndToFirstDot = NodeUtils.getColLineEnd(getRepresentationNode(), getOnlyToFirstDot);
+            }
+            return colLineEndToFirstDot[1];
+            
+        }else{
+            if(colLineEndComplete == null){
+                colLineEndComplete = NodeUtils.getColLineEnd(getRepresentationNode(), getOnlyToFirstDot);
+            }
+            return colLineEndComplete[1];
+        }
     }
     
     @Override
@@ -186,11 +186,11 @@ public class SourceToken extends AbstractToken{
     }
     
     public boolean isImportFrom() {
-    	return ast instanceof ImportFrom;
+        return ast instanceof ImportFrom;
     }
 
     public boolean isWildImport() {
-    	return AbstractVisitor.isWildImport(ast);
+        return AbstractVisitor.isWildImport(ast);
     }
     
     public boolean isString() {
@@ -201,11 +201,11 @@ public class SourceToken extends AbstractToken{
      * This representation may not be accurate depending on which tokens we are dealing with. 
      */
     public int[] getLineColEnd() {
-    	if(ast instanceof NameTok || ast instanceof Name){
-    		//those are the ones that we can be certain of...
-    		return new int[]{getLineDefinition(), getColDefinition()+getRepresentation().length()};
-    	}
-    	throw new RuntimeException("Unable to get the lenght of the token:"+ast.getClass().getName());
+        if(ast instanceof NameTok || ast instanceof Name){
+            //those are the ones that we can be certain of...
+            return new int[]{getLineDefinition(), getColDefinition()+getRepresentation().length()};
+        }
+        throw new RuntimeException("Unable to get the lenght of the token:"+ast.getClass().getName());
     }
 
 }

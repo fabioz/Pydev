@@ -19,27 +19,27 @@ import org.python.pydev.parser.jython.ast.VisitorBase;
  */
 public class LastLineVisitor extends VisitorBase {
 
-	private int lastLine;
+    private int lastLine;
 
-	public LastLineVisitor() {
-		lastLine = 0;
-	}
+    public LastLineVisitor() {
+        lastLine = 0;
+    }
 
-	@Override
-	public void traverse(SimpleNode node) throws Exception {
-		if (node != null)
-			node.traverse(this);
-	}
+    @Override
+    public void traverse(SimpleNode node) throws Exception {
+        if (node != null)
+            node.traverse(this);
+    }
 
-	@Override
-	protected Object unhandled_node(SimpleNode node) throws Exception {
-		if (node.beginLine > lastLine)
-			lastLine = node.beginLine;
-		return null;
-	}
+    @Override
+    protected Object unhandled_node(SimpleNode node) throws Exception {
+        if (node.beginLine > lastLine)
+            lastLine = node.beginLine;
+        return null;
+    }
 
-	public int getLastLine() {
-		return lastLine;
-	}
+    public int getLastLine() {
+        return lastLine;
+    }
 
 }

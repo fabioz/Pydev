@@ -32,7 +32,7 @@ import org.python.pydev.ui.ColorCache;
  * GreatWhite, GreatKeywordDetector came from PyEditConfiguration
  */
 public class PyCodeScanner extends RuleBasedScanner {
-	
+    
     // keywords list has to be alphabetized for the keyword detector to work properly
     static final public String[] KEYWORDS = {
         "and","as","assert","break","class","continue",
@@ -55,35 +55,35 @@ public class PyCodeScanner extends RuleBasedScanner {
     
     
     
-	/**
-	 * Whitespace detector.
-	 * 
-	 * I know, naming the class after a band that burned
-	 * is not funny, but I've got to get my brain off my
-	 * annoyance with the abstractions of JFace.
-	 * So many classes and interfaces for a single method?
-	 * f$%@#$!!
-	 */
-	static private class GreatWhite implements IWhitespaceDetector {
-		public boolean isWhitespace(char c) {return Character.isWhitespace(c);}
-	}
-	
-	/**
-	 * Python keyword detector
-	 */
-	static private class GreatKeywordDetector implements IWordDetector {
+    /**
+     * Whitespace detector.
+     * 
+     * I know, naming the class after a band that burned
+     * is not funny, but I've got to get my brain off my
+     * annoyance with the abstractions of JFace.
+     * So many classes and interfaces for a single method?
+     * f$%@#$!!
+     */
+    static private class GreatWhite implements IWhitespaceDetector {
+        public boolean isWhitespace(char c) {return Character.isWhitespace(c);}
+    }
+    
+    /**
+     * Python keyword detector
+     */
+    static private class GreatKeywordDetector implements IWordDetector {
 
-		public GreatKeywordDetector() {
-		}
-		public boolean isWordStart(char c) {
-			return Character.isJavaIdentifierStart(c);
-		}
-		public boolean isWordPart(char c) {
-			return Character.isJavaIdentifierPart(c);
-		}
-	}
-	
-	static private class DecoratorDetector implements IWordDetector{
+        public GreatKeywordDetector() {
+        }
+        public boolean isWordStart(char c) {
+            return Character.isJavaIdentifierStart(c);
+        }
+        public boolean isWordPart(char c) {
+            return Character.isJavaIdentifierPart(c);
+        }
+    }
+    
+    static private class DecoratorDetector implements IWordDetector{
 
         /**
          * @see org.eclipse.jface.text.rules.IWordDetector#isWordStart(char)
@@ -96,12 +96,12 @@ public class PyCodeScanner extends RuleBasedScanner {
          * @see org.eclipse.jface.text.rules.IWordDetector#isWordPart(char)
          */
         public boolean isWordPart(char c) {
-			return c != '\n' && c != '\r' && c != '(';
+            return c != '\n' && c != '\r' && c != '(';
         }
-	    
-	}
-	
-	static public class NumberDetector implements IWordDetector{
+        
+    }
+    
+    static public class NumberDetector implements IWordDetector{
 
         /**
          * Used to keep the state of the token
@@ -150,40 +150,40 @@ public class PyCodeScanner extends RuleBasedScanner {
                 return Character.isDigit(c) || c == 'e'  || c == '.';
             }
         }
-	    
-	}
-	
-	public PyCodeScanner(ColorCache colorCache) {
-		super();
-		this.colorCache = colorCache;
-		
-		setupRules();
-	}
-	
-	public void updateColors() {
-		setupRules();
-	}
-	
+        
+    }
+    
+    public PyCodeScanner(ColorCache colorCache) {
+        super();
+        this.colorCache = colorCache;
+        
+        setupRules();
+    }
+    
+    public void updateColors() {
+        setupRules();
+    }
+    
     private void setupRules() {
-		IPreferenceStore preferences = PydevPlugin.getChainedPrefStore();
-		keywordToken   = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.KEYWORD_COLOR), null, preferences.getInt(PydevPrefs.KEYWORD_STYLE)));
-		selfToken      = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.SELF_COLOR), null, preferences.getInt(PydevPrefs.SELF_STYLE)));
-		defaultToken   = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.CODE_COLOR), null, preferences.getInt(PydevPrefs.CODE_STYLE)));
-		decoratorToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.DECORATOR_COLOR), null, preferences.getInt(PydevPrefs.DECORATOR_STYLE)));
-		numberToken    = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.NUMBER_COLOR), null, preferences.getInt(PydevPrefs.NUMBER_STYLE)));
-		classNameToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.CLASS_NAME_COLOR), null, preferences.getInt(PydevPrefs.CLASS_NAME_STYLE)));
-		funcNameToken  = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.FUNC_NAME_COLOR), null, preferences.getInt(PydevPrefs.FUNC_NAME_STYLE)));
-		
-		setDefaultReturnToken(defaultToken);
-		List<IRule> rules = new ArrayList<IRule>();
-		
-		// Scanning strategy:
-		// 1) whitespace
-		// 2) code
-		// 3) regular words?
-		
-		rules.add(new WhitespaceRule(new GreatWhite()));
-		
+        IPreferenceStore preferences = PydevPlugin.getChainedPrefStore();
+        keywordToken   = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.KEYWORD_COLOR), null, preferences.getInt(PydevPrefs.KEYWORD_STYLE)));
+        selfToken      = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.SELF_COLOR), null, preferences.getInt(PydevPrefs.SELF_STYLE)));
+        defaultToken   = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.CODE_COLOR), null, preferences.getInt(PydevPrefs.CODE_STYLE)));
+        decoratorToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.DECORATOR_COLOR), null, preferences.getInt(PydevPrefs.DECORATOR_STYLE)));
+        numberToken    = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.NUMBER_COLOR), null, preferences.getInt(PydevPrefs.NUMBER_STYLE)));
+        classNameToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.CLASS_NAME_COLOR), null, preferences.getInt(PydevPrefs.CLASS_NAME_STYLE)));
+        funcNameToken  = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.FUNC_NAME_COLOR), null, preferences.getInt(PydevPrefs.FUNC_NAME_STYLE)));
+        
+        setDefaultReturnToken(defaultToken);
+        List<IRule> rules = new ArrayList<IRule>();
+        
+        // Scanning strategy:
+        // 1) whitespace
+        // 2) code
+        // 3) regular words?
+        
+        rules.add(new WhitespaceRule(new GreatWhite()));
+        
         Map<String,IToken> defaults = new HashMap<String, IToken>();
         defaults.put("self", selfToken);
         
@@ -193,14 +193,14 @@ public class PyCodeScanner extends RuleBasedScanner {
             if(token == null){
                 token = keywordToken;
             }
-			wordRule.addWord( keyword, token);
-		}
-		rules.add(wordRule);
+            wordRule.addWord( keyword, token);
+        }
+        rules.add(wordRule);
 
-		
+        
         rules.add(new WordRule(new DecoratorDetector(), decoratorToken));
-		rules.add(new WordRule(new NumberDetector(), numberToken));
-		
-		setRules(rules.toArray(new IRule[0]));
-	}
+        rules.add(new WordRule(new NumberDetector(), numberToken));
+        
+        setRules(rules.toArray(new IRule[0]));
+    }
 }

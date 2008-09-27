@@ -59,7 +59,7 @@ import org.python.pydev.ui.interpreters.PythonInterpreterManager;
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
  */
 public class PydevPlugin extends AbstractUIPlugin implements Preferences.IPropertyChangeListener {
-	
+    
     public static final String version = "REPLACE_VERSION";
     
     // ----------------- SINGLETON THINGS -----------------------------
@@ -74,7 +74,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         PydevPlugin.info = b;
     }
     // ----------------- END BUNDLE INFO THINGS --------------------------
-	
+    
     private static IInterpreterManager pythonInterpreterManager;
     public static void setPythonInterpreterManager(IInterpreterManager interpreterManager) {
         PydevPlugin.pythonInterpreterManager = interpreterManager;
@@ -83,7 +83,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         return getPythonInterpreterManager(false);
     }
     public static IInterpreterManager getPythonInterpreterManager(boolean haltOnStub) {
-    	return pythonInterpreterManager;
+        return pythonInterpreterManager;
     }
 
     
@@ -94,7 +94,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         PydevPlugin.jythonInterpreterManager = interpreterManager;
     }
     public static IInterpreterManager getJythonInterpreterManager() {
-    	return getJythonInterpreterManager(false);
+        return getJythonInterpreterManager(false);
     }
     public static IInterpreterManager getJythonInterpreterManager(boolean haltOnStub) {
         return jythonInterpreterManager;
@@ -168,22 +168,22 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 //        new Job("PyDev: Restoring projects python nature"){
 //
 //            protected IStatus run(IProgressMonitor monitor) {
-//            	try{
-//	            	
-//	                IProject[] projects = getWorkspace().getRoot().getProjects();
-//	                for (int i = 0; i < projects.length; i++) {
-//	                    IProject project = projects[i];
-//	                    try {
-//	                        if (project.isOpen() && project.hasNature(PythonNature.PYTHON_NATURE_ID)) {
-//	                            PythonNature.addNature(project, monitor, null, null);
-//	                        }
-//	                    } catch (Exception e) {
-//	                        PydevPlugin.log(e);
-//	                    }
-//	                }
-//            	}catch(Throwable t){
-//            		t.printStackTrace();
-//            	}
+//                try{
+//                    
+//                    IProject[] projects = getWorkspace().getRoot().getProjects();
+//                    for (int i = 0; i < projects.length; i++) {
+//                        IProject project = projects[i];
+//                        try {
+//                            if (project.isOpen() && project.hasNature(PythonNature.PYTHON_NATURE_ID)) {
+//                                PythonNature.addNature(project, monitor, null, null);
+//                            }
+//                        } catch (Exception e) {
+//                            PydevPlugin.log(e);
+//                        }
+//                    }
+//                }catch(Throwable t){
+//                    t.printStackTrace();
+//                }
 //                return Status.OK_STATUS;
 //            }
 //            
@@ -192,11 +192,11 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
     
     public static boolean isPythonInterpreterInitialized() {
-    	return true;
-	}
+        return true;
+    }
     
     public static boolean isJythonInterpreterInitialized() {
-    	return true;
+        return true;
     }
     
 
@@ -220,11 +220,11 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
                 try {
                     IProject project = projects[i];
                     if (project.isOpen()){
-	                    IProjectNature n = project.getNature(PythonNature.PYTHON_NATURE_ID);
-	                    if(n instanceof PythonNature){
-	                        PythonNature nature = (PythonNature) n;
-	                        nature.saveAstManager();
-	                    }
+                        IProjectNature n = project.getNature(PythonNature.PYTHON_NATURE_ID);
+                        if(n instanceof PythonNature){
+                            PythonNature nature = (PythonNature) n;
+                            nature.saveAstManager();
+                        }
                     }
                 } catch (CoreException e) {
                     PydevPlugin.log(e);
@@ -232,7 +232,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
             }
 
         } finally{
-	        super.stop(context);
+            super.stop(context);
         }
     }
 
@@ -273,11 +273,11 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     
     
     public void propertyChange(Preferences.PropertyChangeEvent event) {
-        //		System.out.println( event.getProperty()
-        //		 + "\n\told setting: "
-        //		 + event.getOldValue()
-        //		 + "\n\tnew setting: "
-        //		 + event.getNewValue());
+        //        System.out.println( event.getProperty()
+        //         + "\n\told setting: "
+        //         + event.getOldValue()
+        //         + "\n\tnew setting: "
+        //         + event.getNewValue());
     }
 
     public static void log(String message, Throwable e) {
@@ -293,28 +293,28 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 
     public static void logInfo(Exception e) {
         log(IStatus.INFO, e.getMessage(), e, true);
-	}
+    }
 
     /**
      * @param errorLevel IStatus.[OK|INFO|WARNING|ERROR]
      */
     public static void log(int errorLevel, String message, Throwable e, boolean printToConsole) {
         if(printToConsole){
-        	if(errorLevel == IStatus.ERROR){
-        		System.out.println("Error received...");
-        	}else{
-        		System.out.println("Log received...");
-        	}
+            if(errorLevel == IStatus.ERROR){
+                System.out.println("Error received...");
+            }else{
+                System.out.println("Log received...");
+            }
             System.out.println(message);
             System.err.println(message);
             if(e != null){
-            	e.printStackTrace();
+                e.printStackTrace();
             }
         }
         
         try {
-	        Status s = new Status(errorLevel, getPluginID(), errorLevel, message, e);
-	        getDefault().getLog().log(s);
+            Status s = new Status(errorLevel, getPluginID(), errorLevel, message, e);
+            getDefault().getLog().log(s);
         } catch (Throwable e1) {
             //logging should never fail!
         }
@@ -350,10 +350,10 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
 
     /**
-	 * Returns this plug-in's template store.
-	 * 
-	 * @return the template store of this plug-in instance
-	 */
+     * Returns this plug-in's template store.
+     * 
+     * @return the template store of this plug-in instance
+     */
     public TemplateStore getTemplateStore() {
         if (fStore == null) {
             fStore = new ContributionTemplateStore(getContextTypeRegistry(), getPreferenceStore(), CUSTOM_TEMPLATES_PY_KEY);
@@ -425,52 +425,52 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     private List testListeners = new ArrayList();
 
 
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     public void addTestListener(ITestRunListener listener) {
-		testListeners.add(listener);
-	}
-	
-	public void removeTestListener(ITestRunListener listener) {
-		testListeners.remove(listener);
-	}
+        testListeners.add(listener);
+    }
+    
+    public void removeTestListener(ITestRunListener listener) {
+        testListeners.remove(listener);
+    }
 
-	public List getListeners() {
-		return testListeners;
-	}
-	
-	public void runTests(String moduleDir, String moduleName, IProject project) throws IOException, CoreException {
-		new PyUnitTestRunner().runTests(moduleDir, moduleName, project);
-	}
-	
-	public void fireTestsStarted(int count) {
-		for (Iterator all=getListeners().iterator(); all.hasNext();) {
-			ITestRunListener each = (ITestRunListener) all.next();
-			each.testsStarted(count);
-		}
-	}
+    public List getListeners() {
+        return testListeners;
+    }
+    
+    public void runTests(String moduleDir, String moduleName, IProject project) throws IOException, CoreException {
+        new PyUnitTestRunner().runTests(moduleDir, moduleName, project);
+    }
+    
+    public void fireTestsStarted(int count) {
+        for (Iterator all=getListeners().iterator(); all.hasNext();) {
+            ITestRunListener each = (ITestRunListener) all.next();
+            each.testsStarted(count);
+        }
+    }
 
-	public void fireTestsFinished() {
-		for (Iterator all=getListeners().iterator(); all.hasNext();) {
-			ITestRunListener each = (ITestRunListener) all.next();
-			each.testsFinished();
-		}
-	}
+    public void fireTestsFinished() {
+        for (Iterator all=getListeners().iterator(); all.hasNext();) {
+            ITestRunListener each = (ITestRunListener) all.next();
+            each.testsFinished();
+        }
+    }
 
-	public void fireTestStarted(String klass, String methodName) {
-		for (Iterator all=getListeners().iterator(); all.hasNext();) {
-			ITestRunListener each = (ITestRunListener) all.next();
-			each.testStarted(klass, methodName);
-		}
-	}
+    public void fireTestStarted(String klass, String methodName) {
+        for (Iterator all=getListeners().iterator(); all.hasNext();) {
+            ITestRunListener each = (ITestRunListener) all.next();
+            each.testStarted(klass, methodName);
+        }
+    }
 
-	public void fireTestFailed(String klass, String methodName, String trace) {
-		for (Iterator all=getListeners().iterator(); all.hasNext();) {
-			ITestRunListener each = (ITestRunListener) all.next();
-			each.testFailed(klass, methodName, trace);
-		}
-	}
-	
-	
+    public void fireTestFailed(String klass, String methodName, String trace) {
+        for (Iterator all=getListeners().iterator(); all.hasNext();) {
+            ITestRunListener each = (ITestRunListener) all.next();
+            each.testFailed(klass, methodName, trace);
+        }
+    }
+    
+    
     /**
      * @param file the file we want to get info on.
      * @return a tuple with the pythonnature to be used and the name of the module represented by the file in that scenario.

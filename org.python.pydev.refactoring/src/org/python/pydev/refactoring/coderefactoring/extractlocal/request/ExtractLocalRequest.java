@@ -16,39 +16,39 @@ import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
 public class ExtractLocalRequest implements IRefactoringRequest {
 
-	private RefactoringInfo info;
+    private RefactoringInfo info;
 
-	private String variableName;
+    private String variableName;
 
-	private exprType expression;
+    private exprType expression;
 
-	public ExtractLocalRequest(RefactoringInfo info, exprType expression, String variableName) {
-		this.info = info;
-		this.expression = expression;
-		this.variableName = variableName;
-	}
-
-	public int getOffsetStrategy() {
-		return 0;
-	}
-
-	public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
-		return info.getScopeAdapter();
-	}
-	
-    public String getNewLineDelim() {
-    	return info.getNewLineDelim();
+    public ExtractLocalRequest(RefactoringInfo info, exprType expression, String variableName) {
+        this.info = info;
+        this.expression = expression;
+        this.variableName = variableName;
     }
-	
-	public RefactoringInfo getRefactoringInfo() {
-		return info;
-	}
 
-	public String getVariableName() {
-		return variableName;
-	}
-	
-	public exprType getExpression() {
-		return expression;
-	}
+    public int getOffsetStrategy() {
+        return 0;
+    }
+
+    public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
+        return info.getScopeAdapter();
+    }
+    
+    public String getNewLineDelim() {
+        return info.getNewLineDelim();
+    }
+    
+    public RefactoringInfo getRefactoringInfo() {
+        return info;
+    }
+
+    public String getVariableName() {
+        return variableName;
+    }
+    
+    public exprType getExpression() {
+        return expression;
+    }
 }

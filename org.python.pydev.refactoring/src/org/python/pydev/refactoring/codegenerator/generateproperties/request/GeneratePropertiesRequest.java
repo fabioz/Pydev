@@ -19,84 +19,84 @@ import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
 public class GeneratePropertiesRequest implements IRefactoringRequest {
 
-	private IClassDefAdapter classAdapter;
+    private IClassDefAdapter classAdapter;
 
-	private INodeAdapter attributeAdapter;
+    private INodeAdapter attributeAdapter;
 
-	private SelectionState state;
+    private SelectionState state;
 
-	private int offsetMethodStrategy;
+    private int offsetMethodStrategy;
 
-	private int offsetPropertyStrategy;
+    private int offsetPropertyStrategy;
 
-	private int accessModifier;
+    private int accessModifier;
 
     private String endLineDelim;
 
-	public GeneratePropertiesRequest(IClassDefAdapter classAdapter, INodeAdapter attributeAdapter, List<PropertyTextAdapter> properties,
-			int offsetMethodStrategy, int offsetPropertyStrategy, int accessModifier, String endLineDelim) {
-		this.state = new SelectionState();
-		this.classAdapter = classAdapter;
-		this.attributeAdapter = attributeAdapter;
-		this.offsetMethodStrategy = offsetMethodStrategy;
-		this.offsetPropertyStrategy = offsetPropertyStrategy;
-		this.accessModifier = accessModifier;
+    public GeneratePropertiesRequest(IClassDefAdapter classAdapter, INodeAdapter attributeAdapter, List<PropertyTextAdapter> properties,
+            int offsetMethodStrategy, int offsetPropertyStrategy, int accessModifier, String endLineDelim) {
+        this.state = new SelectionState();
+        this.classAdapter = classAdapter;
+        this.attributeAdapter = attributeAdapter;
+        this.offsetMethodStrategy = offsetMethodStrategy;
+        this.offsetPropertyStrategy = offsetPropertyStrategy;
+        this.accessModifier = accessModifier;
         this.endLineDelim = endLineDelim;
-		initialize(properties);
-	}
+        initialize(properties);
+    }
 
-	public IClassDefAdapter getClassAdapter() {
-		return classAdapter;
-	}
+    public IClassDefAdapter getClassAdapter() {
+        return classAdapter;
+    }
 
-	private void initialize(List<PropertyTextAdapter> properties) {
-		for (PropertyTextAdapter propertyAdapter : properties) {
-			switch (propertyAdapter.getType()) {
-			case (PropertyTextAdapter.GETTER):
-				state.addSelection(SelectionState.GETTER);
-				break;
-			case (PropertyTextAdapter.SETTER):
-				state.addSelection(SelectionState.SETTER);
-				break;
-			case (PropertyTextAdapter.DELETE):
-				state.addSelection(SelectionState.DELETE);
-				break;
-			case (PropertyTextAdapter.DOCSTRING):
-				state.addSelection(SelectionState.DOCSTRING);
-				break;
-			default:
-				break;
-			}
-		}
-	}
+    private void initialize(List<PropertyTextAdapter> properties) {
+        for (PropertyTextAdapter propertyAdapter : properties) {
+            switch (propertyAdapter.getType()) {
+            case (PropertyTextAdapter.GETTER):
+                state.addSelection(SelectionState.GETTER);
+                break;
+            case (PropertyTextAdapter.SETTER):
+                state.addSelection(SelectionState.SETTER);
+                break;
+            case (PropertyTextAdapter.DELETE):
+                state.addSelection(SelectionState.DELETE);
+                break;
+            case (PropertyTextAdapter.DOCSTRING):
+                state.addSelection(SelectionState.DOCSTRING);
+                break;
+            default:
+                break;
+            }
+        }
+    }
 
-	public INodeAdapter getAttributeAdapter() {
-		return attributeAdapter;
-	}
+    public INodeAdapter getAttributeAdapter() {
+        return attributeAdapter;
+    }
 
-	public String getAttributeName() {
-		return getAttributeAdapter().getName();
-	}
+    public String getAttributeName() {
+        return getAttributeAdapter().getName();
+    }
 
-	public SelectionState getSelectionState() {
-		return state;
-	}
+    public SelectionState getSelectionState() {
+        return state;
+    }
 
-	public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
-		return classAdapter;
-	}
+    public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
+        return classAdapter;
+    }
 
-	public int getMethodOffsetStrategy() {
-		return offsetMethodStrategy;
-	}
+    public int getMethodOffsetStrategy() {
+        return offsetMethodStrategy;
+    }
 
-	public int getPropertyOffsetStrategy() {
-		return offsetPropertyStrategy;
-	}
+    public int getPropertyOffsetStrategy() {
+        return offsetPropertyStrategy;
+    }
 
-	public int getAccessModifier() {
-		return accessModifier;
-	}
+    public int getAccessModifier() {
+        return accessModifier;
+    }
 
     public String getNewLineDelim() {
         return this.endLineDelim;

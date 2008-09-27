@@ -38,10 +38,10 @@ public class PyAddBlockCommentTest extends TestCase {
         doc = new Document("class Information( UserDict.UserDict, IInformation ):");
         new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0,0,0));
         PySelectionTest.checkStrEquals("" +
-        		"#---------\r\n" +
-        		"# Information\r\n" +
-        		"#---------\r\n" +
-        		"class Information( UserDict.UserDict, IInformation ):", doc.get());
+                "#---------\r\n" +
+                "# Information\r\n" +
+                "#---------\r\n" +
+                "class Information( UserDict.UserDict, IInformation ):", doc.get());
         
         doc = new Document("def Information( (UserDict, IInformation) ):");
         new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0,0,0));
@@ -72,5 +72,5 @@ public class PyAddBlockCommentTest extends TestCase {
         
         
     }
-	
+    
 }

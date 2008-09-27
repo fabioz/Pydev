@@ -237,14 +237,14 @@ public class FastStack<E> implements Iterable<E> {
 
     @Override
     public String toString() {
-    	FastStringBuffer buf = new FastStringBuffer("FastStack [\n", 25*this.size);
-    	for (E element: this) {
-    		buf.append("    ");
-    		buf.append(element.toString());
-    		buf.append("\n");
-		}
-    	buf.append("]");
-		return buf.toString();
+        FastStringBuffer buf = new FastStringBuffer("FastStack [\n", 25*this.size);
+        for (E element: this) {
+            buf.append("    ");
+            buf.append(element.toString());
+            buf.append("\n");
+        }
+        buf.append("]");
+        return buf.toString();
     }
     
     public int hashCode() {

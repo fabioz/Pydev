@@ -50,9 +50,9 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         this.restorePythonPath(TestDependent.GetCompletePythonLib(true)+"|"+
-        		TestDependent.PYTHON_WXPYTHON_PACKAGES+"|"+
-        		TestDependent.PYTHON_MX_PACKAGES+"|"+
-        		TestDependent.PYTHON_NUMPY_PACKAGES, false);
+                TestDependent.PYTHON_WXPYTHON_PACKAGES+"|"+
+                TestDependent.PYTHON_MX_PACKAGES+"|"+
+                TestDependent.PYTHON_NUMPY_PACKAGES, false);
         
         codeCompletion = new PyCodeCompletion();
 
@@ -73,19 +73,19 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, null);
     }
     
-	public void testRecursion() throws FileNotFoundException, CoreException, BadLocationException, CompletionRecursionException{
-		String file = TestDependent.TEST_PYSRC_LOC+"testrec3/rec.py";
-		String strDoc = "RuntimeError.";
-		File f = new File(file);
-		try{
-			nature.getAstManager().getCompletionsForToken(f, new Document(REF.getFileContents(f)), 
-			        CompletionStateFactory.getEmptyCompletionState("RuntimeError", nature, new CompletionCache()));
-		}catch(CompletionRecursionException e){
-			//that's ok... we're asking for it here...
-		}
-		requestCompl(f, strDoc, strDoc.length(), -1, new String[]{"__doc__", "__getitem__()", "__init__()", "__str__()"});   
-	}
-	
+    public void testRecursion() throws FileNotFoundException, CoreException, BadLocationException, CompletionRecursionException{
+        String file = TestDependent.TEST_PYSRC_LOC+"testrec3/rec.py";
+        String strDoc = "RuntimeError.";
+        File f = new File(file);
+        try{
+            nature.getAstManager().getCompletionsForToken(f, new Document(REF.getFileContents(f)), 
+                    CompletionStateFactory.getEmptyCompletionState("RuntimeError", nature, new CompletionCache()));
+        }catch(CompletionRecursionException e){
+            //that's ok... we're asking for it here...
+        }
+        requestCompl(f, strDoc, strDoc.length(), -1, new String[]{"__doc__", "__getitem__()", "__init__()", "__str__()"});   
+    }
+    
 
     
     public void testCompleteImportBuiltin() throws BadLocationException, IOException, Exception{
@@ -171,11 +171,11 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     }
     
     public void testDeepNested6() throws CoreException, BadLocationException{
-    	String s;
-    	s = "" +
-    	"from extendable.nested2 import hub\n"+
-    	"hub.c1.f.";
-    	requestCompl(s, s.length(), -1, new String[] { "curdir"});
+        String s;
+        s = "" +
+        "from extendable.nested2 import hub\n"+
+        "hub.c1.f.";
+        requestCompl(s, s.length(), -1, new String[] { "curdir"});
     }
     
     public void testDeepNested10() throws CoreException, BadLocationException{
@@ -193,10 +193,10 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         "prefersrc.";
         AbstractModule.MODULE_NAME_WHEN_FILE_IS_UNDEFINED = "foo";
         try {
-			requestCompl(s, s.length(), -1, new String[] { "OkGotHere" }, nature2);
-		} finally {
-			AbstractModule.MODULE_NAME_WHEN_FILE_IS_UNDEFINED = "";
-		}
+            requestCompl(s, s.length(), -1, new String[] { "OkGotHere" }, nature2);
+        } finally {
+            AbstractModule.MODULE_NAME_WHEN_FILE_IS_UNDEFINED = "";
+        }
     }
     
     public void testDeepNested7() throws CoreException, BadLocationException{
@@ -224,11 +224,11 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     }
     
     public void testDictAssign() throws CoreException, BadLocationException{
-    	String s;
-    	s = "" +
-    	"a = {}\n"+
-    	"a.";
-    	requestCompl(s, s.length(), -1, new String[] { "keys()" });
+        String s;
+        s = "" +
+        "a = {}\n"+
+        "a.";
+        requestCompl(s, s.length(), -1, new String[] { "keys()" });
     }
     
 
@@ -273,26 +273,26 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     
 
     public void testCompleteImportBuiltinReference2() throws BadLocationException, IOException, Exception{
-    	String s;
-    	if(TestDependent.HAS_WXPYTHON_INSTALLED){ //we can only test what we have
-    		s = "" +
-    		"from wx import ";
-    		requestCompl(s, s.length(), -1, new String[]{"glcanvas"});
-    	}
+        String s;
+        if(TestDependent.HAS_WXPYTHON_INSTALLED){ //we can only test what we have
+            s = "" +
+            "from wx import ";
+            requestCompl(s, s.length(), -1, new String[]{"glcanvas"});
+        }
     }
     
     public void testGlu() throws IOException, CoreException, BadLocationException {
-    	if(TestDependent.HAS_GLU_INSTALLED){
-    	    final String s = "from OpenGL import ";
-			requestCompl(s, s.length(), -1, new String[]{"GLU", "GLUT"});
-    	}
+        if(TestDependent.HAS_GLU_INSTALLED){
+            final String s = "from OpenGL import ";
+            requestCompl(s, s.length(), -1, new String[]{"GLU", "GLUT"});
+        }
     }
     
     public void testGlu2() throws IOException, CoreException, BadLocationException {
-    	if(TestDependent.HAS_GLU_INSTALLED){
-    		final String s = "from OpenGL.GL import ";
-    		requestCompl(s, s.length(), -1, new String[]{"glPushMatrix"});
-    	}
+        if(TestDependent.HAS_GLU_INSTALLED){
+            final String s = "from OpenGL.GL import ";
+            requestCompl(s, s.length(), -1, new String[]{"glPushMatrix"});
+        }
     }
     
     public void testCompleteImportBuiltinReference() throws BadLocationException, IOException, Exception{

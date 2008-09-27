@@ -12,18 +12,18 @@ import org.python.pydev.editor.codecompletion.revisited.javaintegration.Abstract
 import org.python.pydev.editorinput.PyOpenEditor;
 
 public class SaveFileWithoutNatureTestWorkbench extends AbstractWorkbenchTestCase{
-	
+    
     protected void setUp() throws Exception {
-    	//no setup (because we won't have the nature in this test)
-    	closeWelcomeView();
+        //no setup (because we won't have the nature in this test)
+        closeWelcomeView();
     }
     
 
     
     public void testEditWithNoNature() throws Exception {
-    	NullProgressMonitor monitor = new NullProgressMonitor();
-    	IProject project = createProject(monitor, "pydev_no_nature_project");
-    	
+        NullProgressMonitor monitor = new NullProgressMonitor();
+        IProject project = createProject(monitor, "pydev_no_nature_project");
+        
         IFile myFile = project.getFile("my_file.py");
         
         String contents = "";
@@ -32,15 +32,15 @@ public class SaveFileWithoutNatureTestWorkbench extends AbstractWorkbenchTestCas
         myFile.create(new ByteArrayInputStream(contents.getBytes()), true, monitor);
         project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
         try {
-			editor = (PyEdit) PyOpenEditor.doOpenEditor(myFile);
-			editor.getDocument().set(newContents);
-			editor.doSave(monitor);
-		} finally {
-			editor.close(true);
-			editor = null;
-		}
-		assertEquals(newContents, REF.getDocFromResource(myFile).get());
+            editor = (PyEdit) PyOpenEditor.doOpenEditor(myFile);
+            editor.getDocument().set(newContents);
+            editor.doSave(monitor);
+        } finally {
+            editor.close(true);
+            editor = null;
+        }
+        assertEquals(newContents, REF.getDocFromResource(myFile).get());
         
-	}
+    }
 
 }

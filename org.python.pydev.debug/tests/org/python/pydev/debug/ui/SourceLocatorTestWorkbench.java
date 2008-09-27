@@ -11,33 +11,33 @@ import org.python.pydev.editorinput.PydevFileEditorInput;
 
 public class SourceLocatorTestWorkbench extends AbstractWorkbenchTestCase {
 
-	public void testSourceLocator() throws Exception {
-		final Boolean[] called = new Boolean[]{false};
-		final IPath madeUpPath = mod1.getLocation().append("inexistent");
-		
-		PySourceLocatorBase locator = new PySourceLocatorBase(){
-			@Override
-			protected PydevFileEditorInput selectFilesystemFileForPath(IPath path) {
-				called[0] = true;
-				assertEquals(path, madeUpPath);
-				return new PydevFileEditorInput(new File(path.removeLastSegments(1).toOSString()));
-			}
-		};
-		IEditorInput editorInput = locator.createEditorInput(madeUpPath);
-		assertTrue(editorInput != null);
-		assertTrue(called[0]);
-		called[0] = false;
-		
-		editorInput = locator.createEditorInput(madeUpPath);
-		assertTrue(!called[0]);
-		assertTrue(editorInput != null);
-		
-		PySourceLocatorPrefs.setIgnorePathTranslation(madeUpPath);
-		editorInput = locator.createEditorInput(madeUpPath);
-		assertTrue(!called[0]);
-		assertTrue(editorInput == null);
-		
-		
-	}
-	
+    public void testSourceLocator() throws Exception {
+        final Boolean[] called = new Boolean[]{false};
+        final IPath madeUpPath = mod1.getLocation().append("inexistent");
+        
+        PySourceLocatorBase locator = new PySourceLocatorBase(){
+            @Override
+            protected PydevFileEditorInput selectFilesystemFileForPath(IPath path) {
+                called[0] = true;
+                assertEquals(path, madeUpPath);
+                return new PydevFileEditorInput(new File(path.removeLastSegments(1).toOSString()));
+            }
+        };
+        IEditorInput editorInput = locator.createEditorInput(madeUpPath);
+        assertTrue(editorInput != null);
+        assertTrue(called[0]);
+        called[0] = false;
+        
+        editorInput = locator.createEditorInput(madeUpPath);
+        assertTrue(!called[0]);
+        assertTrue(editorInput != null);
+        
+        PySourceLocatorPrefs.setIgnorePathTranslation(madeUpPath);
+        editorInput = locator.createEditorInput(madeUpPath);
+        assertTrue(!called[0]);
+        assertTrue(editorInput == null);
+        
+        
+    }
+    
 }

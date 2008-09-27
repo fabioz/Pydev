@@ -30,195 +30,195 @@ import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 
 public class RefactoringInfo {
 
-	private IFile sourceFile;
+    private IFile sourceFile;
 
-	private IDocument doc;
+    private IDocument doc;
 
-	private ITextSelection userSelection;
+    private ITextSelection userSelection;
 
-	private ITextSelection extendedSelection;
+    private ITextSelection extendedSelection;
 
-	private ModuleAdapter moduleAdapter;
+    private ModuleAdapter moduleAdapter;
 
-	private IPythonNature nature;
+    private IPythonNature nature;
 
-	private PythonModuleManager moduleManager;
+    private PythonModuleManager moduleManager;
 
-	private AbstractScopeNode<?> scopeAdapter;
+    private AbstractScopeNode<?> scopeAdapter;
 
-	public RefactoringInfo(ITextEditor edit, IPythonNature nature)  {
-		this(((IFileEditorInput) edit.getEditorInput()).getFile(), edit.getDocumentProvider().getDocument(edit.getEditorInput()),
-				(ITextSelection) edit.getSelectionProvider().getSelection(), nature);
-	}
+    public RefactoringInfo(ITextEditor edit, IPythonNature nature)  {
+        this(((IFileEditorInput) edit.getEditorInput()).getFile(), edit.getDocumentProvider().getDocument(edit.getEditorInput()),
+                (ITextSelection) edit.getSelectionProvider().getSelection(), nature);
+    }
 
-	public RefactoringInfo(IFile sourceFile, IDocument doc, ITextSelection selection, IPythonNature nature) {
-		this.sourceFile = sourceFile;
-		this.doc = doc;
-		this.nature = nature;
+    public RefactoringInfo(IFile sourceFile, IDocument doc, ITextSelection selection, IPythonNature nature) {
+        this.sourceFile = sourceFile;
+        this.doc = doc;
+        this.nature = nature;
 
-		initInfo(selection, userSelection);
-	}
+        initInfo(selection, userSelection);
+    }
 
-	private void initInfo(ITextSelection selection, ITextSelection userSelection) {
-		if (this.nature != null) {
-			this.moduleManager = new PythonModuleManager(nature);
-		}
+    private void initInfo(ITextSelection selection, ITextSelection userSelection) {
+        if (this.nature != null) {
+            this.moduleManager = new PythonModuleManager(nature);
+        }
 
-		File realFile = null;
-		if (sourceFile != null) {
-			realFile = sourceFile.getRawLocation().toFile();
-		}
+        File realFile = null;
+        if (sourceFile != null) {
+            realFile = sourceFile.getRawLocation().toFile();
+        }
 
-		try {
-			this.moduleAdapter = VisitorFactory.createModuleAdapter(moduleManager, realFile, doc, nature);
-		} catch (ParseException e) {
-			throw new RuntimeException(e);
-		}
+        try {
+            this.moduleAdapter = VisitorFactory.createModuleAdapter(moduleManager, realFile, doc, nature);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
 
-		this.extendedSelection = null;
-		this.userSelection = moduleAdapter.normalizeSelection(selection);
-	}
+        this.extendedSelection = null;
+        this.userSelection = moduleAdapter.normalizeSelection(selection);
+    }
 
-	public ModuleAdapter getModule() {
-		return moduleAdapter;
-	}
+    public ModuleAdapter getModule() {
+        return moduleAdapter;
+    }
 
-	public List<IClassDefAdapter> getClasses() {
-		return moduleAdapter.getClasses();
-	}
+    public List<IClassDefAdapter> getClasses() {
+        return moduleAdapter.getClasses();
+    }
 
-	public IFile getSourceFile() {
-		return this.sourceFile;
-	}
+    public IFile getSourceFile() {
+        return this.sourceFile;
+    }
 
-	public IDocument getDocument() {
-		return this.doc;
-	}
+    public IDocument getDocument() {
+        return this.doc;
+    }
 
-	public ITextSelection getExtendedSelection() {
-		if (this.extendedSelection == null) {
-			this.extendedSelection = new TextSelection(this.doc, this.getUserSelection().getOffset(), this.userSelection.getLength());
+    public ITextSelection getExtendedSelection() {
+        if (this.extendedSelection == null) {
+            this.extendedSelection = new TextSelection(this.doc, this.getUserSelection().getOffset(), this.userSelection.getLength());
 
-			if (getScopeAdapter() != null) {
-				this.extendedSelection = moduleAdapter.normalizeSelection(VisitorFactory.createSelectionExtension(getScopeAdapter(),
-						this.extendedSelection));
-			}
+            if (getScopeAdapter() != null) {
+                this.extendedSelection = moduleAdapter.normalizeSelection(VisitorFactory.createSelectionExtension(getScopeAdapter(),
+                        this.extendedSelection));
+            }
 
-		}
-		return extendedSelection;
-	}
+        }
+        return extendedSelection;
+    }
 
-	public ITextSelection getUserSelection() {
-		return userSelection;
-	}
+    public ITextSelection getUserSelection() {
+        return userSelection;
+    }
 
-	public ModuleAdapter getParsedExtendedSelection() {
-		return getParsedExtendedSelection(getScopeAdapter());
-	}
+    public ModuleAdapter getParsedExtendedSelection() {
+        return getParsedExtendedSelection(getScopeAdapter());
+    }
 
-	public ModuleAdapter getParsedUserSelection() {
-		ModuleAdapter parsedAdapter = null;
-		String source = normalizeSourceSelection(getScopeAdapter(), this.userSelection);
+    public ModuleAdapter getParsedUserSelection() {
+        ModuleAdapter parsedAdapter = null;
+        String source = normalizeSourceSelection(getScopeAdapter(), this.userSelection);
 
-		if (this.userSelection != null && source.length() > 0) {
-			try {
-				parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature);
-			} catch (ParseException e) {
-				/* Parse Exception means the current selection is invalid, discard and return null */
-			}
-		}
-		return parsedAdapter;
-	}
+        if (this.userSelection != null && source.length() > 0) {
+            try {
+                parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature);
+            } catch (ParseException e) {
+                /* Parse Exception means the current selection is invalid, discard and return null */
+            }
+        }
+        return parsedAdapter;
+    }
 
-	private ModuleAdapter getParsedExtendedSelection(AbstractScopeNode<?> scopeNode) {
-		ModuleAdapter parsedAdapter = null;
+    private ModuleAdapter getParsedExtendedSelection(AbstractScopeNode<?> scopeNode) {
+        ModuleAdapter parsedAdapter = null;
 
-		String source = normalizeSourceSelection(scopeNode, this.getExtendedSelection());
+        String source = normalizeSourceSelection(scopeNode, this.getExtendedSelection());
 
-		if (this.getExtendedSelection() != null && source.length() > 0) {
+        if (this.getExtendedSelection() != null && source.length() > 0) {
 
-			try {
-				parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature);
-			} catch (ParseException e) {
-				/* Parse Exception means the current selection is invalid, discard and return null */
-			}
-		}
-		return parsedAdapter;
-	}
+            try {
+                parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature);
+            } catch (ParseException e) {
+                /* Parse Exception means the current selection is invalid, discard and return null */
+            }
+        }
+        return parsedAdapter;
+    }
 
-	public String normalizeSourceSelection(AbstractScopeNode<?> scopeNode, ITextSelection selection) {
-		String selectedText = "";
+    public String normalizeSourceSelection(AbstractScopeNode<?> scopeNode, ITextSelection selection) {
+        String selectedText = "";
 
-		if (selection.getText() != null) {
-			selectedText = selection.getText().trim();
-		}
-		if (selectedText.length() == 0) {
-			return "";
-		}
+        if (selection.getText() != null) {
+            selectedText = selection.getText().trim();
+        }
+        if (selectedText.length() == 0) {
+            return "";
+        }
 
-		try {
-			return normalizeBlockIndentation(selection, selectedText);
-		} catch (Throwable e) {
-			/* TODO: uncommented empty exception catch all */
-		}
-		return selectedText;
+        try {
+            return normalizeBlockIndentation(selection, selectedText);
+        } catch (Throwable e) {
+            /* TODO: uncommented empty exception catch all */
+        }
+        return selectedText;
 
-	}
+    }
 
-	private String normalizeBlockIndentation(ITextSelection selection, String selectedText) throws Throwable {
-		String[] lines = selectedText.split("\\n");
-		if (lines.length < 2) {
-			return selectedText;
-		}
+    private String normalizeBlockIndentation(ITextSelection selection, String selectedText) throws Throwable {
+        String[] lines = selectedText.split("\\n");
+        if (lines.length < 2) {
+            return selectedText;
+        }
 
-		String firstLine = doc.get(doc.getLineOffset(selection.getStartLine()), doc.getLineLength(selection.getStartLine()));
+        String firstLine = doc.get(doc.getLineOffset(selection.getStartLine()), doc.getLineLength(selection.getStartLine()));
         String lineDelimiter = TextUtilities.getDefaultLineDelimiter(doc);
         
-		String indentation = "";
-		int bodyIndent = 0;
-		while (firstLine.startsWith(" ")) {
-			indentation += " ";
-			firstLine = firstLine.substring(1);
-			bodyIndent += 1;
-		}
-		if (bodyIndent > 0) {
-		    FastStringBuffer selectedCode = new FastStringBuffer();
-			for (String line : lines) {
-				if (line.startsWith(indentation)) {
-					selectedCode.append(line.substring(bodyIndent) + lineDelimiter);
-				} else {
-					selectedCode.append(line + lineDelimiter);
-				}
+        String indentation = "";
+        int bodyIndent = 0;
+        while (firstLine.startsWith(" ")) {
+            indentation += " ";
+            firstLine = firstLine.substring(1);
+            bodyIndent += 1;
+        }
+        if (bodyIndent > 0) {
+            FastStringBuffer selectedCode = new FastStringBuffer();
+            for (String line : lines) {
+                if (line.startsWith(indentation)) {
+                    selectedCode.append(line.substring(bodyIndent) + lineDelimiter);
+                } else {
+                    selectedCode.append(line + lineDelimiter);
+                }
 
-			}
-			selectedText = selectedCode.toString();
-		}
-		return selectedText;
-	}
+            }
+            selectedText = selectedCode.toString();
+        }
+        return selectedText;
+    }
 
-	public IClassDefAdapter getScopeClass() {
-		return moduleAdapter.getScopeClass(getUserSelection());
-	}
+    public IClassDefAdapter getScopeClass() {
+        return moduleAdapter.getScopeClass(getUserSelection());
+    }
 
-	public IPythonNature getNature() {
-		return nature;
-	}
+    public IPythonNature getNature() {
+        return nature;
+    }
 
-	public List<IClassDefAdapter> getScopeClassAndBases() {
-		return moduleAdapter.getClassHierarchy(getScopeClass());
-	}
+    public List<IClassDefAdapter> getScopeClassAndBases() {
+        return moduleAdapter.getClassHierarchy(getScopeClass());
+    }
 
-	public AbstractScopeNode<?> getScopeAdapter() {
-		if (scopeAdapter == null) {
-			scopeAdapter = moduleAdapter.getScopeAdapter(getUserSelection());
-		}
-		return scopeAdapter;
-	}
+    public AbstractScopeNode<?> getScopeAdapter() {
+        if (scopeAdapter == null) {
+            scopeAdapter = moduleAdapter.getScopeAdapter(getUserSelection());
+        }
+        return scopeAdapter;
+    }
 
-	public boolean isSelectionExtensionRequired() {
-		return !(this.getUserSelection().getOffset() == this.getExtendedSelection().getOffset() && this.getUserSelection().getLength() == this
-				.getExtendedSelection().getLength());
-	}
+    public boolean isSelectionExtensionRequired() {
+        return !(this.getUserSelection().getOffset() == this.getExtendedSelection().getOffset() && this.getUserSelection().getLength() == this
+                .getExtendedSelection().getLength());
+    }
 
     public String getNewLineDelim() {
         return TextUtilities.getDefaultLineDelimiter(this.doc);

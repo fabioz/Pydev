@@ -39,13 +39,13 @@ public class PrettyPrinterTest extends PyParserTestBase{
     
     public void testIfs() throws Exception {
         String s = "" +
-        		"def method1():\n" +
-        		"    if idx > 2:\n" +
-        		"        print ''\n" +
-        		"    else:\n" +
-        		"        print ''\n" +
-        		"    if idx == 5:\n" +
-        		"        print 'nothing!'\n";
+                "def method1():\n" +
+                "    if idx > 2:\n" +
+                "        print ''\n" +
+                "    else:\n" +
+                "        print ''\n" +
+                "    if idx == 5:\n" +
+                "        print 'nothing!'\n";
         checkPrettyPrintEqual(s);
     }
     
@@ -74,45 +74,45 @@ public class PrettyPrinterTest extends PyParserTestBase{
                 "        return \"Beautiful class '%s'\" % cls.__name__\n" +
                 "class MyClass:\n" +
                 "    __metaclass__ = MyMeta\n" +
-        		"print type(foox)\n" +
-        		"# after print type\n" +
-        		"class A(object):# on-line\n" +
-        		"    # foo test\n" +
-        		"    def met(self):\n" +
-        		"        print 'A'\n" +
-        		"";
+                "print type(foox)\n" +
+                "# after print type\n" +
+                "class A(object):# on-line\n" +
+                "    # foo test\n" +
+                "    def met(self):\n" +
+                "        print 'A'\n" +
+                "";
         checkPrettyPrintEqual(str);
         
     }
     
     public void testComment5() throws Exception {
         String str = "" +
-        		"class CoolApproach(object):\n" +
-        		"    # this tests also a tuple \"special case\"\n" +
-        		"    def foodeco(**arg5):\n" +
-        		"        pass\n" +
-        		"";
+                "class CoolApproach(object):\n" +
+                "    # this tests also a tuple \"special case\"\n" +
+                "    def foodeco(**arg5):\n" +
+                "        pass\n" +
+                "";
         checkPrettyPrintEqual(str);
         
     }
     
     public void testDecoration() throws Exception {
         String str = "" +
-        		"class Foo:\n" +
-        		"    @foodeco(('arg_3',),2,a=2,b=3)\n" +
-        		"    def __init__(self,arg_1,(arg_2,arg_3),arg_4,arg_5):\n" +
-        		"        pass\n" +
-        		"";
+                "class Foo:\n" +
+                "    @foodeco(('arg_3',),2,a=2,b=3)\n" +
+                "    def __init__(self,arg_1,(arg_2,arg_3),arg_4,arg_5):\n" +
+                "        pass\n" +
+                "";
         checkPrettyPrintEqual(str);
     }
     
     public void testComments6() throws Exception {
         String str = "" +
-        		"class FooApproach(CoolApproach):\n" +
-        		"    def __init__(self,arg_1,(arg_2,arg_3),*arg_4,**arg_5):\n" +
-        		"        # .. at this point all parameters except for 'arg_3' have been\n" +
-        		"        # copied to object attributes\n" +
-        		"        pass\n" +
+                "class FooApproach(CoolApproach):\n" +
+                "    def __init__(self,arg_1,(arg_2,arg_3),*arg_4,**arg_5):\n" +
+                "        # .. at this point all parameters except for 'arg_3' have been\n" +
+                "        # copied to object attributes\n" +
+                "        pass\n" +
                 "";
         checkPrettyPrintEqual(str);
         
@@ -524,51 +524,51 @@ public class PrettyPrinterTest extends PyParserTestBase{
     }
     
     public void testComment() throws Exception {
-    	String s = ""+
-		"# comment1\n" +
-		"# comment2\n" +
-		"# comment3\n" +
-		"# comment4\n" +
-		"'''str'''\n" +
-    	"";
-    	checkPrettyPrintEqual(s);
+        String s = ""+
+        "# comment1\n" +
+        "# comment2\n" +
+        "# comment3\n" +
+        "# comment4\n" +
+        "'''str'''\n" +
+        "";
+        checkPrettyPrintEqual(s);
     }
     
     public void testStarArgs() throws Exception {
-    	String s = ""+
-    	"def recv(self,*args):\n" +
-    	"    pass\n" +
-    	"";
-    	checkPrettyPrintEqual(s);
+        String s = ""+
+        "def recv(self,*args):\n" +
+        "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
     }
     
     public void testListComp() throws Exception {
-    	String s = ""+
-    	"print [x for x in tbinfo]\n" +
-    	"";
-    	checkPrettyPrintEqual(s);
+        String s = ""+
+        "print [x for x in tbinfo]\n" +
+        "";
+        checkPrettyPrintEqual(s);
     }
     
     public void testSub() throws Exception {
-    	String s = ""+
-    	"print tbinfo[-1]\n" +
-    	"";
-    	checkPrettyPrintEqual(s);
+        String s = ""+
+        "print tbinfo[-1]\n" +
+        "";
+        checkPrettyPrintEqual(s);
     }
     
     public void testDel() throws Exception {
-    	String s = ""+
-    	"del foo\n" +
-    	"";
-    	checkPrettyPrintEqual(s);
+        String s = ""+
+        "del foo\n" +
+        "";
+        checkPrettyPrintEqual(s);
     }
     
     public void testPar2() throws Exception {
-    	String s = ""+
-		"def log(self,message):\n" +
-		"    sys.stderr.write('log: %s' % str(message))\n" +
-    	"";
-    	checkPrettyPrintEqual(s);
+        String s = ""+
+        "def log(self,message):\n" +
+        "    sys.stderr.write('log: %s' % str(message))\n" +
+        "";
+        checkPrettyPrintEqual(s);
     }
     
     public void testPar() throws Exception {
@@ -579,11 +579,11 @@ public class PrettyPrinterTest extends PyParserTestBase{
     }
     
     public void testSimpleFunc() throws Exception {
-    	String s = ""+
-    	"def a():\n" +
-    	"    pass\n" +
-    	"";
-    	checkPrettyPrintEqual(s);
+        String s = ""+
+        "def a():\n" +
+        "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
     }
     
     public void testReturn2() throws Exception {
@@ -1012,12 +1012,12 @@ public class PrettyPrinterTest extends PyParserTestBase{
     }
     
     public void testYield4() throws Exception {
-    	String s = ""+
-    	"def foo():\n" +
-    	"    yield ((a + b) / 2)#comment1\n" +
-    	"    print 'foo'\n" +
-    	"";
-    	checkPrettyPrintEqual(s);
+        String s = ""+
+        "def foo():\n" +
+        "    yield ((a + b) / 2)#comment1\n" +
+        "    print 'foo'\n" +
+        "";
+        checkPrettyPrintEqual(s);
     }
     
     public void testMultipleBool() throws Exception {
@@ -1025,29 +1025,29 @@ public class PrettyPrinterTest extends PyParserTestBase{
         checkPrettyPrintEqual(s);
     }
     public void testFuncComment() throws Exception {
-    	String s = ""+
-    	"def foo():\n" +
-    	"    #comment0\n" +
-    	"    print 'foo'\n" +
-    	"";
-    	checkPrettyPrintEqual(s);
+        String s = ""+
+        "def foo():\n" +
+        "    #comment0\n" +
+        "    print 'foo'\n" +
+        "";
+        checkPrettyPrintEqual(s);
     }
     
     
     public void testPrint() throws Exception {
-    	String s = ""+
-    	"print >> a,'foo'\n" +
-    	"";
-    	checkPrettyPrintEqual(s);
+        String s = ""+
+        "print >> a,'foo'\n" +
+        "";
+        checkPrettyPrintEqual(s);
     }
     
     public void testPrintComment() throws Exception {
-    	String s = ""+
-		"def test():#comm1\n" +
-		"    print >> (a,#comm2\n" +
-		"        'foo')#comm3\n" +
-    	"";
-    	checkPrettyPrintEqual(s);
+        String s = ""+
+        "def test():#comm1\n" +
+        "    print >> (a,#comm2\n" +
+        "        'foo')#comm3\n" +
+        "";
+        checkPrettyPrintEqual(s);
     }
     
     public void testAttr() throws Exception {
@@ -1086,10 +1086,10 @@ public class PrettyPrinterTest extends PyParserTestBase{
     }
     
     public void testSubscript() throws Exception {
-    	String s = ""+
-    	"print a[0]\n" +
-    	"";
-    	checkPrettyPrintEqual(s);
+        String s = ""+
+        "print a[0]\n" +
+        "";
+        checkPrettyPrintEqual(s);
     }
     
     public void testSubscript2() throws Exception {
@@ -1127,17 +1127,17 @@ public class PrettyPrinterTest extends PyParserTestBase{
     }
     
     public void testDocStrings() throws Exception {
-    	String s = ""+
-    	"class Class1:\n" +
-    	"    '''docstring1'''\n" +
-    	"    a = '''str1'''\n" +
-    	"    def met1(self,a):\n" +
-    	"        '''docstring2\n" +
-    	"        foo\n" +
-    	"        '''\n" +
-    	"        pass\n" +
+        String s = ""+
+        "class Class1:\n" +
+        "    '''docstring1'''\n" +
+        "    a = '''str1'''\n" +
+        "    def met1(self,a):\n" +
+        "        '''docstring2\n" +
+        "        foo\n" +
+        "        '''\n" +
+        "        pass\n" +
         "";
-    	checkPrettyPrintEqual(s);
+        checkPrettyPrintEqual(s);
     }
     
     public void testDocStrings2() throws Exception {
@@ -1214,43 +1214,43 @@ public class PrettyPrinterTest extends PyParserTestBase{
         checkPrettyPrintEqual(s);
     }
     public void testIfElse2() throws Exception {
-    	String s = ""+
-    	"if a:\n"+
-    	"    a = 1#comment1\n"+
-    	"elif b:\n"+
-    	"    b = 2#comment2\n"+
-    	"elif c:\n"+
-    	"    c = 3#comment3\n"+
-    	"else:\n"+
-    	"    d = 4#comment4\n";
-    	checkPrettyPrintEqual(s);
+        String s = ""+
+        "if a:\n"+
+        "    a = 1#comment1\n"+
+        "elif b:\n"+
+        "    b = 2#comment2\n"+
+        "elif c:\n"+
+        "    c = 3#comment3\n"+
+        "else:\n"+
+        "    d = 4#comment4\n";
+        checkPrettyPrintEqual(s);
     }
     
     public void testIfElse3() throws Exception {
-    	String s = 
-    	"#commentbefore\n"+      //1
-    	"if a:#commentIf\n"+     //2
-    	"    a = 1\n"+           //3
-    	"elif b:#commentElif\n"+ //4
-    	"    b = 2\n"+           //5
-    	"elif c:\n"+             //6
-    	"    c = 3\n"+           //7
-    	"else:#commentElse\n"+   //8
-    	"    d = 4\n" +          //9
-    	"outOfIf = True\n";      //10
-    	checkPrettyPrintEqual(s);
+        String s = 
+        "#commentbefore\n"+      //1
+        "if a:#commentIf\n"+     //2
+        "    a = 1\n"+           //3
+        "elif b:#commentElif\n"+ //4
+        "    b = 2\n"+           //5
+        "elif c:\n"+             //6
+        "    c = 3\n"+           //7
+        "else:#commentElse\n"+   //8
+        "    d = 4\n" +          //9
+        "outOfIf = True\n";      //10
+        checkPrettyPrintEqual(s);
     }
     
     public void testCommentAndIf() throws Exception {
         String s = "" +
-        		"def initiate_send():\n" +
-        		"    if 10:\n" +
-        		"        # try to send the buffer\n" +
-        		"        try:\n" +
-        		"            num_sent = 10\n" +
-        		"        except:\n" +
-        		"            pass\n" +
-        		"";
+                "def initiate_send():\n" +
+                "    if 10:\n" +
+                "        # try to send the buffer\n" +
+                "        try:\n" +
+                "            num_sent = 10\n" +
+                "        except:\n" +
+                "            pass\n" +
+                "";
         checkPrettyPrintEqual(s);
     }
     

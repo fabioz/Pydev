@@ -38,15 +38,15 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
     private List<IPythonNature> naturesUsed;
 
     @SuppressWarnings("unchecked")
-	public PydevConsoleInterpreter() {
+    public PydevConsoleInterpreter() {
         List<Object> p = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_SIMPLE_ASSIST);
         ArrayList<ISimpleAssistParticipant2> list = new ArrayList<ISimpleAssistParticipant2>();
         for(Object o:p){
-        	if(o instanceof ISimpleAssistParticipant2){
-        		list.add((ISimpleAssistParticipant2) o);
-        	}
+            if(o instanceof ISimpleAssistParticipant2){
+                list.add((ISimpleAssistParticipant2) o);
+            }
         }
-		this.simpleParticipants = list;
+        this.simpleParticipants = list;
     }
     
     /*

@@ -44,26 +44,26 @@ public abstract class SimpleRunner {
      * Passes the commands directly to Runtime.exec (with a null envp)
      */
     public static Process createProcess(String[] cmdarray, String[] envp, File workingDir) throws IOException {
-    	return Runtime.getRuntime().exec(getWithoutEmptyParams(cmdarray), getWithoutEmptyParams(envp), workingDir);
+        return Runtime.getRuntime().exec(getWithoutEmptyParams(cmdarray), getWithoutEmptyParams(envp), workingDir);
     }
 
     /**
      * @return a new array without any null/empty elements originally contained in the array.
      */
     private static String[] getWithoutEmptyParams(String[] cmdarray) {
-    	if(cmdarray == null){
-    		return null;
-    	}
-    	ArrayList<String> list = new ArrayList<String>();
-    	for (String string : cmdarray) {
-    		if(string != null && string.length() > 0){
-    			list.add(string);
-    		}
-		}
-		return list.toArray(new String[list.size()]);
-	}
+        if(cmdarray == null){
+            return null;
+        }
+        ArrayList<String> list = new ArrayList<String>();
+        for (String string : cmdarray) {
+            if(string != null && string.length() > 0){
+                list.add(string);
+            }
+        }
+        return list.toArray(new String[list.size()]);
+    }
 
-	/**
+    /**
      * THIS CODE IS COPIED FROM org.eclipse.debug.internal.core.LaunchManager
      * 
      * changed so that we always set the PYTHONPATH in the environment
@@ -78,7 +78,7 @@ public abstract class SimpleRunner {
         
         
         String pythonPathEnvStr = "";
-    	try {
+        try {
             
             if (PydevPlugin.getInterpreterManager(pythonNature).hasInfoOnInterpreter(interpreter)){ //check if we have a default interpreter.
                 pythonPathEnvStr = makePythonPathEnvString(pythonNature, interpreter);
@@ -88,20 +88,20 @@ public abstract class SimpleRunner {
             return null; //we cannot get it
         }
     
-    	return createEnvWithPythonpath(pythonPathEnvStr);
+        return createEnvWithPythonpath(pythonPathEnvStr);
     }
 
-	public static String[] createEnvWithPythonpath(String pythonPathEnvStr) throws CoreException {
-		DebugPlugin defaultPlugin = DebugPlugin.getDefault();
-    	if(defaultPlugin != null){
-            Map<String,String> env = getDefaultSystemEnv(defaultPlugin);		
+    public static String[] createEnvWithPythonpath(String pythonPathEnvStr) throws CoreException {
+        DebugPlugin defaultPlugin = DebugPlugin.getDefault();
+        if(defaultPlugin != null){
+            Map<String,String> env = getDefaultSystemEnv(defaultPlugin);        
     
-    		env.put("PYTHONPATH", pythonPathEnvStr); //put the environment
-    		return getMapEnvAsArray(env);
-    	}else{
-    	    return null;
-    	}
-	}
+            env.put("PYTHONPATH", pythonPathEnvStr); //put the environment
+            return getMapEnvAsArray(env);
+        }else{
+            return null;
+        }
+    }
 
     /**
      * @return an array with the env variables for the system with the format xx=yy  
@@ -137,22 +137,22 @@ public abstract class SimpleRunner {
             // Add variables from config
             boolean win32= REF.isWindowsPlatform();
             for(Iterator iter= env.entrySet().iterator(); iter.hasNext(); ) {
-            	Map.Entry entry= (Map.Entry) iter.next();
-            	String key= (String) entry.getKey();
-            	if (win32) {
-            		// Win32 vars are case insensitive. Uppercase everything so
-            		// that (for example) "pAtH" will correctly replace "PATH"
-            		key= key.toUpperCase();
-            	}
-            	String value = (String) entry.getValue();
-            	// translate any string substitution variables
-            	String translated = value;
-            	try {
-					translated = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(value, false);
-				} catch (Exception e) {
-					Log.log(e);
-				}
-            	env.put(key, translated);
+                Map.Entry entry= (Map.Entry) iter.next();
+                String key= (String) entry.getKey();
+                if (win32) {
+                    // Win32 vars are case insensitive. Uppercase everything so
+                    // that (for example) "pAtH" will correctly replace "PATH"
+                    key= key.toUpperCase();
+                }
+                String value = (String) entry.getValue();
+                // translate any string substitution variables
+                String translated = value;
+                try {
+                    translated = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(value, false);
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+                env.put(key, translated);
             }
             return env;
         }
@@ -235,7 +235,7 @@ public abstract class SimpleRunner {
                     "please configure it correcly (please check the pydev faq at \n" +
                     "http://pydev.sf.net/faq.html for better information on how to do it).");
         }
-    	paths = pythonPathNature.getCompleteProjectPythonPath(interpreter);
+        paths = pythonPathNature.getCompleteProjectPythonPath(interpreter);
     
         return makePythonPathEnvFromPaths(paths);
     }
@@ -244,32 +244,32 @@ public abstract class SimpleRunner {
      * @param paths the paths to be added
      * @return a String suitable to be added to the PYTHONPATH environment variable.
      */
-	public static String makePythonPathEnvFromPaths(Collection<String> inPaths) {
-	    ArrayList<String> paths = new ArrayList<String>(inPaths);
-	    try {
-	        //whenever we launch a file from pydev, we must add the sitecustomize to the pythonpath so that
-	        //the default encoding (for the console) can be set.
-	        //see: http://sourceforge.net/tracker/index.php?func=detail&aid=1580766&group_id=85796&atid=577329
-	        
+    public static String makePythonPathEnvFromPaths(Collection<String> inPaths) {
+        ArrayList<String> paths = new ArrayList<String>(inPaths);
+        try {
+            //whenever we launch a file from pydev, we must add the sitecustomize to the pythonpath so that
+            //the default encoding (for the console) can be set.
+            //see: http://sourceforge.net/tracker/index.php?func=detail&aid=1580766&group_id=85796&atid=577329
+            
             paths.add(0, REF.getFileAbsolutePath(PydevPlugin.getScriptWithinPySrc("pydev_sitecustomize")));
         } catch (CoreException e) {
             PydevPlugin.log(e);
         }
-	    
-		String separator = getPythonPathSeparator();
-    	StringBuffer pythonpath = new StringBuffer();
-    	boolean first = true;
+        
+        String separator = getPythonPathSeparator();
+        StringBuffer pythonpath = new StringBuffer();
+        boolean first = true;
         for (String path:paths) {
-    		if (first){
-    			first = false;
-    		}else{
-    			pythonpath.append(separator);
-    		}
-    		
+            if (first){
+                first = false;
+            }else{
+                pythonpath.append(separator);
+            }
+            
             pythonpath.append(path);
-    	}
+        }
         return pythonpath.toString();
-	}
+    }
     
     /**
      * @return the separator for the pythonpath variables (system dependent)
@@ -290,14 +290,14 @@ public abstract class SimpleRunner {
      */
     private static String[] getMapEnvAsArray(Map<String,String> env) {
         List<String> strings= new ArrayList<String>(env.size());
-    	for(Iterator<Map.Entry<String, String>> iter= env.entrySet().iterator(); iter.hasNext(); ) {
-    		Map.Entry<String, String> entry = iter.next();
-    		StringBuffer buffer= new StringBuffer(entry.getKey());
-    		buffer.append('=').append(entry.getValue());
-    		strings.add(buffer.toString());
-    	}
-    	
-    	return strings.toArray(new String[strings.size()]);
+        for(Iterator<Map.Entry<String, String>> iter= env.entrySet().iterator(); iter.hasNext(); ) {
+            Map.Entry<String, String> entry = iter.next();
+            StringBuffer buffer= new StringBuffer(entry.getKey());
+            buffer.append('=').append(entry.getValue());
+            strings.add(buffer.toString());
+        }
+        
+        return strings.toArray(new String[strings.size()]);
     }
 
 
@@ -315,8 +315,8 @@ public abstract class SimpleRunner {
         if(monitor == null){
             monitor = new NullProgressMonitor();
         }
-    	String executionString = getArgumentsAsStr(cmdarray);
-    	monitor.setTaskName("Executing: "+executionString);
+        String executionString = getArgumentsAsStr(cmdarray);
+        monitor.setTaskName("Executing: "+executionString);
         monitor.worked(5);
         Process process = null;
         try {
@@ -334,7 +334,7 @@ public abstract class SimpleRunner {
         }
 
         return getProcessOutput(process, executionString, monitor);
-	}
+    }
 
     /**
      * @param process process from where the output should be gotten
@@ -342,9 +342,9 @@ public abstract class SimpleRunner {
      * @param monitor monitor for giving progress
      * @return a tuple with the output of stdout and stderr
      */
-	protected Tuple<String, String> getProcessOutput(Process process,
-			String executionString, IProgressMonitor monitor) {
-		if (process != null) {
+    protected Tuple<String, String> getProcessOutput(Process process,
+            String executionString, IProgressMonitor monitor) {
+        if (process != null) {
 
             try {
                 process.getOutputStream().close(); //we won't write to it...
@@ -388,7 +388,7 @@ public abstract class SimpleRunner {
 
         }
         return new Tuple<String, String>("","Error creating process - got null process("+ executionString + ")"); //no output
-	}
+    }
 
 
 

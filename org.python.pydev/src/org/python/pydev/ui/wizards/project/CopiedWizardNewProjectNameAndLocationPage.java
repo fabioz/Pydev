@@ -241,8 +241,8 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
         // new project label
         Label projectLabel = new Label(projectGroup, SWT.NONE);
         projectLabel.setFont(font);
-    	
-        	
+        
+            
         projectLabel.setText("&Project name:");
 
         // new project name entry field

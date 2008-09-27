@@ -19,34 +19,34 @@ import org.python.pydev.refactoring.core.request.IRequestProcessor;
 
 public class ExtractLocalRequestProcessor implements IRequestProcessor<ExtractLocalRequest> {
 
-	private String variableName;
-	
-	private RefactoringInfo info;
+    private String variableName;
+    
+    private RefactoringInfo info;
 
-	private exprType expression;
+    private exprType expression;
 
-	private AbstractScopeNode<?> scopeAdapter;
+    private AbstractScopeNode<?> scopeAdapter;
 
-	public ExtractLocalRequestProcessor(RefactoringInfo info) {
-		this.info = info;
-		this.scopeAdapter = info.getScopeAdapter();
-	}
+    public ExtractLocalRequestProcessor(RefactoringInfo info) {
+        this.info = info;
+        this.scopeAdapter = info.getScopeAdapter();
+    }
 
-	public List<ExtractLocalRequest> getRefactoringRequests() {
-		List<ExtractLocalRequest> requests = new ArrayList<ExtractLocalRequest>();
-		requests.add(new ExtractLocalRequest(info, expression, variableName));
-		return requests;
-	}
+    public List<ExtractLocalRequest> getRefactoringRequests() {
+        List<ExtractLocalRequest> requests = new ArrayList<ExtractLocalRequest>();
+        requests.add(new ExtractLocalRequest(info, expression, variableName));
+        return requests;
+    }
 
-	public void setVariableName(String variableName) {
-		this.variableName = variableName;
-	}
+    public void setVariableName(String variableName) {
+        this.variableName = variableName;
+    }
 
-	public void setExpression(exprType expression) {
-		this.expression = expression;
-	}
+    public void setExpression(exprType expression) {
+        this.expression = expression;
+    }
 
-	public AbstractScopeNode<?> getScopeAdapter() {
-		return scopeAdapter;
-	}
+    public AbstractScopeNode<?> getScopeAdapter() {
+        return scopeAdapter;
+    }
 }

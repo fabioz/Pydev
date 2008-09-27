@@ -13,21 +13,21 @@ import org.python.pydev.refactoring.messages.Messages;
 
 public interface ITreeNode {
 
-	public static String NODE_CLASS = Messages.imgClass;
+    public static String NODE_CLASS = Messages.imgClass;
 
-	public static String NODE_METHOD = Messages.imgMethod;
+    public static String NODE_METHOD = Messages.imgMethod;
 
-	public static String NODE_ATTRIBUTE = Messages.imgAttribute;
+    public static String NODE_ATTRIBUTE = Messages.imgAttribute;
 
-	public String getImageName();
+    public String getImageName();
 
-	public ITreeNode getParent();
+    public ITreeNode getParent();
 
-	public String getLabel();
+    public String getLabel();
 
-	public boolean hasChildren();
+    public boolean hasChildren();
 
-	public Object[] getChildren();
+    public Object[] getChildren();
 
-	public INodeAdapter getAdapter();
+    public INodeAdapter getAdapter();
 }

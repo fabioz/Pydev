@@ -12,30 +12,30 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 @SuppressWarnings("serial")
 public class SystemASTManager extends AbstractASTManager{
-	
-	private IInterpreterManager manager;
+    
+    private IInterpreterManager manager;
 
-	public SystemASTManager(IInterpreterManager manager, IPythonNature nature) {
-		this.manager = manager;
-		InterpreterInfo info = (InterpreterInfo) this.manager.getDefaultInterpreterInfo(new NullProgressMonitor());
+    public SystemASTManager(IInterpreterManager manager, IPythonNature nature) {
+        this.manager = manager;
+        InterpreterInfo info = (InterpreterInfo) this.manager.getDefaultInterpreterInfo(new NullProgressMonitor());
         this.modulesManager = info.getModulesManager();
-		setNature(nature);
-	}
+        setNature(nature);
+    }
 
-	public void setProject(IProject project, IPythonNature nature, boolean restoreDeltas) {
-		throw new RuntimeException("Not implemented");
-	}
+    public void setProject(IProject project, IPythonNature nature, boolean restoreDeltas) {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public void rebuildModule(File file, IDocument doc, IProject project, IProgressMonitor monitor, IPythonNature nature) {
-		throw new RuntimeException("Not implemented");
-	}
+    public void rebuildModule(File file, IDocument doc, IProject project, IProgressMonitor monitor, IPythonNature nature) {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public void removeModule(File file, IProject project, IProgressMonitor monitor) {
-		throw new RuntimeException("Not implemented");
-	}
+    public void removeModule(File file, IProject project, IProgressMonitor monitor) {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor, String defaultSelectedInterpreter) {
-		throw new RuntimeException("Not implemented");
-	}
+    public void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor, String defaultSelectedInterpreter) {
+        throw new RuntimeException("Not implemented");
+    }
 
 }

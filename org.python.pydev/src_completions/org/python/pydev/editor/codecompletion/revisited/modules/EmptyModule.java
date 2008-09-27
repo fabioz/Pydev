@@ -25,7 +25,7 @@ public class EmptyModule extends AbstractModule implements Serializable {
     
     @Override
     public File getFile() {
-    	return f;
+        return f;
     }
 
     /**
@@ -78,13 +78,13 @@ public class EmptyModule extends AbstractModule implements Serializable {
         throw new RuntimeException("Not intended to be called");
     }
 
-	@Override
-	public boolean isInDirectGlobalTokens(String tok, ICompletionCache completionCache) {
-		throw new RuntimeException("Not intended to be called");
-	}
+    @Override
+    public boolean isInDirectGlobalTokens(String tok, ICompletionCache completionCache) {
+        throw new RuntimeException("Not intended to be called");
+    }
 
-	public boolean isInDirectImportTokens(String tok) {
-		throw new RuntimeException("Not implemented");
-	}
+    public boolean isInDirectImportTokens(String tok) {
+        throw new RuntimeException("Not implemented");
+    }
 
 }

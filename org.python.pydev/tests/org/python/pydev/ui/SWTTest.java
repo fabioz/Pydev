@@ -19,7 +19,7 @@ public class SWTTest extends TestCase{
     }
 
     public void testIt(){
-    	
+        
     }
     
     /*

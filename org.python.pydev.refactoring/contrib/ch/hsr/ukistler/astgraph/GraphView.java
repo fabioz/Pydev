@@ -31,222 +31,222 @@ import org.python.pydev.parser.jython.SimpleNode;
 
 public class GraphView extends JFrame {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3925214828169513991L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -3925214828169513991L;
 
-	private JPanel boxPanel = null;
+    private JPanel boxPanel = null;
 
-	private JFileChooser fc = null;
+    private JFileChooser fc = null;
 
-	private JGraph graph = null;
+    private JGraph graph = null;
 
-	private JScrollPane graphpane = null;
+    private JScrollPane graphpane = null;
 
-	private JPanel navPane = null;
+    private JPanel navPane = null;
 
-	private JButton saveImage = null;
+    private JButton saveImage = null;
 
-	private JButton loadPython = null;
+    private JButton loadPython = null;
 
-	/**
-	 * This method initializes
-	 * 
-	 */
-	public GraphView() {
-		super("Python AST Viewer");
-		initialize();
-	}
+    /**
+     * This method initializes
+     * 
+     */
+    public GraphView() {
+        super("Python AST Viewer");
+        initialize();
+    }
 
-	/**
-	 * This method initializes this
-	 * 
-	 */
-	private void initialize() {
-		this.fc = new JFileChooser();
-		this.setContentPane(getBoxPanel());
-		this.setSize(new Dimension(640, 480));
-		this.pack();
-		this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
-	}
+    /**
+     * This method initializes this
+     * 
+     */
+    private void initialize() {
+        this.fc = new JFileChooser();
+        this.setContentPane(getBoxPanel());
+        this.setSize(new Dimension(640, 480));
+        this.pack();
+        this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+    }
 
-	/**
-	 * This method initializes boxPanel
-	 * 
-	 * @return javax.swing.JPanel
-	 */
-	private JPanel getBoxPanel() {
-		if (boxPanel == null) {
-			boxPanel = new JPanel();
-			boxPanel.setLayout(new BorderLayout());
-			boxPanel.add(getNavPane(), BorderLayout.NORTH);
-			boxPanel.add(getGraphpane(), BorderLayout.CENTER);
-		}
-		return boxPanel;
-	}
+    /**
+     * This method initializes boxPanel
+     * 
+     * @return javax.swing.JPanel
+     */
+    private JPanel getBoxPanel() {
+        if (boxPanel == null) {
+            boxPanel = new JPanel();
+            boxPanel.setLayout(new BorderLayout());
+            boxPanel.add(getNavPane(), BorderLayout.NORTH);
+            boxPanel.add(getGraphpane(), BorderLayout.CENTER);
+        }
+        return boxPanel;
+    }
 
-	/**
-	 * This method initializes graphpane
-	 * 
-	 * @return javax.swing.JScrollPane
-	 */
-	private JScrollPane getGraphpane() {
-		if (graphpane == null) {
-			graphpane = new JScrollPane();
-			this.graph = setupGraph();
-			graphpane.setViewportView(this.graph);
-		}
-		return graphpane;
-	}
+    /**
+     * This method initializes graphpane
+     * 
+     * @return javax.swing.JScrollPane
+     */
+    private JScrollPane getGraphpane() {
+        if (graphpane == null) {
+            graphpane = new JScrollPane();
+            this.graph = setupGraph();
+            graphpane.setViewportView(this.graph);
+        }
+        return graphpane;
+    }
 
-	/**
-	 * This method initializes navPane
-	 * 
-	 * @return javax.swing.JPanel
-	 */
-	private JPanel getNavPane() {
-		if (navPane == null) {
-			navPane = new JPanel();
-			navPane.setLayout(new FlowLayout());
-			navPane.add(getSaveImage());
-			navPane.add(getLoadPython());
-		}
-		return navPane;
-	}
+    /**
+     * This method initializes navPane
+     * 
+     * @return javax.swing.JPanel
+     */
+    private JPanel getNavPane() {
+        if (navPane == null) {
+            navPane = new JPanel();
+            navPane.setLayout(new FlowLayout());
+            navPane.add(getSaveImage());
+            navPane.add(getLoadPython());
+        }
+        return navPane;
+    }
 
-	/**
-	 * This method initializes saveImage
-	 * 
-	 * @return javax.swing.JButton
-	 */
-	private JButton getSaveImage() {
-		if (saveImage == null) {
-			saveImage = new JButton();
-			saveImage.setText("Save as PNG");
-			saveImage.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent event) {
+    /**
+     * This method initializes saveImage
+     * 
+     * @return javax.swing.JButton
+     */
+    private JButton getSaveImage() {
+        if (saveImage == null) {
+            saveImage = new JButton();
+            saveImage.setText("Save as PNG");
+            saveImage.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent event) {
 
-					FileFilter filter = new PNGFilter();
-					try {
-						fc.addChoosableFileFilter(filter);
-						int returnVal = fc.showSaveDialog(GraphView.this);
-						if (returnVal == JFileChooser.APPROVE_OPTION) {
-							File file = fc.getSelectedFile();
-							createImage(file.getAbsolutePath());
-						}
-					} finally {
-						fc.removeChoosableFileFilter(filter);
-					}
-				}
-			});
+                    FileFilter filter = new PNGFilter();
+                    try {
+                        fc.addChoosableFileFilter(filter);
+                        int returnVal = fc.showSaveDialog(GraphView.this);
+                        if (returnVal == JFileChooser.APPROVE_OPTION) {
+                            File file = fc.getSelectedFile();
+                            createImage(file.getAbsolutePath());
+                        }
+                    } finally {
+                        fc.removeChoosableFileFilter(filter);
+                    }
+                }
+            });
 
-		}
-		return saveImage;
-	}
+        }
+        return saveImage;
+    }
 
-	/**
-	 * This method initializes loadPython
-	 * 
-	 * @return javax.swing.JButton
-	 */
-	private JButton getLoadPython() {
-		if (loadPython == null) {
-			loadPython = new JButton();
-			loadPython.setText("Load Python source");
-			loadPython.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent event) {
-					FileFilter filter = new PythonFilter();
-					try {
+    /**
+     * This method initializes loadPython
+     * 
+     * @return javax.swing.JButton
+     */
+    private JButton getLoadPython() {
+        if (loadPython == null) {
+            loadPython = new JButton();
+            loadPython.setText("Load Python source");
+            loadPython.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent event) {
+                    FileFilter filter = new PythonFilter();
+                    try {
 
-						fc.addChoosableFileFilter(filter);
+                        fc.addChoosableFileFilter(filter);
 
-						int returnVal = fc.showOpenDialog(GraphView.this);
+                        int returnVal = fc.showOpenDialog(GraphView.this);
 
-						if (returnVal == JFileChooser.APPROVE_OPTION) {
-							File file = fc.getSelectedFile();
-							loadGraph(file.getAbsolutePath());
-						}
-					} catch (Throwable e) {
-						JOptionPane msgbox = new JOptionPane("Error writing file: " + e.getMessage());
-						msgbox.setVisible(true);
-					} finally {
-						fc.removeChoosableFileFilter(filter);
-					}
-				}
-			});
-		}
-		return loadPython;
-	}
+                        if (returnVal == JFileChooser.APPROVE_OPTION) {
+                            File file = fc.getSelectedFile();
+                            loadGraph(file.getAbsolutePath());
+                        }
+                    } catch (Throwable e) {
+                        JOptionPane msgbox = new JOptionPane("Error writing file: " + e.getMessage());
+                        msgbox.setVisible(true);
+                    } finally {
+                        fc.removeChoosableFileFilter(filter);
+                    }
+                }
+            });
+        }
+        return loadPython;
+    }
 
-	private JGraph setupGraph() {
-		// Construct Model and Graph
-		GraphModel model = new DefaultGraphModel();
-		JGraph graph = new JGraph(model);
+    private JGraph setupGraph() {
+        // Construct Model and Graph
+        GraphModel model = new DefaultGraphModel();
+        JGraph graph = new JGraph(model);
 
-		// Control-drag should clone selection
-		graph.setCloneable(true);
+        // Control-drag should clone selection
+        graph.setCloneable(true);
 
-		// Enable edit without final RETURN keystroke
-		graph.setInvokesStopCellEditing(true);
+        // Enable edit without final RETURN keystroke
+        graph.setInvokesStopCellEditing(true);
 
-		// When over a cell, jump to its default port (we only have one, anyway)
-		graph.setJumpToDefaultPort(true);
+        // When over a cell, jump to its default port (we only have one, anyway)
+        graph.setJumpToDefaultPort(true);
 
-		return graph;
-	}
+        return graph;
+    }
 
-	private void loadGraph(String fileName) throws FileNotFoundException, IOException, Throwable {
-		ASTGraph ast = new ASTGraph();
-		Tuple<SimpleNode, Throwable> objects = ast.parseFile(fileName);
+    private void loadGraph(String fileName) throws FileNotFoundException, IOException, Throwable {
+        ASTGraph ast = new ASTGraph();
+        Tuple<SimpleNode, Throwable> objects = ast.parseFile(fileName);
 
-		graph.setGraphLayoutCache(new GraphLayoutCache());
-		DefaultGraphCell[] cells = ast.generateTree(objects.o1);
+        graph.setGraphLayoutCache(new GraphLayoutCache());
+        DefaultGraphCell[] cells = ast.generateTree(objects.o1);
 
-		graph.getGraphLayoutCache().insert(cells);
-		graph.clearSelection();
-	}
+        graph.getGraphLayoutCache().insert(cells);
+        graph.clearSelection();
+    }
 
-	private void createImage(String imageName) {
-		if (graph == null) {
-			return;
-		}
-		try {
-			ImageWriter writer;
-			writer = new ImageWriter(graph.getImage(null, GraphConstants.DEFAULTINSET), imageName);
+    private void createImage(String imageName) {
+        if (graph == null) {
+            return;
+        }
+        try {
+            ImageWriter writer;
+            writer = new ImageWriter(graph.getImage(null, GraphConstants.DEFAULTINSET), imageName);
 
-			SwingUtilities.invokeLater(writer);
-		} catch (Throwable e) {
-			JOptionPane msgbox = new JOptionPane("Error writing file: " + e.getMessage());
-			msgbox.setVisible(true);
-		}
-	}
+            SwingUtilities.invokeLater(writer);
+        } catch (Throwable e) {
+            JOptionPane msgbox = new JOptionPane("Error writing file: " + e.getMessage());
+            msgbox.setVisible(true);
+        }
+    }
 
-	class PNGFilter extends javax.swing.filechooser.FileFilter {
-		public boolean accept(File file) {
-			if (file.isDirectory())
-				return true;
-			String filename = file.getName();
-			return filename.endsWith(".png");
-		}
+    class PNGFilter extends javax.swing.filechooser.FileFilter {
+        public boolean accept(File file) {
+            if (file.isDirectory())
+                return true;
+            String filename = file.getName();
+            return filename.endsWith(".png");
+        }
 
-		public String getDescription() {
-			return "PNG image (*.png)";
-		}
-	}
+        public String getDescription() {
+            return "PNG image (*.png)";
+        }
+    }
 
-	class PythonFilter extends javax.swing.filechooser.FileFilter {
+    class PythonFilter extends javax.swing.filechooser.FileFilter {
 
-		public boolean accept(File file) {
-			if (file.isDirectory())
-				return true;
-			String filename = file.getName();
-			return filename.endsWith(".py");
-		}
+        public boolean accept(File file) {
+            if (file.isDirectory())
+                return true;
+            String filename = file.getName();
+            return filename.endsWith(".py");
+        }
 
-		public String getDescription() {
-			return "Python Source code (*.py)";
-		}
-	}
+        public String getDescription() {
+            return "Python Source code (*.py)";
+        }
+    }
 
 } // @jve:decl-index=0:visual-constraint="10,10"

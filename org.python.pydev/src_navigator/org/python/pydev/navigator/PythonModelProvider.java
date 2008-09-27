@@ -180,14 +180,14 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
      * This is the function that is responsible for restoring the paths in the tree.
      */
     public void restoreState(IMemento memento) {
-    	new PyPackageStateSaver(this, viewer, memento).restoreState();
+        new PyPackageStateSaver(this, viewer, memento).restoreState();
     }
 
     /**
      * This is the function that is responsible for saving the paths in the tree.
      */
     public void saveState(IMemento memento) {
-    	new PyPackageStateSaver(this, viewer, memento).saveState();
+        new PyPackageStateSaver(this, viewer, memento).saveState();
     }
 
     /**
@@ -202,7 +202,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         }
         Object parent = modification.getParent();
         if (parent instanceof IContainer) {
-        	IContainer parentContainer = (IContainer) parent;
+            IContainer parentContainer = (IContainer) parent;
             Object pythonParent = getResourceInPythonModel(parentContainer, true);
             
             if (pythonParent instanceof IWrappedResource) {
@@ -212,64 +212,64 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
                 
             }else if(pythonParent == null){
                 
-            	Object parentInWrap = parentContainer;
-            	PythonSourceFolder sourceFolderInWrap = null;
-            	
+                Object parentInWrap = parentContainer;
+                PythonSourceFolder sourceFolderInWrap = null;
+                
                 //this may happen when a source folder is added or some element that still doesn't have it's parent in the model...
-            	//so, we have to get the parent's parent until we actually 'know' that it is not in the model (or until we run
-            	//out of parents to try)
-            	//the case in which we reproduce this is Test 1 (described in the class)
+                //so, we have to get the parent's parent until we actually 'know' that it is not in the model (or until we run
+                //out of parents to try)
+                //the case in which we reproduce this is Test 1 (described in the class)
                 FastStack<Object> found = new FastStack<Object>();
-            	while(true){
+                while(true){
                     
-            		//add the current to the found
-            		if(parentContainer == null){
-            			break;
-            		}
+                    //add the current to the found
+                    if(parentContainer == null){
+                        break;
+                    }
                     
-            		found.push(parentContainer);
-            		if(parentContainer instanceof IProject){
+                    found.push(parentContainer);
+                    if(parentContainer instanceof IProject){
                         //we got to the project without finding any part of a python model already there, so, let's see
                         //if any of the parts was actually a source folder (that was still not added)
                         tryCreateModelFromProject((IProject) parentContainer, found);
                         //and now, if it was created, try to convert it to the python model (without any further add)
                         convertToPythonElementsUpdateOrRefresh(modification.getChildren());
                         return;
-            		}
+                    }
                     
                     
-            		Object p = getResourceInPythonModel(parentContainer, true);
-            		
-            		if(p instanceof IWrappedResource){
-            			IWrappedResource wrappedResource = (IWrappedResource) p;
-            			sourceFolderInWrap = wrappedResource.getSourceFolder();
-            			
-            			while(found.size() > 0){
-            				Object f = found.pop();
-            				if(f instanceof IResource){
-            					//no need to create it if it's already in the model!
-            					Object child = sourceFolderInWrap.getChild((IResource)f);
-            					if(child != null && child instanceof IWrappedResource){
-            						wrappedResource = (IWrappedResource) child;
-            						continue;
-            					}
-            				}
-							//creating is enough to add it to the model
-            				if(f instanceof IFile){
-            					wrappedResource = new PythonFile(wrappedResource, (IFile)f, sourceFolderInWrap);
-            				}else if(f instanceof IFolder){
-            					wrappedResource = new PythonFolder(wrappedResource, (IFolder)f, sourceFolderInWrap);
-            				}
-            			}
-            			parentInWrap = wrappedResource;
-            			break;
-            		}
-            		
+                    Object p = getResourceInPythonModel(parentContainer, true);
+                    
+                    if(p instanceof IWrappedResource){
+                        IWrappedResource wrappedResource = (IWrappedResource) p;
+                        sourceFolderInWrap = wrappedResource.getSourceFolder();
+                        
+                        while(found.size() > 0){
+                            Object f = found.pop();
+                            if(f instanceof IResource){
+                                //no need to create it if it's already in the model!
+                                Object child = sourceFolderInWrap.getChild((IResource)f);
+                                if(child != null && child instanceof IWrappedResource){
+                                    wrappedResource = (IWrappedResource) child;
+                                    continue;
+                                }
+                            }
+                            //creating is enough to add it to the model
+                            if(f instanceof IFile){
+                                wrappedResource = new PythonFile(wrappedResource, (IFile)f, sourceFolderInWrap);
+                            }else if(f instanceof IFolder){
+                                wrappedResource = new PythonFolder(wrappedResource, (IFolder)f, sourceFolderInWrap);
+                            }
+                        }
+                        parentInWrap = wrappedResource;
+                        break;
+                    }
+                    
                     parentContainer = parentContainer.getParent();
-            	}
-            	
+                }
+                
 
-            	
+                
                 wrapChildren(parentInWrap, sourceFolderInWrap, modification.getChildren(), isAdd);
             }
             
@@ -412,7 +412,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         if (child instanceof IProject){
             //ok, let's see if the child is a source folder (as the default project can be the actual source folder)
             if(pythonSourceFolder == null && parent != null){
-                PythonSourceFolder f = doWrapPossibleSourceFolder(parent, (IProject)child);                    	
+                PythonSourceFolder f = doWrapPossibleSourceFolder(parent, (IProject)child);                        
                 if(f != null){
                     return f;
                 }
@@ -423,10 +423,10 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             
             //it may be a PythonSourceFolder
             if(pythonSourceFolder == null && parent != null){
-            	PythonSourceFolder f = doWrapPossibleSourceFolder(parent, folder);                    	
-            	if(f != null){
-            	    return f;
-            	}
+                PythonSourceFolder f = doWrapPossibleSourceFolder(parent, folder);                        
+                if(f != null){
+                    return f;
+                }
             }
             if(pythonSourceFolder != null){
                 return new PythonFolder((IWrappedResource) parent, folder, pythonSourceFolder);
@@ -455,12 +455,12 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
      */
     private PythonSourceFolder doWrapPossibleSourceFolder(Object parent, IContainer container) {
         try {
-        	IProject project;
-        	if(!(container instanceof IProject)){
-        	    project = ((IContainer)parent).getProject();
-        	}else{
-        	    project = (IProject) container;
-        	}
+            IProject project;
+            if(!(container instanceof IProject)){
+                project = ((IContainer)parent).getProject();
+            }else{
+                project = (IProject) container;
+            }
             PythonNature nature = PythonNature.getPythonNature(project);
             if(nature!= null){
                 //check for source folder
@@ -555,13 +555,13 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
                         }
                         
                     }else if(res instanceof IFolder){
-                    	//ok, still not in the model... could it be a PythonSourceFolder
+                        //ok, still not in the model... could it be a PythonSourceFolder
                         IFolder folder = (IFolder) res;
                         IProject project = folder.getProject();
                         if(project == null){
-                        	continue;
+                            continue;
                         }
-						PythonNature nature = PythonNature.getPythonNature(project);
+                        PythonNature nature = PythonNature.getPythonNature(project);
                         if(nature== null){
                             continue;
                         }
@@ -573,8 +573,8 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
                         }        
                         PythonSourceFolder wrapped = tryWrapSourceFolder(p, folder, sourcePathSet);
                         if(wrapped != null){
-                        	childrenItr.remove();
-                        	convertedChildren.add(wrapped);
+                            childrenItr.remove();
+                            convertedChildren.add(wrapped);
                         }
                     }
                 }

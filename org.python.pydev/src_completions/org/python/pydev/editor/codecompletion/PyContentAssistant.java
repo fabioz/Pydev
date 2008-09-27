@@ -43,15 +43,15 @@ public class PyContentAssistant extends ContentAssistant{
         }
         
         try{
-        	setRepeatedInvocationTrigger(KeyBindingHelper.getContentAssistProposalBinding());
+            setRepeatedInvocationTrigger(KeyBindingHelper.getContentAssistProposalBinding());
         }catch(Exception e){
-        	//no need to log
+            //no need to log
         }
         
         try{
             setStatusLineVisible(true);
         }catch(Exception e){
-        	//no need to log
+            //no need to log
         }
     }
     

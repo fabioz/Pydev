@@ -16,59 +16,59 @@ import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 
 public class NameValidator {
 
-	// match invalid keywords (Python pocket reference)
-	private final String[] keywords = { "and", "assert", "break", "class", "continue", "def", "del", "elif", "else", "except", "exec",
-			"finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "not", "or", "pass", "print", "raise", "return",
-			"try", "while", "yield" };
+    // match invalid keywords (Python pocket reference)
+    private final String[] keywords = { "and", "assert", "break", "class", "continue", "def", "del", "elif", "else", "except", "exec",
+            "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "not", "or", "pass", "print", "raise", "return",
+            "try", "while", "yield" };
 
-	private final String nameRegExp = "[a-zA-Z_][a-zA-Z_0-9]*";
+    private final String nameRegExp = "[a-zA-Z_][a-zA-Z_0-9]*";
 
-	private AbstractScopeNode<?> scopeNode;
+    private AbstractScopeNode<?> scopeNode;
 
-	private List<String> keywordList;
+    private List<String> keywordList;
 
-	public NameValidator(AbstractScopeNode<?> scope) {
-		this.scopeNode = scope;
-		this.keywordList = Arrays.asList(keywords);
-	}
+    public NameValidator(AbstractScopeNode<?> scope) {
+        this.scopeNode = scope;
+        this.keywordList = Arrays.asList(keywords);
+    }
 
-	public void validateUniqueVariable(String name) throws Throwable {
-		if (scopeNode.alreadyUsedName(name)) {
-			throw new Exception("Variable name '" + name + "' is already used");
-		}
-	}
+    public void validateUniqueVariable(String name) throws Throwable {
+        if (scopeNode.alreadyUsedName(name)) {
+            throw new Exception("Variable name '" + name + "' is already used");
+        }
+    }
 
-	public void validateVariableName(String name) throws Throwable {
-		if (!name.matches(nameRegExp)) {
-			throw new Exception("'" + name + "' is not a valid variable name");
-		}
-		validateNotKeyword(name);
-	}
+    public void validateVariableName(String name) throws Throwable {
+        if (!name.matches(nameRegExp)) {
+            throw new Exception("'" + name + "' is not a valid variable name");
+        }
+        validateNotKeyword(name);
+    }
 
-	private void validateNotKeyword(String name) throws Exception {
-		if (this.keywordList.contains(name)) {
-			throw new Exception("'" + name + "' is a reserved word");
-		}
-	}
+    private void validateNotKeyword(String name) throws Exception {
+        if (this.keywordList.contains(name)) {
+            throw new Exception("'" + name + "' is a reserved word");
+        }
+    }
 
-	public void validateMethodName(String name) throws Throwable {
-		if (!name.matches(nameRegExp)) {
-			throw new Exception("'" + name + "' is not a valid function name");
-		}
-		validateNotKeyword(name);
-	}
+    public void validateMethodName(String name) throws Throwable {
+        if (!name.matches(nameRegExp)) {
+            throw new Exception("'" + name + "' is not a valid function name");
+        }
+        validateNotKeyword(name);
+    }
 
-	public void validateUniqueFunction(String name) throws Exception {
-		AbstractScopeNode<?> parentAdapter = scopeNode.getParent();
+    public void validateUniqueFunction(String name) throws Exception {
+        AbstractScopeNode<?> parentAdapter = scopeNode.getParent();
 
-		if (parentAdapter != null) {
-			for (FunctionDefAdapter function : parentAdapter.getFunctions()) {
-				if (function.getName().compareTo(name) == 0) {
-					throw new Exception("Function name '" + name + "' is already used");
-				}
-			}
-		}
+        if (parentAdapter != null) {
+            for (FunctionDefAdapter function : parentAdapter.getFunctions()) {
+                if (function.getName().compareTo(name) == 0) {
+                    throw new Exception("Function name '" + name + "' is already used");
+                }
+            }
+        }
 
-	}
+    }
 
 }

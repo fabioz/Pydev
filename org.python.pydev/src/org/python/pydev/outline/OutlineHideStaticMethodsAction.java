@@ -29,7 +29,7 @@ public class OutlineHideStaticMethodsAction extends AbstractOutlineFilterAction 
      */
     @Override
     protected ViewerFilter createFilter() {
-    	return new ViewerFilter() {
+        return new ViewerFilter() {
 
             @Override
             public boolean select(Viewer viewer, Object parentElement, Object element) {
@@ -40,15 +40,15 @@ public class OutlineHideStaticMethodsAction extends AbstractOutlineFilterAction 
 
                     //String name = null;
                     if (token instanceof FunctionDef) {
-                    	FunctionDef functionDefToken = (FunctionDef) token;
-                    	for (decoratorsType decorator : functionDefToken.decs) {
-                    		if (decorator.func instanceof Name) {
-                    			Name decoratorFuncName = (Name) decorator.func;
-                    			if (decoratorFuncName.id.equals("staticmethod")) {
-                    				return false;
-                    			}
-                    		}
-						}
+                        FunctionDef functionDefToken = (FunctionDef) token;
+                        for (decoratorsType decorator : functionDefToken.decs) {
+                            if (decorator.func instanceof Name) {
+                                Name decoratorFuncName = (Name) decorator.func;
+                                if (decoratorFuncName.id.equals("staticmethod")) {
+                                    return false;
+                                }
+                            }
+                        }
                     }
                 }
                 return true;

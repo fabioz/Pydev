@@ -24,65 +24,65 @@ import org.python.pydev.refactoring.core.request.IRequestProcessor;
 
 public abstract class AbstractFileChangeProcessor<T extends IRefactoringRequest> implements IChangeProcessor {
 
-	private TextChange change;
+    private TextChange change;
 
-	protected MultiTextEdit multiEdit;
+    protected MultiTextEdit multiEdit;
 
-	private String name;
+    private String name;
 
-	private IFile file;
+    private IFile file;
 
-	protected IRequestProcessor<T> requestProcessor;
+    protected IRequestProcessor<T> requestProcessor;
 
-	public AbstractFileChangeProcessor(String name, RefactoringInfo info, IRequestProcessor<T> requestProcessor) {
-		this.name = name;
-		this.file = info.getSourceFile();
-		this.requestProcessor = requestProcessor;
-	}
+    public AbstractFileChangeProcessor(String name, RefactoringInfo info, IRequestProcessor<T> requestProcessor) {
+        this.name = name;
+        this.file = info.getSourceFile();
+        this.requestProcessor = requestProcessor;
+    }
 
-	protected abstract void processEdit();
+    protected abstract void processEdit();
 
-	public Change createChange() {
-		change = new TextFileChange(name, file);
-		multiEdit = new MultiTextEdit();
-		change.setEdit(this.multiEdit);
-		processEdit();
-		return change;
-	}
+    public Change createChange() {
+        change = new TextFileChange(name, file);
+        multiEdit = new MultiTextEdit();
+        change.setEdit(this.multiEdit);
+        processEdit();
+        return change;
+    }
 
-	protected void addEdit(TextEdit edit) {
-		multiEdit.addChild(edit);
-	}
+    protected void addEdit(TextEdit edit) {
+        multiEdit.addChild(edit);
+    }
 
-	protected void addGroup(TextEditGroup group) {
-		change.addTextEditGroup(group);
-	}
+    protected void addGroup(TextEditGroup group) {
+        change.addTextEditGroup(group);
+    }
 
-	/**
-	 * Registers an abstractTextEdit to a AbstractFileChangeProcessor using a single editroup
-	 * 
-	 * @param edit
-	 * @param message
-	 */
-	protected void registerEdit(AbstractTextEdit edit, String message) {
-		TextEditGroup editGroup = new TextEditGroup(message);
-		addGroup(editGroup);
-		registerEditInGroup(edit, editGroup);
-	}
-	
-	protected void registerEdit(List<AbstractTextEdit> edits, String message) {
-		TextEditGroup group = new TextEditGroup(message);
-		addGroup(group);
-		
-		for (AbstractTextEdit edit : edits) {
-			registerEditInGroup(edit, group);
-		}
-	}
-	
-	private void registerEditInGroup(AbstractTextEdit edit,
-			TextEditGroup editGroup) {
-		TextEdit textEdit = edit.getEdit();
-		editGroup.addTextEdit(textEdit);	
-		addEdit(textEdit);
-	}
+    /**
+     * Registers an abstractTextEdit to a AbstractFileChangeProcessor using a single editroup
+     * 
+     * @param edit
+     * @param message
+     */
+    protected void registerEdit(AbstractTextEdit edit, String message) {
+        TextEditGroup editGroup = new TextEditGroup(message);
+        addGroup(editGroup);
+        registerEditInGroup(edit, editGroup);
+    }
+    
+    protected void registerEdit(List<AbstractTextEdit> edits, String message) {
+        TextEditGroup group = new TextEditGroup(message);
+        addGroup(group);
+        
+        for (AbstractTextEdit edit : edits) {
+            registerEditInGroup(edit, group);
+        }
+    }
+    
+    private void registerEditInGroup(AbstractTextEdit edit,
+            TextEditGroup editGroup) {
+        TextEdit textEdit = edit.getEdit();
+        editGroup.addTextEdit(textEdit);    
+        addEdit(textEdit);
+    }
 }

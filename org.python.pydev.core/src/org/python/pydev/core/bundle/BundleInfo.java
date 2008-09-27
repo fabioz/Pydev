@@ -30,7 +30,7 @@ public class BundleInfo implements IBundleInfo{
         return BundleUtils.getRelative(relative, bundle);
     }
     
-	/**
+    /**
      * @see org.python.pydev.core.bundle.IBundleInfo#getPluginID()
      */
     public String getPluginID() {

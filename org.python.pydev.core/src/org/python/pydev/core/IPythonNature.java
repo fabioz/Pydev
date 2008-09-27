@@ -103,12 +103,12 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
     /**
      * Rebuilds the path with the current path information (just to refresh it).
      */
-	void rebuildPath();
+    void rebuildPath();
 
-	/**
-	 * Rebuilds the path with the current path information, but using the interpreter passed
-	 */
-	void rebuildPath(String defaultSelectedInterpreter, IProgressMonitor monitor);
+    /**
+     * Rebuilds the path with the current path information, but using the interpreter passed
+     */
+    void rebuildPath(String defaultSelectedInterpreter, IProgressMonitor monitor);
     
     IInterpreterManager getRelatedInterpreterManager();
 
@@ -122,26 +122,26 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
     /**
      * @param toks those are the tokens that are set as builtin completions.
      */
-	void setBuiltinCompletions(IToken[] toks);
+    void setBuiltinCompletions(IToken[] toks);
 
-	/**
-	 * @return the module for the builtins (may return null if not set)
-	 */
-	IModule getBuiltinMod();
-	/**
-	 * @param mod the builtion module
-	 */
-	void setBuiltinMod(IModule mod);
+    /**
+     * @return the module for the builtins (may return null if not set)
+     */
+    IModule getBuiltinMod();
+    /**
+     * @param mod the builtion module
+     */
+    void setBuiltinMod(IModule mod);
 
-	/**
-	 * Checks if the given resource is in the pythonpath
-	 */
-	boolean isResourceInPythonpath(IResource resource);
-	boolean isResourceInPythonpath(String resource);
+    /**
+     * Checks if the given resource is in the pythonpath
+     */
+    boolean isResourceInPythonpath(IResource resource);
+    boolean isResourceInPythonpath(String resource);
 
-	/**
-	 * @return true if it is ok to use the nature
-	 */
-	boolean startRequests();
-	void endRequests();
+    /**
+     * @return true if it is ok to use the nature
+     */
+    boolean startRequests();
+    void endRequests();
 }

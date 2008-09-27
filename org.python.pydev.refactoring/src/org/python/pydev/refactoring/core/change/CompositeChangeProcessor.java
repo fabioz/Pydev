@@ -15,21 +15,21 @@ import org.eclipse.ltk.core.refactoring.CompositeChange;
 
 public class CompositeChangeProcessor implements IChangeProcessor {
 
-	private String name;
+    private String name;
 
-	private List<IChangeProcessor> processors;
+    private List<IChangeProcessor> processors;
 
-	public CompositeChangeProcessor(String name, List<IChangeProcessor> processors) {
-		this.name = name;
-		this.processors = processors;
-	}
+    public CompositeChangeProcessor(String name, List<IChangeProcessor> processors) {
+        this.name = name;
+        this.processors = processors;
+    }
 
-	public Change createChange() {
-		CompositeChange change = new CompositeChange(name);
-		for (IChangeProcessor processor : processors) {
-			change.add(processor.createChange());
-		}
+    public Change createChange() {
+        CompositeChange change = new CompositeChange(name);
+        for (IChangeProcessor processor : processors) {
+            change.add(processor.createChange());
+        }
 
-		return change;
-	}
+        return change;
+    }
 }

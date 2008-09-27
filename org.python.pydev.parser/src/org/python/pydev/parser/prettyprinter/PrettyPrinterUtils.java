@@ -276,18 +276,18 @@ public class PrettyPrinterUtils extends VisitorBase{
         return null;
     }
 
-	protected void genericAfter(SimpleNode node, boolean needIndent, boolean isNewScope) throws IOException {
-		state.popInStmt();
+    protected void genericAfter(SimpleNode node, boolean needIndent, boolean isNewScope) throws IOException {
+        state.popInStmt();
         afterNode(node, isNewScope);
-	}
+    }
 
-	protected void genericBefore(SimpleNode node, boolean requiresNewLine) throws IOException {
-		if(requiresNewLine){
+    protected void genericBefore(SimpleNode node, boolean requiresNewLine) throws IOException {
+        if(requiresNewLine){
             fixNewStatementCondition();
         }
         beforeNode(node);
         state.pushInStmt(node);
-	}
+    }
 
     public Object superGlobal(Global node) throws Exception {
         return super.visitGlobal(node);
@@ -330,7 +330,7 @@ public class PrettyPrinterUtils extends VisitorBase{
     }
     
     public Object superReturn(Return node) throws Exception {
-    	return super.visitReturn(node);
+        return super.visitReturn(node);
     }
     
     public Object superSlice(Slice node) throws Exception {
@@ -342,11 +342,11 @@ public class PrettyPrinterUtils extends VisitorBase{
     }
     
     public Object superDelete(Delete node) throws Exception {
-    	return super.visitDelete(node);
+        return super.visitDelete(node);
     }
     
     public Object superListComp(ListComp node) throws Exception {
-    	return super.visitListComp(node);
+        return super.visitListComp(node);
     }
     
     public Object superExec(Exec node) throws Exception {

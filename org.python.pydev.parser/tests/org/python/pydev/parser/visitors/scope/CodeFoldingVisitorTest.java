@@ -60,7 +60,7 @@ public class CodeFoldingVisitorTest extends TestCase {
                 "        print 3\n" +
                 "    else:\n" +
                 "        print 4\n" +
-        		"";
+                "";
         Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         SimpleNode root = objects.o1;
         root.accept(visitor);

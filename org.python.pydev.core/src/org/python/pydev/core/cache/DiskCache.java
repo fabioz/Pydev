@@ -22,31 +22,31 @@ import org.python.pydev.core.REF;
  */
 public class DiskCache extends LRUCache<String, Serializable> implements Serializable{
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     private static final boolean DEBUG = false;
-	
-	/**
-	 * This is the folder that the cache can use to persist its values
-	 */
-	private String folderToPersist;
-	
-	/**
-	 * The keys will be in memory all the time... only the values will come and go to the disk.
-	 */
-	private Set<String> keys = new HashSet<String>();
-	
-	/**
-	 * The files persisted should have this suffix (should start with .)
-	 */
-	private String suffix;
+    
+    /**
+     * This is the folder that the cache can use to persist its values
+     */
+    private String folderToPersist;
+    
+    /**
+     * The keys will be in memory all the time... only the values will come and go to the disk.
+     */
+    private Set<String> keys = new HashSet<String>();
+    
+    /**
+     * The files persisted should have this suffix (should start with .)
+     */
+    private String suffix;
 
     /**
      * Custom deserialization is needed.
      */
     @SuppressWarnings("unchecked")
-	private void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
-    	
+    private void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
+        
         aStream.defaultReadObject();
         keys = (Set<String>) aStream.readObject();
         folderToPersist = (String) aStream.readObject();
@@ -73,20 +73,20 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
         
         //the cache will be re-created in a 'clear' state
     }
-	
-	public DiskCache(int maxSize, File folderToPersist, String suffix) {
-		super(maxSize);
-		this.folderToPersist = REF.getFileAbsolutePath(folderToPersist);
-		this.suffix = suffix;
-	}
-	
-	
-	public synchronized Serializable getObj(String key) {
-		synchronized(cache){
-			Serializable v = super.getObj(key);
-			if(v == null && keys.contains(key)){
-				//miss in memory... get from disk
-				File file = getFileForKey(key);
+    
+    public DiskCache(int maxSize, File folderToPersist, String suffix) {
+        super(maxSize);
+        this.folderToPersist = REF.getFileAbsolutePath(folderToPersist);
+        this.suffix = suffix;
+    }
+    
+    
+    public synchronized Serializable getObj(String key) {
+        synchronized(cache){
+            Serializable v = super.getObj(key);
+            if(v == null && keys.contains(key)){
+                //miss in memory... get from disk
+                File file = getFileForKey(key);
                 if(file.exists()){
                     v = (Serializable) REF.readFromFile(file);
                 }else{
@@ -98,77 +98,77 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
                     this.remove(key);
                     return null;
                 }
-				//put it back in memory
-				super.add(key, v);
-			}
-			return v;
-		}
-	}
-
-	private synchronized File getFileForKey(String o) {
-		return new File(folderToPersist, o+suffix);
-	}
-
-	/**
-	 * Removes both: from the memory and from the disk
-	 */
-	public synchronized void remove(String key) {
-		synchronized(cache){
-		    if(DEBUG){
-		        System.out.println("Disk cache - Removing: "+key);
+                //put it back in memory
+                super.add(key, v);
             }
-			super.remove(key);
-			File fileForKey = getFileForKey(key);
-			fileForKey.delete();
-			keys.remove(key);
-		}
-	}
+            return v;
+        }
+    }
 
-	/**
-	 * Adds to both: the memory and the disk
-	 */
-	public synchronized void add(String key, Serializable n) {
-		synchronized(cache){
-			super.add(key, n);
-			File fileForKey = getFileForKey(key);
-			if(DEBUG){
-			    System.out.println("Disk cache - Adding: "+key+" file: "+fileForKey);
-			}
-			REF.writeToFile(n, fileForKey);
-			keys.add(key);
-		}
-	}
+    private synchronized File getFileForKey(String o) {
+        return new File(folderToPersist, o+suffix);
+    }
 
-	/**
-	 * Clear the whole cache.
-	 */
-	public synchronized void clear() {
-		synchronized(cache){
-			for(String key : keys){
-				super.remove(key);
-				File fileForKey = getFileForKey(key);
-				fileForKey.delete();
-			}
-			keys.clear();
-		}		
-	}
+    /**
+     * Removes both: from the memory and from the disk
+     */
+    public synchronized void remove(String key) {
+        synchronized(cache){
+            if(DEBUG){
+                System.out.println("Disk cache - Removing: "+key);
+            }
+            super.remove(key);
+            File fileForKey = getFileForKey(key);
+            fileForKey.delete();
+            keys.remove(key);
+        }
+    }
 
-	/**
-	 * @return a copy of the keys available 
-	 */
-	public synchronized Set<String> keys() {
-		synchronized(cache){
-			return new HashSet<String>(keys);
-		}
-	}
+    /**
+     * Adds to both: the memory and the disk
+     */
+    public synchronized void add(String key, Serializable n) {
+        synchronized(cache){
+            super.add(key, n);
+            File fileForKey = getFileForKey(key);
+            if(DEBUG){
+                System.out.println("Disk cache - Adding: "+key+" file: "+fileForKey);
+            }
+            REF.writeToFile(n, fileForKey);
+            keys.add(key);
+        }
+    }
+
+    /**
+     * Clear the whole cache.
+     */
+    public synchronized void clear() {
+        synchronized(cache){
+            for(String key : keys){
+                super.remove(key);
+                File fileForKey = getFileForKey(key);
+                fileForKey.delete();
+            }
+            keys.clear();
+        }        
+    }
+
+    /**
+     * @return a copy of the keys available 
+     */
+    public synchronized Set<String> keys() {
+        synchronized(cache){
+            return new HashSet<String>(keys);
+        }
+    }
 
 
-	public void setFolderToPersist(String folderToPersist) {
-		this.folderToPersist = folderToPersist;
-	}
+    public void setFolderToPersist(String folderToPersist) {
+        this.folderToPersist = folderToPersist;
+    }
 
 
-	public String getFolderToPersist() {
-		return folderToPersist;
-	}
+    public String getFolderToPersist() {
+        return folderToPersist;
+    }
 }

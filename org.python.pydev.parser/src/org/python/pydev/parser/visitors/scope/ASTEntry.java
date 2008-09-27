@@ -107,8 +107,8 @@ public class ASTEntry extends DecoratableObject{
                 for (int i = 0; i < names.length; i++) {
                     buffer.append(((NameTok)names[i].name).id);
                     if(names[i].asname != null){
-	                    buffer.append(" as ");
-	                    buffer.append(((NameTok)names[i].asname).id);
+                        buffer.append(" as ");
+                        buffer.append(((NameTok)names[i].asname).id);
                     }
                 }
             }else{
@@ -163,7 +163,7 @@ public class ASTEntry extends DecoratableObject{
         }
     }
 
-	public SimpleNode getNameNode() {
+    public SimpleNode getNameNode() {
         if (node instanceof ClassDef){
             return ((ClassDef)node).name;
             
@@ -171,61 +171,61 @@ public class ASTEntry extends DecoratableObject{
             return ((FunctionDef)node).name;
             
         } else{
-        	return node;
-        	
+            return node;
+            
         }
-	}
-	
-	@Override
-	public String toString() {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("AstEntry<");
-		buffer.append(getName());
-		buffer.append(" (");
-		buffer.append(FullRepIterable.getLastPart(node.getClass().getName()));
-		buffer.append(" L=");
-		buffer.append(node.beginLine);
-		buffer.append(" C=");
-		buffer.append(node.beginColumn);
-		buffer.append(")");
-		buffer.append(">");
-		return buffer.toString();
-	}
+    }
+    
+    @Override
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("AstEntry<");
+        buffer.append(getName());
+        buffer.append(" (");
+        buffer.append(FullRepIterable.getLastPart(node.getClass().getName()));
+        buffer.append(" L=");
+        buffer.append(node.beginLine);
+        buffer.append(" C=");
+        buffer.append(node.beginColumn);
+        buffer.append(")");
+        buffer.append(">");
+        return buffer.toString();
+    }
 
 
     
-	@Override
-	public int hashCode() {
-	    int i=31;
-	    String n = getName();
-	    if(n != null){
-	        i *= n.hashCode();
-	    }
-	    i += node.beginLine;
-	    i *= node.beginColumn;
-	    return i;
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-	    if (!(obj instanceof ASTEntry)){
+    @Override
+    public int hashCode() {
+        int i=31;
+        String n = getName();
+        if(n != null){
+            i *= n.hashCode();
+        }
+        i += node.beginLine;
+        i *= node.beginColumn;
+        return i;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ASTEntry)){
             return false;
         }
-	    ASTEntry other = (ASTEntry) obj;
-	    
-	    if(node.beginColumn != other.node.beginColumn || node.beginLine != other.node.beginLine || 
+        ASTEntry other = (ASTEntry) obj;
+        
+        if(node.beginColumn != other.node.beginColumn || node.beginLine != other.node.beginLine || 
             endCol != other.endCol || endLine != other.endLine){
-	        return false;
-	    }
-	    
-	    
-	    //compare names (cannot be null)
-	    String n = getName();
-	    String oN = other.getName();
+            return false;
+        }
+        
+        
+        //compare names (cannot be null)
+        String n = getName();
+        String oN = other.getName();
         if(!n.equals(oN)){
             return false;
         }
-	    return true;
-	}
-	
+        return true;
+    }
+    
 }

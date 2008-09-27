@@ -14,16 +14,16 @@ import junit.framework.Test;
  */
 public class JythonTestSuite extends AbstractIOTestSuite {
 
-	public static Test suite() {
-		JythonTestSuite testSuite = new JythonTestSuite();
+    public static Test suite() {
+        JythonTestSuite testSuite = new JythonTestSuite();
 
-		testSuite.createTests();
+        testSuite.createTests();
 
-		return testSuite;
-	}
+        return testSuite;
+    }
 
-	@Override
-	protected IInputOutputTestCase createTestCase(String testCaseName) {
-		return new JythonTestCase(testCaseName);
-	}
+    @Override
+    protected IInputOutputTestCase createTestCase(String testCaseName) {
+        return new JythonTestCase(testCaseName);
+    }
 }

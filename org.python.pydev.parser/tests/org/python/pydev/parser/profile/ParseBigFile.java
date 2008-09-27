@@ -13,63 +13,63 @@ import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
 public class ParseBigFile extends PyParserTestBase {
 
-	public static void main(String[] args) {
-		junit.textui.TestRunner.run(ParseBigFile.class);
-	}
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(ParseBigFile.class);
+    }
 
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
+    protected void setUp() throws Exception {
+        super.setUp();
+    }
 
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
 
 
-	/**
-	 * Initial times with 5 iterations:
-	 * 
-	 * Took: 1.625 secs
-	 * Took: 0.797 secs
-	 * Took: 0.828 secs
-	 * Took: 0.766 secs
-	 * Took: 0.765 secs
-	 * 
-	 * After using the FastCharStream:
-	 * 
-	 * Took: 0.453 secs
-	 * Took: 0.14 secs
-	 * Took: 0.14 secs
-	 * Took: 0.141 secs
-	 * Took: 0.14 secs
-	 * 
-	 * (impressive hum?)
-	 * 
-	 * -- note that this is directly proportional to the size of the string, so, while in small streams
-	 * there will be no noticeable change, in longer files the changes will be dramatical. E.g. A file
-	 * with 3MB of code would take about 3 minutes with the previous approach and would take 2 seconds with
-	 * the new approach.
-	 * 
-	 * @throws Exception
-	 */
-	public void testBigFileParsing() throws Exception {
+    /**
+     * Initial times with 5 iterations:
+     * 
+     * Took: 1.625 secs
+     * Took: 0.797 secs
+     * Took: 0.828 secs
+     * Took: 0.766 secs
+     * Took: 0.765 secs
+     * 
+     * After using the FastCharStream:
+     * 
+     * Took: 0.453 secs
+     * Took: 0.14 secs
+     * Took: 0.14 secs
+     * Took: 0.141 secs
+     * Took: 0.14 secs
+     * 
+     * (impressive hum?)
+     * 
+     * -- note that this is directly proportional to the size of the string, so, while in small streams
+     * there will be no noticeable change, in longer files the changes will be dramatical. E.g. A file
+     * with 3MB of code would take about 3 minutes with the previous approach and would take 2 seconds with
+     * the new approach.
+     * 
+     * @throws Exception
+     */
+    public void testBigFileParsing() throws Exception {
         String loc = TestDependent.TEST_PYDEV_PARSER_PLUGIN_LOC+"/tests/pysrc/data_string.py";
         String s = REF.getFileContents(new File(loc));
         for (int i = 0; i < 5; i++) {
-        	@SuppressWarnings("unused") long curr = System.currentTimeMillis();
-        	SimpleNode node = parseLegalDocStr(s);
-        	
-        	PyParser.USE_FAST_STREAM = true;
-        	//uncomment line below to see the time for parsing
-        	//System.out.println(StringUtils.format("Took: %s secs", (System.currentTimeMillis()-curr)/1000.0));
-        	SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(node);
-        	
-        	ASTEntry entry = visitor.getAsList(Str.class).get(0);
-        	String s0 = ((Str)entry.node).s;
-        	assertEquals(42, entry.node.beginLine);
-        	assertEquals(8, entry.node.beginColumn);
-        	assertTrue("Expecting big string. Received"+s0, s0.length() > 100 );
-        	
-		}
-	}
+            @SuppressWarnings("unused") long curr = System.currentTimeMillis();
+            SimpleNode node = parseLegalDocStr(s);
+            
+            PyParser.USE_FAST_STREAM = true;
+            //uncomment line below to see the time for parsing
+            //System.out.println(StringUtils.format("Took: %s secs", (System.currentTimeMillis()-curr)/1000.0));
+            SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(node);
+            
+            ASTEntry entry = visitor.getAsList(Str.class).get(0);
+            String s0 = ((Str)entry.node).s;
+            assertEquals(42, entry.node.beginLine);
+            assertEquals(8, entry.node.beginColumn);
+            assertTrue("Expecting big string. Received"+s0, s0.length() > 100 );
+            
+        }
+    }
 }

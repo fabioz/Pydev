@@ -70,20 +70,20 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
      * associations in the registry.
      */
     private IPropertyListener editorRegistryListener = new IPropertyListener() {
-		public void propertyChanged(Object source, int propId) {
-			if (propId == IEditorRegistry.PROP_CONTENTS) {
-				fireLabelProviderChanged(new LabelProviderChangedEvent(CopiedWorkbenchLabelProvider.this));
-			}
-		}
-	};		
-	private ResourceManager resourceManager;
+        public void propertyChanged(Object source, int propId) {
+            if (propId == IEditorRegistry.PROP_CONTENTS) {
+                fireLabelProviderChanged(new LabelProviderChangedEvent(CopiedWorkbenchLabelProvider.this));
+            }
+        }
+    };        
+    private ResourceManager resourceManager;
 
     /**
      * Creates a new workbench label provider.
      */
     public CopiedWorkbenchLabelProvider() {
-    	PlatformUI.getWorkbench().getEditorRegistry().addPropertyListener(editorRegistryListener);
-    	this.resourceManager = new LocalResourceManager(JFaceResources.getResources());
+        PlatformUI.getWorkbench().getEditorRegistry().addPropertyListener(editorRegistryListener);
+        this.resourceManager = new LocalResourceManager(JFaceResources.getResources());
     }
 
     /**
@@ -123,10 +123,10 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
      * Method declared on ILabelProvider
      */
     public void dispose() {
-    	PlatformUI.getWorkbench().getEditorRegistry().removePropertyListener(editorRegistryListener);
-    	resourceManager.dispose();
-    	resourceManager = null;
-    	super.dispose();
+        PlatformUI.getWorkbench().getEditorRegistry().removePropertyListener(editorRegistryListener);
+        resourceManager.dispose();
+        resourceManager = null;
+        super.dispose();
     }
     
     
@@ -154,7 +154,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
      *         adapter type, or null if no such representation exists
      */
     public static Object utilGetAdapter(Object sourceObject, Class adapterType) {
-    	Assert.isNotNull(adapterType);
+        Assert.isNotNull(adapterType);
         if (sourceObject == null) {
             return null;
         }
@@ -224,11 +224,11 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
         descriptor = decorateImage(descriptor, element);
 
         try {
-			return resourceManager.createImage(descriptor);
-		} catch (Exception e) {
-			PydevPlugin.log(e);
-			return null;
-		}
+            return resourceManager.createImage(descriptor);
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+            return null;
+        }
     }
 
     /* (non-Javadoc)
@@ -275,11 +275,11 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
         }
 
         try{
-        	return resourceManager.createFont(FontDescriptor.createFrom(descriptor));
-		} catch (Exception e) {
-			PydevPlugin.log(e);
-			return null;
-		}
+            return resourceManager.createFont(FontDescriptor.createFrom(descriptor));
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+            return null;
+        }
 
     }
 
@@ -295,11 +295,11 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
         }
 
         try{
-        	return resourceManager.createColor(ColorDescriptor.createFrom(descriptor));
-		} catch (Exception e) {
-			PydevPlugin.log(e);
-			return null;
-		}
+            return resourceManager.createColor(ColorDescriptor.createFrom(descriptor));
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+            return null;
+        }
 
     }
 }

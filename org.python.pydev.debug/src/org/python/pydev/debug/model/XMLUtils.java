@@ -34,80 +34,80 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class XMLUtils {
 
-	static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+    static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 
-	static SAXParser getSAXParser() throws CoreException {
-		SAXParser parser = null;
-		try {
-			synchronized(parserFactory) {
-				parser = parserFactory.newSAXParser();
-			}
-		} catch (ParserConfigurationException e) {
-			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML SAX error", e));
-		} catch (SAXException e) {
-			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML SAX error", e));
-		}
-		return parser;
-	}
-	/**
-	 * SAX parser for thread info
-	 * <xml><thread name="name" id="id"/><xml>
-	 */
-	static class XMLToThreadInfo extends DefaultHandler {
-		
-		public AbstractDebugTarget target;
-		public List<PyThread> threads = new ArrayList<PyThread>();
-		
-		public XMLToThreadInfo(AbstractDebugTarget target) {
-			this.target = target;
-		}
+    static SAXParser getSAXParser() throws CoreException {
+        SAXParser parser = null;
+        try {
+            synchronized(parserFactory) {
+                parser = parserFactory.newSAXParser();
+            }
+        } catch (ParserConfigurationException e) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML SAX error", e));
+        } catch (SAXException e) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML SAX error", e));
+        }
+        return parser;
+    }
+    /**
+     * SAX parser for thread info
+     * <xml><thread name="name" id="id"/><xml>
+     */
+    static class XMLToThreadInfo extends DefaultHandler {
+        
+        public AbstractDebugTarget target;
+        public List<PyThread> threads = new ArrayList<PyThread>();
+        
+        public XMLToThreadInfo(AbstractDebugTarget target) {
+            this.target = target;
+        }
 
-		public void startElement(String uri, String localName, String qName,
-			Attributes attributes) throws SAXException {
-				if (qName.equals("thread")) {
-					String name = attributes.getValue("name");
-					String id = attributes.getValue("id");
-					try {
+        public void startElement(String uri, String localName, String qName,
+            Attributes attributes) throws SAXException {
+                if (qName.equals("thread")) {
+                    String name = attributes.getValue("name");
+                    String id = attributes.getValue("id");
+                    try {
                         if (name != null){
                             name = URLDecoder.decode(name, "UTF-8");
                         }
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
-					threads.add(new PyThread(target, name, id));
-				}
-		}
-	}
+                    threads.add(new PyThread(target, name, id));
+                }
+        }
+    }
 
-	/**
-	 * Creates IThread[] from the XML response
-	 */
-	static public PyThread[] ThreadsFromXML(AbstractDebugTarget target, String payload) throws CoreException {
-		try {
-			SAXParser parser = getSAXParser();
-			XMLToThreadInfo info = new XMLToThreadInfo(target);
-			parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
-			return (PyThread[]) info.threads.toArray(new PyThread[0]);
-			
-		} catch (CoreException e) {
-			throw e;
-		} catch (SAXException e) {
-			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
-		} catch (IOException e) {
-			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
-		}
-	}
+    /**
+     * Creates IThread[] from the XML response
+     */
+    static public PyThread[] ThreadsFromXML(AbstractDebugTarget target, String payload) throws CoreException {
+        try {
+            SAXParser parser = getSAXParser();
+            XMLToThreadInfo info = new XMLToThreadInfo(target);
+            parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
+            return (PyThread[]) info.threads.toArray(new PyThread[0]);
+            
+        } catch (CoreException e) {
+            throw e;
+        } catch (SAXException e) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
+        } catch (IOException e) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
+        }
+    }
 
-	/**
-	 * Creates a variable from XML attributes
-	 * <var name="self" type="ObjectType" value="<DeepThread>"/>
-	 */
-	static PyVariable createVariable(AbstractDebugTarget target, IVariableLocator locator, Attributes attributes) {
-		PyVariable var;
-		String name = attributes.getValue("name");
-		String type = attributes.getValue("type");
-		String value = attributes.getValue("value");
-		try {
+    /**
+     * Creates a variable from XML attributes
+     * <var name="self" type="ObjectType" value="<DeepThread>"/>
+     */
+    static PyVariable createVariable(AbstractDebugTarget target, IVariableLocator locator, Attributes attributes) {
+        PyVariable var;
+        String name = attributes.getValue("name");
+        String type = attributes.getValue("type");
+        String value = attributes.getValue("value");
+        try {
             if (value != null){
                 value = URLDecoder.decode(value, "UTF-8");
             }
@@ -115,45 +115,45 @@ public class XMLUtils {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-		String isContainer = attributes.getValue("isContainer");
-		if ("True".equals(isContainer)){
-			var = new PyVariableCollection(target, name, type, value, locator);
-		}else{ 
-			var = new PyVariable(target,  name, type, value, locator);
-		}
-		return var;
-	}
+        String isContainer = attributes.getValue("isContainer");
+        if ("True".equals(isContainer)){
+            var = new PyVariableCollection(target, name, type, value, locator);
+        }else{ 
+            var = new PyVariable(target,  name, type, value, locator);
+        }
+        return var;
+    }
 
-	/**
-	 * XMLToStack SAX traverse
-	 */
-	static class XMLToStackInfo extends DefaultHandler {
-		public PyThread thread;
-		public String stop_reason;
-		public List<IStackFrame> stack = new ArrayList<IStackFrame>();
-		public List<PyVariable> locals;
-		public AbstractDebugTarget target;
-		PyStackFrame currentFrame;
-		
-		public XMLToStackInfo(AbstractDebugTarget target) {
-			this.target = target;
-		}
+    /**
+     * XMLToStack SAX traverse
+     */
+    static class XMLToStackInfo extends DefaultHandler {
+        public PyThread thread;
+        public String stop_reason;
+        public List<IStackFrame> stack = new ArrayList<IStackFrame>();
+        public List<PyVariable> locals;
+        public AbstractDebugTarget target;
+        PyStackFrame currentFrame;
+        
+        public XMLToStackInfo(AbstractDebugTarget target) {
+            this.target = target;
+        }
 
-		private void startThread(Attributes attributes) throws SAXException {
-			String target_id = attributes.getValue("id");
-			thread = target.findThreadByID(target_id);
-			if (thread == null){
-				throw new SAXException("Thread not found ("+target_id+")");	// can happen when debugger has been destroyed
-			}
-			
-			stop_reason = attributes.getValue("stop_reason");
-		}
-		
-		private void startFrame(Attributes attributes) {
-			String name = attributes.getValue("name");
-			String id = attributes.getValue("id");
-			String file = attributes.getValue("file");
-			try {
+        private void startThread(Attributes attributes) throws SAXException {
+            String target_id = attributes.getValue("id");
+            thread = target.findThreadByID(target_id);
+            if (thread == null){
+                throw new SAXException("Thread not found ("+target_id+")");    // can happen when debugger has been destroyed
+            }
+            
+            stop_reason = attributes.getValue("stop_reason");
+        }
+        
+        private void startFrame(Attributes attributes) {
+            String name = attributes.getValue("name");
+            String id = attributes.getValue("id");
+            String file = attributes.getValue("file");
+            try {
                 if (file != null){
                     file = URLDecoder.decode(file, "UTF-8");
                     File tempFile = new File(file);
@@ -165,120 +165,120 @@ public class XMLUtils {
                 throw new RuntimeException(e);
             }
             
-			String line = attributes.getValue("line");
-			IPath filePath = new Path(file);
-			// Try to recycle old stack objects
-			currentFrame = thread.findStackFrameByID(id);
-			if (currentFrame == null){
-				currentFrame = new PyStackFrame(thread, id, name, filePath, Integer.parseInt(line), target);
-			} else { 
-				currentFrame.setName(name);
-				currentFrame.setPath(filePath);
-				currentFrame.setLine(Integer.parseInt(line));
-			}
-			stack.add(currentFrame);
-		}
-		
-		/**
-		 * Assign stack frames to thread.
-		 * Assign global variables to thread
-		 * Assign local variables to stack frame
-	     */
-		public void startElement(String uri, String localName, String qName,
-			Attributes attributes) throws SAXException {
-				/*       
-				 <xml>
-				   <thread id="id"/>
-						<frame id="id" name="functionName " file="file" line="line">
+            String line = attributes.getValue("line");
+            IPath filePath = new Path(file);
+            // Try to recycle old stack objects
+            currentFrame = thread.findStackFrameByID(id);
+            if (currentFrame == null){
+                currentFrame = new PyStackFrame(thread, id, name, filePath, Integer.parseInt(line), target);
+            } else { 
+                currentFrame.setName(name);
+                currentFrame.setPath(filePath);
+                currentFrame.setLine(Integer.parseInt(line));
+            }
+            stack.add(currentFrame);
+        }
+        
+        /**
+         * Assign stack frames to thread.
+         * Assign global variables to thread
+         * Assign local variables to stack frame
+         */
+        public void startElement(String uri, String localName, String qName,
+            Attributes attributes) throws SAXException {
+                /*       
+                 <xml>
+                   <thread id="id"/>
+                        <frame id="id" name="functionName " file="file" line="line">
                         
                             @deprecated: variables are no longer returned in this request (they are
                             gotten later in asynchronously to speed up the debugger).
-							<var scope="local" name="self" type="ObjectType" value="<DeepThread>"/>
+                            <var scope="local" name="self" type="ObjectType" value="<DeepThread>"/>
                             
-						</frame>*
-				 */
-				if (qName.equals("thread")){
-					startThread(attributes);
-					
-				}else if (qName.equals("frame")){ 
-					startFrame(attributes);
-					
-				}
-		}
-		
-	public void endElement(String uri, String localName, String qName)
-			throws SAXException {
-		}
+                        </frame>*
+                 */
+                if (qName.equals("thread")){
+                    startThread(attributes);
+                    
+                }else if (qName.equals("frame")){ 
+                    startFrame(attributes);
+                    
+                }
+        }
+        
+    public void endElement(String uri, String localName, String qName)
+            throws SAXException {
+        }
 
-	}
-	/**
-	 * @param payload
-	 * @return an array of [thread_id, stop_reason, IStackFrame[]]
-	 */
-	public static Object[] XMLToStack(AbstractDebugTarget target, String payload) throws CoreException {
-		IStackFrame[] stack;
-		Object[] retVal = new Object[3];
-		try {
-			SAXParser parser = getSAXParser();
-			XMLToStackInfo info = new XMLToStackInfo(target);
-			parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
-			
-			stack = info.stack.toArray(new IStackFrame[0]);
-			
-			retVal[0] = info.thread;
-			retVal[1] = info.stop_reason;
-			retVal[2] = stack;
-		} catch (CoreException e) {
-			throw e;
-		} catch (SAXException e) {
-			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error reading:"+payload, e));
-		} catch (IOException e) {
-			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected IO error reading xml:"+payload, e));
-		}
-		return retVal;
-	}
+    }
+    /**
+     * @param payload
+     * @return an array of [thread_id, stop_reason, IStackFrame[]]
+     */
+    public static Object[] XMLToStack(AbstractDebugTarget target, String payload) throws CoreException {
+        IStackFrame[] stack;
+        Object[] retVal = new Object[3];
+        try {
+            SAXParser parser = getSAXParser();
+            XMLToStackInfo info = new XMLToStackInfo(target);
+            parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
+            
+            stack = info.stack.toArray(new IStackFrame[0]);
+            
+            retVal[0] = info.thread;
+            retVal[1] = info.stop_reason;
+            retVal[2] = stack;
+        } catch (CoreException e) {
+            throw e;
+        } catch (SAXException e) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error reading:"+payload, e));
+        } catch (IOException e) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected IO error reading xml:"+payload, e));
+        }
+        return retVal;
+    }
 
 
-	/**
-	 * Processes CMD_GET_VARIABLE return
-	 *
-	 */
-	static class XMLToVariableInfo extends DefaultHandler {
-		private AbstractDebugTarget target;
-		private IVariableLocator locator;
-		public List<PyVariable> vars;
-		
-		public XMLToVariableInfo(AbstractDebugTarget target, IVariableLocator locator) {
-			this.target = target;
-			this.locator = locator;
-			vars = new ArrayList<PyVariable>();
-		}
-		
-		public void startElement(String uri, String localName, String qName,
-								Attributes attributes) throws SAXException {
-			// <var name="self" type="ObjectType" value="<DeepThread>"/>
-			// create a local variable, and add it to locals
-			if (qName.equals("var"))
-				vars.add(createVariable(target, locator, attributes));
-		}
-	}
+    /**
+     * Processes CMD_GET_VARIABLE return
+     *
+     */
+    static class XMLToVariableInfo extends DefaultHandler {
+        private AbstractDebugTarget target;
+        private IVariableLocator locator;
+        public List<PyVariable> vars;
+        
+        public XMLToVariableInfo(AbstractDebugTarget target, IVariableLocator locator) {
+            this.target = target;
+            this.locator = locator;
+            vars = new ArrayList<PyVariable>();
+        }
+        
+        public void startElement(String uri, String localName, String qName,
+                                Attributes attributes) throws SAXException {
+            // <var name="self" type="ObjectType" value="<DeepThread>"/>
+            // create a local variable, and add it to locals
+            if (qName.equals("var"))
+                vars.add(createVariable(target, locator, attributes));
+        }
+    }
 
-	public static PyVariable[] XMLToVariables(AbstractDebugTarget target, IVariableLocator locator, String payload) throws CoreException {
-		try {
-			SAXParser parser = getSAXParser();
-			XMLToVariableInfo info = new XMLToVariableInfo(target, locator);
-			parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
-			PyVariable[] vars = new PyVariable[info.vars.size()];
-			for (int i =0; i< info.vars.size(); i++)
-				vars[i] = (PyVariable)info.vars.get(i);
-			return vars;
-		} catch (CoreException e) {
-			throw e;
-		} catch (SAXException e) {
-			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
-		} catch (IOException e) {
-			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
-		}
-	}
+    public static PyVariable[] XMLToVariables(AbstractDebugTarget target, IVariableLocator locator, String payload) throws CoreException {
+        try {
+            SAXParser parser = getSAXParser();
+            XMLToVariableInfo info = new XMLToVariableInfo(target, locator);
+            parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
+            PyVariable[] vars = new PyVariable[info.vars.size()];
+            for (int i =0; i< info.vars.size(); i++)
+                vars[i] = (PyVariable)info.vars.get(i);
+            return vars;
+        } catch (CoreException e) {
+            throw e;
+        } catch (SAXException e) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
+        } catch (IOException e) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
+        }
+    }
 
 }

@@ -22,46 +22,46 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
  * the source for the particular string.
  */
 public class PydevDebugPrefs extends FieldEditorPreferencePage 
-	implements IWorkbenchPreferencePage{
+    implements IWorkbenchPreferencePage{
 
-	// Preferences	
-	public static final String GET_VARIABLE_TIMEOUT = "GET_VARIABLE_TIMEOUT";// GetVariable command timeout
-	public static final int DEFAULT_GET_VARIABLE_TIMEOUT = 30;
-	public static final String HIDE_PYDEVD_THREADS = "HIDE_PYDEVD_THREADS";
-	public static final boolean DEFAULT_HIDE_PYDEVD_THREADS = true;
-		
-	/**
-	 * Initializer sets the preference store
-	 */
-	public PydevDebugPrefs() {
-		super(GRID);
-		setPreferenceStore(PydevDebugPlugin.getDefault().getPreferenceStore());
-	}
+    // Preferences    
+    public static final String GET_VARIABLE_TIMEOUT = "GET_VARIABLE_TIMEOUT";// GetVariable command timeout
+    public static final int DEFAULT_GET_VARIABLE_TIMEOUT = 30;
+    public static final String HIDE_PYDEVD_THREADS = "HIDE_PYDEVD_THREADS";
+    public static final boolean DEFAULT_HIDE_PYDEVD_THREADS = true;
+        
+    /**
+     * Initializer sets the preference store
+     */
+    public PydevDebugPrefs() {
+        super(GRID);
+        setPreferenceStore(PydevDebugPlugin.getDefault().getPreferenceStore());
+    }
 
-	static public Preferences getPreferences() {
-		return 	PydevDebugPlugin.getDefault().getPluginPreferences();
-	}
-	
-	public void init(IWorkbench workbench) {		
-	}
-	
-	/**
-	 * Creates the editors
-	 */
-	protected void createFieldEditors() {
-		Composite p = getFieldEditorParent();
-		IntegerFieldEditor ife = new IntegerFieldEditor(
-		GET_VARIABLE_TIMEOUT, "Debugger get variable timeout (seconds)", p);
-		ife.setValidRange(1, 180);
-		// you can't restrict widget width on IntegerFieldEditor for now
-		addField(ife);
-	}
-	
-	/**
-	 * Sets default preference values
-	 */
-	protected static void initializeDefaultPreferences(Preferences prefs) {
-		prefs.setDefault(GET_VARIABLE_TIMEOUT, DEFAULT_GET_VARIABLE_TIMEOUT);
-		prefs.setDefault(HIDE_PYDEVD_THREADS, DEFAULT_HIDE_PYDEVD_THREADS);
-	}
+    static public Preferences getPreferences() {
+        return     PydevDebugPlugin.getDefault().getPluginPreferences();
+    }
+    
+    public void init(IWorkbench workbench) {        
+    }
+    
+    /**
+     * Creates the editors
+     */
+    protected void createFieldEditors() {
+        Composite p = getFieldEditorParent();
+        IntegerFieldEditor ife = new IntegerFieldEditor(
+        GET_VARIABLE_TIMEOUT, "Debugger get variable timeout (seconds)", p);
+        ife.setValidRange(1, 180);
+        // you can't restrict widget width on IntegerFieldEditor for now
+        addField(ife);
+    }
+    
+    /**
+     * Sets default preference values
+     */
+    protected static void initializeDefaultPreferences(Preferences prefs) {
+        prefs.setDefault(GET_VARIABLE_TIMEOUT, DEFAULT_GET_VARIABLE_TIMEOUT);
+        prefs.setDefault(HIDE_PYDEVD_THREADS, DEFAULT_HIDE_PYDEVD_THREADS);
+    }
 }

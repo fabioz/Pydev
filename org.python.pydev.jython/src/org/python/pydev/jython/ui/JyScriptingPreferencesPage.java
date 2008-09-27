@@ -12,20 +12,20 @@ import org.python.pydev.jython.JythonPlugin;
 
 public class JyScriptingPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage{
 
-	public static final String SHOW_SCRIPTING_OUTPUT = "SHOW_SCRIPTING_OUTPUT";
-	public static final boolean DEFAULT_SHOW_SCRIPTING_OUTPUT = false;
-	
-	public static final String LOG_SCRIPTING_ERRORS = "LOG_SCRIPTING_ERRORS";
-	public static final boolean DEFAULT_LOG_SCRIPTING_ERRORS = true;
+    public static final String SHOW_SCRIPTING_OUTPUT = "SHOW_SCRIPTING_OUTPUT";
+    public static final boolean DEFAULT_SHOW_SCRIPTING_OUTPUT = false;
+    
+    public static final String LOG_SCRIPTING_ERRORS = "LOG_SCRIPTING_ERRORS";
+    public static final boolean DEFAULT_LOG_SCRIPTING_ERRORS = true;
 
-	public static final String ADDITIONAL_SCRIPTING_LOCATION = "ADDITIONAL_SCRIPTING_LOCATION";
+    public static final String ADDITIONAL_SCRIPTING_LOCATION = "ADDITIONAL_SCRIPTING_LOCATION";
 
-	public JyScriptingPreferencesPage() {
+    public JyScriptingPreferencesPage() {
         super(GRID);
         //Set the preference store for the preference page.
         setPreferenceStore(JythonPlugin.getDefault().getPreferenceStore());      
-	}
-	
+    }
+    
     public void init(IWorkbench workbench) {
     }
 
@@ -54,7 +54,7 @@ public class JyScriptingPreferencesPage extends FieldEditorPreferencePage implem
      * @return if we should show the scripting output in a shell.
      */
     public static boolean getLogScriptingErrors(){
-    	return JythonPlugin.getDefault().getPreferenceStore().getBoolean(LOG_SCRIPTING_ERRORS);
+        return JythonPlugin.getDefault().getPreferenceStore().getBoolean(LOG_SCRIPTING_ERRORS);
     }
 
     /**
@@ -62,13 +62,13 @@ public class JyScriptingPreferencesPage extends FieldEditorPreferencePage implem
      * return null if none is specified or if one that is not a directory is specified.
      */
     public static File getAdditionalScriptingLocation(){
-    	String loc = JythonPlugin.getDefault().getPreferenceStore().getString(ADDITIONAL_SCRIPTING_LOCATION);
-    	if(loc != null && loc.trim().length() > 0){
-    		File file = new File(loc);
-    		if(file.exists() && file.isDirectory()){
-    			return file;
-    		}
-    	}
-    	return null;
+        String loc = JythonPlugin.getDefault().getPreferenceStore().getString(ADDITIONAL_SCRIPTING_LOCATION);
+        if(loc != null && loc.trim().length() > 0){
+            File file = new File(loc);
+            if(file.exists() && file.isDirectory()){
+                return file;
+            }
+        }
+        return null;
     }
 }

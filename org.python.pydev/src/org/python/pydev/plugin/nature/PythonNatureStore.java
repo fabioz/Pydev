@@ -97,7 +97,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     private volatile boolean inInit;  
     
     public String getLastLoadedContents(){
-    	return lastLoadedContents;
+        return lastLoadedContents;
     }
     
     private void traceFunc(String func, Object ... args){
@@ -137,19 +137,19 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                 
             }else{
                 traceFunc("setProject - ", project.getName());
-            	try{
-        	        this.project = project;
-        	        this.xmlFile = project.getFile(STORE_FILE_NAME);
-        	        try {
-        	            loadFromFile();
-        	        } catch (CoreException e) {
-        	            throw new RuntimeException("Error loading project: "+project, e);
-        	        }
-        	        if (!ProjectModulesManager.IN_TESTS) {
-        	            project.getWorkspace().addResourceChangeListener(this);
-        	        }
+                try{
+                    this.project = project;
+                    this.xmlFile = project.getFile(STORE_FILE_NAME);
+                    try {
+                        loadFromFile();
+                    } catch (CoreException e) {
+                        throw new RuntimeException("Error loading project: "+project, e);
+                    }
+                    if (!ProjectModulesManager.IN_TESTS) {
+                        project.getWorkspace().addResourceChangeListener(this);
+                    }
                 }finally{
-                	loaded = true;
+                    loaded = true;
                 }
                 traceFunc("END setProject - ", project.getName());
             }
@@ -160,7 +160,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      * @param function the function that is checking for load
      */
     private synchronized void checkLoad(String function) {
-    	if(!loaded){
+        if(!loaded){
             PydevPlugin.log(new RuntimeException(StringUtils.format("%s still not loaded and '%s' already called.", xmlFile, function)));
         }
     }
@@ -172,17 +172,17 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         if(this.project == null){
             return "";
         }
-    	checkLoad("getPathProperty");
+        checkLoad("getPathProperty");
         String ret = getPathStringFromArray(getPathPropertyFromXml(key));
         traceFunc("END getPathProperty - ", key, ret);
         return ret;
     }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.python.pydev.plugin.nature.IPythonNatureStore#setPathProperty(org.eclipse.core.runtime.QualifiedName, java.lang.String)
      */
     public synchronized void setPathProperty(QualifiedName key, String value) throws CoreException {
-    	checkLoad("setPathProperty");
+        checkLoad("setPathProperty");
         setPathPropertyToXml(key, getArrayFromPathString(value), true);
     }
 
@@ -225,16 +225,16 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                     return true;
                 }
             } else {
-            	String fileContents = REF.getFileContents(file);
-            	if(lastLoadedContents != null && fileContents.equals(lastLoadedContents)){
-            		return false;
-            	}
-            	lastLoadedContents = fileContents;
+                String fileContents = REF.getFileContents(file);
+                if(lastLoadedContents != null && fileContents.equals(lastLoadedContents)){
+                    return false;
+                }
+                lastLoadedContents = fileContents;
                 document = parser.parse(new ByteArrayInputStream(fileContents.getBytes()));
                 return true;
             }
         } catch (Exception e) {
-        	PydevPlugin.log("Error loading contents from .pydevproject", e);
+            PydevPlugin.log("Error loading contents from .pydevproject", e);
         }
     
         traceFunc("END loadFromFile");
@@ -245,14 +245,14 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     /**
      * @return the actual file from the IFile we have
      */
-	private File getRawXmlFileLocation() {
-		IPath rawLocation = xmlFile.getRawLocation();
-		File file = null;
-		if(rawLocation != null){
-			file = rawLocation.toFile();
-		}
-		return file;
-	}
+    private File getRawXmlFileLocation() {
+        IPath rawLocation = xmlFile.getRawLocation();
+        File file = null;
+        if(rawLocation != null){
+            file = rawLocation.toFile();
+        }
+        return file;
+    }
 
     private synchronized void migrateProperty(QualifiedName key) throws CoreException {
         traceFunc("migrateProperty");
@@ -288,7 +288,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      */
     private synchronized Node getRootNodeInXml() {
         traceFunc("getRootNodeInXml");
-    	Assert.isNotNull(document);
+        Assert.isNotNull(document);
         NodeList nodeList = document.getElementsByTagName(PYDEV_PROJECT_DESCRIPTION);
         Node ret = null;
         if (nodeList != null && nodeList.getLength() > 0) {
@@ -445,7 +445,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
         traceFunc("getPropertyFromXml - ", key);
         synchronized (this) {
-        	checkLoad("getPropertyFromXml");
+            checkLoad("getPropertyFromXml");
             try {
                 Node propertyNode = findPropertyNodeInXml(PYDEV_NATURE_PROPERTY, key);
     
@@ -470,9 +470,9 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     public synchronized void setPropertyToXml(QualifiedName key, String value, boolean store) throws CoreException {
         traceFunc(StringUtils.format("setPropertyToXml key:%s value:%s store:%s", key, value, store));
         synchronized (this) {
-        	if(store){
-        		checkLoad("setPropertyToXml");
-        	}
+            if(store){
+                checkLoad("setPropertyToXml");
+            }
             try {
                 Node child = findPropertyNodeInXml(PYDEV_NATURE_PROPERTY, key);
                 if (child != null) {
@@ -492,11 +492,11 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                     getRootNodeInXml().appendChild(property);
     
                 }else{
-                	store = false;
+                    store = false;
                 }
     
                 if (store) {
-                	doStore();
+                    doStore();
                 }
                 
             } catch (Exception e) {
@@ -574,7 +574,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         traceFunc("hasTextContent");
         
         boolean ret = child.getNodeType() != Node.COMMENT_NODE && 
-        			  child.getNodeType() != Node.PROCESSING_INSTRUCTION_NODE;
+                      child.getNodeType() != Node.PROCESSING_INSTRUCTION_NODE;
         
         traceFunc("END hasTextContent ", ret);
         return ret;
@@ -637,11 +637,11 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                         getRootNodeInXml().replaceChild(property, oldChild);
                     }
                 }else{
-                	store = false;
+                    store = false;
                 }
                 
                 if (store) {
-                	doStore();
+                    doStore();
                 }
     
             } catch (Exception e) {
@@ -744,30 +744,30 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                 return new Status(Status.ERROR, "PythonNatureStore.doStore", -2, "document == null", new RuntimeException("document == null"));
             }
 
-        	File file = getRawXmlFileLocation();
-        	
-        	try {
-        		//Ok, we may receive multiple requests at once (e.g.: when updating the version and the pythonpath together), but
-        		//as the file is pretty small, there should be no problems in writing it directly (if that proves a problem later on, we
-        		//could have a *very* simple mechanism for saving it after some millis)
-        		String str = new String(serializeDocument(document));
-        		lastLoadedContents = str;
-        		
-        		if(file == null){
-        			if (!ProjectModulesManager.IN_TESTS) {
-        				//if we're not in tests, let's log this, as it'd be an error.
-        				PydevPlugin.log("Error: xml file should only be null in tests (when no workspace is available)");
-        			}
-        			return Status.OK_STATUS;
-        		}
-				
-				if(TRACE_PYTHON_NATURE_STORE){
-					System.out.println("Writing to file: "+file+" "+str);
-				}
-				REF.writeStrToFile(str, file);
-			} catch (Exception e) {
-				PydevPlugin.log("Unable to write contents of file: "+file, e);
-			}
+            File file = getRawXmlFileLocation();
+            
+            try {
+                //Ok, we may receive multiple requests at once (e.g.: when updating the version and the pythonpath together), but
+                //as the file is pretty small, there should be no problems in writing it directly (if that proves a problem later on, we
+                //could have a *very* simple mechanism for saving it after some millis)
+                String str = new String(serializeDocument(document));
+                lastLoadedContents = str;
+                
+                if(file == null){
+                    if (!ProjectModulesManager.IN_TESTS) {
+                        //if we're not in tests, let's log this, as it'd be an error.
+                        PydevPlugin.log("Error: xml file should only be null in tests (when no workspace is available)");
+                    }
+                    return Status.OK_STATUS;
+                }
+                
+                if(TRACE_PYTHON_NATURE_STORE){
+                    System.out.println("Writing to file: "+file+" "+str);
+                }
+                REF.writeStrToFile(str, file);
+            } catch (Exception e) {
+                PydevPlugin.log("Unable to write contents of file: "+file, e);
+            }
             
             traceFunc("END doStore");
             return Status.OK_STATUS;

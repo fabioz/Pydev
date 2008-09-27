@@ -167,7 +167,7 @@ public final class TreeBuilder24 implements PythonGrammar24TreeConstants {
             addSpecialsAndClearOriginal(n, name);
             return name;
         case JJTNUM:
-        	Object[] numimage = (Object[]) n.getImage();
+            Object[] numimage = (Object[]) n.getImage();
             return new Num(numimage[0], (Integer)numimage[1], (String)numimage[2]);
         case JJTUNICODE:
         case JJTSTRING:
@@ -801,13 +801,13 @@ public final class TreeBuilder24 implements PythonGrammar24TreeConstants {
         }
     }
 
-	private void setParentForFuncOrClass(stmtType[] body, SimpleNode classDef) {
-		for(stmtType b:body){
-			if(b instanceof ClassDef || b instanceof FunctionDef){
-				b.parent = classDef;
-			}
-		}
-	}
+    private void setParentForFuncOrClass(stmtType[] body, SimpleNode classDef) {
+        for(stmtType b:body){
+            if(b instanceof ClassDef || b instanceof FunctionDef){
+                b.parent = classDef;
+            }
+        }
+    }
 
     private suiteType popSuiteAndSuiteType() {
         Suite s = (Suite) stack.popNode();

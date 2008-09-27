@@ -40,44 +40,44 @@ public interface IIndentPrefs {
     /**
      * @return the indentation string based on the current settings.
      */
-	public String getIndentationString();
+    public String getIndentationString();
 
-	/**
-	 * Given the current settings, convert the current string to tabs or spaces.
-	 */
-	public void convertToStd(IDocument document, DocumentCommand command);
-	
-	/**
-	 * @return whether we should auto-close parentesis
-	 */
-	public boolean getAutoParentesis();
-	
-	/**
-	 * Get whether or not to do colon detection.
-	 * @return true iff colon detection is turned on
-	 */
-	public boolean getAutoColon();
-	
-	/**
-	 * Get whether or not to auto-skip braces insertion  
-	 * @return iff auto-skip braces is ENABLED
-	 */
-	public boolean getAutoBraces();
-	
-	/**
-	 * Get whether we should auto-write 'import' if we are in a from xxx import fff
-	 */
-	public boolean getAutoWriteImport();
-	
-	/**
-	 * Get whether we should smart-indent after a '('
-	 */
-	public boolean getSmartIndentPar();
-	
-	/**
-	 * Get whether we should add 'self' automatically when declaring method
-	 */
-	public boolean getAutoAddSelf();
+    /**
+     * Given the current settings, convert the current string to tabs or spaces.
+     */
+    public void convertToStd(IDocument document, DocumentCommand command);
+    
+    /**
+     * @return whether we should auto-close parentesis
+     */
+    public boolean getAutoParentesis();
+    
+    /**
+     * Get whether or not to do colon detection.
+     * @return true iff colon detection is turned on
+     */
+    public boolean getAutoColon();
+    
+    /**
+     * Get whether or not to auto-skip braces insertion  
+     * @return iff auto-skip braces is ENABLED
+     */
+    public boolean getAutoBraces();
+    
+    /**
+     * Get whether we should auto-write 'import' if we are in a from xxx import fff
+     */
+    public boolean getAutoWriteImport();
+    
+    /**
+     * Get whether we should smart-indent after a '('
+     */
+    public boolean getSmartIndentPar();
+    
+    /**
+     * Get whether we should add 'self' automatically when declaring method
+     */
+    public boolean getAutoAddSelf();
 
     /**
      * Get whether we should auto-dedent 'else:'
@@ -92,5 +92,5 @@ public interface IIndentPrefs {
     /**
      * Should be called to regenerate the indent string that's in the cache.
      */
-	public void regenerateIndentString();
+    public void regenerateIndentString();
 }

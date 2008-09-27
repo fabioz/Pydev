@@ -42,8 +42,8 @@ public class PythonLabelProvider implements ILabelProvider{
             return node.entry.getImage();
         }
         if(element instanceof IWrappedResource){
-        	IWrappedResource resource = (IWrappedResource) element;
-			return provider.getImage(resource.getActualObject());
+            IWrappedResource resource = (IWrappedResource) element;
+            return provider.getImage(resource.getActualObject());
         }
         return provider.getImage(element);
     }
@@ -62,8 +62,8 @@ public class PythonLabelProvider implements ILabelProvider{
             return provider.getText(sourceFolder.container);
         }
         if(element instanceof IWrappedResource){
-        	IWrappedResource resource = (IWrappedResource) element;
-        	return provider.getText(resource.getActualObject());
+            IWrappedResource resource = (IWrappedResource) element;
+            return provider.getText(resource.getActualObject());
         }
         return provider.getText(element);
     }

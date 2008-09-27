@@ -13,30 +13,30 @@ import org.eclipse.swt.widgets.TableItem;
 
 public class SimpleTableItem extends TableItem {
 
-	private String realName;
+    private String realName;
 
-	public SimpleTableItem(Table parent, String name) {
-		super(parent, SWT.None);
-		this.realName = name;
-		setText(realName);
-	}
+    public SimpleTableItem(Table parent, String name) {
+        super(parent, SWT.None);
+        this.realName = name;
+        setText(realName);
+    }
 
-	public SimpleTableItem(Table parent, String originalName, String text, int pos) {
-		super(parent, SWT.None, pos);
-		this.realName = originalName;
-		setText(text);
-	}
+    public SimpleTableItem(Table parent, String originalName, String text, int pos) {
+        super(parent, SWT.None, pos);
+        this.realName = originalName;
+        setText(text);
+    }
 
-	public String getOriginalName() {
-		return realName;
-	}
+    public String getOriginalName() {
+        return realName;
+    }
 
-	@Override
-	protected void checkSubclass() {
-	}
+    @Override
+    protected void checkSubclass() {
+    }
 
-	public boolean hasNewName() {
-		return this.realName.compareTo(getText()) != 0;
-	}
+    public boolean hasNewName() {
+        return this.realName.compareTo(getText()) != 0;
+    }
 
 }

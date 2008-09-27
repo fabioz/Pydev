@@ -21,86 +21,86 @@ import org.python.pydev.refactoring.ast.visitors.NodeHelper;
 
 public class LocalVarRenameVisitor extends VisitorBase {
 
-	private Map<String, String> renameMap;
+    private Map<String, String> renameMap;
 
-	private NodeHelper nodeHelper;
+    private NodeHelper nodeHelper;
 
-	public LocalVarRenameVisitor(String endLineDelim) {
-		this.renameMap = new HashMap<String, String>();
-		this.nodeHelper = new NodeHelper(endLineDelim);
-	}
+    public LocalVarRenameVisitor(String endLineDelim) {
+        this.renameMap = new HashMap<String, String>();
+        this.nodeHelper = new NodeHelper(endLineDelim);
+    }
 
-	public void visit(SimpleNode node) throws Exception {
-		if (node == null)
-			return;
+    public void visit(SimpleNode node) throws Exception {
+        if (node == null)
+            return;
 
-		if (nodeHelper.isFunctionOrClassDef(node))
-			return;
+        if (nodeHelper.isFunctionOrClassDef(node))
+            return;
 
-		node.accept(this);
-	}
+        node.accept(this);
+    }
 
-	@Override
-	public void traverse(SimpleNode node) throws Exception {
-		if (node != null) {
-			node.traverse(this);
-		}
-	}
+    @Override
+    public void traverse(SimpleNode node) throws Exception {
+        if (node != null) {
+            node.traverse(this);
+        }
+    }
 
-	@Override
-	public Object visitName(Name node) throws Exception {
-		if (renameMap.containsKey(node.id)) {
-			node.id = renameMap.get(node.id);
-		}
-		return null;
-	}
+    @Override
+    public Object visitName(Name node) throws Exception {
+        if (renameMap.containsKey(node.id)) {
+            node.id = renameMap.get(node.id);
+        }
+        return null;
+    }
 
-	@Override
-	public Object visitNameTok(NameTok node) throws Exception {
-		if (renameMap.containsKey(node.id)) {
-			node.id = renameMap.get(node.id);
-		}
-		return null;
-	}
+    @Override
+    public Object visitNameTok(NameTok node) throws Exception {
+        if (renameMap.containsKey(node.id)) {
+            node.id = renameMap.get(node.id);
+        }
+        return null;
+    }
 
-	@Override
-	public Object visitFunctionDef(FunctionDef node) throws Exception {
-		// ignore function name
-		visit(node.args);
-		visit(node.body);
-		return null;
-	}
+    @Override
+    public Object visitFunctionDef(FunctionDef node) throws Exception {
+        // ignore function name
+        visit(node.args);
+        visit(node.body);
+        return null;
+    }
 
-	private void visit(argumentsType args) throws Exception {
-		visit(args.args);
-		visit(args.vararg);
-		visit(args.kwarg);
-	}
+    private void visit(argumentsType args) throws Exception {
+        visit(args.args);
+        visit(args.vararg);
+        visit(args.kwarg);
+    }
 
-	@Override
-	public Object visitAttribute(Attribute node) throws Exception {
-		visit(node.value);
-		return null;
-	}
+    @Override
+    public Object visitAttribute(Attribute node) throws Exception {
+        visit(node.value);
+        return null;
+    }
 
-	private void visit(SimpleNode[] nodes) throws Exception {
-		for (SimpleNode node : nodes) {
-			visit(node);
-		}
-	}
+    private void visit(SimpleNode[] nodes) throws Exception {
+        for (SimpleNode node : nodes) {
+            visit(node);
+        }
+    }
 
-	@Override
-	protected Object unhandled_node(SimpleNode node) throws Exception {
-		return null;
-	}
+    @Override
+    protected Object unhandled_node(SimpleNode node) throws Exception {
+        return null;
+    }
 
-	/**
-	 * 
-	 * @param renameMap
-	 *            Contains association oldName => newName
-	 */
-	public void setRenameMap(Map<String, String> renameMap) {
-		this.renameMap = renameMap;
-	}
+    /**
+     * 
+     * @param renameMap
+     *            Contains association oldName => newName
+     */
+    public void setRenameMap(Map<String, String> renameMap) {
+        this.renameMap = renameMap;
+    }
 
 }

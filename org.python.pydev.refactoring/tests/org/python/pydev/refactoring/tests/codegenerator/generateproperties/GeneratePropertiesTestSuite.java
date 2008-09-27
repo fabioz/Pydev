@@ -13,17 +13,17 @@ import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
 
 public class GeneratePropertiesTestSuite extends AbstractIOTestSuite {
 
-	public static Test suite() {
-		TESTDIR = "tests" + File.separator + "python" + File.separator + "codegenerator" + File.separator + "generateproperties";
-		GeneratePropertiesTestSuite testSuite = new GeneratePropertiesTestSuite();
+    public static Test suite() {
+        TESTDIR = "tests" + File.separator + "python" + File.separator + "codegenerator" + File.separator + "generateproperties";
+        GeneratePropertiesTestSuite testSuite = new GeneratePropertiesTestSuite();
 
-		testSuite.createTests();
+        testSuite.createTests();
 
-		return testSuite;
-	}
+        return testSuite;
+    }
 
-	@Override
-	protected IInputOutputTestCase createTestCase(String testCaseName) {
-		return new GeneratePropertiesTestCase(testCaseName);
-	}
+    @Override
+    protected IInputOutputTestCase createTestCase(String testCaseName) {
+        return new GeneratePropertiesTestCase(testCaseName);
+    }
 }

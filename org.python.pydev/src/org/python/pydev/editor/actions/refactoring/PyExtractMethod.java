@@ -20,10 +20,10 @@ public class PyExtractMethod extends PyRefactorAction {
     /**
      * we need:
      * 
-	 *  def extract(self, filename_path, 
-	 *              begin_line, begin_col,
-	 *              end_line, end_col, 
-	 *              name):
+     *  def extract(self, filename_path, 
+     *              begin_line, begin_col,
+     *              end_line, end_col, 
+     *              name):
      * @throws BadLocationException
      * @throws CoreException
      */
@@ -32,7 +32,7 @@ public class PyExtractMethod extends PyRefactorAction {
         
         String res = "";
         if(name.equals("") == false){
-	        res = getPyRefactoring().extract(getRefactoringRequest(name, monitor));
+            res = getPyRefactoring().extract(getRefactoringRequest(name, monitor));
         }
         return res;
 

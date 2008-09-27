@@ -132,13 +132,13 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
         fInterpreterComboField = new Combo (comp, SWT.DROP_DOWN);
         String[] interpreters = this.fInterpreterManager.getInterpreters();
         if (interpreters.length > 0){
-        	// There is at least one interpreter defined, add the default interpreter option at the beginning.
+            // There is at least one interpreter defined, add the default interpreter option at the beginning.
             String[] interpreterNames = interpreters;
             interpreters = new String[interpreterNames.length+1];
             interpreters[0] = InterpreterTab.DEFAULT_INTERPRETER_NAME;
             
             for (int i = 0; i < interpreterNames.length; i ++){
-            	interpreters[i+1] = interpreterNames[i];
+                interpreters[i+1] = interpreterNames[i];
             }
         }
         fInterpreterComboField.setItems (interpreters);
@@ -148,9 +148,9 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
         data.horizontalSpan = 2;
         fInterpreterComboField.setLayoutData (data);
         fInterpreterComboField.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				updateLaunchConfigurationDialog();
-			}
+            public void modifyText(ModifyEvent e) {
+                updateLaunchConfigurationDialog();
+            }
         });
         
         fButtonSeeResultingCommandLine = new Button (comp, SWT.NONE);
@@ -255,23 +255,23 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
             
             if (interpreter.equals(Constants.ATTR_INTERPRETER_DEFAULT))
             {
-            	selectThis = 0;
+                selectThis = 0;
             }
             else {
-            	for (int i=1; i< interpreters.length; i++){
-            		if (interpreter.equals(interpreters[i])){
-            			selectThis = i;
-            			break;
-            		}
-            	}
+                for (int i=1; i< interpreters.length; i++){
+                    if (interpreter.equals(interpreters[i])){
+                        selectThis = i;
+                        break;
+                    }
+                }
             }
             
             if (selectThis == -1) {
-            	if (interpreter.startsWith("${")) {
-            		fInterpreterComboField.setText(interpreter);
-            	}else{
-            		setErrorMessage("Obsolete interpreter is selected. Choose a new one.");
-            	}
+                if (interpreter.startsWith("${")) {
+                    fInterpreterComboField.setText(interpreter);
+                }else{
+                    setErrorMessage("Obsolete interpreter is selected. Choose a new one.");
+                }
             }else{
                 fInterpreterComboField.select(selectThis);
             }
@@ -286,11 +286,11 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
         String value;        
 
         if (fInterpreterComboField.getSelectionIndex() == 0){
-        	// The default was selected
-        	value = Constants.ATTR_INTERPRETER_DEFAULT;
-        	
+            // The default was selected
+            value = Constants.ATTR_INTERPRETER_DEFAULT;
+            
         }else{
-        	value = fInterpreterComboField.getText();
+            value = fInterpreterComboField.getText();
         }
         setAttribute(configuration, Constants.ATTR_INTERPRETER, value);
     }
@@ -300,15 +300,15 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
      * @return true if the interpreter is configured in pydev
      */
     protected boolean checkIfInterpreterExists(String interpreter) {
-    	if (interpreter.equals(Constants.ATTR_INTERPRETER_DEFAULT))	{
-    	    if(this.fInterpreterManager.getDefaultInterpreter() != null){
-    			// The default interpreter is selected, and we have a default interpreter
-	    		return true;
-	    	}
-	    	//otherwise, the default is selected, but we have no default
-	    	return false;
-    	}
-    	
+        if (interpreter.equals(Constants.ATTR_INTERPRETER_DEFAULT))    {
+            if(this.fInterpreterManager.getDefaultInterpreter() != null){
+                // The default interpreter is selected, and we have a default interpreter
+                return true;
+            }
+            //otherwise, the default is selected, but we have no default
+            return false;
+        }
+        
         String[] interpreters = this.fInterpreterManager.getInterpreters();
         for (int i = 0; i < interpreters.length; i++) {
             if (interpreters[i] != null && interpreters[i].equals(interpreter)) {
@@ -316,7 +316,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
             }
         }
         if(interpreter.startsWith("${")){
-        	return true;
+            return true;
         }
         return false;
     }
@@ -336,7 +336,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.AbstractLaunchConfigurationTab#setLaunchConfigurationDialog(org.eclipse.debug.ui.ILaunchConfigurationDialog)
      */
-	public void setLaunchConfigurationDialog(ILaunchConfigurationDialog dialog) {
-		super.setLaunchConfigurationDialog(dialog);
-	}	    
+    public void setLaunchConfigurationDialog(ILaunchConfigurationDialog dialog) {
+        super.setLaunchConfigurationDialog(dialog);
+    }        
 }

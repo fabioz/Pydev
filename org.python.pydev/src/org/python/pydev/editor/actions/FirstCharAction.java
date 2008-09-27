@@ -14,20 +14,20 @@ public class FirstCharAction extends PyAction {
    * Run to the first char (other than whitespaces) or to the real first char. 
    */
   public void run(IAction action) {
-	
-	try{
-	    ITextEditor textEditor = getTextEditor();
-	    IDocument doc = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
-	    ITextSelection selection = (ITextSelection)textEditor.getSelectionProvider().getSelection();
-	    
-		boolean isAtFirstChar = isAtFirstVisibleChar(doc, selection.getOffset());
-	    if (! isAtFirstChar){
-			gotoFirstVisibleChar(doc, selection.getOffset());
-	    }else{
-			gotoFirstChar(doc, selection.getOffset());
-	    }
-	}catch(Exception e){
-		beep(e);
-	}
+    
+    try{
+        ITextEditor textEditor = getTextEditor();
+        IDocument doc = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
+        ITextSelection selection = (ITextSelection)textEditor.getSelectionProvider().getSelection();
+        
+        boolean isAtFirstChar = isAtFirstVisibleChar(doc, selection.getOffset());
+        if (! isAtFirstChar){
+            gotoFirstVisibleChar(doc, selection.getOffset());
+        }else{
+            gotoFirstChar(doc, selection.getOffset());
+        }
+    }catch(Exception e){
+        beep(e);
+    }
   }
 }

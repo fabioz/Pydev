@@ -47,12 +47,12 @@ public class PyProjectProperties extends PropertyPage {
      */
     private TreeWithAddRemove treeExternalLibs;
     
-	/**
-	 * Creates contents given its parent.
-	 */
-	protected Control createContents(Composite p) {
-		project = (IProject)getElement().getAdapter(IProject.class);
-		
+    /**
+     * Creates contents given its parent.
+     */
+    protected Control createContents(Composite p) {
+        project = (IProject)getElement().getAdapter(IProject.class);
+        
         Composite topComp= new Composite(p, SWT.NONE);
         GridLayout innerLayout= new GridLayout();
         innerLayout.numColumns= 1;
@@ -63,21 +63,21 @@ public class PyProjectProperties extends PropertyPage {
         topComp.setLayoutData(gd);
         
         
-		GridData data = new GridData ();
+        GridData data = new GridData ();
 
-		if(project != null){
-		    try {
-		    	String sourcePath = PythonNature.getPythonPathNature(project).getProjectSourcePath();
+        if(project != null){
+            try {
+                String sourcePath = PythonNature.getPythonPathNature(project).getProjectSourcePath();
                 String externalSourcePath = PythonNature.getPythonPathNature(project).getProjectExternalSourcePath();
 
                 Label l2 = new Label(topComp, SWT.None);
-		    	l2.setText("Project Source Folders (and zips/jars/eggs).");
-		    	gd = new GridData();
-		    	gd.grabExcessHorizontalSpace = true;
-		    	gd.grabExcessVerticalSpace = false;
-		    	l2.setLayoutData(gd);
+                l2.setText("Project Source Folders (and zips/jars/eggs).");
+                gd = new GridData();
+                gd.grabExcessHorizontalSpace = true;
+                gd.grabExcessVerticalSpace = false;
+                l2.setLayoutData(gd);
 
-		    	
+                
                 treeSourceFolders = new TreeWithAddRemove(topComp, 0, project, sourcePath);
                 data = new GridData(GridData.FILL_BOTH);
                 data.grabExcessHorizontalSpace = true;
@@ -87,12 +87,12 @@ public class PyProjectProperties extends PropertyPage {
 
                 
                 
-		    	l2 = new Label(topComp, SWT.None);
-		    	l2.setText("External Source Folders (and zips/jars/eggs).");
-		    	gd = new GridData();
-		    	gd.grabExcessHorizontalSpace = true;
-		    	gd.grabExcessVerticalSpace = false;
-		    	l2.setLayoutData(gd);
+                l2 = new Label(topComp, SWT.None);
+                l2.setText("External Source Folders (and zips/jars/eggs).");
+                gd = new GridData();
+                gd.grabExcessHorizontalSpace = true;
+                gd.grabExcessVerticalSpace = false;
+                l2.setLayoutData(gd);
 
                 treeExternalLibs = new TreeWithAddRemove(topComp, 0, project, externalSourcePath) {
                     protected String getImageConstant() {
@@ -128,10 +128,10 @@ public class PyProjectProperties extends PropertyPage {
             } catch (Exception e) {
                 PydevPlugin.log(e);
             }
-		    
-		}
-		return topComp;
-	}
+            
+        }
+        return topComp;
+    }
 
 
     /**
@@ -140,15 +140,15 @@ public class PyProjectProperties extends PropertyPage {
      * @see org.eclipse.jface.preference.PreferencePage#performApply()
      */
     protected void performApply() {
-		doIt(false);
+        doIt(false);
     }
     
     /**
-	 * Saves values into the project and updates the code completion. 
-	 */
-	public boolean performOk() {
-		return doIt(false);
-	}
+     * Saves values into the project and updates the code completion. 
+     */
+    public boolean performOk() {
+        return doIt(false);
+    }
 
     /**
      * Save the pythonpath - only updates model if asked to.
@@ -156,36 +156,36 @@ public class PyProjectProperties extends PropertyPage {
      */
     private boolean doIt(boolean force) {
         if (project != null) {
-			try {
-			    boolean changed = false;
-			    IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
-			    
+            try {
+                boolean changed = false;
+                IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
+                
                 String sourcePath = pythonPathNature.getProjectSourcePath();
-			    String externalSourcePath = pythonPathNature.getProjectExternalSourcePath();
-			    
-			    String newSourcePath = treeSourceFolders.getTreeItemsAsStr();
-			    String newExternalSourcePath = treeExternalLibs.getTreeItemsAsStr();
-			    
-			    
-			    if(sourcePath ==  null || sourcePath.equals(newSourcePath) == false){
-			        pythonPathNature.setProjectSourcePath(newSourcePath);
-					changed = true;
-			    }				
+                String externalSourcePath = pythonPathNature.getProjectExternalSourcePath();
+                
+                String newSourcePath = treeSourceFolders.getTreeItemsAsStr();
+                String newExternalSourcePath = treeExternalLibs.getTreeItemsAsStr();
+                
+                
+                if(sourcePath ==  null || sourcePath.equals(newSourcePath) == false){
+                    pythonPathNature.setProjectSourcePath(newSourcePath);
+                    changed = true;
+                }                
 
-			    if(externalSourcePath ==  null || externalSourcePath.equals(newExternalSourcePath) == false){
-			        pythonPathNature.setProjectExternalSourcePath(newExternalSourcePath);
-					changed = true;
-			    }				
+                if(externalSourcePath ==  null || externalSourcePath.equals(newExternalSourcePath) == false){
+                    pythonPathNature.setProjectExternalSourcePath(newExternalSourcePath);
+                    changed = true;
+                }                
 
-			    PythonNature pythonNature = PythonNature.getPythonNature(project);
-			    if(pythonNature != null && (changed || force || pythonNature.getAstManager() == null)){
-			        pythonNature.rebuildPath();
-			    }
-				
-			} catch (Exception e) {
-				PydevPlugin.log(IStatus.ERROR, "Unexpected error setting project properties", e);
-			}
-		}
-		return true;
+                PythonNature pythonNature = PythonNature.getPythonNature(project);
+                if(pythonNature != null && (changed || force || pythonNature.getAstManager() == null)){
+                    pythonNature.rebuildPath();
+                }
+                
+            } catch (Exception e) {
+                PydevPlugin.log(IStatus.ERROR, "Unexpected error setting project properties", e);
+            }
+        }
+        return true;
     }
 }

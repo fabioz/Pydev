@@ -21,73 +21,73 @@ import org.python.pydev.refactoring.ui.model.overridemethods.FunctionTreeNode;
 
 public class OverrideMethodsRequestProcessor implements IRequestProcessor<OverrideMethodsRequest> {
 
-	private Object[] checked;
+    private Object[] checked;
 
-	private int insertionPoint;
+    private int insertionPoint;
 
-	private boolean generateMethodComments;
+    private boolean generateMethodComments;
 
-	private IClassDefAdapter origin;
+    private IClassDefAdapter origin;
 
     private String endLineDelim;
 
-	public OverrideMethodsRequestProcessor(IClassDefAdapter origin, String endLineDelim) {
-		checked = new Object[0];
-		insertionPoint = IOffsetStrategy.AFTERINIT;
-		this.origin = origin;
+    public OverrideMethodsRequestProcessor(IClassDefAdapter origin, String endLineDelim) {
+        checked = new Object[0];
+        insertionPoint = IOffsetStrategy.AFTERINIT;
+        this.origin = origin;
         this.endLineDelim = endLineDelim;
-	}
+    }
 
-	public void setCheckedElements(Object[] checked) {
-		this.checked = checked;
-	}
+    public void setCheckedElements(Object[] checked) {
+        this.checked = checked;
+    }
 
-	public void setInsertionPoint(int strategy) {
-		this.insertionPoint = strategy;
-	}
+    public void setInsertionPoint(int strategy) {
+        this.insertionPoint = strategy;
+    }
 
-	public void setGenerateMethodComments(boolean value) {
-		this.generateMethodComments = value;
-	}
+    public void setGenerateMethodComments(boolean value) {
+        this.generateMethodComments = value;
+    }
 
-	public List<OverrideMethodsRequest> getRefactoringRequests() {
-		List<OverrideMethodsRequest> requests = new ArrayList<OverrideMethodsRequest>();
+    public List<OverrideMethodsRequest> getRefactoringRequests() {
+        List<OverrideMethodsRequest> requests = new ArrayList<OverrideMethodsRequest>();
 
-		for (ClassTreeNode clazz : getClasses()) {
-			for (FunctionDefAdapter method : getMethods(clazz)) {
-				requests.add(new OverrideMethodsRequest(origin, insertionPoint, method, generateMethodComments, 
+        for (ClassTreeNode clazz : getClasses()) {
+            for (FunctionDefAdapter method : getMethods(clazz)) {
+                requests.add(new OverrideMethodsRequest(origin, insertionPoint, method, generateMethodComments, 
                         clazz.getAdapter().getName(), endLineDelim));
-			}
-		}
+            }
+        }
 
-		return requests;
-	}
+        return requests;
+    }
 
-	private List<FunctionDefAdapter> getMethods(ClassTreeNode parent) {
-		List<FunctionDefAdapter> methods = new ArrayList<FunctionDefAdapter>();
+    private List<FunctionDefAdapter> getMethods(ClassTreeNode parent) {
+        List<FunctionDefAdapter> methods = new ArrayList<FunctionDefAdapter>();
 
-		for (Object obj : checked) {
-			if (obj instanceof FunctionTreeNode) {
-				FunctionTreeNode method = (FunctionTreeNode) obj;
-				if (method.getParent() == parent) {
-					methods.add(method.getAdapter());
-				}
-			}
-		}
+        for (Object obj : checked) {
+            if (obj instanceof FunctionTreeNode) {
+                FunctionTreeNode method = (FunctionTreeNode) obj;
+                if (method.getParent() == parent) {
+                    methods.add(method.getAdapter());
+                }
+            }
+        }
 
-		return methods;
-	}
+        return methods;
+    }
 
-	private List<ClassTreeNode> getClasses() {
-		List<ClassTreeNode> classes = new ArrayList<ClassTreeNode>();
+    private List<ClassTreeNode> getClasses() {
+        List<ClassTreeNode> classes = new ArrayList<ClassTreeNode>();
 
-		for (Object obj : checked) {
-			if (obj instanceof ClassTreeNode) {
-				classes.add((ClassTreeNode) obj);
-			}
-		}
+        for (Object obj : checked) {
+            if (obj instanceof ClassTreeNode) {
+                classes.add((ClassTreeNode) obj);
+            }
+        }
 
-		return classes;
-	}
+        return classes;
+    }
 
 }

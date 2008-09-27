@@ -43,14 +43,14 @@ public class JavaElementToken extends CompiledToken {
      */
     static boolean HAS_ADDITIONAL_FLAGS = true;
     static{
-    	try{
-    		Method m = REF.findMethod(CompletionProposal.class, "getAdditionalFlags");
-    		if(m == null){
-    			HAS_ADDITIONAL_FLAGS = false;
-    		}
-    	}catch(Throwable e){
-    		HAS_ADDITIONAL_FLAGS = false;
-    	}
+        try{
+            Method m = REF.findMethod(CompletionProposal.class, "getAdditionalFlags");
+            if(m == null){
+                HAS_ADDITIONAL_FLAGS = false;
+            }
+        }catch(Throwable e){
+            HAS_ADDITIONAL_FLAGS = false;
+        }
     }
     
     protected JavaElementToken(String rep, String doc, String args, String parentPackage, int type, IJavaElement javaElement,
@@ -66,14 +66,14 @@ public class JavaElementToken extends CompiledToken {
     
     public JavaElementToken(String rep, String doc, String args, String parentPackage, int type, IJavaElement javaElement,
             CompletionProposal completionProposal) {
-    	super(rep, doc, args, parentPackage, type);
-    	this.javaElement = javaElement;
-    	this.completionProposalKind = completionProposal.getKind();
-    	this.completionProposalFlags = completionProposal.getFlags();
-    	if(HAS_ADDITIONAL_FLAGS){
-    		this.completionProposalAdditionalFlags = completionProposal.getAdditionalFlags();
-    	}
-    	this.completionPropsoalSignature = completionProposal.getSignature();
+        super(rep, doc, args, parentPackage, type);
+        this.javaElement = javaElement;
+        this.completionProposalKind = completionProposal.getKind();
+        this.completionProposalFlags = completionProposal.getFlags();
+        if(HAS_ADDITIONAL_FLAGS){
+            this.completionProposalAdditionalFlags = completionProposal.getAdditionalFlags();
+        }
+        this.completionPropsoalSignature = completionProposal.getSignature();
     }
     
     
@@ -84,7 +84,7 @@ public class JavaElementToken extends CompiledToken {
         CompletionProposal generatedProposal = CompletionProposal.create(completionProposalKind, 0);
         generatedProposal.setFlags(completionProposalFlags);
         if(HAS_ADDITIONAL_FLAGS){
-        	generatedProposal.setAdditionalFlags(completionProposalAdditionalFlags);
+            generatedProposal.setAdditionalFlags(completionProposalAdditionalFlags);
         }
         generatedProposal.setDeclarationSignature(completionPropsoalSignature);
         generatedProposal.setSignature(completionPropsoalSignature);

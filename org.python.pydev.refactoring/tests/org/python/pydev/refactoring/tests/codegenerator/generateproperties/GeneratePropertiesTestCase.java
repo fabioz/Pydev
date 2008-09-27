@@ -28,74 +28,74 @@ import com.thoughtworks.xstream.XStream;
 
 public class GeneratePropertiesTestCase extends AbstractIOTestCase {
 
-	private ArrayList<TextEdit> multiEdit;
+    private ArrayList<TextEdit> multiEdit;
 
-	public GeneratePropertiesTestCase(String name) {
-		super(name);
-	}
+    public GeneratePropertiesTestCase(String name) {
+        super(name);
+    }
 
-	protected void addEdit(TextEdit edit) {
-		multiEdit.add(edit);
-	}
+    protected void addEdit(TextEdit edit) {
+        multiEdit.add(edit);
+    }
 
-	@Override
-	public void runTest() throws Throwable {
-		MockupGeneratePropertiesConfig config = initConfig();
+    @Override
+    public void runTest() throws Throwable {
+        MockupGeneratePropertiesConfig config = initConfig();
 
-		MockupGeneratePropertiesRequestProcessor requestProcessor = setupRequestProcessor(config);
+        MockupGeneratePropertiesRequestProcessor requestProcessor = setupRequestProcessor(config);
 
-		IDocument refactoringDoc = applyGenerateProperties(requestProcessor);
+        IDocument refactoringDoc = applyGenerateProperties(requestProcessor);
 
-		this.setTestGenerated(refactoringDoc.get());
-		assertEquals(getExpected(), getGenerated());
-	}
+        this.setTestGenerated(refactoringDoc.get());
+        assertEquals(getExpected(), getGenerated());
+    }
 
-	private IDocument applyGenerateProperties(MockupGeneratePropertiesRequestProcessor requestProcessor) throws BadLocationException {
-		IDocument refactoringDoc = new Document(getSource());
-		MultiTextEdit multi = new MultiTextEdit();
-		for (GeneratePropertiesRequest req : requestProcessor.getRefactoringRequests()) {
-			SelectionState state = req.getSelectionState();
+    private IDocument applyGenerateProperties(MockupGeneratePropertiesRequestProcessor requestProcessor) throws BadLocationException {
+        IDocument refactoringDoc = new Document(getSource());
+        MultiTextEdit multi = new MultiTextEdit();
+        for (GeneratePropertiesRequest req : requestProcessor.getRefactoringRequests()) {
+            SelectionState state = req.getSelectionState();
 
-			if (state.isGetter()) {
-				multi.addChild(new GetterMethodEdit(req).getEdit());
-			}
-			if (state.isSetter()) {
-				multi.addChild(new SetterMethodEdit(req).getEdit());
-			}
-			if (state.isDelete()) {
-				multi.addChild(new DeleteMethodEdit(req).getEdit());
-			}
-			multi.addChild(new PropertyEdit(req).getEdit());
-		}
-		multi.apply(refactoringDoc);
-		return refactoringDoc;
-	}
+            if (state.isGetter()) {
+                multi.addChild(new GetterMethodEdit(req).getEdit());
+            }
+            if (state.isSetter()) {
+                multi.addChild(new SetterMethodEdit(req).getEdit());
+            }
+            if (state.isDelete()) {
+                multi.addChild(new DeleteMethodEdit(req).getEdit());
+            }
+            multi.addChild(new PropertyEdit(req).getEdit());
+        }
+        multi.apply(refactoringDoc);
+        return refactoringDoc;
+    }
 
-	private MockupGeneratePropertiesRequestProcessor setupRequestProcessor(MockupGeneratePropertiesConfig config) throws Throwable {
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()), new PythonNatureStub());
-		List<IClassDefAdapter> classes = module.getClasses();
-		assertTrue(classes.size() > 0);
+    private MockupGeneratePropertiesRequestProcessor setupRequestProcessor(MockupGeneratePropertiesConfig config) throws Throwable {
+        ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()), new PythonNatureStub());
+        List<IClassDefAdapter> classes = module.getClasses();
+        assertTrue(classes.size() > 0);
 
-		MockupGeneratePropertiesRequestProcessor requestProcessor = new MockupGeneratePropertiesRequestProcessor(module, config);
-		return requestProcessor;
-	}
+        MockupGeneratePropertiesRequestProcessor requestProcessor = new MockupGeneratePropertiesRequestProcessor(module, config);
+        return requestProcessor;
+    }
 
-	private MockupGeneratePropertiesConfig initConfig() {
-		MockupGeneratePropertiesConfig config = null;
-		XStream xstream = new XStream();
-		xstream.alias("config", MockupGeneratePropertiesConfig.class);
+    private MockupGeneratePropertiesConfig initConfig() {
+        MockupGeneratePropertiesConfig config = null;
+        XStream xstream = new XStream();
+        xstream.alias("config", MockupGeneratePropertiesConfig.class);
 
-		if (getConfig().length() > 0) {
-			config = (MockupGeneratePropertiesConfig) xstream.fromXML(getConfig());
-		} else {
-			fail("Could not unserialize configuration");
-		}
-		return config;
-	}
+        if (getConfig().length() > 0) {
+            config = (MockupGeneratePropertiesConfig) xstream.fromXML(getConfig());
+        } else {
+            fail("Could not unserialize configuration");
+        }
+        return config;
+    }
 
-	@Override
-	public String getExpected() {
-		return getResult();
-	}
+    @Override
+    public String getExpected() {
+        return getResult();
+    }
 
 }

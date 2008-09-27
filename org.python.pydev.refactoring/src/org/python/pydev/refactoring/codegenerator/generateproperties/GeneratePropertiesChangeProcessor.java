@@ -25,38 +25,38 @@ import org.python.pydev.refactoring.messages.Messages;
 
 public class GeneratePropertiesChangeProcessor extends AbstractFileChangeProcessor<GeneratePropertiesRequest> {
 
-	public GeneratePropertiesChangeProcessor(String name, RefactoringInfo info, IRequestProcessor<GeneratePropertiesRequest> requestProvider) {
-		super(name, info, requestProvider);
-	}
+    public GeneratePropertiesChangeProcessor(String name, RefactoringInfo info, IRequestProcessor<GeneratePropertiesRequest> requestProvider) {
+        super(name, info, requestProvider);
+    }
 
-	@Override
-	protected void processEdit() {
-		List<AbstractTextEdit> getters = new LinkedList<AbstractTextEdit>();
-		List<AbstractTextEdit> setters = new LinkedList<AbstractTextEdit>();
-		List<AbstractTextEdit> deleters = new LinkedList<AbstractTextEdit>();
-		
-		/* Collect all edits and assign thm to the corresponding editGroups. */
-		for (GeneratePropertiesRequest req : requestProcessor.getRefactoringRequests()) {
-			SelectionState state = req.getSelectionState();
+    @Override
+    protected void processEdit() {
+        List<AbstractTextEdit> getters = new LinkedList<AbstractTextEdit>();
+        List<AbstractTextEdit> setters = new LinkedList<AbstractTextEdit>();
+        List<AbstractTextEdit> deleters = new LinkedList<AbstractTextEdit>();
+        
+        /* Collect all edits and assign thm to the corresponding editGroups. */
+        for (GeneratePropertiesRequest req : requestProcessor.getRefactoringRequests()) {
+            SelectionState state = req.getSelectionState();
 
-			if (state.isGetter())
-				getters.add(new GetterMethodEdit(req));
-			
-			if (state.isSetter())
-				setters.add(new SetterMethodEdit(req));
-			
-			if (state.isDelete())
-				deleters.add(new DeleteMethodEdit(req));
-		}
+            if (state.isGetter())
+                getters.add(new GetterMethodEdit(req));
+            
+            if (state.isSetter())
+                setters.add(new SetterMethodEdit(req));
+            
+            if (state.isDelete())
+                deleters.add(new DeleteMethodEdit(req));
+        }
 
-		List<AbstractTextEdit> propertyEdits = new LinkedList<AbstractTextEdit>();
-		for (GeneratePropertiesRequest req : requestProcessor.getRefactoringRequests()) {
-			propertyEdits.add(new PropertyEdit(req));
-		}
-		
-		registerEdit(propertyEdits, Messages.generatePropertiesProperty);
-		registerEdit(getters, 		Messages.generatePropertiesGetter);
-		registerEdit(setters, 		Messages.generatePropertiesSetter);
-		registerEdit(deleters, 		Messages.generatePropertiesDelete);
-	}
+        List<AbstractTextEdit> propertyEdits = new LinkedList<AbstractTextEdit>();
+        for (GeneratePropertiesRequest req : requestProcessor.getRefactoringRequests()) {
+            propertyEdits.add(new PropertyEdit(req));
+        }
+        
+        registerEdit(propertyEdits, Messages.generatePropertiesProperty);
+        registerEdit(getters,         Messages.generatePropertiesGetter);
+        registerEdit(setters,         Messages.generatePropertiesSetter);
+        registerEdit(deleters,         Messages.generatePropertiesDelete);
+    }
 }

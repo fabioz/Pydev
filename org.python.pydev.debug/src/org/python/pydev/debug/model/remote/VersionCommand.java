@@ -12,26 +12,26 @@ package org.python.pydev.debug.model.remote;
  */
 public class VersionCommand extends AbstractDebuggerCommand {
 
-	static final String VERSION = "1.0";
-	
-	/**
-	 * @param debugger
-	 */
-	public VersionCommand(AbstractRemoteDebugger debugger) {
-		super(debugger);
-	}
+    static final String VERSION = "1.0";
+    
+    /**
+     * @param debugger
+     */
+    public VersionCommand(AbstractRemoteDebugger debugger) {
+        super(debugger);
+    }
 
-	public String getOutgoing() {
-		return makeCommand(CMD_VERSION, sequence, VERSION);
-	}
+    public String getOutgoing() {
+        return makeCommand(CMD_VERSION, sequence, VERSION);
+    }
 
-	public boolean needResponse() {
-		return true;
-	}
-	
-	public void processOKResponse(int cmdCode, String payload) {
-//		System.err.println("The version is " + payload);
+    public boolean needResponse() {
+        return true;
+    }
+    
+    public void processOKResponse(int cmdCode, String payload) {
+//        System.err.println("The version is " + payload);
 // not checking for versioning in 1.0, might come in useful later
-	}
+    }
 
 }

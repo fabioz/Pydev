@@ -18,52 +18,52 @@ import org.eclipse.ui.PartInitException;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 
 public class WatchExpressionAction implements IEditorActionDelegate {
-	private ITextSelection fSelection;
+    private ITextSelection fSelection;
 
-	public void setActiveEditor(IAction action, IEditorPart targetEditor) {		
-	}
+    public void setActiveEditor(IAction action, IEditorPart targetEditor) {        
+    }
 
-	public void run(IAction action) {
-		if (fSelection == null) {
-			return;
-		}
-		String text = fSelection.getText();
-		createExpression(text);	
-	}
+    public void run(IAction action) {
+        if (fSelection == null) {
+            return;
+        }
+        String text = fSelection.getText();
+        createExpression(text);    
+    }
 
-	public void selectionChanged(IAction action, ISelection selection) {
-		fSelection = null;        
+    public void selectionChanged(IAction action, ISelection selection) {
+        fSelection = null;        
         if (selection instanceof ITextSelection ) {
             fSelection = (ITextSelection) selection;
         }
-	}
-	
-	private void showExpressionsView() {		
-		IWorkbenchPage page = PydevDebugPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		IViewPart part = page.findView(IDebugUIConstants.ID_EXPRESSION_VIEW);
-		if (part == null) {
-			try {
-				page.showView(IDebugUIConstants.ID_EXPRESSION_VIEW);
-			} catch (PartInitException e) {
-			}
-		} else {
-			page.bringToTop(part);
-		}
+    }
+    
+    private void showExpressionsView() {        
+        IWorkbenchPage page = PydevDebugPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        IViewPart part = page.findView(IDebugUIConstants.ID_EXPRESSION_VIEW);
+        if (part == null) {
+            try {
+                page.showView(IDebugUIConstants.ID_EXPRESSION_VIEW);
+            } catch (PartInitException e) {
+            }
+        } else {
+            page.bringToTop(part);
+        }
 
-	}
+    }
 
-	private void createExpression(String variable) {
-		IWatchExpression expression = DebugPlugin.getDefault().getExpressionManager().newWatchExpression(variable);
-		
-		DebugPlugin.getDefault().getExpressionManager().addExpression(expression);
-		IAdaptable object = DebugUITools.getDebugContext();
-		IDebugElement context = null;
-		if (object instanceof IDebugElement) {
-			context = (IDebugElement) object;
-		} else if (object instanceof ILaunch) {
-			context = ((ILaunch) object).getDebugTarget();
-		}
-		expression.setExpressionContext(context);
-		showExpressionsView();
-	}
+    private void createExpression(String variable) {
+        IWatchExpression expression = DebugPlugin.getDefault().getExpressionManager().newWatchExpression(variable);
+        
+        DebugPlugin.getDefault().getExpressionManager().addExpression(expression);
+        IAdaptable object = DebugUITools.getDebugContext();
+        IDebugElement context = null;
+        if (object instanceof IDebugElement) {
+            context = (IDebugElement) object;
+        } else if (object instanceof ILaunch) {
+            context = ((ILaunch) object).getDebugTarget();
+        }
+        expression.setExpressionContext(context);
+        showExpressionsView();
+    }
 }

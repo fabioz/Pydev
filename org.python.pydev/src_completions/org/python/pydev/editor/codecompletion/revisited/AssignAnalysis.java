@@ -89,9 +89,9 @@ public class AssignAnalysis {
             ICompletionState copy = state.getCopy();
             String act = NodeUtils.getFullRepresentationString(return1.value);
             if(act == null){
-            	return; //may happen if the return we're seeing is a return without anything
+                return; //may happen if the return we're seeing is a return without anything
             }
-			copy.setActivationToken (act);
+            copy.setActivationToken (act);
             copy.setLine(return1.value.beginLine-1);
             copy.setCol(return1.value.beginColumn-1);
             IModule module = definition.module;

@@ -32,89 +32,89 @@ import org.python.pydev.refactoring.ui.pages.extractlocal.ExtractLocalPage;
 
 public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
 
-	private ExtractLocalRequestProcessor requestProcessor;
+    private ExtractLocalRequestProcessor requestProcessor;
 
-	private IChangeProcessor changeProcessor;
+    private IChangeProcessor changeProcessor;
 
-	public ExtractLocalRefactoring(RefactoringInfo info) {
-		super(info);
+    public ExtractLocalRefactoring(RefactoringInfo info) {
+        super(info);
 
-		try {
-			initWizard();
-		} catch (Throwable e) {
-			status.addInfo(Messages.infoFixCode + " Error-Message: " + e.getLocalizedMessage());
-		}
-	}
+        try {
+            initWizard();
+        } catch (Throwable e) {
+            status.addInfo(Messages.infoFixCode + " Error-Message: " + e.getLocalizedMessage());
+        }
+    }
 
-	private void initWizard() throws Throwable {
-		this.requestProcessor = new ExtractLocalRequestProcessor(info);
-		this.pages.add(new ExtractLocalPage(getName(), this.requestProcessor));
-	}
+    private void initWizard() throws Throwable {
+        this.requestProcessor = new ExtractLocalRequestProcessor(info);
+        this.pages.add(new ExtractLocalPage(getName(), this.requestProcessor));
+    }
 
-	@Override
-	protected List<IChangeProcessor> getChangeProcessors() {
-		List<IChangeProcessor> processors = new ArrayList<IChangeProcessor>();
-		this.changeProcessor = new ExtractLocalChangeProcessor(getName(), this.info, this.requestProcessor);
-		processors.add(changeProcessor);
-		return processors;
-	}
+    @Override
+    protected List<IChangeProcessor> getChangeProcessors() {
+        List<IChangeProcessor> processors = new ArrayList<IChangeProcessor>();
+        this.changeProcessor = new ExtractLocalChangeProcessor(getName(), this.info, this.requestProcessor);
+        processors.add(changeProcessor);
+        return processors;
+    }
 
-	@Override
-	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-		List<ModuleAdapter> selections = new LinkedList<ModuleAdapter>();
-		
-		/* Use different approaches to find a valid selection */
-		selections.add(info.getParsedUserSelection());
-		selections.add(info.getParsedExtendedSelection());
-		selections.add(getParsedMultilineSelection(info.getUserSelection()));
-		
-		/* Find a valid selection */
-		exprType expression = null;
-		for (ModuleAdapter selection : selections) {
-			/* Is selection valid? */
-			if (selection != null) {
-				expression = extractExpression(selection);
-				if (expression != null) {
-					break;
-				}
-			}
-		}
+    @Override
+    public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+        List<ModuleAdapter> selections = new LinkedList<ModuleAdapter>();
+        
+        /* Use different approaches to find a valid selection */
+        selections.add(info.getParsedUserSelection());
+        selections.add(info.getParsedExtendedSelection());
+        selections.add(getParsedMultilineSelection(info.getUserSelection()));
+        
+        /* Find a valid selection */
+        exprType expression = null;
+        for (ModuleAdapter selection : selections) {
+            /* Is selection valid? */
+            if (selection != null) {
+                expression = extractExpression(selection);
+                if (expression != null) {
+                    break;
+                }
+            }
+        }
 
-		/* No valid selections found, report error */
-		if (expression == null) {
-			status.addFatalError(Messages.extractLocalNoExpressionSelected);
-		}
-		
-		requestProcessor.setExpression(expression);
-		
-		return status;
-	}
-	
-	private ModuleAdapter getParsedMultilineSelection(ITextSelection selection) {
-		String source = selection.getText();
-		source = source.replaceAll("\n", "");
-		source = source.replaceAll("\r", "");
-		
-		try {
-			ModuleAdapter node = VisitorFactory.createModuleAdapter(null, null, new Document(source), null);
-			return node;
-		} catch (ParseException e) {
-			return null;
-		}
-	}
-	
-	private exprType extractExpression(ModuleAdapter node) {
-		stmtType[] body = node.getASTNode().body;
+        /* No valid selections found, report error */
+        if (expression == null) {
+            status.addFatalError(Messages.extractLocalNoExpressionSelected);
+        }
+        
+        requestProcessor.setExpression(expression);
+        
+        return status;
+    }
+    
+    private ModuleAdapter getParsedMultilineSelection(ITextSelection selection) {
+        String source = selection.getText();
+        source = source.replaceAll("\n", "");
+        source = source.replaceAll("\r", "");
+        
+        try {
+            ModuleAdapter node = VisitorFactory.createModuleAdapter(null, null, new Document(source), null);
+            return node;
+        } catch (ParseException e) {
+            return null;
+        }
+    }
+    
+    private exprType extractExpression(ModuleAdapter node) {
+        stmtType[] body = node.getASTNode().body;
 
-		if (body.length > 0 && body[0] instanceof Expr) {
-			Expr expr = (Expr) body[0];
-			return expr.value;
-		}
-		return null;
-	}
+        if (body.length > 0 && body[0] instanceof Expr) {
+            Expr expr = (Expr) body[0];
+            return expr.value;
+        }
+        return null;
+    }
 
-	@Override
-	public String getName() {
-		return Messages.extractLocalLabel;
-	}
+    @Override
+    public String getName() {
+        return Messages.extractLocalLabel;
+    }
 }

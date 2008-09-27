@@ -8,16 +8,16 @@ import org.python.pydev.parser.visitors.NodeUtils;
 
 public class ImportsFilter extends ViewerFilter{
 
-	@Override
-	public boolean select(Viewer viewer, Object parentElement, Object element) {
-		if(element instanceof PythonNode){
-			PythonNode node = (PythonNode) element;
-			SimpleNode n = node.entry.getAstThis().node;
-			if(NodeUtils.isImport(n)){
-				return false;
-			}
-		}
-		return true;
-	}
+    @Override
+    public boolean select(Viewer viewer, Object parentElement, Object element) {
+        if(element instanceof PythonNode){
+            PythonNode node = (PythonNode) element;
+            SimpleNode n = node.entry.getAstThis().node;
+            if(NodeUtils.isImport(n)){
+                return false;
+            }
+        }
+        return true;
+    }
 
 }

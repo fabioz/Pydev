@@ -40,22 +40,22 @@ public class OutlineHideFieldsAction extends AbstractOutlineFilterAction {
 
                     //String name = null;
                     if (token instanceof Attribute) {
-                    	return false;
+                        return false;
                     }
                     else if (token instanceof Name) {
-                    	if (parentElement instanceof ParsedItem) {
-                    		ParsedItem parentItem = (ParsedItem) parentElement;
-                    		if (parentItem != null) {
-                    			ASTEntry ast = parentItem.getAstThis();
-                    			if (ast != null) {
-	                                SimpleNode parentToken = ast.node;
-	                                
-	                                if (parentToken instanceof ClassDef) {
-	                                	return false;
-	                                }
-                    			}
-                    		}
-                    	}
+                        if (parentElement instanceof ParsedItem) {
+                            ParsedItem parentItem = (ParsedItem) parentElement;
+                            if (parentItem != null) {
+                                ASTEntry ast = parentItem.getAstThis();
+                                if (ast != null) {
+                                    SimpleNode parentToken = ast.node;
+                                    
+                                    if (parentToken instanceof ClassDef) {
+                                        return false;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 return true;

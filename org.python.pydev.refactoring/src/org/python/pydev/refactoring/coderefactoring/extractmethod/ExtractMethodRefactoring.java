@@ -28,105 +28,105 @@ import org.python.pydev.refactoring.ui.pages.extractmethod.ExtractMethodPage;
 
 public class ExtractMethodRefactoring extends AbstractPythonRefactoring {
 
-	private ExtractMethodRequestProcessor requestProcessor;
+    private ExtractMethodRequestProcessor requestProcessor;
 
-	private IChangeProcessor changeProcessor;
+    private IChangeProcessor changeProcessor;
 
-	private ModuleAdapter parsedExtendedSelection;
+    private ModuleAdapter parsedExtendedSelection;
 
-	private ModuleAdapter parsedUserSelection;
+    private ModuleAdapter parsedUserSelection;
 
-	private ModuleAdapter module;
+    private ModuleAdapter module;
 
-	public ExtractMethodRefactoring(RefactoringInfo req) {
-		super(req);
-		this.parsedExtendedSelection = null;
-		this.parsedUserSelection = req.getParsedUserSelection();
-		this.parsedExtendedSelection = req.getParsedExtendedSelection();
-		this.module = req.getModule();
+    public ExtractMethodRefactoring(RefactoringInfo req) {
+        super(req);
+        this.parsedExtendedSelection = null;
+        this.parsedUserSelection = req.getParsedUserSelection();
+        this.parsedExtendedSelection = req.getParsedExtendedSelection();
+        this.module = req.getModule();
 
-		validateSelections();
+        validateSelections();
 
-		try {
-			initWizard();
-		} catch (Throwable e) {
-			status.addInfo(Messages.infoFixCode);
-		}
-	}
+        try {
+            initWizard();
+        } catch (Throwable e) {
+            status.addInfo(Messages.infoFixCode);
+        }
+    }
 
-	private void initWizard() throws Throwable {
-		ITextSelection standardSelection = info.getUserSelection();
-		ModuleAdapter standardModule = this.parsedUserSelection;
-		if (standardModule == null) {
-			standardSelection = info.getExtendedSelection();
-			standardModule = this.parsedExtendedSelection;
-		}
+    private void initWizard() throws Throwable {
+        ITextSelection standardSelection = info.getUserSelection();
+        ModuleAdapter standardModule = this.parsedUserSelection;
+        if (standardModule == null) {
+            standardSelection = info.getExtendedSelection();
+            standardModule = this.parsedExtendedSelection;
+        }
 
-		this.requestProcessor = new ExtractMethodRequestProcessor(info.getScopeAdapter(), standardModule, this.getModule(), standardSelection);
+        this.requestProcessor = new ExtractMethodRequestProcessor(info.getScopeAdapter(), standardModule, this.getModule(), standardSelection);
 
-		this.pages.add(new ExtractMethodPage(getName(), this.requestProcessor));
-	}
+        this.pages.add(new ExtractMethodPage(getName(), this.requestProcessor));
+    }
 
-	@Override
-	protected List<IChangeProcessor> getChangeProcessors() {
-		List<IChangeProcessor> processors = new ArrayList<IChangeProcessor>();
-		this.changeProcessor = new ExtractMethodChangeProcessor(getName(), this.info, this.requestProcessor);
-		processors.add(changeProcessor);
-		return processors;
-	}
+    @Override
+    protected List<IChangeProcessor> getChangeProcessors() {
+        List<IChangeProcessor> processors = new ArrayList<IChangeProcessor>();
+        this.changeProcessor = new ExtractMethodChangeProcessor(getName(), this.info, this.requestProcessor);
+        processors.add(changeProcessor);
+        return processors;
+    }
 
-	@Override
-	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+    @Override
+    public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
 
-		if (this.requestProcessor.getScopeAdapter() == null || this.requestProcessor.getScopeAdapter() instanceof IClassDefAdapter) {
-			status.addFatalError(Messages.extractMethodScopeInvalid);
-			return status;
-		}
-		if (status.getEntries().length > 0)
-			return status;
+        if (this.requestProcessor.getScopeAdapter() == null || this.requestProcessor.getScopeAdapter() instanceof IClassDefAdapter) {
+            status.addFatalError(Messages.extractMethodScopeInvalid);
+            return status;
+        }
+        if (status.getEntries().length > 0)
+            return status;
 
-		if (parsedExtendedSelection == null && parsedUserSelection == null) {
-			status.addFatalError(Messages.extractMethodIncompleteSelection);
-			return status;
-		}
-		return status;
-	}
+        if (parsedExtendedSelection == null && parsedUserSelection == null) {
+            status.addFatalError(Messages.extractMethodIncompleteSelection);
+            return status;
+        }
+        return status;
+    }
 
-	private void validateSelections() {
-		try {
-			if (parsedUserSelection != null) {
-				VisitorFactory.validateSelection(parsedUserSelection);
-			}
-		} catch (SelectionException e) {
-			this.parsedUserSelection = null;
-			if (parsedExtendedSelection == null) {
-				status.addFatalError(e.getMessage());
-				return;
-			}
-		}
-		try {
-			if (parsedExtendedSelection != null) {
-				VisitorFactory.validateSelection(parsedExtendedSelection);
-			}
-		} catch (SelectionException e) {
-			this.parsedExtendedSelection = null;
-			if (parsedUserSelection == null) {
-				status.addFatalError(e.getMessage());
-				return;
-			}
-		}
-	}
+    private void validateSelections() {
+        try {
+            if (parsedUserSelection != null) {
+                VisitorFactory.validateSelection(parsedUserSelection);
+            }
+        } catch (SelectionException e) {
+            this.parsedUserSelection = null;
+            if (parsedExtendedSelection == null) {
+                status.addFatalError(e.getMessage());
+                return;
+            }
+        }
+        try {
+            if (parsedExtendedSelection != null) {
+                VisitorFactory.validateSelection(parsedExtendedSelection);
+            }
+        } catch (SelectionException e) {
+            this.parsedExtendedSelection = null;
+            if (parsedUserSelection == null) {
+                status.addFatalError(e.getMessage());
+                return;
+            }
+        }
+    }
 
-	public void setModule(ModuleAdapter module) {
-		this.module = module;
-	}
+    public void setModule(ModuleAdapter module) {
+        this.module = module;
+    }
 
-	public ModuleAdapter getModule() {
-		return module;
-	}
+    public ModuleAdapter getModule() {
+        return module;
+    }
 
-	@Override
-	public String getName() {
-		return Messages.extractMethodLabel;
-	}
+    @Override
+    public String getName() {
+        return Messages.extractMethodLabel;
+    }
 }

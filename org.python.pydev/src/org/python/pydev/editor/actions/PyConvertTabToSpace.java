@@ -76,7 +76,7 @@ public class PyConvertTabToSpace extends PyConvertSpaceToTab {
                 strbuf.append(line.replaceAll("\t", tabSpace) + (i < endLineIndex ? endLineDelim : ""));
             }
 
-            // If all goes well, replace the text with the modified information	
+            // If all goes well, replace the text with the modified information    
             doc.replace(ps.getStartLine().getOffset(), ps.getSelLength(), strbuf.toString());
             return true;
         } catch (Exception e) {

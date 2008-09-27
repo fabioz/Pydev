@@ -18,19 +18,19 @@ import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 
 public class ClassDefVisitor extends AbstractContextVisitor<IClassDefAdapter> {
 
-	public ClassDefVisitor(ModuleAdapter module, AbstractNodeAdapter<? extends SimpleNode> parent) {
-		super(module, parent);
-	}
+    public ClassDefVisitor(ModuleAdapter module, AbstractNodeAdapter<? extends SimpleNode> parent) {
+        super(module, parent);
+    }
 
-	@Override
-	protected IClassDefAdapter createAdapter(AbstractScopeNode<?> parent, SimpleNode node) {
-		return new ClassDefAdapter(moduleAdapter, parent, (ClassDef) node, moduleAdapter.getEndLineDelimiter());
-	}
+    @Override
+    protected IClassDefAdapter createAdapter(AbstractScopeNode<?> parent, SimpleNode node) {
+        return new ClassDefAdapter(moduleAdapter, parent, (ClassDef) node, moduleAdapter.getEndLineDelimiter());
+    }
 
-	@Override
-	public Object visitClassDef(ClassDef node) throws Exception {
-		registerInContext(node);
-		return super.visitClassDef(node);
-	}
+    @Override
+    public Object visitClassDef(ClassDef node) throws Exception {
+        registerInContext(node);
+        return super.visitClassDef(node);
+    }
 
 }

@@ -17,22 +17,22 @@ import org.python.pydev.refactoring.ui.model.tree.TreeNodeSimple;
 
 public class ClassTreeNode extends TreeNodeSimple<IClassDefAdapter> {
 
-	public ClassTreeNode(IClassDefAdapter adapter) {
-		super(null, adapter);
-	}
+    public ClassTreeNode(IClassDefAdapter adapter) {
+        super(null, adapter);
+    }
 
-	@Override
-	public Object[] getChildren() {
-		List<ITreeNode> children = new ArrayList<ITreeNode>();
-		for (FunctionDefAdapter function : this.adapter.getFunctionsInitFiltered()) {
-			children.add(new FunctionTreeNode(this, function));
-		}
-		return children.toArray();
-	}
+    @Override
+    public Object[] getChildren() {
+        List<ITreeNode> children = new ArrayList<ITreeNode>();
+        for (FunctionDefAdapter function : this.adapter.getFunctionsInitFiltered()) {
+            children.add(new FunctionTreeNode(this, function));
+        }
+        return children.toArray();
+    }
 
-	@Override
-	public String getImageName() {
-		return ITreeNode.NODE_CLASS;
-	}
+    @Override
+    public String getImageName() {
+        return ITreeNode.NODE_CLASS;
+    }
 
 }

@@ -19,27 +19,27 @@ import org.python.pydev.refactoring.ui.model.tree.TreeNodeSimple;
 
 public class TreeAttributeNode extends TreeNodeSimple<INodeAdapter> {
 
-	public TreeAttributeNode(ITreeNode parent, INodeAdapter adapter) {
-		super(parent, adapter);
-	}
+    public TreeAttributeNode(ITreeNode parent, INodeAdapter adapter) {
+        super(parent, adapter);
+    }
 
-	@Override
-	public Object[] getChildren() {
-		List<ITreeNode> children = new ArrayList<ITreeNode>();
-		children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(PropertyTextAdapter.GETTER,
-				Messages.generatePropertiesGetter)));
-		children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(PropertyTextAdapter.SETTER,
-				Messages.generatePropertiesSetter)));
-		children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(PropertyTextAdapter.DELETE,
-				Messages.generatePropertiesDelete)));
-		children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(PropertyTextAdapter.DOCSTRING,
-				Messages.generatePropertiesDocString)));
-		return children.toArray();
-	}
+    @Override
+    public Object[] getChildren() {
+        List<ITreeNode> children = new ArrayList<ITreeNode>();
+        children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(PropertyTextAdapter.GETTER,
+                Messages.generatePropertiesGetter)));
+        children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(PropertyTextAdapter.SETTER,
+                Messages.generatePropertiesSetter)));
+        children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(PropertyTextAdapter.DELETE,
+                Messages.generatePropertiesDelete)));
+        children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(PropertyTextAdapter.DOCSTRING,
+                Messages.generatePropertiesDocString)));
+        return children.toArray();
+    }
 
-	@Override
-	public String getImageName() {
-		return ITreeNode.NODE_ATTRIBUTE;
-	}
+    @Override
+    public String getImageName() {
+        return ITreeNode.NODE_ATTRIBUTE;
+    }
 
 }

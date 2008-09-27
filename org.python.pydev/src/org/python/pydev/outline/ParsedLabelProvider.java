@@ -14,19 +14,19 @@ import org.python.pydev.core.bundle.ImageCache;
  * LabelProvider for ParsedItems inside an outline view
  */
 public class ParsedLabelProvider extends LabelProvider {
-	
-	ImageCache imageCache;
-	
-	public ParsedLabelProvider(ImageCache imageCache) {
-		this.imageCache = imageCache;
-	}
+    
+    ImageCache imageCache;
+    
+    public ParsedLabelProvider(ImageCache imageCache) {
+        this.imageCache = imageCache;
+    }
 
-	public String getText(Object element) {
-		return element.toString();
-	}
+    public String getText(Object element) {
+        return element.toString();
+    }
 
-	// returns images based upon element type
-	public Image getImage(Object element) {
-		return((ParsedItem)element).getImage();
-	}
+    // returns images based upon element type
+    public Image getImage(Object element) {
+        return((ParsedItem)element).getImage();
+    }
 }

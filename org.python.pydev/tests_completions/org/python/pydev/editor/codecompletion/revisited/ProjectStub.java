@@ -34,15 +34,15 @@ import org.python.pydev.plugin.nature.PythonNature;
 public class ProjectStub implements IProject {
 
     String name;
-	public IProject[] referencedProjects;
-	public IProject[] referencingProjects;
-	private PythonNature nature;
-	private String path;
+    public IProject[] referencedProjects;
+    public IProject[] referencingProjects;
+    private PythonNature nature;
+    private String path;
     
     public ProjectStub(String name, String path2, IProject[] referencedProjects, IProject[] referencingProjects) {
-    	this.path = path2;
-    	this.name = name;
-    	this.referencedProjects = referencedProjects;
+        this.path = path2;
+        this.name = name;
+        this.referencedProjects = referencedProjects;
         this.referencingProjects = referencingProjects;
     }
 
@@ -90,10 +90,10 @@ public class ProjectStub implements IProject {
     }
 
     public IProjectNature getNature(String natureId) throws CoreException {
-    	if(nature == null){
-    		throw new RuntimeException("not expected");
-    	}
-    	return nature;
+        if(nature == null){
+            throw new RuntimeException("not expected");
+        }
+        return nature;
     }
 
     public IPath getPluginWorkingLocation(IPluginDescriptor plugin) {
@@ -114,9 +114,9 @@ public class ProjectStub implements IProject {
     }
 
     public boolean hasNature(String natureId) throws CoreException {
-    	if(PythonNature.PYTHON_NATURE_ID.equals(natureId)){
-    		return true;
-    	}
+        if(PythonNature.PYTHON_NATURE_ID.equals(natureId)){
+            return true;
+        }
         throw new RuntimeException("not expected");
     }
 
@@ -433,59 +433,59 @@ public class ProjectStub implements IProject {
         throw new RuntimeException("not impl");
     }
 
-	public void setNature(PythonNature nature) {
-		this.nature = nature;
-	}
+    public void setNature(PythonNature nature) {
+        this.nature = nature;
+    }
 
-	public IResourceProxy createProxy() {
-		return null;
-	}
+    public IResourceProxy createProxy() {
+        return null;
+    }
 
-	public URI getLocationURI() {
-		return null;
-	}
+    public URI getLocationURI() {
+        return null;
+    }
 
-	public URI getRawLocationURI() {
-		return null;
-	}
+    public URI getRawLocationURI() {
+        return null;
+    }
 
-	public boolean isLinked(int options) {
-		return false;
-	}
+    public boolean isLinked(int options) {
+        return false;
+    }
 
     public int findMaxProblemSeverity(String type, boolean includeSubtypes, int depth) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
-	public void create(IProjectDescription description, int updateFlags,
-			IProgressMonitor monitor) throws CoreException {
-		// TODO Auto-generated method stub
-		
-	}
+    public void create(IProjectDescription description, int updateFlags,
+            IProgressMonitor monitor) throws CoreException {
+        // TODO Auto-generated method stub
+        
+    }
 
-	public Map getPersistentProperties() throws CoreException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Map getPersistentProperties() throws CoreException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public Map getSessionProperties() throws CoreException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Map getSessionProperties() throws CoreException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public boolean isDerived(int options) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    public boolean isDerived(int options) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	public boolean isHidden() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    public boolean isHidden() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	public void setHidden(boolean isHidden) throws CoreException {
-		// TODO Auto-generated method stub
-		
-	}
+    public void setHidden(boolean isHidden) throws CoreException {
+        // TODO Auto-generated method stub
+        
+    }
 
 }

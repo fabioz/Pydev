@@ -48,22 +48,22 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
     /**
      * When called, it STOPS hearing notifications to update the outline when the cursor changes positions.
      */
-	public void unlink() {
-		PyEdit edit = pyEdit.get();
-		if(edit != null){
-			edit.removePyeditListener(this);
-		}
-	}
-	
-	/**
-	 * When called, it STARTS hearing notifications to update the outline when the cursor changes positions.
-	 */
-	public void relink() {
-		PyEdit edit = pyEdit.get();
-		if(edit != null){
-			edit.addPyeditListener(this);
-		}
-	}
+    public void unlink() {
+        PyEdit edit = pyEdit.get();
+        if(edit != null){
+            edit.removePyeditListener(this);
+        }
+    }
+    
+    /**
+     * When called, it STARTS hearing notifications to update the outline when the cursor changes positions.
+     */
+    public void relink() {
+        PyEdit edit = pyEdit.get();
+        if(edit != null){
+            edit.addPyeditListener(this);
+        }
+    }
 
     public void dispose() {
         unlink();
@@ -85,7 +85,7 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
             if (enableAction && pyEdit != null) {
                 PyEdit edit = pyEdit.get();
                 if(edit != null){
-                	handleCursorPositionChanged(edit, new PySelection(edit));
+                    handleCursorPositionChanged(edit, new PySelection(edit));
                 }
             }
         }
@@ -129,12 +129,12 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
             StructuredSelection sel = getSelectionPosition(outlineModel.getRoot(), t);
             if (sel != null) {
                 // we don't want to hear our own selections
-            	p.unlinkAll();
-            	try{
-            		p.setSelection(sel);
-            	}finally{
-            		p.relinkAll();
-            	}
+                p.unlinkAll();
+                try{
+                    p.setSelection(sel);
+                }finally{
+                    p.relinkAll();
+                }
             }
         }
     }

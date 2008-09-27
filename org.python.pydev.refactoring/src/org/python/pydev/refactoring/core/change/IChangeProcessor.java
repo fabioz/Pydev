@@ -11,5 +11,5 @@ import org.eclipse.ltk.core.refactoring.Change;
 
 public interface IChangeProcessor {
 
-	public Change createChange();
+    public Change createChange();
 }

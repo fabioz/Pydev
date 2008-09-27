@@ -14,14 +14,14 @@ import org.eclipse.ui.IEditorInput;
  */
 public interface IPyEditListener3 {
 
-	/**
-	 * Called when the input of the editor is changed.
-	 * 
-	 * @param edit the editor that had the input changed
-	 * @param oldInput the old input of the editor
-	 * @param input the new input of the editor
-	 * @param monitor the monitor for the job that's making the notifications
-	 */
-	void onInputChanged(PyEdit edit, IEditorInput oldInput, IEditorInput input, IProgressMonitor monitor);
+    /**
+     * Called when the input of the editor is changed.
+     * 
+     * @param edit the editor that had the input changed
+     * @param oldInput the old input of the editor
+     * @param input the new input of the editor
+     * @param monitor the monitor for the job that's making the notifications
+     */
+    void onInputChanged(PyEdit edit, IEditorInput oldInput, IEditorInput input, IProgressMonitor monitor);
 
 }

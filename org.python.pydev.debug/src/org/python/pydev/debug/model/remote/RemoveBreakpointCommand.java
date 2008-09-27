@@ -10,16 +10,16 @@ package org.python.pydev.debug.model.remote;
  */
 public class RemoveBreakpointCommand extends AbstractDebuggerCommand {
 
-	public String file;
-	public Object line;
-	
-	public RemoveBreakpointCommand(AbstractRemoteDebugger debugger, String file, Object line) {
-		super(debugger);
-		this.file = file;
-		this.line = line;
-	}
+    public String file;
+    public Object line;
+    
+    public RemoveBreakpointCommand(AbstractRemoteDebugger debugger, String file, Object line) {
+        super(debugger);
+        this.file = file;
+        this.line = line;
+    }
 
-	public String getOutgoing() {
-		return makeCommand(CMD_REMOVE_BREAK, sequence, file + "\t" + line.toString());
-	}
+    public String getOutgoing() {
+        return makeCommand(CMD_REMOVE_BREAK, sequence, file + "\t" + line.toString());
+    }
 }

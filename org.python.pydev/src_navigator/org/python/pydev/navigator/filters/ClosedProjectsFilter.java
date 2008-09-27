@@ -7,21 +7,21 @@ import org.eclipse.jface.viewers.ViewerFilter;
 
 public class ClosedProjectsFilter extends ViewerFilter{
 
-	@Override
-	public boolean select(Viewer viewer, Object parentElement, Object element) {
-		if(element instanceof IAdaptable){
-			IAdaptable adaptable = (IAdaptable) element;
-			Object adapted = adaptable.getAdapter(IProject.class);
-			if(adapted instanceof IProject){
-				IProject project = (IProject) adapted;
-				if(project.isOpen()){
-					return true;
-				}else{
-					return false;
-				}
-			}
-		}
-		return true;
-	}
+    @Override
+    public boolean select(Viewer viewer, Object parentElement, Object element) {
+        if(element instanceof IAdaptable){
+            IAdaptable adaptable = (IAdaptable) element;
+            Object adapted = adaptable.getAdapter(IProject.class);
+            if(adapted instanceof IProject){
+                IProject project = (IProject) adapted;
+                if(project.isOpen()){
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
 }

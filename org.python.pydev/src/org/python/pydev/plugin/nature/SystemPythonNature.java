@@ -18,94 +18,94 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class SystemPythonNature extends AbstractPythonNature implements IPythonNature{
 
-	private IInterpreterManager manager;
-	private SystemASTManager systemASTManager;
+    private IInterpreterManager manager;
+    private SystemASTManager systemASTManager;
 
-	public SystemPythonNature(IInterpreterManager manager){
-		this.manager = manager;
-	}
+    public SystemPythonNature(IInterpreterManager manager){
+        this.manager = manager;
+    }
     
-	public String getVersion() throws CoreException {
-		if(this.manager.isPython()){
-		    return IPythonNature.PYTHON_VERSION_LATEST;
-		}else if(this.manager.isJython()){
-		    return IPythonNature.JYTHON_VERSION_LATEST;
-		}else{
-		    throw new RuntimeException("Not python nor jython?");
-		}
-	}
+    public String getVersion() throws CoreException {
+        if(this.manager.isPython()){
+            return IPythonNature.PYTHON_VERSION_LATEST;
+        }else if(this.manager.isJython()){
+            return IPythonNature.JYTHON_VERSION_LATEST;
+        }else{
+            throw new RuntimeException("Not python nor jython?");
+        }
+    }
 
-	public String getDefaultVersion() {
-		try {
+    public String getDefaultVersion() {
+        try {
             return getVersion();
         } catch (CoreException e) {
             throw new RuntimeException(e);
         }
-	}
+    }
 
-	public void setVersion(String version) throws CoreException {
-		throw new RuntimeException("Not Implemented: the system nature is read-only.");
-	}
+    public void setVersion(String version) throws CoreException {
+        throw new RuntimeException("Not Implemented: the system nature is read-only.");
+    }
 
-	public boolean isJython() throws CoreException {
-		return manager.isJython();
-	}
+    public boolean isJython() throws CoreException {
+        return manager.isJython();
+    }
 
-	public boolean isPython() throws CoreException {
-		return manager.isPython();
-	}
+    public boolean isPython() throws CoreException {
+        return manager.isPython();
+    }
 
-	public int getRelatedId() throws CoreException {
-		return PythonNature.getRelatedId(this);
-	}
+    public int getRelatedId() throws CoreException {
+        return PythonNature.getRelatedId(this);
+    }
 
-	public File getCompletionsCacheDir() {
-		throw new RuntimeException("Not Implemented");
-	}
+    public File getCompletionsCacheDir() {
+        throw new RuntimeException("Not Implemented");
+    }
 
-	public void saveAstManager() {
-		throw new RuntimeException("Not Implemented: system nature is only transient.");
-	}
+    public void saveAstManager() {
+        throw new RuntimeException("Not Implemented: system nature is only transient.");
+    }
 
-	public IPythonPathNature getPythonPathNature() {
-		throw new RuntimeException("Not Implemented");
-	}
+    public IPythonPathNature getPythonPathNature() {
+        throw new RuntimeException("Not Implemented");
+    }
 
-	public String resolveModule(String file) {
-		InterpreterInfo info = (InterpreterInfo) this.manager.getDefaultInterpreterInfo(new NullProgressMonitor());
+    public String resolveModule(String file) {
+        InterpreterInfo info = (InterpreterInfo) this.manager.getDefaultInterpreterInfo(new NullProgressMonitor());
         if(info == null){
             return null;
         }
-		return info.getModulesManager().resolveModule(file);
-	}
+        return info.getModulesManager().resolveModule(file);
+    }
 
-	public ICodeCompletionASTManager getAstManager() {
-		if(systemASTManager == null){
-			systemASTManager = new SystemASTManager(this.manager, this);
-		}
-		return systemASTManager;
-	}
+    public ICodeCompletionASTManager getAstManager() {
+        if(systemASTManager == null){
+            systemASTManager = new SystemASTManager(this.manager, this);
+        }
+        return systemASTManager;
+    }
 
-	public void configure() throws CoreException {
-	}
+    public void configure() throws CoreException {
+    }
 
-	public void deconfigure() throws CoreException {
-	}
+    public void deconfigure() throws CoreException {
+    }
 
-	public IProject getProject() {
-		return null;
-	}
+    public IProject getProject() {
+        return null;
+    }
 
-	public void setProject(IProject project) {
-	}
+    public void setProject(IProject project) {
+    }
 
-	public void rebuildPath() {
-		throw new RuntimeException("Not Implemented");
-	}
+    public void rebuildPath() {
+        throw new RuntimeException("Not Implemented");
+    }
 
-	public void rebuildPath(String defaultSelectedInterpreter, IProgressMonitor monitor) {
-		throw new RuntimeException("Not Implemented");
-	}
+    public void rebuildPath(String defaultSelectedInterpreter, IProgressMonitor monitor) {
+        throw new RuntimeException("Not Implemented");
+    }
 
     public IInterpreterManager getRelatedInterpreterManager() {
         return manager;
@@ -115,27 +115,27 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     //builtin completions
     private IToken[] builtinCompletions;
     
-	public IToken[] getBuiltinCompletions() {
-		return builtinCompletions;
-	}
+    public IToken[] getBuiltinCompletions() {
+        return builtinCompletions;
+    }
 
-	public void setBuiltinCompletions(IToken[] toks) {
-	    this.builtinCompletions = toks;
-	}
-	
-	
-	//builtin mod
-	private IModule builtinMod;
+    public void setBuiltinCompletions(IToken[] toks) {
+        this.builtinCompletions = toks;
+    }
+    
+    
+    //builtin mod
+    private IModule builtinMod;
 
-	public IModule getBuiltinMod() {
-		return builtinMod;
-	}
+    public IModule getBuiltinMod() {
+        return builtinMod;
+    }
 
-	public void setBuiltinMod(IModule mod) {
-	    this.builtinMod = mod;
-	}
+    public void setBuiltinMod(IModule mod) {
+        this.builtinMod = mod;
+    }
 
-	
+    
     public int getGrammarVersion() {
         IInterpreterInfo info = manager.getDefaultInterpreterInfo(new NullProgressMonitor());
         if(info != null){

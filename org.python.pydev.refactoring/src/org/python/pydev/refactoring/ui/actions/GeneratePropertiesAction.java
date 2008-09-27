@@ -14,8 +14,8 @@ import org.python.pydev.refactoring.core.RefactoringInfo;
 import org.python.pydev.refactoring.ui.actions.internal.AbstractRefactoringAction;
 
 public class GeneratePropertiesAction extends AbstractRefactoringAction {
-	@Override
-	protected AbstractPythonRefactoring createRefactoring(RefactoringInfo info) {
-		return new GeneratePropertiesRefactoring(info);
-	}
+    @Override
+    protected AbstractPythonRefactoring createRefactoring(RefactoringInfo info) {
+        return new GeneratePropertiesRefactoring(info);
+    }
 }

@@ -239,7 +239,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      */
     public char[] getCompletionProposalAutoActivationCharacters() {
         return getStaticAutoActivationCharacters(defaultPythonProcessor.getCompletionProposalAutoActivationCharacters(), 
-        		this.participants.size());
+                this.participants.size());
     }
 
     /**
@@ -250,36 +250,36 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
     /**
      * @return the auto-activation chars that should be used.
      */
-	public synchronized static char[] getStaticAutoActivationCharacters(char[] defaultChars, int participantsLen) {
-		if(!listenerToClearAutoActivationAlreadySetup){
-	        PydevPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener(){
-	            public void propertyChange(PropertyChangeEvent event) {
-	                autoActivationCharsCache = null;
-	            }
-	        });
-	        listenerToClearAutoActivationAlreadySetup = true;
-		}
+    public synchronized static char[] getStaticAutoActivationCharacters(char[] defaultChars, int participantsLen) {
+        if(!listenerToClearAutoActivationAlreadySetup){
+            PydevPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener(){
+                public void propertyChange(PropertyChangeEvent event) {
+                    autoActivationCharsCache = null;
+                }
+            });
+            listenerToClearAutoActivationAlreadySetup = true;
+        }
 
-		if(autoActivationCharsCache == null){
+        if(autoActivationCharsCache == null){
             char[] defaultAutoActivationCharacters = defaultChars;
             
             useAutocompleteOnAllAsciiCharsCache = 
-            	PyCodeCompletionPreferencesPage.useAutocompleteOnAllAsciiChars() &&
-            	PyCodeCompletionPreferencesPage.useAutocomplete();
+                PyCodeCompletionPreferencesPage.useAutocompleteOnAllAsciiChars() &&
+                PyCodeCompletionPreferencesPage.useAutocomplete();
             
             char [] c2;
             if(participantsLen == 0 && !useAutocompleteOnAllAsciiCharsCache){
                 c2 = defaultAutoActivationCharacters;
             }else{
-	            //just use the extension for the simple if we do have it
-	            c2 = new char[ALL_ASCII_CHARS.length+defaultAutoActivationCharacters.length];
-	            System.arraycopy(ALL_ASCII_CHARS, 0, c2, 0, ALL_ASCII_CHARS.length);
-	            System.arraycopy(defaultAutoActivationCharacters, 0, c2, ALL_ASCII_CHARS.length, defaultAutoActivationCharacters.length);
+                //just use the extension for the simple if we do have it
+                c2 = new char[ALL_ASCII_CHARS.length+defaultAutoActivationCharacters.length];
+                System.arraycopy(ALL_ASCII_CHARS, 0, c2, 0, ALL_ASCII_CHARS.length);
+                System.arraycopy(defaultAutoActivationCharacters, 0, c2, ALL_ASCII_CHARS.length, defaultAutoActivationCharacters.length);
             }
             autoActivationCharsCache = c2;
         }
         return autoActivationCharsCache;
-	}
+    }
 
     /**
      * @return chars that are used for context information auto-activation

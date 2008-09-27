@@ -22,29 +22,29 @@ import org.python.pydev.parser.jython.ast.Yield;
 
 public class SelectionValidationVisitor extends VisitorBase {
 
-	private Class<?> [] invalidNode = new Class<?>[] { Break.class, ClassDef.class, Continue.class, FunctionDef.class, ImportFrom.class,
-			Import.class, Pass.class, Return.class, Yield.class };
+    private Class<?> [] invalidNode = new Class<?>[] { Break.class, ClassDef.class, Continue.class, FunctionDef.class, ImportFrom.class,
+            Import.class, Pass.class, Return.class, Yield.class };
 
-	@Override
-	public void traverse(SimpleNode node) throws Exception {
-		if (node != null) {
-			validateNode(node);
-			node.traverse(this);
-		}
-	}
+    @Override
+    public void traverse(SimpleNode node) throws Exception {
+        if (node != null) {
+            validateNode(node);
+            node.traverse(this);
+        }
+    }
 
-	private void validateNode(SimpleNode node) throws SelectionException {
-		for (Class<?> clazz : invalidNode) {
-			if (clazz == node.getClass()) {
-				throw new SelectionException(node);
-			}
-		}
-	}
+    private void validateNode(SimpleNode node) throws SelectionException {
+        for (Class<?> clazz : invalidNode) {
+            if (clazz == node.getClass()) {
+                throw new SelectionException(node);
+            }
+        }
+    }
 
-	@Override
-	protected Object unhandled_node(SimpleNode node) throws Exception {
-		// visitorbase will call traverse
-		return null;
-	}
+    @Override
+    protected Object unhandled_node(SimpleNode node) throws Exception {
+        // visitorbase will call traverse
+        return null;
+    }
 
 }

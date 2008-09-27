@@ -114,8 +114,8 @@ public class PyEditConfiguration extends TextSourceViewerConfiguration {
      */
     public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
         return new String[] { IDocument.DEFAULT_CONTENT_TYPE, IPythonPartitions.PY_COMMENT, 
-        		IPythonPartitions.PY_SINGLELINE_STRING1, IPythonPartitions.PY_SINGLELINE_STRING2, 
-        		IPythonPartitions.PY_MULTILINE_STRING1, IPythonPartitions.PY_MULTILINE_STRING2 };
+                IPythonPartitions.PY_SINGLELINE_STRING1, IPythonPartitions.PY_SINGLELINE_STRING2, 
+                IPythonPartitions.PY_MULTILINE_STRING1, IPythonPartitions.PY_MULTILINE_STRING2 };
     }
     
     @Override
@@ -280,9 +280,9 @@ public class PyEditConfiguration extends TextSourceViewerConfiguration {
      * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getContentAssistant(org.eclipse.jface.text.source.ISourceViewer)
      */
     public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
-		// next create a content assistant processor to populate the completions window
+        // next create a content assistant processor to populate the completions window
         IContentAssistProcessor processor = new SimpleAssistProcessor(edit, 
-        		new PythonCompletionProcessor(edit, pyContentAssistant), pyContentAssistant);
+                new PythonCompletionProcessor(edit, pyContentAssistant), pyContentAssistant);
         
         PythonStringCompletionProcessor stringProcessor = new PythonStringCompletionProcessor(edit, pyContentAssistant);
 

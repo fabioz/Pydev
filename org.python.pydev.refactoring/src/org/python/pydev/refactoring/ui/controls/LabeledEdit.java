@@ -16,42 +16,42 @@ import org.eclipse.swt.widgets.Text;
 
 public class LabeledEdit extends Composite {
 
-	private Text edit;
+    private Text edit;
 
-	public LabeledEdit(Composite parent, String caption, String text) {
-		super(parent, SWT.None);
+    public LabeledEdit(Composite parent, String caption, String text) {
+        super(parent, SWT.None);
 
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 2;
-		setLayout(layout);
+        GridLayout layout = new GridLayout();
+        layout.numColumns = 2;
+        setLayout(layout);
 
-		createLabel(caption);
+        createLabel(caption);
 
-		createEdit(text);
-	}
+        createEdit(text);
+    }
 
-	private void createEdit(String text) {
-		edit = new Text(this, SWT.BORDER | SWT.SINGLE);
-		edit.setText(text);
-		edit.selectAll();
+    private void createEdit(String text) {
+        edit = new Text(this, SWT.BORDER | SWT.SINGLE);
+        edit.setText(text);
+        edit.selectAll();
 
-		GridData textData = new GridData(GridData.FILL_HORIZONTAL);
-		textData.grabExcessHorizontalSpace = true;
-		edit.setLayoutData(textData);
-	}
+        GridData textData = new GridData(GridData.FILL_HORIZONTAL);
+        textData.grabExcessHorizontalSpace = true;
+        edit.setLayoutData(textData);
+    }
 
-	private void createLabel(String caption) {
-		Label label = new Label(this, SWT.NONE);
-		label.setText(caption);
-		label.setLayoutData(new GridData());
-	}
+    private void createLabel(String caption) {
+        Label label = new Label(this, SWT.NONE);
+        label.setText(caption);
+        label.setLayoutData(new GridData());
+    }
 
-	public LabeledEdit(Composite parent, String labelName) {
-		this(parent, labelName, "");
-	}
+    public LabeledEdit(Composite parent, String labelName) {
+        this(parent, labelName, "");
+    }
 
-	public Text getEdit() {
-		return edit;
-	}
+    public Text getEdit() {
+        return edit;
+    }
 
 }

@@ -73,9 +73,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      */
     private IInterpreterManager interpreterManager;
     
-	/**
-	 * Tree to add libs.
-	 */
+    /**
+     * Tree to add libs.
+     */
     private Tree tree;
 
     /**
@@ -164,13 +164,13 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      */
     private Tree getTreeLibsControl(Composite parent) {
         if (tree == null){
-	    	tree = new Tree(parent, SWT.BORDER|SWT.MULTI);
-	    	tree.setFont(parent.getFont());
-			tree.addDisposeListener(new DisposeListener() {
-			    public void widgetDisposed(DisposeEvent event) {
-			        tree = null;
-			    }
-			});
+            tree = new Tree(parent, SWT.BORDER|SWT.MULTI);
+            tree.setFont(parent.getFont());
+            tree.addDisposeListener(new DisposeListener() {
+                public void widgetDisposed(DisposeEvent event) {
+                    tree = null;
+                }
+            });
         }
         return tree;
     }
@@ -221,15 +221,15 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     protected void doFillIntoGrid(Composite parent, int numColumns) {
         super.doFillIntoGrid(parent, numColumns);
         
-    	l1 = new Label(parent, SWT.None);
-    	l1.setText("System PYTHONPATH");
-    	GridData gd = new GridData();
-    	gd.horizontalSpan = numColumns;
-    	l1.setLayoutData(gd);
+        l1 = new Label(parent, SWT.None);
+        l1.setText("System PYTHONPATH");
+        GridData gd = new GridData();
+        gd.horizontalSpan = numColumns;
+        l1.setLayoutData(gd);
 
-    	//the tree
+        //the tree
         tree = getTreeLibsControl(parent);
-    	gd = new GridData();
+        gd = new GridData();
         gd.horizontalAlignment = SWT.FILL;
         gd.verticalAlignment = SWT.FILL;
         gd.grabExcessVerticalSpace = true;
@@ -237,26 +237,26 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
         //buttons at the side of the tree
         Composite control = getButtonBoxControlSystem(parent);
-    	gd = new GridData();
-    	gd.verticalAlignment = GridData.BEGINNING;
-    	control.setLayoutData(gd);
+        gd = new GridData();
+        gd.verticalAlignment = GridData.BEGINNING;
+        control.setLayoutData(gd);
 
         //label
-    	l2 = new Label(parent, SWT.None);
-    	l2.setText("Forced builtin libs (check http://pydev.sf.net/faq.html for more info).");
-    	gd = new GridData();
-    	l2.setLayoutData(gd);
+        l2 = new Label(parent, SWT.None);
+        l2.setText("Forced builtin libs (check http://pydev.sf.net/faq.html for more info).");
+        gd = new GridData();
+        l2.setLayoutData(gd);
 
         //the list with the builtins
-    	List list = getBuiltinsListControl(parent);
+        List list = getBuiltinsListControl(parent);
         gd = new GridData();
         gd.horizontalAlignment = SWT.FILL;
         gd.grabExcessHorizontalSpace = false;
         gd.heightHint = 100;
         list.setLayoutData(gd);
-    	
+        
         //the builtins buttons
-    	control = getButtonBoxControlOthers(parent);
+        control = getButtonBoxControlOthers(parent);
         gd = new GridData();
         gd.verticalAlignment = GridData.BEGINNING;
         control.setLayoutData(gd);
@@ -442,15 +442,15 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     protected void addOthers() {
         if (listControl.getSelectionCount() == 1) {
             String executable = listControl.getSelection()[0];
-	        InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(executable, new NullProgressMonitor());
-	        
-	        InputDialog d = new InputDialog(this.getShell(), "Builtin to add", "Builtin to add", "", null);
-	        
-	        int retCode = d.open();
-	        if (retCode == InputDialog.OK) {
-		        info.addForcedLib(d.getValue());
+            InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(executable, new NullProgressMonitor());
+            
+            InputDialog d = new InputDialog(this.getShell(), "Builtin to add", "Builtin to add", "", null);
+            
+            int retCode = d.open();
+            if (retCode == InputDialog.OK) {
+                info.addForcedLib(d.getValue());
                 changed = true;
-	        }
+            }
 
         }
         updateTree();
@@ -464,9 +464,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             String executable = listControl.getSelection()[0];
             String builtin = listBuiltins.getSelection()[0];
             
-	        InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(executable, new NullProgressMonitor());
-	        info.removeForcedLib(builtin);
-	        changed = true;
+            InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(executable, new NullProgressMonitor());
+            info.removeForcedLib(builtin);
+            changed = true;
         }
         updateTree();
     }
@@ -521,22 +521,22 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         listBuiltins.removeAll();
         
         if(executable != null){
-	    	TreeItem item = new TreeItem(tree, SWT.NONE);
-	    	item.setText("System libs");
-	    	item.setImage(imageSystemLibRoot);
+            TreeItem item = new TreeItem(tree, SWT.NONE);
+            item.setText("System libs");
+            item.setImage(imageSystemLibRoot);
 
-	    	InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(executable, new NullProgressMonitor());
-	    	
-	    	for (Iterator<String> iter = info.libs.iterator(); iter.hasNext();) {
-	            TreeItem subItem = new TreeItem(item, SWT.NONE);
-	            subItem.setText(iter.next());
-	            subItem.setImage(imageSystemLib);
-	        }
-	    	item.setExpanded(true);
-	    	
-	    	//set the forced builtins
-	    	for (Iterator<String> iter = info.forcedLibsIterator(); iter.hasNext();) {
-	    	    listBuiltins.add((String) iter.next());
+            InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(executable, new NullProgressMonitor());
+            
+            for (Iterator<String> iter = info.libs.iterator(); iter.hasNext();) {
+                TreeItem subItem = new TreeItem(item, SWT.NONE);
+                subItem.setText(iter.next());
+                subItem.setImage(imageSystemLib);
+            }
+            item.setExpanded(true);
+            
+            //set the forced builtins
+            for (Iterator<String> iter = info.forcedLibsIterator(); iter.hasNext();) {
+                listBuiltins.add((String) iter.next());
             }
         }
     }
@@ -550,64 +550,64 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     /** Overriden
      */
     protected String getNewInputObject() {
-    	CharArrayWriter charWriter = new CharArrayWriter();
-    	PrintWriter logger = new PrintWriter(charWriter);
-    	logger.println("Information about process of adding new interpreter:");
+        CharArrayWriter charWriter = new CharArrayWriter();
+        PrintWriter logger = new PrintWriter(charWriter);
+        logger.println("Information about process of adding new interpreter:");
         try {
-        	
-			FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
+            
+            FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
 
-			String[] filterExtensions = getInterpreterFilterExtensions();
-			if (filterExtensions != null) {
-				dialog.setFilterExtensions(filterExtensions);
-			}
+            String[] filterExtensions = getInterpreterFilterExtensions();
+            if (filterExtensions != null) {
+                dialog.setFilterExtensions(filterExtensions);
+            }
 
-			if (lastPath != null) {
-				if (new File(lastPath).exists())
-					dialog.setFilterPath(lastPath);
-			}
+            if (lastPath != null) {
+                if (new File(lastPath).exists())
+                    dialog.setFilterPath(lastPath);
+            }
 
-			logger.println("- Opening dialog to request executable (or jar).");
-			String file = dialog.open();
-			if (file != null) {
-				logger.println("- Chosen interpreter file:'"+file);
-				file = file.trim();
-				if (file.length() == 0){
-					logger.println("- When trimmed, the chosen file was empty (returning null).");
-					return null;
-				}
-				lastPath = file;
-			}else{
-				logger.println("- The file chosen was null (returning null).");
-				return null;
-			}
-			
-			if (file != null) {
-				//ok, now that we got the file, let's see if it is valid and get the library info.
-				logger.println("- Ok, file is non-null. Getting info on:"+file);
-				ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(this.getShell());
-				monitorDialog.setBlockOnOpen(false);
-				Operation operation = new Operation(file, logger);
-				monitorDialog.run(true, false, operation);
+            logger.println("- Opening dialog to request executable (or jar).");
+            String file = dialog.open();
+            if (file != null) {
+                logger.println("- Chosen interpreter file:'"+file);
+                file = file.trim();
+                if (file.length() == 0){
+                    logger.println("- When trimmed, the chosen file was empty (returning null).");
+                    return null;
+                }
+                lastPath = file;
+            }else{
+                logger.println("- The file chosen was null (returning null).");
+                return null;
+            }
+            
+            if (file != null) {
+                //ok, now that we got the file, let's see if it is valid and get the library info.
+                logger.println("- Ok, file is non-null. Getting info on:"+file);
+                ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(this.getShell());
+                monitorDialog.setBlockOnOpen(false);
+                Operation operation = new Operation(file, logger);
+                monitorDialog.run(true, false, operation);
 
-				if (operation.e != null) {
-					logger.println("- Some error happened while getting info on the interpreter:");
-					operation.e.printStackTrace(logger);
+                if (operation.e != null) {
+                    logger.println("- Some error happened while getting info on the interpreter:");
+                    operation.e.printStackTrace(logger);
 
-					if(operation.e instanceof SimpleJythonRunner.JavaNotConfiguredException){
+                    if(operation.e instanceof SimpleJythonRunner.JavaNotConfiguredException){
                         SimpleJythonRunner.JavaNotConfiguredException javaNotConfiguredException = (SimpleJythonRunner.JavaNotConfiguredException) operation.e;
                         
                         ErrorDialog.openError(this.getShell(), "Error getting info on interpreter", 
                                 javaNotConfiguredException.getMessage(), 
                                 PydevPlugin.makeStatus(IStatus.ERROR, "Java vm not configured.\n", javaNotConfiguredException));
                         
-					}else if(operation.e instanceof JDTNotAvailableException){
-					    JDTNotAvailableException noJdtException = (JDTNotAvailableException) operation.e;
+                    }else if(operation.e instanceof JDTNotAvailableException){
+                        JDTNotAvailableException noJdtException = (JDTNotAvailableException) operation.e;
                         ErrorDialog.openError(this.getShell(), "Error getting info on interpreter", 
                                 noJdtException.getMessage(), 
-					            PydevPlugin.makeStatus(IStatus.ERROR, "JDT not available.\n", noJdtException));
-					    
-					}else{
+                                PydevPlugin.makeStatus(IStatus.ERROR, "JDT not available.\n", noJdtException));
+                        
+                    }else{
                         String errorMsg = "Some error happened while getting info on the interpreter.\n\n" +
                                     "Common reasons include:\n\n" +
                                     "- Specifying an invalid interpreter" +
@@ -619,20 +619,20 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                                 PydevPlugin.makeStatus(IStatus.ERROR, "Check your error log for more details.\n\n" +
                                     "More info can also be found at the bug report: http://sourceforge.net/tracker/index.php?func=detail&aid=1523582&group_id=85796&atid=577329", 
                                 operation.e));
-					}
+                    }
                     
-					throw operation.e;
-				}
+                    throw operation.e;
+                }
 
-				logger.println("- Success getting the info. Result:"+operation.result);
-				return operation.result;
-			}
-			
+                logger.println("- Success getting the info. Result:"+operation.result);
+                return operation.result;
+            }
+            
         } catch (Exception e) {
             PydevPlugin.log(e);
             return null;
         } finally {
-        	PydevPlugin.logInfo(charWriter.toString());
+            PydevPlugin.logInfo(charWriter.toString());
         }
         
         return null;
@@ -642,14 +642,14 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     protected void doStore() {
         String s = createList(list.getItems());
         if (s != null){
-        	interpreterManager.setPersistedString(s);
+            interpreterManager.setPersistedString(s);
         }
     }
     
     @Override
     protected void doLoad() {
         if (list != null) {
-        	String s = interpreterManager.getPersistedString();
+            String s = interpreterManager.getPersistedString();
             String[] array = parseString(s);
             for (int i = 0; i < array.length; i++) {
                 list.add(array[i]);
@@ -659,7 +659,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     }
 
     public String getPreferenceName(){
-    	throw new RuntimeException("The preferences should be stored/gotten from the IInterpreterManager, and not directly.");
+        throw new RuntimeException("The preferences should be stored/gotten from the IInterpreterManager, and not directly.");
     }
     
     /** Overriden
@@ -678,42 +678,42 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
     private static class OperationMonitor extends ProgressMonitorWrapper{
 
-		private PrintWriter logger;
+        private PrintWriter logger;
 
-		protected OperationMonitor(IProgressMonitor monitor, PrintWriter logger) {
-			super(monitor);
-			this.logger = logger;
-		}
-    	
-		@Override
-		public void beginTask(String name, int totalWork) {
-			super.beginTask(name, totalWork);
-			logger.print("- Beggining task:");
-			logger.print(name);
-			logger.print(" totalWork:");
-			logger.println(totalWork);
-		}
-		
-		@Override
-		public void setTaskName(String name) {
-			super.setTaskName(name);
-			logger.print("- Setting task name:");
-			logger.println(name);
-		}
-		
-		@Override
-		public void subTask(String name) {
-			super.subTask(name);
-			logger.print("- Sub Task:");
-			logger.println(name);
-		}
+        protected OperationMonitor(IProgressMonitor monitor, PrintWriter logger) {
+            super(monitor);
+            this.logger = logger;
+        }
+        
+        @Override
+        public void beginTask(String name, int totalWork) {
+            super.beginTask(name, totalWork);
+            logger.print("- Beggining task:");
+            logger.print(name);
+            logger.print(" totalWork:");
+            logger.println(totalWork);
+        }
+        
+        @Override
+        public void setTaskName(String name) {
+            super.setTaskName(name);
+            logger.print("- Setting task name:");
+            logger.println(name);
+        }
+        
+        @Override
+        public void subTask(String name) {
+            super.subTask(name);
+            logger.print("- Sub Task:");
+            logger.println(name);
+        }
     }
     private class Operation implements IRunnableWithProgress{
 
         public String result;
         public String file;
         public Exception e;
-		private PrintWriter logger;
+        private PrintWriter logger;
         
         /**
          * @param file2
@@ -728,12 +728,12 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
          * @see org.eclipse.jface.operation.IRunnableWithProgress#run(org.eclipse.core.runtime.IProgressMonitor)
          */
         public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-        	monitor = new OperationMonitor(monitor, logger);
+            monitor = new OperationMonitor(monitor, logger);
             monitor.beginTask("Getting libs", 100);
             try {
                 result = interpreterManager.addInterpreter(file, monitor);
             } catch (Exception e) {
-            	logger.println("Exception detected: "+e.getMessage());
+                logger.println("Exception detected: "+e.getMessage());
                 this.e = e;
             }
             monitor.done();

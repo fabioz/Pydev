@@ -90,18 +90,18 @@ public class AssistAssign implements IAssistProps {
         //  e.methodCall()| would result in the following suggestions:
         //
         //                   methodCall = e.methodCall()
-        //					 self.methodCall = e.methodCall()
+        //                     self.methodCall = e.methodCall()
         //
         // NewClass()| would result in
         //
         //                   newClass = NewClass()
-        //					 self.newClass = NewClass()
+        //                     self.newClass = NewClass()
         //
         //now, if we don't have a method call, eg.:
         // 1+1| would result in
         //
-        //					 |result| = 1+1
-        //					 self.|result| = 1+1
+        //                     |result| = 1+1
+        //                     self.|result| = 1+1
 
         String callName = getTokToAssign(ps, lineWithoutComments);
         callName = changeToLowerUppercaseConstant(callName);

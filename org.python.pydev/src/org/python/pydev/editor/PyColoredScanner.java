@@ -17,25 +17,25 @@ import org.python.pydev.ui.ColorCache;
  * color in the colorCache
  */
 public class PyColoredScanner extends RuleBasedScanner {
-	private ColorCache colorCache;
-	private String colorName;
-	private int style;
-	
-	public PyColoredScanner(ColorCache colorCache, String colorName, int style) {
-		super();
-		this.colorCache = colorCache;
-		this.colorName = colorName;
-		this.style = style;
-        updateColorAndStyle();		
-	}
+    private ColorCache colorCache;
+    private String colorName;
+    private int style;
+    
+    public PyColoredScanner(ColorCache colorCache, String colorName, int style) {
+        super();
+        this.colorCache = colorCache;
+        this.colorName = colorName;
+        this.style = style;
+        updateColorAndStyle();        
+    }
     
     public void setStyle(int style){
         this.style = style;
     }
-	
-	public void updateColorAndStyle() {
-		setDefaultReturnToken(new Token(new TextAttribute(colorCache.getNamedColor(colorName), null, style)));
-	}
+    
+    public void updateColorAndStyle() {
+        setDefaultReturnToken(new Token(new TextAttribute(colorCache.getNamedColor(colorName), null, style)));
+    }
     
     
 }

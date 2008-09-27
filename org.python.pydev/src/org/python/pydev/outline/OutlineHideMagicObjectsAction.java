@@ -32,7 +32,7 @@ public class OutlineHideMagicObjectsAction extends AbstractOutlineFilterAction {
      */
     @Override
     protected ViewerFilter createFilter() {
-    	return new ViewerFilter() {
+        return new ViewerFilter() {
 
             @Override
             public boolean select(Viewer viewer, Object parentElement, Object element) {
@@ -43,28 +43,28 @@ public class OutlineHideMagicObjectsAction extends AbstractOutlineFilterAction {
 
                     String name = null;
                     if (token instanceof ClassDef) {
-                    	ClassDef classDefToken = (ClassDef) token;
-                    	name = NodeUtils.getNameFromNameTok((NameTok) (classDefToken).name);
+                        ClassDef classDefToken = (ClassDef) token;
+                        name = NodeUtils.getNameFromNameTok((NameTok) (classDefToken).name);
                     }
                     else if (token instanceof FunctionDef) {
-                    	FunctionDef functionDefToken = (FunctionDef) token;
-                    	name = NodeUtils.getNameFromNameTok((NameTok) (functionDefToken).name);
+                        FunctionDef functionDefToken = (FunctionDef) token;
+                        name = NodeUtils.getNameFromNameTok((NameTok) (functionDefToken).name);
                     }
                     else if (token instanceof Attribute) {
-                    	Attribute attributeToken = (Attribute) token;
-                    	name = NodeUtils.getNameFromNameTok((NameTok) (attributeToken).attr);
+                        Attribute attributeToken = (Attribute) token;
+                        name = NodeUtils.getNameFromNameTok((NameTok) (attributeToken).attr);
                     }
                     else if (token instanceof Name) {
-                    	Name nameToken = (Name) token;
-                    	name = nameToken.id;
+                        Name nameToken = (Name) token;
+                        name = nameToken.id;
                     }
                     else if (token instanceof NameTok) {
-                    	NameTok nameTokToken = (NameTok) token;
-                    	name = NodeUtils.getNameFromNameTok(nameTokToken);
+                        NameTok nameTokToken = (NameTok) token;
+                        name = NodeUtils.getNameFromNameTok(nameTokToken);
                     }
                     
                     if (name != null) {
-                    	return !(name.startsWith("__") && (name.endsWith("__")));
+                        return !(name.startsWith("__") && (name.endsWith("__")));
                     }
                 }
                 return true;

@@ -25,9 +25,9 @@ public class FileTreeLabelProvider extends LabelProvider {
 
     public Image getImage(Object element) {
         if (((File) element).isDirectory()) {
-			return imageCache.get(UIConstants.FOLDER_ICON);
+            return imageCache.get(UIConstants.FOLDER_ICON);
         } else {
-			return imageCache.get(UIConstants.FILE_ICON);
+            return imageCache.get(UIConstants.FILE_ICON);
         }
     }
 }

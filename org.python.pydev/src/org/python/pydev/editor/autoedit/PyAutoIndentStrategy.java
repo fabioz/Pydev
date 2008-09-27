@@ -59,7 +59,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
      */
     private Tuple<String,Boolean> autoIndentNewline(IDocument document, int length, String text, int offset)
             throws BadLocationException {
-    	
+        
         if (offset > 0) {
             PySelection selection = new PySelection(document, offset);
 
@@ -83,25 +83,25 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                 
                 //we have to check if smartIndent is -1 because otherwise we are inside some bracket
                 if(smartIndent == -1 && DocUtils.isClosingPeer(lastChar)){
-                	//ok, not inside brackets
+                    //ok, not inside brackets
                     PythonPairMatcher matcher = new PythonPairMatcher(DocUtils.BRACKETS);
                     int bracketOffset = selection.getLineOffset()+curr;
                     IRegion region = matcher.match(document, bracketOffset+1);
                     if(region != null){
-                    	if(!PySelection.endsInSameLine(document, region)){
-	                    	//we might not have a match if there is an error in the program...
-	                    	//e.g. a single ')' without its counterpart.
-	                        int openingBracketLine = document.getLineOfOffset(region.getOffset());
-	                        String openingBracketLineStr = PySelection.getLine(document, openingBracketLine);
-	                        int first = PySelection.getFirstCharPosition(openingBracketLineStr);
-	                        String initial = getCharsBeforeNewLine(text);
-	                        text = initial + openingBracketLineStr.substring(0, first);
-	                        return new Tuple<String, Boolean>(text, isInsidePar);
-	                    }
+                        if(!PySelection.endsInSameLine(document, region)){
+                            //we might not have a match if there is an error in the program...
+                            //e.g. a single ')' without its counterpart.
+                            int openingBracketLine = document.getLineOfOffset(region.getOffset());
+                            String openingBracketLineStr = PySelection.getLine(document, openingBracketLine);
+                            int first = PySelection.getFirstCharPosition(openingBracketLineStr);
+                            String initial = getCharsBeforeNewLine(text);
+                            text = initial + openingBracketLineStr.substring(0, first);
+                            return new Tuple<String, Boolean>(text, isInsidePar);
+                        }
                     }
                 } else if (smartIndent == -1 && lastChar == ':') {
                     //we have to check if smartIndent is -1 because otherwise we are in a dict
-                	//ok, not inside brackets
+                    //ok, not inside brackets
                     text = indentBasedOnStartingScope(text, selection, false);
                     return new Tuple<String, Boolean>(text, isInsidePar);
                 }
@@ -138,120 +138,120 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
     /**
      * @return the text for the indent 
      */
-	private String indentBasedOnStartingScope(String text, PySelection selection, boolean checkForLowestBeforeNewScope) {
-		Tuple3<String,String, String> previousIfLine = selection.getPreviousLineThatStartsScope();
-		if(previousIfLine != null){
-		    String initial = getCharsBeforeNewLine(text);
-		    
-		    if(previousIfLine.o2 == null){ //no dedent was found
-		    	String indent = PySelection.getIndentationFromLine(previousIfLine.o1);
+    private String indentBasedOnStartingScope(String text, PySelection selection, boolean checkForLowestBeforeNewScope) {
+        Tuple3<String,String, String> previousIfLine = selection.getPreviousLineThatStartsScope();
+        if(previousIfLine != null){
+            String initial = getCharsBeforeNewLine(text);
+            
+            if(previousIfLine.o2 == null){ //no dedent was found
+                String indent = PySelection.getIndentationFromLine(previousIfLine.o1);
 
-		    	if(checkForLowestBeforeNewScope && previousIfLine.o3 != null){
-		    		
+                if(checkForLowestBeforeNewScope && previousIfLine.o3 != null){
+                    
                     indent = PySelection.getIndentationFromLine(previousIfLine.o3);
                     text = initial + indent;
                     
                 }else{
-                	
+                    
                     text = initial + indent + prefs.getIndentationString();
                     
                 }
-		    	
-		    }else{ //some dedent was found
-		    	String indent = PySelection.getIndentationFromLine(previousIfLine.o2);
-		    	String indentationString = prefs.getIndentationString();
-		    	
-		    	final int i = indent.length() - indentationString.length();
-		    	if (i > 0 && indent.length() > i){
-		    		text = (initial+indent).substring(0, i+1);
-		    	}else{
-		    		text = initial; // this can happen if we found a dedent that is 1 level deep
-		    	}
-		    }
-		    
-		}
-		return text;
-	}
+                
+            }else{ //some dedent was found
+                String indent = PySelection.getIndentationFromLine(previousIfLine.o2);
+                String indentationString = prefs.getIndentationString();
+                
+                final int i = indent.length() - indentationString.length();
+                if (i > 0 && indent.length() > i){
+                    text = (initial+indent).substring(0, i+1);
+                }else{
+                    text = initial; // this can happen if we found a dedent that is 1 level deep
+                }
+            }
+            
+        }
+        return text;
+    }
 
 
-	/**
-	 * Returns the first offset greater than <code>offset</code> and smaller than
-	 * <code>end</code> whose character is not a space or tab character. If no such
-	 * offset is found, <code>end</code> is returned.
-	 *
-	 * @param document the document to search in
-	 * @param offset the offset at which searching start
-	 * @param end the offset at which searching stops
-	 * @return the offset in the specified range whose character is not a space or tab
-	 * @exception BadLocationException if position is an invalid range in the given document
-	 */
-	private int findEndOfWhiteSpace(IDocument document, int offset, int end) throws BadLocationException {
-		while (offset < end) {
-			char c= document.getChar(offset);
-			if (c != ' ' && c != '\t') {
-				return offset;
-			}
-			offset++;
-		}
-		return end;
-	}
+    /**
+     * Returns the first offset greater than <code>offset</code> and smaller than
+     * <code>end</code> whose character is not a space or tab character. If no such
+     * offset is found, <code>end</code> is returned.
+     *
+     * @param document the document to search in
+     * @param offset the offset at which searching start
+     * @param end the offset at which searching stops
+     * @return the offset in the specified range whose character is not a space or tab
+     * @exception BadLocationException if position is an invalid range in the given document
+     */
+    private int findEndOfWhiteSpace(IDocument document, int offset, int end) throws BadLocationException {
+        while (offset < end) {
+            char c= document.getChar(offset);
+            if (c != ' ' && c != '\t') {
+                return offset;
+            }
+            offset++;
+        }
+        return end;
+    }
 
-	private void autoIndentSameAsPrevious(IDocument d, DocumentCommand c) {
-		String txt = autoIndentSameAsPrevious(d, c.offset, c.text, true);
-		if(txt != null){
-			c.text = txt;
-		}
-	}
-	/**
-	 * Copies the indentation of the previous line.
-	 *
-	 * @param d the document to work on
-	 * @param text the string that should added to the start of the returned string
-	 * @param considerEmptyLines whether we should consider empty lines in this function
-	 * @param c the command to deal with
-	 * 
-	 * @return a string with text+ the indentation found in the previous line (or previous non-empty line). 
-	 */
-	private String autoIndentSameAsPrevious(IDocument d, int offset, String text, boolean considerEmptyLines) {
+    private void autoIndentSameAsPrevious(IDocument d, DocumentCommand c) {
+        String txt = autoIndentSameAsPrevious(d, c.offset, c.text, true);
+        if(txt != null){
+            c.text = txt;
+        }
+    }
+    /**
+     * Copies the indentation of the previous line.
+     *
+     * @param d the document to work on
+     * @param text the string that should added to the start of the returned string
+     * @param considerEmptyLines whether we should consider empty lines in this function
+     * @param c the command to deal with
+     * 
+     * @return a string with text+ the indentation found in the previous line (or previous non-empty line). 
+     */
+    private String autoIndentSameAsPrevious(IDocument d, int offset, String text, boolean considerEmptyLines) {
 
-		if (offset == -1 || d.getLength() == 0)
-			return null;
+        if (offset == -1 || d.getLength() == 0)
+            return null;
 
-		try {
-			// find start of line
-			IRegion info= d.getLineInformationOfOffset(offset);
-			String line = d.get(info.getOffset(), info.getLength());
-			
-			if(!considerEmptyLines){
-				int currLine = d.getLineOfOffset(offset);
-				while(PySelection.containsOnlyWhitespaces(line)){
-					currLine--;
-					if(currLine <= 0){
-						break;
-					}
-					info= d.getLineInformation(currLine);
-					line = d.get(info.getOffset(), info.getLength());
-				}
-			}
-			
-			int start= info.getOffset();
+        try {
+            // find start of line
+            IRegion info= d.getLineInformationOfOffset(offset);
+            String line = d.get(info.getOffset(), info.getLength());
+            
+            if(!considerEmptyLines){
+                int currLine = d.getLineOfOffset(offset);
+                while(PySelection.containsOnlyWhitespaces(line)){
+                    currLine--;
+                    if(currLine <= 0){
+                        break;
+                    }
+                    info= d.getLineInformation(currLine);
+                    line = d.get(info.getOffset(), info.getLength());
+                }
+            }
+            
+            int start= info.getOffset();
 
-			// find white spaces
-			int end= findEndOfWhiteSpace(d, start, offset);
+            // find white spaces
+            int end= findEndOfWhiteSpace(d, start, offset);
 
-			FastStringBuffer buf= new FastStringBuffer(text, end-start+1);
-			if (end > start) {
-				// append to input
-				buf.append(d.get(start, end - start));
-			}
+            FastStringBuffer buf= new FastStringBuffer(text, end-start+1);
+            if (end > start) {
+                // append to input
+                buf.append(d.get(start, end - start));
+            }
 
-			return buf.toString();
+            return buf.toString();
 
-		} catch (BadLocationException excp) {
-			// stop work
-			return null;
-		}
-	}
+        } catch (BadLocationException excp) {
+            // stop work
+            return null;
+        }
+    }
 
     /**
      * @param document
@@ -286,17 +286,17 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
      */
     public void customizeDocumentCommand(IDocument document, DocumentCommand command) {
         // super idents newlines the same amount as the previous line
-    	final boolean isNewLine = isNewLineText(document, command.length, command.text);
-    	
+        final boolean isNewLine = isNewLineText(document, command.length, command.text);
+        
         
         String contentType = ParsingUtils.getContentType(document, command.offset);
 
-		if(!contentType.equals(ParsingUtils.PY_DEFAULT)){
+        if(!contentType.equals(ParsingUtils.PY_DEFAULT)){
             //the indentation is only valid for things in the code (comments should not be indented).
             //(that is, if it is not a new line... in this case, it may have to be indented)
             if(!isNewLine){
-            	//we have to take care about tabs anyway
-            	getIndentPrefs().convertToStd(document, command);
+                //we have to take care about tabs anyway
+                getIndentPrefs().convertToStd(document, command);
                 return;
             }else{
                 if(!contentType.equals(ParsingUtils.PY_COMMENT)){
@@ -309,42 +309,42 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         
 
         try {
-        	
+            
             if (isNewLine) {
-            	customizeNewLine(document, command);
-            	
+                customizeNewLine(document, command);
+                
             }else if(command.text.equals("\t")){
-            	PySelection ps = new PySelection(document, command.offset);
-            	//it is a tab
-            	String lineContentsToCursor = ps.getLineContentsToCursor();
-            	int currSize = lineContentsToCursor.length();
-            	int cursorLine = ps.getCursorLine();
-            	if(cursorLine > 0){
-            		//this is to know which would be expected if it was a new line in the previous line
-            		//(so that we know the 'expected' output
-            		IRegion prevLineInfo = document.getLineInformation(cursorLine-1);
-            		int prevLineEndOffset = prevLineInfo.getOffset()+prevLineInfo.getLength();
-            		String prevExpectedIndent = autoIndentSameAsPrevious(document, prevLineEndOffset, "\n", false);
+                PySelection ps = new PySelection(document, command.offset);
+                //it is a tab
+                String lineContentsToCursor = ps.getLineContentsToCursor();
+                int currSize = lineContentsToCursor.length();
+                int cursorLine = ps.getCursorLine();
+                if(cursorLine > 0){
+                    //this is to know which would be expected if it was a new line in the previous line
+                    //(so that we know the 'expected' output
+                    IRegion prevLineInfo = document.getLineInformation(cursorLine-1);
+                    int prevLineEndOffset = prevLineInfo.getOffset()+prevLineInfo.getLength();
+                    String prevExpectedIndent = autoIndentSameAsPrevious(document, prevLineEndOffset, "\n", false);
                     String txt = prevExpectedIndent;
-            		Tuple<String, Boolean> prevLineTup = autoIndentNewline(document, 0, txt, prevLineEndOffset);
+                    Tuple<String, Boolean> prevLineTup = autoIndentNewline(document, 0, txt, prevLineEndOffset);
                     txt = prevLineTup.o1;
-            		txt = txt.substring(1);//remove the newline
+                    txt = txt.substring(1);//remove the newline
                     prevExpectedIndent = prevExpectedIndent.substring(1);
                     
-            		if (txt.length() > 0){
-            			//now, we should not apply that indent if we are already at the 'max' indent in this line
-            			//(or better: we should go to that max if it would pass it)
-            			int sizeExpected = txt.length();
-            			int sizeApplied = currSize + sizeExpected;
+                    if (txt.length() > 0){
+                        //now, we should not apply that indent if we are already at the 'max' indent in this line
+                        //(or better: we should go to that max if it would pass it)
+                        int sizeExpected = txt.length();
+                        int sizeApplied = currSize + sizeExpected;
 
-            			if(currSize >= sizeExpected){
-            				//ok, we already passed what we expected from the indentation, so, let's indent
-            				//to the next 'expected' position...
-            				
-            				boolean applied = false;
-            				//handle within parenthesis
+                        if(currSize >= sizeExpected){
+                            //ok, we already passed what we expected from the indentation, so, let's indent
+                            //to the next 'expected' position...
+                            
+                            boolean applied = false;
+                            //handle within parenthesis
                             if(prevLineTup.o2){
-                            	int len = sizeApplied-sizeExpected;
+                                int len = sizeApplied-sizeExpected;
                                 if(prevExpectedIndent.length() > len){
                                     command.text = prevExpectedIndent.substring(len);
                                     applied = true;
@@ -352,49 +352,49 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                             }
                             
                             if(!applied){
-                            	applyDefaultForTab(command, currSize);
+                                applyDefaultForTab(command, currSize);
                             }
                             
-            			}else if(sizeExpected == sizeApplied){
+                        }else if(sizeExpected == sizeApplied){
                             if(command.length == 0){
-                				ps.deleteSpacesAfter(command.offset);
+                                ps.deleteSpacesAfter(command.offset);
                             }
-            				command.text = txt;
-            			}else if(sizeApplied > sizeExpected){
-            				ps.deleteSpacesAfter(command.offset);
-            				command.text = txt.substring(0, sizeExpected - currSize);
-            			}
-            		}else{
-            			applyDefaultForTab(command, currSize);
-            		}
-            		
-            	}else{ //cursorLine == 0
-                	applyDefaultForTab(command, currSize);
-            	}
+                            command.text = txt;
+                        }else if(sizeApplied > sizeExpected){
+                            ps.deleteSpacesAfter(command.offset);
+                            command.text = txt.substring(0, sizeExpected - currSize);
+                        }
+                    }else{
+                        applyDefaultForTab(command, currSize);
+                    }
+                    
+                }else{ //cursorLine == 0
+                    applyDefaultForTab(command, currSize);
+                }
             }
             
             getIndentPrefs().convertToStd(document, command);
 
             
-        	if (prefs.getAutoParentesis() && (command.text.equals("[") || command.text.equals("{")) ) {
-        		PySelection ps = new PySelection(document, command.offset);
-        		char c = command.text.charAt(0);
-        		if (shouldClose(ps, c)) {
-        			command.shiftsCaret = false;
+            if (prefs.getAutoParentesis() && (command.text.equals("[") || command.text.equals("{")) ) {
+                PySelection ps = new PySelection(document, command.offset);
+                char c = command.text.charAt(0);
+                if (shouldClose(ps, c)) {
+                    command.shiftsCaret = false;
                     command.text = c+""+DocUtils.getPeer(c);
                     command.caretOffset = command.offset+1;
-        		}
-        		
-        	}else if (command.text.equals("(")) {
-            	/*
-            	 * Now, let's also check if we are in an 'elif ' that must be dedented in the doc
-            	 */
-            	autoDedentElif(document, command);
+                }
+                
+            }else if (command.text.equals("(")) {
+                /*
+                 * Now, let's also check if we are in an 'elif ' that must be dedented in the doc
+                 */
+                autoDedentElif(document, command);
 
-            	customizeParenthesis(document, command);
+                customizeParenthesis(document, command);
 
             }
-	            
+                
             else if (command.text.equals(":")) {
                 /*
                  * The following code will auto-replace colons in function
@@ -421,30 +421,30 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
              * the import 
              */
             else if (command.text.equals(" ")) {
-            	if( prefs.getAutoWriteImport()){
-            		PySelection ps = new PySelection(document, command.offset);
-	                String completeLine = ps.getLineWithoutCommentsOrLiterals();
-	                String lineToCursor = ps.getLineContentsToCursor().trim();
-	                String lineContentsFromCursor = ps.getLineContentsFromCursor();
-	                
-	                if( completeLine.indexOf(" import ") == -1 && 
-                		StringUtils.leftTrim(completeLine).startsWith("from ")&& 
-	                   !completeLine.startsWith("import ")&& 
-	                   !completeLine.endsWith(" import") &&
-	                   !lineContentsFromCursor.startsWith("import")){
-	                	
-	                    String importsTipperStr = ImportsSelection.getImportsTipperStr(lineToCursor, false).importsTipperStr;
-	                    if(importsTipperStr.length() > 0){
-	                        command.text = " import ";
-	                    }
-	                }
-            	}
-            	
-            	
-            	/*
-            	 * Now, let's also check if we are in an 'elif ' that must be dedented in the doc
-            	 */
-            	autoDedentElif(document, command);
+                if( prefs.getAutoWriteImport()){
+                    PySelection ps = new PySelection(document, command.offset);
+                    String completeLine = ps.getLineWithoutCommentsOrLiterals();
+                    String lineToCursor = ps.getLineContentsToCursor().trim();
+                    String lineContentsFromCursor = ps.getLineContentsFromCursor();
+                    
+                    if( completeLine.indexOf(" import ") == -1 && 
+                        StringUtils.leftTrim(completeLine).startsWith("from ")&& 
+                       !completeLine.startsWith("import ")&& 
+                       !completeLine.endsWith(" import") &&
+                       !lineContentsFromCursor.startsWith("import")){
+                        
+                        String importsTipperStr = ImportsSelection.getImportsTipperStr(lineToCursor, false).importsTipperStr;
+                        if(importsTipperStr.length() > 0){
+                            command.text = " import ";
+                        }
+                    }
+                }
+                
+                
+                /*
+                 * Now, let's also check if we are in an 'elif ' that must be dedented in the doc
+                 */
+                autoDedentElif(document, command);
             }
             
             /*
@@ -486,7 +486,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 
     public void customizeParenthesis(IDocument document, DocumentCommand command) throws BadLocationException {
         if(prefs.getAutoParentesis()){
-        	PySelection ps = new PySelection(document, command.offset);
+            PySelection ps = new PySelection(document, command.offset);
             String line = ps.getLine();
 
             if (shouldClose(ps, '(')) {
@@ -556,16 +556,16 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         if(prefs.getSmartIndentPar()){
             PySelection selection = new PySelection(document, command.offset);
             if(selection.getCursorLineContents().trim().length() > 0){
-            	command.text = autoIndentNewline(document, command.length, command.text, command.offset).o1;
-            	if(PySelection.containsOnlyWhitespaces(selection.getLineContentsToCursor())){
-            		command.caretOffset = command.offset + selection.countSpacesAfter(command.offset);
-            	}
+                command.text = autoIndentNewline(document, command.length, command.text, command.offset).o1;
+                if(PySelection.containsOnlyWhitespaces(selection.getLineContentsToCursor())){
+                    command.caretOffset = command.offset + selection.countSpacesAfter(command.offset);
+                }
             }
         }else{
-        	PySelection selection = new PySelection(document, command.offset);
-        	if(selection.getLineContentsToCursor().trim().endsWith(":")){
-        		command.text += prefs.getIndentationString();
-        	}
+            PySelection selection = new PySelection(document, command.offset);
+            if(selection.getLineContentsToCursor().trim().endsWith(":")){
+                command.text += prefs.getIndentationString();
+            }
         }
     }
 
@@ -574,18 +574,18 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
      * @param command the command to be edited
      * @param lineContentsToCursorLen the current cursor position at the current line
      */
-	private void applyDefaultForTab(DocumentCommand command, int lineContentsToCursorLen) {
-		IIndentPrefs prefs = getIndentPrefs();
-		if(prefs.getUseSpaces()){
-			int tabWidth = getIndentPrefs().getTabWidth();
-			
-			int mod = (lineContentsToCursorLen+tabWidth) % tabWidth;
-			command.text = DocUtils.createSpaceString(tabWidth-mod);
-		}else{
-			//do nothing (a tab is already a tab)
-		}
-		
-	}
+    private void applyDefaultForTab(DocumentCommand command, int lineContentsToCursorLen) {
+        IIndentPrefs prefs = getIndentPrefs();
+        if(prefs.getUseSpaces()){
+            int tabWidth = getIndentPrefs().getTabWidth();
+            
+            int mod = (lineContentsToCursorLen+tabWidth) % tabWidth;
+            command.text = DocUtils.createSpaceString(tabWidth-mod);
+        }else{
+            //do nothing (a tab is already a tab)
+        }
+        
+    }
 
     /**
      * This function makes the else auto-dedent (if available)
@@ -636,7 +636,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
      * on subsequent things).
      */
     public Tuple<String, Integer> autoDedentElif(IDocument document, DocumentCommand command) throws BadLocationException {
-    	return autoDedentAfterColon(document, command, "elif", PySelection.TOKENS_BEFORE_ELSE);
+        return autoDedentAfterColon(document, command, "elif", PySelection.TOKENS_BEFORE_ELSE);
     }
     
 
@@ -767,18 +767,18 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         char c = ps.getCharAtCurrentOffset();
         
         try{
-	        char peer = DocUtils.getPeer(c);
-	        
-	        FastStringBuffer doc = new FastStringBuffer(document.get(), 2);
-	        //it is not enough just counting the chars, we have to ignore those that are within comments or literals.
-	        ParsingUtils.removeCommentsWhitespacesAndLiterals(doc);
-	        int chars = PyAction.countChars(c, doc);
-	        int peers = PyAction.countChars(peer, doc);
-	
-	        boolean skipChar = chars == peers;
-	        return skipChar;
+            char peer = DocUtils.getPeer(c);
+            
+            FastStringBuffer doc = new FastStringBuffer(document.get(), 2);
+            //it is not enough just counting the chars, we have to ignore those that are within comments or literals.
+            ParsingUtils.removeCommentsWhitespacesAndLiterals(doc);
+            int chars = PyAction.countChars(c, doc);
+            int peers = PyAction.countChars(peer, doc);
+    
+            boolean skipChar = chars == peers;
+            return skipChar;
         }catch(NoPeerAvailableException e){
-        	return false;
+            return false;
         }
     }
         
@@ -811,23 +811,23 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
     }
 
     /**
-	 * Return smart indent amount for new line. This should be done for
-	 * multiline structures like function parameters, tuples, lists and
-	 * dictionaries.
-	 * 
-	 * Example:
-	 * 
-	 * a=foo(1, #
-	 * 
-	 * We would return the indentation needed to place the caret at the #
-	 * position.
-	 * 
-	 * @param document The document
-	 * @param offset The document offset of the last character on the previous line
+     * Return smart indent amount for new line. This should be done for
+     * multiline structures like function parameters, tuples, lists and
+     * dictionaries.
+     * 
+     * Example:
+     * 
+     * a=foo(1, #
+     * 
+     * We would return the indentation needed to place the caret at the #
+     * position.
+     * 
+     * @param document The document
+     * @param offset The document offset of the last character on the previous line
      * @param ps 
-	 * @return indent, or -1 if smart indent could not be determined (fall back to default)
+     * @return indent, or -1 if smart indent could not be determined (fall back to default)
      * and a boolean indicating if we're inside a parenthesis
-	 */
+     */
     public static Tuple<Integer,Boolean> determineSmartIndent(int offset, PySelection ps, IIndentPrefs prefs)
             throws BadLocationException {
         IDocument document = ps.getDoc();
@@ -847,42 +847,42 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         int len = -1;
         String contents = "";
         if(prefs.getIndentToParLevel()){
-        	
-        	
-        	//now, there's a little catch here, if we are in a line with an opening peer,
-        	//we have to choose whether to indent to the opening peer or a little further
-        	//e.g.: if the line is 
-        	//method(  self <<- a new line here should indent to the start of the self and not
-        	//to the opening peer.
-        	if(openingPeerOffset < offset){
-        		String fromParToCursor = document.get(openingPeerOffset, offset-openingPeerOffset);
-        		if(fromParToCursor.length() > 0 && fromParToCursor.charAt(0) == '('){
-        			fromParToCursor = fromParToCursor.substring(1);
-        			if(!PySelection.containsOnlyWhitespaces(fromParToCursor)){
-        				final int firstCharPosition = PySelection.getFirstCharPosition(fromParToCursor);
-        				openingPeerOffset += firstCharPosition;
-        			}
-        		}
-        	}
-        	
-        	
-			int openingPeerLineOffset = lineInformationOfOffset.getOffset();
-	        len = openingPeerOffset - openingPeerLineOffset;
-	        contents = document.get(openingPeerLineOffset, len);
+            
+            
+            //now, there's a little catch here, if we are in a line with an opening peer,
+            //we have to choose whether to indent to the opening peer or a little further
+            //e.g.: if the line is 
+            //method(  self <<- a new line here should indent to the start of the self and not
+            //to the opening peer.
+            if(openingPeerOffset < offset){
+                String fromParToCursor = document.get(openingPeerOffset, offset-openingPeerOffset);
+                if(fromParToCursor.length() > 0 && fromParToCursor.charAt(0) == '('){
+                    fromParToCursor = fromParToCursor.substring(1);
+                    if(!PySelection.containsOnlyWhitespaces(fromParToCursor)){
+                        final int firstCharPosition = PySelection.getFirstCharPosition(fromParToCursor);
+                        openingPeerOffset += firstCharPosition;
+                    }
+                }
+            }
+            
+            
+            int openingPeerLineOffset = lineInformationOfOffset.getOffset();
+            len = openingPeerOffset - openingPeerLineOffset;
+            contents = document.get(openingPeerLineOffset, len);
         }else{
-        	//ok, we have to get the 
-        	int line = document.getLineOfOffset(openingPeerOffset);
-        	final String indent = prefs.getIndentationString();
-			contents = PySelection.getLine(document, line);
-			contents = PySelection.getIndentationFromLine(contents);
-        	contents += indent.substring(0, indent.length()-1); //we have to make it -1 (that's what the smartindent expects)
-        	len = contents.length();
+            //ok, we have to get the 
+            int line = document.getLineOfOffset(openingPeerOffset);
+            final String indent = prefs.getIndentationString();
+            contents = PySelection.getLine(document, line);
+            contents = PySelection.getIndentationFromLine(contents);
+            contents += indent.substring(0, indent.length()-1); //we have to make it -1 (that's what the smartindent expects)
+            len = contents.length();
         }
         //add more spaces for each tab
         for(int i = 0; i<contents.length(); i++){
-        	if(contents.charAt(i) == '\t'){
-        		len += prefs.getTabWidth() - 1;
-        	}
+            if(contents.charAt(i) == '\t'){
+                len += prefs.getTabWidth() - 1;
+            }
         }
         return new Tuple<Integer,Boolean>(len, true);
         

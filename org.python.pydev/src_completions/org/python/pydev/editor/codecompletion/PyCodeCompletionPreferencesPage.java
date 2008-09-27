@@ -29,27 +29,27 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     public static final String ATTEMPTS_CODECOMPLETION = "ATTEMPTS_CODECOMPLETION";
     public static final int DEFAULT_ATTEMPTS_CODECOMPLETION = 20;
 
-	public static final String AUTOCOMPLETE_ON_DOT = "AUTOCOMPLETE_ON_DOT";
-	public static final boolean DEFAULT_AUTOCOMPLETE_ON_DOT = true;
-	
-	public static final String AUTOCOMPLETE_ON_ALL_ASCII_CHARS = "AUTOCOMPLETE_ON_ALL_ASCII_CHARS";
-	public static final boolean DEFAULT_AUTOCOMPLETE_ON_ALL_ASCII_CHARS = false;
+    public static final String AUTOCOMPLETE_ON_DOT = "AUTOCOMPLETE_ON_DOT";
+    public static final boolean DEFAULT_AUTOCOMPLETE_ON_DOT = true;
+    
+    public static final String AUTOCOMPLETE_ON_ALL_ASCII_CHARS = "AUTOCOMPLETE_ON_ALL_ASCII_CHARS";
+    public static final boolean DEFAULT_AUTOCOMPLETE_ON_ALL_ASCII_CHARS = false;
 
-	public static final String USE_AUTOCOMPLETE = "USE_AUTOCOMPLETE";
-	public static final boolean DEFAULT_USE_AUTOCOMPLETE = true;
+    public static final String USE_AUTOCOMPLETE = "USE_AUTOCOMPLETE";
+    public static final boolean DEFAULT_USE_AUTOCOMPLETE = true;
 
-	public static final String AUTOCOMPLETE_DELAY = "AUTOCOMPLETE_DELAY";
-	public static final int DEFAULT_AUTOCOMPLETE_DELAY = 0;
+    public static final String AUTOCOMPLETE_DELAY = "AUTOCOMPLETE_DELAY";
+    public static final int DEFAULT_AUTOCOMPLETE_DELAY = 0;
 
-	public static final String AUTOCOMPLETE_ON_PAR = "AUTOCOMPLETE_ON_PAR";
-	public static final boolean DEFAULT_AUTOCOMPLETE_ON_PAR = false;
-	
-	public static final String DEBUG_CODE_COMPLETION = "DEBUG_CODE_COMPLETION";
-	public static final boolean DEFAULT_DEBUG_CODE_COMPLETION = false;
-	
-	public static final String ARGUMENTS_DEEP_ANALYSIS_N_CHARS = "DEEP_ANALYSIS_N_CHARS";
-	public static final int DEFAULT_ARGUMENTS_DEEP_ANALYSIS_N_CHARS = 1;
-	
+    public static final String AUTOCOMPLETE_ON_PAR = "AUTOCOMPLETE_ON_PAR";
+    public static final boolean DEFAULT_AUTOCOMPLETE_ON_PAR = false;
+    
+    public static final String DEBUG_CODE_COMPLETION = "DEBUG_CODE_COMPLETION";
+    public static final boolean DEFAULT_DEBUG_CODE_COMPLETION = false;
+    
+    public static final String ARGUMENTS_DEEP_ANALYSIS_N_CHARS = "DEEP_ANALYSIS_N_CHARS";
+    public static final int DEFAULT_ARGUMENTS_DEEP_ANALYSIS_N_CHARS = 1;
+    
     /**
      */
     public PyCodeCompletionPreferencesPage() {
@@ -66,43 +66,43 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
         Composite p = getFieldEditorParent();
 
         addField(new IntegerFieldEditor(
-		        ATTEMPTS_CODECOMPLETION, "Timeout to connect to shell (secs).", p));
+                ATTEMPTS_CODECOMPLETION, "Timeout to connect to shell (secs).", p));
 
-		addField(new IntegerFieldEditor(
-		        AUTOCOMPLETE_DELAY, "Autocompletion delay: ", p));
+        addField(new IntegerFieldEditor(
+                AUTOCOMPLETE_DELAY, "Autocompletion delay: ", p));
 
         
         
-		String tooltip = WordUtils.wrap("Determines the number of chars in the qualifier request " +
-		        "for which constructs such as 'from xxx import yyy' should be " +
-		        "analyzed to get its actual token and if it maps to a method, its paramaters will be added in the completion.", 80);
-		IntegerFieldEditor deepAnalysisFieldEditor = new IntegerFieldEditor(
-        		        ARGUMENTS_DEEP_ANALYSIS_N_CHARS, "Minimum number of chars in qualifier for\ndeep analysis for parameters in 'from' imports:", p);
+        String tooltip = WordUtils.wrap("Determines the number of chars in the qualifier request " +
+                "for which constructs such as 'from xxx import yyy' should be " +
+                "analyzed to get its actual token and if it maps to a method, its paramaters will be added in the completion.", 80);
+        IntegerFieldEditor deepAnalysisFieldEditor = new IntegerFieldEditor(
+                        ARGUMENTS_DEEP_ANALYSIS_N_CHARS, "Minimum number of chars in qualifier for\ndeep analysis for parameters in 'from' imports:", p);
         addField(deepAnalysisFieldEditor);
         deepAnalysisFieldEditor.getLabelControl(p).setToolTipText(tooltip);
         deepAnalysisFieldEditor.getTextControl(p).setToolTipText(tooltip);
         
         
         
-		addField(new BooleanFieldEditor(
-		        USE_CODECOMPLETION, "Use code completion?", p));
+        addField(new BooleanFieldEditor(
+                USE_CODECOMPLETION, "Use code completion?", p));
 
-		addField(new BooleanFieldEditor(
-		        AUTOCOMPLETE_ON_DOT, "Autocomplete on '.'?", p));
+        addField(new BooleanFieldEditor(
+                AUTOCOMPLETE_ON_DOT, "Autocomplete on '.'?", p));
 
-		addField(new BooleanFieldEditor(
-		        AUTOCOMPLETE_ON_PAR, "Autocomplete on '('?", p));
-		
-		addField(new BooleanFieldEditor(
-		        AUTOCOMPLETE_ON_PAR, "Autocomplete on ','?", p));
-		
-		addField(new BooleanFieldEditor(
-		        AUTOCOMPLETE_ON_ALL_ASCII_CHARS, "Autocomplete on all letter chars and '_'?", p));
-		
+        addField(new BooleanFieldEditor(
+                AUTOCOMPLETE_ON_PAR, "Autocomplete on '('?", p));
+        
+        addField(new BooleanFieldEditor(
+                AUTOCOMPLETE_ON_PAR, "Autocomplete on ','?", p));
+        
+        addField(new BooleanFieldEditor(
+                AUTOCOMPLETE_ON_ALL_ASCII_CHARS, "Autocomplete on all letter chars and '_'?", p));
+        
 
-		addField(new BooleanFieldEditor(
+        addField(new BooleanFieldEditor(
                 DEBUG_CODE_COMPLETION, "Debug code completion?", p));
-		
+        
     }
     
     @Override

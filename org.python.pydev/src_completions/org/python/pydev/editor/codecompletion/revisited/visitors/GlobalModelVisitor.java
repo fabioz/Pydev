@@ -33,7 +33,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
     private Assign __all__Assign;
     private exprType[] __all__AssignTargets;
     private Assign lastAssign;
-	private boolean onlyAllowTokensIn__all__;
+    private boolean onlyAllowTokensIn__all__;
 
     /**
      * @param moduleName
@@ -78,7 +78,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
     public Object visitAssign(Assign node) throws Exception {
-    	lastAssign = node;
+        lastAssign = node;
         node.traverse(this);
         return null;
     }
@@ -94,16 +94,16 @@ public class GlobalModelVisitor extends AbstractVisitor {
             if (node.ctx == Name.Store) {
                 SourceToken added = addToken(node);
                 if(added.getRepresentation().equals("__all__") && __all__Assign == null){
-                	__all__ = added;
-                	__all__Assign = lastAssign;
-                	__all__AssignTargets = lastAssign.targets;
+                    __all__ = added;
+                    __all__Assign = lastAssign;
+                    __all__AssignTargets = lastAssign.targets;
                 }
             }else if(node.ctx == Name.Load){
-            	if(node.id.equals("__all__")){
-            		//if we find __all__ more than once, let's clear it (we can only have __all__ = list of strings... if later
-            		//an append, extend, etc is done in it, we have to skip this heuristic).
-            		__all__AssignTargets = null;
-            	}
+                if(node.id.equals("__all__")){
+                    //if we find __all__ more than once, let's clear it (we can only have __all__ = list of strings... if later
+                    //an append, extend, etc is done in it, we have to skip this heuristic).
+                    __all__AssignTargets = null;
+                }
             }
         }
         return null;
@@ -154,9 +154,9 @@ public class GlobalModelVisitor extends AbstractVisitor {
      */
     @Override
     protected void finishVisit() {
-    	if(onlyAllowTokensIn__all__){
-    		filterAll(this.tokens);
-    	}
+        if(onlyAllowTokensIn__all__){
+            filterAll(this.tokens);
+        }
     }
 
     
@@ -165,34 +165,34 @@ public class GlobalModelVisitor extends AbstractVisitor {
      * 
      * @param tokens the tokens to be filtered (IN and OUT parameter)
      */
-	public void filterAll(java.util.List<IToken> tokens) {
-		if(__all__ != null){
-    		SimpleNode ast = __all__.getAst();
-    		//just checking it
-    		if(__all__AssignTargets != null && __all__AssignTargets.length == 1 && __all__AssignTargets[0] == ast){
-    			HashSet<String> validTokensInAll = new HashSet<String>();
-    			exprType value = __all__Assign.value;
-    			if(value instanceof List){
-					List valueList = (List) value;
-					if(valueList.elts != null){
-						for(exprType elt:valueList.elts){
-							if(elt instanceof Str){
-								Str str = (Str) elt;
-								validTokensInAll.add(str.s);
-							}
-						}
-					}
-    			}
-    			
-    			if(validTokensInAll.size() > 0){
-    				for(Iterator<IToken> it = tokens.iterator();it.hasNext();){
-    					IToken tok = it.next();
-    					if(!validTokensInAll.contains(tok.getRepresentation())){
-    						it.remove();
-    					}
-    				}
-    			}
-    		}
-    	}
-	}
+    public void filterAll(java.util.List<IToken> tokens) {
+        if(__all__ != null){
+            SimpleNode ast = __all__.getAst();
+            //just checking it
+            if(__all__AssignTargets != null && __all__AssignTargets.length == 1 && __all__AssignTargets[0] == ast){
+                HashSet<String> validTokensInAll = new HashSet<String>();
+                exprType value = __all__Assign.value;
+                if(value instanceof List){
+                    List valueList = (List) value;
+                    if(valueList.elts != null){
+                        for(exprType elt:valueList.elts){
+                            if(elt instanceof Str){
+                                Str str = (Str) elt;
+                                validTokensInAll.add(str.s);
+                            }
+                        }
+                    }
+                }
+                
+                if(validTokensInAll.size() > 0){
+                    for(Iterator<IToken> it = tokens.iterator();it.hasNext();){
+                        IToken tok = it.next();
+                        if(!validTokensInAll.contains(tok.getRepresentation())){
+                            it.remove();
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

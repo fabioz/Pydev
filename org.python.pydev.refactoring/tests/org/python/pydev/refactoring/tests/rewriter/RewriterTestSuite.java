@@ -14,17 +14,17 @@ import junit.framework.Test;
  */
 public class RewriterTestSuite extends AbstractIOTestSuite {
 
-	public static Test suite() {
-		RewriterTestSuite testSuite = new RewriterTestSuite();
-		testSuite.createTests();
+    public static Test suite() {
+        RewriterTestSuite testSuite = new RewriterTestSuite();
+        testSuite.createTests();
 
-		return testSuite;
+        return testSuite;
 
-	}
+    }
 
-	@Override
-	protected IInputOutputTestCase createTestCase(String testCaseName) {
-		return new RewriterTestCase(testCaseName);
-	}
+    @Override
+    protected IInputOutputTestCase createTestCase(String testCaseName) {
+        return new RewriterTestCase(testCaseName);
+    }
 
 }

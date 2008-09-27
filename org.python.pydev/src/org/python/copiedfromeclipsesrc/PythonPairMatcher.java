@@ -238,26 +238,26 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
     public int searchForOpeningPeer(int offset, char openingPeer, char closingPeer, IDocument document){
 
         try {
-			fReader.configureBackwardReader(document, offset, true, true);
+            fReader.configureBackwardReader(document, offset, true, true);
 
-			int stack = 1;
-			int c = fReader.read();
-			while (c != PythonCodeReader.EOF) {
-				if (c == closingPeer && c != openingPeer)
-					stack++;
-				else if (c == openingPeer)
-					stack--;
+            int stack = 1;
+            int c = fReader.read();
+            while (c != PythonCodeReader.EOF) {
+                if (c == closingPeer && c != openingPeer)
+                    stack++;
+                else if (c == openingPeer)
+                    stack--;
 
-				if (stack == 0)
-					return fReader.getOffset();
+                if (stack == 0)
+                    return fReader.getOffset();
 
-				c = fReader.read();
-			}
+                c = fReader.read();
+            }
 
-			return -1;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+            return -1;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public int searchForAnyOpeningPeer(int offset, IDocument document) {

@@ -17,42 +17,42 @@ import org.python.pydev.refactoring.core.edit.AbstractReplaceEdit;
 
 public class ReplaceWithVariableEdit extends AbstractReplaceEdit {
 
-	private String variableName;
+    private String variableName;
 
-	private int offset;
+    private int offset;
 
-	private int replaceLength;
+    private int replaceLength;
 
-	public ReplaceWithVariableEdit(ExtractLocalRequest req) {
-		super(req);
-		this.variableName = req.getVariableName();
-		
-		ITextSelection selection = req.getRefactoringInfo().getExtendedSelection();
-		this.offset = selection.getOffset();
+    public ReplaceWithVariableEdit(ExtractLocalRequest req) {
+        super(req);
+        this.variableName = req.getVariableName();
+        
+        ITextSelection selection = req.getRefactoringInfo().getExtendedSelection();
+        this.offset = selection.getOffset();
 
-		this.replaceLength = selection.getLength();
-		this.offsetAdapter = req.getOffsetNode();
-	}
+        this.replaceLength = selection.getLength();
+        this.offsetAdapter = req.getOffsetNode();
+    }
 
-	@Override
-	protected SimpleNode getEditNode() {
-		Name name = new Name(variableName, expr_contextType.Load);
-		return name;
-	}
+    @Override
+    protected SimpleNode getEditNode() {
+        Name name = new Name(variableName, expr_contextType.Load);
+        return name;
+    }
 
-	@Override
-	public int getOffsetStrategy() {
-		return 0;
-	}
+    @Override
+    public int getOffsetStrategy() {
+        return 0;
+    }
 
-	@Override
-	public int getOffset() {
-		return offset;
-	}
+    @Override
+    public int getOffset() {
+        return offset;
+    }
 
-	@Override
-	protected int getReplaceLength() {
-		return replaceLength;
-	}
+    @Override
+    protected int getReplaceLength() {
+        return replaceLength;
+    }
 
 }

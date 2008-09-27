@@ -53,10 +53,10 @@ public class PythonHyperlink implements IHyperlink {
         //saves the dirty editors so that hyperlink is correct.
         IWorkbench workbench = PlatformUI.getWorkbench();
         if(workbench != null){
-			IWorkbenchWindow workbenchWindow = workbench.getActiveWorkbenchWindow();
-	        if(workbenchWindow != null){
-	        	workbenchWindow.getActivePage().saveAllEditors(false);
-	        }
+            IWorkbenchWindow workbenchWindow = workbench.getActiveWorkbenchWindow();
+            if(workbenchWindow != null){
+                workbenchWindow.getActivePage().saveAllEditors(false);
+            }
         }
         
         RefactoringRequest refactoringRequest = PyRefactorAction.createRefactoringRequest(null, this.fEditor, new PySelection(this.fEditor));

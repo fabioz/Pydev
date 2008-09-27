@@ -70,23 +70,23 @@ public class ExtensionHelper {
     }
     
     @SuppressWarnings("unchecked")
-	public static Object getParticipant(String type) {
-    	//only one participant may be used for this
-    	List<Object> participants = getParticipants(type);
-    	if(participants.size() == 1){
-    		return participants.get(0);
-    	}
-    	
-    	if(participants.size() == 0){
-    		return null;
-    	}
-    	
-    	if(participants.size() > 1){
-    		throw new RuntimeException("More than one participant is registered for type:"+type);
-    	}
-    	
-    	throw new RuntimeException("Should never get here!");
-    	
+    public static Object getParticipant(String type) {
+        //only one participant may be used for this
+        List<Object> participants = getParticipants(type);
+        if(participants.size() == 1){
+            return participants.get(0);
+        }
+        
+        if(participants.size() == 0){
+            return null;
+        }
+        
+        if(participants.size() > 1){
+            throw new RuntimeException("More than one participant is registered for type:"+type);
+        }
+        
+        throw new RuntimeException("Should never get here!");
+        
     }
     
     /**

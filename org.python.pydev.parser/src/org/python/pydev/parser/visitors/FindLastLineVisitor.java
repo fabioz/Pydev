@@ -23,11 +23,11 @@ public class FindLastLineVisitor extends VisitorBase{
     
     @Override
     public Object visitAttribute(Attribute node) throws Exception {
-    	check(node.specialsBefore);
-    	if (node.attr != null)
-    		node.attr.accept(this);
+        check(node.specialsBefore);
+        if (node.attr != null)
+            node.attr.accept(this);
         if (node.value != null)
-        	node.value.accept(this);
+            node.value.accept(this);
         check(node.specialsAfter);
         return null;
     }

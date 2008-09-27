@@ -19,151 +19,151 @@ import org.python.pydev.refactoring.ast.visitors.position.IndentVisitor;
 
 public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements IClassDefAdapter {
 
-	private static final String OBJECT = "object";
+    private static final String OBJECT = "object";
 
-	private List<SimpleAdapter> attributes;
+    private List<SimpleAdapter> attributes;
 
-	private List<PropertyAdapter> properties;
+    private List<PropertyAdapter> properties;
 
-	public ClassDefAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, ClassDef node, String endLineDelim) {
-		super(module, parent, node, endLineDelim);
-		this.attributes = null;
-		this.properties = null;
-	}
+    public ClassDefAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, ClassDef node, String endLineDelim) {
+        super(module, parent, node, endLineDelim);
+        this.attributes = null;
+        this.properties = null;
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getBaseClassNames()
      */
-	public List<String> getBaseClassNames() {
-		return nodeHelper.getBaseClassName(getASTNode());
-	}
+    public List<String> getBaseClassNames() {
+        return nodeHelper.getBaseClassName(getASTNode());
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getBaseClasses()
      */
-	public List<IClassDefAdapter> getBaseClasses() {
-		return getModule().getBaseClasses(this);
-	}
+    public List<IClassDefAdapter> getBaseClasses() {
+        return getModule().getBaseClasses(this);
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#hasBaseClass()
      */
-	public boolean hasBaseClass() {
-		return getBaseClassNames().size() > 0;
-	}
+    public boolean hasBaseClass() {
+        return getBaseClassNames().size() > 0;
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getAttributes()
      */
-	public List<SimpleAdapter> getAttributes() {
-		if (attributes == null) {
-			LocalAttributeVisitor visitor = VisitorFactory.createContextVisitor(LocalAttributeVisitor.class, getASTNode(), getModule(),
-					this);
-			attributes = visitor.getAll();
-		}
-		return attributes;
-	}
+    public List<SimpleAdapter> getAttributes() {
+        if (attributes == null) {
+            LocalAttributeVisitor visitor = VisitorFactory.createContextVisitor(LocalAttributeVisitor.class, getASTNode(), getModule(),
+                    this);
+            attributes = visitor.getAll();
+        }
+        return attributes;
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getProperties()
      */
-	public List<PropertyAdapter> getProperties() {
-		if (properties == null) {
-			PropertyVisitor visitor = VisitorFactory.createContextVisitor(PropertyVisitor.class, getASTNode(), getModule(), this);
-			properties = visitor.getAll();
-		}
-		return properties;
-	}
+    public List<PropertyAdapter> getProperties() {
+        if (properties == null) {
+            PropertyVisitor visitor = VisitorFactory.createContextVisitor(PropertyVisitor.class, getASTNode(), getModule(), this);
+            properties = visitor.getAll();
+        }
+        return properties;
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getFunctionsInitFiltered()
      */
-	public List<FunctionDefAdapter> getFunctionsInitFiltered() {
-		List<FunctionDefAdapter> functionsFiltered = new ArrayList<FunctionDefAdapter>();
-		for (FunctionDefAdapter adapter : getFunctions()) {
-			if (!(adapter.isInit())) {
-				functionsFiltered.add(adapter);
-			}
-		}
+    public List<FunctionDefAdapter> getFunctionsInitFiltered() {
+        List<FunctionDefAdapter> functionsFiltered = new ArrayList<FunctionDefAdapter>();
+        for (FunctionDefAdapter adapter : getFunctions()) {
+            if (!(adapter.isInit())) {
+                functionsFiltered.add(adapter);
+            }
+        }
 
-		return functionsFiltered;
-	}
+        return functionsFiltered;
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#hasFunctions()
      */
-	public boolean hasFunctions() {
-		return getFunctions().size() > 0;
-	}
+    public boolean hasFunctions() {
+        return getFunctions().size() > 0;
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#hasFunctionsInitFiltered()
      */
-	public boolean hasFunctionsInitFiltered() {
-		return getFunctionsInitFiltered().size() > 0;
-	}
+    public boolean hasFunctionsInitFiltered() {
+        return getFunctionsInitFiltered().size() > 0;
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#isNested()
      */
-	public boolean isNested() {
-		return nodeHelper.isFunctionOrClassDef(getParent().getASTNode());
-	}
+    public boolean isNested() {
+        return nodeHelper.isFunctionOrClassDef(getParent().getASTNode());
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#hasAttributes()
      */
-	public boolean hasAttributes() {
-		return getAttributes().size() > 0;
-	}
+    public boolean hasAttributes() {
+        return getAttributes().size() > 0;
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getNodeBodyIndent()
      */
-	public int getNodeBodyIndent() {
-		ClassDef classNode = getASTNode();
-		IndentVisitor visitor = VisitorFactory.createVisitor(IndentVisitor.class, classNode.body[0]);
+    public int getNodeBodyIndent() {
+        ClassDef classNode = getASTNode();
+        IndentVisitor visitor = VisitorFactory.createVisitor(IndentVisitor.class, classNode.body[0]);
 
-		return visitor.getIndent();
-	}
+        return visitor.getIndent();
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#hasInit()
      */
-	public boolean hasInit() {
-		return (getFirstInit() != null);
-	}
+    public boolean hasInit() {
+        return (getFirstInit() != null);
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getFirstInit()
      */
-	public FunctionDefAdapter getFirstInit() {
-		for (FunctionDefAdapter func : getFunctions()) {
-			if (func.isInit()) {
-				return func;
-			}
-		}
-		return null;
-	}
+    public FunctionDefAdapter getFirstInit() {
+        for (FunctionDefAdapter func : getFunctions()) {
+            if (func.isInit()) {
+                return func;
+            }
+        }
+        return null;
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getAssignedVariables()
      */
-	public List<SimpleAdapter> getAssignedVariables() {
-		ScopeAssignedVisitor visitor = VisitorFactory
-				.createContextVisitor(ScopeAssignedVisitor.class, getASTNode(), this.getModule(), this);
-		return visitor.getAll();
-	}
+    public List<SimpleAdapter> getAssignedVariables() {
+        ScopeAssignedVisitor visitor = VisitorFactory
+                .createContextVisitor(ScopeAssignedVisitor.class, getASTNode(), this.getModule(), this);
+        return visitor.getAll();
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#isNewStyleClass()
      */
-	public boolean isNewStyleClass() {
-		for (String base : getBaseClassNames()) {
-			if (base.compareTo(OBJECT) == 0) {
-				return true;
-			}
-		}
-		return false;
-	}
+    public boolean isNewStyleClass() {
+        for (String base : getBaseClassNames()) {
+            if (base.compareTo(OBJECT) == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

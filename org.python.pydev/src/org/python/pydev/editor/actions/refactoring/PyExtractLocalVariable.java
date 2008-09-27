@@ -19,10 +19,10 @@ public class PyExtractLocalVariable extends PyRefactorAction {
     /**
      * we need:
      * 
-	 *  def extract(self, filename_path, 
-	 *              begin_line, begin_col,
-	 *              end_line, end_col, 
-	 *              name):
+     *  def extract(self, filename_path, 
+     *              begin_line, begin_col,
+     *              end_line, end_col, 
+     *              name):
      * @throws BadLocationException
      * @throws CoreException
      */

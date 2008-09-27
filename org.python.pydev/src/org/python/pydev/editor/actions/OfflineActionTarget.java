@@ -59,7 +59,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
      * @see IStatusFieldExtension
      */
     private boolean fIsStatusFieldExtension;
-	private PyEdit fEdit;
+    private PyEdit fEdit;
 
 
 
@@ -191,27 +191,27 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
         // event.character != 0
         } else {
 
-			switch (event.character) {
+            switch (event.character) {
 
             // ESC = quit
             case 0x1B:
-            	leave();
-            	event.doit= false;
-            	break;
-            	
+                leave();
+                event.doit= false;
+                break;
+                
             //CR = exec and quit
             case 0x0D:
-            	boolean executed = doExec();
+                boolean executed = doExec();
                 event.doit= false;
                 if(!executed){
-                	return; //we don't want to update the status
+                    return; //we don't want to update the status
                 }
                 break;
 
             // backspace    and delete
             case 0x08:
             case 0x7F:
-            	removeLastCharSearch();
+                removeLastCharSearch();
                 event.doit= false;
                 break;
 
@@ -239,7 +239,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
     private boolean doExec() {
         final boolean executed = fEdit.onOfflineAction(fFindString.toString(), this);
         if(executed){
-        	leave();
+            leave();
         }
         return executed;
     }
@@ -250,18 +250,18 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
      * 'little' hack)
      */
     public void removeLastCharSearchAndUpdateStatus() {
-    	removeLastCharSearch();
-    	updateStatus();
+        removeLastCharSearch();
+        updateStatus();
     }
     
     private void removeLastCharSearch() {
-    	final int len = fFindString.length();
-    	if(len > 0){
-    		fFindString.deleteCharAt(len-1);
-    	}
-	}
+        final int len = fFindString.length();
+        if(len > 0){
+            fFindString.deleteCharAt(len-1);
+        }
+    }
 
-	/**
+    /**
      * Adds the given character to the search string and repeats the search with the last parameters.
      *
      * @param c the character to append to the search pattern
@@ -425,7 +425,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
     }
 
 
-	public boolean isInstalled() {
-		return fInstalled;
-	}
+    public boolean isInstalled() {
+        return fInstalled;
+    }
 }

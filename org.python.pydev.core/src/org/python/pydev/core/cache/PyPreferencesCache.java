@@ -8,63 +8,63 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 
 public class PyPreferencesCache implements IPropertyChangeListener {
 
-	private IPreferenceStore preferenceStore;
-	private HashMap<String, Object> cache = new HashMap<String, Object>();
-	
-	public PyPreferencesCache(IPreferenceStore preferenceStore) {
-		this.preferenceStore = preferenceStore;
-		this.preferenceStore.addPropertyChangeListener(this);
-	}
-
-	public boolean getBoolean(String key) {
-		Boolean b = (Boolean) cache.get(key);
-		if(b == null){
-			b = this.preferenceStore.getBoolean(key);
-			cache.put(key, b);
-		}
-		return b;
-	}
+    private IPreferenceStore preferenceStore;
+    private HashMap<String, Object> cache = new HashMap<String, Object>();
     
-	/**
+    public PyPreferencesCache(IPreferenceStore preferenceStore) {
+        this.preferenceStore = preferenceStore;
+        this.preferenceStore.addPropertyChangeListener(this);
+    }
+
+    public boolean getBoolean(String key) {
+        Boolean b = (Boolean) cache.get(key);
+        if(b == null){
+            b = this.preferenceStore.getBoolean(key);
+            cache.put(key, b);
+        }
+        return b;
+    }
+    
+    /**
      * This is for a 'special case', when the value must be higher than 0
      *  
      * @param key this is the key we're interested in
      * @param defaultIfZeroOrLess the value to be returned if the actual value found is 0 or less
-	 */
-	public int getInt(String key, int defaultIfZeroOrLess) {
-	    Integer b = (Integer) cache.get(key);
+     */
+    public int getInt(String key, int defaultIfZeroOrLess) {
+        Integer b = (Integer) cache.get(key);
         
-	    if(b == null || b <= 0){
-	        b = this.preferenceStore.getInt(key);
+        if(b == null || b <= 0){
+            b = this.preferenceStore.getInt(key);
             
             if(b <= 0){
                 b = defaultIfZeroOrLess;
             }
-	        cache.put(key, b);
-	    }
+            cache.put(key, b);
+        }
         
-	    return b;
-	}
-	
-	public int getInt(String key) {
-		Integer b = (Integer) cache.get(key);
-		if(b == null){
-			b = this.preferenceStore.getInt(key);
-			cache.put(key, b);
-		}
-		return b;
-	}
+        return b;
+    }
+    
+    public int getInt(String key) {
+        Integer b = (Integer) cache.get(key);
+        if(b == null){
+            b = this.preferenceStore.getInt(key);
+            cache.put(key, b);
+        }
+        return b;
+    }
 
-	public void propertyChange(PropertyChangeEvent event) {
-		final Object newValue = event.getNewValue();
-		cache.put(event.getProperty(), newValue); //simply override the cache (do not care about whether it is null, Boolean, etc).
-	}
+    public void propertyChange(PropertyChangeEvent event) {
+        final Object newValue = event.getNewValue();
+        cache.put(event.getProperty(), newValue); //simply override the cache (do not care about whether it is null, Boolean, etc).
+    }
 
-	/**
-	 * Can be used to force clearing some value from the cache.
-	 */
-	public void clear(String key) {
-		cache.put(key, null); 
-	}
+    /**
+     * Can be used to force clearing some value from the cache.
+     */
+    public void clear(String key) {
+        cache.put(key, null); 
+    }
 
 }

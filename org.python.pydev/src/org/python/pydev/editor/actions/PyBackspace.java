@@ -121,13 +121,13 @@ public class PyBackspace extends PyAction {
      *  - erase a single character.
      */
     public void run(IAction action) {
-    	OfflineActionTarget adapter = (OfflineActionTarget) getPyEdit().getAdapter(OfflineActionTarget.class);
-    	if(adapter != null){
-    		if(adapter.isInstalled()){
-    			adapter.removeLastCharSearchAndUpdateStatus();
-    			return;
-    		}
-    	}
+        OfflineActionTarget adapter = (OfflineActionTarget) getPyEdit().getAdapter(OfflineActionTarget.class);
+        if(adapter != null){
+            if(adapter.isInstalled()){
+                adapter.removeLastCharSearchAndUpdateStatus();
+                return;
+            }
+        }
         PySelection ps = new PySelection(getTextEditor());
         perform(ps);
     }
@@ -149,20 +149,20 @@ public class PyBackspace extends PyAction {
             //this situation is:
             //    |a (delete to previous indentation - considers cursor position)
             //
-        	//or
-        	//
+            //or
+            //
             //    as | as (delete single char)
-        	//
+            //
             //so, we have to treat it carefully
             //TODO: use the conditions above and not just erase a single
             // char.
 
             if(PySelection.containsOnlyWhitespaces(lineContentsToCursor)){
-        		eraseToIndentation(ps, lineContentsToCursor);
-        		
-        	}else{
-        		eraseSingleChar(ps);
-        	}
+                eraseToIndentation(ps, lineContentsToCursor);
+                
+            }else{
+                eraseSingleChar(ps);
+            }
         }
     }
 

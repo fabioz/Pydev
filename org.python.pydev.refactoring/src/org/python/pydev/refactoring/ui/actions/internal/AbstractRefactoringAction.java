@@ -26,61 +26,61 @@ import org.python.pydev.refactoring.core.RefactoringInfo;
 import org.python.pydev.refactoring.ui.PythonRefactoringWizard;
 
 public abstract class AbstractRefactoringAction extends Action implements IEditorActionDelegate {
-	private AbstractPythonRefactoring refactoring;
-	private ITextEditor targetEditor;
+    private AbstractPythonRefactoring refactoring;
+    private ITextEditor targetEditor;
 
-	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
-		if (targetEditor instanceof ITextEditor) {
-			if (targetEditor.getEditorInput() instanceof FileEditorInput) {
-				this.targetEditor = (ITextEditor) targetEditor;
-			} else {
-				this.targetEditor = null;
-			}
-		}
-	}
+    public void setActiveEditor(IAction action, IEditorPart targetEditor) {
+        if (targetEditor instanceof ITextEditor) {
+            if (targetEditor.getEditorInput() instanceof FileEditorInput) {
+                this.targetEditor = (ITextEditor) targetEditor;
+            } else {
+                this.targetEditor = null;
+            }
+        }
+    }
 
-	public void selectionChanged(IAction action, ISelection selection) {
-	}
+    public void selectionChanged(IAction action, ISelection selection) {
+    }
 
-	private static boolean saveAll() {
-		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-		return IDE.saveAllEditors(new IResource[] { workspaceRoot }, true);
-	}
-	
-	private void setupRefactoring() {
-		IPythonNature nature = null;
-		if (targetEditor instanceof IPyEdit) {
-			nature = ((IPyEdit) targetEditor).getPythonNature();
-		}
-		RefactoringInfo info = new RefactoringInfo(targetEditor, nature);
-		this.refactoring = this.createRefactoring(info);
-		
-		// Example showing errors: MessageDialog.openError(getShell(), Messages.errorTitle, msg);
-	}
+    private static boolean saveAll() {
+        IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+        return IDE.saveAllEditors(new IResource[] { workspaceRoot }, true);
+    }
+    
+    private void setupRefactoring() {
+        IPythonNature nature = null;
+        if (targetEditor instanceof IPyEdit) {
+            nature = ((IPyEdit) targetEditor).getPythonNature();
+        }
+        RefactoringInfo info = new RefactoringInfo(targetEditor, nature);
+        this.refactoring = this.createRefactoring(info);
+        
+        // Example showing errors: MessageDialog.openError(getShell(), Messages.errorTitle, msg);
+    }
 
-	private void openWizard(IAction action) {
-		this.setupRefactoring();
-		
-		PythonRefactoringWizard wizard = new PythonRefactoringWizard(this.refactoring, targetEditor);
-		wizard.run();
-		
-		targetEditor.getDocumentProvider().changed(targetEditor.getEditorInput());
-	}
+    private void openWizard(IAction action) {
+        this.setupRefactoring();
+        
+        PythonRefactoringWizard wizard = new PythonRefactoringWizard(this.refactoring, targetEditor);
+        wizard.run();
+        
+        targetEditor.getDocumentProvider().changed(targetEditor.getEditorInput());
+    }
 
-	public void run(IAction action) {
-		/* TODO: check if inline is necessary */
-		if (saveAll()) {
-			this.openWizard(action);
-		}
-	}
-	
-	/**
-	 * Create a refactoring.
-	 * 
-	 * Has to be implemented in the subclass
-	 * 
-	 * @param info 
-	 * @return
-	 */
-	protected abstract AbstractPythonRefactoring createRefactoring(RefactoringInfo info);
+    public void run(IAction action) {
+        /* TODO: check if inline is necessary */
+        if (saveAll()) {
+            this.openWizard(action);
+        }
+    }
+    
+    /**
+     * Create a refactoring.
+     * 
+     * Has to be implemented in the subclass
+     * 
+     * @param info 
+     * @return
+     */
+    protected abstract AbstractPythonRefactoring createRefactoring(RefactoringInfo info);
 }

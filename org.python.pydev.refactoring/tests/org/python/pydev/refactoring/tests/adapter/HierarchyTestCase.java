@@ -70,14 +70,14 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
         
         HashSet<String> actual = new HashSet<String>();
         for (IClassDefAdapter adapter : baseClasses) {
-			actual.add(adapter.getName());
-		}
+            actual.add(adapter.getName());
+        }
         HashSet<String> expected = new HashSet<String>();
         expected.add("MyList2");
         expected.add("__builtin__.list");
         expected.add("MyListBase");
         
-		assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
     
     

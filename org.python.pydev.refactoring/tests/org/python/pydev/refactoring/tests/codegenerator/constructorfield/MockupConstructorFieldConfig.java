@@ -10,28 +10,28 @@ import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 
 public class MockupConstructorFieldConfig {
 
-	private int classSelection;
+    private int classSelection;
 
-	private ArrayList<Integer> attributeSelection;
+    private ArrayList<Integer> attributeSelection;
 
-	private int offsetStrategy;
+    private int offsetStrategy;
 
-	public MockupConstructorFieldConfig() {
-		this.classSelection = 0;
-		this.offsetStrategy = IOffsetStrategy.AFTERINIT;
-		this.attributeSelection = new ArrayList<Integer>();
-		attributeSelection.add(0);
-	}
+    public MockupConstructorFieldConfig() {
+        this.classSelection = 0;
+        this.offsetStrategy = IOffsetStrategy.AFTERINIT;
+        this.attributeSelection = new ArrayList<Integer>();
+        attributeSelection.add(0);
+    }
 
-	public ArrayList<Integer> getAttributeSelection() {
-		return attributeSelection;
-	}
+    public ArrayList<Integer> getAttributeSelection() {
+        return attributeSelection;
+    }
 
-	public int getClassSelection() {
-		return classSelection;
-	}
+    public int getClassSelection() {
+        return classSelection;
+    }
 
-	public int getOffsetStrategy() {
-		return offsetStrategy;
-	}
+    public int getOffsetStrategy() {
+        return offsetStrategy;
+    }
 }

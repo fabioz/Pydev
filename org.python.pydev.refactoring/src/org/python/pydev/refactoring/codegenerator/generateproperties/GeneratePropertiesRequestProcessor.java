@@ -23,92 +23,92 @@ import org.python.pydev.refactoring.ui.model.tree.TreeNodeSimple;
 
 public class GeneratePropertiesRequestProcessor implements IRequestProcessor<GeneratePropertiesRequest> {
 
-	private Object[] checked;
+    private Object[] checked;
 
-	private int offsetMethodStrategy;
+    private int offsetMethodStrategy;
 
-	private int offsetPropertyStrategy;
+    private int offsetPropertyStrategy;
 
-	private int accessModifier;
+    private int accessModifier;
 
     private String endLineDelim;
 
-	public GeneratePropertiesRequestProcessor(String endLineDelim) {
+    public GeneratePropertiesRequestProcessor(String endLineDelim) {
         this.endLineDelim = endLineDelim;
-		checked = new Object[0];
-		offsetMethodStrategy = IOffsetStrategy.AFTERINIT;
-		offsetPropertyStrategy = IOffsetStrategy.END;
-		accessModifier = NodeHelper.ACCESS_PUBLIC;
-	}
+        checked = new Object[0];
+        offsetMethodStrategy = IOffsetStrategy.AFTERINIT;
+        offsetPropertyStrategy = IOffsetStrategy.END;
+        accessModifier = NodeHelper.ACCESS_PUBLIC;
+    }
 
-	public void setCheckedElements(Object[] checked) {
-		this.checked = checked;
-	}
+    public void setCheckedElements(Object[] checked) {
+        this.checked = checked;
+    }
 
-	private List<TreeAttributeNode> getAttributes() {
-		List<TreeAttributeNode> attrs = new ArrayList<TreeAttributeNode>();
+    private List<TreeAttributeNode> getAttributes() {
+        List<TreeAttributeNode> attrs = new ArrayList<TreeAttributeNode>();
 
-		for (Object elem : checked) {
-			if (elem instanceof TreeAttributeNode) {
-				attrs.add((TreeAttributeNode) elem);
-			}
-		}
+        for (Object elem : checked) {
+            if (elem instanceof TreeAttributeNode) {
+                attrs.add((TreeAttributeNode) elem);
+            }
+        }
 
-		return attrs;
-	}
+        return attrs;
+    }
 
-	private List<PropertyTextAdapter> getProperties(TreeAttributeNode attr) {
-		List<PropertyTextAdapter> props = new ArrayList<PropertyTextAdapter>();
+    private List<PropertyTextAdapter> getProperties(TreeAttributeNode attr) {
+        List<PropertyTextAdapter> props = new ArrayList<PropertyTextAdapter>();
 
-		for (Object elem : checked) {
-			if (elem instanceof TreeNodeSimple) {
-				TreeNodeSimple<? extends INodeAdapter> propertyNode = (TreeNodeSimple<?>) elem;
-				if (propertyNode.getParent() == attr) {
-					props.add((PropertyTextAdapter) propertyNode.getAdapter());
-				}
-			}
-		}
+        for (Object elem : checked) {
+            if (elem instanceof TreeNodeSimple) {
+                TreeNodeSimple<? extends INodeAdapter> propertyNode = (TreeNodeSimple<?>) elem;
+                if (propertyNode.getParent() == attr) {
+                    props.add((PropertyTextAdapter) propertyNode.getAdapter());
+                }
+            }
+        }
 
-		return props;
-	}
+        return props;
+    }
 
-	public List<GeneratePropertiesRequest> getRefactoringRequests() {
-		List<GeneratePropertiesRequest> requests = generateRequests();
+    public List<GeneratePropertiesRequest> getRefactoringRequests() {
+        List<GeneratePropertiesRequest> requests = generateRequests();
 
-		return requests;
-	}
+        return requests;
+    }
 
-	private List<GeneratePropertiesRequest> generateRequests() {
-		List<GeneratePropertiesRequest> requests = new ArrayList<GeneratePropertiesRequest>();
+    private List<GeneratePropertiesRequest> generateRequests() {
+        List<GeneratePropertiesRequest> requests = new ArrayList<GeneratePropertiesRequest>();
 
-		for (TreeAttributeNode elem : getAttributes()) {
-			GeneratePropertiesRequest request = extractRequest(elem);
-			if (request != null)
-				requests.add(request);
-		}
+        for (TreeAttributeNode elem : getAttributes()) {
+            GeneratePropertiesRequest request = extractRequest(elem);
+            if (request != null)
+                requests.add(request);
+        }
 
-		return requests;
-	}
+        return requests;
+    }
 
-	private GeneratePropertiesRequest extractRequest(TreeAttributeNode attr) {
-		if (attr.getParent() != null && attr.getParent() instanceof TreeClassNode) {
-			TreeClassNode classNode = (TreeClassNode) attr.getParent();
+    private GeneratePropertiesRequest extractRequest(TreeAttributeNode attr) {
+        if (attr.getParent() != null && attr.getParent() instanceof TreeClassNode) {
+            TreeClassNode classNode = (TreeClassNode) attr.getParent();
 
-			return new GeneratePropertiesRequest(classNode.getAdapter(), attr.getAdapter(), getProperties(attr), offsetMethodStrategy,
-					offsetPropertyStrategy, accessModifier, endLineDelim);
-		}
-		return null;
-	}
+            return new GeneratePropertiesRequest(classNode.getAdapter(), attr.getAdapter(), getProperties(attr), offsetMethodStrategy,
+                    offsetPropertyStrategy, accessModifier, endLineDelim);
+        }
+        return null;
+    }
 
-	public void setMethodDestination(int strat) {
-		this.offsetMethodStrategy = strat;
-	}
+    public void setMethodDestination(int strat) {
+        this.offsetMethodStrategy = strat;
+    }
 
-	public void setPropertyDestination(int strat) {
-		this.offsetPropertyStrategy = strat;
-	}
+    public void setPropertyDestination(int strat) {
+        this.offsetPropertyStrategy = strat;
+    }
 
-	public void setAccessModifier(int accessModifier) {
-		this.accessModifier = accessModifier;
-	}
+    public void setAccessModifier(int accessModifier) {
+        this.accessModifier = accessModifier;
+    }
 }

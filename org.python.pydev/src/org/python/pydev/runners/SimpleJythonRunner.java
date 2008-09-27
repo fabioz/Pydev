@@ -46,9 +46,9 @@ public class SimpleJythonRunner extends SimpleRunner{
             if(javaExecutable == null){
                 throw new JavaNotConfiguredException(
                         "Error: the java environment must be configured before jython.\n\n" +
-                		"Please make sure that the java executable to be\n" +
-                		"used is correctly configured in the preferences at:\n\n" +
-                		"Java > Installed JREs.");
+                        "Please make sure that the java executable to be\n" +
+                        "used is correctly configured in the preferences at:\n\n" +
+                        "Java > Installed JREs.");
             }
             
             String javaLoc = javaExecutable.getCanonicalPath();

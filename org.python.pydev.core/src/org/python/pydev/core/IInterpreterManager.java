@@ -119,13 +119,13 @@ public interface IInterpreterManager {
     /**
      * @return the Persisted string with the information on this interpreter manager.
      */
-	public String getPersistedString();
+    public String getPersistedString();
 
-	/**
-	 * Set the string to be persisted with the information on this interpreter manager
-	 * @param s
-	 */
-	public void setPersistedString(String s);
+    /**
+     * Set the string to be persisted with the information on this interpreter manager
+     * @param s
+     */
+    public void setPersistedString(String s);
 
     /**
      * @return whether this manager is correctly configured (interpreter is correctly set)
@@ -146,19 +146,19 @@ public interface IInterpreterManager {
 
     
     //caches for the builtin tokens and module
-	public void setBuiltinCompletions(IToken[] comps);
+    public void setBuiltinCompletions(IToken[] comps);
 
-	public IToken[] getBuiltinCompletions();
+    public IToken[] getBuiltinCompletions();
 
-	public IModule getBuiltinMod();
+    public IModule getBuiltinMod();
 
-	public void setBuiltinMod(IModule mod);
+    public void setBuiltinMod(IModule mod);
 
-	public void clearCaches();
+    public void clearCaches();
 
-	/**
-	 * Saves the system modules managers info so that it can be restored later (it's restored when the plugin is started).
-	 */
+    /**
+     * Saves the system modules managers info so that it can be restored later (it's restored when the plugin is started).
+     */
     public void saveInterpretersInfoModulesManager();
     
 }

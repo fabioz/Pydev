@@ -119,29 +119,29 @@ public class PyUnitTestRunner {
 
         if(process != null)
             endIt();
-		try {
-			serverFile = getScriptWithinPySrc("SocketTestRunner.py");
-		} catch (CoreException e1) {
-			e1.printStackTrace();
-		}
-		String command = "python "+REF.getFileAbsolutePath(serverFile)+" "+pRead+" ";
+        try {
+            serverFile = getScriptWithinPySrc("SocketTestRunner.py");
+        } catch (CoreException e1) {
+            e1.printStackTrace();
+        }
+        String command = "python "+REF.getFileAbsolutePath(serverFile)+" "+pRead+" ";
         command += testModuleDir + " " + testModuleName;
         
         process = Runtime.getRuntime().exec(command);
         
         sleepALittle(1000);
         try {
-	        serverSocket = new ServerSocket(pRead); //read from this port
-	        try {
-	        	socketToRead = serverSocket.accept();
-	        	try {
-	        		readMessage();
-	        	} finally {
-	        		socketToRead.close();
-	        	}
-	        } finally {
-	        	serverSocket.close();
-	        }
+            serverSocket = new ServerSocket(pRead); //read from this port
+            try {
+                socketToRead = serverSocket.accept();
+                try {
+                    readMessage();
+                } finally {
+                    socketToRead.close();
+                }
+            } finally {
+                serverSocket.close();
+            }
         } catch (IOException e) {
             if(process!=null){
                 process.destroy();
@@ -157,54 +157,54 @@ public class PyUnitTestRunner {
      * @throws IOException
      */
     private void readMessage() throws IOException {
-    	reader = new BufferedReader(
-    			new InputStreamReader(socketToRead.getInputStream()));
+        reader = new BufferedReader(
+                new InputStreamReader(socketToRead.getInputStream()));
         try {
-        	String line = null;
-        	while ((line = reader.readLine()) != null) {
-        		//System.out.println(line);
-        		parseMessage(line);
-        	}
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                //System.out.println(line);
+                parseMessage(line);
+            }
         } finally {
-        	reader.close();
+            reader.close();
         }
     }
 
     private void parseMessage(String line) {
-    	PydevPlugin plugin = PydevPlugin.getDefault();
-    	if (line.startsWith("starting tests ")) {
-    		int start = "starting tests ".length();
-    		int count = Integer.parseInt(line.substring(start));
-    		plugin.fireTestsStarted(count);
-    	}
-    	if (line.startsWith("ending tests")) {
-    		plugin.fireTestsFinished();
-    	}
-    	if (line.startsWith("starting test ")) {
-    		int start = "starting test ".length();
-    		String method = line.substring(start, line.indexOf("("));
-    		String klass = line.substring(line.indexOf("(") + 1, 
-    				line.indexOf(")"));
-    		plugin.fireTestStarted(klass, method);
-    	}
-    	if (line.startsWith("failing test ")) {
-    		int start = "failing test ".length();
-    		String method = line.substring(start, line.indexOf("("));
-    		String klass = line.substring(line.indexOf("(") + 1, 
-    				line.indexOf(")"));
-    		StringWriter buffer = new StringWriter();
-    		PrintWriter writer = new PrintWriter(buffer);
-    		String frame = null;
-    		try {
-    			while ((frame = reader.readLine()) != null &&
-				(!frame.equals("END TRACE")))
-    				writer.println(frame);
-    		} catch (IOException e) {
-    			e.printStackTrace();
-    		}
-    		String trace = buffer.getBuffer().toString();
-    		plugin.fireTestFailed(klass, method, trace);
-    	}
+        PydevPlugin plugin = PydevPlugin.getDefault();
+        if (line.startsWith("starting tests ")) {
+            int start = "starting tests ".length();
+            int count = Integer.parseInt(line.substring(start));
+            plugin.fireTestsStarted(count);
+        }
+        if (line.startsWith("ending tests")) {
+            plugin.fireTestsFinished();
+        }
+        if (line.startsWith("starting test ")) {
+            int start = "starting test ".length();
+            String method = line.substring(start, line.indexOf("("));
+            String klass = line.substring(line.indexOf("(") + 1, 
+                    line.indexOf(")"));
+            plugin.fireTestStarted(klass, method);
+        }
+        if (line.startsWith("failing test ")) {
+            int start = "failing test ".length();
+            String method = line.substring(start, line.indexOf("("));
+            String klass = line.substring(line.indexOf("(") + 1, 
+                    line.indexOf(")"));
+            StringWriter buffer = new StringWriter();
+            PrintWriter writer = new PrintWriter(buffer);
+            String frame = null;
+            try {
+                while ((frame = reader.readLine()) != null &&
+                (!frame.equals("END TRACE")))
+                    writer.println(frame);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            String trace = buffer.getBuffer().toString();
+            plugin.fireTestFailed(klass, method, trace);
+        }
     }
     /**
      * @throws IOException

@@ -43,71 +43,71 @@ public class PyOrganizeImports extends PyAction{
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
     @SuppressWarnings("unchecked")
-	public void run(IAction action) {
-		try 
-		{
-			PyEdit pyEdit = getPyEdit();
-			
+    public void run(IAction action) {
+        try 
+        {
+            PyEdit pyEdit = getPyEdit();
+            
             PySelection ps = new PySelection(pyEdit);
-		    String endLineDelim = ps.getEndLineDelim();
-			final IDocument doc = ps.getDoc();
-			DocumentRewriteSession session = null;
-			
-			try {
-				if (ps.getStartLineIndex() == ps.getEndLineIndex()) {
-					//let's see if someone wants to make a better implementation in another plugin...
-					List<IOrganizeImports> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_ORGANIZE_IMPORTS);
-					
-					for (IOrganizeImports organizeImports : participants) {
+            String endLineDelim = ps.getEndLineDelim();
+            final IDocument doc = ps.getDoc();
+            DocumentRewriteSession session = null;
+            
+            try {
+                if (ps.getStartLineIndex() == ps.getEndLineIndex()) {
+                    //let's see if someone wants to make a better implementation in another plugin...
+                    List<IOrganizeImports> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_ORGANIZE_IMPORTS);
+                    
+                    for (IOrganizeImports organizeImports : participants) {
                         if(!organizeImports.beforePerformArrangeImports(ps, pyEdit)){
                             return;
                         }
                     }
-					
-					session = startWrite(doc);
-					
-					performArrangeImports(doc, endLineDelim, pyEdit.getIndentPrefs().getIndentationString());
-					
-					for (IOrganizeImports organizeImports : participants) {
-					    organizeImports.afterPerformArrangeImports(ps, pyEdit);
-					}
-				} else {
-				    session = startWrite(doc);
-					performSimpleSort(doc, endLineDelim, ps.getStartLineIndex(), ps.getEndLineIndex());
-				}
-			} finally {
-			    if(session != null){
-			        endWrite(doc, session);
-			    }
-			}
-		} 
-		catch ( Exception e ) 
-		{
+                    
+                    session = startWrite(doc);
+                    
+                    performArrangeImports(doc, endLineDelim, pyEdit.getIndentPrefs().getIndentationString());
+                    
+                    for (IOrganizeImports organizeImports : participants) {
+                        organizeImports.afterPerformArrangeImports(ps, pyEdit);
+                    }
+                } else {
+                    session = startWrite(doc);
+                    performSimpleSort(doc, endLineDelim, ps.getStartLineIndex(), ps.getEndLineIndex());
+                }
+            } finally {
+                if(session != null){
+                    endWrite(doc, session);
+                }
+            }
+        } 
+        catch ( Exception e ) 
+        {
             PydevPlugin.log(e);
-			beep ( e );
-		}		
+            beep ( e );
+        }        
     }
 
     /**
      * Stop a rewrite session
      */
-	private void endWrite(IDocument doc, DocumentRewriteSession session) {
-		if(doc instanceof IDocumentExtension4){
-			IDocumentExtension4 d = (IDocumentExtension4) doc;
-			d.stopRewriteSession(session);
-		}
-	}
+    private void endWrite(IDocument doc, DocumentRewriteSession session) {
+        if(doc instanceof IDocumentExtension4){
+            IDocumentExtension4 d = (IDocumentExtension4) doc;
+            d.stopRewriteSession(session);
+        }
+    }
 
-	/**
-	 * Starts a rewrite session (keep things in a single undo/redo)
-	 */
-	private DocumentRewriteSession startWrite(IDocument doc) {
-		if(doc instanceof IDocumentExtension4){
-			IDocumentExtension4 d = (IDocumentExtension4) doc;
-			return d.startRewriteSession(DocumentRewriteSessionType.UNRESTRICTED);
-		}
-		return null;
-	}
+    /**
+     * Starts a rewrite session (keep things in a single undo/redo)
+     */
+    private DocumentRewriteSession startWrite(IDocument doc) {
+        if(doc instanceof IDocumentExtension4){
+            IDocumentExtension4 d = (IDocumentExtension4) doc;
+            return d.startRewriteSession(DocumentRewriteSessionType.UNRESTRICTED);
+        }
+        return null;
+    }
 
     /**
      * Actually does the action in the document.
@@ -116,25 +116,25 @@ public class PyOrganizeImports extends PyAction{
      * @param endLineDelim
      */
     @SuppressWarnings("unchecked")
-	public static void performArrangeImports(IDocument doc, String endLineDelim, String indentStr){
-		List<Tuple3<Integer, String, ImportHandle>> list = new ArrayList<Tuple3<Integer, String, ImportHandle>>();
-		//Gather imports in a structure we can work on.
-		PyImportsHandling pyImportsHandling = new PyImportsHandling(doc);
-		int firstImport = -1;
-		for(ImportHandle imp:pyImportsHandling){
+    public static void performArrangeImports(IDocument doc, String endLineDelim, String indentStr){
+        List<Tuple3<Integer, String, ImportHandle>> list = new ArrayList<Tuple3<Integer, String, ImportHandle>>();
+        //Gather imports in a structure we can work on.
+        PyImportsHandling pyImportsHandling = new PyImportsHandling(doc);
+        int firstImport = -1;
+        for(ImportHandle imp:pyImportsHandling){
             list.add( new Tuple3<Integer, String, ImportHandle>(imp.startFoundLine, imp.importFound, imp) );
             
             if(firstImport == -1){
                 firstImport = imp.startFoundLine;
             }
-		}
+        }
 
-		
-		//check if we had any import
-		if(firstImport == -1){
-		    return;
-		}
-		
+        
+        //check if we had any import
+        if(firstImport == -1){
+            return;
+        }
+        
         //sort in inverse order (for removal of the string of the document).
         Collections.sort(list, new Comparator<Tuple3<Integer, String, ImportHandle>>() {
 
@@ -404,17 +404,17 @@ public class PyOrganizeImports extends PyAction{
      * @param endLine the last line where the sort should happen
      */
     @SuppressWarnings("unchecked")
-	public static void performSimpleSort(IDocument doc, String endLineDelim, int startLine, int endLine) {
+    public static void performSimpleSort(IDocument doc, String endLineDelim, int startLine, int endLine) {
         try {
-	        ArrayList<String> list = new ArrayList<String>();
-	        
-	        StringBuffer lastLine = null;
-	        for (int i = startLine; i <= endLine; i++) {
-	            
-	            String line = PySelection.getLine(doc, i);
+            ArrayList<String> list = new ArrayList<String>();
+            
+            StringBuffer lastLine = null;
+            for (int i = startLine; i <= endLine; i++) {
                 
-	            if(lastLine != null){
-	                int len = lastLine.length();
+                String line = PySelection.getLine(doc, i);
+                
+                if(lastLine != null){
+                    int len = lastLine.length();
                     if(len > 0 && lastLine.charAt(len-1) == '\\'){
                         lastLine.append(endLineDelim);
                         lastLine.append(line);
@@ -422,24 +422,24 @@ public class PyOrganizeImports extends PyAction{
                         list.add(lastLine.toString());
                         lastLine = new StringBuffer(line);
                     }
-	            }else{
-	                lastLine = new StringBuffer(line);
-	            }
-	        }
-	        
-	        if(lastLine != null){
-	            list.add(lastLine.toString());
-	        }
-	        
-	        Collections.sort(list);
-	        StringBuffer all = new StringBuffer();
-			for (Iterator iter = list.iterator(); iter.hasNext();) {
-			    String element = (String) iter.next();
-			    all.append(element);
-			    if(iter.hasNext())
-			        all.append(endLineDelim);
-			}
-		
+                }else{
+                    lastLine = new StringBuffer(line);
+                }
+            }
+            
+            if(lastLine != null){
+                list.add(lastLine.toString());
+            }
+            
+            Collections.sort(list);
+            StringBuffer all = new StringBuffer();
+            for (Iterator iter = list.iterator(); iter.hasNext();) {
+                String element = (String) iter.next();
+                all.append(element);
+                if(iter.hasNext())
+                    all.append(endLineDelim);
+            }
+        
             int length = doc.getLineInformation(endLine).getLength();
             int endOffset = doc.getLineInformation(endLine).getOffset()+length;
             int startOffset = doc.getLineInformation(startLine).getOffset();

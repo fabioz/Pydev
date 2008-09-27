@@ -15,24 +15,24 @@ import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 
 public class GlobalFunctionDefVisitor extends AbstractContextVisitor<FunctionDefAdapter> {
 
-	public GlobalFunctionDefVisitor(ModuleAdapter module, AbstractScopeNode<?> parent) {
-		super(module, parent);
-	}
+    public GlobalFunctionDefVisitor(ModuleAdapter module, AbstractScopeNode<?> parent) {
+        super(module, parent);
+    }
 
-	@Override
-	protected FunctionDefAdapter createAdapter(AbstractScopeNode<?> parent, SimpleNode node) {
-		return new FunctionDefAdapter(moduleAdapter, parent, (FunctionDef) node, moduleAdapter.getEndLineDelimiter());
-	}
+    @Override
+    protected FunctionDefAdapter createAdapter(AbstractScopeNode<?> parent, SimpleNode node) {
+        return new FunctionDefAdapter(moduleAdapter, parent, (FunctionDef) node, moduleAdapter.getEndLineDelimiter());
+    }
 
-	@Override
-	public void visit(SimpleNode node) throws Exception {
-		super.visit(node);
-	}
+    @Override
+    public void visit(SimpleNode node) throws Exception {
+        super.visit(node);
+    }
 
-	@Override
-	public Object visitFunctionDef(FunctionDef node) throws Exception {
-		registerInContext(node);
-		return super.visitFunctionDef(node);
-	}
+    @Override
+    public Object visitFunctionDef(FunctionDef node) throws Exception {
+        registerInContext(node);
+        return super.visitFunctionDef(node);
+    }
 
 }

@@ -25,129 +25,129 @@ import org.python.pydev.parser.jython.ast.Name;
 
 public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
 
-	public void changePythonPath(String pythonpath, IProject project,
-			IProgressMonitor monitor, String defaultSelectedInterpreter) {
-		throw new RuntimeException("Not implemented");
-	}
+    public void changePythonPath(String pythonpath, IProject project,
+            IProgressMonitor monitor, String defaultSelectedInterpreter) {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public Tuple3<IModule, String, IToken> findOnImportedMods(
-			ICompletionState state, IModule current)
-			throws CompletionRecursionException {
-		throw new RuntimeException("Not implemented");
-	}
+    public Tuple3<IModule, String, IToken> findOnImportedMods(
+            ICompletionState state, IModule current)
+            throws CompletionRecursionException {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public Tuple3<IModule, String, IToken> findOnImportedMods(
-			IToken[] importedModules, ICompletionState state,
-			String currentModuleName) throws CompletionRecursionException {
-		throw new RuntimeException("Not implemented");
-	}
+    public Tuple3<IModule, String, IToken> findOnImportedMods(
+            IToken[] importedModules, ICompletionState state,
+            String currentModuleName) throws CompletionRecursionException {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public IToken[] findTokensOnImportedMods(IToken[] importedModules,
-			ICompletionState state, IModule current)
-			throws CompletionRecursionException {
-		throw new RuntimeException("Not implemented");
-	}
+    public IToken[] findTokensOnImportedMods(IToken[] importedModules,
+            ICompletionState state, IModule current)
+            throws CompletionRecursionException {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public List<IToken> getBuiltinCompletions(ICompletionState state,
-			List<IToken> completions) {
-		throw new RuntimeException("Not implemented");
-	}
+    public List<IToken> getBuiltinCompletions(ICompletionState state,
+            List<IToken> completions) {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public IToken[] getCompletionsForImport(ImportInfo original,
-			ICompletionRequest request) throws CompletionRecursionException {
-		throw new RuntimeException("Not implemented");
-	}
+    public IToken[] getCompletionsForImport(ImportInfo original,
+            ICompletionRequest request) throws CompletionRecursionException {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public IToken[] getCompletionsForModule(IModule module,
-			ICompletionState state) throws CompletionRecursionException {
-		return new IToken[] {
-				new SourceToken(new Name("True", Name.Store), "True", "", "",
-						"__builtin__"),
-				new SourceToken(new Name("False", Name.Store), "False", "", "",
-						"__builtin__"), };
-	}
+    public IToken[] getCompletionsForModule(IModule module,
+            ICompletionState state) throws CompletionRecursionException {
+        return new IToken[] {
+                new SourceToken(new Name("True", Name.Store), "True", "", "",
+                        "__builtin__"),
+                new SourceToken(new Name("False", Name.Store), "False", "", "",
+                        "__builtin__"), };
+    }
 
-	public IToken[] getCompletionsForModule(IModule module,
-			ICompletionState state, boolean searchSameLevelMods)
-			throws CompletionRecursionException {
-		throw new RuntimeException("Not implemented");
-	}
+    public IToken[] getCompletionsForModule(IModule module,
+            ICompletionState state, boolean searchSameLevelMods)
+            throws CompletionRecursionException {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public IToken[] getCompletionsForModule(IModule module,
-			ICompletionState state, boolean searchSameLevelMods,
-			boolean lookForArgumentCompletion)
-			throws CompletionRecursionException {
-		throw new RuntimeException("Not implemented");
-	}
+    public IToken[] getCompletionsForModule(IModule module,
+            ICompletionState state, boolean searchSameLevelMods,
+            boolean lookForArgumentCompletion)
+            throws CompletionRecursionException {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public IToken[] getCompletionsForToken(File file, IDocument doc,
-			ICompletionState state) throws CompletionRecursionException {
-		throw new RuntimeException("Not implemented");
-	}
+    public IToken[] getCompletionsForToken(File file, IDocument doc,
+            ICompletionState state) throws CompletionRecursionException {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public IToken[] getCompletionsForToken(IDocument doc, ICompletionState state)
-			throws CompletionRecursionException {
-		throw new RuntimeException("Not implemented");
-	}
+    public IToken[] getCompletionsForToken(IDocument doc, ICompletionState state)
+            throws CompletionRecursionException {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public boolean getCompletionsForWildImport(ICompletionState state,
-			IModule current, List<IToken> completions, IToken wildImport) {
-		throw new RuntimeException("Not implemented");
-	}
+    public boolean getCompletionsForWildImport(ICompletionState state,
+            IModule current, List<IToken> completions, IToken wildImport) {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public List<IToken> getGlobalCompletions(IToken[] globalTokens,
-			IToken[] importedModules, IToken[] wildImportedModules,
-			ICompletionState state, IModule current) {
-		throw new RuntimeException("Not implemented");
-	}
+    public List<IToken> getGlobalCompletions(IToken[] globalTokens,
+            IToken[] importedModules, IToken[] wildImportedModules,
+            ICompletionState state, IModule current) {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public IModule getModule(String name, IPythonNature nature,
-			boolean dontSearchInit, boolean lookingForRelative) {
-		throw new RuntimeException("Not implemented");
-	}
+    public IModule getModule(String name, IPythonNature nature,
+            boolean dontSearchInit, boolean lookingForRelative) {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public IModule getModule(String name, IPythonNature nature,
-			boolean dontSearchInit) {
-		throw new RuntimeException("Not implemented");
-	}
+    public IModule getModule(String name, IPythonNature nature,
+            boolean dontSearchInit) {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public IModulesManager getModulesManager() {
-		throw new RuntimeException("Not implemented");
-	}
+    public IModulesManager getModulesManager() {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public IPythonNature getNature() {
-		throw new RuntimeException("Not implemented");
-	}
+    public IPythonNature getNature() {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public IToken getRepInModule(IModule module, String tokName,
-			IPythonNature nature) throws CompletionRecursionException {
-		throw new RuntimeException("Not implemented");
-	}
+    public IToken getRepInModule(IModule module, String tokName,
+            IPythonNature nature) throws CompletionRecursionException {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public void rebuildModule(File file, IDocument doc, IProject project,
-			IProgressMonitor monitor, IPythonNature nature) {
-		throw new RuntimeException("Not implemented");
-	}
+    public void rebuildModule(File file, IDocument doc, IProject project,
+            IProgressMonitor monitor, IPythonNature nature) {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public void removeModule(File file, IProject project,
-			IProgressMonitor monitor) {
-		throw new RuntimeException("Not implemented");
-	}
+    public void removeModule(File file, IProject project,
+            IProgressMonitor monitor) {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public IToken resolveImport(ICompletionState state, IToken imported)
-			throws CompletionRecursionException {
-		throw new RuntimeException("Not implemented");
-	}
+    public IToken resolveImport(ICompletionState state, IToken imported)
+            throws CompletionRecursionException {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public void setProject(IProject project, IPythonNature nature, boolean restoreDeltas) {
-		throw new RuntimeException("Not implemented");
-	}
+    public void setProject(IProject project, IPythonNature nature, boolean restoreDeltas) {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public void getCompletionsForClassInLocalScope(IModule module,
-			ICompletionState state, boolean searchSameLevelMods,
-			boolean lookForArgumentCompletion, List<String> lookForClass,
-			HashSet<IToken> hashSet) throws CompletionRecursionException {
-		throw new RuntimeException("Not implemented");
-	}
+    public void getCompletionsForClassInLocalScope(IModule module,
+            ICompletionState state, boolean searchSameLevelMods,
+            boolean lookForArgumentCompletion, List<String> lookForClass,
+            HashSet<IToken> hashSet) throws CompletionRecursionException {
+        throw new RuntimeException("Not implemented");
+    }
 
 }

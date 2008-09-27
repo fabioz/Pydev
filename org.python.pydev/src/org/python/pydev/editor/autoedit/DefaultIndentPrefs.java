@@ -13,7 +13,7 @@ import org.python.pydev.plugin.PydevPrefs;
  * Provides indentation preferences from the preferences set in the preferences pages within eclipse.
  */
 public class DefaultIndentPrefs extends AbstractIndentPrefs {
-	
+    
     /** 
      * Cache for indentation string 
      */
@@ -23,11 +23,11 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
 
     private int tabWidth;
     
-	private static PyPreferencesCache cache;
+    private static PyPreferencesCache cache;
 
-	/**
-	 * Singleton instance for the preferences
-	 */
+    /**
+     * Singleton instance for the preferences
+     */
     private static IIndentPrefs indentPrefs;
     
     /**
@@ -39,29 +39,29 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
         }
         return indentPrefs;
     }
-	
+    
     /**
      * @return a cache for the preferences.
      */
-	private PyPreferencesCache getCache(){
-    	if(cache == null){
-    		cache = new PyPreferencesCache(PydevPlugin.getDefault().getPreferenceStore());
-    	}
-    	return cache;
-	}
-	
-	/**
-	 * Not singleton (each pyedit may force to use tabs or not).
-	 */
-	DefaultIndentPrefs(){
-		PyPreferencesCache c = getCache();
-		useSpaces = c.getBoolean(PydevPrefs.SUBSTITUTE_TABS);
-		tabWidth = c.getInt(PydevPrefs.TAB_WIDTH, 4);
-	}
+    private PyPreferencesCache getCache(){
+        if(cache == null){
+            cache = new PyPreferencesCache(PydevPlugin.getDefault().getPreferenceStore());
+        }
+        return cache;
+    }
+    
+    /**
+     * Not singleton (each pyedit may force to use tabs or not).
+     */
+    DefaultIndentPrefs(){
+        PyPreferencesCache c = getCache();
+        useSpaces = c.getBoolean(PydevPrefs.SUBSTITUTE_TABS);
+        tabWidth = c.getInt(PydevPrefs.TAB_WIDTH, 4);
+    }
 
     public boolean getUseSpaces() {
         PyPreferencesCache c = getCache();
-		if(useSpaces != c.getBoolean(PydevPrefs.SUBSTITUTE_TABS)){
+        if(useSpaces != c.getBoolean(PydevPrefs.SUBSTITUTE_TABS)){
             useSpaces = c.getBoolean(PydevPrefs.SUBSTITUTE_TABS);
             regenerateIndentString();
         }
@@ -90,9 +90,9 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
     }
 
     public void regenerateIndentString(){
-    	PyPreferencesCache c = getCache();
+        PyPreferencesCache c = getCache();
         c.clear(PydevPrefs.TAB_WIDTH);
-    	c.clear(PydevPrefs.SUBSTITUTE_TABS);
+        c.clear(PydevPrefs.SUBSTITUTE_TABS);
         indentString = super.getIndentationString();
     }
     /**
@@ -117,7 +117,7 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
     }
     
     public boolean getIndentToParLevel() {
-    	return getCache().getBoolean(PydevPrefs.AUTO_INDENT_TO_PAR_LEVEL);
+        return getCache().getBoolean(PydevPrefs.AUTO_INDENT_TO_PAR_LEVEL);
     }
 
     public boolean getAutoColon() {
@@ -133,12 +133,12 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
     }
 
     public boolean getSmartIndentPar() {
-    	return getCache().getBoolean(PydevPrefs.SMART_INDENT_PAR);
+        return getCache().getBoolean(PydevPrefs.SMART_INDENT_PAR);
     }
 
-	public boolean getAutoAddSelf() {
-		return getCache().getBoolean(PydevPrefs.AUTO_ADD_SELF);
-	}
+    public boolean getAutoAddSelf() {
+        return getCache().getBoolean(PydevPrefs.AUTO_ADD_SELF);
+    }
 
     public boolean getAutoDedentElse() {
         return getCache().getBoolean(PydevPrefs.AUTO_DEDENT_ELSE);

@@ -29,13 +29,13 @@ public interface IProjectModulesManager extends IModulesManager {
 
     public abstract void endProcessing();
 
-	public abstract void rebuildModule(File f, IDocument doc, IProject project, IProgressMonitor monitor, IPythonNature nature);
+    public abstract void rebuildModule(File f, IDocument doc, IProject project, IProgressMonitor monitor, IPythonNature nature);
 
-	public abstract void removeModule(File file, IProject project, IProgressMonitor monitor);
+    public abstract void removeModule(File file, IProject project, IProgressMonitor monitor);
 
-	/**
-	 * @return a given module only if it's actually controlled in the given modules manager (not considering any dependencies)
-	 */
+    /**
+     * @return a given module only if it's actually controlled in the given modules manager (not considering any dependencies)
+     */
     public abstract IModule getModuleInDirectManager(String name, IPythonNature nature, boolean dontSearchInit);
 
     /**

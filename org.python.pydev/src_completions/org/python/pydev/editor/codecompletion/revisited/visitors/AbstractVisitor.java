@@ -100,19 +100,19 @@ public abstract class AbstractVisitor extends VisitorBase{
     }
 
     public static List<IToken> makeImportToken(SimpleNode node, List<IToken> tokens, String moduleName, boolean allowForMultiple) {
-    	if(node instanceof Import){
-    		return makeImportToken((Import)node, tokens, moduleName, allowForMultiple);
-    	}
-    	if(node instanceof ImportFrom){
-    		ImportFrom i = (ImportFrom) node;
-    		if(isWildImport(i)){
-    			makeWildImportToken(i, tokens, moduleName);
-    			return tokens;
-    		}
-    		return makeImportToken((ImportFrom)node, tokens, moduleName, allowForMultiple);
-    	}
-    	
-    	throw new RuntimeException("Unable to create token for the passed import ("+node+")");
+        if(node instanceof Import){
+            return makeImportToken((Import)node, tokens, moduleName, allowForMultiple);
+        }
+        if(node instanceof ImportFrom){
+            ImportFrom i = (ImportFrom) node;
+            if(isWildImport(i)){
+                makeWildImportToken(i, tokens, moduleName);
+                return tokens;
+            }
+            return makeImportToken((ImportFrom)node, tokens, moduleName, allowForMultiple);
+        }
+        
+        throw new RuntimeException("Unable to create token for the passed import ("+node+")");
     }
 
     /**
@@ -150,7 +150,7 @@ public abstract class AbstractVisitor extends VisitorBase{
         }
         
         if(initialImportName.length() > 0){
-        	initialImportName = initialImportName+".";
+            initialImportName = initialImportName+".";
         }
         
         for (int i = 0; i < names.length; i++) {
@@ -236,7 +236,7 @@ public abstract class AbstractVisitor extends VisitorBase{
      * @throws Exception
      */
     public static List<IToken> getTokens(SimpleNode ast, int which, String moduleName, ICompletionState state, 
-    		boolean onlyAllowTokensIn__all__) {
+            boolean onlyAllowTokensIn__all__) {
         AbstractVisitor modelVisitor;
         if(which == INNER_DEFS){
             modelVisitor = new InnerModelVisitor(moduleName, state);
@@ -261,23 +261,23 @@ public abstract class AbstractVisitor extends VisitorBase{
      * This method traverses the ast and returns a model visitor that has the list of found tokens (and other related info, such as __all__, etc.)
      */
     public static GlobalModelVisitor getGlobalModuleVisitorWithTokens(SimpleNode ast, int which, String moduleName, ICompletionState state, 
-    		boolean onlyAllowTokensIn__all__) {
-    	if(which == INNER_DEFS){
-    		throw new RuntimeException("Only globals for getting the GlobalModelVisitor");
-    	}
-		GlobalModelVisitor modelVisitor = new GlobalModelVisitor(which, moduleName, onlyAllowTokensIn__all__);
-    	
-    	if (ast != null){
-    		try {
-    			ast.accept(modelVisitor);
-    		} catch (Exception e) {
-    			throw new RuntimeException(e);
-    		}
-    		modelVisitor.finishVisit();
-    		return modelVisitor;
-    	}else{
-    		return modelVisitor;
-    	}
+            boolean onlyAllowTokensIn__all__) {
+        if(which == INNER_DEFS){
+            throw new RuntimeException("Only globals for getting the GlobalModelVisitor");
+        }
+        GlobalModelVisitor modelVisitor = new GlobalModelVisitor(which, moduleName, onlyAllowTokensIn__all__);
+        
+        if (ast != null){
+            try {
+                ast.accept(modelVisitor);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            modelVisitor.finishVisit();
+            return modelVisitor;
+        }else{
+            return modelVisitor;
+        }
     }
 
 
@@ -285,9 +285,9 @@ public abstract class AbstractVisitor extends VisitorBase{
      * This method is available so that subclasses can do some post-processing before the tokens are actually
      * returned.
      */
-	protected void finishVisit() {
-		/**Empty**/
-	}
+    protected void finishVisit() {
+        /**Empty**/
+    }
 
 
 

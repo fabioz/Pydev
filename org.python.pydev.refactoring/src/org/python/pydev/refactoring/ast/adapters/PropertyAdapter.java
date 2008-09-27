@@ -17,123 +17,123 @@ import org.python.pydev.parser.jython.ast.keywordType;
 
 public class PropertyAdapter extends AbstractNodeAdapter<SimpleNode> {
 
-	private Name getter;
+    private Name getter;
 
-	private Name setter;
+    private Name setter;
 
-	private Name delete;
+    private Name delete;
 
-	private SimpleNode doc;
+    private SimpleNode doc;
 
-	public PropertyAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, SimpleNode node, String endLineDelim) {
-		super(module, parent, node, endLineDelim);
-		if (nodeHelper.isAssign(getASTNode())) {
-			initByAssign();
-		} else {
-			// functiondef not supported yet
-		}
-	}
+    public PropertyAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, SimpleNode node, String endLineDelim) {
+        super(module, parent, node, endLineDelim);
+        if (nodeHelper.isAssign(getASTNode())) {
+            initByAssign();
+        } else {
+            // functiondef not supported yet
+        }
+    }
 
-	private void initByAssign() {
-		getter = null;
-		setter = null;
-		delete = null;
-		doc = null;
+    private void initByAssign() {
+        getter = null;
+        setter = null;
+        delete = null;
+        doc = null;
 
-		exprType[] args = getPropertyArgs();
-		for (int i = 0; i < args.length; i++) {
-			setMethod(args[i], i);
-		}
-		
-		for (keywordType keyword : getValue().keywords) {
-			setKeyword(keyword);
-		}
-		if (getter == null)
-			getter = createNone();
-		if (setter == null)
-			setter = createNone();
-		if (delete == null)
-			delete = createNone();
+        exprType[] args = getPropertyArgs();
+        for (int i = 0; i < args.length; i++) {
+            setMethod(args[i], i);
+        }
+        
+        for (keywordType keyword : getValue().keywords) {
+            setKeyword(keyword);
+        }
+        if (getter == null)
+            getter = createNone();
+        if (setter == null)
+            setter = createNone();
+        if (delete == null)
+            delete = createNone();
 
-	}
+    }
 
-	private void setKeyword(keywordType kw) {
-		if (nodeHelper.isFGet(kw)) {
-			this.getter = (Name) kw.value;
-		} else if (nodeHelper.isFSet(kw)) {
-			this.setter = (Name) kw.value;
-		} else if (nodeHelper.isFDel(kw)) {
-			this.delete = (Name) kw.value;
-		} else if (nodeHelper.isKeywordStr(kw)) {
-			this.doc = kw;
-		}
-	}
+    private void setKeyword(keywordType kw) {
+        if (nodeHelper.isFGet(kw)) {
+            this.getter = (Name) kw.value;
+        } else if (nodeHelper.isFSet(kw)) {
+            this.setter = (Name) kw.value;
+        } else if (nodeHelper.isFDel(kw)) {
+            this.delete = (Name) kw.value;
+        } else if (nodeHelper.isKeywordStr(kw)) {
+            this.doc = kw;
+        }
+    }
 
-	private Name createNone() {
-		return new Name("None", Name.Param);
-	}
+    private Name createNone() {
+        return new Name("None", Name.Param);
+    }
 
-	private void setMethod(exprType expr, int i) {
-		if (nodeHelper.isStr(expr)) {
-			doc = expr;
-		} else if (nodeHelper.isName(expr)) {
-			Name name = (Name) expr;
-			switch (i) {
-			case 0:
-				getter = name;
-				break;
-			case 1:
-				setter = name;
-				break;
-			case 2:
-				delete = name;
-				break;
-			case 3:
-				if (!(nodeHelper.isNone(name)))
-					doc = name;
-				break;
-			}
-		}
-	}
+    private void setMethod(exprType expr, int i) {
+        if (nodeHelper.isStr(expr)) {
+            doc = expr;
+        } else if (nodeHelper.isName(expr)) {
+            Name name = (Name) expr;
+            switch (i) {
+            case 0:
+                getter = name;
+                break;
+            case 1:
+                setter = name;
+                break;
+            case 2:
+                delete = name;
+                break;
+            case 3:
+                if (!(nodeHelper.isNone(name)))
+                    doc = name;
+                break;
+            }
+        }
+    }
 
-	@Override
-	public String getName() {
-		return nodeHelper.getName(getTarget());
-	}
+    @Override
+    public String getName() {
+        return nodeHelper.getName(getTarget());
+    }
 
-	public boolean isComplete() {
-		return hasGetter() && hasSetter() && hasDelete() && hasDocString();
-	}
+    public boolean isComplete() {
+        return hasGetter() && hasSetter() && hasDelete() && hasDocString();
+    }
 
-	public boolean hasSetter() {
-		return (!(nodeHelper.isNone(setter)));
-	}
+    public boolean hasSetter() {
+        return (!(nodeHelper.isNone(setter)));
+    }
 
-	public boolean hasDelete() {
-		return (!(nodeHelper.isNone(delete)));
-	}
+    public boolean hasDelete() {
+        return (!(nodeHelper.isNone(delete)));
+    }
 
-	public boolean hasDocString() {
-		return doc != null;
-	}
+    public boolean hasDocString() {
+        return doc != null;
+    }
 
-	public boolean hasGetter() {
-		return (!(nodeHelper.isNone(getter)));
-	}
+    public boolean hasGetter() {
+        return (!(nodeHelper.isNone(getter)));
+    }
 
-	private Assign getAssign() {
-		return (Assign) getASTNode();
-	}
+    private Assign getAssign() {
+        return (Assign) getASTNode();
+    }
 
-	private exprType[] getPropertyArgs() {
-		return getValue().args;
-	}
+    private exprType[] getPropertyArgs() {
+        return getValue().args;
+    }
 
-	private Name getTarget() {
-		return (Name) getAssign().targets[0];
-	}
+    private Name getTarget() {
+        return (Name) getAssign().targets[0];
+    }
 
-	private Call getValue() {
-		return (Call) getAssign().value;
-	}
+    private Call getValue() {
+        return (Call) getAssign().value;
+    }
 }

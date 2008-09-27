@@ -21,7 +21,7 @@ public class PythonNode implements Comparable, IWrappedResource {
     /**
      * The pythonfile where this node is contained
      */
-	public PythonFile pythonFile;
+    public PythonFile pythonFile;
 
     /**
      * Constructor
@@ -48,17 +48,17 @@ public class PythonNode implements Comparable, IWrappedResource {
         return entry.compareTo(((PythonNode)o).entry);
     }
 
-	public Object getParentElement() {
-		return parent;
-	}
+    public Object getParentElement() {
+        return parent;
+    }
 
-	public ParsedItem getActualObject() {
-		return entry;
-	}
+    public ParsedItem getActualObject() {
+        return entry;
+    }
 
-	public PythonSourceFolder getSourceFolder() {
-		return pythonFile.getSourceFolder();
-	}
+    public PythonSourceFolder getSourceFolder() {
+        return pythonFile.getSourceFolder();
+    }
 
     public PythonFile getPythonFile(){
         return pythonFile;

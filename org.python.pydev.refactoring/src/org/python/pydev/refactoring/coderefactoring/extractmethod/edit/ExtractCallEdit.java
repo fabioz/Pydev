@@ -24,82 +24,82 @@ import org.python.pydev.refactoring.core.edit.AbstractReplaceEdit;
 
 public class ExtractCallEdit extends AbstractReplaceEdit {
 
-	private String methodName;
+    private String methodName;
 
-	private int offset;
+    private int offset;
 
-	private IASTNodeAdapter<?> offsetAdapter;
+    private IASTNodeAdapter<?> offsetAdapter;
 
-	private int replaceLength;
+    private int replaceLength;
 
-	private List<String> callParameters;
+    private List<String> callParameters;
 
-	private List<String> returnVariables;
+    private List<String> returnVariables;
 
-	public ExtractCallEdit(ExtractMethodRequest req) {
-		super(req);
-		this.methodName = req.getMethodName();
-		this.offset = req.getSelection().getOffset();
+    public ExtractCallEdit(ExtractMethodRequest req) {
+        super(req);
+        this.methodName = req.getMethodName();
+        this.offset = req.getSelection().getOffset();
 
-		this.replaceLength = req.getSelection().getLength();
-		this.offsetAdapter = req.getOffsetNode();
+        this.replaceLength = req.getSelection().getLength();
+        this.offsetAdapter = req.getOffsetNode();
 
-		this.callParameters = req.getParameters();
-		this.returnVariables = req.getReturnVariables();
-	}
+        this.callParameters = req.getParameters();
+        this.returnVariables = req.getReturnVariables();
+    }
 
-	@Override
-	protected SimpleNode getEditNode() {
+    @Override
+    protected SimpleNode getEditNode() {
 
-		List<exprType> argsList = initCallArguments();
-		Call methodCall = new Call(createCallAttribute(), argsList.toArray(new exprType[0]), null, null, null);
+        List<exprType> argsList = initCallArguments();
+        Call methodCall = new Call(createCallAttribute(), argsList.toArray(new exprType[0]), null, null, null);
 
-		return initSubstituteCall(methodCall);
+        return initSubstituteCall(methodCall);
 
-	}
+    }
 
-	private SimpleNode initSubstituteCall(Call methodCall) {
-		if (returnVariables.size() == 0) {
-			return methodCall;
-		} else {
-			List<exprType> returnExpr = new ArrayList<exprType>();
-			for (String returnVar : returnVariables) {
-				returnExpr.add(new Name(returnVar, Name.Store));
-			}
+    private SimpleNode initSubstituteCall(Call methodCall) {
+        if (returnVariables.size() == 0) {
+            return methodCall;
+        } else {
+            List<exprType> returnExpr = new ArrayList<exprType>();
+            for (String returnVar : returnVariables) {
+                returnExpr.add(new Name(returnVar, Name.Store));
+            }
 
-			return new Assign(returnExpr.toArray(new exprType[0]), methodCall);
-		}
-	}
+            return new Assign(returnExpr.toArray(new exprType[0]), methodCall);
+        }
+    }
 
-	private List<exprType> initCallArguments() {
-		List<exprType> argsList = new ArrayList<exprType>();
-		for (String parameter : callParameters) {
-			argsList.add(new Name(parameter, Name.Load));
-		}
-		return argsList;
-	}
+    private List<exprType> initCallArguments() {
+        List<exprType> argsList = new ArrayList<exprType>();
+        for (String parameter : callParameters) {
+            argsList.add(new Name(parameter, Name.Load));
+        }
+        return argsList;
+    }
 
-	private exprType createCallAttribute() {
-		if (this.offsetAdapter instanceof IClassDefAdapter) {
-			return new Attribute(new Name("self", Name.Load), new NameTok(this.methodName, NameTok.Attrib), Attribute.Load);
-		} else {
-			return new Name(this.methodName, Name.Load);
-		}
-	}
+    private exprType createCallAttribute() {
+        if (this.offsetAdapter instanceof IClassDefAdapter) {
+            return new Attribute(new Name("self", Name.Load), new NameTok(this.methodName, NameTok.Attrib), Attribute.Load);
+        } else {
+            return new Name(this.methodName, Name.Load);
+        }
+    }
 
-	@Override
-	public int getOffsetStrategy() {
-		return 0;
-	}
+    @Override
+    public int getOffsetStrategy() {
+        return 0;
+    }
 
-	@Override
-	public int getOffset() {
-		return offset;
-	}
+    @Override
+    public int getOffset() {
+        return offset;
+    }
 
-	@Override
-	protected int getReplaceLength() {
-		return replaceLength;
-	}
+    @Override
+    protected int getReplaceLength() {
+        return replaceLength;
+    }
 
 }

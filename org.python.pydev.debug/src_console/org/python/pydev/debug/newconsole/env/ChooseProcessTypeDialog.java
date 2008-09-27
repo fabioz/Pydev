@@ -25,20 +25,20 @@ import org.python.pydev.ui.NotConfiguredInterpreterException;
  * Helper to choose which kind of jython run will it be.
  */
 final class ChooseProcessTypeDialog extends Dialog {
-	
+    
     private Button checkboxForCurrentEditor;
 
     private Button checkboxPython;
     
     private Button checkboxJython;
 
-	private PyEdit activeEditor;
+    private PyEdit activeEditor;
 
-	private Collection<String> pythonpath;
+    private Collection<String> pythonpath;
 
-	private IInterpreterManager interpreterManager;
-	
-	private List<IPythonNature> natures = new ArrayList<IPythonNature>();
+    private IInterpreterManager interpreterManager;
+    
+    private List<IPythonNature> natures = new ArrayList<IPythonNature>();
 
     ChooseProcessTypeDialog(Shell shell, PyEdit activeEditor) {
         super(shell);
@@ -69,97 +69,97 @@ final class ChooseProcessTypeDialog extends Dialog {
      * Configures a button related to a given interpreter manager.
      */
     private void configureButton(Button checkBox, String python, IInterpreterManager interpreterManager) {
-    	boolean enabled = false;
-    	String text;
-    	try{
-    		if(interpreterManager.getDefaultInterpreter() != null){
-    			text = python+" console";
-    			enabled = true;
-    		}else{
-    			throw new NotConfiguredInterpreterException();
-    		}
-    	}catch(NotConfiguredInterpreterException e){
-    		text = "Unable to create console for "+python+" (interpreter not configured)";
-    	}
-    	checkBox.setText(text);
-    	checkBox.setEnabled(enabled);
+        boolean enabled = false;
+        String text;
+        try{
+            if(interpreterManager.getDefaultInterpreter() != null){
+                text = python+" console";
+                enabled = true;
+            }else{
+                throw new NotConfiguredInterpreterException();
+            }
+        }catch(NotConfiguredInterpreterException e){
+            text = "Unable to create console for "+python+" (interpreter not configured)";
+        }
+        checkBox.setText(text);
+        checkBox.setEnabled(enabled);
     }
 
     /**
      * Configures a button related to an editor.
      */
-	private void configureEditorButton() {
-		boolean enabled = false;
+    private void configureEditorButton() {
+        boolean enabled = false;
         String text;
         try{
             if(this.activeEditor != null){
-            	IPythonNature nature = this.activeEditor.getPythonNature();
-            	if(nature != null){
-            		
-					if(nature.getRelatedInterpreterManager().getDefaultInterpreter() != null){
-		        		text = "Console for currently active editor";
-		        		enabled = true;
-		        	}else{
-		        		throw new NotConfiguredInterpreterException();
-		        	}
-            	}else{
-            		text = "No python nature configured for the current editor";
-            	}
+                IPythonNature nature = this.activeEditor.getPythonNature();
+                if(nature != null){
+                    
+                    if(nature.getRelatedInterpreterManager().getDefaultInterpreter() != null){
+                        text = "Console for currently active editor";
+                        enabled = true;
+                    }else{
+                        throw new NotConfiguredInterpreterException();
+                    }
+                }else{
+                    text = "No python nature configured for the current editor";
+                }
             }else{
-            	text = "Unable to create console for current editor (no active editor)";
+                text = "Unable to create console for current editor (no active editor)";
             }
         }catch(NotConfiguredInterpreterException e){
-        	//expected
-        	text = "Unable to create console for current editor (interpreter not configured for the editor)";
+            //expected
+            text = "Unable to create console for current editor (interpreter not configured for the editor)";
         }
         checkboxForCurrentEditor.setText(text);
         checkboxForCurrentEditor.setEnabled(enabled);
-	}
+    }
 
-	
-	/**
-	 * Sets the internal pythonpath chosen.
-	 */
+    
+    /**
+     * Sets the internal pythonpath chosen.
+     */
     @Override
     protected void okPressed() {
-    	IInterpreterManager localInterpreterManager = null;
-    	
+        IInterpreterManager localInterpreterManager = null;
+        
         if(checkboxForCurrentEditor.isEnabled() && checkboxForCurrentEditor.getSelection()){
-        	IProject project = this.activeEditor.getProject();
-        	PythonNature nature = PythonNature.getPythonNature(project);
-        	natures.add(nature);
-        	this.pythonpath = new ArrayList<String>(nature.getPythonPathNature().getCompleteProjectPythonPath(
-        			nature.getRelatedInterpreterManager().getDefaultInterpreter()));
-        	this.interpreterManager = nature.getRelatedInterpreterManager();
-        	
+            IProject project = this.activeEditor.getProject();
+            PythonNature nature = PythonNature.getPythonNature(project);
+            natures.add(nature);
+            this.pythonpath = new ArrayList<String>(nature.getPythonPathNature().getCompleteProjectPythonPath(
+                    nature.getRelatedInterpreterManager().getDefaultInterpreter()));
+            this.interpreterManager = nature.getRelatedInterpreterManager();
+            
         }else if(checkboxPython.isEnabled() && checkboxPython.getSelection()){
-        	localInterpreterManager = PydevPlugin.getPythonInterpreterManager();
-        	
+            localInterpreterManager = PydevPlugin.getPythonInterpreterManager();
+            
         }else if(checkboxJython.isEnabled() && checkboxJython.getSelection()){
-        	localInterpreterManager = PydevPlugin.getJythonInterpreterManager();
-        	
+            localInterpreterManager = PydevPlugin.getJythonInterpreterManager();
+            
         }
         
         if(localInterpreterManager != null){
-        	this.interpreterManager = localInterpreterManager;
-        	String defaultInterpreter = localInterpreterManager.getDefaultInterpreter();
-        	IWorkspace w = ResourcesPlugin.getWorkspace();
-        	HashSet<String> pythonpath = new HashSet<String>();
-        	for(IProject p:w.getRoot().getProjects()){
-        		PythonNature nature = PythonNature.getPythonNature(p);
-        		try{
-	        		if(nature != null){
-	        			if(nature.getRelatedInterpreterManager() == localInterpreterManager){
-	        			    natures.add(nature);
-							pythonpath.addAll(nature.getPythonPathNature().
-									getCompleteProjectPythonPath(defaultInterpreter));
-	        			}
-	        		}
-        		}catch(Exception e){
-        			PydevPlugin.log(e);
-        		}
-        	}
-        	this.pythonpath = pythonpath;
+            this.interpreterManager = localInterpreterManager;
+            String defaultInterpreter = localInterpreterManager.getDefaultInterpreter();
+            IWorkspace w = ResourcesPlugin.getWorkspace();
+            HashSet<String> pythonpath = new HashSet<String>();
+            for(IProject p:w.getRoot().getProjects()){
+                PythonNature nature = PythonNature.getPythonNature(p);
+                try{
+                    if(nature != null){
+                        if(nature.getRelatedInterpreterManager() == localInterpreterManager){
+                            natures.add(nature);
+                            pythonpath.addAll(nature.getPythonPathNature().
+                                    getCompleteProjectPythonPath(defaultInterpreter));
+                        }
+                    }
+                }catch(Exception e){
+                    PydevPlugin.log(e);
+                }
+            }
+            this.pythonpath = pythonpath;
         }
         
         super.okPressed();
@@ -173,11 +173,11 @@ final class ChooseProcessTypeDialog extends Dialog {
         return this.pythonpath;
     }
 
-	public IInterpreterManager getInterpreterManager() {
-		return this.interpreterManager;
-	}
-	
-	public List<IPythonNature> getNatures() {
+    public IInterpreterManager getInterpreterManager() {
+        return this.interpreterManager;
+    }
+    
+    public List<IPythonNature> getNatures() {
         return natures;
     }
 }

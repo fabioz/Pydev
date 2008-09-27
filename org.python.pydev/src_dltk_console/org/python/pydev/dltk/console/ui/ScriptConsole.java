@@ -234,25 +234,25 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
     /**
      * Used for backward compatibility because the setBackground/getBackground is not available for eclipse 3.2
      */
-	public Color getPydevConsoleBackground() {
-		try{
-			Color ret = (Color) REF.invoke(this, "getBackground");
-			return ret;
-		}catch(Throwable e){
-			//not available in eclipse 3.2
-			return fPydevConsoleBackground;
-		}
-	}
-	
-	/**
-	 * Used for backward compatibility because the setBackground/getBackground is not available for eclipse 3.2
-	 */
-	public void setPydevConsoleBackground(Color color) {
+    public Color getPydevConsoleBackground() {
         try{
-        	REF.invoke(this, "setBackground", color);
+            Color ret = (Color) REF.invoke(this, "getBackground");
+            return ret;
         }catch(Throwable e){
-        	//not available in eclipse 3.2
-        	fPydevConsoleBackground = color;
+            //not available in eclipse 3.2
+            return fPydevConsoleBackground;
         }
-	}
+    }
+    
+    /**
+     * Used for backward compatibility because the setBackground/getBackground is not available for eclipse 3.2
+     */
+    public void setPydevConsoleBackground(Color color) {
+        try{
+            REF.invoke(this, "setBackground", color);
+        }catch(Throwable e){
+            //not available in eclipse 3.2
+            fPydevConsoleBackground = color;
+        }
+    }
 }

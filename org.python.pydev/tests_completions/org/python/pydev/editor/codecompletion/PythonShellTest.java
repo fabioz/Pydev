@@ -63,7 +63,7 @@ public class PythonShellTest extends CodeCompletionTestsBase{
     }
 
     public void testGetGlobalCompletions() throws IOException, CoreException {
-    	List<String[]> list = shell.getImportCompletions("math", getPythonpath()).o2;
+        List<String[]> list = shell.getImportCompletions("math", getPythonpath()).o2;
 
         Object[] element = null;
         element = (Object[]) list.get(0);
@@ -75,7 +75,7 @@ public class PythonShellTest extends CodeCompletionTestsBase{
 
 
     public void testErrorOnCompletions() throws IOException, CoreException {
-    	List<String[]> list = shell.getImportCompletions("dfjslkfjds\n\n", getPythonpath()).o2;
+        List<String[]> list = shell.getImportCompletions("dfjslkfjds\n\n", getPythonpath()).o2;
         assertEquals(0, list.size());
         //don't show completion errors!
     }

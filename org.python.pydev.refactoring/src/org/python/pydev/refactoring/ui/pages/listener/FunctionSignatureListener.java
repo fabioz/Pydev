@@ -21,62 +21,62 @@ import org.python.pydev.refactoring.ui.model.table.SimpleTableItem;
 
 public class FunctionSignatureListener implements Listener {
 
-	private final String METHODDEF = "def ";
+    private final String METHODDEF = "def ";
 
-	private final String OPENBRACKET = "(";
+    private final String OPENBRACKET = "(";
 
-	private final String CLOSEBRACKET = ")";
+    private final String CLOSEBRACKET = ")";
 
-	private Table argumentTable;
+    private Table argumentTable;
 
-	private Label signatureLabel;
+    private Label signatureLabel;
 
-	private LabeledEdit functionNameEdit;
+    private LabeledEdit functionNameEdit;
 
-	private IValidationPage page;
+    private IValidationPage page;
 
-	public FunctionSignatureListener(IValidationPage page, Label signature, LabeledEdit functionNameEdit, Table argumentTable) {
-		this.page = page;
-		this.signatureLabel = signature;
-		this.functionNameEdit = functionNameEdit;
-		this.argumentTable = argumentTable;
-	}
+    public FunctionSignatureListener(IValidationPage page, Label signature, LabeledEdit functionNameEdit, Table argumentTable) {
+        this.page = page;
+        this.signatureLabel = signature;
+        this.functionNameEdit = functionNameEdit;
+        this.argumentTable = argumentTable;
+    }
 
-	private void updateSignature() {
-		if (functionNameEdit.getEdit().getText().length() == 0) {
-			return;
-		}
+    private void updateSignature() {
+        if (functionNameEdit.getEdit().getText().length() == 0) {
+            return;
+        }
 
-		StringBuilder signature = new StringBuilder();
+        StringBuilder signature = new StringBuilder();
 
-		signature.append(METHODDEF);
-		signature.append(this.functionNameEdit.getEdit().getText());
-		signature.append(OPENBRACKET);
+        signature.append(METHODDEF);
+        signature.append(this.functionNameEdit.getEdit().getText());
+        signature.append(OPENBRACKET);
 
-		initArguments(signature);
-		signature.append(CLOSEBRACKET);
+        initArguments(signature);
+        signature.append(CLOSEBRACKET);
 
-		signatureLabel.setText(signature.toString());
-	}
+        signatureLabel.setText(signature.toString());
+    }
 
-	private void initArguments(StringBuilder signature) {
-		if (this.argumentTable != null) {
-			List<TableItem> items = Arrays.asList(argumentTable.getItems());
-			Iterator<TableItem> iter = items.iterator();
-			while (iter.hasNext()) {
-				TableItem item = iter.next();
-				if (item instanceof SimpleTableItem) {
-					signature.append(item.getText());
-					if (iter.hasNext())
-						signature.append(", ");
-				}
-			}
-		}
-	}
+    private void initArguments(StringBuilder signature) {
+        if (this.argumentTable != null) {
+            List<TableItem> items = Arrays.asList(argumentTable.getItems());
+            Iterator<TableItem> iter = items.iterator();
+            while (iter.hasNext()) {
+                TableItem item = iter.next();
+                if (item instanceof SimpleTableItem) {
+                    signature.append(item.getText());
+                    if (iter.hasNext())
+                        signature.append(", ");
+                }
+            }
+        }
+    }
 
-	public void handleEvent(Event event) {
-		if (page.isPageComplete()) {
-			updateSignature();
-		}
-	}
+    public void handleEvent(Event event) {
+        if (page.isPageComplete()) {
+            updateSignature();
+        }
+    }
 }

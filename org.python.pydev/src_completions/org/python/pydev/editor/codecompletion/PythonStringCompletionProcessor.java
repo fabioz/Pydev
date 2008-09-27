@@ -7,15 +7,15 @@ import org.python.pydev.editor.PyEdit;
 
 public class PythonStringCompletionProcessor extends PythonCompletionProcessor{
 
-	public PythonStringCompletionProcessor(PyEdit edit, PyContentAssistant pyContentAssistant) {
-		super(edit, pyContentAssistant);
-	}
-	
-	@Override
-	public char[] getCompletionProposalAutoActivationCharacters() {
-		//no auto-activation within strings.
-		return new char[]{'@'};
-	}
+    public PythonStringCompletionProcessor(PyEdit edit, PyContentAssistant pyContentAssistant) {
+        super(edit, pyContentAssistant);
+    }
+    
+    @Override
+    public char[] getCompletionProposalAutoActivationCharacters() {
+        //no auto-activation within strings.
+        return new char[]{'@'};
+    }
 
     protected IPyCodeCompletion getCodeCompletionEngine() {
         return new PyStringCodeCompletion();

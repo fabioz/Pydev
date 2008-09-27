@@ -64,12 +64,12 @@ public class PythonRunner {
     }
 
     
-	/**
-	 * Launches the configuration
+    /**
+     * Launches the configuration
      * 
      * The code is modeled after Ant launching example.
-	 */
-	public static void run(final PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
+     */
+    public static void run(final PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
         //let's check if the interpreter is valid.
         final IInterpreterManager interpreterManager = PythonNature.getPythonNature(config.project).getRelatedInterpreterManager();
         if(!interpreterManager.hasInfoOnInterpreter(config.interpreterLocation)){
@@ -92,15 +92,15 @@ public class PythonRunner {
         }
         
         try{
-    		if (config.isDebug) {
-    		    runDebug(config, launch, monitor);
+            if (config.isDebug) {
+                runDebug(config, launch, monitor);
                 
-    		}else if (config.isUnittest()) { 
-    			runUnitTest(config, launch, monitor);
+            }else if (config.isUnittest()) { 
+                runUnitTest(config, launch, monitor);
                 
-    		}else { //default - just configured by command line (the others need special attention)
-    	        doIt(config, monitor, config.envp, config.getCommandLine(true), config.workingDirectory, launch);
-    		}
+            }else { //default - just configured by command line (the others need special attention)
+                doIt(config, monitor, config.envp, config.getCommandLine(true), config.workingDirectory, launch);
+            }
         }catch (final JDTNotAvailableException e) {
             PydevPlugin.log(e);
             final Display display = Display.getDefault();
@@ -112,65 +112,65 @@ public class PythonRunner {
                 
             });
         }
-	}
+    }
 
-	/**
-	 * Launches the config in the debug mode.
-	 * 
-	 * Loosely modeled upon Ant launcher.
-	 * @throws JDTNotAvailableException 
-	 */
-	private static void runDebug(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException, JDTNotAvailableException {
-		if (monitor == null)
-			monitor = new NullProgressMonitor();
-		IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
-		subMonitor.beginTask("Launching python", 1);
-		
-		// Launch & connect to the debugger		
-		RemoteDebugger debugger = new RemoteDebugger(config);
-		debugger.startConnect(subMonitor);
-		subMonitor.subTask("Constructing command_line...");
-		String[] cmdLine = config.getCommandLine(true);
+    /**
+     * Launches the config in the debug mode.
+     * 
+     * Loosely modeled upon Ant launcher.
+     * @throws JDTNotAvailableException 
+     */
+    private static void runDebug(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException, JDTNotAvailableException {
+        if (monitor == null)
+            monitor = new NullProgressMonitor();
+        IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
+        subMonitor.beginTask("Launching python", 1);
+        
+        // Launch & connect to the debugger        
+        RemoteDebugger debugger = new RemoteDebugger(config);
+        debugger.startConnect(subMonitor);
+        subMonitor.subTask("Constructing command_line...");
+        String[] cmdLine = config.getCommandLine(true);
 
-		Process p = createProcess(launch, config.envp, cmdLine, config.workingDirectory);
-		checkProcess(p);
-		
-		IProcess process = registerWithDebugPlugin(config, launch, p);
+        Process p = createProcess(launch, config.envp, cmdLine, config.workingDirectory);
+        checkProcess(p);
+        
+        IProcess process = registerWithDebugPlugin(config, launch, p);
         checkProcess(p, process);
 
-		subMonitor.subTask("Waiting for connection...");
-		try {
-			boolean userCanceled = debugger.waitForConnect(subMonitor, p, process);
-			if (userCanceled) {
-				debugger.dispose();
-				return;
-			}
-		}
-		catch (Exception ex) {
-			process.terminate();
-			p.destroy();
-			String message = "Unexpected error setting up the debugger";
-			if (ex instanceof SocketTimeoutException)
-				message = "Timed out after " + Float.toString(config.acceptTimeout/1000) + " seconds while waiting for python script to connect.";
-			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, message, ex));			
-		}
-		subMonitor.subTask("Done");
-		// hook up debug model, and we are off & running
-		PyDebugTarget t = new PyDebugTarget(launch, process, config.resource, debugger);
-		launch.setSourceLocator(new PySourceLocator());
-		debugger.startTransmission(); // this starts reading/writing from sockets
-		t.initialize();
-		t.addConsoleInputListener();
-	}
+        subMonitor.subTask("Waiting for connection...");
+        try {
+            boolean userCanceled = debugger.waitForConnect(subMonitor, p, process);
+            if (userCanceled) {
+                debugger.dispose();
+                return;
+            }
+        }
+        catch (Exception ex) {
+            process.terminate();
+            p.destroy();
+            String message = "Unexpected error setting up the debugger";
+            if (ex instanceof SocketTimeoutException)
+                message = "Timed out after " + Float.toString(config.acceptTimeout/1000) + " seconds while waiting for python script to connect.";
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, message, ex));            
+        }
+        subMonitor.subTask("Done");
+        // hook up debug model, and we are off & running
+        PyDebugTarget t = new PyDebugTarget(launch, process, config.resource, debugger);
+        launch.setSourceLocator(new PySourceLocator());
+        debugger.startTransmission(); // this starts reading/writing from sockets
+        t.initialize();
+        t.addConsoleInputListener();
+    }
 
     private static IProcess doIt(PythonRunnerConfig config, IProgressMonitor monitor, String [] envp, String[] cmdLine, File workingDirectory, ILaunch launch) throws CoreException{
         if (monitor == null)
-        	monitor = new NullProgressMonitor();
+            monitor = new NullProgressMonitor();
         IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
 
         subMonitor.beginTask("Launching python", 1);
         
-        // Launch & connect to the debugger		
+        // Launch & connect to the debugger        
         subMonitor.subTask("Constructing command_line...");
         String commandLineAsString = SimpleRunner.getArgumentsAsStr(cmdLine);
         //System.out.println("running command line: "+commandLineAsString);
@@ -181,14 +181,14 @@ public class PythonRunner {
         subMonitor.subTask("Exec...");
         
         //it was dying before register, so, I made this faster to see if this fixes it
-        Process p = createProcess(launch, envp, cmdLine, workingDirectory);	
+        Process p = createProcess(launch, envp, cmdLine, workingDirectory);    
         checkProcess(p);
 
         IProcess process;
         String label = cmdLine[cmdLine.length-1];
         if(config.isJython()) {
             if(config.isInteractive){
-            	throw new RuntimeException("Interactive not supported here!");
+                throw new RuntimeException("Interactive not supported here!");
             }
             process = registerWithDebugPluginForProcessType(label, launch, p, processAttributes, "java");
         } else {
@@ -196,7 +196,7 @@ public class PythonRunner {
             //in the interactive session, we'll just create the process, it won't actually be registered
             //in the debug plugin (the communication is all done through xml-rpc).
             if(config.isInteractive){
-            	throw new RuntimeException("Interactive not supported here!");
+                throw new RuntimeException("Interactive not supported here!");
             }
             process = registerWithDebugPlugin(label, launch, p, processAttributes);
         }
@@ -211,7 +211,7 @@ public class PythonRunner {
      * Actually creates the process (and create the encoding config file)
      */
     private static Process createProcess(ILaunch launch, String[] envp, String[] cmdLine, File workingDirectory) throws CoreException {
-    	//Not using DebugPlugin.ATTR_CONSOLE_ENCODING to provide backward compatibility for eclipse 3.2
+        //Not using DebugPlugin.ATTR_CONSOLE_ENCODING to provide backward compatibility for eclipse 3.2
         String encoding = launch.getAttribute(IDebugUIConstants.ATTR_CONSOLE_ENCODING);
         if(encoding != null && encoding.trim().length() > 0){
             String[] s = new String[envp.length+1];
@@ -224,19 +224,19 @@ public class PythonRunner {
     }
 
     private static void runUnitTest(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException{
-    	doIt(config, monitor, config.envp, config.getCommandLine(true), config.workingDirectory, launch);
+        doIt(config, monitor, config.envp, config.getCommandLine(true), config.workingDirectory, launch);
     }
 
     /**
-	 * The debug plugin needs to be notified about our process.
-	 * It'll then display the appropriate UI.
+     * The debug plugin needs to be notified about our process.
+     * It'll then display the appropriate UI.
      * @throws JDTNotAvailableException 
-	 */
-	private static IProcess registerWithDebugPlugin(PythonRunnerConfig config, ILaunch launch, Process p) throws JDTNotAvailableException {
-		HashMap<Object, Object> processAttributes = new HashMap<Object, Object>();
-		processAttributes.put(IProcess.ATTR_CMDLINE, config.getCommandLineAsString());
-		return registerWithDebugPlugin(config.getRunningName(), launch,p, processAttributes);
-	}
+     */
+    private static IProcess registerWithDebugPlugin(PythonRunnerConfig config, ILaunch launch, Process p) throws JDTNotAvailableException {
+        HashMap<Object, Object> processAttributes = new HashMap<Object, Object>();
+        processAttributes.put(IProcess.ATTR_CMDLINE, config.getCommandLineAsString());
+        return registerWithDebugPlugin(config.getRunningName(), launch,p, processAttributes);
+    }
 
     
     /**
@@ -246,18 +246,18 @@ public class PythonRunner {
     private static IProcess registerWithDebugPlugin(String label, ILaunch launch, Process p, Map<Object, Object> processAttributes) {
         return registerWithDebugPluginForProcessType(label, launch, p, processAttributes, Constants.PROCESS_TYPE);
     }
-	
-	/**
-	 * The debug plugin needs to be notified about our process.
-	 * It'll then display the appropriate UI.
-	 */
+    
+    /**
+     * The debug plugin needs to be notified about our process.
+     * It'll then display the appropriate UI.
+     */
     private static IProcess registerWithDebugPluginForProcessType(String label, ILaunch launch, Process p, 
             Map<Object, Object> processAttributes, String processType) {
-	    processAttributes.put(IProcess.ATTR_PROCESS_TYPE, processType);
-	    processAttributes.put(IProcess.ATTR_PROCESS_LABEL, label);
+        processAttributes.put(IProcess.ATTR_PROCESS_TYPE, processType);
+        processAttributes.put(IProcess.ATTR_PROCESS_LABEL, label);
         processAttributes.put(DebugPlugin.ATTR_CAPTURE_OUTPUT, "true");
         
-	    return DebugPlugin.newProcess(launch,p, label, processAttributes);
-	}
+        return DebugPlugin.newProcess(launch,p, label, processAttributes);
+    }
     
 }

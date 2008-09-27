@@ -38,10 +38,10 @@ import org.python.pydev.ui.interpreters.IInterpreterObserver;
  */
 public class ASTManager extends AbstractASTManager implements ICodeCompletionASTManager, Serializable{
 
-	
-	/**
-	 * changed to 10L on release 1.0
-	 */
+    
+    /**
+     * changed to 10L on release 1.0
+     */
     protected static final long serialVersionUID = 10L;
     
     public ASTManager() {}
@@ -69,13 +69,13 @@ public class ASTManager extends AbstractASTManager implements ICodeCompletionAST
     /**
      * @return modules manager wrapped cast to the interface we expect. Creates it if needed.
      */
-	private synchronized IProjectModulesManager getProjectModulesManager() {
-		if(modulesManager == null){
-			modulesManager = new ProjectModulesManager();
-		}
-		return (IProjectModulesManager) modulesManager;
-	}
-	
+    private synchronized IProjectModulesManager getProjectModulesManager() {
+        if(modulesManager == null){
+            modulesManager = new ProjectModulesManager();
+        }
+        return (IProjectModulesManager) modulesManager;
+    }
+    
     
     //----------------------- AUXILIARIES
 
@@ -120,7 +120,7 @@ class IOUtils {
             input.close();
             return o;
         } catch (Exception e) {
-        	//ok, no need to log it.
+            //ok, no need to log it.
             return null;
         }
     }

@@ -40,19 +40,19 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
  * @author fabioz
  */
 public class PySourceLocatorBase {
-	
-	/**
-	 * This method will try to find the most likely file that matches the given path,
-	 * considering:
-	 * - The workspace files
-	 * - The open editors
-	 * 
-	 * and if all fails, it'll still ask the user which path should be used.
-	 * 
-	 * 
-	 * @param path
-	 * @return
-	 */
+    
+    /**
+     * This method will try to find the most likely file that matches the given path,
+     * considering:
+     * - The workspace files
+     * - The open editors
+     * 
+     * and if all fails, it'll still ask the user which path should be used.
+     * 
+     * 
+     * @param path
+     * @return
+     */
     public IEditorInput createEditorInput(IPath path) {
         return createEditorInput(path, true);
     }
@@ -98,25 +98,25 @@ public class PySourceLocatorBase {
      * @return the editor input found or none if None was available for the given path
      */
     private IEditorInput createEditorInput(IPath path, boolean askIfDoesNotExist) {
-    	String pathTranslation = PySourceLocatorPrefs.getPathTranslation(path);
-    	if(pathTranslation != null){
-    		if(!pathTranslation.equals(PySourceLocatorPrefs.DONTASK)){
-    			//change it for the registered translation
-    			path = Path.fromOSString(pathTranslation);
-    		}else{
-    			//DONTASK!!
-    			askIfDoesNotExist = false;
-    		}
-    	}
-    	
+        String pathTranslation = PySourceLocatorPrefs.getPathTranslation(path);
+        if(pathTranslation != null){
+            if(!pathTranslation.equals(PySourceLocatorPrefs.DONTASK)){
+                //change it for the registered translation
+                path = Path.fromOSString(pathTranslation);
+            }else{
+                //DONTASK!!
+                askIfDoesNotExist = false;
+            }
+        }
+        
         IEditorInput edInput = null;
         IWorkspace w = ResourcesPlugin.getWorkspace();      
         
         //let's start with the 'easy' way
-    	IFile fileForLocation = w.getRoot().getFileForLocation(path);
-    	if(fileForLocation != null && fileForLocation.exists()){
-    		return new FileEditorInput(fileForLocation);
-    	}
+        IFile fileForLocation = w.getRoot().getFileForLocation(path);
+        if(fileForLocation != null && fileForLocation.exists()){
+            return new FileEditorInput(fileForLocation);
+        }
         
         IFile files[] = w.getRoot().findFilesForLocation(path);
         if (files == null  || files.length == 0 || !files[0].exists()){
@@ -126,20 +126,20 @@ public class PySourceLocatorBase {
                 edInput = createEditorInput(systemFile);
                 
             }else if(askIfDoesNotExist){
-            	//here we can do one more thing: if the file matches some opened editor, let's use it...
-            	//(this is done because when debugging, we don't want to be asked over and over
-            	//for the same file)
-            	IEditorInput input = getEditorInputFromExistingEditors(systemFile.getName());
-            	if(input != null){
+                //here we can do one more thing: if the file matches some opened editor, let's use it...
+                //(this is done because when debugging, we don't want to be asked over and over
+                //for the same file)
+                IEditorInput input = getEditorInputFromExistingEditors(systemFile.getName());
+                if(input != null){
                     return input;
                 }
-            	
+                
                 //this is the last resort... First we'll try to check for a 'good' match,
                 //and if there's more than one we'll ask it to the user
                 List<IFile> likelyFiles = getLikelyFiles(path, w);
                 IFile iFile = selectWorkspaceFile(likelyFiles.toArray(new IFile[0]));
                 if(iFile != null){
-                	PySourceLocatorPrefs.addPathTranslation(path, iFile.getLocation());
+                    PySourceLocatorPrefs.addPathTranslation(path, iFile.getLocation());
                     return new FileEditorInput(iFile);
                 }
                 
@@ -147,7 +147,7 @@ public class PySourceLocatorBase {
                 PydevFileEditorInput pydevFileEditorInput = selectFilesystemFileForPath(path);
                 input = pydevFileEditorInput;
                 if(input != null){
-                	PySourceLocatorPrefs.addPathTranslation(path, pydevFileEditorInput.getPath());
+                    PySourceLocatorPrefs.addPathTranslation(path, pydevFileEditorInput.getPath());
                     return input;
                 }
                 
@@ -156,7 +156,7 @@ public class PySourceLocatorBase {
         }else{ //file exists
             IFile workspaceFile = selectWorkspaceFile(files);
             if(workspaceFile != null){
-            	edInput = new FileEditorInput(workspaceFile);
+                edInput = new FileEditorInput(workspaceFile);
             }
         }
         return edInput;
@@ -168,69 +168,69 @@ public class PySourceLocatorBase {
      * @return an editor input from an existing editor available
      */
     private IEditorInput getEditorInputFromExistingEditors(final String matchName) {
-    	final Tuple<IWorkbenchWindow, IEditorInput> workbenchAndReturn = new Tuple<IWorkbenchWindow, IEditorInput>(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), null);
-    	
+        final Tuple<IWorkbenchWindow, IEditorInput> workbenchAndReturn = new Tuple<IWorkbenchWindow, IEditorInput>(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), null);
+        
         Runnable r = new Runnable(){
 
-			public void run() {
-				IWorkbenchWindow workbenchWindow = workbenchAndReturn.o1;
-				if(workbenchWindow == null){
-					workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				}
+            public void run() {
+                IWorkbenchWindow workbenchWindow = workbenchAndReturn.o1;
+                if(workbenchWindow == null){
+                    workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+                }
 
-		        if(workbenchWindow == null){
-		        	return;
-		        }
+                if(workbenchWindow == null){
+                    return;
+                }
 
-				
-		        IWorkbenchPage activePage = workbenchWindow.getActivePage();
-		        if(activePage == null){
-		        	return;
-		        }
-		        
-				IEditorReference[] editorReferences = activePage.getEditorReferences();
-		        for (IEditorReference editorReference : editorReferences) {
-					IEditorPart editor = editorReference.getEditor(false);
-					if(editor != null){
-						if(editor instanceof PyEdit){
-							PyEdit pyEdit = (PyEdit) editor;
-							IEditorInput editorInput = pyEdit.getEditorInput();
-							if(editorInput instanceof IPathEditorInput){
-								IPathEditorInput pathEditorInput = (IPathEditorInput) editorInput;
-								IPath localPath = pathEditorInput.getPath();
-								if(localPath != null){
-									String considerName = localPath.segment(localPath.segmentCount()-1);
-									if(matchName.equals(considerName)){
-										workbenchAndReturn.o2 = editorInput;
-										return;
-									}
-								}
-							}else{
-								File editorFile = pyEdit.getEditorFile();
-								if(editorFile != null){
-									if(editorFile.getName().equals(matchName)){
-										workbenchAndReturn.o2 = editorInput;
-										return;
-									}
-								}
-							}
-						}
-					}
-				}						
-			}
-		};
-		
-		
-		if(workbenchAndReturn.o1 == null){ //not ui-thread
+                
+                IWorkbenchPage activePage = workbenchWindow.getActivePage();
+                if(activePage == null){
+                    return;
+                }
+                
+                IEditorReference[] editorReferences = activePage.getEditorReferences();
+                for (IEditorReference editorReference : editorReferences) {
+                    IEditorPart editor = editorReference.getEditor(false);
+                    if(editor != null){
+                        if(editor instanceof PyEdit){
+                            PyEdit pyEdit = (PyEdit) editor;
+                            IEditorInput editorInput = pyEdit.getEditorInput();
+                            if(editorInput instanceof IPathEditorInput){
+                                IPathEditorInput pathEditorInput = (IPathEditorInput) editorInput;
+                                IPath localPath = pathEditorInput.getPath();
+                                if(localPath != null){
+                                    String considerName = localPath.segment(localPath.segmentCount()-1);
+                                    if(matchName.equals(considerName)){
+                                        workbenchAndReturn.o2 = editorInput;
+                                        return;
+                                    }
+                                }
+                            }else{
+                                File editorFile = pyEdit.getEditorFile();
+                                if(editorFile != null){
+                                    if(editorFile.getName().equals(matchName)){
+                                        workbenchAndReturn.o2 = editorInput;
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }                        
+            }
+        };
+        
+        
+        if(workbenchAndReturn.o1 == null){ //not ui-thread
             Display.getDefault().syncExec(r);
         }else{
             r.run();
         }
 
-    	
+        
 
         return workbenchAndReturn.o2;
-	}
+    }
 
 
     /**

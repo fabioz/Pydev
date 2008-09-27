@@ -67,7 +67,7 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
         
         //gets the info for the python side
         Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(REF.getFileAbsolutePath(script), executable, null, null, null, monitor);
-		String output = outTup.o1;
+        String output = outTup.o1;
         
         InterpreterInfo info = createInfoFromOutput(monitor, outTup);
         if(info == null){

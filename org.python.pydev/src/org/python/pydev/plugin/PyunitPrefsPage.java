@@ -21,65 +21,65 @@ import org.python.pydev.utils.LabelFieldEditor;
  * <p>Prefeernce constants are defined in Constants.java
  */
 public class PyunitPrefsPage extends FieldEditorPreferencePage 
-	implements IWorkbenchPreferencePage{
+    implements IWorkbenchPreferencePage{
 
     public static final String PYUNIT_VERBOSITY = "PYUNIT_VERBOSITY";
     public static final int DEFAULT_PYUNIT_VERBOSITY = 2;
     public static final String PYUNIT_TEST_FILTER = "PYUNIT_TEST_FILTER";
     public static final String DEFAULT_PYUNIT_TEST_FILTER = "";
-	/**
-	 * Initializer sets the preference store
-	 */
-	public PyunitPrefsPage() {
-		super(FLAT);
-		setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
-	}
+    /**
+     * Initializer sets the preference store
+     */
+    public PyunitPrefsPage() {
+        super(FLAT);
+        setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
+    }
 
-	public void init(IWorkbench workbench) {
-	}
-	
-	/**
-	 * Creates the editors
-	 */
-	protected void createFieldEditors() {
-		Composite p = getFieldEditorParent();
+    public void init(IWorkbench workbench) {
+    }
+    
+    /**
+     * Creates the editors
+     */
+    protected void createFieldEditors() {
+        Composite p = getFieldEditorParent();
 
- 		RadioGroupFieldEditor verbosity_editor= new RadioGroupFieldEditor(
- 				PYUNIT_VERBOSITY, 
- 				"Verbosity", 
- 				1,
-	 			new String[][] {
-	 				{"Verbose - prints name of test as it runs", "2"},
-	 				{"Quiet - prints '.' as each test runs", "1"},
-	 				{"Silent - prints nothing", "0"},
-	 			},
-	 			p
- 		);	
+         RadioGroupFieldEditor verbosity_editor= new RadioGroupFieldEditor(
+                 PYUNIT_VERBOSITY, 
+                 "Verbosity", 
+                 1,
+                 new String[][] {
+                     {"Verbose - prints name of test as it runs", "2"},
+                     {"Quiet - prints '.' as each test runs", "1"},
+                     {"Silent - prints nothing", "0"},
+                 },
+                 p
+         );    
 
- 		StringFieldEditor filter_editor = new StringFieldEditor( 
- 				PYUNIT_TEST_FILTER, 
- 				"Filter (regex)", 
- 				p);
+         StringFieldEditor filter_editor = new StringFieldEditor( 
+                 PYUNIT_TEST_FILTER, 
+                 "Filter (regex)", 
+                 p);
 
         String s = "filter examples:\n" +
-		".* or blank - all tests\n" +
-		"_abc.* - any test with method name starting with 'test_abc'. \n" +
-		"         matches test_abc, test_abc123, test_abcXXXXXX, etc. \n" +
-		"_abc,_123 - comma seperate (no spaces) filter for more values \n" + 
-		"\n" +
-		"Note: this filters on the method names of all <TestCase>s found\n" + 
-		"      the string 'test' is automatically prepended to the regex\n";
- 		
-		addField(verbosity_editor);
-		addField(filter_editor);
+        ".* or blank - all tests\n" +
+        "_abc.* - any test with method name starting with 'test_abc'. \n" +
+        "         matches test_abc, test_abc123, test_abcXXXXXX, etc. \n" +
+        "_abc,_123 - comma seperate (no spaces) filter for more values \n" + 
+        "\n" +
+        "Note: this filters on the method names of all <TestCase>s found\n" + 
+        "      the string 'test' is automatically prepended to the regex\n";
+         
+        addField(verbosity_editor);
+        addField(filter_editor);
         addField(new LabelFieldEditor("LabelFieldEditor", s, p));
-	}
+    }
 
-	
+    
 
-	/**
-	 * Sets default preference values
-	 */
-	protected void initializeDefaultPreferences(Preferences prefs) {
-	}
+    /**
+     * Sets default preference values
+     */
+    protected void initializeDefaultPreferences(Preferences prefs) {
+    }
 }

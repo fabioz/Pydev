@@ -8,11 +8,11 @@ import org.eclipse.jface.text.IDocument;
 
 public interface IPyEditListener {
 
-	/**
-	 * Anytime a PyEdit is saved, it will notify that to its listeners.
-	 * @param edit the PyEdit that has just been saved.
-	 */
-	void onSave(PyEdit edit, IProgressMonitor monitor);
+    /**
+     * Anytime a PyEdit is saved, it will notify that to its listeners.
+     * @param edit the PyEdit that has just been saved.
+     */
+    void onSave(PyEdit edit, IProgressMonitor monitor);
 
     /**
      * When the actions are being created in PyEdit, this method is called, so that contributors might add their own actions 

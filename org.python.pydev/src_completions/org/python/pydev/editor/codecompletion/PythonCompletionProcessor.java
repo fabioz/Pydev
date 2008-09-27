@@ -132,45 +132,45 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
             }
             
             if(nature == null || !nature.startRequests()){
-            	return new ICompletionProposal[0];
+                return new ICompletionProposal[0];
             }
             try{
-				CompletionRequest request = new CompletionRequest(edit.getEditorFile(), 
-	                    nature, doc, documentOffset, codeCompletion);
-	            
-	
-	            
-	            //SECOND: getting code completions and deciding if templates should be shown too.
-	            //Get code completion proposals
-	            if(PyCodeCompletionPreferencesPage.useCodeCompletion()){
-	                if(whatToShow == SHOW_ALL){
-	                    try {
-	                        pythonAndTemplateProposals.addAll(getPythonProposals(viewer, documentOffset, doc, request));
-	                    } catch (Throwable e) {
-	                        setError(e);
-	                    }
-	                }
-	
-	            }
-	            
-	            
-	            String[] strs = PySelection.getActivationTokenAndQual(doc, documentOffset, false); 
-	
-	            String activationToken = strs[0];
-	            String qualifier = strs[1];
-	
-	            
-	            //THIRD: Get template proposals (if asked for)
-	            if(request.showTemplates && (activationToken == null || activationToken.trim().length() == 0)){
-	                List templateProposals = getTemplateProposals(viewer, documentOffset, activationToken, qualifier);
-	                pythonAndTemplateProposals.addAll(templateProposals);
-	            }
-	
-	            
-	            //to show the valid ones, we'll get the qualifier from the initial request
-	            proposals = PyCodeCompletionUtils.onlyValidSorted(pythonAndTemplateProposals, request.qualifier, request.isInCalltip);
+                CompletionRequest request = new CompletionRequest(edit.getEditorFile(), 
+                        nature, doc, documentOffset, codeCompletion);
+                
+    
+                
+                //SECOND: getting code completions and deciding if templates should be shown too.
+                //Get code completion proposals
+                if(PyCodeCompletionPreferencesPage.useCodeCompletion()){
+                    if(whatToShow == SHOW_ALL){
+                        try {
+                            pythonAndTemplateProposals.addAll(getPythonProposals(viewer, documentOffset, doc, request));
+                        } catch (Throwable e) {
+                            setError(e);
+                        }
+                    }
+    
+                }
+                
+                
+                String[] strs = PySelection.getActivationTokenAndQual(doc, documentOffset, false); 
+    
+                String activationToken = strs[0];
+                String qualifier = strs[1];
+    
+                
+                //THIRD: Get template proposals (if asked for)
+                if(request.showTemplates && (activationToken == null || activationToken.trim().length() == 0)){
+                    List templateProposals = getTemplateProposals(viewer, documentOffset, activationToken, qualifier);
+                    pythonAndTemplateProposals.addAll(templateProposals);
+                }
+    
+                
+                //to show the valid ones, we'll get the qualifier from the initial request
+                proposals = PyCodeCompletionUtils.onlyValidSorted(pythonAndTemplateProposals, request.qualifier, request.isInCalltip);
             }finally{
-            	nature.endRequests();
+                nature.endRequests();
             }
         } catch (RuntimeException e) {
             proposals = new ICompletionProposal[0];
@@ -235,15 +235,15 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeContextInformation(org.eclipse.jface.text.ITextViewer, int)
      */
     public IContextInformation[] computeContextInformation(ITextViewer viewer, int documentOffset) {
-    	//System.out.println("computeContextInformation");
-    	if(viewer.getDocument() != this.contextInformationValidator.doc){
-    		return null;
-    	}
-    	//System.out.println("this.contextInformationValidator.returnedFalseOnce:"+this.contextInformationValidator.returnedFalseOnce);
-    	//if we didn't return false at least once, it is already installed.
-    	if(this.contextInformationValidator.returnedFalseOnce && this.contextInformationValidator.isContextInformationValid(documentOffset)){
-    		return new IContextInformation[]{this.contextInformationValidator.fInformation};
-    	}
+        //System.out.println("computeContextInformation");
+        if(viewer.getDocument() != this.contextInformationValidator.doc){
+            return null;
+        }
+        //System.out.println("this.contextInformationValidator.returnedFalseOnce:"+this.contextInformationValidator.returnedFalseOnce);
+        //if we didn't return false at least once, it is already installed.
+        if(this.contextInformationValidator.returnedFalseOnce && this.contextInformationValidator.isContextInformationValid(documentOffset)){
+            return new IContextInformation[]{this.contextInformationValidator.fInformation};
+        }
         return null;
     }
 
@@ -263,35 +263,35 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
      * @return the auto-activation chars that should be used.
      */
     public static char[] getStaticCompletionProposalAutoActivationCharacters() {
-		if(!listenerToClearAutoActivationAlreadySetup){
-	        //clears the cache when the preferences are changed.
-	        IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
-	        preferenceStore.addPropertyChangeListener(new IPropertyChangeListener(){
-	
-	            public void propertyChange(PropertyChangeEvent event) {
-	                activationChars = null; //clear the cache when it changes
-	            }
-	            
-	        });
-	        listenerToClearAutoActivationAlreadySetup = true;
-		}
+        if(!listenerToClearAutoActivationAlreadySetup){
+            //clears the cache when the preferences are changed.
+            IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
+            preferenceStore.addPropertyChangeListener(new IPropertyChangeListener(){
+    
+                public void propertyChange(PropertyChangeEvent event) {
+                    activationChars = null; //clear the cache when it changes
+                }
+                
+            });
+            listenerToClearAutoActivationAlreadySetup = true;
+        }
         
-    	
+        
         if(activationChars == null){ //let's cache this
-	     
-        	if(!PyCodeCompletionPreferencesPage.useAutocomplete()){
-        		activationChars = new char[0];
-        		
-        	}else{
-		        char[] c = new char[0];
-		        if (PyCodeCompletionPreferencesPage.isToAutocompleteOnDot()) {
-		            c = addChar(c, '.');
-		        }
-		        if (PyCodeCompletionPreferencesPage.isToAutocompleteOnPar()) {
-		            c = addChar(c, '(');
-		        }
-		        activationChars = c;
-        	}
+         
+            if(!PyCodeCompletionPreferencesPage.useAutocomplete()){
+                activationChars = new char[0];
+                
+            }else{
+                char[] c = new char[0];
+                if (PyCodeCompletionPreferencesPage.isToAutocompleteOnDot()) {
+                    c = addChar(c, '.');
+                }
+                if (PyCodeCompletionPreferencesPage.isToAutocompleteOnPar()) {
+                    c = addChar(c, '(');
+                }
+                activationChars = c;
+            }
         }
         return activationChars;
     }

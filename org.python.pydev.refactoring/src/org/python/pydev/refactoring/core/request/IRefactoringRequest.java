@@ -13,7 +13,7 @@ import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 
 public interface IRefactoringRequest {
 
-	public abstract IASTNodeAdapter<? extends SimpleNode> getOffsetNode();
+    public abstract IASTNodeAdapter<? extends SimpleNode> getOffsetNode();
 
     public abstract String getNewLineDelim();
 

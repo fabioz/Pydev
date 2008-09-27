@@ -6,11 +6,11 @@ import org.eclipse.ui.texteditor.AbstractRulerActionDelegate;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 public class EnableDisableBreakpointRulerActionDelegate extends
-		AbstractRulerActionDelegate {
+        AbstractRulerActionDelegate {
 
-	@Override
-	protected IAction createAction(ITextEditor editor, IVerticalRulerInfo rulerInfo) {
-		return new EnableDisableBreakpointRulerAction(editor, rulerInfo);
-	}
+    @Override
+    protected IAction createAction(ITextEditor editor, IVerticalRulerInfo rulerInfo) {
+        return new EnableDisableBreakpointRulerAction(editor, rulerInfo);
+    }
 
 }

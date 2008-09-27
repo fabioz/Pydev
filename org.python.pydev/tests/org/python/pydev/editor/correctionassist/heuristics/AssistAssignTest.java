@@ -43,7 +43,7 @@ public class AssistAssignTest extends TestCase {
 
     
     private static final boolean DEBUG = false;
-	private AssistAssign assist;
+    private AssistAssign assist;
 
     public static void main(String[] args) {
         try{
@@ -73,18 +73,18 @@ public class AssistAssignTest extends TestCase {
     }
 
     public void testSimple() throws BadLocationException {
-		String d = ""+
-		"from testAssist import assist\n" +
-		"assist.NewMethod(a,b)";
+        String d = ""+
+        "from testAssist import assist\n" +
+        "assist.NewMethod(a,b)";
 
-		Document doc = new Document(d);
-		
+        Document doc = new Document(d);
+        
         PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
         String sel = PyAction.getLineWithoutComments(ps);
         
-		assertEquals(true, assist.isValid(ps, sel, null, d.length()));
-		List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
-		assertEquals(2, props.size());
+        assertEquals(true, assist.isValid(ps, sel, null, d.length()));
+        List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
+        assertEquals(2, props.size());
         
     }
     
@@ -269,9 +269,9 @@ public class AssistAssignTest extends TestCase {
         StringBuffer buffer = new StringBuffer("Available: \n");
         
         for (ICompletionProposal proposal : props) {
-        	if(DEBUG){
-        		System.out.println(proposal.getDisplayString());
-        	}
+            if(DEBUG){
+                System.out.println(proposal.getDisplayString());
+            }
             if(proposal.getDisplayString().equals(string)){
                 return;
             }

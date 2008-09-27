@@ -117,7 +117,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     public Set<String> getAllModuleNames(boolean addDependencies, final String partStartingWithLowerCase) {
         if(addDependencies){
             throw new RuntimeException("At this point, it should never be called with dependencies " +
-            		"(because it's a java project already -- it manages that internally already)");
+                    "(because it's a java project already -- it manages that internally already)");
         }
         
         final HashSet<String> ret = new HashSet<String>();
@@ -274,7 +274,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
             System.out.println("Trying to get module in java project modules manager: "+name);
         }
         if(name.startsWith(".")){ //this happens when looking for a relative import
-        	return null;
+            return null;
         }
         try {
             IJavaElement javaElement = this.javaProject.findType(name);

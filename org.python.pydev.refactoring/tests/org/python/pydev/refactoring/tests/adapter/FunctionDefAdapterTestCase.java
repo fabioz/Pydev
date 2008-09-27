@@ -15,42 +15,42 @@ import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
 public class FunctionDefAdapterTestCase extends AbstractIOTestCase {
 
-	public FunctionDefAdapterTestCase(String name) {
-		super(name);
-	}
+    public FunctionDefAdapterTestCase(String name) {
+        super(name);
+    }
 
-	@Override
-	public void runTest() throws Throwable {
-		StringBuffer buffer = new StringBuffer();
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()), new PythonNatureStub());
-		List<IClassDefAdapter> classes = module.getClasses();
-		assertTrue(classes.size() > 0);
+    @Override
+    public void runTest() throws Throwable {
+        StringBuffer buffer = new StringBuffer();
+        ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(getSource()), new PythonNatureStub());
+        List<IClassDefAdapter> classes = module.getClasses();
+        assertTrue(classes.size() > 0);
 
-		buffer.append("# ClassName FunctionName hasArg hasVarArg hasKwArg ArgumentsOnly\n");
-		for (IClassDefAdapter adapter : module.getClasses()) {
-			printFunction(buffer, adapter);
-		}
+        buffer.append("# ClassName FunctionName hasArg hasVarArg hasKwArg ArgumentsOnly\n");
+        for (IClassDefAdapter adapter : module.getClasses()) {
+            printFunction(buffer, adapter);
+        }
 
-		this.setTestGenerated(buffer.toString().trim());
-		assertEquals(getExpected(), getGenerated());
-	}
+        this.setTestGenerated(buffer.toString().trim());
+        assertEquals(getExpected(), getGenerated());
+    }
 
-	private void printFunction(StringBuffer buffer, IClassDefAdapter adapter) {
-		final String DOUBLETAB = " ";
-		buffer.append("# " + adapter.getName() + "\n");
-		for (FunctionDefAdapter function : adapter.getFunctions()) {
-			buffer.append("# ");
-			buffer.append(function.getName() + DOUBLETAB + function.getArguments().hasArg() + DOUBLETAB
-					+ function.getArguments().hasVarArg() + DOUBLETAB + function.getArguments().hasKwArg() + DOUBLETAB
-					+ function.getArguments().getArgOnly());
-			buffer.append("\n");
-		}
-		buffer.append("\n");
-	}
+    private void printFunction(StringBuffer buffer, IClassDefAdapter adapter) {
+        final String DOUBLETAB = " ";
+        buffer.append("# " + adapter.getName() + "\n");
+        for (FunctionDefAdapter function : adapter.getFunctions()) {
+            buffer.append("# ");
+            buffer.append(function.getName() + DOUBLETAB + function.getArguments().hasArg() + DOUBLETAB
+                    + function.getArguments().hasVarArg() + DOUBLETAB + function.getArguments().hasKwArg() + DOUBLETAB
+                    + function.getArguments().getArgOnly());
+            buffer.append("\n");
+        }
+        buffer.append("\n");
+    }
 
-	@Override
-	public String getExpected() {
-		return getResult();
-	}
+    @Override
+    public String getExpected() {
+        return getResult();
+    }
 
 }

@@ -581,10 +581,10 @@ public class ProjectStub implements IProject, IWorkbenchAdapter{
     }
 
     public Object getAdapter(Class adapter) {
-    	if (adapter == IWorkbenchAdapter.class){
-    		return this;
-    	}
-    	throw new RuntimeException("Not impl");
+        if (adapter == IWorkbenchAdapter.class){
+            return this;
+        }
+        throw new RuntimeException("Not impl");
         
     }
 
@@ -606,80 +606,80 @@ public class ProjectStub implements IProject, IWorkbenchAdapter{
     private HashMap<Object, Object[]> stubsCache = new HashMap<Object, Object[]>();
     
     //workbench adapter
-	public Object[] getChildren(Object o) {
-		Object[] found = stubsCache.get(o);
-		if(found != null){
-			return found;
-		}
-		
-		File folder = null; 
-		if(o instanceof ProjectStub){
-			ProjectStub projectStub = (ProjectStub) o;
-			folder = projectStub.projectRoot;
-		}else{
-			throw new RuntimeException("Shouldn't happen");
-		}
-		ArrayList<Object> ret = new ArrayList<Object>();
-		for(File file:folder.listFiles()){
-			String lower = file.getName().toLowerCase();
-			if(lower.equals("cvs") || lower.equals(".svn")){
-				continue;
-			}
-			if(file.isDirectory()){
-				ret.add(new FolderStub(this, file));
-			}else{
-				ret.add(new FileStub(this, file));
-			}
-		}
-		if(addNullChild){
-		    ret.add(null);
-		}
-		ret.addAll(this.additionalChildren);
-		return ret.toArray();
-	}
+    public Object[] getChildren(Object o) {
+        Object[] found = stubsCache.get(o);
+        if(found != null){
+            return found;
+        }
+        
+        File folder = null; 
+        if(o instanceof ProjectStub){
+            ProjectStub projectStub = (ProjectStub) o;
+            folder = projectStub.projectRoot;
+        }else{
+            throw new RuntimeException("Shouldn't happen");
+        }
+        ArrayList<Object> ret = new ArrayList<Object>();
+        for(File file:folder.listFiles()){
+            String lower = file.getName().toLowerCase();
+            if(lower.equals("cvs") || lower.equals(".svn")){
+                continue;
+            }
+            if(file.isDirectory()){
+                ret.add(new FolderStub(this, file));
+            }else{
+                ret.add(new FileStub(this, file));
+            }
+        }
+        if(addNullChild){
+            ret.add(null);
+        }
+        ret.addAll(this.additionalChildren);
+        return ret.toArray();
+    }
 
-	public ImageDescriptor getImageDescriptor(Object object) {
-		throw new RuntimeException("Not implemented");
-	}
+    public ImageDescriptor getImageDescriptor(Object object) {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public String getLabel(Object o) {
-		throw new RuntimeException("Not implemented");
-	}
+    public String getLabel(Object o) {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public Object getParent(Object o) {
-		throw new RuntimeException("Not implemented");
-	}
+    public Object getParent(Object o) {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public void create(IProjectDescription description, int updateFlags,
-			IProgressMonitor monitor) throws CoreException {
-		// TODO Auto-generated method stub
-		
-	}
+    public void create(IProjectDescription description, int updateFlags,
+            IProgressMonitor monitor) throws CoreException {
+        // TODO Auto-generated method stub
+        
+    }
 
-	public Map getPersistentProperties() throws CoreException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Map getPersistentProperties() throws CoreException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public Map getSessionProperties() throws CoreException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Map getSessionProperties() throws CoreException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public boolean isDerived(int options) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    public boolean isDerived(int options) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	public boolean isHidden() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    public boolean isHidden() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	public void setHidden(boolean isHidden) throws CoreException {
-		// TODO Auto-generated method stub
-		
-	}
+    public void setHidden(boolean isHidden) throws CoreException {
+        // TODO Auto-generated method stub
+        
+    }
 
 
 }

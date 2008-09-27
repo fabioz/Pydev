@@ -25,32 +25,32 @@ import org.python.pydev.plugin.PydevPlugin;
  * @author Mikko Ohtamaa
  */
 public class PythonModulePickerDialog extends ElementTreeSelectionDialog {
-	
-	
-	public PythonModulePickerDialog(Shell parent, String title, String message, IProject project) {
-		super(parent, new WorkbenchLabelProvider(), new PythonModuleContentProvider());	
-		setAllowMultiple(false);
-		this.setEmptyListMessage("No Python modules in project " + project.getName());
-		this.setInput(project);
-		this.setTitle(title);
-		this.setMessage(message);
-		
-		// Do not allow folders to be selected
-		this.setValidator(new ISelectionStatusValidator() {
-			public IStatus validate(Object selection[]) {
-				if(selection.length == 1) {
-					if(selection[0] instanceof IFile) {
-						IFile file = (IFile) selection[0];
-						return new Status(IStatus.OK, PydevPlugin.getPluginID(),
-			                    IStatus.OK, "Module  " + file.getName() + " selected", null);
-					}
-				}
-				return new Status(IStatus.ERROR, PydevPlugin.getPluginID(),
-	                    IStatus.ERROR, "No Python module selected", null);
+    
+    
+    public PythonModulePickerDialog(Shell parent, String title, String message, IProject project) {
+        super(parent, new WorkbenchLabelProvider(), new PythonModuleContentProvider());    
+        setAllowMultiple(false);
+        this.setEmptyListMessage("No Python modules in project " + project.getName());
+        this.setInput(project);
+        this.setTitle(title);
+        this.setMessage(message);
+        
+        // Do not allow folders to be selected
+        this.setValidator(new ISelectionStatusValidator() {
+            public IStatus validate(Object selection[]) {
+                if(selection.length == 1) {
+                    if(selection[0] instanceof IFile) {
+                        IFile file = (IFile) selection[0];
+                        return new Status(IStatus.OK, PydevPlugin.getPluginID(),
+                                IStatus.OK, "Module  " + file.getName() + " selected", null);
+                    }
+                }
+                return new Status(IStatus.ERROR, PydevPlugin.getPluginID(),
+                        IStatus.ERROR, "No Python module selected", null);
 
-			}			
-		});
-	}		
+            }            
+        });
+    }        
 }
 
 class PythonModuleContentProvider implements ITreeContentProvider {
@@ -83,16 +83,16 @@ class PythonModuleContentProvider implements ITreeContentProvider {
                     IResource[] members = container.members();
                     
                     for (int i = 0; i < members.length; i++) {
-                    	                 
+                                         
                         if (members[i] instanceof IFile) {
-                        	
-                        	IFile file = (IFile) members[i];
-                        	
-                        	if(PythonPathHelper.isValidSourceFile(file)) {
-                        		children.add(file);
-                        	}
+                            
+                            IFile file = (IFile) members[i];
+                            
+                            if(PythonPathHelper.isValidSourceFile(file)) {
+                                children.add(file);
+                            }
                         } else if(members[i] instanceof IContainer) {
-                        	children.add(members[i]);	                        	
+                            children.add(members[i]);                                
                         }
                     }
                     return children.toArray();
@@ -101,7 +101,7 @@ class PythonModuleContentProvider implements ITreeContentProvider {
                 }
             }
         } 
-        	
+            
         return new Object[0];
     }
         

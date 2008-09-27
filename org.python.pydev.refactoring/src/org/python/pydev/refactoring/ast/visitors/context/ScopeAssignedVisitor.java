@@ -25,73 +25,73 @@ import org.python.pydev.refactoring.ast.adapters.SimpleAdapter;
 
 public class ScopeAssignedVisitor extends AbstractContextVisitor<SimpleAdapter> {
 
-	private List<String> globalVars;
+    private List<String> globalVars;
 
-	public ScopeAssignedVisitor(ModuleAdapter module, AbstractScopeNode<?> parent) {
-		super(module, parent);
-		globalVars = new ArrayList<String>();
-	}
+    public ScopeAssignedVisitor(ModuleAdapter module, AbstractScopeNode<?> parent) {
+        super(module, parent);
+        globalVars = new ArrayList<String>();
+    }
 
-	@Override
-	protected void registerInContext(SimpleNode node) {
-		String varName = nodeHelper.getName(node);
-		if (!(globalVars.contains(varName))) {
-			globalVars.add(varName);
-			super.registerInContext(node);
-		}
+    @Override
+    protected void registerInContext(SimpleNode node) {
+        String varName = nodeHelper.getName(node);
+        if (!(globalVars.contains(varName))) {
+            globalVars.add(varName);
+            super.registerInContext(node);
+        }
 
-	}
+    }
 
-	@Override
-	public Object visitImport(Import node) throws Exception {
-		return null;
-	}
+    @Override
+    public Object visitImport(Import node) throws Exception {
+        return null;
+    }
 
-	@Override
-	public Object visitImportFrom(ImportFrom node) throws Exception {
-		return null;
-	}
+    @Override
+    public Object visitImportFrom(ImportFrom node) throws Exception {
+        return null;
+    }
 
-	@Override
-	public Object visitName(Name node) throws Exception {
-		if (nodeHelper.isAssign(stack.peek()))
-			registerInContext(node);
-		return null;
-	}
+    @Override
+    public Object visitName(Name node) throws Exception {
+        if (nodeHelper.isAssign(stack.peek()))
+            registerInContext(node);
+        return null;
+    }
 
-	@Override
-	public Object visitAttribute(Attribute node) throws Exception {
-		// ignore attribute (must)
-		return null;
-	}
+    @Override
+    public Object visitAttribute(Attribute node) throws Exception {
+        // ignore attribute (must)
+        return null;
+    }
 
-	@Override
-	public Object visitAssign(Assign node) throws Exception {
-		before(node);
-		visit(node.targets);
-		after();
-		return null;
-	}
+    @Override
+    public Object visitAssign(Assign node) throws Exception {
+        before(node);
+        visit(node.targets);
+        after();
+        return null;
+    }
 
-	@Override
-	public Object visitModule(Module node) throws Exception {
-		visit(node.body);
-		return null;
-	}
+    @Override
+    public Object visitModule(Module node) throws Exception {
+        visit(node.body);
+        return null;
+    }
 
-	@Override
-	public Object visitFunctionDef(FunctionDef node) throws Exception {
-		return null;
-	}
+    @Override
+    public Object visitFunctionDef(FunctionDef node) throws Exception {
+        return null;
+    }
 
-	@Override
-	public Object visitClassDef(ClassDef node) throws Exception {
-		return null;
-	}
+    @Override
+    public Object visitClassDef(ClassDef node) throws Exception {
+        return null;
+    }
 
-	@Override
-	protected SimpleAdapter createAdapter(AbstractScopeNode<?> parent, SimpleNode node) {
-		return new SimpleAdapter(moduleAdapter, parent, node, moduleAdapter.getEndLineDelimiter());
-	}
+    @Override
+    protected SimpleAdapter createAdapter(AbstractScopeNode<?> parent, SimpleNode node) {
+        return new SimpleAdapter(moduleAdapter, parent, node, moduleAdapter.getEndLineDelimiter());
+    }
 
 }

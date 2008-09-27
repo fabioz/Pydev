@@ -23,37 +23,37 @@ import org.python.pydev.refactoring.core.change.CompositeChangeProcessor;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;
 
 public abstract class AbstractPythonRefactoring extends Refactoring {
-	protected RefactoringStatus status;
-	protected Collection<IWizardPage> pages;
-	protected RefactoringInfo info;
+    protected RefactoringStatus status;
+    protected Collection<IWizardPage> pages;
+    protected RefactoringInfo info;
 
-	public AbstractPythonRefactoring(RefactoringInfo info) {
-		status = new RefactoringStatus();
-		pages = new ArrayList<IWizardPage>();
-		this.info = info;
-	}
+    public AbstractPythonRefactoring(RefactoringInfo info) {
+        status = new RefactoringStatus();
+        pages = new ArrayList<IWizardPage>();
+        this.info = info;
+    }
 
-	@Override
-	public RefactoringStatus checkFinalConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-		return status;
-	}
+    @Override
+    public RefactoringStatus checkFinalConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+        return status;
+    }
 
-	@Override
-	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-		return status;
-	}
+    @Override
+    public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+        return status;
+    }
 
-	@Override
-	public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-		IChangeProcessor changeProcessor = new CompositeChangeProcessor(getName(), getChangeProcessors());
-		
-		return changeProcessor.createChange();
-	}
+    @Override
+    public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+        IChangeProcessor changeProcessor = new CompositeChangeProcessor(getName(), getChangeProcessors());
+        
+        return changeProcessor.createChange();
+    }
 
-	protected abstract List<IChangeProcessor> getChangeProcessors();
+    protected abstract List<IChangeProcessor> getChangeProcessors();
 
 
-	public Collection<IWizardPage> getPages() {
-		return pages;
-	}
+    public Collection<IWizardPage> getPages() {
+        return pages;
+    }
 }

@@ -20,49 +20,49 @@ import org.python.pydev.refactoring.ast.adapters.PropertyAdapter;
 
 public class PropertyVisitor extends AbstractContextVisitor<PropertyAdapter> {
 
-	public PropertyVisitor(ModuleAdapter module, AbstractScopeNode<?> parent) {
-		super(module, parent);
-	}
+    public PropertyVisitor(ModuleAdapter module, AbstractScopeNode<?> parent) {
+        super(module, parent);
+    }
 
-	@Override
-	protected PropertyAdapter createAdapter(AbstractScopeNode<?> parent, SimpleNode node) {
-		return new PropertyAdapter(moduleAdapter, parent, node, moduleAdapter.getEndLineDelimiter());
-	}
+    @Override
+    protected PropertyAdapter createAdapter(AbstractScopeNode<?> parent, SimpleNode node) {
+        return new PropertyAdapter(moduleAdapter, parent, node, moduleAdapter.getEndLineDelimiter());
+    }
 
-	@Override
-	public Object visitCall(Call node) throws Exception {
-		if (nodeHelper.isAssign(stack.peek())) {
-			registerInContext(stack.peek());
-		}
-		return null;
-	}
+    @Override
+    public Object visitCall(Call node) throws Exception {
+        if (nodeHelper.isAssign(stack.peek())) {
+            registerInContext(stack.peek());
+        }
+        return null;
+    }
 
-	@Override
-	public Object visitAssign(Assign node) throws Exception {
-		if (nodeHelper.isPropertyAssign(node)) {
-			stack.push(node);
-			visit(node.value);
-			stack.pop();
-		}
-		return null;
-	}
+    @Override
+    public Object visitAssign(Assign node) throws Exception {
+        if (nodeHelper.isPropertyAssign(node)) {
+            stack.push(node);
+            visit(node.value);
+            stack.pop();
+        }
+        return null;
+    }
 
-	@Override
-	public Object visitFunctionDef(FunctionDef node) throws Exception {
-		return null;
-	}
+    @Override
+    public Object visitFunctionDef(FunctionDef node) throws Exception {
+        return null;
+    }
 
-	/**
-	 * Traverse class body only
-	 */
-	@Override
-	public Object visitClassDef(ClassDef node) throws Exception {
-		AbstractNodeAdapter<? extends SimpleNode> context = before(node);
-		pushParent(context);
-		visit(node.body);
-		parents.pop();
-		after();
-		return null;
-	}
+    /**
+     * Traverse class body only
+     */
+    @Override
+    public Object visitClassDef(ClassDef node) throws Exception {
+        AbstractNodeAdapter<? extends SimpleNode> context = before(node);
+        pushParent(context);
+        visit(node.body);
+        parents.pop();
+        after();
+        return null;
+    }
 
 }

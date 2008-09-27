@@ -261,13 +261,13 @@ public class PyCodeCoverageView extends ViewPart {
                     IContainer folderFolLocation = (IContainer) w.getRoot().findMember(p);
                     File file = null;
                     if(folderFolLocation != null){
-                    	IPath loc = folderFolLocation.getRawLocation();
+                        IPath loc = folderFolLocation.getRawLocation();
                         if(loc == null){
                             loc = folderFolLocation.getLocation();
                         }
                         file = loc.toFile();
                     }else{
-                    	file = p.toFile().getAbsoluteFile();
+                        file = p.toFile().getAbsoluteFile();
                     }
                     lastChosenFile = file;
                     refreshAction.monitor = this.monitor;

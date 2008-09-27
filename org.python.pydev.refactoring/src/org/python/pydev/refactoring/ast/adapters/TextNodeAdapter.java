@@ -9,22 +9,22 @@ package org.python.pydev.refactoring.ast.adapters;
 
 public class TextNodeAdapter implements INodeAdapter {
 
-	private String name;
+    private String name;
 
-	public TextNodeAdapter(String name) {
-		this.name = name;
-	}
+    public TextNodeAdapter(String name) {
+        this.name = name;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getParentName() {
-		return "";
-	}
+    public String getParentName() {
+        return "";
+    }
 
-	protected void setName(String name) {
-		this.name = name;
-	}
+    protected void setName(String name) {
+        this.name = name;
+    }
 
 }

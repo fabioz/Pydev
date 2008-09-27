@@ -26,7 +26,7 @@ public class PySourceViewer extends ProjectionViewer {
 
     private WeakReference<PyEdit> projection;
 
-	public PySourceViewer(Composite parent, IVerticalRuler ruler, IOverviewRuler overviewRuler, boolean showsAnnotationOverview, int styles, PyEditProjection projection) {
+    public PySourceViewer(Composite parent, IVerticalRuler ruler, IOverviewRuler overviewRuler, boolean showsAnnotationOverview, int styles, PyEditProjection projection) {
         super(parent, ruler, overviewRuler, showsAnnotationOverview, styles);
         this.projection = new WeakReference<PyEdit>((PyEdit) projection);
     }
@@ -42,7 +42,7 @@ public class PySourceViewer extends ProjectionViewer {
     }
     
     public PyEdit getEdit(){
-    	return projection.get();
+        return projection.get();
     }
     
         

@@ -79,9 +79,9 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      * @return
      */
     protected ASTEntry before(SimpleNode node) {
-    	ASTEntry entry;
-    	entry = createEntry();
-    	
+        ASTEntry entry;
+        entry = createEntry();
+        
         entry.node = node;
 
         doAddNode(entry);
@@ -164,8 +164,8 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      * @return the ast entry that was created in this 'atomic' add
      */
     protected ASTEntry atomic(SimpleNode node) {
-    	ASTEntry entry;
-    	entry = createEntry();
+        ASTEntry entry;
+        entry = createEntry();
         entry.node = node;
         entry.endLine = NodeUtils.getLineEnd(node);
         doAddNode(entry);
@@ -178,10 +178,10 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
     protected ASTEntry createEntry() {
         ASTEntry entry;
         if(parents.size() > 0){
-    		entry = new ASTEntry(parents.peek());
-    	}else{
-    		entry = new ASTEntry(null);
-    	}
+            entry = new ASTEntry(parents.peek());
+        }else{
+            entry = new ASTEntry(null);
+        }
         return entry;
     }
     

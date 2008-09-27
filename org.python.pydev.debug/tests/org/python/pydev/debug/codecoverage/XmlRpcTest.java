@@ -73,13 +73,13 @@ public class XmlRpcTest extends TestCase{
     
     public static void main(String[] args) throws MalformedURLException, XmlRpcException {
         try{
-        	XmlRpcTest xmlRpcTest = new XmlRpcTest();
-        	xmlRpcTest.setUp();
-        	xmlRpcTest.testXmlRpcServerPython();
-        	xmlRpcTest.tearDown();
-        	junit.textui.TestRunner.run(XmlRpcTest.class);
+            XmlRpcTest xmlRpcTest = new XmlRpcTest();
+            xmlRpcTest.setUp();
+            xmlRpcTest.testXmlRpcServerPython();
+            xmlRpcTest.tearDown();
+            junit.textui.TestRunner.run(XmlRpcTest.class);
         }catch(Throwable e){
-        	e.printStackTrace();
+            e.printStackTrace();
         }
     }
     
@@ -154,10 +154,10 @@ public class XmlRpcTest extends TestCase{
         }
         
         try{
-        	int exitValue = process.exitValue();
-        	fail("Already exited with val: "+exitValue);
+            int exitValue = process.exitValue();
+            fail("Already exited with val: "+exitValue);
         }catch(IllegalThreadStateException e){
-        	//that's ok
+            //that's ok
         }
         
         try {

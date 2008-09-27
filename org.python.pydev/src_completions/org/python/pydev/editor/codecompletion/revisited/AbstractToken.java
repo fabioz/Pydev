@@ -214,13 +214,13 @@ public abstract class AbstractToken implements IToken{
      * @see org.python.pydev.core.IToken#getAsRelativeImport(java.lang.String)
      */
     public String getAsRelativeImport(String baseModule) {
-    	String completePath = getOriginalRep(true);
-    	
-    	return makeRelative(baseModule, completePath);
+        String completePath = getOriginalRep(true);
+        
+        return makeRelative(baseModule, completePath);
     }
     
     public String getAsAbsoluteImport() {
-    	return getAsRelativeImport(".");
+        return getAsRelativeImport(".");
     }
 
     /**
@@ -233,26 +233,26 @@ public abstract class AbstractToken implements IToken{
      */
     public static String makeRelative(String baseModule, String completePath) {
         if(baseModule == null){
-    		return completePath;
-    	}
-    	
-    	if(completePath.startsWith(baseModule)){
-    		String relative = completePath.substring(baseModule.length());
+            return completePath;
+        }
+        
+        if(completePath.startsWith(baseModule)){
+            String relative = completePath.substring(baseModule.length());
 
-    		baseModule = FullRepIterable.headAndTail(baseModule)[0];
-    		
-    		if(baseModule.length() == 0){
-    			if(relative.length() > 0 && relative.charAt(0) == '.'){
-    				return relative.substring(1);
-    			}
-    		}
-    		if(relative.length() > 0 && relative.charAt(0) == '.'){
-    			return baseModule+relative;
-    		}else{
-    			return baseModule+'.'+relative;
-    		}
-    	}
-    	return completePath;
+            baseModule = FullRepIterable.headAndTail(baseModule)[0];
+            
+            if(baseModule.length() == 0){
+                if(relative.length() > 0 && relative.charAt(0) == '.'){
+                    return relative.substring(1);
+                }
+            }
+            if(relative.length() > 0 && relative.charAt(0) == '.'){
+                return baseModule+relative;
+            }else{
+                return baseModule+'.'+relative;
+            }
+        }
+        return completePath;
     }
     
     /**
@@ -271,12 +271,12 @@ public abstract class AbstractToken implements IToken{
      * e.g.: if it was import from coilib.test import Exceptions, it would return coilib.test
      */
     public String getOriginalWithoutRep(){
-    	int i = originalRep.length() - rep.length() -1;
-    	if(i > 0){
-    		return originalRep.substring(0, i);
-    	}else{
-    		return "";
-    	}
+        int i = originalRep.length() - rep.length() -1;
+        if(i > 0){
+            return originalRep.substring(0, i);
+        }else{
+            return "";
+        }
     }
 
     public int getLineDefinition() {
@@ -292,7 +292,7 @@ public abstract class AbstractToken implements IToken{
     }
     
     public boolean isImportFrom() {
-    	return false;
+        return false;
     }
     
     public boolean isWildImport() {
@@ -307,7 +307,7 @@ public abstract class AbstractToken implements IToken{
      * This representation may not be accurate depending on which tokens we are dealing with. 
      */
     public int[] getLineColEnd() {
-    	return new int[]{UNDEFINED, UNDEFINED};
+        return new int[]{UNDEFINED, UNDEFINED};
     }
 
     public static boolean isClassDef(IToken element) {

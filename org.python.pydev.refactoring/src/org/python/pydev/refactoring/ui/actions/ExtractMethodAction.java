@@ -14,8 +14,8 @@ import org.python.pydev.refactoring.core.RefactoringInfo;
 import org.python.pydev.refactoring.ui.actions.internal.AbstractRefactoringAction;
 
 public class ExtractMethodAction extends AbstractRefactoringAction {
-	@Override
-	protected AbstractPythonRefactoring createRefactoring(RefactoringInfo info) {
-		return new ExtractMethodRefactoring(info);
-	}
+    @Override
+    protected AbstractPythonRefactoring createRefactoring(RefactoringInfo info) {
+        return new ExtractMethodRefactoring(info);
+    }
 }

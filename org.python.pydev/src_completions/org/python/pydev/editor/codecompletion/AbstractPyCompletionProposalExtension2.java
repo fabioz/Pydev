@@ -83,7 +83,7 @@ public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletio
      * @return
      */
     private boolean isValidChar(char c) {
-    	return Character.isJavaIdentifierPart(c);
+        return Character.isJavaIdentifierPart(c);
     }
 
     public void unselected(ITextViewer viewer) {

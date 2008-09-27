@@ -30,8 +30,8 @@ public class Log {
         }
         try {
             
-	        Status s = new Status(errorLevel, CorePlugin.getPluginID(), errorLevel, message, e);
-	        CorePlugin.getDefault().getLog().log(s);
+            Status s = new Status(errorLevel, CorePlugin.getPluginID(), errorLevel, message, e);
+            CorePlugin.getDefault().getLog().log(s);
         } catch (Exception e1) {
             //logging should not fail!
         }
@@ -53,31 +53,31 @@ public class Log {
     
     public synchronized static void toLogFile(Object obj, String string) {
         synchronized(lock){
-        	Class<? extends Object> class1 = obj.getClass();
+            Class<? extends Object> class1 = obj.getClass();
             toLogFile(string, class1);
         }
     }
 
-	public static void toLogFile(String string, Class<? extends Object> class1) {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(logIndent);
-		buffer.append(FullRepIterable.getLastPart(class1.getName()));
-		buffer.append(": ");
-		buffer.append(string);
-		
-		toLogFile(buffer.toString());
-	}
+    public static void toLogFile(String string, Class<? extends Object> class1) {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(logIndent);
+        buffer.append(FullRepIterable.getLastPart(class1.getName()));
+        buffer.append(": ");
+        buffer.append(string);
+        
+        toLogFile(buffer.toString());
+    }
 
     private synchronized static void toLogFile(String buffer) {
         synchronized(lock){
             try{
                 CorePlugin default1 = CorePlugin.getDefault();
                 if(default1 == null){
-                	//in tests
-                	System.out.println(buffer);
-                	return;
+                    //in tests
+                    System.out.println(buffer);
+                    return;
                 }
-				IPath stateLocation = default1.getStateLocation().append("PydevLog.log");
+                IPath stateLocation = default1.getStateLocation().append("PydevLog.log");
                 String file = stateLocation.toOSString();
                 REF.appendStrToFile(buffer+"\r\n", file);
             }catch(Throwable e){
@@ -87,18 +87,18 @@ public class Log {
     }
     
     public static void toLogFile(Exception e) {
-		String msg = getExceptionStr(e);
-		toLogFile(msg);
+        String msg = getExceptionStr(e);
+        toLogFile(msg);
     }
 
-	public static String getExceptionStr(Exception e) {
-		final ByteArrayOutputStream str = new ByteArrayOutputStream();
-		final PrintStream prnt = new PrintStream(str);
-		e.printStackTrace(prnt);
-		prnt.flush();
-		String msg = new String(str.toByteArray());
-		return msg;
-	}
+    public static String getExceptionStr(Exception e) {
+        final ByteArrayOutputStream str = new ByteArrayOutputStream();
+        final PrintStream prnt = new PrintStream(str);
+        e.printStackTrace(prnt);
+        prnt.flush();
+        String msg = new String(str.toByteArray());
+        return msg;
+    }
 
     public synchronized static void addLogLevel() {
         synchronized(lock){

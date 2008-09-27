@@ -16,17 +16,17 @@ import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
  */
 public class ClassVisitorTestSuite extends AbstractIOTestSuite {
 
-	public static Test suite() {
-		TESTDIR = "tests" + File.separator + "python" + File.separator + "visitor" + File.separator + "classvisitor";
-		ClassVisitorTestSuite testSuite = new ClassVisitorTestSuite();
+    public static Test suite() {
+        TESTDIR = "tests" + File.separator + "python" + File.separator + "visitor" + File.separator + "classvisitor";
+        ClassVisitorTestSuite testSuite = new ClassVisitorTestSuite();
 
-		testSuite.createTests();
+        testSuite.createTests();
 
-		return testSuite;
-	}
+        return testSuite;
+    }
 
-	@Override
-	protected IInputOutputTestCase createTestCase(String testCaseName) {
-		return new ClassVisitorTestCase(testCaseName);
-	}
+    @Override
+    protected IInputOutputTestCase createTestCase(String testCaseName) {
+        return new ClassVisitorTestCase(testCaseName);
+    }
 }

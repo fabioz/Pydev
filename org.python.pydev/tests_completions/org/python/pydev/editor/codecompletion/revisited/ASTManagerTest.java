@@ -64,15 +64,15 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         line = 6;
         col = 11;
         sDoc = ""+
-        		"class C:             \n" +  
-        		"                     \n" +    
-        		"    def makeit(self):\n" +     
-        		"        pass         \n" +     
-        		"                     \n" +       
-        		"class D(C.:          \n" +  
-        		"                     \n" +    
-        		"    def a(self):     \n" +   
-        		"        pass         \n";
+                "class C:             \n" +  
+                "                     \n" +    
+                "    def makeit(self):\n" +     
+                "        pass         \n" +     
+                "                     \n" +       
+                "class D(C.:          \n" +  
+                "                     \n" +    
+                "    def a(self):     \n" +   
+                "        pass         \n";
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
@@ -80,21 +80,21 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         assertEquals("makeit", comps[0].getRepresentation());
         
         
-		sDoc = ""+
-		"import unittest       \n" +          
-		"                      \n" +    
-		"class Classe1:        \n" +       
-		"                      \n" +          
-		"    def makeit(self): \n" +          
-		"        self.makeit   \n" +             
-		"                      \n" +      
-		"                      \n" +       
-		"class Test(unit       \n";
-		
-		line = 8;
-		col = 16;
-		token = "";
-		doc = new Document(sDoc);
+        sDoc = ""+
+        "import unittest       \n" +          
+        "                      \n" +    
+        "class Classe1:        \n" +       
+        "                      \n" +          
+        "    def makeit(self): \n" +          
+        "        self.makeit   \n" +             
+        "                      \n" +      
+        "                      \n" +       
+        "class Test(unit       \n";
+        
+        line = 8;
+        col = 16;
+        token = "";
+        doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
         assertEquals(3, comps.length);
@@ -102,24 +102,24 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         assertIsIn("Classe1", comps);
         assertIsIn("Test", comps);
         
-		sDoc = ""+
-		"import unittest       \n" +          
-		"                      \n" +    
-		"class Classe1:        \n" +       
-		"                      \n" +          
-		"    def makeit(self): \n" +          
-		"        self.makeit   \n" +             
-		"                      \n" +      
-		"                      \n" +       
-		"class Test(unit       \n" +
-		"                      \n" +
-		"def meth1():          \n" +
-		"    pass              \n";
-		
-		line = 8;
-		col = 16;
-		token = "";
-		doc = new Document(sDoc);
+        sDoc = ""+
+        "import unittest       \n" +          
+        "                      \n" +    
+        "class Classe1:        \n" +       
+        "                      \n" +          
+        "    def makeit(self): \n" +          
+        "        self.makeit   \n" +             
+        "                      \n" +      
+        "                      \n" +       
+        "class Test(unit       \n" +
+        "                      \n" +
+        "def meth1():          \n" +
+        "    pass              \n";
+        
+        line = 8;
+        col = 16;
+        token = "";
+        doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
         assertEquals(4, comps.length);
@@ -128,24 +128,24 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         assertIsIn("Test", comps);
         assertIsIn("meth1", comps);
         
-		sDoc = ""+
-		"import unittest       \n" +          
-		"                      \n" +    
-		"class Classe1:        \n" +       
-		"                      \n" +          
-		"    def makeit(self): \n" +          
-		"        self.makeit   \n" +             
-		"                      \n" +      
-		"                      \n" +       
-		"class Test(unit       \n" +
-		"                      \n" +
-		"    def meth1():      \n" +
-		"        pass          \n";
-		
-		line = 8;
-		col = 16;
-		token = "";
-		doc = new Document(sDoc);
+        sDoc = ""+
+        "import unittest       \n" +          
+        "                      \n" +    
+        "class Classe1:        \n" +       
+        "                      \n" +          
+        "    def makeit(self): \n" +          
+        "        self.makeit   \n" +             
+        "                      \n" +      
+        "                      \n" +       
+        "class Test(unit       \n" +
+        "                      \n" +
+        "    def meth1():      \n" +
+        "        pass          \n";
+        
+        line = 8;
+        col = 16;
+        token = "";
+        doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
         assertEquals(3, comps.length);
@@ -153,39 +153,39 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         assertIsIn("Classe1", comps);
         assertIsIn("Test", comps);
         
-		sDoc = ""+
-		"class Classe1:       \n" +       
-		"                     \n" +         
-		"    def foo(self):   \n" +
-		"        ignoreThis=0 \n" +          
-		"        self.a = 1   \n" +      
-		"        self.        \n" +      
-		"                     \n";
-		
-		line = 6;
-		col = 13;
-		token = "Classe1";
-		doc = new Document(sDoc);
+        sDoc = ""+
+        "class Classe1:       \n" +       
+        "                     \n" +         
+        "    def foo(self):   \n" +
+        "        ignoreThis=0 \n" +          
+        "        self.a = 1   \n" +      
+        "        self.        \n" +      
+        "                     \n";
+        
+        line = 6;
+        col = 13;
+        token = "Classe1";
+        doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
         assertEquals(2, comps.length);
         assertIsIn("a", comps);
         assertIsIn("foo", comps);
         
-		sDoc = ""+
-		"class Classe1:       \n" +       
-		"                     \n" +         
-		"    def foo(self):   \n" +          
-		"        self.a = 2   \n" +      
-		"                     \n" +      
-		"    test = foo       \n" +      
-		"                     \n" +      
-		"Classe1.             \n";        
-		
-		line = 8;
-		col = 9;
-		token = "Classe1";
-		doc = new Document(sDoc);
+        sDoc = ""+
+        "class Classe1:       \n" +       
+        "                     \n" +         
+        "    def foo(self):   \n" +          
+        "        self.a = 2   \n" +      
+        "                     \n" +      
+        "    test = foo       \n" +      
+        "                     \n" +      
+        "Classe1.             \n";        
+        
+        line = 8;
+        col = 9;
+        token = "Classe1";
+        doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
         assertEquals(3, comps.length);
@@ -195,22 +195,22 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
 
         
         
-		sDoc = ""+
-		"class LinkedList:                      \n"+
-		"    def __init__(self,content='Null'): \n" +
-		"        if not content:                \n"+
-		"            self.first=content         \n"+
-		"            self.last=content          \n"+
-		"        else:                          \n"+
-		"            self.first='Null'          \n"+
-		"            self.last='Null'           \n"+
-		"        self.content=content           \n"+
-		"        self.                          \n";
-		
-		line = 9;
-		col = 9;
-		token = "LinkedList";
-		doc = new Document(sDoc);
+        sDoc = ""+
+        "class LinkedList:                      \n"+
+        "    def __init__(self,content='Null'): \n" +
+        "        if not content:                \n"+
+        "            self.first=content         \n"+
+        "            self.last=content          \n"+
+        "        else:                          \n"+
+        "            self.first='Null'          \n"+
+        "            self.last='Null'           \n"+
+        "        self.content=content           \n"+
+        "        self.                          \n";
+        
+        line = 9;
+        col = 9;
+        token = "LinkedList";
+        doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
         assertIsIn("first", comps);
@@ -219,21 +219,21 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         
     }
 
-	private IToken[] getComps()  {
-		try {
-			return getManager().getCompletionsForToken(doc, state);
-		} catch (CompletionRecursionException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    private IToken[] getComps()  {
+        try {
+            return getManager().getCompletionsForToken(doc, state);
+        } catch (CompletionRecursionException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public void testRecursion(){
         token = "B";
         line = 0;
         col = 0;
         sDoc = ""+
-			"class A(B):pass          \n" +    
-			"class B(A):pass          \n";
+            "class A(B):pass          \n" +    
+            "class B(A):pass          \n";
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
@@ -247,8 +247,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         line = 1;
         col = 0;
         sDoc = ""+
-			"from testlib.unittest.relative import Test1 \n" +    
-			"\n";
+            "from testlib.unittest.relative import Test1 \n" +    
+            "\n";
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
@@ -276,8 +276,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         line = 2;
         col = 10;
         sDoc = ""+
-        		"def met(par1, par2):          \n" +    
-        		"    print                     \n";
+                "def met(par1, par2):          \n" +    
+                "    print                     \n";
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
@@ -291,9 +291,9 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         line = 3;
         col = 13;
         sDoc = ""+
-        		"class C:                         \n" +    
-        		"    def met(self, par1, par2):   \n" +    
-        		"        print                    \n";
+                "class C:                         \n" +    
+                "    def met(self, par1, par2):   \n" +    
+                "        print                    \n";
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
@@ -308,10 +308,10 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         line = 4;
         col = 13;
         sDoc = ""+
-        		"class C:                         \n" +    
-        		"    def met(self, par1, par2):   \n" +
-        		"        loc1 = 10                \n" +    
-        		"        print                    \n";
+                "class C:                         \n" +    
+                "    def met(self, par1, par2):   \n" +
+                "        loc1 = 10                \n" +    
+                "        print                    \n";
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
@@ -327,11 +327,11 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         line = 4;
         col = 13;
         sDoc = ""+
-        		"class C:                         \n" +    
-        		"    def met(self, par1, par2):   \n" +
-        		"        loc1 = 10                \n" +    
-        		"        print                    \n" +
-        		"        ignoreLineAfter = 5      \n";
+                "class C:                         \n" +    
+                "    def met(self, par1, par2):   \n" +
+                "        loc1 = 10                \n" +    
+                "        print                    \n" +
+                "        ignoreLineAfter = 5      \n";
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
@@ -349,15 +349,15 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
      * @param comps
      */
     public static void assertIsIn(String string, IToken[] comps) {
-    	StringBuffer buffer = new StringBuffer("Available: \n");
+        StringBuffer buffer = new StringBuffer("Available: \n");
         boolean found = false;
         for (int i = 0; i < comps.length; i++) {
             String rep = comps[i].getRepresentation();
-			if(string.equals(rep)){
+            if(string.equals(rep)){
                 found = true;
             }
-			buffer.append(rep);
-			buffer.append("\n");
+            buffer.append(rep);
+            buffer.append("\n");
         }
         
         assertTrue("The searched token ("+string+")was not found in the completions. "+buffer, found);

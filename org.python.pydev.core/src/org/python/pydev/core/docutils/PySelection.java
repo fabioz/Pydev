@@ -43,41 +43,41 @@ public class PySelection {
     
     private IDocument doc;
     private ITextSelection textSelection;
-	public static final String[] DEDENT_TOKENS = new String[]{
-	    "return",
-	    "break",
-	    "continue",
-	    "pass",
-	    "raise",
-//	    "yield" -- https://sourceforge.net/tracker/index.php?func=detail&aid=1807411&group_id=85796&atid=577329 (doesn't really end scope)
+    public static final String[] DEDENT_TOKENS = new String[]{
+        "return",
+        "break",
+        "continue",
+        "pass",
+        "raise",
+//        "yield" -- https://sourceforge.net/tracker/index.php?func=detail&aid=1807411&group_id=85796&atid=577329 (doesn't really end scope)
 //      after seeing the std lib, several cases use yield at the middle of the scope
-	};
+    };
 
-	public static final String[] CLASS_AND_FUNC_TOKENS = new String[]{
-	    "def"     ,
-	    "class"   ,
+    public static final String[] CLASS_AND_FUNC_TOKENS = new String[]{
+        "def"     ,
+        "class"   ,
     };
     
-	public static final String[] INDENT_TOKENS = new String[]{
-		"if"      , 
-		"for"     , 
-		"except"  , 
-		"def"     ,
-		"class"   ,
-		"else"    ,
-		"elif"    ,
-		"while"   ,
-		"try"     ,
-		"with"     ,
-		"finally" 
-	};
-	
+    public static final String[] INDENT_TOKENS = new String[]{
+        "if"      , 
+        "for"     , 
+        "except"  , 
+        "def"     ,
+        "class"   ,
+        "else"    ,
+        "elif"    ,
+        "while"   ,
+        "try"     ,
+        "with"     ,
+        "finally" 
+    };
+    
 
     /**
-	 * Alternate constructor for PySelection. Takes in a text editor from Eclipse.
-	 * 
-	 * @param textEditor The text editor operating in Eclipse
-	 */
+     * Alternate constructor for PySelection. Takes in a text editor from Eclipse.
+     * 
+     * @param textEditor The text editor operating in Eclipse
+     */
     public PySelection(ITextEditor textEditor) {
         this(textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput()), 
                 (ITextSelection) textEditor.getSelectionProvider().getSelection());
@@ -100,12 +100,12 @@ public class PySelection {
      * @param col the col (starts at 0)
      */
     public PySelection(IDocument doc, int line, int col) {
-    	this(doc, line, col, 0);
+        this(doc, line, col, 0);
     }
     
     public PySelection(IDocument doc, int line, int col, int len) {
-    	this.doc = doc;
-		this.textSelection = new TextSelection(doc, getAbsoluteCursorOffset(line, col), len);
+        this.doc = doc;
+        this.textSelection = new TextSelection(doc, getAbsoluteCursorOffset(line, col), len);
     }
     
     public static int getAbsoluteCursorOffset(IDocument doc, int line, int col) {
@@ -236,10 +236,10 @@ public class PySelection {
                         //start of a multiline import
                         int lineOffset = -1;
                         try {
-							lineOffset = document.getLineOffset(line);
-						} catch (BadLocationException e1) {
-							throw new RuntimeException(e1);
-						}
+                            lineOffset = document.getLineOffset(line);
+                        } catch (BadLocationException e1) {
+                            throw new RuntimeException(e1);
+                        }
                         int j = parsingUtils.eatPar(lineOffset+i, null);
                         try {
                             line = document.getLineOfOffset(j);
@@ -284,8 +284,8 @@ public class PySelection {
             //for checking if it is global, it must be in the beggining of a line (must be right after a \r or \n).
             
             while (current != '\'' && current != '"' && initialOffset < docLen-1) {
-            	
-            	//if it is inside a parenthesis, we will not take it into consideration.
+                
+                //if it is inside a parenthesis, we will not take it into consideration.
                 if(current == '('){
                     initialOffset = parsingUtils.eatPar(initialOffset, buf);
                 }
@@ -300,23 +300,23 @@ public class PySelection {
             //either, we are at the end of the document or we found a literal
             if(initialOffset < docLen-1){
 
-            	if(initialOffset == 0){ //first char of the document... this is ok
-	                int i = parsingUtils.eatLiterals(buf, initialOffset);
-	                return new int[]{initialOffset, i};
-            	}
-            	
-            	char lastChar = strDoc.charAt(initialOffset-1);
-            	//it is only global if after \r or \n
-            	if(lastChar == '\r' || lastChar == '\n'){
-	                int i = parsingUtils.eatLiterals(buf, initialOffset);
-	                return new int[]{initialOffset, i};
-            	}
-            	
+                if(initialOffset == 0){ //first char of the document... this is ok
+                    int i = parsingUtils.eatLiterals(buf, initialOffset);
+                    return new int[]{initialOffset, i};
+                }
+                
+                char lastChar = strDoc.charAt(initialOffset-1);
+                //it is only global if after \r or \n
+                if(lastChar == '\r' || lastChar == '\n'){
+                    int i = parsingUtils.eatLiterals(buf, initialOffset);
+                    return new int[]{initialOffset, i};
+                }
+                
                 //ok, still not found, let's keep going
-        		return getFirstGlobalLiteral(buf, initialOffset+1);
+                return getFirstGlobalLiteral(buf, initialOffset+1);
             }else{
-            	return new int[]{-1, -1};
-            	
+                return new int[]{-1, -1};
+                
             }
         } catch (BadLocationException e) {
             throw new RuntimeException(e);
@@ -338,11 +338,11 @@ public class PySelection {
         return getLineWithoutCommentsOrLiterals(getLine());
     }
 
-	public static String getLineWithoutLiterals(String line) {
-		FastStringBuffer buf = new FastStringBuffer(line, 2);
-		ParsingUtils.removeLiterals(buf);
-		return buf.toString();
-	}
+    public static String getLineWithoutLiterals(String line) {
+        FastStringBuffer buf = new FastStringBuffer(line, 2);
+        ParsingUtils.removeLiterals(buf);
+        return buf.toString();
+    }
     
     /**
      * @return the current column that is selected from the cursor.
@@ -416,7 +416,7 @@ public class PySelection {
      * @return the offset of the line where the cursor is
      */
     public int getLineOffset() {
-    	return getLineOffset(getCursorLine());
+        return getLineOffset(getCursorLine());
     }
     
     /**
@@ -451,8 +451,8 @@ public class PySelection {
             int length = -1;
             
             if(doc.getNumberOfLines() > i){
-	            int nextLineOffset = doc.getLineInformation(i+1).getOffset();
-	            length = nextLineOffset - offset;
+                int nextLineOffset = doc.getLineInformation(i+1).getOffset();
+                length = nextLineOffset - offset;
             }else{
                 length = lineInformation.getLength();
             }
@@ -465,39 +465,39 @@ public class PySelection {
         } 
     }
     
-	public void deleteSpacesAfter(int offset) {
-		try {
-			final int len = countSpacesAfter(offset);
-			if(len > 0){
-				doc.replace(offset, len, "");
-			}
-		} catch (Exception e) {
-			//ignore
-		}
-	}
+    public void deleteSpacesAfter(int offset) {
+        try {
+            final int len = countSpacesAfter(offset);
+            if(len > 0){
+                doc.replace(offset, len, "");
+            }
+        } catch (Exception e) {
+            //ignore
+        }
+    }
 
 
-	public int countSpacesAfter(int offset) throws BadLocationException {
-		if(offset >= doc.getLength()){
-			return 0;
-		}
-		
-		int initial = offset;
-		String next = doc.get(offset, 1);
-		
-		//don't delete 'all' that is considered whitespace (as \n and \r)
-		try {
-			while (next.charAt(0) == ' ' || next.charAt(0) == '\t') {
-				offset++;
-				next = doc.get(offset, 1);
-			}
-		} catch (Exception e) {
-			// ignore
-		}
-		
-		return offset-initial;
-	}
-	
+    public int countSpacesAfter(int offset) throws BadLocationException {
+        if(offset >= doc.getLength()){
+            return 0;
+        }
+        
+        int initial = offset;
+        String next = doc.get(offset, 1);
+        
+        //don't delete 'all' that is considered whitespace (as \n and \r)
+        try {
+            while (next.charAt(0) == ' ' || next.charAt(0) == '\t') {
+                offset++;
+                next = doc.get(offset, 1);
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+        
+        return offset-initial;
+    }
+    
 
 
     
@@ -530,15 +530,15 @@ public class PySelection {
             
             int offset = -1;
             if(doc.getNumberOfLines() > afterLine){
-	            offset = doc.getLineInformation(afterLine+1).getOffset();
+                offset = doc.getLineInformation(afterLine+1).getOffset();
                 
             }else{
-	            offset = doc.getLineInformation(afterLine).getOffset();
+                offset = doc.getLineInformation(afterLine).getOffset();
             }
             
             if(doc.getNumberOfLines()-1 == afterLine){
-            	contents = endLineDelim + contents;
-            	
+                contents = endLineDelim + contents;
+                
             }
             
             if (!contents.endsWith(endLineDelim)){
@@ -943,11 +943,11 @@ public class PySelection {
             String trimmed = line.trim();
             
             for (String dedent : indentTokens) {
-            	if(trimmed.startsWith(dedent)){
-            		if(isCompleteToken(trimmed, dedent)){
-            			return new Tuple3<String, String, String>(line, foundDedent, lowestStr);
-            		}
-            	}
+                if(trimmed.startsWith(dedent)){
+                    if(isCompleteToken(trimmed, dedent)){
+                        return new Tuple3<String, String, String>(line, foundDedent, lowestStr);
+                    }
+                }
             }
             //we have to check for the first condition (if a dedent is found, but we already found 
             //one with a first char, the dedent should not be taken into consideration... and vice-versa).
@@ -1002,31 +1002,31 @@ public class PySelection {
 
     
     public static List<Integer> getLineStartOffsets(String replacementString) {
-    	ArrayList<Integer> ret = new ArrayList<Integer>();
-    	ret.add(0);//there is always a starting one at 0
-    	
-    	//we may have line breaks with \r\n, or only \n or \r
-    	for (int i = 0; i < replacementString.length(); i++) {
-    		char c = replacementString.charAt(i);
-    		if(c == '\r'){
-    		    i++;
-    			int foundAt = i;
-    			
-    			if(i < replacementString.length()){
-    				c = replacementString.charAt(i);
-    				if(c == '\n'){
-//    				    i++;
-    				    foundAt = i+1;
-    				}
-    			}
-    			ret.add(foundAt);
+        ArrayList<Integer> ret = new ArrayList<Integer>();
+        ret.add(0);//there is always a starting one at 0
+        
+        //we may have line breaks with \r\n, or only \n or \r
+        for (int i = 0; i < replacementString.length(); i++) {
+            char c = replacementString.charAt(i);
+            if(c == '\r'){
+                i++;
+                int foundAt = i;
                 
-    		}else if(c == '\n'){
-    		    ret.add(i+1);
-    		}
-    	}
-    	
-    	return ret;
+                if(i < replacementString.length()){
+                    c = replacementString.charAt(i);
+                    if(c == '\n'){
+//                        i++;
+                        foundAt = i+1;
+                    }
+                }
+                ret.add(foundAt);
+                
+            }else if(c == '\n'){
+                ret.add(i+1);
+            }
+        }
+        
+        return ret;
     }
     
     
@@ -1040,7 +1040,7 @@ public class PySelection {
         //we may have line breaks with \r\n, or only \n or \r
         for (int i = 0; i < replacementString.length(); i++) {
             char c = replacementString.charAt(i);
-			if(c == '\r'){
+            if(c == '\r'){
                 lineBreaks++;
                 ret.add(i);
                 ignoreNextNAt = i + 1;
@@ -1067,7 +1067,7 @@ public class PySelection {
         //we may have line breaks with \r\n, or only \n or \r
         for (int i = 0; i < replacementString.length(); i++) {
             char c = replacementString.charAt(i);
-			if(c == '\r'){
+            if(c == '\r'){
                 lineBreaks++;
                 ignoreNextNAt = i + 1;
                 
@@ -1190,11 +1190,11 @@ public class PySelection {
         Tuple<String, Integer> tupPrefix = extractActivationToken(doc, documentOffset, getFullQualifier);
         
         if(getFullQualifier == true){
-        	//may have changed
-        	documentOffset = tupPrefix.o2;
+            //may have changed
+            documentOffset = tupPrefix.o2;
         }
         
-    	String activationToken = tupPrefix.o1;
+        String activationToken = tupPrefix.o1;
         documentOffset = documentOffset-activationToken.length()-1;
     
         try {
@@ -1295,35 +1295,35 @@ public class PySelection {
      *         otherwise, it is the same offset passed as a parameter).
      */
     public static Tuple<String, Integer> extractActivationToken(IDocument document, int offset, boolean getFullQualifier) {
-    	try {
-    		if(getFullQualifier){
-    			//if we have to get the full qualifier, we'll have to walk the offset (cursor) forward
-    			while(offset < document.getLength()){
-    				char ch= document.getChar(offset);
-    				if (Character.isJavaIdentifierPart(ch)){
-    					offset++;
-    				}else{
-    					break;
-    				}
-    				
-    			}
-    		}
-    		int i= offset;
-    		
-    		if (i > document.getLength())
-    			return new Tuple<String, Integer>("", document.getLength()); //$NON-NLS-1$
-    	
-    		while (i > 0) {
-    			char ch= document.getChar(i - 1);
-    			if (!Character.isJavaIdentifierPart(ch))
-    				break;
-    			i--;
-    		}
+        try {
+            if(getFullQualifier){
+                //if we have to get the full qualifier, we'll have to walk the offset (cursor) forward
+                while(offset < document.getLength()){
+                    char ch= document.getChar(offset);
+                    if (Character.isJavaIdentifierPart(ch)){
+                        offset++;
+                    }else{
+                        break;
+                    }
+                    
+                }
+            }
+            int i= offset;
+            
+            if (i > document.getLength())
+                return new Tuple<String, Integer>("", document.getLength()); //$NON-NLS-1$
+        
+            while (i > 0) {
+                char ch= document.getChar(i - 1);
+                if (!Character.isJavaIdentifierPart(ch))
+                    break;
+                i--;
+            }
     
-    		return new Tuple<String, Integer>(document.get(i, offset - i), offset);
-    	} catch (BadLocationException e) {
-    		return new Tuple<String, Integer>("", offset); //$NON-NLS-1$
-    	}
+            return new Tuple<String, Integer>(document.get(i, offset - i), offset);
+        } catch (BadLocationException e) {
+            return new Tuple<String, Integer>("", offset); //$NON-NLS-1$
+        }
     }
 
 
@@ -1375,19 +1375,19 @@ public class PySelection {
      */
     public static int getFirstCharPosition(String src) {
         int i = 0;
-    	boolean breaked = false;
-    	while (i < src.length()) {
-    	    if (Character.isWhitespace(src.charAt(i)) == false && src.charAt(i) != '\t') {
-    	        i++;
-    		    breaked = true;
-    			break;
-    		}
-    	    i++;
-    	}
-    	if (!breaked){
-    	    i++;
-    	}
-    	return (i - 1);
+        boolean breaked = false;
+        while (i < src.length()) {
+            if (Character.isWhitespace(src.charAt(i)) == false && src.charAt(i) != '\t') {
+                i++;
+                breaked = true;
+                break;
+            }
+            i++;
+        }
+        if (!breaked){
+            i++;
+        }
+        return (i - 1);
     }
 
 
@@ -1399,9 +1399,9 @@ public class PySelection {
      */
     public static int getFirstCharRelativePosition(IDocument doc, IRegion region) throws BadLocationException {
         int offset = region.getOffset();
-    	String src = doc.get(offset, region.getLength());
+        String src = doc.get(offset, region.getLength());
     
-    	return getFirstCharPosition(src);
+        return getFirstCharPosition(src);
     }
 
 
@@ -1413,8 +1413,8 @@ public class PySelection {
      */
     public static int getFirstCharRelativeLinePosition(IDocument doc, int line) throws BadLocationException {
         IRegion region;
-    	region = doc.getLineInformation(line);
-    	return getFirstCharRelativePosition(doc, region);
+        region = doc.getLineInformation(line);
+        return getFirstCharRelativePosition(doc, region);
     }
 
 
@@ -1426,8 +1426,8 @@ public class PySelection {
      */
     public static int getFirstCharRelativePosition(IDocument doc, int cursorOffset) throws BadLocationException {
         IRegion region;
-    	region = doc.getLineInformationOfOffset(cursorOffset);
-    	return getFirstCharRelativePosition(doc, region);
+        region = doc.getLineInformationOfOffset(cursorOffset);
+        return getFirstCharRelativePosition(doc, region);
     }
 
 
@@ -1436,15 +1436,15 @@ public class PySelection {
      * @param doc
      * @param cursorOffset
      * @return position of the first character of the line (returned as an absolute
-     * 		   offset)
+     *            offset)
      * @throws BadLocationException
      */
     public static int getFirstCharPosition(IDocument doc, int cursorOffset)
-    	throws BadLocationException {
+        throws BadLocationException {
         IRegion region;
-    	region = doc.getLineInformationOfOffset(cursorOffset);
-    	int offset = region.getOffset();
-    	return offset + getFirstCharRelativePosition(doc, cursorOffset);
+        region = doc.getLineInformationOfOffset(cursorOffset);
+        int offset = region.getOffset();
+        return offset + getFirstCharRelativePosition(doc, cursorOffset);
     }
 
 
@@ -1461,34 +1461,34 @@ public class PySelection {
     }
 
 
-	private static boolean isCompleteToken(String trimmedLine, String dedent) {
-		if(dedent.length() < trimmedLine.length()){
-		    char afterToken = trimmedLine.charAt(dedent.length());
-		    if(afterToken == ' ' || afterToken == ':' || afterToken == ';' || afterToken == '('){
-		        return true;
-		    }
-		    return false;
-		}else{
-		    return true;
-		}
-	}
+    private static boolean isCompleteToken(String trimmedLine, String dedent) {
+        if(dedent.length() < trimmedLine.length()){
+            char afterToken = trimmedLine.charAt(dedent.length());
+            if(afterToken == ' ' || afterToken == ':' || afterToken == ';' || afterToken == '('){
+                return true;
+            }
+            return false;
+        }else{
+            return true;
+        }
+    }
 
 
-	/**
-	 * Class to help iterating through the document
-	 */
+    /**
+     * Class to help iterating through the document
+     */
     public static class DocIterator implements Iterator<String>{
         private int startingLine;
         private boolean forward;
         private boolean isFirst = true;
-		private int numberOfLines;
-		private int lastReturnedLine=-1;
-		private PySelection ps;
-		
-		public DocIterator(boolean forward, PySelection ps){
+        private int numberOfLines;
+        private int lastReturnedLine=-1;
+        private PySelection ps;
+        
+        public DocIterator(boolean forward, PySelection ps){
             this(forward, ps, ps.getCursorLine(), true);
-		}
-		
+        }
+        
         public DocIterator(boolean forward, PySelection ps, int startingLine, boolean considerFirst){
             this.startingLine = startingLine;
             this.forward = forward;
@@ -1500,7 +1500,7 @@ public class PySelection {
         }
 
         public int getCurrentLine(){
-        	return startingLine;
+            return startingLine;
         }
         
         public boolean hasNext() {
@@ -1516,26 +1516,26 @@ public class PySelection {
          * does it return from the full line -- if it is iterating backwards).
          */
         public String next() {
-        	try {
-        		String line;
-				if (forward) {
-					line = ps.getLine(startingLine);
-					lastReturnedLine = startingLine;
-					startingLine++;
-				} else {
-					if (isFirst) {
-						line = ps.getLineContentsToCursor();
-						isFirst = false;
-					}else{
-						line = ps.getLine(startingLine);
-					}
-					lastReturnedLine = startingLine;
-					startingLine--;
-				}
-				return line;
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
+            try {
+                String line;
+                if (forward) {
+                    line = ps.getLine(startingLine);
+                    lastReturnedLine = startingLine;
+                    startingLine++;
+                } else {
+                    if (isFirst) {
+                        line = ps.getLineContentsToCursor();
+                        isFirst = false;
+                    }else{
+                        line = ps.getLine(startingLine);
+                    }
+                    lastReturnedLine = startingLine;
+                    startingLine--;
+                }
+                return line;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
 
         public void remove() {
@@ -1551,87 +1551,87 @@ public class PySelection {
     /**
      * @return if the offset is inside the region
      */
-	public static boolean isInside(int offset, IRegion region) {
+    public static boolean isInside(int offset, IRegion region) {
         if(offset >= region.getOffset() && offset <= (region.getOffset() + region.getLength())){
-        	return true;
+            return true;
         }
         return false;
-	}
-	
-	/**
-	 * @return if the col is inside the initial col/len
-	 */
-	public static boolean isInside(int col, int initialCol, int len) {
-		if(col >= initialCol && col <= (initialCol + len)){
-			return true;
-		}
-		return false;
-	}
+    }
+    
+    /**
+     * @return if the col is inside the initial col/len
+     */
+    public static boolean isInside(int col, int initialCol, int len) {
+        if(col >= initialCol && col <= (initialCol + len)){
+            return true;
+        }
+        return false;
+    }
 
-	/**
-	 * @return if the region passed is composed of a single line
-	 */
-	public static boolean endsInSameLine(IDocument document, IRegion region) {
-		try {
-			int startLine = document.getLineOfOffset(region.getOffset());
-			int end = region.getOffset() + region.getLength();
-			int endLine = document.getLineOfOffset(end);
-			return startLine == endLine;
-		} catch (BadLocationException e) {
-			return false;
-		}
-	}
+    /**
+     * @return if the region passed is composed of a single line
+     */
+    public static boolean endsInSameLine(IDocument document, IRegion region) {
+        try {
+            int startLine = document.getLineOfOffset(region.getOffset());
+            int end = region.getOffset() + region.getLength();
+            int endLine = document.getLineOfOffset(end);
+            return startLine == endLine;
+        } catch (BadLocationException e) {
+            return false;
+        }
+    }
 
-	/**
-	 * @param offset the offset we want info on
-	 * @return a tuple with the line, col of the passed offset in the document 
-	 */
-	public Tuple<Integer, Integer> getLineAndCol(int offset) {
-		try {
-			IRegion region = doc.getLineInformationOfOffset(offset);
-			int line = doc.getLineOfOffset(offset);
-			int col = offset - region.getOffset();
-			return new Tuple<Integer, Integer>(line, col);
-		} catch (BadLocationException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    /**
+     * @param offset the offset we want info on
+     * @return a tuple with the line, col of the passed offset in the document 
+     */
+    public Tuple<Integer, Integer> getLineAndCol(int offset) {
+        try {
+            IRegion region = doc.getLineInformationOfOffset(offset);
+            int line = doc.getLineOfOffset(offset);
+            int col = offset - region.getOffset();
+            return new Tuple<Integer, Integer>(line, col);
+        } catch (BadLocationException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	/**
-	 * @return the contents from the document starting at the cursor line until a colon is reached. 
-	 */
-	public String getToColon() {
-		StringBuffer buffer = new StringBuffer();
-		
-		for(int i = getLineOffset(); i < doc.getLength();i++){
-			try {
-				char c = doc.getChar(i);
-				buffer.append(c);
-				if(c == ':'){
-					return buffer.toString();
-				}
-			} catch (BadLocationException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return ""; //unable to find a colon
-	}
-	
-	public boolean isInFunctionLine() {
+    /**
+     * @return the contents from the document starting at the cursor line until a colon is reached. 
+     */
+    public String getToColon() {
+        StringBuffer buffer = new StringBuffer();
+        
+        for(int i = getLineOffset(); i < doc.getLength();i++){
+            try {
+                char c = doc.getChar(i);
+                buffer.append(c);
+                if(c == ':'){
+                    return buffer.toString();
+                }
+            } catch (BadLocationException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return ""; //unable to find a colon
+    }
+    
+    public boolean isInFunctionLine() {
         return FunctionPattern.matcher(getToColon().trim()).matches();
-	}
-	
-	public static boolean isIdentifier(String str) {
-	    return IdentifierPattern.matcher(str).matches();
-	}
+    }
+    
+    public static boolean isIdentifier(String str) {
+        return IdentifierPattern.matcher(str).matches();
+    }
 
-	public boolean isInClassLine() {
-		return ClassPattern.matcher(getToColon().trim()).matches();
-	}
+    public boolean isInClassLine() {
+        return ClassPattern.matcher(getToColon().trim()).matches();
+    }
 
 
-	
-	//spaces* 'def' space+ identifier space* ( (space|char|.|,|=|*|(|)|'|")* ):
+    
+    //spaces* 'def' space+ identifier space* ( (space|char|.|,|=|*|(|)|'|")* ):
     private static final Pattern FunctionPattern = Pattern.compile("\\s*def\\s+\\w*.*");
 
     //spaces* 'class' space+ identifier space* (? (.|char|space |,)* )?

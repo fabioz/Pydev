@@ -21,27 +21,27 @@ import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 
 public class BeginOffset extends AbstractOffsetStrategy {
 
-	public BeginOffset(IASTNodeAdapter<? extends SimpleNode> adapter, IDocument doc) {
-		super(adapter, doc);
-	}
+    public BeginOffset(IASTNodeAdapter<? extends SimpleNode> adapter, IDocument doc) {
+        super(adapter, doc);
+    }
 
-	protected int getLine() {
-		SimpleNode node = adapter.getASTNode();
-		if(nodeHelper.isClassDef(node)){
-			ClassDef classNode = (ClassDef) node;
-			Str strNode = NodeUtils.getNodeDocStringNode(node);
-			
-			if(strNode != null){
-				return NodeUtils.getLineEnd(strNode) -1;
-			}
-			
-			FindLastLineVisitor findLastLineVisitor = new FindLastLineVisitor();
+    protected int getLine() {
+        SimpleNode node = adapter.getASTNode();
+        if(nodeHelper.isClassDef(node)){
+            ClassDef classNode = (ClassDef) node;
+            Str strNode = NodeUtils.getNodeDocStringNode(node);
+            
+            if(strNode != null){
+                return NodeUtils.getLineEnd(strNode) -1;
+            }
+            
+            FindLastLineVisitor findLastLineVisitor = new FindLastLineVisitor();
             try {
                 classNode.name.accept(findLastLineVisitor);
                 if(classNode.bases != null){
-                	for (SimpleNode n : classNode.bases) {
-						n.accept(findLastLineVisitor);
-					}
+                    for (SimpleNode n : classNode.bases) {
+                        n.accept(findLastLineVisitor);
+                    }
                 }
                 SimpleNode lastNode = findLastLineVisitor.getLastNode();
                 SpecialStr lastSpecialStr = findLastLineVisitor.getLastSpecialStr();
@@ -55,21 +55,21 @@ public class BeginOffset extends AbstractOffsetStrategy {
                 Log.log(e);
             }
 
-		}
-		
-		int startLine = adapter.getNodeFirstLine() - 1;
-		if (startLine < 0){
-			startLine = 0;
-		}
-		return startLine;
-	}
+        }
+        
+        int startLine = adapter.getNodeFirstLine() - 1;
+        if (startLine < 0){
+            startLine = 0;
+        }
+        return startLine;
+    }
 
-	@Override
-	protected int getLineIndendation() throws BadLocationException {
-		if (adapter.getNodeBodyIndent() == 0)
-			return 0;
-		else {
-			return doc.getLineLength(getLine());
-		}
-	}
+    @Override
+    protected int getLineIndendation() throws BadLocationException {
+        if (adapter.getNodeBodyIndent() == 0)
+            return 0;
+        else {
+            return doc.getLineLength(getLine());
+        }
+    }
 }

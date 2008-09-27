@@ -134,8 +134,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * May be null
      */
     public GlobalModelVisitor getGlobalModelVisitorCache() {
-		return globalModelVisitorCache;
-	}
+        return globalModelVisitorCache;
+    }
 
     /**
      * @return a reference to all the modules that are imported from this one in the global context as a from xxx import *
@@ -199,40 +199,40 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      */
     public boolean isInDirectGlobalTokens(String tok, ICompletionCache completionCache){
         TreeMap<String, Object> tokens = tokensCache.get(GlobalModelVisitor.GLOBAL_TOKENS);
-    	if(tokens == null){
-    		getGlobalTokens();
-    	}
-    	
-    	boolean ret = false;
-    	if(tokens != null){
-        	synchronized (tokens) {
-        		ret = tokens.containsKey(tok);
-        	}
-    	}
-    	
-    	if(ret == false){
-    		ret = isInDirectImportTokens(tok);
-    	}
-    	return ret;
+        if(tokens == null){
+            getGlobalTokens();
+        }
+        
+        boolean ret = false;
+        if(tokens != null){
+            synchronized (tokens) {
+                ret = tokens.containsKey(tok);
+            }
+        }
+        
+        if(ret == false){
+            ret = isInDirectImportTokens(tok);
+        }
+        return ret;
     }
     
-	public boolean isInDirectImportTokens(String tok) {
+    public boolean isInDirectImportTokens(String tok) {
         TreeMap<String, Object> tokens = tokensCache.get(GlobalModelVisitor.ALIAS_MODULES);
         if(tokens != null){
-			getTokenImportedModules();
-		}
-		
-		boolean ret = false;
-		if(tokens != null){
-			synchronized (tokens) {
-				ret = tokens.containsKey(tok);
-			}
-		}
-		return ret; 
-	}
+            getTokenImportedModules();
+        }
+        
+        boolean ret = false;
+        if(tokens != null){
+            synchronized (tokens) {
+                ret = tokens.containsKey(tok);
+            }
+        }
+        return ret; 
+    }
 
-    	
-	/**
+        
+    /**
      * @param lookOnlyForNameStartingWith: if not null, well only get from the cache tokens starting with the given representation
      * @return a list of IToken
      */
@@ -241,15 +241,15 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         if((which & GlobalModelVisitor.INNER_DEFS) != 0){
             throw new RuntimeException("Cannot do this one with caches");
         }
-    	//cache
+        //cache
         TreeMap<String, Object> tokens = tokensCache.get(which);
         
         if(tokens != null){
             return createArrayFromCacheValues(tokens, lookOnlyForNameStartingWith);
         }
-    	//end cache
-    	
-    	
+        //end cache
+        
+        
         try {
             tokensCache.put(GlobalModelVisitor.ALIAS_MODULES, new TreeMap<String, Object>());
             tokensCache.put(GlobalModelVisitor.GLOBAL_TOKENS, new TreeMap<String, Object>());
@@ -271,10 +271,10 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                 System.out.println("\n\nLooking for:"+which);
             }
             //cache
-    		for (IToken token : ret) {
+            for (IToken token : ret) {
                 int choice;
-        		if(token.isWildImport()){
-        		    choice = GlobalModelVisitor.WILD_MODULES;
+                if(token.isWildImport()){
+                    choice = GlobalModelVisitor.WILD_MODULES;
                 }else if(token.isImportFrom() || token.isImport()){
                     choice = GlobalModelVisitor.ALIAS_MODULES;
                 }else if(token.isString()){
@@ -284,7 +284,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                 }
                 String rep = token.getRepresentation();
                 if(DEBUG_INTERNAL_GLOBALS_CACHE){
-            		System.out.println("Adding choice:"+choice+" name:"+rep);
+                    System.out.println("Adding choice:"+choice+" name:"+rep);
                     if(choice != which){
                         System.out.println("Looking for:"+which+"found:"+choice);
                         System.out.println("here");
@@ -311,7 +311,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         
                     }
                 }
-    		}
+            }
             //end cache
             
         } catch (Exception e) {
@@ -420,14 +420,14 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                 }else if (d.ast instanceof Name){
                                     ClassDef classDef = (ClassDef) d.scope.getClassDef();
                                     if(classDef != null){
-                                    	FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(actToks[actToks.length-1], d.line, d.col, d.module);
+                                        FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(actToks[actToks.length-1], d.line, d.col, d.module);
                                         try {
-											classDef.accept(visitor);
-										} catch (StopVisitingException e) {
-											//expected exception
-										}
+                                            classDef.accept(visitor);
+                                        } catch (StopVisitingException e) {
+                                            //expected exception
+                                        }
                                         if(visitor.definitions.size() == 0){
-                                        	return EMPTY_ITOKEN_ARRAY;
+                                            return EMPTY_ITOKEN_ARRAY;
                                         }
                                         d = visitor.definitions.get(0);
                                         value = d.value;
@@ -435,19 +435,19 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                             return getValueCompletions(initialState, manager, value, d.module);
                                         }
                                     }else{
-                                    	if(d.module instanceof SourceModule){
-                                    		SourceModule m = (SourceModule) d.module;
-                                    		String joined = FullRepIterable.joinFirstParts(actToks);
+                                        if(d.module instanceof SourceModule){
+                                            SourceModule m = (SourceModule) d.module;
+                                            String joined = FullRepIterable.joinFirstParts(actToks);
                                             Definition[] definitions2 = m.findDefinition(initialState.getCopyWithActTok(joined), d.line, d.col, manager.getNature());
-                                    		if(definitions2.length == 0){
-                                    			return EMPTY_ITOKEN_ARRAY;
-                                    		}
-                                    		d = definitions2[0];
-                                    		value = d.value+"."+actToks[actToks.length-1];
-                                    		if(d instanceof AssignDefinition){
-                                    			return ((SourceModule)d.module).getValueCompletions(initialState, manager, value, d.module);
-                                    		}
-                                    	}
+                                            if(definitions2.length == 0){
+                                                return EMPTY_ITOKEN_ARRAY;
+                                            }
+                                            d = definitions2[0];
+                                            value = d.value+"."+actToks[actToks.length-1];
+                                            if(d instanceof AssignDefinition){
+                                                return ((SourceModule)d.module).getValueCompletions(initialState, manager, value, d.module);
+                                            }
+                                        }
                                     }
                                     
                                 }else if ((d.ast == null && d.module != null) || d.ast instanceof ImportFrom){
@@ -607,7 +607,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @param col: starts at 1
      */
     @SuppressWarnings("unchecked")
-	public Definition[] findDefinition(ICompletionState state, int line, int col, final IPythonNature nature) throws Exception{
+    public Definition[] findDefinition(ICompletionState state, int line, int col, final IPythonNature nature) throws Exception{
         String rep = state.getActivationToken();
         //the line passed in starts at 1 and the lines for the visitor start at 0
         ArrayList<Definition> toRet = new ArrayList<Definition>();
@@ -619,23 +619,23 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         FindDefinitionModelVisitor visitor = getFindDefinitionsScopeVisitor(rep, line, col);
         
         if(visitor.definitions.size() > 0){
-        	//ok, it is an assign, so, let's get it
+            //ok, it is an assign, so, let's get it
 
             for (Iterator iter = visitor.definitions.iterator(); iter.hasNext();) {
-	            Object next = iter.next();
+                Object next = iter.next();
                 if(next instanceof AssignDefinition){
                     AssignDefinition element = (AssignDefinition) next;
-    	            if(element.target.startsWith("self") == false){
-    		            if(element.scope.isOuterOrSameScope(scopeVisitor.scope) || element.foundAsGlobal){
-    		                toRet.add(element);
-    		            }
-    	            }else{
-    		            toRet.add(element);
-    	            }
+                    if(element.target.startsWith("self") == false){
+                        if(element.scope.isOuterOrSameScope(scopeVisitor.scope) || element.foundAsGlobal){
+                            toRet.add(element);
+                        }
+                    }else{
+                        toRet.add(element);
+                    }
                 }else{
                     toRet.add((Definition) next);
                 }
-	        }
+            }
             if(toRet.size() > 0){
                 return (Definition[]) toRet.toArray(new Definition[0]);
             }
@@ -646,16 +646,16 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         //now, check for locals
         IToken[] localTokens = scopeVisitor.scope.getAllLocalTokens();
         for (IToken tok : localTokens) {
-        	if(tok.getRepresentation().equals(rep)){
-        		return new Definition[]{new Definition(tok, scopeVisitor.scope, this, true)};
-        	}
+            if(tok.getRepresentation().equals(rep)){
+                return new Definition[]{new Definition(tok, scopeVisitor.scope, this, true)};
+            }
         }
         
         //not found... check as local imports
         List<IToken> localImportedModules = scopeVisitor.scope.getLocalImportedModules(line, col, this.name);
         ICodeCompletionASTManager astManager = nature.getAstManager();
         for (IToken tok : localImportedModules) {
-        	if(tok.getRepresentation().equals(rep)){
+            if(tok.getRepresentation().equals(rep)){
                 Tuple3<IModule, String, IToken> o = astManager.findOnImportedMods(new IToken[]{tok}, state.getCopyWithActTok(rep), this.getName());
                 if(o != null && o.o1 instanceof SourceModule){
                     ICompletionState copy = state.getCopy();
@@ -664,55 +664,55 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                     findDefinitionsFromModAndTok(nature, toRet, null, (SourceModule) o.o1, copy);
                 }
                 if(toRet.size() > 0){
-                	return (Definition[]) toRet.toArray(new Definition[0]);
+                    return (Definition[]) toRet.toArray(new Definition[0]);
                 }
-        	}
+            }
         }
-        	
+            
         
         //ok, not assign nor import, let's check if it is some self (we do not check for only 'self' because that would map to a
         //local (which has already been covered).
         if (rep.startsWith("self.")){
-        	//ok, it is some self, now, that is only valid if we are in some class definition
-        	ClassDef classDef = (ClassDef) scopeVisitor.scope.getClassDef();
-        	if(classDef != null){
-        		//ok, we are in a class, so, let's get the self completions
-        		String classRep = NodeUtils.getRepresentationString(classDef);
-				IToken[] globalTokens = getGlobalTokens(
-        				new CompletionState(line-1, col-1, classRep, nature,"", state), //use the old state as the cache 
-        				astManager);
-				
-        		String withoutSelf = rep.substring(5);
-        		for (IToken token : globalTokens) {
-					if(token.getRepresentation().equals(withoutSelf)){
-						String parentPackage = token.getParentPackage();
-						IModule module = astManager.getModule(parentPackage, nature, true);
+            //ok, it is some self, now, that is only valid if we are in some class definition
+            ClassDef classDef = (ClassDef) scopeVisitor.scope.getClassDef();
+            if(classDef != null){
+                //ok, we are in a class, so, let's get the self completions
+                String classRep = NodeUtils.getRepresentationString(classDef);
+                IToken[] globalTokens = getGlobalTokens(
+                        new CompletionState(line-1, col-1, classRep, nature,"", state), //use the old state as the cache 
+                        astManager);
+                
+                String withoutSelf = rep.substring(5);
+                for (IToken token : globalTokens) {
+                    if(token.getRepresentation().equals(withoutSelf)){
+                        String parentPackage = token.getParentPackage();
+                        IModule module = astManager.getModule(parentPackage, nature, true);
                         
-						if(token instanceof SourceToken && (module != null || this.name.equals(parentPackage))){
+                        if(token instanceof SourceToken && (module != null || this.name.equals(parentPackage))){
                             if(module == null){
                                 module = this;
                             }
                             
-			                SimpleNode ast2 = ((SourceToken)token).getAst();
-							Tuple<Integer, Integer> def = getLineColForDefinition(ast2);
-							FastStack<SimpleNode> stack = new FastStack<SimpleNode>();
+                            SimpleNode ast2 = ((SourceToken)token).getAst();
+                            Tuple<Integer, Integer> def = getLineColForDefinition(ast2);
+                            FastStack<SimpleNode> stack = new FastStack<SimpleNode>();
                             if(module instanceof SourceModule){
                                 stack.push(((SourceModule)module).getAst());
                             }
-							stack.push(classDef);
-							ILocalScope scope = new LocalScope(stack);
-							return new Definition[]{new Definition(def.o1, def.o2, token.getRepresentation(), ast2, scope, module)};
+                            stack.push(classDef);
+                            ILocalScope scope = new LocalScope(stack);
+                            return new Definition[]{new Definition(def.o1, def.o2, token.getRepresentation(), ast2, scope, module)};
                             
-						}else{
-							return new Definition[0];
-						}
-					}
-				}
-        	}
+                        }else{
+                            return new Definition[0];
+                        }
+                    }
+                }
+            }
         }
         
-        	
-    	//ok, it is not an assign, so, let's search the global tokens (and imports)
+            
+        //ok, it is not an assign, so, let's search the global tokens (and imports)
         String tok = rep;
         SourceModule mod = this;
 
@@ -729,7 +729,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                 if (tok == null || tok.length() == 0 ){
                     return new Definition[]{new Definition(1,1,"",null,null,o.o1)};
                 }else{
-                	state.checkFindDefinitionMemory(o.o1, tok);
+                    state.checkFindDefinitionMemory(o.o1, tok);
                     return (Definition[]) o.o1.findDefinition(state.getCopyWithActTok(tok), -1, -1, nature);
                 }
                 
@@ -747,10 +747,10 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         ICompletionState copy = state.getCopy();
         copy.setActivationToken(tok);
         try{
-        	state.checkFindDefinitionMemory(mod, tok);
-        	findDefinitionsFromModAndTok(nature, toRet, visitor.moduleImported, mod, copy);
+            state.checkFindDefinitionMemory(mod, tok);
+            findDefinitionsFromModAndTok(nature, toRet, visitor.moduleImported, mod, copy);
         }catch(CompletionRecursionException e){
-        	//ignore (will return what we've got so far)
+            //ignore (will return what we've got so far)
 //            e.printStackTrace();
         }
             
@@ -761,45 +761,45 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * Finds the definitions for some module and a token from that module
      * @throws Exception 
      */
-	private void findDefinitionsFromModAndTok(IPythonNature nature, ArrayList<Definition> toRet, String moduleImported, SourceModule mod, ICompletionState state) throws Exception {
+    private void findDefinitionsFromModAndTok(IPythonNature nature, ArrayList<Definition> toRet, String moduleImported, SourceModule mod, ICompletionState state) throws Exception {
         String tok = state.getActivationToken();
-		if(tok != null){
-        	if(tok.length() > 0){
-	            Definition d = mod.findGlobalTokDef(state.getCopyWithActTok(tok), nature);
-				if(d != null){
-	                toRet.add(d);
-	                
-	            }else if(moduleImported != null){
-	            	//if it was found as some import (and is already stored as a dotted name), we must check for
-	            	//multiple representations in the absolute form:
-	            	//as a relative import
-	            	//as absolute import
-	            	getModuleDefinition(nature, toRet, mod, moduleImported);
-	            }
+        if(tok != null){
+            if(tok.length() > 0){
+                Definition d = mod.findGlobalTokDef(state.getCopyWithActTok(tok), nature);
+                if(d != null){
+                    toRet.add(d);
+                    
+                }else if(moduleImported != null){
+                    //if it was found as some import (and is already stored as a dotted name), we must check for
+                    //multiple representations in the absolute form:
+                    //as a relative import
+                    //as absolute import
+                    getModuleDefinition(nature, toRet, mod, moduleImported);
+                }
 
-        	}else{
-        		//we found it, but it is an empty tok (which means that what we found is the actual module).
-        		toRet.add(new Definition(1,1,"",null,null,mod)); 
-        	}
+            }else{
+                //we found it, but it is an empty tok (which means that what we found is the actual module).
+                toRet.add(new Definition(1,1,"",null,null,mod)); 
+            }
         }
-	}
+    }
 
-	private IDefinition getModuleDefinition(IPythonNature nature, ArrayList<Definition> toRet, SourceModule mod, String moduleImported) {
-		String rel = AbstractToken.makeRelative(mod.getName(), moduleImported);
-		IModule modFound = nature.getAstManager().getModule(rel, nature, false);
-		if(modFound == null){
-			modFound = nature.getAstManager().getModule(moduleImported, nature, false);
-		}
-		if(modFound != null){
-			//ok, found it
-			Definition definition = new Definition(1,1,"", null, null, modFound);
-			if(toRet != null){
-				toRet.add(definition);
-			}
-			return definition;
-		}
-		return null;
-	}
+    private IDefinition getModuleDefinition(IPythonNature nature, ArrayList<Definition> toRet, SourceModule mod, String moduleImported) {
+        String rel = AbstractToken.makeRelative(mod.getName(), moduleImported);
+        IModule modFound = nature.getAstManager().getModule(rel, nature, false);
+        if(modFound == null){
+            modFound = nature.getAstManager().getModule(moduleImported, nature, false);
+        }
+        if(modFound != null){
+            //ok, found it
+            Definition definition = new Definition(1,1,"", null, null, modFound);
+            if(toRet != null){
+                toRet.add(definition);
+            }
+            return definition;
+        }
+        return null;
+    }
 
 
     /**
@@ -810,16 +810,16 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      */
     public Definition findGlobalTokDef(ICompletionState state, IPythonNature nature) throws Exception {
         String tok = state.getActivationToken();
-    	String[] headAndTail = FullRepIterable.headAndTail(tok);
-    	String firstPart = headAndTail[0];
-    	String rep = headAndTail[1];
-    	
-    	IToken[] tokens = null;
-    	if(nature != null){
-    		tokens = nature.getAstManager().getCompletionsForModule(this, state.getCopyWithActTok(firstPart), true);
-    	}else{
-    		tokens = getGlobalTokens();
-    	}
+        String[] headAndTail = FullRepIterable.headAndTail(tok);
+        String firstPart = headAndTail[0];
+        String rep = headAndTail[1];
+        
+        IToken[] tokens = null;
+        if(nature != null){
+            tokens = nature.getAstManager().getCompletionsForModule(this, state.getCopyWithActTok(firstPart), true);
+        }else{
+            tokens = getGlobalTokens();
+        }
         for (IToken token : tokens) {
             boolean sameRep = token.getRepresentation().equals(rep);
             if(sameRep){
@@ -829,17 +829,17 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         //that it's actual definition was found
                         continue; 
                     }
-                	//ok, we found it
+                    //ok, we found it
                     SimpleNode a = ((SourceToken)token).getAst();
                     Tuple<Integer, Integer> def = getLineColForDefinition(a);
                     
                     String parentPackage = token.getParentPackage();
                     IModule module = this;
                     if(nature != null){
-                    	IModule mod = nature.getAstManager().getModule(parentPackage, nature, true);
-                    	if(mod != null){
-                    		module = mod;
-                    	}
+                        IModule mod = nature.getAstManager().getModule(parentPackage, nature, true);
+                        if(mod != null){
+                            module = mod;
+                        }
                     }
                     
                     
@@ -853,19 +853,19 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         return new Definition(def.o1, def.o2, rep, a, new LocalScope(new FastStack<SimpleNode>()), module);
                     }
                 }else if(token instanceof ConcreteToken){
-                	//a contrete token represents a module
-                	String modName = token.getParentPackage();
-                	if(modName.length() > 0){
-                		modName+= ".";
-                	}
-                	modName += token.getRepresentation();
-                	IModule module = nature.getAstManager().getModule(modName, nature, true);
-                	if(module == null){
-                		return null;
-                	}else{
-                		return new Definition(0+1, 0+1, "", null, null, module); // it is the module itself
-                	}
-                	
+                    //a contrete token represents a module
+                    String modName = token.getParentPackage();
+                    if(modName.length() > 0){
+                        modName+= ".";
+                    }
+                    modName += token.getRepresentation();
+                    IModule module = nature.getAstManager().getModule(modName, nature, true);
+                    if(module == null){
+                        return null;
+                    }else{
+                        return new Definition(0+1, 0+1, "", null, null, module); // it is the module itself
+                    }
+                    
                 }else if(token instanceof CompiledToken){
                     String parentPackage = token.getParentPackage();
                     FullRepIterable iterable = new FullRepIterable(parentPackage, true);
@@ -897,7 +897,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         throw new RuntimeException(e);
                     }
                 }else{
-                	throw new RuntimeException("Unexpected token:"+token.getClass());
+                    throw new RuntimeException("Unexpected token:"+token.getClass());
                 }
             }
         }
@@ -906,21 +906,21 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     }
     
     public Tuple<Integer, Integer> getLineColForDefinition(SimpleNode a){
-    	int line = a.beginLine;
-    	int col = a.beginColumn;
-    	
-    	if(a instanceof ClassDef){
-    		ClassDef c = (ClassDef)a;
-    		line = c.name.beginLine;
-    		col = c.name.beginColumn;
-    		
-    	} else if(a instanceof FunctionDef){
-    		FunctionDef c = (FunctionDef)a;
-    		line = c.name.beginLine;
-    		col = c.name.beginColumn;
-    	}
-    	
-    	return new Tuple<Integer, Integer>(line,col);
+        int line = a.beginLine;
+        int col = a.beginColumn;
+        
+        if(a instanceof ClassDef){
+            ClassDef c = (ClassDef)a;
+            line = c.name.beginLine;
+            col = c.name.beginColumn;
+            
+        } else if(a instanceof FunctionDef){
+            FunctionDef c = (FunctionDef)a;
+            line = c.name.beginLine;
+            col = c.name.beginColumn;
+        }
+        
+        return new Tuple<Integer, Integer>(line,col);
     }
     
     /**
@@ -930,11 +930,11 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     public IToken[] getLocalTokens(int line, int col, ILocalScope scope){
         try {
             if(scope == null){
-    	        FindScopeVisitor scopeVisitor = getScopeVisitor(line, col);
+                FindScopeVisitor scopeVisitor = getScopeVisitor(line, col);
                 scope = scopeVisitor.scope;
             }
-	        
-	        return scope.getLocalTokens(line, col, false);
+            
+            return scope.getLocalTokens(line, col, false);
         } catch (Exception e) {
             e.printStackTrace();
             return EMPTY_ITOKEN_ARRAY;
@@ -977,8 +977,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     public int findAstEnd(SimpleNode node) {
         try {
             FindScopeVisitor scopeVisitor = getScopeVisitor(node.beginLine, node.beginColumn);
-	        
-	        return scopeVisitor.scope.getScopeEndLine();
+            
+            return scopeVisitor.scope.getScopeEndLine();
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -991,8 +991,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     public int findIfMain() {
         try {
             FindScopeVisitor scopeVisitor = getScopeVisitor(-1, -1);
-	        
-	        return scopeVisitor.scope.getIfMainLine();
+            
+            return scopeVisitor.scope.getIfMainLine();
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -1018,14 +1018,14 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         return REF.getFileAbsolutePath(file).equals(REF.getFileAbsolutePath(m.file)) && this.name.equals(m.name); 
     }
 
-	public void setName(String n) {
-		this.name = n;
-	}
+    public void setName(String n) {
+        this.name = n;
+    }
 
-	/**
-	 * @return true if this is a bootstrap module (i.e.: a module that's only used to load a compiled module with the
-	 * same name -- that used in eggs)
-	 * 
+    /**
+     * @return true if this is a bootstrap module (i.e.: a module that's only used to load a compiled module with the
+     * same name -- that used in eggs)
+     * 
      * A bootstrapped module is the way that egg handles pyd files: 
      * it'll create a file with the same name of the dll (e.g.:
      * 
@@ -1040,7 +1040,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      *    imp.load_dynamic(__name__,__file__)
      * __bootstrap__()
      * 
-	 */
+     */
     public boolean isBootstrapModule() {
         if(bootstrap == null){
             IToken[] ret = getGlobalTokens();

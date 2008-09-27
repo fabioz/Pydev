@@ -29,9 +29,9 @@ public class InnerModelVisitor extends AbstractVisitor {
     private List attrsHeuristics = new ArrayList();
 
     public InnerModelVisitor(String moduleName, ICompletionState state){
-    	this.moduleName = moduleName;
+        this.moduleName = moduleName;
         attrsHeuristics.add(new HeuristicFindAttrs(HeuristicFindAttrs.WHITIN_METHOD_CALL, HeuristicFindAttrs.IN_KEYWORDS, "properties.create", moduleName, state));
-        attrsHeuristics.add(new HeuristicFindAttrs(HeuristicFindAttrs.WHITIN_ANY	    , HeuristicFindAttrs.IN_ASSIGN  , "", moduleName, state));
+        attrsHeuristics.add(new HeuristicFindAttrs(HeuristicFindAttrs.WHITIN_ANY        , HeuristicFindAttrs.IN_ASSIGN  , "", moduleName, state));
     }
     
     /**
@@ -67,8 +67,8 @@ public class InnerModelVisitor extends AbstractVisitor {
     public Object visitClassDef(ClassDef node) throws Exception {
         if(visiting == VISITING_NOTHING){
             visiting = VISITING_CLASS;
-	        node.traverse(this);
-	        
+            node.traverse(this);
+            
         }else if(visiting == VISITING_CLASS){ 
             //that's a class within the class we're visiting
             addToken(node);
@@ -99,11 +99,11 @@ public class InnerModelVisitor extends AbstractVisitor {
         if(visiting == VISITING_CLASS){
             
             //iterate heuristics to find attributes
-	        for (Iterator iter = attrsHeuristics.iterator(); iter.hasNext();) {
-	            HeuristicFindAttrs element = (HeuristicFindAttrs) iter.next();
-	            element.visitAssign(node);
-	            addElementTokens(element);
-	        }
+            for (Iterator iter = attrsHeuristics.iterator(); iter.hasNext();) {
+                HeuristicFindAttrs element = (HeuristicFindAttrs) iter.next();
+                element.visitAssign(node);
+                addElementTokens(element);
+            }
         }
         return null;
     }
@@ -115,11 +115,11 @@ public class InnerModelVisitor extends AbstractVisitor {
         if(visiting == VISITING_CLASS){
             
             //iterate heuristics to find attributes
-	        for (Iterator iter = attrsHeuristics.iterator(); iter.hasNext();) {
-	            HeuristicFindAttrs element = (HeuristicFindAttrs) iter.next();
-	            element.visitCall(node);
-	            addElementTokens(element);
-	        }
+            for (Iterator iter = attrsHeuristics.iterator(); iter.hasNext();) {
+                HeuristicFindAttrs element = (HeuristicFindAttrs) iter.next();
+                element.visitCall(node);
+                addElementTokens(element);
+            }
         }
         return null;
     }

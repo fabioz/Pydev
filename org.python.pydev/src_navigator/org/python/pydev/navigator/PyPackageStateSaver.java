@@ -24,20 +24,20 @@ import org.python.pydev.plugin.PydevPlugin;
  * This class saves and restores the expanded and selected items in the tree.
  */
 public class PyPackageStateSaver {
-	
+    
     private static final boolean DEBUG = false;
-	
+    
     private PythonModelProvider provider;
-	private Viewer viewer;
-	private IMemento memento;
+    private Viewer viewer;
+    private IMemento memento;
 
-	public PyPackageStateSaver(PythonModelProvider provider, Viewer viewer, IMemento memento) {
-		this.provider = provider;
-		this.viewer = viewer;
-		this.memento = memento;
-	}
+    public PyPackageStateSaver(PythonModelProvider provider, Viewer viewer, IMemento memento) {
+        this.provider = provider;
+        this.viewer = viewer;
+        this.memento = memento;
+    }
 
-	public void restoreState() {
+    public void restoreState() {
         try{
             if(!(viewer instanceof PydevCommonViewer) || memento == null){
                 //we have to check that because we can be asked to restore things in the ProjectExplorer too, and not
@@ -53,13 +53,13 @@ public class PyPackageStateSaver {
             
             //we have to restore it only at the 'right' time... see https://bugs.eclipse.org/bugs/show_bug.cgi?id=195184 for more details
             if(!treeViewer.availableToRestoreMemento){
-            	if(DEBUG){
-            		System.out.println("Not available for restore");
-            	}
-            	return;
+                if(DEBUG){
+                    System.out.println("Not available for restore");
+                }
+                return;
             }
             if(DEBUG){
-            	System.out.println("Restoring");
+                System.out.println("Restoring");
             }
             
             IMemento[] expanded = memento.getChildren("expanded");
@@ -84,10 +84,10 @@ public class PyPackageStateSaver {
                 Object resource = getResourceFromPath(root, m);
                 
                 if(resource != null){
-                	treeViewer.expandToLevel(resource, 1);
-                	if(DEBUG){
-                	    System.out.println("Selecting:"+resource);
-                	}
+                    treeViewer.expandToLevel(resource, 1);
+                    if(DEBUG){
+                        System.out.println("Selecting:"+resource);
+                    }
                     paths.add(new TreePath(getCompletPath(resource).toArray()));
                 }
             }
@@ -98,45 +98,45 @@ public class PyPackageStateSaver {
         }
     }
 
-	/**
-	 * This method will get the complete path in the tree for a resource (or wrapped resource)
-	 */
+    /**
+     * This method will get the complete path in the tree for a resource (or wrapped resource)
+     */
     private ArrayList<Object> getCompletPath(Object resource) {
-    	int max = 100; // cannot have more than 100 levels... ok? (this is just a 'safeguard')
-    	int i=0;
-		ArrayList<Object> ret = new ArrayList<Object>();
-		ret.add(0, resource);
-		
-		while(true){
-			i++;
-			if(i > max){
-				return new ArrayList<Object>();//something strange happened...
-				
-			}else if(resource instanceof IProject || resource instanceof IWorkspaceRoot || resource instanceof IWorkingSet){
-				break;
-				
-			}else if(resource instanceof IWrappedResource){
-				IWrappedResource w = (IWrappedResource) resource;
-				resource = w.getParentElement();
-				if(resource == null){
-					break;
-				}
-				ret.add(0, resource);
-				
-			}else if(resource instanceof IResource){
-				IResource r = (IResource) resource;
-				resource = r.getParent();
-				if(resource == null){
-					break;
-				}
-				ret.add(0, resource);
-			}
-		}
-		
-		return ret;
-	}
+        int max = 100; // cannot have more than 100 levels... ok? (this is just a 'safeguard')
+        int i=0;
+        ArrayList<Object> ret = new ArrayList<Object>();
+        ret.add(0, resource);
+        
+        while(true){
+            i++;
+            if(i > max){
+                return new ArrayList<Object>();//something strange happened...
+                
+            }else if(resource instanceof IProject || resource instanceof IWorkspaceRoot || resource instanceof IWorkingSet){
+                break;
+                
+            }else if(resource instanceof IWrappedResource){
+                IWrappedResource w = (IWrappedResource) resource;
+                resource = w.getParentElement();
+                if(resource == null){
+                    break;
+                }
+                ret.add(0, resource);
+                
+            }else if(resource instanceof IResource){
+                IResource r = (IResource) resource;
+                resource = r.getParent();
+                if(resource == null){
+                    break;
+                }
+                ret.add(0, resource);
+            }
+        }
+        
+        return ret;
+    }
 
-	private Object getResourceFromPath(IWorkspaceRoot root, IMemento m) {
+    private Object getResourceFromPath(IWorkspaceRoot root, IMemento m) {
         IPath path = Path.fromPortableString(m.getID());
         IResource resource = root.getFileForLocation(path);
         if(resource == null || !resource.exists()){

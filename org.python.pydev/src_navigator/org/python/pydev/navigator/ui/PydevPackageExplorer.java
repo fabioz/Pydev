@@ -43,17 +43,17 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
     /**
      * This viewer is the one used instead of the common viewer -- should only be used to fix failures in the base class.
      */
-	public static class PydevCommonViewer extends CommonViewer {
-		
-		/**
-		 * This is used so that we only restore the memento in the 'right' place
-		 */
-		public boolean availableToRestoreMemento = false;
-		
-		public PydevCommonViewer(String id, Composite parent, int style) {
-			super(id, parent, style);
-		}
-		
+    public static class PydevCommonViewer extends CommonViewer {
+        
+        /**
+         * This is used so that we only restore the memento in the 'right' place
+         */
+        public boolean availableToRestoreMemento = false;
+        
+        public PydevCommonViewer(String id, Composite parent, int style) {
+            super(id, parent, style);
+        }
+        
         /**
          * Returns the tree path for the given item.
          * 
@@ -74,20 +74,20 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
             }
             return new TreePath(segments.toArray());
         }
-	}
+    }
 
     /**
      * This is the memento to be used.
      */
-	private IMemento memento;
+    private IMemento memento;
 
     /**
      * Overridden to keep the memento to be used later (it's private in the superclass).
      */
-	public void init(IViewSite aSite, IMemento aMemento) throws PartInitException {
-		super.init(aSite, aMemento);
-		memento = aMemento;
-	}
+    public void init(IViewSite aSite, IMemento aMemento) throws PartInitException {
+        super.init(aSite, aMemento);
+        memento = aMemento;
+    }
 
     /**
      * Overridden to create our viewer and not the superclass CommonViewer.
@@ -95,118 +95,118 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
      * (Unfortunately, the superclass does a little more than creating it, so, we have to do those operations here 
      * too -- that's why we have to keep the memento object in the init method).
      */
-	@Override
-	protected CommonViewer createCommonViewer(Composite aParent) {
+    @Override
+    protected CommonViewer createCommonViewer(Composite aParent) {
         //super.createCommonViewer(aParent); -- don't even call the super class
-		CommonViewer aViewer = new PydevCommonViewer(getViewSite().getId(), aParent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		initListeners(aViewer);
-		
-		//commented: we do that only after the part is completely created (because otherwise the state is reverted later)
-		//aViewer.getNavigatorContentService().restoreState(memento);
-		
-		return aViewer;
-	}
+        CommonViewer aViewer = new PydevCommonViewer(getViewSite().getId(), aParent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+        initListeners(aViewer);
+        
+        //commented: we do that only after the part is completely created (because otherwise the state is reverted later)
+        //aViewer.getNavigatorContentService().restoreState(memento);
+        
+        return aViewer;
+    }
 
-	/**
-	 * Overridden because if the state is not restored as the last thing, it is reverted back to the previous state.
-	 */
-	@Override
-	public void createPartControl(Composite aParent) {
-	    super.createPartControl(aParent);
-	    PydevCommonViewer viewer = (PydevCommonViewer) getCommonViewer();
-	    viewer.availableToRestoreMemento = true;
-	    for(int i=0;i<3;i++){
-			try {
-			    //I don't know why the 1st time we restore it it doesn't work... so, we have to do it twice 
-			    //(and the other 1 is because we may have an exception in the 1st step).
-				viewer.getNavigatorContentService().restoreState(memento);
-			} catch (Exception e1) {
-				if(i>1){
-					PydevPlugin.log("Unable to restore the state of the Pydev Package Explorer.", e1);
-				}
-			}
-		}
-	}
-	
-	/**
-	 * Returns the element contained in the EditorInput
-	 */
-	Object getElementOfInput(IEditorInput input) {
-		if (input instanceof IFileEditorInput) {
-			return ((IFileEditorInput) input).getFile();
-		}
-		return null;
-	}
+    /**
+     * Overridden because if the state is not restored as the last thing, it is reverted back to the previous state.
+     */
+    @Override
+    public void createPartControl(Composite aParent) {
+        super.createPartControl(aParent);
+        PydevCommonViewer viewer = (PydevCommonViewer) getCommonViewer();
+        viewer.availableToRestoreMemento = true;
+        for(int i=0;i<3;i++){
+            try {
+                //I don't know why the 1st time we restore it it doesn't work... so, we have to do it twice 
+                //(and the other 1 is because we may have an exception in the 1st step).
+                viewer.getNavigatorContentService().restoreState(memento);
+            } catch (Exception e1) {
+                if(i>1){
+                    PydevPlugin.log("Unable to restore the state of the Pydev Package Explorer.", e1);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Returns the element contained in the EditorInput
+     */
+    Object getElementOfInput(IEditorInput input) {
+        if (input instanceof IFileEditorInput) {
+            return ((IFileEditorInput) input).getFile();
+        }
+        return null;
+    }
 
-	/**
-	 * Implements the 'show in...' action
-	 */
-	public boolean show(ShowInContext context) {
-		Object elementOfInput = null;
-		ISelection selection = context.getSelection();
-		if (selection instanceof IStructuredSelection) {
-			IStructuredSelection structuredSelection = ((IStructuredSelection) selection);
-			if (structuredSelection.size() == 1) {
-				elementOfInput = structuredSelection.getFirstElement();
-			}
-		}
+    /**
+     * Implements the 'show in...' action
+     */
+    public boolean show(ShowInContext context) {
+        Object elementOfInput = null;
+        ISelection selection = context.getSelection();
+        if (selection instanceof IStructuredSelection) {
+            IStructuredSelection structuredSelection = ((IStructuredSelection) selection);
+            if (structuredSelection.size() == 1) {
+                elementOfInput = structuredSelection.getFirstElement();
+            }
+        }
 
-		Object input = context.getInput();
-		if (input instanceof IEditorInput) {
-			elementOfInput = getElementOfInput((IEditorInput) context.getInput());
-		}
+        Object input = context.getInput();
+        if (input instanceof IEditorInput) {
+            elementOfInput = getElementOfInput((IEditorInput) context.getInput());
+        }
 
-		return elementOfInput != null && tryToReveal(elementOfInput);
-	}
-	
+        return elementOfInput != null && tryToReveal(elementOfInput);
+    }
+    
     /**
      * This is the method that actually tries to reveal some item in the tree.
      * 
      * It will go through the pipeline to see if the actual object to reveal has been replaced in the replace pipeline.
      */
-	public boolean tryToReveal(Object element) {
-		element = getPythonModelElement(element);
-		
+    public boolean tryToReveal(Object element) {
+        element = getPythonModelElement(element);
+        
         
         //null is checked in the revealAndVerify function
-		if (revealAndVerify(element)) {
-			return true;
-		}
+        if (revealAndVerify(element)) {
+            return true;
+        }
 
         //if it is a wrapped resource that we couldn't show, try to reveal as a resource...
-		if (element instanceof IAdaptable && !(element instanceof IResource)) {
-			IAdaptable adaptable = (IAdaptable) element;
-			IResource resource = (IResource) adaptable.getAdapter(IResource.class);
-			if (resource != null) {
-				if (revealAndVerify(resource)){
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+        if (element instanceof IAdaptable && !(element instanceof IResource)) {
+            IAdaptable adaptable = (IAdaptable) element;
+            IResource resource = (IResource) adaptable.getAdapter(IResource.class);
+            if (resource != null) {
+                if (revealAndVerify(resource)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
-	/**
-	 * @param element the element that should be gotten as an element from the pydev model
-	 * @return a pydev element or the same element passed as a parameter.
-	 */
+    /**
+     * @param element the element that should be gotten as an element from the pydev model
+     * @return a pydev element or the same element passed as a parameter.
+     */
     private Object getPythonModelElement(Object element) {
         if(element instanceof IWrappedResource){
             return element;
         }
         INavigatorPipelineService pipelineService = this.getNavigatorContentService().getPipelineService();
-		if(element instanceof IAdaptable){
-			IAdaptable adaptable = (IAdaptable) element;
-			IFile file = (IFile) adaptable.getAdapter(IFile.class);
-			if(file != null){
-				HashSet<Object> files = new ContributorTrackingSet((NavigatorContentService) this.getNavigatorContentService());
-				files.add(file);
-				pipelineService.interceptAdd(new PipelinedShapeModification(file.getParent(), files));
-				if(files.size() > 0){
-					element = files.iterator().next();
-				}
-			}
-		}
+        if(element instanceof IAdaptable){
+            IAdaptable adaptable = (IAdaptable) element;
+            IFile file = (IFile) adaptable.getAdapter(IFile.class);
+            if(file != null){
+                HashSet<Object> files = new ContributorTrackingSet((NavigatorContentService) this.getNavigatorContentService());
+                files.add(file);
+                pipelineService.interceptAdd(new PipelinedShapeModification(file.getParent(), files));
+                if(files.size() > 0){
+                    element = files.iterator().next();
+                }
+            }
+        }
         return element;
     }
     

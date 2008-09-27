@@ -25,13 +25,13 @@ public class ParsedItemTest extends PyParserTestBase {
     public void testParsedItemCreation() throws Exception {
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
-        		"class Foo(object):\n" +
-        		"    def m1(self):\n" +
-        		"        pass\n" +
-        		"        #--- comm method\n" +
-        		"    #--- comm class\n" +
-        		"#--- comm module\n" +
-        		"";
+                "class Foo(object):\n" +
+                "    def m1(self):\n" +
+                "        pass\n" +
+                "        #--- comm method\n" +
+                "    #--- comm class\n" +
+                "#--- comm module\n" +
+                "";
         
         SimpleNode node = parseLegalDocStr(str);
         

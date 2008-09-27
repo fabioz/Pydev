@@ -16,13 +16,13 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class JythonTabGroup extends AbstractLaunchConfigurationTabGroup {
     
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.debug.ui.ILaunchConfigurationTabGroup#createTabs(org.eclipse.debug.ui.ILaunchConfigurationDialog, java.lang.String)
-	 */
+    /*
+     * (non-Javadoc)
+     * @see org.eclipse.debug.ui.ILaunchConfigurationTabGroup#createTabs(org.eclipse.debug.ui.ILaunchConfigurationDialog, java.lang.String)
+     */
     public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
         ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
-        	new MainModuleTab(),
+            new MainModuleTab(),
             new ArgumentsTab(),
             new InterpreterTab(PydevPlugin.getJythonInterpreterManager()),
             new RefreshTab(),

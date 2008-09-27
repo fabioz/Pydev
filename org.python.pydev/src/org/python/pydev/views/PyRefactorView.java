@@ -118,9 +118,9 @@ public class PyRefactorView extends ViewPart implements IPropertyListener,
 
                 File realFile = new File(obj.toString());
                 if (realFile.exists()) {
-					ItemPointer p = new ItemPointer(realFile, new Location(-1, -1), null);
-					new PyOpenAction().run(p);
-				}
+                    ItemPointer p = new ItemPointer(realFile, new Location(-1, -1), null);
+                    new PyOpenAction().run(p);
+                }
             }
         };
         viewer.addDoubleClickListener(new IDoubleClickListener() {

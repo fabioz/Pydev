@@ -60,7 +60,7 @@ public class CompiledModule extends AbstractModule{
     
     @Override
     public File getFile() {
-    	return file;
+        return file;
     }
 
     /**
@@ -79,30 +79,30 @@ public class CompiledModule extends AbstractModule{
     public CompiledModule(String name, int tokenTypes, ICodeCompletionASTManager manager){
         super(name);
         if(COMPILED_MODULES_ENABLED){
-	        try {
-	            setTokens(name, manager);
-	        } catch (Exception e) {
-	        	//ok, something went wrong... let's give it another shot...
-	        	synchronized (this) {
-	        		try {
-						wait(10);
-					} catch (InterruptedException e1) {
-						//empty block
-					} //just wait a little before a retry...
-				}
-				
-	        	try {
-	        		AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
-	        		synchronized(shell){
-	        			shell.clearSocket();
-	        		}
-					setTokens(name, manager);
-				} catch (Exception e2) {
-					tokens = new HashMap<String, CompiledToken>();
-					e2.printStackTrace();
-					PydevPlugin.log(e2);
-				}
-	        }
+            try {
+                setTokens(name, manager);
+            } catch (Exception e) {
+                //ok, something went wrong... let's give it another shot...
+                synchronized (this) {
+                    try {
+                        wait(10);
+                    } catch (InterruptedException e1) {
+                        //empty block
+                    } //just wait a little before a retry...
+                }
+                
+                try {
+                    AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
+                    synchronized(shell){
+                        shell.clearSocket();
+                    }
+                    setTokens(name, manager);
+                } catch (Exception e2) {
+                    tokens = new HashMap<String, CompiledToken>();
+                    e2.printStackTrace();
+                    PydevPlugin.log(e2);
+                }
+            }
             if(tokens != null && tokens.size() > 0){
                 List<IModulesObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_MODULES_OBSERVER);
                 for (IModulesObserver observer : participants) {
@@ -116,12 +116,12 @@ public class CompiledModule extends AbstractModule{
 
     }
 
-	private void setTokens(String name, ICodeCompletionASTManager manager) throws IOException, Exception, CoreException {
-		if(TRACE_COMPILED_MODULES){
-			PydevPlugin.log(IStatus.INFO, "Compiled modules: getting info for:"+name, null);
-		}
-		AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
-		synchronized(shell){
+    private void setTokens(String name, ICodeCompletionASTManager manager) throws IOException, Exception, CoreException {
+        if(TRACE_COMPILED_MODULES){
+            PydevPlugin.log(IStatus.INFO, "Compiled modules: getting info for:"+name, null);
+        }
+        AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
+        synchronized(shell){
             Tuple<String, List<String[]>> completions = shell.getImportCompletions(name, manager.getModulesManager().getCompletePythonPath(null)); //default
             String fPath = completions.o1;
             if(!fPath.equals("None")){
@@ -136,54 +136,54 @@ public class CompiledModule extends AbstractModule{
                     this.file = f2;
                 }
             }
-		    ArrayList<IToken> array = new ArrayList<IToken>();
-		    
-		    for (Iterator iter = completions.o2.iterator(); iter.hasNext();) {
-		        String[] element = (String[]) iter.next();
-		        //let's make this less error-prone.
-		        try {
-		            String o1 = element[0]; //this one is really, really needed
-		            String o2 = "";
-		            String o3 = "";
-		            String o4;
-		            
-		            if(element.length > 0)
-		                o2 = element[1];
-		            
-		            if(element.length > 0)
-		                o3 = element[2];
-		            
-		            if(element.length > 0)
-		                o4 = element[3];
-		            else
-		                o4 = ""+IToken.TYPE_BUILTIN;
-		            
-		            IToken t = new CompiledToken(o1, o2, o3, name, Integer.parseInt(o4));
-		            array.add(t);
-		        } catch (Exception e) {
-		            String received = "";
-		            for (int i = 0; i < element.length; i++) {
-		                received += element[i];
-		                received += "  ";
-		            }
-		            
-		            PydevPlugin.log(IStatus.ERROR, "Error getting completions for compiled module "+name+" received = '"+received+"'", e);
-		        }
-		    }
-		    
-		    //as we will use it for code completion on sources that map to modules, the __file__ should also
-		    //be added...
-		    if(array.size() > 0 && name.equals("__builtin__")){
-		        array.add(new CompiledToken("__file__","","",name,IToken.TYPE_BUILTIN));
-		        array.add(new CompiledToken("__builtins__","","",name,IToken.TYPE_BUILTIN));
-		    }
-		    
-		    this.tokens = new HashMap<String, CompiledToken>();
-		    for (IToken token : array) {
-		    	this.tokens.put(token.getRepresentation(), (CompiledToken) token);
-			} 
-		}
-	}
+            ArrayList<IToken> array = new ArrayList<IToken>();
+            
+            for (Iterator iter = completions.o2.iterator(); iter.hasNext();) {
+                String[] element = (String[]) iter.next();
+                //let's make this less error-prone.
+                try {
+                    String o1 = element[0]; //this one is really, really needed
+                    String o2 = "";
+                    String o3 = "";
+                    String o4;
+                    
+                    if(element.length > 0)
+                        o2 = element[1];
+                    
+                    if(element.length > 0)
+                        o3 = element[2];
+                    
+                    if(element.length > 0)
+                        o4 = element[3];
+                    else
+                        o4 = ""+IToken.TYPE_BUILTIN;
+                    
+                    IToken t = new CompiledToken(o1, o2, o3, name, Integer.parseInt(o4));
+                    array.add(t);
+                } catch (Exception e) {
+                    String received = "";
+                    for (int i = 0; i < element.length; i++) {
+                        received += element[i];
+                        received += "  ";
+                    }
+                    
+                    PydevPlugin.log(IStatus.ERROR, "Error getting completions for compiled module "+name+" received = '"+received+"'", e);
+                }
+            }
+            
+            //as we will use it for code completion on sources that map to modules, the __file__ should also
+            //be added...
+            if(array.size() > 0 && name.equals("__builtin__")){
+                array.add(new CompiledToken("__file__","","",name,IToken.TYPE_BUILTIN));
+                array.add(new CompiledToken("__builtins__","","",name,IToken.TYPE_BUILTIN));
+            }
+            
+            this.tokens = new HashMap<String, CompiledToken>();
+            for (IToken token : array) {
+                this.tokens.put(token.getRepresentation(), (CompiledToken) token);
+            } 
+        }
+    }
     
     /**
      * Compiled modules do not have imports to be seen
@@ -205,12 +205,12 @@ public class CompiledModule extends AbstractModule{
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getGlobalTokens()
      */
     public IToken[] getGlobalTokens() {
-    	if(tokens == null){
-    		return new IToken[0];
-    	}
-    	
+        if(tokens == null){
+            return new IToken[0];
+        }
+        
         Collection<CompiledToken> values = tokens.values();
-		return values.toArray(new IToken[values.size()]);
+        return values.toArray(new IToken[values.size()]);
     }
 
     /**
@@ -224,53 +224,53 @@ public class CompiledModule extends AbstractModule{
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
     public IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
-    	Map<String, IToken> v = cache.get(state.getActivationToken());
+        Map<String, IToken> v = cache.get(state.getActivationToken());
         if(v != null){
-        	Collection<IToken> values = v.values();
+            Collection<IToken> values = v.values();
             return values.toArray(new IToken[values.size()]);
         }
         
         IToken[] toks = new IToken[0];
 
         if(COMPILED_MODULES_ENABLED){
-	        try {
-	            AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
-	            synchronized(shell){
-		            String act = name+"."+state.getActivationToken();
+            try {
+                AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
+                synchronized(shell){
+                    String act = name+"."+state.getActivationToken();
                     List<String[]> completions = shell.getImportCompletions(act, manager.getModulesManager().getCompletePythonPath(null)).o2;//default
-		            
-		            ArrayList<IToken> array = new ArrayList<IToken>();
-		            
-		            for (Iterator iter = completions.iterator(); iter.hasNext();) {
-		                String[] element = (String[]) iter.next(); 
-		                if(element.length >= 4){//it might be a server error
-		                    IToken t = new CompiledToken(element[0], element[1], element[2], act, Integer.parseInt(element[3]));
-			                array.add(t);
-		                }
-		                
-		            }
-		            toks = (CompiledToken[]) array.toArray(new CompiledToken[0]);
-		            HashMap<String, IToken> map = new HashMap<String, IToken>();
-		            for (IToken token : toks) {
-		            	map.put(token.getRepresentation(), token);
-					}
-					cache.put(state.getActivationToken(), map);
-	            }
-	        } catch (Exception e) {
-	        	System.err.println("Error while getting info for module:"+this.name);
-	            e.printStackTrace();
-	            PydevPlugin.log(e);
-	        }
+                    
+                    ArrayList<IToken> array = new ArrayList<IToken>();
+                    
+                    for (Iterator iter = completions.iterator(); iter.hasNext();) {
+                        String[] element = (String[]) iter.next(); 
+                        if(element.length >= 4){//it might be a server error
+                            IToken t = new CompiledToken(element[0], element[1], element[2], act, Integer.parseInt(element[3]));
+                            array.add(t);
+                        }
+                        
+                    }
+                    toks = (CompiledToken[]) array.toArray(new CompiledToken[0]);
+                    HashMap<String, IToken> map = new HashMap<String, IToken>();
+                    for (IToken token : toks) {
+                        map.put(token.getRepresentation(), token);
+                    }
+                    cache.put(state.getActivationToken(), map);
+                }
+            } catch (Exception e) {
+                System.err.println("Error while getting info for module:"+this.name);
+                e.printStackTrace();
+                PydevPlugin.log(e);
+            }
         }
         return toks;
     }
     
     @Override
     public boolean isInDirectGlobalTokens(String tok, ICompletionCache completionCache) {
-    	if(this.tokens != null){
-    		return this.tokens.containsKey(tok);
-    	}
-    	return false;
+        if(this.tokens != null){
+            return this.tokens.containsKey(tok);
+        }
+        return false;
     }
     
     @Override
@@ -357,13 +357,13 @@ public class CompiledModule extends AbstractModule{
             }
             int foundCol = def.o2[1];
             if(foundCol < 0){
-            	foundCol = 0;
+                foundCol = 0;
             }
             if(TRACE_COMPILED_MODULES){
                 System.out.println("CompiledModule.findDefinition: found compiled at:"+mod.getName());
             }
-			Definition[] definitions = new Definition[]{new Definition(foundLine+1, foundCol+1, token, null, null, mod)};
-			this.definitionsFoundCache.add(token, definitions);
+            Definition[] definitions = new Definition[]{new Definition(foundLine+1, foundCol+1, token, null, null, mod)};
+            this.definitionsFoundCache.add(token, definitions);
             return definitions;
         }
     }

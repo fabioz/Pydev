@@ -27,24 +27,24 @@ import org.python.pydev.plugin.PydevPrefs;
 public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage{
 
 
-	/**
-	 * Initializer sets the preference store
-	 */
-	public SourceLocatorPrefsPage() {
-		super("Source locator", GRID);
-		setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
-	}
+    /**
+     * Initializer sets the preference store
+     */
+    public SourceLocatorPrefsPage() {
+        super("Source locator", GRID);
+        setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
+    }
 
-	public void init(IWorkbench workbench) {
-	}
-	
-	
-	/**
-	 * Creates the editors
-	 */
-	@SuppressWarnings("unchecked")
+    public void init(IWorkbench workbench) {
+    }
+    
+    
+    /**
+     * Creates the editors
+     */
+    @SuppressWarnings("unchecked")
     protected void createFieldEditors() {
-		Composite p = getFieldEditorParent();
+        Composite p = getFieldEditorParent();
         addField(new TableEditor(PydevPrefs.SOURCE_LOCATION_PATHS, "Translation paths to use:", p){
 
             @Override
@@ -55,16 +55,16 @@ public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements
             @Override
             protected String[] getNewInputObject() {
                 InputDialog d = new InputDialog(getShell(), "New entry", 
-                	"Add the entry in the format path_to_replace,new_path or path,DONTASK.", "", 
-                	new IInputValidator(){
-		            	public String isValid(String newText) {
-		            		String[] splitted = StringUtils.split(newText, ',');
-		            		if(splitted.length != 2){
-		            			return "Input must have 2 paths separated by a comma.";
-		            		}
-							return PySourceLocatorPrefs.isValid(splitted);
-		            	}
-            		}
+                    "Add the entry in the format path_to_replace,new_path or path,DONTASK.", "", 
+                    new IInputValidator(){
+                        public String isValid(String newText) {
+                            String[] splitted = StringUtils.split(newText, ',');
+                            if(splitted.length != 2){
+                                return "Input must have 2 paths separated by a comma.";
+                            }
+                            return PySourceLocatorPrefs.isValid(splitted);
+                        }
+                    }
                 );
 
                 int retCode = d.open();
@@ -87,16 +87,16 @@ public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements
                 layoutData.heightHint = 300;
             }
         });
-	}
+    }
 
-	
+    
 
-	/**
-	 * Sets default preference values
-	 */
-	protected void initializeDefaultPreferences(Preferences prefs) {
-	}
-	
+    /**
+     * Sets default preference values
+     */
+    protected void initializeDefaultPreferences(Preferences prefs) {
+    }
+    
 
 }
 

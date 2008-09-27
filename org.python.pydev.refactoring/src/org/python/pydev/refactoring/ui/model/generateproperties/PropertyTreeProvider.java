@@ -18,45 +18,45 @@ import org.python.pydev.refactoring.ui.model.tree.ITreeNode;
 
 public class PropertyTreeProvider implements ITreeContentProvider {
 
-	private List<IClassDefAdapter> adapters;
+    private List<IClassDefAdapter> adapters;
 
-	public PropertyTreeProvider(List<IClassDefAdapter> adapters) {
-		this.adapters = adapters;
-	}
+    public PropertyTreeProvider(List<IClassDefAdapter> adapters) {
+        this.adapters = adapters;
+    }
 
-	public Object[] getChildren(Object parentElement) {
-		if (parentElement instanceof ITreeNode) {
-			return ((ITreeNode) parentElement).getChildren();
-		}
-		return null;
-	}
+    public Object[] getChildren(Object parentElement) {
+        if (parentElement instanceof ITreeNode) {
+            return ((ITreeNode) parentElement).getChildren();
+        }
+        return null;
+    }
 
-	public Object getParent(Object element) {
-		return null;
-	}
+    public Object getParent(Object element) {
+        return null;
+    }
 
-	public boolean hasChildren(Object element) {
-		if (element instanceof ITreeNode) {
-			ITreeNode node = (ITreeNode) element;
-			return node.hasChildren();
-		}
-		return false;
-	}
+    public boolean hasChildren(Object element) {
+        if (element instanceof ITreeNode) {
+            ITreeNode node = (ITreeNode) element;
+            return node.hasChildren();
+        }
+        return false;
+    }
 
-	public Object[] getElements(Object inputElement) {
-		Collection<TreeClassNode> elements = new ArrayList<TreeClassNode>();
-		for (IClassDefAdapter elem : adapters) {
-			if (elem.hasAttributes()) {
-				elements.add(new TreeClassNode(elem));
-			}
-		}
-		return elements.toArray();
-	}
+    public Object[] getElements(Object inputElement) {
+        Collection<TreeClassNode> elements = new ArrayList<TreeClassNode>();
+        for (IClassDefAdapter elem : adapters) {
+            if (elem.hasAttributes()) {
+                elements.add(new TreeClassNode(elem));
+            }
+        }
+        return elements.toArray();
+    }
 
-	public void dispose() {
-	}
+    public void dispose() {
+    }
 
-	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-	}
+    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+    }
 
 }

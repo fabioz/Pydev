@@ -14,15 +14,15 @@ import org.python.pydev.parser.jython.SimpleNode;
  * modelChanged is generated every time document is parsed successfully
  */
 public interface IModelListener {
-	/**
-	 * every time document gets parsed, it generates a new parse tree
-	 * @param root - the root of the new model
-	 */
-	void modelChanged(SimpleNode root);
+    /**
+     * every time document gets parsed, it generates a new parse tree
+     * @param root - the root of the new model
+     */
+    void modelChanged(SimpleNode root);
 
     /**
      * Every time the document changes its error state, it generates this notification
      */
-	void errorChanged(ErrorDescription errorDesc);
+    void errorChanged(ErrorDescription errorDesc);
 
 }

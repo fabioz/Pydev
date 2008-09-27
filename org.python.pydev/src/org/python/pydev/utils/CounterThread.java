@@ -9,39 +9,39 @@ import org.python.pydev.core.log.Log;
  *
  */
 public class CounterThread extends Thread{
-	private ICallback callback;
-	private int elapseTime;
-	private int stopWhenReaches;
+    private ICallback callback;
+    private int elapseTime;
+    private int stopWhenReaches;
 
-	/**
-	 * @param callback the callback that should be called whenever the time elapses (it passes an int, that
-	 * says which call is this one).
-	 * @param elapseTime this is the millis that should elapse between the calls
-	 * @param stopWhenReaches this is the number of times that it should be called
-	 */
-	public CounterThread(ICallback callback, int elapseTime, int stopWhenReaches){
-		this.callback      = callback;       
-		this.elapseTime    = elapseTime;    
-		this.stopWhenReaches = stopWhenReaches;
+    /**
+     * @param callback the callback that should be called whenever the time elapses (it passes an int, that
+     * says which call is this one).
+     * @param elapseTime this is the millis that should elapse between the calls
+     * @param stopWhenReaches this is the number of times that it should be called
+     */
+    public CounterThread(ICallback callback, int elapseTime, int stopWhenReaches){
+        this.callback      = callback;       
+        this.elapseTime    = elapseTime;    
+        this.stopWhenReaches = stopWhenReaches;
         setName("Callback (CounterThread)");
-	}
-	
-	@Override
-	public void run() {
-		try {
-			for (int i = 0; i < stopWhenReaches; i++) {
-				try {
-					sleep(elapseTime);
-					callback.call(i);
-				} catch (Exception e) {
-					Log.log(e);
-					return;
-				}
-			}
-			
-		} catch (Exception e) {
-			Log.log(e);
-			return;
-		}
-	}
+    }
+    
+    @Override
+    public void run() {
+        try {
+            for (int i = 0; i < stopWhenReaches; i++) {
+                try {
+                    sleep(elapseTime);
+                    callback.call(i);
+                } catch (Exception e) {
+                    Log.log(e);
+                    return;
+                }
+            }
+            
+        } catch (Exception e) {
+            Log.log(e);
+            return;
+        }
+    }
 }

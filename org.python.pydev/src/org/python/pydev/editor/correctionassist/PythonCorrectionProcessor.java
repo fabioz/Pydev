@@ -44,32 +44,32 @@ import org.python.pydev.plugin.PydevPlugin;
  * class C:
  * 
  * def __init__(self, param): 
- * 	    self.newMethod()<- create new method on class C  (with params if needed)
- * 						<- assign result to new local variable 
- * 						<- assign result to new field 
+ *         self.newMethod()<- create new method on class C  (with params if needed)
+ *                         <- assign result to new local variable 
+ *                         <- assign result to new field 
  * 
- * 		a = A()
- * 		a.newMethod()   <- create new method on class A 
- * 						<- assign result to new local variable 
- * 						<- assign result to new field
+ *         a = A()
+ *         a.newMethod()   <- create new method on class A 
+ *                         <- assign result to new local variable 
+ *                         <- assign result to new field
  * 
- * 		param.b() <- don't show anything.
+ *         param.b() <- don't show anything.
  * 
- * 		self.a1 = A() 
- * 		self.a1.newMethod() <- create new method on class A (difficult part is discovering class)
- * 							<- assign result to new local variable 
- * 							<- assign result to new field
+ *         self.a1 = A() 
+ *         self.a1.newMethod() <- create new method on class A (difficult part is discovering class)
+ *                             <- assign result to new local variable 
+ *                             <- assign result to new field
  * 
- * 		def m(self): 
- * 			self.a1.newMethod() <- create new method on class A 
- * 								<- assign result to new local variable 
- * 								<- assign result to new field
+ *         def m(self): 
+ *             self.a1.newMethod() <- create new method on class A 
+ *                                 <- assign result to new local variable 
+ *                                 <- assign result to new field
  * 
- * 			import compiler	<- move import to global context
- * 			NewClass() <- Create class NewClass (Depends on new class wizard)
+ *             import compiler    <- move import to global context
+ *             NewClass() <- Create class NewClass (Depends on new class wizard)
  *
- * 	   a() <-- make this a new method in this class 
- *                       																				 
+ *        a() <-- make this a new method in this class 
+ *                                                                                                        
  * @author Fabio Zadrozny
  */
 public class PythonCorrectionProcessor implements IQuickAssistProcessor {
@@ -171,45 +171,45 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
 
         
         try{
-	        //handling spelling... (we only want to show spelling fixes if a spell problem annotation is found at the current location).
-	        //we'll only show some spelling proposal if there's some spelling problem (so, we don't have to check the preferences at this place,
-	        //as no annotations on spelling will be here if the spelling is not enabled). 
-	        ICompletionProposal[] spellProps = null;
-	        
-	        IAnnotationModel annotationModel = edit.getPySourceViewer().getAnnotationModel();
-	        Iterator it = annotationModel.getAnnotationIterator();
-	        while(it.hasNext()){
-	            Object annotation = it.next();
-	            if(annotation instanceof SpellingAnnotation){
-	                SpellingAnnotation spellingAnnotation = (SpellingAnnotation) annotation;
-	                SpellingProblem spellingProblem = spellingAnnotation.getSpellingProblem();
-	                
-	                int problemOffset = spellingProblem.getOffset();
-	                int problemLen = spellingProblem.getLength();
-	                if(problemOffset <= offset && problemOffset+problemLen >= offset){
-	                    SpellingCorrectionProcessor spellingCorrectionProcessor = new SpellingCorrectionProcessor();
-	                    spellProps = spellingCorrectionProcessor.computeQuickAssistProposals(invocationContext);
-	                    break;
-	                }
-	            }
-	        }
-	        
-	        
-	
-	        if(spellProps == null || (spellProps.length == 1 && spellProps[0] instanceof NoCompletionsProposal)){
-	            //no proposals from the spelling
-	            return (ICompletionProposal[]) results.toArray(new ICompletionProposal[results.size()]);
-	        }
-	        
-	        //ok, add the spell problems and return...
-	        ICompletionProposal[] ret = (ICompletionProposal[]) results.toArray(new ICompletionProposal[results.size()+spellProps.length]);
-	        System.arraycopy(spellProps, 0, ret, results.size(), spellProps.length);
-	        return ret;
+            //handling spelling... (we only want to show spelling fixes if a spell problem annotation is found at the current location).
+            //we'll only show some spelling proposal if there's some spelling problem (so, we don't have to check the preferences at this place,
+            //as no annotations on spelling will be here if the spelling is not enabled). 
+            ICompletionProposal[] spellProps = null;
+            
+            IAnnotationModel annotationModel = edit.getPySourceViewer().getAnnotationModel();
+            Iterator it = annotationModel.getAnnotationIterator();
+            while(it.hasNext()){
+                Object annotation = it.next();
+                if(annotation instanceof SpellingAnnotation){
+                    SpellingAnnotation spellingAnnotation = (SpellingAnnotation) annotation;
+                    SpellingProblem spellingProblem = spellingAnnotation.getSpellingProblem();
+                    
+                    int problemOffset = spellingProblem.getOffset();
+                    int problemLen = spellingProblem.getLength();
+                    if(problemOffset <= offset && problemOffset+problemLen >= offset){
+                        SpellingCorrectionProcessor spellingCorrectionProcessor = new SpellingCorrectionProcessor();
+                        spellProps = spellingCorrectionProcessor.computeQuickAssistProposals(invocationContext);
+                        break;
+                    }
+                }
+            }
+            
+            
+    
+            if(spellProps == null || (spellProps.length == 1 && spellProps[0] instanceof NoCompletionsProposal)){
+                //no proposals from the spelling
+                return (ICompletionProposal[]) results.toArray(new ICompletionProposal[results.size()]);
+            }
+            
+            //ok, add the spell problems and return...
+            ICompletionProposal[] ret = (ICompletionProposal[]) results.toArray(new ICompletionProposal[results.size()+spellProps.length]);
+            System.arraycopy(spellProps, 0, ret, results.size(), spellProps.length);
+            return ret;
         }catch(Throwable e){ 
             if(e instanceof ClassNotFoundException || e instanceof LinkageError || e instanceof NoSuchMethodException || 
-            		e instanceof NoSuchMethodError || e instanceof NoClassDefFoundError){
-            	//Eclipse 3.2 support
-            	return (ICompletionProposal[]) results.toArray(new ICompletionProposal[results.size()]);
+                    e instanceof NoSuchMethodError || e instanceof NoClassDefFoundError){
+                //Eclipse 3.2 support
+                return (ICompletionProposal[]) results.toArray(new ICompletionProposal[results.size()]);
             }
             throw new RuntimeException(e);
         }

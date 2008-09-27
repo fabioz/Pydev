@@ -71,8 +71,8 @@ public class FindScopeVisitorTest extends PyParserTestBase {
     public void testFindAssertInLocalScope() throws Exception {
         String s = 
                 "def m1(a):\n" +
-        		"    assert isinstance(a, str)\n" +
-        		"    ";
+                "    assert isinstance(a, str)\n" +
+                "    ";
         
         ILocalScope localScope = findLocalScope(s, 2, 1);
         List<String> found = localScope.getPossibleClassesForActivationToken("a");

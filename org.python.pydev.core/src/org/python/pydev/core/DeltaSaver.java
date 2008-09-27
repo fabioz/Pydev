@@ -173,19 +173,19 @@ public class DeltaSaver<X> {
      * Gets existing deltas in the disk
      */
     private void loadDeltas() {
-    	synchronized(this.commands){
-	        ArrayList<File> deltasFound = findDeltas();
-	        for (File file : deltasFound) {
-	            try {
-	                DeltaCommand cmd = (DeltaCommand) IOUtils.readFromFile(file, this.readFromFileMethod);
-	                if(cmd != null && cmd.data != null){
-	                	addRestoredCommand(cmd);
-	                }
-	            } catch (Exception e) {
-	                Log.log(e);
-	            }
-	        }
-    	}
+        synchronized(this.commands){
+            ArrayList<File> deltasFound = findDeltas();
+            for (File file : deltasFound) {
+                try {
+                    DeltaCommand cmd = (DeltaCommand) IOUtils.readFromFile(file, this.readFromFileMethod);
+                    if(cmd != null && cmd.data != null){
+                        addRestoredCommand(cmd);
+                    }
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+            }
+        }
         
     }
 
@@ -229,27 +229,27 @@ public class DeltaSaver<X> {
      * @param command the command to be added
      */
     public void addCommand(DeltaCommand command) {
-    	synchronized(this.commands){
-	        File file = new File(this.dirToSaveDeltas, nCommands+suffix);
-	        nCommands++;
-	        try {
-	            file.createNewFile();
-	        } catch (IOException e) {
-	            throw new RuntimeException(e);
-	        }
-	        //always write the command and its data separately
-	        IOUtils.writeToFile(command, command.data, file);
-	        this.commands.add(command);
-    	}
+        synchronized(this.commands){
+            File file = new File(this.dirToSaveDeltas, nCommands+suffix);
+            nCommands++;
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            //always write the command and its data separately
+            IOUtils.writeToFile(command, command.data, file);
+            this.commands.add(command);
+        }
     }
 
     /**
      * @return the number of available deltas
      */
     public int availableDeltas() {
-    	synchronized(this.commands){
-    		return this.commands.size();
-    	}
+        synchronized(this.commands){
+            return this.commands.size();
+        }
     }
 
     /**
@@ -259,9 +259,9 @@ public class DeltaSaver<X> {
         synchronized(this.commands){
             ArrayList<File> deltas = findDeltas();
             for (File file : deltas) {
-            	if(file.exists()){
-            		file.delete();
-            	}
+                if(file.exists()){
+                    file.delete();
+                }
             }
             this.commands.clear();
             nCommands = 0;
@@ -286,21 +286,21 @@ public class DeltaSaver<X> {
     public synchronized void processDeltas(IDeltaProcessor<X> deltaProcessor) {
         synchronized(this.commands){
             ArrayList<DeltaCommand> commandsToProcess = new ArrayList<DeltaCommand>(this.commands);
-			boolean processed = false;
-	        for (DeltaCommand cmd : commandsToProcess) {
-	            try {
-					cmd.processWith(deltaProcessor);
-					processed = false;
-				} catch (Exception e) {
-					Log.log(e);
-				}
-	        }
-	        if(processed){
-	        	//if nothing happened, we don't end the processing (no need to do it)
-	        	deltaProcessor.endProcessing();
-	        }
-	        this.clearAll();
-    	}
+            boolean processed = false;
+            for (DeltaCommand cmd : commandsToProcess) {
+                try {
+                    cmd.processWith(deltaProcessor);
+                    processed = false;
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+            }
+            if(processed){
+                //if nothing happened, we don't end the processing (no need to do it)
+                deltaProcessor.endProcessing();
+            }
+            this.clearAll();
+        }
     }
 
 }
@@ -334,30 +334,30 @@ class IOUtils {
      */
     public static Object readFromFile(File astOutputFile, ICallback<Object, ObjectInputStream> readFromFileMethod) {
         try {
-        	boolean deletFile = false;
-        	//the file is not even there
-        	if(!astOutputFile.exists()){
-        		return null;
-        	}
+            boolean deletFile = false;
+            //the file is not even there
+            if(!astOutputFile.exists()){
+                return null;
+            }
             InputStream input = new FileInputStream(astOutputFile);
             ObjectInputStream in = new ObjectInputStream(input);
             DeltaSaver.DeltaCommand o = null;
             try {
-				o = (DeltaSaver.DeltaCommand) in.readObject();
-				o.readData(readFromFileMethod, in);
+                o = (DeltaSaver.DeltaCommand) in.readObject();
+                o.readData(readFromFileMethod, in);
             } catch (Exception e) {
-            	//the format has changed (no real problem here... just erase the file)
-            	deletFile = true;
-            	o = null;
-			} finally {
-				in.close();
-				input.close();
-			}
-			if(deletFile){
-				if(astOutputFile.exists()){
-					astOutputFile.delete();
-				}
-			}
+                //the format has changed (no real problem here... just erase the file)
+                deletFile = true;
+                o = null;
+            } finally {
+                in.close();
+                input.close();
+            }
+            if(deletFile){
+                if(astOutputFile.exists()){
+                    astOutputFile.delete();
+                }
+            }
             return o;
         } catch (Exception e) {
             Log.log(e); 

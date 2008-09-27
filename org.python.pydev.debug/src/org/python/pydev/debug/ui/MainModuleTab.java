@@ -32,15 +32,15 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class MainModuleTab extends AbstractLaunchConfigurationTab {
     
-	// Widget blocks
+    // Widget blocks
     private final ProjectBlock    fProjectBlock;
     private final MainModuleBlock fMainModuleBlock;
     private final PythonPathBlock fPythonPathBlock;
 
     public MainModuleTab() {
-    	fProjectBlock = new ProjectBlock();
-    	fMainModuleBlock = new MainModuleBlock();
-    	fPythonPathBlock = new PythonPathBlock();
+        fProjectBlock = new ProjectBlock();
+        fMainModuleBlock = new MainModuleBlock();
+        fPythonPathBlock = new PythonPathBlock();
     }
 
     /*
@@ -76,9 +76,9 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#initializeFrom(org.eclipse.debug.core.ILaunchConfiguration)
      */
     public void initializeFrom(ILaunchConfiguration configuration) {
-    	fProjectBlock.initializeFrom(configuration);
-    	fMainModuleBlock.initializeFrom(configuration);
-    	fPythonPathBlock.initializeFrom(configuration);
+        fProjectBlock.initializeFrom(configuration);
+        fMainModuleBlock.initializeFrom(configuration);
+        fPythonPathBlock.initializeFrom(configuration);
     }
 
     /*
@@ -86,7 +86,7 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#performApply(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
      */
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-    	fProjectBlock.performApply(configuration);
+        fProjectBlock.performApply(configuration);
         fMainModuleBlock.performApply(configuration);
         fPythonPathBlock.performApply(configuration);
     }
@@ -97,11 +97,11 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
      */
     @Override
     public void setLaunchConfigurationDialog(ILaunchConfigurationDialog dialog) {
-    	super.setLaunchConfigurationDialog(dialog);
-    	
-    	fProjectBlock.setLaunchConfigurationDialog(dialog);
-    	fMainModuleBlock.setLaunchConfigurationDialog(dialog);
-    	fPythonPathBlock.setLaunchConfigurationDialog(dialog);
+        super.setLaunchConfigurationDialog(dialog);
+        
+        fProjectBlock.setLaunchConfigurationDialog(dialog);
+        fMainModuleBlock.setLaunchConfigurationDialog(dialog);
+        fPythonPathBlock.setLaunchConfigurationDialog(dialog);
     }
     
     /*
@@ -110,21 +110,21 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
      */
     @Override
     public String getErrorMessage() {
-    	String result = super.getErrorMessage();
-    	
-    	if (result == null) {
-    		result = fProjectBlock.getErrorMessage();
-    	}
-    	
-    	if (result == null) {
-    		result = fMainModuleBlock.getErrorMessage();
-    	}
-    	
-    	if (result == null) {
-    		result = fPythonPathBlock.getErrorMessage();
-    	}
-    	
-    	return result;
+        String result = super.getErrorMessage();
+        
+        if (result == null) {
+            result = fProjectBlock.getErrorMessage();
+        }
+        
+        if (result == null) {
+            result = fMainModuleBlock.getErrorMessage();
+        }
+        
+        if (result == null) {
+            result = fPythonPathBlock.getErrorMessage();
+        }
+        
+        return result;
     }
 
     /*
@@ -133,21 +133,21 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
      */
     @Override
     public String getMessage() {
-    	String result = super.getMessage();
-    	
-    	if (result == null) {
-    		result = fProjectBlock.getMessage();
-    	}
-    	
-    	if (result == null) {
-    		result = fMainModuleBlock.getMessage();
-    	}
-    	
-    	if (result == null) {
-    		result = fPythonPathBlock.getMessage();
-    	}
-    	
-    	return result;
+        String result = super.getMessage();
+        
+        if (result == null) {
+            result = fProjectBlock.getMessage();
+        }
+        
+        if (result == null) {
+            result = fMainModuleBlock.getMessage();
+        }
+        
+        if (result == null) {
+            result = fPythonPathBlock.getMessage();
+        }
+        
+        return result;
     }
     
     /*
@@ -156,21 +156,21 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
      */
     @Override
     public boolean isValid(ILaunchConfiguration launchConfig) {
-    	boolean result = super.isValid(launchConfig);
-    	
-    	if (result) {
-    		result = fProjectBlock.isValid(launchConfig);
-    	}
-    	
-    	if (result) {
-    		result = fMainModuleBlock.isValid(launchConfig);
-    	}
-    	
-    	if (result) {
-    		result = fPythonPathBlock.isValid(launchConfig);
-    	}
-    	
-    	return result;
+        boolean result = super.isValid(launchConfig);
+        
+        if (result) {
+            result = fProjectBlock.isValid(launchConfig);
+        }
+        
+        if (result) {
+            result = fMainModuleBlock.isValid(launchConfig);
+        }
+        
+        if (result) {
+            result = fPythonPathBlock.isValid(launchConfig);
+        }
+        
+        return result;
     }
     
     /*

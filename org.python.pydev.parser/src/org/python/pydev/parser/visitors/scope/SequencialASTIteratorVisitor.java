@@ -5,9 +5,9 @@ import org.python.pydev.parser.jython.SimpleNode;
 public class SequencialASTIteratorVisitor extends EasyAstIteratorBase{
 
     protected Object unhandled_node(SimpleNode node) throws Exception {
-    	atomic(node);
-    	super.unhandled_node(node);
-    	return null;
+        atomic(node);
+        super.unhandled_node(node);
+        return null;
     }
     
     /**

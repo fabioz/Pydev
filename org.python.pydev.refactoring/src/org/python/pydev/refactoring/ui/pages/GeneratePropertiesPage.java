@@ -49,244 +49,244 @@ import org.python.pydev.refactoring.ui.model.tree.TreeLabelProvider;
 
 public class GeneratePropertiesPage extends UserInputWizardPage {
 
-	private final OffsetStrategyProvider strategyProvider;
+    private final OffsetStrategyProvider strategyProvider;
 
-	private Composite mainComp = null;
+    private Composite mainComp = null;
 
-	private Group visibilityGroup = null;
+    private Group visibilityGroup = null;
 
-	private Composite buttonComp = null;
+    private Composite buttonComp = null;
 
-	private Button selectAll = null;
+    private Button selectAll = null;
 
-	private Button deselectAll = null;
+    private Button deselectAll = null;
 
-	private Button publicVis = null;
+    private Button publicVis = null;
 
-	private Button pseudoprivateVis = null;
+    private Button pseudoprivateVis = null;
 
-	private CLabel cLabel = null;
+    private CLabel cLabel = null;
 
-	private Composite treeComp = null;
+    private Composite treeComp = null;
 
-	private Composite comboComp = null;
+    private Composite comboComp = null;
 
-	private ComboViewer methodInsertionComb = null;
+    private ComboViewer methodInsertionComb = null;
 
-	private ComboViewer propertyInsertionComb = null;
+    private ComboViewer propertyInsertionComb = null;
 
-	private CLabel methodInsertionLbl = null;
+    private CLabel methodInsertionLbl = null;
 
-	private CLabel propertyInsertionLbl = null;
+    private CLabel propertyInsertionLbl = null;
 
-	private ContainerCheckedTreeViewer treeViewer = null;
+    private ContainerCheckedTreeViewer treeViewer = null;
 
-	private PropertyTreeProvider classProvider;
+    private PropertyTreeProvider classProvider;
 
-	private GeneratePropertiesRequestProcessor requestProcessor;
+    private GeneratePropertiesRequestProcessor requestProcessor;
 
-	private ILabelProvider labelProvider;
+    private ILabelProvider labelProvider;
 
-	public GeneratePropertiesPage(String name, PropertyTreeProvider provider, GeneratePropertiesRequestProcessor requestProcessor) {
-		super(name);
-		this.setTitle(name);
-		this.classProvider = provider;
-		this.requestProcessor = requestProcessor;
-		this.labelProvider = new TreeLabelProvider();
+    public GeneratePropertiesPage(String name, PropertyTreeProvider provider, GeneratePropertiesRequestProcessor requestProcessor) {
+        super(name);
+        this.setTitle(name);
+        this.classProvider = provider;
+        this.requestProcessor = requestProcessor;
+        this.labelProvider = new TreeLabelProvider();
 
-		this.strategyProvider = new OffsetStrategyProvider(IOffsetStrategy.AFTERINIT | IOffsetStrategy.BEGIN | IOffsetStrategy.END);
-	}
+        this.strategyProvider = new OffsetStrategyProvider(IOffsetStrategy.AFTERINIT | IOffsetStrategy.BEGIN | IOffsetStrategy.END);
+    }
 
-	private Composite createMainComp(Composite parent) {
-		GridData gridData12 = new GridData();
-		gridData12.horizontalSpan = 2;
-		GridData gridData11 = new GridData();
-		gridData11.horizontalSpan = 2;
-		GridLayout gridLayout2 = new GridLayout();
-		gridLayout2.numColumns = 2;
-		GridData gridData = new GridData();
-		gridData.horizontalAlignment = GridData.FILL;
-		gridData.grabExcessHorizontalSpace = true;
-		gridData.grabExcessVerticalSpace = true;
-		gridData.verticalAlignment = GridData.FILL;
-		mainComp = new Composite(parent, SWT.NONE);
-		mainComp.setLayoutData(gridData);
-		cLabel = new CLabel(mainComp, SWT.NONE);
-		cLabel.setText(generatePropertiesSelect);
-		cLabel.setLayoutData(gridData11);
-		createTreeComp();
-		createButtonComp();
-		mainComp.setLayout(gridLayout2);
+    private Composite createMainComp(Composite parent) {
+        GridData gridData12 = new GridData();
+        gridData12.horizontalSpan = 2;
+        GridData gridData11 = new GridData();
+        gridData11.horizontalSpan = 2;
+        GridLayout gridLayout2 = new GridLayout();
+        gridLayout2.numColumns = 2;
+        GridData gridData = new GridData();
+        gridData.horizontalAlignment = GridData.FILL;
+        gridData.grabExcessHorizontalSpace = true;
+        gridData.grabExcessVerticalSpace = true;
+        gridData.verticalAlignment = GridData.FILL;
+        mainComp = new Composite(parent, SWT.NONE);
+        mainComp.setLayoutData(gridData);
+        cLabel = new CLabel(mainComp, SWT.NONE);
+        cLabel.setText(generatePropertiesSelect);
+        cLabel.setLayoutData(gridData11);
+        createTreeComp();
+        createButtonComp();
+        mainComp.setLayout(gridLayout2);
 
-		createComboComp();
+        createComboComp();
 
-		createVisibilityGroup();
+        createVisibilityGroup();
 
-		return mainComp;
-	}
+        return mainComp;
+    }
 
-	private void createVisibilityGroup() {
+    private void createVisibilityGroup() {
 
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 4;
-		GridData gridData = new GridData();
-		gridData.horizontalAlignment = GridData.FILL;
-		gridData.grabExcessHorizontalSpace = true;
-		gridData.horizontalSpan = 2;
-		gridData.verticalAlignment = GridData.CENTER;
+        GridLayout gridLayout = new GridLayout();
+        gridLayout.numColumns = 4;
+        GridData gridData = new GridData();
+        gridData.horizontalAlignment = GridData.FILL;
+        gridData.grabExcessHorizontalSpace = true;
+        gridData.horizontalSpan = 2;
+        gridData.verticalAlignment = GridData.CENTER;
 
-		visibilityGroup = new Group(mainComp, SWT.NONE);
-		visibilityGroup.setLayoutData(gridData);
-		visibilityGroup.setLayout(gridLayout);
-		visibilityGroup.setText(wizardAccessModifier);
+        visibilityGroup = new Group(mainComp, SWT.NONE);
+        visibilityGroup.setLayoutData(gridData);
+        visibilityGroup.setLayout(gridLayout);
+        visibilityGroup.setText(wizardAccessModifier);
 
-		publicVis = new Button(visibilityGroup, SWT.RADIO);
-		publicVis.setSelection(true);
-		publicVis.setText(wizardAccessPublic);
-		publicVis.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) {
-				requestProcessor.setAccessModifier(NodeHelper.ACCESS_PUBLIC);
-			}
+        publicVis = new Button(visibilityGroup, SWT.RADIO);
+        publicVis.setSelection(true);
+        publicVis.setText(wizardAccessPublic);
+        publicVis.addSelectionListener(new SelectionListener() {
+            public void widgetSelected(SelectionEvent e) {
+                requestProcessor.setAccessModifier(NodeHelper.ACCESS_PUBLIC);
+            }
 
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-		pseudoprivateVis = new Button(visibilityGroup, SWT.RADIO);
-		pseudoprivateVis.setText(wizardAccessPseudo);
-		pseudoprivateVis.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) {
-				requestProcessor.setAccessModifier(NodeHelper.ACCESS_PSEUDO);
-			}
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        });
+        pseudoprivateVis = new Button(visibilityGroup, SWT.RADIO);
+        pseudoprivateVis.setText(wizardAccessPseudo);
+        pseudoprivateVis.addSelectionListener(new SelectionListener() {
+            public void widgetSelected(SelectionEvent e) {
+                requestProcessor.setAccessModifier(NodeHelper.ACCESS_PSEUDO);
+            }
 
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        });
 
-	}
+    }
 
-	private void createButtonComp() {
-		GridData gridData3 = new GridData();
-		gridData3.horizontalAlignment = GridData.CENTER;
-		gridData3.verticalAlignment = GridData.BEGINNING;
-		GridData gridData2 = new GridData();
-		gridData2.widthHint = 80;
-		GridData gridData1 = new GridData();
-		gridData1.widthHint = 80;
-		buttonComp = new Composite(mainComp, SWT.NONE);
-		buttonComp.setLayout(new GridLayout());
-		buttonComp.setLayoutData(gridData3);
-		selectAll = new Button(buttonComp, SWT.NONE);
-		selectAll.setText(wizardSelectAll);
-		selectAll.setLayoutData(gridData2);
-		selectAll.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				treeViewer.setAllChecked(true);
-				requestProcessor.setCheckedElements(treeViewer.getCheckedElements());
-				GeneratePropertiesPage.this.getWizard().getContainer().updateButtons();
-			}
-		});
-		deselectAll = new Button(buttonComp, SWT.NONE);
-		deselectAll.setText(wizardDeselectAll);
-		deselectAll.setLayoutData(gridData1);
-		deselectAll.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				treeViewer.setAllChecked(false);
-				requestProcessor.setCheckedElements(treeViewer.getCheckedElements());
-				GeneratePropertiesPage.this.getWizard().getContainer().updateButtons();
-			}
-		});
-	}
+    private void createButtonComp() {
+        GridData gridData3 = new GridData();
+        gridData3.horizontalAlignment = GridData.CENTER;
+        gridData3.verticalAlignment = GridData.BEGINNING;
+        GridData gridData2 = new GridData();
+        gridData2.widthHint = 80;
+        GridData gridData1 = new GridData();
+        gridData1.widthHint = 80;
+        buttonComp = new Composite(mainComp, SWT.NONE);
+        buttonComp.setLayout(new GridLayout());
+        buttonComp.setLayoutData(gridData3);
+        selectAll = new Button(buttonComp, SWT.NONE);
+        selectAll.setText(wizardSelectAll);
+        selectAll.setLayoutData(gridData2);
+        selectAll.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                treeViewer.setAllChecked(true);
+                requestProcessor.setCheckedElements(treeViewer.getCheckedElements());
+                GeneratePropertiesPage.this.getWizard().getContainer().updateButtons();
+            }
+        });
+        deselectAll = new Button(buttonComp, SWT.NONE);
+        deselectAll.setText(wizardDeselectAll);
+        deselectAll.setLayoutData(gridData1);
+        deselectAll.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                treeViewer.setAllChecked(false);
+                requestProcessor.setCheckedElements(treeViewer.getCheckedElements());
+                GeneratePropertiesPage.this.getWizard().getContainer().updateButtons();
+            }
+        });
+    }
 
-	private void createTreeComp() {
-		GridData gridData5 = new GridData();
-		gridData5.horizontalAlignment = GridData.FILL;
-		gridData5.grabExcessHorizontalSpace = true;
-		gridData5.grabExcessVerticalSpace = true;
-		gridData5.verticalAlignment = GridData.FILL;
-		treeComp = new Composite(mainComp, SWT.NONE);
-		treeComp.setLayout(new FillLayout());
-		treeComp.setLayoutData(gridData5);
-		createTreeViewer(treeComp);
-	}
+    private void createTreeComp() {
+        GridData gridData5 = new GridData();
+        gridData5.horizontalAlignment = GridData.FILL;
+        gridData5.grabExcessHorizontalSpace = true;
+        gridData5.grabExcessVerticalSpace = true;
+        gridData5.verticalAlignment = GridData.FILL;
+        treeComp = new Composite(mainComp, SWT.NONE);
+        treeComp.setLayout(new FillLayout());
+        treeComp.setLayoutData(gridData5);
+        createTreeViewer(treeComp);
+    }
 
-	private void createComboComp() {
-		FillLayout fillLayout = new FillLayout();
-		fillLayout.type = org.eclipse.swt.SWT.VERTICAL;
-		GridData gridData7 = new GridData();
-		gridData7.horizontalSpan = 2;
-		gridData7.verticalAlignment = GridData.CENTER;
-		gridData7.grabExcessHorizontalSpace = true;
-		gridData7.horizontalAlignment = GridData.FILL;
-		comboComp = new Composite(mainComp, SWT.NONE);
-		comboComp.setLayoutData(gridData7);
-		comboComp.setLayout(fillLayout);
-		methodInsertionLbl = new CLabel(comboComp, SWT.NONE);
-		methodInsertionLbl.setText(offsetStrategyInsertionPointMethod);
-		methodInsertionComb = createComboViewer(comboComp);
-		methodInsertionComb.addSelectionChangedListener(new ISelectionChangedListener() {
-			public void selectionChanged(SelectionChangedEvent event) {
-				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
-				if (!sel.isEmpty()) {
-					OffsetStrategyModel elem = (OffsetStrategyModel) sel.getFirstElement();
-					requestProcessor.setMethodDestination(elem.getStrategy());
-				}
-			}
-		});
-		requestProcessor.setMethodDestination(strategyProvider.get(0).getStrategy());
-		methodInsertionComb.getCombo().select(0);
+    private void createComboComp() {
+        FillLayout fillLayout = new FillLayout();
+        fillLayout.type = org.eclipse.swt.SWT.VERTICAL;
+        GridData gridData7 = new GridData();
+        gridData7.horizontalSpan = 2;
+        gridData7.verticalAlignment = GridData.CENTER;
+        gridData7.grabExcessHorizontalSpace = true;
+        gridData7.horizontalAlignment = GridData.FILL;
+        comboComp = new Composite(mainComp, SWT.NONE);
+        comboComp.setLayoutData(gridData7);
+        comboComp.setLayout(fillLayout);
+        methodInsertionLbl = new CLabel(comboComp, SWT.NONE);
+        methodInsertionLbl.setText(offsetStrategyInsertionPointMethod);
+        methodInsertionComb = createComboViewer(comboComp);
+        methodInsertionComb.addSelectionChangedListener(new ISelectionChangedListener() {
+            public void selectionChanged(SelectionChangedEvent event) {
+                IStructuredSelection sel = (IStructuredSelection) event.getSelection();
+                if (!sel.isEmpty()) {
+                    OffsetStrategyModel elem = (OffsetStrategyModel) sel.getFirstElement();
+                    requestProcessor.setMethodDestination(elem.getStrategy());
+                }
+            }
+        });
+        requestProcessor.setMethodDestination(strategyProvider.get(0).getStrategy());
+        methodInsertionComb.getCombo().select(0);
 
-		propertyInsertionLbl = new CLabel(comboComp, SWT.NONE);
-		propertyInsertionLbl.setText(offsetStrategyInsertionPointProperty);
-		propertyInsertionComb = createComboViewer(comboComp);
+        propertyInsertionLbl = new CLabel(comboComp, SWT.NONE);
+        propertyInsertionLbl.setText(offsetStrategyInsertionPointProperty);
+        propertyInsertionComb = createComboViewer(comboComp);
 
-		propertyInsertionComb.addSelectionChangedListener(new ISelectionChangedListener() {
-			public void selectionChanged(SelectionChangedEvent event) {
-				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
-				if (!sel.isEmpty()) {
-					OffsetStrategyModel elem = (OffsetStrategyModel) sel.getFirstElement();
-					requestProcessor.setPropertyDestination(elem.getStrategy());
-				}
-			}
-		});
+        propertyInsertionComb.addSelectionChangedListener(new ISelectionChangedListener() {
+            public void selectionChanged(SelectionChangedEvent event) {
+                IStructuredSelection sel = (IStructuredSelection) event.getSelection();
+                if (!sel.isEmpty()) {
+                    OffsetStrategyModel elem = (OffsetStrategyModel) sel.getFirstElement();
+                    requestProcessor.setPropertyDestination(elem.getStrategy());
+                }
+            }
+        });
 
-		requestProcessor.setPropertyDestination(strategyProvider.get(2).getStrategy());
-		propertyInsertionComb.getCombo().select(2);
+        requestProcessor.setPropertyDestination(strategyProvider.get(2).getStrategy());
+        propertyInsertionComb.getCombo().select(2);
 
-	}
+    }
 
-	private void createTreeViewer(Composite treeComp) {
-		treeViewer = new ContainerCheckedTreeViewer(treeComp);
-		treeViewer.addCheckStateListener(new ICheckStateListener() {
-			public void checkStateChanged(CheckStateChangedEvent event) {
-				requestProcessor.setCheckedElements(treeViewer.getCheckedElements());
-				GeneratePropertiesPage.this.getWizard().getContainer().updateButtons();
-			}
-		});
+    private void createTreeViewer(Composite treeComp) {
+        treeViewer = new ContainerCheckedTreeViewer(treeComp);
+        treeViewer.addCheckStateListener(new ICheckStateListener() {
+            public void checkStateChanged(CheckStateChangedEvent event) {
+                requestProcessor.setCheckedElements(treeViewer.getCheckedElements());
+                GeneratePropertiesPage.this.getWizard().getContainer().updateButtons();
+            }
+        });
 
-		treeViewer.setContentProvider(classProvider);
-		treeViewer.setLabelProvider(labelProvider);
-		treeViewer.setAutoExpandLevel(2);
-		treeViewer.setInput("");
-		treeViewer.setSelection(new StructuredSelection(treeViewer.getExpandedElements()[0]));
-	}
+        treeViewer.setContentProvider(classProvider);
+        treeViewer.setLabelProvider(labelProvider);
+        treeViewer.setAutoExpandLevel(2);
+        treeViewer.setInput("");
+        treeViewer.setSelection(new StructuredSelection(treeViewer.getExpandedElements()[0]));
+    }
 
-	public void createControl(Composite composite) {
-		Composite main = createMainComp(composite);
-		main.pack();
-		this.setControl(main);
-	}
+    public void createControl(Composite composite) {
+        Composite main = createMainComp(composite);
+        main.pack();
+        this.setControl(main);
+    }
 
-	private ComboViewer createComboViewer(Composite comboComp) {
-		ComboViewer v = new ComboViewer(comboComp);
-		v.setContentProvider(this.strategyProvider);
-		v.setLabelProvider(new LabelProvider());
-		v.setInput("");
-		return v;
-	}
+    private ComboViewer createComboViewer(Composite comboComp) {
+        ComboViewer v = new ComboViewer(comboComp);
+        v.setContentProvider(this.strategyProvider);
+        v.setLabelProvider(new LabelProvider());
+        v.setInput("");
+        return v;
+    }
 
-	@Override
-	public boolean canFlipToNextPage() {
-		return (treeViewer.getCheckedElements().length > 0);
-	}
+    @Override
+    public boolean canFlipToNextPage() {
+        return (treeViewer.getCheckedElements().length > 0);
+    }
 
 }

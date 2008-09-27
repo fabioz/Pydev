@@ -17,15 +17,15 @@ import org.python.pydev.refactoring.messages.Messages;
 
 public class OverrideMethodsChangeProcessor extends AbstractFileChangeProcessor<OverrideMethodsRequest> {
 
-	public OverrideMethodsChangeProcessor(String name, RefactoringInfo info, IRequestProcessor<OverrideMethodsRequest> requestProcessor) {
-		super(name, info, requestProcessor);
-	}
+    public OverrideMethodsChangeProcessor(String name, RefactoringInfo info, IRequestProcessor<OverrideMethodsRequest> requestProcessor) {
+        super(name, info, requestProcessor);
+    }
 
-	@Override
-	protected void processEdit() {
-		for (OverrideMethodsRequest req : requestProcessor.getRefactoringRequests()) {
-			MethodEdit methodEdit = new MethodEdit(req);
-			registerEdit(methodEdit, Messages.overrideMethodsMethods);
-		}
-	}
+    @Override
+    protected void processEdit() {
+        for (OverrideMethodsRequest req : requestProcessor.getRefactoringRequests()) {
+            MethodEdit methodEdit = new MethodEdit(req);
+            registerEdit(methodEdit, Messages.overrideMethodsMethods);
+        }
+    }
 }

@@ -89,11 +89,11 @@
 //        SourceModuleProposal s = new SourceModuleProposal("",0,0,0,null,"",null,"",mod, IPyCompletionProposal.PRIORITY_DEFAULT);
 //        s.doc = doc;
 //        if(tokDef != null)
-//			try {
-//				s.definition = mod.findGlobalTokDef(CompletionStateFactory.getEmptyCompletionState(tokDef, null, new CompletionCache()), null);
-//			} catch (Exception e) {
-//				throw new RuntimeException(e);
-//			}
+//            try {
+//                s.definition = mod.findGlobalTokDef(CompletionStateFactory.getEmptyCompletionState(tokDef, null, new CompletionCache()), null);
+//            } catch (Exception e) {
+//                throw new RuntimeException(e);
+//            }
 //        s.addTo = addTo;
 //        IRegion region = doc.getLineInformation(line);
 //        assertEquals(region.getOffset()+region.getLength(), s.getReplacementOffset());

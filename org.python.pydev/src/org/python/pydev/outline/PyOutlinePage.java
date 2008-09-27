@@ -57,80 +57,80 @@ import org.python.pydev.ui.UIConstants;
  **/
 public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, IAdaptable{
 
-	PyEdit editorView;
-	IDocument document;
-	IOutlineModel model;
-	ImageCache imageCache;
-	
-	// listeners to rawPartition
-	ISelectionChangedListener selectionListener;
-	
+    PyEdit editorView;
+    IDocument document;
+    IOutlineModel model;
+    ImageCache imageCache;
+    
+    // listeners to rawPartition
+    ISelectionChangedListener selectionListener;
+    
     private OutlineLinkWithEditorAction linkWithEditor;
 
-	public PyOutlinePage(PyEdit editorView) {
-		super();
-		this.editorView = editorView;
-		imageCache = new ImageCache(PydevPlugin.getDefault().getBundle().getEntry("/"));
-	}
-	
-	public void dispose() {
-		if (model != null) {
-			model.dispose();
-			model = null;
-		}
-		if (selectionListener != null) {
-			removeSelectionChangedListener(selectionListener);
-		}
-		if (imageCache != null) {
-			imageCache.dispose();
-		}
+    public PyOutlinePage(PyEdit editorView) {
+        super();
+        this.editorView = editorView;
+        imageCache = new ImageCache(PydevPlugin.getDefault().getBundle().getEntry("/"));
+    }
+    
+    public void dispose() {
+        if (model != null) {
+            model.dispose();
+            model = null;
+        }
+        if (selectionListener != null) {
+            removeSelectionChangedListener(selectionListener);
+        }
+        if (imageCache != null) {
+            imageCache.dispose();
+        }
         if(linkWithEditor != null){
             linkWithEditor.dispose();
             linkWithEditor = null;
         }
-		super.dispose();
-	}
+        super.dispose();
+    }
 
 
-	/**
-	 * Parsed partition creates an outline that shows imports/classes/methods
-	 */
-	private void createParsedOutline() {
-		final TreeViewer tree = getTreeViewer();
-		IDocumentProvider provider = editorView.getDocumentProvider();
-		document = provider.getDocument(editorView.getEditorInput());
-		model = getParsedModel();
-		tree.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
-		tree.setContentProvider(new ParsedContentProvider());
-		tree.setLabelProvider(new ParsedLabelProvider(imageCache));
-		tree.setInput(model.getRoot());
-	}
+    /**
+     * Parsed partition creates an outline that shows imports/classes/methods
+     */
+    private void createParsedOutline() {
+        final TreeViewer tree = getTreeViewer();
+        IDocumentProvider provider = editorView.getDocumentProvider();
+        document = provider.getDocument(editorView.getEditorInput());
+        model = getParsedModel();
+        tree.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
+        tree.setContentProvider(new ParsedContentProvider());
+        tree.setLabelProvider(new ParsedLabelProvider(imageCache));
+        tree.setInput(model.getRoot());
+    }
 
-	/**
-	 * 
-	 * @return the parsed model, so that it can be used elsewhere (in navigation)
-	 */
-	public ParsedModel getParsedModel() {
-		return new ParsedModel(this, editorView);
-	}
-	
-	public boolean isDisposed(){
-		return getTreeViewer().getTree().isDisposed();
-	}
-	
-	/**
-	 * called when model has structural changes, refreshes all items underneath
-	 * @param items: items to refresh, or null for the whole tree
-	 * tries to preserve the scrolling
-	 */
-	public void refreshItems(Object[] items) {
-		try {
-			unlinkAll();
+    /**
+     * 
+     * @return the parsed model, so that it can be used elsewhere (in navigation)
+     */
+    public ParsedModel getParsedModel() {
+        return new ParsedModel(this, editorView);
+    }
+    
+    public boolean isDisposed(){
+        return getTreeViewer().getTree().isDisposed();
+    }
+    
+    /**
+     * called when model has structural changes, refreshes all items underneath
+     * @param items: items to refresh, or null for the whole tree
+     * tries to preserve the scrolling
+     */
+    public void refreshItems(Object[] items) {
+        try {
+            unlinkAll();
             TreeViewer viewer = getTreeViewer();
             if (viewer != null) {
                 Tree treeWidget = viewer.getTree();
                 if(isDisposed()){
-                	return;
+                    return;
                 }
 
                 ScrollBar bar = treeWidget.getVerticalBar();
@@ -140,13 +140,13 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
                 }
                 if (items == null){
                     if(isDisposed()){
-                    	return;
+                        return;
                     }
                     viewer.refresh();
                 
                 }else{
                     if(isDisposed()){
-                    	return;
+                        return;
                     }
                     for (int i = 0; i < items.length; i++) {
                         viewer.refresh(items[i]);
@@ -161,27 +161,27 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
             //things may be disposed...
             PydevPlugin.log(e);
         }finally{
-        	relinkAll();
+            relinkAll();
         }
-	}
-	
-	/**
-	 * called when a single item changes
-	 */
-	public void updateItems(Object[] items) {
+    }
+    
+    /**
+     * called when a single item changes
+     */
+    public void updateItems(Object[] items) {
         try {
-        	unlinkAll();
-			if(isDisposed()){
-				return;
-			}
-			TreeViewer tree = getTreeViewer();
-			if (tree != null){
-				tree.update(items, null);
-			}
-		} finally {
-			relinkAll();
-		}
-	}
+            unlinkAll();
+            if(isDisposed()){
+                return;
+            }
+            TreeViewer tree = getTreeViewer();
+            if (tree != null){
+                tree.update(items, null);
+            }
+        } finally {
+            relinkAll();
+        }
+    }
 
     
     
@@ -197,38 +197,38 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
     public TreeViewer getTreeViewer() {
         return super.getTreeViewer();
     }
-	
-	private void createActions() {
+    
+    private void createActions() {
         linkWithEditor = new OutlineLinkWithEditorAction(this, imageCache);
         
-		//---- Collapse all
-		Action collapseAll = new Action("Collapse all", IAction.AS_PUSH_BUTTON) {
-			public void run() {
-				getTreeViewer().collapseAll();
-			}
-		};
-		
-		//---- Expand all
-		Action expandAll = new Action("Expand all", IAction.AS_PUSH_BUTTON) {
-		    public void run() {
+        //---- Collapse all
+        Action collapseAll = new Action("Collapse all", IAction.AS_PUSH_BUTTON) {
+            public void run() {
+                getTreeViewer().collapseAll();
+            }
+        };
+        
+        //---- Expand all
+        Action expandAll = new Action("Expand all", IAction.AS_PUSH_BUTTON) {
+            public void run() {
                 getTreeViewer().expandAll();
-		    }
-		};
-		
-		try {
-			collapseAll.setImageDescriptor(imageCache.getDescriptor(UIConstants.COLLAPSE_ALL));
-			expandAll.setImageDescriptor(imageCache.getDescriptor(UIConstants.EXPAND_ALL));
-		} catch (MalformedURLException e) {
+            }
+        };
+        
+        try {
+            collapseAll.setImageDescriptor(imageCache.getDescriptor(UIConstants.COLLAPSE_ALL));
+            expandAll.setImageDescriptor(imageCache.getDescriptor(UIConstants.EXPAND_ALL));
+        } catch (MalformedURLException e) {
             PydevPlugin.log("Missing Icon", e);
-		}
+        }
 
         // Add actions to the toolbar
-		IActionBars actionBars = getSite().getActionBars();
-		IToolBarManager toolbarManager = actionBars.getToolBarManager();
+        IActionBars actionBars = getSite().getActionBars();
+        IToolBarManager toolbarManager = actionBars.getToolBarManager();
         
-		toolbarManager.add(new OutlineSortByNameAction(this, imageCache));
-		toolbarManager.add(collapseAll);
-		toolbarManager.add(expandAll);
+        toolbarManager.add(new OutlineSortByNameAction(this, imageCache));
+        toolbarManager.add(collapseAll);
+        toolbarManager.add(expandAll);
         
         IMenuManager menuManager = actionBars.getMenuManager();
         menuManager.add(linkWithEditor);
@@ -238,54 +238,54 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
         menuManager.add(new OutlineHideFieldsAction(this, imageCache));
         menuManager.add(new OutlineHideNonPublicMembersAction(this, imageCache));
         menuManager.add(new OutlineHideStaticMethodsAction(this, imageCache));
-	}
+    }
 
     
     /**
-	 * create the outline view widgets
-	 */
-	public void createControl(Composite parent) {
-		super.createControl(parent); // this creates a tree viewer
-		try{
-    		createParsedOutline();
-    		// selecting an item in the outline scrolls the document
-    		selectionListener = new ISelectionChangedListener() {
+     * create the outline view widgets
+     */
+    public void createControl(Composite parent) {
+        super.createControl(parent); // this creates a tree viewer
+        try{
+            createParsedOutline();
+            // selecting an item in the outline scrolls the document
+            selectionListener = new ISelectionChangedListener() {
 
-				public void selectionChanged(SelectionChangedEvent event) {
+                public void selectionChanged(SelectionChangedEvent event) {
                     if(linkWithEditor == null){
                         return;
                     }
                     try{
-                    	unlinkAll();
-	    				StructuredSelection sel = (StructuredSelection)event.getSelection();
-	    				
-	    				boolean alreadySelected = false;
-	                    if(sel.size() == 1) { // only sync the editing view if it is a single-selection
-	                        ParsedItem firstElement = (ParsedItem) sel.getFirstElement();
-	                        ErrorDescription errorDesc = firstElement.getErrorDesc();
-	                        
-	                        //select the error
+                        unlinkAll();
+                        StructuredSelection sel = (StructuredSelection)event.getSelection();
+                        
+                        boolean alreadySelected = false;
+                        if(sel.size() == 1) { // only sync the editing view if it is a single-selection
+                            ParsedItem firstElement = (ParsedItem) sel.getFirstElement();
+                            ErrorDescription errorDesc = firstElement.getErrorDesc();
+                            
+                            //select the error
                             if(errorDesc != null && errorDesc.message != null){
-	                            int len = errorDesc.errorEnd-errorDesc.errorStart;
-	                            editorView.setSelection(errorDesc.errorStart, len);
-	                            alreadySelected = true;
-	                        }
-	                    }
-	                    if(!alreadySelected){
-		    				SimpleNode[] node = model.getSelectionPosition(sel);
-		    				editorView.revealModelNodes(node);
-	                    }
+                                int len = errorDesc.errorEnd-errorDesc.errorStart;
+                                editorView.setSelection(errorDesc.errorStart, len);
+                                alreadySelected = true;
+                            }
+                        }
+                        if(!alreadySelected){
+                            SimpleNode[] node = model.getSelectionPosition(sel);
+                            editorView.revealModelNodes(node);
+                        }
                     }finally{
-                    	relinkAll();
+                        relinkAll();
                     }
-    			}
-    		};
-    		addSelectionChangedListener(selectionListener);	
+                }
+            };
+            addSelectionChangedListener(selectionListener);    
             createActions();
         }catch(Throwable e){
             PydevPlugin.log(e);
         }
-	}
+    }
 
     public boolean show(ShowInContext context) {
         linkWithEditor.doLinkOutlinePosition(this.editorView, this, new PySelection(this.editorView));
@@ -301,7 +301,7 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
 
     @Override
     public void selectionChanged(SelectionChangedEvent event) {
-    	super.selectionChanged(event);
+        super.selectionChanged(event);
     }
     
     /**
@@ -318,34 +318,34 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
      * Stops listening to changes (the linkLevel is used so that multiple unlinks can be called and later
      * multiple relinks should be used)
      */
-	void unlinkAll() {
-		synchronized (lock) {
-			linkLevel--;
-			if(linkLevel == 0){
-				removeSelectionChangedListener(selectionListener);
-				if(linkWithEditor != null){
-					linkWithEditor.unlink();
-				}
-			}
-		}
-	}
+    void unlinkAll() {
+        synchronized (lock) {
+            linkLevel--;
+            if(linkLevel == 0){
+                removeSelectionChangedListener(selectionListener);
+                if(linkWithEditor != null){
+                    linkWithEditor.unlink();
+                }
+            }
+        }
+    }
 
-	/**
-	 * Starts listening to changes again if the number of relinks matches the number of unlinks
-	 */
-	void relinkAll() {
-		synchronized (lock) {
-			linkLevel++;
-			if(linkLevel == 1){
-				addSelectionChangedListener(selectionListener);
-				if(linkWithEditor != null){
-					linkWithEditor.relink();
-				}
-			}else if(linkLevel > 1){
-				throw new RuntimeException("Error: relinking without unlinking 1st");
-			}
-		}
-	}
+    /**
+     * Starts listening to changes again if the number of relinks matches the number of unlinks
+     */
+    void relinkAll() {
+        synchronized (lock) {
+            linkLevel++;
+            if(linkLevel == 1){
+                addSelectionChangedListener(selectionListener);
+                if(linkWithEditor != null){
+                    linkWithEditor.relink();
+                }
+            }else if(linkLevel > 1){
+                throw new RuntimeException("Error: relinking without unlinking 1st");
+            }
+        }
+    }
 
 
 }

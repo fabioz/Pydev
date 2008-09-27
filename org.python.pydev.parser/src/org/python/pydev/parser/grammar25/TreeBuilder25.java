@@ -96,7 +96,7 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
 
     private exprType[] makeExprs() {
         if (stack.nodeArity() > 0 && stack.peekNode().getId() == JJTCOMMA)
-			stack.popNode();
+            stack.popNode();
         return makeExprs(stack.nodeArity());
     }
 
@@ -166,7 +166,7 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
             addSpecialsAndClearOriginal(n, name);
             return name;
         case JJTNUM:
-        	Object[] numimage = (Object[]) n.getImage();
+            Object[] numimage = (Object[]) n.getImage();
             return new Num(numimage[0], (Integer)numimage[1], (String)numimage[2]);
         case JJTUNICODE:
         case JJTSTRING:
@@ -203,7 +203,7 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
             value = (exprType) stack.popNode();
             return new Attribute(value, attr, Attribute.Load);
         case JJTBEGIN_DEL_STMT:
-        	return new Delete(null);
+            return new Delete(null);
         case JJTDEL_STMT:
             exprs = makeExprs(arity-1);
             ctx.setDelete(exprs);
@@ -213,8 +213,8 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
         case JJTPRINT_STMT:
             boolean nl = true;
             if (stack.nodeArity() == 0){
-            	Print p = new Print(null, null, true);
-            	p.getSpecialsBefore().add(0, "print ");
+                Print p = new Print(null, null, true);
+                p.getSpecialsBefore().add(0, "print ");
                 return p;
             }
             
@@ -223,7 +223,7 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
                 nl = false;
             }
             Print p = new Print(null, makeExprs(), nl);
-        	p.getSpecialsBefore().add(0, "print ");
+            p.getSpecialsBefore().add(0, "print ");
             return p;
         case JJTPRINTEXT_STMT:
             nl = true;
@@ -234,7 +234,7 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
             exprs = makeExprs(stack.nodeArity()-1);
             p = new Print(((exprType) stack.popNode()), exprs, nl);
             p.getSpecialsBefore().add(0, ">> ");
-        	p.getSpecialsBefore().add(0, "print ");
+            p.getSpecialsBefore().add(0, "print ");
             return p;
         case JJTBEGIN_FOR_STMT:
             return new For(null,null,null,null);
@@ -503,7 +503,7 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
             //we do that just to get the specials
             return new suiteType(null);
         case JJTBEGIN_EXCEPT_CLAUSE:
-        	return new excepthandlerType(null,null,null);
+            return new excepthandlerType(null,null,null);
         case JJTEXCEPT_CLAUSE:
             suite = (Suite) stack.popNode();
             body = suite.body;
@@ -513,9 +513,9 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
             }
             type = arity >= 3 ? ((exprType) stack.popNode()) : null;
             excepthandlerType handler = (excepthandlerType) stack.popNode(); 
-        	handler.type = type;
-        	handler.name = excname;
-        	handler.body = body;
+            handler.type = type;
+            handler.name = excname;
+            handler.body = body;
             addSpecials(suite, handler);
             return handler;
         case JJTBEGIN_FINALLY_STMT:
@@ -874,13 +874,13 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
         }
     }
 
-	private void setParentForFuncOrClass(stmtType[] body, SimpleNode classDef) {
-		for(stmtType b:body){
-			if(b instanceof ClassDef || b instanceof FunctionDef){
-				b.parent = classDef;
-			}
-		}
-	}
+    private void setParentForFuncOrClass(stmtType[] body, SimpleNode classDef) {
+        for(stmtType b:body){
+            if(b instanceof ClassDef || b instanceof FunctionDef){
+                b.parent = classDef;
+            }
+        }
+    }
 
     private suiteType popSuiteAndSuiteType() {
         Suite s = (Suite) stack.popNode();
@@ -891,16 +891,16 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
     }
 
     private void addSpecialsAndClearOriginal(SimpleNode from, SimpleNode to) {
-    	addSpecials(from, to);
+        addSpecials(from, to);
         if(from.specialsBefore != null){
             from.specialsBefore.clear();
         }
         if(from.specialsAfter != null){
             from.specialsAfter.clear();
         }
-	}
+    }
 
-	private void addSpecials(SimpleNode from, SimpleNode to) {
+    private void addSpecials(SimpleNode from, SimpleNode to) {
         if(from.specialsBefore != null && from.specialsBefore.size() > 0){
             to.getSpecialsBefore().addAll(from.specialsBefore);
         }
@@ -948,15 +948,15 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
             SimpleNode node = iter.next();
             
         
-			if (node.getId() == JJTEXTRAKEYWORDVALUELIST) {
-				final ExtraArgValue extraArg = (ExtraArgValue) node;
+            if (node.getId() == JJTEXTRAKEYWORDVALUELIST) {
+                final ExtraArgValue extraArg = (ExtraArgValue) node;
                 kwargs = (extraArg).value;
                 this.addSpecialsAndClearOriginal(extraArg, kwargs);
                 extraArg.specialsBefore = kwargs.getSpecialsBefore();
                 extraArg.specialsAfter = kwargs.getSpecialsAfter();
                 
             } else if (node.getId() == JJTEXTRAARGVALUELIST) {
-            	final ExtraArgValue extraArg = (ExtraArgValue) node;
+                final ExtraArgValue extraArg = (ExtraArgValue) node;
                 starargs = extraArg.value;
                 this.addSpecialsAndClearOriginal(extraArg, starargs);
                 extraArg.specialsBefore = starargs.getSpecialsBefore();
@@ -1076,13 +1076,13 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
         NameTok kwarg = null;
         NameTok stararg = null;
         if (l > 0 && stack.peekNode().getId() == JJTEXTRAKEYWORDLIST) {
-        	ExtraArg node = (ExtraArg) stack.popNode();
+            ExtraArg node = (ExtraArg) stack.popNode();
             kwarg = node.tok;
             l--;
             addSpecialsAndClearOriginal(node, kwarg);
         }
         if (l > 0 && stack.peekNode().getId() == JJTEXTRAARGLIST) {
-        	ExtraArg node = (ExtraArg) stack.popNode();
+            ExtraArg node = (ExtraArg) stack.popNode();
             stararg = node.tok;
             l--;
             addSpecialsAndClearOriginal(node, stararg);

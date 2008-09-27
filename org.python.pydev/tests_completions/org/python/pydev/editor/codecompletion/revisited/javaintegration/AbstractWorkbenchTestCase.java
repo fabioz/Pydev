@@ -69,7 +69,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
     /**
      * Init file under pack1.pack2.__init__.py
      */
-	protected static IFile initFile;
+    protected static IFile initFile;
 
 
     /**
@@ -94,9 +94,9 @@ public class AbstractWorkbenchTestCase extends TestCase{
      */
     @Override
     protected void setUp() throws Exception {
-		closeWelcomeView();
+        closeWelcomeView();
 
-		String mod1Contents = "import java.lang.Class\njava.lang.Class";
+        String mod1Contents = "import java.lang.Class\njava.lang.Class";
         if(editor == null){
             InterpreterInfo.configurePathsCallback = new ICallback<Boolean, Tuple<List<String>, List<String>>>(){
                 public Boolean call(Tuple<List<String>, List<String>> arg) {
@@ -132,8 +132,8 @@ public class AbstractWorkbenchTestCase extends TestCase{
             PythonNature nature = PythonNature.getPythonNature(project);
             
             //Let's give it some time to run the jobs that restore the nature
-        	long finishAt = System.currentTimeMillis()+5000; //5 secs is the max time
-        	
+            long finishAt = System.currentTimeMillis()+5000; //5 secs is the max time
+            
             Display display = Display.getCurrent();
             if(display == null){
                 display = Display.getDefault();
@@ -144,12 +144,12 @@ public class AbstractWorkbenchTestCase extends TestCase{
                     display.sleep();
                 }
                 if(finishAt<System.currentTimeMillis()){
-                	break;
+                    break;
                 }
                 if(nature != null){
-                	if(nature.getAstManager() != null){
-                		break;
-                	}
+                    if(nature.getAstManager() != null){
+                        break;
+                    }
                 }
             }
 
@@ -160,7 +160,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
             
             editor = (PyEdit) PyOpenEditor.doOpenEditor(mod1);
         }else{
-        	setFileContents(mod1Contents);//just make sure that the contents of mod1 are correct.
+            setFileContents(mod1Contents);//just make sure that the contents of mod1 are correct.
         }
     }
 
@@ -180,15 +180,15 @@ public class AbstractWorkbenchTestCase extends TestCase{
     
     
     protected void goToIdleLoopUntilCondition(final ICallback<Boolean, Object> callback, 
-    		final ICallback<String, Object> errorMessageCallback ) {
-    	goToIdleLoopUntilCondition(callback, 10000L, errorMessageCallback);
+            final ICallback<String, Object> errorMessageCallback ) {
+        goToIdleLoopUntilCondition(callback, 10000L, errorMessageCallback);
     }
     
     /**
      * @see #goToIdleLoopUntilCondition(ICallback, long)
      */
     protected void goToIdleLoopUntilCondition(final ICallback<Boolean, Object> callback) {
-    	goToIdleLoopUntilCondition(callback, 10000L, null);//default with 10 secs (more than enough for any action to be executed)
+        goToIdleLoopUntilCondition(callback, 10000L, null);//default with 10 secs (more than enough for any action to be executed)
     }
 
     /**
@@ -200,10 +200,10 @@ public class AbstractWorkbenchTestCase extends TestCase{
      * 
      * @throws AssertionError if the condition was not satisfied in the available amount of time
      */
-	protected void goToIdleLoopUntilCondition(final ICallback<Boolean, Object> callback, long deltaToElapse, 
-			final ICallback<String, Object> errorMessageCallback) {
-		//make the delta the absolute time
-		deltaToElapse = System.currentTimeMillis() + deltaToElapse;
+    protected void goToIdleLoopUntilCondition(final ICallback<Boolean, Object> callback, long deltaToElapse, 
+            final ICallback<String, Object> errorMessageCallback) {
+        //make the delta the absolute time
+        deltaToElapse = System.currentTimeMillis() + deltaToElapse;
         Display display = Display.getCurrent();
         if(display == null){
             display = Display.getDefault();
@@ -212,41 +212,41 @@ public class AbstractWorkbenchTestCase extends TestCase{
         while (!shell.isDisposed()) {
             display.readAndDispatch();
             synchronized(this){
-            	try {
-					this.wait(50);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+                try {
+                    this.wait(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             
             if(callback.call(null)){
-            	return;
+                return;
             }
             if(deltaToElapse<System.currentTimeMillis()){
-            	break;
+                break;
             }
         }
         if(errorMessageCallback != null){
-        	fail("The condition requested was not satisfied in the available amount of time:\n"+
-        			errorMessageCallback.call(null));
+            fail("The condition requested was not satisfied in the available amount of time:\n"+
+                    errorMessageCallback.call(null));
         }
         fail("The condition requested was not satisfied in the available amount of time");
-	}
+    }
 
     
     protected void goToManual() {
-    	goToManual(-1);
+        goToManual(-1);
     }
     
     protected void goToManual(long millis) {
-    	goToManual(millis, null);
+        goToManual(millis, null);
     }
     /**
      * Goes to 'manual' mode to allow the interaction with the opened eclipse instance.
      */
     protected void goToManual(long millis, ICallback<Boolean, Object> condition) {
-    	long finishAt = System.currentTimeMillis()+millis;
-    	
+        long finishAt = System.currentTimeMillis()+millis;
+        
         System.out.println("going to manual...");
         Display display = Display.getCurrent();
         if(display == null){
@@ -258,10 +258,10 @@ public class AbstractWorkbenchTestCase extends TestCase{
                 display.sleep();
             }
             if(millis > 0 && finishAt<System.currentTimeMillis()){
-            	break;
+                break;
             }
             if(condition != null && condition.call(null)){
-            	break;
+                break;
             }
         }
         System.out.println("finishing...");
@@ -416,7 +416,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
      * Creates a source folder and configures the project to use it and the junit.jar
      */
     protected IFolder createSourceFolder(IProgressMonitor monitor, IProject project) throws CoreException {
-    	return createSourceFolder(monitor, project, true);
+        return createSourceFolder(monitor, project, true);
     }
 
     /**
@@ -427,10 +427,10 @@ public class AbstractWorkbenchTestCase extends TestCase{
     protected IFolder createSourceFolder(IProgressMonitor monitor, IProject project, boolean addNature) throws CoreException {
         IFolder sourceFolder = project.getFolder(new Path("src"));
         if(!sourceFolder.exists()){
-        	sourceFolder.create(true, true, monitor);
+            sourceFolder.create(true, true, monitor);
         }
         if(addNature){
-        	PythonNature.addNature(project, monitor, PythonNature.JYTHON_VERSION_2_1, "/pydev_unit_test_project/src|/pydev_unit_test_project/junit.jar");
+            PythonNature.addNature(project, monitor, PythonNature.JYTHON_VERSION_2_1, "/pydev_unit_test_project/src|/pydev_unit_test_project/junit.jar");
         }
         return sourceFolder;
     }
@@ -491,14 +491,14 @@ public class AbstractWorkbenchTestCase extends TestCase{
     /**
      * Closes the welcome view (if being shown)
      */
-	public void closeWelcomeView() {
-		IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		IViewReference[] viewReferences = workbenchWindow.getActivePage().getViewReferences();
-		for(IViewReference ref:viewReferences){
-			if(ref.getPartName().equals("Welcome")){
-				workbenchWindow.getActivePage().hideView(ref);
-			}
-		}
-	}
+    public void closeWelcomeView() {
+        IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+        IViewReference[] viewReferences = workbenchWindow.getActivePage().getViewReferences();
+        for(IViewReference ref:viewReferences){
+            if(ref.getPartName().equals("Welcome")){
+                workbenchWindow.getActivePage().hideView(ref);
+            }
+        }
+    }
 
 }

@@ -11,8 +11,8 @@ import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
 public class NodeUtilsTest extends PyParserTestBase {
 
-	public static void main(String[] args) {
-	    try {
+    public static void main(String[] args) {
+        try {
             NodeUtilsTest test = new NodeUtilsTest();
             test.setUp();
             test.testClassEndLine();
@@ -22,79 +22,79 @@ public class NodeUtilsTest extends PyParserTestBase {
         } catch (Throwable e) {
             e.printStackTrace();
         }
-	    
-	}
+        
+    }
 
-	public void testFullRep() throws Exception {
+    public void testFullRep() throws Exception {
         SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr(
-        		"print a.b.c().d.__class__"));
+                "print a.b.c().d.__class__"));
         
         Iterator<ASTEntry> iterator = visitor.getIterator();
-		iterator.next(); //Module
-		iterator.next(); //Print
-		ASTEntry entry = iterator.next(); //Attribute
-		assertEquals("a.b.c", NodeUtils.getFullRepresentationString(entry.node));
+        iterator.next(); //Module
+        iterator.next(); //Print
+        ASTEntry entry = iterator.next(); //Attribute
+        assertEquals("a.b.c", NodeUtils.getFullRepresentationString(entry.node));
 
 
-		visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr(
-			"'r.a.s.b'.join('a')"));
-		iterator = visitor.getIterator();
-		iterator.next(); //Module
-		iterator.next(); //Expr
-		entry = iterator.next(); //Attribute
-		assertEquals("str.join", NodeUtils.getFullRepresentationString(entry.node));
-		
-		visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr(
-			"print aa.bbb.cccc[comp.id].hasSimulate"));
-		iterator = visitor.getIterator();
-		iterator.next(); //Module
-		iterator.next(); //Expr
-		entry = iterator.next(); //Attribute
-		assertEquals("aa.bbb.cccc", NodeUtils.getFullRepresentationString(entry.node));
-	}
-	
-	public void testClassEndLine() {
-	    SimpleNode ast1 = parseLegalDocStr("" +
-	            "class env:\n" +
-	            "    pass\n" +
-	            "\n" +
-	            "#comment\n");
-	    
-	    checkEndLine(ast1, 4);
-	    
-	    ast1 = parseLegalDocStr("" +
+        visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr(
+            "'r.a.s.b'.join('a')"));
+        iterator = visitor.getIterator();
+        iterator.next(); //Module
+        iterator.next(); //Expr
+        entry = iterator.next(); //Attribute
+        assertEquals("str.join", NodeUtils.getFullRepresentationString(entry.node));
+        
+        visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr(
+            "print aa.bbb.cccc[comp.id].hasSimulate"));
+        iterator = visitor.getIterator();
+        iterator.next(); //Module
+        iterator.next(); //Expr
+        entry = iterator.next(); //Attribute
+        assertEquals("aa.bbb.cccc", NodeUtils.getFullRepresentationString(entry.node));
+    }
+    
+    public void testClassEndLine() {
+        SimpleNode ast1 = parseLegalDocStr("" +
                 "class env:\n" +
                 "    pass\n" +
                 "\n" +
-        	    "if True:\n" +
-        	    "    pass\n" +
-        	    "#comment\n");
-	    
-	    checkEndLine(ast1, 2);
-	}
-	
-	public void testGetContextName() {
-	    SimpleNode ast1 = parseLegalDocStr("" +
-	            "class env:\n" +
-	            "    pass\n" +
-	            "\n" +
-	            "if __name__ == '__main__':\n" +
-	            "    print 'step 1'\n" +
-	            "\n");
-	    
-	    SimpleNode ast2 = parseLegalDocStr("" +
-	    		"class env:\n" +
-	    		"    pass\n" +
-	    		"\n" +
-	    		"if __name__ == '__main__':\n" +
-	    		"    print 'step 1'\n" +
-	    		"\n" +
-	    		"#comment");
-	    
+                "#comment\n");
+        
+        checkEndLine(ast1, 4);
+        
+        ast1 = parseLegalDocStr("" +
+                "class env:\n" +
+                "    pass\n" +
+                "\n" +
+                "if True:\n" +
+                "    pass\n" +
+                "#comment\n");
+        
+        checkEndLine(ast1, 2);
+    }
+    
+    public void testGetContextName() {
+        SimpleNode ast1 = parseLegalDocStr("" +
+                "class env:\n" +
+                "    pass\n" +
+                "\n" +
+                "if __name__ == '__main__':\n" +
+                "    print 'step 1'\n" +
+                "\n");
+        
+        SimpleNode ast2 = parseLegalDocStr("" +
+                "class env:\n" +
+                "    pass\n" +
+                "\n" +
+                "if __name__ == '__main__':\n" +
+                "    print 'step 1'\n" +
+                "\n" +
+                "#comment");
+        
         checkEndLine(ast1, 2);
         checkEndLine(ast2, 2);
-	    
-	    assertEquals(null, NodeUtils.getContextName(4, ast1));
+        
+        assertEquals(null, NodeUtils.getContextName(4, ast1));
         assertEquals(null, NodeUtils.getContextName(4, ast2));
     }
 

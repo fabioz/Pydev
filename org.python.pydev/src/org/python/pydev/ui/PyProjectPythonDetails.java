@@ -94,27 +94,27 @@ public class PyProjectPythonDetails extends PropertyPage{
 
     }
     
-	/**
-	 * The element.
-	 */
-	public IAdaptable element;
-	public RadioController radioController = new RadioController();
+    /**
+     * The element.
+     */
+    public IAdaptable element;
+    public RadioController radioController = new RadioController();
 
-	/*
-	 *  (non-Javadoc)
-	 * @see org.eclipse.ui.IWorkbenchPropertyPage#getElement()
-	 */
-	public IAdaptable getElement() {
-		return element;
-	}
-	/**
-	 * Sets the element that owns properties shown on this page.
-	 * 
-	 * @param element the element
-	 */
-	public void setElement(IAdaptable element) {
-		this.element = element;
-	}
+    /*
+     *  (non-Javadoc)
+     * @see org.eclipse.ui.IWorkbenchPropertyPage#getElement()
+     */
+    public IAdaptable getElement() {
+        return element;
+    }
+    /**
+     * Sets the element that owns properties shown on this page.
+     * 
+     * @param element the element
+     */
+    public void setElement(IAdaptable element) {
+        this.element = element;
+    }
     
     public IProject getProject(){
         return (IProject)getElement().getAdapter(IProject.class);

@@ -61,7 +61,7 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
      * place where the builtins are stored).
      */
     public String[] getBuiltins(String defaultSelectedInterpreter) {
-    	return getBuiltins();
+        return getBuiltins();
     }
     
     /** 
@@ -72,49 +72,49 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
     }
 
 
-	public void setPythonNature(IPythonNature nature) {
-		this.nature = nature;
-	}
+    public void setPythonNature(IPythonNature nature) {
+        this.nature = nature;
+    }
 
-	public IPythonNature getNature() {
-	    return this.nature;
-	}
+    public IPythonNature getNature() {
+        return this.nature;
+    }
 
-	public ISystemModulesManager getSystemModulesManager() {
-		return this; //itself
-	}
+    public ISystemModulesManager getSystemModulesManager() {
+        return this; //itself
+    }
 
-	public IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit) {
-		return getModule(name, nature, dontSearchInit);
-	}
+    public IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit) {
+        return getModule(name, nature, dontSearchInit);
+    }
 
 
-	public String resolveModule(String full, boolean checkSystemManager) {
-		return super.resolveModule(full);
-	}
+    public String resolveModule(String full, boolean checkSystemManager) {
+        return super.resolveModule(full);
+    }
 
-	public List<String> getCompletePythonPath(String interpreter) {
-	    return super.getPythonPath();
+    public List<String> getCompletePythonPath(String interpreter) {
+        return super.getPythonPath();
    }
     
-	public List<String> getCompletePythonPath(String interpreter, IPythonNature nature2) {
+    public List<String> getCompletePythonPath(String interpreter, IPythonNature nature2) {
         if(interpreter == null){
-		    return super.getPythonPath();
+            return super.getPythonPath();
         }else{
             IInterpreterManager manager = nature2.getRelatedInterpreterManager();
             IInterpreterInfo info = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
             return info.getPythonPath();
         }
-	}
+    }
 
-	public IModule getRelativeModule(String name, IPythonNature nature) {
-		return super.getModule(name, nature, true);
-	}
+    public IModule getRelativeModule(String name, IPythonNature nature) {
+        return super.getModule(name, nature, true);
+    }
 
     
-	/**
-	 * Called after the pythonpath is changed.
-	 */
+    /**
+     * Called after the pythonpath is changed.
+     */
     protected void onChangePythonpath(String defaultSelectedInterpreter, SortedMap<ModulesKey, ModulesKey> keys) {
         //create the builtin modules
         String[] builtins = getBuiltins(defaultSelectedInterpreter);

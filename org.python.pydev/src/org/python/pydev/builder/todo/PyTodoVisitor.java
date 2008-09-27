@@ -35,47 +35,47 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
             List<String> todoTags = PyTodoPrefPage.getTodoTags();
             if(todoTags.size() > 0){
 
-	            int numberOfLines = document.getNumberOfLines();
-	
-	            try {
-	                //Timer timer = new Timer();
-	                List<PydevMarkerUtils.MarkerInfo> lst = new ArrayList<PydevMarkerUtils.MarkerInfo>();
-	                
-	                int line = 0;
-	                while (line < numberOfLines) {
-	                    IRegion region = document.getLineInformation(line);
-	                    String tok = document.get(region.getOffset(), region.getLength());
-	                    int index;
-	
-	                    for (String element : todoTags) {
-	
-	                        if ((index = tok.indexOf(element)) != -1) {
-	                            
-	                            String message=tok.substring(index).trim();
-	                            String markerType=IMarker.TASK;
-	                            int severity=IMarker.SEVERITY_WARNING;
-	                            boolean userEditable=false;
-	                            boolean isTransient=false;
-	                            int absoluteStart=region.getOffset()+index;
-	                            int absoluteEnd=absoluteStart+message.length();
-	                            Map<String, Object> additionalInfo = null;
-	                            
-	                            
-	                            MarkerInfo markerInfo = new PydevMarkerUtils.MarkerInfo(document, message, markerType, severity, userEditable, 
-	                                    isTransient, line, absoluteStart, absoluteEnd, additionalInfo);
-	                            lst.add(markerInfo);
-	                        }
-	                    }
-	                    line++;
-	                }
-	                if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-	                    System.out.println("Adding todo markers");
-	                }
-	                PydevMarkerUtils.replaceMarkers(lst, resource, IMarker.TASK);
+                int numberOfLines = document.getNumberOfLines();
+    
+                try {
+                    //Timer timer = new Timer();
+                    List<PydevMarkerUtils.MarkerInfo> lst = new ArrayList<PydevMarkerUtils.MarkerInfo>();
+                    
+                    int line = 0;
+                    while (line < numberOfLines) {
+                        IRegion region = document.getLineInformation(line);
+                        String tok = document.get(region.getOffset(), region.getLength());
+                        int index;
+    
+                        for (String element : todoTags) {
+    
+                            if ((index = tok.indexOf(element)) != -1) {
+                                
+                                String message=tok.substring(index).trim();
+                                String markerType=IMarker.TASK;
+                                int severity=IMarker.SEVERITY_WARNING;
+                                boolean userEditable=false;
+                                boolean isTransient=false;
+                                int absoluteStart=region.getOffset()+index;
+                                int absoluteEnd=absoluteStart+message.length();
+                                Map<String, Object> additionalInfo = null;
+                                
+                                
+                                MarkerInfo markerInfo = new PydevMarkerUtils.MarkerInfo(document, message, markerType, severity, userEditable, 
+                                        isTransient, line, absoluteStart, absoluteEnd, additionalInfo);
+                                lst.add(markerInfo);
+                            }
+                        }
+                        line++;
+                    }
+                    if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+                        System.out.println("Adding todo markers");
+                    }
+                    PydevMarkerUtils.replaceMarkers(lst, resource, IMarker.TASK);
                     //timer.printDiff("Total time to put markers: "+lst.size());
-	            } catch (Exception e) {
-	                PydevPlugin.log(e);
-	            } 
+                } catch (Exception e) {
+                    PydevPlugin.log(e);
+                } 
             }
         }
 

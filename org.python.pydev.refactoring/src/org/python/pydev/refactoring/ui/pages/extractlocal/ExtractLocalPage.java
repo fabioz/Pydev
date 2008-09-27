@@ -16,57 +16,57 @@ import org.python.pydev.refactoring.ui.pages.PyDevInputWizardPage;
 // FIXME: The page is too large, make it smaller.
 public class ExtractLocalPage extends PyDevInputWizardPage {
 
-	public ExtractLocalRequestProcessor requestProcessor;
+    public ExtractLocalRequestProcessor requestProcessor;
 
-	private ExtractLocalComposite extractComposite;
+    private ExtractLocalComposite extractComposite;
 
-	private Composite parent;
+    private Composite parent;
 
-	public ExtractLocalPage(String name, ExtractLocalRequestProcessor requestProcessor) {
-		super(name);
-		this.setTitle(name);
-		this.requestProcessor = requestProcessor;
-	}
+    public ExtractLocalPage(String name, ExtractLocalRequestProcessor requestProcessor) {
+        super(name);
+        this.setTitle(name);
+        this.requestProcessor = requestProcessor;
+    }
 
-	public void createControl(Composite parent) {
-		this.parent = parent;
-		setupComposite();
-	}
+    public void createControl(Composite parent) {
+        this.parent = parent;
+        setupComposite();
+    }
 
-	public void setupComposite() {
-		if (extractComposite != null) {
-			extractComposite.dispose();
-			extractComposite = null;
-		}
-		
-		extractComposite = new ExtractLocalComposite(this, parent, requestProcessor.getScopeAdapter());
+    public void setupComposite() {
+        if (extractComposite != null) {
+            extractComposite.dispose();
+            extractComposite = null;
+        }
+        
+        extractComposite = new ExtractLocalComposite(this, parent, requestProcessor.getScopeAdapter());
 
-		extractComposite.registerListeners(this);
-		setControl(this.extractComposite);
+        extractComposite.registerListeners(this);
+        setControl(this.extractComposite);
 
-		voodooResizeToPage();
-		setPageComplete(false);
-	}
+        voodooResizeToPage();
+        setPageComplete(false);
+    }
 
-	@Override
-	public boolean canFlipToNextPage() {
-		return isPageComplete();
-	}
+    @Override
+    public boolean canFlipToNextPage() {
+        return isPageComplete();
+    }
 
-	public void validate() {
-		setErrorMessage(null);
-		extractComposite.validate();
-		setPageComplete(getErrorMessage() == null);
-		if (isPageComplete()) {
-			applySettings();
-		}
-	}
+    public void validate() {
+        setErrorMessage(null);
+        extractComposite.validate();
+        setPageComplete(getErrorMessage() == null);
+        if (isPageComplete()) {
+            applySettings();
+        }
+    }
 
-	private void applySettings() {
-		this.requestProcessor.setVariableName(extractComposite.getVariableName());
-	}
+    private void applySettings() {
+        this.requestProcessor.setVariableName(extractComposite.getVariableName());
+    }
 
-	public void handleEvent(Event event) {
-		validate();
-	}
+    public void handleEvent(Event event) {
+        validate();
+    }
 }

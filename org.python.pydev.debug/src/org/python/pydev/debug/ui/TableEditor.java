@@ -72,9 +72,9 @@ public abstract class TableEditor extends FieldEditor {
      */
     private SelectionListener selectionListener;
 
-	private TableColumn col1;
+    private TableColumn col1;
 
-	private TableColumn col2;
+    private TableColumn col2;
 
     /**
      * Creates a new list field editor 
@@ -105,10 +105,10 @@ public abstract class TableEditor extends FieldEditor {
             int index = table.getSelectionIndex();
             TableItem tableItem;
             if (index >= 0) {
-            	tableItem = new TableItem(table, 0, index+1);
-			} else {
-				tableItem = new TableItem(table, 0);
-			}
+                tableItem = new TableItem(table, 0, index+1);
+            } else {
+                tableItem = new TableItem(table, 0);
+            }
             tableItem.setText(input);
             selectionChanged();
         }
@@ -221,8 +221,8 @@ public abstract class TableEditor extends FieldEditor {
             String s = getPreferenceStore().getString(getPreferenceName());
             List<String[]> array = parseString(s);
             for (String[] data:array) {
-            	TableItem tableItem = new TableItem(table, 0);
-            	tableItem.setText(data);
+                TableItem tableItem = new TableItem(table, 0);
+                tableItem.setText(data);
             }
         }
     }
@@ -250,12 +250,12 @@ public abstract class TableEditor extends FieldEditor {
         TableItem[] items = table.getItems();
         ArrayList<String[]> list = new ArrayList<String[]>();
         for (TableItem tableItem : items) {
-			list.add(new String[]{tableItem.getText(0),	tableItem.getText(1)});
-		}
-		String s = createTable(list);
+            list.add(new String[]{tableItem.getText(0),    tableItem.getText(1)});
+        }
+        String s = createTable(list);
         if (s != null) {
-			getPreferenceStore().setValue(getPreferenceName(), s);
-		}
+            getPreferenceStore().setValue(getPreferenceName(), s);
+        }
     }
 
     /**
@@ -310,18 +310,18 @@ public abstract class TableEditor extends FieldEditor {
             table.setHeaderVisible(true);
             
             col1 = new TableColumn(table, SWT.LEFT);
-			col1.setText("Path to translate");
-			col1.setWidth(200);
-			col2 = new TableColumn(table, SWT.LEFT);
-			col2.setText("Translated path");
-			col2.setWidth(200);
+            col1.setText("Path to translate");
+            col1.setWidth(200);
+            col2 = new TableColumn(table, SWT.LEFT);
+            col2.setText("Translated path");
+            col2.setWidth(200);
             
             table.setFont(parent.getFont());
             table.addSelectionListener(getSelectionListener());
             table.addDisposeListener(new DisposeListener() {
                 public void widgetDisposed(DisposeEvent event) {
-                	col1 = null;
-                	col2 = null;
+                    col1 = null;
+                    col2 = null;
                     table = null;
                 }
             });
@@ -356,8 +356,8 @@ public abstract class TableEditor extends FieldEditor {
      */
     private SelectionListener getSelectionListener() {
         if (selectionListener == null) {
-			createSelectionListener();
-		}
+            createSelectionListener();
+        }
         return selectionListener;
     }
 
@@ -372,8 +372,8 @@ public abstract class TableEditor extends FieldEditor {
      */
     protected Shell getShell() {
         if (addButton == null) {
-			return null;
-		}
+            return null;
+        }
         return addButton.getShell();
     }
 

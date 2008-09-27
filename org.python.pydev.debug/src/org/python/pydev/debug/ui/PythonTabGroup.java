@@ -24,14 +24,14 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PythonTabGroup extends AbstractLaunchConfigurationTabGroup {
 
-	public void createTabs(ILaunchConfigurationDialog arg0, String arg1) {
-		ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
-				new MainModuleTab(), 
-				new ArgumentsTab(),
-				new InterpreterTab(PydevPlugin.getPythonInterpreterManager()),
-				new RefreshTab(), 
-				new EnvironmentTab(), 
-				new CommonTab() };
-		setTabs(tabs);
-	}
+    public void createTabs(ILaunchConfigurationDialog arg0, String arg1) {
+        ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
+                new MainModuleTab(), 
+                new ArgumentsTab(),
+                new InterpreterTab(PydevPlugin.getPythonInterpreterManager()),
+                new RefreshTab(), 
+                new EnvironmentTab(), 
+                new CommonTab() };
+        setTabs(tabs);
+    }
 }

@@ -20,35 +20,35 @@ import org.python.pydev.refactoring.core.edit.AbstractInsertEdit;
 
 public class CreateLocalVariableEdit extends AbstractInsertEdit {
 
-	private RefactoringInfo info;
-	
-	private String variableName;
+    private RefactoringInfo info;
+    
+    private String variableName;
 
-	private exprType expression;
+    private exprType expression;
 
-	public CreateLocalVariableEdit(ExtractLocalRequest req) {
-		super(req);
-		this.info = req.getRefactoringInfo();
-		this.variableName = req.getVariableName();
-		this.expression = req.getExpression();
-	}
+    public CreateLocalVariableEdit(ExtractLocalRequest req) {
+        super(req);
+        this.info = req.getRefactoringInfo();
+        this.variableName = req.getVariableName();
+        this.expression = req.getExpression();
+    }
 
-	@Override
-	protected SimpleNode getEditNode() {
-		exprType variable = new Name(variableName, expr_contextType.Store);
-		exprType[] target = {variable};
-		
-		return new Assign(target, expression);
-	}
-	
-	@Override
-	public int getOffset() {
-		PySelection selection = new PySelection(info.getDocument(), info.getExtendedSelection());
-		return selection.getStartLineOffset();
-	}
+    @Override
+    protected SimpleNode getEditNode() {
+        exprType variable = new Name(variableName, expr_contextType.Store);
+        exprType[] target = {variable};
+        
+        return new Assign(target, expression);
+    }
+    
+    @Override
+    public int getOffset() {
+        PySelection selection = new PySelection(info.getDocument(), info.getExtendedSelection());
+        return selection.getStartLineOffset();
+    }
 
-	@Override
-	public int getOffsetStrategy() {
-		return 0;
-	}
+    @Override
+    public int getOffsetStrategy() {
+        return 0;
+    }
 }

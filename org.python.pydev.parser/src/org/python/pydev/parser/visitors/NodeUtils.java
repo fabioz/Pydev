@@ -83,20 +83,20 @@ public class NodeUtils {
      * is a SimpleNode, get its representation
      */
     private static String discoverRep(Object o){
-    	if(o instanceof String){
-    		return (String) o;
-    	}
-    	if(o instanceof NameTok){
-    	    return ((NameTok) o).id;
-    	}
-    	if(o instanceof SimpleNode){
-    		return getRepresentationString((SimpleNode) o);
-    	}
-    	throw new RuntimeException("Expecting a String or a SimpleNode");
+        if(o instanceof String){
+            return (String) o;
+        }
+        if(o instanceof NameTok){
+            return ((NameTok) o).id;
+        }
+        if(o instanceof SimpleNode){
+            return getRepresentationString((SimpleNode) o);
+        }
+        throw new RuntimeException("Expecting a String or a SimpleNode");
     }
     
     public static String getRepresentationString(SimpleNode node) {
-    	return getRepresentationString(node, false);
+        return getRepresentationString(node, false);
     }
     
     /**
@@ -147,19 +147,19 @@ public class NodeUtils {
         if (node instanceof org.python.pydev.parser.jython.ast.List || node instanceof ListComp){
             String val = "[]";
             if(useTypeRepr){
-            	val = getBuiltinType(val);
+                val = getBuiltinType(val);
             }
-			return val;
+            return val;
         }
         
         if (node instanceof Str){
             String val;
             if(useTypeRepr){
-            	val = getBuiltinType("''");
+                val = getBuiltinType("''");
             }else{
                 val = "'"+((Str)node).s+"'";
             }
-			return val;
+            return val;
         }
         
         if (node instanceof Tuple){
@@ -176,15 +176,15 @@ public class NodeUtils {
             }
             String val = "("+buf+")";
             if(useTypeRepr){
-            	val = getBuiltinType(val);
+                val = getBuiltinType(val);
             }
-			return val;
+            return val;
         }
         
         if (node instanceof Num){
             String val = ((Num)node).n.toString();
             if(useTypeRepr){
-            	val = getBuiltinType(val);
+                val = getBuiltinType(val);
             }
             return val;
         }
@@ -220,16 +220,16 @@ public class NodeUtils {
      * @param t
      */
     public static String getNodeDocString(SimpleNode node) {
-    	Str s = getNodeDocStringNode(node);
+        Str s = getNodeDocStringNode(node);
         if(s != null){
-        	return s.s;
+            return s.s;
         }
         return null;
     }
 
 
-	public static Str getNodeDocStringNode(SimpleNode node) {
-		Str s = null;
+    public static Str getNodeDocStringNode(SimpleNode node) {
+        Str s = null;
         stmtType body[] = null;
         if(node instanceof FunctionDef){
             FunctionDef def = (FunctionDef) node;
@@ -247,8 +247,8 @@ public class NodeUtils {
                 }
             }
         }
-		return s;
-	}
+        return s;
+    }
 
     
     
@@ -257,10 +257,10 @@ public class NodeUtils {
     }
     
     public static String getFullRepresentationString(SimpleNode node, boolean fullOnSubscriptOrCall) {
-    	if (node instanceof Dict){
-    		return "dict";
-    	}
-    	
+        if (node instanceof Dict){
+            return "dict";
+        }
+        
         if (node instanceof Str || node instanceof Num){
             return getRepresentationString(node, true);
         } 
@@ -284,40 +284,40 @@ public class NodeUtils {
         
         
         if (node instanceof Attribute){
-        	//attributes are tricky because we only have backwards access initially, so, we have to:
-        	
-        	//get it forwards
-        	List<SimpleNode> attributeParts = getAttributeParts((Attribute) node);
-        	StringBuffer buf = new StringBuffer();
-        	for (Object part : attributeParts) {
-				if(part instanceof Call){
+            //attributes are tricky because we only have backwards access initially, so, we have to:
+            
+            //get it forwards
+            List<SimpleNode> attributeParts = getAttributeParts((Attribute) node);
+            StringBuffer buf = new StringBuffer();
+            for (Object part : attributeParts) {
+                if(part instanceof Call){
                     //stop on a call (that's what we usually want, since the end will depend on the things that 
                     //return from the call).
-				    if(!fullOnSubscriptOrCall){
-				        return buf.toString();
+                    if(!fullOnSubscriptOrCall){
+                        return buf.toString();
                     }else{
                         buf.append("()");//call
                     }
-					
-				}else if (part instanceof Subscript){
-				    if(!fullOnSubscriptOrCall){
-				        //stop on a subscript : e.g.: in bb.cc[10].d we only want the bb.cc part
-				        return getFullRepresentationString(((Subscript)part).value);
+                    
+                }else if (part instanceof Subscript){
+                    if(!fullOnSubscriptOrCall){
+                        //stop on a subscript : e.g.: in bb.cc[10].d we only want the bb.cc part
+                        return getFullRepresentationString(((Subscript)part).value);
                     }else{
                         buf.append(getFullRepresentationString(((Subscript)part).value));
                         buf.append("[]");//subscript access
                     }
 
-				}else{
-					//otherwise, just add another dot and keep going.
-					if(buf.length() > 0){
-						buf.append(".");
-					}
-					buf.append(getRepresentationString((SimpleNode) part, true));
-				}
-			}
-        	return buf.toString();
-        	
+                }else{
+                    //otherwise, just add another dot and keep going.
+                    if(buf.length() > 0){
+                        buf.append(".");
+                    }
+                    buf.append(getRepresentationString((SimpleNode) part, true));
+                }
+            }
+            return buf.toString();
+            
         } 
         
         return getRepresentationString(node, true);
@@ -328,28 +328,28 @@ public class NodeUtils {
      * line and col start at 1
      */
     public static boolean isWithin(int line, int col, SimpleNode node){
-    	int colDefinition = NodeUtils.getColDefinition(node);
-    	int lineDefinition = NodeUtils.getLineDefinition(node);
-    	int[] colLineEnd = NodeUtils.getColLineEnd(node, false);
-    	
-    	if(lineDefinition <= line && colDefinition <= col &&
-    		colLineEnd[0] >= line && colLineEnd[1] >= col){
-    		return true;
-    	}
-    	return false;
+        int colDefinition = NodeUtils.getColDefinition(node);
+        int lineDefinition = NodeUtils.getLineDefinition(node);
+        int[] colLineEnd = NodeUtils.getColLineEnd(node, false);
+        
+        if(lineDefinition <= line && colDefinition <= col &&
+            colLineEnd[0] >= line && colLineEnd[1] >= col){
+            return true;
+        }
+        return false;
     }
     
     public static SimpleNode getNameTokFromNode(SimpleNode ast2){
-    	if (ast2 instanceof ClassDef){
-    		ClassDef c = (ClassDef) ast2;
-    		return c.name;
-    	}
-    	if (ast2 instanceof FunctionDef){
-    		FunctionDef c = (FunctionDef) ast2;
-    		return c.name;
-    	}
-    	return ast2;
-    	
+        if (ast2 instanceof ClassDef){
+            ClassDef c = (ClassDef) ast2;
+            return c.name;
+        }
+        if (ast2 instanceof FunctionDef){
+            FunctionDef c = (FunctionDef) ast2;
+            return c.name;
+        }
+        return ast2;
+        
     }
 
     public static int getNameLineDefinition(SimpleNode ast2) {
@@ -417,8 +417,8 @@ public class NodeUtils {
     }
 
 
-	public static int getClassOrFuncColDefinition(SimpleNode ast2) {
-		if(ast2 instanceof ClassDef){
+    public static int getClassOrFuncColDefinition(SimpleNode ast2) {
+        if(ast2 instanceof ClassDef){
             ClassDef def = (ClassDef) ast2;
             return def.name.beginColumn;
         }
@@ -427,11 +427,11 @@ public class NodeUtils {
             return def.name.beginColumn;
         }
         return ast2.beginColumn;
-	}
+    }
 
 
     public static int[] getColLineEnd(SimpleNode v) {
-    	return getColLineEnd(v, true);
+        return getColLineEnd(v, true);
     }
 
     /**
@@ -479,10 +479,10 @@ public class NodeUtils {
         }
         
         if(getOnlyToFirstDot){
-	        int i;
-	        if((i = representationString.indexOf('.') )  != -1){
-	            representationString = representationString.substring(0,i);
-	        }
+            int i;
+            if((i = representationString.indexOf('.') )  != -1){
+                representationString = representationString.substring(0,i);
+            }
         }
         
         int colDefinition = getColDefinition(v);
@@ -590,31 +590,31 @@ public class NodeUtils {
      * @return a list with the attribute parts in its forward order, and not backward as presented
      * in the grammar.
      */
-	public static List<SimpleNode> getAttributeParts(Attribute node) {
-		ArrayList<SimpleNode> nodes = new ArrayList<SimpleNode>();
-		
-		nodes.add(node.attr);
-		SimpleNode s = node.value;
-		
-		while(true){
-			if(s instanceof Attribute){
-				nodes.add(s);
-				s = ((Attribute) s).value;
-				
-			}else if(s instanceof Call){
-				nodes.add(s);
-				s = ((Call) s).func;
-				
-			}else{
-				nodes.add(s);
-				break;
-			}
-		}
-		
-		Collections.reverse(nodes);
-		
-		return nodes;
-	}
+    public static List<SimpleNode> getAttributeParts(Attribute node) {
+        ArrayList<SimpleNode> nodes = new ArrayList<SimpleNode>();
+        
+        nodes.add(node.attr);
+        SimpleNode s = node.value;
+        
+        while(true){
+            if(s instanceof Attribute){
+                nodes.add(s);
+                s = ((Attribute) s).value;
+                
+            }else if(s instanceof Call){
+                nodes.add(s);
+                s = ((Call) s).func;
+                
+            }else{
+                nodes.add(s);
+                break;
+            }
+        }
+        
+        Collections.reverse(nodes);
+        
+        return nodes;
+    }
 
 
     /**
@@ -639,43 +639,43 @@ public class NodeUtils {
     /**
      * @return true if the node is an import node (and false otherwise).
      */
-	public static boolean isImport(SimpleNode ast) {
+    public static boolean isImport(SimpleNode ast) {
         if(ast instanceof Import || ast instanceof ImportFrom){
             return true;
         }
         return false;
-	}
+    }
 
     /**
      * @return true if the node is a comment import node (and false otherwise).
      */
-	public static boolean isComment(SimpleNode ast) {
+    public static boolean isComment(SimpleNode ast) {
         if(ast instanceof commentType) {
             return true;
         }
         return false;
-	}
+    }
 
 
-	public static NameTok getNameForAlias(aliasType t) {
-		if(t.asname != null){
-			return (NameTok) t.asname;
-		}else{
-			return (NameTok) t.name;
-		}
-	}
+    public static NameTok getNameForAlias(aliasType t) {
+        if(t.asname != null){
+            return (NameTok) t.asname;
+        }else{
+            return (NameTok) t.name;
+        }
+    }
 
 
-	public static NameTok getNameForRep(aliasType[] names, String representation) {
-		for (aliasType name : names) {
-			NameTok nameForAlias = getNameForAlias(name);
-			String aliasRep = NodeUtils.getRepresentationString(nameForAlias);
-			if(representation.equals(aliasRep)){
-				return nameForAlias;
-			}
-		}
-		return null;
-	}
+    public static NameTok getNameForRep(aliasType[] names, String representation) {
+        for (aliasType name : names) {
+            NameTok nameForAlias = getNameForAlias(name);
+            String aliasRep = NodeUtils.getRepresentationString(nameForAlias);
+            if(representation.equals(aliasRep)){
+                return nameForAlias;
+            }
+        }
+        return null;
+    }
 
 
     /**
@@ -717,7 +717,7 @@ public class NodeUtils {
                 return buffer.toString();
             }
         }
-    	return null;
+        return null;
     }
 
     
@@ -751,22 +751,22 @@ public class NodeUtils {
      */
     public static boolean isIfMAinNode(If node) {
         if (node.test instanceof Compare) {
-    		Compare compareNode = (Compare)node.test;
-    		// handcrafted structure walking
-    		if (compareNode.left instanceof Name 
-    			&& ((Name)compareNode.left).id.equals("__name__")
-    			&& compareNode.ops != null
-    			&& compareNode.ops.length == 1 
-    			&& compareNode.ops[0] == Compare.Eq){
+            Compare compareNode = (Compare)node.test;
+            // handcrafted structure walking
+            if (compareNode.left instanceof Name 
+                && ((Name)compareNode.left).id.equals("__name__")
+                && compareNode.ops != null
+                && compareNode.ops.length == 1 
+                && compareNode.ops[0] == Compare.Eq){
                 
-    		    if ( compareNode.comparators != null
-        			&& compareNode.comparators.length == 1
-        			&& compareNode.comparators[0] instanceof Str 
-        			&& ((Str)compareNode.comparators[0]).s.equals("__main__")){
-        			return true;
+                if ( compareNode.comparators != null
+                    && compareNode.comparators.length == 1
+                    && compareNode.comparators[0] instanceof Str 
+                    && ((Str)compareNode.comparators[0]).s.equals("__main__")){
+                    return true;
                 }
-    		}
-    	}
+            }
+        }
         return false;
     }
 

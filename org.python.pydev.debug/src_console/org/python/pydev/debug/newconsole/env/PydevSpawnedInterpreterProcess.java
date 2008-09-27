@@ -20,15 +20,15 @@ public class PydevSpawnedInterpreterProcess implements IProcess {
      */
     private boolean terminated;
     
-	private Process spawnedInterpreterProcess;
-	private ILaunch launch;
+    private Process spawnedInterpreterProcess;
+    private ILaunch launch;
     private HashMap<String, String> attributes;
     
     public PydevSpawnedInterpreterProcess(Process spawnedInterpreterProcess, ILaunch launch){
-		this.spawnedInterpreterProcess = spawnedInterpreterProcess;
-		this.launch = launch;
-		this.attributes = new HashMap<String, String>();
-		this.setAttribute(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
+        this.spawnedInterpreterProcess = spawnedInterpreterProcess;
+        this.launch = launch;
+        this.attributes = new HashMap<String, String>();
+        this.setAttribute(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
     }
 
     /**
@@ -43,7 +43,7 @@ public class PydevSpawnedInterpreterProcess implements IProcess {
     }
 
     public ILaunch getLaunch() {
-    	return this.launch;
+        return this.launch;
     }
 
     public IStreamsProxy getStreamsProxy() {
@@ -75,14 +75,14 @@ public class PydevSpawnedInterpreterProcess implements IProcess {
     }
 
     public void terminate() throws DebugException {
-    	try {
-    		if(this.spawnedInterpreterProcess != null){
-    			this.spawnedInterpreterProcess.destroy();
-    		}
-		} catch (RuntimeException e) {
-			PydevPlugin.log(e);
-		}
-		this.spawnedInterpreterProcess = null;
+        try {
+            if(this.spawnedInterpreterProcess != null){
+                this.spawnedInterpreterProcess.destroy();
+            }
+        } catch (RuntimeException e) {
+            PydevPlugin.log(e);
+        }
+        this.spawnedInterpreterProcess = null;
         terminated = true;
     }
 

@@ -102,9 +102,9 @@ public class FileNode {
         for (int i = 0; i < toks.length; i++) {
             String tok = toks[i].trim();
             if(tok.length() == 0){
-            	continue;
+                continue;
             }
-			if(tok.indexOf("-") == -1){
+            if(tok.indexOf("-") == -1){
                 l.add(new Integer(tok));
             }else{
                 String[] begEnd = tok.split("-");

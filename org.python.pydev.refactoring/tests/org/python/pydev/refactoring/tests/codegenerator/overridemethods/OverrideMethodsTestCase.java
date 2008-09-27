@@ -22,65 +22,65 @@ public class OverrideMethodsTestCase extends AbstractIOTestCase {
 
     private CompletionEnvironmentSetupHelper setupHelper;
 
-	public OverrideMethodsTestCase(String name) {
-		super(name);
-	}
+    public OverrideMethodsTestCase(String name) {
+        super(name);
+    }
 
-	@Override
-	public void runTest() throws Throwable {
+    @Override
+    public void runTest() throws Throwable {
         setupHelper = new CompletionEnvironmentSetupHelper();
         setupHelper.setupEnv();
         try{
-    		MockupOverrideMethodsConfig config = initConfig();
+            MockupOverrideMethodsConfig config = initConfig();
     
-    		MockupOverrideMethodsRequestProcessor requestProcessor = setupRequestProcessor(config);
+            MockupOverrideMethodsRequestProcessor requestProcessor = setupRequestProcessor(config);
     
-    		IDocument refactoringDoc = applyOverrideMethod(requestProcessor);
+            IDocument refactoringDoc = applyOverrideMethod(requestProcessor);
     
-    		this.setTestGenerated(refactoringDoc.get());
-    		
-    		assertEquals(getExpected(), getGenerated());
+            this.setTestGenerated(refactoringDoc.get());
+            
+            assertEquals(getExpected(), getGenerated());
         }finally{
             setupHelper.tearDownEnv();
         }
-	}
+    }
 
-	private IDocument applyOverrideMethod(MockupOverrideMethodsRequestProcessor requestProcessor) throws BadLocationException {
-		List<OverrideMethodsRequest> refactoringRequests = requestProcessor.getRefactoringRequests();
-		IDocument refactoringDoc = new Document(getSource());
-		for(OverrideMethodsRequest refactoringRequest:refactoringRequests){
+    private IDocument applyOverrideMethod(MockupOverrideMethodsRequestProcessor requestProcessor) throws BadLocationException {
+        List<OverrideMethodsRequest> refactoringRequests = requestProcessor.getRefactoringRequests();
+        IDocument refactoringDoc = new Document(getSource());
+        for(OverrideMethodsRequest refactoringRequest:refactoringRequests){
             MethodEdit methodEdit = new MethodEdit(refactoringRequest);
     
-    		methodEdit.getEdit().apply(refactoringDoc);
-		}
-		return refactoringDoc;
-	}
+            methodEdit.getEdit().apply(refactoringDoc);
+        }
+        return refactoringDoc;
+    }
 
-	private MockupOverrideMethodsRequestProcessor setupRequestProcessor(MockupOverrideMethodsConfig config) throws Throwable {
-		ModuleAdapter module = setupHelper.createModuleAdapter(this);
-		List<IClassDefAdapter> classes = module.getClasses();
-		assertTrue(classes.size() > 0);
+    private MockupOverrideMethodsRequestProcessor setupRequestProcessor(MockupOverrideMethodsConfig config) throws Throwable {
+        ModuleAdapter module = setupHelper.createModuleAdapter(this);
+        List<IClassDefAdapter> classes = module.getClasses();
+        assertTrue(classes.size() > 0);
 
-		MockupOverrideMethodsRequestProcessor requestProcessor = new MockupOverrideMethodsRequestProcessor(module, config);
-		return requestProcessor;
-	}
+        MockupOverrideMethodsRequestProcessor requestProcessor = new MockupOverrideMethodsRequestProcessor(module, config);
+        return requestProcessor;
+    }
 
-	private MockupOverrideMethodsConfig initConfig() {
-		MockupOverrideMethodsConfig config = null;
-		XStream xstream = new XStream();
-		xstream.alias("config", MockupOverrideMethodsConfig.class);
+    private MockupOverrideMethodsConfig initConfig() {
+        MockupOverrideMethodsConfig config = null;
+        XStream xstream = new XStream();
+        xstream.alias("config", MockupOverrideMethodsConfig.class);
 
-		if (getConfig().length() > 0) {
-			config = (MockupOverrideMethodsConfig) xstream.fromXML(getConfig());
-		} else {
-			fail("Could not unserialize configuration");
-		}
-		return config;
-	}
+        if (getConfig().length() > 0) {
+            config = (MockupOverrideMethodsConfig) xstream.fromXML(getConfig());
+        } else {
+            fail("Could not unserialize configuration");
+        }
+        return config;
+    }
 
-	@Override
-	public String getExpected() {
-		return getResult();
-	}
+    @Override
+    public String getExpected() {
+        return getResult();
+    }
 
 }

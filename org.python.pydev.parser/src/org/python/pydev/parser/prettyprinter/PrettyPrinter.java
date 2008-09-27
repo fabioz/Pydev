@@ -172,7 +172,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
 
     @Override
     public Object visitAssign(Assign node) throws Exception {
-    	state.pushInStmt(node);
+        state.pushInStmt(node);
         auxComment.writeSpecialsBefore(node);
         for (int i = 0; i < node.targets.length; i++) {
             exprType target = node.targets[i];
@@ -321,7 +321,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
 
     @Override
     public Object visitDelete(Delete node) throws Exception {
-    	return visitGeneric(node, "visitDelete", false);
+        return visitGeneric(node, "visitDelete", false);
     }
 
     @Override
@@ -332,7 +332,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             c.accept(this);
         }
         afterNode(node);
-    	return null;
+        return null;
     }
 
     private SimpleNode[] reverseNodeArray(SimpleNode[] expressions) {
@@ -518,7 +518,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     
     @Override
     public Object visitReturn(Return node) throws Exception {
-    	return visitGeneric(node, "visitReturn", true);
+        return visitGeneric(node, "visitReturn", true);
     }
 
     @Override
@@ -574,8 +574,8 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         if(!fixNewStatementCondition()){
             state.writeIndentString();
         }
-		
-		//write the body and dedent
+        
+        //write the body and dedent
         for (SimpleNode n : node.body){
             n.accept(this);
         }
@@ -583,14 +583,14 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         
         
         if(node.orelse != null && node.orelse.length > 0){
-        	boolean inElse = false;
+            boolean inElse = false;
             auxComment.writeSpecialsAfter(node);
             
             //now, if it is an elif, it will end up calling the 'visitIf' again,
             //but if it is an 'else:' we will have to make the indent again
             if(node.specialsAfter != null && node.specialsAfter.contains(new SpecialStr("else:",0,0))){ //the SpecialStr only compares with its String
-            	inElse = true;
-            	state.indent();
+                inElse = true;
+                state.indent();
                 if(!fixNewStatementCondition()){
                     state.writeIndentString();
                 }
@@ -599,7 +599,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
                 n.accept(this);
             }
             if(inElse){
-            	dedent();
+                dedent();
             }
         }
         
@@ -617,16 +617,16 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         return super.visitGeneric(node, "visitAssert", true, null, false, false);
     }
     
-	@Override
+    @Override
     public Object visitStr(Str node) throws Exception {
-    	auxComment.writeSpecialsBefore(node);
+        auxComment.writeSpecialsBefore(node);
         
-    	state.write(NodeUtils.getStringToPrint(node));
-    	if(!state.inStmt()){
+        state.write(NodeUtils.getStringToPrint(node));
+        if(!state.inStmt()){
             fixNewStatementCondition();
-    	}
-    	auxComment.writeSpecialsAfter(node);
-    	return null;
+        }
+        auxComment.writeSpecialsAfter(node);
+        return null;
     }
     
 
@@ -645,7 +645,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         //we want the comments to be indented too
         state.indent();
         {
-        	auxComment.writeSpecialsAfter(name);
+            auxComment.writeSpecialsAfter(name);
     
             if(node.bases.length > 0){
                 for (exprType expr : node.bases) {
@@ -720,9 +720,9 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         auxComment.writeStringsAfter(node);
         
         {
-        	//arguments
-        	makeArgs(node.args.args, node.args);
-        	//end arguments
+            //arguments
+            makeArgs(node.args.args, node.args);
+            //end arguments
             if(!fixNewStatementCondition()){
                 if(lastWrite == state.getLastWrite()){
                     state.writeIndentString();
@@ -768,10 +768,10 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         }
 
         if(completeArgs.vararg != null){
-        	completeArgs.vararg.accept(this);
+            completeArgs.vararg.accept(this);
         }
         if(completeArgs.kwarg != null){
-        	completeArgs.kwarg.accept(this);
+            completeArgs.kwarg.accept(this);
         }
         
     }

@@ -18,39 +18,39 @@ import org.python.pydev.refactoring.messages.Messages;
 
 public class PepticImageCache {
 
-	private Map<String, Image> imageHash = new HashMap<String, Image>(10);
+    private Map<String, Image> imageHash = new HashMap<String, Image>(10);
 
-	private Image missing = null;
+    private Image missing = null;
 
-	public void dispose() {
-		for (Image image : imageHash.values()) {
-			image.dispose();
-		}
-		if (missing != null) {
-			missing.dispose();
-		}
-	}
+    public void dispose() {
+        for (Image image : imageHash.values()) {
+            image.dispose();
+        }
+        if (missing != null) {
+            missing.dispose();
+        }
+    }
 
-	public Image get(String key) {
-		Image image = imageHash.get(key);
-		if (image == null) {
-			ImageDescriptor desc;
-			/* FIXME: Why catching these exceptions */
-			try {
-				desc = getDescriptor(key);
-				image = desc.createImage();
-				imageHash.put(key, image);
-			} catch (NoClassDefFoundError e) {
-				return null;
-			} catch (UnsatisfiedLinkError e) {
-				return null;
-			}
-		}
-		return image;
-	}
+    public Image get(String key) {
+        Image image = imageHash.get(key);
+        if (image == null) {
+            ImageDescriptor desc;
+            /* FIXME: Why catching these exceptions */
+            try {
+                desc = getDescriptor(key);
+                image = desc.createImage();
+                imageHash.put(key, image);
+            } catch (NoClassDefFoundError e) {
+                return null;
+            } catch (UnsatisfiedLinkError e) {
+                return null;
+            }
+        }
+        return image;
+    }
 
-	public ImageDescriptor getDescriptor(String key) {
-		return PepticPlugin.imageDescriptorFromPlugin(PepticPlugin.PLUGIN_ID, Messages.imagePath + key);
-	}
+    public ImageDescriptor getDescriptor(String key) {
+        return PepticPlugin.imageDescriptorFromPlugin(PepticPlugin.PLUGIN_ID, Messages.imagePath + key);
+    }
 
 }

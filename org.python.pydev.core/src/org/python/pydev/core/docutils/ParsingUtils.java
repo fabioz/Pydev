@@ -355,25 +355,25 @@ public abstract class ParsingUtils implements IPythonPartitions{
      * discover the position of the closing quote
      */
     public int findNextSingle(int i, char curr) {
-    	boolean ignoreNext = false;
+        boolean ignoreNext = false;
         int len = len();
         while(i < len){
-        	char c = charAt(i);
-        	
-        	
-			if(!ignoreNext && c == curr){
-        		break;
-        	}
+            char c = charAt(i);
+            
+            
+            if(!ignoreNext && c == curr){
+                break;
+            }
 
             if(!ignoreNext){
-    			if(c == '\\'){ //escaped quote, ignore the next char even if it is a ' or "
-    				ignoreNext = true;
-    			}
+                if(c == '\\'){ //escaped quote, ignore the next char even if it is a ' or "
+                    ignoreNext = true;
+                }
             }else{
                 ignoreNext = false;
             }
             
-			i++;
+            i++;
         }
         return i;
     }
@@ -385,13 +385,13 @@ public abstract class ParsingUtils implements IPythonPartitions{
         int len = len();
         while(i+2 < len){
             char c = charAt(i);
-			if (c == curr && charAt(i+1) == curr && charAt(i+2) == curr){
+            if (c == curr && charAt(i+1) == curr && charAt(i+2) == curr){
                 break;
             }
-			i++;
-			if(c == '\\'){ //this is for escaped quotes
-				i++;
-			}
+            i++;
+            if(c == '\\'){ //this is for escaped quotes
+                i++;
+            }
         }
         if(len < i+2){
             return len;
@@ -471,11 +471,11 @@ public abstract class ParsingUtils implements IPythonPartitions{
             if(ch == '\'' || ch == '"'){
                 int j = parsingUtils.getLiteralEnd(i, ch);
                 if(whitespacesToo){
-	              	buf.delete(i, j+1);
+                      buf.delete(i, j+1);
                 }else{
-	                for (int k = 0; i+k < j+1; k++) {
-						buf.replace(i+k, i+k+1, " ");
-					}
+                    for (int k = 0; i+k < j+1; k++) {
+                        buf.replace(i+k, i+k+1, " ");
+                    }
                 }
             }
         }
@@ -490,8 +490,8 @@ public abstract class ParsingUtils implements IPythonPartitions{
             }
         }
     }
-	public static void removeLiterals(FastStringBuffer buf) {
-	    ParsingUtils parsingUtils = create(buf);
+    public static void removeLiterals(FastStringBuffer buf) {
+        ParsingUtils parsingUtils = create(buf);
         for (int i = 0; i < buf.length(); i++) {
             char ch = buf.charAt(i);
             if(ch == '#'){
@@ -505,15 +505,15 @@ public abstract class ParsingUtils implements IPythonPartitions{
             if(ch == '\'' || ch == '"'){
                 int j = parsingUtils.getLiteralEnd(i, ch);
                 for (int k = 0; i+k < j+1; k++) {
-					buf.replace(i+k, i+k+1, " ");
-				}
+                    buf.replace(i+k, i+k+1, " ");
+                }
             }
         }
-	}
+    }
     
-	public static Iterator<String> getNoLiteralsOrCommentsIterator(IDocument doc) {
-		return new PyDocIterator(doc);
-	}
+    public static Iterator<String> getNoLiteralsOrCommentsIterator(IDocument doc) {
+        return new PyDocIterator(doc);
+    }
 
     
     public static void removeCommentsAndWhitespaces(FastStringBuffer buf) {
@@ -575,10 +575,10 @@ public abstract class ParsingUtils implements IPythonPartitions{
             }
             
             if(ch == '\'' || ch == '"'){
-            	curr = PY_SINGLELINE_STRING1;
-            	if(ch == '"'){
-            		curr = PY_SINGLELINE_STRING2;
-            	}
+                curr = PY_SINGLELINE_STRING1;
+                if(ch == '"'){
+                    curr = PY_SINGLELINE_STRING2;
+                }
                 i = parsingUtils.getLiteralEnd(i, ch);
             }
         }
@@ -595,7 +595,7 @@ public abstract class ParsingUtils implements IPythonPartitions{
     public static String getContentType(IDocument document, int i) {
         IDocumentExtension3 docExtension= (IDocumentExtension3) document;
         IDocumentPartitionerExtension2 partitioner = (IDocumentPartitionerExtension2)
-        	docExtension.getDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE);
+            docExtension.getDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE);
         
         if(partitioner != null){
             return partitioner.getContentType(i, true);

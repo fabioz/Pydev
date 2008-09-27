@@ -32,54 +32,54 @@ import org.python.pydev.plugin.nature.SystemPythonNature;
  * object at runtime.
  */
 public class RefactoringRequest extends DecoratableObject{
-	
-	/**
-	 * The file associated with the editor where the refactoring is being requested
-	 */
-	public File file;
-	
-	/**
-	 * The current selection when the refactoring was requested
-	 */
-	public PySelection ps;
-	
-	/**
-	 * The progress monitor to give feedback to the user (may be checked in another thread)
+    
+    /**
+     * The file associated with the editor where the refactoring is being requested
+     */
+    public File file;
+    
+    /**
+     * The current selection when the refactoring was requested
+     */
+    public PySelection ps;
+    
+    /**
+     * The progress monitor to give feedback to the user (may be checked in another thread)
      * May be null
      * 
      * Note that this is the monitor for the initial request, but, clients may use it in othe
-	 */
-	private volatile Stack<IProgressMonitor> monitors = new Stack<IProgressMonitor>();
-	
-	/**
-	 * The nature used 
-	 */
-	public IPythonNature nature;
-	
-	/**
-	 * The python editor. May be null (especially on tests)
-	 */
-	public PyEdit pyEdit;
-	
-	/**
-	 * The module for the passed document. Has a getter that caches the result here.
-	 */
+     */
+    private volatile Stack<IProgressMonitor> monitors = new Stack<IProgressMonitor>();
+    
+    /**
+     * The nature used 
+     */
+    public IPythonNature nature;
+    
+    /**
+     * The python editor. May be null (especially on tests)
+     */
+    public PyEdit pyEdit;
+    
+    /**
+     * The module for the passed document. Has a getter that caches the result here.
+     */
     private IModule module;
     
     /**
      * The module name (may be null)
      */
-	public String moduleName;
-	
-	/**
-	 * The new name in a refactoring (may be null if not applicable)
-	 */
-	public String inputName;
-	
-	/**
-	 * The initial representation of the selected name
-	 */
-	public String initialName;
+    public String moduleName;
+    
+    /**
+     * The new name in a refactoring (may be null if not applicable)
+     */
+    public String inputName;
+    
+    /**
+     * The initial representation of the selected name
+     */
+    public String initialName;
     
     /**
      * Default constructor... the user is responsible for filling the needed information
@@ -88,38 +88,38 @@ public class RefactoringRequest extends DecoratableObject{
     public RefactoringRequest() {
     }
     
-	/**
-	 * If the file is passed, we also set the document automatically
-	 * @param file the file correspondent to this request
-	 */
-	public RefactoringRequest(File file, PySelection selection, PythonNature nature) {
-		this(file, selection, null, nature, null); 
-	}
+    /**
+     * If the file is passed, we also set the document automatically
+     * @param file the file correspondent to this request
+     */
+    public RefactoringRequest(File file, PySelection selection, PythonNature nature) {
+        this(file, selection, null, nature, null); 
+    }
 
     /**
      * Assigns parameters to attributes (tries to resolve the module name and create a SystemPythonNature if the 
      * nature is not specified)
      */
-	public RefactoringRequest(File file, PySelection ps, IProgressMonitor monitor, IPythonNature nature, PyEdit pyEdit) {
-		this.file = file;
-		this.ps = ps;
-		this.pushMonitor(monitor);
+    public RefactoringRequest(File file, PySelection ps, IProgressMonitor monitor, IPythonNature nature, PyEdit pyEdit) {
+        this.file = file;
+        this.ps = ps;
+        this.pushMonitor(monitor);
         
-		if(nature == null){
-		    Tuple<SystemPythonNature,String> infoForFile = PydevPlugin.getInfoForFile(file);
-		    if(infoForFile != null){
-		        this.nature = infoForFile.o1;
+        if(nature == null){
+            Tuple<SystemPythonNature,String> infoForFile = PydevPlugin.getInfoForFile(file);
+            if(infoForFile != null){
+                this.nature = infoForFile.o1;
                 this.moduleName = infoForFile.o2;
-		    }
-		}else{
-		    this.nature = nature;
-		    if(file != null){
-		        this.moduleName = resolveModule();
-		    }
+            }
+        }else{
+            this.nature = nature;
+            if(file != null){
+                this.moduleName = resolveModule();
+            }
         }
         
-		this.pyEdit = pyEdit;
-	}
+        this.pyEdit = pyEdit;
+    }
 
     /**
      * Used to make the work communication (also checks to see if it has been cancelled)
@@ -143,25 +143,25 @@ public class RefactoringRequest extends DecoratableObject{
     }
 
 
-	/**
-	 * @return the module name or null if it is not possible to determine the module name
-	 */
-	public String resolveModule(){
-		if(moduleName == null){
-			if (file != null && nature != null){
-				moduleName = nature.resolveModule(file);
-			}
-		}
-		return moduleName;
-	}
-	
+    /**
+     * @return the module name or null if it is not possible to determine the module name
+     */
+    public String resolveModule(){
+        if(moduleName == null){
+            if (file != null && nature != null){
+                moduleName = nature.resolveModule(file);
+            }
+        }
+        return moduleName;
+    }
+    
     // Some shortcuts to the PySelection
-	/**
-	 * @return the initial column selected (starting at 0)
-	 */
-	public int getBeginCol() {
-	    return ps.getAbsoluteCursorOffset() - ps.getStartLine().getOffset();
-	}
+    /**
+     * @return the initial column selected (starting at 0)
+     */
+    public int getBeginCol() {
+        return ps.getAbsoluteCursorOffset() - ps.getStartLine().getOffset();
+    }
     
     /**
      * @return the final column selected (starting at 0)
@@ -185,11 +185,11 @@ public class RefactoringRequest extends DecoratableObject{
     }
 
 
-	/**
-	 * @return the module for the document (may return the ast from the pyedit if it is available).
-	 */
-	public IModule getModule() {
-		if(module == null){
+    /**
+     * @return the module for the document (may return the ast from the pyedit if it is available).
+     */
+    public IModule getModule() {
+        if(module == null){
             if(pyEdit != null){
                 SimpleNode ast = pyEdit.getAST();
                 if(ast != null){
@@ -198,22 +198,22 @@ public class RefactoringRequest extends DecoratableObject{
             }
             
             if(module == null){
-    			module= AbstractModule.createModuleFromDoc(
-    				   resolveModule(), file, ps.getDoc(), 
-    				   nature, getBeginLine());
+                module= AbstractModule.createModuleFromDoc(
+                       resolveModule(), file, ps.getDoc(), 
+                       nature, getBeginLine());
             }
-		}
-		return module;
-	}
-	
-	/**
-	 * @return the ast for the current module
-	 */
+        }
+        return module;
+    }
+    
+    /**
+     * @return the ast for the current module
+     */
     public SimpleNode getAST() {
-    	IModule mod = getModule();
-    	if(mod instanceof SourceModule){
-    		return ((SourceModule)mod).getAst();
-    	}
+        IModule mod = getModule();
+        if(mod instanceof SourceModule){
+            return ((SourceModule)mod).getAst();
+        }
         return null;
     }
 

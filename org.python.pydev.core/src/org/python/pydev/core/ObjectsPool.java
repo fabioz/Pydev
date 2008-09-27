@@ -29,25 +29,25 @@ public class ObjectsPool<S> {
      * If it doesn't exist, the parameter itself will be put in the pool.
      */
     @SuppressWarnings("unchecked")
-	public synchronized S getFromPool(S o){
-    	synchronized(weakHashMap){
+    public synchronized S getFromPool(S o){
+        synchronized(weakHashMap){
             WeakReference<S> w = (WeakReference<S>)weakHashMap.get(o);
             if(w == null){
-            	//garbage collected or still not there...
-            	weakHashMap.put(o, new WeakReference<S>(o));
-            	return o;
-            	
+                //garbage collected or still not there...
+                weakHashMap.put(o, new WeakReference<S>(o));
+                return o;
+                
             }else{
-            	final S ret = w.get();
-            	if(ret == null && o != null){
-            		//garbage collected just in time hum?
-            		weakHashMap.put(o, new WeakReference<S>(o));
-            		return o;
-            		
-            	}else{
-            		return ret;
-            	}
+                final S ret = w.get();
+                if(ret == null && o != null){
+                    //garbage collected just in time hum?
+                    weakHashMap.put(o, new WeakReference<S>(o));
+                    return o;
+                    
+                }else{
+                    return ret;
+                }
             }
-    	}
+        }
     }
 }

@@ -53,17 +53,17 @@ public class FastParserTest extends TestCase {
     public void testGettingClass() throws Exception {
         Document doc = new Document();
         doc.set("class Foo:\n" +
-        		"\n" +
-        		"class Bar(object):\n" +
-        		"\n" +
-        		"    class My\n" +
-        		"'''class Dont\n" +
-        		"class Dont2\n" +
-        		"\n" +
-        		"'''\n" +
-        		"class My2:\n" +
-        		"" +
-        		"");
+                "\n" +
+                "class Bar(object):\n" +
+                "\n" +
+                "    class My\n" +
+                "'''class Dont\n" +
+                "class Dont2\n" +
+                "\n" +
+                "'''\n" +
+                "class My2:\n" +
+                "" +
+                "");
         
         List<stmtType> all = FastParser.parseClassesAndFunctions(doc);
         assertEquals(4, all.size());

@@ -14,61 +14,61 @@ import org.python.pydev.ui.ColorCache;
 
 public class PyPreviewProjection extends ProjectionViewer {
 
-	private ColorCache colorCache;
+    private ColorCache colorCache;
 
-	private PyPreviewConfiguration editConfiguration;
+    private PyPreviewConfiguration editConfiguration;
 
-	public PyPreviewProjection(Composite parent, IVerticalRuler ruler, IOverviewRuler overviewRuler, boolean showsAnnotationOverview,
-			int styles) {
-		super(parent, ruler, overviewRuler, showsAnnotationOverview, styles);
-	}
+    public PyPreviewProjection(Composite parent, IVerticalRuler ruler, IOverviewRuler overviewRuler, boolean showsAnnotationOverview,
+            int styles) {
+        super(parent, ruler, overviewRuler, showsAnnotationOverview, styles);
+    }
 
-	@Override
-	protected void createControl(Composite parent, int styles) {
-		super.createControl(parent, styles);
-		colorCache = new ColorCache(PydevPlugin.getChainedPrefStore());
-		editConfiguration = new PyPreviewConfiguration(colorCache);
-		configure(editConfiguration);
-		getTextWidget().setEditable(false);
-	}
+    @Override
+    protected void createControl(Composite parent, int styles) {
+        super.createControl(parent, styles);
+        colorCache = new ColorCache(PydevPlugin.getChainedPrefStore());
+        editConfiguration = new PyPreviewConfiguration(colorCache);
+        configure(editConfiguration);
+        getTextWidget().setEditable(false);
+    }
 
-	private boolean isInToggleCompletionStyle;
+    private boolean isInToggleCompletionStyle;
 
-	public void setInToggleCompletionStyle(boolean b) {
-		this.isInToggleCompletionStyle = b;
-	}
+    public void setInToggleCompletionStyle(boolean b) {
+        this.isInToggleCompletionStyle = b;
+    }
 
-	public boolean getIsInToggleCompletionStyle() {
-		return this.isInToggleCompletionStyle;
-	}
+    public boolean getIsInToggleCompletionStyle() {
+        return this.isInToggleCompletionStyle;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.text.source.projection.ProjectionViewer#doOperation(int)
-	 */
-	public void doOperation(int operation) {
-		super.doOperation(operation);
-		if (getTextWidget() == null)
-			return;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.text.source.projection.ProjectionViewer#doOperation(int)
+     */
+    public void doOperation(int operation) {
+        super.doOperation(operation);
+        if (getTextWidget() == null)
+            return;
 
-	}
+    }
 
-	public void revealUserSelection(ITextSelection selection) {
-		setBackgroundColor(selection, SWT.COLOR_DARK_GRAY);
-	}
+    public void revealUserSelection(ITextSelection selection) {
+        setBackgroundColor(selection, SWT.COLOR_DARK_GRAY);
+    }
 
-	public void revealExtendedSelection(ITextSelection selection) {
-		setBackgroundColor(selection, SWT.COLOR_GRAY);
-		getTextWidget().setSelection(selection.getOffset());
-	}
+    public void revealExtendedSelection(ITextSelection selection) {
+        setBackgroundColor(selection, SWT.COLOR_GRAY);
+        getTextWidget().setSelection(selection.getOffset());
+    }
 
-	private void setBackgroundColor(ITextSelection selection, int color) {
-		setBackgroundColor(selection, Display.getCurrent().getSystemColor(color));
-	}
+    private void setBackgroundColor(ITextSelection selection, int color) {
+        setBackgroundColor(selection, Display.getCurrent().getSystemColor(color));
+    }
 
-	public void setBackgroundColor(ITextSelection selection, Color color) {
-		StyleRange styleRangeNode = new StyleRange(selection.getOffset(), selection.getLength(), null, color);
-		getTextWidget().setStyleRange(styleRangeNode);
-	}
+    public void setBackgroundColor(ITextSelection selection, Color color) {
+        StyleRange styleRangeNode = new StyleRange(selection.getOffset(), selection.getLength(), null, color);
+        getTextWidget().setStyleRange(styleRangeNode);
+    }
 }

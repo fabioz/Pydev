@@ -79,12 +79,12 @@ public class REF {
      * @return the field from a class that matches the passed attr name (or null if it couldn't be found)
      */
     public static Field getAttrFromClass(Class<? extends Object> c, String attr){
-    	try {
-    		return c.getDeclaredField(attr);
-    	} catch (SecurityException e) {
-    	} catch (NoSuchFieldException e) {
-    	}
-    	return null;
+        try {
+            return c.getDeclaredField(attr);
+        } catch (SecurityException e) {
+        } catch (NoSuchFieldException e) {
+        }
+        return null;
     }
 
     
@@ -398,24 +398,24 @@ public class REF {
      * @return the object that was read (or null if some error happened while reading)
      */
     public static Object readFromFile(File file){
-    	try {
-    		InputStream in = new BufferedInputStream(new FileInputStream(file));
-    		try {
-				ObjectInputStream stream = new ObjectInputStream(in);
-				try {
-					Object o = stream.readObject();
-					return o;
-				} finally {
-					stream.close();
-				}
-			} finally {
-				in.close();
-			}
-    	} catch (Exception e) {
-    		Log.log(e);
-    		return null;
-    	}
-    	
+        try {
+            InputStream in = new BufferedInputStream(new FileInputStream(file));
+            try {
+                ObjectInputStream stream = new ObjectInputStream(in);
+                try {
+                    Object o = stream.readObject();
+                    return o;
+                } finally {
+                    stream.close();
+                }
+            } finally {
+                in.close();
+            }
+        } catch (Exception e) {
+            Log.log(e);
+            return null;
+        }
+        
     }
 
     /**
@@ -551,7 +551,7 @@ public class REF {
     }
 
     public static IDocument getDocFromFile(java.io.File f) throws IOException {
-    	return getDocFromFile(f, true);
+        return getDocFromFile(f, true);
     }
 
     /**
@@ -683,8 +683,8 @@ public class REF {
                 
             }catch(Throwable e){//NoSuchMethod/NoClassDef exception 
                 if(e instanceof ClassNotFoundException || e instanceof LinkageError || e instanceof NoSuchMethodException || 
-                		e instanceof NoSuchMethodError || e instanceof NoClassDefFoundError){
-                	
+                        e instanceof NoSuchMethodError || e instanceof NoClassDefFoundError){
+                    
                     ITextFileBufferManager textFileBufferManager = FileBuffers.getTextFileBufferManager();
                     
                     if(textFileBufferManager != null){//we don't have it in tests
@@ -709,18 +709,18 @@ public class REF {
                 Log.log("Unable to get doc from text file buffer");
             }
             return null; 
-        }    	
+        }        
     }
     /**
      * @return null if it was unable to get the document from the path (this may happen if it was not refreshed).
      * Or the document that represents the file
      */
     public static IDocument getDocFromPath(IPath path) {
-    	ITextFileBuffer buffer = getBufferFromPath(path);
-    	if(buffer != null){
-    		return buffer.getDocument();
-    	}
-    	return null;
+        ITextFileBuffer buffer = getBufferFromPath(path);
+        if(buffer != null){
+            return buffer.getDocument();
+        }
+        return null;
     }
 
     /**
@@ -747,8 +747,8 @@ public class REF {
                 }
                 return doc;
             }catch(CoreException e){
-            	//it may stop existing from the initial exists check to the getContents call
-            	return null;
+                //it may stop existing from the initial exists check to the getContents call
+                return null;
             } catch (Exception e) {
                 Log.log(e);
             }
@@ -772,14 +772,14 @@ public class REF {
     public static String getPythonFileEncoding(File f) throws IllegalCharsetNameException{
         try {
             final FileInputStream fileInputStream = new FileInputStream(f);
-			try {
-				Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(fileInputStream));
-				String pythonFileEncoding = getPythonFileEncoding(inputStreamReader, f.getAbsolutePath());
-				return pythonFileEncoding;
-			} finally {
-				//NOTE: the reader will be closed at 'getPythonFileEncoding'. 
-				try { fileInputStream.close(); } catch (Exception e) {Log.log(e);	}
-			}
+            try {
+                Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(fileInputStream));
+                String pythonFileEncoding = getPythonFileEncoding(inputStreamReader, f.getAbsolutePath());
+                return pythonFileEncoding;
+            } finally {
+                //NOTE: the reader will be closed at 'getPythonFileEncoding'. 
+                try { fileInputStream.close(); } catch (Exception e) {Log.log(e);    }
+            }
         } catch (FileNotFoundException e) {
             return null;
         }
@@ -903,7 +903,7 @@ public class REF {
             try {
                 isWinCache = Platform.getOS().equals(Constants.OS_WIN32);
             } catch (NullPointerException e) {
-            	String env = System.getProperty("os.name");
+                String env = System.getProperty("os.name");
                 if(env.toLowerCase().indexOf("win") != -1){
                     isWinCache = true;
                 }else{

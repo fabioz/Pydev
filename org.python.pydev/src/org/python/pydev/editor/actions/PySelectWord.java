@@ -8,20 +8,20 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public class PySelectWord extends PyAction{
 
-	public void run(IAction action) {
-		PyEdit pyEdit = getPyEdit();
-		PySelection ps = new PySelection(pyEdit);
-		try {
-			Tuple<String,Integer> currToken = ps.getCurrToken();
-			if(currToken.o1 != null){
-				int len = currToken.o1.length();
-				if(len > 0){
-					pyEdit.selectAndReveal(currToken.o2, len);
-				}
-			}
-		} catch (Exception e) {
-			PydevPlugin.log(e);
-		}
-	}
+    public void run(IAction action) {
+        PyEdit pyEdit = getPyEdit();
+        PySelection ps = new PySelection(pyEdit);
+        try {
+            Tuple<String,Integer> currToken = ps.getCurrToken();
+            if(currToken.o1 != null){
+                int len = currToken.o1.length();
+                if(len > 0){
+                    pyEdit.selectAndReveal(currToken.o2, len);
+                }
+            }
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+        }
+    }
 
 }

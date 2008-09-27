@@ -71,7 +71,7 @@ public class PyDeleteResourceAction extends DeleteResourceAction {
     }
     
 
-	
+    
     @Override
     protected List getSelectedResources() {
         return selected;
@@ -79,7 +79,7 @@ public class PyDeleteResourceAction extends DeleteResourceAction {
     
     @Override
     public IStructuredSelection getStructuredSelection() {
-    	return new StructuredSelection(selected);
+        return new StructuredSelection(selected);
     }
     
     

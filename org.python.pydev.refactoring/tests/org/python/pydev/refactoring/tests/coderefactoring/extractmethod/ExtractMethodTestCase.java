@@ -31,86 +31,86 @@ import com.thoughtworks.xstream.XStream;
 
 public class ExtractMethodTestCase extends AbstractIOTestCase {
 
-	public ExtractMethodTestCase(String name) {
-		super(name);
-	}
+    public ExtractMethodTestCase(String name) {
+        super(name);
+    }
 
-	@Override
-	public void runTest() throws Throwable {
-	    REF.IN_TESTS = true;
-		MockupExtractMethodConfig config = initConfig();
+    @Override
+    public void runTest() throws Throwable {
+        REF.IN_TESTS = true;
+        MockupExtractMethodConfig config = initConfig();
 
-		IDocument doc = new Document(getSource());
-		Module astModule = VisitorFactory.getRootNode(doc);
-		String name = getFile().getName();
-		name = name.substring(0, name.length()-4);
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, new SourceModule(name, getFile(), astModule, null), new PythonNatureStub());
+        IDocument doc = new Document(getSource());
+        Module astModule = VisitorFactory.getRootNode(doc);
+        String name = getFile().getName();
+        name = name.substring(0, name.length()-4);
+        ModuleAdapter module = VisitorFactory.createModuleAdapter(null, new SourceModule(name, getFile(), astModule, null), new PythonNatureStub());
 
-		ITextSelection selection = new TextSelection(doc, config.getOffset(), config.getSelectionLength());
+        ITextSelection selection = new TextSelection(doc, config.getOffset(), config.getSelectionLength());
 
-		RefactoringInfo info = new RefactoringInfo(null, doc, selection, null);
+        RefactoringInfo info = new RefactoringInfo(null, doc, selection, null);
 
-		MockupExtractMethodRequestProcessor requestProcessor = setupRequestProcessor(config, module, info);
+        MockupExtractMethodRequestProcessor requestProcessor = setupRequestProcessor(config, module, info);
 
-		IDocument refactoringDoc = applyExtractMethod(info, requestProcessor);
+        IDocument refactoringDoc = applyExtractMethod(info, requestProcessor);
 
-		this.setTestGenerated(refactoringDoc.get());
-		assertEquals(getExpected(), getGenerated());
-		REF.IN_TESTS = false;
-	}
+        this.setTestGenerated(refactoringDoc.get());
+        assertEquals(getExpected(), getGenerated());
+        REF.IN_TESTS = false;
+    }
 
-	private IDocument applyExtractMethod(RefactoringInfo info, MockupExtractMethodRequestProcessor requestProcessor)
-			throws BadLocationException {
-		ExtractMethodRequest req = requestProcessor.getRefactoringRequests().get(0);
+    private IDocument applyExtractMethod(RefactoringInfo info, MockupExtractMethodRequestProcessor requestProcessor)
+            throws BadLocationException {
+        ExtractMethodRequest req = requestProcessor.getRefactoringRequests().get(0);
 
-		ExtractMethodEdit extractMethodEdit = new ExtractMethodEdit(req);
-		ExtractCallEdit extractCallEdit = new ExtractCallEdit(req);
+        ExtractMethodEdit extractMethodEdit = new ExtractMethodEdit(req);
+        ExtractCallEdit extractCallEdit = new ExtractCallEdit(req);
 
-		MultiTextEdit edit = new MultiTextEdit();
-		edit.addChild(extractMethodEdit.getEdit());
-		edit.addChild(extractCallEdit.getEdit());
+        MultiTextEdit edit = new MultiTextEdit();
+        edit.addChild(extractMethodEdit.getEdit());
+        edit.addChild(extractCallEdit.getEdit());
 
-		IDocument refactoringDoc = new Document(getSource());
-		edit.apply(refactoringDoc);
-		return refactoringDoc;
-	}
+        IDocument refactoringDoc = new Document(getSource());
+        edit.apply(refactoringDoc);
+        return refactoringDoc;
+    }
 
-	private MockupExtractMethodRequestProcessor setupRequestProcessor(MockupExtractMethodConfig config, ModuleAdapter module,
-			RefactoringInfo info) {
-		ModuleAdapter parsedSelection = info.getParsedExtendedSelection();
+    private MockupExtractMethodRequestProcessor setupRequestProcessor(MockupExtractMethodConfig config, ModuleAdapter module,
+            RefactoringInfo info) {
+        ModuleAdapter parsedSelection = info.getParsedExtendedSelection();
 
-		AbstractScopeNode<?> scope = module.getScopeAdapter(info.getExtendedSelection());
-		ParameterReturnDeduce deducer = new ParameterReturnDeduce(scope, info.getExtendedSelection(), module);
+        AbstractScopeNode<?> scope = module.getScopeAdapter(info.getExtendedSelection());
+        ParameterReturnDeduce deducer = new ParameterReturnDeduce(scope, info.getExtendedSelection(), module);
 
-		SortedMap<String, String> renameMap = new TreeMap<String, String>();
-		for (String variable : deducer.getParameters()) {
-			String newName = variable;
-			if (config.getRenameMap().containsKey(variable)) {
-				newName = config.getRenameMap().get(variable);
-			}
-			renameMap.put(variable, newName);
-		}
+        SortedMap<String, String> renameMap = new TreeMap<String, String>();
+        for (String variable : deducer.getParameters()) {
+            String newName = variable;
+            if (config.getRenameMap().containsKey(variable)) {
+                newName = config.getRenameMap().get(variable);
+            }
+            renameMap.put(variable, newName);
+        }
 
-		return new MockupExtractMethodRequestProcessor(scope, info.getExtendedSelection(), parsedSelection, deducer, renameMap, config
-				.getOffsetStrategy());
-	}
+        return new MockupExtractMethodRequestProcessor(scope, info.getExtendedSelection(), parsedSelection, deducer, renameMap, config
+                .getOffsetStrategy());
+    }
 
-	private MockupExtractMethodConfig initConfig() {
-		MockupExtractMethodConfig config = null;
-		XStream xstream = new XStream();
-		xstream.alias("config", MockupExtractMethodConfig.class);
+    private MockupExtractMethodConfig initConfig() {
+        MockupExtractMethodConfig config = null;
+        XStream xstream = new XStream();
+        xstream.alias("config", MockupExtractMethodConfig.class);
 
-		if (getConfig().length() > 0) {
-			config = (MockupExtractMethodConfig) xstream.fromXML(getConfig());
-		} else {
-			fail("Could not unserialize configuration");
-		}
-		return config;
-	}
+        if (getConfig().length() > 0) {
+            config = (MockupExtractMethodConfig) xstream.fromXML(getConfig());
+        } else {
+            fail("Could not unserialize configuration");
+        }
+        return config;
+    }
 
-	@Override
-	public String getExpected() {
-		return getResult();
-	}
+    @Override
+    public String getExpected() {
+        return getResult();
+    }
 
 }

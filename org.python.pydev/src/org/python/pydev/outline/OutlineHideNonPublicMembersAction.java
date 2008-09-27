@@ -28,7 +28,7 @@ public class OutlineHideNonPublicMembersAction extends AbstractOutlineFilterActi
      */
     @Override
     protected ViewerFilter createFilter() {
-    	return new ViewerFilter() {
+        return new ViewerFilter() {
 
             @Override
             public boolean select(Viewer viewer, Object parentElement, Object element) {
@@ -51,7 +51,7 @@ public class OutlineHideNonPublicMembersAction extends AbstractOutlineFilterActi
                     String name = NodeUtils.getRepresentationString(token);
                     
                     if (name != null) {
-                    	return (!name.startsWith("_")) || (name.startsWith("__") && name.endsWith("__"));
+                        return (!name.startsWith("_")) || (name.startsWith("__") && name.endsWith("__"));
                     }
                 }
                 return true;

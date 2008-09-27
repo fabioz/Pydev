@@ -19,26 +19,26 @@ import org.python.pydev.refactoring.ast.visitors.position.LastLineVisitor;
 
 public class InitOffset extends BeginOffset {
 
-	public InitOffset(IASTNodeAdapter<? extends SimpleNode> adapter, IDocument doc) {
-		super(adapter, doc);
-	}
+    public InitOffset(IASTNodeAdapter<? extends SimpleNode> adapter, IDocument doc) {
+        super(adapter, doc);
+    }
 
-	@Override
-	protected int getLine() {
-		SimpleNode node = adapter.getASTNode();
-		if (nodeHelper.isClassDef(node)) {
+    @Override
+    protected int getLine() {
+        SimpleNode node = adapter.getASTNode();
+        if (nodeHelper.isClassDef(node)) {
 
-			ClassDef classNode = (ClassDef) node;
-			for (stmtType statement : classNode.body) {
-				if (nodeHelper.isInit(statement)) {
-					FunctionDef func = (FunctionDef) statement;
-					stmtType lastStmt = func.body[func.body.length - 1];
-					LastLineVisitor visitor = VisitorFactory.createVisitor(LastLineVisitor.class, lastStmt);
-					return visitor.getLastLine() - 1;
-				}
-			}
-		}
-		return super.getLine();
-	}
+            ClassDef classNode = (ClassDef) node;
+            for (stmtType statement : classNode.body) {
+                if (nodeHelper.isInit(statement)) {
+                    FunctionDef func = (FunctionDef) statement;
+                    stmtType lastStmt = func.body[func.body.length - 1];
+                    LastLineVisitor visitor = VisitorFactory.createVisitor(LastLineVisitor.class, lastStmt);
+                    return visitor.getLastLine() - 1;
+                }
+            }
+        }
+        return super.getLine();
+    }
 
 }

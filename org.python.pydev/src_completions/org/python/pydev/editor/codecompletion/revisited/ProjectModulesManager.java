@@ -178,7 +178,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     }
     
     public ISystemModulesManager getSystemModulesManager(){
-    	return getSystemModulesManager(null);
+        return getSystemModulesManager(null);
     }
     
     /** 
@@ -186,22 +186,22 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
      * @see org.python.pydev.core.IProjectModulesManager#getSystemModulesManager()
      */
     public ISystemModulesManager getSystemModulesManager(String defaultSelectedInterpreter){
-    	if(nature == null){
-    		PydevPlugin.log("Nature still not set");
-    		return null; //still not set (initialization)
-    	}
+        if(nature == null){
+            PydevPlugin.log("Nature still not set");
+            return null; //still not set (initialization)
+        }
         IInterpreterManager iMan = PydevPlugin.getInterpreterManager(nature);
         if(defaultSelectedInterpreter == null){
-        	try {
-				defaultSelectedInterpreter = iMan.getDefaultInterpreter();
-			} catch (NotConfiguredInterpreterException e) {
-				return null; //not configured
-			}
+            try {
+                defaultSelectedInterpreter = iMan.getDefaultInterpreter();
+            } catch (NotConfiguredInterpreterException e) {
+                return null; //not configured
+            }
         }
         InterpreterInfo info = (InterpreterInfo) iMan.getInterpreterInfo(defaultSelectedInterpreter, new NullProgressMonitor());
         if(info == null){
-        	PydevPlugin.log("Info still not set");
-        	return null; //may happen during initialization
+            PydevPlugin.log("Info still not set");
+            return null; //may happen during initialization
         }
         return info.getModulesManager();
     }
@@ -227,12 +227,12 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
      */
     @Override
     public SortedMap<ModulesKey, ModulesKey> getAllModulesStartingWith(String strStartingWith) {
-    	SortedMap<ModulesKey, ModulesKey> ret = new TreeMap<ModulesKey, ModulesKey>();
-    	IModulesManager[] managersInvolved = this.getManagersInvolved(true);
-    	for (int i = 0; i < managersInvolved.length; i++) {
-    		ret.putAll(managersInvolved[i].getAllDirectModulesStartingWith(strStartingWith));
-    	}
-		return ret;
+        SortedMap<ModulesKey, ModulesKey> ret = new TreeMap<ModulesKey, ModulesKey>();
+        IModulesManager[] managersInvolved = this.getManagersInvolved(true);
+        for (int i = 0; i < managersInvolved.length; i++) {
+            ret.putAll(managersInvolved[i].getAllDirectModulesStartingWith(strStartingWith));
+        }
+        return ret;
     }
 
     
@@ -247,7 +247,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
      * When looking for relative, we do not check dependencies
      */
     public IModule getRelativeModule(String name, IPythonNature nature) {
-    	return super.getModule(false, name, nature, true); //cannot be a compiled module
+        return super.getModule(false, name, nature, true); //cannot be a compiled module
     }
     
     /** 
@@ -318,9 +318,9 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     }
 
     protected String getResolveModuleErr(IResource member) {
-		return "Unable to find the path "+member+" in the project were it\n" +
+        return "Unable to find the path "+member+" in the project were it\n" +
         "is added as a source folder for pydev (project: "+project.getName()+")";
-	}
+    }
 
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#resolveModule(java.lang.String)
@@ -379,7 +379,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     }
 
     public String[] getBuiltins() {
-    	return getBuiltins(null);
+        return getBuiltins(null);
     }
 
     /** 
@@ -404,24 +404,24 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
      * Change in 1.3.3: adds itself to the list of returned managers
      */
     private synchronized IModulesManager[] getManagers(boolean checkSystemManager, boolean referenced) {
-    	if(this.completionCache != null){
-    		IModulesManager[] ret = this.completionCache.getManagers(referenced);
-    		if(ret != null){
-    			return ret;
-    		}
-    	}
+        if(this.completionCache != null){
+            IModulesManager[] ret = this.completionCache.getManagers(referenced);
+            if(ret != null){
+                return ret;
+            }
+        }
         ArrayList<IModulesManager> list = new ArrayList<IModulesManager>();
         ISystemModulesManager systemModulesManager = getSystemModulesManager(null);
         if(systemModulesManager == null){
-        	//may happen in initialization
-//        	PydevPlugin.log("System modules manager still not available (still initializing or not set).");
-        	return new IModulesManager[]{};
+            //may happen in initialization
+//            PydevPlugin.log("System modules manager still not available (still initializing or not set).");
+            return new IModulesManager[]{};
         }
         
         //get the projects 1st
         if(project != null){
-        	HashSet<IProject> projs = new HashSet<IProject>();
-        	getProjectsRecursively(project, referenced, projs);
+            HashSet<IProject> projs = new HashSet<IProject>();
+            getProjectsRecursively(project, referenced, projs);
             addModuleManagers(list, projs);
         }
         //add itself
@@ -435,7 +435,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         
         IModulesManager[] ret = (IModulesManager[]) list.toArray(new IModulesManager[list.size()]);
         if(this.completionCache != null){
-        	this.completionCache.setManagers(ret, referenced);
+            this.completionCache.setManagers(ret, referenced);
         }
         return ret;
     }
@@ -446,34 +446,34 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
      * @param referenced whether we want to get the referenced projects or the ones referencing this one.
      * @param memo (out) this is the place where all the projects will e available.
      */
-	public static void getProjectsRecursively(IProject project, boolean referenced, HashSet<IProject> memo) {
-		IProject[] projects = null;
-		try {
-			if(referenced){
-				projects = project.getReferencedProjects();
-			}else{
-			    projects = project.getReferencingProjects();
-			}
-		} catch (CoreException e) {
-			//ignore (it's closed)
-		}
-		
-		
-		HashSet<IProject> newFound = new HashSet<IProject>();
-		
-		if(projects != null){
-			for (IProject p : projects) {
-				if(!memo.contains(p)){
-					memo.add(p);
-					newFound.add(p);
-				}
-			}
-		}
-		
-		for (IProject p : newFound) {
-			getProjectsRecursively(p, referenced, memo);
-		}
-	}
+    public static void getProjectsRecursively(IProject project, boolean referenced, HashSet<IProject> memo) {
+        IProject[] projects = null;
+        try {
+            if(referenced){
+                projects = project.getReferencedProjects();
+            }else{
+                projects = project.getReferencingProjects();
+            }
+        } catch (CoreException e) {
+            //ignore (it's closed)
+        }
+        
+        
+        HashSet<IProject> newFound = new HashSet<IProject>();
+        
+        if(projects != null){
+            for (IProject p : projects) {
+                if(!memo.contains(p)){
+                    memo.add(p);
+                    newFound.add(p);
+                }
+            }
+        }
+        
+        for (IProject p : newFound) {
+            getProjectsRecursively(p, referenced, memo);
+        }
+    }
     
 
     /**
@@ -481,23 +481,23 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
      * @param projects the projects that should have the managers added
      */
     private void addModuleManagers(ArrayList<IModulesManager> list, Collection<IProject> projects) {
-    	for(IProject project:projects){
-	        PythonNature nature = PythonNature.getPythonNature(project);
-	        if(nature!=null){
-	            ICodeCompletionASTManager otherProjectAstManager = nature.getAstManager();
-	            if(otherProjectAstManager != null){
-	                IModulesManager projectModulesManager = otherProjectAstManager.getModulesManager();
-	                if(projectModulesManager != null){
-	                    list.add((IModulesManager) projectModulesManager);
-	                }
-	            }else{
-	            	Log.log(IStatus.WARNING, "No ast manager configured for :"+project.getName(), null);
-	            }
+        for(IProject project:projects){
+            PythonNature nature = PythonNature.getPythonNature(project);
+            if(nature!=null){
+                ICodeCompletionASTManager otherProjectAstManager = nature.getAstManager();
+                if(otherProjectAstManager != null){
+                    IModulesManager projectModulesManager = otherProjectAstManager.getModulesManager();
+                    if(projectModulesManager != null){
+                        list.add((IModulesManager) projectModulesManager);
+                    }
+                }else{
+                    Log.log(IStatus.WARNING, "No ast manager configured for :"+project.getName(), null);
+                }
             }
-	        IModulesManager javaModulesManagerForProject = JavaProjectModulesManagerCreator.createJavaProjectModulesManagerIfPossible(project);
-	        if(javaModulesManagerForProject != null){
-	            list.add(javaModulesManagerForProject);
-	        }
+            IModulesManager javaModulesManagerForProject = JavaProjectModulesManagerCreator.createJavaProjectModulesManagerIfPossible(project);
+            if(javaModulesManagerForProject != null){
+                list.add(javaModulesManagerForProject);
+            }
         }
     }
 

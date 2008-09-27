@@ -15,20 +15,20 @@ import org.python.pydev.refactoring.ui.pages.listener.IValidationPage;
 
 public abstract class PyDevInputWizardPage extends UserInputWizardPage implements IValidationPage {
 
-	public PyDevInputWizardPage(String name) {
-		super(name);
-	}
+    public PyDevInputWizardPage(String name) {
+        super(name);
+    }
 
-	protected void voodooResizeToPage() {
-		Point size = getShell().getSize();
-		size.x += 1;
-		size.y += 1;
-		getShell().setSize(size);
-		getShell().layout(true);
-		size.x -= 1;
-		size.y -= 1;
-		getShell().setSize(size);
-		getShell().layout(true);
-	}
+    protected void voodooResizeToPage() {
+        Point size = getShell().getSize();
+        size.x += 1;
+        size.y += 1;
+        getShell().setSize(size);
+        getShell().layout(true);
+        size.x -= 1;
+        size.y -= 1;
+        getShell().setSize(size);
+        getShell().layout(true);
+    }
 
 }

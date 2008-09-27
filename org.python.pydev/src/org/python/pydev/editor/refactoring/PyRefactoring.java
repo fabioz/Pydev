@@ -56,7 +56,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
         try {
             AbstractShell.getServerShell(IPythonNature.PYTHON_RELATED, AbstractShell.OTHERS_SHELL).restartShell();
         } catch (Exception e) {
-        	PydevPlugin.log(e);
+            PydevPlugin.log(e);
         } 
     }
     
@@ -67,7 +67,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
         try {
             AbstractShell.getServerShell(IPythonNature.PYTHON_RELATED, AbstractShell.OTHERS_SHELL).endIt();
         } catch (Exception e) {
-        	PydevPlugin.log(e);
+            PydevPlugin.log(e);
         }
     }
     
@@ -85,18 +85,18 @@ public class PyRefactoring extends AbstractPyRefactoring {
         AbstractShell pytonShell;
         try {
             pytonShell = AbstractShell.getServerShell(request.nature, AbstractShell.OTHERS_SHELL);
-	        try {
-		        pytonShell.changePythonPath(request.nature.getPythonPathNature().getCompleteProjectPythonPath(null)); //default
-	            pytonShell.write(str);
-	 
-	            return URLDecoder.decode(pytonShell.read(request.getMonitor()), "UTF-8");
-	        } catch (Exception e) {
-	        	PydevPlugin.log("Error writing: "+str, e);
-	            
-	            pytonShell.restartShell();
-	        }
+            try {
+                pytonShell.changePythonPath(request.nature.getPythonPathNature().getCompleteProjectPythonPath(null)); //default
+                pytonShell.write(str);
+     
+                return URLDecoder.decode(pytonShell.read(request.getMonitor()), "UTF-8");
+            } catch (Exception e) {
+                PydevPlugin.log("Error writing: "+str, e);
+                
+                pytonShell.restartShell();
+            }
         } catch (Exception e1) {
-        	PydevPlugin.log("Error writing: "+str, e1);
+            PydevPlugin.log("Error writing: "+str, e1);
         }
         return null;
     }
@@ -165,22 +165,22 @@ public class PyRefactoring extends AbstractPyRefactoring {
 
         if (string.startsWith("BIKE_OK:")){
             string = string.replaceFirst("BIKE_OK:", "").replaceAll("\\[","").replaceAll("'","");
-	        string = string.substring(0, string.lastIndexOf(']'));    
-	        
-	        //now we should have something like:
-	        //(file,line,col,confidence)(file,line,col,confidence)...
-	        
-	        string = string.replaceAll("\\(","");
-	        StringTokenizer tokenizer = new StringTokenizer(string, ")");
-	        while(tokenizer.hasMoreTokens()){
-	            String tok = tokenizer.nextToken();
-	            
-	            String[] toks = tok.split(",");
-	            if(toks.length == 4){ //4th position is the confidence
-	                Location location = new Location(Integer.parseInt(toks[1])-1, Integer.parseInt(toks[2]));
-	                l.add(new ItemPointer(new File(toks[0]), location, location));
-	            }
-	        }
+            string = string.substring(0, string.lastIndexOf(']'));    
+            
+            //now we should have something like:
+            //(file,line,col,confidence)(file,line,col,confidence)...
+            
+            string = string.replaceAll("\\(","");
+            StringTokenizer tokenizer = new StringTokenizer(string, ")");
+            while(tokenizer.hasMoreTokens()){
+                String tok = tokenizer.nextToken();
+                
+                String[] toks = tok.split(",");
+                if(toks.length == 4){ //4th position is the confidence
+                    Location location = new Location(Integer.parseInt(toks[1])-1, Integer.parseInt(toks[2]));
+                    l.add(new ItemPointer(new File(toks[0]), location, location));
+                }
+            }
         }
 
         
@@ -189,7 +189,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
     }
     
     /**
-	 * Requests an inline local variable in the shell
+     * Requests an inline local variable in the shell
      */
     public String inlineLocalVariable(RefactoringRequest request) {
         File editorFile = request.file;

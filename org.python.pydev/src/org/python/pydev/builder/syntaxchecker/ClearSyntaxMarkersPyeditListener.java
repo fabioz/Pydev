@@ -23,51 +23,51 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class ClearSyntaxMarkersPyeditListener implements IPyEditListener, IPyEditListener3{
 
-	@Override
-	public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
-	}
-
-	@Override
-	public void onDispose(PyEdit edit, IProgressMonitor monitor) {
-        //remove the markers if we want problems only in the active editor.
-		IEditorInput input = edit.getEditorInput();
-        removeMarkersFromInput(input);	
+    @Override
+    public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
     }
 
-	@Override
-	public void onSave(PyEdit edit, IProgressMonitor monitor) {
-	}
+    @Override
+    public void onDispose(PyEdit edit, IProgressMonitor monitor) {
+        //remove the markers if we want problems only in the active editor.
+        IEditorInput input = edit.getEditorInput();
+        removeMarkersFromInput(input);    
+    }
 
-	@Override
-	public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
-	}
+    @Override
+    public void onSave(PyEdit edit, IProgressMonitor monitor) {
+    }
 
-	@Override
-	public void onInputChanged(PyEdit edit, IEditorInput oldInput, IEditorInput input, IProgressMonitor monitor) {
-		removeMarkersFromInput(oldInput);
-	}
+    @Override
+    public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
+    }
 
-	
-	/**
-	 * This function will remove the markers from the passed input.
-	 * @param input the input
-	 */
-	private void removeMarkersFromInput(IEditorInput input) {
-		if(input!= null && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
-		    if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-		        System.out.println("ClearSyntaxMarkersPyeditListener: removing syntax error markers from editor.");
-		    }
-	        IFile relatedFile = (IFile) input.getAdapter(IFile.class);
-	        
-	        if(relatedFile != null && relatedFile.exists()){
-	        	//when disposing, remove all markers
-	        	try {
-					PyParser.deleteErrorMarkers(relatedFile);
-				} catch (CoreException e) {
-					PydevPlugin.log(e);
-				}
-	        }
+    @Override
+    public void onInputChanged(PyEdit edit, IEditorInput oldInput, IEditorInput input, IProgressMonitor monitor) {
+        removeMarkersFromInput(oldInput);
+    }
+
+    
+    /**
+     * This function will remove the markers from the passed input.
+     * @param input the input
+     */
+    private void removeMarkersFromInput(IEditorInput input) {
+        if(input!= null && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
+            if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+                System.out.println("ClearSyntaxMarkersPyeditListener: removing syntax error markers from editor.");
+            }
+            IFile relatedFile = (IFile) input.getAdapter(IFile.class);
+            
+            if(relatedFile != null && relatedFile.exists()){
+                //when disposing, remove all markers
+                try {
+                    PyParser.deleteErrorMarkers(relatedFile);
+                } catch (CoreException e) {
+                    PydevPlugin.log(e);
+                }
+            }
         }
-	}
+    }
 
 }

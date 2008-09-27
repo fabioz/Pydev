@@ -18,28 +18,28 @@ final class ModulesManagerCache  {
     /**
      * The access to the cache is synchronized
      */
-	LRUCache<Tuple<ModulesKey, ModulesManager>, AbstractModule> internalCache;
-	
+    LRUCache<Tuple<ModulesKey, ModulesManager>, AbstractModule> internalCache;
+    
     ModulesManagerCache() {
         internalCache = new LRUCache<Tuple<ModulesKey, ModulesManager>, AbstractModule>(MAX_NUMBER_OF_MODULES);
-	}
+    }
     
-	/**
-	 * Overriden so that if we do not find the key, we have the chance to create it.
-	 */
-	public AbstractModule getObj(ModulesKey key, ModulesManager modulesManager) {
+    /**
+     * Overriden so that if we do not find the key, we have the chance to create it.
+     */
+    public AbstractModule getObj(ModulesKey key, ModulesManager modulesManager) {
         synchronized (modulesManager.modulesKeys) {
-			Tuple<ModulesKey, ModulesManager> keyTuple = new Tuple<ModulesKey, ModulesManager>(key, modulesManager);
+            Tuple<ModulesKey, ModulesManager> keyTuple = new Tuple<ModulesKey, ModulesManager>(key, modulesManager);
             
             AbstractModule obj = internalCache.getObj(keyTuple);
-			if(obj == null && modulesManager.modulesKeys.containsKey(key)){
-				key = modulesManager.modulesKeys.get(key); //get the 'real' key
-				obj = AbstractModule.createEmptyModule(key);
+            if(obj == null && modulesManager.modulesKeys.containsKey(key)){
+                key = modulesManager.modulesKeys.get(key); //get the 'real' key
+                obj = AbstractModule.createEmptyModule(key);
                 internalCache.add(keyTuple, obj);
-			}
-			return obj;
+            }
+            return obj;
         }
-	}
+    }
 
     public void remove(ModulesKey key, ModulesManager modulesManager) {
         synchronized (modulesManager.modulesKeys) {

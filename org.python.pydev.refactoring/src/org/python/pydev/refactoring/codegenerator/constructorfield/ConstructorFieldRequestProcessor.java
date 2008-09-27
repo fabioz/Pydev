@@ -23,63 +23,63 @@ import org.python.pydev.refactoring.ui.model.tree.ITreeNode;
 
 public class ConstructorFieldRequestProcessor implements IRequestProcessor<ConstructorFieldRequest> {
 
-	private Object[] checked;
+    private Object[] checked;
 
-	private int offsetStrategy;
+    private int offsetStrategy;
 
     private String endLineDelim;
 
-	public ConstructorFieldRequestProcessor(String endLineDelim) {
-		checked = new Object[0];
-		offsetStrategy = IOffsetStrategy.AFTERINIT;
+    public ConstructorFieldRequestProcessor(String endLineDelim) {
+        checked = new Object[0];
+        offsetStrategy = IOffsetStrategy.AFTERINIT;
         this.endLineDelim = endLineDelim;
-	}
+    }
 
-	public void setCheckedElements(Object[] checked) {
-		this.checked = checked;
-	}
+    public void setCheckedElements(Object[] checked) {
+        this.checked = checked;
+    }
 
-	public List<ConstructorFieldRequest> getRefactoringRequests() {
-		return generateRequests();
-	}
+    public List<ConstructorFieldRequest> getRefactoringRequests() {
+        return generateRequests();
+    }
 
-	private List<ConstructorFieldRequest> generateRequests() {
-		List<ConstructorFieldRequest> requests = new ArrayList<ConstructorFieldRequest>();
-		List<ITreeNode> nodes = new ArrayList<ITreeNode>();
-		for (Object o : checked) {
-			nodes.add((ITreeNode) o);
-		}
+    private List<ConstructorFieldRequest> generateRequests() {
+        List<ConstructorFieldRequest> requests = new ArrayList<ConstructorFieldRequest>();
+        List<ITreeNode> nodes = new ArrayList<ITreeNode>();
+        for (Object o : checked) {
+            nodes.add((ITreeNode) o);
+        }
 
-		Iterator<ITreeNode> iter = nodes.iterator();
-		while (iter.hasNext()) {
-			ITreeNode node = iter.next();
-			if (node instanceof TreeNodeClassField) {
-				addRequest(requests, iter, node);
-			}
-		}
+        Iterator<ITreeNode> iter = nodes.iterator();
+        while (iter.hasNext()) {
+            ITreeNode node = iter.next();
+            if (node instanceof TreeNodeClassField) {
+                addRequest(requests, iter, node);
+            }
+        }
 
-		return requests;
-	}
+        return requests;
+    }
 
-	private void addRequest(List<ConstructorFieldRequest> requests, Iterator<ITreeNode> iter, ITreeNode node) {
-		List<INodeAdapter> fields = new ArrayList<INodeAdapter>();
-		ITreeNode field = iter.next();
-		while (field instanceof TreeNodeField) {
-			fields.add(field.getAdapter());
-			if (iter.hasNext())
-				field = iter.next();
-			else
-				break;
-		}
-		if (fields.size() > 0) {
-			ClassDefAdapter clazz = (ClassDefAdapter) node.getAdapter();
-			ConstructorFieldRequest request = new ConstructorFieldRequest(clazz, fields, offsetStrategy, endLineDelim);
-			requests.add(request);
-		}
-	}
+    private void addRequest(List<ConstructorFieldRequest> requests, Iterator<ITreeNode> iter, ITreeNode node) {
+        List<INodeAdapter> fields = new ArrayList<INodeAdapter>();
+        ITreeNode field = iter.next();
+        while (field instanceof TreeNodeField) {
+            fields.add(field.getAdapter());
+            if (iter.hasNext())
+                field = iter.next();
+            else
+                break;
+        }
+        if (fields.size() > 0) {
+            ClassDefAdapter clazz = (ClassDefAdapter) node.getAdapter();
+            ConstructorFieldRequest request = new ConstructorFieldRequest(clazz, fields, offsetStrategy, endLineDelim);
+            requests.add(request);
+        }
+    }
 
-	public void setMethodDestination(int strat) {
-		this.offsetStrategy = strat;
-	}
+    public void setMethodDestination(int strat) {
+        this.offsetStrategy = strat;
+    }
 
 }

@@ -223,8 +223,8 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
             buffer.append(loc);
         }
         return buffer.toString();
-        // E3		IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
-        // E3		return varManager.generateVariableExpression("workspace_loc", file.getFullPath().toString());
+        // E3        IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
+        // E3        return varManager.generateVariableExpression("workspace_loc", file.getFullPath().toString());
     }
 
     /**
@@ -341,12 +341,12 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
     private static String makeFileRelativeToWorkspace(IResource[] resource, IStringVariableManager varManager) {
         FastStringBuffer moduleFile = new FastStringBuffer(80*resource.length);
         for(IResource r:resource){
-	        String m = r.getFullPath().makeRelative().toString();
-	        m = varManager.generateVariableExpression("workspace_loc", m);
-	        if(moduleFile.length() > 0){
-	        	moduleFile.append("|");
-	        }
-	        moduleFile.append(m);
+            String m = r.getFullPath().makeRelative().toString();
+            m = varManager.generateVariableExpression("workspace_loc", m);
+            if(moduleFile.length() > 0){
+                moduleFile.append("|");
+            }
+            moduleFile.append(m);
         }
         return moduleFile.toString();
     }
