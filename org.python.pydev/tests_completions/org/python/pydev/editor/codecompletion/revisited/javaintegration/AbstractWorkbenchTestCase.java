@@ -210,14 +210,20 @@ public class AbstractWorkbenchTestCase extends TestCase{
         }
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
         while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()){
-                display.sleep();
+            display.readAndDispatch();
+            synchronized(this){
+            	try {
+					this.wait(50);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+            }
+            
+            if(callback.call(null)){
+            	return;
             }
             if(deltaToElapse<System.currentTimeMillis()){
             	break;
-            }
-            if(callback.call(null)){
-            	return;
             }
         }
         if(errorMessageCallback != null){

@@ -9,7 +9,6 @@ import java.util.ListResourceBundle;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
@@ -59,7 +58,6 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
-import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
@@ -581,6 +579,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      */
     @Override
     protected void doSetInput(IEditorInput input) throws CoreException {
+    	IEditorInput oldInput = this.getEditorInput();
         super.doSetInput(input);
         try{
 	        IDocument document = getDocument(input);
@@ -591,12 +590,16 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 	        if(document != null){
 	            PyPartitionScanner.checkPartitionScanner(document);
 	        }
+	        notifier.notifyInputChanged(oldInput, input);
 	        notifier.notifyOnSetDocument(document);
         }catch (Throwable e) {
 			PydevPlugin.log(e);
 		}
     }
     
+    /**
+     * @return true if the editor passed as a parameter has the same input as this editor.
+     */
     public boolean hasSameInput(IPyEdit edit) {
         IEditorInput thisInput = this.getEditorInput();
         IEditorInput otherInput = edit.getEditorInput();
@@ -620,8 +623,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     }
     
     /**
-     * @param input
-     * @return
+     * @param input the input from where we want to get the document
+     * @return the document for the passed input
      */
     private IDocument getDocument(final IEditorInput input) {
         return getDocumentProvider().getDocument(input);
@@ -648,6 +651,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         notifier.notifyOnSave();
     }
     
+
+    /**
+     * Just to make it public.
+     */
     @Override
     public void doSave(IProgressMonitor progressMonitor) {
         super.doSave(progressMonitor);
@@ -694,6 +701,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         }
     }
 
+    /**
+     * @return the project for the file that's being edited (or null if not available)
+     */
     public IProject getProject() {
         IEditorInput editorInput = this.getEditorInput();
         if (editorInput instanceof FileEditorInput) {
@@ -704,26 +714,22 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     }
     
 
+    /**
+     * @return the IFile being edited in this input (or null if not available)
+     */
     public IFile getIFile() {
         IEditorInput editorInput = this.getEditorInput();
-        if (editorInput instanceof FileEditorInput) {
-            IFile file = (IFile) ((FileEditorInput) editorInput).getAdapter(IFile.class);
-            return file;
-        }
-        return null;
-        
+        return (IFile) editorInput.getAdapter(IFile.class);
     }
     
     /**
-     * @return
-     *  
+     * @return the File being edited
      */
     public File getEditorFile() {
         File f = null;
         IEditorInput editorInput = this.getEditorInput();
-        if (editorInput instanceof FileEditorInput) {
-            IFile file = (IFile) ((FileEditorInput) editorInput).getAdapter(IFile.class);
-
+        IFile file = (IFile) editorInput.getAdapter(IFile.class);
+        if (file != null) {
             IPath path = file.getLocation().makeAbsolute();
             f = path.toFile();
         
@@ -761,16 +767,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 	        	this.resourceManager = null;
 	        }
 	        
-	        
-	        //remove the markers if we want problems only in the active editor.
-	        if(PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
-		        IEditorInput input = this.getEditorInput();
-		        IFile relatedFile = (IFile) input.getAdapter(IFile.class);
-		        if(relatedFile != null){
-		        	//when disposing, remove all markers
-		        	relatedFile.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO);
-		        }
-	        }
     	}catch (Throwable e) {
 			PydevPlugin.log(e);
 		}

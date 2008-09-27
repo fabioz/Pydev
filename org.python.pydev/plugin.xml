@@ -1387,5 +1387,8 @@
       </hyperlinkDetector>
    </extension>
 
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+  		<pyedit_listener_participant class="org.python.pydev.builder.syntaxchecker.ClearSyntaxMarkersPyeditListener"/>
+   </extension>
 	
  </plugin>

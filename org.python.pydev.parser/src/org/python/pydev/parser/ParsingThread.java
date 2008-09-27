@@ -18,7 +18,7 @@ public class ParsingThread extends Thread {
     /**
      * Identifies whether this parsing thread is disposed.
      */
-	private boolean disposed;
+    private boolean disposed;
 
     ParsingThread(ParserScheduler parser, Object ... argsToReparse) {
         super();
@@ -28,16 +28,16 @@ public class ParsingThread extends Thread {
 
     public void run() {
         try {
-        	if(force == false){
-        		makeOkAndSleepUntilIdleTimeElapses();
-        	}
-        	
+            if(force == false){
+                makeOkAndSleepUntilIdleTimeElapses();
+            }
+            
             while(!okToGo && force == false && !disposed){
                 makeOkAndSleepUntilIdleTimeElapses();
             }
 
             if(disposed){
-            	return;
+                return;
             }
             
             //ok, now we parse it... if we have not been requested to stop it
@@ -65,8 +65,8 @@ public class ParsingThread extends Thread {
         }
     }
 
-	public void dispose() {
-		this.disposed = true;
-	}
+    public void dispose() {
+        this.disposed = true;
+    }
 
 }

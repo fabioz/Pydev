@@ -5,7 +5,6 @@
  */
 package org.python.pydev.builder;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
@@ -31,8 +30,8 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
     public static final int DEFAULT_PYDEV_ELAPSE_BEFORE_ANALYSIS = 3000;
     public static final String PYDEV_ELAPSE_BEFORE_ANALYSIS = PyParserManager.PYDEV_ELAPSE_BEFORE_ANALYSIS;
 
-	public static final String ANALYZE_ONLY_ACTIVE_EDITOR = "ANALYZE_ONLY_ACTIVE_EDITOR";
-	public static final boolean DEFAULT_ANALYZE_ONLY_ACTIVE_EDITOR = true;
+    public static final String ANALYZE_ONLY_ACTIVE_EDITOR = "ANALYZE_ONLY_ACTIVE_EDITOR";
+    public static final boolean DEFAULT_ANALYZE_ONLY_ACTIVE_EDITOR = true;
 
     /**
      * @param style
@@ -50,16 +49,16 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
         Composite p = getFieldEditorParent();
         
         String s = "WARNING: \n\n" +
-        		"Pydev builders are required for many features \n" +
-        		"provided by Pydev such as:\n" +
-        		"\n" +
-        		"- Code completion\n" +
-        		"- PyLint\n" +
-        		"- TODO tasks\n" +
-        		"\n" +
-        		"So, if you choose to disable it, note that the features \n" +
-        		"mentioned above may not work as expected or may even not \n" +
-        		"work at all (use at your own risk).\n";
+                "Pydev builders are required for many features \n" +
+                "provided by Pydev such as:\n" +
+                "\n" +
+                "- Code completion\n" +
+                "- PyLint\n" +
+                "- TODO tasks\n" +
+                "\n" +
+                "So, if you choose to disable it, note that the features \n" +
+                "mentioned above may not work as expected or may even not \n" +
+                "work at all (use at your own risk).\n";
         
         addField(new LabelFieldEditor("LabelFieldEditor", s, p));
         addField(new BooleanFieldEditor(USE_PYDEV_BUILDERS, "Use builders?", p));
@@ -70,8 +69,8 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
         addField(new IntegerFieldEditor(PyParserManager.PYDEV_ELAPSE_BEFORE_ANALYSIS, "Time to elapse before reparsing changed file (millis)", p));
         
         s = "If only open editors are analyzed, markers will only be added\n" +
-    		"to the opened Pydev editors and will be removed upon close.\n" +
-    		"(note that a full rebuild may be needed to remove existing markers)";
+            "to the opened Pydev editors and will be removed upon close.\n" +
+            "(note that a full rebuild may be needed to remove existing markers)";
         addField(new LabelFieldEditor("ActiveBufferLabelFieldEditor", s, p));
         
         addField(new BooleanFieldEditor(ANALYZE_ONLY_ACTIVE_EDITOR, "Only analyze open editors?", p));
@@ -92,11 +91,11 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
     }
     
     public static boolean getAnalyzeOnlyActiveEditor() {
-    	return PydevPrefs.getPreferences().getBoolean(ANALYZE_ONLY_ACTIVE_EDITOR);
+        return PydevPrefs.getPreferences().getBoolean(ANALYZE_ONLY_ACTIVE_EDITOR);
     }
     
     public static void setAnalyzeOnlyActiveEditor(boolean b) {
-    	PydevPrefs.getPreferences().setValue(ANALYZE_ONLY_ACTIVE_EDITOR, b);
+        PydevPrefs.getPreferences().setValue(ANALYZE_ONLY_ACTIVE_EDITOR, b);
     }
     
     public static int getElapseMillisBeforeAnalysis() {

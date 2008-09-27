@@ -102,7 +102,7 @@ public class ParserScheduler {
      * @return whether we really created the thread (returns false if the thread already exists)
      */
     private boolean checkCreateAndStartParsingThread() {
-    	ParsingThread p = parsingThread;
+        ParsingThread p = parsingThread;
         if(p == null){
             p = new ParsingThread(this);
             p.setPriority(Thread.MIN_PRIORITY); //parsing is low priority
@@ -145,20 +145,20 @@ public class ParserScheduler {
      * The argsToReparse will be passed to the IParserObserver2
      */
     public void reparseDocument(Object ... argsToReparse) {
-    	PyParser p = parser;
-    	if(p != null){
-    		p.reparseDocument(argsToReparse);
-    	}
+        PyParser p = parser;
+        if(p != null){
+            p.reparseDocument(argsToReparse);
+        }
     }
 
 
-	public void dispose() {
-		ParsingThread p = this.parsingThread;
-		if(p != null){
-			p.dispose();
-		}
-		this.parser = null;
-	}
+    public void dispose() {
+        ParsingThread p = this.parsingThread;
+        if(p != null){
+            p.dispose();
+        }
+        this.parser = null;
+    }
 
 
 }

@@ -485,7 +485,7 @@ public final class FastDefinitionsParser {
      * Callbacks called just before returning a parsed object. Used for tests
      */
     public static List<ICallback<Object, Tuple<String, SimpleNode>>> parseCallbacks = 
-    	new ArrayList<ICallback<Object, Tuple<String, SimpleNode>>>();
+        new ArrayList<ICallback<Object, Tuple<String, SimpleNode>>>();
     
     
     /**
@@ -509,18 +509,18 @@ public final class FastDefinitionsParser {
         List<stmtType> body = parser.body;
         Module ret = new Module(body.toArray(new stmtType[body.size()]));
         if(parseCallbacks.size() > 0){
-        	Tuple<String, SimpleNode> arg = new Tuple<String, SimpleNode>(moduleName, ret);
-        	for(ICallback<Object, Tuple<String, SimpleNode>> c:parseCallbacks){
-        		c.call(arg);
-        	}
+            Tuple<String, SimpleNode> arg = new Tuple<String, SimpleNode>(moduleName, ret);
+            for(ICallback<Object, Tuple<String, SimpleNode>> c:parseCallbacks){
+                c.call(arg);
+            }
         }
-		return ret;
+        return ret;
     }
 
 
     
-	public static SimpleNode parse(String s) {
-		return parse(s.toCharArray(), null);
-	}
+    public static SimpleNode parse(String s) {
+        return parse(s.toCharArray(), null);
+    }
 
 }

@@ -27,5 +27,12 @@ public interface IPyEditListener {
      */
     void onDispose(PyEdit edit, IProgressMonitor monitor);
 
+    /**
+     * Use to notify listeners that the document that the editor was editing has just changed.
+     * 
+     * @param document the document being edited
+     * @param edit the editor that had the document changed
+     * @param monitor the monitor for the change
+     */
     void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor);
 }

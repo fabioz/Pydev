@@ -126,7 +126,7 @@ public class PyParser implements IPyParser {
     /**
      * Identifies whether this parser is disposed.
      */
-	private volatile boolean disposed = false;
+    private volatile boolean disposed = false;
 
     
     public static String getGrammarVersionStr(int grammarVersion){
@@ -159,25 +159,25 @@ public class PyParser implements IPyParser {
         documentListener = new IDocumentListener() {
 
             public void documentChanged(DocumentEvent event) {
-            	if(useAnalysisOnlyOnDocSave){
-            		//if we're doing analysis only on doc change, the parser will not give any changes
-            		//to the scheduler, so, we won't have any parse events to respond to
-            		return;
-            		
-            	}
+                if(useAnalysisOnlyOnDocSave){
+                    //if we're doing analysis only on doc change, the parser will not give any changes
+                    //to the scheduler, so, we won't have any parse events to respond to
+                    return;
+                    
+                }
                 String text = event.getText();
                 
                 boolean parseNow = true;
                 if (event == null || text == null ) {
-                	parseNow = false;
+                    parseNow = false;
                 }
                 if(parseNow){
-                	if(text.indexOf("\n") == -1 && text.indexOf("\r") == -1){
-                		parseNow = false;
-                		
-                	}
+                    if(text.indexOf("\n") == -1 && text.indexOf("\r") == -1){
+                        parseNow = false;
+                        
+                    }
                 }
-                		
+                        
                 if(!parseNow){
                     // carriage return in changed text means parse now, anything
                     // else means parse later
@@ -206,34 +206,34 @@ public class PyParser implements IPyParser {
      * @param editorView this is the editor that we're getting in the parser
      * @return a provider signaling the grammar to be used for the parser.
      */
-	private static IGrammarVersionProvider getGrammarProviderFromEdit(IPyEdit editorView) {
-		try {
-			return editorView.getPythonNature();
-		} catch (RuntimeException e) {
-			//let's treat that correctly even if we do not have a default grammar (just log it)
-			return new IGrammarVersionProvider(){
+    private static IGrammarVersionProvider getGrammarProviderFromEdit(IPyEdit editorView) {
+        try {
+            return editorView.getPythonNature();
+        } catch (RuntimeException e) {
+            //let's treat that correctly even if we do not have a default grammar (just log it)
+            return new IGrammarVersionProvider(){
 
-				public int getGrammarVersion() {
-					return IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
-				}
-			};
-		}
-	}
+                public int getGrammarVersion() {
+                    return IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
+                }
+            };
+        }
+    }
 
 
     /**
      * should be called when the editor is disposed
      */
     public void dispose() {
-    	this.disposed = true;
-    	this.scheduler.dispose();
-    	
+        this.disposed = true;
+        this.scheduler.dispose();
+        
         // remove the listeners
         if (document != null){
             document.removeDocumentListener(documentListener);
         }
         synchronized(parserListeners){
-        	parserListeners.clear();
+            parserListeners.clear();
         }
     }
 
@@ -247,10 +247,10 @@ public class PyParser implements IPyParser {
     }
     
     public void forceReparse(Object ... argsToReparse){
-    	if(disposed){
-    		return;
-    	}
-    	scheduler.parseNow(true, argsToReparse);
+        if(disposed){
+            return;
+        }
+        scheduler.parseNow(true, argsToReparse);
     }
     
 
@@ -260,7 +260,7 @@ public class PyParser implements IPyParser {
     private IEditorInput input;
     
     public void setDocument(IDocument document, IEditorInput input) {
-    	setDocument(document, true, input);
+        setDocument(document, true, input);
     }
     
     public synchronized void setDocument(IDocument doc, boolean addToScheduler, IEditorInput input) {
@@ -280,8 +280,8 @@ public class PyParser implements IPyParser {
         doc.addDocumentListener(documentListener);
         
         if(addToScheduler){
-	        // Reparse document on the initial set (force it)
-	        scheduler.parseNow(true);
+            // Reparse document on the initial set (force it)
+            scheduler.parseNow(true);
         }
     }
 
@@ -290,9 +290,9 @@ public class PyParser implements IPyParser {
     public void addParseListener(IParserObserver listener) {
         Assert.isNotNull(listener);
         synchronized(parserListeners){
-	        if (!parserListeners.contains(listener)){
-	            parserListeners.add(listener);
-	        }
+            if (!parserListeners.contains(listener)){
+                parserListeners.add(listener);
+            }
         }
     }
 
@@ -300,7 +300,7 @@ public class PyParser implements IPyParser {
     public void removeParseListener(IParserObserver listener) {
         Assert.isNotNull(listener);
         synchronized(parserListeners){
-        	parserListeners.remove(listener);
+            parserListeners.remove(listener);
         }
     }
 
@@ -311,24 +311,24 @@ public class PyParser implements IPyParser {
      * @param original 
      */
     @SuppressWarnings("unchecked")
-	protected void fireParserChanged(SimpleNode root, IAdaptable file, IDocument doc, Object ... argsToReparse) {
+    protected void fireParserChanged(SimpleNode root, IAdaptable file, IDocument doc, Object ... argsToReparse) {
         this.root = root;
         synchronized(parserListeners){
-        	for (IParserObserver l : new ArrayList<IParserObserver>(parserListeners)) { //work on a copy (because listeners may want to remove themselves and we cannot afford concurrent modifications here)
-        		if(l instanceof IParserObserver2){
-        			((IParserObserver2)l).parserChanged(root, file, doc, argsToReparse);
-        		}else{
-        			l.parserChanged(root, file, doc);
-        		}
-			}
+            for (IParserObserver l : new ArrayList<IParserObserver>(parserListeners)) { //work on a copy (because listeners may want to remove themselves and we cannot afford concurrent modifications here)
+                if(l instanceof IParserObserver2){
+                    ((IParserObserver2)l).parserChanged(root, file, doc, argsToReparse);
+                }else{
+                    l.parserChanged(root, file, doc);
+                }
+            }
 
-        	List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);
+            List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);
             for (IParserObserver observer : participants) {
-        		if(observer instanceof IParserObserver2){
-        			((IParserObserver2)observer).parserChanged(root, file, doc, argsToReparse);
-        		}else{
-        			observer.parserChanged(root, file, doc);
-        		}
+                if(observer instanceof IParserObserver2){
+                    ((IParserObserver2)observer).parserChanged(root, file, doc, argsToReparse);
+                }else{
+                    observer.parserChanged(root, file, doc);
+                }
             }
         }
     }
@@ -338,22 +338,22 @@ public class PyParser implements IPyParser {
      * @param original 
      */
     @SuppressWarnings("unchecked")
-	protected void fireParserError(Throwable error, IAdaptable file, IDocument doc, Object ... argsToReparse) {
+    protected void fireParserError(Throwable error, IAdaptable file, IDocument doc, Object ... argsToReparse) {
         synchronized(parserListeners){
-        	for (IParserObserver l : new ArrayList<IParserObserver>(parserListeners)) {//work on a copy (because listeners may want to remove themselves and we cannot afford concurrent modifications here)
-        		if(l instanceof IParserObserver2){
-        			((IParserObserver2)l).parserError(error, file, doc, argsToReparse);
-        		}else{
-        			l.parserError(error, file, doc);
-        		}
+            for (IParserObserver l : new ArrayList<IParserObserver>(parserListeners)) {//work on a copy (because listeners may want to remove themselves and we cannot afford concurrent modifications here)
+                if(l instanceof IParserObserver2){
+                    ((IParserObserver2)l).parserError(error, file, doc, argsToReparse);
+                }else{
+                    l.parserError(error, file, doc);
+                }
             }
             List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);
             for (IParserObserver observer : participants) {
-            	if(observer instanceof IParserObserver2){
-            		((IParserObserver2)observer).parserError(error, file, doc, argsToReparse);
-            	}else{
-            		observer.parserError(error, file, doc);
-            	}
+                if(observer instanceof IParserObserver2){
+                    ((IParserObserver2)observer).parserError(error, file, doc, argsToReparse);
+                }else{
+                    observer.parserError(error, file, doc);
+                }
             }
         }
     }
@@ -394,30 +394,30 @@ public class PyParser implements IPyParser {
         
         //delete the markers
         if (original != null){
-        	try {
-        		deleteErrorMarkers(original);
-        	} catch (ResourceException e) {
-        	    //ok, if it is a resource exception, it may have happened because the resource does not exist anymore
-        	    //so, there is no need to log this failure
+            try {
+                deleteErrorMarkers(original);
+            } catch (ResourceException e) {
+                //ok, if it is a resource exception, it may have happened because the resource does not exist anymore
+                //so, there is no need to log this failure
                 if(original.exists()){
                     Log.log(e);
                 }
-        	} catch (CoreException e) {
-        		Log.log(e);
-        	}
-        	
+            } catch (CoreException e) {
+                Log.log(e);
+            }
+            
         }else if(adaptable == null){
-        	//ok, we have nothing... maybe we are in tests...
-        	if (!PyParser.ACCEPT_NULL_INPUT_EDITOR){
-        		throw new RuntimeException("Null input editor received in parser!");
-        	}
+            //ok, we have nothing... maybe we are in tests...
+            if (!PyParser.ACCEPT_NULL_INPUT_EDITOR){
+                throw new RuntimeException("Null input editor received in parser!");
+            }
         }
         //end delete the markers
         
         
         if(disposed){
-        	//if it was disposed in this time, don't fire any notification nor return anything valid.
-        	return new Tuple<SimpleNode, Throwable>(null, null);
+            //if it was disposed in this time, don't fire any notification nor return anything valid.
+            return new Tuple<SimpleNode, Throwable>(null, null);
         }
 
         
@@ -442,12 +442,12 @@ public class PyParser implements IPyParser {
      * @param resource the file that should have the markers removed
      * @throws CoreException
      */
-	public static void deleteErrorMarkers(IResource resource) throws CoreException {
-		IMarker[] markers = resource.findMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
-		if(markers.length > 0){
-			resource.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
-		}
-	}
+    public static void deleteErrorMarkers(IResource resource) throws CoreException {
+        IMarker[] markers = resource.findMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
+        if(markers.length > 0){
+            resource.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
+        }
+    }
     
 
     
@@ -504,7 +504,7 @@ public class PyParser implements IPyParser {
          * @param grammarVersion: see IPythonNature.GRAMMAR_XXX constants
          */
         public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, int grammarVersion){
-        	this(document, stillTryToChangeCurrentLine, grammarVersion, -1, null, null);
+            this(document, stillTryToChangeCurrentLine, grammarVersion, -1, null, null);
         }
         
         public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, IPythonNature nature){
@@ -512,21 +512,21 @@ public class PyParser implements IPyParser {
         }
         
         public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, IPythonNature nature, int currentLine, String moduleName, File file){
-        	this(document, stillTryToChangeCurrentLine, nature.getGrammarVersion(), currentLine, moduleName, file);
+            this(document, stillTryToChangeCurrentLine, nature.getGrammarVersion(), currentLine, moduleName, file);
         }
         
         public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, IPythonNature nature, int currentLine){
             this(document, stillTryToChangeCurrentLine, nature.getGrammarVersion(), currentLine, null, null);
         }
 
-		public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, int grammarVersion, 
-				int currentLine, String name, File f) {
-			this.document = document;
-			this.stillTryToChangeCurrentLine = stillTryToChangeCurrentLine;
-			this.grammarVersion = grammarVersion;
-			this.moduleName = name;
-			this.file = f;
-		}
+        public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, int grammarVersion, 
+                int currentLine, String name, File f) {
+            this.document = document;
+            this.stillTryToChangeCurrentLine = stillTryToChangeCurrentLine;
+            this.grammarVersion = grammarVersion;
+            this.moduleName = name;
+            this.file = f;
+        }
     }
     
     
@@ -629,7 +629,7 @@ public class PyParser implements IPyParser {
      * This list of callbacks is mostly used for testing, so that we can check what's been parsed.
      */
     public final static List<ICallback<Object, Tuple3<SimpleNode, Throwable, ParserInfo>>> successfulParseListeners = 
-    	new ArrayList<ICallback<Object, Tuple3<SimpleNode, Throwable, ParserInfo>>>();
+        new ArrayList<ICallback<Object, Tuple3<SimpleNode, Throwable, ParserInfo>>>();
     
     
     /**
@@ -657,13 +657,13 @@ public class PyParser implements IPyParser {
         if(USE_FAST_STREAM){
             //we don't want to keep the string from being released, so, just get the char array from the string
             char[] cs = newDoc.get().toCharArray();
-        	in = new FastCharStream(cs);
+            in = new FastCharStream(cs);
         }else{
-        	//this should be deprecated in the future (it is still here so that we can evaluate
-        	//the changes done by the change of the reader).
+            //this should be deprecated in the future (it is still here so that we can evaluate
+            //the changes done by the change of the reader).
             String initialDoc = newDoc.get();
-	        StringReader inString = new StringReader(initialDoc);
-	        in = new ReaderCharStream(inString);
+            StringReader inString = new StringReader(initialDoc);
+            in = new ReaderCharStream(inString);
             throw new RuntimeException("This char stream reader was deprecated (was maintained only for testing purposes).");
         }
         
@@ -679,11 +679,11 @@ public class PyParser implements IPyParser {
 
         Tuple<SimpleNode, Throwable> returnVar = new Tuple<SimpleNode, Throwable>(null, null);
         try {
-        	
-        	if(ENABLE_TRACING){
-        		//grammar has to be generated with debugging info for this to make a difference
-        		grammar.enable_tracing();
-        	}
+            
+            if(ENABLE_TRACING){
+                //grammar has to be generated with debugging info for this to make a difference
+                grammar.enable_tracing();
+            }
             SimpleNode newRoot = grammar.file_input(); // parses the file
             if(newRoot != null){
                 Module m = (Module) newRoot;
@@ -695,13 +695,13 @@ public class PyParser implements IPyParser {
             
             //only notify successful parses
             if(successfulParseListeners.size() > 0){
-            	Tuple3<SimpleNode, Throwable, ParserInfo> param = new Tuple3<SimpleNode, Throwable, ParserInfo>(
-            			returnVar.o1, returnVar.o2, info);
-            	
-            	for(ICallback<Object, Tuple3<SimpleNode, Throwable, ParserInfo>> callback: successfulParseListeners){
-            		callback.call(param);
-            	}
-            }		
+                Tuple3<SimpleNode, Throwable, ParserInfo> param = new Tuple3<SimpleNode, Throwable, ParserInfo>(
+                        returnVar.o1, returnVar.o2, info);
+                
+                for(ICallback<Object, Tuple3<SimpleNode, Throwable, ParserInfo>> callback: successfulParseListeners){
+                    callback.call(param);
+                }
+            }        
 
         } catch (Throwable e) {
             //ok, some error happened when trying the parse... let's go and clear the local info before doing
@@ -793,8 +793,8 @@ public class PyParser implements IPyParser {
             if(tokenErr.currentToken != null){
                 line = tokenErr.currentToken.beginLine-2;
             
-	        }else{
-	            return null;   
+            }else{
+                return null;   
             }
         }
         
@@ -853,7 +853,7 @@ public class PyParser implements IPyParser {
             Document doc = new Document(docToParse);
             info.document = doc;
             info.stillTryToChangeCurrentLine = false;
-	        return reparseDocument(info).o1;
+            return reparseDocument(info).o1;
         }
         return null;
     }
@@ -877,87 +877,87 @@ public class PyParser implements IPyParser {
      * @throws BadLocationException
      * @throws CoreException
      */
-	public static ErrorDescription createParserErrorMarkers(Throwable error, IAdaptable resource, IDocument doc)
-			throws BadLocationException, CoreException {
-		ErrorDescription errDesc;
-		if(resource == null){
-		    return null;
-		}
-		IResource fileAdapter = (IResource) resource.getAdapter(IResource.class);
-		if(fileAdapter == null){
-		    return null;
-		}
-	
-		errDesc = createErrorDesc(error, doc);
-		
-		Map<String, Object> map = new HashMap<String, Object>();
-		
-		map.put(IMarker.MESSAGE, errDesc.message);
-		map.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-		map.put(IMarker.LINE_NUMBER, errDesc.errorLine);
-		map.put(IMarker.CHAR_START, errDesc.errorStart);
-		map.put(IMarker.CHAR_END, errDesc.errorEnd);
-		map.put(IMarker.TRANSIENT, true);
-		MarkerUtilities.createMarker(fileAdapter, map, IMarker.PROBLEM);
-		return errDesc;
-	}
+    public static ErrorDescription createParserErrorMarkers(Throwable error, IAdaptable resource, IDocument doc)
+            throws BadLocationException, CoreException {
+        ErrorDescription errDesc;
+        if(resource == null){
+            return null;
+        }
+        IResource fileAdapter = (IResource) resource.getAdapter(IResource.class);
+        if(fileAdapter == null){
+            return null;
+        }
+    
+        errDesc = createErrorDesc(error, doc);
+        
+        Map<String, Object> map = new HashMap<String, Object>();
+        
+        map.put(IMarker.MESSAGE, errDesc.message);
+        map.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+        map.put(IMarker.LINE_NUMBER, errDesc.errorLine);
+        map.put(IMarker.CHAR_START, errDesc.errorStart);
+        map.put(IMarker.CHAR_END, errDesc.errorEnd);
+        map.put(IMarker.TRANSIENT, true);
+        MarkerUtilities.createMarker(fileAdapter, map, IMarker.PROBLEM);
+        return errDesc;
+    }
 
-	
-	/**
-	 * Creates the error description for a given error in the parse.
-	 */
-	private static ErrorDescription createErrorDesc(Throwable error, IDocument doc) throws BadLocationException {
-	    int errorStart = -1;
-	    int errorEnd = -1;
-	    int errorLine = -1;
-	    String message = null;
-	    if (error instanceof ParseException) {
-	        ParseException parseErr = (ParseException) error;
-	        
-	        // Figure out where the error is in the document, and create a
-	        // marker for it
-	        if(parseErr.currentToken == null){
-	        	IRegion endLine = doc.getLineInformationOfOffset(doc.getLength());
-	        	errorStart = endLine.getOffset();
-	        	errorEnd = endLine.getOffset() + endLine.getLength();
-	
-	        }else{
-	        	Token errorToken = parseErr.currentToken.next != null ? parseErr.currentToken.next : parseErr.currentToken;
-	            IRegion startLine = doc.getLineInformation(errorToken.beginLine - 1);
-	            IRegion endLine;
-	            if (errorToken.endLine == 0){
-	                endLine = startLine;
-	            }else{
-	                endLine = doc.getLineInformation(errorToken.endLine - 1);
-	            }
-	            errorStart = startLine.getOffset() + errorToken.beginColumn - 1;
-	            errorEnd = endLine.getOffset() + errorToken.endColumn;
-	        }
-	        message = parseErr.getMessage();
-	
-	    } else if(error instanceof TokenMgrError){
-	        TokenMgrError tokenErr = (TokenMgrError) error;
-	        IRegion startLine = doc.getLineInformation(tokenErr.errorLine - 1);
-	        errorStart = startLine.getOffset();
-	        errorEnd = startLine.getOffset() + tokenErr.errorColumn;
-	        message = tokenErr.getMessage();
-	    } else{
-	        Log.log("Error, expecting ParseException or TokenMgrError. Received: "+error);
-	        return new ErrorDescription(null, 0, 0, 0);
-	    }
-	    errorLine = doc.getLineOfOffset(errorStart); 
-	
-	    // map.put(IMarker.LOCATION, "Whassup?"); this is the location field
-	    // in task manager
-	    if (message != null) { // prettyprint
-	        message = message.replaceAll("\\r\\n", " ");
-	        message = message.replaceAll("\\r", " ");
-	        message = message.replaceAll("\\n", " ");
-	    }
-	    
-	    
-	    return new ErrorDescription(message, errorLine, errorStart, errorEnd);
-	}
+    
+    /**
+     * Creates the error description for a given error in the parse.
+     */
+    private static ErrorDescription createErrorDesc(Throwable error, IDocument doc) throws BadLocationException {
+        int errorStart = -1;
+        int errorEnd = -1;
+        int errorLine = -1;
+        String message = null;
+        if (error instanceof ParseException) {
+            ParseException parseErr = (ParseException) error;
+            
+            // Figure out where the error is in the document, and create a
+            // marker for it
+            if(parseErr.currentToken == null){
+                IRegion endLine = doc.getLineInformationOfOffset(doc.getLength());
+                errorStart = endLine.getOffset();
+                errorEnd = endLine.getOffset() + endLine.getLength();
+    
+            }else{
+                Token errorToken = parseErr.currentToken.next != null ? parseErr.currentToken.next : parseErr.currentToken;
+                IRegion startLine = doc.getLineInformation(errorToken.beginLine - 1);
+                IRegion endLine;
+                if (errorToken.endLine == 0){
+                    endLine = startLine;
+                }else{
+                    endLine = doc.getLineInformation(errorToken.endLine - 1);
+                }
+                errorStart = startLine.getOffset() + errorToken.beginColumn - 1;
+                errorEnd = endLine.getOffset() + errorToken.endColumn;
+            }
+            message = parseErr.getMessage();
+    
+        } else if(error instanceof TokenMgrError){
+            TokenMgrError tokenErr = (TokenMgrError) error;
+            IRegion startLine = doc.getLineInformation(tokenErr.errorLine - 1);
+            errorStart = startLine.getOffset();
+            errorEnd = startLine.getOffset() + tokenErr.errorColumn;
+            message = tokenErr.getMessage();
+        } else{
+            Log.log("Error, expecting ParseException or TokenMgrError. Received: "+error);
+            return new ErrorDescription(null, 0, 0, 0);
+        }
+        errorLine = doc.getLineOfOffset(errorStart); 
+    
+        // map.put(IMarker.LOCATION, "Whassup?"); this is the location field
+        // in task manager
+        if (message != null) { // prettyprint
+            message = message.replaceAll("\\r\\n", " ");
+            message = message.replaceAll("\\r", " ");
+            message = message.replaceAll("\\n", " ");
+        }
+        
+        
+        return new ErrorDescription(message, errorLine, errorStart, errorEnd);
+    }
 
 
     
