@@ -143,6 +143,9 @@ except:
 
 
 try:
+    #The original getpass doesn't work from the eclipse console, so, let's put a replacement
+    #here (note that it'll not go into echo mode in the console, so, what' the user writes
+    #will actually be seen)
     import getpass
     def pydev_getpass(msg='Password: '):
         return raw_input(msg)

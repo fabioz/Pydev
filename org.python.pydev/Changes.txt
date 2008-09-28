@@ -16,6 +16,7 @@ Pydev
 <li><strong>Interpreter config</strong>: "email" automatically added to the "forced builtins"</li>
 <li><strong>Parser</strong>: Correctly recognizing absolute import with 3 or more levels</li>
 <li><strong>Syntax check</strong>: Option to do only on active editor</li>
+<li><strong>getpass.getpass</strong>: No longer halts when run from pydev (but will show the password being written)</li>
 </ul>
 
 after 1.3.19
