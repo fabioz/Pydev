@@ -5,7 +5,6 @@
     - execute the user site customize -- if available
     - change raw_input() and input() to also remove any trailing \r
 '''
-
 DEBUG = 0 #0 or 1 because of jython
 import os
 
@@ -128,7 +127,7 @@ try:
             
         return ret
     raw_input.__doc__ = original_raw_input.__doc__
-        
+
     def input(prompt=''):
         #input must also be rebinded for using the new raw_input defined
         return eval(raw_input(prompt))
@@ -142,3 +141,15 @@ except:
     if DEBUG:
         import traceback;traceback.print_exc() #@Reimport
 
+
+try:
+    import getpass
+    def pydev_getpass(msg='Password: '):
+        return raw_input(msg)
+    
+    getpass.getpass = pydev_getpass
+except:
+    #Don't report errors at this stage
+    if DEBUG:
+        import traceback;traceback.print_exc() #@Reimport
+    
