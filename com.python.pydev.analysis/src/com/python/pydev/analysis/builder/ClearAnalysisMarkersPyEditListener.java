@@ -24,12 +24,10 @@ import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo
  */
 public class ClearAnalysisMarkersPyEditListener implements IPyEditListener, IPyEditListener3{
 
-    @Override
     public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
         
     }
 
-    @Override
     public void onDispose(PyEdit edit, IProgressMonitor monitor) {
         IEditorInput input = edit.getEditorInput();
         //remove the markers if we want problems only in the active editor.
@@ -37,17 +35,14 @@ public class ClearAnalysisMarkersPyEditListener implements IPyEditListener, IPyE
     }
 
 
-    @Override
     public void onSave(PyEdit edit, IProgressMonitor monitor) {
         
     }
 
-    @Override
     public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
         
     }
 
-    @Override
     public void onInputChanged(PyEdit edit, IEditorInput oldInput, IEditorInput input, IProgressMonitor monitor) {
         removeMarkersFromInput(oldInput);
     }
