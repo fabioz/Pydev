@@ -33,7 +33,7 @@ import org.python.pydev.core.structure.FastStringBuffer;
  * @author <a href="mailto:hps@intermeta.de">Henning P. Schmiedehausen</a>
  * @author Gary Gregory
  * @since 2.0
- * @version $Id: WordUtils.java,v 1.6 2008-06-15 16:45:20 fabioz Exp $
+ * @version $Id: WordUtils.java,v 1.10 2008/09/27 19:57:34 fabioz Exp $
  */
 public class WordUtils {
 

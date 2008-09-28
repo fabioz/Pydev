@@ -60,7 +60,6 @@ public class ProjectImportedHasAstManagerTestWorkbench  extends AbstractWorkbenc
         //Let's give it some time to run the jobs that restore the nature
         goToIdleLoopUntilCondition(new ICallback<Boolean, Object>(){
 
-            @Override
             public Boolean call(Object arg) {
                 if(nature != null){
                     if(nature.getAstManager() != null){

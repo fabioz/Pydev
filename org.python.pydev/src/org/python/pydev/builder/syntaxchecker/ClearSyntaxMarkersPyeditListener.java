@@ -23,26 +23,21 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class ClearSyntaxMarkersPyeditListener implements IPyEditListener, IPyEditListener3{
 
-    @Override
     public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
     }
 
-    @Override
     public void onDispose(PyEdit edit, IProgressMonitor monitor) {
         //remove the markers if we want problems only in the active editor.
         IEditorInput input = edit.getEditorInput();
         removeMarkersFromInput(input);    
     }
 
-    @Override
     public void onSave(PyEdit edit, IProgressMonitor monitor) {
     }
 
-    @Override
     public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
     }
 
-    @Override
     public void onInputChanged(PyEdit edit, IEditorInput oldInput, IEditorInput input, IProgressMonitor monitor) {
         removeMarkersFromInput(oldInput);
     }
