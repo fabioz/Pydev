@@ -69,8 +69,7 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
         addField(new IntegerFieldEditor(PyParserManager.PYDEV_ELAPSE_BEFORE_ANALYSIS, "Time to elapse before reparsing changed file (millis)", p));
         
         s = "If only open editors are analyzed, markers will only be added\n" +
-            "to the opened Pydev editors and will be removed upon close.\n" +
-            "(note that a full rebuild may be needed to remove existing markers)";
+            "to the opened Pydev editors and will be removed upon close.\n";
         addField(new LabelFieldEditor("ActiveBufferLabelFieldEditor", s, p));
         
         addField(new BooleanFieldEditor(ANALYZE_ONLY_ACTIVE_EDITOR, "Only analyze open editors?", p));
