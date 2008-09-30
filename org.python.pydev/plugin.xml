@@ -114,6 +114,22 @@
          </action>
       </objectContribution>
       
+      <!-- remove errors -->
+      <objectContribution
+            adaptable="true"
+            id="org.python.pydev.ui.actions.container.pyDeleteErrors"
+            objectClass="org.eclipse.core.resources.IContainer">
+         <menu id="org.python.pydev.ui.actions.menu" label="Pydev"/>
+         <action
+               class="org.python.pydev.ui.actions.container.PyDeleteErrors"
+               enablesFor="+"
+               id="org.python.pydev.ui.actions.container.pyDeleteErrors"
+               label="Remove error markers"
+               menubarPath="org.python.pydev.ui.actions.menu/pydev"
+               tooltip="Remove error markers">
+         </action>
+      </objectContribution>
+      
       
       <!-- remove nature -->
       <objectContribution
