@@ -34,11 +34,6 @@ public class PySyntaxChecker extends PyDevBuilderVisitor{
             return; //not analyzed with this builder... always from parser changes.
         }
         
-        try {
-            PyParser.deleteErrorMarkers(resource);
-        } catch (CoreException e) {
-            PydevPlugin.log(e);
-        }
         
         if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
             System.out.println("PySyntaxChecker: Checking!");
@@ -46,6 +41,12 @@ public class PySyntaxChecker extends PyDevBuilderVisitor{
         
         SourceModule mod = getSourceModule(resource, document, nature);
         Throwable parseError = mod.parseError;
+        
+        try {
+            PyParser.deleteErrorMarkers(resource);
+        } catch (CoreException e) {
+            PydevPlugin.log(e);
+        }
         
         if(parseError != null){
             try {

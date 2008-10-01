@@ -99,7 +99,7 @@ public abstract class AbstractModule implements IModule {
      */
     public boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, 
             ICompletionCache completionCache) throws CompletionRecursionException{
-        return isInGlobalTokens(tok, nature, true, false, completionCache) != IModule.NOT_FOUND;
+        return isInGlobalTokens(tok, nature, searchSameLevelMods, false, completionCache) != IModule.NOT_FOUND;
     }
     
     @SuppressWarnings("unchecked")
@@ -164,7 +164,8 @@ public abstract class AbstractModule implements IModule {
         ICodeCompletionASTManager astManager = nature.getAstManager();
         state.setActivationToken (activationToken);
         
-        
+        //we don't want to gather builtins in this case.
+        state.setBuiltinsGotten(true);
         IToken[] globalTokens = astManager.getCompletionsForModule(this, state, searchSameLevelMods);
         for (IToken token : globalTokens) {
             String rep = token.getRepresentation();
