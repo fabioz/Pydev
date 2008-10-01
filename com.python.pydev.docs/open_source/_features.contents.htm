@@ -2,21 +2,18 @@
 
 
 <ul>
-<li><strong>Pydev Package Explorer</strong>: Editor-link does not remove focus from current editor if it's already a match (bug when compare editor was opened)</li>
-<li><strong>Pydev debugger</strong>: Showing set and frozenset contents</li>
-<li><strong>Pydev debugger</strong>: Watch working in eclipse 3.4</li>
-<li><strong>Pydev debugger</strong>: Breakpoint properties accept new lines and tabs</li>
-<li><strong>Pydev debugger</strong>: Workaround for python bug when filenames don't have absolute paths correctly generated</li>
-<li><strong>Pydev code-completion</strong>: Wild import will only show tokens defined in __all__ (if it's available)</li>
-<li><strong>Interactive console</strong>: Fixed problem when more attempts to connect were needed</li>
-<li><strong>Interactive console</strong>: Fixed console integration problem with other plugins because of interfaces not properly implemented</li>
-<li><strong>Incremental find</strong>: Backspace works correctly</li>
-<li><strong>Launch icons</strong>: Transparent background (thanks to Radim Kubacki)</li>
-<li><strong>Code Formatter</strong>: Exponentials handled correctly</li>
-<li><strong>Launching</strong>: Unit-test and code-coverage may launch multiple folders/files at once</li>
-<li><strong>Code coverage</strong>: Number format exception no longer given when trying to show lines not executed in the editor and all lines are executed</li>
-<li><strong>Auto-indent</strong>: Fixed issue when using tabs which could result in spaces being added</li>
+<li><strong>Debugger</strong>: Pythonpath is the same in debug and regular modes (sys.path[0] is the same directory as the file run)</li>
+<li><strong>Debugger</strong>: Choices for paths not found are persisted</li>
+<li><strong>Code-completion</strong>: If __all__ is defined with runtime elements (and not only in a single assign statement), it's ignored for code-completion purposes</li>
+<li><strong>Code-completion</strong>: Works on case where imported module has same name of builtin</li>
+<li><strong>Editor</strong>: Cursor settings no longer overridden</li>
+<li><strong>Interpreter config</strong>: "email" automatically added to the "forced builtins"</li>
+<li><strong>Parser</strong>: Correctly recognizing absolute import with 3 or more levels</li>
+<li><strong>Syntax check</strong>: Option analyze only active editor</li>
+<li><strong>getpass.getpass</strong>: No longer halts when run from pydev (but will show the password being written)</li>
+<li><strong>Remove error markers</strong>: Context menu in folders to remove error markers created</li>
 </ul>
+
 
 
 <br/>
@@ -108,7 +105,7 @@
 		
 		<li>Limitations</li>
 		<ul>
-			<li>Output is not asynchonous (stdout and stderr are only shown after a new command is sent to the console)</li>
+			<li>Output is not asynchronous (stdout and stderr are only shown after a new command is sent to the console)</li>
 		</ul>
 	</ul>
 </ul>
@@ -119,6 +116,29 @@
 
 <hr/>
 <h2>Features History</h2>
+
+
+
+<h3>New on: 1.3.20</h3>
+
+
+<ul>
+<li><strong>Pydev Package Explorer</strong>: Editor-link does not remove focus from current editor if it's already a match (bug when compare editor was opened)</li>
+<li><strong>Pydev debugger</strong>: Showing set and frozenset contents</li>
+<li><strong>Pydev debugger</strong>: Watch working in eclipse 3.4</li>
+<li><strong>Pydev debugger</strong>: Breakpoint properties accept new lines and tabs</li>
+<li><strong>Pydev debugger</strong>: Workaround for python bug when filenames don't have absolute paths correctly generated</li>
+<li><strong>Pydev code-completion</strong>: Wild import will only show tokens defined in __all__ (if it's available)</li>
+<li><strong>Interactive console</strong>: Fixed problem when more attempts to connect were needed</li>
+<li><strong>Interactive console</strong>: Fixed console integration problem with other plugins because of interfaces not properly implemented</li>
+<li><strong>Incremental find</strong>: Backspace works correctly</li>
+<li><strong>Launch icons</strong>: Transparent background (thanks to Radim Kubacki)</li>
+<li><strong>Code Formatter</strong>: Exponentials handled correctly</li>
+<li><strong>Launching</strong>: Unit-test and code-coverage may launch multiple folders/files at once</li>
+<li><strong>Code coverage</strong>: Number format exception no longer given when trying to show lines not executed in the editor and all lines are executed</li>
+<li><strong>Auto-indent</strong>: Fixed issue when using tabs which could result in spaces being added</li>
+</ul>
+
 
 
 

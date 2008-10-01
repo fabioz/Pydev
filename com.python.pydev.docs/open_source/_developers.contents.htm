@@ -6,45 +6,51 @@ This page shows how to effectively get up and running with the pydev code. <br/>
 <h2>Getting the code</h2>
 
 The first thing you probably want to do in order to code in pydev is <strong>getting its code</strong>. As pydev is an Eclipse plugin, 
-the whole process will be explained based on the Eclipse infrastructure (this was written for the sdk version 3.1).<br/><br/>
+the whole process will be explained based on the Eclipse infrastructure (this was written for the sdk version 3.3 with Subversive 0.7.1).<br/><br/>
 
-<strong>Pre-requisites:</strong> Eclipse SDK 3.1 and Java 5.0<br/><br/>
+<strong>Pre-requisites:</strong> Eclipse SDK 3.3, Subversive 0.7.1 and Java 5.0 (note that latest versions of those should work too but details may differ a bit)<br/><br/>
 
 Before getting the code, there's an important step you need to make: Change your java 'compiler compliance-level' to 5.0.
 To do this, go to <strong>window > preferences > Java > compiler</strong> and change that setting from <strong>1.4 to 5.0</strong>.<br/><br/>
 
-The steps to get the code are:<br/><br/>
-1. Open the cvs repositories view <strong>(window > show view > cvs > cvs repositories)</strong><br/><br/>
-2. Right-click the view and choose <strong>new > repository location</strong> and fill:<br/>
+<h3>Getting the code</h3>
+
+1. Go to the menu: <strong> File &gt; New &gt; Other </strong> and choose <strong>Projects from SVN</strong><br/><br/>
+
+<br/><br/><center><img src="images/developers/pic1.png" border=1/></center><br/><br/>
+
+<strong>2. Fill the needed info with </strong><br/>
 <ul>
-	<li>host: <strong>pydev.cvs.sourceforge.net</strong></li>
-	<li>repository path: <strong>/cvsroot/pydev</strong></li>
-	<li>user: anonymous</li>
-	<li>password: this field should be left empty</li>
-	<li>connection type: pserver</li>
-</ul><br/>
-As pointed in the image below (note that the <strong>host changed</strong>):
-<br/><br/><center><img src="images/developers/add_repository.png" border=1/></center><br/><br/>
-And click <strong>Finish</strong><br/><br/>
+	<li>repo: <strong>https://source.aptana.com/pydev_repo/</strong></li>
+	<li>user: <strong>anonymous</strong></li>
+	<li>password: <strong>aptana</strong></li>
+</ul>
 
-3. You should now have that repository added to your cvs repositories, so, expand it 2 levels: the root and the head (assuming you
-want to get the latest version), select the <strong>11 folders marked in the image below</strong>, 
-right-click it and choose <strong>check out</strong> (the other folders are 'deprecated'). 
-<br/><br/><center><img src="images/developers/repository_added.png" border=1/></center><br/><br/>
+<br/><br/><center><img src="images/developers/pic2.png" border=1/></center><br/><br/>
 
-By doing so, Eclipse should automatically grab all the sources from the cvs into your workspace and let
-the whole structure ready for you to begin coding pydev.<br/><br/>
+<strong>3. Choose the projects to download (note that Mylyn is optional)</strong>
+
+<br/><br/><center><img src="images/developers/pic3.png" border=1/></center><br/><br/>
+
+<strong>4. Choose to download those resources as projects</strong>
+
+<br/><br/><center><img src="images/developers/pic4.png" border=1/></center><br/><br/>
+
+<strong>5. Finish</strong>
+
+<h3>Configuring the environment after getting the code</h3>
+
+<br/>
 
 After you do that, you'll probably note that the tests did <strong>not compile successfully</strong>. This is because there are some settings
 that will depend on your installation, and this settings are stored in a class that holds that info (which you'll have to create). 
-There is a 'template' for that file in the cvs at: 
+There is a 'template' for that file in the svn at: 
 <strong>org.python.pydev.core/TestDependent.template</strong>. You should create a copy of that file in that same dir named 
 <strong>TestDependent.java</strong> and set the needed things according to your installation. If there is still something that does
 not compile, it may mean that: <br/>
 <ul>
-	<li>The cvs is not properly synched across the developers and non-developers (yes, it takes some time for that to happen)</li>
 	<li>There is something missing in that TestDependent.java file because it is not synched with all the dependencies (if so, just add the needed variable to it)</li>
-	<li>The head does not compile in the cvs -- if you believe that is the case, send an e-mail to the pydev-code list at sourceforge to know what's happening.</li>
+	<li>The head does not compile in the svn -- if you believe that is the case, send an e-mail to the pydev-code list at sourceforge to know what's happening.</li>
 </ul>
 <br/>
 
@@ -82,7 +88,7 @@ You should then follow the steps provided by the wizard. The most important thin
 <strong>NOTE 1</strong>: Diffs do not work well for binary files, so, if you made some change to some image, please attach the changed
 image itself, pointing the complete location to the image when attaching it to the bug.<br/><br/>
 
-<strong>NOTE 2</strong>: If you did some whole new script that use the 'jython scripting in pydev' infrastructure, you do not need 
+<strong>NOTE 2</strong>: If you did some whole new script that uses the 'jython scripting in pydev' infrastructure, you do not need 
 to create a patch. Just attach the script itself to the bug.<br/><br/>
 
 
