@@ -57,13 +57,6 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
             return;
         }
         try{
-            
-            
-            //For now, always analyze the files, because otherwise we could end up with files not analyzed
-            //when it was edited outside and refreshed... A different approach must be considered so that we
-            //don't analyze the file twice when editing/saving it.
-            
-            //change: always analyze the file, being only on save or not
             boolean analyzeDependent;
             if(isFullBuild()){
                 analyzeDependent = false;
@@ -71,6 +64,11 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
                 analyzeDependent = true;
             }
             IModule module;
+            
+            
+            //depending on the level of analysis we have to do, we'll decide whether we want
+            //to make the full parse (slower) or the definitions parse (faster but only with info
+            //related to the definitions)
             if(PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
                 if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
                     System.out.println("AnalysisBuilderVisitor: PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
@@ -105,7 +103,8 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         
         final String moduleName = getModuleName(resource, nature);
         final AnalysisBuilderRunnable runnable = AnalysisBuilderRunnable.createRunnable(
-                document, resource, module, analyzeDependent, monitor, isFullBuild(), moduleName, forceAnalysis, analysisCause);
+                document, resource, module, analyzeDependent, monitor, isFullBuild(), moduleName, 
+                forceAnalysis, analysisCause);
         
         if(isFullBuild()){
             runnable.run();
@@ -143,7 +142,9 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     @Override
     public void visitingWillStart(IProgressMonitor monitor, boolean isFullBuild, IPythonNature nature) {
         if(isFullBuild){
-            AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+            AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.
+                getAdditionalInfoForProject(nature);
+            
             info.clearAllInfo();
         }
     }
@@ -153,9 +154,12 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
      * @param nature this is the nature
      * @param analyzeDependent determines if we should add dependent modules to be analyzed later
      */
-    public static void fillDependenciesAndRemoveInfo(String moduleName, PythonNature nature, boolean analyzeDependent, IProgressMonitor monitor, boolean isFullBuild) {
+    public static void fillDependenciesAndRemoveInfo(String moduleName, PythonNature nature, 
+            boolean analyzeDependent, IProgressMonitor monitor, boolean isFullBuild) {
         if(moduleName != null && nature != null){
-            AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+            AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.
+                getAdditionalInfoForProject(nature);
+            
             boolean generateDelta;
             if(isFullBuild){
                 generateDelta = false;

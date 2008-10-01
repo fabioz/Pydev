@@ -23,7 +23,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testErrorNotShownOnDynamicClass8();
+            analyzer2.testInitDef();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -200,6 +200,15 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                 prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
         
         printMessages(msgs, 0);
+    }
+    
+    public void testInitDef() throws IOException{
+        doc = new Document(
+            "from extendable import help\n"+
+            "print help.about\n"
+        );
+        checkNoError();
+
     }
     
 }

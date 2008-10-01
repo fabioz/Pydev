@@ -50,7 +50,8 @@ public class AnalysisBuilderRunnable implements Runnable{
     /**
      * These are the callbacks called whenever there's a run to be done in this class.
      */
-    public static final List<ICallback<Object, IResource>> analysisBuilderListeners = new ArrayList<ICallback<Object,IResource>>();
+    public static final List<ICallback<Object, IResource>> analysisBuilderListeners = 
+        new ArrayList<ICallback<Object,IResource>>();
     
     
     /**
@@ -115,6 +116,7 @@ public class AnalysisBuilderRunnable implements Runnable{
     public static final int ANALYSIS_CAUSE_BUILDER = 1;
     public static final int ANALYSIS_CAUSE_PARSER = 2;
     private int analysisCause;
+    private Object lock = new Object();
     
     // ---------------------------------------------------------------------------------------- END ATTRIBUTES
     
@@ -185,7 +187,7 @@ public class AnalysisBuilderRunnable implements Runnable{
             
             if (!makeAnalysis) {
                 //let's see if we should do code analysis
-                synchronized(r){
+                synchronized(lock){
                     AnalysisRunner.deleteMarkers(r);
                 }
                 makeAnalysis = false;
@@ -198,21 +200,26 @@ public class AnalysisBuilderRunnable implements Runnable{
             if(r == null){
                 return;
             }
-            AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+            AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.
+                getAdditionalInfoForProject(nature);
+            
             if(info == null){
                 return;
             }
             
-            //Note that if this becomes something slow, we could use: http://www.twmacinta.com/myjava/fast_md5.php as an option.
+            //Note that if this becomes something slow, we could use: http://www.twmacinta.com/myjava/fast_md5.php
+            //as an option.
             MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
             digest.update(document.get().getBytes());
             byte[] hash = digest.digest();
             
-            //remove dependency information (and anything else that was already generated), but first, gather the modules dependent on this one.
+            //remove dependency information (and anything else that was already generated), but first, gather 
+            //the modules dependent on this one.
             if(!isFullBuild){
 
                 if(!forceAnalysis){
-                    //if the analysis is not forced, we can decide to stop the process of analyzing it if the hash is still the same
+                    //if the analysis is not forced, we can decide to stop the process of analyzing it if the hash 
+                    //is still the same
                     if(Arrays.equals(hash, info.getLastModificationHash(moduleName))){
                         if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
                             System.out.println("Skipping: hash is still the same for: "+moduleName);
@@ -223,7 +230,8 @@ public class AnalysisBuilderRunnable implements Runnable{
 
                 
                 //if it is a full build, that info is already removed -- as well as the time
-                AnalysisBuilderVisitor.fillDependenciesAndRemoveInfo(moduleName, nature, analyzeDependent, monitor, isFullBuild);
+                AnalysisBuilderVisitor.fillDependenciesAndRemoveInfo(moduleName, nature, analyzeDependent, 
+                        monitor, isFullBuild);
             }
 
 
@@ -232,7 +240,8 @@ public class AnalysisBuilderRunnable implements Runnable{
             
             if(analysisCause == ANALYSIS_CAUSE_BUILDER && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
                 if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                    System.out.println("Skipping: analysisCause == ANALYSIS_CAUSE_BUILDER && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
+                    System.out.println("Skipping: analysisCause == ANALYSIS_CAUSE_BUILDER && " +
+                    		"PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
                 }
                 return;
             }
@@ -245,11 +254,9 @@ public class AnalysisBuilderRunnable implements Runnable{
                 return;
             }
             
-            //set the new time only if the analysis will actually be done!
-            info.setLastModificationHash(moduleName, hash);
-            
             if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                System.out.println("AnalysisBuilderRunnable: makeAnalysis:"+makeAnalysis+" analysisCause:"+analysisCause);
+                System.out.println("AnalysisBuilderRunnable: makeAnalysis:"+makeAnalysis+" " +
+                		"analysisCause:"+analysisCause);
             }
             
             //if there are callbacks registered, call them (mostly for tests)
@@ -265,7 +272,8 @@ public class AnalysisBuilderRunnable implements Runnable{
 
             //ok, let's do it
             checkStop();
-            IMessage[] messages = analyzer.analyzeDocument(nature, (SourceModule) module, analysisPreferences, document, this.internalCancelMonitor);
+            IMessage[] messages = analyzer.analyzeDocument(nature, (SourceModule) module, analysisPreferences, 
+                    document, this.internalCancelMonitor);
             //monitor.setTaskName("Adding markers for module: "+moduleName);
             monitor.worked(1);
             
@@ -277,6 +285,10 @@ public class AnalysisBuilderRunnable implements Runnable{
             if(r != null){
                 runner.setMarkers(r, document, messages);
             }
+            
+            //set the new time only after the analysis is finished
+            info.setLastModificationHash(moduleName, hash);
+
         } catch (OperationCanceledException e) {
             //ok, ignore it
             //System.out.println("Ok, canceled previous");
@@ -299,8 +311,9 @@ public class AnalysisBuilderRunnable implements Runnable{
     private void recreateCtxInsensitiveInfo(AbstractAdditionalInterpreterInfo info, IModule sourceModule, 
             PythonNature nature, IResource r) {
         
-        //info.removeInfoFromModule(sourceModule.getName()); -- does not remove info from the module because this should be already
-        //done once it gets here (the AnalysisBuilder, that also makes dependency info should take care of this).
+        //info.removeInfoFromModule(sourceModule.getName()); -- does not remove info from the module because this
+        //should be already done once it gets here (the AnalysisBuilder, that also makes dependency info 
+        //should take care of this).
         boolean generateDelta;
         if(isFullBuild){
             generateDelta = false;
