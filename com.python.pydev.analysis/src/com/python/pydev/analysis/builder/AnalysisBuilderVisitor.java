@@ -17,6 +17,7 @@ import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.fastparser.FastDefinitionsParser;
@@ -71,7 +72,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
             //related to the definitions)
             if(PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
                 if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                    System.out.println("AnalysisBuilderVisitor: PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
+                    Log.toLogFile(this, "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
                 }
                 IFile f = (IFile) resource;
                 String file = f.getRawLocation().toOSString();

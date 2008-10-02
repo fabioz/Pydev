@@ -21,6 +21,7 @@ import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.plugin.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
@@ -165,7 +166,7 @@ public class AnalysisBuilderRunnable implements Runnable{
     public void doAnalysis(){
         try {
             if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                System.out.println("AnalysisBuilderRunnable: doAnalysis()");
+                Log.toLogFile(this, "doAnalysis()");
             }
             //if the resource is not open, there's not much we can do...
             IResource r = resource.get();
@@ -222,7 +223,7 @@ public class AnalysisBuilderRunnable implements Runnable{
                     //is still the same
                     if(Arrays.equals(hash, info.getLastModificationHash(moduleName))){
                         if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                            System.out.println("Skipping: hash is still the same for: "+moduleName);
+                            Log.toLogFile(this, "Skipping: hash is still the same for: "+moduleName);
                         }
                         return; //nothing changed
                     }
@@ -240,7 +241,7 @@ public class AnalysisBuilderRunnable implements Runnable{
             
             if(analysisCause == ANALYSIS_CAUSE_BUILDER && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
                 if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                    System.out.println("Skipping: analysisCause == ANALYSIS_CAUSE_BUILDER && " +
+                    Log.toLogFile(this, "Skipping: analysisCause == ANALYSIS_CAUSE_BUILDER && " +
                     		"PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
                 }
                 return;
@@ -249,14 +250,23 @@ public class AnalysisBuilderRunnable implements Runnable{
             //let's see if we should continue with the process
             if(!makeAnalysis){
                 if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                    System.out.println("Skipping: !makeAnalysis");
+                    Log.toLogFile(this, "Skipping: !makeAnalysis");
                 }
                 return;
             }
             
             if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                System.out.println("AnalysisBuilderRunnable: makeAnalysis:"+makeAnalysis+" " +
-                		"analysisCause:"+analysisCause);
+                String analysisCauseStr;
+                if(analysisCause == ANALYSIS_CAUSE_BUILDER){
+                    analysisCauseStr = "Builder";
+                }else if(analysisCause == ANALYSIS_CAUSE_PARSER){
+                    analysisCauseStr = "Parser";
+                }else{
+                    analysisCauseStr = "Unknown?";
+                }
+                
+                Log.toLogFile(this, "makeAnalysis:"+makeAnalysis+" " +
+                		"analysisCause: "+analysisCauseStr);
             }
             
             //if there are callbacks registered, call them (mostly for tests)
@@ -274,7 +284,14 @@ public class AnalysisBuilderRunnable implements Runnable{
             checkStop();
             IMessage[] messages = analyzer.analyzeDocument(nature, (SourceModule) module, analysisPreferences, 
                     document, this.internalCancelMonitor);
-            //monitor.setTaskName("Adding markers for module: "+moduleName);
+            
+            if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+                Log.toLogFile(this, "Adding markers for module: "+moduleName);
+                for (IMessage message : messages) {
+                    Log.toLogFile(this, message.toString());
+                }
+            }
+            
             monitor.worked(1);
             
             //last chance to stop...
@@ -291,7 +308,7 @@ public class AnalysisBuilderRunnable implements Runnable{
 
         } catch (OperationCanceledException e) {
             //ok, ignore it
-            //System.out.println("Ok, canceled previous");
+            Log.toLogFile(this, "OperationCanceledException: canceled previous");
         } catch (Exception e){
             PydevPlugin.log(e);
         } finally{

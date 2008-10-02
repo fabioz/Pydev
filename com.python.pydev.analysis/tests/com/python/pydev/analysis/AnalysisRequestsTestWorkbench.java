@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.internal.WorkbenchPage;
 import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.ICallback;
@@ -289,7 +288,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
             print("----------- Create new editor with same input ---------");
             IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
             IWorkbenchPage page = window.getActivePage();
-            editor2 = (PyEdit) ((WorkbenchPage) page).openEditor(editor.getEditorInput(), editor.getSite().getId(), 
+            editor2 = (PyEdit) page.openEditor(editor.getEditorInput(), editor.getSite().getId(), 
                     true, IWorkbenchPage.MATCH_NONE);
             
             //give it some time
