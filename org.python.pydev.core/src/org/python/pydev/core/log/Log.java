@@ -78,7 +78,6 @@ public class Log {
     private synchronized static void toLogFile(final String buffer) {
         final Runnable r = new Runnable(){
 
-            @Override
             public void run() {
                 synchronized(lock){
                     try{
