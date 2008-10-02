@@ -4,9 +4,7 @@
 package com.python.pydev.analysis.builder;
 
 import java.lang.ref.WeakReference;
-import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -84,7 +82,7 @@ public class AnalysisBuilderRunnable implements Runnable{
      * @return a builder thread.
      */
     public static synchronized AnalysisBuilderRunnable createRunnable(IDocument document, IResource resource, 
-            IModule module, boolean analyzeDependent, IProgressMonitor monitor, boolean isFullBuild, 
+    		ICallback<IModule, Integer> module, boolean analyzeDependent, IProgressMonitor monitor, boolean isFullBuild, 
             String moduleName, boolean forceAnalysis, int analysisCause){
         
         Map<String, AnalysisBuilderRunnable> available = getAvailableThreads();
@@ -93,6 +91,17 @@ public class AnalysisBuilderRunnable implements Runnable{
             if(analysisBuilderThread != null){
                 //there is some existing thread that we have to stop to create the new one
                 analysisBuilderThread.stopAnalysis();
+                if(!forceAnalysis){
+                	forceAnalysis = analysisBuilderThread.forceAnalysis;
+                }
+                if(!forceAnalysis){
+                	if(PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
+	                	if(analysisCause == ANALYSIS_CAUSE_BUILDER && analysisBuilderThread.analysisCause != ANALYSIS_CAUSE_BUILDER){
+	                		//we're stopping a previous analysis that would really happen, so, let's force this one
+	                		forceAnalysis = true;
+	                	}
+                	}
+                }
             }
             analysisBuilderThread = new AnalysisBuilderRunnable(document, resource, module, analyzeDependent, 
                     monitor, isFullBuild, moduleName, forceAnalysis, analysisCause);
@@ -106,7 +115,7 @@ public class AnalysisBuilderRunnable implements Runnable{
 
     private IDocument document;
     private WeakReference<IResource> resource;
-    private IModule module;
+    private ICallback<IModule, Integer> module;
     private boolean analyzeDependent;
     private IProgressMonitor monitor;
     private IProgressMonitor internalCancelMonitor;
@@ -119,10 +128,17 @@ public class AnalysisBuilderRunnable implements Runnable{
     private int analysisCause;
     private Object lock = new Object();
     
+    public static final int FULL_MODULE = 1;
+    public static final int DEFINITIONS_MODULE = 2;
     // ---------------------------------------------------------------------------------------- END ATTRIBUTES
     
     
-    private AnalysisBuilderRunnable(IDocument document, IResource resource, IModule module, boolean analyzeDependent, 
+    /**
+     * @param module: this is a callback that'll be called with a boolean that should return the IModule to be used in the
+     * analysis.
+     * The parameter is FULL_MODULE or DEFINITIONS_MODULE
+     */
+    private AnalysisBuilderRunnable(IDocument document, IResource resource, ICallback<IModule, Integer> module, boolean analyzeDependent, 
             IProgressMonitor monitor, boolean isFullBuild, String moduleName, boolean forceAnalysis, int analysisCause) {
         this.document = document;
         this.resource = new WeakReference<IResource>(resource);
@@ -191,7 +207,6 @@ public class AnalysisBuilderRunnable implements Runnable{
                 synchronized(lock){
                     AnalysisRunner.deleteMarkers(r);
                 }
-                makeAnalysis = false;
             }
 
             checkStop();
@@ -210,24 +225,24 @@ public class AnalysisBuilderRunnable implements Runnable{
             
             //Note that if this becomes something slow, we could use: http://www.twmacinta.com/myjava/fast_md5.php
             //as an option.
-            MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
-            digest.update(document.get().getBytes());
-            byte[] hash = digest.digest();
+//            MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+//            digest.update(document.get().getBytes());
+//            byte[] hash = digest.digest();
             
             //remove dependency information (and anything else that was already generated), but first, gather 
             //the modules dependent on this one.
             if(!isFullBuild){
 
-                if(!forceAnalysis){
-                    //if the analysis is not forced, we can decide to stop the process of analyzing it if the hash 
-                    //is still the same
-                    if(Arrays.equals(hash, info.getLastModificationHash(moduleName))){
-                        if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                            Log.toLogFile(this, "Skipping: hash is still the same for: "+moduleName);
-                        }
-                        return; //nothing changed
-                    }
-                }
+//                if(!forceAnalysis){
+//                    //if the analysis is not forced, we can decide to stop the process of analyzing it if the hash 
+//                    //is still the same
+//                    if(Arrays.equals(hash, info.getLastModificationHash(moduleName))){
+//                        if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+//                            Log.toLogFile(this, "Skipping: hash is still the same for: "+moduleName);
+//                        }
+//                        return; //nothing changed
+//                    }
+//                }
 
                 
                 //if it is a full build, that info is already removed -- as well as the time
@@ -235,11 +250,21 @@ public class AnalysisBuilderRunnable implements Runnable{
                         monitor, isFullBuild);
             }
 
-
+            
+            boolean onlyRecreateCtxInsensitiveInfo = !forceAnalysis && analysisCause == ANALYSIS_CAUSE_BUILDER && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor();
+            
+            int moduleRequest;
+            if(onlyRecreateCtxInsensitiveInfo){
+            	moduleRequest = DEFINITIONS_MODULE;
+            }else{
+            	moduleRequest = FULL_MODULE;
+            }
+            
+			SourceModule module = (SourceModule) this.module.call(moduleRequest);
             //recreate the ctx insensitive info
             recreateCtxInsensitiveInfo(info, module, nature, r);
             
-            if(analysisCause == ANALYSIS_CAUSE_BUILDER && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
+            if(onlyRecreateCtxInsensitiveInfo){
                 if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
                     Log.toLogFile(this, "Skipping: analysisCause == ANALYSIS_CAUSE_BUILDER && " +
                     		"PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
@@ -282,7 +307,7 @@ public class AnalysisBuilderRunnable implements Runnable{
 
             //ok, let's do it
             checkStop();
-            IMessage[] messages = analyzer.analyzeDocument(nature, (SourceModule) module, analysisPreferences, 
+            IMessage[] messages = analyzer.analyzeDocument(nature, module, analysisPreferences, 
                     document, this.internalCancelMonitor);
             
             if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
@@ -304,11 +329,11 @@ public class AnalysisBuilderRunnable implements Runnable{
             }
             
             //set the new time only after the analysis is finished
-            info.setLastModificationHash(moduleName, hash);
+//            info.setLastModificationHash(moduleName, hash);
 
         } catch (OperationCanceledException e) {
             //ok, ignore it
-            Log.toLogFile(this, "OperationCanceledException: canceled previous");
+            Log.toLogFile(this, "OperationCanceledException: cancelled by new runnable");
         } catch (Exception e){
             PydevPlugin.log(e);
         } finally{
