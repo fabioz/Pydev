@@ -33,7 +33,6 @@ public class PyLoggingPreferencesPage  extends FieldEditorPreferencePage impleme
     }
 
 
-    @Override
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
         
@@ -46,7 +45,6 @@ public class PyLoggingPreferencesPage  extends FieldEditorPreferencePage impleme
         
     }
 
-    @Override
     public void init(IWorkbench workbench) {
     }
 
