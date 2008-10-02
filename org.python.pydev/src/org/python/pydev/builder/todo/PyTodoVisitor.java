@@ -17,6 +17,7 @@ import org.eclipse.jface.text.IRegion;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -69,7 +70,7 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
                         line++;
                     }
                     if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                        System.out.println("Adding todo markers");
+                        Log.toLogFile(this, "Adding todo markers");
                     }
                     PydevMarkerUtils.replaceMarkers(lst, resource, IMarker.TASK);
                     //timer.printDiff("Total time to put markers: "+lst.size());

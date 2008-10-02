@@ -42,6 +42,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
+import org.python.pydev.logging.PyLoggingPreferencesPage;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -67,7 +68,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * 
      * It is kept updated from the Preferences Page
      */
-    public static volatile boolean DEBUG_CODE_COMPLETION = PyCodeCompletionPreferencesPage.isToDebugCodeCompletion();
+    public static volatile boolean DEBUG_CODE_COMPLETION = PyLoggingPreferencesPage.isToDebugCodeCompletion();
     
     /**
      * Called when a recursion exception is detected.

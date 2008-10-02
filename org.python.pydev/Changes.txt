@@ -3,23 +3,23 @@ after 1.3.20
 Pydev Extensions
 <ul>
 <li><strong>Code-analysis</strong>: only done when the file has really changed</li>
-<li><strong>Code-analysis</strong>: only on active editor</li>
+<li><strong>Code-analysis</strong>: Option to analyze only active editor</li>
 <li><strong>Code-analysis</strong>: works on case where imported module has same name of builtin.</li>
 </ul>
 
 
 Pydev
 <ul>
-<li><strong>Editor</strong>: Cursor settings no longer overridden</li>
+<li><strong>Debugger</strong>: Pythonpath is the same in debug and regular modes (sys.path[0] is the same directory as the file run)</li>
+<li><strong>Debugger</strong>: Choices for paths not found are persisted</li>
 <li><strong>Code-completion</strong>: If __all__ is defined with runtime elements (and not only in a single assign statement), it's ignored for code-completion purposes</li>
 <li><strong>Code-completion</strong>: Works on case where imported module has same name of builtin</li>
-<li><strong>Debugger</strong>: Pythonpath the same in debug and regular modes (sys.path[0] is the same directory as the file run)</li>
-<li><strong>Debugger</strong>: Persist choices done in the debugger when files from the debugger are not found</li>
+<li><strong>Editor</strong>: Cursor settings no longer overridden</li>
 <li><strong>Interpreter config</strong>: "email" automatically added to the "forced builtins"</li>
 <li><strong>Parser</strong>: Correctly recognizing absolute import with 3 or more levels</li>
-<li><strong>Syntax check</strong>: Option to do only on active editor</li>
+<li><strong>Syntax check</strong>: Option analyze only active editor</li>
 <li><strong>getpass.getpass</strong>: No longer halts when run from pydev (but will show the password being written)</li>
-<li><strong>Remove error markers</strong>: Context menu for containers to remove error markers created</li>
+<li><strong>Remove error markers</strong>: Context menu in folders to remove error markers created</li>
 </ul>
 
 after 1.3.19

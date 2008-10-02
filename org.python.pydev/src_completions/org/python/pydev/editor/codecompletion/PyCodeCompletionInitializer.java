@@ -6,6 +6,7 @@ package org.python.pydev.editor.codecompletion;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.osgi.service.prefs.Preferences;
+import org.python.pydev.logging.PyLoggingPreferencesPage;
 import org.python.pydev.plugin.PydevPlugin;
 
 public class PyCodeCompletionInitializer extends AbstractPreferenceInitializer{
@@ -21,8 +22,10 @@ public class PyCodeCompletionInitializer extends AbstractPreferenceInitializer{
         node.putBoolean(PyCodeCompletionPreferencesPage.USE_AUTOCOMPLETE, PyCodeCompletionPreferencesPage.DEFAULT_USE_AUTOCOMPLETE);
         node.putInt(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_DELAY, PyCodeCompletionPreferencesPage.DEFAULT_AUTOCOMPLETE_DELAY);
         node.putBoolean(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_ON_PAR, PyCodeCompletionPreferencesPage.DEFAULT_AUTOCOMPLETE_ON_PAR);
-        node.putBoolean(PyCodeCompletionPreferencesPage.DEBUG_CODE_COMPLETION, PyCodeCompletionPreferencesPage.DEFAULT_DEBUG_CODE_COMPLETION);
         node.putInt(PyCodeCompletionPreferencesPage.ARGUMENTS_DEEP_ANALYSIS_N_CHARS, PyCodeCompletionPreferencesPage.DEFAULT_ARGUMENTS_DEEP_ANALYSIS_N_CHARS);
+        
+        node.putBoolean(PyLoggingPreferencesPage.DEBUG_CODE_COMPLETION, PyLoggingPreferencesPage.DEFAULT_DEBUG_CODE_COMPLETION);
+        node.putBoolean(PyLoggingPreferencesPage.DEBUG_ANALYSIS_REQUESTS, PyLoggingPreferencesPage.DEFAULT_DEBUG_ANALYSIS_REQUESTS);
     }
 
 }

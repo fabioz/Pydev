@@ -44,9 +44,6 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     public static final String AUTOCOMPLETE_ON_PAR = "AUTOCOMPLETE_ON_PAR";
     public static final boolean DEFAULT_AUTOCOMPLETE_ON_PAR = false;
     
-    public static final String DEBUG_CODE_COMPLETION = "DEBUG_CODE_COMPLETION";
-    public static final boolean DEFAULT_DEBUG_CODE_COMPLETION = false;
-    
     public static final String ARGUMENTS_DEEP_ANALYSIS_N_CHARS = "DEEP_ANALYSIS_N_CHARS";
     public static final int DEFAULT_ARGUMENTS_DEEP_ANALYSIS_N_CHARS = 1;
     
@@ -99,20 +96,8 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
         addField(new BooleanFieldEditor(
                 AUTOCOMPLETE_ON_ALL_ASCII_CHARS, "Autocomplete on all letter chars and '_'?", p));
         
-
-        addField(new BooleanFieldEditor(
-                DEBUG_CODE_COMPLETION, "Debug code completion?", p));
-        
     }
     
-    @Override
-    public boolean performOk() {
-        boolean ret = super.performOk();
-        PyCodeCompletion.DEBUG_CODE_COMPLETION = isToDebugCodeCompletion();
-        return ret;
-    }
-    
-
     /*
      * (non-Javadoc)
      * 
@@ -150,13 +135,6 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
         return PydevPrefs.getPreferences().getBoolean(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_ON_ALL_ASCII_CHARS);
     }
     
-    public static boolean isToDebugCodeCompletion() {
-        if(PydevPlugin.getDefault() == null){//testing
-            return false;
-        }
-        return PydevPrefs.getPreferences().getBoolean(PyCodeCompletionPreferencesPage.DEBUG_CODE_COMPLETION);
-    }
-
     public static int getAutocompleteDelay() {
         return PydevPrefs.getPreferences().getInt(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_DELAY);
     }

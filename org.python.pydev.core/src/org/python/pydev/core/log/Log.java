@@ -6,12 +6,15 @@ package org.python.pydev.core.log;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.console.ConsolePlugin;
+import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.FullRepIterable;
-import org.python.pydev.core.REF;
 
 
 /**
@@ -19,7 +22,11 @@ import org.python.pydev.core.REF;
  */
 public class Log {
 
-    
+    /**
+     * Console used to log contents
+     */
+    private static MessageConsole fConsole;
+
     /**
      * @param errorLevel IStatus.[OK|INFO|WARNING|ERROR]
      */
@@ -46,7 +53,7 @@ public class Log {
     }
 
     
-    //------------ Log that writes to .metadata/.plugins/org.python.pydev.core/PydevLog.log
+    //------------ Log that writes to a new console
 
     private final static Object lock = new Object(); 
     private final static StringBuffer logIndent = new StringBuffer();
@@ -68,22 +75,56 @@ public class Log {
         toLogFile(buffer.toString());
     }
 
-    private synchronized static void toLogFile(String buffer) {
-        synchronized(lock){
-            try{
-                CorePlugin default1 = CorePlugin.getDefault();
-                if(default1 == null){
-                    //in tests
-                    System.out.println(buffer);
-                    return;
+    private synchronized static void toLogFile(final String buffer) {
+        final Runnable r = new Runnable(){
+
+            @Override
+            public void run() {
+                synchronized(lock){
+                    try{
+                        CorePlugin default1 = CorePlugin.getDefault();
+                        if(default1 == null){
+                            //in tests
+                            System.out.println(buffer);
+                            return;
+                        }
+                        
+                        //also print to console
+                        System.out.println(buffer);
+                        MessageConsole c = getConsole();
+                        IDocument doc = c.getDocument();
+                        doc.replace(doc.getLength(), 0, buffer.toString()+"\r\n");
+                        
+//                IPath stateLocation = default1.getStateLocation().append("PydevLog.log");
+//                String file = stateLocation.toOSString();
+//                REF.appendStrToFile(buffer+"\r\n", file);
+                    }catch(Throwable e){
+                        log(e); //default logging facility
+                    }
                 }
-                IPath stateLocation = default1.getStateLocation().append("PydevLog.log");
-                String file = stateLocation.toOSString();
-                REF.appendStrToFile(buffer+"\r\n", file);
-            }catch(Throwable e){
-                log(e); //default logging facility
+                
+            }
+        };
+        
+        Display current = Display.getCurrent();
+        if(current != null && current.getThread() == Thread.currentThread ()){
+            //ok, just run it
+            r.run();
+        }else{
+            if(current == null){
+                current = Display.getDefault();
+                current.asyncExec(r);
             }
         }
+    }
+    
+    
+    private static MessageConsole getConsole(){
+        if (fConsole == null){
+            fConsole = new MessageConsole("Pydev Logging", null);
+            ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[]{fConsole});
+        }
+        return fConsole;
     }
     
     public static void toLogFile(Exception e) {

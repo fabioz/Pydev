@@ -6,6 +6,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.PyDevBuilderVisitor;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.DebugSettings;
@@ -29,14 +30,14 @@ public class PySyntaxChecker extends PyDevBuilderVisitor{
 
         if(PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
             if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                System.out.println("PySyntaxChecker: PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
+                Log.toLogFile(this, "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
             }
             return; //not analyzed with this builder... always from parser changes.
         }
         
         
         if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-            System.out.println("PySyntaxChecker: Checking!");
+            Log.toLogFile(this, "Checking!");
         }
         
         SourceModule mod = getSourceModule(resource, document, nature);

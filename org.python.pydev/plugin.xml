@@ -188,6 +188,12 @@
             <keywordReference id="org.python.pydev.preferences.keywords"/>
       </page>
       <page
+            name="Logging"
+            category="org.python.pydev.prefs"
+            class="org.python.pydev.logging.PyLoggingPreferencesPage"
+            id="org.python.pydev.logging.pyLoggingPreferencesPage">
+      </page>
+      <page
             name="Typing"
             category="org.python.pydev.prefs"
             class="org.python.pydev.plugin.PydevPrefs2"
