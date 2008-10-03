@@ -1,12 +1,12 @@
-OK Remove old install from org.python.pydev.site
+Remove old install from org.python.pydev.site
 
-OK Update the home page and run its script
+Update the home page and run its script
 
-OK Run the build script
+Run the build script
 
-OK Change site.xml in org.python.pydev.site
+Change site.xml in org.python.pydev.site
 
-OK Add the zips to the right places in org.python.pydev.site (server: fabioz,pydev@web.sourceforge.net)
+Add the zips to the right places in org.python.pydev.site (server: fabioz,pydev@web.sourceforge.net)
 
 run scripts: cmd_rsync*.bat
 
@@ -17,6 +17,9 @@ Change descript.ion in fabioz.com
 add zips to sf (sftp: frs.sourceforge.net /incoming/f/fa/fabioz/uploads) and do release: E.g.: Pydev 1.3.7 -- details at http://alexandria.wiki.sourceforge.net/File+Release+System+-+Offering+Files+for+Download#upload
 
 tag repository: e.g.: pydev_1_3_7
+svn: 
+svn copy https://source.aptana.com/pydev_repo/trunk https://source.aptana.com/pydev_repo/tags/pydev_1_3_22 -m "Creating release 1.3.22"
+svn copy https://source.aptana.com/pydev_pro_repo/trunk https://source.aptana.com/pydev_pro_repo/tags/pydev_1_3_22 -m "Creating release 1.3.22"
 
 add news in forum
 
