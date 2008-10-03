@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -94,8 +93,11 @@ public class PyFileListing {
     
                 List<File> foldersLater = new LinkedList<File>();
                 
-                for (int i = 0; i < files.length; i++) {
-                    File file2 = files[i];
+                for (File file2 : files) {
+                    
+                    if(monitor.isCanceled()){
+                        break;
+                    }
                     
                     if(file2.isFile()){
                         ret.addPyFileInfo(new PyFileInfo(file2, currModuleRep));
@@ -118,11 +120,15 @@ public class PyFileListing {
                 if(!checkHasInit || hasInit || level == 0){
                     ret.foldersFound.add(file);
     
-                    for (Iterator iter = foldersLater.iterator(); iter.hasNext();) {
-                        File file2 = (File) iter.next();
-                        if(file2.isDirectory() && addSubFolders){
+                    for (File folder : foldersLater) {
+                        
+                        if(monitor.isCanceled()){
+                            break;
+                        }
+                        
+                        if(folder.isDirectory() && addSubFolders){
                             
-                            ret.extendWith(getPyFilesBelow(file2, filter, monitor, addSubFolders, level+1, 
+                            ret.extendWith(getPyFilesBelow(folder, filter, monitor, addSubFolders, level+1, 
                                     checkHasInit, currModuleRep));
                             
                             monitor.worked(1);
