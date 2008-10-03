@@ -2,10 +2,13 @@ package org.python.pydev.utils;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -16,6 +19,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Helper class for finding out about python files below some source folder.
@@ -52,22 +56,20 @@ public class PyFileListing {
     /**
      * Returns the directories and python files in a list.
      * 
-     * @param file
-     * @param addSubFolders
-     *            indicates if sub-folders should be added
-     * @return tuple with files in pos 0 and folders in pos 1
+     * @param addSubFolders indicates if sub-folders should be added
+     * @param canonicalFolders used to know if we entered a loop in the listing (with symlinks)
+     * @return An object with the results of making that listing.
      */
     @SuppressWarnings("unchecked")
-    private static PyFileListing getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders, 
-            int level, boolean checkHasInit, String currModuleRep) {
+    private static PyFileListing getPyFilesBelow(PyFileListing result, File file, FileFilter filter, 
+            IProgressMonitor monitor, boolean addSubFolders, int level, boolean checkHasInit, String currModuleRep,
+            Set<File> canonicalFolders) {
         
 
         if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
         
-        PyFileListing ret = new PyFileListing();
-    
         if (file != null && file.exists()) {
             //only check files that actually exist
     
@@ -81,6 +83,19 @@ public class PyFileListing {
                     currModuleRep = newModuleRep.toString();
                 }
                 
+                // check if it is a symlink loop
+                try {
+                    File canonicalizedDir = file.getCanonicalFile();
+                    if (!canonicalizedDir.equals(file)) {
+                        if (canonicalFolders.contains(canonicalizedDir)) {
+                            return result;
+                        } 
+                    }
+                    canonicalFolders.add(canonicalizedDir);
+                } catch (IOException e) {
+                    PydevPlugin.log(e);
+                }
+
                 File[] files = null;
     
                 if (filter != null) {
@@ -100,7 +115,7 @@ public class PyFileListing {
                     }
                     
                     if(file2.isFile()){
-                        ret.addPyFileInfo(new PyFileInfo(file2, currModuleRep));
+                        result.addPyFileInfo(new PyFileInfo(file2, currModuleRep));
 
                         monitor.worked(1);
                         monitor.setTaskName("Found:" + file2.toString());
@@ -118,7 +133,7 @@ public class PyFileListing {
                 }
                 
                 if(!checkHasInit || hasInit || level == 0){
-                    ret.foldersFound.add(file);
+                    result.foldersFound.add(file);
     
                     for (File folder : foldersLater) {
                         
@@ -128,8 +143,8 @@ public class PyFileListing {
                         
                         if(folder.isDirectory() && addSubFolders){
                             
-                            ret.extendWith(getPyFilesBelow(folder, filter, monitor, addSubFolders, level+1, 
-                                    checkHasInit, currModuleRep));
+                            getPyFilesBelow(result, folder, filter, monitor, addSubFolders, level+1,
+                                    checkHasInit, currModuleRep, canonicalFolders);
                             
                             monitor.worked(1);
                         }
@@ -138,18 +153,19 @@ public class PyFileListing {
     
                 
             } else if (file.isFile()) {
-                ret.addPyFileInfo(new PyFileInfo(file, currModuleRep));
+                result.addPyFileInfo(new PyFileInfo(file, currModuleRep));
                 
             } else{
                 throw new RuntimeException("Not dir nor file... what is it?");
             }
         }
         
-        return ret;
+        return result;
     }
 
     private static PyFileListing getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders, boolean checkHasInit) {
-        return getPyFilesBelow(file, filter, monitor, addSubFolders, 0, checkHasInit, "");
+        PyFileListing result = new PyFileListing();
+        return getPyFilesBelow(result, file, filter, monitor, addSubFolders, 0, checkHasInit, "", new HashSet<File>());
     }
 
     public static PyFileListing getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean checkHasInit) {
@@ -244,12 +260,5 @@ public class PyFileListing {
     private void addPyFileInfo(PyFileInfo info) {
       pyFileInfos.add(info);
     }
-    
-    /**
-     * Add the info from the passed listing to this one.
-     */
-    private void extendWith(PyFileListing other) {
-        pyFileInfos.addAll(other.pyFileInfos);
-        foldersFound.addAll(other.foldersFound);
-    }
+
 }
