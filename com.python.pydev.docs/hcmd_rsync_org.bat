@@ -52,13 +52,13 @@ REM ** CUSTOMIZE ** Enter your rsync command(s) here
 REM Copying open source stuff
 
 REM Copying open source features
-rsync --exclude "com*" -r /cygdrive/e/fabioz/workspace332/org.python.pydev.site/features/ fabioz@shell.sourceforge.net:/home/groups/p/py/pydev/htdocs/updates/features/
+rsync --exclude "com*" -r /cygdrive/d/bin/aptana_workspace/org.python.pydev.site/features/ fabioz,pydev@web.sourceforge.net:/home/groups/p/py/pydev/htdocs/updates/features/
 
 REM Copying open source plugins
-rsync --exclude "com*" -r /cygdrive/e/fabioz/workspace332/org.python.pydev.site/plugins/ fabioz@shell.sourceforge.net:/home/groups/p/py/pydev/htdocs/updates/plugins/
+rsync --exclude "com*" -r /cygdrive/d/bin/aptana_workspace/org.python.pydev.site/plugins/ fabioz,pydev@web.sourceforge.net:/home/groups/p/py/pydev/htdocs/updates/plugins/
 
 REM Copying open source plugins
-rsync -r /cygdrive/e/fabioz/workspace332/org.python.pydev.site/site.xml fabioz@shell.sourceforge.net:/home/groups/p/py/pydev/htdocs/updates/site.xml
+rsync -r /cygdrive/d/bin/aptana_workspace/org.python.pydev.site/site.xml fabioz,pydev@web.sourceforge.net:/home/groups/p/py/pydev/htdocs/updates/site.xml
 
 
 
