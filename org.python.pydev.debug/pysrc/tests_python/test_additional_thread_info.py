@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.split(os.path.split(__file__)[0])[0])
+
 from pydevd_additional_thread_info import PyDBAdditionalThreadInfoWithoutCurrentFramesSupport
 from pydevd_constants import Null
 

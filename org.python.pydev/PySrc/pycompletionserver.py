@@ -316,14 +316,20 @@ class T( Thread ):
                                 
                             else:
                                 returnMsg = MSG_INVALID_REQUEST
-                    except :
-                        dbg( SERVER_NAME+' exception ocurred', ERROR )
-                        s = StringIO.StringIO()
-                        traceback.print_exc(file = s)
-    
-                        err = s.getvalue()
-                        dbg( SERVER_NAME+' received error: '+str(err), ERROR )
-                        returnMsg = self.getCompletionsMessage( None, [( 'ERROR:', '%s'%( err ), '' )] )
+                    except Exception, e:
+                        if isinstance(e, SystemExit):
+                            returnMsg = self.getCompletionsMessage( None, [( 'Exit:', 'SystemExit', '' )] )
+                            keepAliveThread.lastMsg = returnMsg
+                            raise
+                        else:
+                            dbg( SERVER_NAME+' exception ocurred', ERROR )
+                            s = StringIO.StringIO()
+                            traceback.print_exc(file = s)
+        
+                            err = s.getvalue()
+                            dbg( SERVER_NAME+' received error: '+str(err), ERROR )
+                            returnMsg = self.getCompletionsMessage( None, [( 'ERROR:', '%s'%( err ), '' )] )
+                            
                     
                 finally:
                     keepAliveThread.lastMsg = returnMsg
@@ -333,13 +339,15 @@ class T( Thread ):
             sys.exit(0) #connection broken
             
             
-        except:
-            s = StringIO.StringIO()
-            exc_info = sys.exc_info()
-
-            traceback.print_exception( exc_info[0], exc_info[1], exc_info[2], limit=None, file = s )
-            err = s.getvalue()
-            dbg( SERVER_NAME+' received error: '+str( err ), ERROR )
+        except Exception, e:
+            if not isinstance(e, SystemExit):
+                #No need to log SystemExit error
+                s = StringIO.StringIO()
+                exc_info = sys.exc_info()
+    
+                traceback.print_exception( exc_info[0], exc_info[1], exc_info[2], limit=None, file = s )
+                err = s.getvalue()
+                dbg( SERVER_NAME+' received error: '+str( err ), ERROR )
             raise
 
 if __name__ == '__main__':
@@ -350,4 +358,5 @@ if __name__ == '__main__':
     t = T( thisPort, serverPort )
     dbg( SERVER_NAME+' will start', INFO1 )
     t.start()
-
+    time.sleep(5)
+    t.join()

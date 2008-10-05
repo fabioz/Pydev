@@ -2,6 +2,8 @@
     The idea is that we record the commands sent to the debugger and reproduce them from this script
     (so, this works as the client, which spawns the debugger as a separate process and communicates
     to it as if it was run from the outside)
+    
+    Note that it's a python script but it'll spawn a process to run as jython and as python.
 '''
 import unittest 
 port = 13335

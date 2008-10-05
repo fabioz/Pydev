@@ -12,8 +12,11 @@ sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
 HAS_WX = False
 
 import unittest
-import importsTipper
-import inspect
+try:
+    import importsTipper
+    import inspect
+except ImportError:
+    pass #Not available in jython
 
 class Test(unittest.TestCase):
 
@@ -133,6 +136,8 @@ def suite():
     unittest.TextTestRunner(verbosity=2).run(s)
 
 if __name__ == '__main__':
-#    suite()
-    unittest.main()
+    if sys.platform.find('java') == -1:
+        unittest.main()
+    else:
+        print 'Not running python tests in jython -- platform: ', sys.platform
     

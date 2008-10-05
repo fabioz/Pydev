@@ -11,10 +11,14 @@ sys.argv[0] = os.path.dirname(sys.argv[0])
 #twice the dirname to get the previous level from this file.
 sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
 
-import unittest
-import pycompletionserver
-import socket
-import urllib
+try:
+    import inspect
+    import unittest
+    import pycompletionserver
+    import socket
+    import urllib
+except ImportError:
+    pass #Not available in jython
 
 
 class Test(unittest.TestCase):
@@ -74,7 +78,7 @@ class Test(unittest.TestCase):
             else:
                 msg += m
 
-            if 'END@@' in msg:
+            if msg.find('END@@') != -1:
                 finish = True
 
         return msg
@@ -102,7 +106,7 @@ class Test(unittest.TestCase):
             sToWrite.send('@@SEARCH%sEND@@'%msg) #math completions
             found = self.readMsg()
             self.assert_('inspect.py' in found)
-            self.assert_('33' in found)
+            self.assert_('33' in found or '34' in found)
 
             #now, test search
             msg = urllib.quote_plus('inspect.CO_NEWLOCALS')
@@ -110,13 +114,12 @@ class Test(unittest.TestCase):
             found = self.readMsg()
             self.assert_('inspect.py' in found)
             self.assert_('CO_NEWLOCALS' in found)
-
+            
             #now, test search
-            msg = urllib.quote_plus('inspect.ListReader.readline')
-            sToWrite.send('@@SEARCH%sEND@@'%msg) #math completions
+            msg = urllib.quote_plus('inspect.BlockFinder.tokeneater')
+            sToWrite.send('@@SEARCH%sEND@@'%msg) 
             found = self.readMsg()
             self.assert_('inspect.py' in found)
-            print found
 #            self.assert_('CO_NEWLOCALS' in found)
 
         #reload modules test
@@ -177,5 +180,8 @@ class Test(unittest.TestCase):
 
         
 if __name__ == '__main__':
-    unittest.main()
+    if sys.platform.find('java') == -1:
+        unittest.main()
+    else:
+        print 'Not running python tests in jython -- platform: ', sys.platform
 

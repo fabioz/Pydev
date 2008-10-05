@@ -72,7 +72,10 @@ class Test(unittest.TestCase):
         self.assert_(desc.find('str(object) -> string') >= 0 or desc == "'input_request'")
         
         desc = interpreter.getDescription('val.join')
-        self.assert_(desc.find('S.join(sequence) -> string') >= 0 or desc == "<builtin method 'join'>")
+        self.assert_(desc.find('S.join(sequence) -> string') >= 0 or 
+                     desc == "<builtin method 'join'>"  or 
+                     desc == "<built-in method join of str object>", 
+                     "Could not recognize: %s" % (desc,))
 
     
     def startClientThread(self, client_port):

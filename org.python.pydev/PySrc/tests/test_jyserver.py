@@ -41,15 +41,18 @@ class Test(unittest.TestCase):
         l.append(('Def1','description1', 'args1'))
         l.append(('Def2','description2', 'args2'))
         
-        msg = t.formatCompletionMessage(l)
-        self.assertEquals('@@COMPLETIONS((Def,description,args),(Def1,description1,args1),(Def2,description2,args2))END@@', msg)
+        msg = t.formatCompletionMessage('test_jyserver.py', l)
+        
+        self.assertEquals('@@COMPLETIONS(test_jyserver.py,(Def,description,args),(Def1,description1,args1),(Def2,description2,args2))END@@', msg)
         
         l = []
         l.append(('Def','desc,,r,,i()ption',''  ))
         l.append(('Def(1','descriptio(n1',''))
         l.append(('De,f)2','de,s,c,ription2',''))
-        msg = t.formatCompletionMessage(l)
-        self.assertEquals('@@COMPLETIONS((Def,desc%2C%2Cr%2C%2Ci%28%29ption, ),(Def%281,descriptio%28n1, ),(De%2Cf%292,de%2Cs%2Cc%2Cription2, ))END@@', msg)
+        msg = t.formatCompletionMessage(None, l)
+        expected = '@@COMPLETIONS(None,(Def,desc%2C%2Cr%2C%2Ci%28%29ption, ),(Def%281,descriptio%28n1, ),(De%2Cf%292,de%2Cs%2Cc%2Cription2, ))END@@'
+        
+        self.assertEquals(expected, msg)
 
 
 
@@ -71,13 +74,13 @@ class Test(unittest.TestCase):
             completions = self.readMsg()
             dbg( urllib.unquote_plus(completions))
             
-            start = '@@COMPLETIONS(('
+            start = '@@COMPLETIONS('
             self.assert_(completions.startswith(start), '%s DOESNT START WITH %s' % ( completions, start) )
             self.assert_(completions.find('@@COMPLETIONS') != -1)
             self.assert_(completions.find('END@@') != -1)
 
 
-            msg = urllib.quote_plus('__builtin__.s')
+            msg = urllib.quote_plus('__builtin__.str')
             toWrite = '@@IMPORTS:%sEND@@'%msg
             dbg( 'writing' + str(toWrite))
             sToWrite.send(toWrite) #math completions
@@ -153,5 +156,9 @@ class Test(unittest.TestCase):
 #
 #"C:\Program Files\Java\jdk1.5.0_04\bin\java.exe" -Dpython.path="C:\bin\jython21\Lib";"C:\bin\jython21";"C:\Program Files\Java\jdk1.5.0_04\jre\lib\rt.jar" -classpath C:/bin/jython21/jython.jar org.python.util.jython d:\runtime-workbench-workspace\jython_test\src\test.py        
 if __name__ == '__main__':
-    unittest.main()
+    if sys.platform.find('java') != -1:
+        suite = unittest.makeSuite(Test)
+        unittest.TextTestRunner(verbosity=1).run(suite)
+    else:
+        print 'Not running jython tests for non-java platform: ', sys.platform
 

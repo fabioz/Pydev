@@ -3,6 +3,7 @@ package org.python.pydev.jython;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -272,12 +273,13 @@ public class JythonPlugin extends AbstractUIPlugin {
         return exec(locals, interpreter, fileWithinJySrc, new File[]{fileWithinJySrc.getParentFile()});
     }
     
-    public static List<Throwable> execAll(HashMap<String, Object> locals, final String startingWith, IPythonInterpreter interpreter) {
+    public static List<Throwable> execAll(HashMap<String, Object> locals, final String startingWith, 
+            IPythonInterpreter interpreter) {
         //exec files beneath jysrc in org.python.pydev.jython
         File jySrc = JythonPlugin.getJySrcDirFile();
         File additionalScriptingLocation = JyScriptingPreferencesPage.getAdditionalScriptingLocation();
         
-        return execAll(locals, startingWith, interpreter, new File[]{jySrc, additionalScriptingLocation});
+        return execAll(locals, startingWith, interpreter, new File[]{jySrc, additionalScriptingLocation}, null);
         
     }
     
@@ -286,8 +288,17 @@ public class JythonPlugin extends AbstractUIPlugin {
      * @param beneathFolders the folders we want to get the scripts from
      * @return the errors that occured while executing the scripts
      */
-    public static List<Throwable> execAll(HashMap<String, Object> locals, final String startingWith, IPythonInterpreter interpreter, File[] beneathFolders) {
+    public static List<Throwable> execAll(HashMap<String, Object> locals, final String startingWith, 
+            IPythonInterpreter interpreter, File[] beneathFolders, File[] additionalPythonpathFolders) {
         List<Throwable> errors = new ArrayList<Throwable>();
+        
+        ArrayList<File> pythonpath = new ArrayList<File>(); 
+        pythonpath.addAll(Arrays.asList(beneathFolders));
+        if(additionalPythonpathFolders != null){
+            pythonpath.addAll(Arrays.asList(additionalPythonpathFolders));
+        }
+        File[] pythonpathFolders = pythonpath.toArray(new File[pythonpath.size()]);
+        
         for (File file : beneathFolders) {
             if(file != null){
                 if(!file.exists()){
@@ -299,7 +310,7 @@ public class JythonPlugin extends AbstractUIPlugin {
                 File[] files = getFilesBeneathFolder(startingWith, file);
                 if(files != null){
                     for(File f : files){
-                        Throwable throwable = exec(locals, interpreter, f, beneathFolders);
+                        Throwable throwable = exec(locals, interpreter, f, pythonpathFolders);
                         if(throwable != null){
                             errors.add(throwable);
                         }
@@ -309,6 +320,7 @@ public class JythonPlugin extends AbstractUIPlugin {
         }
         return errors;
     }
+    
     /**
      * List all the 'target' scripts available beneath some folder.
      */
@@ -339,10 +351,12 @@ public class JythonPlugin extends AbstractUIPlugin {
      * @see JythonPlugin#exec(HashMap, String, PythonInterpreter)
      * Same as before but the file to execute is passed as a parameter
      */
-    public static synchronized Throwable exec(HashMap<String, Object> locals, IPythonInterpreter interpreter, File fileToExec, File[] pythonpathFolders) {
+    public static synchronized Throwable exec(HashMap<String, Object> locals, IPythonInterpreter interpreter, 
+            File fileToExec, File[] pythonpathFolders) {
         if(locals == null){
             locals = new HashMap<String, Object>();
         }
+        locals.put("__file__", fileToExec.toString());
         synchronized (codeCache) { //hold on there... one at a time... please?
             try {
                 String fileName = fileToExec.getName();

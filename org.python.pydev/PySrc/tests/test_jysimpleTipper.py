@@ -14,16 +14,20 @@ sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
 #sys.path.insert(1, r"D:\bin\eclipse321\plugins\org.junit_3.8.1\junit.jar" ) #some late loading jar tests
 #sys.path.insert(1, r"D:\bin\eclipse331_1\plugins\org.apache.ant_1.7.0.v200706080842\lib\ant.jar" ) #some late loading jar tests
 
-from jyimportsTipper import ismethod
-from jyimportsTipper import isclass
-from jyimportsTipper import dirObj
-import jyimportsTipper
-from java.lang.reflect import Method #@UnresolvedImport
-from java.lang import System #@UnresolvedImport
-from java.lang import String #@UnresolvedImport
-from java.lang.System import arraycopy #@UnresolvedImport
-from java.lang.System import out #@UnresolvedImport
-import java.lang.String #@UnresolvedImport
+try:
+    from jyimportsTipper import ismethod
+    from jyimportsTipper import isclass
+    from jyimportsTipper import dirObj
+    import jyimportsTipper
+    from java.lang.reflect import Method #@UnresolvedImport
+    from java.lang import System #@UnresolvedImport
+    from java.lang import String #@UnresolvedImport
+    from java.lang.System import arraycopy #@UnresolvedImport
+    from java.lang.System import out #@UnresolvedImport
+    import java.lang.String #@UnresolvedImport
+    import org.python.core.PyDictionary #@UnresolvedImport
+except ImportError, e:
+    print e
 
 __DBG = 0
 def dbg(s):
@@ -140,7 +144,6 @@ class TestMod(unittest.TestCase):
         self.assertIn('get'          , tip)
 
 
-import org.python.core.PyDictionary #@UnresolvedImport
 class TestCompl(unittest.TestCase):
 
     def setUp(self):
@@ -226,4 +229,15 @@ class TestCompl(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    if sys.platform.find('java') != -1:
+        #Only run if jython
+        suite2 = unittest.makeSuite(TestMod)
+        suite = unittest.makeSuite(TestCompl)
+        
+#        suite = unittest.TestSuite()
+#        suite.addTest(Test('testCase12'))
+        unittest.TextTestRunner(verbosity=1).run(suite)
+        unittest.TextTestRunner(verbosity=1).run(suite2)
+
+    else:
+        print 'Not running jython tests for non-java platform: ', sys.platform
