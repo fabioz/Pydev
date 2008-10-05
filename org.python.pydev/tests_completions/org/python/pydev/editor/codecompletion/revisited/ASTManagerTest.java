@@ -6,12 +6,20 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.editor.codecompletion.IASTManagerObserver;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.plugin.PydevPlugin;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Tests here have no dependency on the pythonpath.
@@ -341,6 +349,38 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         assertIsIn("par2", comps);
         assertIsIn("self", comps);
         assertIsIn("C", comps);
+    }
+    
+
+    private static class ManagerObserver implements IASTManagerObserver {
+
+        boolean called;
+
+        @Override
+        public void notifyASTManagerAttached(ICodeCompletionASTManager manager) {
+            called = true;
+        }
+
+    }
+
+    /**
+     * Check that registered observers are called when ASTManager is 
+     * associated with project.
+     */
+    public void testManagerObserver() {
+        Map<String, List<Object>> oldExtensions = ExtensionHelper.testingParticipants;
+        try {
+            ManagerObserver trackingObserver = new ManagerObserver();
+            Map<String, List<Object>> extensions = new HashMap<String, List<Object>>();
+            extensions.put(ExtensionHelper.PYDEV_MANAGER_OBSERVER, 
+                    Collections.<Object> singletonList(trackingObserver));
+            
+            ExtensionHelper.testingParticipants = extensions;
+            restoreProjectPythonPath(false, TestDependent.TEST_PYSRC_LOC, "TestProject");
+            assertTrue(trackingObserver.called);
+        } finally {
+            ExtensionHelper.testingParticipants = oldExtensions;
+        }
     }
     
     
