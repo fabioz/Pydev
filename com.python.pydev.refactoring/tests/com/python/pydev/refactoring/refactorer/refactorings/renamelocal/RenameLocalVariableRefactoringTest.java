@@ -738,7 +738,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         "tok = 10\n" +
         "#checking tok right?\n"+ //not renamed (out of context)
         "def m1(%s=tok):\n" + //only get the tok that is a parameter the docs and comments
-        "    \n" +
+        "    pass\n" +
         "";
         
         checkRename(str, 2, 7, "tok", false, true);
