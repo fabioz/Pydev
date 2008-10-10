@@ -333,7 +333,9 @@ public class AnalysisBuilderRunnable implements Runnable{
 
         } catch (OperationCanceledException e) {
             //ok, ignore it
-            Log.toLogFile(this, "OperationCanceledException: cancelled by new runnable");
+            if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+                Log.toLogFile(this, "OperationCanceledException: cancelled by new runnable");
+            }
         } catch (Exception e){
             PydevPlugin.log(e);
         } finally{
