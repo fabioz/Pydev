@@ -110,7 +110,13 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
                 }else if(ext.equals("pyc")){
                     try {
                         //we do that because we may have an added .pyc without a correspondent .py file
-                        new PycRemoverBuilderVisitor().visitAddedResource(resource, null, monitor); //doc is not used in pyc remover
+                        PycRemoverBuilderVisitor pycVisitor = new PycRemoverBuilderVisitor();
+                        pycVisitor.visitingWillStart(monitor, false, nature);
+						try {
+							pycVisitor.visitAddedResource(resource, null, monitor); //doc is not used in pyc remover
+						} finally {
+							pycVisitor.visitingEnded(monitor);
+						}
                     } catch (Exception e) {
                         Log.log(e);
                     }

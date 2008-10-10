@@ -100,9 +100,11 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
                 PydevGrouperVisitor grouperVisitor = new PydevGrouperVisitor(visitors, monitor, counterVisitor.getNVisited());
                 notifyVisitingWillStart(visitors, monitor, false, null);
-                delta.accept(grouperVisitor);
-                notifyVisitingEnded(visitors, monitor);
-                
+                try {
+					delta.accept(grouperVisitor);
+				} finally {
+					notifyVisitingEnded(visitors, monitor);
+				}
             }
         }
         return null;
