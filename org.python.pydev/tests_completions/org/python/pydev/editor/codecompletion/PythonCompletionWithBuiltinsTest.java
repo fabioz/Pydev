@@ -27,7 +27,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testPreferCompiledOnBootstrap2();
+            builtins.testCompleteImportBuiltin();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -91,6 +91,18 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     public void testCompleteImportBuiltin() throws BadLocationException, IOException, Exception{
         
         String s;
+        
+        s = "from datetime import datetime\n" +
+        "datetime.";
+        
+        //for some reason, this is failing only when the module is specified...
+        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests/pysrc/simpledatetimeimport.py");
+        assertTrue(file.exists());
+        assertTrue(file.isFile());
+        requestCompl(file, s, s.length(), -1, new String[]{"today()", "now()", "utcnow()"});
+
+        
+        
         s = "from datetime import datetime, date, MINYEAR,";
         requestCompl(s, s.length(), -1, new String[] { "date", "datetime", "MINYEAR", "MAXYEAR", "timedelta" });
         

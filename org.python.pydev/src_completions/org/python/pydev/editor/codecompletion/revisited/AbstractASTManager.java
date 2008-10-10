@@ -1019,8 +1019,14 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 parentPackage.equals(current.getName()) && 
                 state.getActivationToken().equals(tok) && 
                 !parentPackage.endsWith("__init__")){
-                if(current.isInDirectGlobalTokens(tok, state)){
-                    return null;
+                String name = mod.getName();
+                if(name.endsWith(".__init__")){
+                    name = name.substring(0, name.length()-9);
+                }
+                if(o.o3.getAsAbsoluteImport().startsWith(name)){
+                    if(current.isInDirectGlobalTokens(tok, state)){
+                        return null;
+                    }
                 }
             }
 

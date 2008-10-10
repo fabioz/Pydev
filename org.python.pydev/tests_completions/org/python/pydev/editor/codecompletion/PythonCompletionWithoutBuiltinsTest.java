@@ -40,7 +40,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
           test.setUp();
-          test.testWildImportWithAll2();
+          test.testRecursion1();
           test.tearDown();
           System.out.println("Finished");
 

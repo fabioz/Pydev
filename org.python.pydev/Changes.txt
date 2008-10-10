@@ -2,6 +2,9 @@ after 1.3.22
 
 Applied patch to cancel scanning of files (Radim Kubacki)
 Applied patch to detect symlink cycles inside of the pythonpath structure (which could enter in a loop) (Radim Kubacki)
+Removed log message if log is not enabled
+.Pyc remover not giving error anymore
+Fixed code-completion bug when importing token with the same name of module where it's declared (datetime.datetime)
 
 after 1.3.20
 
