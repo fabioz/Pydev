@@ -97,9 +97,11 @@
 <!-- Steps to do after fetching the build elements -->
 <!-- ===================================================================== -->
 <target name="postFetch">
+	<!--
 	<replaceregexp match="Bundle-Version:(.*)" replace="Bundle-Version: ${pydev.version}" byline="true">
 		<fileset dir="${buildDirectory}" includes="**/*.MF"/>
 	</replaceregexp>
+	-->
 	
 	<replaceregexp file="${buildDirectory}\features\org.python.pydev.feature\feature.xml" match='version="0(.*)"' replace='version="${pydev.version}"' byline="true"/>
 	<replaceregexp file="${buildDirectory}\plugins\org.python.pydev\src\org\python\pydev\plugin\PydevPlugin.java" match='public static final String version =(.*)"' replace='public static final String version ="${pydev.version}"' byline="true"/>

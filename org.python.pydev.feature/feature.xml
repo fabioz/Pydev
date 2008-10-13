@@ -22,10 +22,6 @@ Doesn&apos;t that feel good? Yum.
 Aleks and Fabio
    </license>
 
-   <url>
-      <update label="PyDev update" url="http://pydev.sourceforge.net/updates"/>
-      <discovery label="Pydev Extensions discovery site" url="http://www.fabioz.com/pydev/updates"/>
-   </url>
 
    <requires>
       <import plugin="org.eclipse.ui"/>
@@ -34,11 +30,11 @@ Aleks and Fabio
       <import plugin="org.eclipse.core.resources"/>
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
       <import plugin="org.eclipse.core.filebuffers"/>
-      <import plugin="org.eclipse.ui.ide" version="3.2.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.ui.editors"/>
       <import plugin="org.eclipse.ui.console"/>
       <import plugin="org.eclipse.ui.views"/>
-      <import plugin="org.eclipse.debug.core" version="3.2.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.debug.core"/>
       <import plugin="org.eclipse.core.variables"/>
       <import plugin="org.eclipse.search"/>
       <import plugin="org.eclipse.debug.ui"/>
@@ -48,26 +44,26 @@ Aleks and Fabio
 
    <plugin
          id="org.python.pydev.core"
-         download-size="0"
-         install-size="0"
+         download-size="188"
+         install-size="188"
          version="0.9.7.1"/>
 
    <plugin
          id="org.python.pydev.parser"
-         download-size="0"
-         install-size="0"
+         download-size="444"
+         install-size="444"
          version="0.9.7.1"/>
 
    <plugin
          id="org.python.pydev.ast"
-         download-size="0"
-         install-size="0"
+         download-size="20"
+         install-size="20"
          version="0.9.7.1"/>
 
    <plugin
          id="org.python.pydev.jython"
-         download-size="0"
-         install-size="0"
+         download-size="4280"
+         install-size="4280"
          version="0.9.7.1"/>
 
    <plugin
@@ -78,26 +74,26 @@ Aleks and Fabio
 
    <plugin
          id="org.python.pydev"
-         download-size="0"
-         install-size="0"
+         download-size="2440"
+         install-size="2440"
          version="0.9.7.1"/>
 
    <plugin
          id="org.python.pydev.debug"
-         download-size="0"
-         install-size="0"
+         download-size="1350"
+         install-size="1350"
          version="0.9.7.1"/>
 
    <plugin
          id="org.python.pydev.templates"
-         download-size="0"
-         install-size="0"
+         download-size="36"
+         install-size="36"
          version="0.9.7.1"/>
 
    <plugin
          id="org.python.pydev.refactoring"
-         download-size="0"
-         install-size="0"
+         download-size="504"
+         install-size="504"
          version="0.9.7.1"/>
 
 </feature>
