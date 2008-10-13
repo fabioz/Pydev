@@ -199,7 +199,7 @@ ${cursor}
             description="raise RuntimeError('desc')"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.raiseruntimeerror">
-         <pattern>raise RuntimeError('$(desc)')${cursor}</pattern>
+         <pattern>raise RuntimeError('${desc}')${cursor}</pattern>
       </template>
       <template
             autoinsert="true"
