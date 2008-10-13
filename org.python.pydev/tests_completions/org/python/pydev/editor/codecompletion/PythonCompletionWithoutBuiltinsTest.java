@@ -40,7 +40,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
           test.setUp();
-          test.testRecursion1();
+          test.testMultipleAssignCompletion2();
           test.tearDown();
           System.out.println("Finished");
 
@@ -1130,11 +1130,37 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, new String[] {"ThisGoes", "ThisGoesToo", "ThisDoesnt"});
     }
     
-    public void testWildImportWithAll2() throws Exception {
-        String s = "from extendable.all_check2 import *\n" +
-                "This";
+    public void testMultipleAssignCompletion() throws Exception {
+        String s = 
+            "class A:\n" +
+            "    def method1(self):\n" +
+            "        pass\n" +
+            "w,y = A(), A()\n" +
+            "w.";
         
-        requestCompl(s, -1, new String[] {"ThisGoes", "ThisGoesToo"});
+        requestCompl(s, -1, new String[] {"method1()"});
+    }
+    
+    public void testMultipleAssignCompletion2() throws Exception {
+        String s = 
+            "class A:\n" +
+            "    def method1(self):\n" +
+            "        pass\n" +
+            "w,y = [A(), A()]\n" +
+            "w.";
+        
+        requestCompl(s, -1, new String[] {"method1()"});
+    }
+    
+    public void testMultipleAssignCompletion3() throws Exception {
+        String s = 
+            "class A:\n" +
+            "    def method1(self):\n" +
+            "        pass\n" +
+            "w,y = A()\n" +
+            "w.";
+        
+        requestCompl(s, -1, new String[] {"method1()"});
     }
     
     

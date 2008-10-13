@@ -29,6 +29,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.Subscript;
+import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -280,6 +281,8 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
         this.defsStack.push(node);
         return super.visitModule(node);
     }
+    
+    
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
@@ -294,32 +297,80 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
             if(target instanceof Subscript){
                 continue; //assigning to an element and not the variable itself. E.g.: mydict[1] = 10 (instead of mydict = 10)
             }
-            String rep = NodeUtils.getFullRepresentationString(target);
             
-            if(tokenToFind.equals(rep)){ //note, order of equals is important (because one side may be null).
-                exprType nodeValue = node.value;
-                String value = NodeUtils.getFullRepresentationString(nodeValue);
-                if(value == null){
-                    value = "";
+            if(target instanceof Tuple){
+                //if assign is xxx, yyy = 1, 2
+                //let's separate those as different assigns and analyze one by one
+                Tuple targetTuple = (Tuple) target;
+                if(node.value instanceof Tuple){
+                    Tuple valueTuple = (Tuple) node.value;
+                    checkTupleAssignTarget(targetTuple, valueTuple.elts);
+                    
+                }else if(node.value instanceof org.python.pydev.parser.jython.ast.List){
+                    org.python.pydev.parser.jython.ast.List valueList = (org.python.pydev.parser.jython.ast.List) node.value;
+                    checkTupleAssignTarget(targetTuple, valueList.elts);
+                    
+                }else{
+                    checkTupleAssignTarget(targetTuple, new exprType[]{node.value});
                 }
                 
-                //get the line and column correspondent to the target
-                int line = NodeUtils.getLineDefinition(target);
-                int col = NodeUtils.getColDefinition(target);
-
-                AssignDefinition definition = new AssignDefinition(value, rep, i, node, line, col, scope, module.get());
+            }else{
+                String rep = NodeUtils.getFullRepresentationString(target);
                 
-                //mark it as global (if it was found as global in some of the previous contexts).
-                for(Set<String> globals: globalDeclarationsStack){
-                    if(globals.contains(rep)){
-                        definition.foundAsGlobal = true;
+                if(tokenToFind.equals(rep)){ //note, order of equals is important (because one side may be null).
+                    exprType nodeValue = node.value;
+                    String value = NodeUtils.getFullRepresentationString(nodeValue);
+                    if(value == null){
+                        value = "";
                     }
-                }
+                    
+                    //get the line and column correspondent to the target
+                    int line = NodeUtils.getLineDefinition(target);
+                    int col = NodeUtils.getColDefinition(target);
                 
-                definitions.add(definition);
+                    AssignDefinition definition = new AssignDefinition(value, rep, i, node, line, col, scope, module.get());
+                    
+                    //mark it as global (if it was found as global in some of the previous contexts).
+                    for(Set<String> globals: globalDeclarationsStack){
+                        if(globals.contains(rep)){
+                            definition.foundAsGlobal = true;
+                        }
+                    }
+                    
+                    definitions.add(definition);
+                }
             }
         }
         
         return null;
+    }
+
+    
+    /**
+     * Analyze an assign that has the target as a tuple and the multiple elements in the other side.
+     * 
+     * E.g.: www, yyy = 1, 2
+     * 
+     * @param targetTuple the target in the assign
+     * @param valueElts the values that are being assigned
+     */
+    private void checkTupleAssignTarget(Tuple targetTuple, exprType[] valueElts) throws Exception {
+        if(valueElts == null || valueElts.length == 0){
+            return; //nothing to do if we don't have any values
+        }
+        
+        for(int i=0;i<targetTuple.elts.length;i++){
+            int j=i;
+            //that's if the number of values is less than the number of assigns (actually, that'd 
+            //probably be an error, but let's go on gracefully, as the user can be in an invalid moment
+            //in his code)
+            if(j >= valueElts.length){
+                j = valueElts.length-1;
+            }
+            Assign assign = new Assign(new exprType[]{targetTuple.elts[i]}, valueElts[j]);
+            assign.beginLine = targetTuple.beginLine;
+            assign.beginColumn = targetTuple.beginColumn;
+            visitAssign(assign);
+        }
     }
 }

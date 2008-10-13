@@ -5,6 +5,8 @@ Applied patch to detect symlink cycles inside of the pythonpath structure (which
 Removed log message if log is not enabled
 .Pyc remover not giving error anymore
 Fixed code-completion bug when importing token with the same name of module where it's declared (datetime.datetime)
+Assign with tuple not being correctly handled in the type-inference engine
+
 
 after 1.3.20
 
