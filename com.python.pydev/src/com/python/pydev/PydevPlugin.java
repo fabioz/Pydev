@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
