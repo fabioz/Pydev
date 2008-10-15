@@ -147,6 +147,7 @@ class PyDB:
         self.breakpoints = {}
         self.readyToRun = False
         self.lock = threading.RLock()
+        self.internalQueueLock = threading.Lock()
         self.finishDebuggingSession = False
         
     def acquire(self):
@@ -187,27 +188,32 @@ class PyDB:
         try:
             return self.cmdQueue[thread_id]
         except KeyError:
-            self.cmdQueue[thread_id] = PydevQueue.Queue()
-            all_threads = threading.enumerate()
-            cmd = None
-            for t in all_threads:
-                if id(t) == thread_id:
-                    if not hasattr(t, 'additionalInfo'):
-                        #see http://sourceforge.net/tracker/index.php?func=detail&aid=1955428&group_id=85796&atid=577329
-                        #Let's create the additional info right away!
-                        t.additionalInfo = pydevd_additional_thread_info.PyDBAdditionalThreadInfo()
+            self.internalQueueLock.acquire()
+            try:
+                self.cmdQueue[thread_id] = PydevQueue.Queue()
+                all_threads = threading.enumerate()
+                cmd = None
+                for t in all_threads:
+                    if id(t) == thread_id:
+                        if not hasattr(t, 'additionalInfo'):
+                            #see http://sourceforge.net/tracker/index.php?func=detail&aid=1955428&group_id=85796&atid=577329
+                            #Let's create the additional info right away!
+                            t.additionalInfo = pydevd_additional_thread_info.PyDBAdditionalThreadInfo()
+                            
+                        self.RUNNING_THREAD_IDS[thread_id] = t
+                        cmd = self.cmdFactory.makeThreadCreatedMessage(t)
+                        break
                         
-                    self.RUNNING_THREAD_IDS[thread_id] = t
-                    cmd = self.cmdFactory.makeThreadCreatedMessage(t)
-                    break
-                    
-            if cmd:
-                PydevdLog(2, "found a new thread ", str(thread_id))
-                self.writer.addCommand(cmd)
-            else:
-                PydevdLog(0, "could not find thread by id to register")
+                if cmd:
+                    PydevdLog(2, "found a new thread ", str(thread_id))
+                    self.writer.addCommand(cmd)
+                else:
+                    PydevdLog(0, "could not find thread by id to register")
+            finally:
+                self.internalQueueLock.release()
                 
         return self.cmdQueue[thread_id]
+            
         
     def postInternalCommand(self, int_cmd, thread_id):
         """ if thread_id is *, post to all """
