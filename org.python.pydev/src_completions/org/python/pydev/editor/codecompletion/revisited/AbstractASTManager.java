@@ -1234,13 +1234,22 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             return false;
         }
         
-//        if(currentModuleName != null && modName.endsWith(".__init__")){
-//            //we have to check it without the __init__
-//            String withoutLastPart = FullRepIterable.getWithoutLastPart(modName);
-//            if(withoutLastPart.equals(currentModuleName)){
-//                return false;
-//            }
-//        }
+        if(currentModuleName != null && modName.endsWith(".__init__")){
+            //we have to check it without the __init__
+            
+            //what happens here is that considering the structure:
+            //
+            // xxx.__init__
+            // xxx.mod1
+            //
+            // we cannot have tokens from the mod1 getting __init__
+            
+            String withoutLastPart = FullRepIterable.getWithoutLastPart(modName);
+            String currentWithoutLastPart = FullRepIterable.getWithoutLastPart(currentModuleName);
+            if(currentWithoutLastPart.equals(withoutLastPart)){
+                return false;
+            }
+        }
         return true;
     }
             

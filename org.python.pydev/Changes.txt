@@ -1,11 +1,20 @@
 after 1.3.22
 
+Pydev Extensions
+<ul>
+<li><strong>Code-analysis</strong>: Fixed condition that could make code-analysis get into a halt depending on the code structure</li>
+</ul>
+
+
+Pydev
+<ul>
 Applied patch to cancel scanning of files (Radim Kubacki)
 Applied patch to detect symlink cycles inside of the pythonpath structure (which could enter in a loop) (Radim Kubacki)
 Removed log message if log is not enabled
 .Pyc remover not giving error anymore
 Fixed code-completion bug when importing token with the same name of module where it's declared (datetime.datetime)
 Assign with tuple not being correctly handled in the type-inference engine
+</ul>
 
 
 after 1.3.20

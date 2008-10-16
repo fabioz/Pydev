@@ -27,7 +27,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testCompleteImportBuiltin();
+            builtins.test__all__();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -369,6 +369,15 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
             "    a.list1.";
         
         requestCompl(s, -1, new String[] {"pop()", "remove()"});
+    }
+    
+    
+    public void test__all__() throws Exception {
+        String s = 
+            "from extendable.all_check import *\n" +
+            "";
+        
+        requestCompl(s, -1, new String[] {"ThisGoes", "RuntimeError"});
     }
 
 }

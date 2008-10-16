@@ -25,10 +25,12 @@ public abstract class AbstractToken implements IToken{
     protected String args;
     protected String parentPackage;
     public int type;
+    private boolean originalHasRep;
 
-    public AbstractToken(String rep, String doc, String args, String parentPackage, int type, String originalRep){
+    public AbstractToken(String rep, String doc, String args, String parentPackage, int type, String originalRep, boolean originalHasRep){
         this(rep, doc, args, parentPackage, type);
         this.originalRep = originalRep;
+        this.originalHasRep = originalHasRep;
     }
     
     public AbstractToken(String rep, String doc, String args, String parentPackage, int type){
@@ -268,15 +270,16 @@ public abstract class AbstractToken implements IToken{
      * we have to look within __init__ to check if the token is defined before trying to gather modules, if
      * we have a name clash).
      * 
-     * e.g.: if it was import from coilib.test import Exceptions, it would return coilib.test
+     * e.g.: if it was from coilib.test import Exceptions, it would return coilib.test
+     * 
+     * @note: if the rep is not a part of the original representation, this function will return an empty string.
      */
     public String getOriginalWithoutRep(){
         int i = originalRep.length() - rep.length() -1;
-        if(i > 0){
-            return originalRep.substring(0, i);
-        }else{
+        if(!originalHasRep){
             return "";
         }
+        return i>0?originalRep.substring(0, i):"";
     }
 
     public int getLineDefinition() {

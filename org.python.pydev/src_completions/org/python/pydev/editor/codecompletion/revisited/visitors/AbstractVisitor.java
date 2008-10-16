@@ -166,11 +166,11 @@ public abstract class AbstractVisitor extends VisitorBase{
             if(name == null){
                 FullRepIterable iterator = new FullRepIterable(original);
                 for (String rep : iterator) {
-                    SourceToken sourceToken = new SourceToken(node, rep, "", "", module, initialImportName+rep);
+                    SourceToken sourceToken = new SourceToken(node, rep, "", "", module, initialImportName+rep, true);
                     tokens.add(sourceToken);
                 }
             }else{
-                SourceToken sourceToken = new SourceToken(node, name, "", "", module, initialImportName+original);
+                SourceToken sourceToken = new SourceToken(node, name, "", "", module, initialImportName+original, false);
                 tokens.add(sourceToken);
             }
 
