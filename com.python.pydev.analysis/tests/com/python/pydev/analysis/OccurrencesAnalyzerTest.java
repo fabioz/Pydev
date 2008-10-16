@@ -30,7 +30,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testNotDefinedInAlll();
+            analyzer2.testRecursionCondition();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2576,6 +2576,19 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         
         printMessages(msgs, 1);
         assertEquals("Undefined variable: ThisDoesnt", msgs[0].toString());
+    }
+    
+    
+    public void testRecursionCondition() throws IOException {
+        
+        analyzer = new OccurrencesAnalyzer();
+        File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/recursion_on_non_existent/unexistent_import.py");
+        Document doc = new Document(REF.getFileContents(file));
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.recursion_on_non_existent.unexistent_import", file, nature, 0), 
+                prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+        
+        //unused and unresolved
+        printMessages(msgs, 2);
     }
     
 }
