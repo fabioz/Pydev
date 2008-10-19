@@ -418,14 +418,15 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
             return new IModulesManager[]{};
         }
         
+        //add itself 1st
+        list.add(this);
+        
         //get the projects 1st
         if(project != null){
             HashSet<IProject> projs = new HashSet<IProject>();
             getProjectsRecursively(project, referenced, projs);
             addModuleManagers(list, projs);
         }
-        //add itself
-        list.add(this);
         
         //the system is the last one we add 
         //http://sourceforge.net/tracker/index.php?func=detail&aid=1687018&group_id=85796&atid=577329
