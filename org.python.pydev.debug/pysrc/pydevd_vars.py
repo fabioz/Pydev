@@ -196,7 +196,7 @@ def iterFrames(initialFrame):
 
 def dumpFrames(thread_id):
     print 'dumping frames'
-    if thread_id != id(threading.currentThread()) : 
+    if thread_id != GetThreadId(threading.currentThread()) : 
         raise VariableError("findFrame: must execute on same thread")
         
     curFrame = GetFrame()
@@ -205,7 +205,7 @@ def dumpFrames(thread_id):
     
 def findFrame(thread_id, frame_id):
     """ returns a frame on the thread that has a given frame_id """
-    if thread_id != id(threading.currentThread()) : 
+    if thread_id != GetThreadId(threading.currentThread()) : 
         raise VariableError("findFrame: must execute on same thread")
 
     curFrame = GetFrame()
@@ -244,7 +244,7 @@ def findFrame(thread_id, frame_id):
 Looking for thread_id:%s, frame_id:%s
 Current     thread_id:%s, available frames:
 %s
-''' % (thread_id, lookingFor, id(threading.currentThread()), msgFrames)
+''' % (thread_id, lookingFor, GetThreadId(threading.currentThread()), msgFrames)
 
         raise FrameNotFoundError(errMsg)
     

@@ -12,8 +12,8 @@ except:
     __builtin__.True = 1
     __builtin__.False = 0
 
-DEBUG_TRACE_LEVEL = -1
-DEBUG_TRACE_BREAKPOINTS = -1
+DEBUG_TRACE_LEVEL = 2
+DEBUG_TRACE_BREAKPOINTS = 2
 
 class DebugInfoHolder:
     #we have to put it here because it can be set through the command line (so, the 
@@ -31,6 +31,30 @@ GetFrame = sys._getframe
 #the communication slower -- as the variables are being gathered lazily in the latest version of eclipse,
 #this value was raised from 200 to 1000.
 MAXIMUM_VARIABLE_REPRESENTATION_SIZE = 1000
+
+import itertools
+import threading 
+import os
+
+_nextThreadIdLock = threading.Lock()
+_nextThreadId = itertools.count(0).next
+
+#=======================================================================================================================
+# GetThreadId
+#=======================================================================================================================
+def GetThreadId(thread):
+    try:
+        return thread.__pydevd_id__
+    except AttributeError:
+        _nextThreadIdLock.acquire()
+        try:
+            if not hasattr(thread, '__pydevd_id__'):
+                #We do a new check with the lock in place just to be sure that nothing changed
+                thread.__pydevd_id__ = 'pid%s_seq%s' % (os.getpid(), _nextThreadId())
+        finally:
+            _nextThreadIdLock.release()
+        
+    return thread.__pydevd_id__
 
 #===============================================================================
 # Null

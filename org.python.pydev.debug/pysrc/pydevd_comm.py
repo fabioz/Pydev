@@ -330,7 +330,7 @@ class NetCommandFactory:
     def threadToXML(self, thread):
         """ thread information as XML """
         name = pydevd_vars.makeValidXmlValue(thread.getName())
-        cmdText = '<thread name="%s" id="%s" />' % (urllib.quote(name), id(thread))
+        cmdText = '<thread name="%s" id="%s" />' % (urllib.quote(name), GetThreadId(thread))
         return cmdText
 
     def makeErrorMessage(self, seq, text):
@@ -617,17 +617,16 @@ class InternalEvaluateExpression(InternalThreadCommand):
 #=======================================================================================================================
 def PydevdFindThreadById(thread_id):
     try:
-        thread_id = long(thread_id)
         # there was a deadlock here when I did not remove the tracing function when thread was dead
         threads = threading.enumerate()
         for i in threads:
-            if thread_id == id(i): 
+            if thread_id == GetThreadId(i): 
                 return i
             
-        print >>sys.stderr, "could not find thread %s" % thread_id
+        print >>sys.stderr, "Could not find thread %s" % thread_id
+        print >>sys.stderr, "Available: %s" % [GetThreadId(t) for t in threads]
     except:
         traceback.print_exc()
         
     return None
-
 

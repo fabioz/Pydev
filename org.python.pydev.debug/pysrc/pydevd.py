@@ -184,7 +184,6 @@ class PyDB:
     def getInternalQueue(self, thread_id):
         """ returns intenal command queue for a given thread.
         if new queue is created, notify the RDB about it """
-        thread_id = int(thread_id)
         try:
             return self.cmdQueue[thread_id]
         except KeyError:
@@ -194,7 +193,7 @@ class PyDB:
                 all_threads = threading.enumerate()
                 cmd = None
                 for t in all_threads:
-                    if id(t) == thread_id:
+                    if GetThreadId(t) == thread_id:
                         if not hasattr(t, 'additionalInfo'):
                             #see http://sourceforge.net/tracker/index.php?func=detail&aid=1955428&group_id=85796&atid=577329
                             #Let's create the additional info right away!
@@ -252,19 +251,19 @@ class PyDB:
             if bufferStdErrToServer:
                 self.checkOutput(sys.stderrBuf, 2) #@UndefinedVariable
 
-            currThreadId = id(threading.currentThread())
+            currThreadId = GetThreadId(threading.currentThread())
             threads = threading.enumerate()
             foundNonPyDBDaemonThread = False
             foundThreads = {}
             
             for t in threads:
-                tId = id(t)
+                tId = GetThreadId(t)
                 if t.isAlive():
                     foundThreads[tId] = tId
                     
                 if not isinstance(t, PyDBDaemonThread):
                     foundNonPyDBDaemonThread = True
-                    queue = self.getInternalQueue(id(t))
+                    queue = self.getInternalQueue(GetThreadId(t))
                     cmdsToReadd = []    #some commands must be processed by the thread itself... if that's the case,
                                         #we will re-add the commands to the queue after executing.
                     try:
@@ -367,7 +366,6 @@ class PyDB:
                     #the text is: thread\tstackframe\tFRAME|GLOBAL\tattribute_to_change\tvalue_to_change
                     try:
                         thread_id, frame_id, scope, attr_and_value = text.split('\t', 3)
-                        thread_id = long(thread_id)
                         
                         tab_index = attr_and_value.rindex('\t')
                         attr = attr_and_value[0:tab_index].replace('\t', '.')
@@ -383,7 +381,6 @@ class PyDB:
                     #the text is: thread_id\tframe_id\tFRAME|GLOBAL\tattributes*
                     try:
                         thread_id, frame_id, scopeattrs = text.split('\t', 2)
-                        thread_id = long(thread_id)
                         
                         if scopeattrs.find('\t') != -1: # there are attibutes beyond scope
                             scope, attrs = scopeattrs.split('\t', 1)
@@ -398,7 +395,6 @@ class PyDB:
                         
                 elif cmd_id == CMD_GET_FRAME:
                     thread_id, frame_id, scope = text.split('\t', 2)
-                    thread_id = long(thread_id)
                     
                     int_cmd = InternalGetFrame(seq, thread_id, frame_id)
                     self.postInternalCommand(int_cmd, thread_id)
@@ -483,7 +479,6 @@ class PyDB:
                     #command to evaluate the given expression
                     #text is: thread\tstackframe\tLOCAL\texpression
                     thread_id, frame_id, scope, expression = text.split('\t', 3)
-                    thread_id = long(thread_id)
                     int_cmd = InternalEvaluateExpression(seq, thread_id, frame_id, expression, 
                         cmd_id == CMD_EXEC_EXPRESSION)
                     self.postInternalCommand(int_cmd, thread_id)
@@ -531,7 +526,7 @@ class PyDB:
         Upon running, processes any outstanding Stepping commands.
         """
         self.processInternalCommands()
-        cmd = self.cmdFactory.makeThreadSuspendMessage(id(thread), frame, thread.stop_reason)
+        cmd = self.cmdFactory.makeThreadSuspendMessage(GetThreadId(thread), frame, thread.stop_reason)
         self.writer.addCommand(cmd)
         
         info = thread.additionalInfo
@@ -565,7 +560,7 @@ class PyDB:
                 
                 
         del frame
-        cmd = self.cmdFactory.makeThreadRunMessage(id(thread), info.pydev_step_cmd)
+        cmd = self.cmdFactory.makeThreadRunMessage(GetThreadId(thread), info.pydev_step_cmd)
         self.writer.addCommand(cmd)
     
     def trace_dispatch(self, frame, event, arg):
@@ -609,7 +604,7 @@ class PyDB:
             
             # if thread is not alive, cancel trace_dispatch processing
             if not t.isAlive():
-                self.processThreadNotAlive(id(t))
+                self.processThreadNotAlive(GetThreadId(t))
                 return None # suspend tracing
 
             try:
