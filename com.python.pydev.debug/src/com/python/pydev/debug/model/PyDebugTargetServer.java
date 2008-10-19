@@ -1,8 +1,6 @@
 package com.python.pydev.debug.model;
 
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.debug.core.DebugEvent;
-import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.ILaunch;
@@ -15,7 +13,7 @@ import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import com.python.pydev.debug.remote.RemoteDebuggerServer;
 
 public class PyDebugTargetServer extends AbstractDebugTarget {
-    private static final boolean DEBUG = false;
+	
     private boolean isTerminated;
     
     public PyDebugTargetServer( ILaunch launch, IPath[] file, RemoteDebuggerServer debugger) {                
@@ -41,18 +39,9 @@ public class PyDebugTargetServer extends AbstractDebugTarget {
         return isTerminated;
     }
 
-    public void terminate() throws DebugException {
-        if(DEBUG){
-            System.out.println( "TERMINATE" );
-        }
-        
+    public void terminate() {
         isTerminated = true;
-        if (debugger != null){
-            debugger.disconnect();
-        }
-        
-        threads = new PyThread[0];
-        fireEvent(new DebugEvent(this, DebugEvent.TERMINATE));
+        super.terminate();
     }
 
     public void setTerminated() {
@@ -87,7 +76,5 @@ public class PyDebugTargetServer extends AbstractDebugTarget {
         return ((RemoteDebuggerServer)debugger).getIProcess();
     }
 
-    public ILaunch getLaunch() {
-        return launch;
-    }    
+
 }

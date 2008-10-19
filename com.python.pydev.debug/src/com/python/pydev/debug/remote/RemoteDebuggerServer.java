@@ -2,6 +2,7 @@ package com.python.pydev.debug.remote;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.SocketException;
 
 import org.eclipse.debug.core.DebugException;
@@ -105,8 +106,8 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
             //the serverSocket is static, so, if it already existed, let's close it so it can be recreated.
             terminated = false;
             while( true ) {
-                socket = serverSocket.accept(); //will be blocked here until a client connects (or user starts in another port)
-                startDebugging();
+                //will be blocked here until a client connects (or user starts in another port)
+                startDebugging(serverSocket.accept());
             }
         } catch (SocketException e) {        
             //ignore (will create a new one later)
@@ -115,14 +116,14 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
         }        
     }        
     
-    private void startDebugging() throws InterruptedException {        
+    private void startDebugging(Socket socket) throws InterruptedException {        
         try {
             Thread.sleep(1000);
             if( launch!= null ) {
                 launch.setSourceLocator(new PySourceLocator());
             }
-            startTransmission();
             target = new PyDebugTargetServer( launch, null, this );
+            target.startTransmission(socket);
             target.initialize();
         } catch (IOException e) {        
             e.printStackTrace();
@@ -145,23 +146,11 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
     }
     
     public void dispose() {
-        if (writer != null) {
-            writer.done();
-            writer = null;
+        if(launch != null){
+            launch.removeDebugTarget( target );
         }
-        if (reader != null) {
-            reader.done();
-            reader = null;
-        }
-        try {
-            if(launch != null){
-                launch.removeDebugTarget( target );
-            }
-            if(target != null){
-                target.terminate();
-            }
-        } catch (DebugException e) {
-            throw new RuntimeException(e);
+        if(target != null){
+            target.terminate();
         }
         target = null;    
     }
