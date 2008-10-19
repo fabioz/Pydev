@@ -13,7 +13,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
@@ -55,8 +54,10 @@ import org.python.pydev.plugin.PydevPlugin;
  *
  * @author Fabio
  */
-public abstract class AbstractDebugTarget extends PlatformObject implements IDebugTarget, ILaunchListener {
+public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmission implements IDebugTarget, ILaunchListener {
     
+    private static final boolean DEBUG = false;
+
     /**
      * Path pointing to the file that started the debug (e.g.: file with __name__ == '__main__') 
      */
@@ -97,16 +98,53 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
     
     public abstract boolean canTerminate();
     public abstract boolean isTerminated();
-    public abstract void terminate() throws DebugException;
+    
+    public void terminate(){
+    
+        if (socket != null) {
+            try {
+                socket.shutdownInput(); // trying to make my pydevd notice that the socket is gone
+            } catch (Exception e) {
+                // ok, ignore
+            }
+            try {
+                socket.shutdownOutput(); 
+            } catch (Exception e) {
+                // ok, ignore
+            }    
+            try {
+                socket.close();
+            } catch (Exception e) {
+                // ok, ignore
+            }
+        }
+        socket = null;
+        disconnected = true;
+        
+    
+        if (writer != null) {
+            writer.done();
+            writer = null;
+        }
+        if (reader != null) {
+            reader.done();
+            reader = null;
+        }
+        
+        if(DEBUG){
+            System.out.println( "TERMINATE" );
+        }
+
+        
+        threads = new PyThread[0];
+        fireEvent(new DebugEvent(this, DebugEvent.TERMINATE));
+
+    }
     
     public AbstractRemoteDebugger getDebugger() {
         return debugger;
     }
     
-    public void debuggerDisconnected() {
-        disconnected = true;
-        fireEvent(new DebugEvent(this, DebugEvent.CHANGE));
-    }
     
     public void launchAdded(ILaunch launch) {
         // noop
@@ -133,16 +171,20 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
     }
     
     public boolean canResume() {
-        for (int i=0; i< threads.length; i++)
-            if (threads[i].canResume())
+        for (int i=0; i< threads.length; i++){
+            if (threads[i].canResume()){
                 return true;
+            }
+        }
         return false;
     }
 
     public boolean canSuspend() {
-        for (int i=0; i< threads.length; i++)
-            if (threads[i].canSuspend())
+        for (int i=0; i< threads.length; i++){
+            if (threads[i].canSuspend()){
                 return true;
+            }
+        }
         return false;
     }
 
@@ -167,8 +209,8 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
         }
         
         if (threads == null) {
-            ThreadListCommand cmd = new ThreadListCommand(debugger, this);
-            debugger.postCommand(cmd);
+            ThreadListCommand cmd = new ThreadListCommand(this);
+            this.postCommand(cmd);
             try {
                 cmd.waitUntilDone(1000);
                 threads = cmd.getThreads();
@@ -213,8 +255,8 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
                         condition = StringUtils.replaceAll(condition, "\n", "@_@NEW_LINE_CHAR@_@");
                         condition = StringUtils.replaceAll(condition, "\t", "@_@TAB_CHAR@_@");
                     }
-                    SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, b.getFile(), b.getLine(), condition, b.getFunctionName());
-                    debugger.postCommand(cmd);
+                    SetBreakpointCommand cmd = new SetBreakpointCommand(this, b.getFile(), b.getLine(), condition, b.getFunctionName());
+                    this.postCommand(cmd);
                 }
             }
         } catch (CoreException e) {
@@ -228,8 +270,8 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
     public void breakpointRemoved(IBreakpoint breakpoint, IMarkerDelta delta) {
         if (breakpoint instanceof PyBreakpoint) {
             PyBreakpoint b = (PyBreakpoint)breakpoint;
-            RemoveBreakpointCommand cmd = new RemoveBreakpointCommand(debugger, b.getFile(), b.getLine());
-            debugger.postCommand(cmd);
+            RemoveBreakpointCommand cmd = new RemoveBreakpointCommand(this, b.getFile(), b.getLine());
+            this.postCommand(cmd);
         }
     }
 
@@ -267,6 +309,9 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
      * are processed by commands themselves
      */
     public void processCommand(String sCmdCode, String sSeqCode, String payload) {
+        if(DEBUG){
+            System.out.println("Debugger command:" + sCmdCode+"\nseq:"+sSeqCode+"\npayload:"+payload);
+        }
         try {
             int cmdCode = Integer.parseInt(sCmdCode);
             
@@ -489,14 +534,14 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
     public void initialize() {
         // we post version command just for fun
         // it establishes the connection
-        debugger.postCommand(new VersionCommand(debugger));
+        this.postCommand(new VersionCommand(this));
 
         // now, register all the breakpoints in all projects
         addBreakpointsFor(ResourcesPlugin.getWorkspace().getRoot());
 
         // Send the run command, and we are off
-        RunCommand run = new RunCommand(debugger);
-        debugger.postCommand(run);
+        RunCommand run = new RunCommand(this);
+        this.postCommand(run);
     }
 
     /**
@@ -599,9 +644,7 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
     }
 
     public void disconnect() throws DebugException {
-        if (debugger != null) {
-            debugger.disconnect();
-        }
+        this.terminate();
         modificationChecker = null;
     }
 
@@ -644,4 +687,11 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
         return super.getAdapter(adapter);
     }
 
+    
+    //From IDebugElement
+    public ILaunch getLaunch() {
+        return launch;
+    }   
+    
+    
 }

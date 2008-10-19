@@ -8,6 +8,7 @@ package org.python.pydev.debug.model.remote;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.debug.model.AbstractDebugTarget;
 
 /**
  * GetVariable network command.
@@ -22,7 +23,7 @@ public class GetVariableCommand extends AbstractDebuggerCommand {
     int responseCode;
     String payload;
 
-    public GetVariableCommand(AbstractRemoteDebugger debugger, String locator) {
+    public GetVariableCommand(AbstractDebugTarget debugger, String locator) {
         super(debugger);
         this.locator = locator;
     }

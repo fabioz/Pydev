@@ -5,12 +5,14 @@
  */
 package org.python.pydev.debug.model.remote;
 
+import org.python.pydev.debug.model.AbstractDebugTarget;
+
 /**
  * Run command
  */
 public class RunCommand extends AbstractDebuggerCommand {
 
-    public RunCommand(AbstractRemoteDebugger debugger) {
+    public RunCommand(AbstractDebugTarget debugger) {
         super(debugger);
     }
 

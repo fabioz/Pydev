@@ -6,6 +6,7 @@
 package org.python.pydev.debug.model.remote;
 
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.debug.model.AbstractDebugTarget;
 
 /**
  * Set breakpoint command.
@@ -17,7 +18,7 @@ public class SetBreakpointCommand extends AbstractDebuggerCommand {
     public String condition;
     private String functionName;
 
-    public SetBreakpointCommand(AbstractRemoteDebugger debugger, String file, Object line, String condition, String functionName) {
+    public SetBreakpointCommand(AbstractDebugTarget debugger, String file, Object line, String condition, String functionName) {
         super(debugger);
         this.file = file;
         this.line = line;

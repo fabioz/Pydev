@@ -86,7 +86,7 @@ public class PyThread extends PlatformObject implements IThread {
     }
 
     public boolean canTerminate() {
-        return !isPydevThread;
+        return !isPydevThread && !isTerminated();
     }
 
     public boolean isTerminated() {
@@ -98,11 +98,11 @@ public class PyThread extends PlatformObject implements IThread {
     }
 
     public boolean canResume() {
-        return !isPydevThread && isSuspended;
+        return !isPydevThread && isSuspended && !isTerminated();
     }
 
     public boolean canSuspend() {
-        return !isPydevThread && !isSuspended;
+        return !isPydevThread && !isSuspended && !isTerminated();
     }
 
     public boolean isSuspended() {
@@ -113,35 +113,27 @@ public class PyThread extends PlatformObject implements IThread {
         if (!isPydevThread) {
             stack = null;
             isStepping = false;
-            //RemoteDebugger d = target.getDebugger();
-            AbstractRemoteDebugger d = target.getDebugger();
-            if(d != null){
-                d.postCommand(new ThreadRunCommand(d, id));
-            }else{//no debugger?
-                PydevPlugin.log("Terminating: No debugger in target when resuming.");
-                terminate();
-            }
+            target.postCommand(new ThreadRunCommand(target, id));
         }
     }
 
     public void suspend() throws DebugException {
         if (!isPydevThread) {
             stack = null;
-            AbstractRemoteDebugger d = target.getDebugger();
-            d.postCommand(new ThreadSuspendCommand(d, id));
+            target.postCommand(new ThreadSuspendCommand(target, id));
         }
     }
 
     public boolean canStepInto() {
-        return !isPydevThread && isSuspended;
+        return canResume();
     }
 
     public boolean canStepOver() {
-        return !isPydevThread && isSuspended;
+        return canResume();
     }
 
     public boolean canStepReturn() {
-        return !isPydevThread && isSuspended;
+        return canResume();
     }
 
     public boolean isStepping() {
@@ -151,24 +143,21 @@ public class PyThread extends PlatformObject implements IThread {
     public void stepInto() throws DebugException {
         if (!isPydevThread) {
             isStepping = true;
-            AbstractRemoteDebugger d = target.getDebugger();
-            d.postCommand(new StepCommand(d, AbstractDebuggerCommand.CMD_STEP_INTO, id));
+            target.postCommand(new StepCommand(target, AbstractDebuggerCommand.CMD_STEP_INTO, id));
         }        
     }
 
     public void stepOver() throws DebugException {
         if (!isPydevThread) {
             isStepping = true;
-            AbstractRemoteDebugger d = target.getDebugger();
-            d.postCommand(new StepCommand(d, AbstractDebuggerCommand.CMD_STEP_OVER, id));
+            target.postCommand(new StepCommand(target, AbstractDebuggerCommand.CMD_STEP_OVER, id));
         }        
     }
 
     public void stepReturn() throws DebugException {
         if (!isPydevThread) {
             isStepping = true;
-            AbstractRemoteDebugger d = target.getDebugger();
-            d.postCommand(new StepCommand(d, AbstractDebuggerCommand.CMD_STEP_RETURN, id));
+            target.postCommand(new StepCommand(target, AbstractDebuggerCommand.CMD_STEP_RETURN, id));
         }        
     }
 

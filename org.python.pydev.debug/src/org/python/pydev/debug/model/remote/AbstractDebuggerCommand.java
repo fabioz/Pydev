@@ -7,6 +7,7 @@ package org.python.pydev.debug.model.remote;
 
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.debug.model.AbstractDebugTarget;
 
 /**
  * Superclass of all debugger commands.
@@ -53,12 +54,12 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_VERSION = 501;
     static public final int CMD_RETURN = 502;
     
-    protected AbstractRemoteDebugger debugger;
+    protected AbstractDebugTarget target;
     protected ICommandResponseListener responseListener;
     int sequence;
     
-    public AbstractDebuggerCommand(AbstractRemoteDebugger debugger) {
-        this.debugger = debugger;
+    public AbstractDebuggerCommand(AbstractDebugTarget debugger) {
+        this.target = debugger;
         this.responseListener = null;
         sequence = debugger.getNextSequence();
     }
@@ -79,7 +80,7 @@ public abstract class AbstractDebuggerCommand {
     public void aboutToSend() {
         // if we need a response, put me on the waiting queue
         if (needResponse()){
-            debugger.addToResponseQueue(this);
+            target.addToResponseQueue(this);
         }
     }
 

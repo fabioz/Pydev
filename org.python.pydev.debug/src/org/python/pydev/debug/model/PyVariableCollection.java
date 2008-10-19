@@ -104,13 +104,12 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
             return getWaitVariables();
         }
 
-        AbstractRemoteDebugger dbg = getDebugger();
         // send the command, and then busy-wait
-        GetVariableCommand cmd = getVariableCommand(dbg);
+        GetVariableCommand cmd = getVariableCommand(target);
         cmd.setCompletionListener(this);
         networkState = NETWORK_REQUEST_NOT_ARRIVED;
         fireChangeEvent = false;    // do not fire change event while we are waiting on response
-        dbg.postCommand(cmd);
+        target.postCommand(cmd);
         try {
             // VariablesView does not deal well with children changing asynchronously.
             // it causes unneeded scrolling, because view preserves selection instead
@@ -133,11 +132,8 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
         }
     }
 
-    public AbstractRemoteDebugger getDebugger() {
-        return target.getDebugger();
-    }
     
-    public GetVariableCommand getVariableCommand(AbstractRemoteDebugger dbg) {
+    public GetVariableCommand getVariableCommand(AbstractDebugTarget dbg) {
         return new GetVariableCommand(dbg, getPyDBLocation());
     }
 
@@ -148,4 +144,8 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
     public String getReferenceTypeName() throws DebugException {
         return type;
     }
+
+	public AbstractDebugTarget getTarget() {
+		return target;
+	}
 }

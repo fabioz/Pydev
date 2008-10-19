@@ -110,10 +110,10 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
      * -- python has no way of making it work right now (see: pydevd_vars.changeAttrExpression) 
      */
     public void setValue(String expression) throws DebugException {
-        ChangeVariableCommand changeVariableCommand = getChangeVariableCommand(target.getDebugger(), expression);
-        target.getDebugger().postCommand(changeVariableCommand);
+        ChangeVariableCommand changeVariableCommand = getChangeVariableCommand(target, expression);
+        target.postCommand(changeVariableCommand);
         this.value = expression;
-        target.getDebugger().getTarget().fireEvent(new DebugEvent(this, DebugEvent.CONTENT|DebugEvent.CHANGE));
+        target.fireEvent(new DebugEvent(this, DebugEvent.CONTENT|DebugEvent.CHANGE));
     }
 
     public void setValue(IValue value) throws DebugException {
@@ -175,7 +175,7 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
         return type;
     }
     
-    public ChangeVariableCommand getChangeVariableCommand(AbstractRemoteDebugger dbg, String expression) {
+    public ChangeVariableCommand getChangeVariableCommand(AbstractDebugTarget dbg, String expression) {
         return new ChangeVariableCommand(dbg, getPyDBLocation(), expression);
     }
 

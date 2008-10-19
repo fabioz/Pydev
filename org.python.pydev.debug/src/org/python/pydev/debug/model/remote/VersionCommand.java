@@ -5,6 +5,8 @@
  */
 package org.python.pydev.debug.model.remote;
 
+import org.python.pydev.debug.model.AbstractDebugTarget;
+
 /**
  * Version debugger command.
  * 
@@ -17,7 +19,7 @@ public class VersionCommand extends AbstractDebuggerCommand {
     /**
      * @param debugger
      */
-    public VersionCommand(AbstractRemoteDebugger debugger) {
+    public VersionCommand(AbstractDebugTarget debugger) {
         super(debugger);
     }
 

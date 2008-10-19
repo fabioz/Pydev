@@ -12,6 +12,7 @@ import java.util.Hashtable;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.AbstractDebugTarget;
+import org.python.pydev.debug.model.AbstractDebugTargetWithTransmission;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -46,12 +47,12 @@ public class DebuggerReader implements Runnable {
     /**
      * we read from this
      */
-    private BufferedReader in;
+    private InputStreamReader in;
     
     /**
      * that's the debugger that made us... we have to finish it when we are done
      */
-    private AbstractRemoteDebugger remote;
+    private AbstractDebugTarget remote;
     
     /**
      * Create it
@@ -61,11 +62,11 @@ public class DebuggerReader implements Runnable {
      * 
      * @throws IOException
      */
-    public DebuggerReader(Socket s, AbstractRemoteDebugger r ) throws IOException {
-        remote = r;
+    public DebuggerReader(Socket s, AbstractDebugTargetWithTransmission r ) throws IOException {
+        remote = (AbstractDebugTarget) r;
         socket = s;
         InputStream sin = socket.getInputStream();
-        in = new BufferedReader(new InputStreamReader(sin));
+        in = new InputStreamReader(sin);
     }
     
     /**
@@ -103,8 +104,8 @@ public class DebuggerReader implements Runnable {
             }
             
             if (cmd == null){
-                if ( remote.getTarget() != null){
-                    remote.getTarget().processCommand(cmdParsed[0], cmdParsed[1], payload);
+                if ( remote != null){
+                    remote.processCommand(cmdParsed[0], cmdParsed[1], payload);
                 } else{ 
                     PydevDebugPlugin.log(IStatus.ERROR, "internal error, command received no target", null);
                 }
@@ -126,8 +127,8 @@ public class DebuggerReader implements Runnable {
     public void run() {
         while (!done) {
             try {
-                String cmdLine = in.readLine();
-                if(cmdLine != null){                    
+                String cmdLine = readLine();
+                if(cmdLine != null && cmdLine.trim().length() > 0){
                     processCommand(cmdLine);
                 }
                 synchronized(lock) {
@@ -141,15 +142,33 @@ public class DebuggerReader implements Runnable {
                 }
             }
             
-            if ((socket == null) || !socket.isConnected() ) {
-                AbstractDebugTarget target = remote.getTarget();
+            if (done || socket == null || !socket.isConnected() ) {
+                AbstractDebugTarget target = remote;
                 
                 if ( target != null) {
-                    target.debuggerDisconnected();
+                    target.terminate();
                 }
                 done = true;
             }
         }
-        remote.dispose();
+    }
+
+    /**
+     * Implemented our own: with the BufferedReader, when the socket was closed, it still appeared stuck in the method.
+     * 
+     * @return a line that was read from the debugger.
+     * @throws IOException
+     */
+    private String readLine() throws IOException {
+        StringBuffer contents = new StringBuffer();
+        int i;
+        while ((i = in.read()) != -1) {
+            char c = (char) i;
+            if(c == '\n' || c == '\r'){
+                return contents.toString();
+            }
+            contents.append(c);
+        }
+        throw new IOException("Done");
     }
 }

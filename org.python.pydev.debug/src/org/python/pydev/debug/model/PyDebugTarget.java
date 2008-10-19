@@ -13,6 +13,7 @@ import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
 import org.python.pydev.debug.model.remote.RemoteDebugger;
+import org.python.pydev.plugin.PydevPlugin;
 /**
  * Debugger class that represents a single python process.
  * 
@@ -53,10 +54,7 @@ public class PyDebugTarget extends AbstractDebugTarget {
 
     public boolean canTerminate() {
         // We can always terminate, it does no harm
-        if(process == null){
-            return false;
-        }
-        return true;
+        return !this.isTerminated();
     }
 
     public boolean isTerminated() {
@@ -66,21 +64,17 @@ public class PyDebugTarget extends AbstractDebugTarget {
         return process.isTerminated();
     }
 
-    public void terminate() throws DebugException {
-        if (debugger != null){
-            debugger.disconnect();
-        }
-        
-        threads = new PyThread[0];
+    public void terminate() {
         if(process != null){
-            process.terminate();
+            try {
+                process.terminate();
+            } catch (DebugException e) {
+                PydevPlugin.log(e);
+            }
             process = null;
         }
-        fireEvent(new DebugEvent(this, DebugEvent.TERMINATE));
+        super.terminate();
     }        
     
-    //From IDebugElement
-    public ILaunch getLaunch() {
-        return launch;
-    }    
+
 }

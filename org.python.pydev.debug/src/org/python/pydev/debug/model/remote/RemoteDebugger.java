@@ -39,15 +39,15 @@ public class RemoteDebugger extends AbstractRemoteDebugger {
      * Wait for the connection to the debugger to complete.
      * 
      * If this method returns without an exception, we've connected.
-     * @return true if operation was cancelled by user
+     * @return the socket that was connected (or null if cancelled)
      */
-    public boolean waitForConnect(IProgressMonitor monitor, Process p, IProcess ip) throws Exception {
+    public Socket waitForConnect(IProgressMonitor monitor, Process p, IProcess ip) throws Exception {
         // Launch the debug listener on a thread, and wait until it completes
         while (connectThread.isAlive()) {
             if (monitor.isCanceled()) {
                 connector.stopListening();
                 p.destroy();
-                return true;
+                return null;
             }
             try {
                 p.exitValue(); // throws exception if process has terminated
@@ -67,41 +67,18 @@ public class RemoteDebugger extends AbstractRemoteDebugger {
             }
         }
         
-        if (connector.getException() != null){
-            throw connector.getException();
+        Exception connectorException = connector.getException();
+		if (connectorException != null){
+            throw connectorException;
         }
-        connected(connector.getSocket());
-        return false;
+        return connector.getSocket();
     }
     
-    /**
-     * Remote debugger has connected
-     */
-    private void connected(Socket socket) throws IOException  {
-        this.socket = socket;
-    }
+
     
     public void disconnect() {
-        if (socket != null) {
-            try {
-                socket.shutdownInput(); // trying to make my pydevd notice that the socket is gone
-            } catch (Exception e) {
-                // ok, ignore
-            }
-            try {
-                socket.shutdownOutput(); 
-            } catch (Exception e) {
-                // ok, ignore
-            }    
-            try {
-                socket.close();
-            } catch (Exception e) {
-                // ok, ignore
-            }
-        }
-        socket = null;
         if (target != null){
-            target.debuggerDisconnected();
+            target.terminate();
         }
     }
     
@@ -115,20 +92,8 @@ public class RemoteDebugger extends AbstractRemoteDebugger {
             connector.stopListening();
             connector = null;
         }
-        if (writer != null) {
-            writer.done();
-            writer = null;
-        }
-        if (reader != null) {
-            reader.done();
-            reader = null;
-        }
-        try {
-            if(target != null){
-                target.terminate();
-            }
-        } catch (DebugException e) {
-            throw new RuntimeException(e);
+        if(target != null){
+            target.terminate();
         }
         target = null;
     }    

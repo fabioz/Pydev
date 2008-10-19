@@ -8,6 +8,7 @@ package org.python.pydev.debug.model.remote;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.debug.model.AbstractDebugTarget;
 
 /**
  * GetVariable network command.
@@ -26,7 +27,7 @@ public class EvaluateExpressionCommand extends AbstractDebuggerCommand {
     private boolean doExec;
 
     
-    public EvaluateExpressionCommand(AbstractRemoteDebugger debugger, String expression, String locator, boolean doExec) {
+    public EvaluateExpressionCommand(AbstractDebugTarget debugger, String expression, String locator, boolean doExec) {
         super(debugger);
         this.doExec = doExec;
         this.locator = locator;

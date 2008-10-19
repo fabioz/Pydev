@@ -7,6 +7,7 @@ package org.python.pydev.debug.ui.launching;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
@@ -139,9 +140,10 @@ public class PythonRunner {
         checkProcess(p, process);
 
         subMonitor.subTask("Waiting for connection...");
+        Socket socket = null;
         try {
-            boolean userCanceled = debugger.waitForConnect(subMonitor, p, process);
-            if (userCanceled) {
+            socket = debugger.waitForConnect(subMonitor, p, process);
+            if (socket == null) {
                 debugger.dispose();
                 return;
             }
@@ -158,7 +160,7 @@ public class PythonRunner {
         // hook up debug model, and we are off & running
         PyDebugTarget t = new PyDebugTarget(launch, process, config.resource, debugger);
         launch.setSourceLocator(new PySourceLocator());
-        debugger.startTransmission(); // this starts reading/writing from sockets
+        t.startTransmission(socket); // this starts reading/writing from sockets
         t.initialize();
         t.addConsoleInputListener();
     }

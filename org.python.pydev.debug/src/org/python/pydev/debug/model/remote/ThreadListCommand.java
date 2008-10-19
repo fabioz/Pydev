@@ -21,12 +21,10 @@ import org.python.pydev.debug.model.XMLUtils;
 public class ThreadListCommand extends AbstractDebuggerCommand {
 
     boolean done;
-    AbstractDebugTarget target;
     PyThread[] threads;
     
-    public ThreadListCommand(AbstractRemoteDebugger debugger, AbstractDebugTarget target) {
-        super(debugger);
-        this.target = target;
+    public ThreadListCommand(AbstractDebugTarget target) {
+        super(target);
         done = false;
     }
 

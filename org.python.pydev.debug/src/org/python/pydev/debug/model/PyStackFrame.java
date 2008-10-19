@@ -300,7 +300,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         return false;
     }
     
-    public GetVariableCommand getFrameCommand(AbstractRemoteDebugger dbg) {
+    public GetVariableCommand getFrameCommand(AbstractDebugTarget dbg) {
         return new GetFrameCommand(dbg, frameLocator.getPyDBLocation());
     }
 

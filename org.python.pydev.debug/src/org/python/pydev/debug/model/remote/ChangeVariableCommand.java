@@ -5,6 +5,8 @@
  */
 package org.python.pydev.debug.model.remote;
 
+import org.python.pydev.debug.model.AbstractDebugTarget;
+
 
 /**
  * ChangeVariable network command.
@@ -19,7 +21,7 @@ public class ChangeVariableCommand extends AbstractDebuggerCommand {
     String payload;
     String expression;
 
-    public ChangeVariableCommand(AbstractRemoteDebugger debugger, String locator, String expression) {
+    public ChangeVariableCommand(AbstractDebugTarget debugger, String locator, String expression) {
         super(debugger);
         this.locator = locator;
         this.expression = expression;

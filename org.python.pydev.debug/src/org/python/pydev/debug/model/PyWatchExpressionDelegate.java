@@ -37,17 +37,16 @@ public class PyWatchExpressionDelegate
         this.listener = listener;
         if (context instanceof PyStackFrame) {
             
-            AbstractRemoteDebugger dbg;
-            dbg = ((AbstractDebugTarget)context.getDebugTarget()).getDebugger();
-            if(dbg == null){
+            AbstractDebugTarget target = (AbstractDebugTarget)context.getDebugTarget();
+            if(target == null){
                 return; //disposed
             }
             
             // send the command, and then busy-wait
             EvaluateExpressionCommand cmd = new EvaluateExpressionCommand( 
-                dbg, expression,((PyStackFrame)context).getLocalsLocator().getPyDBLocation(), false );
+                target, expression,((PyStackFrame)context).getLocalsLocator().getPyDBLocation(), false );
             cmd.setCompletionListener(this);
-            dbg.postCommand(cmd);
+            target.postCommand(cmd);
             
         }else{
             addError( "unknown expression context" );

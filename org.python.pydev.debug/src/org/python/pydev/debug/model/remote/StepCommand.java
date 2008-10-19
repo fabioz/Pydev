@@ -5,6 +5,8 @@
  */
 package org.python.pydev.debug.model.remote;
 
+import org.python.pydev.debug.model.AbstractDebugTarget;
+
 /**
  * Debugger step command.
  */
@@ -17,7 +19,7 @@ public class StepCommand extends AbstractDebuggerCommand {
      * 
      * @param command_id CMD_STEP_INTO CMD_STEP_OVER CMD_STEP_RETURN
      */
-    public StepCommand(AbstractRemoteDebugger debugger, int command_id, String thread_id) {
+    public StepCommand(AbstractDebugTarget debugger, int command_id, String thread_id) {
         super(debugger);
         this.command_id = command_id;
         this.thread_id = thread_id;
