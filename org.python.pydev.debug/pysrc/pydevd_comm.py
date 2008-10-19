@@ -398,7 +398,7 @@ class NetCommandFactory:
            """
         try:
             cmdTextList = ["<xml>"]
-            cmdTextList.append('<thread id="%s" stop_reason="%s">' % (str(thread_id), str(stop_reason)))
+            cmdTextList.append('<thread id="%s" stop_reason="%s">' % (thread_id, stop_reason))
             
             curFrame = frame
             while curFrame:

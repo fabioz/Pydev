@@ -12,8 +12,8 @@ except:
     __builtin__.True = 1
     __builtin__.False = 0
 
-DEBUG_TRACE_LEVEL = 2
-DEBUG_TRACE_BREAKPOINTS = 2
+DEBUG_TRACE_LEVEL = -1
+DEBUG_TRACE_BREAKPOINTS = -1
 
 class DebugInfoHolder:
     #we have to put it here because it can be set through the command line (so, the 
@@ -48,8 +48,8 @@ def GetThreadId(thread):
     except AttributeError:
         _nextThreadIdLock.acquire()
         try:
+            #We do a new check with the lock in place just to be sure that nothing changed
             if not hasattr(thread, '__pydevd_id__'):
-                #We do a new check with the lock in place just to be sure that nothing changed
                 thread.__pydevd_id__ = 'pid%s_seq%s' % (os.getpid(), _nextThreadId())
         finally:
             _nextThreadIdLock.release()

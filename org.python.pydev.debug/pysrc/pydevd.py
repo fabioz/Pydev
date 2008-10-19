@@ -618,8 +618,9 @@ class PyDB:
             #each new frame...
             dbFrame = additionalInfo.CreateDbFrame(self, filename, additionalInfo, t, frame)
             return dbFrame.trace_dispatch(frame, event, arg)
-        except:
-            traceback.print_exc()
+        except Exception, e:
+            if not isinstance(e, SystemExit):
+                traceback.print_exc()
             return None
             
     if USE_PSYCO_OPTIMIZATION:
