@@ -119,8 +119,11 @@ public class ProcessServer extends Process {
      */
     public void writeToStdOut(String str) {
         try {
-            pipedOutputStream.write(str.getBytes());
-            pipedOutputStream.flush();
+            PipedOutputStream p = pipedOutputStream;
+            if(p != null){
+                p.write(str.getBytes());
+                p.flush();
+            }
         } catch (Exception e) {
             Log.log(e);
         }
@@ -132,8 +135,11 @@ public class ProcessServer extends Process {
      */
     public void writeToStdErr(String str) {
         try {
-            pipedErrOutputStream.write(str.getBytes());
-            pipedErrOutputStream.flush();
+            PipedOutputStream p = pipedErrOutputStream;
+            if(p != null){
+                p.write(str.getBytes());
+                p.flush();
+            }
         } catch (Exception e) {
             Log.log(e);
         }

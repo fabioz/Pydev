@@ -24,7 +24,7 @@ public class PyDebugTargetServer extends AbstractDebugTarget {
         if( launch!=null ) {
             launch.addDebugTarget( this );
         }        
-        debugger.setTarget(this);
+        debugger.addTarget(this);
         IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
         breakpointManager.addBreakpointListener(this);
         // we have to know when we get removed, so that we can shut off the debugger

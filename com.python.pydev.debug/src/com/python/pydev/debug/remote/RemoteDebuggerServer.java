@@ -9,6 +9,7 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 
@@ -122,9 +123,10 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
             if( launch!= null ) {
                 launch.setSourceLocator(new PySourceLocator());
             }
-            target = new PyDebugTargetServer( launch, null, this );
+            PyDebugTargetServer target = new PyDebugTargetServer( launch, null, this );
             target.startTransmission(socket);
             target.initialize();
+            this.addTarget(target);
         } catch (IOException e) {        
             e.printStackTrace();
         }        
@@ -147,12 +149,13 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
     
     public void dispose() {
         if(launch != null){
-            launch.removeDebugTarget( target );
+            for (AbstractDebugTarget target : targets) {
+                launch.removeDebugTarget( target );
+                target.terminate();
+                
+            }
         }
-        if(target != null){
-            target.terminate();
-        }
-        target = null;    
+        targets.clear();
     }
     
     public void disconnect() throws DebugException {    
