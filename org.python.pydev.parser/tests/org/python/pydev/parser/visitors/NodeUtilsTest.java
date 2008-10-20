@@ -15,7 +15,7 @@ public class NodeUtilsTest extends PyParserTestBase {
         try {
             NodeUtilsTest test = new NodeUtilsTest();
             test.setUp();
-            test.testClassEndLine();
+            test.testGetContextName2();
             test.tearDown();
             
             junit.textui.TestRunner.run(NodeUtilsTest.class);
@@ -96,6 +96,22 @@ public class NodeUtilsTest extends PyParserTestBase {
         
         assertEquals(null, NodeUtils.getContextName(4, ast1));
         assertEquals(null, NodeUtils.getContextName(4, ast2));
+    }
+    
+    
+    public void testGetContextName2() {
+        SimpleNode ast = parseLegalDocStr("" +
+                "class Simple(object):\n" +
+                "  def m1(self):\n" +
+                "    a = 10\n" +
+                "    i = 20\n" +
+                "    print 'here'\n" +
+                "  \n" +
+                "if __name__ == '__main__':\n" +
+                "  Simple().m1()\n" +
+                "\n");
+        
+        assertEquals("Simple.m1", NodeUtils.getContextName(4, ast));
     }
 
     private void checkEndLine(SimpleNode ast1, int endLine) {

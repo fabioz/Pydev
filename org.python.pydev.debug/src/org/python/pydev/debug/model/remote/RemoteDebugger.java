@@ -11,9 +11,9 @@ import java.net.Socket;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IProcess;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 
 /**
@@ -77,9 +77,7 @@ public class RemoteDebugger extends AbstractRemoteDebugger {
 
     
     public void disconnect() {
-        if (target != null){
-            target.terminate();
-        }
+        dispose();
     }
     
     /**
@@ -92,9 +90,9 @@ public class RemoteDebugger extends AbstractRemoteDebugger {
             connector.stopListening();
             connector = null;
         }
-        if(target != null){
+        for (AbstractDebugTarget target : targets) {
             target.terminate();
         }
-        target = null;
-    }    
+    }
+
 }

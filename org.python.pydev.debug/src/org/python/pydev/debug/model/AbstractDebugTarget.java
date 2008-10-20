@@ -164,10 +164,11 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     }    
     
     public String getName() throws DebugException {
-        if (file != null)
+        if (file != null){
             return PythonRunnerConfig.getRunningName(file);
-        else
-            return "unknown";
+        }else{
+            return "unknown"; //TODO: SHOW PROPER PROCESS ID!
+        }
     }
     
     public boolean canResume() {
@@ -485,7 +486,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     
 
     // thread_id\tresume_reason
-    static Pattern threadRunPattern = Pattern.compile("(-?\\d+)\\t(\\w*)");
+    static Pattern threadRunPattern = Pattern.compile("(pid-?\\d+_seq-?\\d+)\\t(\\w*)");
     /**
      * ThreadRun event processing
      */

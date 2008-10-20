@@ -800,6 +800,9 @@ def settrace(host = 'localhost', stdoutToServer = False, stderrToServer = False,
             additionalInfo = pydevd_additional_thread_info.PyDBAdditionalThreadInfo()
             t.additionalInfo = additionalInfo
   
+        while not debugger.readyToRun: 
+            time.sleep(0.1) # busy wait until we receive run command
+
         if suspend:
             debugger.setSuspend(t, CMD_SET_BREAK)
         

@@ -6,7 +6,6 @@
 package org.python.pydev.debug.model;
 
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
@@ -31,7 +30,7 @@ public class PyDebugTarget extends AbstractDebugTarget {
         this.debugger = debugger;
         this.threads = new PyThread[0];
         launch.addDebugTarget(this);
-        debugger.setTarget(this);
+        debugger.addTarget(this);
         IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
         breakpointManager.addBreakpointListener(this);
         // we have to know when we get removed, so that we can shut off the debugger

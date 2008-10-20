@@ -8,9 +8,11 @@
 package org.python.pydev.plugin.nature;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -57,6 +59,43 @@ import org.python.pydev.utils.JobProgressComunicator;
  */
 public class PythonNature extends AbstractPythonNature implements IPythonNature {
 
+    /**
+     * Contains a list with the natures created.
+     */
+    private static List<WeakReference<PythonNature>> createdNatures = new ArrayList<WeakReference<PythonNature>>();
+    
+    /**
+     * @return the natures that were created.
+     */
+    public static List<PythonNature> getInitializedPythonNatures(){
+        ArrayList<PythonNature> ret = new ArrayList<PythonNature>();
+        synchronized(createdNatures){
+            for(Iterator<WeakReference<PythonNature>> it=createdNatures.iterator();it.hasNext();){
+                PythonNature pythonNature = it.next().get();
+                if(pythonNature == null){
+                    it.remove();
+                }else if(pythonNature.getProject() != null){
+                    ret.add(pythonNature);
+                }
+            }
+        }
+        return ret;
+    }
+    
+    /**
+     * Constructor
+     * 
+     * Adds the nature to the list of created natures.
+     */
+    public PythonNature(){
+        synchronized(createdNatures){
+            createdNatures.add(new WeakReference<PythonNature>(this));
+        }
+    }
+    
+    
+    
+    
     /**
      * This is the job that is used to rebuild the python nature modules.
      * 

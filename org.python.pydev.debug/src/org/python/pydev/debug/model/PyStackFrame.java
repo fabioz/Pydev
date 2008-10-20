@@ -295,7 +295,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         if (obj instanceof PyStackFrame) {
             PyStackFrame sf = (PyStackFrame) obj;
             return this.id.equals(sf.id) && this.path.toString().equals(sf.path.toString())
-                    && this.line == sf.line;
+                    && this.line == sf.line && this.getThreadId().equals(sf.getThreadId());
         }
         return false;
     }
@@ -310,6 +310,11 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
 
     public AbstractRemoteDebugger getDebugger() {
         return target.getDebugger();
+    }
+
+    @Override
+    public String toString() {
+        return "PyThread: "+this.id;
     }
 
 }

@@ -13,7 +13,6 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -214,23 +213,15 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
             Preferences preferences = plugin.getPluginPreferences();
             preferences.removePropertyChangeListener(this);
             
-            //save the natures (code completion stuff).
-            IProject[] projects = getWorkspace().getRoot().getProjects();
-            for (int i = 0; i < projects.length; i++) {
+            //save the natures (code completion stuff) -- and only the ones initialized 
+            //(no point in getting the ones not initialized)
+            for(PythonNature nature:PythonNature.getInitializedPythonNatures()){
                 try {
-                    IProject project = projects[i];
-                    if (project.isOpen()){
-                        IProjectNature n = project.getNature(PythonNature.PYTHON_NATURE_ID);
-                        if(n instanceof PythonNature){
-                            PythonNature nature = (PythonNature) n;
-                            nature.saveAstManager();
-                        }
-                    }
-                } catch (CoreException e) {
+                    nature.saveAstManager();
+                } catch (Exception e) {
                     PydevPlugin.log(e);
                 }
             }
-
         } finally{
             super.stop(context);
         }

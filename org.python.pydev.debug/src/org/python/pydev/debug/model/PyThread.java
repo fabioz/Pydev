@@ -6,7 +6,6 @@
 package org.python.pydev.debug.model;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
@@ -17,11 +16,9 @@ import org.eclipse.debug.core.model.IThread;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
-import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 import org.python.pydev.debug.model.remote.StepCommand;
 import org.python.pydev.debug.model.remote.ThreadRunCommand;
 import org.python.pydev.debug.model.remote.ThreadSuspendCommand;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Represents python threads.
@@ -58,7 +55,7 @@ public class PyThread extends PlatformObject implements IThread {
     }
 
     public String getName() throws DebugException {
-        return name;
+        return name+" - "+getId();
     }
     
     public String getId() {
@@ -221,4 +218,9 @@ public class PyThread extends PlatformObject implements IThread {
         return super.getAdapter(adapter);
     }
 
+    
+    @Override
+    public String toString() {
+        return "PyThread: "+this.id;
+    }
 }

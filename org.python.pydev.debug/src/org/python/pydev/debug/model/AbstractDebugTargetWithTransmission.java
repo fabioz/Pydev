@@ -40,7 +40,9 @@ public class AbstractDebugTargetWithTransmission extends PlatformObject {
     }
     
     public void addToResponseQueue(AbstractDebuggerCommand cmd) {
-        reader.addToResponseQueue(cmd);
+        if(reader != null){
+            reader.addToResponseQueue(cmd);
+        }
     }
     
     public void postCommand(AbstractDebuggerCommand cmd) {        

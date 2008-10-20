@@ -3,6 +3,8 @@ after 1.3.22
 Pydev Extensions
 <ul>
 <li><strong>Code-analysis</strong>: Fixed condition that could make code-analysis get into a halt depending on the code structure</li>
+<li><strong>Remote Debugger</strong>: Can properly debug multiple processes concurrently</li>
+<li><strong>Remote Debugger</strong>: Makes the proper setup of breakpoints when pydevd.settrace is called with suspend=False</li>
 </ul>
 
 
@@ -14,6 +16,7 @@ Removed log message if log is not enabled
 .Pyc remover not giving error anymore
 Fixed code-completion bug when importing token with the same name of module where it's declared (datetime.datetime)
 Assign with tuple not being correctly handled in the type-inference engine
+Fixed problem: nature was being initialized just before shutdown
 </ul>
 
 

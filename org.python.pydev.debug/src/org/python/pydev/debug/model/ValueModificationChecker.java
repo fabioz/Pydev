@@ -55,6 +55,9 @@ public class ValueModificationChecker {
         }
     }
 
+    /**
+     * Thread id --> stack id --> stack
+     */
     private Map<String,Map<String, PyStackFrame>> cache = new HashMap<String,Map<String, PyStackFrame>>();
     private Object lock = new Object();
     
@@ -110,7 +113,7 @@ public class ValueModificationChecker {
      */
     public synchronized void onlyLeaveStack(PyThread t, IStackFrame[] stackFrame) {
         synchronized(lock){
-            Map<String, PyStackFrame> threadIdCache = this.cache.get(t);
+            Map<String, PyStackFrame> threadIdCache = this.cache.get(t.getId());
             if(threadIdCache == null){
                 return;
             }
