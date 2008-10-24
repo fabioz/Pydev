@@ -68,8 +68,8 @@ Aleks and Fabio
 
    <plugin
          id="org.python.pydev.help"
-         download-size="0"
-         install-size="0"
+         download-size="300"
+         install-size="300"
          version="0.9.7.1"/>
 
    <plugin
