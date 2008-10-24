@@ -10,16 +10,16 @@ Pydev Extensions
 
 Pydev
 <ul>
-<li>Applied patch to cancel scanning of files (Radim Kubacki)</li>
-<li>Applied patch to detect symlink cycles inside of the pythonpath structure (which could enter in a loop) (Radim Kubacki)</li>
+<li>Can cancel scanning of files (Radim Kubacki)</li>
+<li>Detection of symlink cycles inside of the pythonpath structure (could enter in a loop) (Radim Kubacki)</li>
 <li>Removed log message if log is not enabled</li>
-<li>.Pyc remover not giving error anymore</li>
+<li>.pyc remover not giving error anymore</li>
 <li>Fixed code-completion bug when importing token with the same name of module where it's declared (datetime.datetime)</li>
 <li>Assign with tuple not being correctly handled in the type-inference engine</li>
-<li>Fixed problem: nature was being initialized just before shutdown</li>
-<li>Fixed code-completion problem when inner method was declared without self</li>
-<li>Fixed __all__ problem: when imported sometimes did not find the builtins from the current module on a wild import</li>
-<li>Fixed problem in update site and Eclipse 3.4 (after installed could prevent other plugins from being installed -- compatibility problem on eclipse 3.4 and really old versions of Pydev)</li>
+<li>Nature no longer initialized by shutdown</li>
+<li>Code-completion works when inner method is declared without self</li>
+<li>__all__: when imported no longer filters out the builtins from the current module on a wild import</li>
+<li>Fixed problem in update site and Eclipse 3.4 (after installed could prevent other plugins from being installed -- compatibility problem on eclipse 3.4 and old versions of Pydev)</li>
 </ul>
 
 
