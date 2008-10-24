@@ -377,6 +377,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
             "from extendable.all_check import *\n" +
             "";
         
+        //should keep the variables from the __builtins__ in this module
         requestCompl(s, -1, new String[] {"ThisGoes", "RuntimeError"});
     }
 

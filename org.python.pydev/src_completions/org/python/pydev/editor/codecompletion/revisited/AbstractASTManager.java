@@ -808,14 +808,6 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             completions.add(importedModules[i]);
         }
 
-        //wild imports: recursively go and get those completions.
-        for (int i = 0; i < wildImportedModules.length; i++) {
-
-            //for wild imports, we must get the global completions with __all__ filtered
-            IToken name = wildImportedModules[i];
-            getCompletionsForWildImport(state, current, completions, name);
-        }
-
         if(!state.getBuiltinsGotten()){
             state.setBuiltinsGotten (true) ;
             if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
@@ -826,6 +818,16 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
                 Log.toLogFile(this, "END getBuiltinCompletions");
             }
+        }
+        
+        //wild imports: recursively go and get those completions. Must be done before getting the builtins, because 
+        //when we do a wild import, we may get tokens that are filtered, and there's a chance that the builtins get 
+        //filtered out if they are gotten from a wild import and not from the module itself.
+        for (int i = 0; i < wildImportedModules.length; i++) {
+        	
+        	//for wild imports, we must get the global completions with __all__ filtered
+        	IToken name = wildImportedModules[i];
+        	getCompletionsForWildImport(state, current, completions, name);
         }
         return completions;
     }
