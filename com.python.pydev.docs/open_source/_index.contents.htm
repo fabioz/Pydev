@@ -12,7 +12,7 @@ the provided features, you can check <strong><a href="features.html">here</a></s
 <strong>Pydev</strong> and <strong>Pydev Extensions</strong> are now products of <strong>Aptana</strong>, makers of the popular Aptana Studio, 
 Eclipse-based IDE for Ajax, Jaxer, Ruby on Rails, and PHP.  
 You can plug Pydev into Aptana Studio or both into Eclipse and use them side by side.  
-Aptana plans deeper integrations in the future.  <a href="http://www.aptana.com/blog">See the news</a>.
+Aptana plans deeper integrations in the future.  <a href="http://www.aptana.com/blog/pcolton/pydev_news">See the news</a>.
 <br/>
 <br/>
 <h3><a href="http://www.fabioz.com/pydev"><IMG src="images/sponsors/pydev_extensions_logo_small.png" border="1" /></a></h3>
@@ -35,6 +35,23 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 <h3>New Release: LAST_VERSION_TAG</h3>
 
 <h4>Major highlights:</h4>
+<ul>
+<li>Can cancel scanning of files (Radim Kubacki)</li>
+<li>Detection of symlink cycles inside of the pythonpath structure (could enter in a loop) (Radim Kubacki)</li>
+<li>Removed log message if log is not enabled</li>
+<li>.pyc remover not giving error anymore</li>
+<li>Fixed code-completion bug when importing token with the same name of module where it's declared (datetime.datetime)</li>
+<li>Assign with tuple not being correctly handled in the type-inference engine</li>
+<li>Nature no longer initialized by shutdown</li>
+<li>Code-completion works when inner method is declared without self</li>
+<li>__all__: when imported no longer filters out the builtins from the current module on a wild import</li>
+<li>Fixed problem in update site and Eclipse 3.4 (after installed could prevent other plugins from being installed -- compatibility problem on eclipse 3.4 and old versions of Pydev)</li>
+</ul>
+
+
+
+<h3>Previous: 1.3.22</h3>
+
 <ul>
 <li><strong>Debugger</strong>: Pythonpath is the same in debug and regular modes (sys.path[0] is the same directory as the file run)</li>
 <li><strong>Debugger</strong>: Choices for paths not found are persisted</li>
