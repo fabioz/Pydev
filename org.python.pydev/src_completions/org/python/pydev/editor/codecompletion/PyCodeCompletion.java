@@ -385,7 +385,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                         SimpleNode node = it.next();
                         if (node instanceof FunctionDef) {
                             FunctionDef funcDef = (FunctionDef) node;
-                            if(funcDef.args != null && funcDef.args.args != null || funcDef.args.args.length > 0){
+                            if(funcDef.args != null && funcDef.args.args != null && funcDef.args.args.length > 0){
                                 //ok, we have some arg, let's check for self or cls
                                 String rep = NodeUtils.getRepresentationString(funcDef.args.args[0]);
                                 if(rep != null && (rep.equals("self") || rep.equals("cls"))){

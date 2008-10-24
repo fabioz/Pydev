@@ -40,7 +40,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
           test.setUp();
-          test.testMultipleAssignCompletion2();
+          test.testOuterSelf();
           test.tearDown();
           System.out.println("Finished");
 
@@ -1161,6 +1161,17 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             "w.";
         
         requestCompl(s, -1, new String[] {"method1()"});
+    }
+    
+    
+    public void testOuterSelf() throws Exception {
+    	String s = 
+    		"class A:\n" +
+    		"    def method1(self):\n" +
+    		"        def m2():\n" +
+    		"            self."; //outer self
+    	
+    	requestCompl(s, -1, new String[] {"method1()"});
     }
     
     
