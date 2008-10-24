@@ -50,11 +50,11 @@ REM ** CUSTOMIZE ** Enter your rsync command(s) here
 
 REM Copying com stuff
 
-rsync --exclude "*-src-*" -r /cygdrive/e/fabioz_projects/org.python.pydev.site/zips/ \\ironman\users\fabioz\www\pydev\zips\
+rsync --exclude "*-src-*" --exclude "*.db" --exclude "*.svn*" --exclude "*.cvsignore" --exclude "CVS" -r /cygdrive/e/eclipse_pydev_workspace/org.python.pydev.site/zips/ \\ironman\users\fabioz\www\pydev\zips\
 
-rsync --exclude "com.esss*" -r /cygdrive/e/fabioz_projects/org.python.pydev.site/features/ \\ironman\users\fabioz\www\pydev\updates\features\
+rsync --exclude "com.esss*" --exclude "*.db" --exclude "*.svn*" --exclude "*.cvsignore" --exclude "CVS" -r /cygdrive/e/eclipse_pydev_workspace/org.python.pydev.site/features/ \\ironman\users\fabioz\www\pydev\updates\features\
 
-rsync --exclude "com.esss*" -r /cygdrive/e/fabioz_projects/org.python.pydev.site/plugins/ \\ironman\users\fabioz\www\pydev\updates\plugins\
+rsync --exclude "com.esss*" --exclude "*.db" --exclude "*.svn*" --exclude "*.cvsignore" --exclude "CVS" -r /cygdrive/e/eclipse_pydev_workspace/org.python.pydev.site/plugins/ \\ironman\users\fabioz\www\pydev\updates\plugins\
 
 
 

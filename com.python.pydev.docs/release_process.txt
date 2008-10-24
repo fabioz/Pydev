@@ -1,16 +1,16 @@
-Remove old install from org.python.pydev.site
+OK Remove old install from org.python.pydev.site
 
-Update the home page and run its script
+OK Update the home page and run its script
 
-Run the build script
+OK Run the build script
 
-Change site.xml in org.python.pydev.site
+OK Change site.xml in org.python.pydev.site
 
-Add the zips to the right places in org.python.pydev.site (server: fabioz,pydev@web.sourceforge.net)
+OK Add the zips to the right places in org.python.pydev.site (server: fabioz,pydev@web.sourceforge.net)
 
-run scripts: cmd_rsync*.bat
+OK run scripts: cmd_rsync*.bat
 
-Change site.xml in fabioz.com
+OK Change site.xml in fabioz.com
 
 Change descript.ion in fabioz.com
 

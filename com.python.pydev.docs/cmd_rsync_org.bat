@@ -51,13 +51,13 @@ REM ** CUSTOMIZE ** Enter your rsync command(s) here
 REM Copying open source stuff
 
 REM Copying open source features
-rsync --exclude "com*" -r /cygdrive/e/fabioz_projects/org.python.pydev.site/features/ shell.sourceforge.net:/home/groups/p/py/pydev/htdocs/updates/features/
+rsync --exclude "com*" --exclude "*.db" --exclude "*.svn*" --exclude "*.cvsignore" --exclude "CVS" -r /cygdrive/e/eclipse_pydev_workspace/org.python.pydev.site/features/ fabioz,pydev@web.sourceforge.net:/home/groups/p/py/pydev/htdocs/updates/features/
 
 REM Copying open source plugins
-rsync --exclude "com*" -r /cygdrive/e/fabioz_projects/org.python.pydev.site/plugins/ shell.sourceforge.net:/home/groups/p/py/pydev/htdocs/updates/plugins/
+rsync --exclude "com*" --exclude "*.db" --exclude "*.svn*" --exclude "*.cvsignore" --exclude "CVS" -r /cygdrive/e/eclipse_pydev_workspace/org.python.pydev.site/plugins/ fabioz,pydev@web.sourceforge.net:/home/groups/p/py/pydev/htdocs/updates/plugins/
 
 REM Copying open source plugins
-rsync /cygdrive/e/fabioz_projects/org.python.pydev.site/site.xml shell.sourceforge.net:/home/groups/p/py/pydev/htdocs/updates/site.xml
+rsync /cygdrive/e/eclipse_pydev_workspace/org.python.pydev.site/site.xml fabioz,pydev@web.sourceforge.net:/home/groups/p/py/pydev/htdocs/updates/site.xml
 
 
 
