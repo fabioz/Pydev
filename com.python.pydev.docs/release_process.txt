@@ -14,20 +14,20 @@ OK Change site.xml in fabioz.com
 
 Change descript.ion in fabioz.com
 
-add zips to sf (sftp: frs.sourceforge.net /incoming/f/fa/fabioz/uploads) and do release: E.g.: Pydev 1.3.7 -- details at http://alexandria.wiki.sourceforge.net/File+Release+System+-+Offering+Files+for+Download#upload
+OK add zips to sf (sftp: frs.sourceforge.net /incoming/f/fa/fabioz/uploads) and do release: E.g.: Pydev 1.3.7 -- details at http://alexandria.wiki.sourceforge.net/File+Release+System+-+Offering+Files+for+Download#upload
 
-tag repository: e.g.: pydev_1_3_7
+OK tag repository: e.g.: pydev_1_3_7
 svn: 
-svn copy https://source.aptana.com/pydev_repo/trunk https://source.aptana.com/pydev_repo/tags/pydev_1_3_22 -m "Creating release 1.3.22"
-svn copy https://source.aptana.com/pydev_pro_repo/trunk https://source.aptana.com/pydev_pro_repo/tags/pydev_1_3_22 -m "Creating release 1.3.22"
+svn copy https://source.aptana.com/pydev_repo/trunk https://source.aptana.com/pydev_repo/tags/pydev_1_3_23 -m "Creating release 1.3.23"
+svn copy https://source.aptana.com/pydev_pro_repo/trunk https://source.aptana.com/pydev_pro_repo/tags/pydev_1_3_23 -m "Creating release 1.3.23"
 
-add news in forum
+OK add news in forum
 
-send e-mail
+OK send e-mail
 
 Add blog post
 
-update in eclipse plugin central:
+OK update in eclipse plugin central:
 EPIC: Login -- http://www.eclipseplugincentral.com/user.html user:fabioz
 find Pydev plugin > Modify link > add update site
 
