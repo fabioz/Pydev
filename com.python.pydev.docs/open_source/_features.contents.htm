@@ -2,16 +2,9 @@
 
 
 <ul>
-<li>Can cancel scanning of files (Radim Kubacki)</li>
-<li>Detection of symlink cycles inside of the pythonpath structure (could enter in a loop) (Radim Kubacki)</li>
-<li>Removed log message if log is not enabled</li>
-<li>.pyc remover not giving error anymore</li>
-<li>Fixed code-completion bug when importing token with the same name of module where it's declared (datetime.datetime)</li>
-<li>Assign with tuple not being correctly handled in the type-inference engine</li>
-<li>Nature no longer initialized by shutdown</li>
-<li>Code-completion works when inner method is declared without self</li>
-<li>__all__: when imported no longer filters out the builtins from the current module on a wild import</li>
-<li>Fixed problem in update site and Eclipse 3.4 (after installed could prevent other plugins from being installed -- compatibility problem on eclipse 3.4 and old versions of Pydev)</li>
+<li><strong>Code-completion</strong>: when a relative import was used from __init__ and the imported module used a token from the __init__ in a 'full' way, pydev did not recognize it</li>
+<li><strong>Debugger</strong>: Fixed debugger halting problem</li>
+<li><strong>Debugger and Jython</strong>: Debugger working with Jython (itertools and pid not available)</li>
 </ul>
 
 
@@ -116,6 +109,23 @@
 
 <hr/>
 <h2>Features History</h2>
+
+<h3>New on: 1.3.23</h3>
+
+
+<ul>
+<li>Can cancel scanning of files (Radim Kubacki)</li>
+<li>Detection of symlink cycles inside of the pythonpath structure (could enter in a loop) (Radim Kubacki)</li>
+<li>Removed log message if log is not enabled</li>
+<li>.pyc remover not giving error anymore</li>
+<li>Fixed code-completion bug when importing token with the same name of module where it's declared (datetime.datetime)</li>
+<li>Assign with tuple not being correctly handled in the type-inference engine</li>
+<li>Nature no longer initialized by shutdown</li>
+<li>Code-completion works when inner method is declared without self</li>
+<li>__all__: when imported no longer filters out the builtins from the current module on a wild import</li>
+<li>Fixed problem in update site and Eclipse 3.4 (after installed could prevent other plugins from being installed -- compatibility problem on eclipse 3.4 and old versions of Pydev)</li>
+</ul>
+
 
 <h3>New on: 1.3.22</h3>
 

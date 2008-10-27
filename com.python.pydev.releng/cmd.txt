@@ -104,23 +104,23 @@ xcopy C:\bin\eclipse33_build\plugins\com.python.pydev_1.3.19 C:\Shared\dist-0707
 
 delete if needed:
 
-deltree E:\bin\eclipse3311_win32_SDK\features\org.python.pydev.feature_1.3.19 /Y
-deltree E:\bin\eclipse3311_win32_SDK\features\com.python.pydev.extensions_1.3.19 /Y
-deltree E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.ast_1.3.19 /Y
-deltree E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.core_1.3.19 /Y
-deltree E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.debug_1.3.19 /Y
-deltree E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.help_1.3.19 /Y
-deltree E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.jython_1.3.19 /Y
-deltree E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.parser_1.3.19 /Y
-deltree E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.refactoring_1.3.19 /Y
-deltree E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev.templates_1.3.19 /Y
-deltree E:\bin\eclipse3311_win32_SDK\plugins\org.python.pydev_1.3.19 /Y
-deltree E:\bin\eclipse3311_win32_SDK\plugins\com.python.pydev.analysis_1.3.19 /Y
-deltree E:\bin\eclipse3311_win32_SDK\plugins\com.python.pydev.codecompletion_1.3.19 /Y
-deltree E:\bin\eclipse3311_win32_SDK\plugins\com.python.pydev.debug_1.3.19 /Y
-deltree E:\bin\eclipse3311_win32_SDK\plugins\com.python.pydev.fastparser_1.3.19 /Y
-deltree E:\bin\eclipse3311_win32_SDK\plugins\com.python.pydev.refactoring_1.3.19 /Y
-deltree E:\bin\eclipse3311_win32_SDK\plugins\com.python.pydev_1.3.19 /Y
+deltree E:\bin\eclipse-3.4.1\features\org.python.pydev.feature_1.3.24 /Y
+deltree E:\bin\eclipse-3.4.1\features\com.python.pydev.extensions_1.3.24 /Y
+deltree E:\bin\eclipse-3.4.1\plugins\org.python.pydev.ast_1.3.24 /Y
+deltree E:\bin\eclipse-3.4.1\plugins\org.python.pydev.core_1.3.24 /Y
+deltree E:\bin\eclipse-3.4.1\plugins\org.python.pydev.debug_1.3.24 /Y
+deltree E:\bin\eclipse-3.4.1\plugins\org.python.pydev.help_1.3.24 /Y
+deltree E:\bin\eclipse-3.4.1\plugins\org.python.pydev.jython_1.3.24 /Y
+deltree E:\bin\eclipse-3.4.1\plugins\org.python.pydev.parser_1.3.24 /Y
+deltree E:\bin\eclipse-3.4.1\plugins\org.python.pydev.refactoring_1.3.24 /Y
+deltree E:\bin\eclipse-3.4.1\plugins\org.python.pydev.templates_1.3.24 /Y
+deltree E:\bin\eclipse-3.4.1\plugins\org.python.pydev_1.3.24 /Y
+deltree E:\bin\eclipse-3.4.1\plugins\com.python.pydev.analysis_1.3.24 /Y
+deltree E:\bin\eclipse-3.4.1\plugins\com.python.pydev.codecompletion_1.3.24 /Y
+deltree E:\bin\eclipse-3.4.1\plugins\com.python.pydev.debug_1.3.24 /Y
+deltree E:\bin\eclipse-3.4.1\plugins\com.python.pydev.fastparser_1.3.24 /Y
+deltree E:\bin\eclipse-3.4.1\plugins\com.python.pydev.refactoring_1.3.24 /Y
+deltree E:\bin\eclipse-3.4.1\plugins\com.python.pydev_1.3.24 /Y
 
 
 deltree C:\Shared\dist-0707\i686.win32\eclipse-3.3.1.1\features\org.python.pydev.feature_1.3.19 /Y

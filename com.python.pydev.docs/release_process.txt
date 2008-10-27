@@ -6,28 +6,28 @@ OK Run the build script
 
 OK Change site.xml in org.python.pydev.site
 
-OK Add the zips to the right places in org.python.pydev.site (server: fabioz,pydev@web.sourceforge.net)
+OK Add the zips to the right places in org.python.pydev.site
 
-OK run scripts: cmd_rsync*.bat
+OK run scripts: cmd_rsync*.bat (server: fabioz,pydev@web.sourceforge.net)
 
 OK Change site.xml in fabioz.com
 
-Change descript.ion in fabioz.com
+OK Change descript.ion in fabioz.com
 
 OK add zips to sf (sftp: frs.sourceforge.net /incoming/f/fa/fabioz/uploads) and do release: E.g.: Pydev 1.3.7 -- details at http://alexandria.wiki.sourceforge.net/File+Release+System+-+Offering+Files+for+Download#upload
 
-OK tag repository: e.g.: pydev_1_3_7
+tag repository: e.g.: pydev_1_3_7
 svn: 
-svn copy https://source.aptana.com/pydev_repo/trunk https://source.aptana.com/pydev_repo/tags/pydev_1_3_23 -m "Creating release 1.3.23"
-svn copy https://source.aptana.com/pydev_pro_repo/trunk https://source.aptana.com/pydev_pro_repo/tags/pydev_1_3_23 -m "Creating release 1.3.23"
+svn copy https://source.aptana.com/pydev_repo/trunk https://source.aptana.com/pydev_repo/tags/pydev_1_3_24 -m "Creating release 1.3.24"
+svn copy https://source.aptana.com/pydev_pro_repo/trunk https://source.aptana.com/pydev_pro_repo/tags/pydev_1_3_24 -m "Creating release 1.3.24"
 
-OK add news in forum
+add news in forum
 
-OK send e-mail
+send e-mail
 
 Add blog post
 
-OK update in eclipse plugin central:
+update in eclipse plugin central:
 EPIC: Login -- http://www.eclipseplugincentral.com/user.html user:fabioz
 find Pydev plugin > Modify link > add update site
 
