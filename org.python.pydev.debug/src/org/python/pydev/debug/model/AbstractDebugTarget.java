@@ -311,7 +311,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
      */
     public void processCommand(String sCmdCode, String sSeqCode, String payload) {
         if(DEBUG){
-            System.out.println("Debugger command:" + sCmdCode+"\nseq:"+sSeqCode+"\npayload:"+payload);
+            System.out.println("process command:" + sCmdCode+"\tseq:"+sSeqCode+"\tpayload:"+payload+"\n\n");
         }
         try {
             int cmdCode = Integer.parseInt(sCmdCode);
@@ -476,9 +476,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             modificationChecker.onlyLeaveThreads((PyThread[]) this.threads);
             
             IStackFrame stackFrame[] = (IStackFrame[])threadNstack[2]; 
-            modificationChecker.onlyLeaveStack(t, stackFrame);
-            
-            t.setSuspended(true, stackFrame );
+            t.setSuspended(true, stackFrame);
             fireEvent(new DebugEvent(t, DebugEvent.SUSPEND, reason));        
         }
     }

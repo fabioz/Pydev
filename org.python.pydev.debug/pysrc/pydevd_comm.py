@@ -91,6 +91,29 @@ CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901 
 
+ID_TO_MEANING = {
+    '101':'CMD_RUN',
+    '102':'CMD_LIST_THREADS',
+    '103':'CMD_THREAD_CREATE',
+    '104':'CMD_THREAD_KILL',
+    '105':'CMD_THREAD_SUSPEND',
+    '106':'CMD_THREAD_RUN',
+    '107':'CMD_STEP_INTO',
+    '108':'CMD_STEP_OVER',
+    '109':'CMD_STEP_RETURN',
+    '110':'CMD_GET_VARIABLE',
+    '111':'CMD_SET_BREAK',
+    '112':'CMD_REMOVE_BREAK',
+    '113':'CMD_EVALUATE_EXPRESSION',
+    '114':'CMD_GET_FRAME',
+    '115':'CMD_EXEC_EXPRESSION',
+    '116':'CMD_WRITE_TO_CONSOLE',
+    '117':'CMD_CHANGE_VARIABLE',
+    '501':'CMD_VERSION',
+    '502':'CMD_RETURN',
+    '901':'CMD_ERROR',
+}
+
 MAX_IO_MSG_SIZE = 1000  #if the io is too big, we'll not send all (could make the debugger too non-responsive)
                         #this number can be changed if there's need to do so
 
@@ -238,7 +261,16 @@ class WriterThread(PyDBDaemonThread):
                     #but the thread was still not liberated
                     return
                 out = cmd.getOutgoing()
-                PydevdLog(1, "sending cmd ", out)
+                if DEBUG_TRACE_LEVEL >= 1:
+                    out_message = 'sending cmd: '
+                    out_message += ID_TO_MEANING.get(out[:3], 'UNKNOWN')
+                    out_message += ' '
+                    out_message += out
+                    try:
+                        print >> sys.stderr, (out_message,)
+                    except:
+                        pass
+                
                 self.sock.send(out) #TODO: this does not guarantee that all message are sent (and jython does not have a send all)
                 if time is None:
                     break #interpreter shutdown

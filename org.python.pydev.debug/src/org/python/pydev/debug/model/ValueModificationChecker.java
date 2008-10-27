@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.eclipse.debug.core.DebugException;
-import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IVariable;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -107,28 +106,4 @@ public class ValueModificationChecker {
         }
     }
 
-    /**
-     * Removes from the cache all the stacks that are not present in the new stack frame passed (those 
-     * are already outdated).
-     */
-    public synchronized void onlyLeaveStack(PyThread t, IStackFrame[] stackFrame) {
-        synchronized(lock){
-            Map<String, PyStackFrame> threadIdCache = this.cache.get(t.getId());
-            if(threadIdCache == null){
-                return;
-            }
-            HashSet<String> ids = new HashSet<String>();
-            
-            for (int i = 0; i < stackFrame.length; i++) {
-                ids.add(((PyStackFrame)stackFrame[i]).getId());
-            }
-            
-            for(String id: threadIdCache.keySet()){
-                if(!ids.contains(id)){
-                    threadIdCache.remove(id);
-                }
-            }
-            
-        }
-    }
 }
