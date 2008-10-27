@@ -32,12 +32,25 @@ GetFrame = sys._getframe
 #this value was raised from 200 to 1000.
 MAXIMUM_VARIABLE_REPRESENTATION_SIZE = 1000
 
-import itertools
 import threading 
 import os
 
 _nextThreadIdLock = threading.Lock()
-_nextThreadId = itertools.count(0).next
+
+#=======================================================================================================================
+# NextId
+#=======================================================================================================================
+class NextId:
+    
+    def __init__(self):
+        self._id = 0
+        
+    def __call__(self):
+        #No need to synchronize here
+        self._id += 1
+        return self._id
+    
+_nextThreadId = NextId()
 
 #=======================================================================================================================
 # GetThreadId
@@ -50,7 +63,18 @@ def GetThreadId(thread):
         try:
             #We do a new check with the lock in place just to be sure that nothing changed
             if not hasattr(thread, '__pydevd_id__'):
-                thread.__pydevd_id__ = 'pid%s_seq%s' % (os.getpid(), _nextThreadId())
+                try:
+                    pid = os.getpid()
+                except AttributeError:
+                    try:
+                        #Jython does not have it!
+                        from java.lang.management import ManagementFactory
+                        pid = java.lang.management.ManagementFactory.getRuntimeMXBean().getName()
+                    except:
+                        #ok, no pid available (will be unable to debug multiple processes)
+                        pid = '000001'
+                    
+                thread.__pydevd_id__ = 'pid%s_seq%s' % (pid, _nextThreadId())
         finally:
             _nextThreadIdLock.release()
         
