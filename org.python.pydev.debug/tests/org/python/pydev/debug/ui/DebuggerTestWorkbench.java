@@ -151,7 +151,7 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
                 ILaunch launch = waitForLaunchAvailable();
                 PyDebugTarget target = (PyDebugTarget) waitForDebugTargetAvailable(launch);
                 IThread suspendedThread = waitForSuspendedThread(target);
-                assertEquals("MainThread", suspendedThread.getName());
+                assertTrue(suspendedThread.getName().startsWith("MainThread"));
                 IStackFrame topStackFrame = suspendedThread.getTopStackFrame();
                 assertTrue("Was not expecting: "+topStackFrame.getName(), topStackFrame.getName().indexOf("debug_file.py:2") != 0);
                 IVariable[] variables = topStackFrame.getVariables();
