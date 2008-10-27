@@ -1,0 +1,2 @@
+class PluginsTestCase(object):
+    pass

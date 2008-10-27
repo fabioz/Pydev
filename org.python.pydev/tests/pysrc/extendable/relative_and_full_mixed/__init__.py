@@ -1,0 +1,2 @@
+from pluginstestcase import PluginsTestCase
+from pluginstestcaseext import PluginsTestCaseExt 

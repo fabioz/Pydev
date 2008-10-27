@@ -1195,7 +1195,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         //ok, one last shot, to see a relative looking in folders __init__
         modTok = findModuleFromPath(asRelativeImport, nature, false, null);
         mod = modTok.o1;
-        if(checkValidity(currentModuleName, mod)){
+        if(checkValidity(currentModuleName, mod, true)){
             Tuple<IModule, String> ret = fixTok(modTok, tok, activationToken);
             //now let's see if what we did when we found it as a relative import is correct:
             
@@ -1222,6 +1222,14 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     
     
     protected boolean checkValidity(String currentModuleName, IModule mod) {
+    	return checkValidity(currentModuleName, mod, false);
+    }
+    
+    
+    /**
+     * @param isRelative: On a relative import we have to check some more conditions...
+     */
+    protected boolean checkValidity(String currentModuleName, IModule mod, boolean isRelative) {
         if(mod == null){
             return false;
         }
@@ -1236,7 +1244,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             return false;
         }
         
-        if(currentModuleName != null && modName.endsWith(".__init__")){
+        if(isRelative && currentModuleName != null && modName.endsWith(".__init__")){
             //we have to check it without the __init__
             
             //what happens here is that considering the structure:
