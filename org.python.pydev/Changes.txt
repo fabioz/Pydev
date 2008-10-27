@@ -1,8 +1,10 @@
 after 1.3.23
 
-- Fixed debugger problem: https://sourceforge.net/forum/forum.php?thread_id=2440761&forum_id=293649
-- Fixed code-completion problem: when a relative import was used from __init__ and the imported module used a token from the __init__ in a 'full' way, pydev did not recognize it
-- Debugger working with Jython
+<ul>
+<li><strong>Code-completion</strong> when a relative import was used from __init__ and the imported module used a token from the __init__ in a 'full' way, pydev did not recognize it</li>
+<li><strong>Debugger</strong>Fixed debugger halting problem</li>
+<li><strong>Debugger and Jython</strong>Debugger working with Jython (itertools and pid not available)</li>
+</ul>
 
 after 1.3.22
 
