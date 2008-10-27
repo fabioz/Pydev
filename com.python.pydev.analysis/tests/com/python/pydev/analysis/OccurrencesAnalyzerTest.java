@@ -30,7 +30,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testRecursionCondition();
+            analyzer2.testModuleNotFoundOnRelativeAndFullMixed();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2589,6 +2589,18 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         
         //unused and unresolved
         printMessages(msgs, 2);
+    }
+    
+    
+    public void testModuleNotFoundOnRelativeAndFullMixed() throws IOException {
+    	
+    	analyzer = new OccurrencesAnalyzer();
+    	File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/relative_and_full_mixed/pluginstestcaseext.py");
+    	Document doc = new Document(REF.getFileContents(file));
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.relative_and_full_mixed.pluginstestcaseext", file, nature, 0), 
+    			prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+    	
+    	printMessages(msgs, 0);
     }
     
 }
