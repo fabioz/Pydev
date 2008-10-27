@@ -105,7 +105,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
         
         PythonNature nature = PythonNature.getPythonNature(mod1);
         AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
-        assertTrue(Arrays.equals(info.getLastModificationHash("pack1.pack2.mod1"), hashValidMod1Contents));
+//        assertTrue(Arrays.equals(info.getLastModificationHash("pack1.pack2.mod1"), hashValidMod1Contents));
         ICallback<Object, IResource> analysisCallback = getAnalysisCallback();
         AnalysisBuilderRunnable.analysisBuilderListeners.add(analysisCallback);
         
@@ -118,7 +118,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
             goToManual(TIME_FOR_ANALYSIS); //in 1 seconds, only 1 parse/analysis should happen
             goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
             goToIdleLoopUntilCondition(getHasBothErrorMarkersCondition(), getMarkers());
-            assertTrue(Arrays.equals(info.getLastModificationHash("pack1.pack2.mod1"), hashInvalidMod1Contents));
+//            assertTrue(Arrays.equals(info.getLastModificationHash("pack1.pack2.mod1"), hashInvalidMod1Contents));
             assertEquals(1, parsesDone.size());
             
 
@@ -130,7 +130,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
             goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
             goToIdleLoopUntilCondition(getNoErrorMarkersCondition(), getMarkers());
             goToManual(TIME_FOR_ANALYSIS); //in 1 seconds, only 1 parse/analysis should happen
-            assertTrue(Arrays.equals(info.getLastModificationHash("pack1.pack2.mod1"), hashValidMod1Contents));
+//            assertTrue(Arrays.equals(info.getLastModificationHash("pack1.pack2.mod1"), hashValidMod1Contents));
             assertEquals(1, parsesDone.size());
             
             
