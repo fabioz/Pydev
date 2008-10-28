@@ -44,7 +44,12 @@ public class OccurrencesAnalyzer implements IAnalyzer {
         try {
             SimpleNode ast = module.getAst();
             if(ast != null){
-                ast.accept(visitor);
+            	nature.startRequests();
+            	try{
+            		ast.accept(visitor);
+            	}finally{
+            		nature.endRequests();
+            	}
             }
         } catch (OperationCanceledException e) {
             throw e;

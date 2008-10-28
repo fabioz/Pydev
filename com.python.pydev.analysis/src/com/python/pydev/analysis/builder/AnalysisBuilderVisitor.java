@@ -53,46 +53,38 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         if(nature == null){
             return;
         }
-        if(!nature.startRequests()){
-            return;
+        boolean analyzeDependent;
+        if(isFullBuild()){
+            analyzeDependent = false;
+        }else{
+            analyzeDependent = true;
         }
-        try{
-            boolean analyzeDependent;
-            if(isFullBuild()){
-                analyzeDependent = false;
-            }else{
-                analyzeDependent = true;
-            }
-            
-            
-            //depending on the level of analysis we have to do, we'll decide whether we want
-            //to make the full parse (slower) or the definitions parse (faster but only with info
-            //related to the definitions)
-            ICallback<IModule, Integer> moduleCallback = new ICallback<IModule, Integer>(){
+        
+        
+        //depending on the level of analysis we have to do, we'll decide whether we want
+        //to make the full parse (slower) or the definitions parse (faster but only with info
+        //related to the definitions)
+        ICallback<IModule, Integer> moduleCallback = new ICallback<IModule, Integer>(){
 
-				public IModule call(Integer arg) {
-					if(arg == AnalysisBuilderRunnable.FULL_MODULE){
-						return getSourceModule(resource, document, nature);
-					}else if(arg == AnalysisBuilderRunnable.DEFINITIONS_MODULE){
-		                if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-		                    Log.toLogFile(this, "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
-		                }
-		                IFile f = (IFile) resource;
-		                String file = f.getRawLocation().toOSString();
-		                String moduleName = getModuleName(resource, nature);
-		                return new SourceModule(moduleName, new File(file), 
-		                        FastDefinitionsParser.parse(document.get(), moduleName), null);
-					}else{
-						throw new RuntimeException("Unexpected parameter: "+arg);
-					}
-				}}
-            ;
-			doVisitChangedResource(nature, resource, document, moduleCallback, null, analyzeDependent, monitor, false, 
-                    AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER);
-            
-        }finally{
-            nature.endRequests();
-        }
+			public IModule call(Integer arg) {
+				if(arg == AnalysisBuilderRunnable.FULL_MODULE){
+					return getSourceModule(resource, document, nature);
+				}else if(arg == AnalysisBuilderRunnable.DEFINITIONS_MODULE){
+	                if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+	                    Log.toLogFile(this, "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
+	                }
+	                IFile f = (IFile) resource;
+	                String file = f.getRawLocation().toOSString();
+	                String moduleName = getModuleName(resource, nature);
+	                return new SourceModule(moduleName, new File(file), 
+	                        FastDefinitionsParser.parse(document.get(), moduleName), null);
+				}else{
+					throw new RuntimeException("Unexpected parameter: "+arg);
+				}
+			}}
+        ;
+		doVisitChangedResource(nature, resource, document, moduleCallback, null, analyzeDependent, monitor, false, 
+                AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER);
     }
     
 
