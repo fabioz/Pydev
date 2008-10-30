@@ -1,0 +1,65 @@
+
+Changes in 1.1
+--------------
+New features:
+  - Support for reference verification. Retroweaver automatically warns you if your code references classes, methods, or fields that don't exist in your target JDK.
+  - An integrated Ant task: com.rc.retroweaver.ant.RetroWeaverTask.
+  - A separate runtime jar: retroweaver-rt.jar. This jar file is smaller and contains the minimum set of classes necessary to support Retroweaver at runtime.
+
+Bug fixes:
+  - 1008851 - Undocumented flags were only getting stripped on synthetic entities.
+
+
+Changes in 1.0 FCS
+------------------
+
+New features:
+  - A new developer's guide (html,pdf,OpenOffice).
+  - A new graphical user interface
+  - A new executable jar - RetroweaverEx.jar
+
+Bug fixes:
+  - 997305  - Typo in src/com/rc/retroweaver/Weaver.java
+  - 1008851 - Retroweaver should strip undocumented method flags
+  - 963245  - NosuchMethodError for String.replace(String, String);
+
+Changes in 1.0 RC5
+------------------
+
+New features:
+  None 
+
+Bug fixes:
+  -  922729 - Enum.valueOf fails.
+
+
+Changes in 1.0 RC4
+------------------
+
+New features:
+
+  - New support for enumerations. You can now use the enum language construct. The generated enum classes derive from com.rc.retroweaver.runtime.Enum.
+  - New support for java.lang.Iterable. You can now implement, extend, and use java.lang.Iterable. Look at the example ItTest class for more details.
+  - More optimized autoboxing. Additional caching has been added for chars, shorts, and ints.
+
+
+Changes in 1.0 RC3
+------------------
+
+New features:
+  - Command line usage has changed, you now have to specify -source
+  - You can now set the target virtual machine using -target, for example, -target 1.3
+  - Retroweaver now comes with a set of test unit classes
+
+Bug fixes:
+  - 981204 - java.lang.ClassFormatError: Illegal method name
+
+
+Changes in 1.0 RC2
+------------------
+
+New features:
+  None 
+
+Bug fixes:
+  -  917707 - StringBuilder isn't handled correctly.
