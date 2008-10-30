@@ -56,7 +56,7 @@ Docs to see how to run: http://wiki.eclipse.org/index.php/Platform-releng-eclips
 			
 			<sysproperty key = "EC_HOME" value = "${eclipse.location}"/>
 			<sysproperty key = "EC_WORKSPACE" value = "../"/>
-			<sysproperty key = "RETROWEAVER_HOME" value = "${basedir}/../externals/retroweaver"/>
+			<sysproperty key = "RETROWEAVER_HOME" value = "${basedir}/externals/retroweaver"/>
 			<sysproperty key = "PDE_BUILD_SCRIPTS" value = "/plugins/org.eclipse.pde.build_3.3.2.v20071019/scripts"/>
 			<sysproperty key = "PYDEV_VERSION" value = "1.4.0"/>
 			<sysproperty key = "BUILD_ID" value = "1_4_0"/>
