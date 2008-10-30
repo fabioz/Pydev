@@ -34,16 +34,17 @@ Docs to see how to run: http://wiki.eclipse.org/index.php/Platform-releng-eclips
 
 
  -->
-<project name="Build Pydev" default="main">
+<project name="Build Pydev" default="build">
 
-	<target name="main" description="Run the main target of the builder for Pydev">
+	<target name="init" description="Initializes the needed variables">
 		<property name = "eclipse.local.zip" value = "${eclipse.local.zip}"/>
-		<property name = "eclipse.dest" value = "./eclipse_install"/>
+		<property name = "eclipse.extract" value = "./eclipse_install"/>
+		<property name = "eclipse.dest" value = "./eclipse_install/eclipse"/>
 		
 		<property name = "EC_HOME" value = "${eclipse.dest}"/>
 		<property name = "EC_WORKSPACE" value = "W:/temp_making_build/trunk"/>
 		<property name = "RETROWEAVER_HOME" value = "W:/temp_making_build/trunk/externals/retroweaver"/>
-		<property name = "PDE_BUILD_SCRIPTS" value = "/plugins/org.eclipse.pde.build_3.3.0.v20070612/scripts"/>
+		<property name = "PDE_BUILD_SCRIPTS" value = "/plugins/org.eclipse.pde.build_3.3.2.v20071019/scripts"/>
 		<property name = "PYDEV_VERSION" value = "1.4.0"/>
 		<property name = "BUILD_ID" value = "1_4_0"/>
 		
@@ -55,20 +56,28 @@ Docs to see how to run: http://wiki.eclipse.org/index.php/Platform-releng-eclips
 		<property name = "javacFailOnError" value = "true"/>
 		<property name = "dontFetchAnything" value = "true"/>
 		<property name = "cleanAfter" value = "true"/>
-		
+	</target>
+	
+	<target name="unzip" description="Unzips eclipse." depends="init">
 		<unzip src="${eclipse.local.zip}" dest="${eclipse.dest}"/>
+	</target>
 		
-		<java jar="{eclipse.dest}/plugins/org.eclipse.equinox.launcher_1.0.1.R33x_v20070828.jar" fork="true" failonerror="true" maxmemory="1024m">
+	<target name="build" description="Run the main target of the builder for Pydev" depends="init">
+		<java jar="${eclipse.dest}/plugins/org.eclipse.equinox.launcher_1.0.1.R33x_v20080118.jar" fork="true" failonerror="true" maxmemory="1024m" dir="./org.python.pydev.releng">
 			<arg value="-application"/>
 			<arg value="org.eclipse.ant.core.antRunner"/>
 			<arg value="-buildfile"/>
 			<arg value="build.xml"/>
 			<classpath>
-				<pathelement location="{eclipse.dest}/plugins/org.eclipse.equinox.launcher_1.0.1.R33x_v20070828.jar"/>
+				<pathelement location="{eclipse.dest}/plugins/org.eclipse.equinox.launcher_1.0.1.R33x_v20080118.jar"/>
 			</classpath>
 		</java>
 
 		
 	</target>
 
+	<target name="all" description="Runs all that's needed for the build" depends="init,unzip,build">
+	</target>
+	
 </project>
+
