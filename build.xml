@@ -37,7 +37,6 @@ Docs to see how to run: http://wiki.eclipse.org/index.php/Platform-releng-eclips
 <project name="Build Pydev" default="build">
 
 	<target name="init" description="Initializes the needed variables">
-		<property name = "eclipse.location" value = "/home/build/pristine/eclipse-SDK-3.3.2-linux-gtk"/>
 		<property name = "basedir" location = "."/>
 	</target>
 		
@@ -73,7 +72,7 @@ Docs to see how to run: http://wiki.eclipse.org/index.php/Platform-releng-eclips
 		
 	</target>
 
-	<target name="all" description="Runs all that's needed for the build" depends="init,build">
+	<target name="main" description="Runs all that's needed for the build" depends="init,build">
 	</target>
 	
 </project>
