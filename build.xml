@@ -34,10 +34,11 @@ Docs to see how to run: http://wiki.eclipse.org/index.php/Platform-releng-eclips
 
 
  -->
-<project name="Build Pydev" default="build" basedir=".">
+<project name="Build Pydev" default="build">
 
 	<target name="init" description="Initializes the needed variables">
 		<property name = "eclipse.location" value = "/home/build/pristine/eclipse-SDK-3.3.2-linux-gtk"/>
+		<property name = "basedir" location = "."/>
 	</target>
 		
 	<target name="build" description="Actually builds Pydev" depends="init">
