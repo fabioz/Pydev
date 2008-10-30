@@ -231,7 +231,10 @@
 	<jar jarfile="${destFeats}${fol7}.jar" basedir="${eclipseTmpResults}/eclipse${fol7}" update="true" manifest="${eclipseTmpResults}/eclipse${fol7}/META-INF/MANIFEST.MF" />
 	<jar jarfile="${destFeats}${fol8}.jar" basedir="${eclipseTmpResults}/eclipse${fol8}" update="true" manifest="${eclipseTmpResults}/eclipse${fol8}/META-INF/MANIFEST.MF" />
 	<jar jarfile="${destFeats}${fol9}.jar" basedir="${eclipseTmpResults}/eclipse${fol9}" update="true" manifest="${eclipseTmpResults}/eclipse${fol9}/META-INF/MANIFEST.MF" />
-    <echo message="Finished making jars in update site!"/> 
+    <echo message="Finished adding jars to update site!"/> 
+	
+	<copy todir="${destFeats}/zips"><fileset file="${zipLocation}"/></copy>
+	<copy todir="${destFeats}/zips"><fileset file="${sourceZipLocation}"/></copy>
 
 
 	<!-- I also want to put it into my eclipse installation -->	
@@ -246,7 +249,7 @@
 	<copy todir="${EC_HOME}${fol7}"><fileset dir="${eclipseTmpResults}/eclipse${fol7}"/></copy>
 	<copy todir="${EC_HOME}${fol8}"><fileset dir="${eclipseTmpResults}/eclipse${fol8}"/></copy>
 	<copy todir="${EC_HOME}${fol9}"><fileset dir="${eclipseTmpResults}/eclipse${fol9}"/></copy>
-    <echo message="Finished making installing!"/>
+    <echo message="Finished making install!"/>
 
 	<delete dir="${eclipseTmpResults}"/>
 </target>
