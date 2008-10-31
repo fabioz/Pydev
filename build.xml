@@ -74,6 +74,8 @@ Docs to see how to run: http://wiki.eclipse.org/index.php/Platform-releng-eclips
 	
 
 	<target name="build_extensions" description="Actually builds Pydev Extensions" depends="init">
+		<ant antfile="build.xml" target="getdeps" dir="com.python.pydev" />
+
 		<java jar="${eclipse.location}/plugins/org.eclipse.equinox.launcher_1.0.1.R33x_v20080118.jar" 
 			fork="true" failonerror="true" maxmemory="1024m" dir="./com.python.pydev.releng"> <!-- same thing as the command above, but with a different directory! -->
 			
