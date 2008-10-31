@@ -14,6 +14,8 @@ This script gathers the dependencies that Pydev has on Aptana, so that we can pr
 		
 		<svn username="build" password="build$$1" javahl="false">
 			
+			
+			
 			<export srcUrl="https://source.aptana.com/aptanarepo/aptana/ide_suite/trunk/ide_core/plugins/com.aptana.ide.core/src/com/aptana/ide/core/licensing/ClientKey.java" 
 				destPath="${basedir}/src/com/aptana/ide/core/licensing/ClientKey.java" />
 			
@@ -25,9 +27,36 @@ This script gathers the dependencies that Pydev has on Aptana, so that we can pr
 
 			
 			
+			
 			<export srcUrl="https://source.aptana.com/aptanarepo/aptana/ide_suite/trunk/ide_pro/plugins/com.aptana.ide.professional.licensing/src/com/aptana/ide/professional/licensing/LicensingUtilities.java" 
 				destPath="${basedir}/src/com/aptana/ide/professional/licensing/LicensingUtilities.java" />
 
+			<export srcUrl="https://source.aptana.com/aptanarepo/aptana/ide_suite/trunk/ide_pro/plugins/com.aptana.ide.professional.licensing/src/com/aptana/ide/professional/licensing/LicensingUtilities.java" 
+				destPath="${basedir}/src/com/aptana/ide/professional/licensing/LicensingUtilities.java" />
+			
+
+			
+			
+			<export srcUrl="https://source.aptana.com/aptanarepo/aptana/ide_suite/trunk/ide_core/plugins/com.aptana.ide.core/src/com/aptana/ide/core/URLEncoder.java" 
+				destPath="${basedir}/src/com/aptana/ide/core/URLEncoder.java" />
+			
+			
+			
+			
+			
+			<export srcUrl="https://source.aptana.com/aptanarepo/aptana/ide_suite/trunk/ide_core/plugins/com.aptana.ide.core.ui/src/com/aptana/ide/core/ui/preferences/ApplicationPreferences.java" 
+				destPath="${basedir}/src/com/aptana/ide/core/ui/preferences/ApplicationPreferences.java" />
+			<export srcUrl="https://source.aptana.com/aptanarepo/aptana/ide_suite/trunk/ide_core/plugins/com.aptana.ide.core.ui/src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" 
+				destPath="${basedir}/src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" />
+			
+			
+			
+			
+			<export srcUrl="https://source.aptana.com/aptanarepo/aptana/ide_suite/trunk/ide_core/plugins/com.aptana.ide.libraries/trialkey.jar" 
+				destPath="${basedir}/lib/trialkey.jar" />
+			
+			
+			
 			
 			
 		</svn> 
