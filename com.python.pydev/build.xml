@@ -25,13 +25,8 @@ This script gathers the dependencies that Pydev has on Aptana, so that we can pr
 
 			
 			
-			
-			
-			<export srcUrl="https://source.aptana.com/aptanarepo/aptana/ide_suite/trunk/ide_pro/plugins/com.aptana.ide.professional.licensing/src/com/aptana/ide/professional/decrypter/ClientKeyDecrypter.java" 
-				destPath="${basedir}/src/com/aptana/ide/professional/decrypter/ClientKeyDecrypter.java" />
-			
-			<export srcUrl="https://source.aptana.com/aptanarepo/aptana/ide_suite/trunk/ide_pro/plugins/com.aptana.ide.professional.licensing/src/com/aptana/ide/professional/decrypter/LicensingUtilities.java" 
-				destPath="${basedir}/src/com/aptana/ide/professional/decrypter/LicensingUtilities.java" />
+			<export srcUrl="https://source.aptana.com/aptanarepo/aptana/ide_suite/trunk/ide_pro/plugins/com.aptana.ide.professional.licensing/src/com/aptana/ide/professional/licensing/LicensingUtilities.java" 
+				destPath="${basedir}/src/com/aptana/ide/professional/licensing/LicensingUtilities.java" />
 
 			
 			
