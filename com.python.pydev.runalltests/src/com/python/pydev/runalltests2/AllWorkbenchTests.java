@@ -14,11 +14,16 @@ import org.python.pydev.plugin.nature.SaveFileWithoutNatureTestWorkbench;
 
 import com.python.pydev.analysis.AnalysisRequestsTestWorkbench;
 import com.python.pydev.codecompletion.JavaIntegrationPydevComTestWorkbench;
+import com.python.pydev.ui.LicensingTestWorkbench;
 
 public class AllWorkbenchTests {
 
     public static Test suite() {
         TestSuite suite = new TestSuite(AllWorkbenchTests.class.getName());
+        
+        //This one doesn't really configure anything, so, should have no real side effects and is safe to run here
+        suite.addTestSuite(LicensingTestWorkbench.class); 
+        
         
         //Must be 1st (no nature or interpreter configured)
         suite.addTestSuite(SaveFileWithoutNatureTestWorkbench.class); 

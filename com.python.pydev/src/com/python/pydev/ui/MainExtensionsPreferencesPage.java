@@ -45,8 +45,11 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
         private void doValidate() {
             updateLicInfo();
             String license = getFieldValue(PydevExtensionInitializer.LICENSE).replaceAll("\n", "").replaceAll("\r", "").replaceAll(" ", "");
+            String email = getFieldValue(PydevExtensionInitializer.USER_EMAIL);
+            String licenseProvider = getFieldValue(PydevExtensionInitializer.LIC_PROVIDER);
             
-            PydevPlugin.getDefault().saveLicense( license.trim() );
+            PydevPlugin.getDefault().saveLicense( email, license.trim(), licenseProvider );
+            
             setErrorMessage(null);
             String txt = "Pydev extensions";
             String msg = "License validated";
@@ -62,7 +65,7 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
             message.open();
             updateLicInfo();
 
-            eMailFieldEditor.setStringValue(getFieldValue(PydevExtensionInitializer.USER_EMAIL));
+            eMailFieldEditor.setStringValue(email);
             licenseFieldEditor.setStringValue(getFieldValue(PydevExtensionInitializer.LICENSE));
         }
         
@@ -166,7 +169,7 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
             String expirationTimeString = getFieldValue(PydevExtensionInitializer.LIC_TIME);
             
             Calendar expTime;
-            if(licenseProvider == null || licenseProvider.trim().length() == 0 || !licenseProvider.equals("Aptana")){
+            if(PydevPlugin.isPydevLicenseProvider(licenseProvider)){
                 //OK, it's a Pydev license, so, the expiration date must be calculated...
                 expTime = PydevPlugin.getExpTime(expirationTimeString);
             }else{
