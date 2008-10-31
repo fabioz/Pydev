@@ -5,6 +5,11 @@ Pydev Extensions
 <li><strong>Code-analysis</strong>: Was locking caches for too long (which could end up having stale results)</li>
 </ul>
 
+Pydev
+<ul>
+<li><strong>Find Definition</strong>: The context-sensitive code from Pydev Extensions is now moved to the open source version. 
+</ul>
+
 
 after 1.3.23
 
