@@ -12,13 +12,14 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
+import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
+import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editor.model.Location;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -146,45 +147,25 @@ public class PyRefactoring extends AbstractPyRefactoring {
         return string;
         
     }
+    
+    
     public String getRenameInputMessage() {
         return "Please inform the new name.";
     }
 
+    /**
+     * Makes a find definition given a refactoring request.
+     * 
+     * @note that this findDefinition is context-dependent.
+     */
     public ItemPointer[] findDefinition(RefactoringRequest request) {
-        File editorFile = request.file;
-        String s = "@@BIKE";
-        s+=        "findDefinition";
-        s+=        "|"+REF.getFileAbsolutePath(editorFile);
-        s+=        "|"+request.getBeginLine();
-        s+=        "|"+request.getBeginCol();
-        s+=        "END@@";
-
-        String string = makeAction(s, request);
+        ArrayList<IDefinition> definitions = new ArrayList<IDefinition>();
+        CompletionCache completionCache = new CompletionCache();
+        PyRefactoringFindDefinition.findActualDefinition(request, completionCache, definitions);
         
-        List<ItemPointer> l = new ArrayList<ItemPointer>();
-
-        if (string.startsWith("BIKE_OK:")){
-            string = string.replaceFirst("BIKE_OK:", "").replaceAll("\\[","").replaceAll("'","");
-            string = string.substring(0, string.lastIndexOf(']'));    
-            
-            //now we should have something like:
-            //(file,line,col,confidence)(file,line,col,confidence)...
-            
-            string = string.replaceAll("\\(","");
-            StringTokenizer tokenizer = new StringTokenizer(string, ")");
-            while(tokenizer.hasMoreTokens()){
-                String tok = tokenizer.nextToken();
-                
-                String[] toks = tok.split(",");
-                if(toks.length == 4){ //4th position is the confidence
-                    Location location = new Location(Integer.parseInt(toks[1])-1, Integer.parseInt(toks[2]));
-                    l.add(new ItemPointer(new File(toks[0]), location, location));
-                }
-            }
-        }
-
-        
-        return l.toArray(new ItemPointer[0]);
+        List<ItemPointer> pointers = new ArrayList<ItemPointer>();
+        PyRefactoringFindDefinition.getAsPointers(pointers, definitions.toArray(new IDefinition[definitions.size()]));
+        return pointers.toArray(new ItemPointer[0]);
         
     }
     

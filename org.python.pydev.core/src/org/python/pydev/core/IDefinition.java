@@ -5,4 +5,10 @@ package org.python.pydev.core;
 
 public interface IDefinition {
 
+    IModule getModule();
+
+    int getLine();
+
+    int getCol();
+
 }

@@ -21,12 +21,12 @@ public class Definition implements IDefinition {
     /**
      * Line of the definition. Starts at 1
      */
-    public int line;
+    public final int line;
     
     /**
      * Column of the definition. Starts at 1
      */
-    public int col;
+    public final int col;
 
 
     /**
@@ -37,27 +37,27 @@ public class Definition implements IDefinition {
      * 
      * the value equals ClassA
      */
-    public String value;
+    public final String value;
 
     /**
      * This is the module where the definition is.
      */
-    public IModule module;
+    public final IModule module;
 
     /**
      * Assign ast.
      */
-    public SimpleNode ast;
+    public final SimpleNode ast;
 
     /**
      * Node with the path of classes / funcs to get to an assign.
      */
-    public ILocalScope scope;
+    public final ILocalScope scope;
 
     /**
      * Determines whether this definition was found as a local.
      */
-    public boolean foundAsLocal;
+    public final boolean foundAsLocal;
 
     /**
      * The line and col are defined starting at 1 (and not 0)
@@ -65,6 +65,7 @@ public class Definition implements IDefinition {
     public Definition(int line, int col, String value, SimpleNode ast, ILocalScope scope, IModule module){
         this(line, col, value, ast, scope, module, false);
     }
+    
     /**
      * The ast and scope may be null if the definition points to the module (and not some token defined
      * within it).
@@ -98,9 +99,12 @@ public class Definition implements IDefinition {
         this.value = tok.getRepresentation();
         if(tok instanceof SourceToken){
             this.ast = ((SourceToken)tok).getAst();
+        }else{
+            this.ast = null;
         }
         this.scope = scope;
         this.module = module;
+        this.foundAsLocal = foundAsLocal;
     }
     
     /** 
@@ -156,5 +160,20 @@ public class Definition implements IDefinition {
     @Override
     public int hashCode() {
         return value.hashCode() + col + line;
+    }
+    
+    @Override
+    public IModule getModule() {
+        return module;
+    }
+    
+    @Override
+    public int getLine() {
+        return line;
+    }
+    
+    @Override
+    public int getCol() {
+        return col;
     }
 }
