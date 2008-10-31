@@ -320,7 +320,7 @@ public class PydevPlugin extends AbstractUIPlugin {
             //something went wrong when trying to decrypt it with the pydev license... let's go on and try to 
             //decrypt it with the Aptana license
             try {
-                ClientKey clientKey = com.aptana.ide.professional.decrypter.ClientKeyDecrypter.decrypt(encLicense, enteredEmail);
+                ClientKey clientKey = com.aptana.ide.professional.licensing.LicensingUtilities.decrypt(encLicense, enteredEmail);
                 if(clientKey.isValid()){
                     //note: number of clients hardcoded
                     String licenseType = "Aptana";
