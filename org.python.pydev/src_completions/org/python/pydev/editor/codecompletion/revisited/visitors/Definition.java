@@ -162,17 +162,14 @@ public class Definition implements IDefinition {
         return value.hashCode() + col + line;
     }
     
-    @Override
     public IModule getModule() {
         return module;
     }
     
-    @Override
     public int getLine() {
         return line;
     }
     
-    @Override
     public int getCol() {
         return col;
     }
