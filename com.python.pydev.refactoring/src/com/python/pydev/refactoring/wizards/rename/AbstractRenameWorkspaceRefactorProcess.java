@@ -22,13 +22,13 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
-import com.python.pydev.refactoring.refactorer.RefactorerFindDefinition;
 
 /**
  * This class provides helper methods for finding things in the workspace. 
@@ -41,7 +41,6 @@ import com.python.pydev.refactoring.refactorer.RefactorerFindDefinition;
 public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRenameRefactorProcess{
 
     public static final boolean DEBUG_FILTERED_MODULES = false || PyFindAllOccurrences.DEBUG_FIND_REFERENCES;
-    private RefactorerFindDefinition refactorerFindDefinition = new RefactorerFindDefinition();
     
     /**
      * May be used by subclasses
@@ -73,7 +72,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
                 int col = entry.node.beginColumn;
                 try {
                     ArrayList<IDefinition> definitions = new ArrayList<IDefinition>();
-                    refactorerFindDefinition.findActualDefinition(request, module, initialName, definitions, line, col, nature, completionCache);
+                    PyRefactoringFindDefinition.findActualDefinition(request, module, initialName, definitions, line, col, nature, completionCache);
                     //Definition[] definitions = module.findDefinition(new CompletionState(line-1, col-1, initialName, nature, ""), line, col, nature, null);
                     for (IDefinition def : definitions) {
                         if(def instanceof Definition){

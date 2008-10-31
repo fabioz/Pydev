@@ -18,7 +18,7 @@ import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editor.model.Location;
+import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.ui.UIConstants;
 
 import com.python.pydev.PydevPlugin;
@@ -95,29 +95,10 @@ public class AnalysisPlugin extends AbstractUIPlugin {
                             CompletionStateFactory.getEmptyCompletionState(path, nature, completionCache), -1, -1, nature);
                     
                 }
-                getAsPointers(pointers, (Definition[]) definitions);
+                PyRefactoringFindDefinition.getAsPointers(pointers, (Definition[]) definitions);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }
-    }
-
-    /**
-     * @param pointers: OUT: list where the pointers will be added
-     * @param definitions the definitions that will be gotten as pointers
-     */
-    public static void getAsPointers(List<ItemPointer> pointers, Definition[] definitions) {
-        for (Definition definition : definitions) {
-            File file = definition.module.getFile();
-            int line = definition.line;
-            int col = definition.col;
-            
-            pointers.add(new ItemPointer(file,
-                    new Location(line-1, col-1),
-                    new Location(line-1, col-1), 
-                    definition,
-                    definition.module.getZipFilePath())
-                    );
         }
     }
 
