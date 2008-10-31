@@ -6,9 +6,7 @@
  */
 package com.python.pydev.ui;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.StringFieldEditor;
@@ -122,8 +120,8 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
         data.grabExcessHorizontalSpace = true;
         label.setLayoutData(data);
         
-        eMailFieldEditor = new StringFieldEditor(PydevExtensionInitializer.USER_EMAIL, "User e-mail:", composite);
-        licenseFieldEditor = new MultiStringFieldEditor(PydevExtensionInitializer.LICENSE, "License:", composite);
+        eMailFieldEditor = new StringFieldEditor(PydevExtensionInitializer.USER_EMAIL, "E-mail (or username):", composite);
+        licenseFieldEditor = new MultiStringFieldEditor(PydevExtensionInitializer.LICENSE, "License Key:", composite);
         addField(eMailFieldEditor);
         addField(licenseFieldEditor);
         
@@ -164,9 +162,21 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
      */
     private void updateLicInfo() {
         try {
-            Calendar expTime = PydevPlugin.getExpTime(getFieldValue(PydevExtensionInitializer.LIC_TIME));
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-            labelExp.setText("Expires at: " + format.format(new Date(expTime.getTimeInMillis())));
+            String licenseProvider = getFieldValue(PydevExtensionInitializer.LIC_PROVIDER);
+            String expirationTimeString = getFieldValue(PydevExtensionInitializer.LIC_TIME);
+            
+            Calendar expTime;
+            if(licenseProvider == null || licenseProvider.trim().length() == 0 || !licenseProvider.equals("Aptana")){
+                //OK, it's a Pydev license, so, the expiration date must be calculated...
+                expTime = PydevPlugin.getExpTime(expirationTimeString);
+            }else{
+                //Aptana license: it's OK, the expiration date is already correct
+                expTime = Calendar.getInstance();
+                expTime.setTimeInMillis(Long.parseLong(expirationTimeString));
+            }
+            
+            String formattedDate = PydevPlugin.formatDate(expTime);
+            labelExp.setText("Expires at: " + formattedDate);
         } catch (Exception e) {
             labelExp.setText("Expires at: ");
             

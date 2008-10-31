@@ -12,6 +12,7 @@ public class PydevExtensionInitializer extends AbstractPreferenceInitializer{
     public static final String LIC_TIME = "LIC_TIME";
     public static final String LIC_TYPE = "LIC_TYPE";
     public static final String LIC_DEVS = "LIC_DEVS";
+    public static final String LIC_PROVIDER = "LIC_PROVIDER"; //either "Pydev" or "Aptana"
     
     public static final String DEFAULT_SCOPE = "com.python.pydev";
 
@@ -25,5 +26,6 @@ public class PydevExtensionInitializer extends AbstractPreferenceInitializer{
         node.put(LIC_TIME, "");
         node.put(LIC_TYPE, "");
         node.put(LIC_DEVS, "");
+        node.put(LIC_PROVIDER, "");
     }
 }

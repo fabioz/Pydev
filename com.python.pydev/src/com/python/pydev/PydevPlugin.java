@@ -6,8 +6,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +18,7 @@ import java.util.Properties;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.osgi.service.datalocation.Location;
@@ -23,10 +26,12 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.BundleUtils;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
 
+import com.aptana.ide.core.licensing.ClientKey;
 import com.python.pydev.license.ClientEncryption;
 import com.python.pydev.util.PydevExtensionNotifier;
 
@@ -130,41 +135,80 @@ public class PydevPlugin extends AbstractUIPlugin {
         }               
     }
     
+    
+    /**
+     * @return null if no contents are available or a tuple with the key and the e-mail to be used as the license.
+     */
+    public Tuple<String, String> getLicenseKeyAndEmail(){
+        Tuple<String, String> keyAndEmail = getLicenseKeyAndEmailFromPluginLocation();
+        if(hasContentsForKeyAndEmail(keyAndEmail)){
+            return keyAndEmail;
+        }
+        keyAndEmail = getLicenseKeyAndEmailFromPreferences();
+        if(hasContentsForKeyAndEmail(keyAndEmail)){
+            return keyAndEmail;
+        }
+
+        return null; //no contents available
+    }
+    
+    
+    /**
+     * Tries to load the license and set is as valid if it was actually validated (otherwise will set that the license
+     * is not validated)
+     * 
+     * @return the string to be shown to the user if it was not able to validate (or null if it was properly validated)
+     */
     private String loadLicense() {
         if(loadFromPluginLocation()){
             return null;
         }
         
-        
-        Bundle bundle = Platform.getBundle("com.python.pydev");
-        IPath path = Platform.getStateLocation( bundle );        
-        path = path.addTrailingSeparator();
-        path = path.append("license");
         try {
-            File f = path.toFile();
-            if(!f.exists()){
-                throw new FileNotFoundException("File not found.");
-            }
-            
-            String encLicense = REF.getFileContents(f);
-            if( isLicenseValid(encLicense) ) {
+            Tuple<String, String> keyAndEmailFromPreferences = getLicenseKeyAndEmailFromPreferences();
+            String encLicense = keyAndEmailFromPreferences.o1;
+            String email = keyAndEmailFromPreferences.o2;
+            if(encLicense != null && email != null && isLicenseValid(encLicense, email, false)) {
                 validated = true;
             } else {
                 validated = false;
             }
-        } catch (FileNotFoundException e) {
-            validated = false;
-            String ret = "The license file: "+path.toOSString()+" was not found.";
-            return ret;
-            
         } catch (Exception e) {
             validated = false;
             return e.getMessage();
         }
         return null;
     }
-
-    private boolean loadFromPluginLocation() {
+    
+    /**
+     * @return a tuple with the key and the e-mail that should eb used to decrypt it from the pydev preferences.
+     */
+    private Tuple<String, String> getLicenseKeyAndEmailFromPreferences() {
+        Bundle bundle = Platform.getBundle("com.python.pydev");
+        IPath path = Platform.getStateLocation( bundle );        
+        path = path.addTrailingSeparator();
+        path = path.append("license");
+        String encLicense = null;
+        String email = null;
+        try {
+            File f = path.toFile();
+            if(!f.exists()){
+                throw new FileNotFoundException("File not found.");
+            }
+            
+            encLicense = REF.getFileContents(f);
+            email = getPreferenceStore().getString(PydevExtensionInitializer.USER_EMAIL);
+            return new Tuple<String, String>(encLicense, email);
+        } catch (FileNotFoundException e) {
+            String ret = "The license file: "+path.toOSString()+" was not found.";
+            throw new RuntimeException(ret);
+        }
+    }
+    
+    /**
+     * @return a tuple with the key and the e-mail that should be used to decrypt it from a file in the plugin location.
+     */
+    private Tuple<String, String> getLicenseKeyAndEmailFromPluginLocation() {
         try{
             Location configurationLocation = Platform.getInstallLocation();
             URL url = configurationLocation.getURL();
@@ -182,7 +226,7 @@ public class PydevPlugin extends AbstractUIPlugin {
                 file = BundleUtils.getRelative(new Path("/"), getBundle());
                 file = new File(file.getParentFile(), "com.python.pydev");
             }
-                
+            
             File fileLicense = new File(file, "pydev_ext");
             File fileEmail = new File(file, "pydev_ext_email");
             
@@ -190,69 +234,158 @@ public class PydevPlugin extends AbstractUIPlugin {
                 String encLicense = REF.getFileContents(fileLicense).replaceAll("\n", "").replaceAll("\r", "").replaceAll(" ", "");
                 String enteredEmail = REF.getFileContents(fileEmail).trim();
                 
-                if( isLicenseValid(encLicense, enteredEmail, true) ) {
-                    validated = true;
-                    return true;
-                }
+                return new Tuple<String, String>(encLicense, enteredEmail);
             }
-            return false;
         }catch(Throwable e){
-            return false;
         }
-    }
-
-    private boolean isLicenseValid(String encLicense) {
-        return isLicenseValid(encLicense, getPreferenceStore().getString(PydevExtensionInitializer.USER_EMAIL), false);
+        return null;
     }
     
+
+    /**
+     * Tries to validate the license from a file in the plugin location.
+     *  
+     * @return true if it exists and is valid and false otherwise.
+     */
+    private boolean loadFromPluginLocation() {
+        Tuple<String, String> keyAndEmail = getLicenseKeyAndEmailFromPluginLocation();
+        if(hasContentsForKeyAndEmail(keyAndEmail)){
+            if(isLicenseValid(keyAndEmail.o1, keyAndEmail.o2, true)) {
+                validated = true;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return true if the given tuple has enough information to be considered valid as a key license and the
+     * related e-mail to use it.
+     */
+    private boolean hasContentsForKeyAndEmail(Tuple<String, String> keyAndEmail) {
+        return keyAndEmail != null && keyAndEmail.o1 != null && keyAndEmail.o2 != null && 
+            keyAndEmail.o1.trim().length() > 0 && keyAndEmail.o2.trim().length() > 0;
+    }
+    
+
+    /**
+     * @param hideDetails if true, it'll just show 'install validated for xxx' in the dialog (otherwise, the proper
+     * key will be shown)
+     * 
+     * @return true if the given license is valid for the passed e-mail and false otherwise. 
+     */
     private boolean isLicenseValid(String encLicense, String enteredEmail, boolean hideDetails) {
-        //already decrypted
-        getPreferenceStore().setValue(PydevExtensionInitializer.USER_NAME, "");
-        getPreferenceStore().setValue(PydevExtensionInitializer.LIC_TIME, "");
-        getPreferenceStore().setValue(PydevExtensionInitializer.LIC_TYPE, "");
-        String license = ClientEncryption.getInstance().decrypt(encLicense);
-        try {
-            Properties properties = new Properties();
-            properties.load(new ByteArrayInputStream(license.getBytes()));
+        try{
+            //already decrypted
+            IPreferenceStore prefsStore = getPreferenceStore();
             
-            String eMail = (String) properties.remove("e-mail");
-            String name  = (String) properties.remove("name");
-            String time = (String) properties.remove("time");
-            String licenseType = (String) properties.remove("licenseType");
-            String devs = (String) properties.remove("devs");
+            prefsStore.setValue(PydevExtensionInitializer.USER_NAME, "");
+            prefsStore.setValue(PydevExtensionInitializer.LIC_TIME, "");
+            prefsStore.setValue(PydevExtensionInitializer.LIC_TYPE, "");
             
-            if(eMail == null || name == null || time == null || licenseType == null || devs == null || enteredEmail == null){
-                throw new RuntimeException("The license is not correct, please re-paste it. If this error persists, please request a new license.");
+            
+            String license = ClientEncryption.getInstance().decrypt(encLicense);
+            
+            try {
+                Properties properties = new Properties();
+                properties.load(new ByteArrayInputStream(license.getBytes()));
+                
+                String eMail = (String) properties.remove("e-mail");
+                String name  = (String) properties.remove("name");
+                String time = (String) properties.remove("time");
+                String licenseType = (String) properties.remove("licenseType");
+                String devs = (String) properties.remove("devs");
+                
+                if(eMail == null || name == null || time == null || licenseType == null || devs == null || enteredEmail == null){
+                    throw new RuntimeException("The license is not correct, please re-paste it. If this error persists, please request a new license.");
+                }
+                if(!enteredEmail.equalsIgnoreCase(eMail)){
+                    throw new RuntimeException("The e-mail specified is different from the e-mail this license was generated for.");
+                }
+                
+                
+                Calendar currentCalendar = Calendar.getInstance();
+                Calendar licenseCalendar = getExpTime(time);
+                if(currentCalendar.after(licenseCalendar)){
+                    throw new RuntimeException("The current license expired at: "+formatDate(licenseCalendar));
+                }
+                
+                
+                setPrefsToShow(name, time, licenseType, devs, hideDetails, true);
+                
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage());
             }
-            if(!enteredEmail.equalsIgnoreCase(eMail)){
-                throw new RuntimeException("The e-mail specified is different from the e-mail this license was generated for.");
+        }catch(RuntimeException e){
+            //something went wrong when trying to decrypt it with the pydev license... let's go on and try to 
+            //decrypt it with the Aptana license
+            try {
+                ClientKey clientKey = com.aptana.ide.professional.decrypter.ClientKeyDecrypter.decrypt(encLicense, enteredEmail);
+                if(clientKey.isValid()){
+                    //note: number of clients hardcoded
+                    String licenseType = "Aptana";
+                    
+                    if(clientKey.isTrial()){
+                        licenseType += " trial";
+                    }else{
+                        licenseType += " pro";
+                    }
+                    if(!clientKey.isExpired()){
+                        
+                        
+                        setPrefsToShow(clientKey.getEmail(), clientKey.getExpiration().getTimeInMillis()+"", licenseType, "1", hideDetails, false);
+                        return true;
+                    }else{
+                        //change the exception to be thrown
+                        e = new RuntimeException(StringUtils.format("The current %s license expired at: %s", licenseType, formatDate(clientKey.getExpiration())));
+                    }
+                }
+            } catch (RuntimeException e1) {
+                //nope, didn't work... just rethrow the original exception
             }
-            
-            
-            Calendar currentCalendar = Calendar.getInstance();
-            Calendar licenseCalendar = getExpTime(time);
-            if(currentCalendar.after(licenseCalendar)){
-                throw new RuntimeException("The current license has already expired.");
-            }
-            
-            
-            getPreferenceStore().setValue(PydevExtensionInitializer.USER_NAME, name);
-            getPreferenceStore().setValue(PydevExtensionInitializer.LIC_TIME, time);
-            getPreferenceStore().setValue(PydevExtensionInitializer.LIC_TYPE, licenseType);
-            getPreferenceStore().setValue(PydevExtensionInitializer.LIC_DEVS, devs);
-            if(hideDetails){
-                getPreferenceStore().setValue(PydevExtensionInitializer.USER_EMAIL, "Install validated for: "+name);
-                getPreferenceStore().setValue(PydevExtensionInitializer.LICENSE, "Install validated for: "+name);
-            }
-            
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
+
+            throw e;
         }
         
         //if it got here, everything is ok...
         return true;
     }
 
+    
+    /**
+     * Sets in the preferences the strings that should be shown to the user in the preferences dialog.
+     */
+    private void setPrefsToShow(String name, String time, String licenseType, String devs, boolean hideDetails, boolean isPydevLicense) {
+        IPreferenceStore prefsStore = getPreferenceStore();
+        prefsStore.setValue(PydevExtensionInitializer.USER_NAME, name);
+        prefsStore.setValue(PydevExtensionInitializer.LIC_TIME, time);
+        prefsStore.setValue(PydevExtensionInitializer.LIC_TYPE, licenseType);
+        prefsStore.setValue(PydevExtensionInitializer.LIC_DEVS, devs);
+
+        if(isPydevLicense){
+            prefsStore.setValue(PydevExtensionInitializer.LIC_PROVIDER, "Pydev");
+        }else{
+            prefsStore.setValue(PydevExtensionInitializer.LIC_PROVIDER, "Aptana");
+        }
+        
+        if(hideDetails){
+            prefsStore.setValue(PydevExtensionInitializer.USER_EMAIL, "Install validated for: "+name);
+            prefsStore.setValue(PydevExtensionInitializer.LICENSE, "Install validated for: "+name);
+        }
+    }
+
+    
+    /**
+     * @param date the date to be formatted to be shown to the user.
+     * @return a String to be shown to the user with the given date
+     */
+    public static String formatDate(Calendar date) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        String formattedDate = format.format(new Date(date.getTimeInMillis()));
+        return formattedDate;
+    }
+
+    
     /**
      * @return the list of occurrence annotations in the pyedit
      */
