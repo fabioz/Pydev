@@ -178,7 +178,13 @@ public class PydevPlugin extends AbstractUIPlugin {
         if(hasContentsForKeyAndEmail(keyAndEmail)){
             return keyAndEmail;
         }
+        
         keyAndEmail = getLicenseKeyAndEmailFromPreferences();
+        if(hasContentsForKeyAndEmail(keyAndEmail)){
+            return keyAndEmail;
+        }
+        
+        keyAndEmail = getLicenseKeyAndEmailFromAptana();
         if(hasContentsForKeyAndEmail(keyAndEmail)){
             return keyAndEmail;
         }
