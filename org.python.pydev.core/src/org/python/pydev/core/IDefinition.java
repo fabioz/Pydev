@@ -11,4 +11,9 @@ public interface IDefinition {
 
     int getCol();
 
+    /**
+     * @return the docstring for the definition.
+     */
+    String getDocstring();
+
 }

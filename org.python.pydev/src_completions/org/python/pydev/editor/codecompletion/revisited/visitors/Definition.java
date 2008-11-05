@@ -12,6 +12,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -172,5 +173,18 @@ public class Definition implements IDefinition {
     
     public int getCol() {
         return col;
+    }
+    
+    @Override
+    public String getDocstring() {
+        if(this.ast != null){
+            return NodeUtils.getNodeDocString(this.ast);
+        }else{
+            if(this.value == null || this.value.trim().length() == 0){
+                return this.module.getDocString();
+            }
+        }
+        
+        return null;
     }
 }
