@@ -754,7 +754,8 @@ def SetTraceForParents(frame, dispatch_func):
     del frame
 
 def settrace(host = 'localhost', stdoutToServer = False, stderrToServer = False, port = 5678, suspend = True):
-    '''
+    '''Sets the tracing function with the pydev debug function and initializes needed facilities.
+    
     @param host: the user may specify another host, if the debug server is not in the same machine
     @param stdoutToServer: when this is true, the stdout is passed to the debug server
     @param stderrToServer: when this is true, the stderr is passed to the debug server
