@@ -15,7 +15,6 @@ import org.eclipse.debug.core.model.IWatchExpressionListener;
 import org.eclipse.debug.core.model.IWatchExpressionResult;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
-import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 import org.python.pydev.debug.model.remote.EvaluateExpressionCommand;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
 

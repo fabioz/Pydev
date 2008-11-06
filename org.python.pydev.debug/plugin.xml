@@ -514,6 +514,12 @@
         id="org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs">
      </page>
   </extension>
+  <extension
+        point="org.python.pydev.pydev_hover">
+     <hover_participant
+           class="org.python.pydev.debug.ui.hover.PyDebugHover">
+     </hover_participant>
+  </extension>
 <!-- end console stuff -->
 
 </plugin>

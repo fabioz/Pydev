@@ -33,9 +33,14 @@ import org.eclipse.ui.IEditorPart;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 
 /**
- * The original idea was not to use the <code>org.eclipse.jdt.internal.debug.ui</code> stuff; that's why this does not do things like extending
- * {@link org.eclipse.jdt.internal.debug.ui.actions.PopupDisplayAction}, etc. But after all was said and done, I didn't feel like finding an alternate way of writing {@link DisplayPopup#persist()},
- * so this does result in depending on <code>org.eclipse.jdt.debug.ui</code> just for that - silly me. But then again, the original had dependencies on <code>org.eclipse.jdt</code>,
+ * The original idea was not to use the <code>org.eclipse.jdt.internal.debug.ui</code> stuff; that's why this does not 
+ * do things like extending {@link org.eclipse.jdt.internal.debug.ui.actions.PopupDisplayAction}, etc. 
+ * 
+ * But after all was said and done, I didn't feel like finding an alternate way of writing {@link DisplayPopup#persist()},
+ * so this does result in depending on <code>org.eclipse.jdt.debug.ui</code> 
+ * just for that - silly me. 
+ * 
+ * But then again, the original had dependencies on <code>org.eclipse.jdt</code>,
  * <code>org.eclipse.jdt.code</code> and <code>org.eclipse.jdt.launching</code>, so what's one extra one?
  * 
  * @see
@@ -44,6 +49,9 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
  */
 public class EvalExpressionAction extends AbstractHandler implements IHandler, IEditorActionDelegate {
 
+    /**
+     * Action ID for displaying variable
+     */
     public static final String ACTION_DEFINITION_ID = "org.python.pydev.debug.command.Display"; //$NON-NLS-1$
 
     private ITextSelection fSelection;
@@ -51,6 +59,9 @@ public class EvalExpressionAction extends AbstractHandler implements IHandler, I
     public void setActiveEditor(IAction action, IEditorPart targetEditor) {
     }
 
+    /*
+     * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
+     */
     public void run(IAction action) {
         if (fSelection == null) {
             return;
@@ -59,6 +70,9 @@ public class EvalExpressionAction extends AbstractHandler implements IHandler, I
         eval(text);
     }
 
+    /*
+     * @see org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action.IAction, org.eclipse.jface.viewers.ISelection)
+     */
     public void selectionChanged(IAction action, ISelection selection) {
         fSelection = null;
         if (selection instanceof ITextSelection) {
@@ -67,11 +81,68 @@ public class EvalExpressionAction extends AbstractHandler implements IHandler, I
     }
 
     /**
-     * This hack just creates a Watch expression, gets result and removes the watch expression. This is simple, since the watch functionality is already there.
+     * This hack just creates a Watch expression, gets result and removes the watch expression. 
+     * This is simple, since the watch functionality is already there.
      * 
      * @see WatchExpressionAction#createExpression
      */
     private void eval(final String expr) {
+        final IWatchExpression expression = createWatchExpression(expr);
+
+        final Shell shell = PydevDebugPlugin.getActiveWorkbenchWindow().getShell();
+        Display display = PydevDebugPlugin.getDefault().getWorkbench().getDisplay();
+        final Point point = display.getCursorLocation();
+
+        Display.getDefault().asyncExec(new Runnable() {
+            public void run() {
+                expression.evaluate();
+                waitForExrpessionEvaluation(expression);
+                try {
+                    IValue value = expression.getValue();
+                    String result = null;
+                    if (value != null) {
+                        result = expr+"\n"+value.getValueString();
+                        DisplayPopup popup = new DisplayPopup(shell, point, result);
+                        popup.open();
+                    }
+                } catch (DebugException e) {
+                    DebugPlugin.log(e);
+                    return;
+                } catch (Throwable t) {
+                    DebugPlugin.log(t);
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Enters a busy wait until the expression finishes evaluating
+     * 
+     * @param expression the watch expression we shoud wait for
+     */
+    public static void waitForExrpessionEvaluation(final IWatchExpression expression) {
+        while (expression.isPending()) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                continue;
+            }
+        }
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException e) {
+        }
+    }
+    
+    
+    /**
+     * Creates a watch expression to be evaluated with the current debug context.
+     * 
+     * @param expr the expression that should be evaluated in the current context
+     * @return the created expression.
+     */
+    public static IWatchExpression createWatchExpression(final String expr) {
         final IWatchExpression expression = DebugPlugin.getDefault().getExpressionManager().newWatchExpression(expr);
         IAdaptable object = DebugUITools.getDebugContext();
         IDebugElement context = null;
@@ -82,57 +153,28 @@ public class EvalExpressionAction extends AbstractHandler implements IHandler, I
         }
 
         expression.setExpressionContext(context);
-
-        final Shell shell = PydevDebugPlugin.getActiveWorkbenchWindow().getShell();
-        Display display = PydevDebugPlugin.getDefault().getWorkbench().getDisplay();
-        final Point point = display.getCursorLocation();
-
-        Display.getDefault().asyncExec(new Runnable() {
-            public void run() {
-                expression.evaluate();
-                while (expression.isPending()) {
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException e) {
-                        continue;
-                    }
-                }
-                try {
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException e) {
-                    }
-                    IValue value = expression.getValue();
-                    String result = null;
-                    if (value != null) {
-                        result = expr+"\n"+value.getValueString();
-                        DisplayPopup popup = new DisplayPopup(shell, point, result);
-                        popup.open();
-                    }
-                } catch (DebugException e) {
-                    e.printStackTrace();
-                    DebugPlugin.log(e);
-                    return;
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                    DebugPlugin.log(t);
-                }
-            }
-        });
+        return expression;
     }
 
 
+    /*
+     * @see org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands.ExecutionEvent)
+     */
+    @SuppressWarnings("unchecked")
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        try {
-            EvaluationContext evalCtx = (org.eclipse.core.expressions.EvaluationContext) event.getApplicationContext();
-            Set set = (Set) evalCtx.getDefaultVariable();
-            TextSelection[] sels = (TextSelection[]) set.toArray(new TextSelection[] {});
-            String expr = sels[0].getText();
-            if(expr != null && expr.trim().length() > 0){
-                eval(expr);
+        EvaluationContext evalCtx = (org.eclipse.core.expressions.EvaluationContext) event.getApplicationContext();
+        Object obj = evalCtx.getDefaultVariable();
+        if(obj instanceof Set){
+            Set set = (Set)obj;
+            if(set.size() > 0){
+                Object sel = set.iterator().next();
+                if(sel instanceof TextSelection){
+                    String expr = ((TextSelection)sel).getText();
+                    if(expr != null && expr.trim().length() > 0){
+                        eval(expr);
+                    }
+                }
             }
-        } catch (ClassCastException cce) {
-            DebugPlugin.log(cce);
         }
         return null;
     }
