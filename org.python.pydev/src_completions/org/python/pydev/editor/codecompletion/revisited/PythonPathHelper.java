@@ -237,7 +237,7 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
         final File moduleFile = new File(fullPath);
 
         if (requireFileToExist && !moduleFile.exists()) {
-                return null;
+            return null;
         }
 
         boolean isFile = moduleFile.isFile();

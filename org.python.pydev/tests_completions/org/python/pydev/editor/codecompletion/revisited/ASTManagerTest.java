@@ -356,7 +356,6 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
 
         boolean called;
 
-        @Override
         public void notifyASTManagerAttached(ICodeCompletionASTManager manager) {
             called = true;
         }

@@ -175,7 +175,6 @@ public class Definition implements IDefinition {
         return col;
     }
     
-    @Override
     public String getDocstring() {
         if(this.ast != null){
             return NodeUtils.getNodeDocString(this.ast);
