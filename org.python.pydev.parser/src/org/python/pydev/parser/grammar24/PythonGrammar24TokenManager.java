@@ -34,8 +34,6 @@ public class PythonGrammar24TokenManager implements PythonGrammar24Constants
 
     boolean compound = false;
 
-    public boolean single_input = false;
-
     public List specialTokens = new ArrayList();
 
     // parsing of partial sentence (interactive) mode
@@ -61,8 +59,7 @@ public class PythonGrammar24TokenManager implements PythonGrammar24Constants
     void CommonTokenAction(Token t) {
         /*
            if not partial: EOF is expanded to token sequences comprising
-               if single_input: [NEWLINE] necessary DEDENT NEWLINE (afterward EOF)
-               otherwise      : [NEWLINE] necessary DEDENT EOF
+               [NEWLINE] necessary DEDENT EOF
            if partial: EOF expansion happens only if EOF preceded by empty line (etc),
            i.e. lexer is in MAYBE_FORCE_NEWLINE_IF_EOF state
            System.out.println("Token:'"+t+"'");
@@ -76,7 +73,7 @@ public class PythonGrammar24TokenManager implements PythonGrammar24Constants
         }
 
         if (t.kind == EOF) {
-            // System.out.println("EOF: "+single_input+", "+curLexState+", "+level);
+            // System.out.println(curLexState+", "+level);
             if (!partial || curLexState == MAYBE_FORCE_NEWLINE_IF_EOF) {
                 if (curLexState == DEFAULT) {
                     t.kind = NEWLINE;
@@ -89,14 +86,8 @@ public class PythonGrammar24TokenManager implements PythonGrammar24Constants
                     level--;
                     t = addDedent(t);
                 }
-                if (!single_input) {
-                    t.kind = EOF;
-                    t.image = "<EOF>";
-                } else {
-                    t.kind = NEWLINE;
-                    t.image = "<FORCENL>";
-                    single_input = false;
-                }
+                t.kind = EOF;
+                t.image = "<EOF>";
             }
         }
     }
@@ -3688,20 +3679,7 @@ void SkipLexicalActions(Token matchedToken)
          if (image == null)
             image = new StringBuffer();
          image.append(input_stream.GetSuffix(jjimageLen + (lengthOfMatch = jjmatchedPos + 1)));
-            //System.out.println("empty line");
-            // if partial single_input (interactive) mode,
-            // empty line (indent==0), and no parens open
-            // or indentetion expected (if stdprompt == true, ovveride last cond)
-            // consider forcing sentence closing NEWLINE if EOF
-            if (partial && single_input && indent == 0 &&
-                           parens == 0  && (stdprompt || !expect_indent)) {
-                //System.out.println("force newline");
-                //backup a character!
-                // - input_stream.backup(1); -
-                SwitchTo(MAYBE_FORCE_NEWLINE_IF_EOF);
-            }
-            else
-                indenting(0);
+            indenting(0);
          break;
       case 17 :
          if (image == null)

@@ -38,6 +38,7 @@ public class PyParserTest extends PyParserTestBase{
             //test.parseFilesInDir(new File("D:/bin/Python251/Lib/site-packages/wx-2.8-msw-unicode"), true);
             //test.parseFilesInDir(new File("D:/bin/Python251/Lib/"), false);
             //timer.printDiff();
+            test.testThreadingInParser();
             test.tearDown();
             
             

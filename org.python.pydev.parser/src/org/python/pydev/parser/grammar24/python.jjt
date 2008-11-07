@@ -411,8 +411,6 @@ TOKEN_MGR_DECLS:
 
     boolean compound = false;
 
-    public boolean single_input = false;
-
     public List specialTokens = new ArrayList();
 
     // parsing of partial sentence (interactive) mode
@@ -438,8 +436,7 @@ TOKEN_MGR_DECLS:
     void CommonTokenAction(Token t) {
         /*
            if not partial: EOF is expanded to token sequences comprising
-               if single_input: [NEWLINE] necessary DEDENT NEWLINE (afterward EOF)
-               otherwise      : [NEWLINE] necessary DEDENT EOF
+               [NEWLINE] necessary DEDENT EOF
            if partial: EOF expansion happens only if EOF preceded by empty line (etc),
            i.e. lexer is in MAYBE_FORCE_NEWLINE_IF_EOF state
            System.out.println("Token:'"+t+"'");
@@ -453,7 +450,7 @@ TOKEN_MGR_DECLS:
         }
         
         if (t.kind == EOF) {
-            // System.out.println("EOF: "+single_input+", "+curLexState+", "+level);
+            // System.out.println(curLexState+", "+level);
             if (!partial || curLexState == MAYBE_FORCE_NEWLINE_IF_EOF) {
                 if (curLexState == DEFAULT) {
                     t.kind = NEWLINE;
@@ -466,14 +463,8 @@ TOKEN_MGR_DECLS:
                     level--;
                     t = addDedent(t);
                 }
-                if (!single_input) {
-                    t.kind = EOF;
-                    t.image = "<EOF>";
-                } else {
-                    t.kind = NEWLINE;
-                    t.image = "<FORCENL>";
-                    single_input = false;
-                }
+                t.kind = EOF;
+                t.image = "<EOF>";
             }
         } 
     }
@@ -532,20 +523,7 @@ SKIP :
         { indenting(0); }
 |   <CRLF1: ("\r\n" | "\n" | "\r")>
         {
-            //System.out.println("empty line");
-            // if partial single_input (interactive) mode,
-            // empty line (indent==0), and no parens open
-            // or indentetion expected (if stdprompt == true, ovveride last cond)
-            // consider forcing sentence closing NEWLINE if EOF
-            if (partial && single_input && indent == 0 &&
-                           parens == 0  && (stdprompt || !expect_indent)) {
-                //System.out.println("force newline");
-                //backup a character!
-                // - input_stream.backup(1); -
-                SwitchTo(MAYBE_FORCE_NEWLINE_IF_EOF);
-            }
-            else
-                indenting(0);
+            indenting(0);
         }
 }
 
@@ -837,29 +815,14 @@ comming back to this approach later).
 |   <"\\" ~["\n","\r"]>
 }
 
-//single_input: NEWLINE | simple_stmt | compound_stmt NEWLINE
-// apparently CPython coalesces newlines, we don't
-modType single_input(): {
-    token_source.single_input=true;
-}
-{
-    (LOOKAHEAD(2) <NEWLINE>)* [(simple_stmt() | compound_stmt() <NEWLINE>)] (<NEWLINE>)* <EOF>
-    { return (modType) jjtree.popNode(); }
-}
 
 //file_input: (NEWLINE | stmt)* ENDMARKER
-modType file_input(): {token_source.single_input=false;}
+modType file_input(): {}
 {
     (<NEWLINE> | stmt())* <EOF>
     { return (modType) jjtree.popNode(); }
 }
 
-//eval_input: NEWLINE* testlist NEWLINE* ENDMARKER
-modType eval_input(): {token_source.single_input=false;}
-{
-    (<NEWLINE>)* SmartTestList() (<NEWLINE>)* <EOF>
-    { return (modType) jjtree.popNode(); }
-}
 
 //funcdef: 'def' NAME parameters ':' suite
 void funcdef(): {}

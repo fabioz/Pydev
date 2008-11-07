@@ -9,123 +9,122 @@ public interface PythonGrammar25Constants {
   int NEWLINE1 = 5;
   int NEWLINE = 6;
   int NEWLINE2 = 7;
-  int CRLF1 = 12;
-  int DEDENT = 14;
-  int INDENT = 15;
-  int TRAILING_COMMENT = 16;
-  int SINGLE_LINE_COMMENT = 17;
-  int LPAREN = 18;
-  int RPAREN = 19;
-  int LBRACE = 20;
-  int RBRACE = 21;
-  int LBRACKET = 22;
-  int RBRACKET = 23;
-  int SEMICOLON = 24;
-  int COMMA = 25;
-  int DOT = 26;
-  int COLON = 27;
-  int PLUS = 28;
-  int MINUS = 29;
-  int MULTIPLY = 30;
-  int DIVIDE = 31;
-  int FLOORDIVIDE = 32;
-  int POWER = 33;
-  int LSHIFT = 34;
-  int RSHIFT = 35;
-  int MODULO = 36;
-  int NOT = 37;
-  int XOR = 38;
-  int OR = 39;
-  int AND = 40;
-  int EQUAL = 41;
-  int GREATER = 42;
-  int LESS = 43;
-  int EQEQUAL = 44;
-  int EQLESS = 45;
-  int EQGREATER = 46;
-  int LESSGREATER = 47;
-  int NOTEQUAL = 48;
-  int PLUSEQ = 49;
-  int MINUSEQ = 50;
-  int MULTIPLYEQ = 51;
-  int DIVIDEEQ = 52;
-  int FLOORDIVIDEEQ = 53;
-  int MODULOEQ = 54;
-  int ANDEQ = 55;
-  int OREQ = 56;
-  int XOREQ = 57;
-  int LSHIFTEQ = 58;
-  int RSHIFTEQ = 59;
-  int POWEREQ = 60;
-  int OR_BOOL = 61;
-  int AND_BOOL = 62;
-  int NOT_BOOL = 63;
-  int IS = 64;
-  int IN = 65;
-  int LAMBDA = 66;
-  int IF = 67;
-  int ELSE = 68;
-  int ELIF = 69;
-  int WHILE = 70;
-  int FOR = 71;
-  int TRY = 72;
-  int EXCEPT = 73;
-  int DEF = 74;
-  int CLASS = 75;
-  int FINALLY = 76;
-  int PRINT = 77;
-  int PASS = 78;
-  int BREAK = 79;
-  int CONTINUE = 80;
-  int RETURN = 81;
-  int YIELD = 82;
-  int IMPORT = 83;
-  int FROM = 84;
-  int DEL = 85;
-  int RAISE = 86;
-  int GLOBAL = 87;
-  int EXEC = 88;
-  int ASSERT = 89;
-  int AS = 90;
-  int WITH = 91;
-  int AT = 92;
-  int NAME = 93;
-  int LETTER = 94;
-  int DECNUMBER = 95;
-  int HEXNUMBER = 96;
-  int OCTNUMBER = 97;
-  int FLOAT = 98;
-  int COMPLEX = 99;
-  int EXPONENT = 100;
-  int DIGIT = 101;
-  int SINGLE_STRING = 110;
-  int SINGLE_STRING2 = 111;
-  int TRIPLE_STRING = 112;
-  int TRIPLE_STRING2 = 113;
-  int SINGLE_USTRING = 114;
-  int SINGLE_USTRING2 = 115;
-  int TRIPLE_USTRING = 116;
-  int TRIPLE_USTRING2 = 117;
+  int CRLF1 = 11;
+  int DEDENT = 13;
+  int INDENT = 14;
+  int TRAILING_COMMENT = 15;
+  int SINGLE_LINE_COMMENT = 16;
+  int LPAREN = 17;
+  int RPAREN = 18;
+  int LBRACE = 19;
+  int RBRACE = 20;
+  int LBRACKET = 21;
+  int RBRACKET = 22;
+  int SEMICOLON = 23;
+  int COMMA = 24;
+  int DOT = 25;
+  int COLON = 26;
+  int PLUS = 27;
+  int MINUS = 28;
+  int MULTIPLY = 29;
+  int DIVIDE = 30;
+  int FLOORDIVIDE = 31;
+  int POWER = 32;
+  int LSHIFT = 33;
+  int RSHIFT = 34;
+  int MODULO = 35;
+  int NOT = 36;
+  int XOR = 37;
+  int OR = 38;
+  int AND = 39;
+  int EQUAL = 40;
+  int GREATER = 41;
+  int LESS = 42;
+  int EQEQUAL = 43;
+  int EQLESS = 44;
+  int EQGREATER = 45;
+  int LESSGREATER = 46;
+  int NOTEQUAL = 47;
+  int PLUSEQ = 48;
+  int MINUSEQ = 49;
+  int MULTIPLYEQ = 50;
+  int DIVIDEEQ = 51;
+  int FLOORDIVIDEEQ = 52;
+  int MODULOEQ = 53;
+  int ANDEQ = 54;
+  int OREQ = 55;
+  int XOREQ = 56;
+  int LSHIFTEQ = 57;
+  int RSHIFTEQ = 58;
+  int POWEREQ = 59;
+  int OR_BOOL = 60;
+  int AND_BOOL = 61;
+  int NOT_BOOL = 62;
+  int IS = 63;
+  int IN = 64;
+  int LAMBDA = 65;
+  int IF = 66;
+  int ELSE = 67;
+  int ELIF = 68;
+  int WHILE = 69;
+  int FOR = 70;
+  int TRY = 71;
+  int EXCEPT = 72;
+  int DEF = 73;
+  int CLASS = 74;
+  int FINALLY = 75;
+  int PRINT = 76;
+  int PASS = 77;
+  int BREAK = 78;
+  int CONTINUE = 79;
+  int RETURN = 80;
+  int YIELD = 81;
+  int IMPORT = 82;
+  int FROM = 83;
+  int DEL = 84;
+  int RAISE = 85;
+  int GLOBAL = 86;
+  int EXEC = 87;
+  int ASSERT = 88;
+  int AS = 89;
+  int WITH = 90;
+  int AT = 91;
+  int NAME = 92;
+  int LETTER = 93;
+  int DECNUMBER = 94;
+  int HEXNUMBER = 95;
+  int OCTNUMBER = 96;
+  int FLOAT = 97;
+  int COMPLEX = 98;
+  int EXPONENT = 99;
+  int DIGIT = 100;
+  int SINGLE_STRING = 109;
+  int SINGLE_STRING2 = 110;
+  int TRIPLE_STRING = 111;
+  int TRIPLE_STRING2 = 112;
+  int SINGLE_USTRING = 113;
+  int SINGLE_USTRING2 = 114;
+  int TRIPLE_USTRING = 115;
+  int TRIPLE_USTRING2 = 116;
 
   int DEFAULT = 0;
   int FORCE_NEWLINE1 = 1;
   int FORCE_NEWLINE2 = 2;
-  int MAYBE_FORCE_NEWLINE_IF_EOF = 3;
-  int INDENTING = 4;
-  int INDENTATION_UNCHANGED = 5;
-  int UNREACHABLE = 6;
-  int IN_STRING11 = 7;
-  int IN_STRING21 = 8;
-  int IN_STRING13 = 9;
-  int IN_STRING23 = 10;
-  int IN_USTRING11 = 11;
-  int IN_USTRING21 = 12;
-  int IN_USTRING13 = 13;
-  int IN_USTRING23 = 14;
-  int IN_STRING1NLC = 15;
-  int IN_STRING2NLC = 16;
-  int IN_USTRING1NLC = 17;
-  int IN_USTRING2NLC = 18;
+  int INDENTING = 3;
+  int INDENTATION_UNCHANGED = 4;
+  int UNREACHABLE = 5;
+  int IN_STRING11 = 6;
+  int IN_STRING21 = 7;
+  int IN_STRING13 = 8;
+  int IN_STRING23 = 9;
+  int IN_USTRING11 = 10;
+  int IN_USTRING21 = 11;
+  int IN_USTRING13 = 12;
+  int IN_USTRING23 = 13;
+  int IN_STRING1NLC = 14;
+  int IN_STRING2NLC = 15;
+  int IN_USTRING1NLC = 16;
+  int IN_USTRING2NLC = 17;
 
   String[] tokenImage = {
     "<EOF>",
@@ -136,7 +135,6 @@ public interface PythonGrammar25Constants {
     "<NEWLINE1>",
     "<NEWLINE>",
     "<NEWLINE2>",
-    "\"\"",
     "\"\\t\"",
     "\" \"",
     "\"\\f\"",
@@ -230,6 +228,7 @@ public interface PythonGrammar25Constants {
     "<COMPLEX>",
     "<EXPONENT>",
     "<DIGIT>",
+    "<token of kind 101>",
     "<token of kind 102>",
     "<token of kind 103>",
     "<token of kind 104>",
@@ -237,7 +236,6 @@ public interface PythonGrammar25Constants {
     "<token of kind 106>",
     "<token of kind 107>",
     "<token of kind 108>",
-    "<token of kind 109>",
     "\"\\\'\"",
     "\"\\\"\"",
     "\"\\\'\\\'\\\'\"",
@@ -247,24 +245,24 @@ public interface PythonGrammar25Constants {
     "\"\\\'\\\'\\\'\"",
     "\"\\\"\\\"\\\"\"",
     "\"\\\\\\r\\n\"",
-    "<token of kind 119>",
+    "<token of kind 118>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 121>",
+    "<token of kind 120>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 123>",
+    "<token of kind 122>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 125>",
+    "<token of kind 124>",
     "\"\"",
     "\"\"",
     "\"\"",
     "\"\"",
+    "<token of kind 129>",
     "<token of kind 130>",
-    "<token of kind 131>",
     "\"\\r\\n\"",
     "\"\\n\"",
     "\"\\r\"",
+    "<token of kind 134>",
     "<token of kind 135>",
-    "<token of kind 136>",
     "\"`\"",
   };
 

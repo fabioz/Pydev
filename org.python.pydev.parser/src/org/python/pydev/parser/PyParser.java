@@ -668,19 +668,29 @@ public class PyParser implements IPyParser {
             throw new RuntimeException("This char stream reader was deprecated (was maintained only for testing purposes).");
         }
         
-        IParserHost host = new CompilerAPI();
-        IGrammar grammar = null;
-        if(info.grammarVersion == IPythonNature.GRAMMAR_PYTHON_VERSION_2_4){
-            grammar = new PythonGrammar24(in, host);
-        }else if(info.grammarVersion == IPythonNature.GRAMMAR_PYTHON_VERSION_2_5){
-            grammar = new PythonGrammar25(in, host);
-        }else{
-            throw new RuntimeException("The grammar specified for parsing is not valid: "+info.grammarVersion);
-        }
 
         Tuple<SimpleNode, Throwable> returnVar = new Tuple<SimpleNode, Throwable>(null, null);
+        IParserHost host = new CompilerAPI();
+        IGrammar grammar = null;
         try {
+            
             synchronized(IGrammar.parseLock){
+                //the synchronization is because of the openNode optimization in the tree builder
+                //note that removing this optimization doesn't make it too different, but in a test
+                //when making the PyParser not synchronized at this point, it actually 
+                //made things slower than faster -- probably because of context switching -- and parsing is also
+                //very computationally expensive, so, unless there are idle processors lurking around,
+                //it's probably not worth it -- or not?!?
+                
+                if(info.grammarVersion == IPythonNature.GRAMMAR_PYTHON_VERSION_2_4){
+                    grammar = new PythonGrammar24(in, host);
+                }else if(info.grammarVersion == IPythonNature.GRAMMAR_PYTHON_VERSION_2_5){
+                    grammar = new PythonGrammar25(in, host);
+                }else{
+                    throw new RuntimeException("The grammar specified for parsing is not valid: "+info.grammarVersion);
+                }
+                
+                
 	            if(ENABLE_TRACING){
 	                //grammar has to be generated with debugging info for this to make a difference
 	                grammar.enable_tracing();

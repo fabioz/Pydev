@@ -155,12 +155,8 @@ public final class TreeBuilder24 implements PythonGrammar24TreeConstants {
         switch (n.getId()) {
         case -1:
             System.out.println("Illegal node");
-        case JJTSINGLE_INPUT:
-            return new Interactive(makeStmts(arity));
         case JJTFILE_INPUT:
             return new Module(makeStmts(arity));
-        case JJTEVAL_INPUT:
-            return new Expression(((exprType) stack.popNode()));
 
         case JJTNAME:
             Name name = new Name(n.getImage().toString(), Name.Load);

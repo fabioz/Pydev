@@ -24,7 +24,6 @@ import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.Ellipsis;
 import org.python.pydev.parser.jython.ast.Exec;
 import org.python.pydev.parser.jython.ast.Expr;
-import org.python.pydev.parser.jython.ast.Expression;
 import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -34,7 +33,6 @@ import org.python.pydev.parser.jython.ast.IfExp;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Index;
-import org.python.pydev.parser.jython.ast.Interactive;
 import org.python.pydev.parser.jython.ast.Lambda;
 import org.python.pydev.parser.jython.ast.List;
 import org.python.pydev.parser.jython.ast.ListComp;
@@ -140,9 +138,12 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
     private static SimpleNode[] nodes = new SimpleNode[PythonGrammar25TreeConstants.jjtNodeName.length];
 
     public SimpleNode openNode(int id) {
-        if (nodes[id] == null)
-            nodes[id] = new IdentityNode(id);
-        return nodes[id];
+        SimpleNode n = nodes[id];
+        if (n == null){
+            n = new IdentityNode(id);
+            nodes[id] = n;
+        }
+        return n;
     }
 
     
@@ -154,12 +155,8 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
         switch (n.getId()) {
         case -1:
             System.out.println("Illegal node");
-        case JJTSINGLE_INPUT:
-            return new Interactive(makeStmts(arity));
         case JJTFILE_INPUT:
             return new Module(makeStmts(arity));
-        case JJTEVAL_INPUT:
-            return new Expression(((exprType) stack.popNode()));
 
         case JJTNAME:
             Name name = new Name(n.getImage().toString(), Name.Load);
