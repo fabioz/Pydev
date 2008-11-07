@@ -108,8 +108,6 @@ public class PyParser implements IPyParser {
      */
     public static boolean ENABLE_TRACING = false;
 
-	private static Object lock = new Object();
-
     /**
      * this is the object that will keep parser schedules for us (and will call us for doing parsing when requested)
      */
@@ -682,7 +680,7 @@ public class PyParser implements IPyParser {
 
         Tuple<SimpleNode, Throwable> returnVar = new Tuple<SimpleNode, Throwable>(null, null);
         try {
-            synchronized(lock){
+            synchronized(IGrammar.parseLock){
 	            if(ENABLE_TRACING){
 	                //grammar has to be generated with debugging info for this to make a difference
 	                grammar.enable_tracing();
