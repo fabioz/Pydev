@@ -14,6 +14,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.texteditor.MarkerUtilities;
+import org.python.pydev.core.ArrayUtils;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -149,11 +151,24 @@ public class PydevMarkerUtils {
      * @param lst the new markers to be set in the resource
      * @param resource the resource were the markers should be replaced
      * @param markerType the type of the marker that'll be replaced
+     * @param removeUserEditable if true, will remove the user-editable markers too (otherwise, will leave the user-editable markers)
      */
-    public static void replaceMarkers(List<MarkerInfo> lst, IResource resource, String markerType) {
+    public static void replaceMarkers(List<MarkerInfo> lst, IResource resource, String markerType, boolean removeUserEditable) {
         IMarker[] existingMarkers;
         try {
             existingMarkers = resource.findMarkers(markerType, false, IResource.DEPTH_ZERO);
+            
+            if(!removeUserEditable){
+                //we don't want to remove the user-editable markers, so, let's filter them out!
+                existingMarkers = ArrayUtils.filter(existingMarkers, new ICallback<Boolean, IMarker>(){
+
+                    public Boolean call(IMarker marker) {
+                        //if it's user-editable, it should not be included in the list
+                        return !marker.getAttribute(IMarker.USER_EDITABLE, true); //default for user-editable is true.
+                    }}
+                ).toArray(new IMarker[0]);
+            }
+            
         } catch (CoreException e1) {
             PydevPlugin.log(e1);
             existingMarkers = new IMarker[0];
@@ -183,5 +198,16 @@ public class PydevMarkerUtils {
         } catch (Exception e) {
             PydevPlugin.log(e);
         }
+    }
+
+
+    /**
+     * Replaces all the markers (including user-editable markers)
+     * 
+     * @see #replaceMarkers(List, IResource, String, boolean)
+     */
+    public static void replaceMarkers(List<MarkerInfo> lst, IResource resource, String markerType) {
+        replaceMarkers(lst, resource, markerType, true);
+        
     }
 }

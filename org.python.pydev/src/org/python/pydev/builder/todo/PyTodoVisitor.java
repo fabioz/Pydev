@@ -6,6 +6,7 @@
 package org.python.pydev.builder.todo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -72,7 +73,7 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
                     if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
                         Log.toLogFile(this, "Adding todo markers");
                     }
-                    PydevMarkerUtils.replaceMarkers(lst, resource, IMarker.TASK);
+                    PydevMarkerUtils.replaceMarkers(lst, resource, IMarker.TASK, false);
                     //timer.printDiff("Total time to put markers: "+lst.size());
                 } catch (Exception e) {
                     PydevPlugin.log(e);

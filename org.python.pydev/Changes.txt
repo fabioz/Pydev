@@ -11,6 +11,7 @@ Pydev
 <li><strong>Hover</strong>: Showing docstring on hover (currently only available for files that are not analyzed as builtins). 
 <li><strong>Hover</strong>: Showing variables hover. 
 <li><strong>Parser</strong>: Investigate further one thread corrupting info from another. 
+<li><strong>Task tags</strong>: The task tags that are created by the user are no longer removed.
 </ul>
 
 
