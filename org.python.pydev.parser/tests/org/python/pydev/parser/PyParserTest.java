@@ -8,12 +8,11 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.Tuple3;
-import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.performanceeval.Timer;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -22,6 +21,9 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.parser.prettyprinter.PrettyPrinter;
+import org.python.pydev.parser.prettyprinter.PrettyPrinterPrefs;
+import org.python.pydev.parser.prettyprinter.WriterEraser;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
@@ -572,4 +574,79 @@ public class PyParserTest extends PyParserTestBase{
         "\n";        
         parseLegalDocStr(s);
     }
+    
+    
+	public void testThreadingInParser() throws Exception {
+    	String loc = TestDependent.PYTHON_LIB+"unittest.py";
+        String s = REF.getFileContents(new File(loc));
+
+        final Integer[] calls = new Integer[]{0};
+        final Boolean[] failedComparisson = new Boolean[]{false};
+        
+        ICallback<Object, Boolean> callback = new ICallback<Object, Boolean>(){
+
+			public Object call(Boolean failTest) {
+				calls[0] = calls[0]+1;
+				if(failTest){
+					failedComparisson[0] = true;
+				}
+				return null;
+			}
+        	
+        };
+        
+        SimpleNode node = parseLegalDocStr(s);
+        String expected = printNode(node);
+        
+        int expectedCalls = 70;
+        Timer timer = new Timer();
+		for(int j=0;j<expectedCalls;j++){
+			startParseThread(s, callback, expected);
+		}
+		
+		while(calls[0] < expectedCalls){
+			synchronized(this){
+				wait(5);
+			}
+		}
+		timer.printDiff();
+		assertTrue(!failedComparisson[0]);
+	}
+
+	private String printNode(SimpleNode node) {
+      final WriterEraser stringWriter = new WriterEraser();
+      PrettyPrinterPrefs prettyPrinterPrefs = new PrettyPrinterPrefs("\n");
+      prettyPrinterPrefs.setSpacesAfterComma(1);
+      prettyPrinterPrefs.setSpacesBeforeComment(1);
+      PrettyPrinter printer = new PrettyPrinter(prettyPrinterPrefs, stringWriter);
+      try {
+          node.accept(printer);
+          return stringWriter.getBuffer().toString();
+      } catch (Exception e) {
+          throw new RuntimeException(e);
+      }
+	}
+
+	
+	private void startParseThread(final String contents, final ICallback<Object, Boolean> callback, 
+			final String expected) {
+		
+		new Thread(){
+			public void run() {
+				try{
+					SimpleNode node = parseLegalDocStr(contents);
+					if(!printNode(node).equals(expected)){
+						callback.call(true); //Comparison failed
+					}else{
+						callback.call(false);
+					}
+				}catch(Throwable e){
+					e.printStackTrace();
+					callback.call(true); //something bad happened... so, the test failed!
+				}
+				
+			}
+		}.start();
+		
+	}
 }

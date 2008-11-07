@@ -108,6 +108,8 @@ public class PyParser implements IPyParser {
      */
     public static boolean ENABLE_TRACING = false;
 
+	private static Object lock = new Object();
+
     /**
      * this is the object that will keep parser schedules for us (and will call us for doing parsing when requested)
      */
@@ -640,6 +642,7 @@ public class PyParser implements IPyParser {
         // create a stream with document's data
         String startDoc = info.document.get();
         if(info.initial == null){
+//        	System.out.println("Entered: "+startDoc);
             info.initial = startDoc;
         }
 
@@ -679,19 +682,20 @@ public class PyParser implements IPyParser {
 
         Tuple<SimpleNode, Throwable> returnVar = new Tuple<SimpleNode, Throwable>(null, null);
         try {
-            
-            if(ENABLE_TRACING){
-                //grammar has to be generated with debugging info for this to make a difference
-                grammar.enable_tracing();
+            synchronized(lock){
+	            if(ENABLE_TRACING){
+	                //grammar has to be generated with debugging info for this to make a difference
+	                grammar.enable_tracing();
+	            }
+	            SimpleNode newRoot = grammar.file_input(); // parses the file
+	            if(newRoot != null){
+	                Module m = (Module) newRoot;
+	                for (commentType comment : comments) {
+	                    m.addSpecial(comment, true);
+	                }
+	            }
+	            returnVar.o1 = newRoot;
             }
-            SimpleNode newRoot = grammar.file_input(); // parses the file
-            if(newRoot != null){
-                Module m = (Module) newRoot;
-                for (commentType comment : comments) {
-                    m.addSpecial(comment, true);
-                }
-            }
-            returnVar.o1 = newRoot;
             
             //only notify successful parses
             if(successfulParseListeners.size() > 0){
@@ -752,7 +756,7 @@ public class PyParser implements IPyParser {
             }
         
         } 
-        
+//        System.out.println("Output grammar: "+returnVar);
         return returnVar;
     }
 
