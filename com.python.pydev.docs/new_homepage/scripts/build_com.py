@@ -1,3 +1,4 @@
+import sys
 import datetime
 
 manualAdv = (
@@ -119,7 +120,7 @@ def getDict(**kwargs):
 
 def DoIt():
     main()
-    print 'built com'
+    sys.stdout.write('built com\n')
 
 if __name__ == '__main__':
     DoIt()

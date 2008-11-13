@@ -21,4 +21,4 @@ if __name__ == '__main__':
     build_com.LAST_VERSION_TAG = LAST_VERSION_TAG
     build_com.DoIt()
     
-    print 'finished both'
+    sys.stdout.write('finished both\n')

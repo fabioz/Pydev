@@ -1,6 +1,8 @@
 LAST_VERSION_TAG='1.0'
 
 import datetime
+import sys
+
 def _topicDefault():
     s = \
 '''
@@ -16,6 +18,7 @@ def _topicDefault():
 </tr>
 </tbody>
 </table>
+import sys
 </td>
 '''
 
@@ -165,7 +168,7 @@ def DoIt():
     faqbuild.Generate('scripts/_new_faq.template', '_faq.contents.htm')
     
     Main()    
-    print "built org"
+    sys.stdout.write("built org\n")
 
 if __name__ == '__main__':
     DoIt()
