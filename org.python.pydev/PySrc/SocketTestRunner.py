@@ -30,7 +30,7 @@ class SocketTestRunner(unittest2.TestListener):
     def log_msg(self, msg):
         if not self._debug:
             return
-        print >>self._log, msg
+        self._log.write('%s\n' % (msg,))
         
     def log_exception(self, msg=""):
         if not self._debug:

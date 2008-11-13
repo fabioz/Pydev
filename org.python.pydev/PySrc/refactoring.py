@@ -158,15 +158,15 @@ def HandleRefactorMessage(msg, keepAliveThread):
         s = StringIO.StringIO()
         exc_info = sys.exc_info()
         
-        print >> s, str(exc_info[1])
+        s.write(str(exc_info[1]))
         
-        print >> s, '\nWARNINGS:\n'
-        print >> s, refactorer.warning.getvalue()
+        s.write('\nWARNINGS:\n\n')
+        s.write('%s\n' % (refactorer.warning.getvalue(),))
 
-        print >> s, '\nPROGRESS:\n'
-        print >> s, refactorer.getLastProgressMsgs(8)
+        s.write('\nPROGRESS:\n\n')
+        s.write('%s\n' % (refactorer.getLastProgressMsgs(8),))
         
-        print >> s, '\nDETAILS:\n'
+        s.write('\nDETAILS:\n\n')
         traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], limit=None, file = s)
         
         restartRefactorerBuffer()

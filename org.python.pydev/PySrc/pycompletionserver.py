@@ -64,9 +64,9 @@ DEBUG = INFO1 | ERROR
 
 def dbg( s, prior ):
     if prior & DEBUG != 0:
-        print s
+        sys.stdout.write('%s\n' % (s,))
 #        f = open('c:/temp/test.txt', 'a')
-#        print >> f, s
+#        print_ >> f, s
 #        f.close()
         
 HOST = '127.0.0.1'               # Symbolic name meaning the local host
@@ -171,7 +171,7 @@ class T( Thread ):
             try:
                 return urllib.quote_plus( msg )
             except:
-                print 'error making quote plus in', msg
+                sys.stdout.write('error making quote plus in %s\n' % (msg,))
                 raise
         return ' '
     

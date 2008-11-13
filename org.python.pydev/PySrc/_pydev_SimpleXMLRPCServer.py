@@ -546,9 +546,10 @@ class CGIXMLRPCRequestHandler(SimpleXMLRPCDispatcher):
 
         response = self._marshaled_dispatch(request_text)
 
-        print 'Content-Type: text/xml'
-        print 'Content-Length: %d' % len(response)
-        print
+        sys.stdout.write('Content-Type: text/xml\n')
+        sys.stdout.write('Content-Length: %d\n' % len(response))
+        sys.stdout.write('\n')
+        
         sys.stdout.write(response)
 
     def handle_get(self):
@@ -567,10 +568,11 @@ class CGIXMLRPCRequestHandler(SimpleXMLRPCDispatcher):
              'message' : message,
              'explain' : explain
             }
-        print 'Status: %d %s' % (code, message)
-        print 'Content-Type: text/html'
-        print 'Content-Length: %d' % len(response)
-        print
+        sys.stdout.write('Status: %d %s\n' % (code, message))
+        sys.stdout.write('Content-Type: text/html\n')
+        sys.stdout.write('Content-Length: %d\n' % len(response))
+        sys.stdout.write('\n')
+        
         sys.stdout.write(response)
 
     def handle_request(self, request_text = None):
@@ -592,7 +594,7 @@ class CGIXMLRPCRequestHandler(SimpleXMLRPCDispatcher):
             self.handle_xmlrpc(request_text)
 
 if __name__ == '__main__':
-    print 'Running XML-RPC server on port 8000'
+    sys.stdout.write('Running XML-RPC server on port 8000\n')
     server = SimpleXMLRPCServer(("localhost", 8000))
     server.register_function(pow)
     server.register_function(lambda x,y: x+y, 'add')

@@ -174,7 +174,7 @@ def generateRefsToAttribute(classobj,attrname):
     attrRefFinder = AttrbuteRefFinder(rootClasses,attrname)
     for ref in globalScanForMatches(classobj.filename, attrRefFinder, attrname):
         yield ref
-    print >>log.progress,"Done"
+    log.progress.write("Done\n")
     
 
 class AttrbuteRefFinder(MatchFinder):
@@ -205,8 +205,8 @@ class AttrbuteRefFinder(MatchFinder):
     def visitFunction(self,node):  # visit methods
         if node.name == self.targetAttributeName:
             parentScope = self.scope.getParent()
-            #print parentScope
-            #print self.targetClasses
+            #print_ parentScope
+            #print_ self.targetClasses
             if isinstance(parentScope,Class) and \
                    self._isAClassInTheSameHierarchy(parentScope):
                 self.appendMatch(node.name)

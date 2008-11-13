@@ -1,6 +1,6 @@
 '''
     This module will:
-    - set the default encoding for python so that it'll print things correctly to the console.
+    - set the default encoding for python so that it'll print_ things correctly to the console.
     - change the input() and raw_input() commands to change \r\n or \r into \n
     - execute the user site customize -- if available
     - change raw_input() and input() to also remove any trailing \r
@@ -22,7 +22,7 @@ try:
     if new_encoding and new_encoding.strip():
         encoding = new_encoding.strip()
         if DEBUG:
-            print 'encoding from env (PYDEV_CONSOLE_ENCODING): ', encoding
+            sys.stdout.write('encoding from env (PYDEV_CONSOLE_ENCODING): %s\n' % (encoding,))
 except:
     #ok, just ignore it if we couldn't get it
     if DEBUG:
@@ -41,7 +41,7 @@ if not encoding:
         #that's the way that the encoding is specified in WorkbenchEncoding.getWorkbenchDefaultEncoding
         encoding = System.getProperty("file.encoding", "")
         if DEBUG:
-            print 'encoding from "file.encoding": ', encoding
+            sys.stdout.write('encoding from "file.encoding": %s\n' % (encoding,))
 
 
 #----------------------------------------------------------------------------------------------------------------------- 
@@ -58,7 +58,7 @@ if not encoding:
             #ok, default locale is set (if the user didn't specify any encoding, the system default should be used)
             encoding = loc[1]
             if DEBUG:
-                print 'encoding from "locale": ', encoding
+                sys.stdout.write('encoding from "locale": %s\n' %  (encoding,))
     
 
 #----------------------------------------------------------------------------------------------------------------------- 
@@ -73,7 +73,7 @@ if not encoding:
 try:
     if encoding:
         if DEBUG:
-            print 'Setting default encoding', encoding
+            sys.stdout.write('Setting default encoding: %s\n' % (encoding,))
         sys.setdefaultencoding(encoding) #@UndefinedVariable (it's deleted after the site.py is executed -- so, it's undefined for code-analysis)
 except:
     #ignore if we cannot set it correctly
@@ -95,7 +95,7 @@ try:
             
     del sys.modules['sitecustomize'] #this module
 except:
-    #print the error... should never happen (so, always show, and not only on debug)!
+    #print_ the error... should never happen (so, always show, and not only on debug)!
     import traceback;traceback.print_exc() #@Reimport
 else:
     #and now execute the default sitecustomize

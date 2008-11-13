@@ -46,7 +46,7 @@ def findAllPossibleDefinitionsByCoords(filepath,lineno,col):
         name = node.attrname
         for match in scanPythonPathForMatchingMethodNames(name,filepath):
             yield match
-    print >>log.progress,"done"
+    log.progress.write("done\n")
 
 
 def findDefinitionFromASTNode(scope,node):

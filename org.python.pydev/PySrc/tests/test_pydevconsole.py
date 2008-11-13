@@ -33,7 +33,7 @@ class Test(unittest.TestCase):
     def tearDown(self):
         ret = sys.stdout #@UnusedVariable
         sys.stdout = self.original_stdout
-        #print ret.getvalue() -- use to see test output
+        #print_ ret.getvalue() -- use to see test output
 
     def testConsoleRequests(self):
         client_port = 7992

@@ -48,9 +48,9 @@ class ExtractMethod(object):
         self.adjustEndColumnIfStartsANewLine()
         self.fn = self.getFunctionObject()
         self.getRegionToBuffer()
-        #print "-"*80
-        #print self.extractedLines
-        #print "-"*80
+        #print_ "-"*80
+        #print_ self.extractedLines
+        #print_ "-"*80
         self.deduceIfIsMethodOrFunction()
 
     def execute(self):

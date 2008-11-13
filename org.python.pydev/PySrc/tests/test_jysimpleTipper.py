@@ -27,12 +27,12 @@ try:
     import java.lang.String #@UnresolvedImport
     import org.python.core.PyDictionary #@UnresolvedImport
 except ImportError, e:
-    print e
+    sys.stdout.write('%s\n' % (e,))
 
 __DBG = 0
 def dbg(s):
     if __DBG:
-        print s
+        sys.stdout.write('%s\n' % (s,))
         
 
 
@@ -240,4 +240,4 @@ if __name__ == '__main__':
         unittest.TextTestRunner(verbosity=1).run(suite2)
 
     else:
-        print 'Not running jython tests for non-java platform: ', sys.platform
+        sys.stdout.write('Not running jython tests for non-java platform: %s' % sys.platform)

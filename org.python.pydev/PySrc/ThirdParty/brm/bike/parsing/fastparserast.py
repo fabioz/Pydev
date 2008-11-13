@@ -239,7 +239,7 @@ class Node:
 
             # scan to the end of the fn
             for line in logicallines:
-                #print lineno,":",line,
+                #print_ lineno,":",line,
                 match = indentRE.match(line)
                 if match and match.end()-1 <= self.indent:
                     break

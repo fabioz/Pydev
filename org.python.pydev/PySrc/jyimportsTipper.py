@@ -148,7 +148,7 @@ def ismethod(func):
     try:
         if isinstance(func, core.PyFunction):
             #ok, this is from python, created by jython
-            #print '    PyFunction'
+            #print_ '    PyFunction'
             
             def getargs(func_code):
                 """Get information about the arguments accepted by a code object.
@@ -180,14 +180,14 @@ def ismethod(func):
             #things to play in func:
             #['__call__', '__class__', '__cmp__', '__delattr__', '__dir__', '__doc__', '__findattr__', '__name__', '_doget', 'im_class',
             #'im_func', 'im_self', 'toString']
-            #print '    PyMethod'
+            #print_ '    PyMethod'
             #that's the PyReflectedFunction... keep going to get it
             func = func.im_func
     
         if isinstance(func, PyReflectedFunction):
             #this is something from java itself, and jython just wrapped it...
             
-            #print '    PyReflectedFunction'
+            #print_ '    PyReflectedFunction'
             
             infos = []
             for i in range(len(func.argslist)):
@@ -196,7 +196,7 @@ def ismethod(func):
                 #'PyArgsCall', 'PyArgsKeywordsCall', 'REPLACE', 'StandardCall', 'args', 'compare', 'compareTo', 'data', 'declaringClass'
                 #'flags', 'isStatic', 'matches', 'precedence']
                 
-                #print '        ', func.argslist[i].data.__class__
+                #print_ '        ', func.argslist[i].data.__class__
                 #func.argslist[i].data.__class__ == java.lang.reflect.Method
                 
                 if func.argslist[i]:
@@ -235,7 +235,7 @@ def ismethod(func):
     
                     
                     info = Info(name, args = args, ret = ret)
-                    #print info.basicAsStr()
+                    #print_ info.basicAsStr()
                     infos.append(info)
     
             return 1, infos
@@ -389,7 +389,7 @@ def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr,
             #sys.path.insert(1, r"C:\bin\eclipse310\plugins\org.junit_3.8.1\junit.jar" )
             #
             #import junit.framework
-            #print dir(junit.framework) #shows the TestCase class here
+            #print_ dir(junit.framework) #shows the TestCase class here
             #
             #import junit.framework.TestCase 
             #
@@ -418,7 +418,7 @@ def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr,
                         r += formatArg(a)
                     args = '(%s)' % (r)
                 except TypeError:
-                    print traceback.print_exc()
+                    traceback.print_exc()
                     args = '()'
     
                 retType = TYPE_FUNCTION
@@ -437,6 +437,5 @@ def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr,
 
 
 if __name__ == "__main__":
-    import sys
     sys.path.append(r'D:\dev_programs\eclipse_3\310\eclipse\plugins\org.junit_3.8.1\junit.jar')
-    print Find('junit.framework.TestCase')
+    sys.stdout.write('%s\n' % Find('junit.framework.TestCase'))

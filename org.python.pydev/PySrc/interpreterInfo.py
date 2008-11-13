@@ -13,7 +13,9 @@ all internal are separated by |
 '''
 import sys
 import os
-True, False = 1,0 
+if sys.platform.startswith("java"):
+    exec ('True, False = 1,0') #That's for supporting python 3k and jython
+    
 import time
 
 if sys.platform == "cygwin":
@@ -70,15 +72,15 @@ if __name__ == '__main__':
         minor = s[1]
         s = 'Version%s.%s' % (major, minor)
         
-    print s
+    sys.stdout.write('%s\n' % (s,))
             
-    print 'EXECUTABLE:%s|' % executable
+    sys.stdout.write('EXECUTABLE:%s|\n' % executable)
     
     #this is the new implementation to get the system folders 
     #(still need to check if it works in linux)
     #(previously, we were getting the executable dir, but that is not always correct...)
     prefix = nativePath(sys.prefix)
-    #print 'prefix is', prefix
+    #print_ 'prefix is', prefix
     
 
     result = []
@@ -98,7 +100,8 @@ if __name__ == '__main__':
                 result.append((p, True))
             else:
                 result.append((p, False))
-        except ImportError:
+        except (ImportError, AttributeError):
+            #python 3k also does not have it
             #jython may not have it (depending on how are things configured)
             if p.startswith(prefix): #was startswith
                 result.append((p, True))
@@ -107,15 +110,15 @@ if __name__ == '__main__':
             
     for p,b in result:
         if b:
-            print '|%s%s'% (p,'INS_PATH')
+            sys.stdout.write('|%s%s\n'% (p,'INS_PATH'))
         else:
-            print '|%s%s'% (p,'OUT_PATH')
+            sys.stdout.write('|%s%s\n'% (p,'OUT_PATH'))
     
-    print '@' #no compiled libs
-    print '$' #the forced libs
+    sys.stdout.write('@\n') #no compiled libs
+    sys.stdout.write('$\n') #the forced libs
     
     for builtinMod in sys.builtin_module_names:
-        print '|', builtinMod
+        sys.stdout.write('|%s\n' % builtinMod)
         
     
     try:

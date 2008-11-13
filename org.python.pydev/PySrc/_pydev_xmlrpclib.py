@@ -1,4 +1,5 @@
 #Just a copy of the version in python 2.5 to be used if it's not available in jython 2.1
+import sys
 
 #
 # XML-RPC CLIENT LIBRARY
@@ -1332,7 +1333,7 @@ class Transport:
             if not response:
                 break
             if self.verbose:
-                print "body:", repr(response)
+                sys.stdout.write("body: %s\n" % repr(response))
             p.feed(response)
 
         file.close()
@@ -1472,18 +1473,18 @@ if __name__ == "__main__":
     # server = ServerProxy("http://localhost:8000") # local server
     server = ServerProxy("http://time.xmlrpc.com/RPC2")
 
-    print server
+    sys.stdout.write('%s\n' % server)
 
     try:
-        print server.currentTime.getCurrentTime()
+        sys.stdout.write('%s\n' % (server.currentTime.getCurrentTime(),))
     except Error, v:
-        print "ERROR", v
+        sys.stdout.write("ERROR %s\n" % (v,))
 
     multi = MultiCall(server)
     multi.currentTime.getCurrentTime()
     multi.currentTime.getCurrentTime()
     try:
         for response in multi():
-            print response
+            sys.stdout.write('%s\n' % (response,))
     except Error, v:
-        print "ERROR", v
+        sys.stdout.write("ERROR %s\n" % (v,))

@@ -8,7 +8,7 @@ def getQueuedFile(filename):
         return outputqueue[filename]
     except:
         pass
-        #print "HERE!"
+        #print_ "HERE!"
         
 
 def resetOutputQueue():
@@ -26,12 +26,12 @@ def save():
     global outputqueue
     savedFiles = []
     for filename,src in outputqueue.iteritems():
-        print >> log.progress, "Writing:",filename
+        log.progress.write("Writing: %s\n" % (filename,))
         f = file(filename, "w+")
         f.write(outputqueue[filename])
         f.close()
         savedFiles.append(filename)
     outputqueue = {}
-    #print "stack is "+ str(getUndoStack().stack)
+    #print_ "stack is "+ str(getUndoStack().stack)
     getUndoStack().commitUndoFrame()    
     return savedFiles

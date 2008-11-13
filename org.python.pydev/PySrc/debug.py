@@ -3,8 +3,8 @@ debugToggle = 0
 def debug(name, value=None):
     if debugToggle == 0: return
     if value == None:
-        print >> sys.stderr, "DBG:",name
+        sys.stderr.write("DBG: %s\n" % (name,))
     else:
-        print >> sys.stderr, "DBG:%s = %s" % (name, value)
+        sys.stderr.write("DBG:%s = %s\n" % (name, value))
         
         

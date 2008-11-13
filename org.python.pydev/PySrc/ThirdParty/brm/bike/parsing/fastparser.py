@@ -27,7 +27,7 @@ def fastparser_impl(src,modulename,filename):
     lineno = 0
     for line in maskedLines:
         lineno+=1
-        #print "line",lineno,":",line
+        #print_ "line",lineno,":",line
         m = indentRE.match(line)
         if m:
             indent = m.start(1)

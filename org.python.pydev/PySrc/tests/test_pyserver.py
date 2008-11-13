@@ -76,7 +76,7 @@ if sys.platform.find('java') == -1:
                 m = self.connToRead.recv(1024*4)
                 
                 if m.startswith('@@PROCESSING'):
-                    print 'Status msg:', msg
+                    sys.stdout.write('Status msg: %s\n' % (msg,))
                 else:
                     msg += m
     
@@ -93,7 +93,7 @@ if sys.platform.find('java') == -1:
                 msg = urllib.quote_plus('math')
                 sToWrite.send('@@IMPORTS:%sEND@@'%msg) #math completions
                 completions = self.readMsg()
-                #print urllib.unquote_plus(completions)
+                #print_ urllib.unquote_plus(completions)
                 
                 #math is a builtin and because of that, it starts with None as a file
                 start = '@@COMPLETIONS(None,(__doc__,'
@@ -133,7 +133,7 @@ if sys.platform.find('java') == -1:
             
             finally:
                 try:
-                    print 'succedded...sending kill msg'
+                    sys.stdout.write('succedded...sending kill msg\n')
                     self.sendKillMsg(sToWrite)
                     
             
@@ -185,5 +185,5 @@ if __name__ == '__main__':
     if sys.platform.find('java') == -1:
         unittest.main()
     else:
-        print 'Not running python tests in jython -- platform: ', sys.platform
+        sys.stdout.write('Not running python tests in jython -- platform: %s\n' % (sys.platform,))
 

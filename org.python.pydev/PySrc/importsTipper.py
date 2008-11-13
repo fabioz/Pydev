@@ -135,7 +135,7 @@ def GenerateTip(data):
         data = data.rstrip('.')
         
     f, mod, parent, foundAs = Find(data)
-    #print >> open('temp.txt', 'w'), f
+    #print_ >> open('temp.txt', 'w'), f
     tips = GenerateImportsTipForModule(mod)
     return f, tips
     

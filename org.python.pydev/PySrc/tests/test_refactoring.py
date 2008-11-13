@@ -122,7 +122,7 @@ c = C()
 #        contents = f.read()
 #        f.close()
 #
-#        print contents
+#        print_ contents
 #        self.assertEquals(getRenameRefactored(), contents)
 
     def testFind(self):
@@ -156,7 +156,7 @@ if __name__ == '__main__':
     if sys.platform.find('java') == -1:
         unittest.main()
     else:
-        print 'Not running python tests in jython -- platform: ', sys.platform
+        sys.stdout.write('Not running python tests in jython -- platform: %s\n' % (sys.platform,))
 
     
     

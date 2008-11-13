@@ -29,22 +29,22 @@ class UndoStack(object):
     def commitUndoFrame(self):
         #restrict size of buffer
         while len(self.stack) > self.undoBufferSize:
-            #print "clipping undo stack"
+            #print_ "clipping undo stack"
             del self.stack[0]
 
         if len(self.frame) != 0:
-            #print "commitUndoFrame"
+            #print_ "commitUndoFrame"
             self.stack.append({})
             self.frame = self.stack[-1]
 
     def undo(self, **opts):
-        #print "undo called",self.stack
+        #print_ "undo called",self.stack
         if len(self.stack) < 2:
             raise UndoStackEmptyException()
         undoframe = self.stack[-2]
-        #print "undoframe is",undoframe
+        #print_ "undoframe is",undoframe
         for filename,src in undoframe.iteritems():
-            print >>log.progress, "Undoing:",filename
+            log.progress.write("Undoing: %s\n" % (filename,))
             queueFileToSave(filename,src)
         self.stack = self.stack[:-2]
         self.stack.append({})

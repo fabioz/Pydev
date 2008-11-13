@@ -18,7 +18,7 @@ Cache.instance = Cache()
 class CantLocateSourceNodeException(Exception): pass
 
 def getSourceNode(filename_path):
-    #print "getSourceNode:",filename_path
+    #print_ "getSourceNode:",filename_path
     sourcenode = None
     
     try:

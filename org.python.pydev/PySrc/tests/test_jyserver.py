@@ -20,7 +20,7 @@ DEBUG = 0
 
 def dbg(s):
     if DEBUG:
-        print 'TEST', s
+        sys.stdout.write('TEST %s\n' % s)
 
 class Test(unittest.TestCase):
 
@@ -160,5 +160,5 @@ if __name__ == '__main__':
         suite = unittest.makeSuite(Test)
         unittest.TextTestRunner(verbosity=1).run(suite)
     else:
-        print 'Not running jython tests for non-java platform: ', sys.platform
+        sys.stdout.write('Not running jython tests for non-java platform: %s' % sys.platform)
 

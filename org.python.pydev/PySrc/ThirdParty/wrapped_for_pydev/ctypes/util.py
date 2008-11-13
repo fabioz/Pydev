@@ -95,30 +95,30 @@ elif os.name == "posix":
 def test():
     from ctypes import cdll
     if os.name == "nt":
-        print cdll.msvcrt
-        print cdll.load("msvcrt")
-        print find_library("msvcrt")
+        sys.stdout.write('%s\n' % (cdll.msvcrt,))
+        sys.stdout.write('%s\n' % (cdll.load("msvcrt"),))
+        sys.stdout.write('%s\n' % (find_library("msvcrt"),))
 
     if os.name == "posix":
         # find and load_version
-        print find_library("m")
-        print find_library("c")
-        print find_library("bz2")
+        sys.stdout.write('%s\n' % (find_library("m"),))
+        sys.stdout.write('%s\n' % (find_library("c"),))
+        sys.stdout.write('%s\n' % (find_library("bz2"),))
 
         # getattr
-##        print cdll.m
-##        print cdll.bz2
+##        print_ cdll.m
+##        print_ cdll.bz2
 
         # load
         if sys.platform == "darwin":
-            print cdll.LoadLibrary("libm.dylib")
-            print cdll.LoadLibrary("libcrypto.dylib")
-            print cdll.LoadLibrary("libSystem.dylib")
-            print cdll.LoadLibrary("System.framework/System")
+            sys.stdout.write('%s\n' % (cdll.LoadLibrary("libm.dylib"),))
+            sys.stdout.write('%s\n' % (cdll.LoadLibrary("libcrypto.dylib"),))
+            sys.stdout.write('%s\n' % (cdll.LoadLibrary("libSystem.dylib"),))
+            sys.stdout.write('%s\n' % (cdll.LoadLibrary("System.framework/System"),))
         else:
-            print cdll.LoadLibrary("libm.so")
-            print cdll.LoadLibrary("libcrypt.so")
-            print find_library("crypt")
+            sys.stdout.write('%s\n' % (cdll.LoadLibrary("libm.so"),))
+            sys.stdout.write('%s\n' % (cdll.LoadLibrary("libcrypt.so"),))
+            sys.stdout.write('%s\n' % (find_library("crypt"),))
 
 if __name__ == "__main__":
     test()

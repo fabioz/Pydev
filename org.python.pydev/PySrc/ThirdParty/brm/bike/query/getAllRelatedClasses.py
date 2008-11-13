@@ -5,7 +5,7 @@
 def getAllRelatedClasses(root,classfqn):
     classobj = getTypeOf(root,classfqn)
     rootClasses = _getRootClasses(classobj)
-    #print rootClasses
+    #print_ rootClasses
     relatedClasses = [] + rootClasses
     for rootClass in rootClasses:
         relatedClasses += _getAllSubClasses(rootClass,root)

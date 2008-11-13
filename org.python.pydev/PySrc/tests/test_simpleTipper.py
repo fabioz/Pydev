@@ -24,7 +24,7 @@ if sys.platform.find('java') == -1:
     
         def p(self, t):
             for a in t:
-                print a
+                sys.stdout.write('%s\n' % (a,))
      
         def testImports3(self):
             tip = importsTipper.GenerateTip('os')
@@ -54,7 +54,7 @@ if sys.platform.find('java') == -1:
             
         def testImports(self):
             '''
-            You can print the results to check...
+            You can print_ the results to check...
             '''
             if HAS_WX:
                 tip = importsTipper.GenerateTip('wxPython.wx')
@@ -83,7 +83,7 @@ if sys.platform.find('java') == -1:
                 
             tip = importsTipper.GenerateTip('__builtin__')
     #        for t in tip[1]:
-    #            print t
+    #            print_ t
             self.assertIn('object'         , tip)
             self.assertIn('tuple'          , tip)
             self.assertIn('RuntimeError'   , tip)
@@ -128,8 +128,8 @@ if sys.platform.find('java') == -1:
             obj = C.metA
             if inspect.ismethod (obj):
                 pass
-    #            print obj.im_func
-    #            print inspect.getargspec(obj.im_func)
+    #            print_ obj.im_func
+    #            print_ inspect.getargspec(obj.im_func)
                 
             
     def suite():
@@ -141,5 +141,5 @@ if __name__ == '__main__':
     if sys.platform.find('java') == -1:
         unittest.main()
     else:
-        print 'Not running python tests in jython -- platform: ', sys.platform
+        sys.stdout.write('Not running python tests in jython -- platform: %s\n' % (sys.platform,))
     

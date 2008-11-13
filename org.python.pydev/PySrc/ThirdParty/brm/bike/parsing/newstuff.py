@@ -19,12 +19,12 @@ def translateFnameToModuleName(filename_path):
 # scope is the scope to search from
 def getModuleOrPackageUsingFQN(fqn, dirpath=None):
     pythonpath = getPythonPath()
-    #print "getModuleOrPackageUsingFQN",pythonpath,fqn
+    #print_ "getModuleOrPackageUsingFQN",pythonpath,fqn
     if dirpath is not None:
         assert os.path.isdir(dirpath)
         pythonpath = [dirpath] + pythonpath
     filename = getPathOfModuleOrPackage(fqn,pythonpath)
-    #print "getModuleOrPackageUsingFQN - filename",filename
+    #print_ "getModuleOrPackageUsingFQN - filename",filename
     if filename is not None:
         if os.path.isdir(filename):
             return getPackage(filename)

@@ -43,7 +43,7 @@ def getScopeForLine(sourceNode, lineno):
 # global from the perspective of 'contextFilename'
 def globalScanForMatches(contextFilename, matchFinder, targetname):
     for sourcenode in getSourceNodesContainingRegex(targetname, contextFilename):
-        print >> log.progress, "Scanning", sourcenode.filename
+        log.progress.write("Scanning %s\n" % (sourcenode.filename,))
         searchscope = sourcenode.fastparseroot
         for match in scanScopeForMatches(sourcenode,searchscope,
                                          matchFinder,targetname):
@@ -58,8 +58,8 @@ def scanScopeForMatches(sourcenode,scope,matchFinder,targetname):
             try:
                 ast = compiler.parse(doctoredline)
             except :
-                print >> log.warning , 'Error parsing: %s' % doctoredline
-                print >> log.warning , 'Params: \n--%s\n--%s\n--%s\n--%s' % (sourcenode,scope,matchFinder,targetname)
+                log.warning.write('Error parsing: %s\n' % doctoredline)
+                log.warning.write('Params: \n--%s\n--%s\n--%s\n--%s\n' % (sourcenode,scope,matchFinder,targetname))
                 raise
             scope = getScopeForLine(sourcenode, lineno)
             matchFinder.reset(line)
@@ -205,13 +205,13 @@ class MatchFinder:
         try:
             posInWords = self.words.index(word)
         except ValueError:
-            print >> log.warning , 'ValueError raised (communicate to bicycle repair man plugin).'
-            print >> log.warning , 'code that raised error (commom.py): posInWords = self.words.index(word)'
+            log.warning.write('ValueError raised (communicate to bicycle repair man plugin).\n')
+            log.warning.write('code that raised error (commom.py): posInWords = self.words.index(word)\n')
             try:
-                print >> log.warning , 'WORD: %s'%word
+                log.warning.write('WORD: %s\n'%word)
             except TypeError:
-                print >> log.warning , 'Unable to get word.'
-            print >> log.warning , 'SELF.WORDS: %s'%self.words
+                log.warning.write('Unable to get word.\n')
+            log.warning.write('SELF.WORDS: %s\n'%self.words)
             return
         idx = self.positions[posInWords]
         self.words = self.words[posInWords+1:]
@@ -306,7 +306,7 @@ class ASTNodeFinder(MatchFinder):
 
     def checkIfNameMatchesColumn(self,name):
         idx = self.getNextIndexOfWord(name)
-        #print "name",name,"idx",idx,"self.col",self.col
+        #print_ "name",name,"idx",idx,"self.col",self.col
         if idx <= self.col and idx+len(name) > self.col:
             return 1
         return 0

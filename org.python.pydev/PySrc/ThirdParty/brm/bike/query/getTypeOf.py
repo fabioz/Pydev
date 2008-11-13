@@ -29,10 +29,10 @@ def getTypeOf(scope, fqn):
         assert False, "Can't use getTypeOf to resolve from Root. Use getModuleOrPackageUsingFQN instead"
 
 
-    #print "getTypeOf:"+fqn+" -- "+str(scope)
-    #print 
-    #print str(getTypeOfStack)
-    #print 
+    #print_ "getTypeOf:"+fqn+" -- "+str(scope)
+    #print_ 
+    #print_ str(getTypeOfStack)
+    #print_ 
     if (fqn,scope) in getTypeOfStack:   # loop protection
         return None
 
@@ -54,7 +54,7 @@ def getTypeOf(scope, fqn):
 
 
 def getTypeOf_impl(scope, fqn):
-    #print "getTypeOf_impl",scope,fqn
+    #print_ "getTypeOf_impl",scope,fqn
     if fqn == "None":
         return None
 
@@ -65,7 +65,7 @@ def getTypeOf_impl(scope, fqn):
         if newscope is not None:
             return getTypeOf(newscope, rcar)
         else: 
-            #print "couldnt find "+rcdr+" in "+str(scope)
+            #print_ "couldnt find "+rcdr+" in "+str(scope)
             pass
 
     assert scope is not None
@@ -97,9 +97,9 @@ def handleModuleClassOrFunctionScope(scope,name):
     if type != None:
         return type
     
-    #print "name = ",name,"scope = ",scope
+    #print_ "name = ",name,"scope = ",scope
     type = getImportedType(scope, name)   # try imported types
-    #print "type=",type
+    #print_ "type=",type
     if type != None:
         return type
     parentScope = scope.getParent()
@@ -130,7 +130,7 @@ def handleClassInstanceAttribute(instance, attrname):
             return res
 
 def handlePackageScope(package, fqn):
-    #print "handlePackageScope",package,fqn
+    #print_ "handlePackageScope",package,fqn
     child = package.getChild(fqn)
     if child:
         return child
@@ -248,7 +248,7 @@ def getTypeOfExpr(scope, ast):
     else:
         #raise TypeNotSupportedException, \
         #      "Evaluation of "+str(ast)+" not supported. scope="+str(scope)
-        print >> log.warning, "Evaluation of "+str(ast)+" not supported. scope="+str(scope)
+        log.warning.write("Evaluation of "+str(ast)+" not supported. scope="+str(scope)+"\n")
         return None
 
 
@@ -289,10 +289,10 @@ def scanScopeAST(scope,keyword,astvisitor):
     lines = scope.getLinesNotIncludingThoseBelongingToChildScopes()
     src = ''.join(lines)
     match = None
-    #print "scanScopeAST:"+str(scope)
+    #print_ "scanScopeAST:"+str(scope)
     for line in splitLogicalLines(src):
         if isWordInLine(keyword, line):
-            #print "scanning for "+keyword+" in line:"+line[:-1]
+            #print_ "scanning for "+keyword+" in line:"+line[:-1]
             doctoredline = makeLineParseable(line)
             ast = compiler.parse(doctoredline)
             match = visitor.walk(ast,astvisitor).getMatch()
@@ -338,7 +338,7 @@ class SelfAttributeAssignmentVisitor:
                    assnode.expr.name == "self" and \
                    assnode.attrname == self.targetName:
                     self.match = getTypeOfExpr(self.scope,node.expr)
-                    #print "here!",self.match.getType().fqn
+                    #print_ "here!",self.match.getType().fqn
 
 
 class ReturnTypeVisitor:

@@ -6,7 +6,7 @@ from bike.transformer.save import save
 def rename(filename,lineno,col,newname,promptcallback=None):
     strrewrite = WordRewriter()
     for match in findReferencesIncludingDefn(filename,lineno,col):
-        #print "rename match ",match
+        #print_ "rename match ",match
         if match.confidence == 100 or promptUser(promptcallback,match):
             strrewrite.rewriteString(match.sourcenode,
                                      match.lineno,match.colno,newname)
