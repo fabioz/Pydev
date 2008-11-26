@@ -112,6 +112,7 @@ try:
     #Redefine input and raw_input only after the original sitecustomize was executed
     #(because otherwise, the original raw_input and input would still not be defined)
     import __builtin__
+    IS_PYTHON_3K = 0
     original_raw_input = __builtin__.raw_input
     original_input = __builtin__.input
     
@@ -136,6 +137,30 @@ try:
     
     __builtin__.raw_input = raw_input
     __builtin__.input = input
+    
+    
+except ImportError:
+    try:
+        import builtins #Python 3.0 does not have the __builtin__ module
+        IS_PYTHON_3K = 1
+        original_input = builtins.input
+        def input(prompt=''):
+            #the original input would only remove a trailing \n, so, at
+            #this point if we had a \r\n the \r would remain (which is valid for eclipse)
+            #so, let's remove the remaining \r which python didn't expect.
+            ret = original_input(prompt)
+                
+            if ret.endswith('\r'):
+                return ret[:-1]
+                
+            return ret
+        input.__doc__ = original_input.__doc__
+    except:
+        #Don't report errors at this stage
+        if DEBUG:
+            import traceback;traceback.print_exc() #@Reimport
+    
+    
 except:
     #Don't report errors at this stage
     if DEBUG:
@@ -147,8 +172,12 @@ try:
     #here (note that it'll not go into echo mode in the console, so, what' the user writes
     #will actually be seen)
     import getpass
-    def pydev_getpass(msg='Password: '):
-        return raw_input(msg)
+    if IS_PYTHON_3K:
+        def pydev_getpass(msg='Password: '):
+            return input(msg)
+    else:
+        def pydev_getpass(msg='Password: '):
+            return raw_input(msg)
     
     getpass.getpass = pydev_getpass
 except:

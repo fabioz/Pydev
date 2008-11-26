@@ -1,4 +1,7 @@
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 import threading
 import unittest
 import sys
@@ -10,15 +13,26 @@ sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
 import pydevconsole
 
 try:
-    from SimpleXMLRPCServer import SimpleXMLRPCServer
+    try:
+        from SimpleXMLRPCServer import SimpleXMLRPCServer
+    except ImportError:
+        from xmlrpc.server import SimpleXMLRPCServer
 except ImportError:
     from _pydev_SimpleXMLRPCServer import SimpleXMLRPCServer
     
 try:
-    import xmlrpclib
+    try:
+        import xmlrpclib
+    except ImportError:
+        import xmlrpc.client as xmlrpclib
 except ImportError:
     import _pydev_xmlrpclib as xmlrpclib
     
+try:
+    raw_input
+    raw_input_name = 'raw_input'
+except NameError:
+    raw_input_name = 'input'
 
 #=======================================================================================================================
 # Test
@@ -47,9 +61,9 @@ class Test(unittest.TestCase):
         interpreter.addExec('')
         interpreter.addExec('foo=Foo()')
         interpreter.addExec('foo.__doc__=None')
-        interpreter.addExec('val = raw_input()')
+        interpreter.addExec('val = %s()' % (raw_input_name,))
         interpreter.addExec('50')
-        interpreter.addExec('print val')
+        interpreter.addExec('print (val)')
         self.assertEqual(['50', 'input_request'], sys.stdout.getvalue().split())
         
         comps = interpreter.getCompletions('foo.')
@@ -69,10 +83,12 @@ class Test(unittest.TestCase):
         interpreter.addExec('s = "mystring"')
         
         desc = interpreter.getDescription('val')
-        self.assert_(desc.find('str(object) -> string') >= 0 or desc == "'input_request'")
+        self.assert_(desc.find('str(object) -> string') >= 0 or desc == "'input_request'" or 
+                     desc.find('str(string[, encoding[, errors]]) -> str') >= 0, 'Could not find what was needed in %s' % desc)
         
         desc = interpreter.getDescription('val.join')
         self.assert_(desc.find('S.join(sequence) -> string') >= 0 or 
+                     desc.find('S.join(sequence) -> str') >= 0 or 
                      desc == "<builtin method 'join'>"  or 
                      desc == "<built-in method join of str object>", 
                      "Could not recognize: %s" % (desc,))
@@ -125,8 +141,8 @@ class Test(unittest.TestCase):
         server.addExec('    pass')
         server.addExec('')
         server.addExec('foo = Foo()')
-        server.addExec('a = raw_input()')
-        server.addExec('print a')
+        server.addExec('a = %s()' % (raw_input_name,))
+        server.addExec('print (a)')
         self.assertEqual(['input_request'], sys.stdout.getvalue().split())
         
 #=======================================================================================================================

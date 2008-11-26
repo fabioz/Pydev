@@ -9,6 +9,13 @@ sys.argv[0] = os.path.dirname(sys.argv[0])
 #twice the dirname to get the previous level from this file.
 sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
 
+try:
+    import __builtin__ #@UnusedImport
+    BUILTIN_MOD = '__builtin__'
+except ImportError:
+    BUILTIN_MOD = 'builtins'
+
+
 if sys.platform.find('java') == -1:
     
     HAS_WX = False
@@ -36,20 +43,18 @@ if sys.platform.find('java') == -1:
                 tip = importsTipper.GenerateTip('OpenGL.GLUT')
                 self.assertIn('glutDisplayFunc', tip)
                 self.assertIn('glutInitDisplayMode', tip)
-            except RuntimeError, e:
-                if not 'Unable to import module' in str(e):
-                    raise
+            except ImportError:
+                pass
     
         def testImports4(self):
             try:
                 tip = importsTipper.GenerateTip('mx.DateTime.mxDateTime.mxDateTime')
                 self.assertIn('now', tip)
-            except RuntimeError, e:
-                if not 'Unable to import module' in str(e):
-                    raise
+            except ImportError:
+                pass
             
         def testImports2a(self):
-            tips = importsTipper.GenerateTip('__builtin__.RuntimeError')
+            tips = importsTipper.GenerateTip('%s.RuntimeError' % BUILTIN_MOD)
             self.assertIn('__doc__', tips)
             
         def testImports(self):
@@ -77,11 +82,10 @@ if sys.platform.find('java') == -1:
             
                     tip = importsTipper.GenerateTip('qt.QWidget.AltButton.__xor__')
                     self.assertIn('__class__'      , tip)
-                except RuntimeError, e:
-                    if not 'Unable to import module' in str(e):
-                        raise
+                except ImportError:
+                    pass
                 
-            tip = importsTipper.GenerateTip('__builtin__')
+            tip = importsTipper.GenerateTip(BUILTIN_MOD)
     #        for t in tip[1]:
     #            print_ t
             self.assertIn('object'         , tip)
@@ -100,11 +104,20 @@ if sys.platform.find('java') == -1:
             t = self.assertIn('setattr' , tip)
             self.assertEqual('(object, name, value)', t[2]) #args
             
-            tip = importsTipper.GenerateTip('compiler') 
-            self.assertArgs('parse', '(buf, mode)', tip)
-            self.assertArgs('walk', '(tree, visitor, walker, verbose)', tip)
+            try:
+                import compiler
+                compiler_module = 'compiler'
+            except ImportError:
+                compiler_module = 'ast'
+            tip = importsTipper.GenerateTip(compiler_module) 
+            if compiler_module == 'compiler':
+                self.assertArgs('parse', '(buf, mode)', tip)
+                self.assertArgs('walk', '(tree, visitor, walker, verbose)', tip)
+                self.assertIn('parseFile'      , tip)
+            else:
+                self.assertArgs('parse', '(expr, filename, mode)', tip)
+                self.assertArgs('walk', '(node)', tip)
             self.assertIn('parse'          , tip)
-            self.assertIn('parseFile'      , tip)
             
         def assertArgs(self, tok, args, tips):
             for a in tips[1]:

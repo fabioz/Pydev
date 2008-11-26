@@ -2,12 +2,17 @@
 '''
 @author Fabio Zadrozny 
 '''
-import __builtin__
-    
+IS_PYTHON3K = 0
+try:
+    import __builtin__
+except ImportError:
+    import builtins as __builtin__ # Python 3.0
+    IS_PYTHON3K = 1
+
 try:
     import java.lang
-    __builtin__.True = 1
-    __builtin__.False = 0
+    setattr(__builtin__, 'True', 1) #Python 3.0 does not accept __builtin__.True = 1 in its syntax
+    setattr(__builtin__, 'False', 0)
     IS_JYTHON = True
     SERVER_NAME = 'jycompletionserver'
     from java.lang import Thread
@@ -21,8 +26,8 @@ except ImportError:
         IS_JYTHON = False
     except NameError:
         #it is an early version of python
-        __builtin__.True = 1
-        __builtin__.False = 0
+        setattr(__builtin__, 'True', 1) #Python 3.0
+        setattr(__builtin__, 'False', 0)
         
     IS_JYTHON = False
     SERVER_NAME = 'pycompletionserver'
@@ -51,9 +56,17 @@ for name, mod in sys.modules.items():
 
 
 import traceback
-import StringIO
 import time
-import urllib
+
+try:
+    import StringIO
+except:
+    import io as StringIO #Python 3.0
+
+try:
+    from urllib import quote_plus, unquote_plus
+except ImportError:
+    from urllib.parse import quote_plus, unquote_plus #Python 3.0
 
 INFO1 = 1
 INFO2 = 2
@@ -135,18 +148,25 @@ class KeepAliveThread( Thread ):
     
     def run( self ):
         time.sleep( 0.1 )
+        
+        def send(s, msg):
+            if IS_PYTHON3K:
+                s.send(bytearray(msg, 'utf-8'))
+            else:
+                s.send(msg)
+            
         while self.lastMsg == None:
             
             if self.processMsgFunc != None:
-                s = MSG_PROCESSING_PROGRESS % urllib.quote_plus( self.processMsgFunc() )
-                sent = self.socket.send( s )
+                s = MSG_PROCESSING_PROGRESS % quote_plus(self.processMsgFunc())
+                sent = send(self.socket, s)
             else:
-                sent = self.socket.send( MSG_PROCESSING )
+                sent = send(self.socket, MSG_PROCESSING)
             if sent == 0:
                 sys.exit(0) #connection broken
-            time.sleep( 0.1 )
+            time.sleep(0.1)
 
-        sent = self.socket.send( self.lastMsg )
+        sent = send(self.socket, self.lastMsg)
         if sent == 0:
             sys.exit(0) #connection broken
         
@@ -169,7 +189,7 @@ class T( Thread ):
         msg = str(msg)
         if msg:
             try:
-                return urllib.quote_plus( msg )
+                return quote_plus( msg )
             except:
                 sys.stdout.write('error making quote plus in %s\n' % (msg,))
                 raise
@@ -256,7 +276,10 @@ class T( Thread ):
                     received = conn.recv( BUFFER_SIZE )
                     if len(received) == 0:
                         sys.exit(0) #ok, connection ended
-                    data = data+received
+                    if IS_PYTHON3K:
+                        data = data+received.decode('utf-8')
+                    else:
+                        data = data+received
     
                 try:
                     try:
@@ -284,25 +307,25 @@ class T( Thread ):
                         
                             if data.startswith( MSG_IMPORTS ):
                                 data = data.replace( MSG_IMPORTS, '' )
-                                data = urllib.unquote_plus( data )
+                                data = unquote_plus( data )
                                 defFile, comps = importsTipper.GenerateTip( data )
                                 returnMsg = self.getCompletionsMessage( defFile, comps )
         
                             elif data.startswith( MSG_CHANGE_PYTHONPATH ):
                                 data = data.replace( MSG_CHANGE_PYTHONPATH, '' )
-                                data = urllib.unquote_plus( data )
+                                data = unquote_plus( data )
                                 ChangePythonPath( data )
                                 returnMsg = MSG_OK
         
                             elif data.startswith( MSG_SEARCH ):
                                 data = data.replace( MSG_SEARCH, '' )
-                                data = urllib.unquote_plus( data )
+                                data = unquote_plus( data )
                                 (f, line, col), foundAs = importsTipper.Search(data)
                                 returnMsg = self.getCompletionsMessage(f, [(line, col, foundAs)])
                                 
                             elif data.startswith( MSG_CHANGE_DIR ):
                                 data = data.replace( MSG_CHANGE_DIR, '' )
-                                data = urllib.unquote_plus( data )
+                                data = unquote_plus( data )
                                 CompleteFromDir( data )
                                 returnMsg = MSG_OK
                                 
@@ -311,24 +334,23 @@ class T( Thread ):
                                     returnMsg = MSG_JYTHON_INVALID_REQUEST
                                 else:
                                     data = data.replace( MSG_BIKE, '' )
-                                    data = urllib.unquote_plus( data )
+                                    data = unquote_plus( data )
                                     returnMsg = refactoring.HandleRefactorMessage( data, keepAliveThread )
                                 
                             else:
                                 returnMsg = MSG_INVALID_REQUEST
-                    except Exception, e:
-                        if isinstance(e, SystemExit):
-                            returnMsg = self.getCompletionsMessage( None, [( 'Exit:', 'SystemExit', '' )] )
-                            keepAliveThread.lastMsg = returnMsg
-                            raise
-                        else:
-                            dbg( SERVER_NAME+' exception ocurred', ERROR )
-                            s = StringIO.StringIO()
-                            traceback.print_exc(file = s)
-        
-                            err = s.getvalue()
-                            dbg( SERVER_NAME+' received error: '+str(err), ERROR )
-                            returnMsg = self.getCompletionsMessage( None, [( 'ERROR:', '%s'%( err ), '' )] )
+                    except SystemExit:
+                        returnMsg = self.getCompletionsMessage( None, [( 'Exit:', 'SystemExit', '' )] )
+                        keepAliveThread.lastMsg = returnMsg
+                        raise
+                    except:
+                        dbg( SERVER_NAME+' exception ocurred', ERROR )
+                        s = StringIO.StringIO()
+                        traceback.print_exc(file = s)
+    
+                        err = s.getvalue()
+                        dbg( SERVER_NAME+' received error: '+str(err), ERROR )
+                        returnMsg = self.getCompletionsMessage( None, [( 'ERROR:', '%s'%( err ), '' )] )
                             
                     
                 finally:
@@ -339,15 +361,16 @@ class T( Thread ):
             sys.exit(0) #connection broken
             
             
-        except Exception, e:
-            if not isinstance(e, SystemExit):
-                #No need to log SystemExit error
-                s = StringIO.StringIO()
-                exc_info = sys.exc_info()
-    
-                traceback.print_exception( exc_info[0], exc_info[1], exc_info[2], limit=None, file = s )
-                err = s.getvalue()
-                dbg( SERVER_NAME+' received error: '+str( err ), ERROR )
+        except SystemExit:
+            raise
+            #No need to log SystemExit error
+        except:
+            s = StringIO.StringIO()
+            exc_info = sys.exc_info()
+
+            traceback.print_exception( exc_info[0], exc_info[1], exc_info[2], limit=None, file = s )
+            err = s.getvalue()
+            dbg( SERVER_NAME+' received error: '+str( err ), ERROR )
             raise
 
 if __name__ == '__main__':

@@ -34,7 +34,7 @@ def delete(filename):
 def createFile(filename, contents='', flag='w'):
     '''Creates the given filename with the given contents.
     '''
-    f = file(filename, flag)
+    f = open(filename, flag)
     f.write(contents)
     f.close()
 
@@ -153,10 +153,10 @@ c.aaa()
     return s
         
 if __name__ == '__main__':
-    if sys.platform.find('java') == -1:
-        unittest.main()
-    else:
-        sys.stdout.write('Not running python tests in jython -- platform: %s\n' % (sys.platform,))
+    try:
+        refactoring
+    except NameError:
+        sys.stdout.write('Not running python tests in platform: %s (unable to import refactoring)\n' % (sys.platform,))
 
     
     

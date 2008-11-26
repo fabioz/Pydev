@@ -10,6 +10,7 @@ sys.argv[0] = os.path.dirname(sys.argv[0])
 #twice the dirname to get the previous level from this file.
 sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
 
+IS_PYTHON_3K = 0
 if sys.platform.find('java') == -1:
     
     
@@ -17,7 +18,15 @@ if sys.platform.find('java') == -1:
         import inspect
         import pycompletionserver
         import socket
-        import urllib
+        try:
+            from urllib import quote_plus, unquote_plus
+            def send(s, msg):
+                s.send(msg)
+        except ImportError:
+            IS_PYTHON_3K = 1
+            from urllib.parse import quote_plus, unquote_plus #Python 3.0
+            def send(s, msg):
+                s.send(bytearray(msg, 'utf-8'))
     except ImportError:
         pass #Not available in jython
     
@@ -74,7 +83,8 @@ if sys.platform.find('java') == -1:
             msg = ''
             while finish == False:
                 m = self.connToRead.recv(1024*4)
-                
+                if IS_PYTHON_3K:
+                    m = m.decode('utf-8')
                 if m.startswith('@@PROCESSING'):
                     sys.stdout.write('Status msg: %s\n' % (msg,))
                 else:
@@ -90,10 +100,10 @@ if sys.platform.find('java') == -1:
             
             try:
                 #now that we have the connections all set up, check the code completion messages.
-                msg = urllib.quote_plus('math')
-                sToWrite.send('@@IMPORTS:%sEND@@'%msg) #math completions
+                msg = quote_plus('math')
+                send(sToWrite, '@@IMPORTS:%sEND@@'%msg) #math completions
                 completions = self.readMsg()
-                #print_ urllib.unquote_plus(completions)
+                #print_ unquote_plus(completions)
                 
                 #math is a builtin and because of that, it starts with None as a file
                 start = '@@COMPLETIONS(None,(__doc__,'
@@ -104,28 +114,28 @@ if sys.platform.find('java') == -1:
     
     
                 #now, test search
-                msg = urllib.quote_plus('inspect.ismodule')
-                sToWrite.send('@@SEARCH%sEND@@'%msg) #math completions
+                msg = quote_plus('inspect.ismodule')
+                send(sToWrite, '@@SEARCH%sEND@@'%msg) #math completions
                 found = self.readMsg()
                 self.assert_('inspect.py' in found)
-                self.assert_('33' in found or '34' in found)
+                self.assert_('33' in found or '34' in found or '51' in found, 'Could not find 33, 34 or 51in %s' % found)
     
                 #now, test search
-                msg = urllib.quote_plus('inspect.CO_NEWLOCALS')
-                sToWrite.send('@@SEARCH%sEND@@'%msg) #math completions
+                msg = quote_plus('inspect.CO_NEWLOCALS')
+                send(sToWrite, '@@SEARCH%sEND@@'%msg) #math completions
                 found = self.readMsg()
                 self.assert_('inspect.py' in found)
                 self.assert_('CO_NEWLOCALS' in found)
                 
                 #now, test search
-                msg = urllib.quote_plus('inspect.BlockFinder.tokeneater')
-                sToWrite.send('@@SEARCH%sEND@@'%msg) 
+                msg = quote_plus('inspect.BlockFinder.tokeneater')
+                send(sToWrite, '@@SEARCH%sEND@@'%msg) 
                 found = self.readMsg()
                 self.assert_('inspect.py' in found)
     #            self.assert_('CO_NEWLOCALS' in found)
     
             #reload modules test
-    #        sToWrite.send('@@RELOAD_MODULES_END@@')
+    #        send(sToWrite, '@@RELOAD_MODULES_END@@')
     #        ok = self.readMsg()
     #        self.assertEquals('@@MSG_OK_END@@' , ok)
     #        this test is not executed because it breaks our current enviroment.
@@ -159,13 +169,13 @@ if sys.platform.find('java') == -1:
     #        try:
     #            createFile(FILE, getInitialFile())
     #            
-    #            msg = urllib.quote_plus('@@BIKEfindDefinition %s %s %sEND@@'%(FILE, 7+1, 4))
-    #            sToWrite.send(msg) 
+    #            msg = quote_plus('@@BIKEfindDefinition %s %s %sEND@@'%(FILE, 7+1, 4))
+    #            send(sToWrite, msg) 
     #            result = self.readMsg()
     #            self.assert_('BIKE_OK:' in result)
     #    
-    #            msg = urllib.quote_plus('@@BIKErenameByCoordinates %s %s %s %sEND@@'%(FILE, 1+1, 6, 'G'))
-    #            sToWrite.send(msg) 
+    #            msg = quote_plus('@@BIKErenameByCoordinates %s %s %s %sEND@@'%(FILE, 1+1, 6, 'G'))
+    #            send(sToWrite, msg) 
     #            result = self.readMsg()
     #            self.assert_('BIKE_OK:' in result)
     #    

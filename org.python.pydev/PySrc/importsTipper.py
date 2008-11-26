@@ -22,7 +22,7 @@ def _imp(name):
             return _imp(sub)
         else:
             s = 'Unable to import module: %s - sys.path: %s' % (str(name), sys.path)
-            raise RuntimeError(s)
+            raise ImportError(s)
 
 def GetFile(mod):
     f = None
@@ -104,7 +104,10 @@ def DoFind(f, mod):
     if inspect.ismethod(mod):
         mod = mod.im_func
     if inspect.isfunction(mod):
-        mod = mod.func_code
+        try:
+            mod = mod.func_code
+        except AttributeError:
+            mod = mod.__code__ #python 3k
     if inspect.istraceback(mod):
         mod = mod.tb_frame
     if inspect.isframe(mod):

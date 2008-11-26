@@ -1,11 +1,13 @@
-import types
-import __builtin__
-
 
 try:
+    import __builtin__
+except ImportError:
+    import builtins as __builtin__
+    
+try:
     import java.lang #@UnusedImport
-    __builtin__.True = 1
-    __builtin__.False = 0
+    setattr(__builtin__, 'True', 1) #Python 3.0
+    setattr(__builtin__, 'False', 0)
     import jyimportsTipper #as importsTipper #changed to be backward compatible with 1.5
     importsTipper = jyimportsTipper
 
@@ -15,8 +17,9 @@ except ImportError:
         IS_JYTHON = False
     except NameError:
         #it is an early version of python
-        __builtin__.True = 1
-        __builtin__.False = 0
+        setattr(__builtin__, 'True', 1) #Python 3.0
+        setattr(__builtin__, 'False', 0)
+        IS_JYTHON = False
         
     import importsTipper
 
@@ -64,13 +67,6 @@ class Completer:
 
         readline.set_completer(Completer(my_namespace).complete)
         """
-
-        # some minimal strict typechecks.  For some core data structures, I
-        # want actual basic python types, not just anything that looks like
-        # one.  This is especially true for namespaces.
-        for ns in (namespace,global_namespace):
-            if ns is not None and type(ns) != types.DictType:
-                raise TypeError,'namespace must be a dictionary'
 
         # Don't bind to namespace quite yet, but flag whether the user wants a
         # specific namespace or to use __main__.__dict__. This will allow us

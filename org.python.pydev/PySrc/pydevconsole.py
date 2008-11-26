@@ -6,11 +6,14 @@ try:
     __setFalse = False
 except:
     import __builtin__
-    __builtin__.True = 1
-    __builtin__.False = 0
+    setattr(__builtin__, 'True', 1) #Python 3.0 does not accept __builtin__.True = 1 in its syntax
+    setattr(__builtin__, 'False', 0)
 
 try:
-    import xmlrpclib
+    try:
+        import xmlrpclib
+    except ImportError:
+        import xmlrpc.client as xmlrpclib
 except ImportError:
     import _pydev_xmlrpclib as xmlrpclib
 
@@ -169,7 +172,10 @@ def StartServer(host, port, client_port):
     sys.exit = _DoExit
     
     try:
-        from SimpleXMLRPCServer import SimpleXMLRPCServer
+        try:
+            from SimpleXMLRPCServer import SimpleXMLRPCServer
+        except ImportError:
+            from xmlrpc.server import SimpleXMLRPCServer
     except ImportError:
         from _pydev_SimpleXMLRPCServer import SimpleXMLRPCServer
         

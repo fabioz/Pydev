@@ -185,8 +185,12 @@ else:
 __version__ = "1.0.1"
 
 # xmlrpc integer limits
-MAXINT =  2L**31-1
-MININT = -2L**31
+try:
+    long 
+except NameError:
+    long = int
+MAXINT =  long(2)**31-1
+MININT = long(-2)**31
 
 # --------------------------------------------------------------------
 # Error constants (from Dan Libby's specification at
@@ -484,7 +488,7 @@ except (AttributeError, ImportError):
 try:
     import sgmlop
     if not hasattr(sgmlop, "XMLParser"):
-        raise ImportError
+        raise ImportError()
 except ImportError:
     SgmlopParser = None # sgmlop accelerator not available
 else:
@@ -527,7 +531,7 @@ else:
 try:
     from xml.parsers import expat
     if not hasattr(expat, "ParserCreate"):
-        raise ImportError
+        raise ImportError()
 except ImportError:
     ExpatParser = None # expat not available
 else:
@@ -632,20 +636,20 @@ class Marshaller:
         try:
             f = self.dispatch[type(value)]
         except KeyError:
-            raise TypeError, "cannot marshal %s objects" % type(value)
+            raise TypeError("cannot marshal %s objects" % type(value))
         else:
             f(self, value, write)
 
     def dump_nil (self, value, write):
         if not self.allow_none:
-            raise TypeError, "cannot marshal None unless allow_none is enabled"
+            raise TypeError("cannot marshal None unless allow_none is enabled")
         write("<value><nil/></value>")
     dispatch[NoneType] = dump_nil
 
     def dump_int(self, value, write):
         # in case ints are > 32 bits
         if value > MAXINT or value < MININT:
-            raise OverflowError, "int exceeds XML-RPC limits"
+            raise OverflowError("int exceeds XML-RPC limits")
         write("<value><int>")
         write(str(value))
         write("</int></value>\n")
@@ -660,7 +664,7 @@ class Marshaller:
 
     def dump_long(self, value, write):
         if value > MAXINT or value < MININT:
-            raise OverflowError, "long int exceeds XML-RPC limits"
+            raise OverflowError("long int exceeds XML-RPC limits")
         write("<value><int>")
         write(str(int(value)))
         write("</int></value>\n")
@@ -689,7 +693,7 @@ class Marshaller:
     def dump_array(self, value, write):
         i = id(value)
         if self.memo.has_key(i):
-            raise TypeError, "cannot marshal recursive sequences"
+            raise TypeError("cannot marshal recursive sequences")
         self.memo[i] = None
         dump = self.__dump
         write("<value><array><data>\n")
@@ -703,7 +707,7 @@ class Marshaller:
     def dump_struct(self, value, write, escape=escape):
         i = id(value)
         if self.memo.has_key(i):
-            raise TypeError, "cannot marshal recursive dictionaries"
+            raise TypeError("cannot marshal recursive dictionaries")
         self.memo[i] = None
         dump = self.__dump
         write("<value><struct>\n")
@@ -713,7 +717,7 @@ class Marshaller:
                 if unicode and type(k) is UnicodeType:
                     k = k.encode(self.encoding)
                 else:
-                    raise TypeError, "dictionary key must be string"
+                    raise TypeError("dictionary key must be string")
             write("<name>%s</name>\n" % escape(k))
             dump(v, write)
             write("</member>\n")
@@ -779,7 +783,7 @@ class Unmarshaller:
         self.append = self._stack.append
         self._use_datetime = use_datetime
         if use_datetime and not datetime:
-            raise ValueError, "the datetime module is not available"
+            raise ValueError("the datetime module is not available")
 
     def close(self):
         # return response tuple and target method
@@ -846,7 +850,7 @@ class Unmarshaller:
         elif data == "1":
             self.append(True)
         else:
-            raise TypeError, "bad boolean value"
+            raise TypeError("bad boolean value")
         self._value = 0
     dispatch["boolean"] = end_boolean
 
@@ -952,8 +956,7 @@ class MultiCallIterator:
         elif type(item) == type([]):
             return item[0]
         else:
-            raise ValueError,\
-                  "unexpected type in multicall result"
+            raise ValueError("unexpected type in multicall result")
 
 class MultiCall:
     """server -> a object used to boxcar method calls
@@ -1007,7 +1010,7 @@ def getparser(use_datetime=0):
     to an unmarshalling object.  Return both objects.
     """
     if use_datetime and not datetime:
-        raise ValueError, "the datetime module is not available"
+        raise ValueError("the datetime module is not available")
     if FastParser and FastUnmarshaller:
         if use_datetime:
             mkdatetime = _datetime_type
@@ -1410,7 +1413,7 @@ class ServerProxy:
         import urllib
         type, uri = urllib.splittype(uri)
         if type not in ("http", "https"):
-            raise IOError, "unsupported XML-RPC protocol"
+            raise IOError("unsupported XML-RPC protocol")
         self.__host, self.__handler = urllib.splithost(uri)
         if not self.__handler:
             self.__handler = "/RPC2"
@@ -1477,8 +1480,8 @@ if __name__ == "__main__":
 
     try:
         sys.stdout.write('%s\n' % (server.currentTime.getCurrentTime(),))
-    except Error, v:
-        sys.stdout.write("ERROR %s\n" % (v,))
+    except Error:
+        import traceback;traceback.print_exc()
 
     multi = MultiCall(server)
     multi.currentTime.getCurrentTime()
@@ -1486,5 +1489,5 @@ if __name__ == "__main__":
     try:
         for response in multi():
             sys.stdout.write('%s\n' % (response,))
-    except Error, v:
-        sys.stdout.write("ERROR %s\n" % (v,))
+    except Error:
+        import traceback;traceback.print_exc()
