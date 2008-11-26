@@ -23,7 +23,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.python.pydev.core.docutils.WordUtils;
+import org.python.pydev.utils.LinkFieldEditor;
 import org.python.pydev.utils.MultiStringFieldEditor;
 
 import com.python.pydev.PydevExtensionInitializer;
@@ -78,6 +80,7 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
     private Label labelType;
     private StringFieldEditor eMailFieldEditor;
     private MultiStringFieldEditor licenseFieldEditor;
+    private LinkFieldEditor linkFieldEditor;
 
     
     //--------------------------------------------------------------------------------------------------------
@@ -115,48 +118,71 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
 //        data.grabExcessHorizontalSpace = true;
 //        btGetInfo.setLayoutData(data);
 
-        String msg1 = "If you alredy received your license, please fill in your e-mail, paste the license you received and press 'Validate'.";
-        label = new Label(composite, SWT.NONE);
-        label.setText("\n\n"+WordUtils.wrap(msg1, 80));
-        data = new GridData(GridData.FILL_HORIZONTAL);
-        data.horizontalSpan = 2;
-        data.grabExcessHorizontalSpace = true;
-        label.setLayoutData(data);
         
-        eMailFieldEditor = new StringFieldEditor(PydevExtensionInitializer.USER_EMAIL, "E-mail (or username):", composite);
-        licenseFieldEditor = new MultiStringFieldEditor(PydevExtensionInitializer.LICENSE, "License Key:", composite);
-        addField(eMailFieldEditor);
-        addField(licenseFieldEditor);
-        
-        Button btValidate = new Button(composite, SWT.PUSH);
-        btValidate.setText("Validate");
-        btValidate.setFont( composite.getFont() );
-        btValidate.addSelectionListener(new ValidateButtonListener());        
-        data = new GridData(GridData.FILL_HORIZONTAL);
-        data.horizontalSpan = 2;
-        data.grabExcessHorizontalSpace = true;
-        btValidate.setLayoutData(data);
-        
-        
-        labelUser = new Label(composite, SWT.NONE);
-        data = new GridData(GridData.FILL_HORIZONTAL);
-        data.horizontalSpan = 2;
-        data.grabExcessHorizontalSpace = true;
-        labelUser.setLayoutData(data);
-        
-        labelExp = new Label(composite, SWT.NONE);
-        data = new GridData(GridData.FILL_HORIZONTAL);
-        data.horizontalSpan = 2;
-        data.grabExcessHorizontalSpace = true;
-        labelExp.setLayoutData(data);
-        
-        labelType = new Label(composite, SWT.NONE);
-        data = new GridData(GridData.FILL_HORIZONTAL);
-        data.horizontalSpan = 2;
-        data.grabExcessHorizontalSpace = true;
-        labelType.setLayoutData(data);
+        if(isInAptanaStudio()){
+            linkFieldEditor = new LinkFieldEditor("NOT_REALLY_USED_FIELD_EDITOR", "<a>Link:</a>", composite, new SelectionListener() {
+                public void widgetSelected(SelectionEvent e) {
+                    String id = "com.aptana.ide.intro.preferences.LicensePreferencePage";
+                    IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
+                    workbenchPreferenceContainer.openPage(id, null);
+                }
 
-        updateLicInfo();
+                public void widgetDefaultSelected(SelectionEvent e) {
+                }
+            });
+            addField(linkFieldEditor);
+            
+        }else{
+        
+            String msg1 = "If you alredy received your license, please fill in your e-mail, paste the license you received and press 'Validate'.";
+            label = new Label(composite, SWT.NONE);
+            label.setText("\n\n"+WordUtils.wrap(msg1, 80));
+            data = new GridData(GridData.FILL_HORIZONTAL);
+            data.horizontalSpan = 2;
+            data.grabExcessHorizontalSpace = true;
+            label.setLayoutData(data);
+            
+            eMailFieldEditor = new StringFieldEditor(PydevExtensionInitializer.USER_EMAIL, "E-mail (or username):", composite);
+            licenseFieldEditor = new MultiStringFieldEditor(PydevExtensionInitializer.LICENSE, "License Key:", composite);
+            addField(eMailFieldEditor);
+            addField(licenseFieldEditor);
+            
+            Button btValidate = new Button(composite, SWT.PUSH);
+            btValidate.setText("Validate");
+            btValidate.setFont( composite.getFont() );
+            btValidate.addSelectionListener(new ValidateButtonListener());        
+            data = new GridData(GridData.FILL_HORIZONTAL);
+            data.horizontalSpan = 2;
+            data.grabExcessHorizontalSpace = true;
+            btValidate.setLayoutData(data);
+            
+            
+            labelUser = new Label(composite, SWT.NONE);
+            data = new GridData(GridData.FILL_HORIZONTAL);
+            data.horizontalSpan = 2;
+            data.grabExcessHorizontalSpace = true;
+            labelUser.setLayoutData(data);
+            
+            labelExp = new Label(composite, SWT.NONE);
+            data = new GridData(GridData.FILL_HORIZONTAL);
+            data.horizontalSpan = 2;
+            data.grabExcessHorizontalSpace = true;
+            labelExp.setLayoutData(data);
+            
+            labelType = new Label(composite, SWT.NONE);
+            data = new GridData(GridData.FILL_HORIZONTAL);
+            data.horizontalSpan = 2;
+            data.grabExcessHorizontalSpace = true;
+            labelType.setLayoutData(data);
+    
+            updateLicInfo();
+        }
+    }
+
+
+    private boolean isInAptanaStudio() {
+        //TODO: Detect whether we're in aptana studio correctly
+        return false;
     }
 
 
