@@ -289,7 +289,7 @@ class Fault(Error):
 #              all other values are interpreted as False.
 
 if _bool_is_builtin:
-    boolean = Boolean = bool
+    boolean = Boolean = bool #@UndefinedVariable
     # to avoid breaking code which references xmlrpclib.{True,False}
     True, False = True, False
 else:
@@ -370,7 +370,7 @@ class DateTime:
                 today = datetime.datetime.now().strftime("%Y%m%d")
                 self.value = value.strftime(today+"T%H:%M:%S")
                 return
-            if not isinstance(value, (TupleType, time.struct_time)):
+            if not isinstance(value, (TupleType, time.struct_time)): #@UndefinedVariable
                 if value == 0:
                     value = time.time()
                 value = time.localtime(value)
@@ -660,7 +660,7 @@ class Marshaller:
             write("<value><boolean>")
             write(value and "1" or "0")
             write("</boolean></value>\n")
-        dispatch[bool] = dump_bool
+        dispatch[bool] = dump_bool #@UndefinedVariable
 
     def dump_long(self, value, write):
         if value > MAXINT or value < MININT:
