@@ -418,12 +418,16 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
             return new ExtraArg(makeName(NameTok.VarArg), JJTEXTRAARGLIST);
         case JJTEXTRAKEYWORDLIST:
             return new ExtraArg(makeName(NameTok.KwArg), JJTEXTRAKEYWORDLIST);
+        case JJTDECORATED:
+            return stack.popNode();
         case JJTCLASSDEF:
             suite = (Suite) stack.popNode();
             body = suite.body;
             exprType[] bases = makeExprs(stack.nodeArity() - 1);
             nameTok = makeName(NameTok.ClassName);
-            ClassDef classDef = new ClassDef(nameTok, bases, body);
+            decs = (Decorators) stack.popNode() ;
+            decsexp = decs.exp;
+            ClassDef classDef = new ClassDef(nameTok, bases, body, decsexp);
             addSpecialsAndClearOriginal(suite, classDef);
             setParentForFuncOrClass(body, classDef);
             return classDef;

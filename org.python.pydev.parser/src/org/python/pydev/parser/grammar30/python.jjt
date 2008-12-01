@@ -762,15 +762,18 @@ modType file_input(): {}
 //funcdef: 'def' NAME parameters ':' suite
 void funcdef(): {}
 { 
-    decorators()
-    <DEF> AnyName() parameters() <COLON> {this.addSpecialToken(":");} suite() 
+    <DEF> AnyName() parameters() <COLON> 
+    	{this.addSpecialToken(":");} suite() 
 }
 
-//@ call, name, attr ... <nl>
+//decorators: decorator+
+//decorator: '@' dotted_name [ '(' [arglist] ')' ] NEWLINE
 void decorators(): {}
 {
-    (begin_decorator() (<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} )* <NEWLINE> )* 
+    (begin_decorator() (<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} )* <NEWLINE> )+ 
 }
+
+
 void begin_decorator(): {}
 { <AT> dotted_name()
 }
@@ -978,7 +981,7 @@ void assert_stmt(): {}
 
 //compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef
 void compound_stmt() #void : { token_source.compound = true; }
-{if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef()}
+{if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef() | decorated()}
 
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
 void if_stmt(): {}
@@ -1316,9 +1319,18 @@ void list_if()#void:{}
 { <IF>  {this.addSpecialToken(" if ");} old_test() [list_iter()]}
 
 
+//decorated: decorators (classdef | funcdef)
+void decorated():{}
+{
+	decorators() (classdef()|funcdef())
+}
+
 //classdef: 'class' NAME ['(' [testlist] ')'] ':' suite
 void classdef(): {}
-{<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [testlist()] <RPAREN>  {this.findTokenAndAdd(")");} ] <COLON> {this.addSpecialToken(":");} suite()}
+{
+	<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [testlist()] <RPAREN>  {this.findTokenAndAdd(")");} ] <COLON> 
+		{this.addSpecialToken(":");} suite()
+}
 
 //arglist: (argument ',')*
 //              (argument [',']| '*' test [',' '**' test] | '**' test)

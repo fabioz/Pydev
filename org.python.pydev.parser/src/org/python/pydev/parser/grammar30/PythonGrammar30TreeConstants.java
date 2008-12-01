@@ -113,15 +113,16 @@ public interface PythonGrammar30TreeConstants
   public int JJTCOLON = 106;
   public int JJTCOMMA = 107;
   public int JJTLIST_FOR = 108;
-  public int JJTCLASSDEF = 109;
-  public int JJTEXTRAARGVALUELIST = 110;
-  public int JJTEXTRAKEYWORDVALUELIST = 111;
-  public int JJTKEYWORD = 112;
-  public int JJTNUM = 113;
-  public int JJTCOMPLEX = 114;
-  public int JJTNAME = 115;
-  public int JJTSTRING = 116;
-  public int JJTBINARY = 117;
+  public int JJTDECORATED = 109;
+  public int JJTCLASSDEF = 110;
+  public int JJTEXTRAARGVALUELIST = 111;
+  public int JJTEXTRAKEYWORDVALUELIST = 112;
+  public int JJTKEYWORD = 113;
+  public int JJTNUM = 114;
+  public int JJTCOMPLEX = 115;
+  public int JJTNAME = 116;
+  public int JJTSTRING = 117;
+  public int JJTBINARY = 118;
 
 
   public String[] jjtNodeName = {
@@ -234,6 +235,7 @@ public interface PythonGrammar30TreeConstants
     "Colon",
     "Comma",
     "list_for",
+    "decorated",
     "classdef",
     "ExtraArgValueList",
     "ExtraKeywordValueList",

@@ -1,9 +1,10 @@
 package org.python.pydev.parser;
 
-import java.io.File;
-
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.TestDependent;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 public class PyParser30Test extends PyParserTestBase{
 
@@ -11,7 +12,7 @@ public class PyParser30Test extends PyParserTestBase{
         try {
             PyParser30Test test = new PyParser30Test();
             test.setUp();
-            test.testNoAssignToFalse();
+            test.testClassDecorator();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser30Test.class);
@@ -86,6 +87,22 @@ public class PyParser30Test extends PyParserTestBase{
         "";
         parseILegalDocStr(s);
     }
+    
+    public void testClassDecorator() {
+        String s = "" +
+        		"@classdec\n" +
+        		"@classdec2\n" +
+        		"class A:\n" +
+        		"    pass\n" +
+        		"";
+        SimpleNode ast = parseLegalDocStr(s);
+        Module m = (Module) ast;
+        ClassDef d = (ClassDef) m.body[0];
+        assertEquals(2, d.decs.length);
+        assertEquals("classdec", NodeUtils.getRepresentationString(d.decs[0].func));
+        assertEquals("classdec2", NodeUtils.getRepresentationString(d.decs[1].func));        
+    }
+    
     
 //    public void testSetComprehension() {
 //        String s = "" +

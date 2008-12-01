@@ -8,16 +8,19 @@ public class ClassDef extends stmtType {
     public NameTokType name;
     public exprType[] bases;
     public stmtType[] body;
+    public decoratorsType[] decs;
 
-    public ClassDef(NameTokType name, exprType[] bases, stmtType[] body) {
+    public ClassDef(NameTokType name, exprType[] bases, stmtType[] body,
+    decoratorsType[] decs) {
         this.name = name;
         this.bases = bases;
         this.body = body;
+        this.decs = decs;
     }
 
     public ClassDef(NameTokType name, exprType[] bases, stmtType[] body,
-    SimpleNode parent) {
-        this(name, bases, body);
+    decoratorsType[] decs, SimpleNode parent) {
+        this(name, bases, body, decs);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
     }
@@ -32,6 +35,9 @@ public class ClassDef extends stmtType {
         sb.append(", ");
         sb.append("body=");
         sb.append(dumpThis(this.body));
+        sb.append(", ");
+        sb.append("decs=");
+        sb.append(dumpThis(this.decs));
         sb.append("]");
         return sb.toString();
     }
@@ -41,6 +47,7 @@ public class ClassDef extends stmtType {
         pickleThis(this.name, ostream);
         pickleThis(this.bases, ostream);
         pickleThis(this.body, ostream);
+        pickleThis(this.decs, ostream);
     }
 
     public Object accept(VisitorIF visitor) throws Exception {
@@ -60,6 +67,12 @@ public class ClassDef extends stmtType {
             for (int i = 0; i < body.length; i++) {
                 if (body[i] != null)
                     body[i].accept(visitor);
+            }
+        }
+        if (decs != null) {
+            for (int i = 0; i < decs.length; i++) {
+                if (decs[i] != null)
+                    decs[i].accept(visitor);
             }
         }
     }
