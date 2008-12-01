@@ -33,7 +33,7 @@ public class PyASTFactory {
      * e.g.: if name == foo, it will return a call as: foo()
      */
     public static Call makeCall(String name) {
-        Call call = new Call(new Name(name, Name.Load), null, null, null, null);
+        Call call = new Call(new Name(name, Name.Load, false), null, null, null, null);
         call.addSpecial("(", false);
         call.addSpecial(")", true);
         return call;

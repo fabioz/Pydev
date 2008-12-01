@@ -68,7 +68,7 @@ public class ScopeAnalysisCommentsTest extends TestCase{
     
     public void test4() throws Exception {
         ArrayList<Object> c = new ArrayList<Object>();
-        Str str = new Str("\nfoo\nfoo\n", Str.TripleSingle, false, false);
+        Str str = new Str("\nfoo\nfoo\n", Str.TripleSingle, false, false, false);
         str.beginLine=5;
         str.beginColumn=0;
         c.add(str);
@@ -85,7 +85,7 @@ public class ScopeAnalysisCommentsTest extends TestCase{
     
     public void test5() throws Exception {
         ArrayList<Object> c = new ArrayList<Object>();
-        Str str = new Str("\nfoo\n\n\nfoo\n", Str.TripleSingle, false, false);
+        Str str = new Str("\nfoo\n\n\nfoo\n", Str.TripleSingle, false, false, false);
         str.beginLine=5;
         str.beginColumn=0;
         c.add(str);

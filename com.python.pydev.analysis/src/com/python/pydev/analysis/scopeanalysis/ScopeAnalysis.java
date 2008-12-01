@@ -320,7 +320,7 @@ public class ScopeAnalysis {
             
             for (Integer offset : offsets) {
                 int line=0;
-                Name name = new Name(match, Name.Artificial);
+                Name name = new Name(match, Name.Artificial, false);
                 
                 for(Integer lineStartOffset:lineStartOffsets){
                     if(line == 0 && lineStartOffset > 0){

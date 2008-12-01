@@ -135,7 +135,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         
         if(moduleName != null && moduleName.endsWith("__init__")){
             //__path__ should be added to modules that have __init__
-            builtinCompletions.add(new SourceToken(new Name("__path__", Name.Load), "__path__", "", "", moduleName));
+            builtinCompletions.add(new SourceToken(new Name("__path__", Name.Load, false), "__path__", "", "", moduleName));
         }
         
         for(IToken t : builtinCompletions){
@@ -427,7 +427,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     public Object visitGlobal(Global node) throws Exception {
         unhandled_node(node);
         for(NameTokType name :node.names){
-            Name nameAst = new Name(((NameTok)name).id, Name.Store);
+            Name nameAst = new Name(((NameTok)name).id, Name.Store, false);
             nameAst.beginLine = name.beginLine;
             nameAst.beginColumn = name.beginColumn;
 

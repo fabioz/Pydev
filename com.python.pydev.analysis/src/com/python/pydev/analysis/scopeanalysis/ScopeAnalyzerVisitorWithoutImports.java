@@ -439,7 +439,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
                 
             }else if(FullRepIterable.containsPart(representation, nameToFind)){
             
-                Name nameAst = new Name(nameToFind, Name.Store);
+                Name nameAst = new Name(nameToFind, Name.Store, false);
                 String[] strings = StringUtils.dotSplit(representation);
                 
                 int plus = 0;
