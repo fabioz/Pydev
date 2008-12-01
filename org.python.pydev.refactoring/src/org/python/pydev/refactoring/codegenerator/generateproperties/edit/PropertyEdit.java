@@ -53,7 +53,7 @@ public class PropertyEdit extends AbstractInsertEdit {
     protected SimpleNode getEditNode() {
         exprType[] targets = initProperty();
         List<exprType> args = getPropertyArgs();
-        Call property = new Call(new Name(PROPERTY, Name.Load), args.toArray(new exprType[0]), null, null, null);
+        Call property = new Call(new Name(PROPERTY, Name.Load, false), args.toArray(new exprType[0]), null, null, null);
 
         return new Assign(targets, property);
     }
@@ -61,7 +61,7 @@ public class PropertyEdit extends AbstractInsertEdit {
     private exprType[] initProperty() {
         exprType[] targets = new exprType[1];
         String propertyName = nodeHelper.getAccessName(attributeName, accessModifier);
-        targets[0] = new Name(propertyName, Name.Store);
+        targets[0] = new Name(propertyName, Name.Store, false);
         return targets;
     }
 
@@ -71,22 +71,22 @@ public class PropertyEdit extends AbstractInsertEdit {
         String propertyName = getCapitalString(attributeName);
 
         if (state.isGetter()) {
-            args.add(new Name(GET + propertyName, Name.Load));
+            args.add(new Name(GET + propertyName, Name.Load, false));
         } else {
             args.add(noneName());
         }
         if (state.isSetter()) {
-            args.add(new Name(SET + propertyName, Name.Load));
+            args.add(new Name(SET + propertyName, Name.Load, false));
         } else {
             args.add(noneName());
         }
         if (state.isDelete()) {
-            args.add(new Name(DEL + propertyName, Name.Load));
+            args.add(new Name(DEL + propertyName, Name.Load, false));
         } else {
             args.add(noneName());
         }
         if (state.isDocstring()) {
-            args.add(new Str(propertyName + "'s Docstring", str_typeType.SingleDouble, false, false));
+            args.add(new Str(propertyName + "'s Docstring", str_typeType.SingleDouble, false, false, false));
         } else {
             args.add(noneName());
         }
@@ -94,7 +94,7 @@ public class PropertyEdit extends AbstractInsertEdit {
     }
 
     private Name noneName() {
-        return new Name(NONE, Name.Load);
+        return new Name(NONE, Name.Load, false);
     }
 
     @Override

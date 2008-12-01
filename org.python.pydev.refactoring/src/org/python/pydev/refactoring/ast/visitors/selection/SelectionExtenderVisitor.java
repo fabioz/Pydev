@@ -126,7 +126,7 @@ public class SelectionExtenderVisitor extends VisitorBase {
         Str stringNode = null;
         if (o instanceof SpecialStr) {
             SpecialStr special = (SpecialStr) o;
-            stringNode = new Str(special.str, Str.SingleDouble, false, false);
+            stringNode = new Str(special.str, Str.SingleDouble, false, false, false);
             stringNode.beginLine = special.beginLine;
             stringNode.beginColumn = special.beginCol;
         }

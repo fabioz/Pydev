@@ -9,17 +9,20 @@ public class Str extends exprType implements str_typeType {
     public int type;
     public boolean unicode;
     public boolean raw;
+    public boolean binary;
 
-    public Str(String s, int type, boolean unicode, boolean raw) {
+    public Str(String s, int type, boolean unicode, boolean raw, boolean
+    binary) {
         this.s = s;
         this.type = type;
         this.unicode = unicode;
         this.raw = raw;
+        this.binary = binary;
     }
 
-    public Str(String s, int type, boolean unicode, boolean raw, SimpleNode
-    parent) {
-        this(s, type, unicode, raw);
+    public Str(String s, int type, boolean unicode, boolean raw, boolean
+    binary, SimpleNode parent) {
+        this(s, type, unicode, raw, binary);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
     }
@@ -37,6 +40,9 @@ public class Str extends exprType implements str_typeType {
         sb.append(", ");
         sb.append("raw=");
         sb.append(dumpThis(this.raw));
+        sb.append(", ");
+        sb.append("binary=");
+        sb.append(dumpThis(this.binary));
         sb.append("]");
         return sb.toString();
     }
@@ -47,6 +53,7 @@ public class Str extends exprType implements str_typeType {
         pickleThis(this.type, ostream);
         pickleThis(this.unicode, ostream);
         pickleThis(this.raw, ostream);
+        pickleThis(this.binary, ostream);
     }
 
     public Object accept(VisitorIF visitor) throws Exception {

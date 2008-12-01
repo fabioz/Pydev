@@ -221,12 +221,12 @@ public final class FastDefinitionsParser {
                                 if(lineContents.indexOf('.') != -1){
                                     String[] dotSplit = StringUtils.dotSplit(lineContents);
                                     if(dotSplit.length == 2 && dotSplit[0].equals("self")){
-                                        Attribute attribute = new Attribute(new Name("self", Name.Load), new NameTok(dotSplit[1], NameTok.Attrib), Attribute.Load);
+                                        Attribute attribute = new Attribute(new Name("self", Name.Load, false), new NameTok(dotSplit[1], NameTok.Attrib), Attribute.Load);
                                         targets.add(attribute);
                                     }
                                     
                                 }else{
-                                    Name name = new Name(lineContents, Name.Store);
+                                    Name name = new Name(lineContents, Name.Store, false);
                                     targets.add(name);
                                 }
                             }                        

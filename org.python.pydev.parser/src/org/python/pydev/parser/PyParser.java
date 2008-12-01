@@ -45,6 +45,7 @@ import org.python.pydev.core.parser.IParserObserver2;
 import org.python.pydev.core.parser.IPyParser;
 import org.python.pydev.parser.grammar24.PythonGrammar24;
 import org.python.pydev.parser.grammar25.PythonGrammar25;
+import org.python.pydev.parser.grammar30.PythonGrammar30;
 import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.IParserHost;
@@ -681,13 +682,18 @@ public class PyParser implements IPyParser {
                 //made things slower than faster -- probably because of context switching -- and parsing is also
                 //very computationally expensive, so, unless there are idle processors lurking around,
                 //it's probably not worth it -- or not?!?
-                
-                if(info.grammarVersion == IPythonNature.GRAMMAR_PYTHON_VERSION_2_4){
-                    grammar = new PythonGrammar24(in, host);
-                }else if(info.grammarVersion == IPythonNature.GRAMMAR_PYTHON_VERSION_2_5){
-                    grammar = new PythonGrammar25(in, host);
-                }else{
-                    throw new RuntimeException("The grammar specified for parsing is not valid: "+info.grammarVersion);
+                switch(info.grammarVersion){
+                    case IPythonNature.GRAMMAR_PYTHON_VERSION_2_4:
+                        grammar = new PythonGrammar24(in, host);
+                        break;
+                    case IPythonNature.GRAMMAR_PYTHON_VERSION_2_5:
+                        grammar = new PythonGrammar25(in, host);
+                        break;
+                    case IPythonNature.GRAMMAR_PYTHON_VERSION_3_0:
+                        grammar = new PythonGrammar30(in, host);
+                        break;
+                    default:
+                        throw new RuntimeException("The grammar specified for parsing is not valid: "+info.grammarVersion);
                 }
                 
                 

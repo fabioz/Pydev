@@ -318,25 +318,6 @@ public class PyParserTest extends PyParserTestBase{
         parseFilesInDir(file, false);
     }
     
-    /**
-     * @param file
-     */
-    private void parseFilesInDir(File file, boolean recursive) {
-        assertTrue("Directory "+file+" does not exist", file.exists());
-        assertTrue(file.isDirectory());
-        
-        File[] files = file.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            File f = files[i];
-            if(f.getAbsolutePath().toLowerCase().endsWith(".py")){
-                parseLegalDocStr(REF.getFileContents(f), f);
-                
-            }else if(recursive && f.isDirectory()){
-                parseFilesInDir(f, recursive);
-            }
-        }
-    }
-    
     
 //    not removed completely because we may still want to debug it later...
 //    public void testOnCsv() {

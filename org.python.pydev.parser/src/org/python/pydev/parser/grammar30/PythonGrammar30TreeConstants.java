@@ -26,85 +26,85 @@ public interface PythonGrammar30TreeConstants
   public int JJTAUG_RSHIFT = 19;
   public int JJTAUG_POWER = 20;
   public int JJTEXPR_STMT = 21;
-  public int JJTPRINTEXT_STMT = 22;
-  public int JJTPRINT_STMT = 23;
-  public int JJTDEL_STMT = 24;
-  public int JJTBEGIN_DEL_STMT = 25;
-  public int JJTPASS_STMT = 26;
-  public int JJTBREAK_STMT = 27;
-  public int JJTCONTINUE_STMT = 28;
-  public int JJTRETURN_STMT = 29;
-  public int JJTBEGIN_RETURN_STMT = 30;
-  public int JJTYIELD_STMT = 31;
-  public int JJTYIELD_EXPR = 32;
-  public int JJTRAISE_STMT = 33;
-  public int JJTIMPORT = 34;
-  public int JJTIMPORTFROM = 35;
-  public int JJTDOTTED_AS_NAME = 36;
-  public int JJTDOTTED_NAME = 37;
-  public int JJTIMPORT_AS_NAME = 38;
-  public int JJTGLOBAL_STMT = 39;
-  public int JJTEXEC_STMT = 40;
-  public int JJTASSERT_STMT = 41;
-  public int JJTIF_STMT = 42;
-  public int JJTBEGIN_IF_STMT = 43;
-  public int JJTBEGIN_ELIF_STMT = 44;
-  public int JJTWHILE_STMT = 45;
-  public int JJTBEGIN_WHILE_STMT = 46;
-  public int JJTBEGIN_ELSE_STMT = 47;
-  public int JJTFOR_STMT = 48;
-  public int JJTBEGIN_FOR_STMT = 49;
-  public int JJTBEGIN_FOR_ELSE_STMT = 50;
-  public int JJTTRYELSE_STMT = 51;
-  public int JJTTRYFINALLY_OUTER_STMT = 52;
-  public int JJTTRY_STMT = 53;
-  public int JJTTRYFINALLY_STMT = 54;
-  public int JJTBEGIN_TRY_STMT = 55;
-  public int JJTBEGIN_TRY_ELSE_STMT = 56;
-  public int JJTBEGIN_FINALLY_STMT = 57;
-  public int JJTEXCEPT_CLAUSE = 58;
-  public int JJTBEGIN_EXCEPT_CLAUSE = 59;
-  public int JJTWITH_STMT = 60;
-  public int JJTWITH_VAR = 61;
-  public int JJTSUITE = 62;
-  public int JJTOLD_LAMBDEF = 63;
-  public int JJTTEST = 64;
-  public int JJTIF_EXP = 65;
-  public int JJTOR_BOOLEAN = 66;
-  public int JJTAND_BOOLEAN = 67;
-  public int JJTNOT_1OP = 68;
-  public int JJTCOMPARISION = 69;
-  public int JJTLESS_CMP = 70;
-  public int JJTGREATER_CMP = 71;
-  public int JJTEQUAL_CMP = 72;
-  public int JJTGREATER_EQUAL_CMP = 73;
-  public int JJTLESS_EQUAL_CMP = 74;
-  public int JJTNOTEQUAL_CMP = 75;
-  public int JJTIN_CMP = 76;
-  public int JJTNOT_IN_CMP = 77;
-  public int JJTIS_NOT_CMP = 78;
-  public int JJTIS_CMP = 79;
-  public int JJTOR_2OP = 80;
-  public int JJTXOR_2OP = 81;
-  public int JJTAND_2OP = 82;
-  public int JJTLSHIFT_2OP = 83;
-  public int JJTRSHIFT_2OP = 84;
-  public int JJTADD_2OP = 85;
-  public int JJTSUB_2OP = 86;
-  public int JJTMUL_2OP = 87;
-  public int JJTDIV_2OP = 88;
-  public int JJTFLOORDIV_2OP = 89;
-  public int JJTMOD_2OP = 90;
-  public int JJTPOS_1OP = 91;
-  public int JJTNEG_1OP = 92;
-  public int JJTINVERT_1OP = 93;
-  public int JJTPOW_2OP = 94;
-  public int JJTCALL_OP = 95;
-  public int JJTINDEX_OP = 96;
-  public int JJTDOT_OP = 97;
-  public int JJTLIST = 98;
-  public int JJTDICTIONARY = 99;
-  public int JJTSTR_1OP = 100;
+  public int JJTDEL_STMT = 22;
+  public int JJTBEGIN_DEL_STMT = 23;
+  public int JJTPASS_STMT = 24;
+  public int JJTBREAK_STMT = 25;
+  public int JJTCONTINUE_STMT = 26;
+  public int JJTRETURN_STMT = 27;
+  public int JJTBEGIN_RETURN_STMT = 28;
+  public int JJTYIELD_STMT = 29;
+  public int JJTYIELD_EXPR = 30;
+  public int JJTRAISE_STMT = 31;
+  public int JJTIMPORT = 32;
+  public int JJTIMPORTFROM = 33;
+  public int JJTDOTTED_AS_NAME = 34;
+  public int JJTDOTTED_NAME = 35;
+  public int JJTIMPORT_AS_NAME = 36;
+  public int JJTGLOBAL_STMT = 37;
+  public int JJTEXEC_STMT = 38;
+  public int JJTASSERT_STMT = 39;
+  public int JJTIF_STMT = 40;
+  public int JJTBEGIN_IF_STMT = 41;
+  public int JJTBEGIN_ELIF_STMT = 42;
+  public int JJTWHILE_STMT = 43;
+  public int JJTBEGIN_WHILE_STMT = 44;
+  public int JJTBEGIN_ELSE_STMT = 45;
+  public int JJTFOR_STMT = 46;
+  public int JJTBEGIN_FOR_STMT = 47;
+  public int JJTBEGIN_FOR_ELSE_STMT = 48;
+  public int JJTTRYELSE_STMT = 49;
+  public int JJTTRYFINALLY_OUTER_STMT = 50;
+  public int JJTTRY_STMT = 51;
+  public int JJTTRYFINALLY_STMT = 52;
+  public int JJTBEGIN_TRY_STMT = 53;
+  public int JJTBEGIN_TRY_ELSE_STMT = 54;
+  public int JJTBEGIN_FINALLY_STMT = 55;
+  public int JJTEXCEPT_CLAUSE = 56;
+  public int JJTBEGIN_EXCEPT_CLAUSE = 57;
+  public int JJTWITH_STMT = 58;
+  public int JJTWITH_VAR = 59;
+  public int JJTSUITE = 60;
+  public int JJTOLD_LAMBDEF = 61;
+  public int JJTTEST = 62;
+  public int JJTIF_EXP = 63;
+  public int JJTOR_BOOLEAN = 64;
+  public int JJTAND_BOOLEAN = 65;
+  public int JJTNOT_1OP = 66;
+  public int JJTCOMPARISION = 67;
+  public int JJTLESS_CMP = 68;
+  public int JJTGREATER_CMP = 69;
+  public int JJTEQUAL_CMP = 70;
+  public int JJTGREATER_EQUAL_CMP = 71;
+  public int JJTLESS_EQUAL_CMP = 72;
+  public int JJTNOTEQUAL_CMP = 73;
+  public int JJTIN_CMP = 74;
+  public int JJTNOT_IN_CMP = 75;
+  public int JJTIS_NOT_CMP = 76;
+  public int JJTIS_CMP = 77;
+  public int JJTOR_2OP = 78;
+  public int JJTXOR_2OP = 79;
+  public int JJTAND_2OP = 80;
+  public int JJTLSHIFT_2OP = 81;
+  public int JJTRSHIFT_2OP = 82;
+  public int JJTADD_2OP = 83;
+  public int JJTSUB_2OP = 84;
+  public int JJTMUL_2OP = 85;
+  public int JJTDIV_2OP = 86;
+  public int JJTFLOORDIV_2OP = 87;
+  public int JJTMOD_2OP = 88;
+  public int JJTPOS_1OP = 89;
+  public int JJTNEG_1OP = 90;
+  public int JJTINVERT_1OP = 91;
+  public int JJTPOW_2OP = 92;
+  public int JJTCALL_OP = 93;
+  public int JJTINDEX_OP = 94;
+  public int JJTDOT_OP = 95;
+  public int JJTLIST = 96;
+  public int JJTDICTIONARY = 97;
+  public int JJTFALSE = 98;
+  public int JJTTRUE = 99;
+  public int JJTNONE = 100;
   public int JJTSTRJOIN = 101;
   public int JJTLAMBDEF = 102;
   public int JJTSUBSCRIPTLIST = 103;
@@ -121,7 +121,7 @@ public interface PythonGrammar30TreeConstants
   public int JJTCOMPLEX = 114;
   public int JJTNAME = 115;
   public int JJTSTRING = 116;
-  public int JJTUNICODE = 117;
+  public int JJTBINARY = 117;
 
 
   public String[] jjtNodeName = {
@@ -147,8 +147,6 @@ public interface PythonGrammar30TreeConstants
     "aug_rshift",
     "aug_power",
     "expr_stmt",
-    "printext_stmt",
-    "print_stmt",
     "del_stmt",
     "begin_del_stmt",
     "pass_stmt",
@@ -225,7 +223,9 @@ public interface PythonGrammar30TreeConstants
     "Dot_Op",
     "list",
     "dictionary",
-    "str_1op",
+    "False",
+    "True",
+    "None",
     "strjoin",
     "lambdef",
     "subscriptlist",
@@ -242,6 +242,6 @@ public interface PythonGrammar30TreeConstants
     "Complex",
     "Name",
     "String",
-    "Unicode",
+    "Binary",
   };
 }

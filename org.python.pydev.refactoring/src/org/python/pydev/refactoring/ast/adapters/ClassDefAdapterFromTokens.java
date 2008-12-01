@@ -84,7 +84,7 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter{
                     }else{
                         while(strTok.hasMoreTokens()){
                             String nextArg = strTok.nextToken();
-                            arguments.add(new Name(nextArg, Name.Load));
+                            arguments.add(new Name(nextArg, Name.Load, false));
                         }
                     }
                 }else{
@@ -93,7 +93,7 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter{
                 
                 argumentsType functionArguments = new argumentsType(arguments.toArray(new exprType[0]), null, null, null);
                 if(useAnyArgs){
-                    Name name = new Name("self", Name.Store);
+                    Name name = new Name("self", Name.Store, false);
                     name.addSpecial(new SpecialStr(",", -1, -1), true);
                     functionArguments.args = new exprType[]{name};
                     functionArguments.vararg = new NameTok("args", NameTok.VarArg);

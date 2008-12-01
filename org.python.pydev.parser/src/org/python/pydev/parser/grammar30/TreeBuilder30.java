@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Visitor;
@@ -42,9 +43,7 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
-import org.python.pydev.parser.jython.ast.Print;
 import org.python.pydev.parser.jython.ast.Raise;
-import org.python.pydev.parser.jython.ast.Repr;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Slice;
 import org.python.pydev.parser.jython.ast.Str;
@@ -158,17 +157,26 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
         case JJTFILE_INPUT:
             return new Module(makeStmts(arity));
 
+        case JJTFALSE:
+            return createName(n, "False", true);
+            
+        case JJTTRUE:
+            return createName(n, "True", true);
+            
+        case JJTNONE:
+            return createName(n, "None", true);
+            
         case JJTNAME:
-            Name name = new Name(n.getImage().toString(), Name.Load);
-            addSpecialsAndClearOriginal(n, name);
-            return name;
+            return createName(n, n.getImage().toString(), false);
+            
         case JJTNUM:
             Object[] numimage = (Object[]) n.getImage();
             return new Num(numimage[0], (Integer)numimage[1], (String)numimage[2]);
-        case JJTUNICODE:
+            
+        case JJTBINARY:
         case JJTSTRING:
             Object[] image = (Object[]) n.getImage();
-            return new Str((String)image[0], (Integer)image[3], (Boolean)image[1], (Boolean)image[2]);
+            return new Str((String)image[0], (Integer)image[3], (Boolean)image[1], (Boolean)image[2], (Boolean)image[4]);
 
         case JJTSUITE:
             stmtType[] stmts = new stmtType[arity];
@@ -207,32 +215,32 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
             Delete d = (Delete) stack.popNode();
             d.targets = exprs;
             return d;
-        case JJTPRINT_STMT:
-            boolean nl = true;
-            if (stack.nodeArity() == 0){
-                Print p = new Print(null, null, true);
-                p.getSpecialsBefore().add(0, "print ");
-                return p;
-            }
-            
-            if (stack.peekNode().getId() == JJTCOMMA) {
-                stack.popNode();
-                nl = false;
-            }
-            Print p = new Print(null, makeExprs(), nl);
-            p.getSpecialsBefore().add(0, "print ");
-            return p;
-        case JJTPRINTEXT_STMT:
-            nl = true;
-            if (stack.peekNode().getId() == JJTCOMMA) {
-                stack.popNode();
-                nl = false;
-            }
-            exprs = makeExprs(stack.nodeArity()-1);
-            p = new Print(((exprType) stack.popNode()), exprs, nl);
-            p.getSpecialsBefore().add(0, ">> ");
-            p.getSpecialsBefore().add(0, "print ");
-            return p;
+//        case JJTPRINT_STMT:
+//            boolean nl = true;
+//            if (stack.nodeArity() == 0){
+//                Print p = new Print(null, null, true);
+//                p.getSpecialsBefore().add(0, "print ");
+//                return p;
+//            }
+//            
+//            if (stack.peekNode().getId() == JJTCOMMA) {
+//                stack.popNode();
+//                nl = false;
+//            }
+//            Print p = new Print(null, makeExprs(), nl);
+//            p.getSpecialsBefore().add(0, "print ");
+//            return p;
+//        case JJTPRINTEXT_STMT:
+//            nl = true;
+//            if (stack.peekNode().getId() == JJTCOMMA) {
+//                stack.popNode();
+//                nl = false;
+//            }
+//            exprs = makeExprs(stack.nodeArity()-1);
+//            p = new Print(((exprType) stack.popNode()), exprs, nl);
+//            p.getSpecialsBefore().add(0, ">> ");
+//            p.getSpecialsBefore().add(0, "print ");
+//            return p;
         case JJTBEGIN_FOR_STMT:
             return new For(null,null,null,null);
         case JJTFOR_STMT:
@@ -669,8 +677,8 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
                 keys[i] = (exprType) stack.popNode();
             }
             return new Dict(keys, vals);
-        case JJTSTR_1OP:
-            return new Repr(((exprType) stack.popNode()));
+//        case JJTSTR_1OP: #No more backticks in python 3.0
+//            return new Repr(((exprType) stack.popNode()));
         case JJTSTRJOIN:
             Str str2 = (Str) stack.popNode();
             Object o = stack.popNode();
@@ -831,7 +839,7 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
             return new Import(makeAliases(arity));
     
         case JJTDOTTED_NAME:
-            name = new Name(null, Name.Load);
+            Name name = new Name(null, Name.Load, false);
             StringBuffer sb = new StringBuffer();
             for (int i = 0; i < arity; i++) {
                 if (i > 0){
@@ -869,6 +877,19 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
             System.out.println("Error at TreeBuilder: default not treated:"+n.getId());
             return null;
         }
+    }
+
+    /**
+     * Creates a name node from the given node.
+     * @param n passed node to create Name
+     * @param repr the representation for the node.
+     * @param reserved whether this is a reserved name (keyword) -- e.g.: True, False, None in Python 3.0
+     * @return a Name node created from the passed parameters. 
+     */
+    private Name createName(SimpleNode n, String repr, boolean reserved) {
+        Name name = new Name(repr, Name.Load, reserved);
+        addSpecialsAndClearOriginal(n, name);
+        return name;
     }
 
     private void setParentForFuncOrClass(stmtType[] body, SimpleNode classDef) {
@@ -1222,6 +1243,9 @@ class CtxVisitor extends Visitor {
     }
 
     public Object visitName(Name node) throws Exception {
+        if(node.reserved){
+            throw new ParseException(StringUtils.format("Cannot assign value to %s (because it's a keyword)", node.id), node);
+        }
         node.ctx = ctx;
         return null;
     }

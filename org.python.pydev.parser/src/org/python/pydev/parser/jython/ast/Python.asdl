@@ -87,14 +87,15 @@ module Python
 	     | Call(expr func, expr* args, keyword* keywords, expr? starargs, expr? kwargs)
 	     | Repr(expr value)
 	     | Num(object n, num_type type, string num) -- a number as a PyObject.
-	     | Str(string s, str_type type, bool unicode, bool raw) 
+	     | Str(string s, str_type type, bool unicode, bool raw, bool binary) 
 	     | StrJoin(expr* strs) -- the inner expr should always be of type Str
 	     -- other literals? bools?
 
 	     -- the following expression can appear in assignment context
 	     | Attribute(expr value, NameTok attr, expr_context ctx)
 	     | Subscript(expr value, slice slice, expr_context ctx)
-	     | Name(identifier id, expr_context ctx)
+	     --reserved in the name means that it's a keyword (cannot be assigned to)
+	     | Name(identifier id, expr_context ctx, bool reserved)
 	     | List(expr* elts, expr_context ctx) 
 	     | Tuple(expr *elts, expr_context ctx)
 

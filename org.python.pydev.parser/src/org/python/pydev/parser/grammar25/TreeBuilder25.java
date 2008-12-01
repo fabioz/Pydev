@@ -159,7 +159,7 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
             return new Module(makeStmts(arity));
 
         case JJTNAME:
-            Name name = new Name(n.getImage().toString(), Name.Load);
+            Name name = new Name(n.getImage().toString(), Name.Load, false);
             addSpecialsAndClearOriginal(n, name);
             return name;
         case JJTNUM:
@@ -168,7 +168,7 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
         case JJTUNICODE:
         case JJTSTRING:
             Object[] image = (Object[]) n.getImage();
-            return new Str((String)image[0], (Integer)image[3], (Boolean)image[1], (Boolean)image[2]);
+            return new Str((String)image[0], (Integer)image[3], (Boolean)image[1], (Boolean)image[2], false); //never binary
 
         case JJTSUITE:
             stmtType[] stmts = new stmtType[arity];
@@ -831,7 +831,7 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
             return new Import(makeAliases(arity));
     
         case JJTDOTTED_NAME:
-            name = new Name(null, Name.Load);
+            name = new Name(null, Name.Load, false);
             StringBuffer sb = new StringBuffer();
             for (int i = 0; i < arity; i++) {
                 if (i > 0){

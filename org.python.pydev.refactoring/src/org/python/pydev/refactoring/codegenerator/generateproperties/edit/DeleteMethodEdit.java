@@ -55,14 +55,14 @@ public class DeleteMethodEdit extends AbstractInsertEdit {
 
     private exprType[] initDeleteTarget() {
         exprType[] targets = new exprType[1];
-        targets[0] = new Attribute(new Name(NodeHelper.KEYWORD_SELF, Name.Load), new NameTok(nodeHelper.getPrivateAttr(attributeName),
+        targets[0] = new Attribute(new Name(NodeHelper.KEYWORD_SELF, Name.Load, false), new NameTok(nodeHelper.getPrivateAttr(attributeName),
                 NameTok.Attrib), Attribute.Del);
         return targets;
     }
 
     private argumentsType initArguments() {
         exprType[] params = new exprType[1];
-        params[0] = (new Name(NodeHelper.KEYWORD_SELF, Name.Param));
+        params[0] = (new Name(NodeHelper.KEYWORD_SELF, Name.Param, false));
         argumentsType args = new argumentsType(params, null, null, null);
         return args;
     }

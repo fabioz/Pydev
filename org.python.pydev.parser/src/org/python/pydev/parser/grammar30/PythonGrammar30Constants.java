@@ -43,69 +43,70 @@ public interface PythonGrammar30Constants {
   int EQEQUAL = 43;
   int EQLESS = 44;
   int EQGREATER = 45;
-  int LESSGREATER = 46;
-  int NOTEQUAL = 47;
-  int PLUSEQ = 48;
-  int MINUSEQ = 49;
-  int MULTIPLYEQ = 50;
-  int DIVIDEEQ = 51;
-  int FLOORDIVIDEEQ = 52;
-  int MODULOEQ = 53;
-  int ANDEQ = 54;
-  int OREQ = 55;
-  int XOREQ = 56;
-  int LSHIFTEQ = 57;
-  int RSHIFTEQ = 58;
-  int POWEREQ = 59;
-  int OR_BOOL = 60;
-  int AND_BOOL = 61;
-  int NOT_BOOL = 62;
-  int IS = 63;
-  int IN = 64;
-  int LAMBDA = 65;
-  int IF = 66;
-  int ELSE = 67;
-  int ELIF = 68;
-  int WHILE = 69;
-  int FOR = 70;
-  int TRY = 71;
-  int EXCEPT = 72;
-  int DEF = 73;
-  int CLASS = 74;
-  int FINALLY = 75;
-  int PRINT = 76;
-  int PASS = 77;
-  int BREAK = 78;
-  int CONTINUE = 79;
-  int RETURN = 80;
-  int YIELD = 81;
-  int IMPORT = 82;
-  int FROM = 83;
-  int DEL = 84;
-  int RAISE = 85;
-  int GLOBAL = 86;
-  int EXEC = 87;
-  int ASSERT = 88;
-  int AS = 89;
-  int WITH = 90;
-  int AT = 91;
-  int NAME = 92;
-  int LETTER = 93;
-  int DECNUMBER = 94;
-  int HEXNUMBER = 95;
-  int OCTNUMBER = 96;
-  int FLOAT = 97;
-  int COMPLEX = 98;
-  int EXPONENT = 99;
-  int DIGIT = 100;
-  int SINGLE_STRING = 109;
-  int SINGLE_STRING2 = 110;
-  int TRIPLE_STRING = 111;
-  int TRIPLE_STRING2 = 112;
-  int SINGLE_USTRING = 113;
-  int SINGLE_USTRING2 = 114;
-  int TRIPLE_USTRING = 115;
-  int TRIPLE_USTRING2 = 116;
+  int NOTEQUAL = 46;
+  int PLUSEQ = 47;
+  int MINUSEQ = 48;
+  int MULTIPLYEQ = 49;
+  int DIVIDEEQ = 50;
+  int FLOORDIVIDEEQ = 51;
+  int MODULOEQ = 52;
+  int ANDEQ = 53;
+  int OREQ = 54;
+  int XOREQ = 55;
+  int LSHIFTEQ = 56;
+  int RSHIFTEQ = 57;
+  int POWEREQ = 58;
+  int OR_BOOL = 59;
+  int AND_BOOL = 60;
+  int NOT_BOOL = 61;
+  int IS = 62;
+  int IN = 63;
+  int LAMBDA = 64;
+  int IF = 65;
+  int ELSE = 66;
+  int ELIF = 67;
+  int WHILE = 68;
+  int FOR = 69;
+  int TRY = 70;
+  int EXCEPT = 71;
+  int DEF = 72;
+  int CLASS = 73;
+  int FINALLY = 74;
+  int PASS = 75;
+  int BREAK = 76;
+  int CONTINUE = 77;
+  int RETURN = 78;
+  int YIELD = 79;
+  int IMPORT = 80;
+  int FROM = 81;
+  int DEL = 82;
+  int RAISE = 83;
+  int GLOBAL = 84;
+  int EXEC = 85;
+  int ASSERT = 86;
+  int AS = 87;
+  int WITH = 88;
+  int FALSE = 89;
+  int TRUE = 90;
+  int NONE = 91;
+  int AT = 92;
+  int NAME = 93;
+  int LETTER = 94;
+  int DECNUMBER = 95;
+  int HEXNUMBER = 96;
+  int OCTNUMBER = 97;
+  int FLOAT = 98;
+  int COMPLEX = 99;
+  int EXPONENT = 100;
+  int DIGIT = 101;
+  int SINGLE_STRING = 110;
+  int SINGLE_STRING2 = 111;
+  int TRIPLE_STRING = 112;
+  int TRIPLE_STRING2 = 113;
+  int SINGLE_BSTRING = 114;
+  int SINGLE_BSTRING2 = 115;
+  int TRIPLE_BSTRING = 116;
+  int TRIPLE_BSTRING2 = 117;
 
   int DEFAULT = 0;
   int FORCE_NEWLINE1 = 1;
@@ -117,14 +118,14 @@ public interface PythonGrammar30Constants {
   int IN_STRING21 = 7;
   int IN_STRING13 = 8;
   int IN_STRING23 = 9;
-  int IN_USTRING11 = 10;
-  int IN_USTRING21 = 11;
-  int IN_USTRING13 = 12;
-  int IN_USTRING23 = 13;
+  int IN_BSTRING11 = 10;
+  int IN_BSTRING21 = 11;
+  int IN_BSTRING13 = 12;
+  int IN_BSTRING23 = 13;
   int IN_STRING1NLC = 14;
   int IN_STRING2NLC = 15;
-  int IN_USTRING1NLC = 16;
-  int IN_USTRING2NLC = 17;
+  int IN_BSTRING1NLC = 16;
+  int IN_BSTRING2NLC = 17;
 
   String[] tokenImage = {
     "<EOF>",
@@ -173,7 +174,6 @@ public interface PythonGrammar30Constants {
     "\"==\"",
     "\"<=\"",
     "\">=\"",
-    "\"<>\"",
     "\"!=\"",
     "\"+=\"",
     "\"-=\"",
@@ -203,7 +203,6 @@ public interface PythonGrammar30Constants {
     "\"def\"",
     "\"class\"",
     "\"finally\"",
-    "\"print\"",
     "\"pass\"",
     "\"break\"",
     "\"continue\"",
@@ -218,6 +217,9 @@ public interface PythonGrammar30Constants {
     "\"assert\"",
     "\"as\"",
     "\"with\"",
+    "\"False\"",
+    "\"True\"",
+    "\"None\"",
     "\"@\"",
     "<NAME>",
     "<LETTER>",
@@ -228,7 +230,6 @@ public interface PythonGrammar30Constants {
     "<COMPLEX>",
     "<EXPONENT>",
     "<DIGIT>",
-    "<token of kind 101>",
     "<token of kind 102>",
     "<token of kind 103>",
     "<token of kind 104>",
@@ -236,6 +237,7 @@ public interface PythonGrammar30Constants {
     "<token of kind 106>",
     "<token of kind 107>",
     "<token of kind 108>",
+    "<token of kind 109>",
     "\"\\\'\"",
     "\"\\\"\"",
     "\"\\\'\\\'\\\'\"",
@@ -245,25 +247,24 @@ public interface PythonGrammar30Constants {
     "\"\\\'\\\'\\\'\"",
     "\"\\\"\\\"\\\"\"",
     "\"\\\\\\r\\n\"",
-    "<token of kind 118>",
+    "<token of kind 119>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 120>",
+    "<token of kind 121>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 122>",
+    "<token of kind 123>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 124>",
+    "<token of kind 125>",
     "\"\"",
     "\"\"",
     "\"\"",
     "\"\"",
-    "<token of kind 129>",
     "<token of kind 130>",
+    "<token of kind 131>",
     "\"\\r\\n\"",
     "\"\\n\"",
     "\"\\r\"",
-    "<token of kind 134>",
     "<token of kind 135>",
-    "\"`\"",
+    "<token of kind 136>",
   };
 
 }

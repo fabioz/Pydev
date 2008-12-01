@@ -271,17 +271,18 @@ public class PythonGrammar30 implements IGrammar
     /**
      * Return a Tuple where:
      * 0 = the string
-     * 1 = boolean indicating unicode
+     * 1 = boolean indicating unicode (always false)
      * 2 = boolean indicating raw
      * 3 = style
+     * 4 = boolean indicating binary
      */
     Object[] makeString(String s, int quotes) {
         //System.out.println("enter: "+s);
         char quoteChar = s.charAt(0);
         int start=0;
-        boolean ustring = false;
-        if (quoteChar == 'u' || quoteChar == 'U') {
-            ustring = true;
+        boolean bstring = false;
+        if (quoteChar == 'b' || quoteChar == 'B') {
+            bstring = true;
             start++;
         }
         quoteChar = s.charAt(start);
@@ -289,15 +290,15 @@ public class PythonGrammar30 implements IGrammar
             //raw string (does not decode slashes)
             String str = s.substring(quotes+start+1, s.length()-quotes);
             //System.out.println("out: "+str);
-            return new Object[]{str,ustring, true, getType(s.charAt(start+1), quotes)};
+            return new Object[]{str, false, true, getType(s.charAt(start+1), quotes), bstring};
 
         } else {
             int n = s.length()-quotes;
             int i=quotes+start;
 
-            String str = hostLiteralMkr.decode_UnicodeEscape(s, i, n, "strict", ustring);
+            String str = hostLiteralMkr.decode_UnicodeEscape(s, i, n, "strict", bstring);
             //System.out.println("out: "+str);
-            return new Object[]{str, ustring, false, getType(s.charAt(start), quotes)};
+            return new Object[]{str, false, false, getType(s.charAt(start), quotes), bstring};
         }
     }
     
@@ -553,7 +554,6 @@ TOKEN : /* OPERATORS */
 |   < EQEQUAL: "==" >
 |   < EQLESS: "<=" >
 |   < EQGREATER: ">=" >
-|   < LESSGREATER: "<>" >
 |   < NOTEQUAL: "!=" >
 |   < PLUSEQ: "+=" >
 |   < MINUSEQ: "-=" >
@@ -587,7 +587,6 @@ TOKEN : /* KEYWORDS */
 |   < DEF: "def" >
 |   < CLASS: "class" >
 |   < FINALLY: "finally" >
-|   < PRINT: "print" >
 |   < PASS: "pass" >
 |   < BREAK: "break" >
 |   < CONTINUE: "continue" >
@@ -601,7 +600,10 @@ TOKEN : /* KEYWORDS */
 |   < EXEC: "exec" >
 |   < ASSERT: "assert" >
 |   < AS: "as" >
-|   <WITH: "with" >
+|   < WITH: "with" >
+|   < FALSE: "False" >
+|   < TRUE: "True" >
+|   < NONE: "None" >
 |   < AT: "@" >
 }
 
@@ -635,10 +637,10 @@ TOKEN : /* Numeric literals */
 
 MORE : /* Strings */
 {
-    < (["u", "U"]) (["r", "R"])? "'" > :  IN_USTRING11
-|   < (["u", "U"]) (["r", "R"])? "\"" > :  IN_USTRING21
-|   < (["u", "U"]) (["r", "R"])? "'''" > :  IN_USTRING13
-|   < (["u", "U"]) (["r", "R"])? "\"\"\"" > :  IN_USTRING23
+    < (["b", "B"]) (["r", "R"])? "'" > :  IN_BSTRING11
+|   < (["b", "B"]) (["r", "R"])? "\"" > :  IN_BSTRING21
+|   < (["b", "B"]) (["r", "R"])? "'''" > :  IN_BSTRING13
+|   < (["b", "B"]) (["r", "R"])? "\"\"\"" > :  IN_BSTRING23
 |   < (["r", "R"])? "'" > :  IN_STRING11
 |   < (["r", "R"])? "\"" > :  IN_STRING21
 |   < (["r", "R"])? "'''" > :  IN_STRING13
@@ -654,13 +656,13 @@ MORE : /* Strings */
 <IN_STRING23> TOKEN : { <TRIPLE_STRING2: "\"\"\""> {
     matchedToken.image = image.toString(); } : DEFAULT}
 
-<IN_USTRING11> TOKEN : { <SINGLE_USTRING: "'"> {
+<IN_BSTRING11> TOKEN : { <SINGLE_BSTRING: "'"> {
     matchedToken.image = image.toString(); } : DEFAULT}
-<IN_USTRING21> TOKEN : { <SINGLE_USTRING2: "\""> {
+<IN_BSTRING21> TOKEN : { <SINGLE_BSTRING2: "\""> {
     matchedToken.image = image.toString(); } : DEFAULT}
-<IN_USTRING13> TOKEN : { <TRIPLE_USTRING: "'''"> {
+<IN_BSTRING13> TOKEN : { <TRIPLE_BSTRING: "'''"> {
     matchedToken.image = image.toString(); } : DEFAULT}
-<IN_USTRING23> TOKEN : { <TRIPLE_USTRING2: "\"\"\""> {
+<IN_BSTRING23> TOKEN : { <TRIPLE_BSTRING2: "\"\"\""> {
     matchedToken.image = image.toString(); } : DEFAULT}
 
 <IN_STRING11> MORE:
@@ -675,16 +677,16 @@ MORE : /* Strings */
 |   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_STRING2NLC
 }
 
-<IN_USTRING11> MORE:
+<IN_BSTRING11> MORE:
 {
-    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_USTRING1NLC
-|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_USTRING1NLC
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_BSTRING1NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_BSTRING1NLC
 }
 
-<IN_USTRING21> MORE:
+<IN_BSTRING21> MORE:
 {
-    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_USTRING2NLC
-|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_USTRING2NLC
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_BSTRING2NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_BSTRING2NLC
 }
 
 <IN_STRING1NLC> MORE:
@@ -697,18 +699,18 @@ MORE : /* Strings */
  <""> : IN_STRING21
 }
 
-<IN_USTRING1NLC> MORE:
+<IN_BSTRING1NLC> MORE:
 {
- <""> : IN_USTRING11
+ <""> : IN_BSTRING11
 }
 
-<IN_USTRING2NLC> MORE:
+<IN_BSTRING2NLC> MORE:
 {
- <""> : IN_USTRING21
+ <""> : IN_BSTRING21
 }
 
-<IN_STRING11, IN_USTRING11> MORE: { <("\\" ("\\"|"'")) | ~["\n","\r"]> }
-<IN_STRING21, IN_USTRING21> MORE: { <("\\" ("\\"|"\"")) | ~["\n","\r"]> }
+<IN_STRING11, IN_BSTRING11> MORE: { <("\\" ("\\"|"'")) | ~["\n","\r"]> }
+<IN_STRING21, IN_BSTRING21> MORE: { <("\\" ("\\"|"\"")) | ~["\n","\r"]> }
 
 /* This is a test to see if we can make the loading of strings more efficient (and maybe replace the MORE that is declared below.
 I stopped this because I've seen that making the CharStream was apparently the number 1 thing to do, but it might be worth
@@ -735,7 +737,7 @@ comming back to this approach later).
 }
 */
 
-<IN_STRING13, IN_STRING23, IN_USTRING13, IN_USTRING23> MORE:
+<IN_STRING13, IN_STRING23, IN_BSTRING13, IN_BSTRING23> MORE:
 {
     <"\r\n"> {
         int l = image.length();
@@ -819,11 +821,10 @@ void simple_stmt() #void: {}
 { small_stmt() (LOOKAHEAD(2) <SEMICOLON> small_stmt())* [<SEMICOLON>] <NEWLINE>
 }
 
-//small_stmt: expr_stmt | print_stmt  | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | exec_stmt | assert_stmt
+//small_stmt: expr_stmt | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | exec_stmt | assert_stmt
 void small_stmt() #void: {SimpleNode simpleNode;}
 {
     expr_stmt()
-|   print_stmt()
 |   del_stmt()
 |   pass_stmt() {addToPeek("pass", false); }
 |   flow_stmt()
@@ -851,19 +852,6 @@ void expr_stmt() #void: {}
 |   <RSHIFTEQ>      (yield_expr()|SmartTestList())   #aug_rshift(2)
 |   <POWEREQ>       (yield_expr()|SmartTestList())   #aug_power(2)
 |  (<EQUAL>         (yield_expr()|SmartTestList()))* #expr_stmt(jjtree.nodeArity()+1))
-
-}
-
-//print_stmt: 'print' (test ',')* [test] | 'print' '>>' test (, test)+ [,]
-void print_stmt() #void: {}
-{
-    LOOKAHEAD(2) <PRINT> <RSHIFT>  
-    (test() [ (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())+ [Comma()] ] )#printext_stmt
-    
-|   LOOKAHEAD(2) <PRINT> 
-    (test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()])#print_stmt
-
-|   <PRINT>  #print_stmt
 
 }
 
@@ -1067,9 +1055,9 @@ void begin_finally_stmt(): {}
 { <FINALLY> {this.addSpecialToken("finally", STRATEGY_BEFORE_NEXT);} {this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
 }
 
-//except_clause: 'except' [test [',' test]]
+//except_clause: 'except' [test [as test]]
 void except_clause(SimpleNode tryNode): {}
-{ begin_except_clause() {this.addToPeek("except",false);} [test() [{this.addSpecialToken(",");} <COMMA> test()]] <COLON> { this.addSpecialToken(":");} suite() }
+{ begin_except_clause() {this.addToPeek("except",false);} [test() [{this.addSpecialToken(" as ");} <AS> test()]] <COLON> { this.addSpecialToken(":");} suite() }
 
 void begin_except_clause(): {}
 { <EXCEPT> }
@@ -1140,7 +1128,7 @@ void comparison() #void: {}
 { (expr() (comp_op() expr())*) #comparision(>1) }
 
 
-//comp_op: '<'|'>'|'=='|'>='|'<='|'<>'|'!='|'in'|'not' 'in'|'is'|'is' 'not'
+//comp_op: '<'|'>'|'=='|'>='|'<='|'!='|'in'|'not' 'in'|'is'|'is' 'not'
 void comp_op() #void: {}
 {
     <LESS> #less_cmp(0)
@@ -1148,7 +1136,6 @@ void comp_op() #void: {}
 |   <EQEQUAL> #equal_cmp(0)
 |   <EQGREATER> #greater_equal_cmp(0)
 |   <EQLESS> #less_equal_cmp(0)
-|   <LESSGREATER> #notequal_cmp(0)
 |   <NOTEQUAL> #notequal_cmp(0)
 |   <IN> #in_cmp(0)
 |   <NOT_BOOL> <IN> #not_in_cmp(0)
@@ -1231,7 +1218,7 @@ atom()
 }
 
 
-//atom: '(' [testlist] ')' | '[' [testlist] ']' | '{' [dictmaker] '}' | '`' testlist '`' | NAME | NUMBER | STRING+
+//atom: '(' [testlist] ')' | '[' [testlist] ']' | '{' [dictmaker] '}' | NAME | NUMBER | STRING+ | 'None' | 'True' | 'False'
 void atom() #void: {Object spStr;Object spStr2;}
 {
     LOOKAHEAD(2) (  
@@ -1259,7 +1246,9 @@ void atom() #void: {Object spStr;Object spStr2;}
       {spStr2  = createSpecialStr("}", false);} <RBRACE> 
     ) #dictionary {addToPeek(spStr, false); addToPeek(spStr2, true);}
     
-|   "`" SmartTestList() "`" #str_1op(1)
+|   (<FALSE>)#False
+|   (<TRUE>)#True
+|   (<NONE>)#None
 |   Name() 
 |   Number()
 |   String() (String() #strjoin(2))*
@@ -1405,10 +1394,10 @@ void String() #void :
 |   ( t=<SINGLE_STRING2> { jjtThis.setImage(makeString(t.image, 1)); } {} )#String
 |   ( t=<TRIPLE_STRING> { jjtThis.setImage(makeString(t.image, 3)); } {} )#String
 |   ( t=<TRIPLE_STRING2> { jjtThis.setImage(makeString(t.image, 3)); } {} )#String
-|   ( t=<SINGLE_USTRING> { jjtThis.setImage(makeString(t.image, 1)); } {} )#Unicode
-|   ( t=<SINGLE_USTRING2> { jjtThis.setImage(makeString(t.image, 1)); } {} )#Unicode
-|   ( t=<TRIPLE_USTRING> { jjtThis.setImage(makeString(t.image, 3)); } {} )#Unicode
-|   ( t=<TRIPLE_USTRING2> { jjtThis.setImage(makeString(t.image, 3)); } {} )#Unicode
+|   ( t=<SINGLE_BSTRING> { jjtThis.setImage(makeString(t.image, 1)); } {} )#Binary
+|   ( t=<SINGLE_BSTRING2> { jjtThis.setImage(makeString(t.image, 1)); } {} )#Binary
+|   ( t=<TRIPLE_BSTRING> { jjtThis.setImage(makeString(t.image, 3)); } {} )#Binary
+|   ( t=<TRIPLE_BSTRING2> { jjtThis.setImage(makeString(t.image, 3)); } {} )#Binary
 }
 
 Token AnyName() #void:
@@ -1433,7 +1422,6 @@ Token AnyName() #void:
 |   ( t = <DEF> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <CLASS> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <FINALLY> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <PRINT> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <PASS> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <BREAK> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <CONTINUE> { jjtThis.setImage(t.image); return t; } {} )#Name

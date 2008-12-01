@@ -36,7 +36,7 @@ public class ReplaceWithVariableEdit extends AbstractReplaceEdit {
 
     @Override
     protected SimpleNode getEditNode() {
-        Name name = new Name(variableName, expr_contextType.Load);
+        Name name = new Name(variableName, expr_contextType.Load, false);
         return name;
     }
 

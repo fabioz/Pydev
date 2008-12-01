@@ -70,7 +70,7 @@ public class PropertyAdapter extends AbstractNodeAdapter<SimpleNode> {
     }
 
     private Name createNone() {
-        return new Name("None", Name.Param);
+        return new Name("None", Name.Param, false);
     }
 
     private void setMethod(exprType expr, int i) {

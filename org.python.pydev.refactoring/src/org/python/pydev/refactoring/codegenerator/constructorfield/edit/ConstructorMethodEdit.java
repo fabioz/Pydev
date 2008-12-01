@@ -86,9 +86,9 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
     }
 
     private Assign initAttribute(INodeAdapter adapter) {
-        exprType target = new Attribute(new Name(NodeHelper.KEYWORD_SELF, Name.Load), new NameTok(adapter.getName(), NameTok.Attrib),
+        exprType target = new Attribute(new Name(NodeHelper.KEYWORD_SELF, Name.Load, false), new NameTok(adapter.getName(), NameTok.Attrib),
                 Attribute.Store);
-        Assign initParam = new Assign(new exprType[] { target }, new Name(nodeHelper.getPublicAttr(adapter.getName()), Name.Load));
+        Assign initParam = new Assign(new exprType[] { target }, new Name(nodeHelper.getPublicAttr(adapter.getName()), Name.Load, false));
         return initParam;
     }
 
@@ -97,11 +97,11 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
         if (init != null) {
             if (!init.getArguments().hasOnlySelf()) {
                 Attribute classInit = new Attribute(
-                        new Name(moduleAdapter.getBaseContextName(this.classAdapter, base.getName()), Name.Load), new NameTok(
+                        new Name(moduleAdapter.getBaseContextName(this.classAdapter, base.getName()), Name.Load, false), new NameTok(
                                 NodeHelper.KEYWORD_INIT, NameTok.Attrib), Attribute.Load);
                 List<exprType> constructorParameters = init.getArguments().getSelfFilteredArgs();
 
-                Name selfArg = new Name(NodeHelper.KEYWORD_SELF, Name.Load);
+                Name selfArg = new Name(NodeHelper.KEYWORD_SELF, Name.Load, false);
                 if (constructorParameters.size() > 0 || init.getArguments().hasVarArg() || init.getArguments().hasKwArg()) {
                     selfArg.getSpecialsAfter().add(new SpecialStr(",", 0, 0));
                 }
@@ -112,10 +112,10 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
                 Name kwArg = null;
 
                 if (init.getArguments().hasVarArg())
-                    varArg = new Name(VAR_ARG, Name.Load);
+                    varArg = new Name(VAR_ARG, Name.Load, false);
 
                 if (init.getArguments().hasKwArg())
-                    kwArg = new Name(KW_ARG, Name.Load);
+                    kwArg = new Name(KW_ARG, Name.Load, false);
 
                 Call initCall = new Call(classInit, argExp, null, varArg, kwArg);
                 return new Expr(initCall);
@@ -152,10 +152,10 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
 
     private exprType[] generateExprArray(SortedSet<String> argsNames) {
         List<exprType> argsExprList = new ArrayList<exprType>();
-        Name selfArg = new Name(NodeHelper.KEYWORD_SELF, Name.Param);
+        Name selfArg = new Name(NodeHelper.KEYWORD_SELF, Name.Param, false);
         argsExprList.add(selfArg);
         for (String parameter : argsNames) {
-            argsExprList.add(new Name(parameter.trim(), Name.Param));
+            argsExprList.add(new Name(parameter.trim(), Name.Param, false));
         }
 
         exprType[] argsExpr = argsExprList.toArray(new exprType[0]);

@@ -1,15 +1,19 @@
 package org.python.pydev.parser;
 
+import java.io.File;
+
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
+import org.python.pydev.parser.jython.TokenMgrError;
 
 public class PyParserTestBase extends TestCase {
     protected static PyParser parser;
@@ -64,17 +68,22 @@ public class PyParserTestBase extends TestCase {
     protected SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo) {
         return parseLegalDoc(doc, additionalErrInfo, parser);
     }
-    protected ParseException parseILegalDoc(IDocument doc) {
+    
+    protected Throwable parseILegalDocStr(String s) {
+        return parseILegalDoc(new Document(s));
+    }
+    
+    protected Throwable parseILegalDoc(IDocument doc) {
         parser.setDocument(doc, false, null);
         Tuple<SimpleNode, Throwable> objects = parser.reparseDocument();
-        Object err = objects.o2;
+        Throwable err = objects.o2;
         if(err == null){
             fail("Expected a ParseException and the doc was successfully parsed.");
         }
-        if(!(err instanceof ParseException)){
+        if(!(err instanceof ParseException) && !(err instanceof TokenMgrError)){
             fail("Expected a ParseException and received:"+err.getClass());
         }
-        return (ParseException) err;
+        return err;
     }
 
     /**
@@ -108,4 +117,24 @@ public class PyParserTestBase extends TestCase {
 
     public void testEmpty() {
     }
+    
+    /**
+     * @param dir the directory that should have .py files found and parsed. 
+     */
+    protected void parseFilesInDir(File dir, boolean recursive) {
+        assertTrue("Directory "+dir+" does not exist", dir.exists());
+        assertTrue(dir.isDirectory());
+        
+        File[] files = dir.listFiles();
+        for (int i = 0; i < files.length; i++) {
+            File f = files[i];
+            if(f.getAbsolutePath().toLowerCase().endsWith(".py")){
+                parseLegalDocStr(REF.getFileContents(f), f);
+                
+            }else if(recursive && f.isDirectory()){
+                parseFilesInDir(f, recursive);
+            }
+        }
+    }
+
 }

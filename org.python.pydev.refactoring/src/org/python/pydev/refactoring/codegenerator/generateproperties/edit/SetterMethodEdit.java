@@ -57,17 +57,17 @@ public class SetterMethodEdit extends AbstractInsertEdit {
 
     private Assign initSetAssignment() {
         exprType[] targets = new exprType[1];
-        targets[0] = new Attribute(new Name(NodeHelper.KEYWORD_SELF, Name.Load), new NameTok(nodeHelper.getPrivateAttr(attributeName),
+        targets[0] = new Attribute(new Name(NodeHelper.KEYWORD_SELF, Name.Load, false), new NameTok(nodeHelper.getPrivateAttr(attributeName),
                 NameTok.Attrib), Attribute.Store);
 
-        Assign assign = new Assign(targets, new Name(VALUE, Name.Load));
+        Assign assign = new Assign(targets, new Name(VALUE, Name.Load, false));
         return assign;
     }
 
     private argumentsType initArguments() {
         exprType[] params = new exprType[2];
-        params[0] = (new Name(NodeHelper.KEYWORD_SELF, Name.Param));
-        params[1] = (new Name(VALUE, Name.Param));
+        params[0] = (new Name(NodeHelper.KEYWORD_SELF, Name.Param, false));
+        params[1] = (new Name(VALUE, Name.Param, false));
         argumentsType args = new argumentsType(params, null, null, null);
         return args;
     }

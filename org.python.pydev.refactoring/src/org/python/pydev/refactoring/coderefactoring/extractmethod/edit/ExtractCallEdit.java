@@ -64,7 +64,7 @@ public class ExtractCallEdit extends AbstractReplaceEdit {
         } else {
             List<exprType> returnExpr = new ArrayList<exprType>();
             for (String returnVar : returnVariables) {
-                returnExpr.add(new Name(returnVar, Name.Store));
+                returnExpr.add(new Name(returnVar, Name.Store, false));
             }
 
             return new Assign(returnExpr.toArray(new exprType[0]), methodCall);
@@ -74,16 +74,16 @@ public class ExtractCallEdit extends AbstractReplaceEdit {
     private List<exprType> initCallArguments() {
         List<exprType> argsList = new ArrayList<exprType>();
         for (String parameter : callParameters) {
-            argsList.add(new Name(parameter, Name.Load));
+            argsList.add(new Name(parameter, Name.Load, false));
         }
         return argsList;
     }
 
     private exprType createCallAttribute() {
         if (this.offsetAdapter instanceof IClassDefAdapter) {
-            return new Attribute(new Name("self", Name.Load), new NameTok(this.methodName, NameTok.Attrib), Attribute.Load);
+            return new Attribute(new Name("self", Name.Load, false), new NameTok(this.methodName, NameTok.Attrib), Attribute.Load);
         } else {
-            return new Name(this.methodName, Name.Load);
+            return new Name(this.methodName, Name.Load, false);
         }
     }
 

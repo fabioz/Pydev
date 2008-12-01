@@ -35,7 +35,7 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
 
     @Override
     protected SimpleNode getEditNode() {
-        exprType variable = new Name(variableName, expr_contextType.Store);
+        exprType variable = new Name(variableName, expr_contextType.Store, false);
         exprType[] target = {variable};
         
         return new Assign(target, expression);

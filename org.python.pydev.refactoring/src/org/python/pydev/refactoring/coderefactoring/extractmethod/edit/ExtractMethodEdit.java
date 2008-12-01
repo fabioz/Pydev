@@ -86,11 +86,11 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
                 parentScopeAdapter = scopeAdapter.getParent();
             }
             if (parentScopeAdapter instanceof IClassDefAdapter) {
-                argsList.add(new Name("self", Name.Load));
+                argsList.add(new Name("self", Name.Load, false));
             }
         }
         for (String variable : this.parameters) {
-            argsList.add(new Name(variable, Name.Param));
+            argsList.add(new Name(variable, Name.Param, false));
         }
         return argsList;
     }
@@ -119,7 +119,7 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
     private void addReturnValue(List<stmtType> body) {
         List<exprType> returnList = new ArrayList<exprType>();
         for (String variable : this.returnVariables) {
-            returnList.add(new Name(variable, Name.Load));
+            returnList.add(new Name(variable, Name.Load, false));
         }
 
         exprType returnValue = null;
