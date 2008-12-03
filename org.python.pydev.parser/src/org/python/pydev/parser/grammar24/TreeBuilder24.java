@@ -443,7 +443,7 @@ public final class TreeBuilder24 implements PythonGrammar24TreeConstants {
             exprType tback = arity >= 3 ? ((exprType) stack.popNode()) : null;
             exprType inst = arity >= 2 ? ((exprType) stack.popNode()) : null;
             exprType type = arity >= 1 ? ((exprType) stack.popNode()) : null;
-            return new Raise(type, inst, tback);
+            return new Raise(type, inst, tback, null);
         case JJTGLOBAL_STMT:
             Global global = new Global(makeIdentifiers(NameTok.GlobalName));
             return global;

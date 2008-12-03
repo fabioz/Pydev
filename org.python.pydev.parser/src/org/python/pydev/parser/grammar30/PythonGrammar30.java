@@ -2192,7 +2192,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     }
   }
 
-//raise_stmt: 'raise' [test [',' test [',' test]]]
+//raise_stmt: 'raise' [test ['from' test]]
   final public void raise_stmt() throws ParseException {
                     /*@bgen(jjtree) raise_stmt */
   SimpleNode jjtn000 = jjtree.builder.openNode( JJTRAISE_STMT);
@@ -2231,28 +2231,18 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       case TRIPLE_BSTRING2:
         test();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case COMMA:
-                                                                            this.addSpecialToken(",");
-          jj_consume_token(COMMA);
+        case FROM:
+                                                                            this.addSpecialToken("from");
+          jj_consume_token(FROM);
           test();
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case COMMA:
-                                                                                                                         this.addSpecialToken(",");
-            jj_consume_token(COMMA);
-            test();
-            break;
-          default:
-            jj_la1[34] = jj_gen;
-            ;
-          }
           break;
         default:
-          jj_la1[35] = jj_gen;
+          jj_la1[34] = jj_gen;
           ;
         }
         break;
       default:
-        jj_la1[36] = jj_gen;
+        jj_la1[35] = jj_gen;
         ;
       }
     } catch (Throwable jjte000) {
@@ -2292,7 +2282,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       ImportFrom();
       break;
     default:
-      jj_la1[37] = jj_gen;
+      jj_la1[36] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2313,7 +2303,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           ;
           break;
         default:
-          jj_la1[38] = jj_gen;
+          jj_la1[37] = jj_gen;
           break label_8;
         }
                      this.addSpecialToken(",");
@@ -2363,7 +2353,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           ;
           break;
         default:
-          jj_la1[39] = jj_gen;
+          jj_la1[38] = jj_gen;
           break label_9;
         }
         jj_consume_token(DOT);
@@ -2402,7 +2392,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         fromName = dotted_name();
         break;
       default:
-        jj_la1[40] = jj_gen;
+        jj_la1[39] = jj_gen;
         ;
       }
                                                                                  if(fromName==null && level==0){{if (true) throw new ParseException("Expecting to find '.' or name in import.");}}
@@ -2451,7 +2441,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
             ;
             break;
           default:
-            jj_la1[41] = jj_gen;
+            jj_la1[40] = jj_gen;
             break label_10;
           }
               this.addSpecialToken(",");
@@ -2472,7 +2462,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
             ;
             break;
           default:
-            jj_la1[42] = jj_gen;
+            jj_la1[41] = jj_gen;
             break label_11;
           }
              if(state!=0){
@@ -2516,7 +2506,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
                                                                if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);
             break;
           default:
-            jj_la1[43] = jj_gen;
+            jj_la1[42] = jj_gen;
             ;
           }
         }
@@ -2524,7 +2514,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
                       this.findTokenAndAdd(")");
         break;
       default:
-        jj_la1[44] = jj_gen;
+        jj_la1[43] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -2570,7 +2560,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         Name();
         break;
       default:
-        jj_la1[45] = jj_gen;
+        jj_la1[44] = jj_gen;
         ;
       }
     } catch (Throwable jjte000) {
@@ -2612,7 +2602,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           ;
           break;
         default:
-          jj_la1[46] = jj_gen;
+          jj_la1[45] = jj_gen;
           break label_12;
         }
         jj_consume_token(DOT);
@@ -2662,7 +2652,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         Name();
         break;
       default:
-        jj_la1[47] = jj_gen;
+        jj_la1[46] = jj_gen;
         ;
       }
                                                               jjtree.closeNodeScope(jjtn000, true);
@@ -2710,7 +2700,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           ;
           break;
         default:
-          jj_la1[48] = jj_gen;
+          jj_la1[47] = jj_gen;
           break label_13;
         }
                                                                              this.addSpecialToken(",");
@@ -2762,12 +2752,12 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           test();
           break;
         default:
-          jj_la1[49] = jj_gen;
+          jj_la1[48] = jj_gen;
           ;
         }
         break;
       default:
-        jj_la1[50] = jj_gen;
+        jj_la1[49] = jj_gen;
         ;
       }
     } catch (Throwable jjte000) {
@@ -2809,7 +2799,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         test();
         break;
       default:
-        jj_la1[51] = jj_gen;
+        jj_la1[50] = jj_gen;
         ;
       }
     } catch (Throwable jjte000) {
@@ -2863,7 +2853,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       decorated();
       break;
     default:
-      jj_la1[52] = jj_gen;
+      jj_la1[51] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2889,7 +2879,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           ;
           break;
         default:
-          jj_la1[53] = jj_gen;
+          jj_la1[52] = jj_gen;
           break label_14;
         }
         begin_elif_stmt();
@@ -2906,7 +2896,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         suite();
         break;
       default:
-        jj_la1[54] = jj_gen;
+        jj_la1[53] = jj_gen;
         ;
       }
     } catch (Throwable jjte000) {
@@ -2991,7 +2981,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         suite();
         break;
       default:
-        jj_la1[55] = jj_gen;
+        jj_la1[54] = jj_gen;
         ;
       }
     } catch (Throwable jjte000) {
@@ -3074,7 +3064,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         suite();
         break;
       default:
-        jj_la1[56] = jj_gen;
+        jj_la1[55] = jj_gen;
         ;
       }
     } catch (Throwable jjte000) {
@@ -3156,7 +3146,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           ;
           break;
         default:
-          jj_la1[57] = jj_gen;
+          jj_la1[56] = jj_gen;
           break label_15;
         }
       }
@@ -3181,7 +3171,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         }
         break;
       default:
-        jj_la1[58] = jj_gen;
+        jj_la1[57] = jj_gen;
         ;
       }
               SimpleNode jjtn003 = jjtree.builder.openNode( JJTTRY_STMT);
@@ -3210,7 +3200,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           }
           break;
         default:
-          jj_la1[59] = jj_gen;
+          jj_la1[58] = jj_gen;
           ;
         }
       } catch (Throwable jjte003) {
@@ -3264,7 +3254,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       }
       break;
     default:
-      jj_la1[60] = jj_gen;
+      jj_la1[59] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -3373,12 +3363,12 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           test();
           break;
         default:
-          jj_la1[61] = jj_gen;
+          jj_la1[60] = jj_gen;
           ;
         }
         break;
       default:
-        jj_la1[62] = jj_gen;
+        jj_la1[61] = jj_gen;
         ;
       }
       jj_consume_token(COLON);
@@ -3438,7 +3428,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         with_var();
         break;
       default:
-        jj_la1[63] = jj_gen;
+        jj_la1[62] = jj_gen;
         ;
       }
       jj_consume_token(COLON);
@@ -3606,14 +3596,14 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
             ;
             break;
           default:
-            jj_la1[64] = jj_gen;
+            jj_la1[63] = jj_gen;
             break label_16;
           }
         }
         jj_consume_token(DEDENT);
         break;
       default:
-        jj_la1[65] = jj_gen;
+        jj_la1[64] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -3660,7 +3650,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           ;
           break;
         default:
-          jj_la1[66] = jj_gen;
+          jj_la1[65] = jj_gen;
           break label_17;
         }
       }
@@ -3670,12 +3660,12 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         jj_consume_token(COMMA);
         break;
       default:
-        jj_la1[67] = jj_gen;
+        jj_la1[66] = jj_gen;
         ;
       }
       break;
     default:
-      jj_la1[68] = jj_gen;
+      jj_la1[67] = jj_gen;
       ;
     }
   }
@@ -3714,7 +3704,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       old_lambdef();
       break;
     default:
-      jj_la1[69] = jj_gen;
+      jj_la1[68] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -3739,7 +3729,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
                           hasArgs=true;
         break;
       default:
-        jj_la1[70] = jj_gen;
+        jj_la1[69] = jj_gen;
         ;
       }
       jj_consume_token(COLON);
@@ -3810,12 +3800,12 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           if_exp();
           break;
         default:
-          jj_la1[71] = jj_gen;
+          jj_la1[70] = jj_gen;
           ;
         }
         break;
       default:
-        jj_la1[72] = jj_gen;
+        jj_la1[71] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -3892,7 +3882,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           ;
           break;
         default:
-          jj_la1[73] = jj_gen;
+          jj_la1[72] = jj_gen;
           break label_18;
         }
         jj_consume_token(OR_BOOL);
@@ -3936,7 +3926,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           ;
           break;
         default:
-          jj_la1[74] = jj_gen;
+          jj_la1[73] = jj_gen;
           break label_19;
         }
         jj_consume_token(AND_BOOL);
@@ -4023,7 +4013,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       comparison();
       break;
     default:
-      jj_la1[75] = jj_gen;
+      jj_la1[74] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -4052,7 +4042,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           ;
           break;
         default:
-          jj_la1[76] = jj_gen;
+          jj_la1[75] = jj_gen;
           break label_20;
         }
         comp_op();
@@ -4197,7 +4187,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       }
       break;
     default:
-      jj_la1[77] = jj_gen;
+      jj_la1[76] = jj_gen;
       if (jj_2_7(2)) {
         jj_consume_token(IS);
                         SimpleNode jjtn009 = jjtree.builder.openNode( JJTIS_NOT_CMP);
@@ -4229,7 +4219,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           }
           break;
         default:
-          jj_la1[78] = jj_gen;
+          jj_la1[77] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
@@ -4247,7 +4237,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         ;
         break;
       default:
-        jj_la1[79] = jj_gen;
+        jj_la1[78] = jj_gen;
         break label_21;
       }
       jj_consume_token(OR);
@@ -4290,7 +4280,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         ;
         break;
       default:
-        jj_la1[80] = jj_gen;
+        jj_la1[79] = jj_gen;
         break label_22;
       }
       jj_consume_token(XOR);
@@ -4333,7 +4323,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         ;
         break;
       default:
-        jj_la1[81] = jj_gen;
+        jj_la1[80] = jj_gen;
         break label_23;
       }
       jj_consume_token(AND);
@@ -4377,7 +4367,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         ;
         break;
       default:
-        jj_la1[82] = jj_gen;
+        jj_la1[81] = jj_gen;
         break label_24;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -4440,7 +4430,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         }
         break;
       default:
-        jj_la1[83] = jj_gen;
+        jj_la1[82] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -4458,7 +4448,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         ;
         break;
       default:
-        jj_la1[84] = jj_gen;
+        jj_la1[83] = jj_gen;
         break label_25;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -4521,7 +4511,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         }
         break;
       default:
-        jj_la1[85] = jj_gen;
+        jj_la1[84] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -4541,7 +4531,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         ;
         break;
       default:
-        jj_la1[86] = jj_gen;
+        jj_la1[85] = jj_gen;
         break label_26;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -4662,7 +4652,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         }
         break;
       default:
-        jj_la1[87] = jj_gen;
+        jj_la1[86] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -4783,7 +4773,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       power();
       break;
     default:
-      jj_la1[88] = jj_gen;
+      jj_la1[87] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -4844,7 +4834,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         ;
         break;
       default:
-        jj_la1[89] = jj_gen;
+        jj_la1[88] = jj_gen;
         break label_28;
       }
       if (jj_2_9(2)) {
@@ -4947,7 +4937,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           }
           break;
         default:
-          jj_la1[90] = jj_gen;
+          jj_la1[89] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
@@ -5016,7 +5006,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           testlist_comp();
           break;
         default:
-          jj_la1[91] = jj_gen;
+          jj_la1[90] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
@@ -5083,7 +5073,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
             testlist_comp();
             break;
           default:
-            jj_la1[92] = jj_gen;
+            jj_la1[91] = jj_gen;
             ;
           }
        spStr2 = createSpecialStr("]", false);
@@ -5148,7 +5138,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
             dictorsetmaker();
             break;
           default:
-            jj_la1[93] = jj_gen;
+            jj_la1[92] = jj_gen;
             ;
           }
        spStr2  = createSpecialStr("}", false);
@@ -5251,7 +5241,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
             ;
             break;
           default:
-            jj_la1[94] = jj_gen;
+            jj_la1[93] = jj_gen;
             break label_29;
           }
                 SimpleNode jjtn008 = jjtree.builder.openNode( JJTSTRJOIN);
@@ -5283,7 +5273,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         }
         break;
       default:
-        jj_la1[95] = jj_gen;
+        jj_la1[94] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -5300,7 +5290,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         ;
         break;
       default:
-        jj_la1[96] = jj_gen;
+        jj_la1[95] = jj_gen;
         break label_30;
       }
       comp_for();
@@ -5327,7 +5317,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
                           hasArgs=true;
         break;
       default:
-        jj_la1[97] = jj_gen;
+        jj_la1[96] = jj_gen;
         ;
       }
       jj_consume_token(COLON);
@@ -5379,7 +5369,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         Comma();
         break;
       default:
-        jj_la1[98] = jj_gen;
+        jj_la1[97] = jj_gen;
         ;
       }
     } catch (Throwable jjte001) {
@@ -5460,7 +5450,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           slice();
           break;
         default:
-          jj_la1[99] = jj_gen;
+          jj_la1[98] = jj_gen;
           ;
         }
       } catch (Throwable jjte002) {
@@ -5513,7 +5503,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       }
       break;
     default:
-      jj_la1[100] = jj_gen;
+      jj_la1[99] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -5552,7 +5542,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       test();
       break;
     default:
-      jj_la1[101] = jj_gen;
+      jj_la1[100] = jj_gen;
       ;
     }
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -5588,12 +5578,12 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         test();
         break;
       default:
-        jj_la1[102] = jj_gen;
+        jj_la1[101] = jj_gen;
         ;
       }
       break;
     default:
-      jj_la1[103] = jj_gen;
+      jj_la1[102] = jj_gen;
       ;
     }
   }
@@ -5656,7 +5646,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         Comma();
         break;
       default:
-        jj_la1[104] = jj_gen;
+        jj_la1[103] = jj_gen;
         ;
       }
     } catch (Throwable jjte001) {
@@ -5705,7 +5695,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         Comma();
         break;
       default:
-        jj_la1[105] = jj_gen;
+        jj_la1[104] = jj_gen;
         ;
       }
     } catch (Throwable jjte001) {
@@ -5750,7 +5740,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       jj_consume_token(COMMA);
       break;
     default:
-      jj_la1[106] = jj_gen;
+      jj_la1[105] = jj_gen;
       ;
     }
   }
@@ -5770,7 +5760,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         comp_for();
         break;
       default:
-        jj_la1[108] = jj_gen;
+        jj_la1[107] = jj_gen;
         label_35:
         while (true) {
           if (jj_2_17(2)) {
@@ -5791,7 +5781,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           jj_consume_token(COMMA);
           break;
         default:
-          jj_la1[107] = jj_gen;
+          jj_la1[106] = jj_gen;
           ;
         }
       }
@@ -5839,7 +5829,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
                 ;
                 break;
               default:
-                jj_la1[109] = jj_gen;
+                jj_la1[108] = jj_gen;
                 break label_36;
               }
                                           this.addSpecialToken(",");
@@ -5872,13 +5862,13 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
             jj_consume_token(COMMA);
             break;
           default:
-            jj_la1[110] = jj_gen;
+            jj_la1[109] = jj_gen;
             ;
           }
         }
         break;
       default:
-        jj_la1[111] = jj_gen;
+        jj_la1[110] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -5897,7 +5887,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           ;
           break;
         default:
-          jj_la1[112] = jj_gen;
+          jj_la1[111] = jj_gen;
           break label_37;
         }
       }
@@ -5923,7 +5913,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           Comma();
           break;
         default:
-          jj_la1[113] = jj_gen;
+          jj_la1[112] = jj_gen;
           ;
         }
       } catch (Throwable jjte001) {
@@ -5959,7 +5949,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       list_if();
       break;
     default:
-      jj_la1[114] = jj_gen;
+      jj_la1[113] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -5985,7 +5975,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         list_iter();
         break;
       default:
-        jj_la1[115] = jj_gen;
+        jj_la1[114] = jj_gen;
         ;
       }
     } catch (Throwable jjte000) {
@@ -6020,7 +6010,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       list_iter();
       break;
     default:
-      jj_la1[116] = jj_gen;
+      jj_la1[115] = jj_gen;
       ;
     }
   }
@@ -6042,7 +6032,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         funcdef();
         break;
       default:
-        jj_la1[117] = jj_gen;
+        jj_la1[116] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -6112,14 +6102,14 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           testlist();
           break;
         default:
-          jj_la1[118] = jj_gen;
+          jj_la1[117] = jj_gen;
           ;
         }
         jj_consume_token(RPAREN);
                                                                                                           this.findTokenAndAdd(")");
         break;
       default:
-        jj_la1[119] = jj_gen;
+        jj_la1[118] = jj_gen;
         ;
       }
       jj_consume_token(COLON);
@@ -6219,7 +6209,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
               ExtraKeywordValueList();
               break;
             default:
-              jj_la1[120] = jj_gen;
+              jj_la1[119] = jj_gen;
               ;
             }
           } else {
@@ -6229,24 +6219,24 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
               ExtraKeywordValueList();
               break;
             default:
-              jj_la1[121] = jj_gen;
+              jj_la1[120] = jj_gen;
               jj_consume_token(-1);
               throw new ParseException();
             }
           }
           break;
         default:
-          jj_la1[122] = jj_gen;
+          jj_la1[121] = jj_gen;
           ;
         }
         break;
       default:
-        jj_la1[123] = jj_gen;
+        jj_la1[122] = jj_gen;
         ;
       }
       break;
     default:
-      jj_la1[127] = jj_gen;
+      jj_la1[126] = jj_gen;
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case MULTIPLY:
       case POWER:
@@ -6259,7 +6249,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
             ExtraKeywordValueList();
             break;
           default:
-            jj_la1[124] = jj_gen;
+            jj_la1[123] = jj_gen;
             ;
           }
         } else {
@@ -6269,14 +6259,14 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
             ExtraKeywordValueList();
             break;
           default:
-            jj_la1[125] = jj_gen;
+            jj_la1[124] = jj_gen;
             jj_consume_token(-1);
             throw new ParseException();
           }
         }
         break;
       default:
-        jj_la1[126] = jj_gen;
+        jj_la1[125] = jj_gen;
         ;
       }
     }
@@ -6347,7 +6337,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         jj_consume_token(MULTIPLY);
         break;
       default:
-        jj_la1[128] = jj_gen;
+        jj_la1[127] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -6461,7 +6451,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
 
         break;
       default:
-        jj_la1[129] = jj_gen;
+        jj_la1[128] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -6514,7 +6504,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
 
         break;
       default:
-        jj_la1[130] = jj_gen;
+        jj_la1[129] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -6682,7 +6672,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       }
       break;
     default:
-      jj_la1[131] = jj_gen;
+      jj_la1[130] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -7243,7 +7233,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       }
       break;
     default:
-      jj_la1[132] = jj_gen;
+      jj_la1[131] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -8929,7 +8919,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
   public boolean lookingAhead = false;
   private boolean jj_semLA;
   private int jj_gen;
-  final private int[] jj_la1 = new int[133];
+  final private int[] jj_la1 = new int[132];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static private int[] jj_la1_2;
@@ -8943,19 +8933,19 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       jj_la1_4();
    }
    private static void jj_la1_0() {
-      jj_la1_0 = new int[] {0x182a0040,0x182a0040,0x20000,0x0,0x20020000,0x1000000,0x1000000,0x20000000,0x20020000,0x20000000,0x0,0x20000,0x1000000,0x182a0000,0x800000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x0,0x182a0000,0x0,0x0,0x182a0000,0x182a0000,0x1000000,0x1000000,0x182a0000,0x0,0x1000000,0x2000000,0x0,0x1000000,0x1000000,0x0,0x20020000,0x0,0x2000000,0x0,0x1000000,0x1000000,0x0,0x1000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x182a0000,0x0,0x182a0000,0x182a0040,0x1000000,0x1000000,0x1000000,0x182a0000,0x20020000,0x0,0x182a0000,0x0,0x0,0x182a0000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x18000000,0x18000000,0xe0000000,0xe0000000,0x182a0000,0x2220000,0x2200000,0x182a0000,0x182a0000,0x182a0000,0x0,0x280000,0x0,0x20020000,0x1000000,0x4000000,0x1e2a0000,0x182a0000,0x182a0000,0x4000000,0x1000000,0x1000000,0x1000000,0x1000000,0x0,0x1000000,0x1000000,0x182a0000,0x0,0x1000000,0x0,0x0,0x0,0x0,0x182a0000,0x20000,0x1000000,0x20000000,0x20000000,0x1000000,0x1000000,0x20000000,0x20000000,0x182a0000,0x20000000,0x0,0x0,0x0,0x0,};
+      jj_la1_0 = new int[] {0x182a0040,0x182a0040,0x20000,0x0,0x20020000,0x1000000,0x1000000,0x20000000,0x20020000,0x20000000,0x0,0x20000,0x1000000,0x182a0000,0x800000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x0,0x182a0000,0x0,0x0,0x182a0000,0x182a0000,0x0,0x182a0000,0x0,0x1000000,0x2000000,0x0,0x1000000,0x1000000,0x0,0x20020000,0x0,0x2000000,0x0,0x1000000,0x1000000,0x0,0x1000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x182a0000,0x0,0x182a0000,0x182a0040,0x1000000,0x1000000,0x1000000,0x182a0000,0x20020000,0x0,0x182a0000,0x0,0x0,0x182a0000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x18000000,0x18000000,0xe0000000,0xe0000000,0x182a0000,0x2220000,0x2200000,0x182a0000,0x182a0000,0x182a0000,0x0,0x280000,0x0,0x20020000,0x1000000,0x4000000,0x1e2a0000,0x182a0000,0x182a0000,0x4000000,0x1000000,0x1000000,0x1000000,0x1000000,0x0,0x1000000,0x1000000,0x182a0000,0x0,0x1000000,0x0,0x0,0x0,0x0,0x182a0000,0x20000,0x1000000,0x20000000,0x20000000,0x1000000,0x1000000,0x20000000,0x20000000,0x182a0000,0x20000000,0x0,0x0,0x0,0x0,};
    }
    private static void jj_la1_1() {
-      jj_la1_1 = new int[] {0x20000010,0x20000010,0x0,0x0,0x1,0x0,0x0,0x1,0x1,0x1,0x100,0x0,0x0,0x20000010,0x0,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x100,0x20000010,0x7ff8000,0x0,0x20000010,0x20000010,0x0,0x0,0x20000010,0x0,0x0,0x0,0xf8000000,0x0,0x0,0xf8000000,0xf8000000,0x0,0x0,0x0,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x20000010,0x0,0x20000010,0x20000010,0x0,0x0,0x0,0x20000010,0x1,0x0,0x20000010,0x8000000,0x10000000,0x20000010,0xe0007e00,0xa0007e00,0x40000000,0x40,0x20,0x80,0x6,0x6,0x0,0x0,0x8,0x8,0x10,0x0,0x0,0x20000010,0x20000010,0x20000010,0x0,0x0,0x0,0x1,0x0,0x0,0x20000010,0x20000010,0x20000010,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x20000010,0x0,0x0,0x0,0x0,0x0,0x0,0x20000010,0x0,0x0,0x1,0x1,0x0,0x0,0x1,0x1,0xf8000010,0x1,0x0,0x0,0x0,0xf8000000,};
+      jj_la1_1 = new int[] {0x20000010,0x20000010,0x0,0x0,0x1,0x0,0x0,0x1,0x1,0x1,0x100,0x0,0x0,0x20000010,0x0,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x100,0x20000010,0x7ff8000,0x0,0x20000010,0x20000010,0x0,0x20000010,0x0,0x0,0x0,0xf8000000,0x0,0x0,0xf8000000,0xf8000000,0x0,0x0,0x0,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x20000010,0x0,0x20000010,0x20000010,0x0,0x0,0x0,0x20000010,0x1,0x0,0x20000010,0x8000000,0x10000000,0x20000010,0xe0007e00,0xa0007e00,0x40000000,0x40,0x20,0x80,0x6,0x6,0x0,0x0,0x8,0x8,0x10,0x0,0x0,0x20000010,0x20000010,0x20000010,0x0,0x0,0x0,0x1,0x0,0x0,0x20000010,0x20000010,0x20000010,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x20000010,0x0,0x0,0x0,0x0,0x0,0x0,0x20000010,0x0,0x0,0x1,0x1,0x0,0x0,0x1,0x1,0xf8000010,0x1,0x0,0x0,0x0,0xf8000000,};
    }
    private static void jj_la1_2() {
-      jj_la1_2 = new int[] {0xbffffb73,0xbffffb73,0x0,0x10000000,0x20800000,0x0,0x0,0x0,0x20800000,0x0,0x0,0x20800000,0x0,0xbffffb73,0x0,0xaefff801,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0x0,0xae808001,0x0,0x8f000,0xae800001,0xae800001,0x0,0x0,0xae800001,0x30000,0x0,0x0,0x20feffff,0x0,0x0,0x20feffff,0x20feffff,0x800000,0x0,0x800000,0x0,0x0,0x0,0x0,0x11000372,0x8,0x4,0x4,0x4,0x80,0x4,0x400,0x480,0x800000,0xae800001,0x800000,0xbffffb73,0xaefff801,0x0,0x0,0x0,0xae800001,0x20800000,0x2,0xae800001,0x0,0x0,0xae800000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xae800000,0x0,0x0,0xae808001,0xae800001,0xae800001,0x0,0xae800000,0x20,0x20800000,0x0,0x0,0xae800001,0xae800001,0xae800001,0x0,0x0,0x0,0x0,0x0,0x20,0x0,0x0,0xae800001,0x20,0x0,0x22,0x22,0x22,0x300,0xae800001,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xaefeffff,0x0,0x80000000,0x20800000,0x0,0x20feffff,};
+      jj_la1_2 = new int[] {0xbffffb73,0xbffffb73,0x0,0x10000000,0x20800000,0x0,0x0,0x0,0x20800000,0x0,0x0,0x20800000,0x0,0xbffffb73,0x0,0xaefff801,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0x0,0xae808001,0x0,0x8f000,0xae800001,0xae800001,0x20000,0xae800001,0x30000,0x0,0x0,0x20feffff,0x0,0x0,0x20feffff,0x20feffff,0x800000,0x0,0x800000,0x0,0x0,0x0,0x0,0x11000372,0x8,0x4,0x4,0x4,0x80,0x4,0x400,0x480,0x800000,0xae800001,0x800000,0xbffffb73,0xaefff801,0x0,0x0,0x0,0xae800001,0x20800000,0x2,0xae800001,0x0,0x0,0xae800000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xae800000,0x0,0x0,0xae808001,0xae800001,0xae800001,0x0,0xae800000,0x20,0x20800000,0x0,0x0,0xae800001,0xae800001,0xae800001,0x0,0x0,0x0,0x0,0x0,0x20,0x0,0x0,0xae800001,0x20,0x0,0x22,0x22,0x22,0x300,0xae800001,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xaefeffff,0x0,0x80000000,0x20800000,0x0,0x20feffff,};
    }
    private static void jj_la1_3() {
-      jj_la1_3 = new int[] {0x3fc00f,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x0,0x3fc00f,0x0,0x0,0x3fc00f,0x3fc00f,0x0,0x0,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0x3fc00f,0x3fc00f,0x0,0x0,0x0,0x3fc00f,0x0,0x0,0x3fc00f,0x0,0x0,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0x0,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc000,0x3fc00f,0x0,0x0,0x0,0x0,0x3fc00f,0x3fc00f,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0xf,0x0,0x3fc000,0x0,};
+      jj_la1_3 = new int[] {0x3fc00f,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x0,0x3fc00f,0x0,0x0,0x3fc00f,0x3fc00f,0x0,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0x3fc00f,0x3fc00f,0x0,0x0,0x0,0x3fc00f,0x0,0x0,0x3fc00f,0x0,0x0,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0x0,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc000,0x3fc00f,0x0,0x0,0x0,0x0,0x3fc00f,0x3fc00f,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0xf,0x0,0x3fc000,0x0,};
    }
    private static void jj_la1_4() {
-      jj_la1_4 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
+      jj_la1_4 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[25];
   private boolean jj_rescan = false;
@@ -8966,7 +8956,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 133; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 132; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -8976,7 +8966,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 133; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 132; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -8985,7 +8975,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 133; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 132; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -8995,7 +8985,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 133; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 132; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -9114,7 +9104,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 133; i++) {
+    for (int i = 0; i < 132; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {

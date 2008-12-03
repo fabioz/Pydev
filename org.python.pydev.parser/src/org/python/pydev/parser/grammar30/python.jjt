@@ -895,9 +895,9 @@ void yield_expr(): {}
 { <YIELD> [SmartTestList()] {this.addToPeek("yield ",false, Yield.class);}}
 
 
-//raise_stmt: 'raise' [test [',' test [',' test]]]
+//raise_stmt: 'raise' [test ['from' test]]
 void raise_stmt(): {}
-{ <RAISE> {this.addSpecialToken("raise ", STRATEGY_BEFORE_NEXT);} [test() [{this.addSpecialToken(",");} <COMMA> test() [{this.addSpecialToken(",");} <COMMA> test()]]] }
+{ <RAISE> {this.addSpecialToken("raise ", STRATEGY_BEFORE_NEXT);} [test() [{this.addSpecialToken("from");} <FROM> test()]] }
 
 //import_stmt: 'import' dotted_name (',' dotted_name)* | 'from' dotted_name 'import' ('*' | NAME (',' NAME)*)
 void import_stmt() #void: {Import imp;}

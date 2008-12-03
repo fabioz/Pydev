@@ -8,16 +8,19 @@ public class Raise extends stmtType {
     public exprType type;
     public exprType inst;
     public exprType tback;
+    public exprType cause;
 
-    public Raise(exprType type, exprType inst, exprType tback) {
+    public Raise(exprType type, exprType inst, exprType tback, exprType
+    cause) {
         this.type = type;
         this.inst = inst;
         this.tback = tback;
+        this.cause = cause;
     }
 
-    public Raise(exprType type, exprType inst, exprType tback, SimpleNode
-    parent) {
-        this(type, inst, tback);
+    public Raise(exprType type, exprType inst, exprType tback, exprType
+    cause, SimpleNode parent) {
+        this(type, inst, tback, cause);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
     }
@@ -32,6 +35,9 @@ public class Raise extends stmtType {
         sb.append(", ");
         sb.append("tback=");
         sb.append(dumpThis(this.tback));
+        sb.append(", ");
+        sb.append("cause=");
+        sb.append(dumpThis(this.cause));
         sb.append("]");
         return sb.toString();
     }
@@ -41,6 +47,7 @@ public class Raise extends stmtType {
         pickleThis(this.type, ostream);
         pickleThis(this.inst, ostream);
         pickleThis(this.tback, ostream);
+        pickleThis(this.cause, ostream);
     }
 
     public Object accept(VisitorIF visitor) throws Exception {
@@ -54,6 +61,8 @@ public class Raise extends stmtType {
             inst.accept(visitor);
         if (tback != null)
             tback.accept(visitor);
+        if (cause != null)
+            cause.accept(visitor);
     }
 
 }

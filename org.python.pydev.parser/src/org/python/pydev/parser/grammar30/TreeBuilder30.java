@@ -456,10 +456,9 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
             }
             return new Yield(yieldExpr);
         case JJTRAISE_STMT:
-            exprType tback = arity >= 3 ? ((exprType) stack.popNode()) : null;
-            exprType inst = arity >= 2 ? ((exprType) stack.popNode()) : null;
+            exprType from = arity >= 2 ? ((exprType) stack.popNode()) : null;
             exprType type = arity >= 1 ? ((exprType) stack.popNode()) : null;
-            return new Raise(type, inst, tback);
+            return new Raise(type, null, null, from);
         case JJTGLOBAL_STMT:
             Global global = new Global(makeIdentifiers(NameTok.GlobalName));
             return global;
