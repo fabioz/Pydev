@@ -77,7 +77,10 @@ module Python
          | IfExp(expr test, expr body, expr orelse)
          
 	     | Dict(expr* keys, expr* values)
+	     | Set(expr* elts)
 	     | ListComp(expr elt, comprehension* generators)
+	     | SetComp(expr elt, comprehension* generators)
+	     | DictComp(expr key, expr value, comprehension* generators)
 	     | GeneratorExp(expr elt, comprehension* generators)
 	     -- yield is an expr on 2.5
 	     | Yield(expr? value)

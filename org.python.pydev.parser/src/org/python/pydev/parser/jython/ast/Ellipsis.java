@@ -22,7 +22,7 @@ public class Ellipsis extends sliceType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(50, ostream);
+        pickleThis(53, ostream);
     }
 
     public Object accept(VisitorIF visitor) throws Exception {

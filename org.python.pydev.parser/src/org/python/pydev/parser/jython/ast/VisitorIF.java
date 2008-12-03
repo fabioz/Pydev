@@ -36,7 +36,10 @@ public interface VisitorIF {
     public Object visitLambda(Lambda node) throws Exception;
     public Object visitIfExp(IfExp node) throws Exception;
     public Object visitDict(Dict node) throws Exception;
+    public Object visitSet(Set node) throws Exception;
     public Object visitListComp(ListComp node) throws Exception;
+    public Object visitSetComp(SetComp node) throws Exception;
+    public Object visitDictComp(DictComp node) throws Exception;
     public Object visitGeneratorExp(GeneratorExp node) throws Exception;
     public Object visitYield(Yield node) throws Exception;
     public Object visitCompare(Compare node) throws Exception;

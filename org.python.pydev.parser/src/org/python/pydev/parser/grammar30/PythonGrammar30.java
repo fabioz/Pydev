@@ -52,7 +52,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
 
     void handleFutureImports(String importName){
         if(importName.equals("with_statement")){
-                acceptWithStmt = true;
+            acceptWithStmt = true;
         }
     }
 
@@ -144,19 +144,19 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     }
 
     private void addSpecialToken(Object o, int strategy) {
-                o = convertStringToSpecialStr(o);
+        o = convertStringToSpecialStr(o);
         token_source.specialTokens.add(new Object[]{o, strategy});
     }
 
-        private Object convertStringToSpecialStr(Object o) {
-                if (o instanceof String) {
-                        try {
-                                o = createSpecialStr((String) o);
-                        } catch (ParseException e) {
-                        }
-                }
-                return o;
+    private Object convertStringToSpecialStr(Object o) {
+        if (o instanceof String) {
+            try {
+                o = createSpecialStr((String) o);
+            } catch (ParseException e) {
+            }
         }
+        return o;
+    }
 
     private void addSpecialToken(Object o) {
         //the default is adding after the previous token
@@ -2458,10 +2458,10 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
             jj_la1[41] = jj_gen;
             break label_10;
           }
-                  this.addSpecialToken(",");
+              this.addSpecialToken(",");
           jj_consume_token(COMMA);
           importName = import_as_name();
-                                                                                    if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);
+                                                                                if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);
         }
         break;
       case LPAREN:
@@ -3154,7 +3154,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       label_15:
       while (true) {
         except_clause(tryNode);
-                                                 i++;
+                                     i++;
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case EXCEPT:
           ;
@@ -3168,49 +3168,49 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       case ELSE:
         begin_try_else_stmt();
         suite();
-                                                         SimpleNode jjtn001 = jjtree.builder.openNode( JJTTRYELSE_STMT);
-                                                         boolean jjtc001 = true;
-                                                         jjtree.openNodeScope(jjtn001);
-                                                         jjtreeOpenNodeScope(jjtn001);
+                                             SimpleNode jjtn001 = jjtree.builder.openNode( JJTTRYELSE_STMT);
+                                             boolean jjtc001 = true;
+                                             jjtree.openNodeScope(jjtn001);
+                                             jjtreeOpenNodeScope(jjtn001);
         try {
-                                                         jjtree.closeNodeScope(jjtn001,  2);
-                                                         jjtc001 = false;
-                                                         jjtreeCloseNodeScope(jjtn001);
-                                                        i++;
+                                             jjtree.closeNodeScope(jjtn001,  2);
+                                             jjtc001 = false;
+                                             jjtreeCloseNodeScope(jjtn001);
+                                            i++;
         } finally {
-                                                         if (jjtc001) {
-                                                           jjtree.closeNodeScope(jjtn001,  2);
-                                                           jjtreeCloseNodeScope(jjtn001);
-                                                         }
+                                             if (jjtc001) {
+                                               jjtree.closeNodeScope(jjtn001,  2);
+                                               jjtreeCloseNodeScope(jjtn001);
+                                             }
         }
         break;
       default:
         jj_la1[58] = jj_gen;
         ;
       }
-                          SimpleNode jjtn003 = jjtree.builder.openNode( JJTTRY_STMT);
-                          boolean jjtc003 = true;
-                          jjtree.openNodeScope(jjtn003);
-                          jjtreeOpenNodeScope(jjtn003);
+              SimpleNode jjtn003 = jjtree.builder.openNode( JJTTRY_STMT);
+              boolean jjtc003 = true;
+              jjtree.openNodeScope(jjtn003);
+              jjtreeOpenNodeScope(jjtn003);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case FINALLY:
           begin_finally_stmt();
           suite();
-                                                         SimpleNode jjtn002 = jjtree.builder.openNode( JJTTRYFINALLY_OUTER_STMT);
-                                                         boolean jjtc002 = true;
-                                                         jjtree.openNodeScope(jjtn002);
-                                                         jjtreeOpenNodeScope(jjtn002);
+                                             SimpleNode jjtn002 = jjtree.builder.openNode( JJTTRYFINALLY_OUTER_STMT);
+                                             boolean jjtc002 = true;
+                                             jjtree.openNodeScope(jjtn002);
+                                             jjtreeOpenNodeScope(jjtn002);
           try {
-                                                         jjtree.closeNodeScope(jjtn002,  2);
-                                                         jjtc002 = false;
-                                                         jjtreeCloseNodeScope(jjtn002);
-                                                        i++;
+                                             jjtree.closeNodeScope(jjtn002,  2);
+                                             jjtc002 = false;
+                                             jjtreeCloseNodeScope(jjtn002);
+                                            i++;
           } finally {
-                                                         if (jjtc002) {
-                                                           jjtree.closeNodeScope(jjtn002,  2);
-                                                           jjtreeCloseNodeScope(jjtn002);
-                                                         }
+                                             if (jjtc002) {
+                                               jjtree.closeNodeScope(jjtn002,  2);
+                                               jjtreeCloseNodeScope(jjtn002);
+                                             }
           }
           break;
         default:
@@ -3218,53 +3218,53 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           ;
         }
       } catch (Throwable jjte003) {
-                          if (jjtc003) {
-                            jjtree.clearNodeScope(jjtn003);
-                            jjtc003 = false;
-                          } else {
-                            jjtree.popNode();
-                          }
-                          if (jjte003 instanceof RuntimeException) {
-                            {if (true) throw (RuntimeException)jjte003;}
-                          }
-                          if (jjte003 instanceof ParseException) {
-                            {if (true) throw (ParseException)jjte003;}
-                          }
-                          {if (true) throw (Error)jjte003;}
+              if (jjtc003) {
+                jjtree.clearNodeScope(jjtn003);
+                jjtc003 = false;
+              } else {
+                jjtree.popNode();
+              }
+              if (jjte003 instanceof RuntimeException) {
+                {if (true) throw (RuntimeException)jjte003;}
+              }
+              if (jjte003 instanceof ParseException) {
+                {if (true) throw (ParseException)jjte003;}
+              }
+              {if (true) throw (Error)jjte003;}
       } finally {
-                          if (jjtc003) {
-                            jjtree.closeNodeScope(jjtn003,  i);
-                            jjtreeCloseNodeScope(jjtn003);
-                          }
+              if (jjtc003) {
+                jjtree.closeNodeScope(jjtn003,  i);
+                jjtreeCloseNodeScope(jjtn003);
+              }
       }
       break;
     case FINALLY:
       begin_finally_stmt();
-                                         SimpleNode jjtn004 = jjtree.builder.openNode( JJTTRYFINALLY_STMT);
-                                         boolean jjtc004 = true;
-                                         jjtree.openNodeScope(jjtn004);
-                                         jjtreeOpenNodeScope(jjtn004);
+                                 SimpleNode jjtn004 = jjtree.builder.openNode( JJTTRYFINALLY_STMT);
+                                 boolean jjtc004 = true;
+                                 jjtree.openNodeScope(jjtn004);
+                                 jjtreeOpenNodeScope(jjtn004);
       try {
         suite();
       } catch (Throwable jjte004) {
-                                         if (jjtc004) {
-                                           jjtree.clearNodeScope(jjtn004);
-                                           jjtc004 = false;
-                                         } else {
-                                           jjtree.popNode();
-                                         }
-                                         if (jjte004 instanceof RuntimeException) {
-                                           {if (true) throw (RuntimeException)jjte004;}
-                                         }
-                                         if (jjte004 instanceof ParseException) {
-                                           {if (true) throw (ParseException)jjte004;}
-                                         }
-                                         {if (true) throw (Error)jjte004;}
+                                 if (jjtc004) {
+                                   jjtree.clearNodeScope(jjtn004);
+                                   jjtc004 = false;
+                                 } else {
+                                   jjtree.popNode();
+                                 }
+                                 if (jjte004 instanceof RuntimeException) {
+                                   {if (true) throw (RuntimeException)jjte004;}
+                                 }
+                                 if (jjte004 instanceof ParseException) {
+                                   {if (true) throw (ParseException)jjte004;}
+                                 }
+                                 {if (true) throw (Error)jjte004;}
       } finally {
-                                         if (jjtc004) {
-                                           jjtree.closeNodeScope(jjtn004,  jjtree . nodeArity ( ) + 1);
-                                           jjtreeCloseNodeScope(jjtn004);
-                                         }
+                                 if (jjtc004) {
+                                   jjtree.closeNodeScope(jjtn004,  jjtree . nodeArity ( ) + 1);
+                                   jjtreeCloseNodeScope(jjtn004);
+                                 }
       }
       break;
     default:
@@ -3435,9 +3435,9 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
   jjtreeOpenNodeScope(jjtn000);
     try {
       jj_consume_token(WITH);
-         this.addSpecialToken("with ", STRATEGY_BEFORE_NEXT);
+     this.addSpecialToken("with ", STRATEGY_BEFORE_NEXT);
       test();
-         if(!acceptWithStmt){if (true) throw new ParseException("'from __future__ import with_statement' must be specified to accept 'with' statement.",jjtree.peekNode());}
+     if(!acceptWithStmt){if (true) throw new ParseException("'from __future__ import with_statement' must be specified to accept 'with' statement.",jjtree.peekNode());}
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case AS:
         with_var();
@@ -3447,7 +3447,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         ;
       }
       jj_consume_token(COLON);
-                               this.addSpecialToken(":");
+                           this.addSpecialToken(":");
       suite();
     } catch (Throwable jjte000) {
     if (jjtc000) {
@@ -3881,7 +3881,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     }
   }
 
-//or_test: or_test: and_test ('or' and_test)*
+//or_test: and_test ('or' and_test)*
   final public void or_test() throws ParseException {
                                  /*@bgen(jjtree) #or_boolean(> 1) */
   SimpleNode jjtn000 = jjtree.builder.openNode( JJTOR_BOOLEAN);
@@ -4960,7 +4960,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     }
   }
 
-//atom: '(' [testlist] ')' | '[' [testlist] ']' | '{' [dictmaker] '}' | NAME | NUMBER | STRING+ | 'None' | 'True' | 'False'
+//atom: ('(' [yield_expr|testlist_comp] ')' |//       '[' [testlist_comp] ']' |//       '{' [dictorsetmaker] '}' |//       NAME | NUMBER | STRING+ | '...' | 'None' | 'True' | 'False')
   final public void atom() throws ParseException {
                     Object spStr;Object spStr2;
     if (jj_2_11(2)) {
@@ -4992,39 +4992,6 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         case YIELD:
           yield_expr();
           break;
-        default:
-          jj_la1[91] = jj_gen;
-          insidetuporcall();
-        }
-       spStr2 = createSpecialStr(")", false);
-        jj_consume_token(RPAREN);
-      } catch (Throwable jjte002) {
-                   if (jjtc002) {
-                     jjtree.clearNodeScope(jjtn002);
-                     jjtc002 = false;
-                   } else {
-                     jjtree.popNode();
-                   }
-                   if (jjte002 instanceof RuntimeException) {
-                     {if (true) throw (RuntimeException)jjte002;}
-                   }
-                   if (jjte002 instanceof ParseException) {
-                     {if (true) throw (ParseException)jjte002;}
-                   }
-                   {if (true) throw (Error)jjte002;}
-      } finally {
-                   if (jjtc002) {
-                     jjtree.closeNodeScope(jjtn002, true);
-                     jjtreeCloseNodeScope(jjtn002);
-                   }
-      }
-       addToPeek(spStr, false); addToPeek(spStr2, true);
-    } else {
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case LPAREN:
-        jj_consume_token(LPAREN);
-                 this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LPAREN:
         case LBRACE:
         case LBRACKET:
@@ -5051,15 +5018,38 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
-          SmartTestList();
+          testlist_comp();
           break;
         default:
-          jj_la1[92] = jj_gen;
-          ;
+          jj_la1[91] = jj_gen;
+          jj_consume_token(-1);
+          throw new ParseException();
         }
+       spStr2 = createSpecialStr(")", false);
         jj_consume_token(RPAREN);
-                                                                                                 this.findTokenAndAdd(")");
-        break;
+      } catch (Throwable jjte002) {
+                   if (jjtc002) {
+                     jjtree.clearNodeScope(jjtn002);
+                     jjtc002 = false;
+                   } else {
+                     jjtree.popNode();
+                   }
+                   if (jjte002 instanceof RuntimeException) {
+                     {if (true) throw (RuntimeException)jjte002;}
+                   }
+                   if (jjte002 instanceof ParseException) {
+                     {if (true) throw (ParseException)jjte002;}
+                   }
+                   {if (true) throw (Error)jjte002;}
+      } finally {
+                   if (jjtc002) {
+                     jjtree.closeNodeScope(jjtn002, true);
+                     jjtreeCloseNodeScope(jjtn002);
+                   }
+      }
+       addToPeek(spStr, false); addToPeek(spStr2, true);
+    } else {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case LBRACKET:
       SimpleNode jjtn003 = jjtree.builder.openNode( JJTLIST);
       boolean jjtc003 = true;
@@ -5095,10 +5085,10 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           case SINGLE_BSTRING2:
           case TRIPLE_BSTRING:
           case TRIPLE_BSTRING2:
-            listmaker();
+            testlist_comp();
             break;
           default:
-            jj_la1[93] = jj_gen;
+            jj_la1[92] = jj_gen;
             ;
           }
        spStr2 = createSpecialStr("]", false);
@@ -5160,10 +5150,10 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           case SINGLE_BSTRING2:
           case TRIPLE_BSTRING:
           case TRIPLE_BSTRING2:
-            dictmaker();
+            dictorsetmaker();
             break;
           default:
-            jj_la1[94] = jj_gen;
+            jj_la1[93] = jj_gen;
             ;
           }
        spStr2  = createSpecialStr("}", false);
@@ -5266,7 +5256,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
             ;
             break;
           default:
-            jj_la1[95] = jj_gen;
+            jj_la1[94] = jj_gen;
             break label_29;
           }
                 SimpleNode jjtn008 = jjtree.builder.openNode( JJTSTRJOIN);
@@ -5298,7 +5288,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         }
         break;
       default:
-        jj_la1[96] = jj_gen;
+        jj_la1[95] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -5315,10 +5305,10 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         ;
         break;
       default:
-        jj_la1[97] = jj_gen;
+        jj_la1[96] = jj_gen;
         break label_30;
       }
-      list_for();
+      comp_for();
     }
   }
 
@@ -5342,7 +5332,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
                           hasArgs=true;
         break;
       default:
-        jj_la1[98] = jj_gen;
+        jj_la1[97] = jj_gen;
         ;
       }
       jj_consume_token(COLON);
@@ -5394,7 +5384,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         Comma();
         break;
       default:
-        jj_la1[99] = jj_gen;
+        jj_la1[98] = jj_gen;
         ;
       }
     } catch (Throwable jjte001) {
@@ -5475,7 +5465,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           slice();
           break;
         default:
-          jj_la1[100] = jj_gen;
+          jj_la1[99] = jj_gen;
           ;
         }
       } catch (Throwable jjte002) {
@@ -5528,7 +5518,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       }
       break;
     default:
-      jj_la1[101] = jj_gen;
+      jj_la1[100] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -5567,7 +5557,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       test();
       break;
     default:
-      jj_la1[102] = jj_gen;
+      jj_la1[101] = jj_gen;
       ;
     }
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -5603,12 +5593,12 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         test();
         break;
       default:
-        jj_la1[103] = jj_gen;
+        jj_la1[102] = jj_gen;
         ;
       }
       break;
     default:
-      jj_la1[104] = jj_gen;
+      jj_la1[103] = jj_gen;
       ;
     }
   }
@@ -5671,7 +5661,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         Comma();
         break;
       default:
-        jj_la1[105] = jj_gen;
+        jj_la1[104] = jj_gen;
         ;
       }
     } catch (Throwable jjte001) {
@@ -5720,7 +5710,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         Comma();
         break;
       default:
-        jj_la1[106] = jj_gen;
+        jj_la1[105] = jj_gen;
         ;
       }
     } catch (Throwable jjte001) {
@@ -5765,65 +5755,167 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       jj_consume_token(COMMA);
       break;
     default:
-      jj_la1[107] = jj_gen;
+      jj_la1[106] = jj_gen;
       ;
     }
   }
 
-//dictmaker: test ':' test (',' test ':' test)* [',']
-  final public void dictmaker() throws ParseException {
-    test();
-    jj_consume_token(COLON);
-                 this.addSpecialToken(":");
-    test();
-    label_35:
-    while (true) {
-      if (jj_2_17(2)) {
-        ;
-      } else {
-        break label_35;
-      }
-                                                                   this.addSpecialToken(",");
-      jj_consume_token(COMMA);
+//dictorsetmaker: ( 
+//                   (test ':' test (comp_for | (',' test ':' test)* [','])) 
+//                  |(test (comp_for | (',' test)* [','])) 
+//                )
+  final public void dictorsetmaker() throws ParseException {
+    if (jj_2_18(2)) {
       test();
       jj_consume_token(COLON);
-                                                                                                                       this.addSpecialToken(":");
+                     this.addSpecialToken(":");
       test();
-    }
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case COMMA:
-                                                                                                                                                              this.addSpecialToken(",");
-      jj_consume_token(COMMA);
-      break;
-    default:
-      jj_la1[108] = jj_gen;
-      ;
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case FOR:
+        comp_for();
+        break;
+      default:
+        jj_la1[109] = jj_gen;
+        label_35:
+        while (true) {
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case COMMA:
+            ;
+            break;
+          default:
+            jj_la1[107] = jj_gen;
+            break label_35;
+          }
+             this.addSpecialToken(",");
+          jj_consume_token(COMMA);
+          test();
+          jj_consume_token(COLON);
+                         this.addSpecialToken(":");
+          test();
+        }
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case COMMA:
+              this.addSpecialToken(",");
+          jj_consume_token(COMMA);
+          break;
+        default:
+          jj_la1[108] = jj_gen;
+          ;
+        }
+      }
+    } else {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case LPAREN:
+      case LBRACE:
+      case LBRACKET:
+      case PLUS:
+      case MINUS:
+      case NOT:
+      case NOT_BOOL:
+      case LAMBDA:
+      case AS:
+      case FALSE:
+      case TRUE:
+      case NONE:
+      case NAME:
+      case DECNUMBER:
+      case HEXNUMBER:
+      case OCTNUMBER:
+      case FLOAT:
+      case COMPLEX:
+      case SINGLE_STRING:
+      case SINGLE_STRING2:
+      case TRIPLE_STRING:
+      case TRIPLE_STRING2:
+      case SINGLE_BSTRING:
+      case SINGLE_BSTRING2:
+      case TRIPLE_BSTRING:
+      case TRIPLE_BSTRING2:
+        test();
+        if (jj_2_17(2)) {
+          comp_for();
+        } else {
+                                          SimpleNode jjtn001 = jjtree.builder.openNode( JJTSET);
+                                          boolean jjtc001 = true;
+                                          jjtree.openNodeScope(jjtn001);
+                                          jjtreeOpenNodeScope(jjtn001);
+          try {
+            label_36:
+            while (true) {
+              switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+              case COMMA:
+                ;
+                break;
+              default:
+                jj_la1[110] = jj_gen;
+                break label_36;
+              }
+                                          this.addSpecialToken(",");
+              jj_consume_token(COMMA);
+              test();
+            }
+          } catch (Throwable jjte001) {
+                                          if (jjtc001) {
+                                            jjtree.clearNodeScope(jjtn001);
+                                            jjtc001 = false;
+                                          } else {
+                                            jjtree.popNode();
+                                          }
+                                          if (jjte001 instanceof RuntimeException) {
+                                            {if (true) throw (RuntimeException)jjte001;}
+                                          }
+                                          if (jjte001 instanceof ParseException) {
+                                            {if (true) throw (ParseException)jjte001;}
+                                          }
+                                          {if (true) throw (Error)jjte001;}
+          } finally {
+                                          if (jjtc001) {
+                                            jjtree.closeNodeScope(jjtn001, true);
+                                            jjtreeCloseNodeScope(jjtn001);
+                                          }
+          }
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case COMMA:
+                                                                                         this.addSpecialToken(",");
+            jj_consume_token(COMMA);
+            break;
+          default:
+            jj_la1[111] = jj_gen;
+            ;
+          }
+        }
+        break;
+      default:
+        jj_la1[112] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
     }
   }
 
-//listmaker: test ( list_for | (',' test)* [','] )
-  final public void listmaker() throws ParseException {
+//testlist_comp: test ( comp_for | (',' test)* [','] )
+  final public void testlist_comp() throws ParseException {
     test();
-    if (jj_2_19(2)) {
-      label_36:
+    if (jj_2_20(2)) {
+      label_37:
       while (true) {
-        list_for();
+        comp_for();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case FOR:
           ;
           break;
         default:
-          jj_la1[109] = jj_gen;
-          break label_36;
+          jj_la1[113] = jj_gen;
+          break label_37;
         }
       }
     } else {
-      label_37:
+      label_38:
       while (true) {
-        if (jj_2_18(2)) {
+        if (jj_2_19(2)) {
           ;
         } else {
-          break label_37;
+          break label_38;
         }
                                                       this.addSpecialToken(",");
         jj_consume_token(COMMA);
@@ -5839,7 +5931,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           Comma();
           break;
         default:
-          jj_la1[110] = jj_gen;
+          jj_la1[114] = jj_gen;
           ;
         }
       } catch (Throwable jjte001) {
@@ -5865,26 +5957,26 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     }
   }
 
-//list_iter: [list_for | list_if]
+//list_iter: [comp_for | list_if]
   final public void list_iter() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case FOR:
-      list_for();
+      comp_for();
       break;
     case IF:
       list_if();
       break;
     default:
-      jj_la1[111] = jj_gen;
+      jj_la1[115] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
   }
 
-//list_for: 'for' exprlist 'in' testlist list_iter
-  final public void list_for() throws ParseException {
-                  /*@bgen(jjtree) list_for */
-  SimpleNode jjtn000 = jjtree.builder.openNode( JJTLIST_FOR);
+//comp_for: 'for' exprlist 'in' or_test [comp_iter]
+  final public void comp_for() throws ParseException {
+                  /*@bgen(jjtree) comp_for */
+  SimpleNode jjtn000 = jjtree.builder.openNode( JJTCOMP_FOR);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
   jjtreeOpenNodeScope(jjtn000);
@@ -5901,7 +5993,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         list_iter();
         break;
       default:
-        jj_la1[112] = jj_gen;
+        jj_la1[116] = jj_gen;
         ;
       }
     } catch (Throwable jjte000) {
@@ -5936,7 +6028,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       list_iter();
       break;
     default:
-      jj_la1[113] = jj_gen;
+      jj_la1[117] = jj_gen;
       ;
     }
   }
@@ -5958,29 +6050,29 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         funcdef();
         break;
       default:
-        jj_la1[114] = jj_gen;
+        jj_la1[118] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
     } catch (Throwable jjte000) {
-          if (jjtc000) {
-            jjtree.clearNodeScope(jjtn000);
-            jjtc000 = false;
-          } else {
-            jjtree.popNode();
-          }
-          if (jjte000 instanceof RuntimeException) {
-            {if (true) throw (RuntimeException)jjte000;}
-          }
-          if (jjte000 instanceof ParseException) {
-            {if (true) throw (ParseException)jjte000;}
-          }
-          {if (true) throw (Error)jjte000;}
+      if (jjtc000) {
+        jjtree.clearNodeScope(jjtn000);
+        jjtc000 = false;
+      } else {
+        jjtree.popNode();
+      }
+      if (jjte000 instanceof RuntimeException) {
+        {if (true) throw (RuntimeException)jjte000;}
+      }
+      if (jjte000 instanceof ParseException) {
+        {if (true) throw (ParseException)jjte000;}
+      }
+      {if (true) throw (Error)jjte000;}
     } finally {
-          if (jjtc000) {
-            jjtree.closeNodeScope(jjtn000, true);
-            jjtreeCloseNodeScope(jjtn000);
-          }
+      if (jjtc000) {
+        jjtree.closeNodeScope(jjtn000, true);
+        jjtreeCloseNodeScope(jjtn000);
+      }
     }
   }
 
@@ -5997,7 +6089,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case LPAREN:
         jj_consume_token(LPAREN);
-                                   this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);
+                               this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LPAREN:
         case LBRACE:
@@ -6028,38 +6120,38 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
           testlist();
           break;
         default:
-          jj_la1[115] = jj_gen;
+          jj_la1[119] = jj_gen;
           ;
         }
         jj_consume_token(RPAREN);
-                                                                                                              this.findTokenAndAdd(")");
+                                                                                                          this.findTokenAndAdd(")");
         break;
       default:
-        jj_la1[116] = jj_gen;
+        jj_la1[120] = jj_gen;
         ;
       }
       jj_consume_token(COLON);
-                 this.addSpecialToken(":");
+         this.addSpecialToken(":");
       suite();
     } catch (Throwable jjte000) {
-          if (jjtc000) {
-            jjtree.clearNodeScope(jjtn000);
-            jjtc000 = false;
-          } else {
-            jjtree.popNode();
-          }
-          if (jjte000 instanceof RuntimeException) {
-            {if (true) throw (RuntimeException)jjte000;}
-          }
-          if (jjte000 instanceof ParseException) {
-            {if (true) throw (ParseException)jjte000;}
-          }
-          {if (true) throw (Error)jjte000;}
+      if (jjtc000) {
+        jjtree.clearNodeScope(jjtn000);
+        jjtc000 = false;
+      } else {
+        jjtree.popNode();
+      }
+      if (jjte000 instanceof RuntimeException) {
+        {if (true) throw (RuntimeException)jjte000;}
+      }
+      if (jjte000 instanceof ParseException) {
+        {if (true) throw (ParseException)jjte000;}
+      }
+      {if (true) throw (Error)jjte000;}
     } finally {
-          if (jjtc000) {
-            jjtree.closeNodeScope(jjtn000, true);
-            jjtreeCloseNodeScope(jjtn000);
-          }
+      if (jjtc000) {
+        jjtree.closeNodeScope(jjtn000, true);
+        jjtreeCloseNodeScope(jjtn000);
+      }
     }
   }
 
@@ -6126,7 +6218,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case MULTIPLY:
         case POWER:
-          if (jj_2_20(2)) {
+          if (jj_2_21(2)) {
             ExtraArgValueList();
             switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
             case COMMA:
@@ -6135,7 +6227,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
               ExtraKeywordValueList();
               break;
             default:
-              jj_la1[117] = jj_gen;
+              jj_la1[121] = jj_gen;
               ;
             }
           } else {
@@ -6145,28 +6237,28 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
               ExtraKeywordValueList();
               break;
             default:
-              jj_la1[118] = jj_gen;
+              jj_la1[122] = jj_gen;
               jj_consume_token(-1);
               throw new ParseException();
             }
           }
           break;
         default:
-          jj_la1[119] = jj_gen;
+          jj_la1[123] = jj_gen;
           ;
         }
         break;
       default:
-        jj_la1[120] = jj_gen;
+        jj_la1[124] = jj_gen;
         ;
       }
       break;
     default:
-      jj_la1[124] = jj_gen;
+      jj_la1[128] = jj_gen;
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case MULTIPLY:
       case POWER:
-        if (jj_2_21(2)) {
+        if (jj_2_22(2)) {
           ExtraArgValueList();
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case COMMA:
@@ -6175,7 +6267,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
             ExtraKeywordValueList();
             break;
           default:
-            jj_la1[121] = jj_gen;
+            jj_la1[125] = jj_gen;
             ;
           }
         } else {
@@ -6185,14 +6277,14 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
             ExtraKeywordValueList();
             break;
           default:
-            jj_la1[122] = jj_gen;
+            jj_la1[126] = jj_gen;
             jj_consume_token(-1);
             throw new ParseException();
           }
         }
         break;
       default:
-        jj_la1[123] = jj_gen;
+        jj_la1[127] = jj_gen;
         ;
       }
     }
@@ -6200,12 +6292,12 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
 
   final public void normalargs() throws ParseException {
     argument();
-    label_38:
+    label_39:
     while (true) {
-      if (jj_2_22(2)) {
+      if (jj_2_23(2)) {
         ;
       } else {
-        break label_38;
+        break label_39;
       }
                             this.addSpecialToken(",");
       jj_consume_token(COMMA);
@@ -6263,7 +6355,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
         jj_consume_token(MULTIPLY);
         break;
       default:
-        jj_la1[125] = jj_gen;
+        jj_la1[129] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -6297,7 +6389,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     jjtree.openNodeScope(jjtn001);
     jjtreeOpenNodeScope(jjtn001);
     try {
-      if (jj_2_23(2)) {
+      if (jj_2_24(2)) {
         AnyName();
         jj_consume_token(EQUAL);
                                    this.addSpecialToken("=");
@@ -6377,7 +6469,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
 
         break;
       default:
-        jj_la1[126] = jj_gen;
+        jj_la1[130] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -6430,7 +6522,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
 
         break;
       default:
-        jj_la1[127] = jj_gen;
+        jj_la1[131] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -6598,7 +6690,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       }
       break;
     default:
-      jj_la1[128] = jj_gen;
+      jj_la1[132] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -7159,7 +7251,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       }
       break;
     default:
-      jj_la1[129] = jj_gen;
+      jj_la1[133] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -7327,13 +7419,30 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     finally { jj_save(22, xla); }
   }
 
-  final private boolean jj_3R_163() {
-    if (jj_3R_168()) return true;
+  final private boolean jj_2_24(int xla) {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_24(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(23, xla); }
+  }
+
+  final private boolean jj_3R_170() {
+    if (jj_3R_177()) return true;
     return false;
   }
 
-  final private boolean jj_3R_49() {
-    if (jj_3R_77()) return true;
+  final private boolean jj_3R_50() {
+    if (jj_3R_80()) return true;
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_193()) { jj_scanpos = xsp; break; }
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_204() {
+    if (jj_scan_token(IS)) return true;
     return false;
   }
 
@@ -7343,210 +7452,322 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     return false;
   }
 
-  final private boolean jj_3R_168() {
-    if (jj_3R_49()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_162() {
+  final private boolean jj_3R_203() {
     if (jj_scan_token(NOT_BOOL)) return true;
     return false;
   }
 
-  final private boolean jj_3R_149() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_162()) {
-    jj_scanpos = xsp;
-    if (jj_3R_163()) return true;
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_142() {
-    if (jj_3R_149()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_79() {
-    if (jj_3R_126()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_126() {
-    if (jj_3R_142()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_50() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_78()) {
-    jj_scanpos = xsp;
-    if (jj_3R_79()) return true;
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_78() {
-    if (jj_3R_125()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_109() {
-    if (jj_scan_token(AS)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_108() {
-    if (jj_scan_token(ASSERT)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_107() {
-    if (jj_scan_token(EXEC)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_106() {
-    if (jj_scan_token(GLOBAL)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_105() {
-    if (jj_scan_token(RAISE)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_104() {
-    if (jj_scan_token(DEL)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_103() {
-    if (jj_scan_token(FROM)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_102() {
-    if (jj_scan_token(YIELD)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_101() {
-    if (jj_scan_token(RETURN)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_100() {
-    if (jj_scan_token(CONTINUE)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_99() {
-    if (jj_scan_token(BREAK)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_98() {
-    if (jj_scan_token(PASS)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_97() {
-    if (jj_scan_token(FINALLY)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_96() {
-    if (jj_scan_token(CLASS)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_95() {
-    if (jj_scan_token(DEF)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_94() {
-    if (jj_scan_token(EXCEPT)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_93() {
-    if (jj_scan_token(TRY)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_92() {
-    if (jj_scan_token(FOR)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_91() {
-    if (jj_scan_token(WHILE)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_90() {
-    if (jj_scan_token(ELIF)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_89() {
-    if (jj_scan_token(ELSE)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_88() {
-    if (jj_scan_token(IF)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_87() {
-    if (jj_scan_token(LAMBDA)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_86() {
+  final private boolean jj_3R_202() {
     if (jj_scan_token(IN)) return true;
     return false;
   }
 
-  final private boolean jj_3R_85() {
-    if (jj_scan_token(IS)) return true;
+  final private boolean jj_3R_201() {
+    if (jj_scan_token(NOTEQUAL)) return true;
     return false;
   }
 
-  final private boolean jj_3R_84() {
-    if (jj_scan_token(NOT_BOOL)) return true;
+  final private boolean jj_3R_200() {
+    if (jj_scan_token(EQLESS)) return true;
     return false;
   }
 
-  final private boolean jj_3R_83() {
+  final private boolean jj_3R_199() {
+    if (jj_scan_token(EQGREATER)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_198() {
+    if (jj_scan_token(EQEQUAL)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_197() {
+    if (jj_scan_token(GREATER)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_192() {
+    if (jj_3R_194()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_196() {
+    if (jj_scan_token(LESS)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_194() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_196()) {
+    jj_scanpos = xsp;
+    if (jj_3R_197()) {
+    jj_scanpos = xsp;
+    if (jj_3R_198()) {
+    jj_scanpos = xsp;
+    if (jj_3R_199()) {
+    jj_scanpos = xsp;
+    if (jj_3R_200()) {
+    jj_scanpos = xsp;
+    if (jj_3R_201()) {
+    jj_scanpos = xsp;
+    if (jj_3R_202()) {
+    jj_scanpos = xsp;
+    if (jj_3R_203()) {
+    jj_scanpos = xsp;
+    if (jj_3_7()) {
+    jj_scanpos = xsp;
+    if (jj_3R_204()) return true;
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_157() {
     if (jj_scan_token(AND_BOOL)) return true;
     return false;
   }
 
-  final private boolean jj_3R_82() {
+  final private boolean jj_3R_130() {
+    if (jj_3R_148()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_177() {
+    if (jj_3R_50()) return true;
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_192()) { jj_scanpos = xsp; break; }
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_147() {
     if (jj_scan_token(OR_BOOL)) return true;
     return false;
   }
 
-  final private boolean jj_3R_81() {
-    if (jj_scan_token(NAME)) return true;
+  final private boolean jj_3R_169() {
+    if (jj_scan_token(NOT_BOOL)) return true;
+    if (jj_3R_155()) return true;
     return false;
   }
 
-  final private boolean jj_3R_54() {
+  final private boolean jj_3R_155() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_169()) {
+    jj_scanpos = xsp;
+    if (jj_3R_170()) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_145() {
+    if (jj_3R_155()) return true;
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_157()) { jj_scanpos = xsp; break; }
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_82() {
+    if (jj_3R_129()) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_130()) jj_scanpos = xsp;
+    return false;
+  }
+
+  final private boolean jj_3R_129() {
+    if (jj_3R_145()) return true;
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_147()) { jj_scanpos = xsp; break; }
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_148() {
+    if (jj_scan_token(IF)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_51() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3R_81()) {
     jj_scanpos = xsp;
-    if (jj_3R_82()) {
-    jj_scanpos = xsp;
-    if (jj_3R_83()) {
-    jj_scanpos = xsp;
+    if (jj_3R_82()) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_81() {
+    if (jj_3R_128()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_112() {
+    if (jj_scan_token(AS)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_111() {
+    if (jj_scan_token(ASSERT)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_110() {
+    if (jj_scan_token(EXEC)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_109() {
+    if (jj_scan_token(GLOBAL)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_108() {
+    if (jj_scan_token(RAISE)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_107() {
+    if (jj_scan_token(DEL)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_106() {
+    if (jj_scan_token(FROM)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_105() {
+    if (jj_scan_token(YIELD)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_104() {
+    if (jj_scan_token(RETURN)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_103() {
+    if (jj_scan_token(CONTINUE)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_102() {
+    if (jj_scan_token(BREAK)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_101() {
+    if (jj_scan_token(PASS)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_100() {
+    if (jj_scan_token(FINALLY)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_99() {
+    if (jj_scan_token(CLASS)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_98() {
+    if (jj_scan_token(DEF)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_97() {
+    if (jj_scan_token(EXCEPT)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_96() {
+    if (jj_scan_token(TRY)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_95() {
+    if (jj_scan_token(FOR)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_94() {
+    if (jj_scan_token(WHILE)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_93() {
+    if (jj_scan_token(ELIF)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_92() {
+    if (jj_scan_token(ELSE)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_91() {
+    if (jj_scan_token(IF)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_90() {
+    if (jj_scan_token(LAMBDA)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_89() {
+    if (jj_scan_token(IN)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_88() {
+    if (jj_scan_token(IS)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_87() {
+    if (jj_scan_token(NOT_BOOL)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_86() {
+    if (jj_scan_token(AND_BOOL)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_85() {
+    if (jj_scan_token(OR_BOOL)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_84() {
+    if (jj_scan_token(NAME)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_56() {
+    Token xsp;
+    xsp = jj_scanpos;
     if (jj_3R_84()) {
     jj_scanpos = xsp;
     if (jj_3R_85()) {
@@ -7597,7 +7818,13 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     jj_scanpos = xsp;
     if (jj_3R_108()) {
     jj_scanpos = xsp;
-    if (jj_3R_109()) return true;
+    if (jj_3R_109()) {
+    jj_scanpos = xsp;
+    if (jj_3R_110()) {
+    jj_scanpos = xsp;
+    if (jj_3R_111()) {
+    jj_scanpos = xsp;
+    if (jj_3R_112()) return true;
     }
     }
     }
@@ -7629,69 +7856,69 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     return false;
   }
 
-  final private boolean jj_3R_181() {
+  final private boolean jj_3R_191() {
     if (jj_scan_token(TRIPLE_BSTRING2)) return true;
     return false;
   }
 
-  final private boolean jj_3R_180() {
+  final private boolean jj_3R_190() {
     if (jj_scan_token(TRIPLE_BSTRING)) return true;
     return false;
   }
 
-  final private boolean jj_3R_179() {
+  final private boolean jj_3R_189() {
     if (jj_scan_token(SINGLE_BSTRING2)) return true;
     return false;
   }
 
-  final private boolean jj_3R_178() {
+  final private boolean jj_3R_188() {
     if (jj_scan_token(SINGLE_BSTRING)) return true;
     return false;
   }
 
-  final private boolean jj_3R_147() {
-    if (jj_3R_160()) return true;
+  final private boolean jj_3R_153() {
+    if (jj_3R_167()) return true;
     return false;
   }
 
-  final private boolean jj_3R_177() {
+  final private boolean jj_3R_187() {
     if (jj_scan_token(TRIPLE_STRING2)) return true;
     return false;
   }
 
-  final private boolean jj_3R_176() {
+  final private boolean jj_3R_186() {
     if (jj_scan_token(TRIPLE_STRING)) return true;
     return false;
   }
 
-  final private boolean jj_3R_175() {
+  final private boolean jj_3R_185() {
     if (jj_scan_token(SINGLE_STRING2)) return true;
     return false;
   }
 
-  final private boolean jj_3R_174() {
+  final private boolean jj_3R_184() {
     if (jj_scan_token(SINGLE_STRING)) return true;
     return false;
   }
 
-  final private boolean jj_3R_165() {
+  final private boolean jj_3R_174() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_174()) {
+    if (jj_3R_184()) {
     jj_scanpos = xsp;
-    if (jj_3R_175()) {
+    if (jj_3R_185()) {
     jj_scanpos = xsp;
-    if (jj_3R_176()) {
+    if (jj_3R_186()) {
     jj_scanpos = xsp;
-    if (jj_3R_177()) {
+    if (jj_3R_187()) {
     jj_scanpos = xsp;
-    if (jj_3R_178()) {
+    if (jj_3R_188()) {
     jj_scanpos = xsp;
-    if (jj_3R_179()) {
+    if (jj_3R_189()) {
     jj_scanpos = xsp;
-    if (jj_3R_180()) {
+    if (jj_3R_190()) {
     jj_scanpos = xsp;
-    if (jj_3R_181()) return true;
+    if (jj_3R_191()) return true;
     }
     }
     }
@@ -7702,454 +7929,511 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     return false;
   }
 
-  final private boolean jj_3R_111() {
+  final private boolean jj_3R_114() {
     if (jj_scan_token(AS)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_57() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_113()) {
+    jj_scanpos = xsp;
+    if (jj_3R_114()) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_113() {
+    if (jj_scan_token(NAME)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_183() {
+    if (jj_scan_token(COMPLEX)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_182() {
+    if (jj_scan_token(FLOAT)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_181() {
+    if (jj_scan_token(DECNUMBER)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_180() {
+    if (jj_scan_token(OCTNUMBER)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_179() {
+    if (jj_scan_token(HEXNUMBER)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_173() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_179()) {
+    jj_scanpos = xsp;
+    if (jj_3R_180()) {
+    jj_scanpos = xsp;
+    if (jj_3R_181()) {
+    jj_scanpos = xsp;
+    if (jj_3R_182()) {
+    jj_scanpos = xsp;
+    if (jj_3R_183()) return true;
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  final private boolean jj_3_24() {
+    if (jj_3R_56()) return true;
+    if (jj_scan_token(EQUAL)) return true;
     return false;
   }
 
   final private boolean jj_3R_55() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_110()) {
-    jj_scanpos = xsp;
-    if (jj_3R_111()) return true;
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_110() {
-    if (jj_scan_token(NAME)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_173() {
-    if (jj_scan_token(COMPLEX)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_172() {
-    if (jj_scan_token(FLOAT)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_171() {
-    if (jj_scan_token(DECNUMBER)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_170() {
-    if (jj_scan_token(OCTNUMBER)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_169() {
-    if (jj_scan_token(HEXNUMBER)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_164() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_169()) {
-    jj_scanpos = xsp;
-    if (jj_3R_170()) {
-    jj_scanpos = xsp;
-    if (jj_3R_171()) {
-    jj_scanpos = xsp;
-    if (jj_3R_172()) {
-    jj_scanpos = xsp;
-    if (jj_3R_173()) return true;
-    }
-    }
-    }
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_119() {
-    if (jj_scan_token(ASSERT)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_118() {
-    if (jj_scan_token(EXEC)) return true;
+    if (jj_3_24()) jj_scanpos = xsp;
+    if (jj_3R_51()) return true;
     return false;
   }
 
   final private boolean jj_3_23() {
-    if (jj_3R_54()) return true;
-    if (jj_scan_token(EQUAL)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_53() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_23()) jj_scanpos = xsp;
-    if (jj_3R_50()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_117() {
-    if (jj_scan_token(GLOBAL)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_22() {
     if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_53()) return true;
+    if (jj_3R_55()) return true;
     return false;
   }
 
-  final private boolean jj_3R_167() {
+  final private boolean jj_3R_176() {
     if (jj_scan_token(MULTIPLY)) return true;
     return false;
   }
 
-  final private boolean jj_3_17() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_50()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_166() {
+  final private boolean jj_3R_175() {
     if (jj_scan_token(POWER)) return true;
     return false;
   }
 
-  final private boolean jj_3R_160() {
+  final private boolean jj_3R_167() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_166()) {
+    if (jj_3R_175()) {
     jj_scanpos = xsp;
-    if (jj_3R_167()) return true;
+    if (jj_3R_176()) return true;
     }
     return false;
   }
 
-  final private boolean jj_3R_52() {
+  final private boolean jj_3R_54() {
     if (jj_scan_token(MULTIPLY)) return true;
-    if (jj_3R_50()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_138() {
-    if (jj_3R_53()) return true;
-    return false;
-  }
-
-  final private boolean jj_3_18() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_50()) return true;
-    return false;
-  }
-
-  final private boolean jj_3_21() {
-    if (jj_3R_52()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_139() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_21()) {
-    jj_scanpos = xsp;
-    if (jj_3R_147()) return true;
-    }
+    if (jj_3R_51()) return true;
     return false;
   }
 
   final private boolean jj_3R_122() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_139()) jj_scanpos = xsp;
+    if (jj_scan_token(ASSERT)) return true;
     return false;
   }
 
-  final private boolean jj_3_20() {
-    if (jj_3R_52()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_72() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_121()) {
-    jj_scanpos = xsp;
-    if (jj_3R_122()) return true;
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_121() {
-    if (jj_3R_138()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_51() {
-    if (jj_3R_80()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_80() {
-    if (jj_scan_token(FOR)) return true;
-    if (jj_3R_127()) return true;
+  final private boolean jj_3R_141() {
+    if (jj_3R_55()) return true;
     return false;
   }
 
   final private boolean jj_3_19() {
-    Token xsp;
+    if (jj_scan_token(COMMA)) return true;
     if (jj_3R_51()) return true;
+    return false;
+  }
+
+  final private boolean jj_3_22() {
+    if (jj_3R_54()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_142() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_22()) {
+    jj_scanpos = xsp;
+    if (jj_3R_153()) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_125() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_142()) jj_scanpos = xsp;
+    return false;
+  }
+
+  final private boolean jj_3R_121() {
+    if (jj_scan_token(EXEC)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_21() {
+    if (jj_3R_54()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_74() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_124()) {
+    jj_scanpos = xsp;
+    if (jj_3R_125()) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_124() {
+    if (jj_3R_141()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_120() {
+    if (jj_scan_token(GLOBAL)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_53() {
+    if (jj_3R_52()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_52() {
+    if (jj_scan_token(FOR)) return true;
+    if (jj_3R_83()) return true;
+    return false;
+  }
+
+  final private boolean jj_3_20() {
+    Token xsp;
+    if (jj_3R_53()) return true;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_51()) { jj_scanpos = xsp; break; }
+      if (jj_3R_53()) { jj_scanpos = xsp; break; }
     }
+    return false;
+  }
+
+  final private boolean jj_3_17() {
+    if (jj_3R_52()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_76() {
+    if (jj_3R_51()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_224() {
+    if (jj_3R_51()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_223() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_18()) {
+    jj_scanpos = xsp;
+    if (jj_3R_224()) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3_18() {
+    if (jj_3R_51()) return true;
+    if (jj_scan_token(COLON)) return true;
     return false;
   }
 
   final private boolean jj_3_16() {
     if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_50()) return true;
+    if (jj_3R_51()) return true;
     return false;
   }
 
   final private boolean jj_3_15() {
     if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_50()) return true;
+    if (jj_3R_51()) return true;
     return false;
   }
 
-  final private boolean jj_3R_140() {
+  final private boolean jj_3R_143() {
     if (jj_scan_token(COLON)) return true;
     return false;
   }
 
   final private boolean jj_3_14() {
     if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_49()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_136() {
-    if (jj_scan_token(FROM)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_128() {
     if (jj_3R_50()) return true;
     return false;
   }
 
-  final private boolean jj_3R_116() {
+  final private boolean jj_3R_131() {
+    if (jj_3R_51()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_139() {
+    if (jj_scan_token(FROM)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_119() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_135()) {
+    if (jj_3R_138()) {
     jj_scanpos = xsp;
-    if (jj_3R_136()) return true;
+    if (jj_3R_139()) return true;
     }
     return false;
   }
 
-  final private boolean jj_3R_135() {
+  final private boolean jj_3R_138() {
     if (jj_scan_token(IMPORT)) return true;
     return false;
   }
 
-  final private boolean jj_3R_127() {
-    if (jj_3R_49()) return true;
+  final private boolean jj_3R_83() {
+    if (jj_3R_50()) return true;
     return false;
   }
 
-  final private boolean jj_3R_145() {
+  final private boolean jj_3R_151() {
     if (jj_scan_token(RAISE)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_73() {
-    if (jj_scan_token(YIELD)) return true;
     return false;
   }
 
   final private boolean jj_3_13() {
     if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_48()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_123() {
-    if (jj_3R_140()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_144() {
-    if (jj_3R_73()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_76() {
-    if (jj_3R_123()) return true;
+    if (jj_3R_49()) return true;
     return false;
   }
 
   final private boolean jj_3R_75() {
-    if (jj_3R_50()) return true;
+    if (jj_scan_token(YIELD)) return true;
     return false;
   }
 
-  final private boolean jj_3R_74() {
-    if (jj_scan_token(DOT)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_48() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_74()) {
-    jj_scanpos = xsp;
-    if (jj_3R_75()) {
-    jj_scanpos = xsp;
-    if (jj_3R_76()) return true;
-    }
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_150() {
-    if (jj_scan_token(RETURN)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_143() {
-    if (jj_3R_150()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_134() {
-    if (jj_3R_145()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_125() {
-    if (jj_scan_token(LAMBDA)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_133() {
-    if (jj_3R_144()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_132() {
+  final private boolean jj_3R_126() {
     if (jj_3R_143()) return true;
     return false;
   }
 
-  final private boolean jj_3R_131() {
-    if (jj_scan_token(CONTINUE)) return true;
+  final private boolean jj_3R_79() {
+    if (jj_3R_126()) return true;
     return false;
   }
 
-  final private boolean jj_3R_115() {
+  final private boolean jj_3R_78() {
+    if (jj_3R_51()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_150() {
+    if (jj_3R_75()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_77() {
+    if (jj_scan_token(DOT)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_49() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_130()) {
+    if (jj_3R_77()) {
     jj_scanpos = xsp;
-    if (jj_3R_131()) {
+    if (jj_3R_78()) {
     jj_scanpos = xsp;
-    if (jj_3R_132()) {
-    jj_scanpos = xsp;
-    if (jj_3R_133()) {
-    jj_scanpos = xsp;
-    if (jj_3R_134()) return true;
-    }
-    }
+    if (jj_3R_79()) return true;
     }
     }
     return false;
   }
 
-  final private boolean jj_3R_130() {
-    if (jj_scan_token(BREAK)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_45() {
-    if (jj_3R_72()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_114() {
-    if (jj_scan_token(PASS)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_159() {
-    if (jj_3R_165()) return true;
+  final private boolean jj_3R_146() {
+    if (jj_3R_156()) return true;
     return false;
   }
 
   final private boolean jj_3R_158() {
-    if (jj_3R_164()) return true;
+    if (jj_scan_token(RETURN)) return true;
     return false;
   }
 
-  final private boolean jj_3R_156() {
-    if (jj_scan_token(NONE)) return true;
+  final private boolean jj_3R_149() {
+    if (jj_3R_158()) return true;
     return false;
   }
 
-  final private boolean jj_3R_157() {
-    if (jj_3R_55()) return true;
+  final private boolean jj_3R_222() {
+    if (jj_3R_174()) return true;
     return false;
   }
 
-  final private boolean jj_3R_155() {
-    if (jj_scan_token(TRUE)) return true;
+  final private boolean jj_3R_128() {
+    if (jj_scan_token(LAMBDA)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_146()) jj_scanpos = xsp;
+    if (jj_scan_token(COLON)) return true;
     return false;
   }
 
-  final private boolean jj_3R_129() {
-    if (jj_scan_token(DEL)) return true;
+  final private boolean jj_3R_137() {
+    if (jj_3R_151()) return true;
     return false;
   }
 
-  final private boolean jj_3R_154() {
-    if (jj_scan_token(FALSE)) return true;
+  final private boolean jj_3R_136() {
+    if (jj_3R_150()) return true;
     return false;
   }
 
-  final private boolean jj_3R_47() {
-    if (jj_3R_45()) return true;
+  final private boolean jj_3R_135() {
+    if (jj_3R_149()) return true;
     return false;
   }
 
-  final private boolean jj_3R_113() {
-    if (jj_3R_129()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_57() {
-    if (jj_scan_token(MULTIPLY)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_153() {
-    if (jj_scan_token(LBRACE)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_152() {
-    if (jj_scan_token(LBRACKET)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_151() {
-    if (jj_scan_token(LPAREN)) return true;
+  final private boolean jj_3R_134() {
+    if (jj_scan_token(CONTINUE)) return true;
     return false;
   }
 
   final private boolean jj_3R_46() {
-    if (jj_3R_73()) return true;
+    if (jj_3R_74()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_118() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_133()) {
+    jj_scanpos = xsp;
+    if (jj_3R_134()) {
+    jj_scanpos = xsp;
+    if (jj_3R_135()) {
+    jj_scanpos = xsp;
+    if (jj_3R_136()) {
+    jj_scanpos = xsp;
+    if (jj_3R_137()) return true;
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_133() {
+    if (jj_scan_token(BREAK)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_166() {
+    if (jj_3R_174()) return true;
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_222()) { jj_scanpos = xsp; break; }
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_165() {
+    if (jj_3R_173()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_117() {
+    if (jj_scan_token(PASS)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_164() {
+    if (jj_3R_57()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_163() {
+    if (jj_scan_token(NONE)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_162() {
+    if (jj_scan_token(TRUE)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_48() {
+    if (jj_3R_76()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_161() {
+    if (jj_scan_token(FALSE)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_221() {
+    if (jj_3R_223()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_132() {
+    if (jj_scan_token(DEL)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_160() {
+    if (jj_scan_token(LBRACE)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_221()) jj_scanpos = xsp;
+    if (jj_scan_token(RBRACE)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_116() {
+    if (jj_3R_132()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_59() {
+    if (jj_scan_token(MULTIPLY)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_220() {
+    if (jj_3R_76()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_159() {
+    if (jj_scan_token(LBRACKET)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_220()) jj_scanpos = xsp;
+    if (jj_scan_token(RBRACKET)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_47() {
+    if (jj_3R_75()) return true;
     return false;
   }
 
@@ -8157,15 +8441,15 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     if (jj_scan_token(LPAREN)) return true;
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_46()) {
+    if (jj_3R_47()) {
     jj_scanpos = xsp;
-    if (jj_3R_47()) return true;
+    if (jj_3R_48()) return true;
     }
     return false;
   }
 
-  final private boolean jj_3R_112() {
-    if (jj_3R_128()) return true;
+  final private boolean jj_3R_115() {
+    if (jj_3R_131()) return true;
     return false;
   }
 
@@ -8175,31 +8459,28 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     return false;
   }
 
-  final private boolean jj_3R_146() {
+  final private boolean jj_3R_152() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3_11()) {
     jj_scanpos = xsp;
     if (jj_3_12()) {
     jj_scanpos = xsp;
-    if (jj_3R_151()) {
+    if (jj_3R_159()) {
     jj_scanpos = xsp;
-    if (jj_3R_152()) {
+    if (jj_3R_160()) {
     jj_scanpos = xsp;
-    if (jj_3R_153()) {
+    if (jj_3R_161()) {
     jj_scanpos = xsp;
-    if (jj_3R_154()) {
+    if (jj_3R_162()) {
     jj_scanpos = xsp;
-    if (jj_3R_155()) {
+    if (jj_3R_163()) {
     jj_scanpos = xsp;
-    if (jj_3R_156()) {
+    if (jj_3R_164()) {
     jj_scanpos = xsp;
-    if (jj_3R_157()) {
+    if (jj_3R_165()) {
     jj_scanpos = xsp;
-    if (jj_3R_158()) {
-    jj_scanpos = xsp;
-    if (jj_3R_159()) return true;
-    }
+    if (jj_3R_166()) return true;
     }
     }
     }
@@ -8212,59 +8493,60 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     return false;
   }
 
-  final private boolean jj_3R_67() {
-    if (jj_3R_119()) return true;
+  final private boolean jj_3R_69() {
+    if (jj_3R_122()) return true;
     return false;
   }
 
-  final private boolean jj_3R_66() {
-    if (jj_3R_118()) return true;
+  final private boolean jj_3R_68() {
+    if (jj_3R_121()) return true;
     return false;
   }
 
   final private boolean jj_3_6() {
     if (jj_scan_token(SEMICOLON)) return true;
-    if (jj_3R_43()) return true;
+    if (jj_3R_44()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_67() {
+    if (jj_3R_120()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_66() {
+    if (jj_3R_119()) return true;
     return false;
   }
 
   final private boolean jj_3R_65() {
-    if (jj_3R_117()) return true;
+    if (jj_3R_118()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_219() {
+    if (jj_scan_token(DOT)) return true;
     return false;
   }
 
   final private boolean jj_3R_64() {
-    if (jj_3R_116()) return true;
+    if (jj_3R_117()) return true;
     return false;
   }
 
   final private boolean jj_3R_63() {
-    if (jj_3R_115()) return true;
+    if (jj_3R_116()) return true;
     return false;
   }
 
   final private boolean jj_3R_62() {
-    if (jj_3R_114()) return true;
+    if (jj_3R_115()) return true;
     return false;
   }
 
-  final private boolean jj_3R_61() {
-    if (jj_3R_113()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_60() {
-    if (jj_3R_112()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_43() {
+  final private boolean jj_3R_44() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_60()) {
-    jj_scanpos = xsp;
-    if (jj_3R_61()) {
-    jj_scanpos = xsp;
     if (jj_3R_62()) {
     jj_scanpos = xsp;
     if (jj_3R_63()) {
@@ -8275,7 +8557,11 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     jj_scanpos = xsp;
     if (jj_3R_66()) {
     jj_scanpos = xsp;
-    if (jj_3R_67()) return true;
+    if (jj_3R_67()) {
+    jj_scanpos = xsp;
+    if (jj_3R_68()) {
+    jj_scanpos = xsp;
+    if (jj_3R_69()) return true;
     }
     }
     }
@@ -8283,29 +8569,50 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     }
     }
     }
+    return false;
+  }
+
+  final private boolean jj_3R_218() {
+    if (jj_scan_token(LBRACKET)) return true;
     return false;
   }
 
   final private boolean jj_3_5() {
     if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_42()) return true;
+    if (jj_3R_43()) return true;
     return false;
   }
 
   final private boolean jj_3_8() {
     if (jj_scan_token(POWER)) return true;
-    if (jj_3R_44()) return true;
+    if (jj_3R_45()) return true;
     return false;
   }
 
   final private boolean jj_3_10() {
     if (jj_scan_token(LPAREN)) return true;
-    if (jj_3R_45()) return true;
+    if (jj_3R_46()) return true;
     return false;
   }
 
-  final private boolean jj_3R_59() {
+  final private boolean jj_3R_61() {
     if (jj_scan_token(LPAREN)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_217() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_9()) {
+    jj_scanpos = xsp;
+    if (jj_3_10()) {
+    jj_scanpos = xsp;
+    if (jj_3R_218()) {
+    jj_scanpos = xsp;
+    if (jj_3R_219()) return true;
+    }
+    }
+    }
     return false;
   }
 
@@ -8315,13 +8622,80 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     return false;
   }
 
-  final private boolean jj_3R_137() {
-    if (jj_3R_146()) return true;
+  final private boolean jj_3R_140() {
+    if (jj_3R_152()) return true;
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_217()) { jj_scanpos = xsp; break; }
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_60() {
+    if (jj_3R_57()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_43() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_60()) {
+    jj_scanpos = xsp;
+    if (jj_3R_61()) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_123() {
+    if (jj_3R_140()) return true;
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3_8()) { jj_scanpos = xsp; break; }
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_40() {
+    if (jj_3R_43()) return true;
+    return false;
+  }
+
+  final private boolean jj_3_1() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_40()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_213() {
+    if (jj_scan_token(MULTIPLY)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_210() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_213()) {
+    jj_scanpos = xsp;
+    if (jj_3R_214()) {
+    jj_scanpos = xsp;
+    if (jj_3R_215()) {
+    jj_scanpos = xsp;
+    if (jj_3R_216()) return true;
+    }
+    }
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_73() {
+    if (jj_3R_123()) return true;
     return false;
   }
 
   final private boolean jj_3R_58() {
-    if (jj_3R_55()) return true;
+    if (jj_scan_token(POWER)) return true;
     return false;
   }
 
@@ -8335,118 +8709,210 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     return false;
   }
 
-  final private boolean jj_3R_120() {
-    if (jj_3R_137()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_39() {
-    if (jj_3R_42()) return true;
-    return false;
-  }
-
-  final private boolean jj_3_1() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_39()) return true;
+  final private boolean jj_3R_72() {
+    if (jj_scan_token(NOT)) return true;
+    if (jj_3R_45()) return true;
     return false;
   }
 
   final private boolean jj_3R_71() {
-    if (jj_3R_120()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_56() {
-    if (jj_scan_token(POWER)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_41() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_56()) {
-    jj_scanpos = xsp;
-    if (jj_3R_57()) return true;
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_70() {
-    if (jj_scan_token(NOT)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_69() {
     if (jj_scan_token(MINUS)) return true;
+    if (jj_3R_45()) return true;
     return false;
   }
 
   final private boolean jj_3_4() {
-    if (jj_3R_40()) return true;
+    if (jj_3R_41()) return true;
     return false;
   }
 
-  final private boolean jj_3R_68() {
+  final private boolean jj_3R_70() {
     if (jj_scan_token(PLUS)) return true;
+    if (jj_3R_45()) return true;
     return false;
   }
 
-  final private boolean jj_3R_44() {
+  final private boolean jj_3R_45() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_68()) {
-    jj_scanpos = xsp;
-    if (jj_3R_69()) {
-    jj_scanpos = xsp;
     if (jj_3R_70()) {
     jj_scanpos = xsp;
-    if (jj_3R_71()) return true;
+    if (jj_3R_71()) {
+    jj_scanpos = xsp;
+    if (jj_3R_72()) {
+    jj_scanpos = xsp;
+    if (jj_3R_73()) return true;
     }
     }
     }
     return false;
   }
 
-  final private boolean jj_3R_40() {
+  final private boolean jj_3R_41() {
     if (jj_scan_token(MULTIPLY)) return true;
-    if (jj_3R_55()) return true;
+    if (jj_3R_57()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_172() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_4()) {
+    jj_scanpos = xsp;
+    if (jj_3R_178()) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_178() {
+    if (jj_3R_42()) return true;
     return false;
   }
 
   final private boolean jj_3_3() {
     if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_41()) return true;
+    if (jj_3R_42()) return true;
     return false;
   }
 
   final private boolean jj_3_2() {
     if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_41()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_216() {
+    if (jj_scan_token(MODULO)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_215() {
+    if (jj_scan_token(FLOORDIVIDE)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_214() {
+    if (jj_scan_token(DIVIDE)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_211() {
+    if (jj_scan_token(PLUS)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_207() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_211()) {
+    jj_scanpos = xsp;
+    if (jj_3R_212()) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_208() {
+    if (jj_scan_token(LSHIFT)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_206() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_208()) {
+    jj_scanpos = xsp;
+    if (jj_3R_209()) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_168() {
+    if (jj_3R_45()) return true;
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_210()) { jj_scanpos = xsp; break; }
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_171() {
     if (jj_3R_40()) return true;
     return false;
   }
 
-  final private boolean jj_3R_161() {
-    if (jj_3R_44()) return true;
+  final private boolean jj_3R_156() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_171()) {
+    jj_scanpos = xsp;
+    if (jj_3R_172()) return true;
+    }
     return false;
   }
 
-  final private boolean jj_3R_148() {
-    if (jj_3R_161()) return true;
+  final private boolean jj_3R_212() {
+    if (jj_scan_token(MINUS)) return true;
     return false;
   }
 
-  final private boolean jj_3R_141() {
-    if (jj_3R_148()) return true;
+  final private boolean jj_3R_205() {
+    if (jj_scan_token(AND)) return true;
     return false;
   }
 
-  final private boolean jj_3R_124() {
-    if (jj_3R_141()) return true;
+  final private boolean jj_3R_154() {
+    if (jj_3R_168()) return true;
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_207()) { jj_scanpos = xsp; break; }
+    }
     return false;
   }
 
-  final private boolean jj_3R_77() {
-    if (jj_3R_124()) return true;
+  final private boolean jj_3R_209() {
+    if (jj_scan_token(RSHIFT)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_195() {
+    if (jj_scan_token(XOR)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_144() {
+    if (jj_3R_154()) return true;
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_206()) { jj_scanpos = xsp; break; }
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_193() {
+    if (jj_scan_token(OR)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_127() {
+    if (jj_3R_144()) return true;
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_205()) { jj_scanpos = xsp; break; }
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_80() {
+    if (jj_3R_127()) return true;
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_195()) { jj_scanpos = xsp; break; }
+    }
     return false;
   }
 
@@ -8458,7 +8924,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
   public boolean lookingAhead = false;
   private boolean jj_semLA;
   private int jj_gen;
-  final private int[] jj_la1 = new int[130];
+  final private int[] jj_la1 = new int[134];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static private int[] jj_la1_2;
@@ -8472,21 +8938,21 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       jj_la1_4();
    }
    private static void jj_la1_0() {
-      jj_la1_0 = new int[] {0x182a0040,0x182a0040,0x20000,0x0,0x20020000,0x1000000,0x1000000,0x20000000,0x20020000,0x20000000,0x0,0x20000,0x1000000,0x182a0000,0x800000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x0,0x182a0000,0x0,0x0,0x182a0000,0x182a0000,0x1000000,0x1000000,0x182a0000,0x0,0x1000000,0x2000000,0x0,0x1000000,0x1000000,0x0,0x20020000,0x0,0x2000000,0x0,0x1000000,0x1000000,0x0,0x1000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x182a0000,0x0,0x182a0000,0x182a0040,0x1000000,0x1000000,0x1000000,0x182a0000,0x20020000,0x0,0x182a0000,0x0,0x0,0x182a0000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x18000000,0x18000000,0xe0000000,0xe0000000,0x182a0000,0x2220000,0x2200000,0x0,0x182a0000,0x182a0000,0x182a0000,0x0,0x2a0000,0x0,0x20020000,0x1000000,0x4000000,0x1e2a0000,0x182a0000,0x182a0000,0x4000000,0x1000000,0x1000000,0x1000000,0x1000000,0x0,0x1000000,0x0,0x0,0x0,0x0,0x182a0000,0x20000,0x1000000,0x20000000,0x20000000,0x1000000,0x1000000,0x20000000,0x20000000,0x182a0000,0x20000000,0x0,0x0,0x0,0x0,};
+      jj_la1_0 = new int[] {0x182a0040,0x182a0040,0x20000,0x0,0x20020000,0x1000000,0x1000000,0x20000000,0x20020000,0x20000000,0x0,0x20000,0x1000000,0x182a0000,0x800000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x0,0x182a0000,0x0,0x0,0x182a0000,0x182a0000,0x1000000,0x1000000,0x182a0000,0x0,0x1000000,0x2000000,0x0,0x1000000,0x1000000,0x0,0x20020000,0x0,0x2000000,0x0,0x1000000,0x1000000,0x0,0x1000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x182a0000,0x0,0x182a0000,0x182a0040,0x1000000,0x1000000,0x1000000,0x182a0000,0x20020000,0x0,0x182a0000,0x0,0x0,0x182a0000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x18000000,0x18000000,0xe0000000,0xe0000000,0x182a0000,0x2220000,0x2200000,0x182a0000,0x182a0000,0x182a0000,0x0,0x280000,0x0,0x20020000,0x1000000,0x4000000,0x1e2a0000,0x182a0000,0x182a0000,0x4000000,0x1000000,0x1000000,0x1000000,0x1000000,0x1000000,0x0,0x1000000,0x1000000,0x182a0000,0x0,0x1000000,0x0,0x0,0x0,0x0,0x182a0000,0x20000,0x1000000,0x20000000,0x20000000,0x1000000,0x1000000,0x20000000,0x20000000,0x182a0000,0x20000000,0x0,0x0,0x0,0x0,};
    }
    private static void jj_la1_1() {
-      jj_la1_1 = new int[] {0x20000010,0x20000010,0x0,0x0,0x1,0x0,0x0,0x1,0x1,0x1,0x100,0x0,0x0,0x20000010,0x0,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x100,0x20000010,0x7ff8000,0x0,0x20000010,0x20000010,0x0,0x0,0x20000010,0x0,0x0,0x0,0xf8000000,0x0,0x0,0xf8000000,0xf8000000,0x0,0x0,0x0,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x20000010,0x0,0x20000010,0x20000010,0x0,0x0,0x0,0x20000010,0x1,0x0,0x20000010,0x8000000,0x10000000,0x20000010,0xe0007e00,0xa0007e00,0x40000000,0x40,0x20,0x80,0x6,0x6,0x0,0x0,0x8,0x8,0x10,0x0,0x0,0x0,0x20000010,0x20000010,0x20000010,0x0,0x0,0x0,0x1,0x0,0x0,0x20000010,0x20000010,0x20000010,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x20000010,0x0,0x0,0x1,0x1,0x0,0x0,0x1,0x1,0xf8000010,0x1,0x0,0x0,0x0,0xf8000000,};
+      jj_la1_1 = new int[] {0x20000010,0x20000010,0x0,0x0,0x1,0x0,0x0,0x1,0x1,0x1,0x100,0x0,0x0,0x20000010,0x0,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x20000010,0x100,0x20000010,0x7ff8000,0x0,0x20000010,0x20000010,0x0,0x0,0x20000010,0x0,0x0,0x0,0xf8000000,0x0,0x0,0xf8000000,0xf8000000,0x0,0x0,0x0,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x20000010,0x0,0x20000010,0x20000010,0x0,0x0,0x0,0x20000010,0x1,0x0,0x20000010,0x8000000,0x10000000,0x20000010,0xe0007e00,0xa0007e00,0x40000000,0x40,0x20,0x80,0x6,0x6,0x0,0x0,0x8,0x8,0x10,0x0,0x0,0x20000010,0x20000010,0x20000010,0x0,0x0,0x0,0x1,0x0,0x0,0x20000010,0x20000010,0x20000010,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x20000010,0x0,0x0,0x0,0x0,0x0,0x0,0x20000010,0x0,0x0,0x1,0x1,0x0,0x0,0x1,0x1,0xf8000010,0x1,0x0,0x0,0x0,0xf8000000,};
    }
    private static void jj_la1_2() {
-      jj_la1_2 = new int[] {0xbffffb73,0xbffffb73,0x0,0x10000000,0x20800000,0x0,0x0,0x0,0x20800000,0x0,0x0,0x20800000,0x0,0xbffffb73,0x0,0xaefff801,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0x0,0xae808001,0x0,0x8f000,0xae800001,0xae800001,0x0,0x0,0xae800001,0x30000,0x0,0x0,0x20feffff,0x0,0x0,0x20feffff,0x20feffff,0x800000,0x0,0x800000,0x0,0x0,0x0,0x0,0x11000372,0x8,0x4,0x4,0x4,0x80,0x4,0x400,0x480,0x800000,0xae800001,0x800000,0xbffffb73,0xaefff801,0x0,0x0,0x0,0xae800001,0x20800000,0x2,0xae800001,0x0,0x0,0xae800000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xae800000,0x0,0x0,0x8000,0xae800001,0xae800001,0xae800001,0x0,0xae800000,0x20,0x20800000,0x0,0x0,0xae800001,0xae800001,0xae800001,0x0,0x0,0x0,0x0,0x0,0x20,0x0,0x22,0x22,0x22,0x300,0xae800001,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xaefeffff,0x0,0x80000000,0x20800000,0x0,0x20feffff,};
+      jj_la1_2 = new int[] {0xbffffb73,0xbffffb73,0x0,0x10000000,0x20800000,0x0,0x0,0x0,0x20800000,0x0,0x0,0x20800000,0x0,0xbffffb73,0x0,0xaefff801,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0xae808001,0x0,0xae808001,0x0,0x8f000,0xae800001,0xae800001,0x0,0x0,0xae800001,0x30000,0x0,0x0,0x20feffff,0x0,0x0,0x20feffff,0x20feffff,0x800000,0x0,0x800000,0x0,0x0,0x0,0x0,0x11000372,0x8,0x4,0x4,0x4,0x80,0x4,0x400,0x480,0x800000,0xae800001,0x800000,0xbffffb73,0xaefff801,0x0,0x0,0x0,0xae800001,0x20800000,0x2,0xae800001,0x0,0x0,0xae800000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xae800000,0x0,0x0,0xae808001,0xae800001,0xae800001,0x0,0xae800000,0x20,0x20800000,0x0,0x0,0xae800001,0xae800001,0xae800001,0x0,0x0,0x0,0x0,0x0,0x0,0x20,0x0,0x0,0xae800001,0x20,0x0,0x22,0x22,0x22,0x300,0xae800001,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xaefeffff,0x0,0x80000000,0x20800000,0x0,0x20feffff,};
    }
    private static void jj_la1_3() {
-      jj_la1_3 = new int[] {0x3fc00f,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x0,0x3fc00f,0x0,0x0,0x3fc00f,0x3fc00f,0x0,0x0,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0x3fc00f,0x3fc00f,0x0,0x0,0x0,0x3fc00f,0x0,0x0,0x3fc00f,0x0,0x0,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0x0,0x0,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc000,0x3fc00f,0x0,0x0,0x0,0x0,0x3fc00f,0x3fc00f,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0xf,0x0,0x3fc000,0x0,};
+      jj_la1_3 = new int[] {0x3fc00f,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc00f,0x0,0x3fc00f,0x0,0x0,0x3fc00f,0x3fc00f,0x0,0x0,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0x3fc00f,0x3fc00f,0x0,0x0,0x0,0x3fc00f,0x0,0x0,0x3fc00f,0x0,0x0,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0x0,0x3fc00f,0x3fc00f,0x3fc00f,0x3fc000,0x3fc00f,0x0,0x0,0x0,0x0,0x3fc00f,0x3fc00f,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc00f,0x0,0xf,0x0,0x3fc000,0x0,};
    }
    private static void jj_la1_4() {
-      jj_la1_4 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
+      jj_la1_4 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
    }
-  final private JJCalls[] jj_2_rtns = new JJCalls[23];
+  final private JJCalls[] jj_2_rtns = new JJCalls[24];
   private boolean jj_rescan = false;
   private int jj_gc = 0;
 
@@ -8495,7 +8961,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 130; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 134; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -8505,7 +8971,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 130; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 134; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -8514,7 +8980,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 130; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 134; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -8524,7 +8990,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 130; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 134; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -8643,7 +9109,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 130; i++) {
+    for (int i = 0; i < 134; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -8689,7 +9155,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
 
   final private void jj_rescan_token() {
     jj_rescan = true;
-    for (int i = 0; i < 23; i++) {
+    for (int i = 0; i < 24; i++) {
     try {
       JJCalls p = jj_2_rtns[i];
       do {
@@ -8719,6 +9185,7 @@ public class PythonGrammar30 implements/*@bgen(jjtree)*/ PythonGrammar30TreeCons
             case 20: jj_3_21(); break;
             case 21: jj_3_22(); break;
             case 22: jj_3_23(); break;
+            case 23: jj_3_24(); break;
           }
         }
         p = p.next;

@@ -26,7 +26,7 @@ public class Yield extends exprType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(38, ostream);
+        pickleThis(41, ostream);
         pickleThis(this.value, ostream);
     }
 

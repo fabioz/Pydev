@@ -48,7 +48,7 @@ public class decoratorsType extends SimpleNode {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(59, ostream);
+        pickleThis(62, ostream);
         pickleThis(this.func, ostream);
         pickleThis(this.args, ostream);
         pickleThis(this.keywords, ostream);

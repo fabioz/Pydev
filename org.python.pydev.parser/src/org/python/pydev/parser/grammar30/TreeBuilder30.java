@@ -22,6 +22,7 @@ import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.Continue;
 import org.python.pydev.parser.jython.ast.Delete;
 import org.python.pydev.parser.jython.ast.Dict;
+import org.python.pydev.parser.jython.ast.DictComp;
 import org.python.pydev.parser.jython.ast.Ellipsis;
 import org.python.pydev.parser.jython.ast.Exec;
 import org.python.pydev.parser.jython.ast.Expr;
@@ -45,6 +46,8 @@ import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.Return;
+import org.python.pydev.parser.jython.ast.Set;
+import org.python.pydev.parser.jython.ast.SetComp;
 import org.python.pydev.parser.jython.ast.Slice;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.StrJoin;
@@ -672,13 +675,50 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
                 return new ListComp(((exprType) stack.popNode()), col.getGenerators());
             }
             return new List(makeExprs(), List.Load);
+        case JJTSET:
+            return new Set(null);
         case JJTDICTIONARY:
+            if(arity == 0){
+                return new Dict(new exprType[0], new exprType[0]);
+            }
+            
+            SimpleNode dictNode0 = stack.popNode();
+            
+            if(dictNode0 instanceof Set){
+                Set set = (Set) dictNode0;
+                exprType[] elts = new exprType[arity-1]; //-1 because the set was already taken from there
+                for (int i = arity-2; i >= 0; i--) { //same thing here
+                    elts[i] = (exprType) stack.popNode();
+                }
+                set.elts = elts;
+                return set;
+            }
+            
+            SimpleNode dictNode1 = stack.popNode();
+            
+            if(dictNode0 instanceof ComprehensionCollection){
+                if(arity == 2){
+                    ComprehensionCollection comp = (ComprehensionCollection) dictNode0;
+                    return new SetComp((exprType)dictNode1, comp.getGenerators());
+                    
+                }else if(arity == 3){
+                    ComprehensionCollection comp = (ComprehensionCollection) dictNode0;
+                    return new DictComp((exprType) stack.popNode(), (exprType)dictNode1, comp.getGenerators());
+                }
+            }
+            
             l = arity / 2;
             exprType[] keys = new exprType[l];
             exprType[] vals = new exprType[l];
             for (int i = l - 1; i >= 0; i--) {
-                vals[i] = (exprType) stack.popNode();
-                keys[i] = (exprType) stack.popNode();
+                if(i == l-1){
+                    vals[i] = (exprType) dictNode0;
+                    keys[i] = (exprType) dictNode1;
+                    
+                }else{
+                    vals[i] = (exprType) stack.popNode();
+                    keys[i] = (exprType) stack.popNode();
+                }
             }
             return new Dict(keys, vals);
 //        case JJTSTR_1OP: #No more backticks in python 3.0
@@ -807,7 +847,7 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
             return makeAugAssign(AugAssign.Pow);
         case JJTAUG_FLOORDIVIDE:  
             return makeAugAssign(AugAssign.FloorDiv);
-        case JJTLIST_FOR:
+        case JJTCOMP_FOR:
             ComprehensionCollection col = null;
             if(stack.peekNode() instanceof ComprehensionCollection){
                 col = (ComprehensionCollection) stack.popNode();

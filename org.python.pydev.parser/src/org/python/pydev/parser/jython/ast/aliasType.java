@@ -32,7 +32,7 @@ public class aliasType extends SimpleNode {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(58, ostream);
+        pickleThis(61, ostream);
         pickleThis(this.name, ostream);
         pickleThis(this.asname, ostream);
     }

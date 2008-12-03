@@ -37,7 +37,7 @@ public class Comprehension extends comprehensionType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(54, ostream);
+        pickleThis(57, ostream);
         pickleThis(this.target, ostream);
         pickleThis(this.iter, ostream);
         pickleThis(this.ifs, ostream);

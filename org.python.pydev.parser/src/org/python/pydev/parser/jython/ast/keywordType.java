@@ -31,7 +31,7 @@ public class keywordType extends SimpleNode {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(57, ostream);
+        pickleThis(60, ostream);
         pickleThis(this.arg, ostream);
         pickleThis(this.value, ostream);
     }

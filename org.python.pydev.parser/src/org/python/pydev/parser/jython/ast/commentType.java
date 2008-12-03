@@ -26,7 +26,7 @@ public class commentType extends SimpleNode {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(60, ostream);
+        pickleThis(63, ostream);
         pickleThis(this.id, ostream);
     }
 

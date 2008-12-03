@@ -207,7 +207,25 @@ public abstract class VisitorBase implements VisitorIF {
         return ret;
     }
 
+    public Object visitSet(Set node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
     public Object visitListComp(ListComp node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitSetComp(SetComp node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitDictComp(DictComp node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;

@@ -73,9 +73,9 @@ public class PythonGrammar30 implements IGrammar
     }
     
     void handleFutureImports(String importName){
-    	if(importName.equals("with_statement")){
-    		acceptWithStmt = true;
-    	}
+        if(importName.equals("with_statement")){
+            acceptWithStmt = true;
+        }
     }
     
     void addToPeek(SimpleNode peeked, Object t, boolean after, Class class_) {
@@ -166,19 +166,19 @@ public class PythonGrammar30 implements IGrammar
     }
 
     private void addSpecialToken(Object o, int strategy) {
-		o = convertStringToSpecialStr(o);
+        o = convertStringToSpecialStr(o);
         token_source.specialTokens.add(new Object[]{o, strategy});
     }
     
-	private Object convertStringToSpecialStr(Object o) {
-		if (o instanceof String) {
-			try {
-				o = createSpecialStr((String) o);
-			} catch (ParseException e) {
-			}
-		}
-		return o;
-	}
+    private Object convertStringToSpecialStr(Object o) {
+        if (o instanceof String) {
+            try {
+                o = createSpecialStr((String) o);
+            } catch (ParseException e) {
+            }
+        }
+        return o;
+    }
     
     private void addSpecialToken(Object o) {
         //the default is adding after the previous token
@@ -763,7 +763,7 @@ modType file_input(): {}
 void funcdef(): {}
 { 
     <DEF> AnyName() parameters() <COLON> 
-    	{this.addSpecialToken(":");} suite() 
+        {this.addSpecialToken(":");} suite() 
 }
 
 //decorators: decorator+
@@ -930,7 +930,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
         
         //from xxx import a,b,c
         | (importName=import_as_name() {if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);} 
-        	({this.addSpecialToken(",");} <COMMA> (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);})* 
+            ({this.addSpecialToken(",");} <COMMA> (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);})* 
           ) 
         
         //from xxx import (a,b,c)
@@ -1031,19 +1031,19 @@ void begin_for_else_stmt(): {}
 void try_stmt() #void: {SimpleNode tryNode;int i=0;}
 { 
     begin_try_stmt() {tryNode = (SimpleNode)jjtree.peekNode();}  suite() (
-		(
-			(except_clause(tryNode) {i++;})+ 
+        (
+            (except_clause(tryNode) {i++;})+ 
     
-			[begin_try_else_stmt() suite() {i++;} #tryelse_stmt(2) ]
-			
-			[begin_finally_stmt()  suite() {i++;} #tryfinally_outer_stmt(2)]
-			
-			#try_stmt(i)
-		)
+            [begin_try_else_stmt() suite() {i++;} #tryelse_stmt(2) ]
+            
+            [begin_finally_stmt()  suite() {i++;} #tryfinally_outer_stmt(2)]
+            
+            #try_stmt(i)
+        )
         
-		| begin_finally_stmt() suite()
-			#tryfinally_stmt(jjtree.nodeArity()+1)
-	)
+        | begin_finally_stmt() suite()
+            #tryfinally_stmt(jjtree.nodeArity()+1)
+    )
 }
 
 //this is the 'try' ':'  it is needed because we need that scope closing for getting the specials.
@@ -1069,13 +1069,13 @@ void begin_except_clause(): {}
 //with_stmt: 'with' test [ with_var ] ':' suite
 void with_stmt(): {}
 { <WITH> 
-	{this.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); } 
-	
-	test() 
-	
-	{if(!acceptWithStmt)throw new ParseException("'from __future__ import with_statement' must be specified to accept 'with' statement.",jjtree.peekNode());	}
-	
-	[with_var()] <COLON> { this.addSpecialToken(":");} suite() }
+    {this.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); } 
+    
+    test() 
+    
+    {if(!acceptWithStmt)throw new ParseException("'from __future__ import with_statement' must be specified to accept 'with' statement.",jjtree.peekNode());    }
+    
+    [with_var()] <COLON> { this.addSpecialToken(":");} suite() }
 
 //with_var: 'as' expr
 void with_var():{}
@@ -1113,7 +1113,7 @@ void if_exp():{}
 {<IF> {this.addSpecialToken(" if ",STRATEGY_BEFORE_NEXT);} or_test() <ELSE> {this.addSpecialToken(" else ");} test()}
 
 
-//or_test: or_test: and_test ('or' and_test)*
+//or_test: and_test ('or' and_test)*
 void or_test() #or_boolean(>1): {}
 { and_test() (<OR_BOOL> and_test())* }
 
@@ -1221,7 +1221,8 @@ atom()
 }
 
 
-//atom: '(' [testlist] ')' | '[' [testlist] ']' | '{' [dictmaker] '}' | NAME | NUMBER | STRING+ | 'None' | 'True' | 'False'
+
+//atom: ('(' [yield_expr|testlist_comp] ')' |//       '[' [testlist_comp] ']' |//       '{' [dictorsetmaker] '}' |//       NAME | NUMBER | STRING+ | '...' | 'None' | 'True' | 'False')
 void atom() #void: {Object spStr;Object spStr2;}
 {
     LOOKAHEAD(2) (  
@@ -1231,21 +1232,19 @@ void atom() #void: {Object spStr;Object spStr2;}
 
 |   LOOKAHEAD(2) (  
       {spStr  = createSpecialStr("(", false);} <LPAREN>  
-      (yield_expr() | insidetuporcall())
+      (yield_expr() | testlist_comp())
       {spStr2 = createSpecialStr(")", false);} <RPAREN> 
     ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 
-|   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] <RPAREN>  {this.findTokenAndAdd(")");}  )
-
 |   ( {spStr = createSpecialStr("[", false);} <LBRACKET> 
-      [listmaker()] 
+      [testlist_comp()] 
       {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
     ) #list {addToPeek(spStr, false); addToPeek(spStr2, true);}
       
       
 |   ( {spStr  = createSpecialStr("{", false);}<LBRACE> 
-      [dictmaker()] 
+      [dictorsetmaker()] 
       {spStr2  = createSpecialStr("}", false);} <RBRACE> 
     ) #dictionary {addToPeek(spStr, false); addToPeek(spStr2, true);}
     
@@ -1260,7 +1259,7 @@ void atom() #void: {Object spStr;Object spStr2;}
 //we can be inside a tuple or a call, and we may have list comprehension in it. (fabioz)
 void insidetuporcall() #void: {}
 {
-    arglist() (list_for())*
+    arglist() (comp_for())*
 }
 
 //lambdef: 'lambda' [varargslist] ':' test
@@ -1299,20 +1298,38 @@ void SmartTestList() #void: {}
 void testlist() #void: {}
 { test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [{this.addSpecialToken(",");} <COMMA>]}
 
-//dictmaker: test ':' test (',' test ':' test)* [',']
-void dictmaker() #void: {}
-{test() <COLON> {this.addSpecialToken(":");} test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test() <COLON> {this.addSpecialToken(":");} test())* [{this.addSpecialToken(",");} <COMMA>]}
+//dictorsetmaker: ( 
+//                   (test ':' test (comp_for | (',' test ':' test)* [','])) 
+//                  |(test (comp_for | (',' test)* [','])) 
+//                )
+void dictorsetmaker() #void: {}
+{
+    LOOKAHEAD(2)
+    (test() <COLON> {this.addSpecialToken(":");} test() (
+        comp_for()|
+        (
+            {this.addSpecialToken(",");} <COMMA> test() 
+                <COLON> {this.addSpecialToken(":");
+            } test())* 
+            [{this.addSpecialToken(",");} <COMMA>])
+        )    |
+    (
+      test() (LOOKAHEAD(2) comp_for() | ({this.addSpecialToken(",");} <COMMA> test())*#set [{this.addSpecialToken(",");} <COMMA>] )
+    )
+}
 
-//listmaker: test ( list_for | (',' test)* [','] )
-void listmaker() #void: {}
-{ test() ( LOOKAHEAD(2)(list_for())+ | (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()] #tuple(>1)) }
 
-//list_iter: [list_for | list_if]
+//testlist_comp: test ( comp_for | (',' test)* [','] )
+void testlist_comp() #void: {}
+{ test() ( LOOKAHEAD(2)(comp_for())+ | (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()] #tuple(>1)) }
+
+
+//list_iter: [comp_for | list_if]
 void list_iter() #void: {}
-{ list_for() | list_if() }
+{ comp_for() | list_if() }
 
-//list_for: 'for' exprlist 'in' testlist list_iter
-void list_for(): {}
+//comp_for: 'for' exprlist 'in' or_test [comp_iter]
+void comp_for(): {}
 { <FOR> {this.addSpecialToken(" for ");} exprlist() <IN> {this.addSpecialToken(" in ");} testlist_safe() [list_iter()] }
 
 void list_if()#void:{}
@@ -1322,14 +1339,14 @@ void list_if()#void:{}
 //decorated: decorators (classdef | funcdef)
 void decorated():{}
 {
-	decorators() (classdef()|funcdef())
+    decorators() (classdef()|funcdef())
 }
 
 //classdef: 'class' NAME ['(' [testlist] ')'] ':' suite
 void classdef(): {}
 {
-	<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [testlist()] <RPAREN>  {this.findTokenAndAdd(")");} ] <COLON> 
-		{this.addSpecialToken(":");} suite()
+    <CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [testlist()] <RPAREN>  {this.findTokenAndAdd(")");} ] <COLON> 
+        {this.addSpecialToken(":");} suite()
 }
 
 //arglist: (argument ',')*

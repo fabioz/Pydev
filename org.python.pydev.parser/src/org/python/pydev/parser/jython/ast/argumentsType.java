@@ -43,7 +43,7 @@ public class argumentsType extends SimpleNode {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(56, ostream);
+        pickleThis(59, ostream);
         pickleThis(this.args, ostream);
         pickleThis(this.vararg, ostream);
         pickleThis(this.kwarg, ostream);
